@@ -23,6 +23,7 @@ from backend.models.database import DBSessionDep
 from backend.models.document import Document
 from backend.models.message import Message, MessageAgent, MessageType
 from backend.schemas.chat import (
+    BaseChatRequest,
     ChatMessage,
     ChatResponseEvent,
     ChatRole,
@@ -152,8 +153,8 @@ def chat(
 
 
 def process_chat(
-    session: DBSessionDep, chat_request: CohereChatRequest, request: Request
-) -> tuple[DBSessionDep, CohereChatRequest, Union[list[str], None], Message, str, str]:
+    session: DBSessionDep, chat_request: BaseChatRequest, request: Request
+) -> tuple[DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str]:
     """
     Process a chat request.
 
@@ -227,7 +228,7 @@ def process_chat(
 
 def get_or_create_conversation(
     session: DBSessionDep,
-    chat_request: CohereChatRequest,
+    chat_request: BaseChatRequest,
     user_id: str,
     should_store: bool,
 ) -> Conversation:
@@ -236,7 +237,7 @@ def get_or_create_conversation(
 
     Args:
         session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
         user_id (str): User ID.
         should_store (bool): Whether to store the conversation in the database.
 
@@ -283,7 +284,7 @@ def get_next_message_position(conversation: Conversation) -> int:
 
 def create_message(
     session: DBSessionDep,
-    chat_request: CohereChatRequest,
+    chat_request: BaseChatRequest,
     conversation_id: str,
     user_id: str,
     user_message_position: int,
@@ -375,7 +376,7 @@ def attach_files_to_messages(
 def create_chat_history(
     conversation: Conversation,
     user_message_position: int,
-    chat_request: CohereChatRequest,
+    chat_request: BaseChatRequest,
 ) -> list[ChatMessage]:
     """
     Create chat history from conversation messages or request.
@@ -658,19 +659,40 @@ def generate_chat_response(
 
 
 @router.post("/langchain")
-def langchain_chat_stream(session: DBSessionDep, chat_request: LangchainChatRequest):
+def langchain_chat_stream(
+    session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
+):
+    (
+        session,
+        chat_request,
+        file_paths,
+        response_message,
+        conversation_id,
+        user_id,
+        deployment_name,
+        should_store,
+        managed_tools,
+    ) = process_chat(session, chat_request, request)
     # TODO: validate request, Read tools from request and update langchain chat function to take tools
     return EventSourceResponse(
-        generate_langchain_chat_stream(session, chat_request),
+        generate_langchain_chat_stream(
+            session, chat_request, LangChainChat().chat(chat_request), should_store
+        ),
         media_type="text/event-stream",
     )
 
 
 async def generate_langchain_chat_stream(
-    session: DBSessionDep, chat_request: LangchainChatRequest
+    session: DBSessionDep,
+    model_deployment_stream: Generator[Any, None, None],
+    response_message: Message,
+    conversation_id: str,
+    user_id: str,
+    should_store: bool = True,
+    **kwargs: Any,
 ):
-
-    for event in LangChainChat().chat(chat_request):
+    final_message_text = ""
+    for event in model_deployment_stream:
         stream_event = None
         if isinstance(event, AddableDict):
             # Generate tool queries
@@ -714,8 +736,6 @@ async def generate_langchain_chat_stream(
                 if not step:
                     continue
 
-                documents = []
-
                 result = step.observation
                 # observation can be a dictionary for python interpreter or a list of docs for web search
 
@@ -753,11 +773,12 @@ async def generate_langchain_chat_stream(
 
             # final output
             if event.get("output", "") and event.get("citations", []):
+                final_message_text = event.get("output", "")
                 # TODO: link citations to results from tool steps
                 stream_event = StreamEnd(
                     response_id=str(uuid4()),  # TODO make this optional
                     generation_id=str(uuid4()),  # TODO make this optional
-                    conversation_id=chat_request.conversation_id,
+                    conversation_id=conversation_id,
                     text=event.get("output", ""),
                     citations=[],
                     documents=[],
@@ -774,3 +795,7 @@ async def generate_langchain_chat_stream(
                         )
                     )
                 )
+    if should_store:
+        update_conversation_after_turn(
+            session, response_message, conversation_id, final_message_text, user_id
+        )

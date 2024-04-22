@@ -1,23 +1,10 @@
-from typing import List
-
-from pydantic import Field
-
-from backend.schemas.chat import BaseChatRequest
-from backend.schemas.tool import Tool
+from backend.schemas.cohere_chat import CohereChatRequest
 
 
-class LangchainChatRequest(BaseChatRequest):
+class LangchainChatRequest(CohereChatRequest):
     """
     Request shape for Langchain Streamed Chat.
-    See: https://github.com/cohere-ai/cohere-python/blob/main/src/cohere/base_client.py#L1629
     """
 
-    preamble: str | None = Field(
-        default=None,
-        title="A string to override the preamble.",
-    )
-    tools: List[Tool] = Field(
-        default_factory=list,
-        title="List of managed tools to use for the response.",
-        exclude=True,
-    )
+    # TODO: add in langchain specific tools
+    pass
