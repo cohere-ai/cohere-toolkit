@@ -22,22 +22,32 @@ from backend.models.conversation import Conversation
 from backend.models.database import DBSessionDep
 from backend.models.document import Document
 from backend.models.message import Message, MessageAgent, MessageType
-from backend.schemas.chat import (ChatMessage, ChatResponseEvent, ChatRole,
-                                  NonStreamedChatResponse,
-                                  StreamCitationGeneration, StreamEnd,
-                                  StreamSearchQueriesGeneration,
-                                  StreamSearchResults, StreamStart,
-                                  StreamTextGeneration, StreamToolInput,
-                                  StreamToolResult, ToolInputType)
+from backend.schemas.chat import (
+    ChatMessage,
+    ChatResponseEvent,
+    ChatRole,
+    NonStreamedChatResponse,
+    StreamCitationGeneration,
+    StreamEnd,
+    StreamSearchQueriesGeneration,
+    StreamSearchResults,
+    StreamStart,
+    StreamTextGeneration,
+    StreamToolInput,
+    StreamToolResult,
+    ToolInputType,
+)
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 from backend.schemas.langchain_chat import LangchainChatRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import ToolCall
-from backend.services.request_validators import (validate_chat_request,
-                                                 validate_deployment_header,
-                                                 validate_user_header)
+from backend.services.request_validators import (
+    validate_chat_request,
+    validate_deployment_header,
+    validate_user_header,
+)
 
 router = APIRouter(
     dependencies=[

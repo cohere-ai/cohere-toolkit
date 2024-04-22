@@ -2,8 +2,7 @@ from urllib.parse import unquote_plus
 
 from fastapi import HTTPException, Request
 
-from backend.config.deployments import (AVAILABLE_MODEL_DEPLOYMENTS,
-                                        ModelDeploymentName)
+from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.config.tools import AVAILABLE_TOOLS
 
 

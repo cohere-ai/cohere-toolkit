@@ -5,10 +5,12 @@ from sqlalchemy.orm import Session
 
 from backend.models.user import User
 from backend.tests.factories import get_factory
-from backend.tests.model_deployments.mock_deployments.mock_cohere_platform import \
-    MockCohereDeployment
-from backend.tests.model_deployments.mock_deployments.mock_sagemaker import \
-    MockSageMakerDeployment
+from backend.tests.model_deployments.mock_deployments.mock_cohere_platform import (
+    MockCohereDeployment,
+)
+from backend.tests.model_deployments.mock_deployments.mock_sagemaker import (
+    MockSageMakerDeployment,
+)
 
 
 @pytest.fixture()
