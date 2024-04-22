@@ -96,7 +96,7 @@ def test_fail_chat_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
-def test_fail_chat_missing_deployment_name(
+def test_default_chat_missing_deployment_name(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
@@ -105,8 +105,7 @@ def test_fail_chat_missing_deployment_name(
         headers={"User-Id": "test"},
     )
 
-    assert response.status_code == 400
-    assert response.json() == {"detail": "Deployment-Name required in request headers."}
+    assert response.status_code == 200
 
 
 def test_streaming_fail_chat_missing_message(
