@@ -249,7 +249,7 @@ run_backend() {
 }
 
 run_frontend() {
-  cd /workspace/src/frontend
+  cd /workspace/src/interfaces/coral_web
   echo "build Frontend"
   echo "$NEXT_PUBLIC_API_HOSTNAME"
   pnpm next:build
