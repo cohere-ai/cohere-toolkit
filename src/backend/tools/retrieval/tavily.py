@@ -1,11 +1,10 @@
 import os
 from typing import Any, Dict, List
 
-from backend.tools.retrieval.base import BaseRetrieval
-
+from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
-from langchain_community.tools.tavily_search import TavilySearchResults
+from backend.tools.retrieval.base import BaseRetrieval
 
 
 class TavilyInternetSearch(BaseRetrieval):

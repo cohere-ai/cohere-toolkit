@@ -1,5 +1,6 @@
 from backend.chat.custom.model_deployments.base import BaseDeployment
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.deployments import (AVAILABLE_MODEL_DEPLOYMENTS,
+                                        ModelDeploymentName)
 
 
 def get_deployment(deployment_name) -> BaseDeployment:
@@ -19,8 +20,10 @@ def get_deployment(deployment_name) -> BaseDeployment:
     # Check provided deployment against config const
     if deployment is not None and deployment.is_available:
         return deployment.deployment_class()
-   
-    cohere_deployment = AVAILABLE_MODEL_DEPLOYMENTS.get(ModelDeploymentName.CoherePlatform)
+
+    cohere_deployment = AVAILABLE_MODEL_DEPLOYMENTS.get(
+        ModelDeploymentName.CoherePlatform
+    )
     if cohere_deployment is not None and cohere_deployment.is_available:
         return cohere_deployment.deployment_class()
     else:

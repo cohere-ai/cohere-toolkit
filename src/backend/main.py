@@ -1,15 +1,16 @@
+from contextlib import asynccontextmanager
+
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 
 from backend.routers.chat import router as chat_router
-from backend.routers.user import router as user_router
 from backend.routers.conversation import router as conversation_router
-from backend.routers.tool import router as tool_router
 from backend.routers.deployment import router as deployment_router
+from backend.routers.tool import router as tool_router
+from backend.routers.user import router as user_router
 
 load_dotenv()
 

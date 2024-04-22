@@ -1,12 +1,13 @@
-import os
 import base64
 import glob
-from typing import List
-from typing_extensions import TypedDict
-import requests
 import json
-import time
+import os
 import subprocess
+import time
+from typing import List
+
+import requests
+from typing_extensions import TypedDict
 
 URL = f"https://{GCP_REGION}-{GCP_PROJECT_ID}.cloudfunctions.net/terrarium"
 # URL = "http://localhost:1234/"

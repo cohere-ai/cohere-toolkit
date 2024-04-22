@@ -1,6 +1,7 @@
 from enum import StrEnum
+from typing import Any, Dict, List
+
 from pydantic import Field
-from typing import List, Dict, Any
 
 from backend.schemas.chat import BaseChatRequest
 from backend.schemas.tool import Tool

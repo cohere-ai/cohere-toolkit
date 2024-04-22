@@ -1,14 +1,13 @@
 from enum import StrEnum
 from typing import List
-from sqlalchemy import ForeignKey, String, Enum, Boolean
+
+from sqlalchemy import Boolean, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.models.document import Document
-from backend.models.citation import Citation
-from backend.models.file import File
-
-
 from backend.models.base import Base
+from backend.models.citation import Citation
+from backend.models.document import Document
+from backend.models.file import File
 
 
 class MessageAgent(StrEnum):

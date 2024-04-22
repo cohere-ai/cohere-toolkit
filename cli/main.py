@@ -1,6 +1,7 @@
-from dotenv import set_key
-import inquirer
 from enum import StrEnum
+
+import inquirer
+from dotenv import set_key
 
 
 class bcolors:

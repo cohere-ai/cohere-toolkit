@@ -1,12 +1,11 @@
 from typing import List
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from sqlalchemy import Column, ForeignKey, String, Table
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy import ForeignKey, String
-from sqlalchemy import Table, Column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from backend.models.base import Base
-
 from backend.models.document import Document
-
 
 citation_documents = Table(
     "citation_documents",

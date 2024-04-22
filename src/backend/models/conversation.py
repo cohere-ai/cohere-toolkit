@@ -1,11 +1,11 @@
 from typing import List
 
-from sqlalchemy.orm import Mapped, relationship, mapped_column
 from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.models.base import Base
-from backend.models.message import Message
 from backend.models.file import File
+from backend.models.message import Message
 
 
 class Conversation(Base):

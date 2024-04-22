@@ -1,37 +1,21 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Form,
-    File as RequestFile,
-    UploadFile as FastAPIUploadFile,
-    Request,
-)
-from backend.schemas.conversation import (
-    Conversation,
-    ConversationWithoutMessages,
-    UpdateConversation,
-    DeleteConversation,
-)
-from backend.schemas.file import (
-    File,
-    ListFile,
-    UploadFile,
-    DeleteFile,
-    UpdateFile,
-)
-from backend.services.file.service import FileService
-from backend.models import (
-    get_session,
-    File as FileModel,
-    Conversation as ConversationModel,
-)
-from backend.models.database import DBSessionDep
-from backend.crud import (
-    conversation as conversation_crud,
-    file as file_crud,
-)
+from fastapi import APIRouter, Depends
+from fastapi import File as RequestFile
+from fastapi import Form, HTTPException, Request
+from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.crud import conversation as conversation_crud
+from backend.crud import file as file_crud
+from backend.models import Conversation as ConversationModel
+from backend.models import File as FileModel
+from backend.models import get_session
+from backend.models.database import DBSessionDep
+from backend.schemas.conversation import (Conversation,
+                                          ConversationWithoutMessages,
+                                          DeleteConversation,
+                                          UpdateConversation)
+from backend.schemas.file import (DeleteFile, File, ListFile, UpdateFile,
+                                  UploadFile)
+from backend.services.file.service import FileService
 from backend.services.request_validators import validate_user_header
 
 router = APIRouter(

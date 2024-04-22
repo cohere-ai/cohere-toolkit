@@ -1,7 +1,8 @@
-from backend.tests.factories import get_factory
-from backend.models.user import User
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+
+from backend.models.user import User
+from backend.tests.factories import get_factory
 
 
 def test_list_users_empty(session_client: TestClient) -> None:

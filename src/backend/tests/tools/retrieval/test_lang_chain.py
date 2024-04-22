@@ -1,9 +1,9 @@
 from unittest.mock import MagicMock, patch
-from backend.tools.retrieval.lang_chain import (
-    LangChainWikiRetriever,
-    LangChainVectorDBRetriever,
-)
+
 from langchain_core.documents.base import Document
+
+from backend.tools.retrieval.lang_chain import (LangChainVectorDBRetriever,
+                                                LangChainWikiRetriever)
 
 
 def test_wiki_retriever() -> None:

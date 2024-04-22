@@ -1,9 +1,9 @@
 import io
 import json
 import os
-import boto3
 from typing import Any, Dict, Generator, List
 
+import boto3
 from cohere.types import StreamedChatResponse
 
 from backend.chat.custom.model_deployments.base import BaseDeployment

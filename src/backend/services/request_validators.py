@@ -1,7 +1,10 @@
 from urllib.parse import unquote_plus
-from fastapi import Request, HTTPException
+
+from fastapi import HTTPException, Request
+
+from backend.config.deployments import (AVAILABLE_MODEL_DEPLOYMENTS,
+                                        ModelDeploymentName)
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 
 
 def validate_user_header(request: Request):
@@ -36,7 +39,7 @@ def validate_deployment_header(request: Request):
 
     """
     deployment_name = request.headers.get("Deployment-Name")
-    if deployment_name and ( 
+    if deployment_name and (
         deployment_name not in AVAILABLE_MODEL_DEPLOYMENTS.keys()
         or not AVAILABLE_MODEL_DEPLOYMENTS[deployment_name].is_available
     ):

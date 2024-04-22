@@ -1,10 +1,9 @@
 from enum import StrEnum
 
-from backend.tools.retrieval import arxiv, lang_chain, llama_index, tavily, pub_med
-from backend.tools.function_tools import python_interpreter, calculator
-from backend.schemas.tool import Category
-from backend.schemas.tool import ManagedTool
-
+from backend.schemas.tool import Category, ManagedTool
+from backend.tools.function_tools import calculator, python_interpreter
+from backend.tools.retrieval import (arxiv, lang_chain, llama_index, pub_med,
+                                     tavily)
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 

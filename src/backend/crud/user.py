@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from backend.models.user import User
 from backend.schemas.user import UpdateUser
 

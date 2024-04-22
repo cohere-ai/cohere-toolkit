@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
-from backend.schemas.deployment import Deployment, UpdateDeploymentEnv
+
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
+from backend.models import get_session
+from backend.schemas.deployment import Deployment, UpdateDeploymentEnv
 from backend.services.env import update_env_file
 from backend.services.request_validators import validate_env_vars
-from backend.models import (
-    get_session,
-)
 
 router = APIRouter(
     prefix="/deployments",

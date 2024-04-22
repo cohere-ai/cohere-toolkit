@@ -1,10 +1,8 @@
 from enum import StrEnum
-from typing import Dict
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from uuid import uuid4
-from pydantic import BaseModel, Field
 
 from pydantic import BaseModel, Field
-from typing import ClassVar, List, Dict, Any, Union, Optional
 
 from backend.chat.enums import StreamEvent
 from backend.schemas.citation import Citation

@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from backend.models import get_session, User as UserModel
-from backend.models.database import DBSessionDep
-from backend.schemas.user import User, CreateUser, UpdateUser, DeleteUser
+
 from backend.crud import user as user_crud
+from backend.models import User as UserModel
+from backend.models import get_session
+from backend.models.database import DBSessionDep
+from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 
 router = APIRouter(prefix="/users", dependencies=[Depends(get_session)])
 

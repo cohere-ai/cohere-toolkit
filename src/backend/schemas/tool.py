@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
 from enum import StrEnum
 from typing import Any, Optional
+
+from pydantic import BaseModel, Field
 
 
 class Category(StrEnum):

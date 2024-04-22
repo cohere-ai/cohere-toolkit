@@ -1,12 +1,12 @@
 import datetime
-from typing import List, Union, ClassVar
-from pydantic import BaseModel
-from backend.models.message import MessageAgent
+from typing import ClassVar, List, Union
 
-from backend.schemas.document import Document
+from pydantic import BaseModel
+
+from backend.models.message import MessageAgent, MessageType
 from backend.schemas.citation import Citation
+from backend.schemas.document import Document
 from backend.schemas.file import File
-from backend.models.message import MessageType
 
 
 class MessageBase(BaseModel):

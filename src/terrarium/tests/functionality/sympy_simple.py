@@ -1,6 +1,5 @@
 import sympy
 import sympy.solvers
-
 from sympy import Symbol
 
 # Define the variables

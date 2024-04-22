@@ -1,9 +1,9 @@
-import os
-import requests
 import logging
+import os
 from typing import Any, Dict, Generator, List
 
 import cohere
+import requests
 from cohere.types import StreamedChatResponse
 
 from backend.chat.custom.model_deployments.base import BaseDeployment

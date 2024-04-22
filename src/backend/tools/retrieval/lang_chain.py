@@ -1,14 +1,13 @@
 import os
 from typing import Any, Dict, List
 
-from backend.tools.retrieval.base import BaseRetrieval
-from langchain_community.retrievers import WikipediaRetriever
-from langchain.text_splitter import CharacterTextSplitter
-
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.embeddings import CohereEmbeddings
+from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
+
+from backend.tools.retrieval.base import BaseRetrieval
 
 """
 Plug in your lang chain retrieval implementation here. 

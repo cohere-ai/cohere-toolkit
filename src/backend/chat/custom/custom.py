@@ -1,19 +1,16 @@
 import logging
 from typing import Any
 
-
-from backend.chat.base import BaseChat
-from backend.schemas.cohere_chat import CohereChatRequest
-from backend.chat.custom.model_deployments.deployment import get_deployment
-from backend.schemas.tool import Category, Tool
-
-from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from fastapi import HTTPException
 
-from backend.tools.retrieval.collate import combine_documents
+from backend.chat.base import BaseChat
 from backend.chat.custom.model_deployments.base import BaseDeployment
-
+from backend.chat.custom.model_deployments.deployment import get_deployment
+from backend.config.tools import AVAILABLE_TOOLS, ToolName
+from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
+from backend.tools.retrieval.collate import combine_documents
 
 
 class CustomChat(BaseChat):

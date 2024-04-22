@@ -1,10 +1,10 @@
 import datetime
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 
-from pydantic import BaseModel, computed_field, Field
+from pydantic import BaseModel, Field, computed_field
 
-from backend.schemas.message import Message
 from backend.schemas.file import File
+from backend.schemas.message import Message
 
 
 class ConversationBase(BaseModel):

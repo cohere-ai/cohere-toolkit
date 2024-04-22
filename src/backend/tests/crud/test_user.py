@@ -1,7 +1,7 @@
-from backend.tests.factories import get_factory
-from backend.models.user import User
 from backend.crud import user as user_crud
+from backend.models.user import User
 from backend.schemas.user import UpdateUser
+from backend.tests.factories import get_factory
 
 
 def test_create_user(session):

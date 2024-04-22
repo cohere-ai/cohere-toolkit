@@ -1,20 +1,22 @@
-import pytest
 import os
+from typing import Any, Generator
+from unittest.mock import patch
+
+import pytest
+from alembic.command import upgrade
+from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from alembic.command import upgrade
-from alembic.config import Config
-from typing import Generator, Any
-from unittest.mock import patch
 
+from backend.chat.custom.model_deployments.base import BaseDeployment
+from backend.config.deployments import (AVAILABLE_MODEL_DEPLOYMENTS,
+                                        ModelDeploymentName)
 from backend.main import app, create_app
 from backend.models import get_session
-from backend.tests.factories import get_factory
-from backend.schemas.user import User
 from backend.schemas.deployment import Deployment
-from backend.chat.custom.model_deployments.base import BaseDeployment
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.schemas.user import User
+from backend.tests.factories import get_factory
 
 DATABASE_URL = os.environ["DATABASE_URL"]
 

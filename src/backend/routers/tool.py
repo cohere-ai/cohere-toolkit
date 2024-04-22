@@ -1,11 +1,9 @@
 from fastapi import APIRouter, Depends
-from backend.schemas.tool import ManagedTool
-from backend.models import (
-    get_session,
-)
-from backend.config.tools import AVAILABLE_TOOLS
-from backend.services.request_validators import validate_user_header
 
+from backend.config.tools import AVAILABLE_TOOLS
+from backend.models import get_session
+from backend.schemas.tool import ManagedTool
+from backend.services.request_validators import validate_user_header
 
 router = APIRouter(
     prefix="/tools", dependencies=[Depends(get_session), Depends(validate_user_header)]

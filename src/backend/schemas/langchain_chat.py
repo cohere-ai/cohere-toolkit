@@ -1,5 +1,6 @@
-from pydantic import Field
 from typing import List
+
+from pydantic import Field
 
 from backend.schemas.chat import BaseChatRequest
 from backend.schemas.tool import Tool

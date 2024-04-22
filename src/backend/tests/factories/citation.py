@@ -1,5 +1,7 @@
 import factory
+
 from backend.models import Citation
+
 from .base import BaseFactory
 
 

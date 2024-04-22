@@ -1,8 +1,8 @@
 import re
+from unittest.mock import Mock
 
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock
 
 from backend.config.deployments import ModelDeploymentName
 

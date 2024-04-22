@@ -1,7 +1,8 @@
 import pytest
-from backend.tests.factories import get_factory
-from backend.models.citation import Citation
+
 from backend.crud import citation as citation_crud
+from backend.models.citation import Citation
+from backend.tests.factories import get_factory
 
 
 @pytest.fixture(autouse=True)

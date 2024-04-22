@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, Dict, List
+
 from py_expression_eval import Parser
-from typing import List, Dict
 
 from backend.tools.function_tools.base import BaseFunctionTool
 

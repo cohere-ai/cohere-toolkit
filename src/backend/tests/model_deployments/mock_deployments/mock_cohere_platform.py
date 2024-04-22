@@ -2,8 +2,8 @@ from typing import Any, Dict, Generator, List
 
 from cohere.types import StreamedChatResponse
 
-from backend.chat.enums import StreamEvent
 from backend.chat.custom.model_deployments.base import BaseDeployment
+from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 
 

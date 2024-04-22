@@ -1,5 +1,7 @@
 import factory
+
 from backend.models import Message, MessageType
+
 from .base import BaseFactory
 
 

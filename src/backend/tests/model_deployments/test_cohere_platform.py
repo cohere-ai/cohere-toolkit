@@ -1,10 +1,11 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from fastapi.testclient import TestClient
 
+from backend.config.deployments import ModelDeploymentName
 from backend.models.user import User
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.config.deployments import ModelDeploymentName
 
 
 def test_streamed_chat(

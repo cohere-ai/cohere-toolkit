@@ -1,17 +1,18 @@
-import pytest
 import json
 import uuid
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 from typing import Any
 
-from backend.schemas.tool import Category
-from backend.tests.factories import get_factory
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from backend.chat.enums import StreamEvent
+from backend.config.deployments import ModelDeploymentName
 from backend.models.conversation import Conversation
 from backend.models.message import Message, MessageAgent
 from backend.models.user import User
-from backend.config.deployments import ModelDeploymentName
+from backend.schemas.tool import Category
+from backend.tests.factories import get_factory
 
 
 @pytest.fixture()

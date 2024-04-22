@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
 from typing import Type
+
+from pydantic import BaseModel, Field
 
 from backend.chat.custom.model_deployments.base import BaseDeployment
 

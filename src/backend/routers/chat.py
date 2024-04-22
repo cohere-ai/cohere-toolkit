@@ -1,58 +1,43 @@
 import json
-from typing import Any, Generator, Union, List
+from typing import Any, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
 from fastapi import APIRouter, Depends, Request
 from fastapi.encoders import jsonable_encoder
+from langchain_core.agents import AgentActionMessageLog
+from langchain_core.runnables.utils import AddableDict
 from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
+from backend.chat.custom.langchain import LangChainChat
 from backend.chat.enums import StreamEvent
+from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.models import get_session
 from backend.models.citation import Citation
-from backend.models.document import Document
-from backend.models.message import Message, MessageAgent, MessageType
 from backend.models.conversation import Conversation
 from backend.models.database import DBSessionDep
-from backend.schemas.chat import (
-    ChatMessage,
-    ChatResponseEvent,
-    ChatRole,
-    NonStreamedChatResponse,
-    StreamSearchQueriesGeneration,
-    StreamStart,
-    StreamTextGeneration,
-    StreamCitationGeneration,
-    StreamSearchResults,
-    StreamEnd,
-    StreamToolInput,
-    StreamToolResult,
-    ToolInputType,
-)
-from backend.schemas.file import UpdateFile
+from backend.models.document import Document
+from backend.models.message import Message, MessageAgent, MessageType
+from backend.schemas.chat import (ChatMessage, ChatResponseEvent, ChatRole,
+                                  NonStreamedChatResponse,
+                                  StreamCitationGeneration, StreamEnd,
+                                  StreamSearchQueriesGeneration,
+                                  StreamSearchResults, StreamStart,
+                                  StreamTextGeneration, StreamToolInput,
+                                  StreamToolResult, ToolInputType)
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
+from backend.schemas.file import UpdateFile
+from backend.schemas.langchain_chat import LangchainChatRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import ToolCall
-from backend.crud import (
-    file as file_crud,
-    message as message_crud,
-    conversation as conversation_crud,
-)
-from backend.config.tools import AVAILABLE_TOOLS
-from backend.services.request_validators import (
-    validate_chat_request,
-    validate_user_header,
-    validate_deployment_header,
-)
-from backend.schemas.langchain_chat import LangchainChatRequest
-from backend.chat.custom.langchain import LangChainChat
-from langchain_core.runnables.utils import AddableDict
-from langchain_core.agents import AgentActionMessageLog
+from backend.services.request_validators import (validate_chat_request,
+                                                 validate_deployment_header,
+                                                 validate_user_header)
 
 router = APIRouter(
     dependencies=[

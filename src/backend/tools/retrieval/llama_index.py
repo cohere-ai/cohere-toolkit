@@ -1,7 +1,8 @@
 from typing import Any, Dict, List
 
-from backend.tools.retrieval.base import BaseRetrieval
 from llama_index.core import SimpleDirectoryReader
+
+from backend.tools.retrieval.base import BaseRetrieval
 
 """
 Plug in your llama index retrieval implementation here. 

@@ -1,15 +1,13 @@
 import os
-from dotenv import load_dotenv
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
 
-from backend.models.base import Base
+from alembic import context
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
 
 # Need to import Models - note they will be unused but are required for Alembic to detect
 from backend.models import *
-
-from alembic import context
+from backend.models.base import Base
 
 load_dotenv()
 
