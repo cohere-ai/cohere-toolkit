@@ -3,6 +3,8 @@ import { FileAccept } from '@/components/Shared/DragDropFileInput';
 export const DEFAULT_CONVERSATION_NAME = 'Chat with Coral';
 export const DEFAULT_TYPING_VELOCITY = 35;
 
+export const DEPLOYMENT_COHERE_PLATFORM = 'Cohere Platform';
+
 export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'text/csv',
   'text/plain',

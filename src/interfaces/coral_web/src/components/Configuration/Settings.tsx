@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 
-import { Deployment } from '@/cohere-client';
 import {
   Dropdown,
   DropdownOptionGroups,
@@ -9,7 +8,8 @@ import {
   Slider,
   Text,
 } from '@/components/Shared';
-import { useListDeployments } from '@/hooks/deployments';
+import { BannerContext } from '@/context/BannerContext';
+import { useListAllDeployments, useListDeployments } from '@/hooks/deployments';
 import { useSettingsDefaults } from '@/hooks/settings';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -18,23 +18,24 @@ import { cn } from '@/utils';
  * @description Settings tab to adjust endpoint params like preamble and temperature.
  */
 export const Settings: React.FC = () => {
+  const { message: bannerMessage, setMessage } = useContext(BannerContext);
   const {
     params: { temperature, preamble, deployment, model },
     setParams,
   } = useParamsStore();
   const defaults = useSettingsDefaults();
-  const { data } = useListDeployments();
-  const deployments: Deployment[] = data ?? [];
+  const { data: availableDeployments } = useListDeployments();
+  const { data: allDeployments = [] } = useListAllDeployments();
   const deploymentOptions: DropdownOptionGroups = [
     {
-      options: deployments.map(({ name }) => ({
+      options: allDeployments.map(({ name }) => ({
         label: name,
         value: name,
       })),
     },
   ];
   const modelOptions = useMemo(() => {
-    const selectedDeployment = data?.find(({ name }) => name === deployment);
+    const selectedDeployment = allDeployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return [];
     return [
       {
@@ -60,7 +61,21 @@ export const Settings: React.FC = () => {
         label="Deployment"
         kind="default"
         value={deployment}
-        onChange={(deployment: string) => setParams({ deployment })}
+        onChange={(deploymentName: string) => {
+          const deployment = allDeployments.find((d) => d.name === deploymentName);
+          if (availableDeployments?.every((ad) => ad.name !== deploymentName)) {
+            setMessage(
+              <Text as="span">
+                If you wish to use <b className="font-medium">{deploymentName}</b>, please configure
+                your .env file with these variables:{' '}
+                <b className="font-medium">{deployment?.env_vars.join(', ')}</b>.
+              </Text>
+            );
+          } else if (bannerMessage) {
+            setMessage('');
+          }
+          setParams({ deployment: deploymentName });
+        }}
         optionGroups={deploymentOptions}
       />
       <Dropdown
