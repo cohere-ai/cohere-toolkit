@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "cf307a51-6407-45e9-b56b-57844bfc8611",
+		"_postman_id": "b31f64b8-be73-4d86-935f-8f2909ae104c",
 		"name": "Toolkit",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "25545730"
@@ -17,6 +17,11 @@
 							{
 								"key": "User-Id",
 								"value": "user-id"
+							},
+							{
+								"key": "Deployment-Name",
+								"value": "Cohere Platform",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -29,7 +34,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/chat-stream",
+							"raw": "http://localhost:8000/chat",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -50,6 +55,11 @@
 							{
 								"key": "User-Id",
 								"value": "user-id"
+							},
+							{
+								"key": "Deployment-Name",
+								"value": "Cohere Platform",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -213,6 +223,14 @@
 								"{id}"
 							]
 						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Deployments",
+					"request": {
+						"method": "GET",
+						"header": []
 					},
 					"response": []
 				},
