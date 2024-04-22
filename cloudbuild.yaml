@@ -1,0 +1,56 @@
+substitutions:
+  _GCP_PROJECT_ID: <GCP_PROJECT_ID>
+  _GCP_REGION: <GCP_REGION>
+  _DATABASE_URL: <DB_CONNECTION_STRING>
+  _COHERE_API_KEY: <COHERE_API_KEY>
+
+steps:
+# 1. BACKEND STEPS
+# a) Build backend container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$_GCP_PROJECT_ID/toolkit-backend', '-f', 'gcp.backend.Dockerfile', '.', '--build-arg', 'DATABASE_URL=$_DATABASE_URL']
+# b) Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$_GCP_PROJECT_ID/toolkit-backend']
+# c) Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args: ['run', 'deploy', 'toolkit-backend', 
+  '--image', 'gcr.io/$_GCP_PROJECT_ID/toolkit-backend', 
+  '--region', '$_GCP_REGION',
+  '--port', '8000',
+  '--set-env-vars', 'DATABASE_URL=$_DATABASE_URL',
+  '--set-env-vars', 'COHERE_API_KEY=$_COHERE_API_KEY',
+  '--allow-unauthenticated'
+  ]
+# d) Get the URL of the deployed backend service
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+        gcloud run services describe toolkit-backend --platform managed --region $_GCP_REGION --format 'value(status.url)' > /workspace/backend_url.txt
+# e) Apply backend Alembic migrations
+- name: gcr.io/cloud-builders/curl
+  entrypoint: bash
+  args: 
+    - '-c'
+    - 'curl -X POST "$(cat /workspace/backend_url.txt)/migrate"'
+  
+# 2. FRONTEND STEPS
+# a) Build frontend container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$_GCP_PROJECT_ID/toolkit-frontend', '-f', 'gcp.frontend.Dockerfile', 'src/frontend']
+# b) Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$_GCP_PROJECT_ID/toolkit-frontend']
+# c) Deploy container image to Cloud Run
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+        gcloud run deploy toolkit-frontend --port 4000 --memory 2Gi --image gcr.io/$_GCP_PROJECT_ID/toolkit-frontend --region $_GCP_REGION  --allow-unauthenticated --set-env-vars NEXT_PUBLIC_API_HOSTNAME=$(cat /workspace/backend_url.txt) 
+images:
+- gcr.io/$_GCP_PROJECT_ID/toolkit-backend
+- gcr.io/$_GCP_PROJECT_ID/toolkit-frontend

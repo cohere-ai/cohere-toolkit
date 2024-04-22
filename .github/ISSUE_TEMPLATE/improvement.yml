@@ -1,0 +1,19 @@
+name: Improvement
+description: Improve any existing functionality, and/or add documentation
+labels:
+  - improvement
+body:
+  - type: textarea
+    attributes:
+      label: What improvement(s) are you suggesting?
+      description: |
+        - Give as many details as you can, including any implementation steps, if any.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Any other context, images or comments to add.
+    validations:
+      required: false

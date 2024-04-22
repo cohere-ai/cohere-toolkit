@@ -1,0 +1,12 @@
+{
+  "name": "one-click-demo",
+  "env": {
+      "DATABASE_URI": {
+          "description": "URI for your Postgres database",
+          "default": "postgresql+psycopg2://postgre:postgre@localhost:5432/toolkit"
+      }
+  },
+  "options": {
+      "allow-unauthenticated": true
+  }
+}

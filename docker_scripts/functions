@@ -1,0 +1,266 @@
+#!/bin/bash
+set -e
+shopt -s extglob
+source ${PG_APP_HOME}/env-defaults
+
+PG_CONF=${PG_DATADIR}/postgresql.conf
+PG_HBA_CONF=${PG_DATADIR}/pg_hba.conf
+PG_IDENT_CONF=${PG_DATADIR}/pg_ident.conf
+PG_RECOVERY_CONF=${PG_DATADIR}/recovery.conf
+
+# Execute command as PG_USER
+exec_as_postgres() {
+  sudo -HEu ${PG_USER} "$@"
+}
+
+map_uidgid() {
+  USERMAP_ORIG_UID=$(id -u ${PG_USER})
+  USERMAP_ORIG_GID=$(id -g ${PG_USER})
+  USERMAP_GID=${USERMAP_GID:-${USERMAP_UID:-$USERMAP_ORIG_GID}}
+  USERMAP_UID=${USERMAP_UID:-$USERMAP_ORIG_UID}
+  if [[ ${USERMAP_UID} != ${USERMAP_ORIG_UID} ]] || [[ ${USERMAP_GID} != ${USERMAP_ORIG_GID} ]]; then
+    echo "Adapting uid and gid for ${PG_USER}:${PG_USER} to $USERMAP_UID:$USERMAP_GID"
+    groupmod -o -g ${USERMAP_GID} ${PG_USER}
+    sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
+  fi
+}
+
+create_datadir() {
+  echo "Initializing datadir..."
+  mkdir -p ${PG_HOME}
+  if [[ -d ${PG_DATADIR} ]]; then
+    find ${PG_DATADIR} -type f | xargs chmod 0600
+    find ${PG_DATADIR} -type d | xargs chmod 0700
+  fi
+  chown -R ${PG_USER}:${PG_USER} ${PG_HOME}
+}
+
+create_certdir() {
+  echo "Initializing certdir..."
+  mkdir -p ${PG_CERTDIR}
+  [[ -f ${PG_CERTDIR}/server.crt ]] && chmod 0644 ${PG_CERTDIR}/server.crt
+  [[ -f ${PG_CERTDIR}/server.key ]] && chmod 0640 ${PG_CERTDIR}/server.key
+  chmod 0755 ${PG_CERTDIR}
+  chown -R root:${PG_USER} ${PG_CERTDIR}
+}
+
+create_logdir() {
+  echo "Initializing logdir..."
+  mkdir -p ${PG_LOGDIR}
+  chmod -R 1775 ${PG_LOGDIR}
+  chown -R root:${PG_USER} ${PG_LOGDIR}
+}
+
+create_rundir() {
+  echo "Initializing rundir..."
+  mkdir -p ${PG_RUNDIR} ${PG_RUNDIR}/${PG_VERSION}-main.pg_stat_tmp
+  chmod -R 0755 ${PG_RUNDIR}
+  chmod g+s ${PG_RUNDIR}
+  chown -R ${PG_USER}:${PG_USER} ${PG_RUNDIR}
+}
+
+set_postgresql_param() {
+  local key=${1}
+  local value=${2}
+  local verbosity=${3:-verbose}
+
+  if [[ -n ${value} ]]; then
+    local current=$(exec_as_postgres sed -n -e "s/^\(${key} = '\)\([^ ']*\)\(.*\)$/\2/p" ${PG_CONF})
+    if [[ "${current}" != "${value}" ]]; then
+      if [[ ${verbosity} == verbose ]]; then
+        echo "‣ Setting postgresql.conf parameter: ${key} = '${value}'"
+      fi
+      value="$(echo "${value}" | sed 's|[&]|\\&|g')"
+      exec_as_postgres sed -i "s|^[#]*[ ]*${key} = .*|${key} = '${value}'|" ${PG_CONF}
+    fi
+  fi
+}
+
+set_recovery_param() {
+  local key=${1}
+  local value=${2}
+  local hide=${3}
+  if [[ -n ${value} ]]; then
+    local current=$(exec_as_postgres sed -n -e "s/^\(.*\)\(${key}=\)\([^ ']*\)\(.*\)$/\3/p" ${PG_RECOVERY_CONF})
+    if [[ "${current}" != "${value}" ]]; then
+      case ${hide} in
+        true)  echo "‣ Setting primary_conninfo parameter: ${key}" ;;
+        *) echo "‣ Setting primary_conninfo parameter: ${key} = '${value}'" ;;
+      esac
+      exec_as_postgres sed -i "s|${key}=[^ ']*|${key}=${value}|" ${PG_RECOVERY_CONF}
+    fi
+  fi
+}
+
+set_hba_param() {
+  local value=${1}
+  if ! grep -q "$(sed "s| | \\\+|g" <<< ${value})" ${PG_HBA_CONF}; then
+    echo "${value}" >> ${PG_HBA_CONF}
+  fi
+}
+
+configure_ssl() {
+  if [[ -f ${PG_CERTDIR}/server.crt && -f ${PG_CERTDIR}/server.key ]]; then
+    PG_SSL=${PG_SSL:-on}
+    set_postgresql_param "ssl_cert_file" "${PG_CERTDIR}/server.crt"
+    set_postgresql_param "ssl_key_file" "${PG_CERTDIR}/server.key"
+  fi
+  PG_SSL=${PG_SSL:-off}
+  set_postgresql_param "ssl" "${PG_SSL}"
+}
+
+configure_hot_standby() {
+  case ${REPLICATION_MODE} in
+    slave|snapshot|backup) ;;
+    *)
+      echo "Configuring hot standby..."
+      set_postgresql_param "wal_level" "hot_standby"
+      set_postgresql_param "max_wal_senders" "16"
+      set_postgresql_param "checkpoint_segments" "8"
+      set_postgresql_param "wal_keep_segments" "32"
+      set_postgresql_param "hot_standby" "on"
+      ;;
+  esac
+}
+
+initialize_database() {
+  if [[ ! -f ${PG_DATADIR}/PG_VERSION ]]; then
+    echo "Initializing database..."
+    if [[ -n $PG_PASSWORD ]]; then
+      echo "${PG_PASSWORD}" > /tmp/pwfile
+    fi
+
+    exec_as_postgres ${PG_BINDIR}/initdb --pgdata=${PG_DATADIR} \
+      --username=${PG_USER} --encoding=unicode --auth=trust ${PG_PASSWORD:+--pwfile=/tmp/pwfile} >/dev/null
+
+    configure_hot_standby
+    # Change DSM from `posix' to `sysv' if we are inside an lx-brand container
+    if [[ $(uname -v) == "BrandZ virtual linux" ]]; then
+      set_postgresql_param "dynamic_shared_memory_type" "sysv"
+    fi
+  fi
+
+  # configure path to data_directory
+  set_postgresql_param "data_directory" "${PG_DATADIR}"
+
+  # configure logging
+  set_postgresql_param "log_directory" "${PG_LOGDIR}"
+  set_postgresql_param "log_filename" "postgresql-${PG_VERSION}-main.log"
+
+  # trust connections from local network
+  if [[ ${PG_TRUST_LOCALNET} == true ]]; then
+    echo "Trusting connections from the local network..."
+    set_hba_param "host all all samenet trust"
+  fi
+
+  # allow remote connections to postgresql database
+  set_hba_param "host all all 0.0.0.0/0 md5"
+}
+
+set_resolvconf_perms() {
+  echo "Setting resolv.conf ACLs..."
+  setfacl -m user:${PG_USER}:r /etc/resolv.conf || true
+}
+
+create_user() {
+  if [[ -n ${DB_USER} ]]; then
+    if [[ -z ${DB_PASS} ]]; then
+      echo "ERROR! Please specify a password for DB_USER in DB_PASS. Exiting..."
+      exit 1
+    fi
+    echo "Creating database user: ${DB_USER}"
+    if [[ -z $(psql -U ${PG_USER} -Atc "SELECT 1 FROM pg_catalog.pg_user WHERE usename = '${DB_USER}'";) ]]; then
+      psql -U ${PG_USER} -c "CREATE ROLE \"${DB_USER}\" with LOGIN CREATEDB PASSWORD '${DB_PASS}';" >/dev/null
+    fi
+  fi
+}
+
+load_extensions() {
+  local database=${1?missing argument}
+
+  if [[ ${DB_UNACCENT} == true ]]; then
+    echo
+    echo "WARNING: "
+    echo "  The DB_UNACCENT option will be deprecated in favour of DB_EXTENSION soon."
+    echo "  Please migrate to using DB_EXTENSION"
+    echo
+    echo "‣ Loading unaccent extension..."
+    psql -U ${PG_USER} -d ${database} -c "CREATE EXTENSION IF NOT EXISTS unaccent;" >/dev/null 2>&1
+  fi
+
+  for extension in $(awk -F',' '{for (i = 1 ; i <= NF ; i++) print $i}' <<< "${DB_EXTENSION}"); do
+    echo "‣ Loading ${extension} extension..."
+    psql -U ${PG_USER} -d ${database} -c "CREATE EXTENSION IF NOT EXISTS ${extension};" >/dev/null 2>&1
+  done
+}
+
+create_database() {
+  if [[ -n ${DB_NAME} ]]; then
+    for database in $(awk -F',' '{for (i = 1 ; i <= NF ; i++) print $i}' <<< "${DB_NAME}"); do
+      echo "Creating database: ${database}..."
+      if [[ -z $(psql -U ${PG_USER} -Atc "SELECT 1 FROM pg_catalog.pg_database WHERE datname = '${database}'";) ]]; then
+        psql -U ${PG_USER} -c "CREATE DATABASE \"${database}\" WITH TEMPLATE = \"${DB_TEMPLATE}\";" >/dev/null
+      fi
+
+      load_extensions ${database}
+
+      if [[ -n ${DB_USER} ]]; then
+        echo "‣ Granting access to ${DB_USER} user..."
+        psql -U ${PG_USER} -c "GRANT ALL PRIVILEGES ON DATABASE \"${database}\" to \"${DB_USER}\";" >/dev/null
+      fi
+    done
+  fi
+}
+
+configure_postgresql() {
+  initialize_database
+
+  configure_ssl
+
+  # start postgres server internally for the creation of users and databases
+  rm -rf ${PG_DATADIR}/postmaster.pid
+  set_postgresql_param "listen_addresses" "127.0.0.1" quiet
+  exec_as_postgres ${PG_BINDIR}/pg_ctl -D ${PG_DATADIR} -w start >/dev/null
+
+  create_user
+  create_database
+  # stop the postgres server
+  exec_as_postgres ${PG_BINDIR}/pg_ctl -D ${PG_DATADIR} -w stop >/dev/null
+
+  # listen on all interfaces
+  set_postgresql_param "listen_addresses" "*" quiet
+}
+
+run_postgre() {
+  echo "Starting PostgreSQL ${PG_VERSION}..."
+  service postgresql start
+  echo "PostgreSQL ${PG_VERSION} started"
+}
+
+
+run_backend() {
+  cd /workspace
+  source /workspace/.venv/bin/activate
+  echo "Migration started..."
+  alembic -c src/backend/alembic.ini upgrade head
+  echo "Migration finished..."
+  echo "Starting FastAPI..."
+  exec uvicorn backend.main:app --host 0.0.0.0 --port 8000 --loop asyncio
+}
+
+run_frontend() {
+  cd /workspace/src/frontend
+  echo "build Frontend"
+  echo "$NEXT_PUBLIC_API_HOSTNAME"
+  pnpm next:build
+  echo "Starting Frontend..."
+  pm2 start pnpm -- start:single-docker
+  echo "Frontend started..."
+}
+
+run_terrarium() {
+  cd /usr/src/app
+  echo "Starting Terrarium..."
+  pm2 start node -- index.js
+  echo "Terrarium started..."
+}

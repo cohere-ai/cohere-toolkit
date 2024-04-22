@@ -1,0 +1,21 @@
+name: Feature request
+description: Request a new feature
+labels:
+  - feature
+body:
+  - type: textarea
+    attributes:
+      label: What feature(s) would you like to see?
+      description: |
+        - Give as much detail as you can to help us understand the feature.
+        - What benefits would this feature bring, and how would the user interact with it?
+        - Feel free to give any technical suggestions on how this should be implemented.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Any other context, images or comments to add.
+    validations:
+      required: false

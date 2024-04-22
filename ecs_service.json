@@ -1,0 +1,53 @@
+{
+    "serviceName": "ToolkitService",
+    "cluster": "<Your cluster name>",
+    "loadBalancers": [
+        {
+            "targetGroupArn": "<Your target group ARN for API>",
+            "containerName": "<Your container name>",
+            "containerPort": 8000
+        },
+        {
+            "targetGroupArn": "<Your target group ARN for App>",
+            "containerName": "<Your container name>",
+            "containerPort": 4000
+        }
+    ],
+    "serviceRegistries": [],
+    "desiredCount": 1,
+    "launchType": "FARGATE",
+    "platformVersion": "LATEST",
+    "taskDefinition": "<Your task definition ARN>",
+    "deploymentConfiguration": {
+        "deploymentCircuitBreaker": {
+            "enable": true,
+            "rollback": true
+        },
+        "maximumPercent": 200,
+        "minimumHealthyPercent": 100
+    },
+    "placementConstraints": [],
+    "placementStrategy": [],
+    "networkConfiguration": {
+        "awsvpcConfiguration": {
+            "subnets": [
+                "<Your subnet 1 ID>",
+                "<Your subnet 2 ID>",
+                "<Your subnet 3 ID>"
+            ],
+            "securityGroups": [
+                "<Your security group for application ID>"
+            ],
+            "assignPublicIp": "ENABLED"
+        }
+    },
+    "healthCheckGracePeriodSeconds": 20,
+    "schedulingStrategy": "REPLICA",
+    "deploymentController": {
+        "type": "ECS"
+    },
+    "enableECSManagedTags": true,
+    "propagateTags": "NONE",
+    "enableExecuteCommand": false
+}
+
