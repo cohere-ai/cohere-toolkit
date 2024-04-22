@@ -642,6 +642,9 @@ def generate_chat_response(
         tool_calls=tool_calls,
     )
 
+    response_message.text = non_streamed_chat_response.text
+    response_message.generation_id = non_streamed_chat_response.generation_id
+    
     if should_store:
         update_conversation_after_turn(
             session,
