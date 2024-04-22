@@ -40,7 +40,7 @@ steps:
 # 2. FRONTEND STEPS
 # a) Build frontend container image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$_GCP_PROJECT_ID/toolkit-frontend', '-f', 'gcp.frontend.Dockerfile', 'src/frontend']
+  args: ['build', '-t', 'gcr.io/$_GCP_PROJECT_ID/toolkit-frontend', '-f', 'gcp.frontend.Dockerfile', 'src/interfaces/coral_web']
 # b) Push the container image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$_GCP_PROJECT_ID/toolkit-frontend']

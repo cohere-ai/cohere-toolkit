@@ -101,7 +101,7 @@ If you did not change the default port, visit http://localhost:4000/ in your bro
 
 ## What is included in Toolkit?
 Components in this repo include:
-* `src/frontend` - A web app built in Next.js. Includes a simple SQL database out of the box to store conversation history in the app. 
+* `src/interfaces/coral_web` - A web app built in Next.js. Includes a simple SQL database out of the box to store conversation history in the app. 
 * `src/backend` - Contains preconfigured data sources and retrieval code to set up RAG on custom data sources (called "Retrieval Chains"). Users can also configure which model to use, selecting from Cohere's models hosted on either Cohere's platform, Azure, and AWS Sagemaker. By default, we have configured a Langchain data retriever to test RAG on Wikipedia and your own uploaded documents. 
 
 ![](/docs/assets/toolkit_graphic.png)
@@ -232,7 +232,7 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ### How to add your own chat interface 
 
-Currently the core chat interface is the Coral frontend. To add your own interface, take the steps above for call the backend as an API in your implementation and add it alongside `src/frontend`.
+Currently the core chat interface is the Coral frontend. To add your own interface, take the steps above for call the backend as an API in your implementation and add it alongside `src/interfaces/coral_web`.
 
 ### How to add a connector to the Toolkit
 

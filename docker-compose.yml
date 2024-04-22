@@ -56,7 +56,7 @@ services:
       
   frontend:
     build:
-      context: ./src/frontend
+      context: ./src/interfaces/coral_web
       dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file
     environment:
@@ -68,7 +68,7 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./src/frontend 
+          path: ./src/interfaces/coral_web 
           target: /app
           ignore:
           - node_modules/

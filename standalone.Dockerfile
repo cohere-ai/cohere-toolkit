@@ -88,16 +88,16 @@ ENV NEXT_PUBLIC_API_HOSTNAME="http://localhost:8000"
 ENV PYTHON_INTERPRETER_URL="http://localhost:8080"
 
 # Install frontend dependencies
-WORKDIR /workspace/src/frontend
-COPY src/frontend/src ./src
-COPY src/frontend/public ./public
-COPY src/frontend/next.config.mjs .
-COPY src/frontend/tsconfig.json .
-COPY src/frontend/tailwind.config.js .
-COPY src/frontend/postcss.config.js .
-COPY src/frontend/package.json src/frontend/yarn.lock* src/frontend/package-lock.json* src/frontend/pnpm-lock.yaml* ./
-COPY src/frontend/.env.development .
-COPY src/frontend/.env.production .
+WORKDIR /workspace/src/interfaces/coral_web
+COPY src/interfaces/coral_web/src ./src
+COPY src/interfaces/coral_web/public ./public
+COPY src/interfaces/coral_web/next.config.mjs .
+COPY src/interfaces/coral_web/tsconfig.json .
+COPY src/interfaces/coral_web/tailwind.config.js .
+COPY src/interfaces/coral_web/postcss.config.js .
+COPY src/interfaces/coral_web/package.json src/interfaces/coral_web/yarn.lock* src/interfaces/coral_web/package-lock.json* src/interfaces/coral_web/pnpm-lock.yaml* ./
+COPY src/interfaces/coral_web/.env.development .
+COPY src/interfaces/coral_web/.env.production .
 
 RUN pnpm install
 
