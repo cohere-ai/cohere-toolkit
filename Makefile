@@ -25,3 +25,4 @@ setup:
 	python3 cli/main.py
 lint:
 	poetry run black .
+	poetry run isort . --show-files

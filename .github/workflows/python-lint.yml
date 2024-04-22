@@ -11,3 +11,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: psf/black@24.3.0
+      - uses: isort/isort-action@v1
