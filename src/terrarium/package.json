@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "pyodide": "^0.23.4",
+    "express": "^4.19.2"
+  }
+}

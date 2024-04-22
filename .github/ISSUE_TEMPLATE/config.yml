@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://docs.cohere.com/docs
+    about: For detailed information about Cohere's API visit the documentation page.
+  - name: General Community Help
+    url: https://discord.com/invite/co-mmunity
+    about: For any general question not related to connectors please visit Cohere's Community's Discord.

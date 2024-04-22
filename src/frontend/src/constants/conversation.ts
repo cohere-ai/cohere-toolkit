@@ -1,0 +1,1 @@
+export const CONVERSATION_HISTORY_OFFSET = 100;

@@ -1,0 +1,13 @@
+name: Format
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@24.3.0

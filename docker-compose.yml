@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14.11-alpine
+    restart: always
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=toolkit
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+  test_db:
+    image: postgres:14.1-alpine
+    restart: unless-stopped
+    environment:
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test_toolkit
+    ports:
+      - '5433:5432'
+  backend:
+    build:
+      context: .
+      dockerfile: ./src/backend/Dockerfile
+    develop:
+      watch:
+        - action: sync
+          path: ./src/backend
+          target: /workspace/src/backend
+          ignore:
+          - __pycache__/
+          - alembic/
+          - data/
+    stdin_open: true
+    tty: true
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    volumes:
+      # Mount alembic folder to sync migrations
+      - ./src/backend/alembic:/workspace/src/backend/alembic
+      # Mount data folder to sync uploaded files
+      - ./src/backend/data:/workspace/src/backend/data
+      # For SageMaker: The line below for AWS configure file to sync credentials
+      - $HOME/.aws:/root/.aws 
+    # network_mode: host
+      
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    # Set environment variables directly in the docker-compose file
+    environment:
+      NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
+
+    restart: always
+    ports:
+      - 4000:4000
+    develop:
+      watch:
+        - action: sync
+          path: ./src/frontend 
+          target: /app
+          ignore:
+          - node_modules/
+  terrarium:
+    build:
+      context: ./src/terrarium
+      dockerfile: Dockerfile
+    # network_mode: host
+    ports:
+      - '8080:8080'
+    expose:
+      - '8080'
+volumes:
+  db:
+    driver: local

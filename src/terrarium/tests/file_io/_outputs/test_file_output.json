@@ -1,0 +1,24 @@
+{
+    "company": "ABC Corporation",
+    "address": "123 Main Street",
+    "city": "New York",
+    "state": "NY",
+    "zipcode": "10001",
+    "employees": [
+        {
+            "name": "John Doe",
+            "position": "Manager",
+            "salary": 50000
+        },
+        {
+            "name": "Jane Smith ❤️‍🔥",
+            "position": "Developer",
+            "salary": 60000
+        },
+        {
+            "name": "Mike Johnson",
+            "position": "Sales Representative - äöüß",
+            "salary": 40000
+        }
+    ]
+}

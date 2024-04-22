@@ -1,0 +1,49 @@
+#
+# cohere default style for matplotlib
+#
+figure.figsize:     6.4, 4.0 # make it a bit more portrait mode vs default
+
+
+# general figure styles
+axes.spines.top:    False
+axes.spines.right:  False
+axes.edgecolor:     9a9a9a
+axes.linewidth:     1
+xtick.color:        9a9a9a
+xtick.labelcolor:   black
+ytick.color:        9a9a9a
+ytick.labelcolor:   black
+xtick.major.width:  1
+ytick.major.width:  1
+
+lines.linewidth:        2
+lines.dash_capstyle:    round
+lines.solid_capstyle:   round
+
+# not sure if we should activate this by default, it leads to wide margins in some cases
+# axes.autolimit_mode: round_numbers 
+# axes.xmargin:   0.05  # x margin. 
+# axes.ymargin:   0.05  # y margin.
+
+# green, orange, violet from cohere logo + default matplotlib colors
+axes.prop_cycle: cycler('color', ['39594d','ff7759','d18ee2','1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2']) + cycler('linestyle', ['-',':',(0, (5, 7)), '-.', '-', '--', '-.','-', '--', '-.']) 
+# we could also add default markers, but that can look too messy
+# + cycler('marker', ['o', 's', '^','o', 's', '^','o', 's', '^','o'])
+
+# this is a fiddly number - setting it too high and the sandbox rendering of a png breaks with a call stack error :shrug: when we also use the constrained layout
+figure.dpi: 128
+
+# auto set the constrained layout - this is important to make sure the text is in bounds
+# alternative: autolayout can be a bit thorny, but could be activated with #figure.autolayout: True 
+figure.constrained_layout.use: True
+
+# by default remove the background
+savefig.transparent: True
+# svg.fonttype: none # activate if frontends support font overrides
+
+# show faded grid
+axes.grid: True
+grid.linestyle: dotted
+grid.alpha: 0.5
+# make sure to put the grid lowest on the z-axis
+axes.axisbelow: True        

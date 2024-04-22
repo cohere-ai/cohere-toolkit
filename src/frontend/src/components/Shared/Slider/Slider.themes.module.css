@@ -1,0 +1,29 @@
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .secondary {
+    @apply border-secondary-500 bg-secondary-100;
+  }
+
+  .secondary::-webkit-slider-thumb {
+    box-shadow: -9999px 0 0 9999px theme('colors.secondary.500');
+    @apply border-secondary-500;
+    @apply bg-marble-100;
+  }
+}
+/* Firefox */
+.secondary::-moz-range-progress {
+  @apply bg-secondary-500;
+}
+.secondary::-moz-range-track {
+  @apply bg-secondary-100;
+}
+.secondary::-moz-range-thumb {
+  @apply border-secondary-500;
+  @apply bg-marble-100; /* on Firefox we need to remove the radius because the browser renders the thumb at the end of the progress bar */
+}
+/* IE */
+.secondary::-ms-fill-lower {
+  @apply bg-secondary-500;
+}
+.secondary::-ms-fill-upper {
+  @apply bg-secondary-100;
+}

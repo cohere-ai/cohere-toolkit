@@ -1,0 +1,23 @@
+name: Pytest
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  pytest:
+    environment: development
+    runs-on: ubuntu-latest
+    env:
+      COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}    
+      NEXT_PUBLIC_API_HOSTNAME: ${{ secrets.NEXT_PUBLIC_API_HOSTNAME }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup Docker
+        run: docker compose up backend test_db -d
+      - name: Run tests
+        run: docker compose run --build -e COHERE_API_KEY=$COHERE_API_KEY backend poetry run pytest src/backend/tests/

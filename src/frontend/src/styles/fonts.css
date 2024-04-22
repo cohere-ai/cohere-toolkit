@@ -1,0 +1,89 @@
+@font-face {
+  font-family: 'CohereText';
+  src: url('../../public/fonts/CohereText-Regular.woff2') format('woff2'),
+    url('../../public/fonts/CohereText-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereText';
+  /* In the nature design system, bolded fonts always use Cohere Variable. */
+  src: url('../../public/fonts/CohereVariable.woff2') format('woff2'),
+    url('../../public/fonts/CohereVariable.woff') format('woff');
+  font-weight: 500 525;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereHeadline';
+  src: url('../../public/fonts/CohereHeadline-Regular.woff2') format('woff2'),
+    url('../../public/fonts/CohereHeadline-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereHeadline';
+  src: url('../../public/fonts/CohereHeadline-Bold.woff2') format('woff2'),
+    url('../../public/fonts/CohereHeadline-Bold.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereMono';
+  src: url('../../public/fonts/CohereMono-Regular.woff2') format('woff2'),
+    url('../../public/fonts/CohereMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereMono';
+  /* In the nature design system, bolded fonts always use Cohere Variable. */
+  src: url('../../public/fonts/CohereVariable.woff2') format('woff2'),
+    url('../../public/fonts/CohereVariable.woff') format('woff');
+  font-weight: 500 525;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereVariable';
+  src: url('../../public/fonts/CohereVariable.woff2') format('woff2'),
+    url('../../public/fonts/CohereVariable.woff') format('woff');
+  font-weight: 400 420 450;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereColor';
+  src: url('../../public/fonts/CohereColor-Color.woff') format('woff'),
+    url('../../public/fonts/CohereColor-Color.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereIconDefault';
+  src: url('../../public/fonts/CohereIcon-Default.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'CohereIconOutline';
+  src: url('../../public/fonts/CohereIcon-Outline.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
