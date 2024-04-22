@@ -83,4 +83,5 @@ services:
       - '8080'
 volumes:
   db:
+    name: cohere_toolkit_db
     driver: local

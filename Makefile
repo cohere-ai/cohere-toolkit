@@ -14,7 +14,7 @@ migrate:
 	docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
 reset-db:
 	docker compose down
-	docker volume rm toolkit_db
+	docker volume rm cohere_toolkit_db
 # TODO: have images point to :latest
 run-docker-images:
 	docker compose run -d db
