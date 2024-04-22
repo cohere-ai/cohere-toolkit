@@ -9,7 +9,6 @@ import {
   ERROR_FINISH_REASON_TO_MESSAGE,
   FinishReason,
   ListFile,
-  ManagedTool,
   Tool,
   UpdateConversation,
   UploadFile,
@@ -67,7 +66,7 @@ export class CohereClient {
     file: File;
     conversationId?: string;
   }): Promise<UploadFile> {
-    const endpoint = `${this.getEndpoint('conversations')}upload_file`;
+    const endpoint = `${this.getEndpoint('conversations')}/upload_file`;
     const formData = new FormData();
     formData.append('file', file, file.name);
     if (conversationId) {
@@ -100,7 +99,7 @@ export class CohereClient {
   }
 
   public async deletefile({ conversationId, fileId }: { conversationId: string; fileId: string }) {
-    const url = `${this.getEndpoint('conversations')}${conversationId}/files/${fileId}`;
+    const url = `${this.getEndpoint('conversations')}/${conversationId}/files/${fileId}`;
 
     const response = await this.fetch(url, {
       method: 'DELETE',
@@ -121,7 +120,7 @@ export class CohereClient {
 
   public async listFiles({ conversationId }: { conversationId: string }): Promise<ListFile[]> {
     const response = await this.fetch(
-      `${this.getEndpoint('conversations')}${conversationId}/files`,
+      `${this.getEndpoint('conversations')}/${conversationId}/files`,
       {
         method: 'GET',
         headers: this.getHeaders(),
@@ -178,7 +177,7 @@ export class CohereClient {
   }: {
     signal?: AbortSignal;
   }): Promise<ConversationWithoutMessages[]> {
-    const response = await this.fetch(this.getEndpoint('conversations'), {
+    const response = await this.fetch(`${this.getEndpoint('conversations')}/`, {
       method: 'GET',
       headers: this.getHeaders(),
       signal,
@@ -202,7 +201,7 @@ export class CohereClient {
   }: { conversationId: string } & {
     signal?: AbortSignal;
   }): Promise<Conversation> {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}${conversationId}`, {
+    const response = await this.fetch(`${this.getEndpoint('conversations')}/${conversationId}`, {
       method: 'GET',
       headers: this.getHeaders(),
       signal,
@@ -220,7 +219,7 @@ export class CohereClient {
   }
 
   public async deleteConversation({ conversationId }: { conversationId: string }) {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}${conversationId}`, {
+    const response = await this.fetch(`${this.getEndpoint('conversations')}/${conversationId}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
     });
@@ -241,7 +240,7 @@ export class CohereClient {
     request: UpdateConversation & { conversationId: string }
   ): Promise<Conversation> {
     const { conversationId, ...rest } = request;
-    const endpoint = `${this.getEndpoint('conversations')}${conversationId}`;
+    const endpoint = `${this.getEndpoint('conversations')}/${conversationId}`;
     const requestBody: UpdateConversation = {
       title: '',
       ...rest,
@@ -265,7 +264,7 @@ export class CohereClient {
   }
 
   public async listTools({ signal }: { signal?: AbortSignal }): Promise<Tool[]> {
-    const response = await this.fetch(this.getEndpoint('tools'), {
+    const response = await this.fetch(`${this.getEndpoint('tools')}/`, {
       method: 'GET',
       headers: this.getHeaders(),
       signal,
@@ -280,11 +279,29 @@ export class CohereClient {
       );
     }
 
-    return body as ManagedTool[];
+    return body as Tool[];
   }
 
   public async listDeployments(): Promise<Deployment[]> {
-    const response = await this.fetch(this.getEndpoint('deployments'), {
+    const response = await this.fetch(`${this.getEndpoint('deployments')}/`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Deployment[];
+  }
+
+  public async listAllDeployments(): Promise<Deployment[]> {
+    const response = await this.fetch(`${this.getEndpoint('deployments')}/?all=1`, {
       method: 'GET',
       headers: this.getHeaders(),
     });
@@ -304,7 +321,7 @@ export class CohereClient {
   private getEndpoint(
     endpoint: 'upload' | 'chat-stream' | 'conversations' | 'tools' | 'deployments'
   ) {
-    return `${this.hostname}/${endpoint}/`;
+    return `${this.hostname}/${endpoint}`;
   }
 
   private getHeaders(omitContentType = false) {

@@ -48,6 +48,7 @@ export type { Tool } from './models/Tool';
 export type { ToolCall } from './models/ToolCall';
 export { ToolInputType } from './models/ToolInputType';
 export type { UpdateConversation } from './models/UpdateConversation';
+export type { UpdateDeploymentEnv } from './models/UpdateDeploymentEnv';
 export type { UpdateFile } from './models/UpdateFile';
 export type { UpdateUser } from './models/UpdateUser';
 export type { UploadFile } from './models/UploadFile';

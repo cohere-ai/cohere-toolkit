@@ -1,10 +1,12 @@
 import { Transition } from '@headlessui/react';
 import { capitalize } from 'lodash';
-import React, { Children, PropsWithChildren } from 'react';
+import React, { Children, PropsWithChildren, useContext } from 'react';
 
 import { ConfigurationDrawer } from '@/components/Conversation/ConfigurationDrawer';
+import { Banner } from '@/components/Shared';
 import { NavigationBar } from '@/components/Shared/NavigationBar/NavigationBar';
 import { PageHead } from '@/components/Shared/PageHead';
+import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils/cn';
@@ -27,6 +29,7 @@ type Props = {
  * On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
 export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
+  const { message: bannerMessage } = useContext(BannerContext);
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
@@ -56,6 +59,7 @@ export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
       <PageHead title={capitalize(title)} />
       <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
         <NavigationBar />
+        {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}
 
         <div className={cn('relative flex h-full flex-grow flex-nowrap overflow-hidden')}>
           <Transition

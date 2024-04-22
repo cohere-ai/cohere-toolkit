@@ -1,4 +1,5 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
@@ -11,6 +12,7 @@ import {
   StreamCitationGeneration,
   StreamEnd,
   StreamEvent,
+  StreamQueryGeneration,
   StreamSearchResults,
   StreamStart,
   StreamTextGeneration,
@@ -18,6 +20,7 @@ import {
   isSessionUnavailableError,
   isStreamError,
 } from '@/cohere-client';
+import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useRouteChange } from '@/hooks/route';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
@@ -59,6 +62,7 @@ export type HandleSendChat = (
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
+  const router = useRouter();
 
   const {
     params: { temperature, tools, model, deployment },
@@ -169,6 +173,9 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
 
             case StreamEvent.SEARCH_QUERIES_GENERATION: {
+              const data = eventData.data as StreamQueryGeneration;
+              const joinedQuery = data?.query;
+              const searchQuery = !joinedQuery ? 'Deep diving' : `Searching: ${joinedQuery}`;
               setStreamingMessage(
                 createLoadingMessage({
                   text: 'Deep diving',
@@ -313,9 +320,13 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 });
               }
             } else {
-              const error =
+              let error =
                 (e as CohereNetworkError)?.message ||
                 'Unable to generate a response since an error was encountered.';
+
+              if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
+                error += ' (Ensure a COHERE_API_KEY is configured in the .env file)';
+              }
               setConversation({
                 messages: [
                   ...newMessages,

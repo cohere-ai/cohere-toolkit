@@ -1,29 +1,40 @@
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
 import Conversation from '@/components/Conversation';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { Layout, LayoutSection } from '@/components/Layout';
+import { BannerContext } from '@/context/BannerContext';
 import { appSSR } from '@/pages/_app';
-import { useCitationsStore, useConversationStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 
 type Props = {
   reactQueryState: DehydratedState;
 };
 
 const ChatPage: NextPage<Props> = () => {
+  const { setMessage } = useContext(BannerContext);
   const {
     conversation: { id },
     resetConversation,
   } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const {
+    params: { deployment },
+  } = useParamsStore();
 
   useEffect(() => {
     resetConversation();
     resetCitations();
   }, []);
+
+  useEffect(() => {
+    if (!deployment) {
+      setMessage('Please select a deployment in the Tools Drawer > Settings tab.');
+    }
+  }, [deployment]);
 
   return (
     <Layout>

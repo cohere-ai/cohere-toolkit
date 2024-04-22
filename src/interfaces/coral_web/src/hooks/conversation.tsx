@@ -30,6 +30,7 @@ export const useConversations = () => {
         return conversations;
       } catch (e) {
         if (!isAbortError(e)) {
+          console.error(e);
           throw e;
         }
         return [];
@@ -61,6 +62,7 @@ export const useConversation = ({
         });
       } catch (e) {
         if (!isAbortError(e)) {
+          console.error(e);
           throw e;
         }
         return {} as Conversation;
@@ -80,7 +82,12 @@ export const useEditConversation = () => {
     Omit<UpdateConversation, 'user_id'> & { conversationId: string }
   >({
     mutationFn: async (request) => {
-      return await client.editConversation(request);
+      try {
+        return await client.editConversation(request);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });

@@ -25,6 +25,7 @@ import type { ListFile } from '../models/ListFile';
 import type { ManagedTool } from '../models/ManagedTool';
 import type { NonStreamedChatResponse } from '../models/NonStreamedChatResponse';
 import type { UpdateConversation } from '../models/UpdateConversation';
+import type { UpdateDeploymentEnv } from '../models/UpdateDeploymentEnv';
 import type { UpdateFile } from '../models/UpdateFile';
 import type { UpdateUser } from '../models/UpdateUser';
 import type { UploadFile } from '../models/UploadFile';
@@ -626,6 +627,35 @@ export class DefaultService {
       query: {
         all: all,
       },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Set Env Vars
+   * Set environment variables for the deployment.
+   *
+   * Returns:
+   * str: Empty string.
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static setEnvVarsDeploymentsNameSetEnvVarsPost({
+    name,
+    requestBody,
+  }: {
+    name: string;
+    requestBody: UpdateDeploymentEnv;
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/deployments/{name}/set_env_vars',
+      path: {
+        name: name,
+      },
+      body: requestBody,
+      mediaType: 'application/json',
       errors: {
         422: `Validation Error`,
       },
