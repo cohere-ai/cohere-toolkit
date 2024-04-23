@@ -15,11 +15,6 @@ migrate:
 reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db
-# TODO: have images point to :latest
-run-docker-images:
-	docker compose run -d db
-	docker run -d -p 4000:4000 --env-file .env ghcr.io/cohere-ai/cohere-toolkit-frontend:pr-75
-	docker run -d -p 8000:8000 --env-file .env ghcr.io/cohere-ai/cohere-toolkit-backend:pr-75
 setup:
 	pip3 install -r cli/requirements.txt
 	python3 cli/main.py
