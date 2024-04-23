@@ -14,8 +14,6 @@ import pickBy from 'lodash/pickBy.js';
  */
 export const getCommonEnvVars = (env) => {
   return {
-    COHERE_ENV: env.COHERE_ENV,
-    NODE_ENV: env.NODE_ENV,
     ...pickBy(env, (_value, key) => key.startsWith('NEXT_')),
   };
 };

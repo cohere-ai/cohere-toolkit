@@ -18,24 +18,6 @@
 }
 
 @font-face {
-  font-family: 'CohereHeadline';
-  src: url('../../public/fonts/CohereHeadline-Regular.woff2') format('woff2'),
-    url('../../public/fonts/CohereHeadline-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'CohereHeadline';
-  src: url('../../public/fonts/CohereHeadline-Bold.woff2') format('woff2'),
-    url('../../public/fonts/CohereHeadline-Bold.woff') format('woff');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: 'CohereMono';
   src: url('../../public/fonts/CohereMono-Regular.woff2') format('woff2'),
     url('../../public/fonts/CohereMono-Regular.woff') format('woff');
@@ -59,15 +41,6 @@
   src: url('../../public/fonts/CohereVariable.woff2') format('woff2'),
     url('../../public/fonts/CohereVariable.woff') format('woff');
   font-weight: 400 420 450;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'CohereColor';
-  src: url('../../public/fonts/CohereColor-Color.woff') format('woff'),
-    url('../../public/fonts/CohereColor-Color.woff2') format('woff2');
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
