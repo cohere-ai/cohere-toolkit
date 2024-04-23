@@ -79,7 +79,7 @@ docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 
 Run the images locally:
 ```bash
-docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/toolkit
+docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
 ```
 
 #### Option 2 - Build locally from scratch:
