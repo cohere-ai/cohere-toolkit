@@ -18,8 +18,8 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 class ToolName(StrEnum):
     Wiki_Retriever_LangChain = "Wikipedia"
-    File_Upload_Langchain = "File Upload"
-    File_Upload_LlamaIndex = "File Upload - LlamaIndex"
+    File_Upload_Langchain = "File Reader"
+    File_Upload_LlamaIndex = "File Reader - LlamaIndex"
     Python_Interpreter = "Python_Interpreter"
     Calculator = "Calculator"
     Tavily_Internet_Search = "Internet Search"
