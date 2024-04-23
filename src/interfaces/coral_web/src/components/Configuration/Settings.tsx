@@ -1,15 +1,7 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import {
-  Dropdown,
-  DropdownOptionGroups,
-  InputLabel,
-  STYLE_LEVEL_TO_CLASSES,
-  Slider,
-  Text,
-} from '@/components/Shared';
-import { BannerContext } from '@/context/BannerContext';
-import { useListAllDeployments, useListDeployments } from '@/hooks/deployments';
+import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
+import { useListAllDeployments } from '@/hooks/deployments';
 import { useSettingsDefaults } from '@/hooks/settings';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -18,22 +10,12 @@ import { cn } from '@/utils';
  * @description Settings tab to adjust endpoint params like preamble and temperature.
  */
 export const Settings: React.FC = () => {
-  const { message: bannerMessage, setMessage } = useContext(BannerContext);
   const {
     params: { temperature, preamble, deployment, model },
     setParams,
   } = useParamsStore();
   const defaults = useSettingsDefaults();
-  const { data: availableDeployments } = useListDeployments();
   const { data: allDeployments = [] } = useListAllDeployments();
-  const deploymentOptions: DropdownOptionGroups = [
-    {
-      options: allDeployments.map(({ name }) => ({
-        label: name,
-        value: name,
-      })),
-    },
-  ];
   const modelOptions = useMemo(() => {
     const selectedDeployment = allDeployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return [];
@@ -56,28 +38,6 @@ export const Settings: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">
-      <Dropdown
-        className="w-full"
-        label="Deployment"
-        kind="default"
-        value={deployment}
-        onChange={(deploymentName: string) => {
-          const deployment = allDeployments.find((d) => d.name === deploymentName);
-          if (availableDeployments?.every((ad) => ad.name !== deploymentName)) {
-            setMessage(
-              <Text as="span">
-                If you wish to use <b className="font-medium">{deploymentName}</b>, please configure
-                your .env file with these variables:{' '}
-                <b className="font-medium">{deployment?.env_vars.join(', ')}</b>.
-              </Text>
-            );
-          } else if (bannerMessage) {
-            setMessage('');
-          }
-          setParams({ deployment: deploymentName });
-        }}
-        optionGroups={deploymentOptions}
-      />
       <Dropdown
         className="w-full"
         label="Model"
