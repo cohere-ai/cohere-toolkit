@@ -72,14 +72,14 @@ Requirements:
 #### Option 1 - Install locally with Docker:
 Ensure your shell is authenticated with [GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic).
 
-Pull the images from Github's Artifact Registry
+Pull the [Single Container Image](docs/deployment_guides/single_container.md) from Github's Artifact Registry
 ```bash
-docker pull ghcr.io/cohere-ai/cohere-toolkit-backend:latest && docker pull ghcr.io/cohere-ai/cohere-toolkit-frontend:latest 
+docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 ```
 
 Run the images locally:
 ```bash
-make run-docker-images
+docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/toolkit
 ```
 
 #### Option 2 - Build locally from scratch:
