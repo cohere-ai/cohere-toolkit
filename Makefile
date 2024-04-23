@@ -26,3 +26,7 @@ setup:
 lint:
 	poetry run black .
 	poetry run isort . --show-files
+first-run:
+	make setup
+	make migrate
+	make dev
