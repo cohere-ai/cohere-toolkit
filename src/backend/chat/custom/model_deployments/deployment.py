@@ -24,7 +24,7 @@ def get_deployment(deployment_name) -> BaseDeployment:
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
         if deployment.is_available:
             return deployment.deployment_class()
-    
+
     raise ValueError(
         f"Deployment {deployment_name} is not supported, and no available deployments were found."
     )
