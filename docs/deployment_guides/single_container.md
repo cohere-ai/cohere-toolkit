@@ -72,4 +72,4 @@ Then run the container with:
 docker run --name=terrarium --hostname=terrarium -itd -p 8080:8080 ghcr.io/cohere-ai/terrarium
 ```
 
-Then make sure your `.env` file contains `PYTHON_INTERPRETER_URL`, the default value should be `http://terrarium:8080`.
+Then make sure your `.env` file contains `PYTHON_INTERPRETER_URL`, the default value should be `http://localhost:8080`.
