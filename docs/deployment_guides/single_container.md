@@ -32,10 +32,14 @@ docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key her
 
 You can also pull a prebuilt image from the `cohere-ai` registry with:
 ```bash
-docker pull ghcr.io/cohere-ai/cohere-toolkit
+docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 ```
 
-Then run the container with:
+Then run the containers with:
+
+```bash
+docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
+```
 
 ```bash
 docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
@@ -53,3 +57,19 @@ To start the container again, run:
 ```bash
 docker start cohere-toolkit
 ```
+
+### Enabling Python Interpreter
+To enable the Python Interpreter tool, follow these steps:
+
+Pull the latest Terrarium image
+```bash
+docker pull ghcr.io/cohere-ai/terrarium:latest
+```
+
+Then run the container with:
+
+```bash
+docker run --name=terrarium --hostname=terrarium -itd -p 8080:8080 ghcr.io/cohere-ai/terrarium
+```
+
+Then make sure your `.env` file contains `PYTHON_INTERPRETER_URL`, the default value should be `http://terrarium:8080`.

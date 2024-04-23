@@ -101,19 +101,10 @@ COPY src/interfaces/coral_web/.env.production .
 
 RUN pnpm install
 
-# Terrarium
-WORKDIR /usr/src/app
-COPY src/terrarium/package*.json ./
-RUN npm install
-RUN npm prune --production
-COPY src/terrarium/. .
-ENV ENV_RUN_AS "docker"
-
 # Ports to expose
 EXPOSE 5432/tcp
 EXPOSE 8000/tcp
 EXPOSE 4000/tcp
-EXPOSE 8080/tcp
 WORKDIR ${PG_HOME}
 
 CMD ["/sbin/entrypoint.sh"]
