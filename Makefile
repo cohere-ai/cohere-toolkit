@@ -27,7 +27,6 @@ lint:
 	poetry run black .
 	poetry run isort . --show-files
 first-run:
-	pip3 install -r cli/requirements.txt
-	python3 cli/main.py
-	docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
-	@docker compose watch
+	make setup
+	make migrate
+	make dev
