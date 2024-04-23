@@ -20,12 +20,11 @@ def get_deployment(deployment_name) -> BaseDeployment:
     if deployment is not None and deployment.is_available:
         return deployment.deployment_class()
 
-    cohere_deployment = AVAILABLE_MODEL_DEPLOYMENTS.get(
-        ModelDeploymentName.CoherePlatform
+    # Fallback to first available deployment
+    for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
+        if deployment.is_available:
+            return deployment.deployment_class()
+    
+    raise ValueError(
+        f"Deployment {deployment_name} is not supported, and no available deployments were found."
     )
-    if cohere_deployment is not None and cohere_deployment.is_available:
-        return cohere_deployment.deployment_class()
-    else:
-        raise ValueError(
-            f"Deployment {deployment_name} is not supported, and no available deployments were found."
-        )
