@@ -82,7 +82,18 @@ Run the images locally:
 make run-docker-images
 ```
 
-### Option 2 - Build locally from scratch:
+#### Option 2 - Build locally from scratch:
+
+##### Option 2.1 - Run everything at once
+
+Run `make first-run` to start the CLI, that will generate a `.env` file for you. This will also run all the DB migrations and run the containers
+
+```bash
+make first-run
+```
+
+##### Option 2.1 - Run each command separately
+
 Run `make setup` to start the CLI, that will generate a `.env` file for you:
 
 ```bash
@@ -180,6 +191,16 @@ make migrate
 ```
 
 ### Troubleshooting
+
+#### Multiple errors after running make dev for the first time
+
+Make sure you run the following command before running make dev:
+```bash
+make migrate
+```
+
+
+#### Debugging locally
 To debug any of the backend logic while the Docker containers are running, you can run:
 
 ```bash
