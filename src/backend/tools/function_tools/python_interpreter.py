@@ -21,11 +21,13 @@ class PythonInterpreterFunctionTool(BaseFunctionTool):
     def __init__(self):
         self.interpreter_url = os.environ.get("PYTHON_INTERPRETER_URL")
 
-    def call(self, code: Any, **kwargs: Any):
+    def call(self, parameters: dict, **kwargs: Any):
         if not self.interpreter_url:
             raise Exception("Python Interpreter tool called while URL not set")
 
-        res = requests.post(self.interpreter_url, json={"code": code})
+        res = requests.post(
+            self.interpreter_url, json={"code": parameters.get("code", "")}
+        )
 
         return res.json()
 
