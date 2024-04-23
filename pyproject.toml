@@ -45,6 +45,7 @@ black = "24.3.0"
 
 
 [tool.poetry.group.setup.dependencies]
+python = "~3.11"
 inquirer = "3.2.4"
 python-dotenv = "1.0.1"
 
