@@ -256,8 +256,12 @@ Toolkit includes some sample tools that you can copy to configure your own data 
 To create your own tools or add custom data sources, see our guide: [tools and retrieval sources overview](/docs/custom_tool_guides/tool_guide.md)
 
 ## Roadmap
-* Authentication and user management: Toolkit is currently configured with one user role and no authentication.
-* Whitelabelling: Changing fonts, logos, and colours.
+1. Set env variables in UI
+2. Include citations for multi hop tools 
+3. Display images for python interpreter tool
+4. Add a slack bot as an available interface 
+5. White labelling: Changing fonts, logos, and colours.
+6. User management and authentication system: Toolkit is currently configured with one user role and no authentication.
 
 ## Contributing
 Contributions are what drive an open source community, any contributions made are greatly appreciated. To get started, check out our [documentation.](CONTRIBUTING.md)
