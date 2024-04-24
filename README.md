@@ -16,12 +16,6 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 
 ## Quick start
 
-### Deploying to Google Cloud Run
-
-Before deploying to Google Cloud Run, you'll need a postgres database accessible to your Google Cloud Project, authenticated by a username and password. You'll be prompted for a `DATABASE_URL` before the container builds.
-
-[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
-
 ### Deploying to Azure
 You can deploy Toolkit with one click to Microsoft Azure Platform:
 
