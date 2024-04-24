@@ -9,13 +9,18 @@ from langchain_community.tools import BraveSearch
 
 from backend.tools.retrieval.base import BaseRetrieval
 
+
 class BraveSearchRetriever(BaseRetrieval):
     def __init__(self, count: int = 3):
         if "BRAVE_SEARCH_API_KEY" not in os.environ:
-            raise ValueError("Please set the BRAVE_SEARCH_API_KEY environment variable.")
-        
+            raise ValueError(
+                "Please set the BRAVE_SEARCH_API_KEY environment variable."
+            )
+
         self.api_key = os.environ["BRAVE_SEARCH_API_KEY"]
-        self.tool = BraveSearch.from_api_key(api_key=self.api_key, search_kwargs={"count": count})
+        self.tool = BraveSearch.from_api_key(
+            api_key=self.api_key, search_kwargs={"count": count}
+        )
 
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         results_string = self.tool.run(query)

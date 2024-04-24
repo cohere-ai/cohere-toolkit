@@ -6,6 +6,7 @@ from langchain_community.utilities import StackExchangeAPIWrapper
 
 from backend.tools.retrieval.base import BaseRetrieval
 
+
 class StackExchangeRetriever(BaseRetrieval):
     def __init__(self):
         self.tool = StackExchangeAPIWrapper()
@@ -13,7 +14,7 @@ class StackExchangeRetriever(BaseRetrieval):
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         result = self.tool.run(query)
         return [{"text": result}]
-    
+
 
 if __name__ == "__main__":
     retriever = StackExchangeRetriever()

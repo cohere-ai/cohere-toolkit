@@ -2,7 +2,15 @@ from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools.function_tools import calculator, python_interpreter, wolfram
-from backend.tools.retrieval import arxiv, lang_chain, llama_index, pub_med, tavily, stack_exchange, brave
+from backend.tools.retrieval import (
+    arxiv,
+    lang_chain,
+    llama_index,
+    pub_med,
+    tavily,
+    stack_exchange,
+    brave,
+)
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 

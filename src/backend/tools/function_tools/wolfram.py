@@ -8,11 +8,14 @@ from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
 from backend.tools.function_tools.base import BaseFunctionTool
 
+
 class WolframAlphaFunctionTool(BaseFunctionTool):
     def __init__(self):
         if "WOLFRAM_ALPHA_APP_ID" not in os.environ:
-            raise ValueError("Please set the WOLFRAM_ALPHA_APP_ID environment variable.")
-        
+            raise ValueError(
+                "Please set the WOLFRAM_ALPHA_APP_ID environment variable."
+            )
+
         self.app_id = os.environ["WOLFRAM_ALPHA_APP_ID"]
         self.tool = WolframAlphaAPIWrapper(wolfram_alpha_appid=self.app_id)
 
