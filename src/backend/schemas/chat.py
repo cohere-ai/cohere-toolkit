@@ -115,7 +115,8 @@ class StreamToolInput(ChatResponse):
 
 class StreamToolResult(ChatResponse):
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_RESULT
-    result: Union[str, None]
+    result: Any
+    tool_name: str
 
     documents: List[Document] = Field(
         title="Documents used to generate grounded response with citations.",

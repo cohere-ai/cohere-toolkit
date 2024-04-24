@@ -768,7 +768,10 @@ async def generate_langchain_chat_stream(
                 """
                 if isinstance(result, list):
                     stream_event = StreamToolResult(
-                        is_finished=False, result=None, documents=[]
+                        tool_name=step.action.tool,
+                        is_finished=False,
+                        result=result,
+                        documents=[],
                     )
 
                 """
@@ -783,8 +786,9 @@ async def generate_langchain_chat_stream(
                 """
                 if isinstance(result, dict):
                     stream_event = StreamToolResult(
+                        tool_name=step.action.tool,
                         is_finished=False,
-                        result=result.get("std_out", None),
+                        result=result if result else {},
                         documents=[],
                     )
 
