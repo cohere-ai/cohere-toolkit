@@ -699,7 +699,7 @@ def langchain_chat_stream(
     )
 
 
-async def generate_langchain_chat_stream(
+def generate_langchain_chat_stream(
     session: DBSessionDep,
     model_deployment_stream: Generator[Any, None, None],
     response_message: Message,
@@ -709,6 +709,19 @@ async def generate_langchain_chat_stream(
     **kwargs: Any,
 ):
     final_message_text = ""
+
+    # send stream start event
+    yield json.dumps(
+        jsonable_encoder(
+            ChatResponseEvent(
+                event=StreamEvent.STREAM_START,
+                data=StreamStart(
+                    is_finished=False,
+                    conversation_id=conversation_id,
+                ),
+            )
+        )
+    )
     for event in model_deployment_stream:
         stream_event = None
         if isinstance(event, AddableDict):
@@ -768,7 +781,10 @@ async def generate_langchain_chat_stream(
                 """
                 if isinstance(result, list):
                     stream_event = StreamToolResult(
-                        is_finished=False, result=None, documents=[]
+                        tool_name=step.action.tool,
+                        is_finished=False,
+                        result=result,
+                        documents=[],
                     )
 
                 """
@@ -783,8 +799,9 @@ async def generate_langchain_chat_stream(
                 """
                 if isinstance(result, dict):
                     stream_event = StreamToolResult(
+                        tool_name=step.action.tool,
                         is_finished=False,
-                        result=result.get("std_out", None),
+                        result=result,
                         documents=[],
                     )
 

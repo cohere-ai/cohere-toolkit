@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing import Any, ClassVar, Dict, List, Union
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -58,8 +58,8 @@ class StreamStart(ChatResponse):
     """Stream start event."""
 
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_START
-    generation_id: str = Field()
-    conversation_id: Optional[str] = Field(default=None)
+    generation_id: str | None = Field(default=None)
+    conversation_id: str | None = Field(default=None)
 
 
 class StreamTextGeneration(ChatResponse):
@@ -115,7 +115,8 @@ class StreamToolInput(ChatResponse):
 
 class StreamToolResult(ChatResponse):
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_RESULT
-    result: Union[str, None]
+    result: Any
+    tool_name: str
 
     documents: List[Document] = Field(
         title="Documents used to generate grounded response with citations.",
@@ -135,11 +136,11 @@ class StreamSearchQueriesGeneration(ChatResponse):
 
 
 class StreamEnd(ChatResponse):
-    response_id: str | None
+    response_id: str | None = Field(default=None)
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_END
     is_finished: ClassVar[bool] = True
-    generation_id: str | None = Field()
-    conversation_id: str | None = Field()
+    generation_id: str | None = Field(default=None)
+    conversation_id: str | None = Field(default=None)
     text: str = Field(
         title="Contents of the chat message.",
     )
