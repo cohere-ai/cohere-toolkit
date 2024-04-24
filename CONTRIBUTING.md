@@ -22,6 +22,6 @@ Remember that there are many ways to contribute other than writing code: writing
 1. Ensure your change has an issue! Find an existing issue or open a new issue.
    - This is where you can get a feel if the change will be accepted or not.
 2. Once approved, fork this repository repository in your own GitHub account.
-3. [Create a new Git branch](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-and-deleting-branches-within-your-repository)
-4. Make your changes on your branch and make sure all your [commits are signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)!
-5. [Submit the branch as a Pull Request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) pointing to the `main` branch this repository. A maintainer should comment and/or review your Pull Request within a few days. Although depending on the circumstances, it may take longer.
+3. [Fork this repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+4. Make your changes on your fork and make sure all your [commits are signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)!
+5. [Submit the fork as a Pull Request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) pointing to the `main` branch this repository. A maintainer should comment and/or review your Pull Request within a few days. Although depending on the circumstances, it may take longer.
