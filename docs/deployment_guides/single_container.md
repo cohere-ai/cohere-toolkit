@@ -32,10 +32,14 @@ docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key her
 
 You can also pull a prebuilt image from the `cohere-ai` registry with:
 ```bash
-docker pull ghcr.io/cohere-ai/cohere-toolkit
+docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 ```
 
 Then run the container with:
+
+```bash
+docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
+```
 
 ```bash
 docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit

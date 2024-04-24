@@ -1,3 +1,5 @@
+FROM ghcr.io/cohere-ai/terrarium:latest as terrarium
+
 FROM buildpack-deps:buster
 LABEL authors="Cohere"
 
@@ -103,10 +105,11 @@ RUN pnpm install
 
 # Terrarium
 WORKDIR /usr/src/app
-COPY src/terrarium/package*.json ./
+RUN npm install -g ts-node
+COPY --from=terrarium /usr/src/app/package*.json ./
 RUN npm install
 RUN npm prune --production
-COPY src/terrarium/. .
+COPY --from=terrarium /usr/src/app/. .
 ENV ENV_RUN_AS "docker"
 
 # Ports to expose
