@@ -2,7 +2,6 @@ FROM ghcr.io/cohere-ai/terrarium:latest as terrarium
 
 FROM buildpack-deps:buster
 LABEL authors="Cohere"
-
 ## set ENV for python
 ENV PYTHON_VERSION=3.11.8
 ENV PYTHONDONTWRITEBYTECODE=1
