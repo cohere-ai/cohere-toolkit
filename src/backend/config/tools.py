@@ -1,6 +1,6 @@
+import os
 from distutils.util import strtobool
 from enum import StrEnum
-import os
 
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools.function_tools import calculator, python_interpreter

@@ -1,5 +1,6 @@
-from distutils.util import strtobool
 import os
+from distutils.util import strtobool
+
 from fastapi import APIRouter, Depends
 
 from backend.models import get_session

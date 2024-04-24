@@ -1,6 +1,6 @@
-from distutils.util import strtobool
 import json
 import os
+from distutils.util import strtobool
 from typing import Any, Generator, List, Union
 from uuid import uuid4
 
@@ -665,7 +665,7 @@ def generate_chat_response(
     return non_streamed_chat_response
 
 
-@router.post("/langchain")
+@router.post("/langchain-chat")
 def langchain_chat_stream(
     session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
 ):
@@ -794,6 +794,7 @@ async def generate_langchain_chat_stream(
                 stream_event = StreamEnd(
                     conversation_id=conversation_id,
                     text=event.get("output", ""),
+                    # WARNING: Citations are not yet supported in langchain
                     citations=[],
                     documents=[],
                     search_results=[],
