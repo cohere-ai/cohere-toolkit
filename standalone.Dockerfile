@@ -1,3 +1,5 @@
+FROM ghcr.io/cohere-ai/terrarium:latest as terrarium
+
 FROM buildpack-deps:buster
 LABEL authors="Cohere"
 
@@ -101,10 +103,20 @@ COPY src/interfaces/coral_web/.env.production .
 
 RUN pnpm install
 
+# Terrarium
+WORKDIR /usr/src/app
+RUN npm install -g ts-node
+COPY --from=terrarium /usr/src/app/package*.json ./
+RUN npm install
+RUN npm prune --production
+COPY --from=terrarium /usr/src/app/. .
+ENV ENV_RUN_AS "docker"
+
 # Ports to expose
 EXPOSE 5432/tcp
 EXPOSE 8000/tcp
 EXPOSE 4000/tcp
+EXPOSE 8080/tcp
 WORKDIR ${PG_HOME}
 
 CMD ["/sbin/entrypoint.sh"]
