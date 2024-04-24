@@ -40,7 +40,7 @@ Follow the instructions to configure the model - either AWS Sagemaker, Azure, or
 
 - `COHERE_API_KEY`: If your application will interface with Cohere's API, you will need to supply an API key. Not required if using AWS Sagemaker or Azure.
   Sign up at https://dashboard.cohere.com/ to create an API key.
-- `NEXT_PUBLIC_API_HOSTNAME`: The backend URL which the frontend will communicate with. Defaults to http://localhost:8000
+- `NEXT_PUBLIC_API_HOSTNAME`: The backend URL which the frontend will communicate with. Defaults to http://localhost:8000test
 - `DATABASE_URL`: Your PostgreSQL database connection string for SQLAlchemy, should follow the format `postgresql+psycopg2://USER:PASSWORD@HOST:PORT`.
 
 ### AWS Sagemaker
