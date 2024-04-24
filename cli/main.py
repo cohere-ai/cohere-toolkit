@@ -122,9 +122,7 @@ def update_variable_prompt(_, variables_to_update):
         variable_to_update = variable_to_update.split(":")[0]
         new_value = inquirer.text(f"Enter the new value for {variable_to_update}")
         write_env_file({variable_to_update: new_value})
-        print_styled(
-            f"🪛 Updated {variable_to_update} to {new_value}.", bcolors.OKGREEN
-        )
+        print_styled(f"🪛 Updated {variable_to_update} to {new_value}.", bcolors.OKGREEN)
 
 
 def write_env_file(secrets):

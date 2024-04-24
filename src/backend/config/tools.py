@@ -106,7 +106,7 @@ COHERE_DEPLOYMENT_TOOLS = {
 }
 
 # Langchain tools are all functional tools and must have to_langchain_tool() method defined
-langchain_tools = {
+LANGCHAIN_TOOLS = {
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
         implementation=python_interpreter.PythonInterpreterFunctionTool,
@@ -122,6 +122,6 @@ langchain_tools = {
 }
 
 if use_langchain:
-    AVAILABLE_TOOLS = langchain_tools
+    AVAILABLE_TOOLS = LANGCHAIN_TOOLS
 else:
     AVAILABLE_TOOLS = COHERE_DEPLOYMENT_TOOLS

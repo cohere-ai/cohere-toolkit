@@ -1,12 +1,13 @@
 from typing import Any
 
-from langchain.agents import AgentExecutor
+from backend.config.tools import AVAILABLE_TOOLS
 from langchain_cohere.chat_models import ChatCohere
-from langchain_cohere.react_multi_hop.agent import create_cohere_react_agent
 from langchain_core.prompts import ChatPromptTemplate
 
+from langchain_cohere.react_multi_hop.agent import create_cohere_react_agent
 from backend.chat.base import BaseChat
-from backend.config.tools import AVAILABLE_TOOLS
+from langchain.agents import AgentExecutor
+
 from backend.schemas.langchain_chat import LangchainChatRequest
 
 
@@ -38,11 +39,13 @@ class LangChainChat(BaseChat):
         # Prompt template
         prompt = ChatPromptTemplate.from_template("{input}")
 
-        tools = [
-            tool.implementation().to_langchain_tool()
-            for tool in chat_request.tools
-            if AVAILABLE_TOOLS.get(tool.name)
-        ]
+        tools = []
+        for req_tool in chat_request.tools:
+            tool = AVAILABLE_TOOLS.get(req_tool.name)
+            if tool:
+                tools.append(tool.implementation().to_langchain_tool())
+            else:
+                raise ValueError(f"Tool {req_tool.name} not found")
 
         # Create the ReAct agent
         agent = create_cohere_react_agent(

@@ -1,4 +1,6 @@
+from distutils.util import strtobool
 import json
+import os
 from typing import Any, Generator, List, Union
 from uuid import uuid4
 
@@ -198,8 +200,13 @@ def process_chat(
         id=str(uuid4()),
     )
 
-    file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
-    attach_files_to_messages(session, user_id, user_message.id, chat_request.file_ids)
+    file_paths = None
+    if isinstance(chat_request, CohereChatRequest):
+        file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
+        attach_files_to_messages(
+            session, user_id, user_message.id, chat_request.file_ids
+        )
+
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request
     )
@@ -662,6 +669,11 @@ def generate_chat_response(
 def langchain_chat_stream(
     session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
 ):
+
+    use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
+    if not use_langchain:
+        return {"error": "Langchain is not enabled."}
+
     (
         session,
         chat_request,
@@ -673,6 +685,7 @@ def langchain_chat_stream(
         should_store,
         managed_tools,
     ) = process_chat(session, chat_request, request)
+
     return EventSourceResponse(
         generate_langchain_chat_stream(
             session,
@@ -713,7 +726,9 @@ async def generate_langchain_chat_stream(
                     if isinstance(action.tool_input, str):
                         tool_input = action.tool_input
                     elif isinstance(action.tool_input, dict):
-                        tool_input = "".join(action.tool_input.values())
+                        tool_input = "".join(
+                            [str(val) for val in action.tool_input.values()]
+                        )
                     content = (
                         action.message_log[0].content
                         if len(action.message_log) > 0
