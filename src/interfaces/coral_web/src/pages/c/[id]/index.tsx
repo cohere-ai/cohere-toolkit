@@ -1,7 +1,7 @@
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { CohereClient, Document } from '@/cohere-client';
 import Conversation from '@/components/Conversation';
@@ -9,8 +9,8 @@ import { ConversationError } from '@/components/ConversationError';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { Layout, LayoutSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
-import { BannerContext } from '@/context/BannerContext';
 import { useConversation } from '@/hooks/conversation';
+import { useListDeployments } from '@/hooks/deployments';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
@@ -23,10 +23,10 @@ const ConversationPage: NextPage<Props> = () => {
   const router = useRouter();
   const {
     params: { deployment },
+    setParams,
   } = useParamsStore();
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations } = useCitationsStore();
-  const { setMessage } = useContext(BannerContext);
 
   const urlConversationId = Array.isArray(router.query.id)
     ? router.query.id[0]
@@ -38,6 +38,7 @@ const ConversationPage: NextPage<Props> = () => {
     isError,
     error,
   } = useConversation({ conversationId: urlConversationId });
+  const { data: availableDeployments } = useListDeployments();
 
   useEffect(() => {
     resetCitations();
@@ -57,8 +58,8 @@ const ConversationPage: NextPage<Props> = () => {
   }, [conversation?.id, setConversation]);
 
   useEffect(() => {
-    if (!deployment) {
-      setMessage('Please select a deployment in the Tools Drawer > Settings tab.');
+    if (!deployment && availableDeployments && availableDeployments?.length > 0) {
+      setParams({ deployment: availableDeployments[0].name });
     }
   }, [deployment]);
 
