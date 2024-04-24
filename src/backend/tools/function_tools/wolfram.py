@@ -1,9 +1,9 @@
 # https://python.langchain.com/docs/integrations/tools/wolfram_alpha/
 
 import os
-import dotenv
 from typing import Any, Dict, List
 
+import dotenv
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
 from backend.tools.function_tools.base import BaseFunctionTool

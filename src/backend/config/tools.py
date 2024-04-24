@@ -4,12 +4,12 @@ from backend.schemas.tool import Category, ManagedTool
 from backend.tools.function_tools import calculator, python_interpreter, wolfram
 from backend.tools.retrieval import (
     arxiv,
+    brave,
     lang_chain,
     llama_index,
     pub_med,
-    tavily,
     stack_exchange,
-    brave,
+    tavily,
 )
 
 """

@@ -1,10 +1,10 @@
 # https://python.langchain.com/docs/integrations/tools/brave_search/
 
-import os
 import json
-import dotenv
+import os
 from typing import Any, Dict, List
 
+import dotenv
 from langchain_community.tools import BraveSearch
 
 from backend.tools.retrieval.base import BaseRetrieval
