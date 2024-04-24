@@ -41,10 +41,6 @@ Then run the container with:
 docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
 ```
 
-```bash
-docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
-```
-
 After either option, you can access the APIs at `http://localhost:8000/docs` to see the comprehensive list of endpoints, and the frontend Toolkit app at `http://localhost:4000`.
 
 
