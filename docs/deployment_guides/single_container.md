@@ -8,8 +8,8 @@ Note: Azure Container instance and Cloud Run are stateless, so you will lose all
 ## Cloud Deployment
 
 You can deploy Toolkit with one click in Microsoft Azure Platform:
-                                                                                         
-[<img src="https://aka.ms/deploytoazurebutton" height="30px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Ftoolkit%2Fmain%2Fazuredeploy.json)
+
+[<img src="https://aka.ms/deploytoazurebutton" height="30px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
 ### AWS ECS(Fargate) Deployment guide
 - [AWS ECS Deployment](aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
