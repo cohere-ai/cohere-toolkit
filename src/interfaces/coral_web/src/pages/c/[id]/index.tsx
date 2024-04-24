@@ -11,6 +11,7 @@ import { Layout, LayoutSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
 import { useConversation } from '@/hooks/conversation';
 import { useListDeployments } from '@/hooks/deployments';
+import { useExperimentalFeatures } from '@/hooks/experiementalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
@@ -27,6 +28,7 @@ const ConversationPage: NextPage<Props> = () => {
   } = useParamsStore();
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations } = useCitationsStore();
+  const { data: isExperiementalFeaturesOn } = useExperimentalFeatures();
 
   const urlConversationId = Array.isArray(router.query.id)
     ? router.query.id[0]
