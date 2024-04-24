@@ -1,3 +1,5 @@
+import os
+from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
@@ -27,7 +29,9 @@ class ToolName(StrEnum):
     Pub_Med = "Pub Med"
 
 
-AVAILABLE_TOOLS = {
+use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
+
+COHERE_DEPLOYMENT_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
         name=ToolName.Wiki_Retriever_LangChain,
         implementation=lang_chain.LangChainWikiRetriever,
@@ -100,3 +104,24 @@ AVAILABLE_TOOLS = {
         description="Retrieves documents from Pub Med.",
     ),
 }
+
+# Langchain tools are all functional tools and must have to_langchain_tool() method defined
+LANGCHAIN_TOOLS = {
+    ToolName.Python_Interpreter: ManagedTool(
+        name=ToolName.Python_Interpreter,
+        implementation=python_interpreter.PythonInterpreterFunctionTool,
+        is_visible=True,
+        description="Runs python code in a sandbox.",
+    ),
+    ToolName.Tavily_Internet_Search: ManagedTool(
+        name=ToolName.Tavily_Internet_Search,
+        implementation=tavily.TavilyInternetSearch,
+        is_visible=True,
+        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
+    ),
+}
+
+if use_langchain:
+    AVAILABLE_TOOLS = LANGCHAIN_TOOLS
+else:
+    AVAILABLE_TOOLS = COHERE_DEPLOYMENT_TOOLS
