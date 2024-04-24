@@ -665,18 +665,22 @@ def langchain_chat_stream(
     (
         session,
         chat_request,
-        file_paths,
+        _,
         response_message,
         conversation_id,
         user_id,
-        deployment_name,
+        _,
         should_store,
         managed_tools,
     ) = process_chat(session, chat_request, request)
-    # TODO: validate request, Read tools from request and update langchain chat function to take tools
     return EventSourceResponse(
         generate_langchain_chat_stream(
-            session, chat_request, LangChainChat().chat(chat_request), should_store
+            session,
+            LangChainChat().chat(chat_request, managed_tools=managed_tools),
+            response_message,
+            conversation_id,
+            user_id,
+            should_store,
         ),
         media_type="text/event-stream",
     )
@@ -688,7 +692,7 @@ async def generate_langchain_chat_stream(
     response_message: Message,
     conversation_id: str,
     user_id: str,
-    should_store: bool = True,
+    should_store: bool,
     **kwargs: Any,
 ):
     final_message_text = ""
@@ -719,7 +723,6 @@ async def generate_langchain_chat_stream(
                     # only take the first part of content before the newline
                     content = content.split("\n")[0]
 
-                    # TODO: update query generation type to take potential tools and parse query
                     # shape: "Plan: I will search for tips on writing an essay and fun facts about the Roman Empire. I will then write an answer using the information I find.\nAction: ```json\n[\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"tips for writing an essay\"\n        }\n    },\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"fun facts about the roman empire\"\n        }\n
                     stream_event = StreamToolInput(
                         is_finished=False,
@@ -749,7 +752,6 @@ async def generate_langchain_chat_stream(
                 ]
                 """
                 if isinstance(result, list):
-                    # TODO convert to document model and add here
                     stream_event = StreamToolResult(
                         is_finished=False, result=None, documents=[]
                     )
@@ -774,7 +776,6 @@ async def generate_langchain_chat_stream(
             # final output
             if event.get("output", "") and event.get("citations", []):
                 final_message_text = event.get("output", "")
-                # TODO: link citations to results from tool steps
                 stream_event = StreamEnd(
                     response_id=str(uuid4()),  # TODO make this optional
                     generation_id=str(uuid4()),  # TODO make this optional

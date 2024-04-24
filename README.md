@@ -272,6 +272,23 @@ Toolkit includes some sample tools that you can copy to configure your own data 
 
 To create your own tools or add custom data sources, see our guide: [tools and retrieval sources overview](/docs/custom_tool_guides/tool_guide.md)
 
+## Experimental Features
+
+**Please note that these are experimental features and there will likely be bugs.**
+
+### Langchain Multihop
+Multihop tool usage is enabled by settingg experimental feature flag to True in `.env`
+```bash
+USE_EXPERIMENTAL_LANGCHAIN=True
+``` 
+By setting this flag to true, only tools that have a Langchain implementation can be utilized. 
+The frontend then uses the `/langchain` chat endpoint to perform tool calls and multiple tools can be chained in the same request. 
+
+Currently, citations are not supported in lanchain multihop.
+
+
+
+
 ## Roadmap
 1. Set env variables in UI
 2. Include citations for multi hop tools 
