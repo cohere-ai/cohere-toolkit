@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.models.base import Base
@@ -8,7 +8,8 @@ class Document(Base):
     __tablename__ = "documents"
 
     text: Mapped[str]
-    user_id: Mapped[str]
+    # TODO: Swap to foreign key once User management implemented
+    user_id: Mapped[str] = mapped_column(String)
     title: Mapped[str] = mapped_column(String, nullable=True)
     url: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -20,3 +21,10 @@ class Document(Base):
     )
     # User facing ID returned from model, not storage UUID ex: doc_0
     document_id: Mapped[str]
+
+    __table_args__ = (
+        Index("document_conversation_id_user_id", conversation_id, user_id),
+        Index("document_conversation_id", conversation_id),
+        Index("document_message_id", message_id),
+        Index("document_user_id", user_id),
+    )
