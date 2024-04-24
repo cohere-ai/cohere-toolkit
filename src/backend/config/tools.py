@@ -1,8 +1,8 @@
 from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
-from backend.tools.function_tools import calculator, python_interpreter
-from backend.tools.retrieval import arxiv, lang_chain, llama_index, pub_med, tavily
+from backend.tools.function_tools import calculator, python_interpreter, wolfram
+from backend.tools.retrieval import arxiv, lang_chain, llama_index, pub_med, tavily, stack_exchange, brave
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 
@@ -25,6 +25,9 @@ class ToolName(StrEnum):
     Tavily_Internet_Search = "Internet Search"
     Arxiv = "Arxiv"
     Pub_Med = "Pub Med"
+    StackExchange = "Stack Exchange"
+    BraveSearch = "Brave Search"
+    WolframAlpha = "Wolfram_Alpha"
 
 
 AVAILABLE_TOOLS = {
@@ -98,5 +101,34 @@ AVAILABLE_TOOLS = {
         is_visible=True,
         category=Category.DataLoader,
         description="Retrieves documents from Pub Med.",
+    ),
+    ToolName.StackExchange: ManagedTool(
+        name=ToolName.StackExchange,
+        implementation=stack_exchange.StackExchangeRetriever,
+        is_visible=True,
+        category=Category.DataLoader,
+        description="Retrieves documents from Stack Exchange.",
+    ),
+    ToolName.BraveSearch: ManagedTool(
+        name=ToolName.BraveSearch,
+        implementation=brave.BraveSearchRetriever,
+        is_visible=True,
+        category=Category.DataLoader,
+        description="Retrieves documents from Brave Search.",
+        kwargs={"count": 5},
+    ),
+    ToolName.WolframAlpha: ManagedTool(
+        name=ToolName.WolframAlpha,
+        implementation=wolfram.WolframAlphaFunctionTool,
+        parameter_definitions={
+            "expression": {
+                "description": "Arithmetic expression to evaluate",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        category=Category.Function,
+        description="Evaluate arithmetic expressions.",
     ),
 }
