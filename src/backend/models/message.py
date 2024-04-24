@@ -14,6 +14,7 @@ class MessageAgent(StrEnum):
     USER = "USER"
     CHATBOT = "CHATBOT"
 
+
 class Message(Base):
     """
     Default Message model for conversation text.

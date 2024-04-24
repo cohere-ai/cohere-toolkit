@@ -33,6 +33,6 @@ class Citation(Base):
 
     __table_args__ = (
         Index("citation_message_id_user_id", message_id, user_id),
-        Index("citation_message_id" ,message_id),
+        Index("citation_message_id", message_id),
         Index("citation_user_id", user_id),
     )
