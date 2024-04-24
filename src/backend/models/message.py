@@ -1,8 +1,8 @@
 from enum import StrEnum
 from typing import List
 
-from sqlalchemy import Boolean, Enum, ForeignKey, String, Index
-from sqlalchemy.orm import Mapped, mapped_column, relationship, declared_attr
+from sqlalchemy import Boolean, Enum, ForeignKey, Index, String
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
 from backend.models.base import Base
 from backend.models.citation import Citation
