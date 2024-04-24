@@ -12,6 +12,8 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 * [Try Coral Showcase](https://coral.cohere.com/)
 
 
+![](/docs/assets/toolkit.gif)
+
 ## Quick start
 
 ### Deploying to Google Cloud Run
