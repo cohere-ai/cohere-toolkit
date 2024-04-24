@@ -1,2 +1,0 @@
-inquirer==3.2.4
-python-dotenv==1.0.1

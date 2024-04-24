@@ -12,13 +12,9 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 * [Try Coral Showcase](https://coral.cohere.com/)
 
 
+![](/docs/assets/toolkit.gif)
+
 ## Quick start
-
-### Deploying to Google Cloud Run
-
-Before deploying to Google Cloud Run, you'll need a postgres database accessible to your Google Cloud Project, authenticated by a username and password. You'll be prompted for a `DATABASE_URL` before the container builds.
-
-[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
 
 ### Deploying to Azure
 You can deploy Toolkit with one click to Microsoft Azure Platform:
@@ -56,7 +52,7 @@ Sign up at https://dashboard.cohere.com/ to create an API key.
 
   ### Hosted tools
 
-  - `PYTHON_INTERPRETER_URL`: URL to the python interpreter container. Defaults to http://terrarium:8080.
+  - `PYTHON_INTERPRETER_URL`: URL to the python interpreter container. Defaults to http://localhost:8080.
   - `TAVILY_API_KEY`: If you want to enable internet search, you will need to supply a Tavily API Key. Not required.
 
 </details>
@@ -72,14 +68,14 @@ Requirements:
 #### Option 1 - Install locally with Docker:
 Ensure your shell is authenticated with [GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic).
 
-Pull the images from Github's Artifact Registry
+Pull the [Single Container Image](docs/deployment_guides/single_container.md) from Github's Artifact Registry
 ```bash
-docker pull ghcr.io/cohere-ai/cohere-toolkit-backend:latest && docker pull ghcr.io/cohere-ai/cohere-toolkit-frontend:latest 
+docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 ```
 
 Run the images locally:
 ```bash
-make run-docker-images
+docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
 ```
 
 #### Option 2 - Build locally from scratch:

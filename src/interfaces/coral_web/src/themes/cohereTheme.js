@@ -132,10 +132,8 @@ module.exports = {
       },
       fontFamily: {
         body: ['CohereText', ...defaultTheme.fontFamily.sans],
-        headline: ['CohereHeadline', 'Arial', ...defaultTheme.fontFamily.serif],
         variable: ['CohereVariable', 'Arial', ...defaultTheme.fontFamily.serif],
         code: ['CohereMono', ...defaultTheme.fontFamily.mono],
-        color: ['CohereColor', 'CohereVariable', 'Arial', ...defaultTheme.fontFamily.serif],
         iconOutline: ['CohereIconOutline'],
         iconDefault: ['CohereIconDefault'],
       },
