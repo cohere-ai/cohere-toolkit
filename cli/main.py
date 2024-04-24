@@ -97,6 +97,26 @@ def tavily_api_key_prompt(secrets):
         secrets["TAVILY_API_KEY"] = tavily_api_key
 
 
+def wolfram_alpha_app_id_prompt(secrets):
+    print_styled(
+        "🧮 If you want to enable Wolfram Alpha search, set up your app ID. Otherwise, press enter."
+    )
+    wolfram_alpha_app_id = inquirer.text("Enter your Wolfram Alpha app ID")
+
+    if wolfram_alpha_app_id and len(wolfram_alpha_app_id) > 0:
+        secrets["WOLFRAM_ALPHA_APP_ID"] = wolfram_alpha_app_id
+
+
+def brave_search_api_key_prompt(secrets):
+    print_styled(
+        "🔍 If you want to enable Brave Search, set up your api key. Otherwise, press enter."
+    )
+    brave_search_api_key = inquirer.text("Enter your Brave Search API key")
+
+    if brave_search_api_key and len(brave_search_api_key) > 0:
+        secrets["BRAVE_SEARCH_API_KEY"] = brave_search_api_key
+
+
 def deployment_prompt(secrets, configs):
     for secret in configs["secrets"]:
         if configs.get("custom_implementation"):
@@ -213,6 +233,8 @@ IMPLEMENTATIONS = {
     "database_url": database_url_prompt,
     "python_interpreter_url": python_interpreter_url_prompt,
     "tavily_internet_search": tavily_api_key_prompt,
+    "wolfram_alpha": wolfram_alpha_app_id_prompt,
+    "brave_search": brave_search_api_key_prompt,
 }
 
 
