@@ -57,19 +57,3 @@ To start the container again, run:
 ```bash
 docker start cohere-toolkit
 ```
-
-### Enabling Python Interpreter
-To enable the Python Interpreter tool, follow these steps:
-
-Pull the latest Terrarium image
-```bash
-docker pull ghcr.io/cohere-ai/terrarium:latest
-```
-
-Then run the container with:
-
-```bash
-docker run --name=terrarium --hostname=terrarium -itd -p 8080:8080 ghcr.io/cohere-ai/terrarium
-```
-
-Then make sure your `.env` file contains `PYTHON_INTERPRETER_URL`, the default value should be `http://localhost:8080`.
