@@ -135,11 +135,11 @@ class StreamSearchQueriesGeneration(ChatResponse):
 
 
 class StreamEnd(ChatResponse):
-    response_id: str
+    response_id: str | None
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_END
     is_finished: ClassVar[bool] = True
-    generation_id: str = Field()
-    conversation_id: Optional[str] = Field()
+    generation_id: str | None = Field()
+    conversation_id: str | None = Field()
     text: str = Field(
         title="Contents of the chat message.",
     )

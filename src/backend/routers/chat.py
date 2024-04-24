@@ -161,7 +161,7 @@ def process_chat(
     Process a chat request.
 
     Args:
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
 
@@ -305,7 +305,7 @@ def create_message(
 
     Args:
         session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
         user_message_position (int): User message position.
@@ -391,7 +391,7 @@ def create_chat_history(
     Args:
         conversation (Conversation): Conversation object.
         user_message_position (int): User message position.
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
 
     Returns:
         list[ChatMessage]: List of chat messages.
@@ -792,8 +792,6 @@ async def generate_langchain_chat_stream(
             if event.get("output", "") and event.get("citations", []):
                 final_message_text = event.get("output", "")
                 stream_event = StreamEnd(
-                    response_id=str(uuid4()),  # TODO make this optional
-                    generation_id=str(uuid4()),  # TODO make this optional
                     conversation_id=conversation_id,
                     text=event.get("output", ""),
                     citations=[],
