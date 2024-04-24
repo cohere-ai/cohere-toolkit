@@ -6,4 +6,5 @@ class BaseFunctionTool:
     """Base for all retrieval options."""
 
     @abstractmethod
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+        ...
