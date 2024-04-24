@@ -40,6 +40,7 @@ class Message(Base):
     agent: Mapped[MessageAgent] = mapped_column(
         Enum(MessageAgent, native_enum=False),
     )
+    ex
 
     __table_args__ = (
         Index("message_conversation_id_user_id", conversation_id, user_id),
