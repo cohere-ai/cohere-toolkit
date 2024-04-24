@@ -23,7 +23,14 @@ You can deploy Toolkit with one click to Microsoft Azure Platform:
 
 [<img src="https://aka.ms/deploytoazurebutton" height="48px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Ftoolkit%2Fmain%2Fazuredeploy.json)
 
-### Building and running locally
+### Run locally with Docker
+
+```bash
+docker run -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
+```
+Run the docker command above and visit http://localhost:4000
+
+### Building and from source
 
 Clone the repo and run
 
@@ -70,25 +77,7 @@ Requirements:
 - [Poetry](https://python-poetry.org/docs/#installation)
 - [Docker-compose >= 2.22](https://docs.docker.com/compose/install/)
 
-#### Option 1 - Install locally with Docker:
-
-Ensure your shell is authenticated with [GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic).
-
-Pull the [Single Container Image](docs/deployment_guides/single_container.md) from Github's Artifact Registry
-
-```bash
-docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
-```
-
-Run the images locally:
-
-```bash
-docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
-```
-
-#### Option 2 - Build locally from scratch:
-
-##### Option 2.1 - Run everything at once
+##### Option 1 - Run everything at once
 
 Run `make first-run` to start the CLI, that will generate a `.env` file for you. This will also run all the DB migrations and run the containers
 
@@ -96,7 +85,7 @@ Run `make first-run` to start the CLI, that will generate a `.env` file for you.
 make first-run
 ```
 
-##### Option 2.1 - Run each command separately
+##### Option 2 - Run each command separately
 
 Run `make setup` to start the CLI, that will generate a `.env` file for you:
 
