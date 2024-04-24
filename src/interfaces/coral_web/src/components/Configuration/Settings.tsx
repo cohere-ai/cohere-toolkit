@@ -15,9 +15,9 @@ export const Settings: React.FC = () => {
     setParams,
   } = useParamsStore();
   const defaults = useSettingsDefaults();
-  const { data: allDeployments = [] } = useListAllDeployments();
+  const { data: deployments = [] } = useListAllDeployments();
   const modelOptions = useMemo(() => {
-    const selectedDeployment = allDeployments?.find(({ name }) => name === deployment);
+    const selectedDeployment = deployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return [];
     return [
       {
