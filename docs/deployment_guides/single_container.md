@@ -8,8 +8,8 @@ Note: Azure Container instance and Cloud Run are stateless, so you will lose all
 ## Cloud Deployment
 
 You can deploy Toolkit with one click in Microsoft Azure Platform:
-                                                                                         
-[<img src="https://aka.ms/deploytoazurebutton" height="30px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Ftoolkit%2Fmain%2Fazuredeploy.json)
+
+[<img src="https://aka.ms/deploytoazurebutton" height="30px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
 ### AWS ECS(Fargate) Deployment guide
 - [AWS ECS Deployment](aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
@@ -32,7 +32,7 @@ docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key her
 
 You can also pull a prebuilt image from the `cohere-ai` registry with:
 ```bash
-docker pull ghcr.io/cohere-ai/cohere-toolkit
+docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 ```
 
 Then run the container with:

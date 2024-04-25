@@ -261,6 +261,6 @@ run_frontend() {
 run_terrarium() {
   cd /usr/src/app
   echo "Starting Terrarium..."
-  pm2 start node -- index.js
+  pm2 start node -- /usr/bin/ts-node -- src/index.ts
   echo "Terrarium started..."
 }

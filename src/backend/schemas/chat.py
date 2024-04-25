@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing import Any, ClassVar, Dict, List, Union
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -8,7 +8,7 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.search_query import SearchQuery
-from backend.schemas.tool import ToolCall
+from backend.schemas.tool import Tool, ToolCall
 
 
 class ChatRole(StrEnum):
@@ -58,8 +58,8 @@ class StreamStart(ChatResponse):
     """Stream start event."""
 
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_START
-    generation_id: str = Field()
-    conversation_id: Optional[str] = Field(default=None)
+    generation_id: str | None = Field(default=None)
+    conversation_id: str | None = Field(default=None)
 
 
 class StreamTextGeneration(ChatResponse):
@@ -115,7 +115,8 @@ class StreamToolInput(ChatResponse):
 
 class StreamToolResult(ChatResponse):
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_RESULT
-    result: Union[str, None]
+    result: Any
+    tool_name: str
 
     documents: List[Document] = Field(
         title="Documents used to generate grounded response with citations.",
@@ -135,11 +136,11 @@ class StreamSearchQueriesGeneration(ChatResponse):
 
 
 class StreamEnd(ChatResponse):
-    response_id: str
+    response_id: str | None = Field(default=None)
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_END
     is_finished: ClassVar[bool] = True
-    generation_id: str = Field()
-    conversation_id: Optional[str] = Field()
+    generation_id: str | None = Field(default=None)
+    conversation_id: str | None = Field(default=None)
     text: str = Field(
         title="Contents of the chat message.",
     )
@@ -199,4 +200,59 @@ class BaseChatRequest(BaseModel):
     conversation_id: str = Field(
         default_factory=lambda: str(uuid4()),
         title="To store a conversation then create a conversation id and use it for every related request",
+    )
+
+    tools: List[Tool] | None = Field(
+        default_factory=list,
+        title="""
+            List of custom or managed tools to use for the response.
+            If passing in managed tools, you only need to provide the name of the tool.
+            If passing in custom tools, you need to provide the name, description, and optionally parameter defintions of the tool.
+            Passing a mix of custom and managed tools is not supported. 
+
+            Managed Tools Examples:
+            tools=[
+                {
+                    "name": "Wiki Retriever - LangChain",
+                },
+                {
+                    "name": "Calculator",
+                }
+            ]
+
+            Custom Tools Examples:
+            tools=[
+                {
+                    "name": "movie_title_generator",
+                    "description": "tool to generate a cool movie title",
+                    "parameter_definitions": {
+                        "synopsis": {
+                            "description": "short synopsis of the movie",
+                            "type": "str",
+                            "required": true
+                        }
+                    }
+                },
+                {
+                    "name": "random_number_generator",
+                    "description": "tool to generate a random number between min and max",
+                    "parameter_definitions": {
+                        "min": {
+                            "description": "minimum number",
+                            "type": "int",
+                            "required": true
+                        },
+                        "max": {
+                            "description": "maximum number",
+                            "type": "int",
+                            "required": true
+                        }
+                    }  
+                },
+                {
+                    "name": "joke_generator",
+                    "description": "tool to generate a random joke",
+                }
+            ]
+        """,
     )
