@@ -19,8 +19,9 @@ export const Configuration: React.FC = () => {
         tabs={TABS.map((t) => t.name)}
         selectedIndex={selectedIndex}
         onChange={setSelectedIndex}
+        tabGroupClassName="h-full"
         tabClassName="pt-2.5"
-        panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
+        panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none relative h-full"
         fitTabsContent={true}
       >
         {TABS.map((t) => createElement(t.component, { key: t.name }))}

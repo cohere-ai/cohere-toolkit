@@ -1,7 +1,7 @@
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { CohereClient, Document } from '@/cohere-client';
 import Conversation from '@/components/Conversation';
@@ -9,6 +9,7 @@ import { ConversationError } from '@/components/ConversationError';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { Layout, LayoutSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
+import { BannerContext } from '@/context/BannerContext';
 import { useConversation } from '@/hooks/conversation';
 import { useListDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experiementalFeatures';
@@ -29,6 +30,7 @@ const ConversationPage: NextPage<Props> = () => {
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations } = useCitationsStore();
   const { data: isExperiementalFeaturesOn } = useExperimentalFeatures();
+  const { setMessage } = useContext(BannerContext);
 
   const urlConversationId = Array.isArray(router.query.id)
     ? router.query.id[0]
@@ -80,6 +82,11 @@ const ConversationPage: NextPage<Props> = () => {
       });
     });
   }, [conversation]);
+
+  useEffect(() => {
+    if (!isExperiementalFeaturesOn) return;
+    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
+  }, [isExperiementalFeaturesOn]);
 
   return (
     <Layout>

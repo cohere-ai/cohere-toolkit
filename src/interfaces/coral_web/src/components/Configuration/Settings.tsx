@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
 import { useListAllDeployments } from '@/hooks/deployments';
+import { useExperimentalFeatures } from '@/hooks/experiementalFeatures';
 import { useSettingsDefaults } from '@/hooks/settings';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -16,6 +17,7 @@ export const Settings: React.FC = () => {
   } = useParamsStore();
   const defaults = useSettingsDefaults();
   const { data: deployments = [] } = useListAllDeployments();
+  const { data: isExperiementalFeaturesOn } = useExperimentalFeatures();
   const modelOptions = useMemo(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return [];
@@ -38,6 +40,7 @@ export const Settings: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">
+      {isExperiementalFeaturesOn && <ExperimentalModeOverlay />}
       <Dropdown
         className="w-full"
         label="Model"
@@ -86,6 +89,16 @@ export const Settings: React.FC = () => {
           </Text>
         </button>
       </div>
+    </div>
+  );
+};
+
+const ExperimentalModeOverlay: React.FC = () => {
+  return (
+    <div className="absolute left-0 top-0 z-10 flex h-full w-full cursor-not-allowed items-center justify-center bg-marble-100 bg-opacity-80 px-2">
+      <Text styleAs="p-lg" className="text-center text-volcanic-900">
+        Currently settings are disabled with experimental Langchain multihop
+      </Text>
     </div>
   );
 };
