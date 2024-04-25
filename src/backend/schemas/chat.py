@@ -161,46 +161,7 @@ class StreamEnd(ChatResponse):
     finish_reason: str = Field()
 
 
-class NonStreamedChatResponse(ChatResponse):
-    response_id: str | None = Field(
-        title="Unique identifier for the response.",
-    )
-    generation_id: str | None = Field(
-        title="Unique identifier for the generation.",
-    )
-    chat_history: List[ChatMessage] | None = Field(
-        title="A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.",
-    )
-    finish_reason: str = Field(
-        title="Reason the chat stream ended.",
-    )
-    text: str = Field(
-        title="Contents of the chat message.",
-    )
-    citations: List[Citation] | None = Field(
-        title="Citations for the chat message.",
-        default=[],
-    )
-    documents: List[Document] | None = Field(
-        title="Documents used to generate grounded response with citations.",
-        default=[],
-    )
-    search_results: List[Dict[str, Any]] | None = Field(
-        title="Search results used to generate grounded response with citations.",
-        default=[],
-    )
-    search_queries: List[SearchQuery] | None = Field(
-        title="List of generated search queries.",
-        default=[],
-    )
-    conversation_id: str | None = Field(
-        title="To store a conversation then create a conversation id and use it for every related request.",
-    )
-    tool_calls: List[ToolCall] | None = Field(
-        title="List of tool calls generated for custom tools",
-        default=[],
-    )
-
+from cohere.types import NonStreamedChatResponse
 
 class ChatResponseEvent(BaseModel):
     event: StreamEvent = Field(
