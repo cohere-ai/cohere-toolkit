@@ -12,4 +12,4 @@ Thank you for contributing to the Cohere Toolkit!
 
 
 - [ ] **Add tests and docs**: Please include testing and documentation for your changes
-- [ ] **Lint and test**: Run `make lint` and `make test` 
+- [ ] **Lint and test**: Run `make lint` and `make run-tests` 
