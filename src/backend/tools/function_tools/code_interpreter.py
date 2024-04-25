@@ -21,6 +21,10 @@ class CodeInterpreterFunctionTool(BaseFunctionTool):
     def __init__(self):
         # Instantiate the E2B sandbox - this is a long lived object
         # that's pinging E2B cloud to keep the sandbox alive.
+        if "E2B_API_KEY" not in os.environ:
+            raise Exception(
+                "Code Interpreter tool called while E2B_API_KEY environment variable is not set. Please get your E2B api key here https://e2b.dev/docs and set the E2B_API_KEY environment variable."
+            )
         self.code_interpreter = CodeInterpreter()
 
     def call(self, parameters: dict, **kwargs: Any):
@@ -28,10 +32,6 @@ class CodeInterpreterFunctionTool(BaseFunctionTool):
         # because it has a full Jupyter server running inside the sandbox.
         # What's the best way to send this data back to frontend and render them in chat?
 
-        if "E2B_API_KEY" not in os.environ:
-            raise Exception(
-                "Code Interpreter tool called while E2B_API_KEY environment variable is not set. Please gt your E2B api key here https://e2b.dev/docs and set the E2B_API_KEY environment variable."
-            )
 
         code = parameters.get("code", "")
         print("Code to run", code)
