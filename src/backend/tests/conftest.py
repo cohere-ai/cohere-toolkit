@@ -152,10 +152,11 @@ def user(session: Session) -> User:
 @pytest.fixture
 def mock_available_model_deployments(request):
     from backend.tests.model_deployments.mock_deployments import (
+        MockAzureDeployment,
         MockCohereDeployment,
         MockSageMakerDeployment,
-        MockAzureDeployment,
     )
+
     is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
         ModelDeploymentName.CoherePlatform: Deployment(

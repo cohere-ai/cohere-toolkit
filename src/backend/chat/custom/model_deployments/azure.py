@@ -14,6 +14,7 @@ class AzureDeployment(BaseDeployment):
     How to deploy a model:
     https://learn.microsoft.com/azure/ai-studio/how-to/deploy-models-cohere-command
     """
+
     DEFAULT_MODELS = ["azure-command"]
     api_key = os.environ.get("AZURE_API_KEY")
     # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
@@ -40,12 +41,7 @@ class AzureDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all(
-            [
-                cls.api_key is not None,
-                cls.chat_endpoint_url is not None
-            ]
-        )
+        return all([cls.api_key is not None, cls.chat_endpoint_url is not None])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         return self.client.chat(

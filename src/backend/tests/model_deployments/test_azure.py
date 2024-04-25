@@ -2,17 +2,18 @@ from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
-from backend.tests.model_deployments.mock_deployments import MockAzureDeployment
+
 from backend.config.deployments import ModelDeploymentName
 from backend.models.user import User
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.tests.model_deployments.mock_deployments import MockAzureDeployment
 
 
 def test_streamed_chat(
     session_client_chat: TestClient,
     user: User,
     mock_azure_deployment,
-    mock_available_model_deployments
+    mock_available_model_deployments,
 ):
     deployment = mock_azure_deployment.return_value
     deployment.invoke_chat_stream = MagicMock()
@@ -56,7 +57,7 @@ def test_non_streamed_chat(
     session_client_chat: TestClient,
     user: User,
     mock_azure_deployment,
-    mock_available_model_deployments
+    mock_available_model_deployments,
 ):
     deployment = mock_azure_deployment.return_value
     deployment.invoke_chat = MagicMock()

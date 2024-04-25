@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.config.deployments import ModelDeploymentName, AVAILABLE_MODEL_DEPLOYMENTS
+from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 
 
 def test_list_deployments(
