@@ -3,7 +3,7 @@ Follow these instructions to create your own custom tools.
 
 ## Step 1: Choose a Tool to Implement
 
-You can take a tool implementation easily from: 
+You can take a tool implementation easily from:
 
 - LangChain
     - Tools: [Tools | 🦜️🔗 LangChain](https://python.langchain.com/docs/integrations/tools/)
@@ -105,9 +105,9 @@ Note that all Retrievers should return a list of Dicts, and each Dict should con
 
 ### Implementing a Function Tool
 
-Add the implementation inside a tool class that inherits `BaseFunctionTool` and needs to implement the function  `def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:` 
+Add the implementation inside a tool class that inherits `BaseFunctionTool` and needs to implement the function  `def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:`
 
-For example, for calculator 
+For example, for calculator
 
 ```python
 from typing import Any

@@ -35,6 +35,7 @@ py-expression-eval = "^0.3.14"
 tavily-python = "^0.3.3"
 arxiv = "^2.1.0"
 xmltodict = "^0.13.0"
+e2b-code-interpreter = "^0.0.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.2"
