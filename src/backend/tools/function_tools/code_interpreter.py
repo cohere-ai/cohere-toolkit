@@ -29,7 +29,6 @@ class CodeInterpreterFunctionTool(BaseFunctionTool):
         # because it has a full Jupyter server running inside the sandbox.
         # What's the best way to send this data back to frontend and render them in chat?
 
-        # TODO: Will be E2B_API_KEY
         if "E2B_API_KEY" not in os.environ:
             raise Exception(
                 "Code Interpreter tool called while E2B_API_KEY environment variable is not set. Please gt your E2B api key here https://e2b.dev/docs and set the E2B_API_KEY environment variable."
