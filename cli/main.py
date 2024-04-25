@@ -211,6 +211,11 @@ IMPLEMENTATIONS = {
 TOOLS = {
     ToolName.PythonInterpreter: {
         "secrets": [
+            "PYTHON_INTERPRETER_URL_DEFAULT",
+        ],
+    },
+    ToolName.CodeInterpreter: {
+        "secrets": [
             "E2B_API_KEY",
         ],
     },
