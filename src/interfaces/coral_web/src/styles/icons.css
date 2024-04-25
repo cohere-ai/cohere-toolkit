@@ -263,6 +263,43 @@
 .icon-pin:before {
   content: '\e93a';
 }
+
 .icon-calendar:before {
   content: '\e93b';
+}
+
+.icon-code:before {
+  content: '\e93c';
+}
+
+.icon-globe-stand:before {
+  content: '\e93d';
+}
+
+.icon-book:before {
+  content: '\e93e';
+}
+
+.icon-book-open-text:before {
+  content: '\e93f';
+}
+
+.icon-flask:before {
+  content: '\e940';
+}
+
+.icon-list-magnifying-glass:before {
+  content: '\e941';
+}
+
+.icon-newspaper:before {
+  content: '\e942';
+}
+
+.icon-circles-four:before {
+  content: '\e943';
+}
+
+.icon-calculator:before {
+  content: '\e944';
 }

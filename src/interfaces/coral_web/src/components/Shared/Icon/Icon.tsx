@@ -61,6 +61,15 @@ export const Icons = [
   'clip',
   'pin',
   'calendar',
+  'code',
+  'globe-stand',
+  'book',
+  'book-open-text',
+  'flask',
+  'list-magnifying-glass',
+  'newspaper',
+  'circles-four',
+  'calculator',
 ] as const;
 
 export type IconName = (typeof Icons)[number];

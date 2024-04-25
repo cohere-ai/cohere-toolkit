@@ -1,6 +1,6 @@
 dev:
 	@docker compose watch
-test:
+run-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
 attach: 
 	@docker attach cohere-toolkit-backend-1
@@ -16,11 +16,11 @@ reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db
 setup:
-	pip3 install -r cli/requirements.txt
-	python3 cli/main.py
+	poetry install --only setup --verbose
+	poetry run python3 cli/main.py
 lint:
 	poetry run black .
-	poetry run isort . --show-files
+	poetry run isort .
 first-run:
 	make setup
 	make migrate
