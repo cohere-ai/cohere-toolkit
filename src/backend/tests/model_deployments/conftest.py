@@ -5,11 +5,10 @@ from sqlalchemy.orm import Session
 
 from backend.models.user import User
 from backend.tests.factories import get_factory
-from backend.tests.model_deployments.mock_deployments.mock_cohere_platform import (
+from backend.tests.model_deployments.mock_deployments import (
     MockCohereDeployment,
-)
-from backend.tests.model_deployments.mock_deployments.mock_sagemaker import (
     MockSageMakerDeployment,
+    MockAzureDeployment
 )
 
 
@@ -29,4 +28,10 @@ def mock_cohere_deployment():
 def mock_sagemaker_deployment():
     with patch("backend.chat.custom.custom.get_deployment") as mock:
         mock.return_value = MockSageMakerDeployment()
+        yield mock
+
+@pytest.fixture()
+def mock_azure_deployment():
+    with patch("backend.chat.custom.custom.get_deployment") as mock:
+        mock.return_value = MockAzureDeployment()
         yield mock

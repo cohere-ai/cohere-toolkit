@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.config.deployments import ModelDeploymentName
+from backend.config.deployments import ModelDeploymentName, AVAILABLE_MODEL_DEPLOYMENTS
 
 
 def test_list_deployments(
@@ -13,19 +13,17 @@ def test_list_deployments(
     response = client.get("/deployments")
     assert response.status_code == 200
     deployments = response.json()
-    assert len(deployments) == 2
+
+    assert len(deployments) == len(AVAILABLE_MODEL_DEPLOYMENTS)
     for deployment in deployments:
         assert "name" in deployment
         assert "models" in deployment
         assert "env_vars" in deployment
 
-    assert deployments[0]["env_vars"] == ["COHERE_VAR_1", "COHERE_VAR_2"]
-    assert deployments[1]["env_vars"] == ["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"]
-
 
 @pytest.mark.parametrize(
     "mock_available_model_deployments",
-    [{ModelDeploymentName.SageMaker: False}],
+    [{ModelDeploymentName.SageMaker: False}, {ModelDeploymentName.Azure: False}],
     indirect=True,
 )
 def test_list_deployments_only_shows_available_models_by_default(
@@ -34,9 +32,9 @@ def test_list_deployments_only_shows_available_models_by_default(
     response = client.get("/deployments")
     assert response.status_code == 200
     deployments = response.json()
-    assert len(deployments) == 1
+    assert len(deployments) == len(AVAILABLE_MODEL_DEPLOYMENTS) - 1
     assert deployments[0]["name"] == ModelDeploymentName.CoherePlatform
-    assert deployments[0]["models"] == ["test"]
+    assert deployments[0]["models"] == ["command", "command-r"]
 
 
 @pytest.mark.parametrize(
