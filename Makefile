@@ -20,7 +20,7 @@ setup:
 	poetry run python3 cli/main.py
 lint:
 	poetry run black .
-	poetry run isort . --show-files
+	poetry run isort .
 first-run:
 	make setup
 	make migrate
