@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import MagicMock, patch
 
 from langchain_core.documents.base import Document
@@ -71,6 +72,7 @@ def test_wiki_retriever_no_docs() -> None:
     assert result == []
 
 
+@pytest.mark.skip(reason="Cohere API key not available")
 def test_vector_db_retriever() -> None:
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
@@ -130,6 +132,7 @@ def test_vector_db_retriever() -> None:
     assert result == expected_docs
 
 
+@pytest.mark.skip(reason="Cohere API key not available")
 def test_vector_db_retriever_no_docs() -> None:
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
