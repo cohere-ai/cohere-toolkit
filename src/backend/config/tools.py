@@ -132,6 +132,20 @@ LANGCHAIN_TOOLS = {
         is_visible=True,
         description="Runs python code in a sandbox.",
     ),
+    ToolName.Code_Interpreter: ManagedTool(
+        name=ToolName.Code_Interpreter,
+        implementation=code_interpreter.CodeInterpreterFunctionTool,
+        parameter_definitions={
+            "code": {
+                "description": "The python code to execute in a single cell",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        category=Category.Function,
+        description="Execute python code in a Jupyter notebook cell and returns any rich data (eg charts), stdout, stderr, and error.",
+    ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
         implementation=tavily.TavilyInternetSearch,
