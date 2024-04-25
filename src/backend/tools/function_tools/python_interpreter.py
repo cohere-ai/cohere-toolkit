@@ -20,7 +20,6 @@ class PythonInterpreterFunctionTool(BaseFunctionTool):
     """
 
     def __init__(self):
-        self.interpreter_url =
         # Instantiate the E2B sandbox - this is a long lived object
         # that's pinging E2B cloud to keep the sandbox alive.
         self.code_interpreter = CodeInterpreter()
@@ -32,8 +31,9 @@ class PythonInterpreterFunctionTool(BaseFunctionTool):
 
         # TODO: Will be E2B_API_KEY
         if "E2B_API_KEY" not in os.environ:
-            raise Exception("Python Interpreter tool called while E2B_API_KEY environment variable is not set")
-        #     raise Exception("Python Interpreter tool called while E2B_API_KEY not set")
+            raise Exception(
+                "Python Interpreter tool called while E2B_API_KEY environment variable is not set"
+            )
 
         code = parameters.get("code", "")
         print("Code to run", code)
