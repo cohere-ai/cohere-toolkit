@@ -181,7 +181,7 @@ make dev
 To spin the `test_db` service for you. After, you can run:
 
 ```bash
-make test
+make run-tests
 ```
 
 ### Making Database Model Changes
