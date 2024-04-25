@@ -35,7 +35,7 @@ Follow the instructions to configure the model - either AWS Sagemaker, Azure, or
 
 <details>
   <summary>Environment variables</summary>
-  
+
   ### Cohere Platform
 
 - `COHERE_API_KEY`: If your application will interface with Cohere's API, you will need to supply an API key. Not required if using AWS Sagemaker or Azure.
@@ -57,6 +57,7 @@ Then you will need to set up authorization, [see more details here](https://aws.
 
 - `PYTHON_INTERPRETER_URL`: URL to the python interpreter container. Defaults to http://localhost:8080.
 - `TAVILY_API_KEY`: If you want to enable internet search, you will need to supply a Tavily API Key. Not required.
+- `E2B_API_KEY`: If you want to enable code interpreter backed by Jupyter server, terminal, filesystem, and network access for installing packages, you will need to supply an E2B API Key. Not required.
 
 </details>
 
@@ -297,14 +298,14 @@ To create your own tools or add custom data sources, see our guide: [tools and r
 
 ### Langchain Multihop
 
-Chatting with multihop tool usage through Langchain is enabled by setting experimental feature flag to True in `.env`. 
+Chatting with multihop tool usage through Langchain is enabled by setting experimental feature flag to True in `.env`.
 
 ```bash
 USE_EXPERIMENTAL_LANGCHAIN=True
 ```
 
-By setting this flag to true, only tools that have a Langchain implementation can be utilized. 
-These exist under `LANGCHAIN_TOOLS` and require a `to_lanchain_tool()` function on the tool implementation which returns a langchain compatible tool. 
+By setting this flag to true, only tools that have a Langchain implementation can be utilized.
+These exist under `LANGCHAIN_TOOLS` and require a `to_lanchain_tool()` function on the tool implementation which returns a langchain compatible tool.
 Python interpreter and Tavily Internet search are provided in the toolkit by default once the environment is set up.
 
 Example API call:

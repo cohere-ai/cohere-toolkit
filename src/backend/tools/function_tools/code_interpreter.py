@@ -32,7 +32,7 @@ class CodeInterpreterFunctionTool(BaseFunctionTool):
         # TODO: Will be E2B_API_KEY
         if "E2B_API_KEY" not in os.environ:
             raise Exception(
-                "Code Interpreter tool called while E2B_API_KEY environment variable is not set (get one at https://e2b.dev/docs)"
+                "Code Interpreter tool called while E2B_API_KEY environment variable is not set. Please gt your E2B api key here https://e2b.dev/docs and set the E2B_API_KEY environment variable."
             )
 
         code = parameters.get("code", "")

@@ -27,6 +27,7 @@ class DeploymentName(StrEnum):
 
 class ToolName(StrEnum):
     PythonInterpreter = "Python Interpreter"
+    CodeInterpreter = "E2B Code Interpreter"
     TavilyInternetSearch = "Tavily Internet Search"
 
 
