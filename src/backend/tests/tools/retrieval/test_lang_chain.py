@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock, patch
 
-import pytest
 from langchain_core.documents.base import Document
 
 from backend.tools.retrieval.lang_chain import (
