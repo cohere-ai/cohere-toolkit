@@ -1,7 +1,14 @@
+import os
+
+import pytest
+
 from backend.chat.custom.model_deployments.cohere_platform import CohereDeployment
 from backend.tools.retrieval import collate
 
+is_cohere_env_set = os.environ.get("COHERE_API_KEY") is not None
 
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_rerank() -> None:
     model = CohereDeployment()
     input = {
