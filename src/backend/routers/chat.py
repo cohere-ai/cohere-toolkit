@@ -1,4 +1,6 @@
 import json
+import os
+from distutils.util import strtobool
 from typing import Any, Generator, List, Union
 from uuid import uuid4
 
@@ -23,6 +25,7 @@ from backend.models.database import DBSessionDep
 from backend.models.document import Document
 from backend.models.message import Message, MessageAgent, MessageType
 from backend.schemas.chat import (
+    BaseChatRequest,
     ChatMessage,
     ChatResponseEvent,
     ChatRole,
@@ -152,13 +155,13 @@ def chat(
 
 
 def process_chat(
-    session: DBSessionDep, chat_request: CohereChatRequest, request: Request
-) -> tuple[DBSessionDep, CohereChatRequest, Union[list[str], None], Message, str, str]:
+    session: DBSessionDep, chat_request: BaseChatRequest, request: Request
+) -> tuple[DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str]:
     """
     Process a chat request.
 
     Args:
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
 
@@ -197,8 +200,13 @@ def process_chat(
         id=str(uuid4()),
     )
 
-    file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
-    attach_files_to_messages(session, user_id, user_message.id, chat_request.file_ids)
+    file_paths = None
+    if isinstance(chat_request, CohereChatRequest):
+        file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
+        attach_files_to_messages(
+            session, user_id, user_message.id, chat_request.file_ids
+        )
+
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request
     )
@@ -227,7 +235,7 @@ def process_chat(
 
 def get_or_create_conversation(
     session: DBSessionDep,
-    chat_request: CohereChatRequest,
+    chat_request: BaseChatRequest,
     user_id: str,
     should_store: bool,
 ) -> Conversation:
@@ -236,7 +244,7 @@ def get_or_create_conversation(
 
     Args:
         session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
         user_id (str): User ID.
         should_store (bool): Whether to store the conversation in the database.
 
@@ -283,7 +291,7 @@ def get_next_message_position(conversation: Conversation) -> int:
 
 def create_message(
     session: DBSessionDep,
-    chat_request: CohereChatRequest,
+    chat_request: BaseChatRequest,
     conversation_id: str,
     user_id: str,
     user_message_position: int,
@@ -297,7 +305,7 @@ def create_message(
 
     Args:
         session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
         user_message_position (int): User message position.
@@ -375,7 +383,7 @@ def attach_files_to_messages(
 def create_chat_history(
     conversation: Conversation,
     user_message_position: int,
-    chat_request: CohereChatRequest,
+    chat_request: BaseChatRequest,
 ) -> list[ChatMessage]:
     """
     Create chat history from conversation messages or request.
@@ -383,7 +391,7 @@ def create_chat_history(
     Args:
         conversation (Conversation): Conversation object.
         user_message_position (int): User message position.
-        chat_request (CohereChatRequest): Chat request data.
+        chat_request (BaseChatRequest): Chat request data.
 
     Returns:
         list[ChatMessage]: List of chat messages.
@@ -657,20 +665,64 @@ def generate_chat_response(
     return non_streamed_chat_response
 
 
-@router.post("/langchain")
-def langchain_chat_stream(session: DBSessionDep, chat_request: LangchainChatRequest):
-    # TODO: validate request, Read tools from request and update langchain chat function to take tools
+@router.post("/langchain-chat")
+def langchain_chat_stream(
+    session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
+):
+
+    use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
+    if not use_langchain:
+        return {"error": "Langchain is not enabled."}
+
+    (
+        session,
+        chat_request,
+        _,
+        response_message,
+        conversation_id,
+        user_id,
+        _,
+        should_store,
+        managed_tools,
+    ) = process_chat(session, chat_request, request)
+
     return EventSourceResponse(
-        generate_langchain_chat_stream(session, chat_request),
+        generate_langchain_chat_stream(
+            session,
+            LangChainChat().chat(chat_request, managed_tools=managed_tools),
+            response_message,
+            conversation_id,
+            user_id,
+            should_store,
+        ),
         media_type="text/event-stream",
     )
 
 
-async def generate_langchain_chat_stream(
-    session: DBSessionDep, chat_request: LangchainChatRequest
+def generate_langchain_chat_stream(
+    session: DBSessionDep,
+    model_deployment_stream: Generator[Any, None, None],
+    response_message: Message,
+    conversation_id: str,
+    user_id: str,
+    should_store: bool,
+    **kwargs: Any,
 ):
+    final_message_text = ""
 
-    for event in LangChainChat().chat(chat_request):
+    # send stream start event
+    yield json.dumps(
+        jsonable_encoder(
+            ChatResponseEvent(
+                event=StreamEvent.STREAM_START,
+                data=StreamStart(
+                    is_finished=False,
+                    conversation_id=conversation_id,
+                ),
+            )
+        )
+    )
+    for event in model_deployment_stream:
         stream_event = None
         if isinstance(event, AddableDict):
             # Generate tool queries
@@ -687,7 +739,9 @@ async def generate_langchain_chat_stream(
                     if isinstance(action.tool_input, str):
                         tool_input = action.tool_input
                     elif isinstance(action.tool_input, dict):
-                        tool_input = "".join(action.tool_input.values())
+                        tool_input = "".join(
+                            [str(val) for val in action.tool_input.values()]
+                        )
                     content = (
                         action.message_log[0].content
                         if len(action.message_log) > 0
@@ -697,7 +751,6 @@ async def generate_langchain_chat_stream(
                     # only take the first part of content before the newline
                     content = content.split("\n")[0]
 
-                    # TODO: update query generation type to take potential tools and parse query
                     # shape: "Plan: I will search for tips on writing an essay and fun facts about the Roman Empire. I will then write an answer using the information I find.\nAction: ```json\n[\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"tips for writing an essay\"\n        }\n    },\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"fun facts about the roman empire\"\n        }\n
                     stream_event = StreamToolInput(
                         is_finished=False,
@@ -714,8 +767,6 @@ async def generate_langchain_chat_stream(
                 if not step:
                     continue
 
-                documents = []
-
                 result = step.observation
                 # observation can be a dictionary for python interpreter or a list of docs for web search
 
@@ -729,9 +780,11 @@ async def generate_langchain_chat_stream(
                 ]
                 """
                 if isinstance(result, list):
-                    # TODO convert to document model and add here
                     stream_event = StreamToolResult(
-                        is_finished=False, result=None, documents=[]
+                        tool_name=step.action.tool,
+                        is_finished=False,
+                        result=result,
+                        documents=[],
                     )
 
                 """
@@ -746,19 +799,19 @@ async def generate_langchain_chat_stream(
                 """
                 if isinstance(result, dict):
                     stream_event = StreamToolResult(
+                        tool_name=step.action.tool,
                         is_finished=False,
-                        result=result.get("std_out", None),
+                        result=result,
                         documents=[],
                     )
 
             # final output
             if event.get("output", "") and event.get("citations", []):
-                # TODO: link citations to results from tool steps
+                final_message_text = event.get("output", "")
                 stream_event = StreamEnd(
-                    response_id=str(uuid4()),  # TODO make this optional
-                    generation_id=str(uuid4()),  # TODO make this optional
-                    conversation_id=chat_request.conversation_id,
+                    conversation_id=conversation_id,
                     text=event.get("output", ""),
+                    # WARNING: Citations are not yet supported in langchain
                     citations=[],
                     documents=[],
                     search_results=[],
@@ -774,3 +827,7 @@ async def generate_langchain_chat_stream(
                         )
                     )
                 )
+    if should_store:
+        update_conversation_after_turn(
+            session, response_message, conversation_id, final_message_text, user_id
+        )

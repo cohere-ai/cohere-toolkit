@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}    
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NEXT_PUBLIC_API_HOSTNAME: ${{ secrets.NEXT_PUBLIC_API_HOSTNAME }}
 
     steps:
