@@ -12,7 +12,7 @@ import { Spinner } from '@/components/Shared';
 import { BannerContext } from '@/context/BannerContext';
 import { useConversation } from '@/hooks/conversation';
 import { useListDeployments } from '@/hooks/deployments';
-import { useExperimentalFeatures } from '@/hooks/experiementalFeatures';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
@@ -29,7 +29,7 @@ const ConversationPage: NextPage<Props> = () => {
   } = useParamsStore();
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations } = useCitationsStore();
-  const { data: isExperiementalFeaturesOn } = useExperimentalFeatures();
+  const { data: isExperimentalFeaturesOn } = useExperimentalFeatures();
   const { setMessage } = useContext(BannerContext);
 
   const urlConversationId = Array.isArray(router.query.id)
@@ -84,9 +84,9 @@ const ConversationPage: NextPage<Props> = () => {
   }, [conversation]);
 
   useEffect(() => {
-    if (!isExperiementalFeaturesOn) return;
+    if (!isExperimentalFeaturesOn) return;
     setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isExperiementalFeaturesOn]);
+  }, [isExperimentalFeaturesOn]);
 
   return (
     <Layout>

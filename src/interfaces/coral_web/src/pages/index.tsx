@@ -8,7 +8,7 @@ import ConversationListPanel from '@/components/ConversationList/ConversationLis
 import { Layout, LayoutSection } from '@/components/Layout';
 import { BannerContext } from '@/context/BannerContext';
 import { useListDeployments } from '@/hooks/deployments';
-import { useExperimentalFeatures } from '@/hooks/experiementalFeatures';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 
@@ -27,7 +27,7 @@ const ChatPage: NextPage<Props> = () => {
     setParams,
   } = useParamsStore();
   const { data: availableDeployments } = useListDeployments();
-  const { data: isExperiementalFeaturesOn } = useExperimentalFeatures();
+  const { data: isExperimentalFeaturesOn } = useExperimentalFeatures();
   const { setMessage } = useContext(BannerContext);
 
   useEffect(() => {
@@ -42,9 +42,9 @@ const ChatPage: NextPage<Props> = () => {
   }, [deployment, availableDeployments]);
 
   useEffect(() => {
-    if (!isExperiementalFeaturesOn) return;
+    if (!isExperimentalFeaturesOn) return;
     setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isExperiementalFeaturesOn]);
+  }, [isExperimentalFeaturesOn]);
 
   return (
     <Layout>

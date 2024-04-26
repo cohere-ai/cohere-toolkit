@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
 import { useListAllDeployments } from '@/hooks/deployments';
-import { useExperimentalFeatures } from '@/hooks/experiementalFeatures';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSettingsDefaults } from '@/hooks/settings';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -17,7 +17,7 @@ export const Settings: React.FC = () => {
   } = useParamsStore();
   const defaults = useSettingsDefaults();
   const { data: deployments = [] } = useListAllDeployments();
-  const { data: isExperiementalFeaturesOn } = useExperimentalFeatures();
+  const { data: isExperimentalFeaturesOn } = useExperimentalFeatures();
   const modelOptions = useMemo(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return [];
@@ -40,7 +40,7 @@ export const Settings: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">
-      {isExperiementalFeaturesOn && <ExperimentalModeOverlay />}
+      {isExperimentalFeaturesOn && <ExperimentalModeOverlay />}
       <Dropdown
         className="w-full"
         label="Model"

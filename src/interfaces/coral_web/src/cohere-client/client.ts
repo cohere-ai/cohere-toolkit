@@ -48,6 +48,7 @@ export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response
 export type ExperimentalFeatures = {
   USE_EXPERIMENTAL_LANGCHAIN: boolean;
 };
+
 export class CohereClient {
   private readonly hostname: string;
   private readonly fetch: Fetch;
@@ -322,7 +323,7 @@ export class CohereClient {
   }
 
   public async listExperimentalFeatures(): Promise<ExperimentalFeatures> {
-    const response = await this.fetch(this.getEndpoint('experimental_features'), {
+    const response = await this.fetch(`${this.getEndpoint('experimental_features')}/`, {
       method: 'GET',
       headers: this.getHeaders(),
     });
