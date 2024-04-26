@@ -59,7 +59,7 @@ Now open the `cloudbuild.yaml` file located in the root of this project. You wil
 
 - _GCP_PROJECT_ID: Your GCP project ID.
 - _GCP_REGION: The region you want to deploy to, e.g: `us-central1`.
-- _DATABASE_URL: A connection string of the format `postgresql://USERNAME:PASSWORD@HOST:PORT/DB_NAME`. The `HOST` value here is the IP address of your provisioned PostgreSQL database, and the default `PORT` is 5432. For example, `postgresql://postgres:postgres@12.202.111.50:5432/toolkit`.
+- _DATABASE_URL: A connection string of the format `postgresql://USERNAME:PASSWORD@HOST:PORT/DB_NAME`. The `HOST` value here is the IP address of your provisioned PostgreSQL database, and the default `PORT` is 5432. For example, `postgresql://postgres:postgres@<your-connection-ip-address>/toolkit`.
 - _COHERE_API_KEY: Your Cohere API key, you can create one on the [Cohere Dashboard](https://dashboard.cohere.com).
 
 Once completed, run:

@@ -21,7 +21,7 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 
 You can deploy Toolkit with one click to Microsoft Azure Platform:
 
-[<img src="https://aka.ms/deploytoazurebutton" height="48px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Ftoolkit%2Fmain%2Fazuredeploy.json)
+[<img src="https://aka.ms/deploytoazurebutton" height="48px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
 ### Building and running locally
 
@@ -83,7 +83,7 @@ docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 Run the images locally:
 
 ```bash
-docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
+docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
 ```
 
 #### Option 2 - Build locally from scratch:
@@ -180,7 +180,7 @@ make dev
 To spin the `test_db` service for you. After, you can run:
 
 ```bash
-make test
+make run-tests
 ```
 
 ### Making Database Model Changes

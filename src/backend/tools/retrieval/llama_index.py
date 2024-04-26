@@ -17,8 +17,7 @@ https://docs.llamaindex.ai/en/stable/module_guides/querying/retriever/root.html
 class LlamaIndexUploadPDFRetriever(BaseRetrieval):
     """
     This class retrieves documents from a PDF using the llama_index package.
-    This requires llama_index package to be installed:
-    pip install llama_index
+    This requires llama_index package to be installed.
     """
 
     def __init__(self, filepath: str):
