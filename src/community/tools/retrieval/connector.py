@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 import requests
 
-from backend.tools.retrieval.base import BaseRetrieval
+from community.tools import BaseRetrieval
 
 """
 Plug in your connector configuration here. For example:

@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from langchain_community.tools.pubmed.tool import PubmedQueryRun
 
-from backend.tools.retrieval.base import BaseRetrieval
+from community.tools import BaseRetrieval
 
 
 class PubMedRetriever(BaseRetrieval):

@@ -49,6 +49,10 @@ python = "~3.11"
 inquirer = "3.2.4"
 python-dotenv = "1.0.1"
 
+
+[tool.poetry.group.community.dependencies]
+wolframalpha = "^5.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

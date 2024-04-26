@@ -1,4 +1,4 @@
-from backend.tools.retrieval.llama_index import LlamaIndexUploadPDFRetriever
+from community.tools.retrieval.llama_index import LlamaIndexUploadPDFRetriever
 
 
 def test_pdf_retriever() -> None:
