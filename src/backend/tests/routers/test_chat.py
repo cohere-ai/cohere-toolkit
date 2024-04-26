@@ -15,7 +15,10 @@ from backend.models.user import User
 from backend.schemas.tool import Category
 from backend.tests.factories import get_factory
 
-is_cohere_env_set = os.environ.get("COHERE_API_KEY") is not None and os.environ.get("COHERE_API_KEY") != ""
+is_cohere_env_set = (
+    os.environ.get("COHERE_API_KEY") is not None
+    and os.environ.get("COHERE_API_KEY") != ""
+)
 
 
 @pytest.fixture()
