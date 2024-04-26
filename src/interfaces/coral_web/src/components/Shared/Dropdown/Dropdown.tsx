@@ -27,6 +27,7 @@ type Props = {
   description?: string;
   joint?: 'left' | 'right';
   className?: string;
+  buttonClassName?: string;
   onChange?: (value: any) => void;
   searchable?: boolean;
   dataTestId?: string;
@@ -50,6 +51,7 @@ export const Dropdown: React.FC<Props> = ({
   description = '',
   joint,
   className = '',
+  buttonClassName,
   onChange,
   searchable = false,
   dataTestId,
@@ -141,7 +143,8 @@ export const Dropdown: React.FC<Props> = ({
                 {
                   'px-3 py-4': kind === 'default' || !label,
                   'px-3 pb-2.5 pt-7': kind === 'cell' && label,
-                }
+                },
+                buttonClassName
               )}
               data-testid={dataTestId}
             >

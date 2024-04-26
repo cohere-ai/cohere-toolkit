@@ -2,7 +2,7 @@
 
 This README will explain how to best write unit tests for the OSS Toolkit project.
 
-To start, run `make dev` and `make test`, these two commands should start your docker service and then run the suite of unit tests available.
+To start, run `make dev` and `make run-tests`, these two commands should start your docker service and then run the suite of unit tests available.
 
 ## Using Fixtures
 
