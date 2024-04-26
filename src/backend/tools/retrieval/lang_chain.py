@@ -54,9 +54,7 @@ class LangChainVectorDBRetriever(BaseRetrieval):
         self.filepath = filepath
 
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        cohere_embeddings = CohereEmbeddings(
-            cohere_api_key=self.cohere_api_key
-        )
+        cohere_embeddings = CohereEmbeddings(cohere_api_key=self.cohere_api_key)
         # Load text files and split into chunks
         loader = PyPDFLoader(self.filepath)
         text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=0)
