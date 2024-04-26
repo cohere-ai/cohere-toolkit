@@ -25,7 +25,7 @@ There are three types of tools:
 
 ## Step 3: Implement the Tool
 
-Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/backend/tools) (please note that this link might change). The specific subfolder used will depend on the type of tool you're implementing.
+Add your tool implementation [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/backend/tools) (please note that this link might change). The specific subfolder used will depend on the type of tool you're implementing.
 
 If you need to install a new module to run your tool, execute the following command and run `make dev` again.
 
@@ -134,7 +134,7 @@ class CalculatorFunctionTool(BaseFunctionTool):
 
 ## Step 4: Making Your Tool Available
 
-To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/toolkit/blob/main/src/backend/config/tools.py).
+To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/backend/config/tools.py).
 
 Start by adding the tool name to the `ToolName` enum found at the top of the file.
 
