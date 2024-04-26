@@ -133,6 +133,28 @@ def test_streaming_fail_chat_missing_message(
         ]
     }
 
+def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
+    response = session_client_chat.post(
+        "/chat-stream",
+        json={
+            "message": "Give me a number",
+            "tools": [
+                {
+                    "name": "random_number_generator",
+                    "description": "generate a random number",
+                }
+            ],
+        },
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_response(
+        response, user, session_chat, session_client_chat, 0, is_custom_tools=True
+    )
 
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
@@ -586,7 +608,7 @@ def validate_chat_streaming_response(
         event_types.add(response_json["event"])
         if response_json["event"] == StreamEvent.STREAM_END:
             conversation_id = validate_stream_end_event(
-                response_json, is_search_queries_only
+                response_json, is_search_queries_only, is_custom_tools
             )
 
     if has_citations:
@@ -623,10 +645,14 @@ def validate_conversation(
     assert len(conversation.messages) == expected_num_messages
 
 
-def validate_stream_end_event(response_json: dict, is_search_queries_only: bool) -> str:
+def validate_stream_end_event(
+    response_json: dict, is_search_queries_only: bool, is_custom_tools: bool
+) -> str:
     data = response_json["data"]
     if is_search_queries_only:
         assert len(data["search_queries"]) > 0
+    elif is_custom_tools:
+        assert len(data["tool_calls"]) > 0
     else:
         assert len(data["text"]) > 0
 

@@ -133,6 +133,16 @@ class StreamSearchQueriesGeneration(ChatResponse):
         default=[],
     )
 
+class StreamToolCallsGeneration(ChatResponse):
+    """Stream tool calls generation event."""
+
+    event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_GENERATION
+
+    tool_calls: List[ToolCall] = Field(
+        title="List of tool calls generated for custom tools",
+        default=[],
+    )
+
 
 class StreamEnd(ChatResponse):
     response_id: str | None
@@ -156,6 +166,10 @@ class StreamEnd(ChatResponse):
     )
     search_queries: List[SearchQuery] = Field(
         title="List of generated search queries.",
+        default=[],
+    )
+    tool_calls: List[ToolCall] = Field(
+        title="List of tool calls generated for custom tools",
         default=[],
     )
     finish_reason: str = Field()
@@ -217,6 +231,7 @@ class ChatResponseEvent(BaseModel):
         StreamToolInput,
         StreamToolResult,
         StreamSearchQueriesGeneration,
+        StreamToolCallsGeneration,
         NonStreamedChatResponse,
     ] = Field(
         title="Data returned from chat response of a given event type",

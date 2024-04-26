@@ -38,6 +38,7 @@ from backend.schemas.chat import (
     StreamTextGeneration,
     StreamToolInput,
     StreamToolResult,
+    StreamToolCallsGeneration,
     ToolInputType,
 )
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -478,6 +479,7 @@ def generate_chat_stream(
 
     stream_event = None
     for event in model_deployment_stream:
+        print(event["event_type"])
         if event["event_type"] == StreamEvent.STREAM_START:
             stream_event = StreamStart.model_validate(event)
             response_message.generation_id = event["generation_id"]
@@ -532,6 +534,7 @@ def generate_chat_stream(
                         parameters=tool_call.parameters,
                     )
                 )
+            stream_event = StreamToolCallsGeneration(**event | {"tool_calls": tool_calls})
             stream_end_data["tool_calls"] = tool_calls
         elif event["event_type"] == StreamEvent.CITATION_GENERATION:
             citations = []
