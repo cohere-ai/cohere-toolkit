@@ -11,3 +11,8 @@ DB_PASS=${DB_PASS:-}
 DB_TEMPLATE=${DB_TEMPLATE:-template1}
 
 DB_EXTENSION=${DB_EXTENSION:-}
+
+# Defaults for the toolkit
+NEXT_PUBLIC_API_HOSTNAME=${NEXT_PUBLIC_API_HOSTNAME:-http://localhost:8000}
+PYTHON_INTERPRETER_URL=${PYTHON_INTERPRETER_URL:-http://localhost:8080}
+DATABASE_URL=${DB_EXTENSION:-postgresql+psycopg2://postgre:postgre@localhost:5432/toolkit}
