@@ -51,8 +51,7 @@ For example, for Wikipedia we have a custom configuration:
 class LangChainWikiRetriever(BaseRetrieval):
     """
     This class retrieves documents from Wikipedia using the langchain package.
-    This requires wikipedia package to be installed:
-    pip install wikipedia-api
+    This requires wikipedia package to be installed.
     """
 
     def __init__(self, chunk_size: int = 300, chunk_overlap: int = 0):
