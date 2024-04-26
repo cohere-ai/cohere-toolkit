@@ -212,7 +212,7 @@ IMPLEMENTATIONS = {
 TOOLS = {
     ToolName.PythonInterpreter: {
         "secrets": [
-            "PYTHON_INTERPRETER_URL_DEFAULT",
+            "PYTHON_INTERPRETER_URL",
         ],
     },
     ToolName.CodeInterpreter: {
