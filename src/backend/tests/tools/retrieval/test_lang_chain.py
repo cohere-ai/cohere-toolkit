@@ -9,7 +9,7 @@ from backend.tools.retrieval.lang_chain import (
     LangChainWikiRetriever,
 )
 
-is_cohere_env_set = os.environ.get("COHERE_API_KEY") is not None
+is_cohere_env_set = os.environ.get("COHERE_API_KEY") is not None and os.environ.get("COHERE_API_KEY") != ""
 
 
 def test_wiki_retriever() -> None:
