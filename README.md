@@ -128,7 +128,8 @@ Components in this repo include:
 Looking to deploy the Toolkit to your preferred cloud service provider? See our guides below:
 
 - [Single Container Setup](docs/deployment_guides/single_container.md): Useful as a quickstart to run the Toolkit, or deploy to AWS on an EC2 instance.
-- [AWS ECS Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS Fargate Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS EC2 Deployment](docs/deployment_guides/aws_ecs_single_container_ec2.md): Deploy the Toolkit single container to AWS ECS(EC2).
 - [Google Cloud Platform](docs/deployment_guides/gcp_deployment.md): Help setup your Cloud SQL instance, then build, push and deploy backend+frontend containers to Cloud Run.
 
 ### Deploying to Azure
