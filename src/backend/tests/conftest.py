@@ -151,22 +151,35 @@ def user(session: Session) -> User:
 
 @pytest.fixture
 def mock_available_model_deployments(request):
+    from backend.tests.model_deployments.mock_deployments import (
+        MockAzureDeployment,
+        MockCohereDeployment,
+        MockSageMakerDeployment,
+    )
+
     is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
         ModelDeploymentName.CoherePlatform: Deployment(
             name=ModelDeploymentName.CoherePlatform,
-            models=["test"],
+            models=MockCohereDeployment.list_models(),
             is_available=is_available_values.get(
                 ModelDeploymentName.CoherePlatform, True
             ),
-            deployment_class=BaseDeployment,
+            deployment_class=MockCohereDeployment,
             env_vars=["COHERE_VAR_1", "COHERE_VAR_2"],
         ),
         ModelDeploymentName.SageMaker: Deployment(
             name=ModelDeploymentName.SageMaker,
-            models=["test"],
+            models=MockSageMakerDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.SageMaker, True),
-            deployment_class=BaseDeployment,
+            deployment_class=MockSageMakerDeployment,
+            env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
+        ),
+        ModelDeploymentName.Azure: Deployment(
+            name=ModelDeploymentName.Azure,
+            models=MockAzureDeployment.list_models(),
+            is_available=is_available_values.get(ModelDeploymentName.Azure, True),
+            deployment_class=MockAzureDeployment,
             env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
         ),
     }

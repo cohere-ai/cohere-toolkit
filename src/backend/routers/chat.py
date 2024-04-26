@@ -36,6 +36,7 @@ from backend.schemas.chat import (
     StreamSearchResults,
     StreamStart,
     StreamTextGeneration,
+    StreamToolCallsGeneration,
     StreamToolInput,
     StreamToolResult,
     ToolInputType,
@@ -170,7 +171,9 @@ def process_chat(
     """
     user_id = request.headers.get("User-Id", "")
     deployment_name = request.headers.get("Deployment-Name", "")
-    should_store = chat_request.chat_history is None
+    should_store = chat_request.chat_history is None and not is_custom_tool_call(
+        chat_request
+    )
     conversation = get_or_create_conversation(
         session, chat_request, user_id, should_store
     )
@@ -231,6 +234,25 @@ def process_chat(
         should_store,
         managed_tools,
     )
+
+
+def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
+    """
+    Check if the chat request is called with custom tools
+
+    Args:
+        chat_response (BaseChatRequest): Chat request data.
+
+    Returns:
+        bool: Whether the chat request is called with custom tools.
+    """
+    if chat_response.tools is None or len(chat_response.tools) == 0:
+        return False
+
+    if chat_response.tools[0].description:
+        return True
+
+    return False
 
 
 def get_or_create_conversation(
@@ -532,6 +554,9 @@ def generate_chat_stream(
                         parameters=tool_call.parameters,
                     )
                 )
+            stream_event = StreamToolCallsGeneration(
+                **event | {"tool_calls": tool_calls}
+            )
             stream_end_data["tool_calls"] = tool_calls
         elif event["event_type"] == StreamEvent.CITATION_GENERATION:
             citations = []
@@ -699,7 +724,7 @@ def langchain_chat_stream(
     )
 
 
-async def generate_langchain_chat_stream(
+def generate_langchain_chat_stream(
     session: DBSessionDep,
     model_deployment_stream: Generator[Any, None, None],
     response_message: Message,
@@ -709,6 +734,19 @@ async def generate_langchain_chat_stream(
     **kwargs: Any,
 ):
     final_message_text = ""
+
+    # send stream start event
+    yield json.dumps(
+        jsonable_encoder(
+            ChatResponseEvent(
+                event=StreamEvent.STREAM_START,
+                data=StreamStart(
+                    is_finished=False,
+                    conversation_id=conversation_id,
+                ),
+            )
+        )
+    )
     for event in model_deployment_stream:
         stream_event = None
         if isinstance(event, AddableDict):
@@ -768,7 +806,10 @@ async def generate_langchain_chat_stream(
                 """
                 if isinstance(result, list):
                     stream_event = StreamToolResult(
-                        is_finished=False, result=None, documents=[]
+                        tool_name=step.action.tool,
+                        is_finished=False,
+                        result=result,
+                        documents=[],
                     )
 
                 """
@@ -783,8 +824,9 @@ async def generate_langchain_chat_stream(
                 """
                 if isinstance(result, dict):
                     stream_event = StreamToolResult(
+                        tool_name=step.action.tool,
                         is_finished=False,
-                        result=result.get("std_out", None),
+                        result=result,
                         documents=[],
                     )
 

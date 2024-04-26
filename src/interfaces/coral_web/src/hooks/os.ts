@@ -1,4 +1,4 @@
-// A hook that retuns the current OS
+// A hook that returns the current OS
 // macOS, Windows, Linux, iOS, Android, Chrome OS, etc.
 import { useMemo } from 'react';
 
