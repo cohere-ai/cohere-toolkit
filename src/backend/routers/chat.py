@@ -168,10 +168,10 @@ def process_chat(
 
     Returns:
         Tuple: Tuple containing necessary data to construct the responses.
-    """
+    """    
     user_id = request.headers.get("User-Id", "")
     deployment_name = request.headers.get("Deployment-Name", "")
-    should_store = chat_request.chat_history is None
+    should_store = chat_request.chat_history is None and not is_custom_tool_call(chat_request)
     conversation = get_or_create_conversation(
         session, chat_request, user_id, should_store
     )
@@ -232,6 +232,24 @@ def process_chat(
         should_store,
         managed_tools,
     )
+
+def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
+    """
+    Check if the chat request is called with custom tools
+    
+    Args:
+        chat_response (BaseChatRequest): Chat request data.
+    
+    Returns:
+        bool: Whether the chat request is called with custom tools.
+    """
+    if chat_response.tools is None or len(chat_response.tools) == 0:
+        return False
+    
+    if chat_response.tools[0].description:
+        return True
+    
+    return False
 
 
 def get_or_create_conversation(
@@ -479,7 +497,6 @@ def generate_chat_stream(
 
     stream_event = None
     for event in model_deployment_stream:
-        print(event["event_type"])
         if event["event_type"] == StreamEvent.STREAM_START:
             stream_event = StreamStart.model_validate(event)
             response_message.generation_id = event["generation_id"]
