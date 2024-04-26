@@ -22,6 +22,8 @@ import {
 } from '@/types/message';
 import { cn } from '@/utils';
 
+import { PromptOption, StartModes } from '../StartModes';
+
 type Props = {
   isStreaming: boolean;
   welcomeMessageEnabled: boolean;
@@ -33,6 +35,7 @@ type Props = {
   composer: ReactNode;
   conversationId?: string;
   scrollViewClassName?: string;
+  onPromptSelected?: (option: PromptOption) => void;
 };
 
 /**
@@ -171,19 +174,31 @@ type MessagesProps = Props & { welcomeMessageEnabled: boolean };
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { welcomeMessageEnabled, onRetry, messages, streamingMessage, startOption, onStartOptionChange },
+  {
+    welcomeMessageEnabled,
+    onRetry,
+    messages,
+    streamingMessage,
+    startOption,
+    onStartOptionChange,
+    onPromptSelected,
+  },
   ref
 ) {
   const lastMessage = messages[messages.length - 1];
+  const hasNonNotificationMessages = messages.filter((m) => !isNotificationMessage(m)).length === 0;
 
   return (
     <div className="mt-auto flex flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
+      {welcomeMessageEnabled && (
+        <div className="m-auto w-full p-4">
+          <StartModes show={hasNonNotificationMessages} onPromptSelected={onPromptSelected} />
+        </div>
+      )}
       <WelcomeMessage
         show={
           welcomeMessageEnabled && messages.filter((m) => !isNotificationMessage(m)).length === 0
         }
-        startOption={startOption}
-        onStartOptionChange={onStartOptionChange}
       />
 
       {messages.map((m, i) => {

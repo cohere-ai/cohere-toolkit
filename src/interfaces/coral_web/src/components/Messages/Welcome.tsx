@@ -1,19 +1,16 @@
 import { Transition } from '@headlessui/react';
 
-import { StartOptionKey, StartOptions } from '@/components/Messages/Welcome/StartOptions';
 import { useShowWelcomeGuide } from '@/hooks/ftux';
 import { cn } from '@/utils';
 
 type Props = {
   show: boolean;
-  startOption: StartOptionKey;
-  onStartOptionChange: (option: StartOptionKey) => void;
 };
 
 /**
  * Renders the welcome message that animates in at the start of a new conversation.
  */
-const Welcome: React.FC<Props> = ({ show, startOption, onStartOptionChange }) => {
+const Welcome: React.FC<Props> = ({ show }) => {
   const showRAGFTUX = useShowWelcomeGuide();
 
   return (
@@ -29,9 +26,7 @@ const Welcome: React.FC<Props> = ({ show, startOption, onStartOptionChange }) =>
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
       className="flex flex-col"
-    >
-      <StartOptions selectedOption={startOption} onOptionSelect={onStartOptionChange} />
-    </Transition>
+    ></Transition>
   );
 };
 

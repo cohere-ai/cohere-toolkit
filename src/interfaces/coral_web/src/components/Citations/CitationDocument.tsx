@@ -1,6 +1,6 @@
 import { Fragment, useContext, useState } from 'react';
 
-import { DEFAULT_CHAT_TOOL, Document } from '@/cohere-client';
+import { Document, TOOL_CHAT_DEFAULT } from '@/cohere-client';
 import IconButton from '@/components/IconButton';
 import { DocumentIcon, Text } from '@/components/Shared';
 import { Icon } from '@/components/Shared/Icon';
@@ -17,7 +17,7 @@ type Props = {
 const getToolName = (toolId?: string) => {
   // NOTE(jessica): if there is no toolId this means that this citation came from a time when we
   // only supported the web-search connector, thus it is a safe default to fall back on.
-  if (!toolId || toolId === DEFAULT_CHAT_TOOL) {
+  if (!toolId || toolId === TOOL_CHAT_DEFAULT) {
     return 'from the web';
   }
   return `from ${toolId}`;
