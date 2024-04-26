@@ -122,6 +122,7 @@ Looking to serve your application in production? Deploy the Toolkit to your pref
 
 ### One-click deployment options
 You can deploy Toolkit with one click to Microsoft Azure Platform:
+
 [<img src="https://aka.ms/deploytoazurebutton" height="24px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
 ### Other deployment options
