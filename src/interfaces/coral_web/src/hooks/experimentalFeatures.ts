@@ -1,16 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useCohereClient } from '@/cohere-client';
+import { ExperimentalFeatures, useCohereClient } from '@/cohere-client';
 
 export const useExperimentalFeatures = () => {
   const cohereClient = useCohereClient();
 
-  return useQuery<boolean>({
+  return useQuery<ExperimentalFeatures>({
     queryKey: ['experimentalFeatures'],
     queryFn: async () => {
       try {
-        const data = await cohereClient.listExperimentalFeatures();
-        return data.USE_EXPERIMENTAL_LANGCHAIN;
+        return await cohereClient.listExperimentalFeatures();
       } catch (e) {
         console.error(e);
         throw e;

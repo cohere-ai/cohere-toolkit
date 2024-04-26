@@ -27,7 +27,8 @@ const ChatPage: NextPage<Props> = () => {
     setParams,
   } = useParamsStore();
   const { data: availableDeployments } = useListDeployments();
-  const { data: isExperimentalFeaturesOn } = useExperimentalFeatures();
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
 
   useEffect(() => {
@@ -42,9 +43,9 @@ const ChatPage: NextPage<Props> = () => {
   }, [deployment, availableDeployments]);
 
   useEffect(() => {
-    if (!isExperimentalFeaturesOn) return;
+    if (!isLangchainModeOn) return;
     setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isExperimentalFeaturesOn]);
+  }, [isLangchainModeOn]);
 
   return (
     <Layout>

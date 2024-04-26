@@ -29,7 +29,8 @@ const ConversationPage: NextPage<Props> = () => {
   } = useParamsStore();
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations } = useCitationsStore();
-  const { data: isExperimentalFeaturesOn } = useExperimentalFeatures();
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
 
   const urlConversationId = Array.isArray(router.query.id)
@@ -84,9 +85,9 @@ const ConversationPage: NextPage<Props> = () => {
   }, [conversation]);
 
   useEffect(() => {
-    if (!isExperimentalFeaturesOn) return;
+    if (!isLangchainModeOn) return;
     setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isExperimentalFeaturesOn]);
+  }, [isLangchainModeOn]);
 
   return (
     <Layout>

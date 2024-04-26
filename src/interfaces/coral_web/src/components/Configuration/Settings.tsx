@@ -17,7 +17,8 @@ export const Settings: React.FC = () => {
   } = useParamsStore();
   const defaults = useSettingsDefaults();
   const { data: deployments = [] } = useListAllDeployments();
-  const { data: isExperimentalFeaturesOn } = useExperimentalFeatures();
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const modelOptions = useMemo(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return [];
@@ -38,9 +39,18 @@ export const Settings: React.FC = () => {
     });
   };
 
+  if (isLangchainModeOn) {
+    return (
+      <div className="flex items-center justify-center px-5">
+        <Text styleAs="p-lg" className="select-none text-center text-volcanic-900">
+          Currently settings are disabled with experimental Langchain multihop
+        </Text>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">
-      {isExperimentalFeaturesOn && <ExperimentalModeOverlay />}
       <Dropdown
         className="w-full"
         label="Model"
@@ -89,16 +99,6 @@ export const Settings: React.FC = () => {
           </Text>
         </button>
       </div>
-    </div>
-  );
-};
-
-const ExperimentalModeOverlay: React.FC = () => {
-  return (
-    <div className="absolute left-0 top-0 z-10 flex h-full w-full cursor-not-allowed items-center justify-center bg-marble-100 bg-opacity-80 px-2">
-      <Text styleAs="p-lg" className="text-center text-volcanic-900">
-        Currently settings are disabled with experimental Langchain multihop
-      </Text>
     </div>
   );
 };
