@@ -3,7 +3,7 @@ from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
-from backend.tools.function_tools import calculator, python_interpreter
+from backend.tools.function_tools import calculator, python_interpreter, market_cap
 from backend.tools.retrieval import arxiv, lang_chain, llama_index, pub_med, tavily
 
 """
@@ -27,6 +27,7 @@ class ToolName(StrEnum):
     Tavily_Internet_Search = "Internet Search"
     Arxiv = "Arxiv"
     Pub_Med = "Pub Med"
+    Market_Cap_Tool = "Market_Cap"
 
 
 use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
@@ -67,6 +68,20 @@ COHERE_DEPLOYMENT_TOOLS = {
         is_visible=True,
         category=Category.Function,
         description="Runs python code in a sandbox.",
+    ),
+    ToolName.Market_Cap_Tool: ManagedTool(
+    name=ToolName.Market_Cap_Tool,
+    implementation=market_cap.MarketCapTool,
+    parameter_definitions={
+        "ticker": {
+            "description": "The ticker symbol of the stock",
+            "type": "str",
+            "required": True,
+        }
+    },
+    is_visible=True,
+    category=Category.Function,
+    description="Retrieves the market cap of a stock ticker symbol.",
     ),
     ToolName.Calculator: ManagedTool(
         name=ToolName.Calculator,
