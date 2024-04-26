@@ -133,6 +133,7 @@ class StreamSearchQueriesGeneration(ChatResponse):
         default=[],
     )
 
+
 class StreamToolCallsGeneration(ChatResponse):
     """Stream tool calls generation event."""
 

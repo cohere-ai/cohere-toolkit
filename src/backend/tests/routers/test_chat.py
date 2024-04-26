@@ -133,6 +133,7 @@ def test_streaming_fail_chat_missing_message(
         ]
     }
 
+
 def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
     response = session_client_chat.post(
         "/chat-stream",
@@ -155,6 +156,7 @@ def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, use
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 0, is_custom_tools=True
     )
+
 
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
