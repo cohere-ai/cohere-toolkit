@@ -14,8 +14,8 @@ class bcolors:
 
 
 """
-To add a new deployment, add a new DeploymentName enum and a new entry in the DEPLOYMENTS dictionary containing the secrets required for the deployment.
-If the deployment requires a custom implementation, add a new key "custom_implementation" with the function that will be called to set up the deployment.
+To add a new model, create a new DeploymentName enum and a new entry in the DEPLOYMENTS dictionary containing the secrets required for the model deployment.
+If the model requires a custom implementation, add a new key "custom_implementation" with the function that will be called to set up the model deployment.
 """
 
 
@@ -134,10 +134,10 @@ def write_env_file(secrets):
 
 
 def select_deployments_prompt(_):
-    print_styled("🚀 Let's set up your deployments.", bcolors.MAGENTA)
+    print_styled("🚀 Let's set up your model.", bcolors.MAGENTA)
 
     deployments = inquirer.checkbox(
-        "Select the deployments you want to set up",
+        "Select the chat model deployment that will power your application and follow the setup instructions.",
         choices=[deployment.value for deployment in DeploymentName],
         default=["Cohere Platform"],
         validate=lambda _, x: len(x) > 0,
