@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.models import get_session
 from backend.schemas.tool import ManagedTool
 
-router = APIRouter(prefix="/tools", dependencies=[Depends(get_session)])
+router = APIRouter(prefix="/tools")
 
 
 @router.get("/", response_model=list[ManagedTool])

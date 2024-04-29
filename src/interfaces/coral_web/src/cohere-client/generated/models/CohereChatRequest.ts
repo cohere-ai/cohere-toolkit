@@ -17,6 +17,7 @@ export type CohereChatRequest = {
   message: string;
   chat_history?: Array<ChatMessage> | null;
   conversation_id?: string;
+  tools?: Array<Tool> | null;
   documents?: Array<Record<string, any>>;
   model?: string | null;
   temperature?: number | null;
@@ -24,7 +25,6 @@ export type CohereChatRequest = {
   p?: number | null;
   preamble?: string | null;
   file_ids?: Array<string> | null;
-  tools?: Array<Tool> | null;
   search_queries_only?: boolean | null;
   max_tokens?: number | null;
   seed?: number | null;

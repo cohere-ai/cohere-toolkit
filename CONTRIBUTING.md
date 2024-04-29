@@ -25,3 +25,8 @@ Remember that there are many ways to contribute other than writing code: writing
 3. [Fork this repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
 4. Make your changes on your fork and make sure all your [commits are signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)!
 5. [Submit the fork as a Pull Request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) pointing to the `main` branch this repository. A maintainer should comment and/or review your Pull Request within a few days. Although depending on the circumstances, it may take longer.
+
+
+## How to add features
+
+All features must be added to the `community` folder. That's where you'll find tools and deployments that are not managed by Codeowners.

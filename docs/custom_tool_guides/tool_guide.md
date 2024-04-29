@@ -25,12 +25,12 @@ There are three types of tools:
 
 ## Step 3: Implement the Tool
 
-Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/backend/tools) (please note that this link might change). The specific subfolder used will depend on the type of tool you're implementing.
+Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tools) (please note that this link might change). The specific subfolder used will depend on the type of tool you're implementing.
 
 If you need to install a new module to run your tool, execute the following command and run `make dev` again.
 
 ```bash
-poetry add <MODULE>
+poetry add <MODULE> --group community
 ```
 
 If you're working on a File or Data Loader, follow the steps outlined in [Implementing a Retriever](#implementing-a-retriever).
@@ -133,7 +133,7 @@ class CalculatorFunctionTool(BaseFunctionTool):
 
 ## Step 4: Making Your Tool Available
 
-To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/toolkit/blob/main/src/backend/config/tools.py).
+To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/tools.py).
 
 Start by adding the tool name to the `ToolName` enum found at the top of the file.
 
@@ -147,6 +147,7 @@ Next, include the tool configurations in the `AVAILABLE_TOOLS` list. The definit
 - Error_message: A message returned when is_available is False.
 - Category: The type of tool.
 - Description: A brief description of the tool.
+- Env_vars: A list of secrets required by the tool.
 
 Function tool with custom parameter definitions:
 
@@ -206,4 +207,4 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ## Step 6 (extra): Add Unit tests
 
-If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/toolkit/tree/main/src/backend/tests/tools) and add a few cases.
+If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tests/tools) and add a few cases.

@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from langchain_community.utilities import ArxivAPIWrapper
 
-from backend.tools.retrieval.base import BaseRetrieval
+from community.tools import BaseRetrieval
 
 
 class ArxivRetriever(BaseRetrieval):

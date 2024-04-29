@@ -17,18 +17,22 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 
 ## Quick start
 
-### Deploying to Azure
+Try the default Toolkit application yourself by deploying it in a container locally. You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed.
 
-You can deploy Toolkit with one click to Microsoft Azure Platform:
+```bash
 
-[<img src="https://aka.ms/deploytoazurebutton" height="48px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
+docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
+
+```
+
+Go to localhost:4000 in your browser and start chatting with the model. This will use the model hosted on Cohere's platform. If you want to add your own tools or use another model, follow the instructions below to fork the repository.
 
 ### Building and running locally
 
 Clone the repo and run
 
 ```bash
-make setup
+make first-run
 ```
 
 Follow the instructions to configure the model - either AWS Sagemaker, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
@@ -36,7 +40,7 @@ Follow the instructions to configure the model - either AWS Sagemaker, Azure, or
 <details>
   <summary>Environment variables</summary>
   
-  ### Cohere Platform
+### Cohere Platform
 
 - `COHERE_API_KEY`: If your application will interface with Cohere's API, you will need to supply an API key. Not required if using AWS Sagemaker or Azure.
   Sign up at https://dashboard.cohere.com/ to create an API key.
@@ -69,6 +73,7 @@ Requirements:
 - [Docker](https://www.docker.com/products/docker-desktop/)
 - [Poetry](https://python-poetry.org/docs/#installation)
 - [Docker-compose >= 2.22](https://docs.docker.com/compose/install/)
+- [Postgres](https://www.postgresql.org/download/)
 
 #### Option 1 - Install locally with Docker:
 
@@ -124,11 +129,19 @@ Components in this repo include:
 
 ## Deployment Guides
 
-Looking to deploy the Toolkit to your preferred cloud service provider? See our guides below:
+Looking to serve your application in production? Deploy the Toolkit to your preferred cloud provider by following our guides below:
 
+### Other deployment options
 - [Single Container Setup](docs/deployment_guides/single_container.md): Useful as a quickstart to run the Toolkit, or deploy to AWS on an EC2 instance.
-- [AWS ECS Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS Fargate Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS EC2 Deployment](docs/deployment_guides/aws_ecs_single_container_ec2.md): Deploy the Toolkit single container to AWS ECS(EC2).
 - [Google Cloud Platform](docs/deployment_guides/gcp_deployment.md): Help setup your Cloud SQL instance, then build, push and deploy backend+frontend containers to Cloud Run.
+
+### Deploying to Azure
+
+You can deploy Toolkit with one click to Microsoft Azure Platform:
+
+[<img src="https://aka.ms/deploytoazurebutton" height="48px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
 ## Setup for Development
 
@@ -203,6 +216,11 @@ make migrate
 
 ### Troubleshooting
 
+#### Community features are not accessible
+
+Make sure you add `USE_COMMUNITY_FEATURES=True` to your .env file.
+
+
 #### Multiple errors after running make dev for the first time
 
 Make sure you run the following command before running make dev:
@@ -210,6 +228,19 @@ Make sure you run the following command before running make dev:
 ```bash
 make migrate
 ```
+
+
+#### Error: pg_config executable not found.
+
+Make sure that all requirements including postgres are properly installed.
+
+If you're using MacOS, run:
+```bash
+brew install postgresql
+```
+
+For other operating systems, you can check the [postgres documentation](https://www.postgresql.org/download/).
+
 
 #### Debugging locally
 
@@ -235,6 +266,14 @@ it will allow you to debug.
 
 ## Component Guides
 
+### How to use community features
+
+By default, the toolkit runs without community tools or deployments. If you want to enable them, add the following to the .env file or use `make setup` to set this variable:
+
+```bash
+USE_COMMUNITY_FEATURES=True
+```
+
 ### How to add your own model deployment
 
 A model deployment is a running version of one of the Cohere command models. The Toolkit currently supports the model deployments:
@@ -246,9 +285,9 @@ A model deployment is a running version of one of the Cohere command models. The
 - SageMaker (model_deployments/sagemaker.py)
   - This deployment option calls into your SageMaker deployment. To create a SageMaker endpoint [follow the steps here](https://docs.cohere.com/docs/amazon-sagemaker-setup-guide), alternatively [follow a command notebook here](https://github.com/cohere-ai/cohere-aws/tree/main/notebooks/sagemaker). Note your region and endpoint name when executing the notebook as these will be needed in the environment variables.
 - To add your own deployment:
-  1. Create a deployment file, add it to [/model_deployments](https://github.com/cohere-ai/toolkit/tree/main/src/backend/chat/custom/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
-  2. Add the deployment to [src/backend/config/deployments.py](https://github.com/cohere-ai/toolkit/blob/main/src/backend/config/deployments.py)
-  3. Add the option to [cli/main.py](https://github.com/cohere-ai/toolkit/blob/main/cli/main.py) and the environment variables required to the env template.
+  1. Create a deployment file, add it to [/community/model_deployments](https://github.com/cohere-ai/toolkit/tree/main/src/community/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
+  2. Add the deployment to [src/community/config/deployments.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/deployments.py)
+  3. Add the environment variables required to the env template.
 - To add a Cohere private deployment, use the steps above copying the cohere platform implementation changing the base_url for your private deployment and add in custom auth steps.
 
 ### How to call the backend as an API
@@ -267,11 +306,11 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ### How to add your own chat interface
 
-Currently the core chat interface is the Coral frontend. To add your own interface, take the steps above for call the backend as an API in your implementation and add it alongside `src/interfaces/coral_web`.
+Currently the core chat interface is the Coral frontend. To add your own interface, take the steps above for call the backend as an API in your implementation and add it alongside `src/community/interfaces/`.
 
 ### How to add a connector to the Toolkit
 
-If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [config/tools.py](https://github.com/cohere-ai/toolkit/blob/main/src/backend/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
+If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [community/config/tools.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
 
 ### How to set up web search with the Toolkit
 

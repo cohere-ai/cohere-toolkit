@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 import requests
 
-from backend.tools.retrieval.base import BaseRetrieval
+from community.tools import BaseRetrieval
 
 """
 Plug in your connector configuration here. For example:
@@ -29,6 +29,7 @@ class ConnectorRetriever(BaseRetrieval):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth}",
         }
-        r = requests.post(self.url, json=body, headers=headers)
-        print(r.json())
-        return r.json()["results"]
+
+        response = requests.post(self.url, json=body, headers=headers)
+
+        return response.json()["results"]

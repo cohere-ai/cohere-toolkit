@@ -1,3 +1,4 @@
+import logging
 import os
 from distutils.util import strtobool
 from enum import StrEnum
@@ -8,11 +9,8 @@ from backend.tools.function_tools import (
     PythonInterpreterFunctionTool,
 )
 from backend.tools.retrieval import (
-    ArxivRetriever,
     LangChainVectorDBRetriever,
     LangChainWikiRetriever,
-    LlamaIndexUploadPDFRetriever,
-    PubMedRetriever,
     TavilyInternetSearch,
 )
 
@@ -31,12 +29,9 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 class ToolName(StrEnum):
     Wiki_Retriever_LangChain = "Wikipedia"
     File_Upload_Langchain = "File Reader"
-    File_Upload_LlamaIndex = "File Reader - LlamaIndex"
     Python_Interpreter = "Python_Interpreter"
     Calculator = "Calculator"
     Tavily_Internet_Search = "Internet Search"
-    Arxiv = "Arxiv"
-    Pub_Med = "Pub Med"
 
 
 ALL_TOOLS = {
@@ -58,15 +53,6 @@ ALL_TOOLS = {
         error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
         category=Category.FileLoader,
         description="Retrieves documents from a file using LangChain.",
-    ),
-    ToolName.File_Upload_LlamaIndex: ManagedTool(
-        name=ToolName.File_Upload_LlamaIndex,
-        implementation=LlamaIndexUploadPDFRetriever,
-        is_visible=False,
-        is_available=LlamaIndexUploadPDFRetriever.is_available(),
-        error_message="LlamaIndexUploadPDFRetriever not available.",
-        category=Category.FileLoader,
-        description="Retrieves documents from a file using LlamaIndex.",
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
@@ -109,35 +95,30 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
     ),
-    ToolName.Arxiv: ManagedTool(
-        name=ToolName.Arxiv,
-        implementation=ArxivRetriever,
-        is_visible=True,
-        is_available=ArxivRetriever.is_available(),
-        error_message="ArxivRetriever not available.",
-        category=Category.DataLoader,
-        description="Retrieves documents from Arxiv.",
-    ),
-    ToolName.Pub_Med: ManagedTool(
-        name=ToolName.Pub_Med,
-        implementation=PubMedRetriever,
-        is_visible=True,
-        is_available=PubMedRetriever.is_available(),
-        error_message="PubMedRetriever not available.",
-        category=Category.DataLoader,
-        description="Retrieves documents from Pub Med.",
-    ),
 }
 
-# Langchain tools are all functional tools and must have to_langchain_tool() method defined
-LANGCHAIN_TOOLS = {
-    key: value
-    for key, value in ALL_TOOLS.items()
-    if key in [ToolName.Python_Interpreter, ToolName.Tavily_Internet_Search]
-}
 
-USE_LANGCHAIN = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "False")))
-if USE_LANGCHAIN:
-    AVAILABLE_TOOLS = LANGCHAIN_TOOLS
-else:
-    AVAILABLE_TOOLS = ALL_TOOLS
+def get_available_tools() -> dict[ToolName, dict]:
+    langchain_tools = [ToolName.Python_Interpreter, ToolName.Tavily_Internet_Search]
+    use_langchain_tools = bool(
+        strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "False"))
+    )
+    use_community_tools = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "False")))
+
+    if use_langchain_tools:
+        return {
+            key: value for key, value in ALL_TOOLS.items() if key in langchain_tools
+        }
+
+    if use_community_tools:
+        try:
+            from community.config.tools import COMMUNITY_TOOLS
+
+            return ALL_TOOLS.copy().update(COMMUNITY_TOOLS)
+        except ImportError:
+            logging.warning("Community tools are not available. Skipping.")
+
+    return ALL_TOOLS
+
+
+AVAILABLE_TOOLS = get_available_tools()

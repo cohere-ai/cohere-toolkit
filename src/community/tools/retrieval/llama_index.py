@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from llama_index.core import SimpleDirectoryReader
 
-from backend.tools.retrieval.base import BaseRetrieval
+from community.tools import BaseRetrieval
 
 """
 Plug in your llama index retrieval implementation here. 
