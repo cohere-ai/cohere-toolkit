@@ -1,4 +1,4 @@
-from backend.tools.retrieval.pub_med import PubMedRetriever
+from community.tools.retrieval.pub_med import PubMedRetriever
 
 
 def test_pub_med_retriever():

@@ -95,14 +95,14 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static langchainChatStreamLangchainPost({
+  public static langchainChatStreamLangchainChatPost({
     requestBody,
   }: {
     requestBody: LangchainChatRequest;
   }): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/langchain',
+      url: '/langchain-chat',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -659,6 +659,21 @@ export class DefaultService {
       errors: {
         422: `Validation Error`,
       },
+    });
+  }
+  /**
+   * List Experimental Features
+   * List all experimental features and if they are enabled
+   *
+   * Returns:
+   * Dict[str, bool]: Experimental feature and their isEnabled state
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static listExperimentalFeaturesExperimentalFeaturesGet(): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/experimental_features/',
     });
   }
   /**

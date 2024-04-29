@@ -1,4 +1,5 @@
 import json
+import os
 import uuid
 from typing import Any
 
@@ -14,6 +15,11 @@ from backend.models.user import User
 from backend.schemas.tool import Category
 from backend.tests.factories import get_factory
 
+is_cohere_env_set = (
+    os.environ.get("COHERE_API_KEY") is not None
+    and os.environ.get("COHERE_API_KEY") != ""
+)
+
 
 @pytest.fixture()
 def user(session_chat: Session) -> User:
@@ -21,6 +27,7 @@ def user(session_chat: Session) -> User:
 
 
 # STREAMING CHAT TESTS
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -39,6 +46,7 @@ def test_streaming_new_chat(
     )
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -83,6 +91,7 @@ def test_streaming_existing_chat(
     )
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_fail_chat_missing_user_id(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -96,6 +105,7 @@ def test_fail_chat_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_default_chat_missing_deployment_name(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -108,6 +118,7 @@ def test_default_chat_missing_deployment_name(
     assert response.status_code == 200
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_fail_chat_missing_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -134,6 +145,32 @@ def test_streaming_fail_chat_missing_message(
     }
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
+    response = session_client_chat.post(
+        "/chat-stream",
+        json={
+            "message": "Give me a number",
+            "tools": [
+                {
+                    "name": "random_number_generator",
+                    "description": "generate a random number",
+                }
+            ],
+        },
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_response(
+        response, user, session_chat, session_client_chat, 0, is_custom_tools=True
+    )
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
@@ -156,6 +193,7 @@ def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, us
     )
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_invalid_tool(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -172,6 +210,7 @@ def test_streaming_chat_with_invalid_tool(
     assert response.json() == {"detail": "Custom tools must have a description"}
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_managed_and_custom_tools(
     session_client_chat, session_chat, user
 ):
@@ -203,6 +242,7 @@ def test_streaming_chat_with_managed_and_custom_tools(
     assert response.json() == {"detail": "Cannot mix both managed and custom tools"}
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_search_queries_only(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -229,6 +269,7 @@ def test_streaming_chat_with_search_queries_only(
     )
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_chat_history(
     session_client_chat: TestClient, session_chat: Session
 ) -> None:
@@ -260,6 +301,7 @@ def test_streaming_chat_with_chat_history(
     )
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat_with_files_attaches_to_user_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -302,6 +344,7 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     )
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat_with_attached_files_does_not_attach(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -344,6 +387,7 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
 
 
 # NON-STREAMING CHAT TESTS
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -362,6 +406,7 @@ def test_non_streaming_chat(
     validate_conversation(session_chat, user, conversation_id, 2)
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
@@ -384,6 +429,7 @@ def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat
     validate_conversation(session_chat, user, conversation_id, 2)
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_managed_and_custom_tools(
     session_client_chat, session_chat, user
 ):
@@ -415,6 +461,7 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
     assert response.json() == {"detail": "Cannot mix both managed and custom tools"}
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
     response = session_client_chat.post(
         "/chat",
@@ -437,6 +484,7 @@ def test_non_streaming_chat_with_custom_tools(session_client_chat, session_chat,
     assert len(response.json()["tool_calls"]) == 1
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_search_queries_only(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -458,6 +506,7 @@ def test_non_streaming_chat_with_search_queries_only(
     validate_conversation(session_chat, user, conversation_id, 2)
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_chat_history(
     session_client_chat: TestClient, session_chat: Session
 ) -> None:
@@ -484,6 +533,7 @@ def test_non_streaming_chat_with_chat_history(
     validate_conversation(session_chat, user, conversation_id, 0)
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -523,6 +573,7 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     assert message.agent == MessageAgent.USER
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -586,7 +637,7 @@ def validate_chat_streaming_response(
         event_types.add(response_json["event"])
         if response_json["event"] == StreamEvent.STREAM_END:
             conversation_id = validate_stream_end_event(
-                response_json, is_search_queries_only
+                response_json, is_search_queries_only, is_custom_tools
             )
 
     if has_citations:
@@ -623,10 +674,14 @@ def validate_conversation(
     assert len(conversation.messages) == expected_num_messages
 
 
-def validate_stream_end_event(response_json: dict, is_search_queries_only: bool) -> str:
+def validate_stream_end_event(
+    response_json: dict, is_search_queries_only: bool, is_custom_tools: bool
+) -> str:
     data = response_json["data"]
     if is_search_queries_only:
         assert len(data["search_queries"]) > 0
+    elif is_custom_tools:
+        assert len(data["tool_calls"]) > 0
     else:
         assert len(data["text"]) > 0
 

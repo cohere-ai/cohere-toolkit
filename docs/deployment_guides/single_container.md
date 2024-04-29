@@ -12,7 +12,8 @@ You can deploy Toolkit with one click in Microsoft Azure Platform:
 [<img src="https://aka.ms/deploytoazurebutton" height="30px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
 ### AWS ECS(Fargate) Deployment guide
-- [AWS ECS Deployment](aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS Fargate Deployment](aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS EC2 Deployment](docs/deployment_guides/aws_ecs_single_container_ec2.md): Deploy the Toolkit single container to AWS ECS(EC2).
 
 ## Build and Start
 
@@ -27,6 +28,10 @@ You can then run the container with the following command:
 ```bash
 docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
 ```
+If you would like to use .env file to pass the parameters, you can mount it to the container using:
+```bash
+docker run --name=cohere-toolkit -itd --env-file .env -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
+```
 
 ### Option 2 - Pull from Registry
 
@@ -36,10 +41,20 @@ docker pull ghcr.io/cohere-ai/cohere-toolkit:latest
 ```
 
 Then run the container with:
-
 ```bash
 docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
 ```
+
+If you would like to use .env file to pass the parameters, you can mount it to the container using:
+```bash
+docker run --name=cohere-toolkit -itd --env-file .env -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit
+```
+
+Please note that after running the container, you will need to wait some time for the all the services to start up. You can check the logs with:
+```bash
+docker logs cohere-toolkit
+```
+or you can check the status of the container with Docker desktop.
 
 After either option, you can access the APIs at `http://localhost:8000/docs` to see the comprehensive list of endpoints, and the frontend Toolkit app at `http://localhost:4000`.
 

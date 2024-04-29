@@ -10,8 +10,8 @@ import type { Document } from './Document';
 import type { SearchQuery } from './SearchQuery';
 
 export type StreamEnd = {
-  response_id: string;
-  generation_id: string;
+  response_id: string | null;
+  generation_id: string | null;
   conversation_id: string | null;
   text: string;
   citations?: Array<Citation>;

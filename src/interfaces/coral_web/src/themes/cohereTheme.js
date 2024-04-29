@@ -10,7 +10,6 @@ module.exports = {
         transparent: 'transparent',
         pureWhite: '#FFFFFF',
         black: '#212121',
-        onyx: '#0C1210',
         white: '#FAFAFA',
         primary: {
           900: '#511D12',
@@ -131,9 +130,9 @@ module.exports = {
         'icon-xl': ['36px', { lineHeight: '100%' }],
       },
       fontFamily: {
-        body: ['CohereText', ...defaultTheme.fontFamily.sans],
-        variable: ['CohereVariable', 'Arial', ...defaultTheme.fontFamily.serif],
-        code: ['CohereMono', ...defaultTheme.fontFamily.mono],
+        body: ['Arial', ...defaultTheme.fontFamily.sans],
+        variable: ['Arial', ...defaultTheme.fontFamily.serif],
+        code: defaultTheme.fontFamily.mono,
         iconOutline: ['CohereIconOutline'],
         iconDefault: ['CohereIconDefault'],
       },
