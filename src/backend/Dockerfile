@@ -30,6 +30,7 @@ RUN pip install --no-cache-dir poetry==1.6.1 && \
   poetry install
 
 COPY src/backend/ src/backend/
+COPY src/community src/community/
 
 # Copy environment variables optionally 
 # IMPORTANT: Can't be put in the docker-compose, will break tests
