@@ -1,10 +1,17 @@
+import os
 from unittest.mock import MagicMock, patch
 
+import pytest
 from langchain_core.documents.base import Document
 
 from backend.tools.retrieval.lang_chain import (
     LangChainVectorDBRetriever,
     LangChainWikiRetriever,
+)
+
+is_cohere_env_set = (
+    os.environ.get("COHERE_API_KEY") is not None
+    and os.environ.get("COHERE_API_KEY") != ""
 )
 
 
@@ -54,6 +61,7 @@ def test_wiki_retriever() -> None:
     assert result == expected_docs
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_wiki_retriever_no_docs() -> None:
     retriever = LangChainWikiRetriever()
     query = "Python programming"
@@ -71,6 +79,7 @@ def test_wiki_retriever_no_docs() -> None:
     assert result == []
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_vector_db_retriever() -> None:
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
@@ -130,6 +139,7 @@ def test_vector_db_retriever() -> None:
     assert result == expected_docs
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_vector_db_retriever_no_docs() -> None:
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
