@@ -17,11 +17,15 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 
 ## Quick start
 
-### Try it yourself:
+Try the default Toolkit application yourself by deploying it in a container locally. You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed.
 
 ```bash
+
 docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
+
 ```
+
+Go to localhost:4000 in your browser and start chatting with the model. This will use the model hosted on Cohere's platform. If you want to add your own tools or use another model, follow the instructions below to fork the repository.
 
 ### Building and running locally
 
@@ -125,8 +129,14 @@ Components in this repo include:
 
 ## Deployment Guides
 
-Looking to deploy the Toolkit to your preferred cloud service provider? See our guides below:
+Looking to serve your application in production? Deploy the Toolkit to your preferred cloud provider by following our guides below:
 
+### One-click deployment options
+You can deploy Toolkit with one click to Microsoft Azure Platform:
+
+[<img src="https://aka.ms/deploytoazurebutton" height="24px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
+
+### Other deployment options
 - [Single Container Setup](docs/deployment_guides/single_container.md): Useful as a quickstart to run the Toolkit, or deploy to AWS on an EC2 instance.
 - [AWS ECS Fargate Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
 - [AWS ECS EC2 Deployment](docs/deployment_guides/aws_ecs_single_container_ec2.md): Deploy the Toolkit single container to AWS ECS(EC2).
