@@ -250,9 +250,10 @@ run_backend() {
 
 run_frontend() {
   cd /workspace/src/interfaces/coral_web
-  echo "build Frontend"
-  echo "$NEXT_PUBLIC_API_HOSTNAME"
-  pnpm next:build
+  if [[ ${NEXT_PUBLIC_API_HOSTNAME} != *"localhost:8000"* ]]; then
+    echo "Building Frontend when we are not in a localhost environment"
+    pnpm next:build
+  fi
   echo "Starting Frontend..."
   pm2 start pnpm -- start:single-docker
   echo "Frontend started..."
