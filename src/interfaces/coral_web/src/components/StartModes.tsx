@@ -45,13 +45,12 @@ export const StartModes: React.FC<Props> = ({ show, className = '', onPromptSele
       className={cn('flex flex-col items-center gap-y-6', className)}
     >
       <Text styleAs="h5" className="text-center">
-        Try a prompt and see what Coral can do
+        Choose an option to get started
       </Text>
 
       <div className={cn('w-full max-w-[820px]', 'rounded-lg border border-marble-400')}>
         <Tabs
           tabs={modes.map((m) => m.title)}
-          theme="minimalCoral"
           selectedIndex={selectedMode}
           onChange={handleTabChange}
           panelsClassName="lg:pt-5 pt-5 pb-4"

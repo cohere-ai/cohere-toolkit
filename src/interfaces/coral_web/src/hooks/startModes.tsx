@@ -1,18 +1,12 @@
-import {
-  TOOL_CALCULATOR_ID,
-  TOOL_CHAT_DEFAULT,
-  TOOL_INTERNET_SEARCH_ID,
-  TOOL_PYTHON_INTERPRETER_ID,
-} from '@/cohere-client';
+import { DEFAULT_CHAT_TOOL } from '@/cohere-client';
 import { IconName } from '@/components/Shared';
-import { useFocusFileInput } from '@/hooks/actions';
-import { useParamsStore, useSettingsStore } from '@/stores';
+import { useParamsStore } from '@/stores';
+import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
-enum StartMode {
+export enum StartMode {
   UNGROUNDED = 'ungrounded',
   WEB_SEARCH = 'web_search',
   TOOLS = 'tools',
-  DOCUMENTS = 'documents',
 }
 
 type Prompt = {
@@ -20,6 +14,15 @@ type Prompt = {
   description: React.ReactNode;
   icon: IconName;
   prompt: string;
+};
+
+type Mode = {
+  id: StartMode;
+  title: string;
+  description: string;
+  params: Partial<ConfigurableParams>;
+  promptOptions: Prompt[];
+  onChange?: () => void;
 };
 
 const UNGROUNDED_PROMPTS: Prompt[] = [
@@ -58,121 +61,42 @@ const UNGROUNDED_PROMPTS: Prompt[] = [
 
 const WEB_SEARCH_PROMPTS: Prompt[] = [
   {
-    title: 'Current Events',
-    description: 'Gather business insights on the Chinese market',
-    icon: 'newspaper',
-    prompt:
-      'My company specializing in audio equipment manufacturing is thinking about expanding into China. What do we need to know?',
-  },
-  {
-    title: 'Topic Learning',
-    description: 'Give me a run down of Productivity AI startups',
-    icon: 'book',
-    prompt: `I'm interested in learning more about AI startups focused on productivity. Give me a summary of the top 3.`,
-  },
-  {
-    title: 'Research',
-    description: 'Get a quick overview of the solar panels market conditions  ',
-    icon: 'flask',
-    prompt: 'Can you give me an overview of the global solar panels market?',
-  },
-];
-
-const TOOL_PROMPTS: Prompt[] = [
-  {
-    title: 'Stay Up To Date',
+    title: 'Stay up to date',
     description: 'US tech company employee count',
     icon: 'newspaper',
-    prompt:
-      'Create a plot of the number of full time employees at the 3 tech companies with the highest market cap in the United States in 2024.',
+    prompt: 'Give me the number of employees at Apple, Amazon, and Google in a table.',
   },
   {
     title: 'Research',
     description: 'Overview of solar panel industry',
     icon: 'flask',
-    prompt: 'Plot the top five companies in the solar panel industry by revenue last year.',
+    prompt: 'What are some cutting edge companies working on solar energy?',
   },
   {
-    title: 'Learn a Topic',
-    description: 'Explain trigonometry',
+    title: 'Learn a topic',
+    description: 'Missions to the moon',
     icon: 'book',
-    prompt: "Plot sin() and explain the math behind this graph to me like I'm five.",
-  },
-];
-
-const DOCUMENT_PROMPTS: Prompt[] = [
-  {
-    title: 'Summarize',
-    description: 'Help me summarize this document',
-    icon: 'list',
-    prompt:
-      'Help me summarize the document. Format your answer in the form of bullet points. Make sure to use exactly 3 bullets. Each bullet should use between 10 words and 50 words.',
-  },
-  {
-    title: 'Analyze',
-    description: 'Tell me the main theme of this document',
-    icon: 'book-open-text',
-    prompt: `Tell me the main theme of this document. Format your answer in the form of bullets. Don't use your own words, but instead reuse passages from the document where possible.`,
-  },
-  {
-    title: 'Extraction',
-    description: 'Extract the opinions of different people in the documents',
-    icon: 'list-magnifying-glass',
-    prompt: `Extract the contributions and opinions of the different people mentioned in the document. Don't reuse passages from the text, but instead use your own words where possible.`,
+    prompt: `How many missions have there been to the moon?`,
   },
 ];
 
 export const useStartModes = () => {
   const { params } = useParamsStore();
-  const {
-    settings: { isConfigDrawerOpen },
-  } = useSettingsStore();
-  const { queueFocusFileInput, focusFileInput } = useFocusFileInput();
 
-  const modes = [
+  const modes: Mode[] = [
     {
       id: StartMode.UNGROUNDED,
       title: 'Just Chat',
       description: 'Use Coral without any access to external sources.',
-      params: { connectors: [], documents: [], tools: [] },
+      params: { fileIds: [], tools: [] },
       promptOptions: UNGROUNDED_PROMPTS,
     },
     {
-      id: StartMode.TOOLS,
-      title: 'Multihop Tool Use',
-      description: 'Uses multiple sources and tools to answer questions with citations.',
-      params: {
-        connectors: [],
-        documents: [],
-        tools: [
-          { id: TOOL_PYTHON_INTERPRETER_ID },
-          { id: TOOL_CALCULATOR_ID },
-          { id: TOOL_INTERNET_SEARCH_ID },
-        ],
-      },
-      promptOptions: TOOL_PROMPTS,
-    },
-    {
       id: StartMode.WEB_SEARCH,
-      title: 'Web Search',
-      description:
-        'Coral will search the web to find an answer and generates a response with citations.',
-      params: { connectors: [{ id: TOOL_CHAT_DEFAULT }], documents: [], tools: [] },
+      title: 'Wikpedia',
+      description: 'Use multiple sources and tools to answer questions with citations.',
+      params: { fileIds: [], tools: [{ name: DEFAULT_CHAT_TOOL }] },
       promptOptions: WEB_SEARCH_PROMPTS,
-    },
-    {
-      id: StartMode.DOCUMENTS,
-      title: 'Analyze Files',
-      description: 'Upload a file and Coral will answer questions about it.',
-      params: { connectors: [], documents: [], tools: [] },
-      onChange: () => {
-        if (!isConfigDrawerOpen) {
-          queueFocusFileInput();
-        } else {
-          focusFileInput();
-        }
-      },
-      promptOptions: DOCUMENT_PROMPTS,
     },
   ];
 
@@ -180,8 +104,6 @@ export const useStartModes = () => {
     let selectedTabKey = StartMode.UNGROUNDED;
     if (params.tools && params.tools.length > 0) {
       selectedTabKey = StartMode.WEB_SEARCH;
-    } else if (params.fileIds && params.fileIds.length > 0) {
-      selectedTabKey = StartMode.DOCUMENTS;
     }
     return modes.findIndex((m) => m.id === selectedTabKey);
   };

@@ -7,8 +7,8 @@ import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
 import Notification from '@/components/Messages/Notification';
 import WelcomeMessage from '@/components/Messages/Welcome';
-import { StartOptionKey } from '@/components/Messages/Welcome/StartOptions';
 import { Button } from '@/components/Shared';
+import { PromptOption, StartModes } from '@/components/StartModes';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
@@ -22,15 +22,11 @@ import {
 } from '@/types/message';
 import { cn } from '@/utils';
 
-import { PromptOption, StartModes } from '../StartModes';
-
 type Props = {
   isStreaming: boolean;
   welcomeMessageEnabled: boolean;
   messages: ChatMessage[];
   streamingMessage: StreamingMessage | null;
-  startOption: StartOptionKey;
-  onStartOptionChange: (option: StartOptionKey) => void;
   onRetry: VoidFunction;
   composer: ReactNode;
   conversationId?: string;
@@ -67,8 +63,7 @@ export default memo(MessagingContainer);
  * In order to access the state hooks for the scroll to bottom component, we need to wrap the content in a component.
  */
 const Content: React.FC<Props> = (props) => {
-  const { isStreaming, messages, composer, streamingMessage, startOption, onStartOptionChange } =
-    props;
+  const { isStreaming, messages, composer, streamingMessage, onPromptSelected } = props;
   const scrollToBottom = useScrollToBottom();
   const {
     citations: { hasCitations },
@@ -117,12 +112,7 @@ const Content: React.FC<Props> = (props) => {
   return (
     <div className="flex h-max min-h-full w-full">
       <div id={MESSAGE_LIST_CONTAINER_ID} className={cn('flex h-auto min-w-0 flex-1 flex-col')}>
-        <Messages
-          {...props}
-          ref={messageContainerDivRef}
-          startOption={startOption}
-          onStartOptionChange={onStartOptionChange}
-        />
+        <Messages {...props} ref={messageContainerDivRef} onPromptSelected={onPromptSelected} />
         {/* Composer container */}
         <div
           className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-100')}
@@ -174,15 +164,7 @@ type MessagesProps = Props & { welcomeMessageEnabled: boolean };
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  {
-    welcomeMessageEnabled,
-    onRetry,
-    messages,
-    streamingMessage,
-    startOption,
-    onStartOptionChange,
-    onPromptSelected,
-  },
+  { welcomeMessageEnabled, onRetry, messages, streamingMessage, onPromptSelected },
   ref
 ) {
   const lastMessage = messages[messages.length - 1];
