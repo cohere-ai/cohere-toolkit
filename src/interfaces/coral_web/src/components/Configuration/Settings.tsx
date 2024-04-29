@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
 import { useListAllDeployments } from '@/hooks/deployments';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSettingsDefaults } from '@/hooks/settings';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -16,6 +17,8 @@ export const Settings: React.FC = () => {
   } = useParamsStore();
   const defaults = useSettingsDefaults();
   const { data: deployments = [] } = useListAllDeployments();
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const modelOptions = useMemo(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return [];
@@ -35,6 +38,16 @@ export const Settings: React.FC = () => {
       tools: defaults.tools,
     });
   };
+
+  if (isLangchainModeOn) {
+    return (
+      <div className="flex items-center justify-center px-5">
+        <Text styleAs="p-lg" className="select-none text-center text-volcanic-900">
+          Currently settings are disabled with experimental Langchain multihop
+        </Text>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">

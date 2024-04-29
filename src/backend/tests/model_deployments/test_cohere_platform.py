@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from backend.config.deployments import ModelDeploymentName
 from backend.models.user import User
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.tests.model_deployments.mock_deployments import MockCohereDeployment
 
 
 def test_streamed_chat(
@@ -26,6 +27,7 @@ def test_streamed_chat(
     )
 
     assert response.status_code == 200
+    assert type(deployment) is MockCohereDeployment
     deployment.invoke_chat_stream.assert_called_once_with(
         CohereChatRequest(
             message="Hello",
@@ -69,6 +71,7 @@ def test_non_streamed_chat(
     )
 
     assert response.status_code == 200
+    assert type(deployment) is MockCohereDeployment
     deployment.invoke_chat.assert_called_once_with(
         CohereChatRequest(
             message="Hello",

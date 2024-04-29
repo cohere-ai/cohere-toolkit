@@ -1,3 +1,6 @@
+import logging
+import os
+from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.chat.custom.model_deployments.azure import AzureDeployment
@@ -10,6 +13,9 @@ class ModelDeploymentName(StrEnum):
     CoherePlatform = "Cohere Platform"
     SageMaker = "SageMaker"
     Azure = "Azure"
+
+
+use_community_features = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "false")))
 
 
 AVAILABLE_MODEL_DEPLOYMENTS = {
@@ -44,3 +50,14 @@ AVAILABLE_MODEL_DEPLOYMENTS = {
         ],
     ),
 }
+
+
+if use_community_features:
+    try:
+        from community.config.deployments import (
+            AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
+        )
+
+        AVAILABLE_MODEL_DEPLOYMENTS.update(COMMUNITY_DEPLOYMENTS_SETUP)
+    except ImportError:
+        logging.warning("Community deployments are not available. Skipping.")

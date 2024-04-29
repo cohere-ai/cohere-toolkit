@@ -3,6 +3,11 @@ from enum import StrEnum
 import inquirer
 from dotenv import set_key
 
+from community.config.deployments import (
+    AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
+)
+from community.config.tools import COMMUNITY_TOOLS_SETUP
+
 
 class bcolors:
     OKCYAN = "\033[96m"
@@ -93,6 +98,17 @@ def deployment_prompt(secrets, configs):
             secrets[secret] = value
 
 
+def community_tools_prompt(secrets):
+    print_styled(
+        "🏘️ We have some community tools that you can set up. These tools are not required for the Cohere Toolkit to run."
+    )
+    use_community_features = inquirer.confirm(
+        "Do you want to set up community features (tools and deployments)?"
+    )
+    secrets["USE_COMMUNITY_FEATURES"] = use_community_features
+    return use_community_features
+
+
 def tool_prompt(secrets, name, configs):
     print_styled(
         f"🛠️ If you want to enable {name}, set up the following secrets. Otherwise, press enter."
@@ -146,6 +162,8 @@ def select_deployments_prompt(_):
 
 
 def wrap_up(deployments):
+    print_styled("✅ Your .env file has been set up.", bcolors.OKGREEN)
+
     print_styled(
         "🎉 You're all set up! You can now run 'make migrate' and 'make dev' to start the Cohere Toolkit. Make sure Docker is running.",
         bcolors.OKGREEN,
@@ -257,12 +275,19 @@ def start():
         implementation(secrets)
 
     # SET UP TOOLS
+    use_community_features = community_tools_prompt(secrets)
+    if use_community_features:
+        TOOLS.update(COMMUNITY_TOOLS_SETUP)
+
     for name, configs in TOOLS.items():
         tool_prompt(secrets, name, configs)
 
+    # SET UP ENVIRONMENT FOR DEPLOYMENTS
     deployments = select_deployments_prompt(secrets)
 
-    # SET UP ENVIRONMENT FOR DEPLOYMENTS
+    if use_community_features:
+        DEPLOYMENTS.update(COMMUNITY_DEPLOYMENTS_SETUP)
+
     for deployment in deployments:
         deployment_prompt(secrets, DEPLOYMENTS[deployment])
 
@@ -272,8 +297,6 @@ def start():
     # REVIEW VARIABLES
     variables_to_update = review_variables_prompt(secrets)
     update_variable_prompt(secrets, variables_to_update)
-
-    print_styled("✅ Your .env file has been set up.", bcolors.OKGREEN)
 
     # WRAP UP
     wrap_up(deployments)

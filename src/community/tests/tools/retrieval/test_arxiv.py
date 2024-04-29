@@ -1,4 +1,4 @@
-from backend.tools.retrieval.arxiv import ArxivRetriever
+from community.tools.retrieval.arxiv import ArxivRetriever
 
 
 def test_arxiv_retriever():

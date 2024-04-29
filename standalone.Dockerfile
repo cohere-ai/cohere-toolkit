@@ -12,8 +12,7 @@ ENV PYTHONPATH=/workspace/src/
 # "Activate" the venv manually for the context of the container
 ENV VIRTUAL_ENV=/workspace/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-# backend database url
-ENV DATABASE_URL=postgresql+psycopg2://postgre:postgre@localhost:5432/toolkit
+
 # Keep the poetry venv name and location predictable
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 
@@ -85,8 +84,7 @@ RUN npm install -g pnpm
 RUN npm install -g pm2
 
 # ENV for frontend
-ENV NEXT_PUBLIC_API_HOSTNAME="http://localhost:8000"
-ENV PYTHON_INTERPRETER_URL="http://localhost:8080"
+
 
 # Install frontend dependencies
 WORKDIR /workspace/src/interfaces/coral_web
@@ -101,6 +99,7 @@ COPY src/interfaces/coral_web/.env.development .
 COPY src/interfaces/coral_web/.env.production .
 
 RUN pnpm install
+RUN pnpm next:build
 
 # Terrarium
 WORKDIR /usr/src/app
