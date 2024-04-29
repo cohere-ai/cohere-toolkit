@@ -45,6 +45,10 @@ export class CohereStreamError extends Error {
 
 export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
+export type ExperimentalFeatures = {
+  USE_EXPERIMENTAL_LANGCHAIN: boolean;
+};
+
 export class CohereClient {
   private readonly hostname: string;
   private readonly fetch: Fetch;
@@ -318,8 +322,32 @@ export class CohereClient {
     return body as Deployment[];
   }
 
+  public async getExperimentalFeatures(): Promise<ExperimentalFeatures> {
+    const response = await this.fetch(`${this.getEndpoint('experimental_features')}/`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as ExperimentalFeatures;
+  }
+
   private getEndpoint(
-    endpoint: 'upload' | 'chat-stream' | 'conversations' | 'tools' | 'deployments'
+    endpoint:
+      | 'upload'
+      | 'chat-stream'
+      | 'conversations'
+      | 'tools'
+      | 'deployments'
+      | 'experimental_features'
   ) {
     return `${this.hostname}/${endpoint}`;
   }

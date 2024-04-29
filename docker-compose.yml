@@ -39,6 +39,13 @@ services:
           - __pycache__/
           - alembic/
           - data/
+        - action: sync
+          path: ./src/community
+          target: /workspace/src/community
+          ignore:
+          - __pycache__/
+          - alembic/
+          - data/
     stdin_open: true
     tty: true
     ports:

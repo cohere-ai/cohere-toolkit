@@ -1,12 +1,14 @@
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
 import Conversation from '@/components/Conversation';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { Layout, LayoutSection } from '@/components/Layout';
+import { BannerContext } from '@/context/BannerContext';
 import { useListDeployments } from '@/hooks/deployments';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 
@@ -25,6 +27,9 @@ const ChatPage: NextPage<Props> = () => {
     setParams,
   } = useParamsStore();
   const { data: availableDeployments } = useListDeployments();
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
+  const { setMessage } = useContext(BannerContext);
 
   useEffect(() => {
     resetConversation();
@@ -36,6 +41,11 @@ const ChatPage: NextPage<Props> = () => {
       setParams({ deployment: availableDeployments[0].name });
     }
   }, [deployment, availableDeployments]);
+
+  useEffect(() => {
+    if (!isLangchainModeOn) return;
+    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
+  }, [isLangchainModeOn]);
 
   return (
     <Layout>
