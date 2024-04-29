@@ -73,6 +73,7 @@ Requirements:
 - [Docker](https://www.docker.com/products/docker-desktop/)
 - [Poetry](https://python-poetry.org/docs/#installation)
 - [Docker-compose >= 2.22](https://docs.docker.com/compose/install/)
+- [Postgres](https://www.postgresql.org/download/)
 
 #### Option 1 - Install locally with Docker:
 
@@ -137,8 +138,15 @@ You can deploy Toolkit with one click to Microsoft Azure Platform:
 
 ### Other deployment options
 - [Single Container Setup](docs/deployment_guides/single_container.md): Useful as a quickstart to run the Toolkit, or deploy to AWS on an EC2 instance.
-- [AWS ECS Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS Fargate Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
+- [AWS ECS EC2 Deployment](docs/deployment_guides/aws_ecs_single_container_ec2.md): Deploy the Toolkit single container to AWS ECS(EC2).
 - [Google Cloud Platform](docs/deployment_guides/gcp_deployment.md): Help setup your Cloud SQL instance, then build, push and deploy backend+frontend containers to Cloud Run.
+
+### Deploying to Azure
+
+You can deploy Toolkit with one click to Microsoft Azure Platform:
+
+[<img src="https://aka.ms/deploytoazurebutton" height="48px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
 ## Setup for Development
 
@@ -220,6 +228,19 @@ Make sure you run the following command before running make dev:
 ```bash
 make migrate
 ```
+
+
+#### Error: pg_config executable not found.
+
+Make sure that all requirements including postgres are properly installed.
+
+If you're using MacOS, run:
+```bash
+brew install postgresql
+```
+
+For other operating systems, you can check the [postgres documentation](https://www.postgresql.org/download/).
+
 
 #### Debugging locally
 
