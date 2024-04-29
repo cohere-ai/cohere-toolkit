@@ -17,7 +17,7 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 
 ## Quick start
 
-Try it the default Toolkit application yourself by deploying it in a container locally. You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed.
+Try the default Toolkit application yourself by deploying it in a container locally. You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed.
 
 ```bash
 
