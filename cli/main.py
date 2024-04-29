@@ -3,8 +3,10 @@ from enum import StrEnum
 import inquirer
 from dotenv import set_key
 
+from community.config.deployments import (
+    AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
+)
 from community.config.tools import COMMUNITY_TOOLS_SETUP
-from community.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP
 
 
 class bcolors:
@@ -100,7 +102,9 @@ def community_tools_prompt(secrets):
     print_styled(
         "🏘️ We have some community tools that you can set up. These tools are not required for the Cohere Toolkit to run."
     )
-    use_community_features = inquirer.confirm("Do you want to set up community features (tools and deployments)?")
+    use_community_features = inquirer.confirm(
+        "Do you want to set up community features (tools and deployments)?"
+    )
     secrets["USE_COMMUNITY_FEATURES"] = use_community_features
     return use_community_features
 

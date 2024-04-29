@@ -1,7 +1,7 @@
 import logging
 import os
-from enum import StrEnum
 from distutils.util import strtobool
+from enum import StrEnum
 
 from backend.chat.custom.model_deployments.azure import AzureDeployment
 from backend.chat.custom.model_deployments.cohere_platform import CohereDeployment
@@ -54,8 +54,10 @@ AVAILABLE_MODEL_DEPLOYMENTS = {
 
 if use_community_features:
     try:
-        from community.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP
-        
+        from community.config.deployments import (
+            AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
+        )
+
         AVAILABLE_MODEL_DEPLOYMENTS.update(COMMUNITY_DEPLOYMENTS_SETUP)
     except ImportError:
         logging.warning("Community deployments are not available. Skipping.")

@@ -1,9 +1,11 @@
 import logging
-from typing import List, Dict, Generator, Any
-from community.model_deployments import BaseDeployment
+from typing import Any, Dict, Generator, List
+
+from cohere.types import NonStreamedChatResponse, StreamedChatResponse
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 from backend.schemas.cohere_chat import CohereChatRequest
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from cohere.types import StreamedChatResponse, NonStreamedChatResponse
+from community.model_deployments import BaseDeployment
 
 
 class HuggingFaceDeployment(BaseDeployment):
@@ -13,25 +15,30 @@ class HuggingFaceDeployment(BaseDeployment):
     For that, you can run the following command:
         poetry run python3 src/community/model_deployments/hugging_face.py
     """
-    DEFAULT_MODELS = ["CohereForAI/c4ai-command-r-v01", "CohereForAI/c4ai-command-r-plus"]
+
+    DEFAULT_MODELS = [
+        "CohereForAI/c4ai-command-r-v01",
+        "CohereForAI/c4ai-command-r-plus",
+    ]
+
     def __init__(self):
         pass
 
     @property
     def rerank_enabled(self) -> bool:
         return False
-    
+
     @classmethod
     def list_models(cls) -> List[str]:
         if not HuggingFaceDeployment.is_available():
             return []
-        
+
         return cls.DEFAULT_MODELS
-    
+
     @classmethod
     def is_available(cls) -> bool:
         return True
-    
+
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         model_id = chat_request.model
         if model_id == "command-r":
@@ -39,22 +46,25 @@ class HuggingFaceDeployment(BaseDeployment):
 
         tokenizer = AutoTokenizer.from_pretrained(model_id)
         model = AutoModelForCausalLM.from_pretrained(model_id)
-        
+
         # Format message with the command-r-plus chat template
-        messages = self._build_chat_history(chat_request.chat_history, chat_request.message)
-        input_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt")
+        messages = self._build_chat_history(
+            chat_request.chat_history, chat_request.message
+        )
+        input_ids = tokenizer.apply_chat_template(
+            messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
+        )
 
         gen_tokens = model.generate(
-            input_ids, 
-            max_new_tokens=100, 
-            do_sample=True, 
+            input_ids,
+            max_new_tokens=100,
+            do_sample=True,
             temperature=0.3,
-            )
+        )
 
         gen_text = tokenizer.decode(gen_tokens[0])
-        
+
         return {"text": gen_text}
-    
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
@@ -62,17 +72,17 @@ class HuggingFaceDeployment(BaseDeployment):
         """
         Built in streamming is not supported, so this function wraps the invoke_chat function to return a single response.
         """
-        messages = self._build_chat_history(chat_request.chat_history, chat_request.message)
+        messages = self._build_chat_history(
+            chat_request.chat_history, chat_request.message
+        )
         gen_text = self.invoke_chat(chat_request)
 
         yield StreamedChatResponse(
             finish_reason="COMPLETE",
             response=NonStreamedChatResponse(
-                text=gen_text.get("text", ""),
-                chat_history=messages
-            )
+                text=gen_text.get("text", ""), chat_history=messages
+            ),
         )
-
 
     def invoke_search_queries(
         self,
@@ -80,19 +90,21 @@ class HuggingFaceDeployment(BaseDeployment):
         chat_history: List[Dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> list[str]:
-        logging.warning("invoke_search_queries not implemented for HuggingFaceDeployment")
+        logging.warning(
+            "invoke_search_queries not implemented for HuggingFaceDeployment"
+        )
         return []
-    
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None
 
-
-    def _build_chat_history(self, chat_history: List[Dict[str, Any]], message: str) -> List[Dict[str, Any]]:
+    def _build_chat_history(
+        self, chat_history: List[Dict[str, Any]], message: str
+    ) -> List[Dict[str, Any]]:
         messages = []
-        
+
         for message in chat_history:
             messages.append({"role": message["role"], "content": message["message"]})
 
@@ -106,8 +118,8 @@ if __name__ == "__main__":
     chat_request = CohereChatRequest(
         chat_history=[
             {"role": "USER", "message": "Hello!"},
-            {"role": "CHATBOT", "message": "Hi, how can I help you?"}
+            {"role": "CHATBOT", "message": "Hi, how can I help you?"},
         ],
-        message="How are you?"
+        message="How are you?",
     )
     response = hugging_face.invoke_chat(chat_request)
