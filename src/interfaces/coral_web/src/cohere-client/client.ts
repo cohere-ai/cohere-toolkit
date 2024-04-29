@@ -322,7 +322,7 @@ export class CohereClient {
     return body as Deployment[];
   }
 
-  public async listExperimentalFeatures(): Promise<ExperimentalFeatures> {
+  public async getExperimentalFeatures(): Promise<ExperimentalFeatures> {
     const response = await this.fetch(`${this.getEndpoint('experimental_features')}/`, {
       method: 'GET',
       headers: this.getHeaders(),

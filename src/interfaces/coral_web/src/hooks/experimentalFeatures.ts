@@ -2,6 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 
 import { ExperimentalFeatures, useCohereClient } from '@/cohere-client';
 
+/**
+ * @description Hook to get experimental features on/off status.
+ */
 export const useExperimentalFeatures = () => {
   const cohereClient = useCohereClient();
 
@@ -9,7 +12,7 @@ export const useExperimentalFeatures = () => {
     queryKey: ['experimentalFeatures'],
     queryFn: async () => {
       try {
-        return await cohereClient.listExperimentalFeatures();
+        return await cohereClient.getExperimentalFeatures();
       } catch (e) {
         console.error(e);
         throw e;
