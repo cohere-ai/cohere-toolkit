@@ -3,8 +3,18 @@ from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
-from backend.tools.function_tools import calculator, python_interpreter
-from backend.tools.retrieval import arxiv, lang_chain, llama_index, pub_med, tavily
+from backend.tools.function_tools import (
+    CalculatorFunctionTool,
+    PythonInterpreterFunctionTool,
+)
+from backend.tools.retrieval import (
+    ArxivRetriever,
+    LangChainVectorDBRetriever,
+    LangChainWikiRetriever,
+    LlamaIndexUploadPDFRetriever,
+    PubMedRetriever,
+    TavilyInternetSearch,
+)
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 
@@ -29,34 +39,38 @@ class ToolName(StrEnum):
     Pub_Med = "Pub Med"
 
 
-use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
-
-COHERE_DEPLOYMENT_TOOLS = {
+ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
         name=ToolName.Wiki_Retriever_LangChain,
-        implementation=lang_chain.LangChainWikiRetriever,
+        implementation=LangChainWikiRetriever,
         kwargs={"chunk_size": 300, "chunk_overlap": 0},
         is_visible=True,
+        is_available=LangChainWikiRetriever.is_available(),
+        error_message="LangChainWikiRetriever not available.",
         category=Category.DataLoader,
         description="Retrieves documents from Wikipedia using LangChain.",
     ),
     ToolName.File_Upload_Langchain: ManagedTool(
         name=ToolName.File_Upload_Langchain,
-        implementation=lang_chain.LangChainVectorDBRetriever,
+        implementation=LangChainVectorDBRetriever,
         is_visible=True,
+        is_available=LangChainVectorDBRetriever.is_available(),
+        error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
         category=Category.FileLoader,
         description="Retrieves documents from a file using LangChain.",
     ),
     ToolName.File_Upload_LlamaIndex: ManagedTool(
         name=ToolName.File_Upload_LlamaIndex,
-        implementation=llama_index.LlamaIndexUploadPDFRetriever,
+        implementation=LlamaIndexUploadPDFRetriever,
         is_visible=False,
+        is_available=LlamaIndexUploadPDFRetriever.is_available(),
+        error_message="LlamaIndexUploadPDFRetriever not available.",
         category=Category.FileLoader,
         description="Retrieves documents from a file using LlamaIndex.",
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
-        implementation=python_interpreter.PythonInterpreterFunctionTool,
+        implementation=PythonInterpreterFunctionTool,
         parameter_definitions={
             "code": {
                 "description": "Python code to execute using an interpreter",
@@ -65,12 +79,14 @@ COHERE_DEPLOYMENT_TOOLS = {
             }
         },
         is_visible=True,
+        is_available=PythonInterpreterFunctionTool.is_available(),
+        error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
         category=Category.Function,
         description="Runs python code in a sandbox.",
     ),
     ToolName.Calculator: ManagedTool(
         name=ToolName.Calculator,
-        implementation=calculator.CalculatorFunctionTool,
+        implementation=CalculatorFunctionTool,
         parameter_definitions={
             "code": {
                 "description": "Arithmetic expression to evaluate",
@@ -79,27 +95,35 @@ COHERE_DEPLOYMENT_TOOLS = {
             }
         },
         is_visible=True,
+        is_available=CalculatorFunctionTool.is_available(),
+        error_message="CalculatorFunctionTool not available.",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
-        implementation=tavily.TavilyInternetSearch,
+        implementation=TavilyInternetSearch,
         is_visible=True,
+        is_available=TavilyInternetSearch.is_available(),
+        error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
     ),
     ToolName.Arxiv: ManagedTool(
         name=ToolName.Arxiv,
-        implementation=arxiv.ArxivRetriever,
+        implementation=ArxivRetriever,
         is_visible=True,
+        is_available=ArxivRetriever.is_available(),
+        error_message="ArxivRetriever not available.",
         category=Category.DataLoader,
         description="Retrieves documents from Arxiv.",
     ),
     ToolName.Pub_Med: ManagedTool(
         name=ToolName.Pub_Med,
-        implementation=pub_med.PubMedRetriever,
+        implementation=PubMedRetriever,
         is_visible=True,
+        is_available=PubMedRetriever.is_available(),
+        error_message="PubMedRetriever not available.",
         category=Category.DataLoader,
         description="Retrieves documents from Pub Med.",
     ),
@@ -107,21 +131,13 @@ COHERE_DEPLOYMENT_TOOLS = {
 
 # Langchain tools are all functional tools and must have to_langchain_tool() method defined
 LANGCHAIN_TOOLS = {
-    ToolName.Python_Interpreter: ManagedTool(
-        name=ToolName.Python_Interpreter,
-        implementation=python_interpreter.PythonInterpreterFunctionTool,
-        is_visible=True,
-        description="Runs python code in a sandbox.",
-    ),
-    ToolName.Tavily_Internet_Search: ManagedTool(
-        name=ToolName.Tavily_Internet_Search,
-        implementation=tavily.TavilyInternetSearch,
-        is_visible=True,
-        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
-    ),
+    key: value
+    for key, value in ALL_TOOLS.items()
+    if key in [ToolName.Python_Interpreter, ToolName.Tavily_Internet_Search]
 }
 
-if use_langchain:
+USE_LANGCHAIN = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "False")))
+if USE_LANGCHAIN:
     AVAILABLE_TOOLS = LANGCHAIN_TOOLS
 else:
-    AVAILABLE_TOOLS = COHERE_DEPLOYMENT_TOOLS
+    AVAILABLE_TOOLS = ALL_TOOLS

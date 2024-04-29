@@ -19,6 +19,10 @@ class ConnectorRetriever(BaseRetrieval):
         self.url = url
         self.auth = auth
 
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
+
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         body = {"query": query}
         headers = {

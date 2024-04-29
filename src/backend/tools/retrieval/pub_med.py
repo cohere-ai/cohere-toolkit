@@ -7,8 +7,12 @@ from backend.tools.retrieval.base import BaseRetrieval
 
 class PubMedRetriever(BaseRetrieval):
     def __init__(self):
-        self.tool = PubmedQueryRun()
+        self.client = PubmedQueryRun()
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
 
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        result = self.tool.invoke(query)
+        result = self.client.invoke(query)
         return [{"text": result}]

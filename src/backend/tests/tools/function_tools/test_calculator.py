@@ -1,4 +1,4 @@
-from backend.tools.function_tools.calculator import CalculatorFunctionTool
+from backend.tools.function_tools import CalculatorFunctionTool
 
 
 def test_calculator() -> None:

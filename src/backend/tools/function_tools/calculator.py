@@ -10,6 +10,10 @@ class CalculatorFunctionTool(BaseFunctionTool):
     Function Tool that evaluates mathematical expressions.
     """
 
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
+
     def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
         math_parser = Parser()
         to_evaluate = parameters.get("code", "").replace("pi", "PI").replace("e", "E")

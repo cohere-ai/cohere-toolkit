@@ -27,6 +27,10 @@ class LangChainWikiRetriever(BaseRetrieval):
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
 
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
+
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         wiki_retriever = WikipediaRetriever()
         docs = wiki_retriever.get_relevant_documents(query)
@@ -49,9 +53,14 @@ class LangChainVectorDBRetriever(BaseRetrieval):
     This class retrieves documents from a vector database using the langchain package.
     """
 
+    cohere_api_key = os.environ.get("COHERE_API_KEY")
+
     def __init__(self, filepath: str):
-        self.cohere_api_key = os.environ.get("COHERE_API_KEY")
         self.filepath = filepath
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return cls.cohere_api_key is not None
 
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         cohere_embeddings = CohereEmbeddings(cohere_api_key=self.cohere_api_key)
