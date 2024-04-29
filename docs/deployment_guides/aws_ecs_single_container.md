@@ -34,7 +34,7 @@ To deploy the Toolkit to AWS ECS, you can follow the steps below:
     - Push the image to the ECR registry:
     ```bash
      aws ecr get-login-password --region <Your AWS region> | docker login --username AWS --password-stdin <Your ECR registry url>
-     docker push <Your ECR registry url>/:latest
+     docker push <Your ECR registry url>:latest
     ```
 2) Create security groups to allow inbound traffic on ports 8000 and 4000 for load balancer.
    To do this, go to the EC2 dashboard, select Security Groups, and create a new security group with the following inbound rules:
