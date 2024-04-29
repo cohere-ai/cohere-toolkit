@@ -36,7 +36,7 @@ COMMUNITY_TOOLS = {
     ),
     ToolName.Wolfram_Alpha: ManagedTool(
         name=ToolName.Wolfram_Alpha,
-        implementation=None,
+        implementation=wolfram.WolframAlphaFunctionTool,
         is_visible=False,
         category=Category.Function,
         description="Evaluate arithmetic expressions.",

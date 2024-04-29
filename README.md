@@ -28,7 +28,7 @@ docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.i
 Clone the repo and run
 
 ```bash
-make setup
+make first-run
 ```
 
 Follow the instructions to configure the model - either AWS Sagemaker, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
@@ -36,7 +36,7 @@ Follow the instructions to configure the model - either AWS Sagemaker, Azure, or
 <details>
   <summary>Environment variables</summary>
   
-  ### Cohere Platform
+### Cohere Platform
 
 - `COHERE_API_KEY`: If your application will interface with Cohere's API, you will need to supply an API key. Not required if using AWS Sagemaker or Azure.
   Sign up at https://dashboard.cohere.com/ to create an API key.
@@ -210,6 +210,11 @@ make migrate
 
 ### Troubleshooting
 
+#### Community features are not accessible
+
+Make sure you add `USE_COMMUNITY_FEATURES=True` to your .env file.
+
+
 #### Multiple errors after running make dev for the first time
 
 Make sure you run the following command before running make dev:
@@ -255,6 +260,14 @@ it will allow you to debug.
 
 ## Component Guides
 
+### How to use community features
+
+By default, the toolkit runs without community tools or deployments. If you want to enable them, add the following to the .env file or use `make setup` to set this variable:
+
+```bash
+USE_COMMUNITY_FEATURES=True
+```
+
 ### How to add your own model deployment
 
 A model deployment is a running version of one of the Cohere command models. The Toolkit currently supports the model deployments:
@@ -266,9 +279,9 @@ A model deployment is a running version of one of the Cohere command models. The
 - SageMaker (model_deployments/sagemaker.py)
   - This deployment option calls into your SageMaker deployment. To create a SageMaker endpoint [follow the steps here](https://docs.cohere.com/docs/amazon-sagemaker-setup-guide), alternatively [follow a command notebook here](https://github.com/cohere-ai/cohere-aws/tree/main/notebooks/sagemaker). Note your region and endpoint name when executing the notebook as these will be needed in the environment variables.
 - To add your own deployment:
-  1. Create a deployment file, add it to [/model_deployments](https://github.com/cohere-ai/toolkit/tree/main/src/backend/chat/custom/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
-  2. Add the deployment to [src/backend/config/deployments.py](https://github.com/cohere-ai/toolkit/blob/main/src/backend/config/deployments.py)
-  3. Add the option to [cli/main.py](https://github.com/cohere-ai/toolkit/blob/main/cli/main.py) and the environment variables required to the env template.
+  1. Create a deployment file, add it to [/community/model_deployments](https://github.com/cohere-ai/toolkit/tree/main/src/community/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
+  2. Add the deployment to [src/community/config/deployments.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/deployments.py)
+  3. Add the environment variables required to the env template.
 - To add a Cohere private deployment, use the steps above copying the cohere platform implementation changing the base_url for your private deployment and add in custom auth steps.
 
 ### How to call the backend as an API
@@ -287,11 +300,11 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ### How to add your own chat interface
 
-Currently the core chat interface is the Coral frontend. To add your own interface, take the steps above for call the backend as an API in your implementation and add it alongside `src/interfaces/coral_web`.
+Currently the core chat interface is the Coral frontend. To add your own interface, take the steps above for call the backend as an API in your implementation and add it alongside `src/community/interfaces/`.
 
 ### How to add a connector to the Toolkit
 
-If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [config/tools.py](https://github.com/cohere-ai/toolkit/blob/main/src/backend/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
+If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [community/config/tools.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
 
 ### How to set up web search with the Toolkit
 

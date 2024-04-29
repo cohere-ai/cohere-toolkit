@@ -4,6 +4,7 @@ import inquirer
 from dotenv import set_key
 
 from community.config.tools import COMMUNITY_TOOLS_SETUP
+from community.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP
 
 
 class bcolors:
@@ -99,9 +100,9 @@ def community_tools_prompt(secrets):
     print_styled(
         "🏘️ We have some community tools that you can set up. These tools are not required for the Cohere Toolkit to run."
     )
-    use_community_tools = inquirer.confirm("Do you want to set up community tools?")
-    secrets["USE_COMMUNITY_TOOLS"] = use_community_tools
-    return use_community_tools
+    use_community_features = inquirer.confirm("Do you want to set up community features (tools and deployments)?")
+    secrets["USE_COMMUNITY_FEATURES"] = use_community_features
+    return use_community_features
 
 
 def tool_prompt(secrets, name, configs):
@@ -270,8 +271,8 @@ def start():
         implementation(secrets)
 
     # SET UP TOOLS
-    use_community_tools = community_tools_prompt(secrets)
-    if use_community_tools:
+    use_community_features = community_tools_prompt(secrets)
+    if use_community_features:
         TOOLS.update(COMMUNITY_TOOLS_SETUP)
 
     for name, configs in TOOLS.items():
@@ -279,6 +280,9 @@ def start():
 
     # SET UP ENVIRONMENT FOR DEPLOYMENTS
     deployments = select_deployments_prompt(secrets)
+
+    if use_community_features:
+        DEPLOYMENTS.update(COMMUNITY_DEPLOYMENTS_SETUP)
 
     for deployment in deployments:
         deployment_prompt(secrets, DEPLOYMENTS[deployment])

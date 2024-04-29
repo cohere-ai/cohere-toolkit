@@ -29,7 +29,7 @@ class ToolName(StrEnum):
 
 
 use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
-use_community_tools = bool(strtobool(os.getenv("USE_COMMUNITY_TOOLS", "false")))
+use_community_features = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "false")))
 
 COHERE_DEPLOYMENT_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
@@ -105,7 +105,7 @@ if use_langchain:
 else:
     AVAILABLE_TOOLS = COHERE_DEPLOYMENT_TOOLS
 
-if use_community_tools:
+if use_community_features:
     try:
         from community.config.tools import COMMUNITY_TOOLS
 

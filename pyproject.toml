@@ -51,6 +51,8 @@ python-dotenv = "1.0.1"
 
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
+transformers = "^4.40.1"
+torch = "^2.3.0"
 
 [build-system]
 requires = ["poetry-core"]
