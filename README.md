@@ -69,6 +69,7 @@ Requirements:
 - [Docker](https://www.docker.com/products/docker-desktop/)
 - [Poetry](https://python-poetry.org/docs/#installation)
 - [Docker-compose >= 2.22](https://docs.docker.com/compose/install/)
+- [Postgres](https://www.postgresql.org/download/)
 
 #### Option 1 - Install locally with Docker:
 
@@ -216,6 +217,19 @@ Make sure you run the following command before running make dev:
 ```bash
 make migrate
 ```
+
+
+#### Error: pg_config executable not found.
+
+Make sure that all requirements including postgres are properly installed.
+
+If you're using MacOS, run:
+```bash
+brew install postgresql
+```
+
+For other operating systems, you can check the [postgres documentation](https://www.postgresql.org/download/).
+
 
 #### Debugging locally
 
