@@ -131,11 +131,6 @@ Components in this repo include:
 
 Looking to serve your application in production? Deploy the Toolkit to your preferred cloud provider by following our guides below:
 
-### One-click deployment options
-You can deploy Toolkit with one click to Microsoft Azure Platform:
-
-[<img src="https://aka.ms/deploytoazurebutton" height="24px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
-
 ### Other deployment options
 - [Single Container Setup](docs/deployment_guides/single_container.md): Useful as a quickstart to run the Toolkit, or deploy to AWS on an EC2 instance.
 - [AWS ECS Fargate Deployment](docs/deployment_guides/aws_ecs_single_container.md): Deploy the Toolkit single container to AWS ECS(Fargate).
