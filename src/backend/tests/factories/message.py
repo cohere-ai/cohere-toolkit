@@ -1,6 +1,6 @@
 import factory
 
-from backend.models import Message, MessageType
+from backend.models import Message
 
 from .base import BaseFactory
 
@@ -18,4 +18,3 @@ class MessageFactory(BaseFactory):
     documents = []
     citations = []
     agent = factory.Faker("random_element", elements=("USER", "CHATBOT"))
-    type = MessageType.TEXT
