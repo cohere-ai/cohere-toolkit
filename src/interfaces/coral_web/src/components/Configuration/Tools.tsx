@@ -41,7 +41,7 @@ const ToolSection = () => {
   const { params, setParams } = useParamsStore();
   const { data } = useListTools();
   const { tools: paramTools } = params;
-  const tools = data?.filter((t) => t.is_visible) ?? [];
+  const tools = data?.filter((t) => t.is_visible && t.is_available) ?? [];
   const enabledTools = paramTools ?? [];
   const name = `select-all-tools`;
 
