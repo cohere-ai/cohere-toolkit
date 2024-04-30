@@ -60,4 +60,6 @@ if use_community_features:
 
         AVAILABLE_MODEL_DEPLOYMENTS.update(COMMUNITY_DEPLOYMENTS_SETUP)
     except ImportError:
-        logging.warning("Community deployments are not available. Skipping.")
+        logging.warning(
+            "Community deployments are not available. They can still be set up."
+        )
