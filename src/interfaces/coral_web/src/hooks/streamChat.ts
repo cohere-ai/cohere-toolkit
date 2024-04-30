@@ -14,7 +14,7 @@ import {
   isUnauthorizedError,
   useCohereClient,
 } from '@/cohere-client';
-import { useGetExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 
 interface StreamingParams {
   onRead: (data: ChatResponse) => void;
@@ -46,7 +46,7 @@ export const useStreamChat = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
-  const { data: experimentalFeatures } = useGetExperimentalFeatures();
+  const { data: experimentalFeatures } = useExperimentalFeatures();
 
   useEffect(() => {
     return () => {
