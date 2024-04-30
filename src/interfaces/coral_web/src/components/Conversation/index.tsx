@@ -28,7 +28,7 @@ import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
 
 type Props = {
-  welcomeMessageEnabled?: boolean;
+  startOptionsEnabled?: boolean;
   conversationId?: string;
   history?: ChatMessage[];
 };
@@ -37,7 +37,7 @@ type Props = {
  * @description Renders the entire conversation pane, which includes the header, messages,
  * composer, and the citation panel.
  */
-const Conversation: React.FC<Props> = ({ conversationId, welcomeMessageEnabled = false }) => {
+const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = false }) => {
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
   const chatHotKeys = useChatHotKeys();
 
@@ -199,7 +199,7 @@ const Conversation: React.FC<Props> = ({ conversationId, welcomeMessageEnabled =
         />
         <MessagingContainer
           conversationId={conversationId}
-          welcomeMessageEnabled={welcomeMessageEnabled}
+          startOptionsEnabled={startOptionsEnabled}
           isStreaming={isStreaming}
           onRetry={handleRetry}
           messages={messages}

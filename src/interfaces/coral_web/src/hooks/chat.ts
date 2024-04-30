@@ -33,7 +33,6 @@ import {
   createAbortedMessage,
   createErrorMessage,
   createLoadingMessage,
-  isNotificationMessage,
 } from '@/types/message';
 import { createStartEndKey, isAbortError, isGroundingOn, replaceTextWithCitations } from '@/utils';
 
@@ -398,21 +397,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     const request = getChatRequest(message, overrides);
     const headers = { 'Deployment-Name': deployment ?? '' };
     let newMessages: ChatMessage[] = currentMessages;
-    const latestMessage = newMessages[newMessages.length - 1];
-    let notificationMessage = null;
 
-    if (latestMessage && isNotificationMessage(latestMessage) && latestMessage.show) {
-      notificationMessage = newMessages.pop();
-    }
     if (streamingMessage) {
       newMessages.push(streamingMessage);
       setStreamingMessage(null);
-
-      // The grounding notification message should always appear after the streamed bot message
-      // when it they are being added to the chat history.
-      if (notificationMessage) {
-        newMessages.push(notificationMessage);
-      }
     }
     newMessages = newMessages.concat({
       type: MessageType.USER,

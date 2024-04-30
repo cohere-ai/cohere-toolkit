@@ -5,25 +5,18 @@ import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bo
 
 import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
-import Notification from '@/components/Messages/Notification';
 import { Button } from '@/components/Shared';
 import { PromptOption, StartModes } from '@/components/StartModes';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { useCitationsStore } from '@/stores';
-import {
-  ChatMessage,
-  MessageType,
-  StreamingMessage,
-  isFulfilledMessage,
-  isNotificationMessage,
-} from '@/types/message';
+import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
 type Props = {
   isStreaming: boolean;
-  welcomeMessageEnabled: boolean;
+  startOptionsEnabled: boolean;
   messages: ChatMessage[];
   streamingMessage: StreamingMessage | null;
   onRetry: VoidFunction;
@@ -158,62 +151,46 @@ const Content: React.FC<Props> = (props) => {
   );
 };
 
-type MessagesProps = Props & { welcomeMessageEnabled: boolean };
+type MessagesProps = Props & { startOptionsEnabled: boolean };
 /**
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { welcomeMessageEnabled, onRetry, messages, streamingMessage, onPromptSelected },
+  { startOptionsEnabled, onRetry, messages, streamingMessage, onPromptSelected },
   ref
 ) {
-  const lastMessage = messages[messages.length - 1];
-  const hasNonNotificationMessages = messages.filter((m) => !isNotificationMessage(m)).length === 0;
-
   return (
     <div className="mt-auto flex flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
-      {welcomeMessageEnabled && (
+      {startOptionsEnabled && (
         <div className="m-auto w-full p-4">
-          <StartModes show={hasNonNotificationMessages} onPromptSelected={onPromptSelected} />
+          <StartModes onPromptSelected={onPromptSelected} />
         </div>
       )}
 
       {messages.map((m, i) => {
         const isLastInList = i === messages.length - 1;
-
-        if (isNotificationMessage(m) && isLastInList) {
-          // If the last message is a notification, render it after the streaming message if it exists.
-          // The latest status is always shown at the bottom of the chat.
-          return null;
-        } else if (isNotificationMessage(m) && !isLastInList) {
-          return <Notification key={i} message={m.text} show={m.show} />;
-        } else {
-          return (
-            <MessageRow
-              key={i}
-              message={m}
-              isLast={isLastInList && !streamingMessage}
-              className={cn({
-                // Hide the last message if it is the same as the separate streamed message
-                // to avoid a flash of duplicate messages.
-                hidden:
-                  isLastInList &&
-                  streamingMessage &&
-                  isFulfilledMessage(streamingMessage) &&
-                  isFulfilledMessage(m) &&
-                  streamingMessage.generationId === m.generationId,
-              })}
-              onRetry={onRetry}
-            />
-          );
-        }
+        return (
+          <MessageRow
+            key={i}
+            message={m}
+            isLast={isLastInList && !streamingMessage}
+            className={cn({
+              // Hide the last message if it is the same as the separate streamed message
+              // to avoid a flash of duplicate messages.
+              hidden:
+                isLastInList &&
+                streamingMessage &&
+                isFulfilledMessage(streamingMessage) &&
+                isFulfilledMessage(m) &&
+                streamingMessage.generationId === m.generationId,
+            })}
+            onRetry={onRetry}
+          />
+        );
       })}
 
       {streamingMessage && (
         <MessageRow message={streamingMessage} isLast={true} onRetry={onRetry} />
-      )}
-
-      {lastMessage && isNotificationMessage(lastMessage) && messages.length > 1 && (
-        <Notification message={lastMessage.text} show={lastMessage.show} shouldAnimate />
       )}
     </div>
   );

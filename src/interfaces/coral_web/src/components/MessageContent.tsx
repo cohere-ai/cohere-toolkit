@@ -26,7 +26,6 @@ const BOT_ERROR_MESSAGE = 'Unable to generate a response since an error was enco
 
 export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) => {
   const isUser = message.type === MessageType.USER;
-  const isWelcome = message.type === MessageType.WELCOME;
   const isLoading = isLoadingMessage(message);
   const isBotError = isErroredMessage(message);
   const isUserError = isUser && message.error;
@@ -104,7 +103,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       <>
         <Markdown
           className={cn({
-            'text-volcanic-700': isWelcome || isAborted,
+            'text-volcanic-700': isAborted,
           })}
           text={message.text}
           customComponents={{

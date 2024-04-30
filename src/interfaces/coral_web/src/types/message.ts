@@ -11,8 +11,6 @@ export enum BotState {
 export enum MessageType {
   BOT = 'bot',
   USER = 'user',
-  WELCOME = 'welcome',
-  NOTIFICATION = 'notification',
 }
 
 type BaseMessage = {
@@ -87,14 +85,6 @@ export type UserMessage = BaseMessage & {
   files?: File[];
 };
 
-/**
- * A message for notifying the user of something.
- */
-export type NotificationMessage = BaseMessage & {
-  type: MessageType.NOTIFICATION;
-  show: boolean;
-};
-
 export type ChatMessage = UserMessage | BotMessage;
 
 export type BotMessage =
@@ -102,8 +92,7 @@ export type BotMessage =
   | TypingMessage
   | FulfilledMessage
   | ErrorMessage
-  | AbortedMessage
-  | NotificationMessage;
+  | AbortedMessage;
 
 export type StreamingMessage = FulfilledMessage | TypingMessage | LoadingMessage;
 
@@ -141,10 +130,6 @@ export const isFulfilledOrTypingMessageWithCitations = (
   m: ChatMessage
 ): m is FulfilledMessage | (TypingMessage & Required<Pick<FulfilledMessage, 'citations'>>) =>
   m && isFulfilledOrTypingMessage(m) && !!m.citations && m.citations.length > 0;
-
-export const isNotificationMessage = (message: ChatMessage): message is NotificationMessage => {
-  return message.type === MessageType.NOTIFICATION;
-};
 
 export const createErrorMessage = (message: Omit<ErrorMessage, 'type' | 'state'>): ErrorMessage => {
   return {
