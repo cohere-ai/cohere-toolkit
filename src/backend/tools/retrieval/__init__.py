@@ -1,5 +1,11 @@
-from backend.tools.retrieval.base import BaseRetrieval
+from backend.tools.retrieval.lang_chain import (
+    LangChainVectorDBRetriever,
+    LangChainWikiRetriever,
+)
+from backend.tools.retrieval.tavily import TavilyInternetSearch
 
 __all__ = [
-    "BaseRetrieval",
+    "LangChainVectorDBRetriever",
+    "LangChainWikiRetriever",
+    "TavilyInternetSearch",
 ]
