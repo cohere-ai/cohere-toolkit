@@ -19,12 +19,17 @@ class ConnectorRetriever(BaseRetrieval):
         self.url = url
         self.auth = auth
 
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
+
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         body = {"query": query}
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth}",
         }
-        r = requests.post(self.url, json=body, headers=headers)
-        print(r.json())
-        return r.json()["results"]
+
+        response = requests.post(self.url, json=body, headers=headers)
+
+        return response.json()["results"]

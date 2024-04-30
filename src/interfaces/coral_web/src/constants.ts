@@ -1,3 +1,4 @@
+import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
 
 export const DEFAULT_CONVERSATION_NAME = 'New conversation';
@@ -34,4 +35,15 @@ export const CONFIGURATION_PANEL_ID = 'configuration';
 export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
+};
+
+// Tools
+export const TOOL_INTERNET_SEARCH_ID = 'internet_search';
+export const TOOL_PYTHON_INTERPRETER_ID = 'python_interpreter';
+
+export const TOOL_FALLBACK_ICON = 'circles-four';
+
+export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { name: string; icon: IconName } } = {
+  [TOOL_INTERNET_SEARCH_ID]: { name: 'Internet Search', icon: 'search' },
+  [TOOL_PYTHON_INTERPRETER_ID]: { name: 'Python Interpreter', icon: 'code' },
 };

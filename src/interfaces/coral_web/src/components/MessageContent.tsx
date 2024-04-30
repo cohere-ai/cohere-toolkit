@@ -3,6 +3,7 @@ import { PropsWithChildren } from 'react';
 
 import { CitationTextHighlighter } from '@/components/Citations/CitationTextHighlighter';
 import { DataTable } from '@/components/DataTable';
+import { MarkdownImage } from '@/components/MarkdownImage';
 import { Icon } from '@/components/Shared';
 import { Markdown, Text } from '@/components/Shared';
 import { UploadedFile } from '@/components/UploadedFile';
@@ -107,6 +108,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
           })}
           text={message.text}
           customComponents={{
+            img: MarkdownImage as any,
             cite: CitationTextHighlighter as any,
             table: DataTable as any,
           }}

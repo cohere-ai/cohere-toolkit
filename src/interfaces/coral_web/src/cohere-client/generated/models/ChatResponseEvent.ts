@@ -14,6 +14,7 @@ import type { StreamSearchQueriesGeneration } from './StreamSearchQueriesGenerat
 import type { StreamSearchResults } from './StreamSearchResults';
 import type { StreamStart } from './StreamStart';
 import type { StreamTextGeneration } from './StreamTextGeneration';
+import type { StreamToolCallsGeneration } from './StreamToolCallsGeneration';
 import type { StreamToolInput } from './StreamToolInput';
 import type { StreamToolResult } from './StreamToolResult';
 
@@ -29,5 +30,6 @@ export type ChatResponseEvent = {
     | StreamToolInput
     | StreamToolResult
     | StreamSearchQueriesGeneration
+    | StreamToolCallsGeneration
     | NonStreamedChatResponse;
 };

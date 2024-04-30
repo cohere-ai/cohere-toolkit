@@ -18,8 +18,11 @@ class PythonInterpreterFunctionTool(BaseFunctionTool):
     It requires a URL at which the interpreter lives
     """
 
-    def __init__(self):
-        self.interpreter_url = os.environ.get("PYTHON_INTERPRETER_URL")
+    interpreter_url = os.environ.get("PYTHON_INTERPRETER_URL")
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return cls.interpreter_url is not None
 
     def call(self, parameters: dict, **kwargs: Any):
         if not self.interpreter_url:

@@ -7,8 +7,12 @@ from community.tools import BaseRetrieval
 
 class ArxivRetriever(BaseRetrieval):
     def __init__(self):
-        self.tool = ArxivAPIWrapper()
+        self.client = ArxivAPIWrapper()
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
 
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        result = self.tool.run(query)
+        result = self.client.run(query)
         return [{"text": result}]

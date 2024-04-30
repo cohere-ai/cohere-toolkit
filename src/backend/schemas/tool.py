@@ -23,6 +23,8 @@ class Tool(BaseModel):
 class ManagedTool(Tool):
     kwargs: dict = {}
     is_visible: bool = False
+    is_available: bool = False
+    error_message: Optional[str] = ""
     category: Category = Category.DataLoader
     implementation: Any = Field(exclude=True)
 

@@ -32,6 +32,7 @@ export const useCitationsStore = () => {
       selectCitation: state.selectCitation,
       hoverCitation: state.hoverCitation,
       resetCitations: state.resetCitations,
+      saveOutputFiles: state.saveOutputFiles,
     }),
     shallow
   );

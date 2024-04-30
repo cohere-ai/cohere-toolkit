@@ -5,6 +5,10 @@ from typing import Any, Dict, List
 class BaseRetrieval:
     """Base for all retrieval options."""
 
+    @classmethod
+    @abstractmethod
+    def is_available(cls) -> bool: ...
+
     @abstractmethod
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]: ...
 
