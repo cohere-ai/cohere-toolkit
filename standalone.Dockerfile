@@ -27,6 +27,16 @@ RUN cd /usr/src \
     && rm -rf /usr/src/Python-$PYTHON_VERSION.tgz /usr/src/Python-$PYTHON_VERSION \
     && update-alternatives --install /usr/bin/python python /usr/local/bin/python3 1
 
+#install Sqlite3 > 3.35 for Chroma DB
+RUN cd /usr/src \
+    && wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz \
+    && tar zxvf sqlite-autoconf-3450300.tar.gz \
+    && cd sqlite-autoconf-3450300 \
+    && ./configure \
+    && make \
+    && make install \
+    && rm -rf /usr/src/sqlite-autoconf-3450300.tar.gz /usr/src/sqlite-autoconf-3450300
+
 # Install poetry
 RUN pip3 install --no-cache-dir poetry==1.6.1
 
