@@ -4,9 +4,7 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.schemas.tool import ManagedTool
 from backend.services.request_validators import validate_user_header
 
-router = APIRouter(
-    prefix="/tools", dependencies=[ Depends(validate_user_header)]
-)
+router = APIRouter(prefix="/tools", dependencies=[Depends(validate_user_header)])
 
 
 @router.get("/", response_model=list[ManagedTool])
