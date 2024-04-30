@@ -10,6 +10,7 @@ const INITIAL_STATE: State = {
   selectedCitation: null,
   hoveredGenerationId: null,
   searchResults: {},
+  outputFiles: {},
 };
 
 type Citation = {
@@ -31,12 +32,15 @@ interface SearchResults {
   [documentId: string]: Record<string, any>;
 }
 
+export type OutputFiles = { [name: string]: { name: string; data: string } };
+
 type State = {
   citationReferences: CitationReferences;
   hasCitations: boolean;
   selectedCitation: Citation | null;
   hoveredGenerationId: string | null;
   searchResults: SearchResults;
+  outputFiles: OutputFiles;
 };
 
 type Actions = {
@@ -45,6 +49,7 @@ type Actions = {
   selectCitation: (citation: Citation | null) => void;
   hoverCitation: (generationId: string | null) => void;
   resetCitations: VoidFunction;
+  saveOutputFiles: (outputFiles: OutputFiles) => void;
 };
 
 export type CitationsStore = {
@@ -102,6 +107,14 @@ export const createCitationsSlice: StateCreator<StoreState, [], [], CitationsSto
   resetCitations() {
     set(() => ({
       citations: INITIAL_STATE,
+    }));
+  },
+  saveOutputFiles(outputFiles) {
+    set((state) => ({
+      citations: {
+        ...state.citations,
+        outputFiles,
+      },
     }));
   },
   citations: INITIAL_STATE,
