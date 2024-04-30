@@ -1,12 +1,16 @@
 /* generated using openapi-typescript-codegen -- do no edit */
+
 /* istanbul ignore file */
+
 /* tslint:disable */
+
 /* eslint-disable */
+import type { ToolCall } from './ToolCall';
+
 /**
- * Stream start event.
+ * Stream tool calls generation event.
  */
-export type StreamStart = {
+export type StreamToolCallsGeneration = {
   is_finished: boolean;
-  generation_id?: string | null;
-  conversation_id?: string | null;
+  tool_calls?: Array<ToolCall>;
 };

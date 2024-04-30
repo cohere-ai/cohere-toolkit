@@ -597,7 +597,7 @@ export class DefaultService {
    * List all available tools.
    *
    * Returns:
-   * list[Tool]: List of available tools.
+   * list[ManagedTool]: List of available tools.
    * @returns ManagedTool Successful Response
    * @throws ApiError
    */

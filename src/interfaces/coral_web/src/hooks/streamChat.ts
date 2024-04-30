@@ -1,3 +1,4 @@
+import { EventSourceMessage } from '@microsoft/fetch-event-source';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
@@ -13,6 +14,7 @@ import {
   isUnauthorizedError,
   useCohereClient,
 } from '@/cohere-client';
+import { useGetExperimentalFeatures } from '@/hooks/experimentalFeatures';
 
 interface StreamingParams {
   onRead: (data: ChatResponse) => void;
@@ -44,6 +46,7 @@ export const useStreamChat = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
+  const { data: experimentalFeatures } = useGetExperimentalFeatures();
 
   useEffect(() => {
     return () => {
@@ -79,11 +82,12 @@ export const useStreamChat = () => {
         abortControllerRef.current = new AbortController();
 
         const { request, headers, onRead, onError, onFinish } = params;
-        await cohereClient.chat({
+
+        const chatStreamParams = {
           request,
           headers,
           signal: abortControllerRef.current.signal,
-          onMessage: (event) => {
+          onMessage: (event: EventSourceMessage) => {
             try {
               if (!event.data) return;
               const data = JSON.parse(event.data);
@@ -98,7 +102,7 @@ export const useStreamChat = () => {
               throw new Error('unable to parse event data');
             }
           },
-          onError: (err) => {
+          onError: (err: any) => {
             onError(err);
             // Rethrow to stop the operation
             throw err;
@@ -106,7 +110,13 @@ export const useStreamChat = () => {
           onClose: () => {
             onFinish();
           },
-        });
+        };
+
+        if (experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN) {
+          await cohereClient.langchainChat(chatStreamParams);
+        } else {
+          await cohereClient.chat(chatStreamParams);
+        }
       } catch (e) {
         if (isUnauthorizedError(e)) {
           await queryClient.invalidateQueries({ queryKey: ['defaultAPIKey'] });

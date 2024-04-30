@@ -9,6 +9,7 @@ import type { Document } from './Document';
 
 export type StreamToolResult = {
   is_finished: boolean;
-  result: string | null;
+  result: any;
+  tool_name: string;
   documents?: Array<Document>;
 };

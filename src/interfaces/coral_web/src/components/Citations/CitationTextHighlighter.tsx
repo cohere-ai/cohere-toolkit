@@ -80,7 +80,6 @@ export const CitationTextHighlighter: React.FC<Props> = ({
             generationId={generationId}
             // Used to find the keyword to bold but since we don't have it yet here when the message is
             // still streaming in we can just ignore it for now instead of not showing the popup at all
-            // TODO(jessica): pass in cited text from citation event as a backup
             message={message?.originalText ?? ''}
           />
         ),
