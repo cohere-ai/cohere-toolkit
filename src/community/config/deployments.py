@@ -25,7 +25,7 @@ AVAILABLE_MODEL_DEPLOYMENTS = {
         is_available=LocalModelDeployment.is_available(),
         env_vars=[],
         kwargs={
-            "model_path": "path/to/model", # Note that the model needs to be in the src directory
+            "model_path": "path/to/model",  # Note that the model needs to be in the src directory
         },
     ),
 }

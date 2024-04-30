@@ -107,6 +107,7 @@ class PromptTemplate:
     """
     Template for generating prompts for different types of requests.
     """
+
     def dummy_chat_template(self, message, chat_history):
         prompt = "System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond."
         prompt += "\n\n"
@@ -121,7 +122,6 @@ class PromptTemplate:
         prompt += "Chatbot: "
 
         return prompt
-    
 
     def dummy_rag_template(self, message, chat_history, documents):
         prompt = "System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond."
@@ -160,7 +160,7 @@ class PromptTemplate:
         prompt += "Chatbot: "
 
         return prompt
-    
+
     # https://docs.cohere.com/docs/prompting-command-r#formatting-chat-history-and-tool-outputs
     def cohere_rag_template(self, message, chat_history, documents):
         chat_history.append({"role": "user", "message": message})
@@ -175,7 +175,7 @@ Firstly, Decide which of the retrieved documents are relevant to the user's last
 Secondly, Decide which of the retrieved documents contain facts that should be cited in a good answer to the user's last input by writing 'Cited Documents:' followed a comma-separated list of document numbers. If you dont want to cite any of them, you should instead write 'None'.
 Thirdly, Write 'Answer:' followed by a response to the user's last input in high quality natural english. Use the retrieved documents to help you. Do not insert any citations or grounding markup.
 Finally, Write 'Grounded answer:' followed by a response to the user's last input in high quality natural english. Use the symbols <co: doc> and </co: doc> to indicate when a fact comes from a document in the search result, e.g <co: 0>my fact</co: 0> for a fact from document 0."""
-        
+
         tool_prompt_template = f"""<BOS_TOKEN> <|START_OF_TURN_TOKEN|>
 <|SYSTEM_TOKEN|> # Safety Preamble
 {SAFETY_PREAMBLE}
@@ -196,36 +196,32 @@ Finally, Write 'Grounded answer:' followed by a response to the user's last inpu
 
 <|END_OF_TURN_TOKEN|> {CHAT_HISTORY} <|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|> {INSTRUCTIONS}<|END_OF_TURN_TOKEN|>"""
 
-
     def _get_cohere_documents_template(documents):
         doc_str_list = ["<results>"]
         for doc_idx, doc in enumerate(documents):
             if doc_idx > 0:
                 doc_str_list.append("")
-            doc_str_list.extend([f'Document: {doc_idx}', doc['title'], doc['text']])
+            doc_str_list.extend([f"Document: {doc_idx}", doc["title"], doc["text"]])
         doc_str_list.append("</results>")
         return "\n".join(doc_str_list)
-    
+
     def _get_cohere_chat_history_template(chat_history):
         chat_hist_str = ""
         for turn in chat_history:
             chat_hist_str += "<|START_OF_TURN_TOKEN|>"
-            if turn['role'] == 'user':
+            if turn["role"] == "user":
                 chat_hist_str += "<|USER_TOKEN|>"
-            elif turn['role'] == 'assistant':
+            elif turn["role"] == "assistant":
                 chat_hist_str += "<|CHATBOT_TOKEN|>"
-            else: # role == system
+            else:  # role == system
                 chat_hist_str += "<|SYSTEM_TOKEN|>"
-            chat_hist_str += turn['message']
+            chat_hist_str += turn["message"]
         chat_hist_str += "<|END_OF_TURN_TOKEN|>"
         return chat_hist_str
 
 
-
 if __name__ == "__main__":
-    model = LocalModelDeployment(
-        model_path="path/to/model"
-    )
+    model = LocalModelDeployment(model_path="path/to/model")
 
     print("--- Chat Stream ---")
     response = model.invoke_chat_stream(
