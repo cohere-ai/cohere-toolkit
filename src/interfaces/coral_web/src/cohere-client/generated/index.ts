@@ -42,6 +42,7 @@ export type { StreamSearchQueriesGeneration } from './models/StreamSearchQueries
 export type { StreamSearchResults } from './models/StreamSearchResults';
 export type { StreamStart } from './models/StreamStart';
 export type { StreamTextGeneration } from './models/StreamTextGeneration';
+export type { StreamToolCallsGeneration } from './models/StreamToolCallsGeneration';
 export type { StreamToolInput } from './models/StreamToolInput';
 export type { StreamToolResult } from './models/StreamToolResult';
 export type { Tool } from './models/Tool';

@@ -1,11 +1,9 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
 
-// any changes to the theme should be reflected into our `customTwMerge` in  `utils/cn.ts`
+// Any changes to the theme should be reflected into our `customTwMerge` in `utils/cn.ts`
 module.exports = {
   theme: {
     extend: {
-      // TODO(jessica): shift colors to `extend` for now so that using the old theme and nature theme
-      // merge nicely
       colors: {
         transparent: 'transparent',
         pureWhite: '#FFFFFF',

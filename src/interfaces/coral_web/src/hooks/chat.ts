@@ -1,5 +1,4 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
@@ -12,18 +11,20 @@ import {
   StreamCitationGeneration,
   StreamEnd,
   StreamEvent,
-  StreamQueryGeneration,
   StreamSearchResults,
   StreamStart,
   StreamTextGeneration,
+  StreamToolInput,
+  StreamToolResult,
   isCohereNetworkError,
   isSessionUnavailableError,
   isStreamError,
 } from '@/cohere-client';
-import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
+import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useRouteChange } from '@/hooks/route';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
+import { OutputFiles } from '@/stores/slices/citationsSlice';
 import {
   BotState,
   ChatMessage,
@@ -35,7 +36,13 @@ import {
   createLoadingMessage,
   isNotificationMessage,
 } from '@/types/message';
-import { createStartEndKey, isAbortError, isGroundingOn, replaceTextWithCitations } from '@/utils';
+import {
+  createStartEndKey,
+  fixMarkdownImagesInText,
+  isAbortError,
+  isGroundingOn,
+  replaceTextWithCitations,
+} from '@/utils';
 
 const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
 const ABORT_REASON_USER = 'USER_ABORTED';
@@ -62,7 +69,6 @@ export type HandleSendChat = (
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
-  const router = useRouter();
 
   const {
     params: { temperature, tools, model, deployment },
@@ -72,7 +78,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     setConversation,
     setPendingMessage,
   } = useConversationStore();
-  const { addSearchResults, addCitation } = useCitationsStore();
+  const { addSearchResults, addCitation, saveOutputFiles } = useCitationsStore();
   const {
     files: { composerFiles },
     clearComposerFiles,
@@ -110,6 +116,18 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     }
   };
 
+  const mapOutputFiles = (outputFiles: { filename: string; b64_data: string }[] | undefined) => {
+    return outputFiles?.reduce<OutputFiles>((outputFilesMap, outputFile) => {
+      return {
+        ...outputFilesMap,
+        [outputFile.filename]: {
+          name: outputFile.filename,
+          data: outputFile.b64_data,
+        },
+      };
+    }, {});
+  };
+
   const handleStreamConverse = async ({
     newMessages,
     request,
@@ -140,7 +158,8 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     let generationId = '';
     let citations: Citation[] = [];
     let documentsMap: IdToDocument = {};
-    let traceId = '';
+    let outputFiles: OutputFiles = {};
+    let toolEvents: StreamToolInput[] = [];
 
     try {
       clearComposerFiles();
@@ -168,20 +187,8 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 generationId,
                 isRAGOn,
                 originalText: botResponse,
+                toolEvents,
               });
-              break;
-            }
-
-            case StreamEvent.SEARCH_QUERIES_GENERATION: {
-              const data = eventData.data as StreamQueryGeneration;
-              const joinedQuery = data?.query;
-              const searchQuery = !joinedQuery ? 'Deep diving' : `Searching: ${joinedQuery}`;
-              setStreamingMessage(
-                createLoadingMessage({
-                  text: 'Deep diving',
-                  isRAGOn,
-                })
-              );
               break;
             }
 
@@ -194,6 +201,42 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 (idToDoc, doc) => ({ ...idToDoc, [doc.document_id ?? '']: doc }),
                 {}
               );
+              break;
+            }
+
+            case StreamEvent.TOOL_INPUT: {
+              const data = eventData.data as StreamToolInput;
+              toolEvents.push(data);
+
+              setStreamingMessage({
+                type: MessageType.BOT,
+                state: BotState.TYPING,
+                text: botResponse,
+                isRAGOn,
+                generationId,
+                originalText: botResponse,
+                toolEvents,
+              });
+              break;
+            }
+
+            case StreamEvent.TOOL_RESULT: {
+              const data = eventData.data as StreamToolResult;
+              if (data.tool_name === TOOL_PYTHON_INTERPRETER_ID) {
+                outputFiles = { ...mapOutputFiles(data.result.output_files) };
+                saveOutputFiles(outputFiles);
+              }
+
+              setStreamingMessage({
+                type: MessageType.BOT,
+                state: BotState.TYPING,
+                text: botResponse,
+                isRAGOn,
+                generationId,
+                originalText: botResponse,
+                toolEvents,
+              });
+
               break;
             }
 
@@ -213,6 +256,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 isRAGOn,
                 generationId,
                 originalText: botResponse,
+                toolEvents,
               });
               break;
             }
@@ -248,28 +292,31 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
               saveCitations(generationId, citations, documentsMap);
 
+              const finalText = isRAGOn
+                ? replaceTextWithCitations(
+                    // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
+                    // because the final response doesn't give us the full text yet. Note - this means that
+                    // citations will only appear for the first 'block' of text generated.
+                    data?.finish_reason === FinishReason.FINISH_REASON_MAX_TOKENS
+                      ? botResponse
+                      : responseText,
+                    citations,
+                    generationId
+                  )
+                : botResponse;
+
               setStreamingMessage({
                 type: MessageType.BOT,
                 state: BotState.FULFILLED,
                 generationId,
-                text: isRAGOn
-                  ? replaceTextWithCitations(
-                      // TODO(jessica): temporarily use the text generated from the stream when MAX_TOKENS
-                      // because the final response doesn't give us the full text yet. Note - this means that
-                      // citations will only appear for the first 'block' of text generated.
-                      // Fixes https://linear.app/cohereai/issue/CNV-1187
-                      // Pending https://linear.app/cohereai/issue/CNV-1499
-                      data?.finish_reason === FinishReason.FINISH_REASON_MAX_TOKENS
-                        ? botResponse
-                        : responseText,
-                      citations,
-                      generationId
-                    )
-                  : botResponse,
+                // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
+                // so we need to manually apply this fix. Otherwise, this comes for free when we call
+                // `replaceTextWithCitations`.
+                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(finalText),
                 citations,
                 isRAGOn,
                 originalText: isRAGOn ? responseText : botResponse,
-                traceId,
+                toolEvents,
               });
 
               break;

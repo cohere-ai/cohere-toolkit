@@ -3,15 +3,25 @@ import { forwardRef, useEffect, useState } from 'react';
 import { useLongPress } from 'react-aria';
 
 import { Avatar } from '@/components/Avatar';
+import IconButton from '@/components/IconButton';
 import { LongPressMenu } from '@/components/LongPressMenu';
 import { MessageContent } from '@/components/MessageContent';
-import { CopyToClipboardButton, CopyToClipboardIconButton } from '@/components/Shared';
+import {
+  Button,
+  CopyToClipboardButton,
+  CopyToClipboardIconButton,
+  Icon,
+  Tooltip,
+} from '@/components/Shared';
+import { ToolEvents } from '@/components/ToolEvents';
 import { ReservedClasses } from '@/constants';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
 import { getMessageRowId } from '@/hooks/citations';
 import { useCitationsStore } from '@/stores';
 import {
   type ChatMessage,
+  isAbortedMessage,
+  isErroredMessage,
   isFulfilledMessage,
   isFulfilledOrTypingMessage,
   isFulfilledOrTypingMessageWithCitations,
@@ -39,10 +49,17 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
 
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
+  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(isLast);
   const {
     citations: { selectedCitation, hoveredGenerationId },
     hoverCitation,
   } = useCitationsStore();
+  const hasSteps =
+    (isFulfilledOrTypingMessage(message) ||
+      isErroredMessage(message) ||
+      isAbortedMessage(message)) &&
+    !!message.toolEvents &&
+    message.toolEvents.length > 0;
 
   const getMessageText = () => {
     if (isFulfilledMessage(message)) {
@@ -64,6 +81,12 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
       setTimeout(() => setIsShowing(true), 300);
     }
   }, []);
+
+  useEffect(() => {
+    if (isLast) {
+      setIsStepsExpanded(true);
+    }
+  }, [isLast]);
 
   const [highlightMessage, setHighlightMessage] = useState(false);
   const prevSelectedCitationGenId = usePreviousDistinct(selectedCitation?.generationId);
@@ -123,6 +146,17 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               iconAtStart
               onClick={onCopy}
             />
+            {hasSteps && (
+              <Button
+                label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
+                startIcon={<Icon name="list" />}
+                kind="secondary"
+                size="md"
+                aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
+                animate={false}
+                onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
+              />
+            )}
           </div>
         </div>
       </LongPressMenu>
@@ -144,8 +178,12 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
       >
         <div className="flex w-full gap-x-2">
           <Avatar message={message} />
-          <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-1 md:flex-row">
-            <MessageContent isLast={isLast} message={message} onRetry={onRetry} />
+          <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-3 md:flex-row">
+            <div className="w-full">
+              {hasSteps && <ToolEvents show={isStepsExpanded} events={message.toolEvents} />}
+
+              <MessageContent isLast={isLast} message={message} onRetry={onRetry} />
+            </div>
             <div
               className={cn('flex h-full items-end justify-end self-end', {
                 'hidden md:invisible md:flex':
@@ -153,6 +191,21 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 'hidden md:invisible md:flex md:group-hover:visible': !isLast,
               })}
             >
+              {hasSteps && (
+                <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
+                  <IconButton
+                    iconName="list"
+                    className="rounded hover:bg-secondary-100"
+                    iconClassName={cn(
+                      'text-volcanic-800 group-hover/icon-button:text-secondary-800',
+                      {
+                        'hidden md:invisible md:flex': !isFulfilledMessage(message),
+                      }
+                    )}
+                    onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
+                  />
+                </Tooltip>
+              )}
               <CopyToClipboardIconButton value={getMessageText()} onClick={onCopy} />
             </div>
           </div>

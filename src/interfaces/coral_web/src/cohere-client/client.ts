@@ -176,6 +176,39 @@ export class CohereClient {
     });
   }
 
+  public async langchainChat({
+    request,
+    headers,
+    signal,
+    onOpen,
+    onMessage,
+    onClose,
+    onError,
+  }: {
+    request: CohereChatRequest;
+    headers?: Record<string, string>;
+    signal?: AbortSignal;
+    onOpen?: FetchEventSourceInit['onopen'];
+    onMessage?: FetchEventSourceInit['onmessage'];
+    onClose?: FetchEventSourceInit['onclose'];
+    onError?: FetchEventSourceInit['onerror'];
+  }) {
+    const chatRequest = mapToChatRequest(request);
+    const requestBody = JSON.stringify({
+      ...chatRequest,
+    });
+    return await fetchEventSource(this.getEndpoint('langchain-chat'), {
+      method: 'POST',
+      headers: { ...this.getHeaders(), ...headers },
+      body: requestBody,
+      signal,
+      onopen: onOpen,
+      onmessage: onMessage,
+      onclose: onClose,
+      onerror: onError,
+    });
+  }
+
   public async listConversations({
     signal,
   }: {
@@ -344,6 +377,7 @@ export class CohereClient {
     endpoint:
       | 'upload'
       | 'chat-stream'
+      | 'langchain-chat'
       | 'conversations'
       | 'tools'
       | 'deployments'

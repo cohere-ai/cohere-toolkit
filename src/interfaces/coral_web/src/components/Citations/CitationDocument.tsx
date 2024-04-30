@@ -151,7 +151,6 @@ export const CitationDocument: React.FC<Props> = ({ document, isExpandable = fal
       {isExpanded && isExpandable && (
         <div className="flex flex-col">
           {getSnippet(30, 'line-clamp-3')}
-          {/* TODO(jessica): should we enable this/will we support this? */}
           <button
             className="self-end p-0 text-primary-900 transition-colors ease-in-out hover:text-primary-700"
             onClick={openFullSnippetModal}
