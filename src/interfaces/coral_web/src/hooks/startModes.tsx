@@ -22,7 +22,7 @@ type Mode = {
   description: string;
   params: Partial<ConfigurableParams>;
   promptOptions: Prompt[];
-  onChange?: () => void;
+  onChange?: VoidFunction;
 };
 
 const UNGROUNDED_PROMPTS: Prompt[] = [

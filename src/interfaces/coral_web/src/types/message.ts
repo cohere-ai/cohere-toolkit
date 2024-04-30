@@ -88,22 +88,6 @@ export type UserMessage = BaseMessage & {
 };
 
 /**
- * Special message type when the first time user is first welcomed into a conversation and the content is being typed.
- */
-export type TypingWelcomeMessage = BaseMessage & {
-  type: MessageType.WELCOME;
-  state: BotState.TYPING;
-};
-
-/**
- * Special message type when the welcome message is fulfilled.
- */
-export type WelcomeMessage = BaseMessage & {
-  type: MessageType.WELCOME;
-  state: BotState.FULFILLED;
-};
-
-/**
  * A message for notifying the user of something.
  */
 export type NotificationMessage = BaseMessage & {
@@ -117,8 +101,6 @@ export type BotMessage =
   | LoadingMessage
   | TypingMessage
   | FulfilledMessage
-  | TypingWelcomeMessage
-  | WelcomeMessage
   | ErrorMessage
   | AbortedMessage
   | NotificationMessage;

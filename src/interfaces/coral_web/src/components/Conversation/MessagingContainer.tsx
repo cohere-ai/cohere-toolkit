@@ -6,7 +6,6 @@ import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bo
 import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
 import Notification from '@/components/Messages/Notification';
-import WelcomeMessage from '@/components/Messages/Welcome';
 import { Button } from '@/components/Shared';
 import { PromptOption, StartModes } from '@/components/StartModes';
 import { ReservedClasses } from '@/constants';
@@ -177,11 +176,6 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
           <StartModes show={hasNonNotificationMessages} onPromptSelected={onPromptSelected} />
         </div>
       )}
-      <WelcomeMessage
-        show={
-          welcomeMessageEnabled && messages.filter((m) => !isNotificationMessage(m)).length === 0
-        }
-      />
 
       {messages.map((m, i) => {
         const isLastInList = i === messages.length - 1;
