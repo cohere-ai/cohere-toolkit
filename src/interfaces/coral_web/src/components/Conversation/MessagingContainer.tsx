@@ -162,7 +162,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
   return (
     <div className="mt-auto flex flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
       {startOptionsEnabled && (
-        <div className="m-auto w-full p-4">
+        <div className="m-auto flex h-full w-full flex-col justify-center p-4">
           <StartModes onPromptSelected={onPromptSelected} />
         </div>
       )}

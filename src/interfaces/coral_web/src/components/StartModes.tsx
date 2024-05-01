@@ -101,7 +101,7 @@ const PromptOptionButton: React.FC<PromptOptionButtonProps> = ({
       )}
       onClick={() => onClick(prompt)}
     >
-      <div className="bg-mushroom-500/25 text-mushroom-600 flex h-8 w-8 flex-none items-center justify-center rounded">
+      <div className="flex h-8 w-8 flex-none items-center justify-center rounded bg-secondary-500/25 text-secondary-600">
         <Icon name={icon} kind="outline" />
       </div>
       <div className="flex flex-grow flex-col gap-y-2">
