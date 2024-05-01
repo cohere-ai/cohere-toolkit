@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.models.base import Base
@@ -7,7 +7,8 @@ from backend.models.base import Base
 class File(Base):
     __tablename__ = "files"
 
-    user_id: Mapped[str]
+    # TODO: Swap to foreign key once User management implemented
+    user_id: Mapped[str] = mapped_column(String)
     message_id: Mapped[str] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE"), nullable=True
     )
@@ -18,3 +19,10 @@ class File(Base):
     file_name: Mapped[str]
     file_path: Mapped[str]
     file_size: Mapped[int] = mapped_column(default=0)
+
+    __table_args__ = (
+        Index("file_conversation_id_user_id", conversation_id, user_id),
+        Index("file_conversation_id", conversation_id),
+        Index("file_message_id", message_id),
+        Index("file_user_id", user_id),
+    )
