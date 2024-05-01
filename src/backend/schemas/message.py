@@ -1,16 +1,15 @@
 import datetime
-from typing import ClassVar, List, Union
+from typing import List, Union
 
 from pydantic import BaseModel
 
-from backend.models.message import MessageAgent, MessageType
+from backend.models.message import MessageAgent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.file import File
 
 
 class MessageBase(BaseModel):
-    type: ClassVar[MessageType] = MessageType.TEXT
     text: str
 
 
@@ -29,7 +28,6 @@ class Message(MessageBase):
     files: List[File]
 
     agent: MessageAgent
-    type: MessageType
 
     class Config:
         from_attributes = True

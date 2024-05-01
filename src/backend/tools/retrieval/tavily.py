@@ -8,12 +8,14 @@ from backend.tools.retrieval.base import BaseRetrieval
 
 
 class TavilyInternetSearch(BaseRetrieval):
-    def __init__(self):
-        if "TAVILY_API_KEY" not in os.environ:
-            raise ValueError("Please set the TAVILY_API_KEY environment variable.")
+    tavily_api_key = os.environ.get("TAVILY_API_KEY")
 
-        self.api_key = os.environ["TAVILY_API_KEY"]
-        self.client = TavilyClient(api_key=self.api_key)
+    def __init__(self):
+        self.client = TavilyClient(api_key=self.tavily_api_key)
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return cls.tavily_api_key is not None
 
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         content = self.client.search(query=query, search_depth="advanced")

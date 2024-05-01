@@ -23,6 +23,10 @@ class LlamaIndexUploadPDFRetriever(BaseRetrieval):
     def __init__(self, filepath: str):
         self.filepath = filepath
 
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
+
     def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
         docs = SimpleDirectoryReader(input_files=[self.filepath]).load_data()
         return [dict({"text": doc.text}) for doc in docs]

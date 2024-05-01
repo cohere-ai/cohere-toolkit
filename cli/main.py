@@ -3,6 +3,9 @@ from enum import StrEnum
 import inquirer
 from dotenv import set_key
 
+from backend.config.deployments import (
+    AVAILABLE_MODEL_DEPLOYMENTS as MANAGED_DEPLOYMENTS_SETUP,
+)
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
@@ -16,12 +19,6 @@ class bcolors:
     WARNING = "\033[93m"
     FAIL = "\033[91m"
     ENDC = "\033[0m"
-
-
-"""
-To add a new deployment, add a new DeploymentName enum and a new entry in the DEPLOYMENTS dictionary containing the secrets required for the deployment.
-If the deployment requires a custom implementation, add a new key "custom_implementation" with the function that will be called to set up the deployment.
-"""
 
 
 class DeploymentName(StrEnum):
@@ -88,14 +85,11 @@ def database_url_prompt(secrets):
 
 
 def deployment_prompt(secrets, configs):
-    for secret in configs["secrets"]:
-        if configs.get("custom_implementation"):
-            configs["custom_implementation"](secrets)
-        else:
-            value = inquirer.text(
-                f"Enter the value for {secret}", validate=lambda _, x: len(x) > 0
-            )
-            secrets[secret] = value
+    for secret in configs.env_vars:
+        value = inquirer.text(
+            f"Enter the value for {secret}", validate=lambda _, x: len(x) > 0
+        )
+        secrets[secret] = value
 
 
 def community_tools_prompt(secrets):
@@ -145,16 +139,15 @@ def update_variable_prompt(_, variables_to_update):
 
 def write_env_file(secrets):
     for key, value in secrets.items():
-        print_styled(f"🔑 Setting {key} in {DOT_ENV_FILE_PATH} file.")
-        set_key(DOT_ENV_FILE_PATH, key, value)
+        set_key(DOT_ENV_FILE_PATH, key, str(value))
 
 
-def select_deployments_prompt(_):
+def select_deployments_prompt(deployments, _):
     print_styled("🚀 Let's set up your deployments.", bcolors.MAGENTA)
 
     deployments = inquirer.checkbox(
         "Select the deployments you want to set up",
-        choices=[deployment.value for deployment in DeploymentName],
+        choices=[deployment.value for deployment in deployments.keys()],
         default=["Cohere Platform"],
         validate=lambda _, x: len(x) > 0,
     )
@@ -240,29 +233,6 @@ TOOLS = {
 }
 
 
-DEPLOYMENTS = {
-    DeploymentName.COHERE_PLATFORM: {
-        "secrets": [
-            "COHERE_API_KEY",
-        ],
-        "custom_implementation": cohere_api_key_prompt,
-    },
-    DeploymentName.SAGE_MAKER: {
-        "secrets": [
-            "SAGE_MAKER_PROFILE_NAME",
-            "SAGE_MAKER_REGION_NAME",
-            "SAGE_MAKER_ENDPOINT_NAME",
-        ],
-    },
-    DeploymentName.AZURE: {
-        "secrets": [
-            "AZURE_API_KEY",
-            "AZURE_CHAT_ENDPOINT_URL",
-        ],
-    },
-}
-
-
 def start():
     secrets = {}
     print_styled(WELCOME_MESSAGE, bcolors.OKGREEN)
@@ -283,13 +253,14 @@ def start():
         tool_prompt(secrets, name, configs)
 
     # SET UP ENVIRONMENT FOR DEPLOYMENTS
-    deployments = select_deployments_prompt(secrets)
-
+    all_deployments = MANAGED_DEPLOYMENTS_SETUP.copy()
     if use_community_features:
-        DEPLOYMENTS.update(COMMUNITY_DEPLOYMENTS_SETUP)
+        all_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
 
-    for deployment in deployments:
-        deployment_prompt(secrets, DEPLOYMENTS[deployment])
+    selected_deployments = select_deployments_prompt(all_deployments, secrets)
+
+    for deployment in selected_deployments:
+        deployment_prompt(secrets, all_deployments[deployment])
 
     # SET UP .ENV FILE
     write_env_file(secrets)
@@ -299,7 +270,7 @@ def start():
     update_variable_prompt(secrets, variables_to_update)
 
     # WRAP UP
-    wrap_up(deployments)
+    wrap_up(selected_deployments)
 
     # SHOW SOME EXAMPLES
     show_examples()

@@ -13,5 +13,7 @@ export type ManagedTool = {
   parameter_definitions?: Record<string, any> | null;
   kwargs?: Record<string, any>;
   is_visible?: boolean;
+  is_available?: boolean;
+  error_message?: string | null;
   category?: Category;
 };

@@ -27,6 +27,16 @@ RUN cd /usr/src \
     && rm -rf /usr/src/Python-$PYTHON_VERSION.tgz /usr/src/Python-$PYTHON_VERSION \
     && update-alternatives --install /usr/bin/python python /usr/local/bin/python3 1
 
+#install Sqlite3 > 3.35 for Chroma DB
+RUN cd /usr/src \
+    && wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz \
+    && tar zxvf sqlite-autoconf-3450300.tar.gz \
+    && cd sqlite-autoconf-3450300 \
+    && ./configure \
+    && make \
+    && make install \
+    && rm -rf /usr/src/sqlite-autoconf-3450300.tar.gz /usr/src/sqlite-autoconf-3450300
+
 # Install poetry
 RUN pip3 install --no-cache-dir poetry==1.6.1
 
@@ -74,14 +84,13 @@ RUN set -ex \
 
 COPY docker_scripts/ ${PG_APP_HOME}/
 COPY docker_scripts/entrypoint.sh /sbin/entrypoint.sh
-RUN chmod 755 /sbin/entrypoint.sh
-
+RUN chmod 755 /sbin/entrypoint.sh \
 # Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get install -y nodejs
-RUN npm install -g pnpm
+    && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g pnpm \
 # pm2 to start frontend
-RUN npm install -g pm2
+    &&  npm install -g pm2
 
 # ENV for frontend
 
@@ -98,15 +107,15 @@ COPY src/interfaces/coral_web/package.json src/interfaces/coral_web/yarn.lock* s
 COPY src/interfaces/coral_web/.env.development .
 COPY src/interfaces/coral_web/.env.production .
 
-RUN pnpm install
-RUN pnpm next:build
+RUN pnpm install \
+    && pnpm next:build
 
 # Terrarium
 WORKDIR /usr/src/app
 RUN npm install -g ts-node
 COPY --from=terrarium /usr/src/app/package*.json ./
-RUN npm install
-RUN npm prune --production
+RUN npm install \
+    && npm prune --production
 COPY --from=terrarium /usr/src/app/. .
 ENV ENV_RUN_AS "docker"
 

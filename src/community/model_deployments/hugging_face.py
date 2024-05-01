@@ -66,23 +66,29 @@ class HuggingFaceDeployment(BaseDeployment):
 
         return {"text": gen_text}
 
-    def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> Generator[StreamedChatResponse, None, None]:
+    def invoke_chat_stream(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         """
         Built in streamming is not supported, so this function wraps the invoke_chat function to return a single response.
         """
-        messages = self._build_chat_history(
-            chat_request.chat_history, chat_request.message
-        )
+        yield {
+            "event-type": "event-start",
+            "generation_id": "",
+            "is_finished": False,
+        }
+
         gen_text = self.invoke_chat(chat_request)
 
-        yield StreamedChatResponse(
-            finish_reason="COMPLETE",
-            response=NonStreamedChatResponse(
-                text=gen_text.get("text", ""), chat_history=messages
-            ),
-        )
+        yield {
+            "event-type": "text-generation",
+            "text": gen_text.get("text", ""),
+            "is_finished": False,
+        }
+
+        yield {
+            "event-type": "stream-end",
+            "is_finished": True,
+            "finish_reason": "COMPLETE",
+        }
 
     def invoke_search_queries(
         self,

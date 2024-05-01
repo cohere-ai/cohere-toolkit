@@ -133,7 +133,7 @@ class CalculatorFunctionTool(BaseFunctionTool):
 
 ## Step 4: Making Your Tool Available
 
-To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/tools.py).
+To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py).
 
 Start by adding the tool name to the `ToolName` enum found at the top of the file.
 
@@ -143,6 +143,8 @@ Next, include the tool configurations in the `AVAILABLE_TOOLS` list. The definit
 - Implementation: Link the class you made in [Step 3](#step-3-implement-the-tool).
 - Parameter_definitions: If your class has specific configurations or fields that need to be set on `__init__`, set their values here.
 - Is_visible: A boolean value indicating whether this function should be visible in the UI.
+- Is_available: A boolean value indicating that this tool is ready to use. The class definition should help check for any variables or api keys that are required.
+- Error_message: A message returned when is_available is False.
 - Category: The type of tool.
 - Description: A brief description of the tool.
 - Env_vars: A list of secrets required by the tool.
@@ -150,20 +152,22 @@ Next, include the tool configurations in the `AVAILABLE_TOOLS` list. The definit
 Function tool with custom parameter definitions:
 
 ```python
-  ToolName.Python_Interpreter: ManagedTool(
-      name=ToolName.Python_Interpreter,
-      implementation=python_interpreter.PythonInterpreterFunctionTool,
-      parameter_definitions={
-          "code": {
-              "description": "Python code to execute using an interpreter",
-              "type": "str",
-              "required": True,
-          }
-      },
-      is_visible=True,
-      category=Category.Function,
-      description="Runs python code in a sandbox.",
-  ),
+ToolName.Python_Interpreter: ManagedTool(
+    name=ToolName.Python_Interpreter,
+    implementation=PythonInterpreterFunctionTool,
+    parameter_definitions={
+        "code": {
+            "description": "Python code to execute using an interpreter",
+            "type": "str",
+            "required": True,
+        }
+    },
+    is_visible=True,
+    is_available=PythonInterpreterFunctionTool.is_available(),
+    error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
+    category=Category.Function,
+    description="Runs python code in a sandbox.",
+)
 ```
 
 ## Step 5: Test Your Tool!
@@ -203,4 +207,4 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ## Step 6 (extra): Add Unit tests
 
-If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tests/tools) and add a few cases.
+If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tests/tools) and add a few cases.

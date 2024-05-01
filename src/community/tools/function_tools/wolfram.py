@@ -3,29 +3,23 @@
 import os
 from typing import Any, Dict, List
 
-import dotenv
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
 from community.tools import BaseFunctionTool
 
 
 class WolframAlphaFunctionTool(BaseFunctionTool):
-    def __init__(self):
-        if "WOLFRAM_ALPHA_APP_ID" not in os.environ:
-            raise ValueError(
-                "Please set the WOLFRAM_ALPHA_APP_ID environment variable."
-            )
+    wolfram_app_id = os.environ.get("WOLFRAM_APP_ID")
 
-        self.app_id = os.environ["WOLFRAM_ALPHA_APP_ID"]
+    def __init__(self):
+        self.app_id = self.wolfram_app_id
         self.tool = WolframAlphaAPIWrapper(wolfram_alpha_appid=self.app_id)
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return cls.wolfram_app_id is not None
 
     def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
         to_evaluate = parameters.get("expression", "")
         result = self.tool.run(to_evaluate)
         return {"result": result, "text": result}
-
-
-if __name__ == "__main__":
-    dotenv.load_dotenv()
-    retriever = WolframAlphaFunctionTool()
-    retriever.call({"expression": "what is 1+1?"})

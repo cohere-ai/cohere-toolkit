@@ -23,7 +23,7 @@ from backend.models.citation import Citation
 from backend.models.conversation import Conversation
 from backend.models.database import DBSessionDep
 from backend.models.document import Document
-from backend.models.message import Message, MessageAgent, MessageType
+from backend.models.message import Message, MessageAgent
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
@@ -422,9 +422,7 @@ def create_chat_history(
         return chat_request.chat_history
 
     text_messages = [
-        message
-        for message in conversation.messages[:user_message_position]
-        if message.type == MessageType.TEXT
+        message for message in conversation.messages[:user_message_position]
     ]
     return [
         ChatMessage(
