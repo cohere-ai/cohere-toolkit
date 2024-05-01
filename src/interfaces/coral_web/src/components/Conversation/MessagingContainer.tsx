@@ -159,7 +159,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
   { startOptionsEnabled, onRetry, messages, streamingMessage, onPromptSelected },
   ref
 ) {
-  const isConversationEmpty = messages.length === 0 && !streamingMessage;
+  const isConversationEmpty = messages.length === 0;
   return (
     <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
       {startOptionsEnabled && (
