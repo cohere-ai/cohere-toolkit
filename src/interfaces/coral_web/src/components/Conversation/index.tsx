@@ -151,7 +151,7 @@ const Conversation: React.FC<Props> = ({ conversationId, welcomeMessageEnabled =
   };
 
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFileIds = await uploadFile(e.target.files?.[0]);
+    const newFileIds = await uploadFile(e.target.files?.[0], conversationId);
     if (!newFileIds) return;
     if (startOption !== StartOptionKey.DOCUMENTS) {
       setStartOption(StartOptionKey.DOCUMENTS);
