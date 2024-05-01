@@ -3,6 +3,8 @@ name: Interface Tests
 on:
   push:
     branches: [main]
+    paths:
+      - src/interfaces/coral_web/**
   pull_request: {}
 
 jobs:
