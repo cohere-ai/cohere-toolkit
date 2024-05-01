@@ -1,7 +1,7 @@
 import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
 
-export const DEFAULT_CONVERSATION_NAME = 'Chat with Coral';
+export const DEFAULT_CONVERSATION_NAME = 'New conversation';
 export const DEFAULT_TYPING_VELOCITY = 35;
 
 export const DEPLOYMENT_COHERE_PLATFORM = 'Cohere Platform';
