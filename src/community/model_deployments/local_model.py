@@ -176,6 +176,7 @@ class PromptTemplate:
         message: str,
         chat_history: List[Dict[str, str]],
         documents: List[Dict[str, str]],
+        preamble: str = None,
         max_docs: int = 5,
     ) -> str:
         max_docs = min(max_docs, len(documents))
@@ -184,16 +185,15 @@ class PromptTemplate:
         BASIC_RULES = "You are a powerful conversational AI trained by Cohere to help people. You are augmented by a number of tools, and your job is to use and consume the output of these tools to best help the user. You will see a conversation history between yourself and a user, ending with an utterance from the user. You will then see a specific instruction instructing you what kind of response to generate. When you answer the user's requests, you cite your sources in your answers, according to those instructions."
         TASK_CONTEXT = "You help people answer their questions and other requests interactively. You will be asked a very wide array of requests on all kinds of topics. You will be equipped with a wide range of search engines or similar tools to help you, which you use to research your answer. You should focus on serving the user's needs as best you can, which will be wide-ranging."
         STYLE_GUIDE = "Unless the user asks for a different style of answer, you should answer in full sentences, using proper grammar and spelling."
-        TOOLS = self._get_cohere_documents_template(documents, max_docs)
-        CHAT_HISTORY = self._get_cohere_chat_history_template(chat_history)
+        documents = self._get_cohere_documents_template(documents, max_docs)
+        chat_history = self._get_cohere_chat_history_template(chat_history)
         INSTRUCTIONS = """Carefully perform the following instructions, in order, starting each with a new line.
 Firstly, Decide which of the retrieved documents are relevant to the user's last input by writing 'Relevant Documents:' followed by comma-separated list of document numbers. If none are relevant, you should instead write 'None'.
 Secondly, Decide which of the retrieved documents contain facts that should be cited in a good answer to the user's last input by writing 'Cited Documents:' followed a comma-separated list of document numbers. If you dont want to cite any of them, you should instead write 'None'.
 Thirdly, Write 'Answer:' followed by a response to the user's last input in high quality natural english. Use the retrieved documents to help you. Do not insert any citations or grounding markup.
 Finally, Write 'Grounded answer:' followed by a response to the user's last input in high quality natural english. Use the symbols <co: doc> and </co: doc> to indicate when a fact comes from a document in the search result, e.g <co: 0>my fact</co: 0> for a fact from document 0."""
 
-        tool_prompt_template = f"""<BOS_TOKEN> <|START_OF_TURN_TOKEN|>
-<|SYSTEM_TOKEN|> # Safety Preamble
+        tool_prompt_template = f"""<BOS_TOKEN><|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|> # Safety Preamble
 {SAFETY_PREAMBLE}
 
 # System Preamble
@@ -201,16 +201,20 @@ Finally, Write 'Grounded answer:' followed by a response to the user's last inpu
 {BASIC_RULES}
 
 # User Preamble
-## Task and Context
+"""
+        if preamble:
+            tool_prompt_template += f"""{preamble}\n\n"""
+
+        tool_prompt_template += f"""## Task and Context
 {TASK_CONTEXT}
 
 ## Style Guide
-{STYLE_GUIDE}
+{STYLE_GUIDE}<|END_OF_TURN_TOKEN|>{chat_history}"""
 
-## Available Tools
-{TOOLS}
+        if documents:
+            tool_prompt_template += f"""<|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|>{documents}<|END_OF_TURN_TOKEN|>"""
 
-<|END_OF_TURN_TOKEN|> {CHAT_HISTORY} <|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|> {INSTRUCTIONS}<|END_OF_TURN_TOKEN|>"""
+        tool_prompt_template += f"""<|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|>{INSTRUCTIONS}<|END_OF_TURN_TOKEN|><|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>"""
 
         return tool_prompt_template
 
@@ -234,7 +238,7 @@ Finally, Write 'Grounded answer:' followed by a response to the user's last inpu
             chat_hist_str += "<|START_OF_TURN_TOKEN|>"
             if turn["role"] == "user":
                 chat_hist_str += "<|USER_TOKEN|>"
-            elif turn["role"] == "assistant":
+            elif turn["role"] == "chatbot":
                 chat_hist_str += "<|CHATBOT_TOKEN|>"
             else:  # role == system
                 chat_hist_str += "<|SYSTEM_TOKEN|>"
