@@ -41,7 +41,7 @@ const ToolSection = () => {
   const { params, setParams } = useParamsStore();
   const { data } = useListTools();
   const { tools: paramTools } = params;
-  const tools = data?.filter((t) => t.is_visible && t.is_available) ?? [];
+  const tools = data?.filter((t) => t.is_visible) ?? [];
   const enabledTools = paramTools ?? [];
   const name = `select-all-tools`;
 
@@ -95,11 +95,12 @@ const ToolSection = () => {
             />
           </div>
           <div className="flex flex-col gap-y-5">
-            {tools.map(({ name, error_message }) => {
+            {tools.map(({ name, is_available, description, error_message }) => {
               const enabledTool = enabledTools.find(
                 (enabledTool) => enabledTool.name.toLocaleLowerCase() === name.toLocaleLowerCase()
               );
               const checked = !!enabledTool;
+              const disabled = !is_available;
 
               return (
                 <div key={name} className="flex items-center gap-x-1">
@@ -112,8 +113,12 @@ const ToolSection = () => {
                     name={name}
                     theme="secondary"
                     dataTestId={`checkbox-tool-${name}`}
+                    labelClassName={cn({
+                      'text-volcanic-500': disabled,
+                    })}
+                    disabled={disabled}
                   />
-                  {error_message && <Tooltip label={error_message} />}
+                  {(description || error_message) && <Tooltip label={description ?? error_message} />}
                 </div>
               );
             })}
