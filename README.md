@@ -301,8 +301,8 @@ A model deployment is a running version of one of the Cohere command models. The
 - SageMaker (model_deployments/sagemaker.py)
   - This deployment option calls into your SageMaker deployment. To create a SageMaker endpoint [follow the steps here](https://docs.cohere.com/docs/amazon-sagemaker-setup-guide), alternatively [follow a command notebook here](https://github.com/cohere-ai/cohere-aws/tree/main/notebooks/sagemaker). Note your region and endpoint name when executing the notebook as these will be needed in the environment variables.
 - To add your own deployment:
-  1. Create a deployment file, add it to [/community/model_deployments](https://github.com/cohere-ai/toolkit/tree/main/src/community/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
-  2. Add the deployment to [src/community/config/deployments.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/deployments.py)
+  1. Create a deployment file, add it to [/community/model_deployments](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
+  2. Add the deployment to [src/community/config/deployments.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/deployments.py)
   3. Add the environment variables required to the env template.
 - To add a Cohere private deployment, use the steps above copying the cohere platform implementation changing the base_url for your private deployment and add in custom auth steps.
 
@@ -326,7 +326,7 @@ Currently the core chat interface is the Coral frontend. To add your own interfa
 
 ### How to add a connector to the Toolkit
 
-If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [community/config/tools.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
+If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [community/config/tools.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
 
 ### How to set up web search with the Toolkit
 

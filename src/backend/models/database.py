@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.environ["DATABASE_URL"]
-
+SQLALCHEMY_DATABASE_URL = os.environ.get(
+    "DATABASE_URL", "postgresql+psycopg2://postgres:postgres@db:5432"
+)
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, pool_size=5, max_overflow=10, pool_timeout=30
 )
