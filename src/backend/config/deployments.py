@@ -18,7 +18,7 @@ class ModelDeploymentName(StrEnum):
 use_community_features = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "false")))
 
 
-AVAILABLE_MODEL_DEPLOYMENTS = {
+ALL_MODEL_DEPLOYMENTS = {
     ModelDeploymentName.CoherePlatform: Deployment(
         name=ModelDeploymentName.CoherePlatform,
         deployment_class=CohereDeployment,
@@ -52,12 +52,22 @@ AVAILABLE_MODEL_DEPLOYMENTS = {
 }
 
 
-if use_community_features:
-    try:
-        from community.config.deployments import (
-            AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
-        )
+def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
+    if use_community_features:
+        try:
+            from community.config.deployments import (
+                AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
+            )
 
-        AVAILABLE_MODEL_DEPLOYMENTS.update(COMMUNITY_DEPLOYMENTS_SETUP)
-    except ImportError:
-        logging.warning("Community deployments are not available. Skipping.")
+            model_deployments = ALL_MODEL_DEPLOYMENTS.copy()
+            model_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
+            return model_deployments
+        except ImportError:
+            logging.warning(
+                "Community deployments are not available. They can still be set up."
+            )
+
+    return ALL_MODEL_DEPLOYMENTS
+
+
+AVAILABLE_MODEL_DEPLOYMENTS = get_available_deployments()

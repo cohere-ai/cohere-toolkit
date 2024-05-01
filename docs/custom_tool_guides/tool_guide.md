@@ -133,7 +133,7 @@ class CalculatorFunctionTool(BaseFunctionTool):
 
 ## Step 4: Making Your Tool Available
 
-To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/tools.py).
+To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py).
 
 Start by adding the tool name to the `ToolName` enum found at the top of the file.
 
@@ -207,4 +207,4 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ## Step 6 (extra): Add Unit tests
 
-If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tests/tools) and add a few cases.
+If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tests/tools) and add a few cases.

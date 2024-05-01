@@ -143,6 +143,15 @@ You can deploy Toolkit with one click to Microsoft Azure Platform:
 
 [<img src="https://aka.ms/deploytoazurebutton" height="48px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.json)
 
+This deployment type uses Azure Container Instances to host the Toolkit.
+After your deployment is complete click "Go to resource" button.
+1) Check the logs to see if the container is running successfully:
+   - click on the "Containers" button on the left side of the screen
+   - click on the container name
+   - click on "Logs" tab to see the logs
+2) Navigate to the "Overview" tab to see the FQDN of the container instance
+3) Open the \<FQDN\>:4000 in your browser to access the Toolkit
+
 ## Setup for Development
 
 ### Setting up Poetry

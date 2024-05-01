@@ -4,7 +4,7 @@ import React, { Fragment } from 'react';
 import { Tool } from '@/cohere-client';
 import { FilesSection } from '@/components/Configuration/Files';
 import { ToolsInfoBox } from '@/components/Configuration/ToolsInfoBox';
-import { Checkbox, Switch, Text } from '@/components/Shared';
+import { Checkbox, Switch, Text, Tooltip } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { useFilesInConversation } from '@/hooks/files';
 import { useListTools } from '@/hooks/tools';
@@ -95,25 +95,31 @@ const ToolSection = () => {
             />
           </div>
           <div className="flex flex-col gap-y-5">
-            {tools.map(({ name }) => {
+            {tools.map(({ name, is_available, description, error_message }) => {
               const enabledTool = enabledTools.find(
                 (enabledTool) => enabledTool.name.toLocaleLowerCase() === name.toLocaleLowerCase()
               );
               const checked = !!enabledTool;
+              const disabled = !is_available;
 
               return (
-                <Fragment key={name}>
+                <div key={name} className="flex items-center gap-x-1">
                   <Checkbox
                     checked={checked}
-                    onChange={async (e) => {
+                    onChange={(e) => {
                       onToolToggle(name, e.target.checked);
                     }}
                     label={name}
                     name={name}
                     theme="secondary"
                     dataTestId={`checkbox-tool-${name}`}
+                    labelClassName={cn({
+                      'text-volcanic-500': disabled,
+                    })}
+                    disabled={disabled}
                   />
-                </Fragment>
+                  {(description || error_message) && <Tooltip label={description ?? error_message} />}
+                </div>
               );
             })}
           </div>

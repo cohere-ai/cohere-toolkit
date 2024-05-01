@@ -27,7 +27,7 @@ COPY pyproject.toml poetry.lock ./
 
 # Install poetry and run poetry install
 RUN pip install --no-cache-dir poetry==1.6.1 && \
-  poetry install
+  poetry install --without setup
 
 COPY src/backend/ src/backend/
 COPY src/community src/community/

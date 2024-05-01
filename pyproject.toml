@@ -47,7 +47,16 @@ black = "24.3.0"
 python = "~3.11"
 inquirer = "3.2.4"
 python-dotenv = "1.0.1"
-
+cohere = "^5.0.2"
+sqlalchemy = "^2.0.26"
+fastapi = "^0.109.2"
+psycopg2 = "^2.9.9"
+boto3 = "^1.0.0"
+py-expression-eval = "^0.3.14"
+langchain = "0.1.16"
+langchain-cohere = "^0.1.1"
+tavily-python = "^0.3.3"
+llama-index = "^0.10.11"
 
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
