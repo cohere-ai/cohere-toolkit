@@ -9,10 +9,8 @@ import type { Citation } from './Citation';
 import type { Document } from './Document';
 import type { File } from './File';
 import type { MessageAgent } from './MessageAgent';
-import type { MessageType } from './MessageType';
 
 export type Message = {
-  type?: MessageType;
   text: string;
   id: string;
   created_at: string;

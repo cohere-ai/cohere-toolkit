@@ -1,15 +1,15 @@
 import { uniq } from 'lodash';
-import React, { Fragment } from 'react';
+import React from 'react';
 
-import { Tool } from '@/cohere-client';
+import { INTERNET_SEARCH_TOOL, Tool } from '@/cohere-client';
 import { FilesSection } from '@/components/Configuration/Files';
 import { ToolsInfoBox } from '@/components/Configuration/ToolsInfoBox';
-import { Checkbox, Switch, Text, Tooltip } from '@/components/Shared';
+import { Checkbox, Input, Switch, Text, Tooltip } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { useFilesInConversation } from '@/hooks/files';
 import { useListTools } from '@/hooks/tools';
 import { useConversationStore, useParamsStore } from '@/stores';
-import { cn } from '@/utils';
+import { cn, hasCommonDelimiters } from '@/utils';
 
 /**
  * @description Tools tab content that shows a list of available tools and files
@@ -72,6 +72,18 @@ const ToolSection = () => {
     updateEnabledTools(updatedTools);
   };
 
+  const onConnectorOptionsChange = (name: string, checked: boolean, site?: string) => {
+    const updatedTools = [...enabledTools];
+    const updatedConnector: Tool = { name, options: site ? { site } : undefined };
+    if (!checked) {
+      updatedTools.push(updatedConnector);
+    } else {
+      const index = updatedTools.findIndex((c) => c.name === name);
+      updatedTools[index] = updatedConnector;
+    }
+    setParams({ tools: updatedTools });
+  };
+
   return (
     <section className="relative flex flex-col gap-y-5 px-5">
       <ToolsInfoBox />
@@ -101,24 +113,51 @@ const ToolSection = () => {
               );
               const checked = !!enabledTool;
               const disabled = !is_available;
+              const restrictedDomain = enabledTool?.options?.site ?? '';
 
               return (
-                <div key={name} className="flex items-center gap-x-1">
-                  <Checkbox
-                    checked={checked}
-                    onChange={(e) => {
-                      onToolToggle(name, e.target.checked);
-                    }}
-                    label={name}
-                    name={name}
-                    theme="secondary"
-                    dataTestId={`checkbox-tool-${name}`}
-                    labelClassName={cn({
-                      'text-volcanic-500': disabled,
-                    })}
-                    disabled={disabled}
-                  />
-                  {(description || error_message) && <Tooltip label={description ?? error_message} />}
+                <div key={name} className="flex flex-col gap-y-3">
+                  <div className="flex items-center gap-x-1">
+                    <Checkbox
+                      checked={checked}
+                      onChange={(e) => {
+                        onToolToggle(name, e.target.checked);
+                      }}
+                      label={name}
+                      name={name}
+                      theme="secondary"
+                      dataTestId={`checkbox-tool-${name}`}
+                      labelClassName={cn({
+                        'text-volcanic-500': disabled,
+                      })}
+                      disabled={disabled}
+                    />
+                    {(description || error_message) && (
+                      <Tooltip label={description ?? error_message} />
+                    )}
+                  </div>
+                  {name === INTERNET_SEARCH_TOOL && (
+                    <Input
+                      label="Site (Optional)"
+                      placeholder="Ground on 1 domain e.g. wikipedia.org"
+                      data-testid="input-connector-site"
+                      value={restrictedDomain}
+                      description={
+                        restrictedDomain.length > 0 && hasCommonDelimiters(restrictedDomain)
+                          ? 'Multiple domains are not supported.'
+                          : undefined
+                      }
+                      onChange={(e) =>
+                        onConnectorOptionsChange(
+                          name,
+                          checked,
+                          e.target.value.length > 0 ? e.target.value : undefined
+                        )
+                      }
+                      disabled={disabled}
+                      theme={disabled || !checked ? 'secondary' : 'marble'}
+                    />
+                  )}
                 </div>
               );
             })}

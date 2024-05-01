@@ -16,8 +16,10 @@ export const COHERE_PLATFORM_DEPLOYMENT_DEFAULT_CHAT_MODEL = 'command';
 export const SAGEMAKER_DEPLOYMENT_DEFAULT_CHAT_MODEL = 'command-r';
 
 export const DEFAULT_CHAT_TEMPERATURE = 0.3;
-export const DEFAULT_CHAT_TOOL = 'Wikipedia';
 export const FILE_TOOL_CATEGORY = 'File loader';
+
+export const DEFAULT_CHAT_TOOL = 'Wikipedia';
+export const INTERNET_SEARCH_TOOL = 'Internet Search';
 
 export const ERROR_FINISH_REASON_TO_MESSAGE = {
   [FinishReason.FINISH_REASON_ERROR]: 'An error occurred. Please try again.',
