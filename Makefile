@@ -1,5 +1,7 @@
 dev:
 	@docker compose watch
+down:
+	@docker compose down
 run-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
 run-community-tests:
