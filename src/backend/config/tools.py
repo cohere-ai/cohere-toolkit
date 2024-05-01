@@ -113,7 +113,7 @@ def get_available_tools() -> dict[ToolName, dict]:
     if use_community_tools:
         try:
             from community.config.tools import COMMUNITY_TOOLS
-            
+
             tools = ALL_TOOLS.copy()
             tools.update(COMMUNITY_TOOLS)
             return tools
