@@ -10,6 +10,7 @@ import { cn } from '@/utils/cn';
 export type PromptOption = { prompt: string; params: Partial<ConfigurableParams> };
 
 type Props = {
+  show: boolean;
   className?: string;
   onPromptSelected?: (option: PromptOption) => void;
 };
@@ -17,7 +18,7 @@ type Props = {
 /**
  * @description Renders start mode options and prompts for new conversations.
  */
-export const StartModes: React.FC<Props> = ({ className = '', onPromptSelected }) => {
+export const StartModes: React.FC<Props> = ({ show, className = '', onPromptSelected }) => {
   const { modes, getSelectedModeIndex } = useStartModes();
   const { setParams } = useParamsStore();
   const [selectedMode, setSelectedMode] = useState(getSelectedModeIndex);
@@ -34,6 +35,7 @@ export const StartModes: React.FC<Props> = ({ className = '', onPromptSelected }
   return (
     <Transition
       appear
+      show={show}
       enter="transition-all duration-200 ease-out delay-200"
       enterFrom="opacity-0 translate-y-2"
       enterTo="opacity-100 translate-y-0"
