@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from backend.schemas.deployment import Deployment
+from community.model_deployments import Deployment
 from community.model_deployments.hugging_face import HuggingFaceDeployment
 
 
