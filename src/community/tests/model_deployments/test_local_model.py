@@ -1,5 +1,6 @@
 from community.model_deployments.local_model import PromptTemplate
 
+
 def test_dummy_chat_template():
     prompt_template = PromptTemplate()
     message = "How are you?"
@@ -54,7 +55,9 @@ Second Document
 This is the second document.
 User: How are you?
 Chatbot: """
-    assert prompt_template.dummy_rag_template(message, chat_history, documents) == expected
+    assert (
+        prompt_template.dummy_rag_template(message, chat_history, documents) == expected
+    )
 
 
 def test_dummy_rag_template_max_docs():
@@ -83,8 +86,11 @@ Second Document
 This is the second document.
 User: How are you?
 Chatbot: """
-    
-    assert prompt_template.dummy_rag_template(message, chat_history, documents, max_docs=2) == expected
+
+    assert (
+        prompt_template.dummy_rag_template(message, chat_history, documents, max_docs=2)
+        == expected
+    )
 
 
 def test_cohere_rag_template():
@@ -130,7 +136,10 @@ Secondly, Decide which of the retrieved documents contain facts that should be c
 Thirdly, Write 'Answer:' followed by a response to the user's last input in high quality natural english. Use the retrieved documents to help you. Do not insert any citations or grounding markup.
 Finally, Write 'Grounded answer:' followed by a response to the user's last input in high quality natural english. Use the symbols <co: doc> and </co: doc> to indicate when a fact comes from a document in the search result, e.g <co: 0>my fact</co: 0> for a fact from document 0.<|END_OF_TURN_TOKEN|>"""
 
-    assert prompt_template.cohere_rag_template(message, chat_history, documents) == expected
+    assert (
+        prompt_template.cohere_rag_template(message, chat_history, documents)
+        == expected
+    )
 
 
 def test_cohere_rag_template_max_docs():
@@ -176,5 +185,10 @@ Firstly, Decide which of the retrieved documents are relevant to the user's last
 Secondly, Decide which of the retrieved documents contain facts that should be cited in a good answer to the user's last input by writing 'Cited Documents:' followed a comma-separated list of document numbers. If you dont want to cite any of them, you should instead write 'None'.
 Thirdly, Write 'Answer:' followed by a response to the user's last input in high quality natural english. Use the retrieved documents to help you. Do not insert any citations or grounding markup.
 Finally, Write 'Grounded answer:' followed by a response to the user's last input in high quality natural english. Use the symbols <co: doc> and </co: doc> to indicate when a fact comes from a document in the search result, e.g <co: 0>my fact</co: 0> for a fact from document 0.<|END_OF_TURN_TOKEN|>"""
-    
-    assert prompt_template.cohere_rag_template(message, chat_history, documents, max_docs=2) == expected
+
+    assert (
+        prompt_template.cohere_rag_template(
+            message, chat_history, documents, max_docs=2
+        )
+        == expected
+    )

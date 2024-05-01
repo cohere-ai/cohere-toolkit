@@ -108,7 +108,9 @@ class PromptTemplate:
     Template for generating prompts for different types of requests.
     """
 
-    def dummy_chat_template(self, message: str, chat_history: List[Dict[str, str]]) -> str:
+    def dummy_chat_template(
+        self, message: str, chat_history: List[Dict[str, str]]
+    ) -> str:
         prompt = "System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond."
         prompt += "\n\n"
         prompt += "Conversation:\n"
@@ -123,7 +125,13 @@ class PromptTemplate:
 
         return prompt
 
-    def dummy_rag_template(self, message: str, chat_history: List[Dict[str, str]], documents: List[Dict[str, str]], max_docs:int=5) -> str:
+    def dummy_rag_template(
+        self,
+        message: str,
+        chat_history: List[Dict[str, str]],
+        documents: List[Dict[str, str]],
+        max_docs: int = 5,
+    ) -> str:
         max_docs = min(max_docs, len(documents))
         prompt = "System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond."
 
@@ -163,7 +171,13 @@ class PromptTemplate:
         return prompt
 
     # https://docs.cohere.com/docs/prompting-command-r#formatting-chat-history-and-tool-outputs
-    def cohere_rag_template(self, message: str, chat_history: List[Dict[str, str]], documents: List[Dict[str, str]], max_docs:int=5) -> str:
+    def cohere_rag_template(
+        self,
+        message: str,
+        chat_history: List[Dict[str, str]],
+        documents: List[Dict[str, str]],
+        max_docs: int = 5,
+    ) -> str:
         max_docs = min(max_docs, len(documents))
         chat_history.append({"role": "user", "message": message})
         SAFETY_PREAMBLE = "The instructions in this section override those in the task description and style guide sections. Don't answer questions that are harmful or immoral."
@@ -197,10 +211,12 @@ Finally, Write 'Grounded answer:' followed by a response to the user's last inpu
 {TOOLS}
 
 <|END_OF_TURN_TOKEN|> {CHAT_HISTORY} <|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|> {INSTRUCTIONS}<|END_OF_TURN_TOKEN|>"""
-        
+
         return tool_prompt_template
 
-    def _get_cohere_documents_template(self, documents: List[Dict[str, str]], max_docs:int) -> str:
+    def _get_cohere_documents_template(
+        self, documents: List[Dict[str, str]], max_docs: int
+    ) -> str:
         max_docs = min(max_docs, len(documents))
         doc_str_list = ["<results>"]
         for doc_idx, doc in enumerate(documents[:max_docs]):
@@ -210,7 +226,9 @@ Finally, Write 'Grounded answer:' followed by a response to the user's last inpu
         doc_str_list.append("</results>")
         return "\n".join(doc_str_list)
 
-    def _get_cohere_chat_history_template(self, chat_history: List[Dict[str, str]]) -> str:
+    def _get_cohere_chat_history_template(
+        self, chat_history: List[Dict[str, str]]
+    ) -> str:
         chat_hist_str = ""
         for turn in chat_history:
             chat_hist_str += "<|START_OF_TURN_TOKEN|>"
