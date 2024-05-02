@@ -56,7 +56,7 @@ def get_conversation(
     return conversation
 
 
-@router.get("/", response_model=list[ConversationWithoutMessages])
+@router.get("", response_model=list[ConversationWithoutMessages])
 def list_conversations(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep, request: Request
 ) -> list[ConversationWithoutMessages]:
