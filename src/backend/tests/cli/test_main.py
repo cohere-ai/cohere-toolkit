@@ -1,4 +1,4 @@
-from cli.main import *
+from backend.cli.main import *
 
 """
 These tests are boilerplate and do not test the actual functionality of the code.
