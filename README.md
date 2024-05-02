@@ -37,6 +37,90 @@ make first-run
 
 Follow the instructions to configure the model - either AWS Sagemaker, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
 
+#### Detailed environment setup
+
+<details>
+  <summary>Windows</summary>
+
+1. Install [docker](https://docs.docker.com/desktop/install/windows-install/)
+2. Install [git]https://git-scm.com/download/win
+3. In PowerShell (Terminal), install [scoop](https://scoop.sh/). After installing, run scoop bucket add extras
+4. Install pipx
+```bash
+scoop install pipx
+pipx ensurepath
+```
+5. Install poetry >= 1.7.1 using 
+```bash
+pipx install poetry
+```
+6. Install miniconda using
+```bash
+scoop install miniconda3
+conda init powershell
+```
+7. Restart PowerShell
+8. Install the following:
+```bash
+scoop install postgresql
+scoop install make
+```
+9. Create a new virtual environment with Python 3.11
+```bash
+conda create -n toolkit python=3.11
+conda activate toolkit
+```
+10. Clone the repo
+11. Alternatively to `make first-run` or `make setup`, run
+```bash
+poetry install --only setup --verbose
+poetry run python cli/main.py
+make migrate
+make dev
+```
+12. Navigate to https://localhost:4000 in your browser
+
+</details>
+
+<details>
+  <summary>MacOS</summary>
+
+1. Install Xcode. This can be done from the App Store or terminal 
+```bash
+xcode-select --install
+```
+2. Install [docker desktop](https://docs.docker.com/desktop/install/mac-install/)
+3. Install [homebrew](https://brew.sh/)
+4. Install [pipx](https://github.com/pypa/pipx). This is useful for installing poetry later.
+```bash
+brew install pipx
+pipx ensurepath
+```
+5. Install [postgres](brew install postgresql)
+6. Install conda using [miniconda](https://docs.anaconda.com/free/miniconda/index.html)
+7. Use your environment manager to create a new virtual environment with Python 3.11
+```bash
+conda create -n toolkit python=3.11
+```
+8. Install [poetry >= 1.7.1](https://python-poetry.org/docs/#installing-with-pipx)
+```bash
+pipx install poetry
+```
+To test if poetry has been installed correctly,
+```bash
+conda activate toolkit
+poetry --version
+```
+You should see the version of poetry (e.g. 1.8.2). If poetry is not found, try
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+And then retry `poetry --version`
+9. Clone the repo and run `make first-run`
+10. Navigate to https://localhost:4000 in your browser
+
+</details>
+
 <details>
   <summary>Environment variables</summary>
   
@@ -300,6 +384,8 @@ A model deployment is a running version of one of the Cohere command models. The
   - This model deployment calls into your Azure deployment. To get an Azure deployment [follow these steps](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-cohere-command). Once you have a model deployed you will need to get the endpoint URL and API key from the azure AI studio https://ai.azure.com/build/ -> Project -> Deployments -> Click your deployment -> You will see your URL and API Key. Note to use the Cohere SDK you need to add `/v1` to the end of the url.
 - SageMaker (model_deployments/sagemaker.py)
   - This deployment option calls into your SageMaker deployment. To create a SageMaker endpoint [follow the steps here](https://docs.cohere.com/docs/amazon-sagemaker-setup-guide), alternatively [follow a command notebook here](https://github.com/cohere-ai/cohere-aws/tree/main/notebooks/sagemaker). Note your region and endpoint name when executing the notebook as these will be needed in the environment variables.
+- Local models with LlamaCPP (community/model_deployments/local_model.py)
+  - This deployment option calls into a local model. To use this deployment you will need to download a model. You can use Cohere command models or choose between a range of other models that you can see [here](https://github.com/ggerganov/llama.cpp). You will need to enable community features to use this deployment by setting `USE_COMMUNITY_FEATURES=True` in your .env file.
 - To add your own deployment:
   1. Create a deployment file, add it to [/community/model_deployments](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
   2. Add the deployment to [src/community/config/deployments.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/deployments.py)
