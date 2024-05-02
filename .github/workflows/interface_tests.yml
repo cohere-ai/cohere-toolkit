@@ -17,6 +17,10 @@ jobs:
 steps:
   - name: Checkout repo
     uses: actions/checkout@v3
+    with:
+      fetch-depth: 2
+  - name: Set up Node.js and install dependencies
+    uses: ./.github/actions/js-install
   - name: Check coral_web is formatted
     run: pnpm format
   - name: Check coral_web can build
