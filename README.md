@@ -171,6 +171,13 @@ poetry run black .
 poetry run isort .
 ```
 
+## Setting up the Environment Variables
+**Please confirm that you have at least one configuration of the Cohere Platform, SageMaker or Azure.**
+
+You have two methods to set up the environment variables:
+1. Run `make setup` and follow the instructions to configure it.
+2. Run `cp .env-template .env` and adjust the values in the `.env` file according to your situation.
+
 ### Setting up Your Local Database
 
 The docker-compose file should spin up a local `db` container with a PostgreSQL server. The first time you setup this project, and whenever new migrations are added, you will need to run:
@@ -296,8 +303,8 @@ A model deployment is a running version of one of the Cohere command models. The
 - Local models with LlamaCPP (community/model_deployments/local_model.py)
   - This deployment option calls into a local model. To use this deployment you will need to download a model. You can use Cohere command models or choose between a range of other models that you can see [here](https://github.com/ggerganov/llama.cpp). You will need to enable community features to use this deployment by setting `USE_COMMUNITY_FEATURES=True` in your .env file.
 - To add your own deployment:
-  1. Create a deployment file, add it to [/community/model_deployments](https://github.com/cohere-ai/toolkit/tree/main/src/community/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
-  2. Add the deployment to [src/community/config/deployments.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/deployments.py)
+  1. Create a deployment file, add it to [/community/model_deployments](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/model_deployments) folder, implement the function calls from `BaseDeployment` similar to the other deployments.
+  2. Add the deployment to [src/community/config/deployments.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/deployments.py)
   3. Add the environment variables required to the env template.
 - To add a Cohere private deployment, use the steps above copying the cohere platform implementation changing the base_url for your private deployment and add in custom auth steps.
 
@@ -321,7 +328,7 @@ Currently the core chat interface is the Coral frontend. To add your own interfa
 
 ### How to add a connector to the Toolkit
 
-If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [community/config/tools.py](https://github.com/cohere-ai/toolkit/blob/main/src/community/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
+If you have already created a [connector](https://docs.cohere.com/docs/connectors), it can be used in the toolkit with `ConnectorRetriever`. Add in your configuration and then add the definition in [community/config/tools.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py) similar to `Arxiv` implementation with the category `Category.DataLoader`. You can now use the Coral frontend and API with the connector.
 
 ### How to set up web search with the Toolkit
 

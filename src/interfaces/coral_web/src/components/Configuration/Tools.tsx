@@ -118,7 +118,9 @@ const ToolSection = () => {
                     })}
                     disabled={disabled}
                   />
-                  {(description || error_message) && <Tooltip label={description ?? error_message} />}
+                  {(description || error_message) && (
+                    <Tooltip label={description ?? error_message} />
+                  )}
                 </div>
               );
             })}

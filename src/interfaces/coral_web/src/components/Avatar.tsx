@@ -13,8 +13,7 @@ type Props = {
 
 export const Avatar: React.FC<Props> = ({ message }) => {
   const isUser = message.type === MessageType.USER;
-  const isBot = message.type === MessageType.BOT || message.type === MessageType.WELCOME;
-  const isWelcome = message.type === MessageType.WELCOME;
+  const isBot = message.type === MessageType.BOT;
   const isLoading = isBot && message.state === BotState.LOADING;
   const isTyping = isBot && message.state === BotState.TYPING;
   const isErrored = isBot && message.state === BotState.ERROR;
@@ -37,7 +36,6 @@ export const Avatar: React.FC<Props> = ({ message }) => {
         'h-7 w-7 md:h-9 md:w-9',
         {
           'bg-volcanic-500': isErroredOrAborted,
-          'bg-primary-900': isWelcome,
           'bg-quartz-700': isUser,
         },
         isGroundingOn
