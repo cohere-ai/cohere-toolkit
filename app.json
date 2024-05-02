@@ -1,12 +1,13 @@
 {
-  "name": "one-click-demo",
+  "name": "cohere-toolkit",
   "env": {
-      "DATABASE_URI": {
+      "DATABASE_URL": {
           "description": "URI for your Postgres database",
-          "default": "postgresql+psycopg2://postgre:postgre@localhost:5432/toolkit"
+          "value": "postgresql+psycopg2://postgres:password@localhost:5432/postgres"
       }
   },
   "options": {
-      "allow-unauthenticated": true
+      "allow-unauthenticated": true,
+      "memory": "2048Mi"
   }
 }

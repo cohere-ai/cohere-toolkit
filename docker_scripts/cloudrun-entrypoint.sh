@@ -8,8 +8,7 @@ source "${APP_HOME}/functions"
 
 # default behaviour is to launch postgres
 if [[ -z ${1} ]]; then
-  run_frontend
-  run_terrarium
+  run_frontend_cloud_run
   run_backend
 
 else

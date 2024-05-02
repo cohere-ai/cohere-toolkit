@@ -259,6 +259,16 @@ run_frontend() {
   echo "Frontend started..."
 }
 
+run_frontend_cloud_run() {
+  cd /workspace/src/interfaces/coral_web
+  echo "build Frontend"
+  echo "$NEXT_PUBLIC_API_HOSTNAME"
+  pnpm next:build
+  echo "Starting Frontend..."
+  pm2 start pnpm -- start:cloud-run
+  echo "Frontend started..."
+}
+
 run_terrarium() {
   cd /usr/src/app
   echo "Starting Terrarium..."

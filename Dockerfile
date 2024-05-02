@@ -17,6 +17,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Keep the poetry venv name and location predictable
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 ENV APP_HOME=/workspace
+ENV PG_APP_HOME=/workspace
 
 # Install python
 RUN cd /usr/src \

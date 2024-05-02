@@ -236,6 +236,12 @@ After your deployment is complete click "Go to resource" button.
 2) Navigate to the "Overview" tab to see the FQDN of the container instance
 3) Open the \<FQDN\>:4000 in your browser to access the Toolkit
 
+### Deploying to Google Cloud Run
+
+Before deploying to Google Cloud Run, you'll need a postgres database accessible to your Google Cloud Project, authenticated by a username and password. You'll be prompted for a `DATABASE_URL` before the container builds.
+
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+
 ## Setup for Development
 
 ### Setting up Poetry
