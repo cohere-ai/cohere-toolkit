@@ -6,7 +6,7 @@ from backend.schemas.tool import ManagedTool
 router = APIRouter(prefix="/tools")
 
 
-@router.get("/", response_model=list[ManagedTool])
+@router.get("", response_model=list[ManagedTool])
 def list_tools() -> list[ManagedTool]:
     """
     List all available tools.

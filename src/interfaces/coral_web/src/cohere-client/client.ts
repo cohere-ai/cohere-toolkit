@@ -214,7 +214,7 @@ export class CohereClient {
   }: {
     signal?: AbortSignal;
   }): Promise<ConversationWithoutMessages[]> {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}/`, {
+    const response = await this.fetch(`${this.getEndpoint('conversations')}`, {
       method: 'GET',
       headers: this.getHeaders(),
       signal,
@@ -301,7 +301,7 @@ export class CohereClient {
   }
 
   public async listTools({ signal }: { signal?: AbortSignal }): Promise<Tool[]> {
-    const response = await this.fetch(`${this.getEndpoint('tools')}/`, {
+    const response = await this.fetch(`${this.getEndpoint('tools')}`, {
       method: 'GET',
       headers: this.getHeaders(),
       signal,
@@ -320,7 +320,7 @@ export class CohereClient {
   }
 
   public async listDeployments(): Promise<Deployment[]> {
-    const response = await this.fetch(`${this.getEndpoint('deployments')}/`, {
+    const response = await this.fetch(`${this.getEndpoint('deployments')}`, {
       method: 'GET',
       headers: this.getHeaders(),
     });
@@ -338,7 +338,7 @@ export class CohereClient {
   }
 
   public async listAllDeployments(): Promise<Deployment[]> {
-    const response = await this.fetch(`${this.getEndpoint('deployments')}/?all=1`, {
+    const response = await this.fetch(`${this.getEndpoint('deployments')}?all=1`, {
       method: 'GET',
       headers: this.getHeaders(),
     });
@@ -383,7 +383,7 @@ export class CohereClient {
       | 'deployments'
       | 'experimental_features'
   ) {
-    return `${this.hostname}/${endpoint}`;
+    return `/api/${endpoint}`;
   }
 
   private getHeaders(omitContentType = false) {
