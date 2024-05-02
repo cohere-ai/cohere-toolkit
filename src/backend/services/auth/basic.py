@@ -1,13 +1,18 @@
-from backend.services.authentication.base import BaseAuthenticationStrategy
-from backend.models.user import User
 import bcrypt
+
+from backend.models.user import User
+from backend.services.auth.base import BaseAuthenticationStrategy
 
 
 class BasicAuthentication(BaseAuthenticationStrategy):
     """Basic email/password auth strategy."""
 
-    @staticmethod
-    def should_auth_redirect() -> bool:
+    @property
+    def should_attach_to_app(self) -> bool:
+        return False
+
+    @property
+    def should_auth_redirect(self) -> bool:
         return False
 
     @staticmethod
@@ -24,7 +29,7 @@ class BasicAuthentication(BaseAuthenticationStrategy):
         return bcrypt.hashpw(plain_text_password.encode("utf-8"), bcrypt.gensalt())
 
     @staticmethod
-    def check_password(plain_text_password: str, hashed_password: str) -> bool: 
+    def check_password(plain_text_password: str, hashed_password: str) -> bool:
         """
         Hashes a given plain-text password with a randomly generated salt.
 
@@ -37,7 +42,7 @@ class BasicAuthentication(BaseAuthenticationStrategy):
         """
         return bcrypt.checkpw(plain_text_password.encode("utf-8"), hashed_password)
 
-    def login(self, plain_text_password: str, user: User) -> bool: 
+    def login(self, plain_text_password: str, user: User) -> bool:
         """
         Logs user in, checking the if the hashed input password corresponds to the
         one stored in the DB.

@@ -14,8 +14,12 @@ from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
+from backend.services.auth import BasicAuthentication
 
 load_dotenv()
+
+ORIGINS = ["*"]
+AUTH_STRATEGIES = [BasicAuthentication]
 
 
 @asynccontextmanager
@@ -23,11 +27,10 @@ async def lifespan(app: FastAPI):
     yield
 
 
-origins = ["*"]
-
-
 def create_app():
     app = FastAPI(lifespan=lifespan)
+
+    # Add routers
     app.include_router(auth_router)
     app.include_router(chat_router)
     app.include_router(user_router)
@@ -36,9 +39,17 @@ def create_app():
     app.include_router(deployment_router)
     app.include_router(experimental_feature_router)
 
+    # Add auth
+    for auth in AUTH_STRATEGIES:
+        if auth.should_attach_to_app:
+            # TODO: Add app attachment logic for eg OAuth:
+            # https://docs.authlib.org/en/latest/client/fastapi.html
+            pass
+
+    # Add middleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -46,7 +57,7 @@ def create_app():
 
     app.add_middleware(
         SessionMiddleware,
-        secret_key="abcd", # TODO: Replace with os.env crypto key
+        secret_key="abcd",  # TODO: Replace with os.env crypto key
     )
 
     return app

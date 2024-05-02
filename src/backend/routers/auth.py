@@ -10,18 +10,22 @@ router = APIRouter()
 def get_session(request: Request):
     return request.session
 
+
 @router.post("/login")
 async def login(request: Request, login: Login):
     request.session["user"] = {"id": "abcd"}
 
     return login
 
+
 @router.post("/auth")
 async def auth(request: Request):
-    import pdb 
+    import pdb
+
     pdb.set_trace()
 
     return {}
+
 
 @router.get("/logout")
 async def logout(request: Request):
