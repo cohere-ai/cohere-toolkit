@@ -18,7 +18,7 @@ def get_deployment(deployment_name) -> BaseDeployment:
 
     # Check provided deployment against config const
     if deployment is not None and deployment.is_available:
-        return deployment.deployment_class()
+        return deployment.deployment_class(**deployment.kwargs)
 
     # Fallback to first available deployment
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
