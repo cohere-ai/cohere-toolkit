@@ -37,6 +37,90 @@ make first-run
 
 Follow the instructions to configure the model - either AWS Sagemaker, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
 
+#### Detailed environment setup
+
+<details>
+  <summary>Windows</summary>
+
+1. Install [docker](https://docs.docker.com/desktop/install/windows-install/)
+2. Install [git]https://git-scm.com/download/win
+3. In PowerShell (Terminal), install [scoop](https://scoop.sh/). After installing, run scoop bucket add extras
+4. Install pipx
+```bash
+scoop install pipx
+pipx ensurepath
+```
+5. Install poetry >= 1.7.1 using 
+```bash
+pipx install poetry
+```
+6. Install miniconda using
+```bash
+scoop install miniconda3
+conda init powershell
+```
+7. Restart PowerShell
+8. Install the following:
+```bash
+scoop install postgresql
+scoop install make
+```
+9. Create a new virtual environment with Python 3.11
+```bash
+conda create -n toolkit python=3.11
+conda activate toolkit
+```
+10. Clone the repo
+11. Alternatively to `make first-run` or `make setup`, run
+```bash
+poetry install --only setup --verbose
+poetry run python cli/main.py
+make migrate
+make dev
+```
+12. Navigate to https://localhost:4000 in your browser
+
+</details>
+
+<details>
+  <summary>MacOS</summary>
+
+1. Install Xcode. This can be done from the App Store or terminal 
+```bash
+xcode-select --install
+```
+2. Install [docker desktop](https://docs.docker.com/desktop/install/mac-install/)
+3. Install [homebrew](https://brew.sh/)
+4. Install [pipx](https://github.com/pypa/pipx). This is useful for installing poetry later.
+```bash
+brew install pipx
+pipx ensurepath
+```
+5. Install [postgres](brew install postgresql)
+6. Install conda using [miniconda](https://docs.anaconda.com/free/miniconda/index.html)
+7. Use your environment manager to create a new virtual environment with Python 3.11
+```bash
+conda create -n toolkit python=3.11
+```
+8. Install [poetry >= 1.7.1](https://python-poetry.org/docs/#installing-with-pipx)
+```bash
+pipx install poetry
+```
+To test if poetry has been installed correctly,
+```bash
+conda activate toolkit
+poetry --version
+```
+You should see the version of poetry (e.g. 1.8.2). If poetry is not found, try
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+And then retry `poetry --version`
+9. Clone the repo and run `make first-run`
+10. Navigate to https://localhost:4000 in your browser
+
+</details>
+
 <details>
   <summary>Environment variables</summary>
   
