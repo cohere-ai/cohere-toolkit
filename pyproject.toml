@@ -62,6 +62,7 @@ llama-index = "^0.10.11"
 wolframalpha = "^5.0.0"
 transformers = "^4.40.1"
 torch = "^2.3.0"
+llama-cpp-python = "^0.2.67"
 
 [build-system]
 requires = ["poetry-core"]
