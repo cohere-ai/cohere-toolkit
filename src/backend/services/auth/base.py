@@ -1,37 +1,36 @@
 from abc import abstractmethod
-from typing import Any
+from typing import Any, List
 
 
 class BaseAuthenticationStrategy:
-    """Base strategy for authentication, abstract class that should be inherited from."""
+    """
+    Base strategy for authentication, abstract class that should be inherited from.
 
-    @property
-    @abstractmethod
-    def should_attach_to_app(self) -> bool:
+    Attributes:
+        NAME (str): The name of the strategy.
+        SHOULD_ATTACH_TO_APP (str): Whether the strategy needs to be attached to the FastAPI application.
+        SHOULD_AUTH_REDIRECT (str): Whether the strategy requires a redirect to the /auth endpoint after login.
+    """
+    NAME = "Base"
+    SHOULD_ATTACH_TO_APP = False
+    SHOULD_AUTH_REDIRECT = False
+
+    @staticmethod
+    def get_required_payload(self) -> List[str]:
         """
-        Whether the Auth strategy needs to be registered with the main
-        FastAPI application.
+        The required /login payload for the Auth strategy
         """
         ...
 
-    @property
-    @abstractmethod
-    def should_auth_redirect(self) -> bool:
-        """
-        Whether the Auth strategy requires a redirect to a /auth endpoint
-        after the initial login.
-        """
-        ...
-
-    @abstractmethod
-    def login(self, **kwargs: Any):
+    @classmethod
+    def login(cls, **kwargs: Any):
         """
         Login logic: dealing with checking credentials.
         """
         ...
 
-    @abstractmethod
-    def authenticate(self, **kwargs: Any):
+    @classmethod
+    def authenticate(cls, **kwargs: Any):
         """
         Authentication logic: dealing with user data and returning it
         to set the current user session.

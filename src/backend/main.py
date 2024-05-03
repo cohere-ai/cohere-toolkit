@@ -14,13 +14,11 @@ from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.services.auth import BasicAuthentication
+from backend.config.auth import ENABLED_AUTH_STRATEGIES
 
 load_dotenv()
 
 ORIGINS = ["*"]
-AUTH_STRATEGIES = [BasicAuthentication]
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,8 +38,8 @@ def create_app():
     app.include_router(experimental_feature_router)
 
     # Add auth
-    for auth in AUTH_STRATEGIES:
-        if auth.should_attach_to_app:
+    for auth in ENABLED_AUTH_STRATEGIES:
+        if auth.SHOULD_ATTACH_TO_APP:
             # TODO: Add app attachment logic for eg OAuth:
             # https://docs.authlib.org/en/latest/client/fastapi.html
             pass
