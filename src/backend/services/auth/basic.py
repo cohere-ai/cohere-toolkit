@@ -1,7 +1,9 @@
-import bcrypt
 from typing import List
-from backend.models.user import User
+
+import bcrypt
 from sqlalchemy.orm import Session
+
+from backend.models.user import User
 from backend.services.auth.base import BaseAuthenticationStrategy
 
 
@@ -14,6 +16,7 @@ class BasicAuthentication(BaseAuthenticationStrategy):
         SHOULD_ATTACH_TO_APP (str): Whether the strategy needs to be attached to the FastAPI application.
         SHOULD_AUTH_REDIRECT (str): Whether the strategy requires a redirect to the /auth endpoint after login.
     """
+
     NAME = "Basic"
     SHOULD_ATTACH_TO_APP = False
     SHOULD_AUTH_REDIRECT = False
@@ -27,7 +30,6 @@ class BasicAuthentication(BaseAuthenticationStrategy):
             List[str]: List of required variables.
         """
         return ["email", "password"]
-
 
     @staticmethod
     def hash_and_salt_password(plain_text_password: str) -> str:
@@ -83,5 +85,5 @@ class BasicAuthentication(BaseAuthenticationStrategy):
                 "fullname": user.fullname,
                 "email": user.email,
             }
-        
+
         return None

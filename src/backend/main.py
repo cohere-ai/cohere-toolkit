@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+from backend.config.auth import ENABLED_AUTH_STRATEGIES
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
@@ -14,11 +15,11 @@ from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.config.auth import ENABLED_AUTH_STRATEGIES
 
 load_dotenv()
 
 ORIGINS = ["*"]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
