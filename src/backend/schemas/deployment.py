@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +11,7 @@ class Deployment(BaseModel):
     is_available: bool = Field(exclude=True)
     deployment_class: Type[BaseDeployment] = Field(exclude=True)
     env_vars: list[str]
+    kwargs: Optional[dict] = Field(exclude=True, default={})
 
     class Config:
         from_attributes = True
