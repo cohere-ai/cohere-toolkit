@@ -1,4 +1,4 @@
-import { DEFAULT_CHAT_TOOL } from '@/cohere-client';
+import {DEFAULT_CHAT_TOOL, DEFAULT_LOG_TOOL} from '@/cohere-client';
 import { IconName } from '@/components/Shared';
 import { useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -80,6 +80,15 @@ const WEB_SEARCH_PROMPTS: Prompt[] = [
   },
 ];
 
+const LOG_PROMPTS_PROMPTS: Prompt[] = [
+  {
+    title: 'Device Logs',
+    description: 'Find device specific logs',
+    icon: 'newspaper',
+    prompt: 'Give me 5 requests with microsoft: windows',
+  },
+];
+
 export const useStartModes = () => {
   const { params } = useParamsStore();
 
@@ -97,6 +106,13 @@ export const useStartModes = () => {
       description: 'Use multiple sources and tools to answer questions with citations.',
       params: { fileIds: [], tools: [{ name: DEFAULT_CHAT_TOOL }] },
       promptOptions: WEB_SEARCH_PROMPTS,
+    },
+      {
+      id: StartMode.TOOLS,
+      title: 'App Logs',
+      description: 'Search for logs in your ELK cluster.',
+      params: { fileIds: [], tools: [{ name: DEFAULT_LOG_TOOL }] },
+      promptOptions: LOG_PROMPTS_PROMPTS,
     },
   ];
 

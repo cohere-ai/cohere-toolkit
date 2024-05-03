@@ -12,6 +12,7 @@ from backend.tools.retrieval import (
     LangChainVectorDBRetriever,
     LangChainWikiRetriever,
     TavilyInternetSearch,
+    LogsRetriever,
 )
 
 """
@@ -32,6 +33,7 @@ class ToolName(StrEnum):
     Python_Interpreter = "Python_Interpreter"
     Calculator = "Calculator"
     Tavily_Internet_Search = "Internet Search"
+    Logs_Retriever = "App Logs"
 
 
 ALL_TOOLS = {
@@ -94,6 +96,20 @@ ALL_TOOLS = {
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
+    ),
+    ToolName.Logs_Retriever: ManagedTool(
+        name=ToolName.Logs_Retriever,
+        implementation=LogsRetriever,
+        kwargs={
+            "host_url": os.getenv("ELASTICSEARCH_HOST", None),
+            "index": os.getenv("ELASTICSEARCH_INDEX", None),
+            "deployment_name": ToolName.Logs_Retriever
+        },
+        is_visible=True,
+        is_available=LogsRetriever.is_available(),
+        error_message="LogsRetriever not available.",
+        category=Category.DataLoader,
+        description="Retrieves logs from elasticsearch.",
     ),
 }
 

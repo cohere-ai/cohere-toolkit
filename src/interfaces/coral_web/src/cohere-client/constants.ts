@@ -17,6 +17,7 @@ export const SAGEMAKER_DEPLOYMENT_DEFAULT_CHAT_MODEL = 'command-r';
 
 export const DEFAULT_CHAT_TEMPERATURE = 0.3;
 export const DEFAULT_CHAT_TOOL = 'Wikipedia';
+export const DEFAULT_LOG_TOOL = 'App Logs';
 export const FILE_TOOL_CATEGORY = 'File loader';
 
 export const ERROR_FINISH_REASON_TO_MESSAGE = {
