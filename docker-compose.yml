@@ -17,6 +17,19 @@ services:
       - '5432:5432'
     volumes: 
       - db:/var/lib/postgresql/data
+  adminer:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      PGADMIN_LISTEN_PORT: "5050"
+    depends_on:
+      - db
+    ports:
+      - "5050:5050"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
   test_db:
     image: postgres:14.1-alpine
     restart: unless-stopped
@@ -86,6 +99,7 @@ services:
     expose:
       - '8080'
 volumes:
+  pgadmin-data:
   db:
     name: cohere_toolkit_db
     driver: local
