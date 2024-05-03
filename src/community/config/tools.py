@@ -7,6 +7,7 @@ from community.tools.retrieval import (
     ConnectorRetriever,
     LlamaIndexUploadPDFRetriever,
     PubMedRetriever,
+    WeatherDataLoader,
 )
 
 
@@ -63,6 +64,15 @@ COMMUNITY_TOOLS = {
         error_message="WolframAlphaFunctionTool is not available, please set the WOLFRAM_APP_ID environment variable.",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
+    ),
+    CommunityToolName.Weather: ManagedTool(
+        name=CommunityToolName.Weather,
+        implementation=WeatherDataLoader,
+        is_visible=True,
+        is_available=WeatherDataLoader.is_available(),
+        error_message="WeatherDataLoader is not available.",
+        category=Category.DataLoader,
+        description="Retrieves weather data.",
     ),
 }
 
