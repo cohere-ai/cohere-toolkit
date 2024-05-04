@@ -123,4 +123,4 @@ def delete_user(user_id: str, session: DBSessionDep) -> DeleteUser:
 
     user_crud.delete_user(session, user_id)
 
-    return {}
+    return DeleteUser()
