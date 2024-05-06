@@ -1,22 +1,7 @@
-from unittest.mock import patch
-
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.routers.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.tests.factories import get_factory
-
-
-@pytest.fixture(autouse=True)
-def mock_enabled_basic_auth():
-    # Can directly use class since no external calls are made
-    from backend.services.auth import BasicAuthentication
-
-    mocked_strategies = {BasicAuthentication.NAME: BasicAuthentication}
-
-    with patch.dict(ENABLED_AUTH_STRATEGY_MAPPING, mocked_strategies) as mock:
-        yield mock
 
 
 def test_login_success(session_client: TestClient, session: Session):
@@ -31,6 +16,21 @@ def test_login_success(session_client: TestClient, session: Session):
     )
 
     assert response.status_code == 200
+
+
+def test_login_success(session_client: TestClient, session: Session):
+    _ = get_factory("User", session).create(email="test@gmail.com", password="abcd")
+
+    response = session_client.post(
+        "/login",
+        json={
+            "strategy": "Basic",
+            "payload": {"email": "test@gmail.com", "password": "abcd"},
+        },
+    )
+
+    assert response.status_code == 200
+    assert "session" in response.cookies
 
 
 def test_login_invalid_password(session_client: TestClient, session: Session):

@@ -1,14 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
 
-from backend.config.auth import ENABLED_AUTH_STRATEGIES
+from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.models import get_session
 from backend.models.database import DBSessionDep
 from backend.schemas.auth import Login
-
-# Define the mapping from Auth strategy name to class obj
-# Ex: {"Basic": BasicAuthentication}
-ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls for cls in ENABLED_AUTH_STRATEGIES}
 
 router = APIRouter(dependencies=[Depends(get_session)])
 
@@ -23,8 +19,15 @@ def get_session(request: Request):
 
     Returns:
         session: current user session ({} if no active session)
+
+    Raises:
+        401 HTTPException if no user found in session.
     """
-    return request.session
+
+    if not request.session:
+        raise HTTPException(status_code=401, detail="Not authenticated.")
+
+    return request.session.get("user")
 
 
 @router.post("/login")
@@ -33,7 +36,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     Logs user in, verifying their credentials and either setting the user session,
     or redirecting to /auth endpoint.
 
-    Args:
+    Args:er
         request (Request): current Request object.
         login (Login): Login payload.
         session (DBSessionDep): Database session.
