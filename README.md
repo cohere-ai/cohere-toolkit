@@ -143,7 +143,7 @@ Then you will need to set up authorization, [see more details here](https://aws.
 
 ### Hosted tools
 
-- `PYTHON_INTERPRETER_URL`: URL to the python interpreter container. Defaults to http://localhost:8080.
+- `PYTHON_INTERPRETER_URL`: URL to the python interpreter container. Defaults to http://terrarium:8080.
 - `TAVILY_API_KEY`: If you want to enable internet search, you will need to supply a Tavily API Key. Not required.
 
 </details>
