@@ -282,6 +282,22 @@ make dev
 
 This will delete the existing `db` container volumes, restart the containers and reapply all migrations.
 
+### Enabling Authentication
+To enable authentication, you can modify the `src/backend/config/auth.py` file's `ENABLED_AUTH_STRATEGIES` constant.
+The list of currently implemented Auth strategies is available in `src/backend/auth`.
+
+After enabling at least one Auth strategy, you must add a `SESSION_SECRET_KEY` variable to your `.env` file. We recommend starting a python shell and running:
+
+```python
+import secrets
+# Generate a secure random key with 32 bytes length (256 bits)
+session_key = secrets.token_hex(32)
+```
+
+To generate a random 32 byte key that you can use.
+
+If you wish to implement new Auth strategies, it is recommended to use the `authlib` library's [FastAPI OAuth client](https://docs.authlib.org/en/latest/client/fastapi.html).
+
 ### Testing the Toolkit
 
 Run:
