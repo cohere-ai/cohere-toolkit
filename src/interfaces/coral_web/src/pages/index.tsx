@@ -53,7 +53,7 @@ const ChatPage: NextPage<Props> = () => {
         <ConversationListPanel />
       </LayoutSection.LeftDrawer>
       <LayoutSection.Main>
-        <Conversation conversationId={id} welcomeMessageEnabled />
+        <Conversation conversationId={id} startOptionsEnabled />
       </LayoutSection.Main>
     </Layout>
   );

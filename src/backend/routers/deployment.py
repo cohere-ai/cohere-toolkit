@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[Deployment])
+@router.get("", response_model=list[Deployment])
 def list_deployments(all: bool = False) -> list[Deployment]:
     """
     List all available deployments and their models.

@@ -11,8 +11,6 @@ export enum BotState {
 export enum MessageType {
   BOT = 'bot',
   USER = 'user',
-  WELCOME = 'welcome',
-  NOTIFICATION = 'notification',
 }
 
 type BaseMessage = {
@@ -89,41 +87,14 @@ export type UserMessage = BaseMessage & {
   files?: File[];
 };
 
-/**
- * Special message type when the first time user is first welcomed into a conversation and the content is being typed.
- */
-export type TypingWelcomeMessage = BaseMessage & {
-  type: MessageType.WELCOME;
-  state: BotState.TYPING;
-};
-
-/**
- * Special message type when the welcome message is fulfilled.
- */
-export type WelcomeMessage = BaseMessage & {
-  type: MessageType.WELCOME;
-  state: BotState.FULFILLED;
-};
-
-/**
- * A message for notifying the user of something.
- */
-export type NotificationMessage = BaseMessage & {
-  type: MessageType.NOTIFICATION;
-  show: boolean;
-};
-
 export type ChatMessage = UserMessage | BotMessage;
 
 export type BotMessage =
   | LoadingMessage
   | TypingMessage
   | FulfilledMessage
-  | TypingWelcomeMessage
-  | WelcomeMessage
   | ErrorMessage
-  | AbortedMessage
-  | NotificationMessage;
+  | AbortedMessage;
 
 export type StreamingMessage = FulfilledMessage | TypingMessage | LoadingMessage;
 
@@ -161,10 +132,6 @@ export const isFulfilledOrTypingMessageWithCitations = (
   m: ChatMessage
 ): m is FulfilledMessage | (TypingMessage & Required<Pick<FulfilledMessage, 'citations'>>) =>
   m && isFulfilledOrTypingMessage(m) && !!m.citations && m.citations.length > 0;
-
-export const isNotificationMessage = (message: ChatMessage): message is NotificationMessage => {
-  return message.type === MessageType.NOTIFICATION;
-};
 
 export const createErrorMessage = (message: Omit<ErrorMessage, 'type' | 'state'>): ErrorMessage => {
   return {
