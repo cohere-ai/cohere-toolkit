@@ -47,7 +47,7 @@ class BasicAuthentication(BaseAuthenticationStrategy):
     @staticmethod
     def check_password(plain_text_password: str, hashed_password: str) -> bool:
         """
-        Hashes a given plain-text password with a randomly generated salt.
+        Checks that the input plain text password corresponds to a hashed password.
 
         Args:
             plain_text_password (str): Password to check.
@@ -59,7 +59,7 @@ class BasicAuthentication(BaseAuthenticationStrategy):
         return bcrypt.checkpw(plain_text_password.encode("utf-8"), hashed_password)
 
     @classmethod
-    def login(cls, session: Session, payload: dict[str, str]) -> bool:
+    def login(cls, session: Session, payload: dict[str, str]) -> dict | None:
         """
         Logs user in, checking the if the hashed input password corresponds to the
         one stored in the DB.
