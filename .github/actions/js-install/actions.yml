@@ -11,7 +11,7 @@ runs:
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
-        node-version-file: "js/.nvmrc"
+        node-version-file: "src/interfaces/coral_web/.nvmrc"
         cache: "pnpm"
         cache-dependency-path: "js/pnpm-lock.yaml"
 
