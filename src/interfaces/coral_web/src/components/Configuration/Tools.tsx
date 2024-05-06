@@ -101,6 +101,7 @@ const ToolSection = () => {
               );
               const checked = !!enabledTool;
               const disabled = !is_available;
+              const isTooltipVisible = description || error_message;
 
               return (
                 <div key={name} className="flex items-center gap-x-1">
@@ -118,8 +119,17 @@ const ToolSection = () => {
                     })}
                     disabled={disabled}
                   />
-                  {(description || error_message) && (
-                    <Tooltip label={description ?? error_message} />
+                  {isTooltipVisible && (
+                    <Tooltip
+                      label={
+                        <div className="flex flex-col gap-y-1">
+                          {description && <Text>{description}</Text>}
+                          {error_message && (
+                            <Text className="text-danger-500">{error_message}</Text>
+                          )}
+                        </div>
+                      }
+                    />
                   )}
                 </div>
               );
