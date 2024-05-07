@@ -11,6 +11,7 @@ import {
   ListFile,
   Tool,
   UpdateConversation,
+  UpdateDeploymentEnv,
   UploadFile,
 } from '.';
 import { mapToChatRequest } from './mappings';
@@ -353,6 +354,28 @@ export class CohereClient {
     }
 
     return body as Deployment[];
+  }
+
+  public async updateDeploymentEnvVariables(request: UpdateDeploymentEnv & { name: string }) {
+    const response = await this.fetch(
+      `${this.getEndpoint('deployments')}/${request.name}/set_env_vars`,
+      {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(request.env_vars),
+      }
+    );
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as {};
   }
 
   public async getExperimentalFeatures(): Promise<ExperimentalFeatures> {
