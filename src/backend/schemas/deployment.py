@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 from pydantic import BaseModel, Field
 
-from backend.model_deployments import BaseDeployment
+from backend.model_deployments.base import BaseDeployment
 
 
 class Deployment(BaseModel):

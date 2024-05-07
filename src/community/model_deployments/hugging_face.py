@@ -3,8 +3,8 @@ from typing import Any, Dict, List
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
-from community.model_deployments import BaseDeployment
 
 
 class HuggingFaceDeployment(BaseDeployment):

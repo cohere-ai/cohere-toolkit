@@ -1,5 +1,5 @@
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
-from backend.model_deployments import BaseDeployment
+from backend.model_deployments.base import BaseDeployment
 
 
 def get_deployment(deployment_name) -> BaseDeployment:

@@ -4,7 +4,7 @@ from typing import Any, Dict, Generator, List
 import cohere
 from cohere.types import StreamedChatResponse
 
-from backend.model_deployments import BaseDeployment
+from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 
 
