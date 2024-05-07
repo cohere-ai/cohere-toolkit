@@ -18,12 +18,12 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
-from backend.models import get_session
-from backend.models.citation import Citation
-from backend.models.conversation import Conversation
-from backend.models.database import DBSessionDep
-from backend.models.document import Document
-from backend.models.message import Message, MessageAgent
+from backend.database_models import get_session
+from backend.database_models.citation import Citation
+from backend.database_models.conversation import Conversation
+from backend.database_models.database import DBSessionDep
+from backend.database_models.document import Document
+from backend.database_models.message import Message, MessageAgent
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
@@ -512,6 +512,13 @@ def generate_chat_stream(
                     text=document.get("text", ""),
                     title=document.get("title", ""),
                     url=document.get("url", ""),
+                    tool_name=document.get("tool_name", ""),
+                    # all document fields except for id, tool_name and text
+                    fields={
+                        k: v
+                        for k, v in document.items()
+                        if k not in ["id", "tool_name", "text"]
+                    },
                     user_id=response_message.user_id,
                     conversation_id=response_message.conversation_id,
                     message_id=response_message.id,

@@ -1,6 +1,6 @@
 import factory
 
-from backend.models import Conversation
+from backend.database_models import Conversation
 
 from .base import BaseFactory
 

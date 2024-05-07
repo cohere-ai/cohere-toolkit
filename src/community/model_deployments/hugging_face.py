@@ -1,7 +1,6 @@
 import logging
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, List
 
-from cohere.types import NonStreamedChatResponse, StreamedChatResponse
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from backend.schemas.cohere_chat import CohereChatRequest

@@ -1,7 +1,7 @@
-from sqlalchemy import ForeignKey, Index, String
+from sqlalchemy import JSON, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.models.base import Base
+from backend.database_models.base import Base
 
 
 class Document(Base):
@@ -12,6 +12,8 @@ class Document(Base):
     user_id: Mapped[str] = mapped_column(String)
     title: Mapped[str] = mapped_column(String, nullable=True)
     url: Mapped[str] = mapped_column(String, nullable=True)
+    fields: Mapped[dict] = mapped_column(JSON, nullable=True)
+    tool_name: Mapped[str] = mapped_column(String, nullable=True)
 
     conversation_id: Mapped[str] = mapped_column(
         ForeignKey("conversations.id", ondelete="CASCADE")

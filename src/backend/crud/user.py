@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.models.user import User
+from backend.database_models.user import User
 from backend.schemas.user import UpdateUser
 
 
@@ -62,7 +62,7 @@ def update_user(db: Session, user: User, new_user: UpdateUser) -> User:
     Returns:
         User: Updated user.
     """
-    for attr, value in new_user.model_dump().items():
+    for attr, value in new_user.model_dump(exclude_none=True).items():
         setattr(user, attr, value)
     db.commit()
     db.refresh(user)

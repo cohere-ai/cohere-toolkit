@@ -4,8 +4,8 @@ from sqlalchemy import Column, ForeignKey, Index, String, Table
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.models.base import Base
-from backend.models.document import Document
+from backend.database_models.base import Base
+from backend.database_models.document import Document
 
 citation_documents = Table(
     "citation_documents",

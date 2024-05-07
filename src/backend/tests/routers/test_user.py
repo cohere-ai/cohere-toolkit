@@ -1,7 +1,8 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.models.user import User
+from backend.database_models.user import User
+from backend.services.auth import BasicAuthentication
 from backend.tests.factories import get_factory
 
 
@@ -62,7 +63,30 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
     assert user.email == user_data_req["email"]
 
 
-def test_fail_create_user_missing_data(
+def test_create_user_with_password_saves_hashed_password(
+    session_client: TestClient, session: Session
+) -> None:
+    user_data_req = {
+        "fullname": "John Doe",
+        "email": "john@email.com",
+        "password": "abcd",
+    }
+
+    response = session_client.post("/users", json=user_data_req)
+    response_user = response.json()
+
+    user = session.get(User, response_user["id"])
+
+    assert response.status_code == 200
+    assert response_user["fullname"] == user_data_req["fullname"]
+    assert response_user["email"] == user_data_req["email"]
+    assert user is not None
+    assert user.fullname == user_data_req["fullname"]
+    assert user.email == user_data_req["email"]
+    assert BasicAuthentication.check_password("abcd", user.hashed_password)
+
+
+def test_fail_create_user_missing_fullname(
     session_client: TestClient, session: Session
 ) -> None:
     response = session_client.post("/users", json={})
@@ -96,24 +120,17 @@ def test_update_user(session_client: TestClient, session: Session) -> None:
     assert updated_user.fullname == "new name"
 
 
-def test_update_user_missing_data(session_client: TestClient, session: Session) -> None:
+def test_update_user_password_saves_hashed_password(
+    session_client: TestClient, session: Session
+) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
 
-    response = session_client.put(f"/users/{user.id}", json={})
-    response_user = response.json()
+    response = session_client.put(f"/users/{user.id}", json={"password": "abcd"})
 
-    assert response.status_code == 422
-    assert response_user == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["body", "fullname"],
-                "msg": "Field required",
-                "input": {},
-                "url": "https://errors.pydantic.dev/2.7/v/missing",
-            }
-        ]
-    }
+    assert response.status_code == 200
+    # Check if user was updated
+    updated_user = session.get(User, user.id)
+    assert BasicAuthentication.check_password("abcd", updated_user.hashed_password)
 
 
 def test_fail_update_nonexistent_user(

@@ -3,7 +3,7 @@ from typing import List, Union
 
 from pydantic import BaseModel
 
-from backend.models.message import MessageAgent
+from backend.database_models.message import MessageAgent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.file import File

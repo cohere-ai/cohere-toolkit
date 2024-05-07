@@ -3,7 +3,7 @@ import os
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.models import Citation, Conversation, Document, File, Message
+from backend.database_models import Citation, Conversation, Document, File, Message
 from backend.tests.factories import get_factory
 
 
