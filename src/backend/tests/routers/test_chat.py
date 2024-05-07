@@ -32,7 +32,7 @@ def test_streaming_new_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
@@ -73,7 +73,7 @@ def test_streaming_existing_chat(
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
@@ -96,7 +96,7 @@ def test_fail_chat_missing_user_id(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={"message": "Hello"},
         headers={"Deployment-Name": ModelDeploymentName.CoherePlatform},
     )
@@ -110,7 +110,7 @@ def test_default_chat_missing_deployment_name(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={"message": "Hello"},
         headers={"User-Id": "test"},
     )
@@ -123,7 +123,7 @@ def test_streaming_fail_chat_missing_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         headers={
             "User-Id": "123",
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
@@ -148,7 +148,7 @@ def test_streaming_fail_chat_missing_message(
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         json={
             "message": "Give me a number",
             "tools": [
@@ -179,7 +179,7 @@ def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, us
     ].get("name")
 
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         json={"message": "Hello", "tools": [{"name": tool}]},
         headers={
             "User-Id": user.id,
@@ -198,7 +198,7 @@ def test_streaming_chat_with_invalid_tool(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         json={"message": "Hello", "tools": [{"name": "invalid_tool"}]},
         headers={
             "User-Id": user.id,
@@ -221,7 +221,7 @@ def test_streaming_chat_with_managed_and_custom_tools(
     ].get("name")
 
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         json={
             "message": "Hello",
             "tools": [
@@ -247,7 +247,7 @@ def test_streaming_chat_with_search_queries_only(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         json={
             "message": "What is the capital of Ontario?",
             "search_queries_only": True,
@@ -276,7 +276,7 @@ def test_streaming_chat_with_chat_history(
     user = get_factory("User", session_chat).create()
 
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         json={
             "message": "Hello",
             "chat_history": [
@@ -315,7 +315,7 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
@@ -361,7 +361,7 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
@@ -392,7 +392,7 @@ def test_non_streaming_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={"message": "Hello", "max_tokens": 10},
         headers={
             "User-Id": user.id,
@@ -415,7 +415,7 @@ def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat
     ].get("name")
 
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={"message": "Hello", "tools": [{"name": tool}]},
         headers={
             "User-Id": user.id,
@@ -440,7 +440,7 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
     ].get("name")
 
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={
             "message": "Hello",
             "tools": [
@@ -464,7 +464,7 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={
             "message": "Give me a number",
             "tools": [
@@ -489,7 +489,7 @@ def test_non_streaming_chat_with_search_queries_only(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={
             "message": "What is the capital of Ontario?",
             "search_queries_only": True,
@@ -513,7 +513,7 @@ def test_non_streaming_chat_with_chat_history(
     user = get_factory("User", session_chat).create()
 
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         json={
             "message": "Hello",
             "chat_history": [
@@ -547,7 +547,7 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
@@ -590,7 +590,7 @@ def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,

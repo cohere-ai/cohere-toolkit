@@ -6,7 +6,7 @@ from backend.tests.factories import get_factory
 
 
 def test_list_users_empty(session_client: TestClient) -> None:
-    response = session_client.get("/users")
+    response = session_client.get("/v1/users")
     results = response.json()
 
     assert response.status_code == 200
@@ -16,7 +16,7 @@ def test_list_users_empty(session_client: TestClient) -> None:
 def test_list_users(session_client: TestClient, session: Session) -> None:
     _ = get_factory("User", session).create(fullname="John Doe")
 
-    response = session_client.get("/users")
+    response = session_client.get("/v1/users")
     results = response.json()
 
     assert response.status_code == 200
@@ -26,7 +26,7 @@ def test_list_users(session_client: TestClient, session: Session) -> None:
 def test_get_user(session_client: TestClient, session: Session) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
 
-    response = session_client.get(f"/users/{user.id}")
+    response = session_client.get(f"/v1/users/{user.id}")
     response_user = response.json()
 
     assert response.status_code == 200
@@ -37,7 +37,7 @@ def test_get_user(session_client: TestClient, session: Session) -> None:
 def test_fail_get_nonexistent_user(
     session_client: TestClient, session: Session
 ) -> None:
-    response = session_client.get("/users/123")
+    response = session_client.get("/v1/users/123")
 
     assert response.status_code == 404
     assert response.json() == {"detail": f"User with ID: 123 not found."}
@@ -49,7 +49,7 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
         "email": "john@email.com",
     }
 
-    response = session_client.post("/users", json=user_data_req)
+    response = session_client.post("/v1/users", json=user_data_req)
     response_user = response.json()
 
     user = session.get(User, response_user["id"])
@@ -65,7 +65,7 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
 def test_fail_create_user_missing_data(
     session_client: TestClient, session: Session
 ) -> None:
-    response = session_client.post("/users", json={})
+    response = session_client.post("/v1/users", json={})
     response_user = response.json()
 
     assert response.status_code == 422
@@ -85,7 +85,7 @@ def test_fail_create_user_missing_data(
 def test_update_user(session_client: TestClient, session: Session) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
 
-    response = session_client.put(f"/users/{user.id}", json={"fullname": "new name"})
+    response = session_client.put(f"/v1/users/{user.id}", json={"fullname": "new name"})
     response_user = response.json()
 
     assert response.status_code == 200
@@ -99,7 +99,7 @@ def test_update_user(session_client: TestClient, session: Session) -> None:
 def test_update_user_missing_data(session_client: TestClient, session: Session) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
 
-    response = session_client.put(f"/users/{user.id}", json={})
+    response = session_client.put(f"/v1/users/{user.id}", json={})
     response_user = response.json()
 
     assert response.status_code == 422
@@ -119,7 +119,7 @@ def test_update_user_missing_data(session_client: TestClient, session: Session) 
 def test_fail_update_nonexistent_user(
     session_client: TestClient, session: Session
 ) -> None:
-    response = session_client.put("/users/123", json={"fullname": "new name"})
+    response = session_client.put("/v1/users/123", json={"fullname": "new name"})
 
     assert response.status_code == 404
     assert response.json() == {"detail": f"User with ID: 123 not found."}
@@ -128,7 +128,7 @@ def test_fail_update_nonexistent_user(
 def test_delete_user(session_client: TestClient, session: Session) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
 
-    response = session_client.delete(f"/users/{user.id}")
+    response = session_client.delete(f"/v1/users/{user.id}")
 
     assert response.status_code == 200
     assert response.json() == {}
@@ -141,7 +141,7 @@ def test_delete_user(session_client: TestClient, session: Session) -> None:
 def test_fail_delete_nonexistent_user(
     session_client: TestClient, session: Session
 ) -> None:
-    response = session_client.delete("/users/123")
+    response = session_client.delete("/v1/users/123")
 
     assert response.status_code == 404
     assert response.json() == {"detail": f"User with ID: 123 not found."}
