@@ -4,7 +4,7 @@ import { CohereNetworkError, UpdateDeploymentEnv, useCohereClient } from '@/cohe
 
 export const useUpdateDeploymentEnvVariables = () => {
   const client = useCohereClient();
-  return useMutation<{}, CohereNetworkError, UpdateDeploymentEnv & { name: string }>({
+  return useMutation<void, CohereNetworkError, UpdateDeploymentEnv & { name: string }>({
     mutationFn: async (request: { name: string } & UpdateDeploymentEnv) => {
       return await client.updateDeploymentEnvVariables(request);
     },

@@ -362,20 +362,13 @@ export class CohereClient {
       {
         method: 'POST',
         headers: this.getHeaders(),
-        body: JSON.stringify(request.env_vars),
+        body: JSON.stringify({ env_vars: request.env_vars }),
       }
     );
 
-    const body = await response.json();
-
     if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
+      throw new CohereNetworkError('Something went wrong', response.status);
     }
-
-    return body as {};
   }
 
   public async getExperimentalFeatures(): Promise<ExperimentalFeatures> {
