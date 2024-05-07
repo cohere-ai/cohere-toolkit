@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.models.user import User
+from backend.database_models.user import User
 from backend.tests.factories import get_factory
 
 

@@ -1,5 +1,5 @@
-from backend.chat.custom.model_deployments.base import BaseDeployment
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.model_deployments import BaseDeployment
+from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 
 
 def get_deployment(deployment_name) -> BaseDeployment:

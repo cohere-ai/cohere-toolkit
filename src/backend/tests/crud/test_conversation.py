@@ -2,7 +2,7 @@ from backend.crud import citation as citation_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import document as document_crud
 from backend.crud import message as message_crud
-from backend.models.conversation import Conversation
+from backend.database_models.conversation import Conversation
 from backend.schemas.conversation import UpdateConversation
 from backend.tests.factories import get_factory
 

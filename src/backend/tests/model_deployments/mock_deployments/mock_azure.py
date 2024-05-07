@@ -1,10 +1,10 @@
-import os
+
 from typing import Any, Dict, Generator, List
 
-import cohere
+
 from cohere.types import StreamedChatResponse
 
-from backend.chat.custom.model_deployments.base import BaseDeployment
+from backend.model_deployments import BaseDeployment
 from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 

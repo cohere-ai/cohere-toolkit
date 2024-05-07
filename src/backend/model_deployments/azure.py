@@ -1,51 +1,47 @@
-import logging
 import os
 from typing import Any, Dict, Generator, List
 
 import cohere
-import requests
 from cohere.types import StreamedChatResponse
 
-from backend.chat.custom.model_deployments.base import BaseDeployment
+from backend.model_deployments import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 
 
-class CohereDeployment(BaseDeployment):
-    """Cohere Platform Deployment."""
+class AzureDeployment(BaseDeployment):
+    """
+    Azure Deployment.
+    How to deploy a model:
+    https://learn.microsoft.com/azure/ai-studio/how-to/deploy-models-cohere-command
+    """
 
-    api_key = os.environ.get("COHERE_API_KEY")
-    client_name = "cohere-toolkit"
+    DEFAULT_MODELS = ["azure-command"]
+    api_key = os.environ.get("AZURE_API_KEY")
+    # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
+    # Note: It must have /v1 and it should not have /chat
+    chat_endpoint_url = os.environ.get("AZURE_CHAT_ENDPOINT_URL")
 
     def __init__(self):
-        self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
+        if not self.chat_endpoint_url.endswith("/v1"):
+            self.chat_endpoint_url = self.chat_endpoint_url + "/v1"
+        self.client = cohere.Client(
+            base_url=self.chat_endpoint_url, api_key=self.api_key
+        )
 
     @property
     def rerank_enabled(self) -> bool:
-        return True
+        return False
 
     @classmethod
     def list_models(cls) -> List[str]:
-        if not CohereDeployment.is_available():
+        if not cls.is_available():
             return []
 
-        url = "https://api.cohere.ai/v1/models"
-        headers = {
-            "accept": "application/json",
-            "authorization": f"Bearer {cls.api_key}",
-        }
-
-        response = requests.get(url, headers=headers)
-
-        if not response.ok:
-            logging.warning("Couldn't get models from Cohere API.")
-            return []
-
-        models = response.json()["models"]
-        return [model["name"] for model in models if "chat" in model["endpoints"]]
+        return cls.DEFAULT_MODELS
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.api_key is not None
+        return all([cls.api_key is not None, cls.chat_endpoint_url is not None])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         return self.client.chat(
@@ -84,11 +80,7 @@ class CohereDeployment(BaseDeployment):
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        return self.client.rerank(
-            query=query, documents=documents, model="rerank-english-v2.0", **kwargs
-        )
+        return None
 
     def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
-        return self.client.chat(
-            message=message, tools=tools, model="command-r", **kwargs
-        )
+        return self.client.chat(message=message, tools=tools, **kwargs)

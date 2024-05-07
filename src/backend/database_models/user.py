@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.models.base import Base
+from backend.database_models.base import Base
 
 
 class User(Base):
