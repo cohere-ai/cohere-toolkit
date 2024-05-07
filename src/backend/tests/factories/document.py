@@ -1,6 +1,6 @@
 import factory
 
-from backend.models import Document
+from backend.database_models import Document
 
 from .base import BaseFactory
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.models.citation import Citation
+from backend.database_models.citation import Citation
 
 
 def create_citation(db: Session, citation: Citation) -> Citation:

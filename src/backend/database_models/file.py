@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.models.base import Base
+from backend.database_models.base import Base
 
 
 class File(Base):

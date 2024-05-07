@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.models.document import Document
+from backend.database_models.document import Document
 
 
 def create_document(db: Session, document: Document) -> Document:

@@ -1,5 +1,5 @@
 from backend.crud import user as user_crud
-from backend.models.user import User
+from backend.database_models.user import User
 from backend.schemas.user import UpdateUser
 from backend.tests.factories import get_factory
 
