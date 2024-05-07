@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.models.file import File
+from backend.database_models.file import File
 from backend.schemas.file import UpdateFile
 
 

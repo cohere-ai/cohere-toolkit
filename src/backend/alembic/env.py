@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
 # Need to import Models - note they will be unused but are required for Alembic to detect
-from backend.models import *
-from backend.models.base import Base
+from backend.database_models import *
+from backend.database_models.base import Base
 
 load_dotenv()
 

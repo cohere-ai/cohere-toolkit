@@ -1,7 +1,7 @@
 import pytest
 
 from backend.crud import file as file_crud
-from backend.models.file import File
+from backend.database_models.file import File
 from backend.schemas.file import UpdateFile
 from backend.tests.factories import get_factory
 

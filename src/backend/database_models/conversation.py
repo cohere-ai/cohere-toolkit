@@ -3,9 +3,9 @@ from typing import List
 from sqlalchemy import Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.models.base import Base
-from backend.models.file import File
-from backend.models.message import Message
+from backend.database_models.base import Base
+from backend.database_models.file import File
+from backend.database_models.message import Message
 
 
 class Conversation(Base):
