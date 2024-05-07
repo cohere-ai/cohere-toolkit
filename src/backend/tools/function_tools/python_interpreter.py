@@ -1,5 +1,6 @@
+import json
 import os
-from typing import Any
+from typing import Any, Dict, Mapping
 
 import requests
 from langchain_core.tools import Tool as LangchainTool
@@ -30,8 +31,45 @@ class PythonInterpreterFunctionTool(BaseFunctionTool):
 
         code = parameters.get("code", "")
         res = requests.post(self.interpreter_url, json={"code": code})
+        clean_res = self._clean_response(res.json())
 
-        return res.json()
+        return clean_res
+
+    def _clean_response(self, result: Any) -> Dict[str, str]:
+        if "final_expression" in result:
+            result["final_expression"] = str(result["final_expression"])
+
+        # split up output files into separate result items, so that we may cite them individually
+        result_list = [result]
+
+        output_files = result.pop("output_files", [])
+        for f in output_files:
+            result_list.append({"output_file": f})
+
+        for r in result_list:
+            if r.get("sucess") is not None:
+                r.update({"success": r.get("sucess")})
+                del r["sucess"]
+
+            if r.get("success") is True:
+                r.setdefault("text", r.get("std_out"))
+            elif r.get("success") is False:
+                error_message = r.get("error", {}).get("message", "")
+                r.setdefault("text", error_message)
+            elif r.get("output_file") and r.get("output_file").get("filename"):
+                if r["output_file"]["filename"] != "":
+                    r.setdefault(
+                        "text", f"Created output file {r['output_file']['filename']}"
+                    )
+
+            # cast all values to strings, if it's a json object use double quotes
+            for key, value in r.items():
+                if isinstance(value, Mapping):
+                    r[key] = json.dumps(value)
+                else:
+                    r[key] = str(value)
+
+        return result_list
 
     # langchain does not return a dict as a parameter, only a code string
     def langchain_call(self, code: str):

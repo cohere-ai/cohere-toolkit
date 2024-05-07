@@ -158,6 +158,11 @@ class CustomChat(BaseChat):
             outputs = tool.implementation().call(
                 parameters=tool_call.parameters,
             )
-            tool_results.append({"call": tool_call, "outputs": [outputs]})
+
+            # If the tool returns a list of outputs, append each output to the tool_results list
+            # Otherwise, append the single output to the tool_results list
+            outputs = outputs if isinstance(outputs, list) else [outputs]
+            for output in outputs:
+                tool_results.append({"call": tool_call, "outputs": [output]})
 
         return tool_results
