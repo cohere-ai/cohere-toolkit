@@ -14,3 +14,8 @@ def mock_enabled_basic_auth():
 
     with patch.dict(ENABLED_AUTH_STRATEGY_MAPPING, mocked_strategies) as mock:
         yield mock
+
+
+@pytest.fixture(autouse=True)
+def mock_session_secret_key_env(monkeypatch):
+    monkeypatch.setenv("SESSION_SECRET_KEY", "test_key")
