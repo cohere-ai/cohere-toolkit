@@ -2,8 +2,8 @@ from typing import Any, Dict, List
 
 from llama_cpp import Llama
 
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
+from community.model_deployments import BaseDeployment
 
 
 class LocalModelDeployment(BaseDeployment):
