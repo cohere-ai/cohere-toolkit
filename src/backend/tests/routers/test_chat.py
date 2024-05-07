@@ -172,7 +172,7 @@ def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, use
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
-    tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
+    tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
         0
@@ -214,7 +214,7 @@ def test_streaming_chat_with_invalid_tool(
 def test_streaming_chat_with_managed_and_custom_tools(
     session_client_chat, session_chat, user
 ):
-    tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
+    tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
         0
@@ -408,7 +408,7 @@ def test_non_streaming_chat(
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
-    tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
+    tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
         0
@@ -433,7 +433,7 @@ def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat
 def test_non_streaming_chat_with_managed_and_custom_tools(
     session_client_chat, session_chat, user
 ):
-    tools = session_client_chat.get("/tools", headers={"User-Id": user.id}).json()
+    tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
         0

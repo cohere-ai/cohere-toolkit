@@ -62,7 +62,7 @@ def test_non_streamed_chat(
     deployment = mock_azure_deployment.return_value
     deployment.invoke_chat = MagicMock()
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.Azure,
