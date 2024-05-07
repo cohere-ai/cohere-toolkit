@@ -1,6 +1,6 @@
 import factory
 
-from backend.models import User
+from backend.database_models import User
 
 from .base import BaseFactory
 

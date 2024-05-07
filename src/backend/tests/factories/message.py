@@ -1,6 +1,6 @@
 import factory
 
-from backend.models import Message
+from backend.database_models import Message
 
 from .base import BaseFactory
 
