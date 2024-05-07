@@ -18,12 +18,12 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
-from backend.models import get_session
-from backend.models.citation import Citation
-from backend.models.conversation import Conversation
-from backend.models.database import DBSessionDep
-from backend.models.document import Document
-from backend.models.message import Message, MessageAgent
+from backend.database_models import get_session
+from backend.database_models.citation import Citation
+from backend.database_models.conversation import Conversation
+from backend.database_models.database import DBSessionDep
+from backend.database_models.document import Document
+from backend.database_models.message import Message, MessageAgent
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,

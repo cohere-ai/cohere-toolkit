@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.models.conversation import Conversation
+from backend.database_models.conversation import Conversation
 from backend.schemas.conversation import UpdateConversation
 
 

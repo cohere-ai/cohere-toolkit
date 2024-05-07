@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.config.deployments import ModelDeploymentName
-from backend.models.user import User
+from backend.database_models.user import User
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.tests.model_deployments.mock_deployments import MockAzureDeployment
 

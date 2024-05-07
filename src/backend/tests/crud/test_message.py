@@ -3,7 +3,7 @@ import pytest
 from backend.crud import citation as citation_crud
 from backend.crud import document as document_crud
 from backend.crud import message as message_crud
-from backend.models.message import Message
+from backend.database_models.message import Message
 from backend.schemas.message import UpdateMessage
 from backend.tests.factories import get_factory
 
