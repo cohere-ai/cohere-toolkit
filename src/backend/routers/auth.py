@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
-from backend.models import get_session
-from backend.models.database import DBSessionDep
+from backend.database_models import get_session
+from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import Login
 
 router = APIRouter(dependencies=[Depends(get_session)])

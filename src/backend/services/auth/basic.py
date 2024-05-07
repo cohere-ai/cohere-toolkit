@@ -3,7 +3,7 @@ from typing import List
 import bcrypt
 from sqlalchemy.orm import Session
 
-from backend.models.user import User
+from backend.database_models.user import User
 from backend.services.auth.base import BaseAuthenticationStrategy
 
 
