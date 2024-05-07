@@ -54,11 +54,12 @@ from backend.services.request_validators import (
 )
 
 router = APIRouter(
+    prefix="/v1",
     dependencies=[
         Depends(get_session),
         Depends(validate_chat_request),
         Depends(validate_user_header),
-    ]
+    ],
 )
 
 

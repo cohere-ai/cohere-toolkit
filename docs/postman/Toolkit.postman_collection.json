@@ -34,7 +34,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/chat",
+							"raw": "http://localhost:8000/v1/chat",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -72,7 +72,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/chat",
+							"raw": "http://localhost:8000/v1/chat",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -108,7 +108,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations/{id} ",
+							"raw": "http://localhost:8000/v1/conversations/{id} ",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -145,7 +145,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations",
+							"raw": "http://localhost:8000/v1/conversations",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -178,7 +178,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations/{id}",
+							"raw": "http://localhost:8000/v1/conversations/{id}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -212,7 +212,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations/{id}",
+							"raw": "http://localhost:8000/v1/conversations/{id}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -257,7 +257,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/tools",
+							"raw": "http://localhost:8000/v1/tools",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -290,7 +290,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/users",
+							"raw": "http://localhost:8000/v1/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -321,7 +321,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/users?limit=10&offset=0",
+							"raw": "http://localhost:8000/v1/users?limit=10&offset=0",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -359,7 +359,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/users/{id}",
+							"raw": "http://localhost:8000/v1/users/{id}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -391,7 +391,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/users/{id}",
+							"raw": "http://localhost:8000/v1/users/{id}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -420,7 +420,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/users/{id}",
+							"raw": "http://localhost:8000/v1/users/{id}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -460,7 +460,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/upload_file",
+							"raw": "http://localhost:8000/v1/conversations/{conv_id}/upload_file",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -498,7 +498,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/files",
+							"raw": "http://localhost:8000/v1/conversations/{conv_id}/files",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -533,7 +533,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/files/{file_id}",
+							"raw": "http://localhost:8000/v1/conversations/{conv_id}/files/{file_id}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -569,7 +569,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/files/{file_id}",
+							"raw": "http://localhost:8000/v1/conversations/{conv_id}/files/{file_id}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -605,7 +605,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8000/health",
+					"raw": "http://localhost:8000/v1/health",
 					"protocol": "http",
 					"host": [
 						"localhost"
