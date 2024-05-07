@@ -13,9 +13,9 @@ runs:
       with:
         node-version-file: "src/interfaces/coral_web/.nvmrc"
         cache: "pnpm"
-        cache-dependency-path: "js/pnpm-lock.yaml"
+        cache-dependency-path: "src/interfaces/coral_web/pnpm-lock.yaml"
 
     - name: Install dependencies with pnpm
       shell: bash
-      working-directory: js
+      working-directory: src/interfaces/coral_web
       run: pnpm install --frozen-lockfile
