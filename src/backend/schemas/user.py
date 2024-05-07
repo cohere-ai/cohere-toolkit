@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from backend.services.auth import BasicAuthentication
+
 
 class UserBase(BaseModel):
     fullname: str
@@ -18,12 +20,28 @@ class User(UserBase):
         from_attributes = True
 
 
-class CreateUser(UserBase):
+class UserPassword(BaseModel):
+    password: Optional[str] = None
+    hashed_password: Optional[bytes] = None
+
+    def __init__(self, **data):
+        password = data.pop("password", None)
+
+        if password is not None:
+            data["hashed_password"] = BasicAuthentication.hash_and_salt_password(
+                password
+            )
+
+        super().__init__(**data)
+
+
+class CreateUser(UserBase, UserPassword):
     pass
 
 
-class UpdateUser(UserBase):
-    pass
+class UpdateUser(UserPassword):
+    fullname: Optional[str] = None
+    email: Optional[str] = None
 
 
 class DeleteUser(BaseModel):

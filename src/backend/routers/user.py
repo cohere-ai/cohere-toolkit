@@ -21,7 +21,7 @@ def create_user(user: CreateUser, session: DBSessionDep) -> User:
     Returns:
         User: Created user.
     """
-    db_user = UserModel(**user.model_dump())
+    db_user = UserModel(**user.model_dump(exclude_none=True))
     db_user = user_crud.create_user(session, db_user)
 
     return db_user
