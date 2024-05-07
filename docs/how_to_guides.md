@@ -57,6 +57,10 @@ Toolkit includes some sample tools that you can copy to configure your own data 
 
 To create your own tools or add custom data sources, see our guide: [tools and retrieval sources overview](/docs/custom_tool_guides/tool_guide.md)
 
+## Theming and customization
+
+To customize the Coral frontend, you can modify the theme, color scheme, font, and other styles. see our guide: [Theming and customization](/docs/theming.md)
+
 # Use Experimental Features
 
 **Please note that these are experimental features.**
