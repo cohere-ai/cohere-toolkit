@@ -4,9 +4,9 @@ from typing import Any
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
+from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.model_deployments import BaseDeployment
 from backend.model_deployments.utils import get_deployment
-from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
