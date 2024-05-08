@@ -41,11 +41,11 @@ If you have already created a [connector](https://docs.cohere.com/docs/connector
 
 ## How to set up web search with the Toolkit
 
-To use Coral with web search, simply use the `Tavily_Internet_Search` tool by adding your API key to the env file. Alternatively you can use any search provider of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](/docs/custom_tool_guides/tool_guide.md).
+To use Coral with web search, simply use the `Tavily_Internet_Search` tool by adding your API key to the env file. Alternatively you can use any search provider of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](/custom_tool_guides/tool_guide.md).
 
 ## How to set up PDF Upload with the Toolkit
 
-To use Coral with document upload, simply use the `File_Upload_LlamaIndex` or `File_Upload_Langchain` (this needs a cohere API key in the .env file) tool or by adding your API key to the env file. Alternatively you can use any document uploader of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](/docs/custom_tool_guides/tool_guide.md).
+To use Coral with document upload, simply use the `File_Upload_LlamaIndex` or `File_Upload_Langchain` (this needs a cohere API key in the .env file) tool or by adding your API key to the env file. Alternatively you can use any document uploader of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](/custom_tool_guides/tool_guide.md).
 
 ## How to create your own tools and retrieval sources
 
@@ -55,7 +55,7 @@ Toolkit includes some sample tools that you can copy to configure your own data 
 - Data loaders - This tool queries a data source and then performs RAG on extracted documents. We used Langchain's Wikiretriever as the sample data source.
 - Functions - Python interpreter and calculator tools.
 
-To create your own tools or add custom data sources, see our guide: [tools and retrieval sources overview](/docs/custom_tool_guides/tool_guide.md)
+To create your own tools or add custom data sources, see our guide: [tools and retrieval sources overview](/custom_tool_guides/tool_guide.md)
 
 # Use Experimental Features
 
