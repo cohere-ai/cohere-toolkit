@@ -41,7 +41,11 @@ class CohereDeployment(BaseDeployment):
             return []
 
         models = response.json()["models"]
-        return [model["name"] for model in models if "chat" in model["endpoints"]]
+        return [
+            model["name"]
+            for model in models
+            if model.get("endpoints") and "chat" in model["endpoints"]
+        ]
 
     @classmethod
     def is_available(cls) -> bool:
