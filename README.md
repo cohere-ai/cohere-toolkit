@@ -12,6 +12,7 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
   - [How to set up command model providers](/docs/command_model_providers.md)
   - [How to add tools](/docs/custom_tool_guides/tool_guide.md)
   - [How to deploy toolkit services](/docs/service_deployments.md)
+  - [How to customize the theme](/docs/theming.md)
   - [How to contribute](#contributing)
 - [Try Cohere's Command Showcase](https://coral.cohere.com/)
 
