@@ -48,6 +48,7 @@ def create_app():
         allow_headers=["*"],
     )
 
+    # Handle Authentication enabled
     if ENABLED_AUTH_STRATEGY_MAPPING:
         secret_key = os.environ.get("SESSION_SECRET_KEY", None)
 
@@ -61,13 +62,6 @@ def create_app():
             SessionMiddleware,
             secret_key=secret_key,
         )
-
-        # Add auth
-        for auth in ENABLED_AUTH_STRATEGY_MAPPING.values():
-            if auth.SHOULD_ATTACH_TO_APP:
-                # TODO: Add app attachment logic for eg OAuth:
-                # https://docs.authlib.org/en/latest/client/fastapi.html
-                pass
 
     return app
 

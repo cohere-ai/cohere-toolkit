@@ -9,6 +9,18 @@ from backend.schemas.auth import Login
 router = APIRouter(dependencies=[Depends(get_session)])
 
 
+@router.get("/auth_strategies")
+def get_session():
+    """
+    Retrieves the currently enabled list of Authentication strategies.
+
+
+    Returns:
+        List[str]: List of names for enabled Authentication strategies, can be empty.
+    """
+    return ENABLED_AUTH_STRATEGY_MAPPING.keys()
+
+
 @router.get("/session")
 def get_session(request: Request):
     """
