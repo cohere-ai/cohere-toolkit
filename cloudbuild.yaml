@@ -1,8 +1,8 @@
 substitutions:
-  _GCP_PROJECT_ID: <GCP_PROJECT_ID>
-  _GCP_REGION: <GCP_REGION>
-  _DATABASE_URL: <DB_CONNECTION_STRING>
-  _COHERE_API_KEY: <COHERE_API_KEY>
+  _GCP_PROJECT_ID: oss-toolkit
+  _GCP_REGION: us-central1
+  _DATABASE_URL: postgresql://postgres:postgres@34.41.96.134:5432/toolkit
+  _COHERE_API_KEY: yD4oFyUZPEheh96gvRUpsTCuxL3YjsUTj2FLEOi0
 
 steps:
 # 1. BACKEND STEPS
