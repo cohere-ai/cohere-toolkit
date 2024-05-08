@@ -28,3 +28,13 @@ module.exports = {
 Similarly, you can change the font, font size, and other styles in the theme file or add a new theme file.
 
 After updating the theme, you will need to rebuild the frontend to see the changes.
+
+## Changing the logo in the upper left corner
+
+To change the logo in the upper left corner of the frontend, do the following:
+
+1. Set the `NEXT_PUBLIC_HAS_CUSTOM_LOGO` environment variable to `true` in the `.env` file.
+
+2. Modify the `showCustomLogo` function in `src/interfaces/coral_web/src/components/Shared/Logo.tsx` to display the updated logo.
+
+The default function displays the `/images/logo.png` file in the `public` folder if it exists and the `NEXT_PUBLIC_HAS_CUSTOM_LOGO` environment variable is set to `true`.
