@@ -69,8 +69,8 @@ COMMUNITY_TOOLS = {
 # For main.py cli setup script
 COMMUNITY_TOOLS_SETUP = {
     CommunityToolName.Wolfram_Alpha: {
-        "secrets": [
-            "WOLFRAM_ALPHA_APP_ID",
-        ],
+        "secrets": {
+            "WOLFRAM_ALPHA_APP_ID": None,  # default value
+        },
     },
 }
