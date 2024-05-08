@@ -60,6 +60,7 @@ To create your own tools or add custom data sources, see our guide: [tools and r
 ## Theming and customization
 
 To customize the Coral frontend, you can modify the theme, color scheme, font, and other styles. see our guide: [Theming and customization](/docs/theming.md)
+
 # Use Experimental Features
 
 **Please note that these are experimental features.**
