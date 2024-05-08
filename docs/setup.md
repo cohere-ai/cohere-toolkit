@@ -59,7 +59,7 @@ conda activate toolkit
 11. Alternatively to `make first-run` or `make setup`, run
 ```bash
 poetry install --only setup --verbose
-poetry run python cli/main.py
+poetry run python src/backend/cli/main.py
 make migrate
 make dev
 ```
