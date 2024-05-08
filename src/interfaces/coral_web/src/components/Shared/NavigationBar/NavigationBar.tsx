@@ -20,7 +20,7 @@ export const NavigationBar: React.FC<{ className?: string }> = ({ className = ''
     >
       <Link href="/">
         <div className="mr-3 flex items-baseline">
-          <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO}
+          <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} />
         </div>
       </Link>
       <DeploymentsDropdown />
