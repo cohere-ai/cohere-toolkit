@@ -72,7 +72,7 @@ def test_create_user_with_password_saves_hashed_password(
         "password": "abcd",
     }
 
-    response = session_client.post("/users", json=user_data_req)
+    response = session_client.post("/v1/users", json=user_data_req)
     response_user = response.json()
 
     user = session.get(User, response_user["id"])
