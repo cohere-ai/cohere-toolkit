@@ -107,7 +107,8 @@ def tool_prompt(secrets, name, configs):
     print_styled(
         f"🛠️ If you want to enable {name}, set up the following secrets. Otherwise, press enter."
     )
-    for key, default_value in configs["secrets"]:
+
+    for key, default_value in configs["secrets"].items():
         value = inquirer.text(f"Enter the value for {key}", default=default_value)
         secrets[key] = value
 
