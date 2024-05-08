@@ -5,10 +5,10 @@ from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
-from backend.models import Conversation as ConversationModel
-from backend.models import File as FileModel
-from backend.models import get_session
-from backend.models.database import DBSessionDep
+from backend.database_models import Conversation as ConversationModel
+from backend.database_models import File as FileModel
+from backend.database_models import get_session
+from backend.database_models.database import DBSessionDep
 from backend.schemas.conversation import (
     Conversation,
     ConversationWithoutMessages,

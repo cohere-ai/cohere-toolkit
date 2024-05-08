@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.models.message import Message
+from backend.database_models.message import Message
 from backend.schemas.message import UpdateMessage
 
 

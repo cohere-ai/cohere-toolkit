@@ -1,7 +1,7 @@
 from itertools import zip_longest
 from typing import Any, Dict, List
 
-from backend.chat.custom.model_deployments.base import BaseDeployment
+from backend.model_deployments.base import BaseDeployment
 
 
 def combine_documents(
