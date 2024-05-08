@@ -120,10 +120,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     return documents.reduce<{ documentsMap: IdToDocument; outputFilesMap: OutputFiles }>(
       ({ documentsMap, outputFilesMap }, doc) => {
         const docId = doc?.document_id ?? '';
-        const toolOrConnectorName = doc?.tool_name ?? '';
+        const toolName = (doc?.tool_name ?? '').toLowerCase();
         const newOutputFilesMapEntry: OutputFiles = {};
 
-        if (toolOrConnectorName === TOOL_PYTHON_INTERPRETER_ID) {
+        if (toolName === TOOL_PYTHON_INTERPRETER_ID) {
           const { outputFile } = parsePythonInterpreterToolFields(doc);
 
           if (outputFile) {
@@ -258,7 +258,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             // This event only occurs when we're using experimental langchain multihop.
             case StreamEvent.TOOL_RESULT: {
               const data = eventData.data as StreamToolResult;
-              if (data.tool_name === TOOL_PYTHON_INTERPRETER_ID) {
+              if (data.tool_name.toLowerCase() === TOOL_PYTHON_INTERPRETER_ID) {
                 const resultsWithOutputFile = data.result.filter((r: any) => r.output_file);
                 outputFiles = { ...mapOutputFiles(resultsWithOutputFile) };
                 saveOutputFiles(outputFiles);

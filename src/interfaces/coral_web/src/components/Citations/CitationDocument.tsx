@@ -31,7 +31,7 @@ export const CitationDocument: React.FC<Props> = (props) => {
       })}
     >
       <CitationDocumentHeader
-        toolId={document.tool_name ?? undefined}
+        toolId={document.tool_name?.toLowerCase() ?? undefined}
         url={document.url ?? ''}
         title={document.title ?? undefined}
         isExpandable={isExpandable}
@@ -43,7 +43,7 @@ export const CitationDocument: React.FC<Props> = (props) => {
       {isExpanded && isExpandable && (
         <CitationDocumentSnippet
           {...props}
-          toolId={document.tool_name ?? undefined}
+          toolId={document.tool_name?.toLowerCase() ?? undefined}
           onToggle={toggleSnippet}
         />
       )}
