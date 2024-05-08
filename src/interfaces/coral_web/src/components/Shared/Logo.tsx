@@ -10,7 +10,7 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({
   includeBrandName = true,
-  hasCustomLogo = true,
+  hasCustomLogo,
   className,
   style = 'default',
   darkModeEnabled,
@@ -71,6 +71,10 @@ export const Logo: React.FC<LogoProps> = ({
 
 
   const showCustomLogo = () => {
+    /** 
+     * @description Modify this section to render a custom logo or text based on specific design guidelines.
+     */
+    
     return (
       <img
         src="/images/logo.png"
@@ -81,5 +85,5 @@ export const Logo: React.FC<LogoProps> = ({
   }
 
 
-  return hasCustomLogo ? showCustomLogo() : showDefaultLogo();
+  return hasCustomLogo === 'true' ? showCustomLogo() : showDefaultLogo();
 }
