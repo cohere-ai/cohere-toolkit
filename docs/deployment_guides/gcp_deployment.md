@@ -20,7 +20,7 @@ The deployment will require the following APIs enabled:
 
 ## Granting Cloud Build permissions
 
-Next, to deploy from Cloud Build to Cloud Run you will need to grand the Cloud Run Admin and Service Account User roles to your Cloud Build service account.
+Next, to deploy from Cloud Build to Cloud Run you will need to grant the Cloud Run Admin and Service Account User roles to your Cloud Build service account.
 
 [Go to the Cloud Build settings page](https://console.cloud.google.com/cloud-build/settings?_ga=2.180485797.387354146.1710956350-717629198.1710450463). Int the `Service Account permissions` panel, set the status of the `Cloud Run Admin` role to *ENABLED*. In the additional steps pop-up, click *GRANT ACCESS TO ALL SERVICE ACCOUNTS*.
 
