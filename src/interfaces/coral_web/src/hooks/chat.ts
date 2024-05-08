@@ -42,6 +42,7 @@ import {
   isGroundingOn,
   replaceTextWithCitations,
 } from '@/utils';
+import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
 const ABORT_REASON_USER = 'USER_ABORTED';
@@ -115,15 +116,50 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     }
   };
 
-  const mapOutputFiles = (outputFiles: { filename: string; b64_data: string }[] | undefined) => {
+  const mapDocuments = (documents: Document[]) => {
+    return documents.reduce<{ documentsMap: IdToDocument; outputFilesMap: OutputFiles }>(
+      ({ documentsMap, outputFilesMap }, doc) => {
+        const docId = doc?.document_id ?? '';
+        const toolOrConnectorName = doc?.tool_name ?? '';
+        const newOutputFilesMapEntry: OutputFiles = {};
+
+        if (toolOrConnectorName === TOOL_PYTHON_INTERPRETER_ID) {
+          const { outputFile } = parsePythonInterpreterToolFields(doc);
+
+          if (outputFile) {
+            newOutputFilesMapEntry[outputFile.filename] = {
+              name: outputFile.filename,
+              data: outputFile.b64_data,
+              documentId: docId,
+            };
+          }
+        }
+        return {
+          documentsMap: { ...documentsMap, [docId]: doc },
+          outputFilesMap: { ...outputFilesMap, ...newOutputFilesMapEntry },
+        };
+      },
+      { documentsMap: {}, outputFilesMap: {} }
+    );
+  };
+
+  const mapOutputFiles = (outputFiles: { output_file: string; text: string }[] | undefined) => {
     return outputFiles?.reduce<OutputFiles>((outputFilesMap, outputFile) => {
-      return {
-        ...outputFilesMap,
-        [outputFile.filename]: {
-          name: outputFile.filename,
-          data: outputFile.b64_data,
-        },
-      };
+      try {
+        const outputFileObj: { filename: string; b64_data: string } = JSON.parse(
+          outputFile.output_file
+        );
+        return {
+          ...outputFilesMap,
+          [outputFileObj.filename]: {
+            name: outputFileObj.filename,
+            data: outputFileObj.b64_data,
+          },
+        };
+      } catch (e) {
+        console.error('Could not parse output_file', e);
+      }
+      return outputFilesMap;
     }, {});
   };
 
@@ -196,10 +232,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               const data = eventData.data as StreamSearchResults;
               const documents = data?.documents ?? [];
 
-              documentsMap = documents.reduce<IdToDocument>(
-                (idToDoc, doc) => ({ ...idToDoc, [doc.document_id ?? '']: doc }),
-                {}
-              );
+              const { documentsMap: newDocumentsMap, outputFilesMap: newOutputFilesMap } =
+                mapDocuments(documents);
+              documentsMap = { ...documentsMap, ...newDocumentsMap };
+              outputFiles = { ...outputFiles, ...newOutputFilesMap };
               break;
             }
 
@@ -219,10 +255,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               break;
             }
 
+            // This event only occurs when we're using experimental langchain multihop.
             case StreamEvent.TOOL_RESULT: {
               const data = eventData.data as StreamToolResult;
               if (data.tool_name === TOOL_PYTHON_INTERPRETER_ID) {
-                outputFiles = { ...mapOutputFiles(data.result.output_files) };
+                const resultsWithOutputFile = data.result.filter((r: any) => r.output_file);
+                outputFiles = { ...mapOutputFiles(resultsWithOutputFile) };
                 saveOutputFiles(outputFiles);
               }
 
@@ -281,13 +319,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               // When we use documents for RAG, we don't get the documents split up by snippet
               // and their new ids until the final response. In the future, we will potentially
               // get the snippets in the citation-generation event and we can inject them there.
-              documentsMap = {
-                ...documentsMap,
-                ...(data?.documents ?? []).reduce<IdToDocument>(
-                  (idToDoc, doc) => ({ ...idToDoc, [doc?.document_id ?? '']: doc }),
-                  {}
-                ),
-              };
+              const { documentsMap: newDocumentsMap, outputFilesMap: newOutputFilesMap } =
+                mapDocuments(data.documents ?? []);
+              documentsMap = { ...documentsMap, ...newDocumentsMap };
+              outputFiles = { ...outputFiles, ...newOutputFilesMap };
 
               saveCitations(generationId, citations, documentsMap);
 

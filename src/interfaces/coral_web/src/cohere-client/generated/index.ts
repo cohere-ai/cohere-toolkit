@@ -31,7 +31,6 @@ export type { ListFile } from './models/ListFile';
 export type { ManagedTool } from './models/ManagedTool';
 export type { Message } from './models/Message';
 export { MessageAgent } from './models/MessageAgent';
-export { MessageType } from './models/MessageType';
 export type { NonStreamedChatResponse } from './models/NonStreamedChatResponse';
 export type { SearchQuery } from './models/SearchQuery';
 export type { StreamCitationGeneration } from './models/StreamCitationGeneration';

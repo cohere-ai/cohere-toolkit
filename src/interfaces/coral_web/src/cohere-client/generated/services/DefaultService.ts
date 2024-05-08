@@ -398,7 +398,7 @@ export class DefaultService {
   }): CancelablePromise<Array<ConversationWithoutMessages>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/conversations/',
+      url: '/conversations',
       query: {
         offset: offset,
         limit: limit,
@@ -604,7 +604,7 @@ export class DefaultService {
   public static listToolsToolsGet(): CancelablePromise<Array<ManagedTool>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/tools/',
+      url: '/tools',
     });
   }
   /**
@@ -623,7 +623,7 @@ export class DefaultService {
   }): CancelablePromise<Array<Deployment>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/deployments/',
+      url: '/deployments',
       query: {
         all: all,
       },
