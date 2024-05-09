@@ -5,6 +5,7 @@ from community.tools.function_tools import WolframAlphaFunctionTool
 from community.tools.retrieval import (
     ArxivRetriever,
     ConnectorRetriever,
+    ElasticSearchRetriever,
     LlamaIndexUploadPDFRetriever,
     PubMedRetriever,
 )
@@ -16,6 +17,7 @@ class CommunityToolName(StrEnum):
     Pub_Med = "Pub Med"
     File_Upload_LlamaIndex = "File Reader - LlamaIndex"
     Wolfram_Alpha = "Wolfram_Alpha"
+    Elastic_Search = "Elasticsearch"
 
 
 COMMUNITY_TOOLS = {
@@ -63,6 +65,16 @@ COMMUNITY_TOOLS = {
         error_message="WolframAlphaFunctionTool is not available, please set the WOLFRAM_APP_ID environment variable.",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
+    ),
+    CommunityToolName.Elastic_Search: ManagedTool(
+        name=CommunityToolName.Elastic_Search,
+        implementation=ElasticSearchRetriever,
+        kwargs={"deployment_name": CommunityToolName.Elastic_Search},
+        is_visible=True,
+        is_available=ElasticSearchRetriever.is_available(),
+        error_message="ELASTICSEARCH_HOST and ELASTICSEARCH_INDEX are required, please set the env variables.",
+        category=Category.DataLoader,
+        description="Retrieves logs from elasticsearch.",
     ),
 }
 
