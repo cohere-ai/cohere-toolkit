@@ -20,8 +20,8 @@ reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db
 setup:
-	poetry install --only setup --verbose
-	poetry run python3 cli/main.py
+	poetry install --with setup,community --verbose
+	poetry run python3 src/backend/cli/main.py
 lint:
 	poetry run black .
 	poetry run isort .

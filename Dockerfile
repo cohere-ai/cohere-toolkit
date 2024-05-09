@@ -56,7 +56,7 @@ RUN npm install -g pm2
 
 # ENV for frontend
 ENV NEXT_PUBLIC_API_HOSTNAME="http://localhost:8000"
-ENV PYTHON_INTERPRETER_URL="http://localhost:8080"
+ENV PYTHON_INTERPRETER_URL="http://terrarium:8080"
 
 # Install frontend dependencies
 WORKDIR /workspace/src/interfaces/coral_web

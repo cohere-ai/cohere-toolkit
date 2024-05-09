@@ -41,7 +41,7 @@ WELCOME_MESSAGE = r"""
  ╚════╝  ╚════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝    ╚═╝    ╚════╝  ╚════╝ ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   
 """
 DATABASE_URL_DEFAULT = "postgresql+psycopg2://postgres:postgres@db:5432"
-PYTHON_INTERPRETER_URL_DEFAULT = "http://localhost:8080"
+PYTHON_INTERPRETER_URL_DEFAULT = "http://terrarium:8080"
 NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://backend:8000"
 
 DOT_ENV_FILE_PATH = ".env"
@@ -107,9 +107,10 @@ def tool_prompt(secrets, name, configs):
     print_styled(
         f"🛠️ If you want to enable {name}, set up the following secrets. Otherwise, press enter."
     )
-    for secret in configs["secrets"]:
-        value = inquirer.text(f"Enter the value for {secret}")
-        secrets[secret] = value
+
+    for key, default_value in configs["secrets"].items():
+        value = inquirer.text(f"Enter the value for {key}", default=default_value)
+        secrets[key] = value
 
 
 def review_variables_prompt(secrets):
@@ -221,14 +222,14 @@ IMPLEMENTATIONS = {
 
 TOOLS = {
     ToolName.PythonInterpreter: {
-        "secrets": [
-            "PYTHON_INTERPRETER_URL",
-        ],
+        "secrets": {
+            "PYTHON_INTERPRETER_URL": PYTHON_INTERPRETER_URL_DEFAULT,
+        },
     },
     ToolName.TavilyInternetSearch: {
-        "secrets": [
-            "TAVILY_API_KEY",
-        ],
+        "secrets": {
+            "TAVILY_API_KEY": None,
+        },
     },
 }
 
