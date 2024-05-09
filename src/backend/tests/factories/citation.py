@@ -1,6 +1,6 @@
 import factory
 
-from backend.models import Citation
+from backend.database_models import Citation
 
 from .base import BaseFactory
 

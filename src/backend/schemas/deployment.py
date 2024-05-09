@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 from pydantic import BaseModel, Field
 
-from backend.chat.custom.model_deployments.base import BaseDeployment
+from backend.model_deployments.base import BaseDeployment
 
 
 class Deployment(BaseModel):

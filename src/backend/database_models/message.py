@@ -4,10 +4,10 @@ from typing import List
 from sqlalchemy import Boolean, Enum, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
-from backend.models.base import Base
-from backend.models.citation import Citation
-from backend.models.document import Document
-from backend.models.file import File
+from backend.database_models.base import Base
+from backend.database_models.citation import Citation
+from backend.database_models.document import Document
+from backend.database_models.file import File
 
 
 class MessageAgent(StrEnum):

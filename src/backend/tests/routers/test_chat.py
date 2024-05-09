@@ -9,9 +9,9 @@ from sqlalchemy.orm import Session
 
 from backend.chat.enums import StreamEvent
 from backend.config.deployments import ModelDeploymentName
-from backend.models.conversation import Conversation
-from backend.models.message import Message, MessageAgent
-from backend.models.user import User
+from backend.database_models.conversation import Conversation
+from backend.database_models.message import Message, MessageAgent
+from backend.database_models.user import User
 from backend.schemas.tool import Category
 from backend.tests.factories import get_factory
 

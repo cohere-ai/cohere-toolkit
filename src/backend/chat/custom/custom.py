@@ -4,9 +4,9 @@ from typing import Any
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.custom.model_deployments.base import BaseDeployment
-from backend.chat.custom.model_deployments.deployment import get_deployment
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
+from backend.model_deployments.base import BaseDeployment
+from backend.model_deployments.utils import get_deployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
@@ -158,6 +158,11 @@ class CustomChat(BaseChat):
             outputs = tool.implementation().call(
                 parameters=tool_call.parameters,
             )
-            tool_results.append({"call": tool_call, "outputs": [outputs]})
+
+            # If the tool returns a list of outputs, append each output to the tool_results list
+            # Otherwise, append the single output to the tool_results list
+            outputs = outputs if isinstance(outputs, list) else [outputs]
+            for output in outputs:
+                tool_results.append({"call": tool_call, "outputs": [output]})
 
         return tool_results
