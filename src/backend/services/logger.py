@@ -10,7 +10,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
         response = await call_next(request)
 
-        logging.info(f"{request.method} {request.url.path} {request.headers}")
+        logging.info(f"{request.method} {request.url.path}\n{request.headers}")
         return response
 
 
