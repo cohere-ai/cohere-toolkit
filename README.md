@@ -11,7 +11,7 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 - [How to guides](/docs/how_to_guides.md)
   - [How to set up command model providers](/docs/command_model_providers.md)
   - [How to add tools](/docs/custom_tool_guides/tool_guide.md)
-  - [How to deploy toolkit services](/docs/deployments.md)
+  - [How to deploy toolkit services](/docs/service_deployments.md)
   - [How to contribute](#contributing)
 - [Try Cohere's Command Showcase](https://coral.cohere.com/)
 
@@ -25,7 +25,9 @@ Try the default Toolkit application yourself by deploying it in a container loca
 docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
 
 ```
+
 or cloning and running locally:
+
 ```bash
 git clone https://github.com/cohere-ai/cohere-toolkit.git
 make first-run

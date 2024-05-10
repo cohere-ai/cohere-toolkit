@@ -59,7 +59,7 @@ conda activate toolkit
 11. Alternatively to `make first-run` or `make setup`, run
 ```bash
 poetry install --only setup --verbose
-poetry run python cli/main.py
+poetry run python src/backend/cli/main.py
 make migrate
 make dev
 ```
@@ -148,7 +148,7 @@ Requirements:
 
 Ensure your shell is authenticated with [GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic).
 
-Pull the [Single Container Image](docs/deployment_guides/single_container.md) from Github's Artifact Registry
+Pull the [Single Container Image](deployment_guides/single_container.md) from Github's Artifact Registry
 
 ```bash
 docker pull ghcr.io/cohere-ai/cohere-toolkit:latest

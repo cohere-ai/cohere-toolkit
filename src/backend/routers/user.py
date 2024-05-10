@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.crud import user as user_crud
-from backend.models import User as UserModel
-from backend.models import get_session
-from backend.models.database import DBSessionDep
+from backend.database_models import User as UserModel
+from backend.database_models import get_session
+from backend.database_models.database import DBSessionDep
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 
 router = APIRouter(prefix="/users", dependencies=[Depends(get_session)])
@@ -21,7 +21,7 @@ def create_user(user: CreateUser, session: DBSessionDep) -> User:
     Returns:
         User: Created user.
     """
-    db_user = UserModel(**user.model_dump())
+    db_user = UserModel(**user.model_dump(exclude_none=True))
     db_user = user_crud.create_user(session, db_user)
 
     return db_user
@@ -123,4 +123,4 @@ def delete_user(user_id: str, session: DBSessionDep) -> DeleteUser:
 
     user_crud.delete_user(session, user_id)
 
-    return {}
+    return DeleteUser()
