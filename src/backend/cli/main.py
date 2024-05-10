@@ -97,7 +97,7 @@ def community_tools_prompt(secrets):
         "🏘️ We have some community tools that you can set up. These tools are not required for the Cohere Toolkit to run."
     )
     use_community_features = inquirer.confirm(
-        "Do you want to set up community features (tools and deployments)?"
+        "Do you want to set up community features (tools and model deployments)?"
     )
     secrets["USE_COMMUNITY_FEATURES"] = use_community_features
     return use_community_features
@@ -144,10 +144,10 @@ def write_env_file(secrets):
 
 
 def select_deployments_prompt(deployments, _):
-    print_styled("🚀 Let's set up your deployments.", bcolors.MAGENTA)
+    print_styled("🚀 Let's set up your model deployments.", bcolors.MAGENTA)
 
     deployments = inquirer.checkbox(
-        "Select the deployments you want to set up",
+        "Select the model deployments you want to set up",
         choices=[deployment.value for deployment in deployments.keys()],
         default=["Cohere Platform"],
         validate=lambda _, x: len(x) > 0,
@@ -196,12 +196,12 @@ def show_examples():
         bcolors.OKCYAN,
     )
     print_styled(
-        """\tcurl --location 'http://localhost:8000/chat-stream' --header 'User-Id: test-user' --header 'Deployment: SageMaker' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
+        """\tcurl --location 'http://localhost:8000/chat-stream' --header 'User-Id: test-user' --header 'Deployment-Name: SageMaker' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
         bcolors.OKCYAN,
     )
 
     print_styled(
-        "4. List all available deployments and their models",
+        "4. List all available models deployments and their models",
         bcolors.OKCYAN,
     )
     print_styled(
@@ -210,7 +210,7 @@ def show_examples():
     )
 
     print_styled(
-        "For more examples, visit Cohere Toolkit README.md",
+        "For more examples, please visit the Cohere Toolkit README.md",
         bcolors.MAGENTA,
     )
 
