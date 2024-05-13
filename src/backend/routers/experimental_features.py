@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get("")
 def list_experimental_features():
     """
     List all experimental features and if they are enabled

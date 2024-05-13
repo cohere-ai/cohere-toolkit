@@ -42,6 +42,7 @@ const nextConfig = {
     ];
   },
   async rewrites() {
+    console.log('[redirecting] -->', env.NEXT_PUBLIC_API_HOSTNAME);
     return [
       {
         source: '/api/:path*',
