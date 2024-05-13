@@ -45,7 +45,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${env.NEXT_PUBLIC_API_HOSTNAME}/:path*`,
+        destination: `${env.NEXT_PUBLIC_API_HOSTNAME}/v1/:path*`,
       },
     ];
   }

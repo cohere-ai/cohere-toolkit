@@ -20,7 +20,7 @@ from backend.services.file.service import FileService
 from backend.services.request_validators import validate_user_header
 
 router = APIRouter(
-    prefix="/conversations",
+    prefix="/v1/conversations",
     dependencies=[Depends(get_session), Depends(validate_user_header)],
 )
 

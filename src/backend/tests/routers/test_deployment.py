@@ -10,7 +10,7 @@ from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploym
 def test_list_deployments(
     client: TestClient, mock_available_model_deployments: Mock
 ) -> None:
-    response = client.get("/deployments")
+    response = client.get("/v1/deployments")
     assert response.status_code == 200
     deployments = response.json()
 
@@ -29,7 +29,7 @@ def test_list_deployments(
 def test_list_deployments_only_shows_available_models_by_default(
     client: TestClient, mock_available_model_deployments
 ) -> None:
-    response = client.get("/deployments")
+    response = client.get("/v1/deployments")
     assert response.status_code == 200
     deployments = response.json()
     assert len(deployments) == len(AVAILABLE_MODEL_DEPLOYMENTS) - 1
@@ -45,7 +45,7 @@ def test_list_deployments_only_shows_available_models_by_default(
 def test_list_deployments_has_all_option(
     client: TestClient, mock_available_model_deployments
 ) -> None:
-    response = client.get("/deployments?all=1")
+    response = client.get("/v1/deployments?all=1")
     assert response.status_code == 200
     deployments = response.json()
     assert len(deployments) == len(list(ModelDeploymentName))
@@ -59,7 +59,7 @@ def test_list_deployments_has_all_option(
 def test_list_deployments_no_available_models_404(
     client: TestClient, mock_available_model_deployments: Mock
 ) -> None:
-    response = client.get("/deployments")
+    response = client.get("/v1/deployments")
     assert response.status_code == 404
     assert response.json() == {
         "detail": [
@@ -79,7 +79,7 @@ def test_list_deployments_no_available_models_404(
 def test_list_deployments_no_available_models_with_all_option(
     client: TestClient, mock_available_model_deployments: Mock
 ) -> None:
-    response = client.get("/deployments?all=1")
+    response = client.get("/v1/deployments?all=1")
     assert response.status_code == 200
     assert len(response.json()) == len(list(ModelDeploymentName))
 
@@ -89,7 +89,7 @@ def test_set_env_vars(
 ) -> None:
     with patch("backend.services.env.set_key") as mock_set_key:
         response = client.post(
-            "/deployments/Cohere+Platform/set_env_vars",
+            "/v1/deployments/Cohere+Platform/set_env_vars",
             json={
                 "env_vars": {
                     "COHERE_VAR_1": "TestCohereValue",
@@ -112,7 +112,7 @@ def test_set_env_vars(
 def test_set_env_vars_with_invalid_deployment_name(
     client: TestClient, mock_available_model_deployments: Mock
 ):
-    response = client.post("/deployments/unknown/set_env_vars", json={})
+    response = client.post("/v1/deployments/unknown/set_env_vars", json={})
     assert response.status_code == 404
 
 
@@ -120,7 +120,7 @@ def test_set_env_vars_with_var_for_other_deployment(
     client: TestClient, mock_available_model_deployments: Mock
 ) -> None:
     response = client.post(
-        "/deployments/Cohere+Platform/set_env_vars",
+        "/v1/deployments/Cohere+Platform/set_env_vars",
         json={
             "env_vars": {
                 "SAGEMAKER_VAR_1": "TestSageMakerValue",
@@ -137,7 +137,7 @@ def test_set_env_vars_with_invalid_var(
     client: TestClient, mock_available_model_deployments: Mock
 ) -> None:
     response = client.post(
-        "/deployments/Cohere+Platform/set_env_vars",
+        "/v1/deployments/Cohere+Platform/set_env_vars",
         json={
             "env_vars": {
                 "API_KEY": "12345",

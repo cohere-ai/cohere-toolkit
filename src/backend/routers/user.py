@@ -6,7 +6,7 @@ from backend.database_models import get_session
 from backend.database_models.database import DBSessionDep
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 
-router = APIRouter(prefix="/users", dependencies=[Depends(get_session)])
+router = APIRouter(prefix="/v1/users", dependencies=[Depends(get_session)])
 
 
 @router.post("/", response_model=User)

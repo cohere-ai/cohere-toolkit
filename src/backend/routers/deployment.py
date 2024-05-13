@@ -7,7 +7,7 @@ from backend.services.env import update_env_file
 from backend.services.request_validators import validate_env_vars
 
 router = APIRouter(
-    prefix="/deployments",
+    prefix="/v1/deployments",
     dependencies=[Depends(get_session)],
 )
 

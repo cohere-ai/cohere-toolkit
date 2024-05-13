@@ -18,7 +18,7 @@ def test_streamed_chat(
     deployment = mock_cohere_deployment.return_value
     deployment.invoke_chat_stream = MagicMock()
     response = session_client_chat.post(
-        "/chat-stream",
+        "/v1/chat-stream",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
@@ -62,7 +62,7 @@ def test_non_streamed_chat(
     deployment = mock_cohere_deployment.return_value
     deployment.invoke_chat = MagicMock()
     response = session_client_chat.post(
-        "/chat",
+        "/v1/chat",
         headers={
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
