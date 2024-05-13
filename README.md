@@ -53,3 +53,10 @@ Go to [localhost:4000](http://localhost:4000/) in your browser and start chattin
 Contributions are what drive an open source community, any contributions made are greatly appreciated. To get started, check out our [documentation.](CONTRIBUTING.md)
 
 
+## Contributors
+
+<a href="https://github.com/cohere-ai/cohere-toolkit/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=cohere-ai/cohere-toolkit" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
