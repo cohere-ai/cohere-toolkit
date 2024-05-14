@@ -1,10 +1,13 @@
+from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
+from starlette.responses import RedirectResponse
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.database_models import get_session
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import Login
+from backend.services.auth.utils import is_enabled_authentication_strategy
 
 router = APIRouter(dependencies=[Depends(get_session)])
 
@@ -45,10 +48,10 @@ def get_session(request: Request):
 @router.post("/login")
 async def login(request: Request, login: Login, session: DBSessionDep):
     """
-    Logs user in, verifying their credentials and either setting the user session,
-    or redirecting to /auth endpoint.
+    Logs user in and either verifies their credentials and sets the current session
+    or redirects to the /auth endpoint.
 
-    Args:er
+    Args:
         request (Request): current Request object.
         login (Login): Login payload.
         session (DBSessionDep): Database session.
@@ -62,8 +65,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy_name = login.strategy
     payload = login.payload
 
-    # Check the strategy is valid and enabled
-    if strategy_name not in ENABLED_AUTH_STRATEGY_MAPPING.keys():
+    if not is_enabled_authentication_strategy(strategy_name):
         raise HTTPException(
             status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
         )
@@ -78,23 +80,67 @@ async def login(request: Request, login: Login, session: DBSessionDep):
             detail=f"Missing the following keys in the payload: {missing_keys}.",
         )
 
-    # Do login
-    user = strategy.login(session, payload)
-    if not user:
-        raise HTTPException(
-            status_code=401,
-            detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
-        )
+    # Login with redirect
+    if strategy.SHOULD_AUTH_REDIRECT:
+        strategy.login(request)
+    # Login with email/password
+    else:
+        user = strategy.login(session, payload)
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
+            )
 
-    # Set session user
-    request.session["user"] = user
+        # Set session user
+        request.session["user"] = user
 
     return {}
 
 
 @router.post("/auth")
-async def auth(request: Request):
-    # TODO: Implement for OAuth strategies
+async def authenticate(request: Request, login: Login):
+    """
+    Authentication endpoint used for OAuth strategies. Logs the user in the redirect environment and then
+    sets the token user for the current session.
+
+    Args:er
+        request (Request): current Request object.
+        login (Login): Login payload.
+
+    Returns:
+        dict: On success.
+
+    Raises:
+        HTTPException: If authentication fails, or strategy is invalid.
+    """
+    strategy_name = login.strategy
+    payload = login.payload
+    if not is_enabled_authentication_strategy(strategy_name):
+        raise HTTPException(
+            status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
+        )
+
+    strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
+
+    try:
+        token = await strategy.authenticate(request)
+    except OAuthError as e:
+        raise HTTPException(
+            status_code=401,
+            detail=f"Could not authenticate, failed with error: {str(e)}",
+        )
+
+    user = token.get("userinfo")
+
+    if not user:
+        raise HTTPException(
+            status_code=401, detail=f"Could not get user from auth token: {token}."
+        )
+
+    # Set session user
+    request.session["user"] = user
+
     return {}
 
 

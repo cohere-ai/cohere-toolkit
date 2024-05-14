@@ -3,7 +3,8 @@ import os
 from typing import List
 
 from authlib.integrations.starlette_client import OAuth, OAuthError
-from sqlalchemy.orm import Session
+from starlette.config import Config
+from starlette.requests import Request
 
 from backend.database_models.user import User
 from backend.services.auth.base import BaseOAuthStrategy
@@ -15,6 +16,7 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
     """
 
     NAME = "Google OAuth"
+    OAUTH_NAME = "google"
     GOOGLE_DISCOVERY_DOCUMENT_URL = (
         "https://accounts.google.com/.well-known/openid-configuration"
     )
@@ -29,20 +31,16 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
                 "To use Google OAuth, please set the GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables."
             )
 
-        self.config = {
-            "GOOGLE_CLIENT_ID": client_id,
-            "GOOGLE_CLIENT_SECRET": client_secret,
-        }
-
         try:
-            self.oauth = OAuth(self.config)
+            config = Config(".env")
+            self.oauth = OAuth(config)
             self.oauth.register(
-                name="google",
+                name=self.DEFAULT_OAUTH_NAME,
                 server_metadata_url=self.GOOGLE_DISCOVERY_DOCUMENT_URL,
                 client_kwargs={"scope": self.GOOGLE_DEFAULT_SCOPE},
             )
         except Exception as e:
-            logging.ERROR(f"Error during initializing of GoogleOAuthStrategy.")
+            logging.ERROR(f"Error during initializing of GoogleOAuthStrategy: {str(e)}")
             raise
 
     @staticmethod
@@ -55,32 +53,27 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
         """
         return []
 
-    @classmethod
-    def login(cls, session: Session, payload: dict[str, str]) -> dict | None:
+    async def login(self, request: Request) -> dict | None:
         """
-        Logs user in, checking the if the hashed input password corresponds to the
-        one stored in the DB.
+        Redirects to the /auth endpoint for user to sign onto their Google account.
 
         Args:
-            session (Session): DB Session
-            payload (dict[str, str]): Login payload
+            request (Request): Current request.
 
         Returns:
             dict | None: Returns the user as dict to set the app session, or None.
         """
+        redirect_uri = request.url_for("auth")
+        return await self.oauth.google.authorize_redirect(request, redirect_uri)
 
-        payload_email = payload.get("email", "")
-        payload_password = payload.get("password", "")
-        user = session.query(User).filter(User.email == payload_email).first()
+    async def authenticate(self, request: Request) -> dict | None:
+        """
+        Authenticates the current user using their Google account.
 
-        if not user:
-            return None
+        Args:
+            request (Request): Current request.
 
-        if cls.check_password(payload_password, user.hashed_password):
-            return {
-                "id": user.id,
-                "fullname": user.fullname,
-                "email": user.email,
-            }
-
-        return None
+        Returns:
+            dict | None: Returns the user as dict to set the app session, or None.
+        """
+        return await self.oauth.google.authorized_access_token(request)

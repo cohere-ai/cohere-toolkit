@@ -22,7 +22,7 @@ load_dotenv()
 # CORS Origins
 ORIGINS = ["*"]
 # Session expiration time in seconds, set to None to last only browser session
-SESSION_EXPIRY = 60 * 60 * 24 * 7 # A week
+SESSION_EXPIRY = 60 * 60 * 24 * 7  # A week
 
 
 @asynccontextmanager
