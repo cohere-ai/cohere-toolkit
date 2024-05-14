@@ -8,7 +8,7 @@ Note that this guide will not setup IAM policies for you on GCP, notably both th
 
 ## Enabling Required APIs
 
-To start, make sure you have all the required APIs [enabled.](https://console.cloud.google.com/apis/enableflow?apiid=sqladmin,compute.googleapis.com,cloudbuild.googleapis.com,run.googleapis.com,containerregistry.googleapis.com,cloudresourcemanager.googleapis.com&redirect=https:%2F%2Fcloud.google.com%2Fbuild%2Fdocs%2Fdeploying-builds%2Fdeploy-cloud-run&_ga=2.126548239.387354146.1710956350-717629198.1710450463&authuser=1&project=oss-toolkit&supportedpurview=project)
+To start, make sure you have all the required APIs [enabled.](https://console.cloud.google.com/apis/enableflow?apiid=sqladmin,compute.googleapis.com,cloudbuild.googleapis.com,run.googleapis.com,containerregistry.googleapis.com,cloudresourcemanager.googleapis.com&redirect=https:%2F%2Fcloud.google.com%2Fbuild%2Fdocs%2Fdeploying-builds%2Fdeploy-cloud-run&_ga=2.126548239.387354146.1710956350-717629198.1710450463&authuser=1&supportedpurview=project)
 
 The deployment will require the following APIs enabled:
 - Cloud SQL Admin API
@@ -20,7 +20,7 @@ The deployment will require the following APIs enabled:
 
 ## Granting Cloud Build permissions
 
-Next, to deploy from Cloud Build to Cloud Run you will need to grand the Cloud Run Admin and Service Account User roles to your Cloud Build service account.
+Next, to deploy from Cloud Build to Cloud Run you will need to grant the Cloud Run Admin and Service Account User roles to your Cloud Build service account.
 
 [Go to the Cloud Build settings page](https://console.cloud.google.com/cloud-build/settings?_ga=2.180485797.387354146.1710956350-717629198.1710450463). Int the `Service Account permissions` panel, set the status of the `Cloud Run Admin` role to *ENABLED*. In the additional steps pop-up, click *GRANT ACCESS TO ALL SERVICE ACCOUNTS*.
 
@@ -28,11 +28,12 @@ Your Cloud Build settings should now have Cloud Run and Service Accounts set to 
 
 ## Provisioning Cloud SQL PostgreSQL database
 
-On the Google Console dashboard, search `Cloud Run` in the top search bar, then select `Create Instance` > `Choose PostgreSQL`. This will open up a configuration page for your new PostgreSQL DB instance.
+On the Google Console dashboard, search `Cloud SQL` in the top search bar, then select `Create Instance` > `Choose PostgreSQL`. This will open up a configuration page for your new PostgreSQL DB instance.
 
 - On the setup screen, set a Container ID (e.g: `toolkit-db`), and a password for the default `postgres` user.
+- Select the `PostgreSQL 14` database version.
 - Select a zone and availability, keeping the default values if needed.
-- In the `Customize your instance` section, you can open it to show more details and select `Machine configuration`. Here you can chooose the 2vCPU, 16GB machine, you can upgrade this later if you wish.
+- You can choose a preset to determine the memory and CPU allocated to your DB instance. For a simple testing database, you can select `Enterprise > Sandbox`, you can modify this later if needed.
 
 Now select `Create Instance`, it should take a couple of minutes for your database to be set up.
 
@@ -40,7 +41,7 @@ Once finished, select your Database instance from the main Cloud SQL UI, then in
 
 Now head to `Connections`, and select the `Networking` tab. Here you will click `Add A Network` and add any name for it, along with the IP value of `0.0.0.0/0`.
 
-Once everything is setup, note down the connection IP to your database.
+Once everything is setup, note down the public connection IP to your database.
 
 ## Setting up gcloud CLI and cloudbuild.yaml
 
@@ -59,7 +60,7 @@ Now open the `cloudbuild.yaml` file located in the root of this project. You wil
 
 - _GCP_PROJECT_ID: Your GCP project ID.
 - _GCP_REGION: The region you want to deploy to, e.g: `us-central1`.
-- _DATABASE_URL: A connection string of the format `postgresql://USERNAME:PASSWORD@HOST:PORT/DB_NAME`. The `HOST` value here is the IP address of your provisioned PostgreSQL database, and the default `PORT` is 5432. For example, `postgresql://postgres:postgres@<your-connection-ip-address>/toolkit`.
+- _DATABASE_URL: A connection string of the format `postgresql://USERNAME:PASSWORD@HOST:PORT/DB_NAME`. The `HOST` value here is the Public IP address of your provisioned PostgreSQL database, and the default `PORT` is 5432. For example, `postgresql://postgres:postgres@<your-db-public-ip-address>:5432/toolkit`.
 - _COHERE_API_KEY: Your Cohere API key, you can create one on the [Cohere Dashboard](https://dashboard.cohere.com).
 
 Once completed, run:
@@ -70,7 +71,7 @@ gcloud builds submit --region=<YOUR_GCP_REGION>
 
 This should build the docker images, push them to the Container Registry, then finally deploy them to Cloud Run. If you're encountering any issues, make sure the substitution variables are correctly set.
 
-After deploying the Cloud Run containers, we recommend setting the minimum containers to 1 for both the frontend and backend containers to avoid cold starts.
+After deploying the Cloud Run containers, it is recommended to set the minimum number of containers to 1 for both the frontend and backend containers to avoid any cold starts.
 
 You are now done setting up Cohere's Toolkit on Google Cloud!
 
