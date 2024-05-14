@@ -119,7 +119,7 @@ def review_variables_prompt(secrets):
     questions = [
         inquirer.Checkbox(
             "variables",
-            message="Review your variables and select the ones you want to update, if any",
+            message="Review your variables and select the ones you want to update, if any. Press enter to continue",
             choices=review_list,
         ),
     ]
