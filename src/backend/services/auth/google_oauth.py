@@ -42,7 +42,7 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
                 client_kwargs={"scope": self.GOOGLE_DEFAULT_SCOPE},
             )
         except Exception as e:
-            logging.ERROR(f"Error during initializing of GoogleOAuthStrategy: {str(e)}")
+            logging.ERROR(f"Error during initializing of GoogleOAuthStrategy.")
             raise
 
     @staticmethod
@@ -53,7 +53,7 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
         Returns:
             List[str]: List of required variables.
         """
-        return ["email", "password"]
+        return []
 
     @classmethod
     def login(cls, session: Session, payload: dict[str, str]) -> dict | None:

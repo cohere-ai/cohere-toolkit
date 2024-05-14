@@ -19,7 +19,10 @@ from backend.routers.user import router as user_router
 
 load_dotenv()
 
+# CORS Origins
 ORIGINS = ["*"]
+# Session expiration time in seconds, set to None to last only browser session
+SESSION_EXPIRY = 60 * 60 * 24 * 7 # A week
 
 
 @asynccontextmanager
@@ -61,6 +64,7 @@ def create_app():
         app.add_middleware(
             SessionMiddleware,
             secret_key=secret_key,
+            max_age=SESSION_EXPIRY,
         )
 
     return app
