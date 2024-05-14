@@ -21,7 +21,6 @@ class BedrockDeployment(BaseDeployment):
             chat_model="cohere.command-r-plus-v1:0",
             embed_model="cohere.embed-multilingual-v3",
             generate_model="cohere.command-text-v14",
-            
             aws_access_key=self.access_key,
             aws_secret_key=self.secret_key,
             aws_session_token=self.session_token,
@@ -52,8 +51,10 @@ class BedrockDeployment(BaseDeployment):
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         # bedrock accepts a subset of the chat request fields
-        bedrock_chat_req=chat_request.model_dump(exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True)
-        
+        bedrock_chat_req = chat_request.model_dump(
+            exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
+        )
+
         return self.client.chat(
             **bedrock_chat_req,
             **kwargs,
@@ -63,8 +64,10 @@ class BedrockDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         # bedrock accepts a subset of the chat request fields
-        bedrock_chat_req=chat_request.model_dump(exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True)
-        
+        bedrock_chat_req = chat_request.model_dump(
+            exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
+        )
+
         stream = self.client.chat_stream(
             **bedrock_chat_req,
             **kwargs,

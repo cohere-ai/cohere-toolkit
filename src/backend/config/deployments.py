@@ -5,9 +5,9 @@ from enum import StrEnum
 
 from backend.model_deployments import (
     AzureDeployment,
+    BedrockDeployment,
     CohereDeployment,
     SageMakerDeployment,
-    BedrockDeployment,
 )
 from backend.schemas.deployment import Deployment
 
