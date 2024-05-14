@@ -11,9 +11,11 @@ import {
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useUpdateDeploymentEnvVariables } from '@/hooks/envVariables';
-import { cn } from '@/utils';
 
-export const EditEnvVariablesButton: React.FC<{ className?: string }> = ({ className }) => {
+/**
+ * @description Button to trigger a modal to edit .env variables.
+ */
+export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
   const { open, close } = useContext(ModalContext);
 
   const handleClick = () => {
@@ -28,12 +30,15 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = ({ class
       label="Edit .env variables"
       size="sm"
       kind="minimal"
-      className={cn('py-0', className)}
+      className="py-0"
       onClick={handleClick}
     />
   );
 };
 
+/**
+ * @description Renders a modal to edit a selected deployment's .env variables.
+ */
 const EditEnvVariablesModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { data: deployments } = useListAllDeployments();
   const { mutateAsync: updateDeploymentEnvVariables } = useUpdateDeploymentEnvVariables();
