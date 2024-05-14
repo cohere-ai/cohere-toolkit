@@ -25,6 +25,7 @@ class DeploymentName(StrEnum):
     COHERE_PLATFORM = "Cohere Platform"
     SAGE_MAKER = "SageMaker"
     AZURE = "Azure"
+    BEDROCK = "Bedrock"
 
 
 class ToolName(StrEnum):

@@ -20,7 +20,7 @@ Clone the repo and run
 make first-run
 ```
 
-Follow the instructions to configure the model - either AWS Sagemaker, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
+Follow the instructions to configure the model - either AWS Sagemaker, Bedrock, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
 
 #### Detailed environment setup
 
@@ -126,6 +126,13 @@ Then you will need to set up authorization, [see more details here](https://aws.
 - `SAGE_MAKER_ENDPOINT_NAME`: The name of the endpoint which you created in the notebook.
 - `SAGE_MAKER_PROFILE_NAME`: Your AWS profile name
 
+### Bedrock
+
+- `BEDROCK_ACCESS_KEY`: Your Bedrock access key.
+- `BEDROCK_SECRET_KEY`: Your Bedrock secret key.
+- `BEDROCK_SESSION_TOKEN`: Your Bedrock session token.
+- `BEDROCK_REGION_NAME`: The region you configured for the model.
+
 ### Hosted tools
 
 - `PYTHON_INTERPRETER_URL`: URL to the python interpreter container. Defaults to http://localhost:8080.
@@ -208,7 +215,7 @@ poetry run isort .
 ```
 
 ## Setting up the Environment Variables
-**Please confirm that you have at least one configuration of the Cohere Platform, SageMaker or Azure.**
+**Please confirm that you have at least one configuration of the Cohere Platform, SageMaker, Bedrock or Azure.**
 
 You have two methods to set up the environment variables:
 1. Run `make setup` and follow the instructions to configure it.
