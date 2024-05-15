@@ -2,11 +2,10 @@ import logging
 import os
 from typing import List
 
-from authlib.integrations.starlette_client import OAuth, OAuthError
+from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.requests import Request
 
-from backend.database_models.user import User
 from backend.services.auth.base import BaseOAuthStrategy
 
 
@@ -15,12 +14,7 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
     Google OAuth2.0 strategy.
     """
 
-    NAME = "Google OAuth"
-    OAUTH_NAME = "google"
-    GOOGLE_DISCOVERY_DOCUMENT_URL = (
-        "https://accounts.google.com/.well-known/openid-configuration"
-    )
-    GOOGLE_DEFAULT_SCOPE = "openid email profile"
+    NAME = "Google"
 
     def __init__(self):
         client_id = os.environ.get("GOOGLE_CLIENT_ID")
@@ -35,9 +29,9 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
             config = Config(".env")
             self.oauth = OAuth(config)
             self.oauth.register(
-                name=self.DEFAULT_OAUTH_NAME,
-                server_metadata_url=self.GOOGLE_DISCOVERY_DOCUMENT_URL,
-                client_kwargs={"scope": self.GOOGLE_DEFAULT_SCOPE},
+                name="google",
+                server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+                client_kwargs={"scope": "openid email profile"},
             )
         except Exception as e:
             logging.ERROR(f"Error during initializing of GoogleOAuthStrategy: {str(e)}")
@@ -53,17 +47,17 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
         """
         return []
 
-    async def login(self, request: Request) -> dict | None:
+    async def login(self, request: Request, redirect_uri: str) -> dict | None:
         """
         Redirects to the /auth endpoint for user to sign onto their Google account.
 
         Args:
             request (Request): Current request.
+            redirect_uri (str): Redirect URI.
 
         Returns:
-            dict | None: Returns the user as dict to set the app session, or None.
+            Redirect to Google OAuth.
         """
-        redirect_uri = request.url_for("auth")
         return await self.oauth.google.authorize_redirect(request, redirect_uri)
 
     async def authenticate(self, request: Request) -> dict | None:
@@ -74,6 +68,6 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
             request (Request): Current request.
 
         Returns:
-            dict | None: Returns the user as dict to set the app session, or None.
+            Access token.
         """
         return await self.oauth.google.authorized_access_token(request)

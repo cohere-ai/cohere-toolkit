@@ -49,11 +49,3 @@ class BaseOAuthStrategy(BaseAuthenticationStrategy):
         to set the current user session for OAuth strategies.
         """
         ...
-
-    @abstractmethod
-    def get_or_create_user(self, **kwargs: Any):
-        """
-        After authenticating the user, either fetches their existing User
-        entity, or create one (e.g: based on email).
-        """
-        ...
