@@ -70,7 +70,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       <>
         <Markdown text={message.text} />
         {message.files && message.files.length > 0 && (
-          <div className="flex flex-wrap py-2 gap-2">
+          <div className="flex flex-wrap gap-2 py-2">
             {message.files.map((file) => (
               <UploadedFile key={file.id} file={file} />
             ))}
@@ -95,7 +95,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         )}
         {!hasLoadingMessage && (
           <span className="w-max">
-            <div className="pr-1 overflow-hidden animate-typing-ellipsis whitespace-nowrap">
+            <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
               ...
             </div>
           </span>
@@ -144,12 +144,8 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
     );
   }
 
-  console.log('Bla bla');
-  console.log(isFulfilledMessage(message));
-  console.log(message.originalText);
-
   return (
-    <div className="flex flex-col justify-center w-full py-1 gap-y-1">
+    <div className="flex w-full flex-col justify-center gap-y-1 py-1">
       <Text
         as="div"
         className="flex flex-col gap-y-1 whitespace-pre-wrap [overflow-wrap:anywhere] md:max-w-4xl"
@@ -161,18 +157,21 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
           <iframe
             srcDoc={splitPlainTextAndHtmlCode(message.originalText).html}
             className="border-8 border-red-500"
+            onLoad={(e) => {
+              const iframe = e.target as HTMLIFrameElement;
+              iframe.style.height = `${iframe.contentWindow?.document.body.scrollHeight}px`;
+
+              const style = document.createElement('link');
+              style.rel = 'stylesheet';
+              style.href = 'https://cdn.jsdelivr.net/npm/picnic';
+              iframe.contentDocument?.head.appendChild(style);
+            }}
           ></iframe>
         </>
       )}
     </div>
   );
 };
-
-//var blob = new Blob([html], { type: 'text/html' });
-//var blobURL = URL.createObjectURL(blob);
-//iframe.sandbox.add('allow-scripts');
-//iframe.sandbox.add('allow-forms');
-//iframe.src = blobURL;
 
 const MessageInfo = ({
   type = 'default',
