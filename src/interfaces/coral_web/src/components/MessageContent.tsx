@@ -156,15 +156,17 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         <>
           <iframe
             srcDoc={splitPlainTextAndHtmlCode(message.originalText).html}
-            className="border-8 border-red-500"
+            className="rounded border-2 border-gray-500"
             onLoad={(e) => {
               const iframe = e.target as HTMLIFrameElement;
-              iframe.style.height = `${iframe.contentWindow?.document.body.scrollHeight}px`;
+              iframe.style.height = `${
+                (iframe.contentWindow?.document.body.scrollHeight || 0) + 30
+              }px`;
 
-              const style = document.createElement('link');
-              style.rel = 'stylesheet';
-              style.href = 'https://cdn.jsdelivr.net/npm/picnic';
-              iframe.contentDocument?.head.appendChild(style);
+              //const style = document.createElement('link');
+              //style.rel = 'stylesheet';
+              //style.href = 'https://cdn.jsdelivr.net/npm/picnic';
+              //iframe.contentDocument?.head.appendChild(style);
             }}
           ></iframe>
         </>
