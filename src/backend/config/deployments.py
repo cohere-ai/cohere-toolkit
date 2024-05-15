@@ -5,6 +5,7 @@ from enum import StrEnum
 
 from backend.model_deployments import (
     AzureDeployment,
+    BedrockDeployment,
     CohereDeployment,
     SageMakerDeployment,
 )
@@ -15,6 +16,7 @@ class ModelDeploymentName(StrEnum):
     CoherePlatform = "Cohere Platform"
     SageMaker = "SageMaker"
     Azure = "Azure"
+    Bedrock = "Bedrock"
 
 
 use_community_features = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "false")))
@@ -49,6 +51,18 @@ ALL_MODEL_DEPLOYMENTS = {
         env_vars=[
             "AZURE_API_KEY",
             "AZURE_CHAT_ENDPOINT_URL",
+        ],
+    ),
+    ModelDeploymentName.Bedrock: Deployment(
+        name=ModelDeploymentName.Bedrock,
+        deployment_class=BedrockDeployment,
+        models=BedrockDeployment.list_models(),
+        is_available=BedrockDeployment.is_available(),
+        env_vars=[
+            "BEDROCK_ACCESS_KEY",
+            "BEDROCK_SECRET_KEY",
+            "BEDROCK_SESSION_TOKEN",
+            "BEDROCK_REGION_NAME",
         ],
     ),
 }
