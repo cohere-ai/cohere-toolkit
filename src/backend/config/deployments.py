@@ -59,9 +59,10 @@ ALL_MODEL_DEPLOYMENTS = {
         models=BedrockDeployment.list_models(),
         is_available=BedrockDeployment.is_available(),
         env_vars=[
-            "BEDROCK_PROFILE_NAME",
+            "BEDROCK_ACCESS_KEY",
+            "BEDROCK_SECRET_KEY",
+            "BEDROCK_SESSION_TOKEN",
             "BEDROCK_REGION_NAME",
-            "BEDROCK_CHAT_ENDPOINT_URL",
         ],
     ),
 }
