@@ -19,11 +19,11 @@ def mock_google_env(monkeypatch):
 @pytest.fixture(autouse=True)
 def mock_enabled_auth(mock_google_env):
     # Can directly use class since no external calls are made
-    from backend.services.auth import BasicAuthentication, GoogleOAuthStrategy
+    from backend.services.auth import BasicAuthentication, GoogleOAuth
 
     mocked_strategies = {
         BasicAuthentication.NAME: BasicAuthentication(),
-        GoogleOAuthStrategy.NAME: GoogleOAuthStrategy,
+        GoogleOAuth.NAME: GoogleOAuth(),
     }
 
     with patch.dict(ENABLED_AUTH_STRATEGY_MAPPING, mocked_strategies) as mock:

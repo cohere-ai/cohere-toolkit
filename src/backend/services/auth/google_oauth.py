@@ -9,7 +9,7 @@ from starlette.requests import Request
 from backend.services.auth.base import BaseOAuthStrategy
 
 
-class GoogleOAuthStrategy(BaseOAuthStrategy):
+class GoogleOAuth(BaseOAuthStrategy):
     """
     Google OAuth2.0 strategy.
     """
@@ -34,7 +34,7 @@ class GoogleOAuthStrategy(BaseOAuthStrategy):
                 client_kwargs={"scope": "openid email profile"},
             )
         except Exception as e:
-            logging.ERROR(f"Error during initializing of GoogleOAuthStrategy: {str(e)}")
+            logging.ERROR(f"Error during initializing of GoogleOAuth class: {str(e)}")
             raise
 
     @staticmethod

@@ -1,7 +1,7 @@
-from backend.services.auth import BasicAuthentication, GoogleOAuthStrategy
+from backend.services.auth import BasicAuthentication, GoogleOAuth
 
 # Modify this to enable auth strategies.
-ENABLED_AUTH_STRATEGIES = [GoogleOAuthStrategy]
+ENABLED_AUTH_STRATEGIES = []
 
 # Define the mapping from Auth strategy name to class obj - does not need to be manually modified.
 # During runtime, this will create an instance of each enabled strategy class.
