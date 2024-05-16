@@ -1,6 +1,7 @@
 import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
 import { useEffect } from 'react';
 import { useRef } from 'react';
+import { useState } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
 
 const MIN_HEIGHT = 400;
@@ -14,9 +15,6 @@ const MIN_HEIGHT = 400;
  */
 export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> = (props) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  // @ts-ignore
-  const src = props['data-src'];
-
   const onload = (e: any) => {
     const iframe = e.target;
     const root = iframe.contentDocument.documentElement;
@@ -28,13 +26,14 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
     const iframe = iframeRef.current;
     if (iframe) {
       iframe.addEventListener('load', onload, { once: true });
-    }
-    return () => {
-      if (iframe) {
+      return () => {
         iframe.removeEventListener('load', onload);
-      }
-    };
+      };
+    }
   }, []);
+
+  // @ts-ignore
+  const src = props['data-src'];
 
   return (
     <iframe
