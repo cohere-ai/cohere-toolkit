@@ -65,7 +65,36 @@ function getImage(element) {
 }
 </script>
 `;
+function getReconstructedHtml(plainString: string) {
+  const htmlRegex = /```(?:html)\n([\s\S]*?)```/;
+  //capture only the code in the markdown block exlcuding the html tag
+  const code = plainString.match(htmlRegex);
+  const plainText = plainString.replace(htmlRegex, '');
+  var html = '';
+  if (code) {
+    html = code[1];
 
+    const cssRegex = /```(?:css)\n([\s\S]*?)```/;
+    const cssCode = plainString.match(cssRegex);
+    //const plainCSS = plainString.replace(cssRegex, '');
+    var css = '';
+    if (cssCode) {
+      css = cssCode[1];
+      html = `<style>${css}</style>` + html;
+    }
+
+    const jsRegex = /```(?:js)\n([\s\S]*?)```/;
+    const jsCode = plainString.match(jsRegex);
+    //const plainCSS = plainString.replace(jsRegex, '');
+    var js = '';
+    if (jsCode) {
+      js = jsCode[1];
+      html = html + `<script>${js}</script>`;
+    }
+    html = html + GET_IMAGE_DEF;
+  }
+  return html;
+}
 const replaceCodeBlockWithIframe = (content: string) => {
   const regex = /```html([\s\S]+)(```)/;
 
@@ -75,14 +104,13 @@ const replaceCodeBlockWithIframe = (content: string) => {
     return content;
   }
 
-  console.log(match[1]);
+  const html = addOnErrorToImg(getReconstructedHtml(content));
 
-  const blob = new Blob([match[1]], { type: 'text/html' });
+  const blob = new Blob([html], { type: 'text/html' });
   const src = URL.createObjectURL(blob);
   const iframe = `<iframe data-src="${src}"></iframe>`;
 
   content = content.replace(regex, iframe);
-  //content = addOnErrorToImg(content);
 
   return content;
 };
@@ -116,7 +144,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       <>
         <Markdown text={message.text} />
         {message.files && message.files.length > 0 && (
-          <div className="flex flex-wrap py-2 gap-2">
+          <div className="flex flex-wrap gap-2 py-2">
             {message.files.map((file) => (
               <UploadedFile key={file.id} file={file} />
             ))}
@@ -141,7 +169,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         )}
         {!hasLoadingMessage && (
           <span className="w-max">
-            <div className="pr-1 overflow-hidden animate-typing-ellipsis whitespace-nowrap">
+            <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
               ...
             </div>
           </span>
@@ -193,7 +221,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   }
 
   return (
-    <div className="flex flex-col justify-center w-full py-1 gap-y-1">
+    <div className="flex w-full flex-col justify-center gap-y-1 py-1">
       <Text
         as="div"
         className="flex flex-col gap-y-1 whitespace-pre-wrap [overflow-wrap:anywhere] md:max-w-4xl"
