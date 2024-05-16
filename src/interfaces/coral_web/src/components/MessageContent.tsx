@@ -26,20 +26,23 @@ type Props = {
 
 const BOT_ERROR_MESSAGE = 'Unable to generate a response since an error was encountered. ';
 
-function splitPlainTextAndHtmlCode(plainString: string) {
+const replaceCodeBlockWithIframe = (content: string) => {
   const regex = /```html([\s\S]+)(```)/;
-  //capture only the code in the markdown block exlcuding the html tag
-  const code = plainString.match(regex);
-  const plainText = plainString.replace(regex, '');
-  var html = '';
-  if (code) {
-    html = code[1];
+
+  const match = content.match(regex);
+
+  if (!match) {
+    return content;
   }
-  return {
-    plainText,
-    html,
-  };
-}
+
+  const blob = new Blob([match[1]], { type: 'text/html' });
+  const src = URL.createObjectURL(blob);
+  const iframe = `<iframe data-src="${src}"></iframe>`;
+
+  content = content.replace(regex, iframe);
+
+  return content;
+};
 
 export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) => {
   const isUser = message.type === MessageType.USER;
@@ -116,13 +119,15 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   } else {
     const hasCitations =
       isTypingOrFulfilledMessage && message.citations && message.citations.length > 0;
+    // replace the code block with an iframe
+    const md = replaceCodeBlockWithIframe(message.text);
     content = (
       <>
         <Markdown
           className={cn({
             'text-volcanic-700': isAborted,
           })}
-          text={message.text}
+          text={md}
           customComponents={{
             img: MarkdownImage as any,
             cite: CitationTextHighlighter as any,
@@ -152,34 +157,6 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       >
         {content}
       </Text>
-      <Preview message={message} />
-    </div>
-  );
-};
-
-const Preview: React.FC<{ message: ChatMessage }> = ({ message }) => {
-  if (!isFulfilledMessage(message)) {
-    return null;
-  }
-  const { html } = splitPlainTextAndHtmlCode(message.originalText);
-
-  if (!html) {
-    return null;
-  }
-
-  return (
-    <div className="my-2">
-      <Text styleAs="h5">Preview</Text>
-      <iframe
-        srcDoc={html}
-        className="w-full rounded border-2 border-gray-500 bg-white p-2"
-        onLoad={(e) => {
-          const iframe = e.target as HTMLIFrameElement;
-          const root = iframe.contentDocument?.documentElement;
-          const height = (root?.offsetHeight || 0) + 16 + 4; // 16px padding, 4px border
-          iframe.style.height = `${Math.min(height, 300)}px`;
-        }}
-      ></iframe>
     </div>
   );
 };
