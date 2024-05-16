@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { useState } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
 
+import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
 const MIN_HEIGHT = 400;
@@ -53,29 +54,31 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
 
   return (
     <div className="relative">
-      <div className="flex gap-2 rounded rounded-b-none border-2 border-b-0 border-gray-500 bg-stone-200 px-4 py-2">
-        <button
-          className={cn({
-            'border-b border-gray-500 font-medium': option === 'live',
-          })}
-          onClick={() => setOption('live')}
-        >
-          Live Preview
-        </button>
-        <button
-          className={cn({
-            'border-b border-gray-500 font-medium': option === 'code',
-          })}
-          onClick={() => setOption('code')}
-        >
-          View Code
-        </button>
+      <div className="flex justify-end gap-2 rounded rounded-b-none border border-b-0 border-marble-500 bg-secondary-50 px-4 py-2">
+        <div className="space-x-2 rounded-lg border border-marble-400 bg-white p-[2.5px]">
+          <button
+            className={cn('w-[42px] py-2', {
+              'rounded-lg bg-secondary-300': option === 'live',
+            })}
+            onClick={() => setOption('live')}
+          >
+            <Text styleAs="caption">App</Text>
+          </button>
+          <button
+            className={cn('w-[42px] py-2', {
+              'rounded-lg bg-secondary-300': option === 'code',
+            })}
+            onClick={() => setOption('code')}
+          >
+            <Text styleAs="caption">Code</Text>
+          </button>
+        </div>
       </div>
-      <div className="rounded rounded-t-none border-2 border-t-0 border-gray-500 bg-white p-2">
+      <div className="rounded rounded-t-none border border-t-0  border-marble-500 bg-secondary-50 p-2">
         <iframe
           srcDoc={code}
           ref={iframeRef}
-          className={cn('max-h-[900px] min-h-[150px] w-full resize-y ', {
+          className={cn('max-h-[900px] min-h-[150px] w-full resize-y rounded-lg bg-white', {
             hidden: option !== 'live',
           })}
         />
@@ -84,7 +87,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
             hidden: option !== 'code',
           })}
         >
-          <code className="">{code}</code>
+          <code>{code}</code>
         </pre>
       </div>
     </div>
