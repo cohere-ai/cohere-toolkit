@@ -116,7 +116,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       <>
         <Markdown text={message.text} />
         {message.files && message.files.length > 0 && (
-          <div className="flex flex-wrap gap-2 py-2">
+          <div className="flex flex-wrap py-2 gap-2">
             {message.files.map((file) => (
               <UploadedFile key={file.id} file={file} />
             ))}
@@ -141,7 +141,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         )}
         {!hasLoadingMessage && (
           <span className="w-max">
-            <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
+            <div className="pr-1 overflow-hidden animate-typing-ellipsis whitespace-nowrap">
               ...
             </div>
           </span>
@@ -163,7 +163,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
     const hasCitations =
       isTypingOrFulfilledMessage && message.citations && message.citations.length > 0;
     // replace the code block with an iframe
-    const md = replaceCodeBlockWithIframe(message.text);
+    const md = replaceCodeBlockWithIframe(message.originalText);
     content = (
       <>
         <Markdown
@@ -193,7 +193,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   }
 
   return (
-    <div className="flex w-full flex-col justify-center gap-y-1 py-1">
+    <div className="flex flex-col justify-center w-full py-1 gap-y-1">
       <Text
         as="div"
         className="flex flex-col gap-y-1 whitespace-pre-wrap [overflow-wrap:anywhere] md:max-w-4xl"

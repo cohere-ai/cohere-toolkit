@@ -1,5 +1,6 @@
 import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useRef } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
 
 const MIN_HEIGHT = 400;
@@ -12,28 +13,34 @@ const MIN_HEIGHT = 400;
  * The height of the iframe is adjusted to fit the content.
  */
 export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> = (props) => {
-  const [loaded, setLoaded] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  // @ts-ignore
+  const src = props['data-src'];
+
   const onload = (e: any) => {
     const iframe = e.target;
-    if (loaded) {
-      return;
-    }
-    // @ts-ignore
-    const src = props['data-src'];
-    if (!src) {
-      return null;
-    }
-    iframe.src = src;
-    setLoaded(true);
-
-    // Adjust the height of the iframe to fit the content
-    setTimeout(() => {
-      const root = iframe.contentDocument.documentElement;
-      const height = (root.offsetHeight || 0) + 16 + 4;
-      iframe.style.height = Math.min(height, MIN_HEIGHT) + 'px';
-    }, 500);
+    const root = iframe.contentDocument.documentElement;
+    const height = (root.offsetHeight || 0) + 16 + 4;
+    iframe.style.height = Math.min(height, MIN_HEIGHT) + 'px';
   };
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (iframe) {
+      iframe.addEventListener('load', onload, { once: true });
+    }
+    return () => {
+      if (iframe) {
+        iframe.removeEventListener('load', onload);
+      }
+    };
+  }, []);
+
   return (
-    <iframe onLoad={onload} className="w-full rounded border-2 border-gray-500 bg-white p-2" />
+    <iframe
+      src={src}
+      ref={iframeRef}
+      className="w-full p-2 bg-white border-2 border-gray-500 rounded"
+    />
   );
 };
