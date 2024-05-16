@@ -152,25 +152,34 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       >
         {content}
       </Text>
-      {isFulfilledMessage(message) && (
-        <>
-          <iframe
-            srcDoc={splitPlainTextAndHtmlCode(message.originalText).html}
-            className="rounded border-2 border-gray-500"
-            onLoad={(e) => {
-              const iframe = e.target as HTMLIFrameElement;
-              iframe.style.height = `${
-                (iframe.contentWindow?.document.body.scrollHeight || 0) + 30
-              }px`;
+      <Preview message={message} />
+    </div>
+  );
+};
 
-              //const style = document.createElement('link');
-              //style.rel = 'stylesheet';
-              //style.href = 'https://cdn.jsdelivr.net/npm/picnic';
-              //iframe.contentDocument?.head.appendChild(style);
-            }}
-          ></iframe>
-        </>
-      )}
+const Preview: React.FC<{ message: ChatMessage }> = ({ message }) => {
+  if (!isFulfilledMessage(message)) {
+    return null;
+  }
+  const { html } = splitPlainTextAndHtmlCode(message.originalText);
+
+  if (!html) {
+    return null;
+  }
+
+  return (
+    <div className="my-2">
+      <Text styleAs="h5">Preview</Text>
+      <iframe
+        srcDoc={html}
+        className="w-full rounded border-2 border-gray-500 bg-white p-2"
+        onLoad={(e) => {
+          const iframe = e.target as HTMLIFrameElement;
+          const root = iframe.contentDocument?.documentElement;
+          const height = (root?.offsetHeight || 0) + 16 + 4; // 16px padding, 4px border
+          iframe.style.height = `${Math.min(height, 300)}px`;
+        }}
+      ></iframe>
     </div>
   );
 };
