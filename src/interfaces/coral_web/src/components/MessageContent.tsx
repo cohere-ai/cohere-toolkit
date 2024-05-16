@@ -66,13 +66,14 @@ function getImage(element) {
 </script>
 `;
 function getReconstructedHtml(plainString: string) {
-  const htmlRegex = /```(?:html)\n([\s\S]*?)```/;
+  const htmlRegex = /```(?:html)\n([\s\S]*?)(```|$)/;
   //capture only the code in the markdown block exlcuding the html tag
   const code = plainString.match(htmlRegex);
   const plainText = plainString.replace(htmlRegex, '');
   var html = '';
   if (code) {
     html = code[1];
+    console.log(html);
 
     const cssRegex = /```(?:css)\n([\s\S]*?)```/;
     const cssCode = plainString.match(cssRegex);
@@ -96,9 +97,10 @@ function getReconstructedHtml(plainString: string) {
   return html;
 }
 const replaceCodeBlockWithIframe = (content: string) => {
-  const regex = /```html([\s\S]+)(```)/;
+  const matchingRegex = /```html([\s\S]+)/;
+  const replacingRegex = /```html([\s\S]+?)(```|$)/;
 
-  const match = content.match(regex);
+  const match = content.match(matchingRegex);
 
   if (!match) {
     return content;
@@ -110,7 +112,7 @@ const replaceCodeBlockWithIframe = (content: string) => {
   const src = URL.createObjectURL(blob);
   const iframe = `<iframe data-src="${src}"></iframe>`;
 
-  content = content.replace(regex, iframe);
+  content = content.replace(replacingRegex, iframe);
 
   return content;
 };
