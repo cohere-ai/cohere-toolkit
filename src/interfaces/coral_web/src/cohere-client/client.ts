@@ -383,7 +383,7 @@ export class CohereClient {
       | 'deployments'
       | 'experimental_features'
   ) {
-    return `/api/${endpoint}`;
+    return `${this.hostname}/v1/${endpoint}`;
   }
 
   private getHeaders(omitContentType = false) {

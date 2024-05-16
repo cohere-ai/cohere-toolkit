@@ -41,14 +41,6 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${env.NEXT_PUBLIC_API_HOSTNAME}/v1/:path*`,
-      },
-    ];
-  }
 };
 
 const getNextConfig = (phase) => {
