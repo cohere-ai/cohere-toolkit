@@ -15,15 +15,9 @@ export const Logo: React.FC<LogoProps> = ({
   style = 'default',
   darkModeEnabled,
 }) => {
-  if (hasCustomLogo === 'true') {
+  if (hasCustomLogo) {
     // Modify this section to render a custom logo or text based on specific design guidelines.
-    return (
-      <img
-        src="/images/logo.png"
-        alt="Logo"
-        className={cx('h-full', className)}
-      />
-    );
+    return <img src="/images/logo.png" alt="Logo" className={cx('h-full', className)} />;
   }
 
   return (
@@ -76,5 +70,5 @@ export const Logo: React.FC<LogoProps> = ({
         })}
       />
     </svg>
-  )
-}
+  );
+};
