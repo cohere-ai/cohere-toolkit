@@ -75,7 +75,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
         <iframe
           srcDoc={code}
           ref={iframeRef}
-          className={cn('w-full min-w-[150px] resize-y ', {
+          className={cn('max-h-[900px] min-h-[150px] w-full resize-y ', {
             hidden: option !== 'live',
           })}
         />
