@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import { useState } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
 
+import { cn } from '@/utils';
+
 const MIN_HEIGHT = 400;
 
 /**
@@ -15,6 +17,9 @@ const MIN_HEIGHT = 400;
  */
 export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> = (props) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [option, setOption] = useState<'live' | 'code'>('live');
+  const [code, setCode] = useState('');
+
   const onload = (e: any) => {
     const iframe = e.target;
     const root = iframe.contentDocument.documentElement;
@@ -25,7 +30,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
   useEffect(() => {
     const iframe = iframeRef.current;
     if (iframe) {
-      iframe.addEventListener('load', onload, { once: true });
+      iframe.addEventListener('load', onload);
       return () => {
         iframe.removeEventListener('load', onload);
       };
@@ -35,11 +40,53 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
   // @ts-ignore
   const src = props['data-src'];
 
+  useEffect(() => {
+    // read the blob URL (src) and extract the text into the code state
+    if (src) {
+      fetch(src)
+        .then((res) => res.text())
+        .then((text) => {
+          setCode(text.trim());
+        });
+    }
+  }, [src]);
+
   return (
-    <iframe
-      src={src}
-      ref={iframeRef}
-      className="w-full p-2 bg-white border-2 border-gray-500 rounded"
-    />
+    <div className="relative">
+      <div className="flex gap-2 rounded rounded-b-none border-2 border-b-0 border-gray-500 bg-stone-200 px-4 py-2">
+        <button
+          className={cn({
+            'border-b border-gray-500 font-medium': option === 'live',
+          })}
+          onClick={() => setOption('live')}
+        >
+          Live Preview
+        </button>
+        <button
+          className={cn({
+            'border-b border-gray-500 font-medium': option === 'code',
+          })}
+          onClick={() => setOption('code')}
+        >
+          View Code
+        </button>
+      </div>
+      <div className="rounded rounded-t-none border-2 border-t-0 border-gray-500 bg-white p-2">
+        <iframe
+          srcDoc={code}
+          ref={iframeRef}
+          className={cn('w-full', {
+            hidden: option !== 'live',
+          })}
+        />
+        <pre
+          className={cn('language-html', {
+            hidden: option !== 'code',
+          })}
+        >
+          <code className="">{code}</code>
+        </pre>
+      </div>
+    </div>
   );
 };
