@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
@@ -54,7 +56,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
 
   return (
     <div>
-      <div className="rounded rounded-b-none border border-b-0  border-marble-500 bg-secondary-50 p-2">
+      <div className="p-2 border border-b-0 rounded rounded-b-none border-marble-500 bg-secondary-50">
         <iframe
           srcDoc={code}
           ref={iframeRef}
@@ -67,10 +69,12 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
             hidden: option !== 'code',
           })}
         >
-          <code>{code}</code>
+          <SyntaxHighlighter style={dark} language="html">
+            {code}
+          </SyntaxHighlighter>
         </pre>
       </div>
-      <div className="flex justify-end gap-2 rounded rounded-t-none border border-t-0 border-marble-500 bg-secondary-50 px-4 py-2">
+      <div className="flex justify-end px-4 py-2 border border-t-0 rounded rounded-t-none gap-2 border-marble-500 bg-secondary-50">
         <div className="space-x-2 rounded-lg border border-marble-400 bg-white p-[2.5px]">
           <button
             className={cn('w-[42px] py-2 transition-colors', {
