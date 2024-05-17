@@ -112,7 +112,7 @@ async def chat_stream(
 
 
 @router.post("/chat", dependencies=[Depends(validate_deployment_header)])
-def chat(
+async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,

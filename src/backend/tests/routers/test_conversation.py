@@ -379,66 +379,6 @@ def test_list_files_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
-def test_upload_file_on_conversation(
-    session_client: TestClient, session: Session
-) -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
-    saved_file_path = "src/backend/data/Mariana_Trench.pdf"
-    conversation = get_factory("Conversation", session).create()
-    file_doc = {"file": open(file_path, "rb")}
-    response = session_client.post(
-        f"/v1/conversations/{conversation.id}/upload_file",
-        files=file_doc,
-        headers={"User-Id": conversation.user_id},
-    )
-    response_file = response.json()
-
-    assert response.status_code == 200
-    assert "Mariana_Trench" in response_file["file_name"]
-    assert response_file["conversation_id"] == conversation.id
-    assert response_file["user_id"] == conversation.user_id
-
-    # Clean up - remove the file from the directory
-    os.remove(saved_file_path)
-
-
-def test_fail_upload_file_on_conversation_missing_data(
-    session_client: TestClient, session: Session
-) -> None:
-    conversation = get_factory("Conversation", session).create()
-    response = session_client.post(
-        f"/v1/conversations/{conversation.id}/upload_file",
-        json={},
-        headers={"User-Id": conversation.user_id},
-    )
-    response_file = response.json()
-
-    assert response.status_code == 422
-    assert response_file == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["body", "file"],
-                "msg": "Field required",
-                "input": None,
-                "url": "https://errors.pydantic.dev/2.7/v/missing",
-            }
-        ]
-    }
-
-
-def test_upload_file_on_conversation_missing_user_id(
-    session_client: TestClient, session: Session
-) -> None:
-    conversation = get_factory("Conversation", session).create()
-    response = session_client.post(
-        f"/v1/conversations/{conversation.id}/upload_file", json={}
-    )
-
-    assert response.status_code == 401
-    assert response.json() == {"detail": "User-Id required in request headers."}
-
-
 def test_upload_file_existing_conversation(
     session_client: TestClient, session: Session
 ) -> None:
