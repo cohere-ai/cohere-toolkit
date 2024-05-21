@@ -6,25 +6,24 @@ from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
+from src.backend.model_deployments.utils import get_model_config_var
 
 
 class BedrockDeployment(BaseDeployment):
     DEFAULT_MODELS = ["cohere.command-r-plus-v1:0"]
-    access_key = os.environ.get("BEDROCK_ACCESS_KEY")
-    secret_key = os.environ.get("BEDROCK_SECRET_KEY")
-    session_token = os.environ.get("BEDROCK_SESSION_TOKEN")
-    region_name = os.environ.get("BEDROCK_REGION_NAME")
 
-    def __init__(self):
+    def __init__(self, model_config: dict):
         self.client = cohere.BedrockClient(
             # TODO: remove hardcoded models once the SDK is updated
             chat_model="cohere.command-r-plus-v1:0",
             embed_model="cohere.embed-multilingual-v3",
             generate_model="cohere.command-text-v14",
-            aws_access_key=self.access_key,
-            aws_secret_key=self.secret_key,
-            aws_session_token=self.session_token,
-            aws_region=self.region_name,
+            aws_access_key=get_model_config_var("BEDROCK_ACCESS_KEY".model_config),
+            aws_secret_key=get_model_config_var("BEDROCK_SECRET_KEY".model_config),
+            aws_session_token=get_model_config_var(
+                "BEDROCK_SESSION_TOKEN".model_config
+            ),
+            aws_region=get_model_config_var("BEDROCK_REGION_NAME".model_config),
         )
 
     @property

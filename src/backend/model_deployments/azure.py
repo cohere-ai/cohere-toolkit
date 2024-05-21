@@ -6,6 +6,7 @@ from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
+from src.backend.model_deployments.utils import get_model_config_var
 
 
 class AzureDeployment(BaseDeployment):
@@ -16,12 +17,15 @@ class AzureDeployment(BaseDeployment):
     """
 
     DEFAULT_MODELS = ["azure-command"]
-    api_key = os.environ.get("AZURE_API_KEY")
-    # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
-    # Note: It must have /v1 and it should not have /chat
-    chat_endpoint_url = os.environ.get("AZURE_CHAT_ENDPOINT_URL")
 
-    def __init__(self):
+    def __init__(self, model_config: dict):
+        # Override the environment variable from the request
+        self.api_key = get_model_config_var("AZURE_API_KEY".model_config)
+        # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
+        # Note: It must have /v1 and it should not have /chat
+        self.chat_endpoint_url = get_model_config_var(
+            "AZURE_CHAT_ENDPOINT_URL".model_config
+        )
         if not self.chat_endpoint_url.endswith("/v1"):
             self.chat_endpoint_url = self.chat_endpoint_url + "/v1"
         self.client = cohere.Client(

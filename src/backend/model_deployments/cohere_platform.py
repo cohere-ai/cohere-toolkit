@@ -8,15 +8,18 @@ from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
+from src.backend.model_deployments.utils import get_model_config_var
 
 
 class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
-    api_key = os.environ.get("COHERE_API_KEY")
     client_name = "cohere-toolkit"
 
-    def __init__(self):
+    def __init__(self, model_config: dict):
+        # Override the environment variable from the request
+
+        self.api_key = (get_model_config_var("COHERE_API_KEY".model_config),)
         self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
 
     @property

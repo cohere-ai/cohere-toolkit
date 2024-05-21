@@ -8,6 +8,7 @@ from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
+from src.backend.model_deployments.utils import get_model_config_var
 
 
 class SageMakerDeployment(BaseDeployment):
@@ -18,16 +19,20 @@ class SageMakerDeployment(BaseDeployment):
     """
 
     DEFAULT_MODELS = ["sagemaker-command"]
-    profile_name = os.environ.get("SAGE_MAKER_PROFILE_NAME")
-    region_name = os.environ.get("SAGE_MAKER_REGION_NAME")
-    endpoint_name = os.environ.get("SAGE_MAKER_ENDPOINT_NAME")
 
     def __init__(self):
-        boto3.setup_default_session(profile_name=self.profile_name)
+        boto3.setup_default_session(
+            profile_name=get_model_config_var("SAGE_MAKER_PROFILE_NAME".model_config)
+        )
         # Create the AWS client for the Bedrock runtime with boto3
-        self.client = boto3.client("sagemaker-runtime", region_name=self.region_name)
+        self.client = boto3.client(
+            "sagemaker-runtime",
+            region_name=get_model_config_var("SAGE_MAKER_REGION_NAME".model_config),
+        )
         self.params = {
-            "EndpointName": self.endpoint_name,
+            "EndpointName": get_model_config_var(
+                "SAGE_MAKER_ENDPOINT_NAME".model_config
+            ),
             "ContentType": "application/json",
         }
 
@@ -53,7 +58,7 @@ class SageMakerDeployment(BaseDeployment):
         )
 
     def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
+        self, model_config: dict, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         # Create the payload for the request
         json_params = {
@@ -75,6 +80,7 @@ class SageMakerDeployment(BaseDeployment):
 
     def invoke_search_queries(
         self,
+        model_config: dict,
         message: str,
         chat_history: List[Dict[str, str]] | None = None,
         **kwargs: Any
