@@ -8,8 +8,16 @@ from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
-from src.backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_model_config_var
 
+SAGE_MAKER_PROFILE_NAME_ENV_VAR = "SAGE_MAKER_PROFILE_NAME"
+SAGE_MAKER_REGION_NAME_ENV_VAR = "SAGE_MAKER_REGION_NAME"
+SAGE_MAKER_ENDPOINT_NAME_ENV_VAR = "SAGE_MAKER_ENDPOINT_NAME"
+SAGE_MAKER_ENV_VARS = [
+    SAGE_MAKER_PROFILE_NAME_ENV_VAR,
+    SAGE_MAKER_REGION_NAME_ENV_VAR,
+    SAGE_MAKER_ENDPOINT_NAME_ENV_VAR,
+]
 
 class SageMakerDeployment(BaseDeployment):
     """
@@ -20,24 +28,23 @@ class SageMakerDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["sagemaker-command"]
 
-    def __init__(self):
-        boto3.setup_default_session(
-            profile_name=get_model_config_var("SAGE_MAKER_PROFILE_NAME".model_config)
-        )
+    def __init__(self, model_config: dict):
+        self.profile_name=get_model_config_var(SAGE_MAKER_PROFILE_NAME_ENV_VAR,model_config)
+        boto3.setup_default_session(self.profile_name)
         # Create the AWS client for the Bedrock runtime with boto3
         self.client = boto3.client(
             "sagemaker-runtime",
-            region_name=get_model_config_var("SAGE_MAKER_REGION_NAME".model_config),
+            region_name=get_model_config_var(SAGE_MAKER_REGION_NAME_ENV_VAR,model_config),
         )
         self.params = {
             "EndpointName": get_model_config_var(
-                "SAGE_MAKER_ENDPOINT_NAME".model_config
+                SAGE_MAKER_ENDPOINT_NAME_ENV_VAR, model_config
             ),
             "ContentType": "application/json",
         }
 
     @property
-    def rerank_enabled(self) -> bool:
+    def rerank_enabled(self) -> bool: 
         return False
 
     @classmethod
@@ -49,13 +56,7 @@ class SageMakerDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all(
-            [
-                cls.profile_name is not None,
-                cls.region_name is not None,
-                cls.endpoint_name is not None,
-            ]
-        )
+       return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
     def invoke_chat_stream(
         self, model_config: dict, chat_request: CohereChatRequest, **kwargs: Any

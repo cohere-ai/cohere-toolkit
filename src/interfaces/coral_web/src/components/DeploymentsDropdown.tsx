@@ -1,26 +1,31 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 
 import { Dropdown, DropdownOptionGroups, Text } from '@/components/Shared';
 import { BannerContext } from '@/context/BannerContext';
-import { useListAllDeployments, useListDeployments } from '@/hooks/deployments';
+import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
+import { EditEnvVariablesModal } from './EditEnvVariablesButton';
+import { ModalContext } from '@/context/ModalContext';
+
 
 export const DeploymentsDropdown: React.FC = () => {
   const { message: bannerMessage, setMessage } = useContext(BannerContext);
+  const { open, close } = useContext(ModalContext);
+
   const {
     params: { deployment },
     setParams,
   } = useParamsStore();
-  const { data: availableDeployments } = useListDeployments();
   const { data: allDeployments = [] } = useListAllDeployments();
   const deploymentOptions: DropdownOptionGroups = [
     {
       options: allDeployments.map(({ name }) => ({
         label: name,
-        value: name,
+        value: name
       })),
     },
   ];
+
 
   return (
     <Dropdown
@@ -29,14 +34,11 @@ export const DeploymentsDropdown: React.FC = () => {
       value={deployment}
       onChange={(deploymentName: string) => {
         const deployment = allDeployments.find((d) => d.name === deploymentName);
-        if (availableDeployments?.every((ad) => ad.name !== deploymentName)) {
-          setMessage(
-            <Text as="span">
-              If you wish to use <b className="font-medium">{deploymentName}</b>, please configure
-              your .env file with these variables:{' '}
-              <b className="font-medium">{deployment?.env_vars.join(', ')}</b>.
-            </Text>
-          );
+        if (!deployment.is_available) {
+          open({
+            title: 'Configure Model Deployment',
+            content: <EditEnvVariablesModal onClose={close} defaultDeployment={deployment.name} />,
+          });
         } else if (bannerMessage) {
           setMessage('');
         }

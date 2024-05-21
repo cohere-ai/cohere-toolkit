@@ -6,6 +6,7 @@
  * Stream query generation event.
  */
 export type StreamQueryGeneration = {
-  is_finished: boolean;
-  query: string;
+    is_finished: boolean;
+    query: string;
 };
+

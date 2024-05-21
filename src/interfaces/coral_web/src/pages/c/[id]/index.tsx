@@ -11,7 +11,7 @@ import { Layout, LayoutSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
 import { BannerContext } from '@/context/BannerContext';
 import { useConversation } from '@/hooks/conversation';
-import { useListDeployments } from '@/hooks/deployments';
+import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
@@ -43,7 +43,7 @@ const ConversationPage: NextPage<Props> = () => {
     isError,
     error,
   } = useConversation({ conversationId: urlConversationId });
-  const { data: availableDeployments } = useListDeployments();
+  const { data: allDeployments } = useListAllDeployments();
 
   useEffect(() => {
     resetCitations();
@@ -63,8 +63,11 @@ const ConversationPage: NextPage<Props> = () => {
   }, [conversation?.id, setConversation]);
 
   useEffect(() => {
-    if (!deployment && availableDeployments && availableDeployments?.length > 0) {
-      setParams({ deployment: availableDeployments[0].name });
+    if (!deployment && allDeployments) {
+      var firstAvailableDeployment = allDeployments.find(function (d) {return d.is_available;});
+      if (firstAvailableDeployment) {
+        setParams({ deployment: firstAvailableDeployment.name });
+      }
     }
   }, [deployment]);
 

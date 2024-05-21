@@ -8,18 +8,21 @@ from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
-from src.backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_model_config_var
 
+COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
+COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 
 class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
+    api_key = None
 
     def __init__(self, model_config: dict):
         # Override the environment variable from the request
 
-        self.api_key = (get_model_config_var("COHERE_API_KEY".model_config),)
+        self.api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR,model_config)
         self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
 
     @property
@@ -52,7 +55,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.api_key is not None
+        return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         return self.client.chat(

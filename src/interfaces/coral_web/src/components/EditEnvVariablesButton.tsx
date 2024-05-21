@@ -10,7 +10,7 @@ import {
 } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
-import { useUpdateDeploymentEnvVariables } from '@/hooks/envVariables';
+import { useParamsStore } from '@/stores';
 
 /**
  * @description Button to trigger a modal to edit .env variables.
@@ -20,14 +20,14 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
 
   const handleClick = () => {
     open({
-      title: 'Edit .env variables',
-      content: <EditEnvVariablesModal onClose={close} />,
+      title: 'Configure Model Deployment',
+      content: <EditEnvVariablesModal onClose={close} defaultDeployment="" />,
     });
   };
 
   return (
     <BasicButton
-      label="Edit .env variables"
+      label="Configure"
       size="sm"
       kind="minimal"
       className="py-0"
@@ -37,16 +37,27 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
 };
 
 /**
- * @description Renders a modal to edit a selected deployment's .env variables.
+ * @description Renders a modal to edit a selected deployment's config
  */
-const EditEnvVariablesModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const EditEnvVariablesModal: React.FC<{ onClose: () => void, defaultDeployment: string}> = ({ onClose, defaultDeployment }) => {
   const { data: deployments } = useListAllDeployments();
-  const { mutateAsync: updateDeploymentEnvVariables } = useUpdateDeploymentEnvVariables();
 
-  const [deployment, setDeployment] = useState<string | undefined>();
-  const [envVariables, setEnvVariables] = useState<Record<string, string>>({});
+  const [deployment, setDeployment] = useState<string | undefined>(defaultDeployment);
+  const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => 
+  {
+    const selectedDeployment = deployments?.find(({ name }) => name === defaultDeployment);
+    return selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+        acc[envVar] = '';
+        return acc;
+      }, {}) ?? {};
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasError, setHasError] = useState(false);
+
+  const {
+    setParams,
+  } = useParamsStore();
+
 
   const deploymentOptions: DropdownOptionGroups = useMemo(
     () => [
@@ -92,7 +103,7 @@ const EditEnvVariablesModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
 
     try {
       setIsSubmitting(true);
-      await updateDeploymentEnvVariables({ name: deployment, env_vars: envVariables });
+      setParams({ deploymentConfig: Object.entries(envVariables).map(([k, v]) => k + "=" + v).join(";") });
       setIsSubmitting(false);
       onClose();
     } catch (e) {

@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum MessageType {
-  TEXT = 'TEXT',
-}
+export type Login = {
+    strategy: string;
+    payload: Record<string, string>;
+};
+

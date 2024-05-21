@@ -10,6 +10,10 @@ from backend.model_deployments import (
     SageMakerDeployment,
 )
 from backend.schemas.deployment import Deployment
+from backend.model_deployments.bedrock import BEDROCK_ENV_VARS
+from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
+from backend.model_deployments.azure import AZURE_ENV_VARS
+from backend.model_deployments.sagemaker import SAGE_MAKER_ENV_VARS
 
 
 class ModelDeploymentName(StrEnum):
@@ -28,42 +32,28 @@ ALL_MODEL_DEPLOYMENTS = {
         deployment_class=CohereDeployment,
         models=CohereDeployment.list_models(),
         is_available=CohereDeployment.is_available(),
-        env_vars=[
-            "COHERE_API_KEY",
-        ],
+        env_vars=COHERE_ENV_VARS,
     ),
     ModelDeploymentName.SageMaker: Deployment(
         name=ModelDeploymentName.SageMaker,
         deployment_class=SageMakerDeployment,
         models=SageMakerDeployment.list_models(),
         is_available=SageMakerDeployment.is_available(),
-        env_vars=[
-            "SAGE_MAKER_REGION_NAME",
-            "SAGE_MAKER_ENDPOINT_NAME",
-            "SAGE_MAKER_PROFILE_NAME",
-        ],
+        env_vars=SAGE_MAKER_ENV_VARS,
     ),
     ModelDeploymentName.Azure: Deployment(
         name=ModelDeploymentName.Azure,
         deployment_class=AzureDeployment,
         models=AzureDeployment.list_models(),
         is_available=AzureDeployment.is_available(),
-        env_vars=[
-            "AZURE_API_KEY",
-            "AZURE_CHAT_ENDPOINT_URL",
-        ],
+        env_vars=AZURE_ENV_VARS,
     ),
     ModelDeploymentName.Bedrock: Deployment(
         name=ModelDeploymentName.Bedrock,
         deployment_class=BedrockDeployment,
         models=BedrockDeployment.list_models(),
         is_available=BedrockDeployment.is_available(),
-        env_vars=[
-            "BEDROCK_ACCESS_KEY",
-            "BEDROCK_SECRET_KEY",
-            "BEDROCK_SESSION_TOKEN",
-            "BEDROCK_REGION_NAME",
-        ],
+        env_vars=BEDROCK_ENV_VARS,
     ),
 }
 

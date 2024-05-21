@@ -6,8 +6,11 @@ from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
-from src.backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_model_config_var
 
+AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
+AZURE_CHAT_URL_ENV_VAR = "AZURE_CHAT_ENDPOINT_URL"
+AZURE_ENV_VARS = [AZURE_API_KEY_ENV_VAR, AZURE_CHAT_URL_ENV_VAR]
 
 class AzureDeployment(BaseDeployment):
     """
@@ -20,11 +23,11 @@ class AzureDeployment(BaseDeployment):
 
     def __init__(self, model_config: dict):
         # Override the environment variable from the request
-        self.api_key = get_model_config_var("AZURE_API_KEY".model_config)
+        self.api_key = get_model_config_var(AZURE_API_KEY_ENV_VAR, model_config)
         # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
         # Note: It must have /v1 and it should not have /chat
         self.chat_endpoint_url = get_model_config_var(
-            "AZURE_CHAT_ENDPOINT_URL".model_config
+            AZURE_CHAT_URL_ENV_VAR, model_config
         )
         if not self.chat_endpoint_url.endswith("/v1"):
             self.chat_endpoint_url = self.chat_endpoint_url + "/v1"
@@ -45,7 +48,7 @@ class AzureDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all([cls.api_key is not None, cls.chat_endpoint_url is not None])
+        return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         return self.client.chat(

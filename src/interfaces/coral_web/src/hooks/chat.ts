@@ -70,7 +70,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { mutateAsync: streamChat } = chatMutation;
 
   const {
-    params: { temperature, tools, model, deployment },
+    params: { temperature, tools, model, deployment, deploymentConfig },
   } = useParamsStore();
   const {
     conversation: { id, messages },
@@ -371,7 +371,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 'Unable to generate a response since an error was encountered.';
 
               if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
-                error += ' (Ensure a COHERE_API_KEY is configured in the .env file)';
+                error += ' (Ensure a COHERE_API_KEY is configured correctly)';
               }
               setConversation({
                 messages: [
@@ -442,7 +442,9 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     setUserMessage('');
 
     const request = getChatRequest(message, overrides);
-    const headers = { 'Deployment-Name': deployment ?? '' };
+    const headers = { 
+      'Deployment-Name': deployment ?? '',
+      'Deployment-Config': deploymentConfig ?? ''  };
     let newMessages: ChatMessage[] = currentMessages;
 
     if (streamingMessage) {
