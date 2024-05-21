@@ -10,7 +10,7 @@ router = APIRouter(prefix="/v1/users", dependencies=[Depends(get_session)])
 
 
 @router.post("/", response_model=User)
-def create_user(user: CreateUser, session: DBSessionDep) -> User:
+async def create_user(user: CreateUser, session: DBSessionDep) -> User:
     """
     Create a new user.
 
@@ -28,7 +28,7 @@ def create_user(user: CreateUser, session: DBSessionDep) -> User:
 
 
 @router.get("/", response_model=list[User])
-def list_users(
+async def list_users(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep
 ) -> list[User]:
     """
@@ -46,7 +46,7 @@ def list_users(
 
 
 @router.get("/{user_id}", response_model=User)
-def get_user(user_id: str, session: DBSessionDep) -> User:
+async def get_user(user_id: str, session: DBSessionDep) -> User:
     """
     Get a user by ID.
 
@@ -72,7 +72,9 @@ def get_user(user_id: str, session: DBSessionDep) -> User:
 
 
 @router.put("/{user_id}", response_model=User)
-def update_user(user_id: str, new_user: UpdateUser, session: DBSessionDep) -> User:
+async def update_user(
+    user_id: str, new_user: UpdateUser, session: DBSessionDep
+) -> User:
     """
     Update a user by ID.
 
@@ -100,7 +102,7 @@ def update_user(user_id: str, new_user: UpdateUser, session: DBSessionDep) -> Us
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: str, session: DBSessionDep) -> DeleteUser:
+async def delete_user(user_id: str, session: DBSessionDep) -> DeleteUser:
     """ "
     Delete a user by ID.
 

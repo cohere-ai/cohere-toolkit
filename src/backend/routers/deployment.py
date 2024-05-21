@@ -40,7 +40,7 @@ def list_deployments(all: bool = False) -> list[Deployment]:
 
 
 @router.post("/{name}/set_env_vars", response_class=Response)
-def set_env_vars(
+async def set_env_vars(
     name: str, env_vars: UpdateDeploymentEnv, valid_env_vars=Depends(validate_env_vars)
 ):
     """

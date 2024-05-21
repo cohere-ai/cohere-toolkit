@@ -1,15 +1,17 @@
 import cx from 'classnames';
 import Link from 'next/link';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 import { Logo } from '@/components/Shared';
-import { DeploymentsDropdown } from '@/components/Shared/NavigationBar/DeploymentsDropdown';
 import { env } from '@/env.mjs';
 
 /**
  * @description Displays the navigation bar where clicking the logo will return the user to the home page.
  */
-export const NavigationBar: React.FC<{ className?: string }> = ({ className = '' }) => {
+export const NavigationBar: React.FC<PropsWithChildren<{ className?: string }>> = ({
+  className = '',
+  children,
+}) => {
   return (
     <nav
       className={cx(
@@ -20,10 +22,10 @@ export const NavigationBar: React.FC<{ className?: string }> = ({ className = ''
     >
       <Link href="/">
         <div className="mr-3 flex items-baseline">
-          <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} />
+          <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
         </div>
       </Link>
-      <DeploymentsDropdown />
+      {children}
     </nav>
   );
 };
