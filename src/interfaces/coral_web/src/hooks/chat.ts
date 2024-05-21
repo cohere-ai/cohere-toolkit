@@ -78,7 +78,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     setConversation,
     setPendingMessage,
   } = useConversationStore();
-  const { addSearchResults, addCitation, saveOutputFiles } = useCitationsStore();
+  const {
+    citations: { outputFiles: savedOutputFiles },
+    addSearchResults,
+    addCitation,
+    saveOutputFiles,
+  } = useCitationsStore();
   const {
     files: { composerFiles },
     clearComposerFiles,
@@ -325,6 +330,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
 
               saveCitations(generationId, citations, documentsMap);
+              saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
 
               const finalText = isRAGOn
                 ? replaceTextWithCitations(

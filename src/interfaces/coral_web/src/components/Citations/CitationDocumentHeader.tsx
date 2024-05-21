@@ -48,7 +48,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
   const isTool = !!toolId && !hasUrl && !!TOOL_ID_TO_DISPLAY_INFO[toolId];
   const toolDisplayInfo = toolId ? TOOL_ID_TO_DISPLAY_INFO[toolId] : undefined;
   // The title field is provided for web search documents and files, but not for tools.
-  const displayTitle = title ?? toolDisplayInfo?.name ?? toolId;
+  const displayTitle = (title || toolDisplayInfo?.name) ?? toolId;
   const icon: IconName | undefined = hasUrl
     ? undefined
     : isFile
@@ -74,7 +74,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
           className={cn(
             'bg-primary-500/[0.16] text-primary-800/80 transition-colors duration-200 ease-in-out',
             {
-              'bg-mushroom-700/20 text-mushroom-800': !isSelected,
+              'bg-secondary-700/20 text-secondary-800': !isSelected,
             }
           )}
         />
@@ -89,7 +89,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                   'transition-colors duration-200 ease-in-out',
                   'text-primary-800',
                   {
-                    'text-mushroom-700': !isSelected,
+                    'text-secondary-700': !isSelected,
                   }
                 )}
               >
@@ -114,7 +114,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                 'transition-colors duration-200 ease-in-out',
                 'text-primary-800',
                 {
-                  'text-mushroom-700': !isSelected,
+                  'text-secondary-700': !isSelected,
                 }
               )}
             >
@@ -127,7 +127,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               as="span"
               styleAs="label"
               className={cn('truncate font-medium transition-colors duration-200 ease-in-out', {
-                'text-mushroom-800': !isSelected,
+                'text-secondary-800': !isSelected,
               })}
             >
               {displayTitle}
@@ -135,7 +135,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
             <Icon
               name="arrow-up-right"
               className={cn('ml-1 hidden', 'transition-colors duration-200 ease-in-out', {
-                'text-mushroom-800': !isSelected,
+                'text-secondary-800': !isSelected,
                 'group-hover:block': safeUrl,
               })}
             />
