@@ -3,6 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateUser = {
-  fullname: string;
+  password?: string | null;
+  hashed_password?: Blob | null;
+  fullname?: string | null;
   email?: string | null;
 };

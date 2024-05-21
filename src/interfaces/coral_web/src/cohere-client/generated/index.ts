@@ -7,8 +7,7 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
-export type { Body_upload_file_conversations_upload_file_post } from './models/Body_upload_file_conversations_upload_file_post';
-export type { Body_upload_file_with_conversation_conversations__conversation_id__upload_file_post } from './models/Body_upload_file_with_conversation_conversations__conversation_id__upload_file_post';
+export type { Body_upload_file_v1_conversations_upload_file_post } from './models/Body_upload_file_v1_conversations_upload_file_post';
 export { Category } from './models/Category';
 export type { ChatMessage } from './models/ChatMessage';
 export type { ChatResponseEvent } from './models/ChatResponseEvent';
@@ -28,6 +27,7 @@ export type { File } from './models/File';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { LangchainChatRequest } from './models/LangchainChatRequest';
 export type { ListFile } from './models/ListFile';
+export type { Login } from './models/Login';
 export type { ManagedTool } from './models/ManagedTool';
 export type { Message } from './models/Message';
 export { MessageAgent } from './models/MessageAgent';
