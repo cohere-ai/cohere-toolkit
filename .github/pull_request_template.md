@@ -12,4 +12,16 @@ Thank you for contributing to the Cohere Toolkit!
 
 
 - [ ] **Add tests and docs**: Please include testing and documentation for your changes
-- [ ] **Lint and test**: Run `make lint` and `make run-tests` 
+- [ ] **Lint and test**: Run `make lint` and `make run-tests`
+
+**AI Description**
+
+<!-- begin-generated-description -->
+
+<!--
+  New: command-r-plus will maintain a pr description for you!
+  Simply delete this section to opt out.
+  Content inside this section will be overwritten by command as the PR is updated.
+-->
+
+<!-- end-generated-description -->
