@@ -7,8 +7,8 @@ import requests
 from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.model_deployments.utils import get_model_config_var
+from backend.schemas.cohere_chat import CohereChatRequest
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]

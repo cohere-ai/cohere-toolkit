@@ -9,11 +9,11 @@ from backend.model_deployments import (
     CohereDeployment,
     SageMakerDeployment,
 )
-from backend.schemas.deployment import Deployment
+from backend.model_deployments.azure import AZURE_ENV_VARS
 from backend.model_deployments.bedrock import BEDROCK_ENV_VARS
 from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
-from backend.model_deployments.azure import AZURE_ENV_VARS
 from backend.model_deployments.sagemaker import SAGE_MAKER_ENV_VARS
+from backend.schemas.deployment import Deployment
 
 
 class ModelDeploymentName(StrEnum):

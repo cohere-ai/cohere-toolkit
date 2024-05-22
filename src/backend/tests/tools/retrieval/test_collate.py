@@ -13,7 +13,7 @@ is_cohere_env_set = (
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_rerank() -> None:
-    model = CohereDeployment()
+    model = CohereDeployment(model_config={})
     input = {
         "mountain": [{"text": "hill"}, {"text": "cable"}, {"text": "goat"}],
         "computer": [{"text": "software"}, {"text": "penguin"}, {"text": "cable"}],

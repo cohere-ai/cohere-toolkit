@@ -5,8 +5,8 @@ import cohere
 from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.model_deployments.utils import get_model_config_var
+from backend.schemas.cohere_chat import CohereChatRequest
 
 BEDROCK_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
 BEDROCK_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"

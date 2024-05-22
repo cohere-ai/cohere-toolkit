@@ -4,13 +4,13 @@ from typing import Any
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
+from backend.chat.custom.utils import get_deployment
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
 from backend.tools.retrieval.collate import combine_documents
-from backend.chat.custom.utils import get_deployment
 
 
 class CustomChat(BaseChat):

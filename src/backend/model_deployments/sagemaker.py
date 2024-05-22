@@ -7,8 +7,8 @@ import boto3
 from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.model_deployments.utils import get_model_config_var
+from backend.schemas.cohere_chat import CohereChatRequest
 
 SAGE_MAKER_ACCESS_KEY_ENV_VAR = "SAGE_MAKER_ACCESS_KEY"
 SAGE_MAKER_SECRET_KEY_ENV_VAR = "SAGE_MAKER_SECRET_KEY"

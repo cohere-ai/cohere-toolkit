@@ -5,8 +5,8 @@ import cohere
 from cohere.types import StreamedChatResponse
 
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.model_deployments.utils import get_model_config_var
+from backend.schemas.cohere_chat import CohereChatRequest
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 AZURE_CHAT_URL_ENV_VAR = "AZURE_CHAT_ENDPOINT_URL"
