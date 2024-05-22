@@ -1,4 +1,3 @@
-
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.model_deployments.base import BaseDeployment
 

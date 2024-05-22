@@ -18,7 +18,9 @@ class CustomChat(BaseChat):
 
     logger = get_logger()
 
-    def chat(self, chat_request: CohereChatRequest,  model_config: dict, **kwargs: Any) -> Any:
+    def chat(
+        self, chat_request: CohereChatRequest, model_config: dict, **kwargs: Any
+    ) -> Any:
         """
         Chat flow for custom models.
 

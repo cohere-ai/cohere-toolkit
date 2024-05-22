@@ -15,7 +15,7 @@ SAGE_MAKER_SECRET_KEY_ENV_VAR = "SAGE_MAKER_SECRET_KEY"
 SAGE_MAKER_SESSION_TOKEN_ENV_VAR = "SAGE_MAKER_SESSION_TOKEN"
 SAGE_MAKER_REGION_NAME_ENV_VAR = "SAGE_MAKER_REGION_NAME"
 SAGE_MAKER_ENDPOINT_NAME_ENV_VAR = "SAGE_MAKER_ENDPOINT_NAME"
-SAGE_MAKER_ENV_VARS = [ 
+SAGE_MAKER_ENV_VARS = [
     SAGE_MAKER_ACCESS_KEY_ENV_VAR,
     SAGE_MAKER_SECRET_KEY_ENV_VAR,
     SAGE_MAKER_SESSION_TOKEN_ENV_VAR,
@@ -37,10 +37,18 @@ class SageMakerDeployment(BaseDeployment):
         # Create the AWS client for the Bedrock runtime with boto3
         self.client = boto3.client(
             "sagemaker-runtime",
-            region_name=get_model_config_var(SAGE_MAKER_REGION_NAME_ENV_VAR,model_config),
-            aws_access_key_id=get_model_config_var(SAGE_MAKER_ACCESS_KEY_ENV_VAR,model_config),
-            aws_secret_access_key=get_model_config_var(SAGE_MAKER_SECRET_KEY_ENV_VAR,model_config),
-            aws_session_token=get_model_config_var(SAGE_MAKER_SESSION_TOKEN_ENV_VAR,model_config),
+            region_name=get_model_config_var(
+                SAGE_MAKER_REGION_NAME_ENV_VAR, model_config
+            ),
+            aws_access_key_id=get_model_config_var(
+                SAGE_MAKER_ACCESS_KEY_ENV_VAR, model_config
+            ),
+            aws_secret_access_key=get_model_config_var(
+                SAGE_MAKER_SECRET_KEY_ENV_VAR, model_config
+            ),
+            aws_session_token=get_model_config_var(
+                SAGE_MAKER_SESSION_TOKEN_ENV_VAR, model_config
+            ),
         )
         self.params = {
             "EndpointName": get_model_config_var(
@@ -50,7 +58,7 @@ class SageMakerDeployment(BaseDeployment):
         }
 
     @property
-    def rerank_enabled(self) -> bool: 
+    def rerank_enabled(self) -> bool:
         return False
 
     @classmethod
@@ -62,7 +70,7 @@ class SageMakerDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-       return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
+        return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
     def invoke_chat_stream(
         self, model_config: dict, chat_request: CohereChatRequest, **kwargs: Any

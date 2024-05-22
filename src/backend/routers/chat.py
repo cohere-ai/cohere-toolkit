@@ -90,7 +90,7 @@ async def chat_stream(
         deployment_name,
         should_store,
         managed_tools,
-        model_config
+        model_config,
     ) = process_chat(session, chat_request, request)
 
     return EventSourceResponse(
@@ -140,7 +140,7 @@ async def chat(
         deployment_name,
         should_store,
         managed_tools,
-        model_config
+        model_config,
     ) = process_chat(session, chat_request, request)
 
     return generate_chat_response(
@@ -162,7 +162,9 @@ async def chat(
 
 def process_chat(
     session: DBSessionDep, chat_request: BaseChatRequest, request: Request
-) -> tuple[DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict]:
+) -> tuple[
+    DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
+]:
     """
     Process a chat request.
 
@@ -176,9 +178,12 @@ def process_chat(
     """
     user_id = request.headers.get("User-Id", "")
     deployment_name = request.headers.get("Deployment-Name", "")
-    model_config={}
+    model_config = {}
     if not request.headers.get("Deployment-Config", "") == "":
-        model_config=dict({c.split("=")[0],''.join(c.split("=")[0:])} for c in request.headers.get("Deployment-Config", "").split(";"))
+        model_config = dict(
+            {c.split("=")[0], "".join(c.split("=")[0:])}
+            for c in request.headers.get("Deployment-Config", "").split(";")
+        )
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
     )
@@ -241,7 +246,7 @@ def process_chat(
         deployment_name,
         should_store,
         managed_tools,
-        model_config
+        model_config,
     )
 
 
@@ -723,7 +728,7 @@ def langchain_chat_stream(
         _,
         should_store,
         managed_tools,
-        _
+        _,
     ) = process_chat(session, chat_request, request)
 
     return EventSourceResponse(

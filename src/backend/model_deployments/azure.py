@@ -12,6 +12,7 @@ AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 AZURE_CHAT_URL_ENV_VAR = "AZURE_CHAT_ENDPOINT_URL"
 AZURE_ENV_VARS = [AZURE_API_KEY_ENV_VAR, AZURE_CHAT_URL_ENV_VAR]
 
+
 class AzureDeployment(BaseDeployment):
     """
     Azure Deployment.

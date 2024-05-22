@@ -12,12 +12,13 @@ BEDROCK_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
 BEDROCK_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"
 BEDROCK_SESSION_TOKEN_ENV_VAR = "BEDROCK_SESSION_TOKEN"
 BEDROCK_REGION_NAME_ENV_VAR = "BEDROCK_REGION_NAME"
-BEDROCK_ENV_VARS = [ 
+BEDROCK_ENV_VARS = [
     BEDROCK_ACCESS_KEY_ENV_VAR,
     BEDROCK_SECRET_KEY_ENV_VAR,
     BEDROCK_SESSION_TOKEN_ENV_VAR,
     BEDROCK_REGION_NAME_ENV_VAR,
 ]
+
 
 class BedrockDeployment(BaseDeployment):
     DEFAULT_MODELS = ["cohere.command-r-plus-v1:0"]
@@ -28,8 +29,12 @@ class BedrockDeployment(BaseDeployment):
             chat_model="cohere.command-r-plus-v1:0",
             embed_model="cohere.embed-multilingual-v3",
             generate_model="cohere.command-text-v14",
-            aws_access_key=get_model_config_var(BEDROCK_ACCESS_KEY_ENV_VAR, model_config),
-            aws_secret_key=get_model_config_var(BEDROCK_SECRET_KEY_ENV_VAR, model_config),
+            aws_access_key=get_model_config_var(
+                BEDROCK_ACCESS_KEY_ENV_VAR, model_config
+            ),
+            aws_secret_key=get_model_config_var(
+                BEDROCK_SECRET_KEY_ENV_VAR, model_config
+            ),
             aws_session_token=get_model_config_var(
                 BEDROCK_SESSION_TOKEN_ENV_VAR, model_config
             ),

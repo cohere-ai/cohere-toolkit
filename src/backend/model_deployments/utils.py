@@ -1,5 +1,6 @@
 import os
 
+
 def get_model_config_var(var_name: str, model_config: dict) -> str:
     """Get the model config variable.
 
