@@ -38,10 +38,7 @@ def validate_deployment_header(request: Request):
 
     """
     deployment_name = request.headers.get("Deployment-Name")
-    if deployment_name and (
-        deployment_name not in AVAILABLE_MODEL_DEPLOYMENTS.keys()
-        or not AVAILABLE_MODEL_DEPLOYMENTS[deployment_name].is_available
-    ):
+    if deployment_name and not deployment_name in AVAILABLE_MODEL_DEPLOYMENTS.keys():
         raise HTTPException(
             status_code=404,
             detail=f"Deployment {deployment_name} was not found, or is not available.",

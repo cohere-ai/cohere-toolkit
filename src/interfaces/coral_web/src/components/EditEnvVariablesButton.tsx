@@ -126,6 +126,7 @@ export const EditEnvVariablesModal: React.FC<{ onClose: () => void, defaultDeplo
           key={envVar}
           placeholder="value"
           label={envVar}
+          type='password'
           value={envVariables[envVar]}
           onChange={handleEnvVariableChange(envVar)}
         />

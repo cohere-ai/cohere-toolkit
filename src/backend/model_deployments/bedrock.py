@@ -8,15 +8,15 @@ from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.model_deployments.utils import get_model_config_var
 
-AWS_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
-AWS_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"
-AWS_SESSION_TOKEN_ENV_VAR = "BEDROCK_SESSION_TOKEN"
-AWS_REGION_NAME_ENV_VAR = "BEDROCK_REGION_NAME"
+BEDROCK_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
+BEDROCK_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"
+BEDROCK_SESSION_TOKEN_ENV_VAR = "BEDROCK_SESSION_TOKEN"
+BEDROCK_REGION_NAME_ENV_VAR = "BEDROCK_REGION_NAME"
 BEDROCK_ENV_VARS = [ 
-    AWS_ACCESS_KEY_ENV_VAR,
-    AWS_SECRET_KEY_ENV_VAR,
-    AWS_SESSION_TOKEN_ENV_VAR,
-    AWS_REGION_NAME_ENV_VAR,
+    BEDROCK_ACCESS_KEY_ENV_VAR,
+    BEDROCK_SECRET_KEY_ENV_VAR,
+    BEDROCK_SESSION_TOKEN_ENV_VAR,
+    BEDROCK_REGION_NAME_ENV_VAR,
 ]
 
 class BedrockDeployment(BaseDeployment):
@@ -28,12 +28,12 @@ class BedrockDeployment(BaseDeployment):
             chat_model="cohere.command-r-plus-v1:0",
             embed_model="cohere.embed-multilingual-v3",
             generate_model="cohere.command-text-v14",
-            aws_access_key=get_model_config_var(AWS_ACCESS_KEY_ENV_VAR, model_config),
-            aws_secret_key=get_model_config_var(AWS_SECRET_KEY_ENV_VAR, model_config),
+            aws_access_key=get_model_config_var(BEDROCK_ACCESS_KEY_ENV_VAR, model_config),
+            aws_secret_key=get_model_config_var(BEDROCK_SECRET_KEY_ENV_VAR, model_config),
             aws_session_token=get_model_config_var(
-                AWS_SESSION_TOKEN_ENV_VAR, model_config
+                BEDROCK_SESSION_TOKEN_ENV_VAR, model_config
             ),
-            aws_region=get_model_config_var(AWS_REGION_NAME_ENV_VAR, model_config),
+            aws_region=get_model_config_var(BEDROCK_REGION_NAME_ENV_VAR, model_config),
         )
 
     @property

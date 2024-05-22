@@ -176,11 +176,9 @@ def process_chat(
     """
     user_id = request.headers.get("User-Id", "")
     deployment_name = request.headers.get("Deployment-Name", "")
-    print("HERE")
-    print(request.headers.get("Deployment-Config", ""))
     model_config={}
     if not request.headers.get("Deployment-Config", "") == "":
-        model_config=dict(c.split("=") for c in request.headers.get("Deployment-Config", "").split(";"))
+        model_config=dict({c.split("=")[0],''.join(c.split("=")[0:])} for c in request.headers.get("Deployment-Config", "").split(";"))
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
     )
