@@ -2,11 +2,11 @@ import { useContext, useState } from 'react';
 
 import { Dropdown, DropdownOptionGroups, Text } from '@/components/Shared';
 import { BannerContext } from '@/context/BannerContext';
+import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
-import { EditEnvVariablesModal } from './EditEnvVariablesButton';
-import { ModalContext } from '@/context/ModalContext';
 
+import { EditEnvVariablesModal } from './EditEnvVariablesButton';
 
 export const DeploymentsDropdown: React.FC = () => {
   const { message: bannerMessage, setMessage } = useContext(BannerContext);
@@ -21,11 +21,10 @@ export const DeploymentsDropdown: React.FC = () => {
     {
       options: allDeployments.map(({ name }) => ({
         label: name,
-        value: name
+        value: name,
       })),
     },
   ];
-
 
   return (
     <Dropdown

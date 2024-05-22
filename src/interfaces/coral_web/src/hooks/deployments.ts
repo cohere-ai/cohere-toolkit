@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Deployment, useCohereClient } from '@/cohere-client';
 
-
 /**
  * @description Hook to get all possible deployments.
  */

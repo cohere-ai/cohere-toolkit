@@ -442,9 +442,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     setUserMessage('');
 
     const request = getChatRequest(message, overrides);
-    const headers = { 
+    const headers = {
       'Deployment-Name': deployment ?? '',
-      'Deployment-Config': deploymentConfig ?? ''  };
+      'Deployment-Config': deploymentConfig ?? '',
+    };
     let newMessages: ChatMessage[] = currentMessages;
 
     if (streamingMessage) {

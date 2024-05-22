@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type SearchQuery = {
-    text: string;
-    generation_id: string;
+  text: string;
+  generation_id: string;
 };
-

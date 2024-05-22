@@ -39,25 +39,26 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
 /**
  * @description Renders a modal to edit a selected deployment's config
  */
-export const EditEnvVariablesModal: React.FC<{ onClose: () => void, defaultDeployment: string}> = ({ onClose, defaultDeployment }) => {
+export const EditEnvVariablesModal: React.FC<{
+  onClose: () => void;
+  defaultDeployment: string;
+}> = ({ onClose, defaultDeployment }) => {
   const { data: deployments } = useListAllDeployments();
 
   const [deployment, setDeployment] = useState<string | undefined>(defaultDeployment);
-  const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => 
-  {
+  const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === defaultDeployment);
-    return selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+    return (
+      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
         acc[envVar] = '';
         return acc;
-      }, {}) ?? {};
+      }, {}) ?? {}
+    );
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const {
-    setParams,
-  } = useParamsStore();
-
+  const { setParams } = useParamsStore();
 
   const deploymentOptions: DropdownOptionGroups = useMemo(
     () => [
@@ -103,7 +104,11 @@ export const EditEnvVariablesModal: React.FC<{ onClose: () => void, defaultDeplo
 
     try {
       setIsSubmitting(true);
-      setParams({ deploymentConfig: Object.entries(envVariables).map(([k, v]) => k + "=" + v).join(";") });
+      setParams({
+        deploymentConfig: Object.entries(envVariables)
+          .map(([k, v]) => k + '=' + v)
+          .join(';'),
+      });
       setIsSubmitting(false);
       onClose();
     } catch (e) {
@@ -126,7 +131,7 @@ export const EditEnvVariablesModal: React.FC<{ onClose: () => void, defaultDeplo
           key={envVar}
           placeholder="value"
           label={envVar}
-          type='password'
+          type="password"
           value={envVariables[envVar]}
           onChange={handleEnvVariableChange(envVar)}
         />

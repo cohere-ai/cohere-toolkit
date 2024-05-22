@@ -6,8 +6,7 @@
  * Stream start event.
  */
 export type StreamStart = {
-    is_finished: boolean;
-    generation_id?: (string | null);
-    conversation_id?: (string | null);
+  is_finished: boolean;
+  generation_id?: string | null;
+  conversation_id?: string | null;
 };
-
