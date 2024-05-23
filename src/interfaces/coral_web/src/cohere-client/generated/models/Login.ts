@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type Body_upload_file_conversations_upload_file_post = {
-  conversation_id?: string;
-  file: Blob;
+export type Login = {
+  strategy: string;
+  payload: Record<string, string>;
 };
