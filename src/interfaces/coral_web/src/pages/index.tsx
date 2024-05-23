@@ -38,9 +38,7 @@ const ChatPage: NextPage<Props> = () => {
 
   useEffect(() => {
     if (!deployment && allDeployments) {
-      var firstAvailableDeployment = allDeployments.find(function (d) {
-        return d.is_available;
-      });
+      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
       if (firstAvailableDeployment) {
         setParams({ deployment: firstAvailableDeployment.name });
       }

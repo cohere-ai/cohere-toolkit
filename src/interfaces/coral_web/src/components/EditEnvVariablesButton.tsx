@@ -40,9 +40,9 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
  * @description Renders a modal to edit a selected deployment's config
  */
 export const EditEnvVariablesModal: React.FC<{
-  onClose: () => void;
   defaultDeployment: string;
-}> = ({ onClose, defaultDeployment }) => {
+  onClose: () => void;
+}> = ({defaultDeployment, onClose }) => {
   const { data: deployments } = useListAllDeployments();
 
   const [deployment, setDeployment] = useState<string | undefined>(defaultDeployment);
@@ -56,7 +56,6 @@ export const EditEnvVariablesModal: React.FC<{
     );
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasError, setHasError] = useState(false);
 
   const { setParams } = useParamsStore();
 
@@ -73,10 +72,6 @@ export const EditEnvVariablesModal: React.FC<{
   );
 
   const handleDeploymentChange = (newDeployment: string) => {
-    if (hasError) {
-      setHasError(false);
-    }
-
     setDeployment(newDeployment);
     const selectedDeployment = deployments?.find(({ name }) => name === newDeployment);
     const emptyEnvVariables =
@@ -88,34 +83,20 @@ export const EditEnvVariablesModal: React.FC<{
   };
 
   const handleEnvVariableChange = (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (hasError) {
-      setHasError(false);
-    }
-
     setEnvVariables({ ...envVariables, [envVar]: e.target.value });
   };
 
   const handleSubmit = async () => {
     if (!deployment) return;
 
-    if (hasError) {
-      setHasError(false);
-    }
-
-    try {
-      setIsSubmitting(true);
-      setParams({
-        deploymentConfig: Object.entries(envVariables)
-          .map(([k, v]) => k + '=' + v)
-          .join(';'),
-      });
-      setIsSubmitting(false);
-      onClose();
-    } catch (e) {
-      console.error(e);
-      setHasError(true);
-      setIsSubmitting(false);
-    }
+    setIsSubmitting(true);
+    setParams({
+      deploymentConfig: Object.entries(envVariables)
+        .map(([k, v]) => k + '=' + v)
+        .join(';'),
+    });
+    setIsSubmitting(false);
+    onClose();
   };
 
   return (
@@ -137,16 +118,10 @@ export const EditEnvVariablesModal: React.FC<{
         />
       ))}
 
-      {hasError && (
-        <Text styleAs="p-sm" className="text-danger-500">
-          An error occurred. Please try again.
-        </Text>
-      )}
-
       <span className="mt-10 flex items-center justify-between">
         <BasicButton kind="minimal" size="sm" label="Cancel" onClick={onClose} />
         <Button
-          label={isSubmitting ? 'Submitting...' : 'Submit'}
+          label={isSubmitting ? 'Saving...' : 'Save'}
           onClick={handleSubmit}
           splitIcon="arrow-right"
           disabled={isSubmitting}
