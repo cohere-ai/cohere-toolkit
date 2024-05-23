@@ -62,3 +62,9 @@ Contributions are what drive an open source community, any contributions made ar
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
+
+### Deploying to Google Cloud Run
+
+Before deploying to Google Cloud Run, you'll need a postgres database accessible to your Google Cloud Project, authenticated by a username and password. You'll be prompted for a `DATABASE_URL` before the container builds.
+
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
