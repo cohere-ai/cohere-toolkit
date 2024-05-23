@@ -2,8 +2,10 @@ from abc import abstractmethod
 from typing import Any, Dict, List
 
 
-class BaseFunctionTool:
-    """Base for all retrieval options."""
+class BaseTool:
+    """
+    Abstract base class for all Tools.
+    """
 
     @classmethod
     @abstractmethod

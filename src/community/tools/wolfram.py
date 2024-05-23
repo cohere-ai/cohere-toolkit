@@ -1,14 +1,18 @@
-# https://python.langchain.com/docs/integrations/tools/wolfram_alpha/
-
 import os
 from typing import Any, Dict, List
 
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
-from community.tools import BaseFunctionTool
+from community.tools import BaseTool
 
 
-class WolframAlphaFunctionTool(BaseFunctionTool):
+class WolframAlpha(BaseTool):
+    """
+    Wolfram Alpha tool.
+
+    See: https://python.langchain.com/docs/integrations/tools/wolfram_alpha/
+    """
+
     wolfram_app_id = os.environ.get("WOLFRAM_APP_ID")
 
     def __init__(self):

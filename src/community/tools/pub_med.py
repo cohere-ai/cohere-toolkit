@@ -2,10 +2,10 @@ from typing import Any, Dict, List
 
 from langchain_community.tools.pubmed.tool import PubmedQueryRun
 
-from community.tools import BaseRetrieval
+from community.tools import BaseTool
 
 
-class PubMedRetriever(BaseRetrieval):
+class PubMedRetriever(BaseTool):
     def __init__(self):
         self.client = PubmedQueryRun()
 
@@ -13,6 +13,6 @@ class PubMedRetriever(BaseRetrieval):
     def is_available(cls) -> bool:
         return True
 
-    def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        result = self.client.invoke(query)
+    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
+        result = self.client.invoke(parameters)
         return [{"text": result}]

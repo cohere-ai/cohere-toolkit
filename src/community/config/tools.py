@@ -1,12 +1,14 @@
 from enum import StrEnum
 
-from community.tools import Category, ManagedTool
-from community.tools.function_tools import ClinicalTrialsTool, WolframAlphaFunctionTool
-from community.tools.retrieval import (
+from community.tools import (
     ArxivRetriever,
+    Category,
+    ClinicalTrials,
     ConnectorRetriever,
     LlamaIndexUploadPDFRetriever,
+    ManagedTool,
     PubMedRetriever,
+    WolframAlpha,
 )
 
 
@@ -58,18 +60,18 @@ COMMUNITY_TOOLS = {
     ),
     CommunityToolName.Wolfram_Alpha: ManagedTool(
         name=CommunityToolName.Wolfram_Alpha,
-        implementation=WolframAlphaFunctionTool,
+        implementation=WolframAlpha,
         is_visible=False,
-        is_available=WolframAlphaFunctionTool.is_available(),
+        is_available=WolframAlpha.is_available(),
         error_message="WolframAlphaFunctionTool is not available, please set the WOLFRAM_APP_ID environment variable.",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
     ),
     CommunityToolName.ClinicalTrials: ManagedTool(
         name=CommunityToolName.ClinicalTrials,
-        implementation=ClinicalTrialsTool,
+        implementation=ClinicalTrials,
         is_visible=True,
-        is_available=ClinicalTrialsTool.is_available(),
+        is_available=ClinicalTrials.is_available(),
         error_message="ClinicalTrialsTool is not available.",
         category=Category.Function,
         description="Retrieves clinical studies from ClinicalTrials.gov.",

@@ -1,8 +1,8 @@
-from community.tools.function_tools.clinicaltrials import ClinicalTrialsTool
+from community.tools import ClinicalTrials
 
 
 def test_clinicaltrials_tool():
-    retriever = ClinicalTrialsTool()
+    retriever = ClinicalTrials()
     result = retriever.call(
         parameters={
             "condition": "lung cancer",

@@ -1,4 +1,4 @@
-# Custom tools and retrieval sources
+# Custom Tools
 Follow these instructions to create your own custom tools.
 
 ## Step 1: Choose a Tool to Implement
@@ -25,83 +25,13 @@ There are three types of tools:
 
 ## Step 3: Implement the Tool
 
-Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tools) (please note that this link might change). The specific subfolder used will depend on the type of tool you're implementing.
+Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tools) (please note that this link is subject to change).
 
 If you need to install a new module to run your tool, execute the following command and run `make dev` again.
 
 ```bash
 poetry add <MODULE> --group community
 ```
-
-If you're working on a File or Data Loader, follow the steps outlined in [Implementing a Retriever](#implementing-a-retriever).
-
-If you're implementing a Function Tool, refer to the steps in [Implementing a Function Tool](#implementing-a-function-tool).
-
-### Implementing a Retriever
-
-Add the implementation inside a tool class that inherits `BaseRetrieval` and needs to implement the function `def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:`
-
-You can define custom configurations for your tool within the `__init__` function. Set the exact values for these variables during [Step 4](#step-4-making-your-tool-available).
-
-You can also develop a tool that requires a token or authentication. To do this, simply set your variable in the .env file.
-
-For example, for Wikipedia we have a custom configuration:
-
-```python
-class LangChainWikiRetriever(BaseRetrieval):
-    """
-    This class retrieves documents from Wikipedia using the langchain package.
-    This requires wikipedia package to be installed.
-    """
-
-    def __init__(self, chunk_size: int = 300, chunk_overlap: int = 0):
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
-
-    def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        wiki_retriever = WikipediaRetriever()
-        docs = wiki_retriever.get_relevant_documents(query)
-        text_splitter = CharacterTextSplitter(
-            chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-        )
-        documents = text_splitter.split_documents(docs)
-        return [
-            {
-                "text": doc.page_content,
-                "title": doc.metadata.get("title", None),
-                "url": doc.metadata.get("source", None),
-            }
-            for doc in documents
-        ]
-```
-
-And for internet search, we need an API key
-
-```python
-class TavilyInternetSearch(BaseRetrieval):
-    def __init__(self):
-        if "TAVILY_API_KEY" not in os.environ:
-            raise ValueError("Please set the TAVILY_API_KEY environment variable.")
-
-        self.api_key = os.environ["TAVILY_API_KEY"]
-        self.client = TavilyClient(api_key=self.api_key)
-
-    def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        content = self.client.search(query=query, search_depth="advanced")
-
-        if "results" not in content:
-            return []
-
-        return [
-            {
-                "url": result["url"],
-                "text": result["content"],
-            }
-            for result in content["results"]
-```
-
-Note that all Retrievers should return a list of Dicts, and each Dict should contain at least a `text` key.
-
 ### Implementing a Function Tool
 
 Add the implementation inside a tool class that inherits `BaseFunctionTool` and needs to implement the function  `def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:` 

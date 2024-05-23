@@ -2,10 +2,10 @@ from typing import Any, Dict, List
 
 from py_expression_eval import Parser
 
-from backend.tools.function_tools.base import BaseFunctionTool
+from backend.tools.base import BaseTool
 
 
-class CalculatorFunctionTool(BaseFunctionTool):
+class Calculator(BaseTool):
     """
     Function Tool that evaluates mathematical expressions.
     """

@@ -4,13 +4,11 @@ from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
-from backend.tools.function_tools import (
-    CalculatorFunctionTool,
-    PythonInterpreterFunctionTool,
-)
-from backend.tools.retrieval import (
+from backend.tools import (
+    Calculator,
     LangChainVectorDBRetriever,
     LangChainWikiRetriever,
+    PythonInterpreter,
     TavilyInternetSearch,
 )
 
@@ -56,7 +54,7 @@ ALL_TOOLS = {
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
-        implementation=PythonInterpreterFunctionTool,
+        implementation=PythonInterpreter,
         parameter_definitions={
             "code": {
                 "description": "Python code to execute using an interpreter",
@@ -65,14 +63,14 @@ ALL_TOOLS = {
             }
         },
         is_visible=True,
-        is_available=PythonInterpreterFunctionTool.is_available(),
+        is_available=PythonInterpreter.is_available(),
         error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
         category=Category.Function,
         description="Runs python code in a sandbox.",
     ),
     ToolName.Calculator: ManagedTool(
         name=ToolName.Calculator,
-        implementation=CalculatorFunctionTool,
+        implementation=Calculator,
         parameter_definitions={
             "code": {
                 "description": "Arithmetic expression to evaluate",
@@ -81,7 +79,7 @@ ALL_TOOLS = {
             }
         },
         is_visible=True,
-        is_available=CalculatorFunctionTool.is_available(),
+        is_available=Calculator.is_available(),
         error_message="CalculatorFunctionTool not available.",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
