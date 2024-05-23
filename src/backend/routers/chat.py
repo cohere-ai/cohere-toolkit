@@ -179,6 +179,9 @@ def process_chat(
     user_id = request.headers.get("User-Id", "")
     deployment_name = request.headers.get("Deployment-Name", "")
     model_config = {}
+    # Deployment config is the settings for the model deployment per request 
+    # It is a string of key value pairs separated by semicolons
+    # For example: "azure_key1=value1;azure_key2=value2"
     if not request.headers.get("Deployment-Config", "") == "":
         model_config = dict(
             {c.split("=")[0], "".join(c.split("=")[0:])}
