@@ -18,9 +18,7 @@ class CustomChat(BaseChat):
 
     logger = get_logger()
 
-    def chat(
-        self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> Any:
+    def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         """
         Chat flow for custom models.
 
@@ -32,7 +30,9 @@ class CustomChat(BaseChat):
             Generator[StreamResponse, None, None]: Chat response.
         """
         # Choose the deployment model - validation already performed by request validator
-        deployment_model = get_deployment(kwargs.get("deployment_name"), kwargs.get("deployment_config"))
+        deployment_model = get_deployment(
+            kwargs.get("deployment_name"), kwargs.get("deployment_config")
+        )
         self.logger.info(f"Using deployment {deployment_model.__class__.__name__}")
 
         if len(chat_request.tools) > 0 and len(chat_request.documents) > 0:

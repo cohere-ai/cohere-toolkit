@@ -73,7 +73,7 @@ class SageMakerDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
     def invoke_chat_stream(
-        self, model_config: dict, chat_request: CohereChatRequest, **kwargs: Any
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         # Create the payload for the request
         json_params = {
@@ -95,7 +95,6 @@ class SageMakerDeployment(BaseDeployment):
 
     def invoke_search_queries(
         self,
-        model_config: dict,
         message: str,
         chat_history: List[Dict[str, str]] | None = None,
         **kwargs: Any
