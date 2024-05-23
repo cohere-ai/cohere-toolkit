@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum MessageType {
-  TEXT = 'TEXT',
-}
+export type Body_upload_file_v1_conversations_upload_file_post = {
+  conversation_id?: string;
+  file: Blob;
+};

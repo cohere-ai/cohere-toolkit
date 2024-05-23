@@ -7,4 +7,6 @@ export type Document = {
   document_id: string;
   title: string | null;
   url: string | null;
+  fields: Record<string, any> | null;
+  tool_name: string | null;
 };

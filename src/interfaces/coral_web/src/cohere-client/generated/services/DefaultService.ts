@@ -8,8 +8,7 @@
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-import type { Body_upload_file_conversations_upload_file_post } from '../models/Body_upload_file_conversations_upload_file_post';
-import type { Body_upload_file_with_conversation_conversations__conversation_id__upload_file_post } from '../models/Body_upload_file_with_conversation_conversations__conversation_id__upload_file_post';
+import type { Body_upload_file_v1_conversations_upload_file_post } from '../models/Body_upload_file_v1_conversations_upload_file_post';
 import type { ChatResponseEvent } from '../models/ChatResponseEvent';
 import type { CohereChatRequest } from '../models/CohereChatRequest';
 import type { Conversation } from '../models/Conversation';
@@ -22,6 +21,7 @@ import type { Deployment } from '../models/Deployment';
 import type { File } from '../models/File';
 import type { LangchainChatRequest } from '../models/LangchainChatRequest';
 import type { ListFile } from '../models/ListFile';
+import type { Login } from '../models/Login';
 import type { ManagedTool } from '../models/ManagedTool';
 import type { NonStreamedChatResponse } from '../models/NonStreamedChatResponse';
 import type { UpdateConversation } from '../models/UpdateConversation';
@@ -32,6 +32,85 @@ import type { UploadFile } from '../models/UploadFile';
 import type { User } from '../models/User';
 
 export class DefaultService {
+  /**
+   * Get Session
+   * Retrievers the current session user.
+   *
+   * Args:
+   * request (Request): current Request object.
+   *
+   * Returns:
+   * session: current user session ({} if no active session)
+   *
+   * Raises:
+   * 401 HTTPException if no user found in session.
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static getSessionSessionGet(): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/session',
+    });
+  }
+  /**
+   * Login
+   * Logs user in, verifying their credentials and either setting the user session,
+   * or redirecting to /auth endpoint.
+   *
+   * Args:er
+   * request (Request): current Request object.
+   * login (Login): Login payload.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * dict: On success.
+   *
+   * Raises:
+   * HTTPException: If the strategy or payload are invalid, or if the login fails.
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static loginLoginPost({ requestBody }: { requestBody: Login }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/login',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Auth
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static authAuthPost(): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/auth',
+    });
+  }
+  /**
+   * Logout
+   * Logs out the current user session.
+   *
+   * Args:
+   * request (Request): current Request object.
+   *
+   * Returns:
+   * dict: On success.
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static logoutLogoutGet(): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/logout',
+    });
+  }
   /**
    * Chat Stream
    * Stream chat endpoint to handle user messages and return chatbot responses.
@@ -46,14 +125,14 @@ export class DefaultService {
    * @returns ChatResponseEvent Successful Response
    * @throws ApiError
    */
-  public static chatStreamChatStreamPost({
+  public static chatStreamV1ChatStreamPost({
     requestBody,
   }: {
     requestBody: CohereChatRequest;
   }): CancelablePromise<Array<ChatResponseEvent>> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/chat-stream',
+      url: '/v1/chat-stream',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -75,14 +154,14 @@ export class DefaultService {
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
-  public static chatChatPost({
+  public static chatV1ChatPost({
     requestBody,
   }: {
     requestBody: CohereChatRequest;
   }): CancelablePromise<NonStreamedChatResponse> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/chat',
+      url: '/v1/chat',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -95,14 +174,14 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static langchainChatStreamLangchainChatPost({
+  public static langchainChatStreamV1LangchainChatPost({
     requestBody,
   }: {
     requestBody: LangchainChatRequest;
   }): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/langchain-chat',
+      url: '/v1/langchain-chat',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -123,14 +202,14 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static createUserUsersPost({
+  public static createUserV1UsersPost({
     requestBody,
   }: {
     requestBody: CreateUser;
   }): CancelablePromise<User> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/users/',
+      url: '/v1/users/',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -152,7 +231,7 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static listUsersUsersGet({
+  public static listUsersV1UsersGet({
     offset,
     limit = 100,
   }: {
@@ -161,7 +240,7 @@ export class DefaultService {
   }): CancelablePromise<Array<User>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/users/',
+      url: '/v1/users/',
       query: {
         offset: offset,
         limit: limit,
@@ -187,10 +266,10 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static getUserUsersUserIdGet({ userId }: { userId: string }): CancelablePromise<User> {
+  public static getUserV1UsersUserIdGet({ userId }: { userId: string }): CancelablePromise<User> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/users/{user_id}',
+      url: '/v1/users/{user_id}',
       path: {
         user_id: userId,
       },
@@ -216,7 +295,7 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static updateUserUsersUserIdPut({
+  public static updateUserV1UsersUserIdPut({
     userId,
     requestBody,
   }: {
@@ -225,7 +304,7 @@ export class DefaultService {
   }): CancelablePromise<User> {
     return __request(OpenAPI, {
       method: 'PUT',
-      url: '/users/{user_id}',
+      url: '/v1/users/{user_id}',
       path: {
         user_id: userId,
       },
@@ -253,14 +332,14 @@ export class DefaultService {
    * @returns DeleteUser Successful Response
    * @throws ApiError
    */
-  public static deleteUserUsersUserIdDelete({
+  public static deleteUserV1UsersUserIdDelete({
     userId,
   }: {
     userId: string;
   }): CancelablePromise<DeleteUser> {
     return __request(OpenAPI, {
       method: 'DELETE',
-      url: '/users/{user_id}',
+      url: '/v1/users/{user_id}',
       path: {
         user_id: userId,
       },
@@ -287,14 +366,14 @@ export class DefaultService {
    * @returns Conversation Successful Response
    * @throws ApiError
    */
-  public static getConversationConversationsConversationIdGet({
+  public static getConversationV1ConversationsConversationIdGet({
     conversationId,
   }: {
     conversationId: string;
   }): CancelablePromise<Conversation> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/conversations/{conversation_id}',
+      url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: conversationId,
       },
@@ -321,7 +400,7 @@ export class DefaultService {
    * @returns Conversation Successful Response
    * @throws ApiError
    */
-  public static updateConversationConversationsConversationIdPut({
+  public static updateConversationV1ConversationsConversationIdPut({
     conversationId,
     requestBody,
   }: {
@@ -330,7 +409,7 @@ export class DefaultService {
   }): CancelablePromise<Conversation> {
     return __request(OpenAPI, {
       method: 'PUT',
-      url: '/conversations/{conversation_id}',
+      url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: conversationId,
       },
@@ -358,14 +437,14 @@ export class DefaultService {
    * @returns DeleteConversation Successful Response
    * @throws ApiError
    */
-  public static deleteConversationConversationsConversationIdDelete({
+  public static deleteConversationV1ConversationsConversationIdDelete({
     conversationId,
   }: {
     conversationId: string;
   }): CancelablePromise<DeleteConversation> {
     return __request(OpenAPI, {
       method: 'DELETE',
-      url: '/conversations/{conversation_id}',
+      url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: conversationId,
       },
@@ -389,7 +468,7 @@ export class DefaultService {
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
-  public static listConversationsConversationsGet({
+  public static listConversationsV1ConversationsGet({
     offset,
     limit = 100,
   }: {
@@ -398,52 +477,11 @@ export class DefaultService {
   }): CancelablePromise<Array<ConversationWithoutMessages>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/conversations/',
+      url: '/v1/conversations',
       query: {
         offset: offset,
         limit: limit,
       },
-      errors: {
-        422: `Validation Error`,
-      },
-    });
-  }
-  /**
-   * Upload File With Conversation
-   * (TO BE DEPRECATED)
-   *
-   *
-   * Uploads a file to a conversation.
-   *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * session (DBSessionDep): Database session.
-   * file (FastAPIUploadFile): File to be uploaded.
-   *
-   * Returns:
-   * UploadFile: Uploaded file.
-   *
-   * Raises:
-   * HTTPException: If the conversation with the given ID is not found. Status code 404.
-   * HTTPException: If the file wasn't uploaded correctly. Status code 500.
-   * @returns UploadFile Successful Response
-   * @throws ApiError
-   */
-  public static uploadFileWithConversationConversationsConversationIdUploadFilePost({
-    conversationId,
-    formData,
-  }: {
-    conversationId: string;
-    formData: Body_upload_file_with_conversation_conversations__conversation_id__upload_file_post;
-  }): CancelablePromise<UploadFile> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/conversations/{conversation_id}/upload_file',
-      path: {
-        conversation_id: conversationId,
-      },
-      formData: formData,
-      mediaType: 'multipart/form-data',
       errors: {
         422: `Validation Error`,
       },
@@ -468,14 +506,14 @@ export class DefaultService {
    * @returns UploadFile Successful Response
    * @throws ApiError
    */
-  public static uploadFileConversationsUploadFilePost({
+  public static uploadFileV1ConversationsUploadFilePost({
     formData,
   }: {
-    formData: Body_upload_file_conversations_upload_file_post;
+    formData: Body_upload_file_v1_conversations_upload_file_post;
   }): CancelablePromise<UploadFile> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/conversations/upload_file',
+      url: '/v1/conversations/upload_file',
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {
@@ -499,14 +537,14 @@ export class DefaultService {
    * @returns ListFile Successful Response
    * @throws ApiError
    */
-  public static listFilesConversationsConversationIdFilesGet({
+  public static listFilesV1ConversationsConversationIdFilesGet({
     conversationId,
   }: {
     conversationId: string;
   }): CancelablePromise<Array<ListFile>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/conversations/{conversation_id}/files',
+      url: '/v1/conversations/{conversation_id}/files',
       path: {
         conversation_id: conversationId,
       },
@@ -533,7 +571,7 @@ export class DefaultService {
    * @returns File Successful Response
    * @throws ApiError
    */
-  public static updateFileConversationsConversationIdFilesFileIdPut({
+  public static updateFileV1ConversationsConversationIdFilesFileIdPut({
     conversationId,
     fileId,
     requestBody,
@@ -544,7 +582,7 @@ export class DefaultService {
   }): CancelablePromise<File> {
     return __request(OpenAPI, {
       method: 'PUT',
-      url: '/conversations/{conversation_id}/files/{file_id}',
+      url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
         conversation_id: conversationId,
         file_id: fileId,
@@ -573,7 +611,7 @@ export class DefaultService {
    * @returns DeleteFile Successful Response
    * @throws ApiError
    */
-  public static deleteFileConversationsConversationIdFilesFileIdDelete({
+  public static deleteFileV1ConversationsConversationIdFilesFileIdDelete({
     conversationId,
     fileId,
   }: {
@@ -582,7 +620,7 @@ export class DefaultService {
   }): CancelablePromise<DeleteFile> {
     return __request(OpenAPI, {
       method: 'DELETE',
-      url: '/conversations/{conversation_id}/files/{file_id}',
+      url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
         conversation_id: conversationId,
         file_id: fileId,
@@ -601,10 +639,10 @@ export class DefaultService {
    * @returns ManagedTool Successful Response
    * @throws ApiError
    */
-  public static listToolsToolsGet(): CancelablePromise<Array<ManagedTool>> {
+  public static listToolsV1ToolsGet(): CancelablePromise<Array<ManagedTool>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/tools/',
+      url: '/v1/tools',
     });
   }
   /**
@@ -616,14 +654,14 @@ export class DefaultService {
    * @returns Deployment Successful Response
    * @throws ApiError
    */
-  public static listDeploymentsDeploymentsGet({
+  public static listDeploymentsV1DeploymentsGet({
     all = false,
   }: {
     all?: boolean;
   }): CancelablePromise<Array<Deployment>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/deployments/',
+      url: '/v1/deployments',
       query: {
         all: all,
       },
@@ -641,7 +679,7 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static setEnvVarsDeploymentsNameSetEnvVarsPost({
+  public static setEnvVarsV1DeploymentsNameSetEnvVarsPost({
     name,
     requestBody,
   }: {
@@ -650,7 +688,7 @@ export class DefaultService {
   }): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/deployments/{name}/set_env_vars',
+      url: '/v1/deployments/{name}/set_env_vars',
       path: {
         name: name,
       },
@@ -670,10 +708,10 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static listExperimentalFeaturesExperimentalFeaturesGet(): CancelablePromise<any> {
+  public static listExperimentalFeaturesV1ExperimentalFeaturesGet(): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/experimental_features/',
+      url: '/v1/experimental_features/',
     });
   }
   /**
