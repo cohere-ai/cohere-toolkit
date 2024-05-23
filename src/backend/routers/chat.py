@@ -90,7 +90,7 @@ async def chat_stream(
         deployment_name,
         should_store,
         managed_tools,
-        model_config,
+        deployment_config,
     ) = process_chat(session, chat_request, request)
 
     return EventSourceResponse(
@@ -98,9 +98,9 @@ async def chat_stream(
             session,
             CustomChat().chat(
                 chat_request,
-                model_config=model_config,
                 stream=True,
                 deployment_name=deployment_name,
+                deployment_config=deployment_config,
                 file_paths=file_paths,
                 managed_tools=managed_tools,
             ),
@@ -140,16 +140,16 @@ async def chat(
         deployment_name,
         should_store,
         managed_tools,
-        model_config,
+        deployment_config,
     ) = process_chat(session, chat_request, request)
 
     return generate_chat_response(
         session,
         CustomChat().chat(
             chat_request,
-            model_config=model_config,
             stream=False,
             deployment_name=deployment_name,
+            deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
         ),
