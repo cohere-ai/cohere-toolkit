@@ -49,8 +49,11 @@ const ConversationPage: NextPage<Props> = () => {
   const { data: allDeployments } = useListAllDeployments();
 
   useEffect(() => {
-    if (!deployment && availableDeployments && availableDeployments?.length > 0) {
-      setParams({ deployment: availableDeployments[0].name });
+    if (!deployment && allDeployments) {
+      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
+      if (firstAvailableDeployment) {
+        setParams({ deployment: firstAvailableDeployment.name });
+      }
     }
   }, [deployment]);
 
@@ -66,15 +69,6 @@ const ConversationPage: NextPage<Props> = () => {
       setConversation({ id: urlConversationId });
     }
   }, [urlConversationId, setConversation, resetCitations]);
-
-  useEffect(() => {
-    if (!deployment && allDeployments) {
-      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
-      if (firstAvailableDeployment) {
-        setParams({ deployment: firstAvailableDeployment.name });
-      }
-    }
-  }, [deployment]);
 
   useEffect(() => {
     if (!conversation) return;
