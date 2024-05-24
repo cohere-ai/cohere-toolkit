@@ -8,7 +8,7 @@ from backend.model_deployments.base import BaseDeployment
 class Deployment(BaseModel):
     name: str
     models: list[str]
-    is_available: bool = Field(exclude=True)
+    is_available: bool
     deployment_class: Type[BaseDeployment] = Field(exclude=True)
     env_vars: list[str]
     kwargs: Optional[dict] = Field(exclude=True, default={})
