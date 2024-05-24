@@ -5,7 +5,7 @@ from py_expression_eval import Parser
 from backend.tools.base import BaseTool
 
 
-class Calculator(BaseTool):
+class CalculatorFunctionTool(BaseTool):
     """
     Function Tool that evaluates mathematical expressions.
     """
@@ -17,6 +17,7 @@ class Calculator(BaseTool):
     def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
         math_parser = Parser()
         to_evaluate = parameters.get("code", "").replace("pi", "PI").replace("e", "E")
+
         result = []
         try:
             result = {"result": math_parser.parse(to_evaluate).evaluate({})}

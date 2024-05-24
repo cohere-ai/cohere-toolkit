@@ -27,43 +27,46 @@ There are three types of tools:
 
 Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tools) (please note that this link is subject to change).
 
-If you need to install a new module to run your tool, execute the following command and run `make dev` again.
+If you need to install a new library to run your tool, execute the following command and run `make dev` again.
 
 ```bash
 poetry add <MODULE> --group community
 ```
-### Implementing a Function Tool
+### Implementing a Tool
 
-Add the implementation inside a tool class that inherits `BaseFunctionTool` and needs to implement the function  `def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:` 
+Add the implementation inside a tool class that inherits from `BaseTool`. This class will need to implement
+the `call()` method, which should return a list of dictionary results.
 
-For example, for calculator 
+For example, let's look at the community-implemented `ArxivRetriever`:
 
 ```python
-from typing import Any
-from py_expression_eval import Parser
-from typing import List, Dict
+from typing import Any, Dict, List
 
-from backend.tools.function_tools.base import BaseFunctionTool
+from langchain_community.utilities import ArxivAPIWrapper
 
-class CalculatorFunctionTool(BaseFunctionTool):
-    """
-    Function Tool that evaluates mathematical expressions.
-    """
+from community.tools import BaseTool
 
+
+class ArxivRetriever(BaseTool):
+    def __init__(self):
+        self.client = ArxivAPIWrapper()
+
+    @classmethod
+    # If your tool requires any environment variables such as API keys,
+    # you will need to assert that they're not None here
+    def is_available(cls) -> bool:
+        return True
+
+    # Your tool needs to implement this call() method
     def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        math_parser = Parser()
-        to_evaluate = parameters.get("code", "").replace("pi", "PI").replace("e", "E")
-        result = []
-        try:
-            result = {"result": math_parser.parse(to_evaluate).evaluate({})}
-        except Exception:
-            result = {"result": "Parsing error - syntax not allowed."}
-        return result
+        result = self.client.run(parameters)
+
+        return [{"text": result}] # <- Return list of results, in this case there is only one
 ```
 
 ## Step 4: Making Your Tool Available
 
-To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py).
+To make your tool available, add its definition to the community tools [config.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py).
 
 Start by adding the tool name to the `ToolName` enum found at the top of the file.
 
@@ -78,27 +81,6 @@ Next, include the tool configurations in the `AVAILABLE_TOOLS` list. The definit
 - Category: The type of tool.
 - Description: A brief description of the tool.
 - Env_vars: A list of secrets required by the tool.
-
-Function tool with custom parameter definitions:
-
-```python
-ToolName.Python_Interpreter: ManagedTool(
-    name=ToolName.Python_Interpreter,
-    implementation=PythonInterpreterFunctionTool,
-    parameter_definitions={
-        "code": {
-            "description": "Python code to execute using an interpreter",
-            "type": "str",
-            "required": True,
-        }
-    },
-    is_visible=True,
-    is_available=PythonInterpreterFunctionTool.is_available(),
-    error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
-    category=Category.Function,
-    description="Runs python code in a sandbox.",
-)
-```
 
 ## Step 5: Test Your Tool!
 
@@ -137,4 +119,4 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ## Step 6 (extra): Add Unit tests
 
-If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tests/tools) and add a few cases.
+If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tests/tools) and add a few test cases.
