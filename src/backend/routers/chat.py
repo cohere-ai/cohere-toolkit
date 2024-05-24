@@ -258,7 +258,6 @@ def get_deployment_config(request: Request) -> dict:
         if len(kv) < 2:
             continue
         config[kv[0]] = "".join(kv[1:])
-    print("Deployment config: ", config)
     return config
 
 
