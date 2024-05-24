@@ -90,6 +90,7 @@ async def chat_stream(
         deployment_name,
         should_store,
         managed_tools,
+        deployment_config,
     ) = process_chat(session, chat_request, request)
 
     return EventSourceResponse(
@@ -99,6 +100,7 @@ async def chat_stream(
                 chat_request,
                 stream=True,
                 deployment_name=deployment_name,
+                deployment_config=deployment_config,
                 file_paths=file_paths,
                 managed_tools=managed_tools,
             ),
@@ -138,6 +140,7 @@ async def chat(
         deployment_name,
         should_store,
         managed_tools,
+        deployment_config,
     ) = process_chat(session, chat_request, request)
 
     return generate_chat_response(
@@ -146,6 +149,7 @@ async def chat(
             chat_request,
             stream=False,
             deployment_name=deployment_name,
+            deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
         ),
@@ -158,7 +162,9 @@ async def chat(
 
 def process_chat(
     session: DBSessionDep, chat_request: BaseChatRequest, request: Request
-) -> tuple[DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str]:
+) -> tuple[
+    DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
+]:
     """
     Process a chat request.
 
@@ -172,6 +178,12 @@ def process_chat(
     """
     user_id = request.headers.get("User-Id", "")
     deployment_name = request.headers.get("Deployment-Name", "")
+    model_config = {}
+    # Deployment config is the settings for the model deployment per request
+    # It is a string of key value pairs separated by semicolons
+    # For example: "azure_key1=value1;azure_key2=value2"
+    if not request.headers.get("Deployment-Config", "") == "":
+        model_config = get_deployment_config(request)
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
     )
@@ -234,7 +246,19 @@ def process_chat(
         deployment_name,
         should_store,
         managed_tools,
+        model_config,
     )
+
+
+def get_deployment_config(request: Request) -> dict:
+    header = request.headers.get("Deployment-Config", "")
+    config = {}
+    for c in header.split(";"):
+        kv = c.split("=")
+        if len(kv) < 2:
+            continue
+        config[kv[0]] = "".join(kv[1:])
+    return config
 
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
@@ -715,6 +739,7 @@ def langchain_chat_stream(
         _,
         should_store,
         managed_tools,
+        _,
     ) = process_chat(session, chat_request, request)
 
     return EventSourceResponse(

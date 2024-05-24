@@ -12,7 +12,7 @@ import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
 import { useConversation } from '@/hooks/conversation';
-import { useListDeployments } from '@/hooks/deployments';
+import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
@@ -46,11 +46,14 @@ const ConversationPage: NextPage<Props> = () => {
     isError,
     error,
   } = useConversation({ conversationId: urlConversationId });
-  const { data: availableDeployments } = useListDeployments();
+  const { data: allDeployments } = useListAllDeployments();
 
   useEffect(() => {
-    if (!deployment && availableDeployments && availableDeployments?.length > 0) {
-      setParams({ deployment: availableDeployments[0].name });
+    if (!deployment && allDeployments) {
+      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
+      if (firstAvailableDeployment) {
+        setParams({ deployment: firstAvailableDeployment.name });
+      }
     }
   }, [deployment]);
 
