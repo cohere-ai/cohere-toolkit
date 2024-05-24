@@ -23,22 +23,18 @@ BEDROCK_ENV_VARS = [
 class BedrockDeployment(BaseDeployment):
     DEFAULT_MODELS = ["cohere.command-r-plus-v1:0"]
 
-    def __init__(self, model_config: dict):
+    def __init__(self, **kwargs: Any):
         self.client = cohere.BedrockClient(
             # TODO: remove hardcoded models once the SDK is updated
             chat_model="cohere.command-r-plus-v1:0",
             embed_model="cohere.embed-multilingual-v3",
             generate_model="cohere.command-text-v14",
-            aws_access_key=get_model_config_var(
-                BEDROCK_ACCESS_KEY_ENV_VAR, model_config
-            ),
-            aws_secret_key=get_model_config_var(
-                BEDROCK_SECRET_KEY_ENV_VAR, model_config
-            ),
+            aws_access_key=get_model_config_var(BEDROCK_ACCESS_KEY_ENV_VAR, **kwargs),
+            aws_secret_key=get_model_config_var(BEDROCK_SECRET_KEY_ENV_VAR, **kwargs),
             aws_session_token=get_model_config_var(
-                BEDROCK_SESSION_TOKEN_ENV_VAR, model_config
+                BEDROCK_SESSION_TOKEN_ENV_VAR, **kwargs
             ),
-            aws_region=get_model_config_var(BEDROCK_REGION_NAME_ENV_VAR, model_config),
+            aws_region=get_model_config_var(BEDROCK_REGION_NAME_ENV_VAR, **kwargs),
         )
 
     @property

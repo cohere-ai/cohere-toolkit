@@ -9,6 +9,8 @@ from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
+# Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
+# Note: It must have /v1 and it should not have /chat
 AZURE_CHAT_URL_ENV_VAR = "AZURE_CHAT_ENDPOINT_URL"
 AZURE_ENV_VARS = [AZURE_API_KEY_ENV_VAR, AZURE_CHAT_URL_ENV_VAR]
 
@@ -22,16 +24,14 @@ class AzureDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["azure-command"]
 
-    def __init__(self, model_config: dict):
+    def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
-        self.api_key = get_model_config_var(AZURE_API_KEY_ENV_VAR, model_config)
-        # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
-        # Note: It must have /v1 and it should not have /chat
-        self.chat_endpoint_url = get_model_config_var(
-            AZURE_CHAT_URL_ENV_VAR, model_config
-        )
+        self.api_key = get_model_config_var(AZURE_API_KEY_ENV_VAR, **kwargs)
+        self.chat_endpoint_url = get_model_config_var(AZURE_CHAT_URL_ENV_VAR, **kwargs)
+
         if not self.chat_endpoint_url.endswith("/v1"):
             self.chat_endpoint_url = self.chat_endpoint_url + "/v1"
+        print("Azure chat endpoint url: ", self.chat_endpoint_url)
         self.client = cohere.Client(
             base_url=self.chat_endpoint_url, api_key=self.api_key
         )

@@ -33,26 +33,24 @@ class SageMakerDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["sagemaker-command"]
 
-    def __init__(self, model_config: dict):
+    def __init__(self, **kwargs: Any):
         # Create the AWS client for the Bedrock runtime with boto3
         self.client = boto3.client(
             "sagemaker-runtime",
-            region_name=get_model_config_var(
-                SAGE_MAKER_REGION_NAME_ENV_VAR, model_config
-            ),
+            region_name=get_model_config_var(SAGE_MAKER_REGION_NAME_ENV_VAR, **kwargs),
             aws_access_key_id=get_model_config_var(
-                SAGE_MAKER_ACCESS_KEY_ENV_VAR, model_config
+                SAGE_MAKER_ACCESS_KEY_ENV_VAR, **kwargs
             ),
             aws_secret_access_key=get_model_config_var(
-                SAGE_MAKER_SECRET_KEY_ENV_VAR, model_config
+                SAGE_MAKER_SECRET_KEY_ENV_VAR, **kwargs
             ),
             aws_session_token=get_model_config_var(
-                SAGE_MAKER_SESSION_TOKEN_ENV_VAR, model_config
+                SAGE_MAKER_SESSION_TOKEN_ENV_VAR, **kwargs
             ),
         )
         self.params = {
             "EndpointName": get_model_config_var(
-                SAGE_MAKER_ENDPOINT_NAME_ENV_VAR, model_config
+                SAGE_MAKER_ENDPOINT_NAME_ENV_VAR, **kwargs
             ),
             "ContentType": "application/json",
         }

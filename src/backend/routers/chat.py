@@ -183,10 +183,7 @@ def process_chat(
     # It is a string of key value pairs separated by semicolons
     # For example: "azure_key1=value1;azure_key2=value2"
     if not request.headers.get("Deployment-Config", "") == "":
-        model_config = dict(
-            {c.split("=")[0], "".join(c.split("=")[0:])}
-            for c in request.headers.get("Deployment-Config", "").split(";")
-        )
+        model_config = get_deployment_config(request)
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
     )
@@ -251,6 +248,18 @@ def process_chat(
         managed_tools,
         model_config,
     )
+
+
+def get_deployment_config(request: Request) -> dict:
+    header = request.headers.get("Deployment-Config", "")
+    config = {}
+    for c in header.split(";"):
+        kv = c.split("=")
+        if len(kv) < 2:
+            continue
+        config[kv[0]] = "".join(kv[1:])
+    print("Deployment config: ", config)
+    return config
 
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
