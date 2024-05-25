@@ -43,7 +43,7 @@ WELCOME_MESSAGE = r"""
 """
 DATABASE_URL_DEFAULT = "postgresql+psycopg2://postgres:postgres@db:5432"
 PYTHON_INTERPRETER_URL_DEFAULT = "http://terrarium:8080"
-NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://backend:8000"
+NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://localhost:8000"
 
 DOT_ENV_FILE_PATH = ".env"
 
