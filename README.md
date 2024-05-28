@@ -21,7 +21,7 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
 
 ## Try Now:
 
-Try the default Toolkit application yourself by deploying it in a container locally. Either with `docker run`, using the pre-built Docker image provided (note: this does not contain community packages):
+Try the default Toolkit application yourself by deploying it in a container locally. Either with `docker run`, using the pre-built Docker image provided (note: this does not contain community tools):
 
 ```bash
 
@@ -29,7 +29,9 @@ docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.i
 
 ```
 
-or cloning and running locally (includes community packages):
+or cloning and running locally:
+
+Note: to include community tools when building locally, set the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` to `true`.
 
 ```bash
 git clone https://github.com/cohere-ai/cohere-toolkit.git
