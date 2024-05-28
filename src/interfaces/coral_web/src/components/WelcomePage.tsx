@@ -1,11 +1,11 @@
-import { AuthLink } from '@cohere-ai/next-auth';
 import { PropsWithChildren } from 'react';
 
+import { AuthLink } from '@/components/AuthLink';
 import { NavigationUserMenu } from '@/components/NavigationUserMenu';
 import { PageHead } from '@/components/Shared';
 import { Text } from '@/components/Shared';
+import { CellBackground } from '@/components/Welcome/CellBackground';
 import { Navigation } from '@/components/Welcome/Navigation';
-import { ZoomingCellBackground } from '@/components/Welcome/ZoomingCellBackground';
 
 type Props = PropsWithChildren<{
   title: string;
@@ -27,17 +27,11 @@ export const WelcomePage: React.FC<Props> = ({
     <div className="relative flex h-full min-h-screen w-full bg-green-50">
       <PageHead title={title} />
 
-      <ZoomingCellBackground step={videoStep} />
+      <CellBackground step={videoStep} />
 
       <div className="max-w-page relative mx-auto flex h-full min-h-screen w-full flex-col overflow-y-auto">
         <Navigation className="max-w-page top-0 w-full md:fixed">
-          {userEmail && (
-            <NavigationUserMenu
-              userEmail={userEmail}
-              app="dashboard"
-              showEmail={showEmailInHeader}
-            />
-          )}
+          {userEmail && <NavigationUserMenu userEmail={userEmail} showEmail={showEmailInHeader} />}
           {!userEmail && navigationAction && (
             <Text styleAs="p-lg" as="span" className="capitalize">
               <AuthLink action={navigationAction} className="no-underline" />

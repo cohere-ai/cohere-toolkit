@@ -1,7 +1,7 @@
-import { AuthLink } from '@cohere-ai/next-auth';
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 
+import { AuthLink } from '@/components/AuthLink';
 import { Icon, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
@@ -12,9 +12,8 @@ import { cn } from '@/utils';
  */
 export const NavigationUserMenu: React.FC<{
   userEmail?: string;
-  app?: string;
   showEmail?: boolean;
-}> = ({ userEmail, app, showEmail = false }) => {
+}> = ({ userEmail, showEmail = false }) => {
   return (
     <PopoverMenu email={showEmail && userEmail ? userEmail : undefined}>
       <div className="py-3">
@@ -28,12 +27,7 @@ export const NavigationUserMenu: React.FC<{
           </>
         ) : (
           <div className="mt-3 flex justify-end border-t border-marble-400 px-4 pt-3">
-            <AuthLink
-              action="login"
-              styleAs="button"
-              kind="secondary"
-              redirect={app === 'playground' ? '/playground' : ''}
-            />
+            <AuthLink action="login" styleAs="button" kind="secondary" />
           </div>
         )}
       </div>
