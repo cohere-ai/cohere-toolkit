@@ -1,11 +1,12 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import { Icon, IconProps } from '@/components/Shared';
+import { Icon, IconName, IconProps } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
   url: string;
+  icon?: IconName;
   className?: string;
   iconKind?: IconProps['kind'];
 };
@@ -32,9 +33,14 @@ const getPrimaryDomain = (url: string) => {
 };
 
 /**
- * Renders the favicon with a background for a given url or a relevant fallback.
+ * Renders the favicon for a given url or the given icon with a background.
  */
-export const DocumentIcon: React.FC<Props> = ({ url, className = '', iconKind = 'outline' }) => {
+export const DocumentIcon: React.FC<Props> = ({
+  icon,
+  url,
+  className = '',
+  iconKind = 'outline',
+}) => {
   const [error, setError] = useState<boolean | null>(null);
   const domain = getPrimaryDomain(url);
 
@@ -44,7 +50,9 @@ export const DocumentIcon: React.FC<Props> = ({ url, className = '', iconKind = 
 
   return (
     <div className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded', className)}>
-      {domain === '' ? (
+      {icon ? (
+        <Icon name={icon} kind={iconKind} />
+      ) : domain === '' ? (
         <Icon name="file" kind={iconKind} />
       ) : error ? (
         <Icon name="web" kind={iconKind} />

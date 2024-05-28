@@ -29,6 +29,7 @@ export const STYLE_LEVEL_TO_CLASSES = {
   label: 'text-label uppercase font-code',
   caption: 'text-caption font-code',
   code: 'text-code font-code',
+  'code-sm': 'text-code-sm font-code',
 };
 
 const getStyleLevelClasses = (level: StyleAs | AsElement) => {

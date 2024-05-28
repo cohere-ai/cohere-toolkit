@@ -32,6 +32,7 @@ or cloning and running locally:
 
 ```bash
 git clone https://github.com/cohere-ai/cohere-toolkit.git
+cd cohere-toolkit
 make first-run
 ```
 

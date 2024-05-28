@@ -10,7 +10,7 @@ import {
 } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
-import { useUpdateDeploymentEnvVariables } from '@/hooks/envVariables';
+import { useParamsStore } from '@/stores';
 
 /**
  * @description Button to trigger a modal to edit .env variables.
@@ -20,14 +20,14 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
 
   const handleClick = () => {
     open({
-      title: 'Edit .env variables',
-      content: <EditEnvVariablesModal onClose={close} />,
+      title: 'Configure Model Deployment',
+      content: <EditEnvVariablesModal onClose={close} defaultDeployment="" />,
     });
   };
 
   return (
     <BasicButton
-      label="Edit .env variables"
+      label="Configure"
       size="sm"
       kind="minimal"
       className="py-0"
@@ -37,16 +37,27 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
 };
 
 /**
- * @description Renders a modal to edit a selected deployment's .env variables.
+ * @description Renders a modal to edit a selected deployment's config
  */
-const EditEnvVariablesModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const EditEnvVariablesModal: React.FC<{
+  defaultDeployment: string;
+  onClose: () => void;
+}> = ({defaultDeployment, onClose }) => {
   const { data: deployments } = useListAllDeployments();
-  const { mutateAsync: updateDeploymentEnvVariables } = useUpdateDeploymentEnvVariables();
 
-  const [deployment, setDeployment] = useState<string | undefined>();
-  const [envVariables, setEnvVariables] = useState<Record<string, string>>({});
+  const [deployment, setDeployment] = useState<string | undefined>(defaultDeployment);
+  const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => {
+    const selectedDeployment = deployments?.find(({ name }) => name === defaultDeployment);
+    return (
+      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+        acc[envVar] = '';
+        return acc;
+      }, {}) ?? {}
+    );
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasError, setHasError] = useState(false);
+
+  const { setParams } = useParamsStore();
 
   const deploymentOptions: DropdownOptionGroups = useMemo(
     () => [
@@ -61,10 +72,6 @@ const EditEnvVariablesModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
   );
 
   const handleDeploymentChange = (newDeployment: string) => {
-    if (hasError) {
-      setHasError(false);
-    }
-
     setDeployment(newDeployment);
     const selectedDeployment = deployments?.find(({ name }) => name === newDeployment);
     const emptyEnvVariables =
@@ -76,30 +83,20 @@ const EditEnvVariablesModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
   };
 
   const handleEnvVariableChange = (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (hasError) {
-      setHasError(false);
-    }
-
     setEnvVariables({ ...envVariables, [envVar]: e.target.value });
   };
 
   const handleSubmit = async () => {
     if (!deployment) return;
 
-    if (hasError) {
-      setHasError(false);
-    }
-
-    try {
-      setIsSubmitting(true);
-      await updateDeploymentEnvVariables({ name: deployment, env_vars: envVariables });
-      setIsSubmitting(false);
-      onClose();
-    } catch (e) {
-      console.error(e);
-      setHasError(true);
-      setIsSubmitting(false);
-    }
+    setIsSubmitting(true);
+    setParams({
+      deploymentConfig: Object.entries(envVariables)
+        .map(([k, v]) => k + '=' + v)
+        .join(';'),
+    });
+    setIsSubmitting(false);
+    onClose();
   };
 
   return (
@@ -115,21 +112,16 @@ const EditEnvVariablesModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
           key={envVar}
           placeholder="value"
           label={envVar}
+          type="password"
           value={envVariables[envVar]}
           onChange={handleEnvVariableChange(envVar)}
         />
       ))}
 
-      {hasError && (
-        <Text styleAs="p-sm" className="text-danger-500">
-          An error occurred. Please try again.
-        </Text>
-      )}
-
       <span className="mt-10 flex items-center justify-between">
         <BasicButton kind="minimal" size="sm" label="Cancel" onClick={onClose} />
         <Button
-          label={isSubmitting ? 'Submitting...' : 'Submit'}
+          label={isSubmitting ? 'Saving...' : 'Save'}
           onClick={handleSubmit}
           splitIcon="arrow-right"
           disabled={isSubmitting}
