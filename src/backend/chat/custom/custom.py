@@ -87,7 +87,10 @@ class CustomChat(BaseChat):
             # TODO: merge with regular function tools after multihop implemented
             for retriever in retrievers:
                 for query in queries:
-                    all_documents.setdefault(query, []).extend(retriever.call(query))
+                    parameters = {"query": query}
+                    all_documents.setdefault(query, []).extend(
+                        retriever.call(parameters)
+                    )
 
             # Collate Documents
             documents = combine_documents(all_documents, deployment_model)

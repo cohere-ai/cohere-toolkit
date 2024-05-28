@@ -13,6 +13,7 @@ class PubMedRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        result = self.client.invoke(parameters)
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+        query = parameters.get("query", "")
+        result = self.client.invoke(query)
         return [{"text": result}]

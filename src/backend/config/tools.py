@@ -36,6 +36,13 @@ ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
         name=ToolName.Wiki_Retriever_LangChain,
         implementation=LangChainWikiRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         kwargs={"chunk_size": 300, "chunk_overlap": 0},
         is_visible=True,
         is_available=LangChainWikiRetriever.is_available(),
@@ -46,6 +53,13 @@ ALL_TOOLS = {
     ToolName.File_Upload_Langchain: ManagedTool(
         name=ToolName.File_Upload_Langchain,
         implementation=LangChainVectorDBRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         is_visible=True,
         is_available=LangChainVectorDBRetriever.is_available(),
         error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
@@ -80,13 +94,20 @@ ALL_TOOLS = {
         },
         is_visible=True,
         is_available=Calculator.is_available(),
-        error_message="CalculatorFunctionTool not available.",
+        error_message="Calculator tool not available.",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
         implementation=TavilyInternetSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         is_visible=True,
         is_available=TavilyInternetSearch.is_available(),
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",

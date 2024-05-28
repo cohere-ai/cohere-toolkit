@@ -23,7 +23,7 @@ class WolframAlpha(BaseTool):
     def is_available(cls) -> bool:
         return cls.wolfram_app_id is not None
 
-    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         to_evaluate = parameters.get("expression", "")
         result = self.tool.run(to_evaluate)
         return {"result": result, "text": result}

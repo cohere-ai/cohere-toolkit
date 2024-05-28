@@ -25,6 +25,13 @@ COMMUNITY_TOOLS = {
     CommunityToolName.Arxiv: ManagedTool(
         name=CommunityToolName.Arxiv,
         implementation=ArxivRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         is_visible=True,
         is_available=ArxivRetriever.is_available(),
         error_message="ArxivRetriever is not available.",
@@ -43,6 +50,13 @@ COMMUNITY_TOOLS = {
     CommunityToolName.Pub_Med: ManagedTool(
         name=CommunityToolName.Pub_Med,
         implementation=PubMedRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         is_visible=True,
         is_available=PubMedRetriever.is_available(),
         error_message="PubMedRetriever is not available.",

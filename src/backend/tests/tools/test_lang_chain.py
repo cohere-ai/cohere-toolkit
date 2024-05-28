@@ -53,7 +53,7 @@ def test_wiki_retriever() -> None:
         "backend.tools.lang_chain.WikipediaRetriever",
         return_value=wiki_retriever_mock,
     ):
-        result = retriever.call(query)
+        result = retriever.call({"query": query})
 
     assert result == expected_docs
 
@@ -71,7 +71,7 @@ def test_wiki_retriever_no_docs() -> None:
         "backend.tools.lang_chain.WikipediaRetriever",
         return_value=wiki_retriever_mock,
     ):
-        result = retriever.call(query)
+        result = retriever.call({"query": query})
 
     assert result == []
 
@@ -131,7 +131,7 @@ def test_vector_db_retriever() -> None:
         mock_db = MagicMock()
         mock_from_documents.return_value = mock_db
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
-        result = retriever.call(query)
+        result = retriever.call({"query": query})
 
     assert result == expected_docs
 
@@ -152,6 +152,6 @@ def test_vector_db_retriever_no_docs() -> None:
         mock_db = MagicMock()
         mock_from_documents.return_value = mock_db
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
-        result = retriever.call(query)
+        result = retriever.call({"query": query})
 
     assert result == []

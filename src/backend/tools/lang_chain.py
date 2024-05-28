@@ -31,9 +31,10 @@ class LangChainWikiRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         wiki_retriever = WikipediaRetriever()
-        docs = wiki_retriever.get_relevant_documents(parameters)
+        query = parameters.get("query", "")
+        docs = wiki_retriever.get_relevant_documents(query)
         text_splitter = CharacterTextSplitter(
             chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
         )
@@ -63,7 +64,7 @@ class LangChainVectorDBRetriever(BaseTool):
     def is_available(cls) -> bool:
         return cls.cohere_api_key is not None
 
-    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         cohere_embeddings = CohereEmbeddings(cohere_api_key=self.cohere_api_key)
 
         # Load text files and split into chunks
@@ -73,6 +74,7 @@ class LangChainVectorDBRetriever(BaseTool):
 
         # Create a vector store from the documents
         db = Chroma.from_documents(documents=pages, embedding=cohere_embeddings)
-        input_docs = db.as_retriever().get_relevant_documents(parameters)
+        query = parameters.get("query", "")
+        input_docs = db.as_retriever().get_relevant_documents(query)
 
         return [dict({"text": doc.page_content}) for doc in input_docs]
