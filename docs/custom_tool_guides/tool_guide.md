@@ -34,8 +34,9 @@ poetry add <MODULE> --group community
 ```
 ### Implementing a Tool
 
-Add the implementation inside a tool class that inherits from `BaseTool`. This class will need to implement
-the `call()` method, which should return a list of dictionary results.
+Add the implementation inside a tool class that inherits from `BaseTool`. This class will need to implement the `call()` method, which should return a list of dictionary results.
+
+Note: To enable citations, each result in the list should contain a "text" field.
 
 For example, let's look at the community-implemented `ArxivRetriever`:
 
