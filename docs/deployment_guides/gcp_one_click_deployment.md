@@ -23,7 +23,8 @@ To get this URL, follow these steps:
 If the deployment is stuck on pushing the image to the Container Registry close the shell and try to redeploy the service.
 If the deployment is stuck in a pending state or the connection to your Google Cloud Shell was lost like it shown on the image below:
 ![](/docs/assets/cloud_shell_stuck.png)
-It means that the deployment process was not completed successfully, and we need to create a new revision for our deployment with correct settings.
+or you get the nginx 502 error when you try to access the Toolkit URL, 
+it means that the deployment process was not completed successfully, and we need to create a new revision for our deployment with correct settings.
 Cloud Run does not set the startupProbe settings to the correct value, so we need to set it in the new revision.
 To do it follow next steps:
 - Navigate to the Google Cloud Console
@@ -31,14 +32,16 @@ To do it follow next steps:
 - Click on the toolkit-deploy service
 - Click on the "Edit & Deploy New Revision" button
 - Scroll down to the "Health checks" section
-- Click Edit button(pencil icon) and set next values:
-  - Select probe type: HTTP 
+- Delete the existing liveness probe
+- Click on the "Add health check" button
+  - Select health check type: Startup check 
+  - Select probe type: HTTP
   - Path (e.g./ready): /api/health
-  - Port: 8090
+  - Port: 4000
   - Initial delay: 0
   - Period: 1 
-  - Failure threshold: 50
+  - Failure threshold: 120
   - Timeout: 1
-  - Click "Update" button
+  - Click "Add" button
 - Click "Deploy" button
 
