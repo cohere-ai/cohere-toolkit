@@ -19,7 +19,7 @@
       "allow-unauthenticated": true,
       "memory": "12288Mi",
       "cpu": "4",
-      "port": 8090,
+      "port": 4000,
       "max-instances": 2
   }
 }
