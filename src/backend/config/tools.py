@@ -4,13 +4,11 @@ from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
-from backend.tools.function_tools import (
-    CalculatorFunctionTool,
-    PythonInterpreterFunctionTool,
-)
-from backend.tools.retrieval import (
+from backend.tools import (
+    Calculator,
     LangChainVectorDBRetriever,
     LangChainWikiRetriever,
+    PythonInterpreter,
     TavilyInternetSearch,
 )
 
@@ -38,6 +36,13 @@ ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
         name=ToolName.Wiki_Retriever_LangChain,
         implementation=LangChainWikiRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         kwargs={"chunk_size": 300, "chunk_overlap": 0},
         is_visible=True,
         is_available=LangChainWikiRetriever.is_available(),
@@ -48,6 +53,13 @@ ALL_TOOLS = {
     ToolName.File_Upload_Langchain: ManagedTool(
         name=ToolName.File_Upload_Langchain,
         implementation=LangChainVectorDBRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         is_visible=True,
         is_available=LangChainVectorDBRetriever.is_available(),
         error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
@@ -56,7 +68,7 @@ ALL_TOOLS = {
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
-        implementation=PythonInterpreterFunctionTool,
+        implementation=PythonInterpreter,
         parameter_definitions={
             "code": {
                 "description": "Python code to execute using an interpreter",
@@ -65,14 +77,14 @@ ALL_TOOLS = {
             }
         },
         is_visible=True,
-        is_available=PythonInterpreterFunctionTool.is_available(),
+        is_available=PythonInterpreter.is_available(),
         error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
         category=Category.Function,
         description="Runs python code in a sandbox.",
     ),
     ToolName.Calculator: ManagedTool(
         name=ToolName.Calculator,
-        implementation=CalculatorFunctionTool,
+        implementation=Calculator,
         parameter_definitions={
             "code": {
                 "description": "Arithmetic expression to evaluate",
@@ -81,14 +93,21 @@ ALL_TOOLS = {
             }
         },
         is_visible=True,
-        is_available=CalculatorFunctionTool.is_available(),
-        error_message="CalculatorFunctionTool not available.",
+        is_available=Calculator.is_available(),
+        error_message="Calculator tool not available.",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
         implementation=TavilyInternetSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         is_visible=True,
         is_available=TavilyInternetSearch.is_available(),
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",

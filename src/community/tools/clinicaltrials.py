@@ -1,14 +1,16 @@
-# https://clinicaltrials.gov/data-api/api
-
 from typing import Any, Dict, List
 
 import requests
 
-from community.tools import BaseFunctionTool
+from community.tools import BaseTool
 
 
-class ClinicalTrialsTool(BaseFunctionTool):
-    """Retrieves clinical studies from ClinicalTrials.gov"""
+class ClinicalTrials(BaseTool):
+    """
+    Retrieves clinical studies from ClinicalTrials.gov.
+
+    See: https://clinicaltrials.gov/data-api/api
+    """
 
     def __init__(self, url="https://clinicaltrials.gov/api/v2/studies"):
         self._url = url
