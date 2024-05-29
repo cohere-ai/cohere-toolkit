@@ -153,6 +153,7 @@ def user(session: Session) -> User:
 def mock_available_model_deployments(request):
     from backend.tests.model_deployments.mock_deployments import (
         MockAzureDeployment,
+        MockBedrockDeployment,
         MockCohereDeployment,
         MockSageMakerDeployment,
     )
@@ -181,6 +182,13 @@ def mock_available_model_deployments(request):
             is_available=is_available_values.get(ModelDeploymentName.Azure, True),
             deployment_class=MockAzureDeployment,
             env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
+        ),
+        ModelDeploymentName.Bedrock: Deployment(
+            name=ModelDeploymentName.Bedrock,
+            models=MockBedrockDeployment.list_models(),
+            is_available=is_available_values.get(ModelDeploymentName.Bedrock, True),
+            deployment_class=MockBedrockDeployment,
+            env_vars=["BEDROCK_VAR_1", "BEDROCK_VAR_2"],
         ),
     }
 

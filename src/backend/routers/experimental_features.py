@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from backend.database_models import get_session
 
 router = APIRouter(
-    prefix="/experimental_features",
+    prefix="/v1/experimental_features",
     dependencies=[Depends(get_session)],
 )
 

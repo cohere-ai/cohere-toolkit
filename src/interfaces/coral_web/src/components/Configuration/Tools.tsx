@@ -119,7 +119,16 @@ const ToolSection = () => {
                     disabled={disabled}
                   />
                   {(description || error_message) && (
-                    <Tooltip label={description ?? error_message} />
+                    <Tooltip
+                      label={
+                        <div className="flex flex-col gap-y-2">
+                          {description && <Text>{description}</Text>}
+                          {error_message && (
+                            <Text className="text-danger-500">Error: {error_message}</Text>
+                          )}
+                        </div>
+                      }
+                    />
                   )}
                 </div>
               );

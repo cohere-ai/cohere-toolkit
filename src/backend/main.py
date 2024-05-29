@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import asynccontextmanager
 
@@ -16,6 +17,7 @@ from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
+from backend.services.logger import LoggingMiddleware
 
 load_dotenv()
 
@@ -50,6 +52,7 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(LoggingMiddleware)
 
     # Handle Authentication enabled
     if ENABLED_AUTH_STRATEGY_MAPPING:

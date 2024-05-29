@@ -25,6 +25,7 @@ class DeploymentName(StrEnum):
     COHERE_PLATFORM = "Cohere Platform"
     SAGE_MAKER = "SageMaker"
     AZURE = "Azure"
+    BEDROCK = "Bedrock"
 
 
 class ToolName(StrEnum):
@@ -41,8 +42,8 @@ WELCOME_MESSAGE = r"""
  ╚════╝  ╚════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝    ╚═╝    ╚════╝  ╚════╝ ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   
 """
 DATABASE_URL_DEFAULT = "postgresql+psycopg2://postgres:postgres@db:5432"
-PYTHON_INTERPRETER_URL_DEFAULT = "http://localhost:8080"
-NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://backend:8000"
+PYTHON_INTERPRETER_URL_DEFAULT = "http://terrarium:8080"
+NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://localhost:8000"
 
 DOT_ENV_FILE_PATH = ".env"
 
@@ -97,7 +98,7 @@ def community_tools_prompt(secrets):
         "🏘️ We have some community tools that you can set up. These tools are not required for the Cohere Toolkit to run."
     )
     use_community_features = inquirer.confirm(
-        "Do you want to set up community features (tools and deployments)?"
+        "Do you want to set up community features (tools and model deployments)?"
     )
     secrets["USE_COMMUNITY_FEATURES"] = use_community_features
     return use_community_features
@@ -107,9 +108,10 @@ def tool_prompt(secrets, name, configs):
     print_styled(
         f"🛠️ If you want to enable {name}, set up the following secrets. Otherwise, press enter."
     )
-    for secret in configs["secrets"]:
-        value = inquirer.text(f"Enter the value for {secret}")
-        secrets[secret] = value
+
+    for key, default_value in configs["secrets"].items():
+        value = inquirer.text(f"Enter the value for {key}", default=default_value)
+        secrets[key] = value
 
 
 def review_variables_prompt(secrets):
@@ -118,7 +120,7 @@ def review_variables_prompt(secrets):
     questions = [
         inquirer.Checkbox(
             "variables",
-            message="Review your variables and select the ones you want to update, if any",
+            message="Review your variables and select the ones you want to update, if any. Press enter to continue",
             choices=review_list,
         ),
     ]
@@ -143,10 +145,10 @@ def write_env_file(secrets):
 
 
 def select_deployments_prompt(deployments, _):
-    print_styled("🚀 Let's set up your deployments.", bcolors.MAGENTA)
+    print_styled("🚀 Let's set up your model deployments.", bcolors.MAGENTA)
 
     deployments = inquirer.checkbox(
-        "Select the deployments you want to set up",
+        "Select the model deployments you want to set up",
         choices=[deployment.value for deployment in deployments.keys()],
         default=["Cohere Platform"],
         validate=lambda _, x: len(x) > 0,
@@ -195,12 +197,12 @@ def show_examples():
         bcolors.OKCYAN,
     )
     print_styled(
-        """\tcurl --location 'http://localhost:8000/chat-stream' --header 'User-Id: test-user' --header 'Deployment: SageMaker' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
+        """\tcurl --location 'http://localhost:8000/chat-stream' --header 'User-Id: test-user' --header 'Deployment-Name: SageMaker' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
         bcolors.OKCYAN,
     )
 
     print_styled(
-        "4. List all available deployments and their models",
+        "4. List all available models deployments and their models",
         bcolors.OKCYAN,
     )
     print_styled(
@@ -209,7 +211,7 @@ def show_examples():
     )
 
     print_styled(
-        "For more examples, visit Cohere Toolkit README.md",
+        "For more examples, please visit the Cohere Toolkit README.md",
         bcolors.MAGENTA,
     )
 
@@ -221,14 +223,14 @@ IMPLEMENTATIONS = {
 
 TOOLS = {
     ToolName.PythonInterpreter: {
-        "secrets": [
-            "PYTHON_INTERPRETER_URL",
-        ],
+        "secrets": {
+            "PYTHON_INTERPRETER_URL": PYTHON_INTERPRETER_URL_DEFAULT,
+        },
     },
     ToolName.TavilyInternetSearch: {
-        "secrets": [
-            "TAVILY_API_KEY",
-        ],
+        "secrets": {
+            "TAVILY_API_KEY": None,
+        },
     },
 }
 

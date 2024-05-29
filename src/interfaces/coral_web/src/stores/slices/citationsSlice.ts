@@ -32,7 +32,7 @@ interface SearchResults {
   [documentId: string]: Record<string, any>;
 }
 
-export type OutputFiles = { [name: string]: { name: string; data: string } };
+export type OutputFiles = { [name: string]: { name: string; data: string; documentId?: string } };
 
 type State = {
   citationReferences: CitationReferences;

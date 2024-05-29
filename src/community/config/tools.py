@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 from community.tools import Category, ManagedTool
-from community.tools.function_tools import WolframAlphaFunctionTool
+from community.tools.function_tools import ClinicalTrialsTool, WolframAlphaFunctionTool
 from community.tools.retrieval import (
     ArxivRetriever,
     ConnectorRetriever,
@@ -16,6 +16,7 @@ class CommunityToolName(StrEnum):
     Pub_Med = "Pub Med"
     File_Upload_LlamaIndex = "File Reader - LlamaIndex"
     Wolfram_Alpha = "Wolfram_Alpha"
+    ClinicalTrials = "ClinicalTrials"
 
 
 COMMUNITY_TOOLS = {
@@ -64,13 +65,44 @@ COMMUNITY_TOOLS = {
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
     ),
+    CommunityToolName.ClinicalTrials: ManagedTool(
+        name=CommunityToolName.ClinicalTrials,
+        implementation=ClinicalTrialsTool,
+        is_visible=True,
+        is_available=ClinicalTrialsTool.is_available(),
+        error_message="ClinicalTrialsTool is not available.",
+        category=Category.Function,
+        description="Retrieves clinical studies from ClinicalTrials.gov.",
+        parameter_definitions={
+            "condition": {
+                "description": "Filters clinical studies to a specified disease or condition",
+                "type": "str",
+                "required": False,
+            },
+            "location": {
+                "description": "Filters clinical studies to a specified city, state, or country.",
+                "type": "str",
+                "required": False,
+            },
+            "intervention": {
+                "description": "Filters clinical studies to a specified drug or treatment.",
+                "type": "str",
+                "required": False,
+            },
+            "is_recruiting": {
+                "description": "Filters clinical studies to those that are actively recruiting.",
+                "type": "bool",
+                "required": False,
+            },
+        },
+    ),
 }
 
 # For main.py cli setup script
 COMMUNITY_TOOLS_SETUP = {
     CommunityToolName.Wolfram_Alpha: {
-        "secrets": [
-            "WOLFRAM_ALPHA_APP_ID",
-        ],
+        "secrets": {
+            "WOLFRAM_ALPHA_APP_ID": None,  # default value
+        },
     },
 }

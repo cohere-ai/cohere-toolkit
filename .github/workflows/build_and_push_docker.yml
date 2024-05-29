@@ -44,3 +44,14 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           file: ./standalone.Dockerfile
+      - name: Test the Docker image
+        run: |
+          docker run -d -p 8000:8000 $REGISTRY/cohere-ai/$IMAGE_NAME
+          sleep 30
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health)
+          if [ $status_code -eq 200 ]; then
+            echo "Backend started successfully"
+          else
+            echo "Backend failed to start"
+            exit 1
+          fi

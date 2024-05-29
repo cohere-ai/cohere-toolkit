@@ -4,7 +4,7 @@ from backend.config.tools import AVAILABLE_TOOLS
 
 
 def test_list_tools(client: TestClient) -> None:
-    response = client.get("/tools")
+    response = client.get("/v1/tools")
     assert response.status_code == 200
     for tool in response.json():
         assert tool["name"] in AVAILABLE_TOOLS.keys()

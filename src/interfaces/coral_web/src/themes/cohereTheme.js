@@ -110,6 +110,7 @@ module.exports = {
         p: ['0.875rem', { letterSpacing: '0.0025em', lineHeight: '150%' }], // 14px - Paragraph
         'p-lg': ['1rem', { letterSpacing: '0em', lineHeight: '150%' }], // 16px - Large Paragraph
         code: ['1rem', { letterSpacing: '0.03em', lineHeight: '136%' }], // 16px - Code
+        'code-sm': ['0.75rem', { letterSpacing: '0.03em', lineHeight: '136%' }], // 12px - Small Code
         // Headings
         logo: ['1.5rem', { letterSpacing: '0em', lineHeight: '100%' }], // 24px - Logo Application
         'h5-m': ['1.125rem', { letterSpacing: '0em', lineHeight: '136%' }], // 18px - Mobile Heading 5
@@ -128,9 +129,9 @@ module.exports = {
         'icon-xl': ['36px', { lineHeight: '100%' }],
       },
       fontFamily: {
-        body: ['Arial', ...defaultTheme.fontFamily.sans],
-        variable: ['Arial', ...defaultTheme.fontFamily.serif],
-        code: defaultTheme.fontFamily.mono,
+        body: ['CohereText', 'Arial', ...defaultTheme.fontFamily.sans],
+        variable: ['CohereVariable', 'Arial', ...defaultTheme.fontFamily.serif],
+        code: ['CohereMono', ...defaultTheme.fontFamily.mono],
         iconOutline: ['CohereIconOutline'],
         iconDefault: ['CohereIconDefault'],
       },
