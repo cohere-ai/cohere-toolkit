@@ -5,5 +5,6 @@
 export type Deployment = {
   name: string;
   models: Array<string>;
+  is_available: boolean;
   env_vars: Array<string>;
 };

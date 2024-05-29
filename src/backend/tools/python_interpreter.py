@@ -6,14 +6,14 @@ import requests
 from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
-from backend.tools.function_tools.base import BaseFunctionTool
+from backend.tools.base import BaseTool
 
 
 class LangchainPythonInterpreterToolInput(BaseModel):
     code: str = Field(description="Python code to execute.")
 
 
-class PythonInterpreterFunctionTool(BaseFunctionTool):
+class PythonInterpreter(BaseTool):
     """
     This class calls arbitrary code against a Python interpreter.
     It requires a URL at which the interpreter lives

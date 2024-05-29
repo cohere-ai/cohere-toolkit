@@ -4,10 +4,10 @@ from typing import Any, Dict, List
 from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
-from backend.tools.retrieval.base import BaseRetrieval
+from backend.tools.base import BaseTool
 
 
-class TavilyInternetSearch(BaseRetrieval):
+class TavilyInternetSearch(BaseTool):
     tavily_api_key = os.environ.get("TAVILY_API_KEY")
 
     def __init__(self):
@@ -17,7 +17,8 @@ class TavilyInternetSearch(BaseRetrieval):
     def is_available(cls) -> bool:
         return cls.tavily_api_key is not None
 
-    def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+        query = parameters.get("query", "")
         content = self.client.search(query=query, search_depth="advanced")
 
         if "results" not in content:

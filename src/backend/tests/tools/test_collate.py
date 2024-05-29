@@ -2,8 +2,8 @@ import os
 
 import pytest
 
+from backend.chat import collate
 from backend.model_deployments import CohereDeployment
-from backend.tools.retrieval import collate
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None
@@ -13,7 +13,7 @@ is_cohere_env_set = (
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_rerank() -> None:
-    model = CohereDeployment()
+    model = CohereDeployment(model_config={})
     input = {
         "mountain": [{"text": "hill"}, {"text": "cable"}, {"text": "goat"}],
         "computer": [{"text": "software"}, {"text": "penguin"}, {"text": "cable"}],

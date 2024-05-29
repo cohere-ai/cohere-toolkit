@@ -11,6 +11,7 @@ const INITIAL_STATE = {
   tools: [],
   fileIds: [],
   deployment: undefined,
+  deploymentConfig: undefined,
 };
 
 export type ConfigurableParams = Pick<CohereChatRequest, 'temperature' | 'tools'> & {
@@ -18,6 +19,7 @@ export type ConfigurableParams = Pick<CohereChatRequest, 'temperature' | 'tools'
   fileIds: CohereChatRequest['file_ids'];
   model?: string;
   deployment?: string;
+  deploymentConfig?: string;
 };
 
 type State = ConfigurableParams;

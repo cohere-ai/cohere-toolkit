@@ -7,6 +7,7 @@ on:
 
 jobs:
   pytest:
+    permissions: write-all
     environment: development
     runs-on: ubuntu-latest
     env:
@@ -18,6 +19,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
       - name: Setup Docker
-        run: docker compose up backend test_db -d
+        run: docker compose up test_db -d
       - name: Run tests
-        run: docker compose run --build -e COHERE_API_KEY=$COHERE_API_KEY backend poetry run pytest src/backend/tests/
+        run: |
+          mkdir -p coverage
+          docker compose build --build-arg INSTALL_COMMUNITY_DEPS=true backend
+          docker compose run --name backend-container -v $(pwd)/coverage:/app/coverage -e COHERE_API_KEY=$COHERE_API_KEY backend poetry run pytest --cov=src/backend --cov-report=xml:/app/coverage/coverage.xml src/backend/tests/
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage/coverage.xml

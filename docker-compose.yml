@@ -29,6 +29,8 @@ services:
   backend:
     build:
       context: .
+      args:
+        INSTALL_COMMUNITY_DEPS: false
       dockerfile: ./src/backend/Dockerfile
     develop:
       watch:
@@ -57,8 +59,6 @@ services:
       - ./src/backend/alembic:/workspace/src/backend/alembic
       # Mount data folder to sync uploaded files
       - ./src/backend/data:/workspace/src/backend/data
-      # For SageMaker: The line below for AWS configure file to sync credentials
-      - $HOME/.aws:/root/.aws 
     # network_mode: host
       
   frontend:
