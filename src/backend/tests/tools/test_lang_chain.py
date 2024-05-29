@@ -4,10 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from langchain_core.documents.base import Document
 
-from backend.tools.retrieval.lang_chain import (
-    LangChainVectorDBRetriever,
-    LangChainWikiRetriever,
-)
+from backend.tools import LangChainVectorDBRetriever, LangChainWikiRetriever
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None
@@ -53,10 +50,10 @@ def test_wiki_retriever() -> None:
     wiki_retriever_mock.get_relevant_documents.return_value = mock_docs
 
     with patch(
-        "backend.tools.retrieval.lang_chain.WikipediaRetriever",
+        "backend.tools.lang_chain.WikipediaRetriever",
         return_value=wiki_retriever_mock,
     ):
-        result = retriever.retrieve_documents(query)
+        result = retriever.call({"query": query})
 
     assert result == expected_docs
 
@@ -71,10 +68,10 @@ def test_wiki_retriever_no_docs() -> None:
     wiki_retriever_mock.get_relevant_documents.return_value = mock_docs
 
     with patch(
-        "backend.tools.retrieval.lang_chain.WikipediaRetriever",
+        "backend.tools.lang_chain.WikipediaRetriever",
         return_value=wiki_retriever_mock,
     ):
-        result = retriever.retrieve_documents(query)
+        result = retriever.call({"query": query})
 
     assert result == []
 
@@ -134,7 +131,7 @@ def test_vector_db_retriever() -> None:
         mock_db = MagicMock()
         mock_from_documents.return_value = mock_db
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
-        result = retriever.retrieve_documents(query)
+        result = retriever.call({"query": query})
 
     assert result == expected_docs
 
@@ -155,6 +152,6 @@ def test_vector_db_retriever_no_docs() -> None:
         mock_db = MagicMock()
         mock_from_documents.return_value = mock_db
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
-        result = retriever.retrieve_documents(query)
+        result = retriever.call({"query": query})
 
     assert result == []
