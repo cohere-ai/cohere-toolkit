@@ -71,7 +71,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
     if not is_enabled_authentication_strategy(strategy_name):
         raise HTTPException(
-            status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
+            status_code=422, detail=f"Invalid Authentication strategy: {strategy_name}."
         )
 
     # Check that the payload required is given
@@ -80,7 +80,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     if not set(strategy_payload).issubset(payload.keys()):
         missing_keys = [key for key in strategy_payload if key not in payload.keys()]
         raise HTTPException(
-            status_code=404,
+            status_code=422,
             detail=f"Missing the following keys in the payload: {missing_keys}.",
         )
 
@@ -100,7 +100,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
         # Set session user
         request.session["user"] = user
 
-    return RedirectResponse(url="/")
+    return {}
 
 
 @router.post("/auth")
@@ -146,7 +146,7 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
     user = get_or_create_user(session, token_user)
     request.session["user"] = user
 
-    return RedirectResponse(url="/")
+    return {}
 
 
 @router.get("/logout")
@@ -162,4 +162,4 @@ async def logout(request: Request):
     """
     request.session.pop("user", None)
 
-    return RedirectResponse(url="/")
+    return {}
