@@ -2,7 +2,7 @@
 
 Before deploying to Google Cloud Run, you'll need a postgres database accessible to your Google Cloud Project, authenticated by a username and password. You'll be prompted for a `DATABASE_URL` before the container builds.
 
-[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run?dir=/)
 
 ## Deployment Steps
 After clicking the button above, you'll be taken to the Google Cloud Console. Follow these steps to deploy the Toolkit:
