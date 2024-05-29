@@ -29,6 +29,8 @@ services:
   backend:
     build:
       context: .
+      args:
+        INSTALL_COMMUNITY_DEPS: false
       dockerfile: ./src/backend/Dockerfile
     develop:
       watch:

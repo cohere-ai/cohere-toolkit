@@ -1,6 +1,8 @@
 # Custom Tools
 Follow these instructions to create your own custom tools.
 
+Custom tools will need to be built in the `community` folder. Make sure you've enabled the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` file by setting it to `true`.
+
 ## Step 1: Choose a Tool to Implement
 
 You can take a tool implementation easily from: 
