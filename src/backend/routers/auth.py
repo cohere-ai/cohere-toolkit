@@ -109,7 +109,7 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
     Authentication endpoint used for OAuth strategies. Logs the user in the redirect environment and then
     sets the current session with the user returned from the auth token.
 
-    Args:er
+    Args:
         request (Request): current Request object.
         login (Login): Login payload.
 
