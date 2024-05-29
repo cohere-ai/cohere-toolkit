@@ -100,3 +100,8 @@ async def apply_migrations():
         )
 
     return {"status": "Done"}
+
+# if __name__ == "__main__":
+#     import uvicorn
+#
+#     uvicorn.run(app, host="localhost", port=8000, loop="asyncio")
