@@ -5,6 +5,7 @@ Before deploying to Google Cloud Run, you'll need a postgres database accessible
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run?dir=/)
 
 ## Deployment Steps
+
 After clicking the button above, you'll be taken to the Google Cloud Console. Follow these steps to deploy the Toolkit:
 - **Select a Project**: Choose the Google Cloud Project you want to deploy the Toolkit to.
 - **Set the Region**: Choose the region you want to deploy the Toolkit to.
@@ -13,6 +14,7 @@ After clicking the button above, you'll be taken to the Google Cloud Console. Fo
 - **Allow access to the git registries**: Click 'yes' to allow access to the git registries.
 
 ## Post-Deployment Steps
+
 After the deployment process is complete, you'll be able to access the Toolkit by navigating to the URL provided in the Google Cloud Console.
 To get this URL, follow these steps:
 - Click on the "Cloud Run" button on the left side of the screen
@@ -20,12 +22,18 @@ To get this URL, follow these steps:
 - Click on the "URL" link to open the Toolkit in a new tab
 
 ## Possible Deployment Errors
+
 If the deployment is stuck on pushing the image to the Container Registry close the shell and try to redeploy the service.
+
 If the deployment is stuck in a pending state or the connection to your Google Cloud Shell was lost like it shown on the image below:
 ![](/docs/assets/cloud_shell_stuck.png)
+
 or you get the nginx 502 error when you try to access the Toolkit URL, 
+
 it means that the deployment process was not completed successfully, and we need to create a new revision for our deployment with correct settings.
+
 Cloud Run does not set the startupProbe settings to the correct value, so we need to set it in the new revision.
+
 To do it follow next steps:
 - Navigate to the Google Cloud Console
 - Click on the "Cloud Run" button on the left side of the screen
