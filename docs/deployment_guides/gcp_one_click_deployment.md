@@ -32,7 +32,7 @@ To do it follow next steps:
 - Click on the toolkit-deploy service
 - Click on the "Edit & Deploy New Revision" button
 - Scroll down to the "Health checks" section
-- Delete the existing liveness probe
+- Delete the existing health check
 - Click on the "Add health check" button
   - Select health check type: Startup check 
   - Select probe type: HTTP
