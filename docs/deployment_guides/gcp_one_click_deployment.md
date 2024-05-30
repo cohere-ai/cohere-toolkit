@@ -15,8 +15,8 @@ After clicking the button above, you'll be taken to the Google Cloud Console. Fo
 
 ## Post-Deployment Steps
 
-After the deployment process is complete, you'll be able to access the Toolkit by navigating to the URL provided in the Google Cloud Console.
-To get this URL using GCP console, follow these steps:
+After the deployment process is complete, you'll be able to access the Toolkit by navigating to the URL provided in the Google Cloud Shell.
+Optionally you can get this URL using GCP console, to do it follow these steps:
 - Click on the "Cloud Run" button on the left side of the screen
 - Click on the toolkit-deploy service
 - Click on the "URL" link to open the Toolkit in a new tab
