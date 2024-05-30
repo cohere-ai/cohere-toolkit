@@ -16,6 +16,7 @@
         },
         "postcreate": {
             "commands": [
+                "ls",
                 "chmod +x ./gcp_postcreate_hook.sh",
                 "./gcp_postcreate_hook.sh"
             ]
