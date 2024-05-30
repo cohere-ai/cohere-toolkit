@@ -16,7 +16,8 @@
         },
         "postcreate": {
             "commands": [
-                "./gcp_postcreate_hook.sh"
+                "chmod +x .cohere-toolkit/gcp_postcreate_hook.sh",
+                ".cohere-toolkit/gcp_postcreate_hook.sh"
             ]
         }
   },

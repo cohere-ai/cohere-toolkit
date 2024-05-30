@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "Region $GOOGLE_CLOUD_REGION"
 echo "Project $GOOGLE_CLOUD_PROJECT"
 echo "Service $K_SERVICE"
