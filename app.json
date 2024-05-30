@@ -13,6 +13,11 @@
             "commands": [
                 "gcloud auth configure-docker"
             ]
+        },
+        "postcreate": {
+            "commands": [
+                "./gcp_postcreate_hook.sh"
+            ]
         }
   },
   "options": {

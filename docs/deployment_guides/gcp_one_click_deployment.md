@@ -7,16 +7,16 @@ Before deploying to Google Cloud Run, you'll need a postgres database accessible
 ## Deployment Steps
 
 After clicking the button above, you'll be taken to the Google Cloud Console. Follow these steps to deploy the Toolkit:
-- **Select a Project**: Choose the Google Cloud Project you want to deploy the Toolkit to.
+- **Select a Project**: Choose the Google Cloud Project you want to deploy the Toolkit to. If you don't have a project, you need to create one.
 - **Set the Region**: Choose the region you want to deploy the Toolkit to.
-- **Set the DATABASE_URL environment variable**: Enter the connection string of the format `postgresql://USERNAME:PASSWORD@HOST:PORT/DB_NAME`. The `HOST` value here is the Public IP address of your provisioned PostgreSQL database, and the default `PORT` is 5432. Make sure to use the username and password pair you set when creating your SQL instance. For example, `postgresql://myuser:mypassword@<your-db-public-ip-address>:5432/toolkit`.
+- **Set the DATABASE_URL environment variable**: Enter the connection string of the format `postgresql+psycopg2://USERNAME:PASSWORD@HOST:PORT/DB_NAME`. The `HOST` value here is the Public IP address of your provisioned PostgreSQL database, and the default `PORT` is 5432. Make sure to use the username and password pair you set when creating your SQL instance. For example, `postgresql+psycopg2://myuser:mypassword@<your-db-public-ip-address>:5432/toolkit`.
 - **Set the Cohere API Key**: Enter your Cohere API key, you can create one on the [Cohere Dashboard](https://dashboard.cohere.com).
 - **Allow access to the git registries**: Click 'yes' to allow access to the git registries.
 
 ## Post-Deployment Steps
 
 After the deployment process is complete, you'll be able to access the Toolkit by navigating to the URL provided in the Google Cloud Console.
-To get this URL, follow these steps:
+To get this URL using GCP console, follow these steps:
 - Click on the "Cloud Run" button on the left side of the screen
 - Click on the toolkit-deploy service
 - Click on the "URL" link to open the Toolkit in a new tab
