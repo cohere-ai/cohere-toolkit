@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "value": ""
+        },
+        "name": {
+            "value": "toolkit"
+        },
+        "location": {
+            "value": ""
+        },
+        "environmentId": {
+            "value": ""
+        },
+        "containers": {
+            "value": [
+                {
+                    "name": "toolkit",
+                    "image": "",
+                    "command": [],
+                    "resources": {
+                        "cpu": "4",
+                        "memory": "8Gi"
+                    },
+                    "env": [
+                        {
+                            "name": "COHERE_API_KEY",
+                            "value": ""
+                        },
+                        {
+                            "name": "DATABASE_URL",
+                            "value": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        "registries": {
+            "value": [
+                {
+                    "server": "ghcr.io",
+                    "username": "",
+                    "passwordSecretRef": "reg-pswd-df196c82-bd65"
+                }
+            ]
+        },
+        "secrets": {
+            "value": {
+                "arrayValue": [
+                    {
+                        "name": "reg-pswd-df196c82-bd65",
+                        "value": ""
+                    }
+                ]
+            }
+        },
+        "ingress": {
+            "value": {
+                "external": true,
+                "transport": "Auto",
+                "allowInsecure": false,
+                "targetPort": 4000,
+                "stickySessions": {
+                    "affinity": "none"
+                },
+                "additionalPortMappings": []
+            }
+        }
+    }
+}
