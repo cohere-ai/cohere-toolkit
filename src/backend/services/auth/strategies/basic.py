@@ -4,7 +4,7 @@ import bcrypt
 from sqlalchemy.orm import Session
 
 from backend.database_models.user import User
-from backend.services.auth.base import BaseAuthenticationStrategy
+from backend.services.auth.strategies.base import BaseAuthenticationStrategy
 
 
 class BasicAuthentication(BaseAuthenticationStrategy):

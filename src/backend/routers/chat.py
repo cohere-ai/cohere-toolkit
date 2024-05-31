@@ -7,7 +7,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
-from backend.database_models import get_session
+from backend.config.routers import RouterName
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -18,20 +18,12 @@ from backend.services.chat import (
     generate_langchain_chat_stream,
     process_chat,
 )
-from backend.services.request_validators import (
-    validate_chat_request,
-    validate_deployment_header,
-    validate_user_header,
-)
+from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
     prefix="/v1",
-    dependencies=[
-        Depends(get_session),
-        Depends(validate_chat_request),
-        Depends(validate_user_header),
-    ],
 )
+router.name = RouterName.CHAT
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
@@ -101,6 +93,7 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
+
     (
         session,
         chat_request,

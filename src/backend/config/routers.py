@@ -1,0 +1,88 @@
+from enum import StrEnum
+
+from fastapi import Depends
+
+from backend.database_models import get_session
+from backend.services.auth.request_validators import validate_authorization
+from backend.services.request_validators import (
+    validate_chat_request,
+    validate_user_header,
+)
+
+
+class RouterName(StrEnum):
+    AUTH = "auth"
+    CHAT = "chat"
+    CONVERSATION = "conversation"
+    DEPLOYMENT = "deployment"
+    EXPERIMENTAL_FEATURES = "experimental_features"
+    TOOL = "tool"
+    USER = "user"
+
+
+# Router dependency mappings
+ROUTER_DEPENDENCIES = {
+    RouterName.AUTH: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
+        ],
+    },
+    RouterName.CHAT: {
+        "default": [
+            Depends(get_session),
+            Depends(validate_chat_request),
+            Depends(validate_user_header),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_chat_request),
+            Depends(validate_authorization),
+        ],
+    },
+    RouterName.CONVERSATION: {
+        "default": [
+            Depends(get_session),
+            Depends(validate_user_header),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
+        ],
+    },
+    RouterName.DEPLOYMENT: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
+        ],
+    },
+    RouterName.EXPERIMENTAL_FEATURES: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
+        ],
+    },
+    RouterName.TOOL: {
+        "default": [],
+        "auth": [
+            Depends(validate_authorization),
+        ],
+    },
+    RouterName.USER: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
+        ],
+    },
+}

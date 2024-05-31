@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models import File as FileModel
-from backend.database_models import get_session
 from backend.database_models.database import DBSessionDep
 from backend.schemas.conversation import (
     Conversation,
@@ -17,12 +17,11 @@ from backend.schemas.conversation import (
 )
 from backend.schemas.file import DeleteFile, File, ListFile, UpdateFile, UploadFile
 from backend.services.file.service import FileService
-from backend.services.request_validators import validate_user_header
 
 router = APIRouter(
     prefix="/v1/conversations",
-    dependencies=[Depends(get_session), Depends(validate_user_header)],
 )
+router.name = RouterName.CONVERSATION
 
 
 # CONVERSATIONS

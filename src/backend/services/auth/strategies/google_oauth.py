@@ -6,7 +6,7 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.requests import Request
 
-from backend.services.auth.base import BaseOAuthStrategy
+from backend.services.auth.strategies.base import BaseOAuthStrategy
 
 
 class GoogleOAuth(BaseOAuthStrategy):
