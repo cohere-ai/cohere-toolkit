@@ -34,49 +34,44 @@ For Windows systems see the detailed setup below.
 ```bash
 scoop bucket add extras
 ```
-4. Install pipx
-```bash
-scoop install pipx
-pipx ensurepath
-```
-5. Install poetry == 1.7.1 using 
-```bash
-pipx install poetry==1.7.1
-```
-6. Install miniconda using
+4. Install miniconda using
 ```bash
 scoop install miniconda3
 conda init cmd.exe
 ```
-7. Restart PowerShell
-8. Install the following:
+5. Restart PowerShell
+6. Install the following:
 ```bash
 scoop install postgresql
 scoop install make
 ```
-9. Create a new virtual environment with Python 3.11 using CMD terminal
+7. Create a new virtual environment with Python 3.11 using CMD terminal
 ```bash
 conda create -n toolkit python=3.11
 conda activate toolkit
 ```
-10. Clone the repo
-11. Alternatively to `make win-first-run` or `make win-setup`, run
+8. Install poetry == 1.7.1 using 
+```bash
+pip install poetry==1.7.1
+```
+9. Clone the repo
+10. Alternatively to `make win-first-run` or `make win-setup`, run
 ```bash
 poetry install --with setup,community --verbose
 poetry run python src/backend/cli/main.py
 make migrate
 make dev
 ```
-12. Navigate to https://localhost:4000 in your browser
+11. Navigate to https://localhost:4000 in your browser
 
 ### Possible issues
 - If you encounter on error on running `poetry install` related to `llama-cpp-python`, please run the following command:
 ```bash
-poetry source add pypi
 poetry source add llama-cpp-python https://abetlen.github.io/llama-cpp-python/whl/cpu
+poetry source add pypi
 poetry lock
 ```
-and then run the commands in step 11 again.
+and then run the commands in step 10 again.
 For more information and additional installation instructions, see [llama-cpp-python documentation](https://github.com/abetlen/llama-cpp-python)
 
 </details>
