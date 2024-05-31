@@ -1,12 +1,31 @@
 {
-  "name": "one-click-demo",
+  "name": "toolkit-deploy",
   "env": {
-      "DATABASE_URI": {
-          "description": "URI for your Postgres database",
-          "default": "postgresql+psycopg2://postgre:postgre@localhost:5432/toolkit"
+      "DATABASE_URL": {
+          "description": "URL for your Postgres database"
+      },
+      "COHERE_API_KEY": {
+          "description": "Your Cohere API key"
       }
   },
+  "hooks": {
+        "prebuild": {
+            "commands": [
+                "gcloud auth configure-docker"
+            ]
+        },
+        "postcreate": {
+            "commands": [
+                "chmod +x ./gcp_postcreate_hook.sh",
+                "./gcp_postcreate_hook.sh"
+            ]
+        }
+  },
   "options": {
-      "allow-unauthenticated": true
+      "allow-unauthenticated": true,
+      "memory": "12288Mi",
+      "cpu": "4",
+      "port": 4000,
+      "max-instances": 2
   }
 }

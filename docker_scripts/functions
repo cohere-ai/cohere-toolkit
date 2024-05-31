@@ -237,10 +237,28 @@ run_postgre() {
   echo "PostgreSQL ${PG_VERSION} started"
 }
 
+run_nginx() {
+  echo "Starting Nginx Proxy..."
+  nginx
+  echo "Nginx Proxy started"
+}
+
 
 run_backend() {
-  cd /workspace
   source /workspace/.venv/bin/activate
+  cd /workspace
+  echo "Migration started..."
+  echo "DATABASE_URL: $DATABASE_URL"
+  alembic -c src/backend/alembic.ini upgrade head
+  echo "Migration finished..."
+  echo "Starting FastAPI..."
+  exec uvicorn backend.main:app --host 0.0.0.0 --port 8000 --loop asyncio
+}
+
+run_backend_poetry() {
+  cd /workspace
+  poetry install --without setup
+  source .venv/bin/activate
   echo "Migration started..."
   alembic -c src/backend/alembic.ini upgrade head
   echo "Migration finished..."
@@ -248,12 +266,17 @@ run_backend() {
   exec uvicorn backend.main:app --host 0.0.0.0 --port 8000 --loop asyncio
 }
 
+run_frontend_proxy() {
+  cd /workspace/src/interfaces/coral_web
+  echo "Starting Frontend..."
+  pm2 start pnpm -- start:single-docker-proxy
+  echo "Frontend started..."
+}
+
 run_frontend() {
   cd /workspace/src/interfaces/coral_web
-  if [[ ${NEXT_PUBLIC_API_HOSTNAME} != *"localhost:8000"* ]]; then
-    echo "Building Frontend when we are not in a localhost environment"
-    pnpm next:build
-  fi
+  echo "Building Frontend when we are not in a localhost environment"
+  pnpm next:build
   echo "Starting Frontend..."
   pm2 start pnpm -- start:single-docker
   echo "Frontend started..."

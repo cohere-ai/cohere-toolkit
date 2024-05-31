@@ -1,6 +1,7 @@
 from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
+from starlette.responses import RedirectResponse
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
