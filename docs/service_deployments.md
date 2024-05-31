@@ -14,3 +14,4 @@ Looking to serve your application in production? Deploy the Toolkit to your pref
       - click on "Logs" tab to see the logs
    2) Navigate to the "Overview" tab to see the FQDN of the container instance
    3) Open the \<FQDN\>:4000 in your browser to access the Toolkit
+- [One Click Deploy to GCP](deployment_guides/gcp_one_click_deployment.md): Help setup your container to Cloud Run.
