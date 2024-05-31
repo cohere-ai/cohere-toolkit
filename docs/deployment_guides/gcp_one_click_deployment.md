@@ -25,10 +25,10 @@ Optionally you can get this URL using GCP console, to do it follow these steps:
 
 If the deployment is stuck on pushing the image to the Container Registry close the shell and try to redeploy the service.
 
-If the deployment is stuck in a pending state or the connection to your Google Cloud Shell was lost like it shown on the image below:
+If the deployment is stuck in a pending state or the connection to your Google Cloud Shell was lost like shown below:
 ![](/docs/assets/cloud_shell_stuck.png)
 
-or you get the nginx 502 error when you try to access the Toolkit URL,
+or you get the nginx 502 error when trying to access the Toolkit URL,
 it means that the deployment process was not completed successfully, and we need to create a new revision for our deployment with correct settings.
 
 Cloud Run does not set the startupProbe settings to the correct value, so we need to set it in the new revision.
