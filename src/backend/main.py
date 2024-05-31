@@ -21,7 +21,10 @@ from backend.services.logger import LoggingMiddleware
 
 load_dotenv()
 
+# CORS Origins
 ORIGINS = ["*"]
+# Session expiration time in seconds, set to None to last only browser session
+SESSION_EXPIRY = 60 * 60 * 24 * 7  # A week
 
 
 @asynccontextmanager
@@ -51,6 +54,7 @@ def create_app():
     )
     app.add_middleware(LoggingMiddleware)
 
+    # Handle Authentication enabled
     if ENABLED_AUTH_STRATEGY_MAPPING:
         secret_key = os.environ.get("SESSION_SECRET_KEY", None)
 
@@ -63,14 +67,8 @@ def create_app():
         app.add_middleware(
             SessionMiddleware,
             secret_key=secret_key,
+            max_age=SESSION_EXPIRY,
         )
-
-        # Add auth
-        for auth in ENABLED_AUTH_STRATEGY_MAPPING.values():
-            if auth.SHOULD_ATTACH_TO_APP:
-                # TODO: Add app attachment logic for eg OAuth:
-                # https://docs.authlib.org/en/latest/client/fastapi.html
-                pass
 
     return app
 
