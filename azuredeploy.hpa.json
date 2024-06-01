@@ -83,7 +83,7 @@
                             },
                             {
                                 "name": "COHERE_API_KEY",
-                                "value": "[parameters('apiKey')]"
+                                "value": "[parameters('cohereApiKey')]"
                             }
                         ]
 					}
@@ -228,7 +228,7 @@
         "description": "Your Database connection URL"
       }
     },
-    "apiKey": {
+    "cohereApiKey": {
       "type": "string",
       "metadata": {
         "description": "Your Cohere API key for the application"
