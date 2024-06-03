@@ -9,7 +9,12 @@ const addOnErrorToImg = (html: string) => {
   if (imgElements) {
     for (let i = 0; i < imgElements.length; i++) {
       const imgElement = imgElements[i];
-      const newImgElement = imgElement.replace('>', ' onError="onImageError(this)">');
+      let newImgElement = imgElement;
+      if (imgElement.endsWith('/>')) {
+        newImgElement = imgElement.replace('/>', ' onError="onImageError(this)"/>');
+      } else {
+        newImgElement = imgElement.replace('>', ' onError="onImageError(this)">');
+      }
       html = html.replace(imgElement, newImgElement);
     }
   }
@@ -33,11 +38,14 @@ const GET_IMAGE_DEF = `
  */
 const getReconstructedHtml = (rawHTML: string) => {
   const htmlRegex = /```(?:html)\n([\s\S]*?)(```|$)/;
+  const jsRegex = /```(?:js)\n([\s\S]*?)```/;
+  const cssRegex = /```(?:css)\n([\s\S]*?)```/;
+
   const code = rawHTML.match(htmlRegex);
+
   let html = '';
   if (code) {
     html = code[1];
-    const cssRegex = /```(?:css)\n([\s\S]*?)```/;
     const cssCode = rawHTML.match(cssRegex);
     let css = '';
     if (cssCode) {
@@ -45,10 +53,8 @@ const getReconstructedHtml = (rawHTML: string) => {
       html = `<style>${css}</style>` + html;
     }
 
-    const jsRegex = /```(?:js)\n([\s\S]*?)```/;
     const jsCode = rawHTML.match(jsRegex);
     let js = '';
-
     if (jsCode) {
       js = jsCode[1];
       html = html + `<script>${js}</script>`;

@@ -18,10 +18,13 @@ const MIN_HEIGHT = 600;
  * When the iframe is loaded, the `data-src` attribute is replaced with the actual source URL.
  * The height of the iframe is adjusted to fit the content.
  */
-export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> = (props) => {
+export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src': string }> = (
+  props
+) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [option, setOption] = useState<'live' | 'code'>('live');
   const [code, setCode] = useState('');
+  const src = props[`data-src`];
 
   const onload = (e: any) => {
     const iframe = e.target;
@@ -39,9 +42,6 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
       };
     }
   }, []);
-
-  // @ts-ignore
-  const src = props['data-src'];
 
   useEffect(() => {
     // read the blob URL (src) and extract the text into the code state
