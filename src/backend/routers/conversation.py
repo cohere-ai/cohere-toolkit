@@ -18,6 +18,7 @@ from backend.schemas.conversation import (
 from backend.schemas.file import DeleteFile, File, ListFile, UpdateFile, UploadFile
 from backend.services.file.service import FileService
 from backend.services.request_validators import validate_user_header
+from backend.tools.files import get_file_content
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -203,6 +204,9 @@ async def upload_file(
     # Handle uploading File
     file_path = FileService().upload_file(file)
 
+    # Read file content
+    content = get_file_content(file_path)
+
     # Raise exception if file wasn't uploaded
     if not file_path.exists():
         raise HTTPException(
@@ -216,6 +220,7 @@ async def upload_file(
         file_name=file_path.name,
         file_path=str(file_path),
         file_size=file_path.stat().st_size,
+        file_content=content,
     )
 
     upload_file = file_crud.create_file(session, upload_file)

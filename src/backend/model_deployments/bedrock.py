@@ -101,5 +101,5 @@ class BedrockDeployment(BaseDeployment):
     ) -> Any:
         return None
 
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
+    def invoke_tools(self, message: str, tools: List[Any], chat_history: List[Dict[str, str]] | None = None, **kwargs: Any) -> List[Any]:
         return None

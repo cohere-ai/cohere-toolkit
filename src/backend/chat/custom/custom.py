@@ -11,6 +11,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
+from typing import Any, Dict, List
 
 
 class CustomChat(BaseChat):
@@ -39,63 +40,7 @@ class CustomChat(BaseChat):
             )
 
         if kwargs.get("managed_tools", True):
-            # Generate Search Queries
-            chat_history = [message.to_dict() for message in chat_request.chat_history]
-
-            function_tools: list[Tool] = []
-            for tool in chat_request.tools:
-                available_tool = AVAILABLE_TOOLS.get(tool.name)
-                if available_tool and available_tool.category == Category.Function:
-                    function_tools.append(Tool(**available_tool.model_dump()))
-
-            if len(function_tools) > 0:
-                tool_results = self.get_tool_results(
-                    chat_request.message, function_tools, deployment_model
-                )
-
-                chat_request.tools = None
-                if kwargs.get("stream", True) is True:
-                    return deployment_model.invoke_chat_stream(
-                        chat_request,
-                        tool_results=tool_results,
-                    )
-                else:
-                    return deployment_model.invoke_chat(
-                        chat_request,
-                        tool_results=tool_results,
-                    )
-
-            queries = deployment_model.invoke_search_queries(
-                chat_request.message, chat_history
-            )
-            self.logger.info(f"Search queries generated: {queries}")
-
-            # Fetch Documents
-            retrievers = self.get_retrievers(
-                kwargs.get("file_paths", []), [tool.name for tool in chat_request.tools]
-            )
-            self.logger.info(
-                f"Using retrievers: {[retriever.__class__.__name__ for retriever in retrievers]}"
-            )
-
-            # No search queries were generated but retrievers were selected, use user message as query
-            if len(queries) == 0 and len(retrievers) > 0:
-                queries = [chat_request.message]
-
-            all_documents = {}
-            # TODO: call in parallel and error handling
-            # TODO: merge with regular function tools after multihop implemented
-            for retriever in retrievers:
-                for query in queries:
-                    parameters = {"query": query}
-                    all_documents.setdefault(query, []).extend(
-                        retriever.call(parameters)
-                    )
-
-            # Collate Documents
-            documents = combine_documents(all_documents, deployment_model)
-            chat_request.documents = documents
-            chat_request.tools = []
+            chat_request = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
 
         # Generate Response
         if kwargs.get("stream", True) is True:
@@ -103,52 +48,26 @@ class CustomChat(BaseChat):
         else:
             return deployment_model.invoke_chat(chat_request)
 
-    def get_retrievers(
-        self, file_paths: list[str], req_tools: list[ToolName]
-    ) -> list[Any]:
-        """
-        Get retrievers for the required tools.
+    def handle_managed_tools(self, chat_request, deployment_model, **kwargs):
+        tools = [Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump()) for tool in chat_request.tools if AVAILABLE_TOOLS.get(tool.name)]
 
-        Args:
-            file_paths (list[str]): File paths.
-            req_tools (list[str]): Required tools.
+        if len(tools) == 0:
+            return []
 
-        Returns:
-            list[Any]: Retriever implementations.
-        """
-        retrievers = []
+        tool_results = self.get_tool_results(
+            chat_request.message, chat_request.chat_history, tools, deployment_model
+        )
 
-        # If no tools are required, return an empty list
-        if not req_tools:
-            return retrievers
+        chat_request.tools = tools
+        chat_request.tool_results = tool_results
 
-        # Iterate through the required tools and check if they are available
-        # If so, add the implementation to the list of retrievers
-        # If not, raise an HTTPException
-        for tool_name in req_tools:
-            tool = AVAILABLE_TOOLS.get(tool_name)
-            if tool is None:
-                raise HTTPException(
-                    status_code=404, detail=f"Tool {tool_name} not found."
-                )
-
-            # Check if the tool is visible, if not, skip it
-            if not tool.is_visible:
-                continue
-
-            if tool.category == Category.FileLoader and file_paths is not None:
-                for file_path in file_paths:
-                    retrievers.append(tool.implementation(file_path, **tool.kwargs))
-            elif tool.category != Category.FileLoader:
-                retrievers.append(tool.implementation(**tool.kwargs))
-
-        return retrievers
+        return chat_request
 
     def get_tool_results(
-        self, message: str, tools: list[Tool], model: BaseDeployment
+        self, message: str, chat_history: List[Dict[str, str]], tools: list[Tool], model: BaseDeployment
     ) -> list[dict[str, Any]]:
         tool_results = []
-        tools_to_use = model.invoke_tools(message, tools)
+        tools_to_use = model.invoke_tools(message, tools, chat_history=chat_history)
 
         tool_calls = tools_to_use.tool_calls if tools_to_use.tool_calls else []
         for tool_call in tool_calls:
