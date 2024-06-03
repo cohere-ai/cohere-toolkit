@@ -3,13 +3,13 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomDark as theme } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import SyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/prism-light';
+import theme from 'react-syntax-highlighter/dist/cjs/styles/prism/atom-dark';
 
 import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
-const MIN_HEIGHT = 400;
+const MIN_HEIGHT = 600;
 
 /**
  * Renders an iframe with a lazy loading mechanism.
@@ -65,7 +65,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & ExtraProps> 
           })}
         />
         <pre
-          className={cn('language-html bg-[#1d1f21]', {
+          className={cn('language-html max-h-[900px]  min-h-[150px] bg-[#1d1f21]', {
             hidden: option !== 'code',
           })}
         >
