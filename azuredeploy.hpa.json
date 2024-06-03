@@ -52,12 +52,7 @@
 							"weight": 100
 						}
 					]
-				},
-				"registries": [
-					{
-						"server": "[parameters('registryServer')]"
-					}
-				]
+				}
 			},
 			"template": {
 				"containers": [
@@ -188,13 +183,6 @@
 		"description": "Maximum number of replicas that will be deployed"
 		}
 	},
-    "registryServer": {
-      "type": "string",
-      "defaultValue": "ghcr.io",
-      "metadata": {
-        "description": "Server of the private container registry"
-      }
-    },
     "image": {
       "type": "string",
       "defaultValue": "ghcr.io/cohere-ai/cohere-toolkit-proxy:eugene-ext2-69_azure_hpa",
