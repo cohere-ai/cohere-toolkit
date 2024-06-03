@@ -21,6 +21,7 @@ make first-run
 ```
 
 Follow the instructions to configure the model - either AWS Sagemaker, Bedrock, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
+For Windows systems see the detailed setup below.
 
 #### Detailed environment setup
 
@@ -29,41 +30,49 @@ Follow the instructions to configure the model - either AWS Sagemaker, Bedrock, 
 
 1. Install [docker](https://docs.docker.com/desktop/install/windows-install/)
 2. Install [git]https://git-scm.com/download/win
-3. In PowerShell (Terminal), install [scoop](https://scoop.sh/). After installing, run scoop bucket add extras
-4. Install pipx
+3. In PowerShell (Terminal), install [scoop](https://scoop.sh/). After installing, run the following commands:
 ```bash
-scoop install pipx
-pipx ensurepath
+scoop bucket add extras
 ```
-5. Install poetry >= 1.7.1 using 
-```bash
-pipx install poetry
-```
-6. Install miniconda using
+4. Install miniconda using
 ```bash
 scoop install miniconda3
-conda init powershell
+conda init cmd.exe
 ```
-7. Restart PowerShell
-8. Install the following:
+5. Restart PowerShell
+6. Install the following:
 ```bash
 scoop install postgresql
 scoop install make
 ```
-9. Create a new virtual environment with Python 3.11
+7. Create a new virtual environment with Python 3.11 using CMD terminal
 ```bash
 conda create -n toolkit python=3.11
 conda activate toolkit
 ```
-10. Clone the repo
-11. Alternatively to `make first-run` or `make setup`, run
+8. Install poetry == 1.7.1 using 
 ```bash
-poetry install --only setup --verbose
+pip install poetry==1.7.1
+```
+9. Clone the repo
+10. Alternatively to `make win-first-run` or `make win-setup`, run
+```bash
+poetry install --with setup,community --verbose
 poetry run python src/backend/cli/main.py
 make migrate
 make dev
 ```
-12. Navigate to https://localhost:4000 in your browser
+11. Navigate to https://localhost:4000 in your browser
+
+### Possible issues
+- If you encounter on error on running `poetry install` related to `llama-cpp-python`, please run the following command:
+```bash
+poetry source add llama-cpp-python https://abetlen.github.io/llama-cpp-python/whl/cpu
+poetry source add pypi
+poetry lock
+```
+and then run the commands in step 10 again.
+For more information and additional installation instructions, see [llama-cpp-python documentation](https://github.com/abetlen/llama-cpp-python)
 
 </details>
 

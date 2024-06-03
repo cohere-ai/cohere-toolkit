@@ -11,6 +11,7 @@
     "next:build": "next build",
     "start": "next start",
     "start:single-docker": "next start --port 4000",
+    "start:single-docker-proxy": "next start --port 8090",
     "generate:client": "openapi --input http://0.0.0.0:8000/openapi.json --output ./src/cohere-client/generated --client axios --useOptions"
   },
   "dependencies": {
