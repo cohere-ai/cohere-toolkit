@@ -7,7 +7,9 @@ from backend.chat.base import BaseChat
 from backend.chat.collate import combine_documents
 from backend.chat.custom.utils import get_deployment
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
+from backend.crud.file import get_files_by_conversation_id_not_safe
 from backend.model_deployments.base import BaseDeployment
+from backend.schemas.chat import ChatMessage
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
@@ -60,7 +62,12 @@ class CustomChat(BaseChat):
             return []
 
         tool_results = self.get_tool_results(
-            chat_request.message, chat_request.chat_history, tools, deployment_model
+            chat_request.message,
+            chat_request.chat_history,
+            tools,
+            kwargs.get("conversation_id"),
+            deployment_model,
+            kwargs,
         )
 
         chat_request.tools = tools
@@ -73,10 +80,23 @@ class CustomChat(BaseChat):
         message: str,
         chat_history: List[Dict[str, str]],
         tools: list[Tool],
-        model: BaseDeployment,
+        conversation_id: str,
+        deployment_model: BaseDeployment,
+        kwargs: Any,
     ) -> list[dict[str, Any]]:
         tool_results = []
-        tools_to_use = model.invoke_tools(message, tools, chat_history=chat_history)
+
+        # If the tool is Read_File or SearchFile, add the available files to the chat history
+        # so that the model knows what files are available
+        tool_names = [tool.name for tool in tools]
+        if ToolName.Read_File or ToolName.SearchFile in tool_names:
+            chat_history = self.add_files_to_chat_history(
+                chat_history, conversation_id, kwargs.get("session")
+            )
+
+        tools_to_use = deployment_model.invoke_tools(
+            message, tools, chat_history=chat_history
+        )
 
         tool_calls = tools_to_use.tool_calls if tools_to_use.tool_calls else []
         for tool_call in tool_calls:
@@ -87,6 +107,8 @@ class CustomChat(BaseChat):
 
             outputs = tool.implementation().call(
                 parameters=tool_call.parameters,
+                session=kwargs.get("session"),
+                model_deployment=deployment_model,
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list
@@ -96,3 +118,18 @@ class CustomChat(BaseChat):
                 tool_results.append({"call": tool_call, "outputs": [output]})
 
         return tool_results
+
+    def add_files_to_chat_history(
+        self, chat_history: List[Dict[str, str]], conversation_id: str, session: Any
+    ) -> List[Dict[str, str]]:
+        if session is None or conversation_id is None or len(conversation_id) == 0:
+            return chat_history
+
+        available_files = get_files_by_conversation_id_not_safe(
+            session, conversation_id
+        )
+        files_message = "Here are the available files:\n" + "\n".join(
+            [f"{file.file_name}" for file in available_files]
+        )
+        chat_history.append(ChatMessage(message=files_message, role="USER"))
+        return chat_history

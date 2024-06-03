@@ -6,9 +6,10 @@ from enum import StrEnum
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools import (
     Calculator,
-    LangChainVectorDBRetriever,
     LangChainWikiRetriever,
     PythonInterpreter,
+    ReadFileTool,
+    SearchFileTool,
     TavilyInternetSearch,
 )
 
@@ -53,7 +54,7 @@ ALL_TOOLS = {
     ),
     ToolName.Read_File: ManagedTool(
         name=ToolName.Read_File,
-        implementation=LangChainVectorDBRetriever,
+        implementation=ReadFileTool,
         parameter_definitions={
             "file_name": {
                 "description": "The name of the attached file to read.",
@@ -62,14 +63,14 @@ ALL_TOOLS = {
             }
         },
         is_visible=True,
-        is_available=LangChainVectorDBRetriever.is_available(),
-        error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
+        is_available=ReadFileTool.is_available(),
+        error_message="ReadFileTool not available.",
         category=Category.FileLoader,
         description="Returns the textual contents of an uploaded file, broken up in text chunks.",
     ),
     ToolName.Search_File: ManagedTool(
         name=ToolName.Search_File,
-        implementation=LangChainVectorDBRetriever,
+        implementation=SearchFileTool,
         parameter_definitions={
             "search_query": {
                 "description": "Textual search query to search over the file's content for",
@@ -83,8 +84,8 @@ ALL_TOOLS = {
             },
         },
         is_visible=True,
-        is_available=LangChainVectorDBRetriever.is_available(),
-        error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
+        is_available=SearchFileTool.is_available(),
+        error_message="SearchFileTool not available.",
         category=Category.FileLoader,
         description="Performs a search over a list of one or more of the attached files for a textual search query",
     ),

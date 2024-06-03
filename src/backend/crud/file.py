@@ -122,3 +122,48 @@ def delete_file(db: Session, file_id: str, user_id: str) -> None:
     file = db.query(File).filter(File.id == file_id, File.user_id == user_id)
     file.delete()
     db.commit()
+
+
+# Bypassing user_id for now
+def get_file_by_file_name_not_safe(db: Session, file_name: str) -> File:
+    """
+    Get a file by filename.
+
+    Args:
+        db (Session): Database session.
+        file_name (str): File name.
+        user_id (str): User ID.
+
+    Returns:
+        File: File with the given filename.
+    """
+    return db.query(File).filter(File.file_name == file_name).first()
+
+
+def get_files_by_file_names_not_safe(db: Session, file_names: list[str]) -> list[File]:
+    """
+    Get files by filenames.
+
+    Args:
+        db (Session): Database session.
+        file_names (list[str]): File names.
+        user_id (str): User ID.
+
+    Returns:
+        list[File]: List of files with the given filenames.
+    """
+    return db.query(File).filter(File.file_name.in_(file_names)).all()
+
+
+def get_files_by_conversation_id_not_safe(db: Session, conversation_id: str) -> File:
+    """
+    Get a file by conversation ID.
+
+    Args:
+        db (Session): Database session.
+        conversation_id (str): Conversation ID.
+
+    Returns:
+        File: File with the given conversation ID.
+    """
+    return db.query(File).filter(File.conversation_id == conversation_id).all()

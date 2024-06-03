@@ -74,6 +74,8 @@ async def chat_stream(
                 deployment_config=deployment_config,
                 file_paths=file_paths,
                 managed_tools=managed_tools,
+                session=session,
+                conversation_id=conversation_id,
             ),
             response_message,
             conversation_id,
