@@ -55,15 +55,7 @@
 				},
 				"registries": [
 					{
-					"server": "[parameters('registryServer')]",
-					"username": "[parameters('registryUsername')]",
-					"passwordSecretRef": "registrypassword"
-					}
-				],
-				"secrets": [
-					{
-						"name": "registrypassword",
-						"value": "[parameters('registryPassword')]"
+						"server": "[parameters('registryServer')]"
 					}
 				]
 			},
@@ -203,21 +195,9 @@
         "description": "Server of the private container registry"
       }
     },
-    "registryUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Username for the private container registry"
-      }
-    },
-    "registryPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the private container registry"
-      }
-    },
     "image": {
       "type": "string",
-      "defaultValue": "ghcr.io/eugenelightson/azuredeployments/azure-toolkit",
+      "defaultValue": "ghcr.io/cohere-ai/cohere-toolkit-proxy",
       "metadata": {
         "description": "Docker image to deploy"
       }

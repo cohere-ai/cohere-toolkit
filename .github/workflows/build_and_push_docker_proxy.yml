@@ -1,16 +1,10 @@
 #
-name: Create and publish single container image
+name: Create and publish single container image with nginx proxy
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: "tags to attach to image"
-        required: false
-        type: string
-
+  push:
+    branches:
+        - eugene/EXT2-69_azure_hpa
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: cohere-toolkit-proxy
