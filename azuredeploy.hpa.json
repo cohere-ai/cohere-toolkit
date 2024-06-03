@@ -185,7 +185,7 @@
 	},
     "image": {
       "type": "string",
-      "defaultValue": "ghcr.io/cohere-ai/cohere-toolkit-proxy:eugene-ext2-69_azure_hpa",
+      "defaultValue": "ghcr.io/cohere-ai/cohere-toolkit-proxy",
       "metadata": {
         "description": "Docker image to deploy"
       }
