@@ -99,7 +99,18 @@ class CohereDeployment(BaseDeployment):
             query=query, documents=documents, model="rerank-english-v2.0", **kwargs
         )
 
-    def invoke_tools(self, message: str, tools: List[Any], chat_history: List[Dict[str, str]] | None = None, **kwargs: Any) -> List[Any]:
+    def invoke_tools(
+        self,
+        message: str,
+        tools: List[Any],
+        chat_history: List[Dict[str, str]] | None = None,
+        **kwargs: Any,
+    ) -> List[Any]:
         return self.client.chat(
-            message=message, tools=tools, model="command-r", force_single_step=True, chat_history=chat_history, **kwargs
+            message=message,
+            tools=tools,
+            model="command-r",
+            force_single_step=True,
+            chat_history=chat_history,
+            **kwargs,
         )

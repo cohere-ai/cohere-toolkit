@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Dict, List
 
 from fastapi import HTTPException
 
@@ -11,7 +11,6 @@ from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
-from typing import Any, Dict, List
 
 
 class CustomChat(BaseChat):
@@ -40,7 +39,9 @@ class CustomChat(BaseChat):
             )
 
         if kwargs.get("managed_tools", True):
-            chat_request = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
+            chat_request = self.handle_managed_tools(
+                chat_request, deployment_model, **kwargs
+            )
 
         # Generate Response
         if kwargs.get("stream", True) is True:
@@ -49,7 +50,11 @@ class CustomChat(BaseChat):
             return deployment_model.invoke_chat(chat_request)
 
     def handle_managed_tools(self, chat_request, deployment_model, **kwargs):
-        tools = [Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump()) for tool in chat_request.tools if AVAILABLE_TOOLS.get(tool.name)]
+        tools = [
+            Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump())
+            for tool in chat_request.tools
+            if AVAILABLE_TOOLS.get(tool.name)
+        ]
 
         if len(tools) == 0:
             return []
@@ -64,7 +69,11 @@ class CustomChat(BaseChat):
         return chat_request
 
     def get_tool_results(
-        self, message: str, chat_history: List[Dict[str, str]], tools: list[Tool], model: BaseDeployment
+        self,
+        message: str,
+        chat_history: List[Dict[str, str]],
+        tools: list[Tool],
+        model: BaseDeployment,
     ) -> list[dict[str, Any]]:
         tool_results = []
         tools_to_use = model.invoke_tools(message, tools, chat_history=chat_history)
