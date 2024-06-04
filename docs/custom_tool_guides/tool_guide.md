@@ -27,7 +27,7 @@ There are three types of tools:
 
 ## Step 3: Implement the Tool
 
-Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tools) (please note that this link is subject to change).
+Add your tool implementation [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tools) (please note that this link is subject to change).
 
 If you need to install a new library to run your tool, execute the following command and run `make dev` again.
 
