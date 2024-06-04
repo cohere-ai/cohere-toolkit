@@ -101,10 +101,6 @@ def test_fail_chat_missing_user_id(
         headers={"Deployment-Name": ModelDeploymentName.CoherePlatform},
     )
 
-    import pdb
-
-    pdb.set_trace()
-
     assert response.status_code == 401
     assert response.json() == {"detail": "User-Id required in request headers."}
 
