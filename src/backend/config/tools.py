@@ -52,22 +52,6 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Retrieves documents from Wikipedia using LangChain.",
     ),
-    ToolName.Read_File: ManagedTool(
-        name=ToolName.Read_File,
-        implementation=ReadFileTool,
-        parameter_definitions={
-            "file_name": {
-                "description": "The name of the attached file to read.",
-                "type": "str",
-                "required": True,
-            }
-        },
-        is_visible=True,
-        is_available=ReadFileTool.is_available(),
-        error_message="ReadFileTool not available.",
-        category=Category.FileLoader,
-        description="Returns the textual contents of an uploaded file, broken up in text chunks.",
-    ),
     ToolName.Search_File: ManagedTool(
         name=ToolName.Search_File,
         implementation=SearchFileTool,
@@ -77,7 +61,7 @@ ALL_TOOLS = {
                 "type": "str",
                 "required": True,
             },
-            "file_names": {
+            "filenames": {
                 "description": "A list of one or more uploaded filename strings to search over",
                 "type": "list",
                 "required": True,
@@ -88,6 +72,22 @@ ALL_TOOLS = {
         error_message="SearchFileTool not available.",
         category=Category.FileLoader,
         description="Performs a search over a list of one or more of the attached files for a textual search query",
+    ),
+    ToolName.Read_File: ManagedTool(
+        name=ToolName.Read_File,
+        implementation=ReadFileTool,
+        parameter_definitions={
+            "filename": {
+                "description": "The name of the attached file to read.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=ReadFileTool.is_available(),
+        error_message="ReadFileTool not available.",
+        category=Category.FileLoader,
+        description="Returns the textual contents of an uploaded file, broken up in text chunks.",
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,

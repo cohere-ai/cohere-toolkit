@@ -4,10 +4,9 @@ from typing import Any, Dict, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import combine_documents
 from backend.chat.custom.utils import get_deployment
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
-from backend.crud.file import get_files_by_conversation_id_not_safe
+from backend.crud.file import get_files_by_conversation_id
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.chat import ChatMessage
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -46,6 +45,7 @@ class CustomChat(BaseChat):
             )
 
         # Generate Response
+        self.logger.info("Generating chat response")
         if kwargs.get("stream", True) is True:
             return deployment_model.invoke_chat_stream(chat_request)
         else:
@@ -91,12 +91,17 @@ class CustomChat(BaseChat):
         tool_names = [tool.name for tool in tools]
         if ToolName.Read_File or ToolName.SearchFile in tool_names:
             chat_history = self.add_files_to_chat_history(
-                chat_history, conversation_id, kwargs.get("session")
+                chat_history,
+                conversation_id,
+                kwargs.get("session"),
+                kwargs.get("user_id"),
             )
 
         tools_to_use = deployment_model.invoke_tools(
             message, tools, chat_history=chat_history
         )
+
+        self.logger.info(f"Using tools: {tools_to_use.tool_calls}")
 
         tool_calls = tools_to_use.tool_calls if tools_to_use.tool_calls else []
         for tool_call in tool_calls:
@@ -109,6 +114,7 @@ class CustomChat(BaseChat):
                 parameters=tool_call.parameters,
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
+                user_id=kwargs.get("user_id"),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list
@@ -120,16 +126,28 @@ class CustomChat(BaseChat):
         return tool_results
 
     def add_files_to_chat_history(
-        self, chat_history: List[Dict[str, str]], conversation_id: str, session: Any
+        self,
+        chat_history: List[Dict[str, str]],
+        conversation_id: str,
+        session: Any,
+        user_id: str,
     ) -> List[Dict[str, str]]:
         if session is None or conversation_id is None or len(conversation_id) == 0:
             return chat_history
 
-        available_files = get_files_by_conversation_id_not_safe(
-            session, conversation_id
+        available_files = get_files_by_conversation_id(
+            session, conversation_id, user_id
         )
-        files_message = "Here are the available files:\n" + "\n".join(
-            [f"{file.file_name}" for file in available_files]
-        )
-        chat_history.append(ChatMessage(message=files_message, role="USER"))
+        files_message = "The user uploaded the following attachments:\n"
+
+        for file in available_files:
+            word_count = len(file.file_content.split())
+
+            # Use the first 25 words as the document preview in the preamble
+            num_words = min(25, word_count)
+            preview = " ".join(file.file_content.split()[:num_words])
+
+            files_message += f"Filename: {file.file_name}\nWord Count: {word_count} Preview: {preview}\n\n"
+
+        chat_history.append(ChatMessage(message=files_message, role="SYSTEM"))
         return chat_history

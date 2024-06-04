@@ -20,13 +20,20 @@ class ReadFileTool(BaseTool):
         return True
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        file_name = parameters.get("file_name", "")
+        file_name = parameters.get("filename", "")
         session = kwargs.get("session")
+        user_id = kwargs.get("user_id")
 
         if not file_name:
             return []
 
-        file = file_crud.get_file_by_file_name_not_safe(session, file_name)
+        file = file_crud.get_files_by_file_names(session, [file_name], user_id)
+
+        if not file:
+            return []
+
+        file = file[0]
+
         return [
             {
                 "text": file.file_content,
@@ -50,14 +57,15 @@ class SearchFileTool(BaseTool):
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("search_query")
-        file_names = parameters.get("file_names")
+        file_names = parameters.get("filenames")
         model_deployment = kwargs.get("model_deployment")
         session = kwargs.get("session")
+        user_id = kwargs.get("user_id")
 
         if not query or not file_names:
             return []
 
-        files = file_crud.get_files_by_file_names_not_safe(session, file_names)
+        files = file_crud.get_files_by_file_names(session, file_names, user_id)
         files_dicts = {
             query: [
                 {
