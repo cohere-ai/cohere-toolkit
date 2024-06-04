@@ -1,9 +1,10 @@
 from fastapi import Request
 from sqlalchemy.orm import Session
 
-from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
+from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING, is_authentication_enabled
 from backend.crud import user as user_crud
 from backend.database_models import User
+from backend.services.auth.jwt import JWTService
 
 
 def is_enabled_authentication_strategy(strategy_name: str) -> bool:
@@ -52,8 +53,8 @@ def get_header_user_id(request: Request) -> str:
     """
     Retrieves the user_id from request headers, will work whether authentication is enabled or not.
 
-    (NO AUTH): retrieves the User-Id header value
-    (AUTH): retrieves the Authorization header, and decodes the value
+    (Auth disabled): retrieves the User-Id header value
+    (Auth enabled): retrieves the Authorization header, and decodes the value
 
     Args:
         request (Request): current Request
@@ -62,4 +63,15 @@ def get_header_user_id(request: Request) -> str:
     Returns:
         str: User ID
     """
-    pass
+    # Auth enabled
+    if is_authentication_enabled():
+        # Validation already performed, so just retrieve value
+        authorization = request.headers.get("Authorization")
+        _, token = authorization.split(" ")
+        decoded = JWTService().decode_jwt(token)
+
+        return decoded["context"]["id"]
+    # Auth disabled
+    else:
+        user_id = request.headers.get("User-Id", "")
+        return user_id
