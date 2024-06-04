@@ -1,20 +1,22 @@
 from unittest.mock import MagicMock
 
+import freezegun
 import pytest
 from fastapi import HTTPException
-from freezegun import freeze_time
 
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
 
+# Weird issue with freezegun, see: https://stackoverflow.com/questions/73007409/freezeguns-freeze-time-throws-odd-transformers-error-when-used
+freezegun.configure(extend_ignore_list=["transformers"])
+
 
 def test_validate_authorization_valid_token():
     user = {"user_id": "test"}
-    with freeze_time("2024-01-01 00:00:00"):
-        token = JWTService().create_and_encode_jwt(user)
-        request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
+    token = JWTService().create_and_encode_jwt(user)
+    request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
 
-        token_user = validate_authorization(request_mock)
+    token_user = validate_authorization(request_mock)
 
     assert token_user == {"user_id": "test"}
 
@@ -58,12 +60,12 @@ def test_validate_authorization_invalid_token():
 
 def test_validate_authorization_expired_token():
     user = {"user_id": "test"}
-    with freeze_time("2024-01-01 00:00:00"):
+    with freezegun.freeze_time("2024-01-01 00:00:00"):
         token = JWTService().create_and_encode_jwt(user)
 
     request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
 
-    with freeze_time("2024-02-01 00:00:00"):
+    with freezegun.freeze_time("2024-02-01 00:00:00"):
         with pytest.raises(HTTPException) as exc:
             _ = validate_authorization(request_mock)
 
