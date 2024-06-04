@@ -16,7 +16,7 @@ Looking to serve your application in production? Deploy the Toolkit to your pref
       - click on "Logs" tab to see the logs
    - Navigate to the "Overview" tab to see the FQDN of the container instance
    - Open the \<FQDN\>:4000 in your browser to access the Toolkit
-- Deploying to Azure Cloud App. You can deploy Toolkit with one click to Microsoft Azure Platform: [<img src="https://aka.ms/deploytoazurebutton" height="24px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Feugene%2FEXT2-69_azure_hpa%2Fazuredeploy.hpa.json).  
+- Deploying to Azure Cloud App. You can deploy Toolkit with one click to Microsoft Azure Platform: [<img src="https://aka.ms/deploytoazurebutton" height="24px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcohere-ai%2Fcohere-toolkit%2Fmain%2Fazuredeploy.hpa.json).  
   This deployment type uses Azure Container App to host the Toolkit. Follow these steps to deploy the Toolkit:
    - Select your subscription and resource group. If you don't have a resource group, create a new one.
    - Enter the connection string of the format `postgresql+psycopg2://USERNAME:PASSWORD@HOST:PORT/DB_NAME`. 
