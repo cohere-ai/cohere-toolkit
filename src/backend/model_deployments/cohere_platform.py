@@ -60,6 +60,7 @@ class CohereDeployment(BaseDeployment):
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         return self.client.chat(
             **chat_request.model_dump(exclude={"stream"}),
+            force_single_step=True,
             **kwargs,
         )
 
