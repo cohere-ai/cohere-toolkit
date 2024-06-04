@@ -10,8 +10,10 @@ import { NavigationBar } from '@/components/Shared/NavigationBar/NavigationBar';
 import { PageHead } from '@/components/Shared/PageHead';
 import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
+import { useSession } from '@/hooks/session';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils/cn';
+import { NavigationUserMenu } from './NavigationUserMenu';
 
 const LeftDrawer: React.FC<PropsWithChildren> = ({ children }) => <>{children}</>;
 const Main: React.FC<PropsWithChildren> = ({ children }) => <>{children}</>;
@@ -36,6 +38,7 @@ export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
   const isDesktop = useIsDesktop();
+  const { session } = useSession();
 
   let leftDrawerElement: React.ReactNode = null;
   let mainElement: React.ReactNode = null;
@@ -64,6 +67,7 @@ export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
           <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
             <EditEnvVariablesButton className="py-0" />
+            { session.user && session.user.email && <NavigationUserMenu userEmail={session.user.email} /> }
           </span>
         </NavigationBar>
         {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}

@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 
 import { Button, ButtonKind, IconName, InlineLink } from '@/components/Shared';
+import { useAuthConfig } from '@/hooks/authConfig';
 
 type Props = {
   action: 'login' | 'register' | 'logout';
@@ -26,7 +27,7 @@ export const AuthLink: React.FC<Props> = ({
   className = '',
 }) => {
   // context for auth provider
-  // const authConfig = useAuthConfig();
+  const authConfig = useAuthConfig();
 
   let href = '';
   let label = '';

@@ -8,7 +8,13 @@ import Cookies from 'js-cookie';
  * Upon successful login, the `useSession` hook will provide a valid session.
  */
 export const useGoogleAuthRoute = () => {
-  const authConfig = useAuthConfig();
+  // const authConfig = useAuthConfig();
+  const authConfig = {
+    login: {
+      googleClientId: 'googleClientId',
+    },
+    baseUrl: 'baseUrl',
+  };
 
   if (!authConfig.login) {
     throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');

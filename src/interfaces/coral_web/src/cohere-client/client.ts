@@ -54,14 +54,16 @@ export class CohereClient {
   private readonly hostname: string;
   private readonly fetch: Fetch;
   private readonly source: string;
+  private authToken?: string;
 
   public cohereService?: DefaultService;
   public request?: any;
 
-  constructor({ hostname, source, fetch }: { hostname: string; source: string; fetch: Fetch }) {
+  constructor({ hostname, source, fetch, authToken }: { hostname: string; source: string; fetch: Fetch, authToken?: string }) {
     this.hostname = hostname;
     this.source = source;
     this.fetch = fetch;
+    this.authToken = authToken;
   }
 
   public async uploadFile({
@@ -389,6 +391,68 @@ export class CohereClient {
     return body as ExperimentalFeatures;
   }
 
+  public async login({ email, password }: { email: string; password: string }) {
+    const response = await this.fetch(`${this.getEndpoint('login')}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({
+        strategy: "Basic",
+        payload: { email, password }
+      }),
+    });
+
+    const body = await response.json();
+    this.authToken = body.context;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+  }
+
+  public async logout() {
+    const response = await this.fetch(`${this.getEndpoint('logout')}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+    });
+
+    this.authToken = undefined;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+  }
+
+  public async getAuthStrategies() {
+    const response = await this.fetch(`${this.getEndpoint('auth_strategies')}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as { strategies: string[] };
+  }
+
+  public async createUser(userDetails: { name: string, email: string; password: string }) {
+    const response = await this.fetch(`${this.getEndpoint('users')}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(userDetails),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as {};
+  }
+
   private getEndpoint(
     endpoint:
       | 'upload'
@@ -398,6 +462,10 @@ export class CohereClient {
       | 'tools'
       | 'deployments'
       | 'experimental_features'
+      | 'login'
+      | 'logout'
+      | 'auth_strategies'
+      | 'users'
   ) {
     return `${this.hostname}/v1/${endpoint}`;
   }
@@ -405,6 +473,7 @@ export class CohereClient {
   private getHeaders(omitContentType = false) {
     const headers: HeadersInit = {
       ...(omitContentType ? {} : { 'Content-Type': 'application/json' }),
+      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
     };
     return headers;

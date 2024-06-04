@@ -17,31 +17,55 @@ import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
 interface Credentials {
+  name: string;
   email: string;
   password: string;
 }
 
 type Props = PageAppProps & {};
 
-type LoginStatus = 'idle' | 'pending';
+type RegisterStatus = 'idle' | 'pending';
 
 /**
- * @description The login page supports logging in with an email and password.
+ * @description The register page supports creating an account with an email and password.
  */
-const LoginPage: NextPage<Props> = (props) => {
+const RegisterPage: NextPage<Props> = (props) => {
   const router = useRouter();
   // session returns a user object that includes fields like: email, name, avatar url,
   // if they have google/github/email auth enabled, etc.
-  const { loginMutation } = useSession();
+  const { session, registerMutation } = useSession();
 
-  const loginStatus: LoginStatus = loginMutation.isLoading ? 'pending' : 'idle';
+  const registerStatus: RegisterStatus = registerMutation.isLoading ? 'pending' : 'idle';
+
+  // const { executeRecaptcha } = useGoogleReCaptcha();
+  // const { googleAuth } = useGoogleAuthRoute();
+
+  // const googleAuthStart = async () => {
+  //   // const googleRecaptchaToken = await executeRecaptcha?.(RecaptchaAction.AUTH_GOOGLE);
+  //   const googleRecaptchaToken = '';
+  //   googleAuth.start({
+  //     redirect,
+  //     recaptchaToken: googleRecaptchaToken,
+  //   });
+  // };
+
+  // const { githubAuth } = useGithubAuthRoute();
+
+  // const githubAuthStart = async () => {
+  //   // const githubRecaptchaToken = await executeRecaptcha?.(RecaptchaAction.AUTH_GITHUB);
+  //   const githubRecaptchaToken = '';
+  //   githubAuth.start({
+  //     redirect,
+  //     recaptchaToken: githubRecaptchaToken,
+  //   });
+  // };
 
   const { register, handleSubmit, formState } = useForm<Credentials>();
 
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
-    const { email, password } = data;
+    const { name, email, password } = data;
     try {
-      await loginMutation.mutateAsync({ email, password });
+      await registerMutation.mutateAsync({ name, email, password });
     } catch (error) {
       console.error(error);
     }
@@ -52,19 +76,33 @@ const LoginPage: NextPage<Props> = (props) => {
   const errors: string[] = [];
 
   return (
-    <WelcomePage title="Login" navigationAction="register">
+    <WelcomePage title="Register" navigationAction="login">
       <div className="flex flex-col items-center justify-center">
         <Text as="h1" styleAs="h3">
-          Log in
+          Create your account
         </Text>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex w-full flex-col">
           <Input
             className="w-full"
+            label="name"
+            placeholder=""
+            type="text"
+            stackPosition="start"
+            hasError={!!formState.errors.name}
+            errorText="Please enter a name"
+            {...register('name', {
+              required: true,
+              validate: (value) => !!value.trim(),
+            })}
+          />
+          
+          <Input
+            className="w-full"
             label="Email"
             placeholder="yourname@email.com"
             type="email"
-            stackPosition="start"
+            stackPosition="center"
             hasError={!!formState.errors.email}
             errorText="Please enter a valid email address"
             {...register('email', {
@@ -95,8 +133,8 @@ const LoginPage: NextPage<Props> = (props) => {
           )}
 
           <Button
-            disabled={loginStatus === 'pending' || !formState.isValid}
-            label={loginStatus === 'pending' ? 'Logging in...' : 'Log in'}
+            disabled={registerStatus === 'pending' || !formState.isValid}
+            label={registerStatus === 'pending' ? 'Logging in...' : 'Sign up'}
             type="submit"
             className="mt-10 w-full self-center md:w-fit"
             splitIcon="arrow-right"
@@ -104,10 +142,10 @@ const LoginPage: NextPage<Props> = (props) => {
         </form>
 
         <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-700">
-          New user?
+          Already have an account?
           <AuthLink
             redirect={redirect !== '/' ? redirect : undefined}
-            action="register"
+            action="login"
             className="text-green-700 no-underline"
           />
         </Text>
@@ -131,4 +169,4 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
   };
 };
 
-export default LoginPage;
+export default RegisterPage;

@@ -8,7 +8,13 @@ import Cookies from 'js-cookie';
  * Upon successful login, the `useSession` hook will provide a valid session.
  */
 export const useGithubAuthRoute = () => {
-  const authConfig = useAuthConfig();
+  // const authConfig = useAuthConfig();
+  const authConfig = {
+    login: {
+      githubClientId: 'githubClientId',
+    },
+    baseUrl: 'baseUrl',
+  };
 
   if (!authConfig.login) {
     throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
