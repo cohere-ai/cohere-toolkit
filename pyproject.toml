@@ -75,6 +75,7 @@ optional = true
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
 transformers = "^4.40.1"
+sentencepiece = "^0.2.0"
 torch = "^2.3.0"
 llama-cpp-python = "^0.2.67"
 llama-index = "^0.10.11"
