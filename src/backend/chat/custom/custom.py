@@ -1,10 +1,12 @@
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, Generator, List
 
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
+from backend.chat.collate import combine_documents
 from backend.chat.custom.utils import get_deployment
+from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.crud.file import get_files_by_conversation_id
 from backend.model_deployments.base import BaseDeployment
@@ -32,48 +34,83 @@ class CustomChat(BaseChat):
         """
         # Choose the deployment model - validation already performed by request validator
         deployment_model = get_deployment(kwargs.get("deployment_name"), **kwargs)
-        self.logger.info(f"Using deployment {deployment_model.__class__.__name__}")
+        print(f"Using deployment {deployment_model.__class__.__name__}")
 
         if len(chat_request.tools) > 0 and len(chat_request.documents) > 0:
             raise HTTPException(
                 status_code=400, detail="Both tools and documents cannot be provided."
             )
 
+        # Handles managed tools.
+        # If a direct answer is generated instead of tool calls, the chat will not be called again
+        # Instead, the direct answer will be returned from the stream
+        should_call_chat = True
         if kwargs.get("managed_tools", True):
-            chat_request = self.handle_managed_tools(
-                chat_request, deployment_model, **kwargs
-            )
+            stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
+
+            for event, generated_direct_answer in stream:
+                if generated_direct_answer:
+                    should_call_chat = False
+                else:
+                    chat_request = event
+
+                break
 
         # Generate Response
-        self.logger.info("Generating chat response")
-        if kwargs.get("stream", True) is True:
-            return deployment_model.invoke_chat_stream(chat_request)
+        if should_call_chat:
+            if kwargs.get("stream", True) is True:
+                for event in deployment_model.invoke_chat_stream(chat_request):
+                    yield event
+            else:
+                for event in deployment_model.invoke_chat(chat_request):
+                    yield event
         else:
-            return deployment_model.invoke_chat(chat_request)
+            for event in stream:
+                for e in event:
+                    if type(e) == bool:
+                        continue
+                    yield e
 
-    def handle_managed_tools(self, chat_request, deployment_model, **kwargs):
+    def handle_managed_tools(
+        self,
+        chat_request: CohereChatRequest,
+        deployment_model: BaseDeployment,
+        **kwargs: Any,
+    ) -> Generator[Any, None, None]:
+        """
+        This function handles the managed tools.
+
+        Args:
+            chat_request (CohereChatRequest): The chat request
+            deployment_model (BaseDeployment): The deployment model
+            **kwargs (Any): The keyword arguments
+
+        Returns:
+            Generator[Any, None, None]: The tool results or the chat response, and a boolean indicating if a direct answer was generated
+        """
         tools = [
             Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump())
             for tool in chat_request.tools
             if AVAILABLE_TOOLS.get(tool.name)
         ]
 
-        if len(tools) == 0:
-            return []
+        if not tools:
+            yield chat_request, False
 
-        tool_results = self.get_tool_results(
+        for event, should_return in self.get_tool_results(
             chat_request.message,
             chat_request.chat_history,
             tools,
             kwargs.get("conversation_id"),
             deployment_model,
             kwargs,
-        )
-
-        chat_request.tools = tools
-        chat_request.tool_results = tool_results
-
-        return chat_request
+        ):
+            if should_return:
+                yield event, True
+            else:
+                chat_request.tool_results = event
+                chat_request.tools = tools
+                return chat_request, False
 
     def get_tool_results(
         self,
@@ -83,13 +120,29 @@ class CustomChat(BaseChat):
         conversation_id: str,
         deployment_model: BaseDeployment,
         kwargs: Any,
-    ) -> list[dict[str, Any]]:
+    ) -> Any:
         tool_results = []
+        """
+        Invokes the tools and returns the results. If no tools calls are generated, it returns the chat response
+        as a direct answer.
+
+        Args:
+            message (str): The message to be processed
+            chat_history (List[Dict[str, str]]): The chat history
+            tools (list[Tool]): The tools to be invoked
+            conversation_id (str): The conversation ID
+            deployment_model (BaseDeployment): The deployment model
+            kwargs (Any): The keyword arguments
+
+        Returns:
+            Any: The tool results or the chat response, and a boolean indicating if a direct answer was generated
+
+        """
 
         # If the tool is Read_File or SearchFile, add the available files to the chat history
         # so that the model knows what files are available
         tool_names = [tool.name for tool in tools]
-        if ToolName.Read_File or ToolName.SearchFile in tool_names:
+        if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
             chat_history = self.add_files_to_chat_history(
                 chat_history,
                 conversation_id,
@@ -97,33 +150,54 @@ class CustomChat(BaseChat):
                 kwargs.get("user_id"),
             )
 
-        tools_to_use = deployment_model.invoke_tools(
+        print(f"Invoking tools: {tools}")
+        stream = deployment_model.invoke_tools(
             message, tools, chat_history=chat_history
         )
 
-        self.logger.info(f"Using tools: {tools_to_use.tool_calls}")
+        # Invoke tools can return a direct answer or a stream of events with the tool calls
+        # If the second event is a tool call, the tools are invoked, and the results are returned
+        # Otherwise, the chat response is returned as a direct answer
+        stream_start_event = next(stream)
 
-        tool_calls = tools_to_use.tool_calls if tools_to_use.tool_calls else []
-        for tool_call in tool_calls:
-            tool = AVAILABLE_TOOLS.get(tool_call.name)
-            if not tool:
-                logging.warning(f"Couldn't find tool {tool_call.name}")
-                continue
+        if stream_start_event is None:
+            yield [], False
 
-            outputs = tool.implementation().call(
-                parameters=tool_call.parameters,
-                session=kwargs.get("session"),
-                model_deployment=deployment_model,
-                user_id=kwargs.get("user_id"),
-            )
+        second_event = next(stream)
 
-            # If the tool returns a list of outputs, append each output to the tool_results list
-            # Otherwise, append the single output to the tool_results list
-            outputs = outputs if isinstance(outputs, list) else [outputs]
-            for output in outputs:
-                tool_results.append({"call": tool_call, "outputs": [output]})
+        if second_event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
+            tool_calls = second_event["tool_calls"]
 
-        return tool_results
+            print(f"Using tools: {tool_calls}")
+
+            # TODO: parallelize tool calls
+            for tool_call in tool_calls:
+                tool = AVAILABLE_TOOLS.get(tool_call.name)
+                if not tool:
+                    logging.warning(f"Couldn't find tool {tool_call.name}")
+                    continue
+
+                outputs = tool.implementation().call(
+                    parameters=tool_call.parameters,
+                    session=kwargs.get("session"),
+                    model_deployment=deployment_model,
+                    user_id=kwargs.get("user_id"),
+                )
+
+                # If the tool returns a list of outputs, append each output to the tool_results list
+                # Otherwise, append the single output to the tool_results list
+                outputs = outputs if isinstance(outputs, list) else [outputs]
+                for output in outputs:
+                    tool_results.append({"call": tool_call, "outputs": [output]})
+
+            print(f"Tool results: {tool_results}")
+            yield tool_results, False
+
+        else:
+            yield stream_start_event, True
+            yield second_event, True
+            for event in stream:
+                yield event, True
 
     def add_files_to_chat_history(
         self,

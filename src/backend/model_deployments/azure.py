@@ -96,7 +96,10 @@ class AzureDeployment(BaseDeployment):
         tools: List[Any],
         chat_history: List[Dict[str, str]] | None = None,
         **kwargs: Any,
-    ) -> List[Any]:
-        return self.client.chat(
+    ) -> Generator[StreamedChatResponse, None, None]:
+        stream = self.client.chat_stream(
             message=message, tools=tools, chat_history=chat_history, **kwargs
         )
+
+        for event in stream:
+            yield event.__dict__

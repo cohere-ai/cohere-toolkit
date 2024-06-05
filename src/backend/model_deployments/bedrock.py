@@ -107,5 +107,5 @@ class BedrockDeployment(BaseDeployment):
         tools: List[Any],
         chat_history: List[Dict[str, str]] | None = None,
         **kwargs: Any,
-    ) -> List[Any]:
+    ) -> Generator[StreamedChatResponse, None, None]:
         return None
