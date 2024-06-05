@@ -1,0 +1,126 @@
+{{- $values := .Values.frontend}}
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: toolkit-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cohere-toolkit.labels" . | nindent 4 }}
+  {{- with $values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- with $values.serviceAccount.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toolkit-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: toolkit-frontend
+    {{- include "cohere-toolkit.labels" . | nindent 4 }}
+spec:
+  replicas: {{ $values.replicaCounts }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: toolkit-frontend
+  template:
+    metadata:
+      name: toolkit-frontend
+      labels:
+        app.kubernetes.io/name: toolkit-frontend
+        {{- include "cohere-toolkit.labels" . | nindent 8 }}
+      {{- with $values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: toolkit-frontend
+      securityContext:
+        {{- toYaml $values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: toolkit-frontend
+          image: {{ $values.image.repository }}:{{ $values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ $values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml $values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml $values.resources | nindent 12 }}
+          ports:
+            - containerPort: 80
+              protocol: TCP
+              name: http
+          # TODO: Add livenessProbe and readinessProbe
+      restartPolicy: Always
+      {{- with $values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: toolkit-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: toolkit-frontend
+    {{- include "cohere-toolkit.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: toolkit-frontend
+  ports:
+    - protocol: TCP
+      port: {{ $values.service.port }}
+      targetPort: http
+  type: {{ $values.service.type }}
+
+---
+
+{{- if $values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: toolkit-frontend
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: toolkit-frontend
+  minReplicas: {{ $values.autoscaling.minReplicas }}
+  maxReplicas: {{ $values.autoscaling.maxReplicas }}
+  metrics:
+    {{- if $values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end}}
+    {{- if $values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end}}
+{{- end}}
