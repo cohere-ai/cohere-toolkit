@@ -5,6 +5,7 @@ from backend.model_deployments.base import BaseDeployment
 
 RELEVANCE_THRESHOLD = 0.5
 
+
 def combine_documents(
     tool_results: List[Dict[str, Any]],
     model: BaseDeployment,
@@ -24,8 +25,7 @@ def combine_documents(
 
 
 def rerank_and_chunk(
-    tool_resuls: List[Dict[str, Any]], 
-    model: BaseDeployment
+    tool_resuls: List[Dict[str, Any]], model: BaseDeployment
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
     Takes a list of tool_results and internally reranks the documents for each query, if there's one e.g:
@@ -42,16 +42,20 @@ def rerank_and_chunk(
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
         return tool_resuls
-    
+
     reranked_results = {}
     for tool_result in tool_resuls:
         tool_call = tool_result["call"]
-        
-        if not tool_call.parameters.get("query") and not tool_call.parameters.get("search_query"):
+
+        if not tool_call.parameters.get("query") and not tool_call.parameters.get(
+            "search_query"
+        ):
             continue
-        
-        query = tool_call.parameters.get("query") or tool_call.parameters.get("search_query")
-        
+
+        query = tool_call.parameters.get("query") or tool_call.parameters.get(
+            "search_query"
+        )
+
         chunked_outputs = []
         for output in tool_result["outputs"]:
             text = output.get("text")
@@ -66,24 +70,28 @@ def rerank_and_chunk(
             continue
 
         res = model.invoke_rerank(query=query, documents=chunked_outputs)
-        
+
         # Sort the results by relevance score
         res.results.sort(key=lambda x: x.relevance_score, reverse=True)
-        
+
         # Map the results back to the original documents
         # Merges the results with the same tool call and parameters
         tool_call_hashable = str(tool_call)
         if tool_call_hashable not in reranked_results.keys():
             reranked_results[tool_call_hashable] = {"call": tool_call, "outputs": []}
-        
-        reranked_results[tool_call_hashable]["outputs"].extend([chunked_outputs[r.index] for r in res.results if r.relevance_score > RELEVANCE_THRESHOLD])
+
+        reranked_results[tool_call_hashable]["outputs"].extend(
+            [
+                chunked_outputs[r.index]
+                for r in res.results
+                if r.relevance_score > RELEVANCE_THRESHOLD
+            ]
+        )
 
     return list(reranked_results.values())
 
 
-def chunk(
-    content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300
-):
+def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300):
     if compact_mode:
         content = content.replace("\n", " ")
 

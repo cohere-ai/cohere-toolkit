@@ -84,6 +84,7 @@ class SearchFileTool(BaseTool):
 
         return results
 
+
 def get_file_content(file_path):
     # Currently only supports PDF files
     loader = PdfReader(file_path)
@@ -92,4 +93,3 @@ def get_file_content(file_path):
         text += page.extract_text() + "\n"
 
     return text
-
