@@ -56,9 +56,7 @@ class CustomChat(BaseChat):
                     else deployment_model.invoke_chat
                 )
 
-                for event in invoke_method(chat_request):
-                    yield event
-
+                yield from invoke_method(chat_request)
                 break
 
     def handle_managed_tools(

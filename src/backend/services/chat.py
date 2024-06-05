@@ -535,7 +535,7 @@ def generate_chat_response(
     Returns:
         NonStreamedChatResponse: Chat response.
     """
-
+    model_deployment_response = next(model_deployment_response)
     if not isinstance(model_deployment_response, dict):
         response = model_deployment_response.__dict__
     else:

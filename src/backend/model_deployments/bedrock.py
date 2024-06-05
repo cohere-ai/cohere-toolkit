@@ -58,7 +58,7 @@ class BedrockDeployment(BaseDeployment):
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
         )
 
-        return self.client.chat(
+        yield self.client.chat(
             **bedrock_chat_req,
             **kwargs,
         )
