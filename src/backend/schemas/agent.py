@@ -6,16 +6,16 @@ from pydantic import BaseModel, Field, computed_field
 from backend.schemas.tool import Tool
 
 
-
 class AgentBase(BaseModel):
     user_id: str
     # org_id: str
+
 
 class Agent(AgentBase):
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    
+
     version: int
     name: str
     description: Optional[str]
@@ -28,6 +28,7 @@ class Agent(AgentBase):
 
     class Config:
         from_attributes = True
+
 
 class UpdateAgent(BaseModel):
     title: Optional[str] = None
