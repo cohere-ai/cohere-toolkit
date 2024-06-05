@@ -9,7 +9,8 @@ from backend.services.request_validators import (
     validate_user_header,
 )
 
-
+# Important! Any new routers must have a corresponding RouterName entry and Router dependencies
+# mapping below. Make sure they use the correct ones depending on whether authentication is enabled or not.
 class RouterName(StrEnum):
     AUTH = "auth"
     CHAT = "chat"

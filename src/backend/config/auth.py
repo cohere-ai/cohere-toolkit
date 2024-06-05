@@ -10,7 +10,13 @@ ENABLED_AUTH_STRATEGIES = []
 ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
 
 
-def is_authentication_enabled():
+def is_authentication_enabled() -> bool:
+    """
+    Check whether any form of authentication was enabled.
+
+    Returns:
+        bool: Whether authentication is enabled.
+    """
     if ENABLED_AUTH_STRATEGIES:
         return True
 

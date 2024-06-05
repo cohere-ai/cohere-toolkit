@@ -25,7 +25,16 @@ class JWTService:
 
         self.secret_key = secret_key
 
-    def create_and_encode_jwt(self, user: dict) -> dict:
+    def create_and_encode_jwt(self, user: dict) -> str:
+        """
+        Creates a payload based on user info and creates a JWT token.
+
+        Args:
+            user (dict): User data.
+
+        Returns:
+            str: JWT token.
+        """
         now = datetime.datetime.utcnow()
         payload = {
             "iss": self.ISSUER,
@@ -39,7 +48,16 @@ class JWTService:
 
         return token
 
-    def decode_jwt(self, token: str):
+    def decode_jwt(self, token: str) -> dict:
+        """
+        Decodes a given JWT token. 
+
+        Args:
+            token (str): JWT token.
+
+        Returns:
+            dict: Decoded JWT token payload.
+        """
         try:
             decoded_payload = jwt.decode(
                 token, self.secret_key, algorithms=[self.ALGORITHM]

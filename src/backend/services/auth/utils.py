@@ -63,7 +63,7 @@ def get_header_user_id(request: Request) -> str:
     Returns:
         str: User ID
     """
-    # Auth enabled
+    # Check if Auth enabled
     if is_authentication_enabled():
         # Validation already performed, so just retrieve value
         authorization = request.headers.get("Authorization")

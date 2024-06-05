@@ -44,6 +44,7 @@ def create_app():
     ]
 
     # Dynamically set router dependencies
+    # These values must be set in config/routers.py
     dependencies_type = "default"
     if is_authentication_enabled():
         dependencies_type = "auth"
