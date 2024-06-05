@@ -21,8 +21,7 @@ def create_agent(db: Session, agent: Agent) -> Agent:
     return agent
 
 
-# TODO: get by org id instead of user id
-def get_agent(db: Session, agent_id: str, user_id: str) -> Agent:
+def get_agent(db: Session, agent_id: str) -> Agent:
     """
     Get an agent by its ID.
 
@@ -34,14 +33,11 @@ def get_agent(db: Session, agent_id: str, user_id: str) -> Agent:
     Returns:
       Agent: Agent with the given ID.
     """
-    return (
-        db.query(Agent).filter(Agent.id == agent_id, Agent.user_id == user_id).first()
-    )
+    return db.query(Agent).filter(Agent.id == agent_id).first()
 
 
-# TODO: get by org id instead of user id
 def get_agents(
-    db: Session, user_id: str, offset: int = 0, limit: int = 100
+    db: Session, offset: int = 0, limit: int = 100
 ) -> list[Agent]:
     """
     Get all agents for a user.
@@ -56,16 +52,11 @@ def get_agents(
       list[Agent]: List of agents.
     """
     return (
-        db.query(Agent)
-        .filter(Agent.user_id == user_id)
-        .offset(offset)
-        .limit(limit)
-        .all()
+        db.query(Agent).offset(offset).limit(limit).all()
     )
 
 
-# TODO: use org id instead of user id
-def update_agents(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
+def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
     """
     Update an agent.
 
@@ -84,16 +75,15 @@ def update_agents(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
     return agent
 
 
-# TODO: use org id instead of user id
-def delete_agent(db: Session, agent_id: str, user_id: str) -> None:
+def delete_agent(db: Session, agent_id: str) -> None:
     """
-    Delete a message by ID.
+    Delete an agent by ID.
 
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
         user_id (str): User ID.
     """
-    agent = db.query(Agent).filter(Agent.id == agent_id, Agent.user_id == user_id)
+    agent = db.query(Agent).filter(Agent.id == agent_id)
     agent.delete()
     db.commit()

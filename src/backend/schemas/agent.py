@@ -31,7 +31,7 @@ class Agent(AgentBase):
 
 
 class UpdateAgent(BaseModel):
-    title: Optional[str] = None
+    name: Optional[str] = None
     version: Optional[int] = None
     description: Optional[str] = None
     preamble: Optional[str] = None

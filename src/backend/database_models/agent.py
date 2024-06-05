@@ -39,4 +39,4 @@ class Agent(Base):
     # org_id: Mapped[str] = mapped_column(String, nullable=False)
     user_id: Mapped[str] = mapped_column(Text, nullable=False)
 
-    # __table_args__ = (UniqueConstraint('org_id', 'name', name='_org_id_name_uc'),)
+    __table_args__ = (UniqueConstraint('name', 'version', name='_name_version_uc'),)
