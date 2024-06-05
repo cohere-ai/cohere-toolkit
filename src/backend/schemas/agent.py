@@ -8,7 +8,6 @@ from backend.schemas.tool import Tool
 
 class AgentBase(BaseModel):
     user_id: str
-    # org_id: str
 
 
 class Agent(AgentBase):
