@@ -36,9 +36,7 @@ def get_agent(db: Session, agent_id: str) -> Agent:
     return db.query(Agent).filter(Agent.id == agent_id).first()
 
 
-def get_agents(
-    db: Session, offset: int = 0, limit: int = 100
-) -> list[Agent]:
+def get_agents(db: Session, offset: int = 0, limit: int = 100) -> list[Agent]:
     """
     Get all agents for a user.
 
@@ -51,9 +49,7 @@ def get_agents(
     Returns:
       list[Agent]: List of agents.
     """
-    return (
-        db.query(Agent).offset(offset).limit(limit).all()
-    )
+    return db.query(Agent).offset(offset).limit(limit).all()
 
 
 def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
