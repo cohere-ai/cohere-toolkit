@@ -74,6 +74,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
     # Login with redirect to /auth
     if strategy.SHOULD_AUTH_REDIRECT:
+        # Fetch endpoint with method name
         redirect_uri = request.url_for("authenticate")
         return await strategy.login(request, redirect_uri)
     # Login with email/password and set session directly

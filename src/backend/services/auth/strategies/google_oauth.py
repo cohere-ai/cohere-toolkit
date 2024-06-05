@@ -34,7 +34,7 @@ class GoogleOAuth(BaseOAuthStrategy):
                 client_kwargs={"scope": "openid email profile"},
             )
         except Exception as e:
-            logging.ERROR(f"Error during initializing of GoogleOAuth class: {str(e)}")
+            logging.error(f"Error during initializing of GoogleOAuth class: {str(e)}")
             raise
 
     @staticmethod
@@ -70,4 +70,4 @@ class GoogleOAuth(BaseOAuthStrategy):
         Returns:
             Access token.
         """
-        return await self.oauth.google.authorized_access_token(request)
+        return await self.oauth.google.authorize_access_token(request)
