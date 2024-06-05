@@ -39,7 +39,3 @@ class UpdateAgent(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class DeleteAgent(BaseModel):
-    pass

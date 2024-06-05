@@ -1,7 +1,7 @@
 from typing import List
 from enum import StrEnum
 
-from sqlalchemy import UniqueConstraint, Integer, String, Float, SQLEnum, ForeignKey
+from sqlalchemy import UniqueConstraint, Integer, String, Float, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
@@ -28,9 +28,10 @@ class Agent(Base):
     temperature: Mapped[float] = mapped_column(Float, default=0.3)
     # tool: Mapped[List["Tool"]] = relationship()
 
-    model: Mapped[Model] = mapped_column(SQLEnum(Model), nullable=False)
-    deployment: Mapped[Deployment] = mapped_column(SQLEnum(Deployment), nullable=False)
+    model: Mapped[Model] = mapped_column(Enum(Model, native_enum=False), nullable=False)
+    deployment: Mapped[Deployment] = mapped_column(Enum(Deployment, native_enum=False), nullable=False)
 
     # org_id: Mapped[str] = mapped_column(String, nullable=False)
+    user_id: Mapped[str] = mapped_column(String, nullable=False)
 
-    __table_args__ = (UniqueConstraint('org_id', 'name', name='_org_id_name_uc'),)
+    # __table_args__ = (UniqueConstraint('org_id', 'name', name='_org_id_name_uc'),)

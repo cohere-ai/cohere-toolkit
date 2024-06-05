@@ -6,3 +6,4 @@ from backend.database_models.document import *
 from backend.database_models.file import *
 from backend.database_models.message import *
 from backend.database_models.user import *
+from backend.database_models.agent import *
