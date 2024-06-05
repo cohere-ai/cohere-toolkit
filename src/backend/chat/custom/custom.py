@@ -41,35 +41,25 @@ class CustomChat(BaseChat):
                 status_code=400, detail="Both tools and documents cannot be provided."
             )
 
-        # Handles managed tools.
         # If a direct answer is generated instead of tool calls, the chat will not be called again
         # Instead, the direct answer will be returned from the stream
-        should_call_chat = True
-        if kwargs.get("managed_tools", True):
-            stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
+        stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
 
-            for event, generated_direct_answer in stream:
-                if generated_direct_answer:
-                    should_call_chat = False
-                else:
-                    chat_request = event
+        for event, generated_direct_answer in stream:
+            if generated_direct_answer:
+                yield event
+            else:
+                chat_request = event
+                invoke_method = (
+                    deployment_model.invoke_chat_stream
+                    if kwargs.get("stream", True)
+                    else deployment_model.invoke_chat
+                )
+
+                for event in invoke_method(chat_request):
+                    yield event
 
                 break
-
-        # Generate Response
-        if should_call_chat:
-            if kwargs.get("stream", True) is True:
-                for event in deployment_model.invoke_chat_stream(chat_request):
-                    yield event
-            else:
-                for event in deployment_model.invoke_chat(chat_request):
-                    yield event
-        else:
-            for event in stream:
-                for e in event:
-                    if type(e) == bool:
-                        continue
-                    yield e
 
     def handle_managed_tools(
         self,
@@ -110,7 +100,7 @@ class CustomChat(BaseChat):
             else:
                 chat_request.tool_results = event
                 chat_request.tools = tools
-                return chat_request, False
+                yield chat_request, False
 
     def get_tool_results(
         self,

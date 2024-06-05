@@ -47,9 +47,11 @@ def rerank_and_chunk(
     for tool_result in tool_resuls:
         tool_call = tool_result["call"]
 
+        # Only rerank if there is a query
         if not tool_call.parameters.get("query") and not tool_call.parameters.get(
             "search_query"
         ):
+            reranked_results[str(tool_call)] = tool_result
             continue
 
         query = tool_call.parameters.get("query") or tool_call.parameters.get(
@@ -59,9 +61,11 @@ def rerank_and_chunk(
         chunked_outputs = []
         for output in tool_result["outputs"]:
             text = output.get("text")
+
             if not text:
+                chunked_outputs.append([output])
                 continue
-            # create dict with all the existing keys, but replace the text with the chunked text
+
             chunks = chunk(text)
             chunked_outputs.extend([dict(output, text=chunk) for chunk in chunks])
 
