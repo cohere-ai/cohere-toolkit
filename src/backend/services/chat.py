@@ -405,7 +405,6 @@ def generate_chat_stream(
 
     stream_event = None
     for event in model_deployment_stream:
-        print(f"Event: {event}")
         if event["event_type"] == StreamEvent.STREAM_START:
             stream_event = StreamStart.model_validate(event)
             response_message.generation_id = event["generation_id"]

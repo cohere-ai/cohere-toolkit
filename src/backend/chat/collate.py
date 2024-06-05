@@ -3,35 +3,37 @@ from typing import Any, Dict, List
 
 from backend.model_deployments.base import BaseDeployment
 
+RELEVANCE_THRESHOLD = 0.5
 
 def combine_documents(
-    documents: Dict[str, List[Dict[str, Any]]],
+    tool_results: List[Dict[str, Any]],
     model: BaseDeployment,
 ) -> List[Dict[str, Any]]:
     """
     Combines documents from different retrievers and reranks them.
 
     Args:
-        documents (Dict[str, List[Dict[str, Any]]]): Dictionary from queries of lists of documents.
+        tool_results (List[Dict[str, Any]]): List of tool_results from different retrievers.
+            Each tool_result contains a ToolCall and a list of Outputs.
         model (BaseDeployment): Model deployment.
 
     Returns:
         List[Dict[str, Any]]: List of combined documents.
     """
-    reranked_documents = rerank(documents, model)
-    return interleave(reranked_documents)
+    return rerank_and_chunk(tool_results, model)
 
 
-def rerank(
-    documents_by_query: Dict[str, List[Dict[str, Any]]], model: BaseDeployment
+def rerank_and_chunk(
+    tool_resuls: List[Dict[str, Any]], 
+    model: BaseDeployment
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Takes a dictionary from queries of lists of documents and
-    internally rerank the documents for each query e.g:
+    Takes a list of tool_results and internally reranks the documents for each query, if there's one e.g:
     [{"q1":[1, 2, 3],"q2": [4, 5, 6]] -> [{"q1":[2 , 3, 1],"q2": [4, 6, 5]]
 
     Args:
-        documents_by_query (Dict[str, List[Dict[str, Any]]]): Dictionary from queries of lists of documents.
+        tool_resuls (List[Dict[str, Any]]): List of tool_results from different retrievers.
+            Each tool_result contains a ToolCall and a list of Outputs.
         model (BaseDeployment): Model deployment.
 
     Returns:
@@ -39,42 +41,80 @@ def rerank(
     """
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
-        return documents_by_query
-
-    # rerank the documents by each query
-    all_rerank_docs = {}
-    for query, documents in documents_by_query.items():
-        # Only rerank on text of document
-        # TODO handle no text in document
-        docs_to_rerank = [doc["text"] for doc in documents]
+        return tool_resuls
+    
+    reranked_results = {}
+    for tool_result in tool_resuls:
+        tool_call = tool_result["call"]
+        
+        if not tool_call.parameters.get("query") and not tool_call.parameters.get("search_query"):
+            continue
+        
+        query = tool_call.parameters.get("query") or tool_call.parameters.get("search_query")
+        
+        chunked_outputs = []
+        for output in tool_result["outputs"]:
+            text = output.get("text")
+            if not text:
+                continue
+            # create dict with all the existing keys, but replace the text with the chunked text
+            chunks = chunk(text)
+            chunked_outputs.extend([dict(output, text=chunk) for chunk in chunks])
 
         # If no documents to rerank, continue to the next query
-        if not docs_to_rerank:
+        if not chunked_outputs:
             continue
 
-        res = model.invoke_rerank(query=query, documents=docs_to_rerank)
+        res = model.invoke_rerank(query=query, documents=chunked_outputs)
+        
         # Sort the results by relevance score
         res.results.sort(key=lambda x: x.relevance_score, reverse=True)
+        
         # Map the results back to the original documents
-        all_rerank_docs[query] = [documents[r.index] for r in res.results]
+        # Merges the results with the same tool call and parameters
+        tool_call_hashable = str(tool_call)
+        if tool_call_hashable not in reranked_results.keys():
+            reranked_results[tool_call_hashable] = {"call": tool_call, "outputs": []}
+        
+        reranked_results[tool_call_hashable]["outputs"].extend([chunked_outputs[r.index] for r in res.results if r.relevance_score > RELEVANCE_THRESHOLD])
 
-    return all_rerank_docs
+    return list(reranked_results.values())
 
 
-def interleave(documents: Dict[str, List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-    """
-    Takes a dictionary from queries of lists of documents and interleaves them
-    for example [{"q1":[1, 2, 3],"q2": [4, 5, 6]] -> [1, 4, 2, 5, 3, 6]
+def chunk(
+    content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300
+):
+    if compact_mode:
+        content = content.replace("\n", " ")
 
-    Args:
-        documents (Dict[str, List[Dict[str, Any]]]): Dictionary from queries of lists of documents.
+    chunks = []
+    current_chunk = ""
+    words = content.split()
+    word_count = 0
 
-    Returns:
-        List[Dict[str, Any]]: List of interleaved documents.
-    """
-    return [
-        y
-        for x in zip_longest(*documents.values(), fillvalue=None)
-        for y in x
-        if y is not None
-    ]
+    for word in words:
+        if word_count + len(word.split()) > hard_word_cut_off:
+            # If adding the next word exceeds the hard limit, finalize the current chunk
+            chunks.append(current_chunk)
+            current_chunk = ""
+            word_count = 0
+
+        if word_count + len(word.split()) > soft_word_cut_off and word.endswith("."):
+            # If adding the next word exceeds the soft limit and the word ends with a period, finalize the current chunk
+            current_chunk += " " + word
+            chunks.append(current_chunk.strip())
+            current_chunk = ""
+            word_count = 0
+        else:
+            # Add the word to the current chunk
+            if current_chunk == "":
+                current_chunk = word
+            else:
+                current_chunk += " " + word
+            word_count += len(word.split())
+
+    # Add any remaining content as the last chunk
+    if current_chunk != "":
+        chunks.append(current_chunk.strip())
+
+    return chunks

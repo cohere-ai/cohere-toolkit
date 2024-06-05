@@ -34,7 +34,7 @@ class CustomChat(BaseChat):
         """
         # Choose the deployment model - validation already performed by request validator
         deployment_model = get_deployment(kwargs.get("deployment_name"), **kwargs)
-        print(f"Using deployment {deployment_model.__class__.__name__}")
+        self.logger.info(f"Using deployment {deployment_model.__class__.__name__}")
 
         if len(chat_request.tools) > 0 and len(chat_request.documents) > 0:
             raise HTTPException(
@@ -121,7 +121,6 @@ class CustomChat(BaseChat):
         deployment_model: BaseDeployment,
         kwargs: Any,
     ) -> Any:
-        tool_results = []
         """
         Invokes the tools and returns the results. If no tools calls are generated, it returns the chat response
         as a direct answer.
@@ -138,6 +137,7 @@ class CustomChat(BaseChat):
             Any: The tool results or the chat response, and a boolean indicating if a direct answer was generated
 
         """
+        tool_results = []
 
         # If the tool is Read_File or SearchFile, add the available files to the chat history
         # so that the model knows what files are available
@@ -150,7 +150,7 @@ class CustomChat(BaseChat):
                 kwargs.get("user_id"),
             )
 
-        print(f"Invoking tools: {tools}")
+        self.logger.info(f"Invoking tools: {tools}")
         stream = deployment_model.invoke_tools(
             message, tools, chat_history=chat_history
         )
@@ -168,7 +168,7 @@ class CustomChat(BaseChat):
         if second_event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
             tool_calls = second_event["tool_calls"]
 
-            print(f"Using tools: {tool_calls}")
+            self.logger.info(f"Tool calls: {tool_calls}")
 
             # TODO: parallelize tool calls
             for tool_call in tool_calls:
@@ -190,7 +190,8 @@ class CustomChat(BaseChat):
                 for output in outputs:
                     tool_results.append({"call": tool_call, "outputs": [output]})
 
-            print(f"Tool results: {tool_results}")
+            self.logger.info(f"Tool results: {tool_results}")
+            tool_results = combine_documents(tool_results, deployment_model)
             yield tool_results, False
 
         else:
