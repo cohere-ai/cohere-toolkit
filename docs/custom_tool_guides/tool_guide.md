@@ -120,11 +120,6 @@ from pydantic.v1 import BaseModel, Field
 
 from backend.tools.base import BaseTool
 
-
-class LangchainPythonInterpreterToolInput(BaseModel):
-    code: str = Field(description="Python code to execute.")
-
-
 class PythonInterpreter(BaseTool):
     """
     This class calls arbitrary code against a Python interpreter.
