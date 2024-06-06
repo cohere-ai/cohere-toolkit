@@ -50,3 +50,15 @@ import pdb; pdb.set_trace()
 
 it will allow you to debug.
 
+
+## Alembic error:
+
+If you encounter an error while running the `make migrate` command, you can try running the following commands:
+
+```bash
+docker compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
+make migrate
+make migration
+```
+
+This will also fix unit test errors related to alembic.
