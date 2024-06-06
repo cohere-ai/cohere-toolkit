@@ -6,9 +6,10 @@ from enum import StrEnum
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools import (
     Calculator,
-    LangChainVectorDBRetriever,
     LangChainWikiRetriever,
     PythonInterpreter,
+    ReadFileTool,
+    SearchFileTool,
     TavilyInternetSearch,
 )
 
@@ -26,10 +27,11 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 class ToolName(StrEnum):
     Wiki_Retriever_LangChain = "Wikipedia"
-    File_Upload_Langchain = "File Reader"
+    Search_File = "search_file"
+    Read_File = "read_document"
     Python_Interpreter = "Python_Interpreter"
     Calculator = "Calculator"
-    Tavily_Internet_Search = "Internet Search"
+    Tavily_Internet_Search = "Internet_Search"
 
 
 ALL_TOOLS = {
@@ -50,21 +52,42 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Retrieves documents from Wikipedia using LangChain.",
     ),
-    ToolName.File_Upload_Langchain: ManagedTool(
-        name=ToolName.File_Upload_Langchain,
-        implementation=LangChainVectorDBRetriever,
+    ToolName.Search_File: ManagedTool(
+        name=ToolName.Search_File,
+        implementation=SearchFileTool,
         parameter_definitions={
-            "query": {
-                "description": "Query for retrieval.",
+            "search_query": {
+                "description": "Textual search query to search over the file's content for",
+                "type": "str",
+                "required": True,
+            },
+            "filenames": {
+                "description": "A list of one or more uploaded filename strings to search over",
+                "type": "list",
+                "required": True,
+            },
+        },
+        is_visible=True,
+        is_available=SearchFileTool.is_available(),
+        error_message="SearchFileTool not available.",
+        category=Category.FileLoader,
+        description="Performs a search over a list of one or more of the attached files for a textual search query",
+    ),
+    ToolName.Read_File: ManagedTool(
+        name=ToolName.Read_File,
+        implementation=ReadFileTool,
+        parameter_definitions={
+            "filename": {
+                "description": "The name of the attached file to read.",
                 "type": "str",
                 "required": True,
             }
         },
         is_visible=True,
-        is_available=LangChainVectorDBRetriever.is_available(),
-        error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
+        is_available=ReadFileTool.is_available(),
+        error_message="ReadFileTool not available.",
         category=Category.FileLoader,
-        description="Retrieves documents from a file using LangChain.",
+        description="Returns the textual contents of an uploaded file, broken up in text chunks.",
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,

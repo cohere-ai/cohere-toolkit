@@ -28,7 +28,7 @@ class MockAzureDeployment(BaseDeployment):
         return True
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        return {
+        event = {
             "text": "Hi! Hello there! How's it going?",
             "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
             "citations": None,
@@ -49,6 +49,8 @@ class MockAzureDeployment(BaseDeployment):
                 "tokens": {"input_tokens": 67, "output_tokens": 10},
             },
         }
+
+        yield event
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any

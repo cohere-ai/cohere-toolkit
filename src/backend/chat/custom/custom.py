@@ -1,13 +1,17 @@
 import logging
-from typing import Any
+from itertools import tee
+from typing import Any, Dict, Generator, List
 
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import combine_documents
+from backend.chat.collate import rerank_and_chunk
 from backend.chat.custom.utils import get_deployment
+from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
+from backend.crud.file import get_files_by_conversation_id
 from backend.model_deployments.base import BaseDeployment
+from backend.schemas.chat import ChatMessage
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
@@ -38,133 +42,175 @@ class CustomChat(BaseChat):
                 status_code=400, detail="Both tools and documents cannot be provided."
             )
 
-        if kwargs.get("managed_tools", True):
-            # Generate Search Queries
-            chat_history = [message.to_dict() for message in chat_request.chat_history]
+        # If a direct answer is generated instead of tool calls, the chat will not be called again
+        # Instead, the direct answer will be returned from the stream
+        stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
 
-            function_tools: list[Tool] = []
-            for tool in chat_request.tools:
-                available_tool = AVAILABLE_TOOLS.get(tool.name)
-                if available_tool and available_tool.category == Category.Function:
-                    function_tools.append(Tool(**available_tool.model_dump()))
+        first_event, generated_direct_answer = next(stream)
 
-            if len(function_tools) > 0:
-                tool_results = self.get_tool_results(
-                    chat_request.message, function_tools, deployment_model
-                )
-
-                chat_request.tools = None
-                if kwargs.get("stream", True) is True:
-                    return deployment_model.invoke_chat_stream(
-                        chat_request,
-                        tool_results=tool_results,
-                    )
-                else:
-                    return deployment_model.invoke_chat(
-                        chat_request,
-                        tool_results=tool_results,
-                    )
-
-            queries = deployment_model.invoke_search_queries(
-                chat_request.message, chat_history
-            )
-            logger.info(f"Search queries generated: {queries}")
-
-            # Fetch Documents
-            retrievers = self.get_retrievers(
-                kwargs.get("file_paths", []), [tool.name for tool in chat_request.tools]
-            )
-            logger.info(
-                f"Using retrievers: {[retriever.__class__.__name__ for retriever in retrievers]}"
-            )
-
-            # No search queries were generated but retrievers were selected, use user message as query
-            if len(queries) == 0 and len(retrievers) > 0:
-                queries = [chat_request.message]
-
-            all_documents = {}
-            # TODO: call in parallel and error handling
-            # TODO: merge with regular function tools after multihop implemented
-            for retriever in retrievers:
-                for query in queries:
-                    parameters = {"query": query}
-                    all_documents.setdefault(query, []).extend(
-                        retriever.call(parameters)
-                    )
-
-            # Collate Documents
-            documents = combine_documents(all_documents, deployment_model)
-            chat_request.documents = documents
-            chat_request.tools = []
-
-        # Generate Response
-        if kwargs.get("stream", True) is True:
-            return deployment_model.invoke_chat_stream(chat_request)
+        if generated_direct_answer:
+            yield first_event
+            for event, _ in stream:
+                yield event
         else:
-            return deployment_model.invoke_chat(chat_request)
+            chat_request = first_event
+            invoke_method = (
+                deployment_model.invoke_chat_stream
+                if kwargs.get("stream", True)
+                else deployment_model.invoke_chat
+            )
 
-    def get_retrievers(
-        self, file_paths: list[str], req_tools: list[ToolName]
-    ) -> list[Any]:
+            yield from invoke_method(chat_request)
+
+    def handle_managed_tools(
+        self,
+        chat_request: CohereChatRequest,
+        deployment_model: BaseDeployment,
+        **kwargs: Any,
+    ) -> Generator[Any, None, None]:
         """
-        Get retrievers for the required tools.
+        This function handles the managed tools.
 
         Args:
-            file_paths (list[str]): File paths.
-            req_tools (list[str]): Required tools.
+            chat_request (CohereChatRequest): The chat request
+            deployment_model (BaseDeployment): The deployment model
+            **kwargs (Any): The keyword arguments
 
         Returns:
-            list[Any]: Retriever implementations.
+            Generator[Any, None, None]: The tool results or the chat response, and a boolean indicating if a direct answer was generated
         """
-        retrievers = []
+        tools = [
+            Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump())
+            for tool in chat_request.tools
+            if AVAILABLE_TOOLS.get(tool.name)
+        ]
 
-        # If no tools are required, return an empty list
-        if not req_tools:
-            return retrievers
+        if not tools:
+            yield chat_request, False
 
-        # Iterate through the required tools and check if they are available
-        # If so, add the implementation to the list of retrievers
-        # If not, raise an HTTPException
-        for tool_name in req_tools:
-            tool = AVAILABLE_TOOLS.get(tool_name)
-            if tool is None:
-                raise HTTPException(
-                    status_code=404, detail=f"Tool {tool_name} not found."
-                )
-
-            # Check if the tool is visible, if not, skip it
-            if not tool.is_visible:
-                continue
-
-            if tool.category == Category.FileLoader and file_paths is not None:
-                for file_path in file_paths:
-                    retrievers.append(tool.implementation(file_path, **tool.kwargs))
-            elif tool.category != Category.FileLoader:
-                retrievers.append(tool.implementation(**tool.kwargs))
-
-        return retrievers
+        for event, should_return in self.get_tool_results(
+            chat_request.message,
+            chat_request.chat_history,
+            tools,
+            kwargs.get("conversation_id"),
+            deployment_model,
+            kwargs,
+        ):
+            if should_return:
+                yield event, True
+            else:
+                chat_request.tool_results = event
+                chat_request.tools = tools
+                yield chat_request, False
 
     def get_tool_results(
-        self, message: str, tools: list[Tool], model: BaseDeployment
-    ) -> list[dict[str, Any]]:
+        self,
+        message: str,
+        chat_history: List[Dict[str, str]],
+        tools: list[Tool],
+        conversation_id: str,
+        deployment_model: BaseDeployment,
+        kwargs: Any,
+    ) -> Any:
+        """
+        Invokes the tools and returns the results. If no tools calls are generated, it returns the chat response
+        as a direct answer.
+
+        Args:
+            message (str): The message to be processed
+            chat_history (List[Dict[str, str]]): The chat history
+            tools (list[Tool]): The tools to be invoked
+            conversation_id (str): The conversation ID
+            deployment_model (BaseDeployment): The deployment model
+            kwargs (Any): The keyword arguments
+
+        Returns:
+            Any: The tool results or the chat response, and a boolean indicating if a direct answer was generated
+
+        """
         tool_results = []
-        tools_to_use = model.invoke_tools(message, tools)
 
-        tool_calls = tools_to_use.tool_calls if tools_to_use.tool_calls else []
-        for tool_call in tool_calls:
-            tool = AVAILABLE_TOOLS.get(tool_call.name)
-            if not tool:
-                logging.warning(f"Couldn't find tool {tool_call.name}")
-                continue
-
-            outputs = tool.implementation().call(
-                parameters=tool_call.parameters,
+        # If the tool is Read_File or SearchFile, add the available files to the chat history
+        # so that the model knows what files are available
+        tool_names = [tool.name for tool in tools]
+        if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
+            chat_history = self.add_files_to_chat_history(
+                chat_history,
+                conversation_id,
+                kwargs.get("session"),
+                kwargs.get("user_id"),
             )
 
-            # If the tool returns a list of outputs, append each output to the tool_results list
-            # Otherwise, append the single output to the tool_results list
-            outputs = outputs if isinstance(outputs, list) else [outputs]
-            for output in outputs:
-                tool_results.append({"call": tool_call, "outputs": [output]})
+        logger.info(f"Invoking tools: {tools}")
+        stream = deployment_model.invoke_tools(
+            message, tools, chat_history=chat_history
+        )
 
-        return tool_results
+        # Invoke tools can return a direct answer or a stream of events with the tool calls
+        # If one of the events is a tool call generation, the tools are invoked, and the results are returned
+        # Otherwise, the chat response is returned as a direct answer
+        stream, stream_copy = tee(stream)
+
+        tool_call_found = False
+        for event in stream:
+            if event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
+                tool_call_found = True
+                tool_calls = event["tool_calls"]
+
+                logger.info(f"Tool calls: {tool_calls}")
+
+                # TODO: parallelize tool calls
+                for tool_call in tool_calls:
+                    tool = AVAILABLE_TOOLS.get(tool_call.name)
+                    if not tool:
+                        logging.warning(f"Couldn't find tool {tool_call.name}")
+                        continue
+
+                    outputs = tool.implementation().call(
+                        parameters=tool_call.parameters,
+                        session=kwargs.get("session"),
+                        model_deployment=deployment_model,
+                        user_id=kwargs.get("user_id"),
+                    )
+
+                    # If the tool returns a list of outputs, append each output to the tool_results list
+                    # Otherwise, append the single output to the tool_results list
+                    outputs = outputs if isinstance(outputs, list) else [outputs]
+                    for output in outputs:
+                        tool_results.append({"call": tool_call, "outputs": [output]})
+
+                tool_results = rerank_and_chunk(tool_results, deployment_model)
+                logger.info(f"Tool results: {tool_results}")
+                yield tool_results, False
+                break
+
+        if not tool_call_found:
+            for event in stream_copy:
+                yield event, True
+
+    def add_files_to_chat_history(
+        self,
+        chat_history: List[Dict[str, str]],
+        conversation_id: str,
+        session: Any,
+        user_id: str,
+    ) -> List[Dict[str, str]]:
+        if session is None or conversation_id is None or len(conversation_id) == 0:
+            return chat_history
+
+        available_files = get_files_by_conversation_id(
+            session, conversation_id, user_id
+        )
+        files_message = "The user uploaded the following attachments:\n"
+
+        for file in available_files:
+            word_count = len(file.file_content.split())
+
+            # Use the first 25 words as the document preview in the preamble
+            num_words = min(25, word_count)
+            preview = " ".join(file.file_content.split()[:num_words])
+
+            files_message += f"Filename: {file.file_name}\nWord Count: {word_count} Preview: {preview}\n\n"
+
+        chat_history.append(ChatMessage(message=files_message, role="SYSTEM"))
+        return chat_history

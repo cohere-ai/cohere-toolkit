@@ -50,3 +50,19 @@ def test_streamed_chat(
             prompt_truncation="AUTO_PRESERVE_ORDER",
         )
     )
+
+
+def test_non_streamed_chat(
+    session_client_chat: TestClient,
+    user: User,
+    mock_bedrock_deployment,
+    mock_available_model_deployments,
+):
+    deployment = mock_bedrock_deployment.return_value
+    response = session_client_chat.post(
+        "/v1/chat",
+        headers={"User-Id": user.id, "Deployment-Name": ModelDeploymentName.Bedrock},
+        json={"message": "Hello", "max_tokens": 10},
+    )
+
+    assert response.status_code == 200

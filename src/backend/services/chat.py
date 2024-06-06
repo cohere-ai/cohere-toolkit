@@ -536,19 +536,23 @@ def generate_chat_response(
     Returns:
         NonStreamedChatResponse: Chat response.
     """
-
+    model_deployment_response = next(model_deployment_response)
     if not isinstance(model_deployment_response, dict):
         response = model_deployment_response.__dict__
     else:
         response = model_deployment_response
 
-    chat_history = [
-        ChatMessage(
-            role=message.role,
-            message=message.message,
+    chat_history = []
+    for message in response.get("chat_history", []):
+        if not isinstance(message, dict):
+            message = message.__dict__
+
+        chat_history.append(
+            ChatMessage(
+                role=message["role"],
+                message=message["message"],
+            )
         )
-        for message in response.get("chat_history", [])
-    ]
 
     documents = []
     if "documents" in response and response["documents"]:
