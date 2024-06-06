@@ -439,11 +439,15 @@ export class CohereClient {
     return body as { strategies: string[] };
   }
 
-  public async createUser(userDetails: { name: string, email: string; password: string }) {
-    const response = await this.fetch(`${this.getEndpoint('users')}`, {
+  public async createUser({ name, email, password } : { name: string, email: string, password: string }) {
+    const response = await this.fetch(`${this.getEndpoint('users')}/`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify(userDetails),
+      body: JSON.stringify({
+        fullname: name,
+        email,
+        password,
+      }),
     });
 
     const body = await response.json();

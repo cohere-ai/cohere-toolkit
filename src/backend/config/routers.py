@@ -84,7 +84,7 @@ ROUTER_DEPENDENCIES = {
         ],
         "auth": [
             Depends(get_session),
-            Depends(validate_authorization),
+            # Depends(validate_authorization),
         ],
     },
 }

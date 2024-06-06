@@ -35,13 +35,10 @@ const RegisterPage: NextPage<Props> = (props) => {
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
     const { name, email, password } = data;
     try {
-      await registerMutation.mutateAsync({ name, email, password });
+      await registerMutation.mutateAsync({ name, email, password }, { onSuccess: () => router.push('/login') });
     } catch (error) {
       console.error(error);
     }
-
-    if (registerMutation.isSuccess) {
-
   };
 
   const redirect = getQueryString(router.query.redirect_uri);

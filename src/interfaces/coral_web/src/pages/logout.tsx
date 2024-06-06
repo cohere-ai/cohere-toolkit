@@ -27,7 +27,7 @@ const LoginPage: NextPage<Props> = (props) => {
     <WelcomePage title="Logout" navigationAction="login">
       <div className="flex flex-col items-center justify-center">
         <Text as="h1" styleAs="h3">
-          Log out
+          Logging out
         </Text>
       </div>
     </WelcomePage>
