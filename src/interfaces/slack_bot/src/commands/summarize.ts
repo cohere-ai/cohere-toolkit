@@ -29,8 +29,6 @@ export const summarize: Middleware<SlackCommandMiddlewareArgs> = async ({
   const threadTs = unformattedTs?.replace(/(\d+)(\d{6})/g, '$1.$2');
   const userId = command.user_id;
   const currentChannelId = command.channel_id;
-  const teamId = context.teamId;
-  const enterpriseId = context.enterpriseId;
 
   // Not an valid slack thread link
   if (!threadChannelId || !threadTs) {
@@ -44,7 +42,7 @@ export const summarize: Middleware<SlackCommandMiddlewareArgs> = async ({
     return;
   }
 
-  handleSummarizeThread({
+  await handleSummarizeThread({
     context,
     client,
     threadChannelId,

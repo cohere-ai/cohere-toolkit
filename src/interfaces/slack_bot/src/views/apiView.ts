@@ -8,7 +8,7 @@ import { prisma } from '..';
  * This view is called when the user submits the form on the setupCommand modal. It handles saving
  * workspace settings to the db.
  */
-export const apiView: Middleware<SlackViewMiddlewareArgs> = async ({ ack, view, context }) => {
+export const apiView: Middleware<SlackViewMiddlewareArgs> = async ({ ack, context }) => {
   await ack({
     response_action: 'update',
     view: {

@@ -1,5 +1,3 @@
-import { MessageAttachment } from '@slack/bolt';
-
 import { Action } from './utils/actions';
 
 export const COMMAND_SUFFIX = process.env.COMMAND_SUFFIX || '';

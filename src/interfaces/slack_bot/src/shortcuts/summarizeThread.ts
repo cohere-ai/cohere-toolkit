@@ -18,7 +18,6 @@ export const summarizeThread: Middleware<SlackShortcutMiddlewareArgs> = async ({
   // Start a new thread if the shortcut is used on the first message without any replies
   const threadTs = shortcut.message.thread_ts || shortcut.message_ts;
   const threadChannelId = shortcut.channel.id;
-  const teamId = context.teamId;
 
   await handleSummarizeThread({
     context,

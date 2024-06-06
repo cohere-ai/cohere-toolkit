@@ -165,9 +165,6 @@ const appOptions: AppOptions =
               const oAuthInstallation = await prisma.oAuthInstallation.findFirst({
                 where: { enterpriseId: installation.enterprise.id },
               });
-              const workspaceDetails = await prisma.workspaceSettings.findFirst({
-                where: { enterpriseId: installation.enterprise.id },
-              });
 
               if (oAuthInstallation !== null) {
                 await prisma.oAuthInstallation.update({
@@ -190,9 +187,6 @@ const appOptions: AppOptions =
             if (installation.team !== undefined) {
               // single team app installation
               const oAuthInstallation = await prisma.oAuthInstallation.findFirst({
-                where: { teamId: installation.team.id },
-              });
-              const workspaceDetails = await prisma.workspaceSettings.findFirst({
                 where: { teamId: installation.team.id },
               });
 
@@ -292,11 +286,6 @@ app.event('app_mention', async ({ context, event, say, client }) => {
    */
   if (event.thread_ts) return;
   const action = await determineAction(context, event);
-  const userId = event.user;
-  const teamId = context.teamId;
-  const enterpriseId = context.enterpriseId;
-  const channelId = event.channel;
-  const messageTs = event.ts;
   // Exit early if this is not a valid action
   if (action.type === 'ignore') return;
 
@@ -319,12 +308,7 @@ app.message(async ({ context, event, client, say }) => {
 
   const channelType = action.event.channel_type;
   const threadTs = action.event.thread_ts;
-  const userId = action.event.user;
-  const teamId = context.teamId;
-  const enterpriseId = context.enterpriseId;
-  const channelId = action.event.channel;
   const botUserId = context.botUserId;
-  const messageTs = action.event.ts;
 
   // For threaded replies
   const firstMsgText = threadTs && messages[0].text;
