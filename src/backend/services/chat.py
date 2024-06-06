@@ -541,13 +541,17 @@ def generate_chat_response(
     else:
         response = model_deployment_response
 
-    chat_history = [
-        ChatMessage(
-            role=message.role,
-            message=message.message,
+    chat_history = []
+    for message in response.get("chat_history", []):
+        if not isinstance(message, dict):
+            message = message.__dict__
+
+        chat_history.append(
+            ChatMessage(
+                role=message["role"],
+                message=message["message"],
+            )
         )
-        for message in response.get("chat_history", [])
-    ]
 
     documents = []
     if "documents" in response and response["documents"]:

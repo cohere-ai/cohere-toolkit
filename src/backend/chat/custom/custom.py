@@ -1,4 +1,5 @@
 import logging
+from itertools import tee
 from typing import Any, Dict, Generator, List
 
 from fastapi import HTTPException
@@ -57,6 +58,7 @@ class CustomChat(BaseChat):
                 )
 
                 yield from invoke_method(chat_request)
+
                 break
 
     def handle_managed_tools(
@@ -144,48 +146,45 @@ class CustomChat(BaseChat):
         )
 
         # Invoke tools can return a direct answer or a stream of events with the tool calls
-        # If the second event is a tool call, the tools are invoked, and the results are returned
+        # If one of the events is a tool call generation, the tools are invoked, and the results are returned
         # Otherwise, the chat response is returned as a direct answer
-        stream_start_event = next(stream)
+        stream, stream_copy = tee(stream)
 
-        if stream_start_event is None:
-            yield [], False
+        tool_call_found = False
+        for event in stream:
+            if event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
+                tool_call_found = True
+                tool_calls = event["tool_calls"]
 
-        second_event = next(stream)
+                self.logger.info(f"Tool calls: {tool_calls}")
 
-        if second_event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
-            tool_calls = second_event["tool_calls"]
+                # TODO: parallelize tool calls
+                for tool_call in tool_calls:
+                    tool = AVAILABLE_TOOLS.get(tool_call.name)
+                    if not tool:
+                        logging.warning(f"Couldn't find tool {tool_call.name}")
+                        continue
 
-            self.logger.info(f"Tool calls: {tool_calls}")
+                    outputs = tool.implementation().call(
+                        parameters=tool_call.parameters,
+                        session=kwargs.get("session"),
+                        model_deployment=deployment_model,
+                        user_id=kwargs.get("user_id"),
+                    )
 
-            # TODO: parallelize tool calls
-            for tool_call in tool_calls:
-                tool = AVAILABLE_TOOLS.get(tool_call.name)
-                if not tool:
-                    logging.warning(f"Couldn't find tool {tool_call.name}")
-                    continue
+                    # If the tool returns a list of outputs, append each output to the tool_results list
+                    # Otherwise, append the single output to the tool_results list
+                    outputs = outputs if isinstance(outputs, list) else [outputs]
+                    for output in outputs:
+                        tool_results.append({"call": tool_call, "outputs": [output]})
 
-                outputs = tool.implementation().call(
-                    parameters=tool_call.parameters,
-                    session=kwargs.get("session"),
-                    model_deployment=deployment_model,
-                    user_id=kwargs.get("user_id"),
-                )
+                self.logger.info(f"Tool results: {tool_results}")
+                tool_results = combine_documents(tool_results, deployment_model)
+                yield tool_results, False
+                break
 
-                # If the tool returns a list of outputs, append each output to the tool_results list
-                # Otherwise, append the single output to the tool_results list
-                outputs = outputs if isinstance(outputs, list) else [outputs]
-                for output in outputs:
-                    tool_results.append({"call": tool_call, "outputs": [output]})
-
-            self.logger.info(f"Tool results: {tool_results}")
-            tool_results = combine_documents(tool_results, deployment_model)
-            yield tool_results, False
-
-        else:
-            yield stream_start_event, True
-            yield second_event, True
-            for event in stream:
+        if not tool_call_found:
+            for event in stream_copy:
                 yield event, True
 
     def add_files_to_chat_history(
