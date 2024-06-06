@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
+from backend.config.routers import RouterName
 from backend.crud import user as user_crud
 from backend.database_models import User as UserModel
-from backend.database_models import get_session
 from backend.database_models.database import DBSessionDep
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 
-router = APIRouter(prefix="/v1/users", dependencies=[Depends(get_session)])
+router = APIRouter(prefix="/v1/users")
+router.name = RouterName.USER
 
 
 @router.post("/", response_model=User)

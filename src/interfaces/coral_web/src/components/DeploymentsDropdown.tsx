@@ -1,6 +1,6 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 
-import { Dropdown, DropdownOptionGroups, Text } from '@/components/Shared';
+import { Dropdown, DropdownOptionGroups } from '@/components/Shared';
 import { BannerContext } from '@/context/BannerContext';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
@@ -33,7 +33,7 @@ export const DeploymentsDropdown: React.FC = () => {
       value={deployment}
       onChange={(deploymentName: string) => {
         const deployment = allDeployments.find((d) => d.name === deploymentName);
-        if (!deployment.is_available) {
+        if (deployment && !deployment.is_available) {
           open({
             title: 'Configure Model Deployment',
             content: <EditEnvVariablesModal onClose={close} defaultDeployment={deployment.name} />,

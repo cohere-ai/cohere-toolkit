@@ -58,7 +58,7 @@ export class DefaultService {
    * Logs user in, verifying their credentials and either setting the user session,
    * or redirecting to /auth endpoint.
    *
-   * Args:er
+   * Args:
    * request (Request): current Request object.
    * login (Login): Login payload.
    * session (DBSessionDep): Database session.

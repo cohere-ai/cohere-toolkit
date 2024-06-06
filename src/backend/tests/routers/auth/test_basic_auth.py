@@ -8,7 +8,7 @@ def test_login_success(session_client: TestClient, session: Session):
     _ = get_factory("User", session).create(email="test@gmail.com", password="abcd")
 
     response = session_client.post(
-        "/login",
+        "/v1/login",
         json={
             "strategy": "Basic",
             "payload": {"email": "test@gmail.com", "password": "abcd"},
@@ -16,27 +16,13 @@ def test_login_success(session_client: TestClient, session: Session):
     )
 
     assert response.status_code == 200
-
-
-def test_login_success(session_client: TestClient, session: Session):
-    _ = get_factory("User", session).create(email="test@gmail.com", password="abcd")
-
-    response = session_client.post(
-        "/login",
-        json={
-            "strategy": "Basic",
-            "payload": {"email": "test@gmail.com", "password": "abcd"},
-        },
-    )
-
-    assert response.status_code == 200
-    assert "session" in response.cookies
+    assert response.json().get("token") is not None
 
 
 def test_login_invalid_password(session_client: TestClient, session: Session):
     _ = get_factory("User", session).create(email="test@gmail.com", password="hello")
     response = session_client.post(
-        "/login",
+        "/v1/login",
         json={
             "strategy": "Basic",
             "payload": {"email": "test@gmail.com", "password": "test"},
@@ -51,7 +37,7 @@ def test_login_invalid_password(session_client: TestClient, session: Session):
 
 def test_login_no_user(session_client: TestClient):
     response = session_client.post(
-        "/login",
+        "/v1/login",
         json={
             "strategy": "Basic",
             "payload": {"email": "nouser@gmail.com", "password": "test"},
@@ -65,28 +51,32 @@ def test_login_no_user(session_client: TestClient):
 
 
 def test_login_invalid_strategy(session_client: TestClient):
-    response = session_client.post("/login", json={"strategy": "test", "payload": {}})
+    response = session_client.post(
+        "/v1/login", json={"strategy": "test", "payload": {}}
+    )
 
-    assert response.status_code == 404
+    assert response.status_code == 422
     assert response.json() == {"detail": "Invalid Authentication strategy: test."}
 
 
 def test_login_invalid_payload(session_client: TestClient):
-    response = session_client.post("/login", json={"strategy": "Basic", "payload": {}})
+    response = session_client.post(
+        "/v1/login", json={"strategy": "Basic", "payload": {}}
+    )
 
-    assert response.status_code == 404
+    assert response.status_code == 422
     assert response.json() == {
         "detail": "Missing the following keys in the payload: ['email', 'password']."
     }
 
 
 def test_login_no_strategy(session_client: TestClient):
-    response = session_client.post("/login", json={"payload": {}})
+    response = session_client.post("/v1/login", json={"payload": {}})
 
     assert response.status_code == 422
 
 
 def test_login_no_payload(session_client: TestClient):
-    response = session_client.post("/login", json={"strategy": ""})
+    response = session_client.post("/v1/login", json={"strategy": ""})
 
     assert response.status_code == 422

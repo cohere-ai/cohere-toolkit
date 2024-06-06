@@ -52,7 +52,7 @@ class AzureDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        return self.client.chat(
+        yield self.client.chat(
             **chat_request.model_dump(exclude={"stream"}),
             **kwargs,
         )
@@ -90,5 +90,16 @@ class AzureDeployment(BaseDeployment):
     ) -> Any:
         return None
 
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
-        return self.client.chat(message=message, tools=tools, **kwargs)
+    def invoke_tools(
+        self,
+        message: str,
+        tools: List[Any],
+        chat_history: List[Dict[str, str]] | None = None,
+        **kwargs: Any,
+    ) -> Generator[StreamedChatResponse, None, None]:
+        stream = self.client.chat_stream(
+            message=message, tools=tools, chat_history=chat_history, **kwargs
+        )
+
+        for event in stream:
+            yield event.__dict__

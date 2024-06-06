@@ -58,8 +58,9 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        return self.client.chat(
+        yield self.client.chat(
             **chat_request.model_dump(exclude={"stream"}),
+            force_single_step=True,
             **kwargs,
         )
 
@@ -67,7 +68,8 @@ class CohereDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream"}),
+            **chat_request.model_dump(exclude={"stream", "file_ids"}),
+            force_single_step=True,
             **kwargs,
         )
         for event in stream:
@@ -98,7 +100,21 @@ class CohereDeployment(BaseDeployment):
             query=query, documents=documents, model="rerank-english-v2.0", **kwargs
         )
 
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
-        return self.client.chat(
-            message=message, tools=tools, model="command-r", **kwargs
+    def invoke_tools(
+        self,
+        message: str,
+        tools: List[Any],
+        chat_history: List[Dict[str, str]] | None = None,
+        **kwargs: Any,
+    ) -> Generator[StreamedChatResponse, None, None]:
+        stream = self.client.chat_stream(
+            message=message,
+            tools=tools,
+            model="command-r",
+            force_single_step=True,
+            chat_history=chat_history,
+            **kwargs,
         )
+
+        for event in stream:
+            yield event.__dict__

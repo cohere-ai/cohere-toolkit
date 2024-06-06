@@ -4,13 +4,12 @@ from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.schemas.tool import Category, ManagedTool
-from backend.tools.function_tools import (
-    CalculatorFunctionTool,
-    PythonInterpreterFunctionTool,
-)
-from backend.tools.retrieval import (
-    LangChainVectorDBRetriever,
+from backend.tools import (
+    Calculator,
     LangChainWikiRetriever,
+    PythonInterpreter,
+    ReadFileTool,
+    SearchFileTool,
     TavilyInternetSearch,
 )
 
@@ -28,16 +27,24 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 class ToolName(StrEnum):
     Wiki_Retriever_LangChain = "Wikipedia"
-    File_Upload_Langchain = "File Reader"
+    Search_File = "search_file"
+    Read_File = "read_document"
     Python_Interpreter = "Python_Interpreter"
     Calculator = "Calculator"
-    Tavily_Internet_Search = "Internet Search"
+    Tavily_Internet_Search = "Internet_Search"
 
 
 ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
         name=ToolName.Wiki_Retriever_LangChain,
         implementation=LangChainWikiRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         kwargs={"chunk_size": 300, "chunk_overlap": 0},
         is_visible=True,
         is_available=LangChainWikiRetriever.is_available(),
@@ -45,18 +52,46 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Retrieves documents from Wikipedia using LangChain.",
     ),
-    ToolName.File_Upload_Langchain: ManagedTool(
-        name=ToolName.File_Upload_Langchain,
-        implementation=LangChainVectorDBRetriever,
+    ToolName.Search_File: ManagedTool(
+        name=ToolName.Search_File,
+        implementation=SearchFileTool,
+        parameter_definitions={
+            "search_query": {
+                "description": "Textual search query to search over the file's content for",
+                "type": "str",
+                "required": True,
+            },
+            "filenames": {
+                "description": "A list of one or more uploaded filename strings to search over",
+                "type": "list",
+                "required": True,
+            },
+        },
         is_visible=True,
-        is_available=LangChainVectorDBRetriever.is_available(),
-        error_message="LangChainVectorDBRetriever not available, please make sure to set the COHERE_API_KEY environment variable.",
+        is_available=SearchFileTool.is_available(),
+        error_message="SearchFileTool not available.",
         category=Category.FileLoader,
-        description="Retrieves documents from a file using LangChain.",
+        description="Performs a search over a list of one or more of the attached files for a textual search query",
+    ),
+    ToolName.Read_File: ManagedTool(
+        name=ToolName.Read_File,
+        implementation=ReadFileTool,
+        parameter_definitions={
+            "filename": {
+                "description": "The name of the attached file to read.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=ReadFileTool.is_available(),
+        error_message="ReadFileTool not available.",
+        category=Category.FileLoader,
+        description="Returns the textual contents of an uploaded file, broken up in text chunks.",
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
-        implementation=PythonInterpreterFunctionTool,
+        implementation=PythonInterpreter,
         parameter_definitions={
             "code": {
                 "description": "Python code to execute using an interpreter",
@@ -65,30 +100,37 @@ ALL_TOOLS = {
             }
         },
         is_visible=True,
-        is_available=PythonInterpreterFunctionTool.is_available(),
+        is_available=PythonInterpreter.is_available(),
         error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
         category=Category.Function,
         description="Runs python code in a sandbox.",
     ),
     ToolName.Calculator: ManagedTool(
         name=ToolName.Calculator,
-        implementation=CalculatorFunctionTool,
+        implementation=Calculator,
         parameter_definitions={
             "code": {
-                "description": "Arithmetic expression to evaluate",
+                "description": "The expression for the calculator to evaluate, it should be a valid mathematical expression.",
                 "type": "str",
                 "required": True,
             }
         },
         is_visible=True,
-        is_available=CalculatorFunctionTool.is_available(),
-        error_message="CalculatorFunctionTool not available.",
+        is_available=Calculator.is_available(),
+        error_message="Calculator tool not available.",
         category=Category.Function,
-        description="Evaluate arithmetic expressions.",
+        description="This is a powerful multi-purpose calculator. It is capable of a wide array of math calculation and a range of other useful features. Features include a large library of customizable functions, unit calculations and conversion, currency conversion, symbolic calculations (including integrals and equations) and interval arithmetic.",
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
         implementation=TavilyInternetSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
         is_visible=True,
         is_available=TavilyInternetSearch.is_available(),
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",

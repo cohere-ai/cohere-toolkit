@@ -1,5 +1,7 @@
-# Custom tools and retrieval sources
+# Custom Tools
 Follow these instructions to create your own custom tools.
+
+Custom tools will need to be built in the `community` folder. Make sure you've enabled the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` file by setting it to `true`.
 
 ## Step 1: Choose a Tool to Implement
 
@@ -25,104 +27,74 @@ There are three types of tools:
 
 ## Step 3: Implement the Tool
 
-Add your tool implementation [here](https://github.com/cohere-ai/toolkit/tree/main/src/community/tools) (please note that this link might change). The specific subfolder used will depend on the type of tool you're implementing.
+Add your tool implementation [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tools) (please note that this link is subject to change).
 
-If you need to install a new module to run your tool, execute the following command and run `make dev` again.
+If you need to install a new library to run your tool, execute the following command and run `make dev` again.
 
 ```bash
 poetry add <MODULE> --group community
 ```
+### Implementing a Langchain Tool
 
-If you're working on a File or Data Loader, follow the steps outlined in [Implementing a Retriever](#implementing-a-retriever).
+Add the implementation inside a tool class that inherits from `BaseTool`. This class will need to implement the `call()` method, which should return a list of dictionary results.
 
-If you're implementing a Function Tool, refer to the steps in [Implementing a Function Tool](#implementing-a-function-tool).
+Note: To enable citations, each result in the list should contain a "text" field.
 
-### Implementing a Retriever
-
-Add the implementation inside a tool class that inherits `BaseRetrieval` and needs to implement the function `def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:`
-
-You can define custom configurations for your tool within the `__init__` function. Set the exact values for these variables during [Step 4](#step-4-making-your-tool-available).
-
-You can also develop a tool that requires a token or authentication. To do this, simply set your variable in the .env file.
-
-For example, for Wikipedia we have a custom configuration:
+For example, let's look at the community-implemented `ArxivRetriever`:
 
 ```python
-class LangChainWikiRetriever(BaseRetrieval):
-    """
-    This class retrieves documents from Wikipedia using the langchain package.
-    This requires wikipedia package to be installed.
-    """
+from typing import Any, Dict, List
 
-    def __init__(self, chunk_size: int = 300, chunk_overlap: int = 0):
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
+from langchain_community.utilities import ArxivAPIWrapper
 
-    def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        wiki_retriever = WikipediaRetriever()
-        docs = wiki_retriever.get_relevant_documents(query)
-        text_splitter = CharacterTextSplitter(
-            chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-        )
-        documents = text_splitter.split_documents(docs)
-        return [
-            {
-                "text": doc.page_content,
-                "title": doc.metadata.get("title", None),
-                "url": doc.metadata.get("source", None),
-            }
-            for doc in documents
-        ]
-```
+from community.tools import BaseTool
 
-And for internet search, we need an API key
 
-```python
-class TavilyInternetSearch(BaseRetrieval):
+class ArxivRetriever(BaseTool):
     def __init__(self):
-        if "TAVILY_API_KEY" not in os.environ:
-            raise ValueError("Please set the TAVILY_API_KEY environment variable.")
+        self.client = ArxivAPIWrapper()
 
-        self.api_key = os.environ["TAVILY_API_KEY"]
-        self.client = TavilyClient(api_key=self.api_key)
+    @classmethod
+    # If your tool requires any environment variables such as API keys,
+    # you will need to assert that they're not None here
+    def is_available(cls) -> bool:
+        return True
 
-    def retrieve_documents(self, query: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        content = self.client.search(query=query, search_depth="advanced")
+    # Your tool needs to implement this call() method
+    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
+        result = self.client.run(parameters)
 
-        if "results" not in content:
-            return []
-
-        return [
-            {
-                "url": result["url"],
-                "text": result["content"],
-            }
-            for result in content["results"]
+        return [{"text": result}] # <- Return list of results, in this case there is only one
 ```
 
-Note that all Retrievers should return a list of Dicts, and each Dict should contain at least a `text` key.
+### Implementing a custom Tool
 
-### Implementing a Function Tool
+If you are implementing a custom tool, you can follow the same structure as the Langchain tools. This class will also need to implement the `call()` method, which should return a list of dictionary results with a "text" or "result" field.
 
-Add the implementation inside a tool class that inherits `BaseFunctionTool` and needs to implement the function  `def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:` 
-
-For example, for calculator 
+#### Calculator Tool
+For example, let's look at the calculator tool:
 
 ```python
-from typing import Any
+from typing import Any, Dict, List
+
 from py_expression_eval import Parser
-from typing import List, Dict
 
-from backend.tools.function_tools.base import BaseFunctionTool
+from backend.tools.base import BaseTool
 
-class CalculatorFunctionTool(BaseFunctionTool):
+
+class Calculator(BaseTool):
     """
     Function Tool that evaluates mathematical expressions.
     """
 
-    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
+
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         math_parser = Parser()
         to_evaluate = parameters.get("code", "").replace("pi", "PI").replace("e", "E")
+
         result = []
         try:
             result = {"result": math_parser.parse(to_evaluate).evaluate({})}
@@ -131,9 +103,51 @@ class CalculatorFunctionTool(BaseFunctionTool):
         return result
 ```
 
+The `call()` method receives a dictionary of parameters, which is defined in the `Parameter_definitions` field in the tool configuration (described in the section below). The parameters are generated by the model and passed to the tool, so the tool should assume that the parameters are in the correct format and handle them. 
+In this case, the calculator tool expects a `code` parameter that contains the mathematical expression to evaluate. We then parse the expression and evaluate it, returning the result.
+
+#### Python Interpreter Tool
+Another example is the Python Interpreter tool:
+
+```python
+import json
+import os
+from typing import Any, Dict, Mapping
+
+import requests
+from langchain_core.tools import Tool as LangchainTool
+from pydantic.v1 import BaseModel, Field
+
+from backend.tools.base import BaseTool
+
+class PythonInterpreter(BaseTool):
+    """
+    This class calls arbitrary code against a Python interpreter.
+    It requires a URL at which the interpreter lives
+    """
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return cls.interpreter_url is not None
+
+    def call(self, parameters: dict, **kwargs: Any):
+        if not self.interpreter_url:
+            raise Exception("Python Interpreter tool called while URL not set")
+
+        code = parameters.get("code", "")
+        res = requests.post(self.interpreter_url, json={"code": code})
+        clean_res = self._clean_response(res.json())
+
+        return clean_res
+```
+
+The python interpreter tool expects a `code` parameter that contains the python code to execute. It then sends a POST request to the interpreter URL with the code and returns the result.
+Note that this tool requires a secret `interpreter_url` to be set in the environment variables, and the same can be done for other tools that require secrets.
+
+
 ## Step 4: Making Your Tool Available
 
-To make your tool available, add its definition to the tools config [here](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py).
+To make your tool available, add its definition to the community tools [config.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py).
 
 Start by adding the tool name to the `ToolName` enum found at the top of the file.
 
@@ -148,27 +162,6 @@ Next, include the tool configurations in the `AVAILABLE_TOOLS` list. The definit
 - Category: The type of tool.
 - Description: A brief description of the tool.
 - Env_vars: A list of secrets required by the tool.
-
-Function tool with custom parameter definitions:
-
-```python
-ToolName.Python_Interpreter: ManagedTool(
-    name=ToolName.Python_Interpreter,
-    implementation=PythonInterpreterFunctionTool,
-    parameter_definitions={
-        "code": {
-            "description": "Python code to execute using an interpreter",
-            "type": "str",
-            "required": True,
-        }
-    },
-    is_visible=True,
-    is_available=PythonInterpreterFunctionTool.is_available(),
-    error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
-    category=Category.Function,
-    description="Runs python code in a sandbox.",
-)
-```
 
 ## Step 5: Test Your Tool!
 
@@ -207,4 +200,4 @@ curl --location 'http://localhost:8000/chat-stream' \
 
 ## Step 6 (extra): Add Unit tests
 
-If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tests/tools) and add a few cases.
+If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tests/tools) and add a few test cases.
