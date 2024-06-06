@@ -1,3 +1,4 @@
+from backend.tests.factories.agent import AgentFactory
 from backend.tests.factories.citation import CitationFactory
 from backend.tests.factories.conversation import ConversationFactory
 from backend.tests.factories.document import DocumentFactory
@@ -12,6 +13,7 @@ FACTORY_MAPPING = {
     "Citation": CitationFactory,
     "Message": MessageFactory,
     "Document": DocumentFactory,
+    "Agent": AgentFactory,
 }
 
 
