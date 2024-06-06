@@ -3,7 +3,7 @@ from fastapi import HTTPException, Request
 from backend.services.auth.jwt import JWTService
 
 
-def validate_authorization(request: Request) -> None:
+def validate_authorization(request: Request) -> dict:
     """
     Validate that the request has the `Authorization` header, used for requests
     that require authentication.
@@ -13,6 +13,9 @@ def validate_authorization(request: Request) -> None:
 
     Raises:
         HTTPException: If no `Authorization` header.
+
+    Returns:
+        dict: Decoded payload.
     """
     authorization = request.headers.get("Authorization")
     if not authorization:
@@ -34,3 +37,5 @@ def validate_authorization(request: Request) -> None:
         raise HTTPException(
             status_code=401, detail="Bearer token is invalid or expired."
         )
+
+    return decoded["context"]
