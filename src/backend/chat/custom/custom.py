@@ -179,8 +179,8 @@ class CustomChat(BaseChat):
                     for output in outputs:
                         tool_results.append({"call": tool_call, "outputs": [output]})
 
-                logger.info(f"Tool results: {tool_results}")
                 tool_results = rerank_and_chunk(tool_results, deployment_model)
+                logger.info(f"Tool results: {tool_results}")
                 yield tool_results, False
                 break
 
