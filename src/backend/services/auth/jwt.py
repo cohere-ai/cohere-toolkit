@@ -50,7 +50,7 @@ class JWTService:
 
     def decode_jwt(self, token: str) -> dict:
         """
-        Decodes a given JWT token. 
+        Decodes a given JWT token.
 
         Args:
             token (str): JWT token.
