@@ -87,7 +87,7 @@ ALL_TOOLS = {
         implementation=Calculator,
         parameter_definitions={
             "code": {
-                "description": "Arithmetic expression to evaluate",
+                "description": "The expression for the calculator to evaluate, it should be a valid mathematical expression.",
                 "type": "str",
                 "required": True,
             }
@@ -96,7 +96,7 @@ ALL_TOOLS = {
         is_available=Calculator.is_available(),
         error_message="Calculator tool not available.",
         category=Category.Function,
-        description="Evaluate arithmetic expressions.",
+        description="This is a powerful multi-purpose calculator. It is capable of a wide array of math calculation and a range of other useful features. Features include a large library of customizable functions, unit calculations and conversion, currency conversion, symbolic calculations (including integrals and equations) and interval arithmetic.",
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
