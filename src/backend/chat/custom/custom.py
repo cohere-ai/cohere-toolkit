@@ -46,20 +46,21 @@ class CustomChat(BaseChat):
         # Instead, the direct answer will be returned from the stream
         stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
 
-        for event, generated_direct_answer in stream:
-            if generated_direct_answer:
+        first_event, generated_direct_answer = next(stream)
+
+        if generated_direct_answer:
+            yield first_event
+            for event, _ in stream:
                 yield event
-            else:
-                chat_request = event
-                invoke_method = (
-                    deployment_model.invoke_chat_stream
-                    if kwargs.get("stream", True)
-                    else deployment_model.invoke_chat
-                )
+        else:
+            chat_request = first_event
+            invoke_method = (
+                deployment_model.invoke_chat_stream
+                if kwargs.get("stream", True)
+                else deployment_model.invoke_chat
+            )
 
-                yield from invoke_method(chat_request)
-
-                break
+            yield from invoke_method(chat_request)
 
     def handle_managed_tools(
         self,

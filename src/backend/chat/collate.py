@@ -25,14 +25,14 @@ def combine_documents(
 
 
 def rerank_and_chunk(
-    tool_resuls: List[Dict[str, Any]], model: BaseDeployment
+    tool_results: List[Dict[str, Any]], model: BaseDeployment
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
     Takes a list of tool_results and internally reranks the documents for each query, if there's one e.g:
     [{"q1":[1, 2, 3],"q2": [4, 5, 6]] -> [{"q1":[2 , 3, 1],"q2": [4, 6, 5]]
 
     Args:
-        tool_resuls (List[Dict[str, Any]]): List of tool_results from different retrievers.
+        tool_results (List[Dict[str, Any]]): List of tool_results from different retrievers.
             Each tool_result contains a ToolCall and a list of Outputs.
         model (BaseDeployment): Model deployment.
 
@@ -41,17 +41,27 @@ def rerank_and_chunk(
     """
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
-        return tool_resuls
+        return tool_results
 
     reranked_results = {}
-    for tool_result in tool_resuls:
+    non_reranked_results = {}
+    for tool_result in tool_results:
         tool_call = tool_result["call"]
 
         # Only rerank if there is a query
         if not tool_call.parameters.get("query") and not tool_call.parameters.get(
             "search_query"
         ):
-            reranked_results[str(tool_call)] = tool_result
+            tool_call_hashable = str(tool_call)
+            if tool_call_hashable not in non_reranked_results.keys():
+                non_reranked_results[tool_call_hashable] = {
+                    "call": tool_call,
+                    "outputs": [],
+                }
+
+            non_reranked_results[tool_call_hashable]["outputs"].extend(
+                tool_result["outputs"]
+            )
             continue
 
         query = tool_call.parameters.get("query") or tool_call.parameters.get(
@@ -92,7 +102,8 @@ def rerank_and_chunk(
             ]
         )
 
-    return list(reranked_results.values())
+    # Return the reranked results followed by the non-reranked results
+    return list(reranked_results.values()) + list(non_reranked_results.values())
 
 
 def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300):
