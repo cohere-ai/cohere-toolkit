@@ -49,7 +49,8 @@ export const getSanitizedConversationHistory = async ({
 
   const hasStopReplyingCommand = messageHistory.some(
     (msg: any) =>
-      msg.text.includes(`<@${botUserId}> chill`) || msg.text.toLowerCase().includes('command chill'),
+      msg.text.includes(`<@${botUserId}> chill`) ||
+      msg.text.toLowerCase().includes('command chill'),
   );
 
   const hasBotAckStopReplyingCommand = messageHistory.some(
@@ -97,9 +98,10 @@ export const getSanitizedConversationHistory = async ({
   // Used for summarize endpoint
   if (format === 'string') {
     // We don't want to include the previous summary in the convo when we make a new summary.
-    const userAndCommandMessagesWithoutSummaries = userAndCommandMessagesWithoutChunkedMarkers.filter(
-      (msg: any) => !msg.text.includes(ALERTS.THREAD_SUMMARY_PREFIX),
-    );
+    const userAndCommandMessagesWithoutSummaries =
+      userAndCommandMessagesWithoutChunkedMarkers.filter(
+        (msg: any) => !msg.text.includes(ALERTS.THREAD_SUMMARY_PREFIX),
+      );
 
     const sanitizedConversationHistoryStringArr = await Promise.all(
       userAndCommandMessagesWithoutSummaries.map(async (msg: any, index) => {
