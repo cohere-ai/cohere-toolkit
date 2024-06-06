@@ -16,11 +16,19 @@ class Calculator(BaseTool):
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         math_parser = Parser()
-        to_evaluate = parameters.get("code", "").replace("pi", "PI").replace("e", "E")
+        expression = parameters.get("code", "")
+        
+        # remove lines that start with # and empty lines
+        expression = "\n".join(
+            [line for line in expression.split("\n") if not line.startswith("#")]
+        )
+
+        to_evaluate = expression.replace("pi", "PI").replace("e", "E")
 
         result = []
         try:
-            result = {"result": math_parser.parse(to_evaluate).evaluate({})}
-        except Exception:
-            result = {"result": "Parsing error - syntax not allowed."}
+            result = {"text": math_parser.parse(to_evaluate).evaluate({})}
+        except Exception as e:
+            result = {"text": f"Parsing error - syntax not allowed {e}."}
+        
         return result
