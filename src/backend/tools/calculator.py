@@ -17,7 +17,7 @@ class Calculator(BaseTool):
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         math_parser = Parser()
         expression = parameters.get("code", "")
-        
+
         # remove lines that start with # and empty lines
         expression = "\n".join(
             [line for line in expression.split("\n") if not line.startswith("#")]
@@ -30,5 +30,5 @@ class Calculator(BaseTool):
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
             result = {"text": f"Parsing error - syntax not allowed."}
-        
+
         return result
