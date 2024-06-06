@@ -30,6 +30,8 @@ class Agent(Base):
     temperature: Mapped[float] = mapped_column(Float, default=0.3)
     # tool: Mapped[List["Tool"]] = relationship()
 
+    # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
+    # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
     # enum place holders
     model: Mapped[Model] = mapped_column(Enum(Model, native_enum=False), nullable=False)
     deployment: Mapped[Deployment] = mapped_column(
