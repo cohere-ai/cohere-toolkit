@@ -47,9 +47,9 @@ const ConversationPage: NextPage<Props> = () => {
 
   useEffect(() => {
     if (!authToken && authStrategies && authStrategies.length > 0) {
-      window.location.href = `/login?redirect_uri=${encodeURIComponent(window.location.href)}`;
+      router.push(`/login?redirect_uri=${encodeURIComponent(window.location.href)}`);
     }
-  }, [authToken, authStrategies]);
+  }, [authToken, authStrategies, router]);
 
   const {
     data: conversation,

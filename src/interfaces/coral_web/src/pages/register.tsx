@@ -1,18 +1,13 @@
 import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-// import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, InlineLink, Input, Text } from '@/components/Shared';
-import { GithubSSOButton } from '@/components/Welcome/GithubSSOButton';
-import { GoogleSSOButton } from '@/components/Welcome/GoogleSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
-import { useGithubAuthRoute } from '@/hooks/githubAuthRoute';
-import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
 import { useSession } from '@/hooks/session';
 import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString, simpleEmailValidation } from '@/utils';
@@ -32,7 +27,7 @@ type RegisterStatus = 'idle' | 'pending';
  */
 const RegisterPage: NextPage<Props> = (props) => {
   const router = useRouter();
-  const { session, registerMutation } = useSession();
+  const { registerMutation } = useSession();
 
   const registerStatus: RegisterStatus = registerMutation.isLoading ? 'pending' : 'idle';
   const { register, handleSubmit, formState } = useForm<Credentials>();

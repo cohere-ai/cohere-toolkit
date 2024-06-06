@@ -20,7 +20,6 @@ import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useLazyRef } from '@/hooks/lazyRef';
 import '@/styles/main.css';
-// import { useSession } from '@/hooks/session';
 
 /**
  * Create a CohereAPIClient with the given access token.
