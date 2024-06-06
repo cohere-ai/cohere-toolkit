@@ -4,56 +4,42 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
+from backend.config.routers import RouterName
 from backend.database_models import get_session
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import Auth, Login
+from backend.services.auth.jwt import JWTService
 from backend.services.auth.utils import (
     get_or_create_user,
     is_enabled_authentication_strategy,
 )
 
-router = APIRouter(dependencies=[Depends(get_session)])
+router = APIRouter(prefix="/v1")
+router.name = RouterName.AUTH
 
 
 @router.get("/auth_strategies")
-def get_session():
+def get_strategies():
     """
     Retrieves the currently enabled list of Authentication strategies.
 
 
     Returns:
-        List[str]: List of names for enabled Authentication strategies, can be empty.
+        List[dict]: List of dictionaries containing the enabled auth strategy names.
     """
-    return ENABLED_AUTH_STRATEGY_MAPPING.keys()
+    strategies = []
+    for key in ENABLED_AUTH_STRATEGY_MAPPING.keys():
+        strategies.append({"strategy": key})
 
-
-@router.get("/session")
-def get_session(request: Request):
-    """
-    Retrievers the current session user.
-
-    Args:
-        request (Request): current Request object.
-
-    Returns:
-        session: current user session ({} if no active session)
-
-    Raises:
-        401 HTTPException if no user found in session.
-    """
-
-    if not request.session:
-        raise HTTPException(status_code=401, detail="Not authenticated.")
-
-    return request.session.get("user")
+    return strategies
 
 
 @router.post("/login")
 async def login(request: Request, login: Login, session: DBSessionDep):
     """
-    Logs user in and EITHER:
-    - Verifies their credentials and sets the current session
-    - Redirects to the /auth endpoint.
+    Logs user in and either:
+    - (Basic email/password authentication) Verifies their credentials, retrieves the user and returns a JWT token.
+    - (OAuth) Redirects to the /auth endpoint.
 
     Args:
         request (Request): current Request object.
@@ -61,7 +47,9 @@ async def login(request: Request, login: Login, session: DBSessionDep):
         session (DBSessionDep): Database session.
 
     Returns:
-        RedirectResponse: On success
+        dict: JWT token on basic auth success
+        or
+        Redirect: to /auth endpoint
 
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
@@ -86,6 +74,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
     # Login with redirect to /auth
     if strategy.SHOULD_AUTH_REDIRECT:
+        # Fetch endpoint with method name
         redirect_uri = request.url_for("authenticate")
         return await strategy.login(request, redirect_uri)
     # Login with email/password and set session directly
@@ -97,10 +86,9 @@ async def login(request: Request, login: Login, session: DBSessionDep):
                 detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
             )
 
-        # Set session user
-        request.session["user"] = user
+        token = JWTService().create_and_encode_jwt(user)
 
-    return {}
+        return {"token": token}
 
 
 @router.post("/auth")
@@ -144,22 +132,23 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
 
     # Get or create user, then set session user
     user = get_or_create_user(session, token_user)
-    request.session["user"] = user
 
-    return {}
+    token = JWTService().create_and_encode_jwt(user)
+
+    return {"token": token}
 
 
 @router.get("/logout")
 async def logout(request: Request):
     """
-    Logs out the current user session.
+    Logs out the current user.
 
     Args:
         request (Request): current Request object.
 
     Returns:
-        RedirectResponse: On success.
+        dict: Empty on success
     """
-    request.session.pop("user", None)
+    # TODO: Design blacklist
 
     return {}

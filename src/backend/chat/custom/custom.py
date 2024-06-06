@@ -16,11 +16,11 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
 
+logger = get_logger()
+
 
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
-
-    logger = get_logger()
 
     def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         """
@@ -35,7 +35,7 @@ class CustomChat(BaseChat):
         """
         # Choose the deployment model - validation already performed by request validator
         deployment_model = get_deployment(kwargs.get("deployment_name"), **kwargs)
-        self.logger.info(f"Using deployment {deployment_model.__class__.__name__}")
+        logger.info(f"Using deployment {deployment_model.__class__.__name__}")
 
         if len(chat_request.tools) > 0 and len(chat_request.documents) > 0:
             raise HTTPException(
@@ -141,7 +141,7 @@ class CustomChat(BaseChat):
                 kwargs.get("user_id"),
             )
 
-        self.logger.info(f"Invoking tools: {tools}")
+        logger.info(f"Invoking tools: {tools}")
         stream = deployment_model.invoke_tools(
             message, tools, chat_history=chat_history
         )
@@ -157,7 +157,7 @@ class CustomChat(BaseChat):
                 tool_call_found = True
                 tool_calls = event["tool_calls"]
 
-                self.logger.info(f"Tool calls: {tool_calls}")
+                logger.info(f"Tool calls: {tool_calls}")
 
                 # TODO: parallelize tool calls
                 for tool_call in tool_calls:
@@ -179,7 +179,7 @@ class CustomChat(BaseChat):
                     for output in outputs:
                         tool_results.append({"call": tool_call, "outputs": [output]})
 
-                self.logger.info(f"Tool results: {tool_results}")
+                logger.info(f"Tool results: {tool_results}")
                 tool_results = rerank_and_chunk(tool_results, deployment_model)
                 yield tool_results, False
                 break

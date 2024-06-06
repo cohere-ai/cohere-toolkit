@@ -40,6 +40,7 @@ from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import ToolCall
+from backend.services.auth.utils import get_header_user_id
 
 
 def process_chat(
@@ -58,7 +59,7 @@ def process_chat(
     Returns:
         Tuple: Tuple containing necessary data to construct the responses.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = get_header_user_id(request)
     deployment_name = request.headers.get("Deployment-Name", "")
     model_config = {}
     # Deployment config is the settings for the model deployment per request

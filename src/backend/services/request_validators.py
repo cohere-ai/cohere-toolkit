@@ -18,6 +18,7 @@ def validate_user_header(request: Request):
         HTTPException: If no `User-Id` header.
 
     """
+
     user_id = request.headers.get("User-Id")
     if not user_id:
         raise HTTPException(
