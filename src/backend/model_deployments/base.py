@@ -50,4 +50,10 @@ class BaseDeployment:
     ) -> Any: ...
 
     @abstractmethod
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> Any: ...
+    def invoke_tools(
+        self,
+        message: str,
+        tools: List[Any],
+        chat_history: List[Dict[str, str]] | None = None,
+        **kwargs: Any
+    ) -> Generator[StreamedChatResponse, None, None]: ...

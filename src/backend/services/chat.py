@@ -40,6 +40,7 @@ from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import ToolCall
+from backend.services.auth.utils import get_header_user_id
 
 
 def process_chat(
@@ -58,7 +59,7 @@ def process_chat(
     Returns:
         Tuple: Tuple containing necessary data to construct the responses.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = get_header_user_id(request)
     deployment_name = request.headers.get("Deployment-Name", "")
     model_config = {}
     # Deployment config is the settings for the model deployment per request
@@ -535,19 +536,23 @@ def generate_chat_response(
     Returns:
         NonStreamedChatResponse: Chat response.
     """
-
+    model_deployment_response = next(model_deployment_response)
     if not isinstance(model_deployment_response, dict):
         response = model_deployment_response.__dict__
     else:
         response = model_deployment_response
 
-    chat_history = [
-        ChatMessage(
-            role=message.role,
-            message=message.message,
+    chat_history = []
+    for message in response.get("chat_history", []):
+        if not isinstance(message, dict):
+            message = message.__dict__
+
+        chat_history.append(
+            ChatMessage(
+                role=message["role"],
+                message=message["message"],
+            )
         )
-        for message in response.get("chat_history", [])
-    ]
 
     documents = []
     if "documents" in response and response["documents"]:

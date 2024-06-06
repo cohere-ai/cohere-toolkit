@@ -95,7 +95,7 @@ class SageMakerDeployment(BaseDeployment):
         self,
         message: str,
         chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> list[str]:
         # Create the payload for the request
         json_params = {
@@ -113,6 +113,15 @@ class SageMakerDeployment(BaseDeployment):
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
+        return None
+
+    def invoke_tools(
+        self,
+        message: str,
+        tools: List[Any],
+        chat_history: List[Dict[str, str]] | None = None,
+        **kwargs: Any,
+    ) -> Generator[StreamedChatResponse, None, None]:
         return None
 
     # This class iterates through each line of Sagemaker's response

@@ -58,7 +58,7 @@ class BedrockDeployment(BaseDeployment):
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
         )
 
-        return self.client.chat(
+        yield self.client.chat(
             **bedrock_chat_req,
             **kwargs,
         )
@@ -101,5 +101,11 @@ class BedrockDeployment(BaseDeployment):
     ) -> Any:
         return None
 
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
+    def invoke_tools(
+        self,
+        message: str,
+        tools: List[Any],
+        chat_history: List[Dict[str, str]] | None = None,
+        **kwargs: Any,
+    ) -> Generator[StreamedChatResponse, None, None]:
         return None
