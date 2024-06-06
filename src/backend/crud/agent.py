@@ -28,7 +28,6 @@ def get_agent(db: Session, agent_id: str) -> Agent:
     Args:
       db (Session): Database session.
       agent_id (str): Agent ID.
-      user_id (str): User ID.
 
     Returns:
       Agent: Agent with the given ID.
@@ -42,7 +41,6 @@ def get_agents(db: Session, offset: int = 0, limit: int = 100) -> list[Agent]:
 
     Args:
       db (Session): Database session.
-      user_id (str): User ID.
       offset (int): Offset of the results.
       limit (int): Limit of the results.
 
@@ -78,7 +76,6 @@ def delete_agent(db: Session, agent_id: str) -> None:
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
-        user_id (str): User ID.
     """
     agent = db.query(Agent).filter(Agent.id == agent_id)
     agent.delete()
