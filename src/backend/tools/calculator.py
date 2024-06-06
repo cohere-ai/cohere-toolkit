@@ -29,6 +29,6 @@ class Calculator(BaseTool):
         try:
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
-            result = {"text": f"Parsing error - syntax not allowed {e}."}
+            result = {"text": f"Parsing error - syntax not allowed."}
         
         return result
