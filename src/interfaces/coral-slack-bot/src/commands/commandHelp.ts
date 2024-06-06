@@ -10,7 +10,7 @@ import { getEphemeralBlocks } from '../utils/getMessageBlocks';
  * - What commands are available to the user
  * - What context menu options are available to the user
  */
-export const coralHelp: Middleware<SlackCommandMiddlewareArgs> = async ({ ack, respond }) => {
+export const commandHelp: Middleware<SlackCommandMiddlewareArgs> = async ({ ack, respond }) => {
   await ack();
   await respond({
     response_type: 'ephemeral',

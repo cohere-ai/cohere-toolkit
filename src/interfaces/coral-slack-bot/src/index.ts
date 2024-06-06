@@ -6,12 +6,12 @@ import * as dotenv from 'dotenv';
 
 import { OpenAPI } from './cohere-client/';
 import {
-  coralHelp,
+  commandHelp,
   setModel,
   setPreamble,
   setTemperature,
   setTools,
-  setupCoral,
+  setupCommand,
   summarize,
   viewModel,
   viewPreamble,
@@ -356,12 +356,12 @@ app.shortcut('summarize_thread', summarizeThread);
 /**
  * Slash Commands - https://api.slack.com/interactivity/slash-commands#getting_started
  */
-app.command(`/coral-help${COMMAND_SUFFIX}`, coralHelp);
+app.command(`/command-help${COMMAND_SUFFIX}`, commandHelp);
 app.command(`/set-tools${COMMAND_SUFFIX}`, setTools);
 app.command(`/set-model${COMMAND_SUFFIX}`, setModel);
 app.command(`/set-preamble${COMMAND_SUFFIX}`, setPreamble);
 app.command(`/set-temperature${COMMAND_SUFFIX}`, setTemperature);
-app.command(`/setup-coral${COMMAND_SUFFIX}`, setupCoral);
+app.command(`/setup-command${COMMAND_SUFFIX}`, setupCommand);
 app.command(`/summarize${COMMAND_SUFFIX}`, summarize);
 app.command(`/view-tools${COMMAND_SUFFIX}`, viewTools);
 app.command(`/view-model${COMMAND_SUFFIX}`, viewModel);

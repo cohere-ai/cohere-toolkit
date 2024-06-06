@@ -1,11 +1,11 @@
 display_information:
-  name: Coral Slack Bot
+  name: Command Slack Bot
   description: Slack bot to chat with LLMs using Cohere Toolkit
   background_color: '#2c2d30'
   long_description: Use this slack bot to chat with LLMs using the Cohere Toolkit backend. It supports RAG, changing model parameters, and the use of tools.
 features:
   bot_user:
-    display_name: Coral
+    display_name: Command
     always_online: true
   shortcuts:
     - name: Summarize thread
@@ -18,9 +18,9 @@ features:
       description: Post a summary of a slack thread given a link
       usage_hint: '[thread link]'
       should_escape: false
-    - command: /coral-help
+    - command: /command-help
       url: https://slack-bot-host/slack/events
-      description: What can Coral do?
+      description: What can Command do?
       should_escape: false
     - command: /set-model
       url: https://slack-bot-host/slack/events
@@ -49,9 +49,9 @@ features:
       url: https://slack-bot-host/slack/events
       description: View the preamble for the channel
       should_escape: false
-    - command: /setup-coral
+    - command: /setup-command
       url: https://slack-bot-host/slack/events
-      description: Setup Coral for the workspace
+      description: Setup Command for the workspace
       should_escape: false
     - command: /view-tools
       url: https://slack-bot-host/slack/events

@@ -6,7 +6,7 @@ const REAL_NAME_OBJ: { [key: string]: string } = {
   U03N7809HN2: 'Shubham Shukla',
   U039SJJFB62: 'Spencer Elliott',
   U057LCN53UK: 'Alicja Mahr',
-  U059C8BPCP4: 'Coral',
+  U059C8BPCP4: 'Command',
 };
 
 const getUsersRealName = ({ userId }: { userId: string }) => {
@@ -15,8 +15,8 @@ const getUsersRealName = ({ userId }: { userId: string }) => {
 const sanitizeTestData = [
   ['Hi <@U03N7809HN2>! How are you?', 'Hi Shubham Shukla! How are you?\n'],
   [
-    'I, <@U03N7809HN2>, am gonna have a chat with <@U039SJJFB62> over in <#C05594QMD9Q|coral-slack-bot>',
-    'I, Shubham Shukla, am gonna have a chat with Spencer Elliott over in #coral-slack-bot\n',
+    'I, <@U03N7809HN2>, am gonna have a chat with <@U039SJJFB62> over in <#C05594QMD9Q|command-slack-bot>',
+    'I, Shubham Shukla, am gonna have a chat with Spencer Elliott over in #command-slack-bot\n',
   ],
   [
     "<@U039SJJFB62>, will be working with <@U057LCN53UK> on a future project, updates for which they'll provide in <#C03SMGA4P62|squad-growth>. They'll move updates to <#C03SMGA4P62|secret-project> once enough people have joined the channel.",
@@ -52,7 +52,7 @@ test.each(sanitizeTestData)('Sanitizes message correctly', async (input, expecte
 const sanitizeFirstMessageTestData = [
   ['Hi <@U03N7809HN2>! How are you?', 'Hi Shubham Shukla! How are you?\n'],
   ['<@U059C8BPCP4> How are you?', 'How are you?\n'],
-  ['<@U059C8BPCP4> How is <@U059C8BPCP4>?', 'How is Coral?\n'],
+  ['<@U059C8BPCP4> How is <@U059C8BPCP4>?', 'How is Command?\n'],
 ];
 
 test.each(sanitizeFirstMessageTestData)(

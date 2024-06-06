@@ -1,11 +1,15 @@
 import { AllMiddlewareArgs, AppMentionEvent, Context, MessageEvent } from '@slack/bolt';
 
-import { ChatlogMessage } from '../api';
 import { ALERTS, STOP_REPLYING_MESSAGE } from '../constants';
 import { getSanitizedMessage } from './getSanitizedMessage';
 import { GetUsersRealNameArgs, getUsersRealName } from './getUsersRealName';
 
 type Message = MessageEvent | AppMentionEvent;
+
+type ChatlogMessage = {
+  user_name: string;
+  message: string;
+};
 
 type GetSanitizedConversationHistoryArgs = Pick<AllMiddlewareArgs, 'client'> & {
   context: Context;
@@ -45,22 +49,22 @@ export const getSanitizedConversationHistory = async ({
 
   const hasStopReplyingCommand = messageHistory.some(
     (msg: any) =>
-      msg.text.includes(`<@${botUserId}> chill`) || msg.text.toLowerCase().includes('coral chill'),
+      msg.text.includes(`<@${botUserId}> chill`) || msg.text.toLowerCase().includes('command chill'),
   );
 
   const hasBotAckStopReplyingCommand = messageHistory.some(
     (msg: any) => msg.user === botUserId && msg.text === STOP_REPLYING_MESSAGE,
   );
 
-  //Exclude all bot messages that aren't coral
-  const userAndCoralMessages = messageHistory.filter(
+  // Exclude all bot messages that aren't command
+  const userAndCommandMessages = messageHistory.filter(
     (msg: Message) =>
       (msg.subtype === 'bot_message' && msg.bot_id !== botId) || msg.subtype !== 'bot_message',
   );
 
   // Get all the usernames in the conversation
   const usernames: { [key: string]: string } = {};
-  for (let msg of userAndCoralMessages) {
+  for (let msg of userAndCommandMessages) {
     /**
      * Since user exists on both AppMentionEvent and MessageEvent,
      * we can safely cast to AppMentionEvent to avoid TS errors
@@ -77,7 +81,7 @@ export const getSanitizedConversationHistory = async ({
 
   const chunkedMarkerRegex = /(\[\d+\/\d+\] )/g;
 
-  const userAndCoralMessagesWithoutChunkedMarkers = userAndCoralMessages.map((msg: any) => {
+  const userAndCommandMessagesWithoutChunkedMarkers = userAndCommandMessages.map((msg: any) => {
     if (msg.text) {
       msg.text = msg.text.replaceAll(chunkedMarkerRegex, '');
     }
@@ -93,12 +97,12 @@ export const getSanitizedConversationHistory = async ({
   // Used for summarize endpoint
   if (format === 'string') {
     // We don't want to include the previous summary in the convo when we make a new summary.
-    const userAndCoralMessagesWithoutSummaries = userAndCoralMessagesWithoutChunkedMarkers.filter(
+    const userAndCommandMessagesWithoutSummaries = userAndCommandMessagesWithoutChunkedMarkers.filter(
       (msg: any) => !msg.text.includes(ALERTS.THREAD_SUMMARY_PREFIX),
     );
 
     const sanitizedConversationHistoryStringArr = await Promise.all(
-      userAndCoralMessagesWithoutSummaries.map(async (msg: any, index) => {
+      userAndCommandMessagesWithoutSummaries.map(async (msg: any, index) => {
         if (msg.user === botUserId) {
           return `chatbot: ${msg.text}`;
         }
@@ -142,7 +146,7 @@ export const getSanitizedConversationHistory = async ({
    * The endpoint expects that as a separate argument.
    */
   const sanitizedConversationHistory = await Promise.all(
-    userAndCoralMessagesWithoutChunkedMarkers
+    userAndCommandMessagesWithoutChunkedMarkers
       .map(async (msg: any, index) => {
         // If there's a block with markdown, use that. Otherwise, use the non-markdown text
         const originalMessage = msg.blocks?.[0]?.text?.text || msg.text;

@@ -26,7 +26,7 @@ export const ALERTS = {
   FILE_SUMMARY_PREFIX: `*:page_facing_up: Here's a summary of the file:*`,
   RAG_SOURCES_PREFIX: '*Sources:*',
   MODEL_NOT_IN_DM:
-    'The `/set-model` command can only be used in a DM conversation between you and Coral.',
+    'The `/set-model` command can only be used in a DM conversation between you and Command.',
   SUMMARIZE_COMMAND_REGISTERED: 'Working on a summary! :memo:',
   SHORTCUT_NOT_IN_THREAD: 'This shortcut can only be used in threads.',
   NOT_SLACK_THREAD_LINK:
@@ -34,7 +34,7 @@ export const ALERTS = {
     `<https://slack.com/help/articles/203274767-Forward-messages-in-Slack#copy-a-link-to-a-message|Copy a link to a message>`,
   TYPING: '_Typing..._',
   MODEL_PREFIX: '*Model:*',
-  NOT_ADMIN: `Sorry, Coral can only be set up by a workspace admin. If you would like to set up Coral, please contact them.`,
+  NOT_ADMIN: `Sorry, Command can only be set up by a workspace admin. If you would like to set up Command, please contact them.`,
   channelModelSet: (channelName: string, modelName: string, userId?: string) =>
     `All messages ${
       channelName !== 'directmessage' ? `in ${channelName} ` : ''
@@ -86,10 +86,10 @@ export const ALERTS = {
   installMessage: (type: 'create' | 'update') =>
     type === 'create'
       ? `Hi! Thank's for having me here!` +
-        `\nIf you're an admin/owner, you can get me setup for the Slack workspace using the \`/setup-coral\` command.` +
+        `\nIf you're an admin/owner, you can get me setup for the Slack workspace using the \`/setup-command\` command.` +
         ` If you're not an admin — please ping an admin/owner to let them know!`
-      : `Hi! Let's get a conversation going! Tag me in a message using \`@Coral\` to get started!` +
-        `\nTo learn more about me, use the \`/coral-help\` command.`,
+      : `Hi! Let's get a conversation going! Tag me in a message using \`@Command\` to get started!` +
+        `\nTo learn more about me, use the \`/command-help\` command.`,
 };
 export const MAX_PROMPT_LENGTH = 4000;
 export const ERRORS = {
@@ -115,7 +115,7 @@ export const SLACK_API_ERRORS: { [key: string]: string } = {
   access_denied: 'Sorry, I do not have the required access permissions.',
 };
 export const STOP_REPLYING_MESSAGE = 'I will stop responding :speak_no_evil:';
-export const HELP_MESSAGE = `Hi! I'm Coral, Cohere's conversational AI in Slack! :wave:
+export const HELP_MESSAGE = `Hi! I'm Command, Cohere's conversational AI in Slack! :wave:
 
 You can chat with me to learn new subjects through open and engaging conversations. You can also summarize a thread that you missed out on with a built in shortcut.
 
@@ -124,7 +124,7 @@ You can chat with me to learn new subjects through open and engaging conversatio
 
 *:orange_book: Feature and help commands*:
 
-\`/coral-help\` - Show this help message
+\`/command-help\` - Show this help message
 \`/summarize [thread link]\` - Post a summary of a slack thread given a link
 
 *:gear: Configuration commands*:
@@ -137,7 +137,7 @@ You can chat with me to learn new subjects through open and engaging conversatio
 \`/view-preamble\` - View the preamble override used for a specific channel
 \`/set-tools\` - Set tools for a specific channel
 \`/view-tools [all]\` - View all tools available in your Cohere account or tools enabled for a specific channel
-\`/setup-coral\` - _Admins only_ - Setup coral for the workspace
+\`/setup-command\` - _Admins only_ - Setup Command for the workspace
 
 
 \`\`\`Context Menu Options\`\`\`
@@ -146,11 +146,11 @@ You can chat with me to learn new subjects through open and engaging conversatio
 
 *:question: What does that reaction mean?*
 
-:shushing_face: - To indicate Coral should stop responding in the current thread.
+:shushing_face: - To indicate Command should stop responding in the current thread.
 :warning: - An error occurred while processing the specific message that has this reaction. The message sender will be provided with more information regarding the error in an ephemeral message.
 
 
-For further support, feel free to reach out to <mailto:coralbot@cohere.com?Subject=Coral%20Slackbot%20Support|coralbot@cohere.com>.
+For further support, feel free to reach out to <mailto:coralbot@cohere.com?Subject=Command%20Slackbot%20Support|coralbot@cohere.com>.
 `;
 
 export const ACCEPTABLE_SUMMARIZE_FILE_TYPES = new Set(['pdf', 'doc', 'docx', 'text']);

@@ -17,7 +17,7 @@ type HandleFirstReplyArgs = {
 };
 
 /**
- * This function deals with the first response from Coral which can be in a thread or in a DM
+ * This function deals with the first response which can be in a thread or in a DM
  */
 export const handleFirstReply = async ({ context, action, client, say }: HandleFirstReplyArgs) => {
   const event = action.event;

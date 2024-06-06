@@ -5,7 +5,7 @@ import { ALERTS } from '../constants';
 import { handleError } from '../handlers';
 
 // API Key Commands, brings up a modal for user to input api key
-export const setupCoral: Middleware<SlackCommandMiddlewareArgs> = async ({
+export const setupCommand: Middleware<SlackCommandMiddlewareArgs> = async ({
   client,
   ack,
   respond,
@@ -38,7 +38,7 @@ export const setupCoral: Middleware<SlackCommandMiddlewareArgs> = async ({
       block_id: 'intro_block',
       text: {
         type: 'mrkdwn',
-        text: "Hello! 👋 Let's get Coral setup!",
+        text: "Hello! 👋 Let's get Command setup!",
       },
     },
     {
@@ -61,7 +61,7 @@ export const setupCoral: Middleware<SlackCommandMiddlewareArgs> = async ({
         private_metadata: JSON.stringify({ userIsAdmin }),
         title: {
           type: 'plain_text',
-          text: 'Coral Setup',
+          text: 'Command Setup',
           emoji: true,
         },
         submit: {

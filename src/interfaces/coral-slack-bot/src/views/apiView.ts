@@ -5,7 +5,7 @@ import { prisma } from '..';
 /**
  * API View
  *
- * This view is called when the user submits the form on the setupCoral modal. It handles saving
+ * This view is called when the user submits the form on the setupCommand modal. It handles saving
  * workspace settings to the db.
  */
 export const apiView: Middleware<SlackViewMiddlewareArgs> = async ({ ack, view, context }) => {
@@ -15,7 +15,7 @@ export const apiView: Middleware<SlackViewMiddlewareArgs> = async ({ ack, view, 
       callback_id: 'api_view_success',
       title: {
         type: 'plain_text',
-        text: 'Coral Setup',
+        text: 'Command Setup',
         emoji: true,
       },
       type: 'modal',
@@ -38,7 +38,7 @@ export const apiView: Middleware<SlackViewMiddlewareArgs> = async ({ ack, view, 
           block_id: 'description_block',
           text: {
             type: 'mrkdwn',
-            text: 'Start a conversation with Coral using *@Coral*! To see what else Coral offers, run the `/coral-help` command!',
+            text: 'Start a conversation with Command using *@Command*! To see what else Command offers, run the `/command-help` command!',
           },
         },
       ],

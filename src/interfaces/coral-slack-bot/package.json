@@ -1,5 +1,5 @@
 {
-  "name": "@cohere-ai/coral-slack-bot",
+  "name": "@cohere-ai/command-slack-bot",
   "version": "0.0.0",
   "private": true,
   "scripts": {
