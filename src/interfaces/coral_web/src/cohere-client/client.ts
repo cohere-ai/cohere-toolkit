@@ -402,11 +402,13 @@ export class CohereClient {
     });
 
     const body = await response.json();
-    this.authToken = body.context;
+    this.authToken = body.token;
 
     if (response.status !== 200) {
       throw new CohereNetworkError('Something went wrong', response.status);
     }
+
+    return body as { token: string };
   }
 
   public async logout() {

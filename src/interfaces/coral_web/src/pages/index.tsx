@@ -1,6 +1,7 @@
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useContext, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 import { CohereClient } from '@/cohere-client';
 import Conversation from '@/components/Conversation';
@@ -11,12 +12,15 @@ import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import { useServerAuthStrategies } from '@/hooks/authStrategies';
+import { useSession } from '@/hooks/session';
 
 type Props = {
   reactQueryState: DehydratedState;
 };
 
 const ChatPage: NextPage<Props> = () => {
+  const router = useRouter();
   const {
     conversation: { id },
     resetConversation,
@@ -30,6 +34,15 @@ const ChatPage: NextPage<Props> = () => {
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
+
+  const { data: authStrategies } = useServerAuthStrategies();
+  const { authToken, isLoggedIn } = useSession();
+
+  useEffect(() => {
+    if (!isLoggedIn && authStrategies && authStrategies.length > 0) {
+      router.push('/login');
+    }
+  }, [authToken, authStrategies, router, isLoggedIn]);
 
   useEffect(() => {
     resetConversation();

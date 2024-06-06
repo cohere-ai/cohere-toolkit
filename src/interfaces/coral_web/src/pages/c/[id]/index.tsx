@@ -19,6 +19,8 @@ import { useCitationsStore, useConversationStore, useParamsStore } from '@/store
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import { useServerAuthStrategies } from '@/hooks/authStrategies';
+import { useSession } from '@/hooks/session';
 
 type Props = {
   reactQueryState: DehydratedState;
@@ -39,6 +41,15 @@ const ConversationPage: NextPage<Props> = () => {
   const urlConversationId = Array.isArray(router.query.id)
     ? router.query.id[0]
     : (router.query.id as string);
+
+  const { data: authStrategies } = useServerAuthStrategies();
+  const { authToken } = useSession();
+
+  useEffect(() => {
+    if (!authToken && authStrategies && authStrategies.length > 0) {
+      window.location.href = `/login?redirect_uri=${encodeURIComponent(window.location.href)}`;
+    }
+  }, [authToken, authStrategies]);
 
   const {
     data: conversation,

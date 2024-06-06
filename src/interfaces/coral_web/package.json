@@ -38,6 +38,7 @@
     "hast-util-to-jsx-runtime": "^2.3.0",
     "highlight.js": "^11.9.0",
     "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.1",
     "mdast-util-to-string": "^4.0.0",

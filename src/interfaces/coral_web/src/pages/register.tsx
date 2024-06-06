@@ -3,6 +3,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 // import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
@@ -31,35 +32,9 @@ type RegisterStatus = 'idle' | 'pending';
  */
 const RegisterPage: NextPage<Props> = (props) => {
   const router = useRouter();
-  // session returns a user object that includes fields like: email, name, avatar url,
-  // if they have google/github/email auth enabled, etc.
   const { session, registerMutation } = useSession();
 
   const registerStatus: RegisterStatus = registerMutation.isLoading ? 'pending' : 'idle';
-
-  // const { executeRecaptcha } = useGoogleReCaptcha();
-  // const { googleAuth } = useGoogleAuthRoute();
-
-  // const googleAuthStart = async () => {
-  //   // const googleRecaptchaToken = await executeRecaptcha?.(RecaptchaAction.AUTH_GOOGLE);
-  //   const googleRecaptchaToken = '';
-  //   googleAuth.start({
-  //     redirect,
-  //     recaptchaToken: googleRecaptchaToken,
-  //   });
-  // };
-
-  // const { githubAuth } = useGithubAuthRoute();
-
-  // const githubAuthStart = async () => {
-  //   // const githubRecaptchaToken = await executeRecaptcha?.(RecaptchaAction.AUTH_GITHUB);
-  //   const githubRecaptchaToken = '';
-  //   githubAuth.start({
-  //     redirect,
-  //     recaptchaToken: githubRecaptchaToken,
-  //   });
-  // };
-
   const { register, handleSubmit, formState } = useForm<Credentials>();
 
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
@@ -69,9 +44,20 @@ const RegisterPage: NextPage<Props> = (props) => {
     } catch (error) {
       console.error(error);
     }
+
+    if (registerMutation.isSuccess) {
+
   };
 
   const redirect = getQueryString(router.query.redirect_uri);
+  
+  const { isLoggedIn } = useSession();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push(redirect || '/');
+    }
+  }, [isLoggedIn, router, redirect]);
 
   const errors: string[] = [];
 

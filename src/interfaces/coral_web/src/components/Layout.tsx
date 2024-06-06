@@ -67,7 +67,7 @@ export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
           <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
             <EditEnvVariablesButton className="py-0" />
-            { session.user && session.user.email && <NavigationUserMenu userEmail={session.user.email} /> }
+            { session && session.email && <NavigationUserMenu userEmail={session.email} /> }
           </span>
         </NavigationBar>
         {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}

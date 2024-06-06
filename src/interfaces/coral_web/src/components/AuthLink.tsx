@@ -45,7 +45,7 @@ export const AuthLink: React.FC<Props> = ({
       label = 'Sign up';
       break;
     case 'logout':
-      href = `/api/auth/logout`;
+      href = `${authConfig.logoutUrl}`;
       label = 'Log out';
       break;
   }
