@@ -43,30 +43,34 @@ def rerank_and_chunk(
     if not model.rerank_enabled:
         return tool_results
 
-    reranked_results = {}
-    non_reranked_results = {}
+    # Merge all the documents with the same tool call and parameters
+    unified_tool_results = {}
     for tool_result in tool_results:
         tool_call = tool_result["call"]
+        tool_call_hashable = str(tool_call)
 
-        # Only rerank if there is a query
-        if not tool_call.parameters.get("query") and not tool_call.parameters.get(
-            "search_query"
-        ):
-            tool_call_hashable = str(tool_call)
-            if tool_call_hashable not in non_reranked_results.keys():
-                non_reranked_results[tool_call_hashable] = {
-                    "call": tool_call,
-                    "outputs": [],
-                }
+        if tool_call_hashable not in unified_tool_results.keys():
+            unified_tool_results[tool_call_hashable] = {
+                "call": tool_call,
+                "outputs": [],
+            }
 
-            non_reranked_results[tool_call_hashable]["outputs"].extend(
-                tool_result["outputs"]
-            )
-            continue
+        unified_tool_results[tool_call_hashable]["outputs"].extend(
+            tool_result["outputs"]
+        )
 
+    # Rerank the documents for each query
+    reranked_results = {}
+    for tool_call_hashable, tool_result in unified_tool_results.items():
+        tool_call = tool_result["call"]
         query = tool_call.parameters.get("query") or tool_call.parameters.get(
             "search_query"
         )
+
+        # Only rerank if there is a query
+        if not query:
+            reranked_results[tool_call_hashable] = tool_result
+            continue
 
         chunked_outputs = []
         for output in tool_result["outputs"]:
@@ -89,21 +93,16 @@ def rerank_and_chunk(
         res.results.sort(key=lambda x: x.relevance_score, reverse=True)
 
         # Map the results back to the original documents
-        # Merges the results with the same tool call and parameters
-        tool_call_hashable = str(tool_call)
-        if tool_call_hashable not in reranked_results.keys():
-            reranked_results[tool_call_hashable] = {"call": tool_call, "outputs": []}
-
-        reranked_results[tool_call_hashable]["outputs"].extend(
-            [
+        reranked_results[tool_call_hashable] = {
+            "call": tool_call,
+            "outputs": [
                 chunked_outputs[r.index]
                 for r in res.results
                 if r.relevance_score > RELEVANCE_THRESHOLD
-            ]
-        )
+            ],
+        }
 
-    # Return the reranked results followed by the non-reranked results
-    return list(reranked_results.values()) + list(non_reranked_results.values())
+    return list(reranked_results.values())
 
 
 def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300):
