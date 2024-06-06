@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, List
 
 from py_expression_eval import Parser
@@ -29,6 +30,7 @@ class Calculator(BaseTool):
         try:
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
+            logging.error(f"Error parsing expression: {e}")
             result = {"text": f"Parsing error - syntax not allowed."}
 
         return result
