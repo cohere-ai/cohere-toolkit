@@ -2,7 +2,6 @@
 // is structured like Jest's, where the `coverageMap` value is the data from Vitest's `coverage-final.json`.
 // This script patches the report to match the expected structure.
 // See https://github.com/ArtiomTr/jest-coverage-report-action/issues/244#issuecomment-1260555231
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

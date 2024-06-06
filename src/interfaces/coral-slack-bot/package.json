@@ -5,7 +5,6 @@
   "scripts": {
     "build": "npm-run-all --serial prisma:generate tsup:build",
     "dev": "NODE_ENV=development tsup src/index.ts --watch --onSuccess \"node dist/index.js\"",
-    "eslint": "eslint \"src/**/*.ts*\"",
     "format": "prettier --check '**/*.{ts,js,json,md,yml,yaml}'",
     "format:write": "prettier --write '**/*.{ts,js,json,md,yml,yaml}'",
     "lint": "npm-run-all --serial prisma:generate tsc:check eslint",
@@ -51,6 +50,8 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@vitest/coverage-v8": "^1.6.0"
+    "@vitest/coverage-v8": "^1.6.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3"
   }
 }
