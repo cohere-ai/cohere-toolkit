@@ -5,7 +5,7 @@ from typing import Any, Dict, Generator, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import combine_documents
+from backend.chat.collate import rerank_and_chunk
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
@@ -180,7 +180,7 @@ class CustomChat(BaseChat):
                         tool_results.append({"call": tool_call, "outputs": [output]})
 
                 self.logger.info(f"Tool results: {tool_results}")
-                tool_results = combine_documents(tool_results, deployment_model)
+                tool_results = rerank_and_chunk(tool_results, deployment_model)
                 yield tool_results, False
                 break
 

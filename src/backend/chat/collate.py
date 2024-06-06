@@ -6,27 +6,9 @@ from backend.model_deployments.base import BaseDeployment
 RELEVANCE_THRESHOLD = 0.5
 
 
-def combine_documents(
-    tool_results: List[Dict[str, Any]],
-    model: BaseDeployment,
-) -> List[Dict[str, Any]]:
-    """
-    Combines documents from different retrievers and reranks them.
-
-    Args:
-        tool_results (List[Dict[str, Any]]): List of tool_results from different retrievers.
-            Each tool_result contains a ToolCall and a list of Outputs.
-        model (BaseDeployment): Model deployment.
-
-    Returns:
-        List[Dict[str, Any]]: List of combined documents.
-    """
-    return rerank_and_chunk(tool_results, model)
-
-
 def rerank_and_chunk(
     tool_results: List[Dict[str, Any]], model: BaseDeployment
-) -> Dict[str, List[Dict[str, Any]]]:
+) -> List[Dict[str, Any]]:
     """
     Takes a list of tool_results and internally reranks the documents for each query, if there's one e.g:
     [{"q1":[1, 2, 3],"q2": [4, 5, 6]] -> [{"q1":[2 , 3, 1],"q2": [4, 6, 5]]
@@ -37,7 +19,7 @@ def rerank_and_chunk(
         model (BaseDeployment): Model deployment.
 
     Returns:
-        Dict[str, List[Dict[str, Any]]]: Dictionary from queries of lists of reranked documents.
+        List[Dict[str, Any]]: List of reranked and combined documents.
     """
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
