@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
-from backend.database_models import get_session
+from backend.config.routers import RouterName
 from backend.schemas.deployment import Deployment, UpdateDeploymentEnv
 from backend.services.env import update_env_file
 from backend.services.request_validators import validate_env_vars
 
 router = APIRouter(
     prefix="/v1/deployments",
-    dependencies=[Depends(get_session)],
 )
+router.name = RouterName.DEPLOYMENT
 
 
 @router.get("", response_model=list[Deployment])

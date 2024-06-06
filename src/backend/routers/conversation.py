@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models import File as FileModel
-from backend.database_models import get_session
 from backend.database_models.database import DBSessionDep
 from backend.schemas.conversation import (
     Conversation,
@@ -16,13 +16,14 @@ from backend.schemas.conversation import (
     UpdateConversation,
 )
 from backend.schemas.file import DeleteFile, File, ListFile, UpdateFile, UploadFile
+from backend.services.auth.utils import get_header_user_id
 from backend.services.file.service import FileService
-from backend.services.request_validators import validate_user_header
+from backend.tools.files import get_file_content
 
 router = APIRouter(
     prefix="/v1/conversations",
-    dependencies=[Depends(get_session), Depends(validate_user_header)],
 )
+router.name = RouterName.CONVERSATION
 
 
 # CONVERSATIONS
@@ -44,7 +45,7 @@ async def get_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -72,7 +73,7 @@ async def list_conversations(
     Returns:
         list[ConversationWithoutMessages]: List of conversations.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
     return conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id
     )
@@ -100,7 +101,7 @@ async def update_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -134,7 +135,7 @@ async def delete_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -172,7 +173,7 @@ async def upload_file(
         HTTPException: If the file wasn't uploaded correctly. Status code 500.
     """
 
-    user_id = request.headers.get("User-Id", "")
+    user_id = get_header_user_id(request)
 
     # Create new conversation
     if not conversation_id:
@@ -203,6 +204,9 @@ async def upload_file(
     # Handle uploading File
     file_path = FileService().upload_file(file)
 
+    # Read file content
+    content = get_file_content(file_path)
+
     # Raise exception if file wasn't uploaded
     if not file_path.exists():
         raise HTTPException(
@@ -216,6 +220,7 @@ async def upload_file(
         file_name=file_path.name,
         file_path=str(file_path),
         file_size=file_path.stat().st_size,
+        file_content=content,
     )
 
     upload_file = file_crud.create_file(session, upload_file)
@@ -240,7 +245,7 @@ async def list_files(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -276,8 +281,7 @@ async def update_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
-
+    user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -317,7 +321,7 @@ async def delete_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:

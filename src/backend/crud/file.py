@@ -90,6 +90,27 @@ def get_files_by_ids(db: Session, file_ids: list[str], user_id: str) -> list[Fil
     return db.query(File).filter(File.id.in_(file_ids), File.user_id == user_id).all()
 
 
+def get_files_by_file_names(
+    db: Session, file_names: list[str], user_id: str
+) -> list[File]:
+    """
+    Get files by file names.
+
+    Args:
+        db (Session): Database session.
+        file_names (list[str]): File names.
+        user_id (str): User ID.
+
+    Returns:
+        list[File]: List of files with the given file names.
+    """
+    return (
+        db.query(File)
+        .filter(File.file_name.in_(file_names), File.user_id == user_id)
+        .all()
+    )
+
+
 def update_file(db: Session, file: File, new_file: UpdateFile) -> File:
     """
     Update a file by ID.
