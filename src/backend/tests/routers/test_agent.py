@@ -161,6 +161,27 @@ def test_list_agents(session_client: TestClient, session: Session) -> None:
     assert len(response_agents) == 3
 
 
+def test_list_agents_with_pagination(
+    session_client: TestClient, session: Session
+) -> None:
+    for _ in range(5):
+        _ = get_factory("Agent", session).create()
+
+    response = session_client.get(
+        "/v1/agents?limit=3&offset=2", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+    response_agents = response.json()
+    assert len(response_agents) == 3
+
+    response = session_client.get(
+        "/v1/agents?limit=2&offset=4", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+    response_agents = response.json()
+    assert len(response_agents) == 1
+
+
 def test_get_agent(session_client: TestClient, session: Session) -> None:
     agent = get_factory("Agent", session).create(name="test agent")
 
