@@ -29,6 +29,19 @@ class Agent(AgentBase):
         from_attributes = True
 
 
+class CreateAgent(BaseModel):
+    name: str
+    version: Optional[int] = None
+    description: Optional[str] = None
+    preamble: Optional[str] = None
+    temperature: Optional[float] = None
+    model: str
+    deployment: str
+
+    class Config:
+        from_attributes = True
+
+
 class UpdateAgent(BaseModel):
     name: Optional[str] = None
     version: Optional[int] = None
@@ -40,6 +53,6 @@ class UpdateAgent(BaseModel):
     class Config:
         from_attributes = True
 
+
 class DeleteAgent(BaseModel):
     pass
-
