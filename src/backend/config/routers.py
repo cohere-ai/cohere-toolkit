@@ -83,6 +83,7 @@ ROUTER_DEPENDENCIES = {
             Depends(get_session),
         ],
         "auth": [
+            # TODO: Remove auth only for create user endpoint
             Depends(get_session),
         ],
     },
