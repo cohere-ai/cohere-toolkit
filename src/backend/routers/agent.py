@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends
 from fastapi import Form, HTTPException, Request
 
 from backend.config.routers import RouterName
-from backend.database_models.agent import Agent
+from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.database import DBSessionDep
 from backend.services.auth.utils import get_header_user_id
 from backend.crud import agent as agent_crud
 from backend.services.request_validators import validate_create_agent_request
-from backend.schemas.agent import Agent as AgentSchema, UpdateAgent as UpdateAgentSchema, DeleteAgent as DeleteAgentSchema
+from backend.schemas.agent import Agent, UpdateAgent, DeleteAgent
 
 
 router = APIRouter(
@@ -15,11 +15,11 @@ router = APIRouter(
 )
 router.name = RouterName.AGENT
 
-@router.post("/", dependencies=[Depends(validate_create_agent_request)], response_model=AgentSchema)
+@router.post("/", dependencies=[Depends(validate_create_agent_request)], response_model=Agent)
 def create_agent(session: DBSessionDep, request: Request):
   user_id = get_header_user_id(request)
 
-  agent_data = Agent(
+  agent_data = AgentModel(
     name=request.json().get("name"),
     user_id=user_id,
     version=request.json().get("version"),
@@ -35,10 +35,10 @@ def create_agent(session: DBSessionDep, request: Request):
   return agent
 
 
-@router.get("", response_model=list[AgentSchema])
+@router.get("", response_model=list[Agent])
 async def list_conversations(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep, request: Request
-) -> list[AgentSchema]:
+) -> list[Agent]:
     """
     List all conversations.
 
@@ -57,10 +57,10 @@ async def list_conversations(
     )
 
 
-@router.get("/{agent_id}", response_model=AgentSchema)
+@router.get("/{agent_id}", response_model=Agent)
 async def get_agent(
     agent_id: str, session: DBSessionDep, request: Request
-) -> AgentSchema:
+) -> Agent:
     """
     Args:
         conversation_id (str): Conversation ID.
@@ -84,13 +84,13 @@ async def get_agent(
     return agent
 
 
-@router.put("/{agent_id}", response_model=AgentSchema)
+@router.put("/{agent_id}", response_model=Agent)
 async def update_agent(
     agent_id: str,
-    new_agent: UpdateAgentSchema,
+    new_agent: UpdateAgent,
     session: DBSessionDep,
     request: Request,
-) -> AgentSchema:
+) -> Agent:
     """
     Update a conversation by ID.
 
@@ -125,7 +125,7 @@ async def update_agent(
 @router.delete("/{agent_id}")
 async def delete_agent(
     agent_id: str, session: DBSessionDep, request: Request
-) -> DeleteAgentSchema:
+) -> DeleteAgent:
     """
     Delete a conversation by ID.
 
@@ -151,4 +151,4 @@ async def delete_agent(
 
     agent_crud.delete_agent(session, agent_id)
 
-    return DeleteAgentSchema()
+    return DeleteAgent()
