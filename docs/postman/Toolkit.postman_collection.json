@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "76f08b17-4b15-4d5a-b59d-cde157c27611",
+		"_postman_id": "ddf8071a-3b8a-45d7-b4c4-abd54b0dccc2",
 		"name": "Toolkit",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31264470"
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "25545730"
 	},
 	"item": [
 		{
@@ -26,24 +26,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"message\": \"what is 1+1\",\n    \"tools\": [{\"name\": \"Calculator\"}]\n}",
+							"raw": "{\n    \"message\": \"what is 1+1\",\n    \"tools\": [\n        {\n            \"name\": \"Calculator\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/chat",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"chat"
-							]
-						}
+						"url": "http://localhost:8000/v1/chat-stream"
 					},
 					"response": []
 				},
@@ -64,24 +54,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"message\": \"what is 1+1\",\n    \"tools\": [{\"name\": \"Calculator\"}]\n}",
+							"raw": "{\n    \"message\": \"what is 1+1\",\n    \"tools\": [\n        {\n            \"name\": \"Calculator\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/chat",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"chat"
-							]
-						}
+						"url": "http://localhost:8000/v1/chat"
 					},
 					"response": []
 				},
@@ -107,18 +87,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations/{id} ",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations",
-								"{id} "
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations/{id} "
 					},
 					"response": []
 				},
@@ -144,17 +113,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations"
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations"
 					},
 					"response": []
 				},
@@ -177,18 +136,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations",
-								"{id}"
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations/{id}"
 					},
 					"response": []
 				},
@@ -211,18 +159,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations",
-								"{id}"
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations/{id}"
 					},
 					"response": []
 				},
@@ -231,9 +168,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": ""
-						}
+						"url": "http://localhost:8000/v1/deployments"
 					},
 					"response": []
 				},
@@ -259,17 +194,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/tools",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"tools"
-							]
-						}
+						"url": "http://localhost:8000/v1/tools"
 					},
 					"response": []
 				}
@@ -292,17 +217,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/users",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"users"
-							]
-						}
+						"url": "http://localhost:8000/v1/users"
 					},
 					"response": []
 				},
@@ -324,13 +239,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/users?limit=10&offset=0",
+							"raw": "http://localhost:8000/v1/users?limit=10&offset=0",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8000",
 							"path": [
+								"v1",
 								"users"
 							],
 							"query": [
@@ -361,18 +277,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/users/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"users",
-								"{id}"
-							]
-						}
+						"url": "http://localhost:8000/v1/users/{id}"
 					},
 					"response": []
 				},
@@ -393,18 +298,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/users/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"users",
-								"{id}"
-							]
-						}
+						"url": "http://localhost:8000/v1/users/{id}"
 					},
 					"response": []
 				},
@@ -422,18 +316,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/users/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"users",
-								"{id}"
-							]
-						}
+						"url": "http://localhost:8000/v1/users/{id}"
 					},
 					"response": []
 				}
@@ -462,19 +345,7 @@
 								}
 							]
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/upload_file",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations",
-								"{conv_id}",
-								"upload_file"
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations/{conv_id}/upload_file"
 					},
 					"response": []
 				},
@@ -500,19 +371,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/files",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations",
-								"{conv_id}",
-								"files"
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations/{conv_id}/files"
 					},
 					"response": []
 				},
@@ -535,20 +394,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/files/{file_id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations",
-								"{conv_id}",
-								"files",
-								"{file_id}"
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations/{conv_id}/files/{file_id}"
 					},
 					"response": []
 				},
@@ -571,219 +417,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:8000/conversations/{conv_id}/files/{file_id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"conversations",
-								"{conv_id}",
-								"files",
-								"{file_id}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Agent",
-			"item": [
-				{
-					"name": "Create agent",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "User-Id",
-								"value": "user-id",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"agent\",\n  \"version\": 1,\n  \"description\": \"this is an example agent\",\n  \"preamble\": \"you are an agent tasked to help work on math equations\",\n  \"temperature\": 0.7,\n  \"model\": \"command-r\",\n  \"deployment\": \"Cohere Platform\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8000/v1/agents",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"v1",
-								"agents"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List agents",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "User-Id",
-								"value": "user-id",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8000/v1/agents?limit=10&offset=0",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"v1",
-								"agents"
-							],
-							"query": [
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "offset",
-									"value": "0"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update agent",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "User-Id",
-								"value": "user-id",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"updated name\",\n  \"version\": 2,\n  \"description\": \"updated description\",\n  \"preamble\": \"updated string\",\n  \"temperature\": 0,\n  \"model\": \"command-r-plus\",\n  \"deployment\": \"Sage Maker\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8000/v1/agents/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"v1",
-								"agents",
-								"{id}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get agent",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "User-Id",
-								"value": "user-id",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8000/v1/agents/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"v1",
-								"agents",
-								"{id}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete agent",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "User-Id",
-								"value": "user-id",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8000/v1/agents/{id}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8000",
-							"path": [
-								"v1",
-								"agents",
-								"{id}"
-							]
-						}
+						"url": "http://localhost:8000/v1/conversations/{conv_id}/files/{file_id}"
 					},
 					"response": []
 				}
@@ -806,17 +440,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "http://localhost:8000/health",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"health"
-					]
-				}
+				"url": "http://localhost:8000/health"
 			},
 			"response": []
 		}
