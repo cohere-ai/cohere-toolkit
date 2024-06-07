@@ -20,6 +20,7 @@ class RouterName(StrEnum):
     EXPERIMENTAL_FEATURES = "experimental_features"
     TOOL = "tool"
     USER = "user"
+    AGENT = "agent"
 
 
 # Router dependency mappings
@@ -79,6 +80,15 @@ ROUTER_DEPENDENCIES = {
         ],
     },
     RouterName.USER: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
+        ],
+    },
+    RouterName.AGENT: {
         "default": [
             Depends(get_session),
         ],

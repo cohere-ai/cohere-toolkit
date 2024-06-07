@@ -110,3 +110,21 @@ async def validate_env_vars(request: Request):
                 + ",".join(invalid_keys)
             ),
         )
+
+
+async def validate_create_agent_request(request: Request):
+    """
+    Validate that the request has the appropriate values in the body
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If the request does not have the appropriate values in the body
+    """
+    body = await request.json()
+    name = body.get("name")
+    if not name:
+        raise HTTPException(
+            status_code=400, detail="Agent name is required"
+        )
