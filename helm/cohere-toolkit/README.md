@@ -13,7 +13,7 @@ minikube start
 2. Add your Cohere API key to the [`values/local.yaml`](values/local.yaml) file.
 ```yaml
 cohere:
-  apiKey: "<YOUR_API_KEY>"
+  api_key: "<YOUR_API_KEY>"
 ```
 
 3. Install the chart
