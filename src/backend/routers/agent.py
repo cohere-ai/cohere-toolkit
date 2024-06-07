@@ -6,7 +6,6 @@ from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, CreateAgent, DeleteAgent, UpdateAgent
 from backend.services.auth.utils import get_header_user_id
-from backend.services.request_validators import validate_create_agent_request
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -14,9 +13,7 @@ router = APIRouter(
 router.name = RouterName.AGENT
 
 
-@router.post(
-    "", dependencies=[Depends(validate_create_agent_request)], response_model=Agent
-)
+@router.post("", response_model=Agent)
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request):
     user_id = get_header_user_id(request)
 
@@ -102,7 +99,7 @@ async def update_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     user_id = get_header_user_id(request)
-    agent = agent_crud.update_agent(session, agent_id, user_id)
+    agent = agent_crud.get_agent(session, agent_id)
 
     if not agent:
         raise HTTPException(

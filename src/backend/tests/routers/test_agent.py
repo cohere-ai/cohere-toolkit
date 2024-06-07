@@ -54,7 +54,7 @@ def test_create_agent_missing_name(
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 def test_create_agent_missing_model(
@@ -70,7 +70,7 @@ def test_create_agent_missing_model(
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 def test_create_agent_missing_deployment(
@@ -86,7 +86,7 @@ def test_create_agent_missing_deployment(
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 def test_create_agent_missing_non_required_fields(
@@ -125,6 +125,32 @@ def test_create_agent_missing_non_required_fields(
     assert agent.deployment == request_json["deployment"]
 
 
+def test_create_agent_wrong_model_deployment_enums(
+    session_client: TestClient, session: Session
+) -> None:
+    request_json = {
+        "name": "test agent",
+        "version": 1,
+        "description": "test description",
+        "preamble": "test preamble",
+        "temperature": 0.5,
+        "model": "not a real model",
+        "deployment": "not a real deployment",
+    }
+
+    response = session_client.post(
+        "/v1/agents", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 422
+
+
+def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
+    response = session_client.get("/v1/agents", headers={"User-Id": "123"})
+    assert response.status_code == 200
+    response_agents = response.json()
+    assert len(response_agents) == 0
+
+
 def test_list_agents(session_client: TestClient, session: Session) -> None:
     for _ in range(3):
         _ = get_factory("Agent", session).create()
@@ -133,3 +159,137 @@ def test_list_agents(session_client: TestClient, session: Session) -> None:
     assert response.status_code == 200
     response_agents = response.json()
     assert len(response_agents) == 3
+
+
+def test_get_agent(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(name="test agent")
+
+    response = session_client.get(f"/v1/agents/{agent.id}", headers={"User-Id": "123"})
+    assert response.status_code == 200
+    response_agent = response.json()
+    assert response_agent["name"] == agent.name
+
+
+def test_get_nonexistent_agent(session_client: TestClient, session: Session) -> None:
+    response = session_client.get("/v1/agents/456", headers={"User-Id": "123"})
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Agent with ID: 456 not found."}
+
+
+def test_update_agent(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model=Model.COMMAND_R,
+        deployment=Deployment.COHERE_PLATFORM,
+    )
+
+    request_json = {
+        "name": "updated name",
+        "version": 2,
+        "description": "updated description",
+        "preamble": "updated preamble",
+        "temperature": 0.7,
+        "model": Model.COMMAND_R_PLUS,
+        "deployment": Deployment.SAGE_MAKER,
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["name"] == "updated name"
+    assert updated_agent["version"] == 2
+    assert updated_agent["description"] == "updated description"
+    assert updated_agent["preamble"] == "updated preamble"
+    assert updated_agent["temperature"] == 0.7
+    assert updated_agent["model"] == Model.COMMAND_R_PLUS
+    assert updated_agent["deployment"] == Deployment.SAGE_MAKER
+
+
+def test_partial_update_agent(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model=Model.COMMAND_R,
+        deployment=Deployment.COHERE_PLATFORM,
+    )
+
+    request_json = {
+        "name": "updated name",
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["name"] == "updated name"
+    assert updated_agent["version"] == 1
+    assert updated_agent["description"] == "test description"
+    assert updated_agent["preamble"] == "test preamble"
+    assert updated_agent["temperature"] == 0.5
+    assert updated_agent["model"] == Model.COMMAND_R
+    assert updated_agent["deployment"] == Deployment.COHERE_PLATFORM
+
+
+def test_update_nonexistent_agent(session_client: TestClient, session: Session) -> None:
+    request_json = {
+        "name": "updated name",
+    }
+    response = session_client.put(
+        "/v1/agents/456", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Agent with ID: 456 not found."}
+
+
+def test_update_agent_wrong_model_deployment_enums(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model=Model.COMMAND_R,
+        deployment=Deployment.COHERE_PLATFORM,
+    )
+
+    request_json = {
+        "model": "not a real model",
+        "deployment": "not a real deployment",
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 422
+
+
+def test_delete_agent(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create()
+    response = session_client.delete(
+        f"/v1/agents/{agent.id}", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {}
+
+    agent = session.get(Agent, agent.id)
+    assert agent is None
+
+
+def test_fail_delete_nonexistent_agent(
+    session_client: TestClient, session: Session
+) -> None:
+    response = session_client.delete("/v1/agents/456", headers={"User-Id": "123"})
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Agent with ID: 456 not found."}
