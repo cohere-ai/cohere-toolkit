@@ -2,6 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+cohere_api_key: ""  # Required
+
+postgresql:
+  enabled: true
+  fullnameOverride: "toolkit-db"
+
 backend:
   replicaCounts: 1
 

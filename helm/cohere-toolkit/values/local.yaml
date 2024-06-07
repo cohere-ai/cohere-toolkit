@@ -1,0 +1,20 @@
+postgresql:
+  enabled: true
+
+backend:
+  image:
+    pullPolicy: IfNotPresent
+    repository: docker.io/library/cohere-toolkit-backend
+    tag: latest
+
+  config:
+    DATABASE_URL: postgresql+psycopg2://postgres:postgres@toolkit-db:5432
+
+frontend:
+  image:
+    pullPolicy: IfNotPresent
+    repository: docker.io/library/cohere-toolkit-frontend
+    tag: latest
+
+  config:
+    NEXT_PUBLIC_API_HOSTNAME: http://toolkit-backend:80

@@ -54,9 +54,16 @@ spec:
           resources:
             {{- toYaml $values.resources | nindent 12 }}
           ports:
-            - containerPort: 80
+            - containerPort: 8000
               protocol: TCP
               name: http
+          envFrom:
+            - configMapRef:
+                name: toolkit-backend
+                optional: false
+            - secretRef:
+                name: toolkit-secrets
+                optional: false
           # TODO: Add livenessProbe and readinessProbe
       restartPolicy: Always
       {{- with $values.nodeSelector }}
@@ -124,3 +131,16 @@ spec:
           averageUtilization: {{ $values.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end}}
 {{- end}}
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: toolkit-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: toolkit-backend
+    {{- include "cohere-toolkit.labels" . | nindent 4 }}
+data:
+  {{- toYaml $values.config | nindent 2 }}
