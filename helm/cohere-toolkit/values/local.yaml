@@ -1,3 +1,6 @@
+cohere:
+  api_key: "<YOUR_API_KEY>"
+
 postgresql:
   enabled: true
 
@@ -8,7 +11,7 @@ backend:
     tag: latest
 
   config:
-    DATABASE_URL: postgresql+psycopg2://postgres:postgres@toolkit-db:5432
+    DATABASE_URL: "postgresql+psycopg2://postgres:postgres@toolkit-db:5432"
 
 frontend:
   image:
@@ -17,4 +20,4 @@ frontend:
     tag: latest
 
   config:
-    NEXT_PUBLIC_API_HOSTNAME: http://toolkit-backend:80
+    NEXT_PUBLIC_API_HOSTNAME: "http://localhost:8000"
