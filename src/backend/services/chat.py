@@ -549,8 +549,9 @@ def generate_chat_response(
 
         chat_history.append(
             ChatMessage(
-                role=message["role"],
-                message=message["message"],
+                role=message.get("role", ""),
+                message=message.get("message"),
+                tool_results=message.get("tool_results"),
             )
         )
 

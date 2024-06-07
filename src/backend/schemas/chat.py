@@ -17,6 +17,7 @@ class ChatRole(StrEnum):
     CHATBOT = "CHATBOT"
     USER = "USER"
     SYSTEM = "SYSTEM"
+    TOOL = "TOOL"
 
 
 class ChatCitationQuality(StrEnum):
@@ -39,8 +40,12 @@ class ChatMessage(BaseModel):
     role: ChatRole = Field(
         title="One of CHATBOT|USER|SYSTEM to identify who the message is coming from.",
     )
-    message: str = Field(
+    message: str | None = Field(
         title="Contents of the chat message.",
+    )
+    tool_results: List[Dict[str, Any]] | None = Field(
+        title="Results from the tool call.",
+        default=[],
     )
 
     def to_dict(self) -> Dict[str, str]:
