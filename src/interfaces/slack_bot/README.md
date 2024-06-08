@@ -2,7 +2,208 @@
 
 This is a Slack bot that uses the Cohere Toolkit to generate responses to messages.
 
+## Getting Started
+
+The Slack bot interface is a Node project that runs independently of the main Toolkit backend. The following steps are required to get up and running with the Slack bot:
+
+- Ensure that you have an instance of the Toolkit running and configured with required secrets
+- Ensure that the Slack bot app is accessible from a public ip address
+- Create a PostreSQL database and run the Prisma database migrations
+- Create a new Slack app in your Slack account based on the example app manifest
+- Configure environment variables and generate required values on the Slack website
+- Add the Slack app to your workspace and complete OAuth flow
+- Run the setup command in your Slack workspace
+- Invite Command Slack Bot to a channel
+- Optionally set channel parameters to override default model settings
+- Begin chatting!
+
+The sections below will provide further details on these required steps.
+
+### Set up the Toolkit
+
+The Slack bot makes use of the Toolkit, and requires the Toolkit to be running separately
+from the Slack bot. All requests to the models are made through requests to the Toolkit APIs.
+
+Please see the documentation for the Toolkit to see how configure and deploy it.
+
+https://github.com/cohere-ai/cohere-toolkit
+
+If you are running the Toolkit on localhost, the default API URL should work. If you have
+the Toolkit deployed on a server, then you will need to set the `TOOLKIT_API_HOST` environment
+variable with the appropriate value.
+
+### Deploy app or configure ngrok for local dev
+
+There are two ways for the Slack bot to receive data from Slack. The recommended way is to use
+webhooks, which requires Slack to be able to make HTTP requests to the running Slack bot app from
+this repo. For Slack to make those requests, it requires the app to be accessible on a public IP address.
+The URLs for the webhooks must be configured in the app manifest on the Slack website.
+
+If the app is deployed to a server, this should be no problem. Use the hostname of the server where
+you have deployed it. For local development, however, Slack needs to be able to access the webhook
+endpoints running in your local environment, which requires a proxy for local development.
+
+One way of doing this is with a program called ngrok. It is a service that allows you to access code
+running on your local machine from a public ip and domain. It is a commercial app, but there is
+a free tier that should be sufficient for local development of this app.
+
+Please see https://ngrok.com for instructions on installing ngrok and obtaining an API key.
+
+Once ngrok is set up, you can start it with:
+
+`ngrok http 3000`
+
+On the free plan this will give you a random domain each time. There is a `-domain` option that will
+allow you to choose a specific hostname if it is available. Paid accounts can reserve specific
+hostnames for your use only, which could be useful for ongoing development, since the hostname needs
+to be saved in several different places in the app manifest, and not using a reserved domain could
+require you to have to make changes to the app configuration on the Slack website, each time the
+ngrok domain you are assigned changes.
+
+Alternatively, the Slack bot can be used with socket mode. With socket mode, the bot will
+establish a websocket connection to Slack, over which the Slack events can be received. Socket
+mode can simplify local development by eliminating the requirement for a proxy to your local environment.
+
+Use of socket mode requires socket mode to be enabled in the Slack app configuration on the Slack
+website, in addition to being enabled and configured with socket mode specific secrets in the
+environment variables. See the section further below for more information on configuring socket mode.
+
+### Create PostgreSQL database and run migrations
+
+The Slack bot requires a PostgreSQL database for storing workspace and channel settings. Follow standard
+procedures for creating a PostgreSQL database and once the database and PostgreSQL user have been
+created, set the `DATABASE_URL` environment variable.
+
+You can use any database name, user and host as long as the `DATABASE_URL` is configured. The following
+steps are a guide for how to do this.
+
+Start the psql shell with a postgres admin account.
+
+```shell
+psql --host=localhost --port=5432 --username=postgres
+```
+
+In the psql shell run the following commands:
+
+```
+CREATE DATABASE commandslackdb;
+CREATE USER commandslack WITH PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE commandslackdb TO commandslack;
+ALTER USER commandslack WITH CREATEDB;
+```
+
+Set the `DATABASE_URL` with the db name, user and password you used above:
+
+```shell
+DATABASE_URL="postgresql://commandslack:password@localhost:5432/commandslackdb"`
+```
+
+Once the database has been set up, you must run the Prisma migrations. In development use:
+
+```shell
+prisma migrate dev
+```
+
+### Create Slack app
+
+To use the Slack bot, you must create your own app on the api.slack.com website. Choose the option
+to create a new app, and choose the option "From an app manifest". Follow the instructions to
+choose the workspace, and when prompted for the manifest, choose the YAML option, and copy and paste
+the contents of the `example-manifest.yaml` file from this repo.
+
+It is possible to custom configure all the values in Slack, and it is not mandatory to use the
+all the settings from the example manifest. For example, you could change the display name
+or username of the bot. However, using the `example-manifest.yaml` file will make the process much
+simpler. For getting up and running quickly, it is strongly recommended to start with this file,
+rather than custom configuring all required values from scratch. There are some important defaults
+in the example that could lead to hard to debug problems if they are not present.
+
+When configuring the Slack app, it is important to change the hostnames of all URLs in the example
+manifest. Every instance of https://slack-bot-host/slack/events in the example manifest must be
+changed to use the domain of your deployed app or the ngrok domain you are using for local development.
+
+### Configure environment variables
+
+For local development, copy the `.env.example` file to `.env`, and edit the values accordingly. The
+required values depend on whether you choose to use HTTP mode (recommended for production) or socket mode.
+
+### Add the Slack app to your workspace and complete OAuth flow
+
+The Command Slack bot may appear in your workspace after you create the new app from the manifest, but
+it will not work properly without granting permissions with OAuth.
+
+In order for the OAuth flow to work, you must ensure that the Slack app has the redirect URL configured
+in the Slack app configuration/manifest. The default redirect URL in the example is set to
+https://slack-bot-host/slack/oauth_redirect, but the host name needs to be changed. Ensure this was
+done in the previous steps.
+
+To grant OAuth permissions, go to the following URL:
+
+https://slack-bot-host/slack/install/
+
+You can optionally set an environment variable called `SLACK_INSTALL_PASSWORD` to obscure this URL.
+If you set the value, the URL to start OAuth flow will be:
+
+https://slack-bot-host/slack/install/password-you-chose
+
+You must of course change the host to the server where the Slack bot is deployed or the proxy address.
+
+This page will redirect you to Slack, and after you grant the permissions, you will be redirected
+back to the Slack bot host in your browser. When returning, you should come back to the following
+URL:
+
+https://slack-bot-host/slack/oauth_redirect
+
+The above URL does not change based on the value of `SLACK_INSTALL_PASSWORD` like the install
+URL does.
+
+When you return, you will be prompted to open the Slack application by your browser. You should allow this.
+
+### Run the setup command in your Slack workspace
+
+The Command Slack bot will add several new `/` commands to your Slack workspace. To begin using the
+bot, you must run the `/setup-command` command inside of Slack. If this command is not available in
+your workspace, it means that the above steps have not been completed successfully yet.
+
+When the Slack bot is running in production environments, only an administrator of the Slack workspace
+can run the `/setup-command` command. When `NODE_ENV` is set to `development`, this restricted is lifted,
+and anyone can run `/setup-command`. Some features of the Slack bot may work before this has been run,
+but it is advisable to run it as soon as you've completed the OAuth flow, in order to avoid any hard
+to debug problems when there is no record in the `WorkspaceSettings` table.
+
+### Invite Command Slack Bot to a channel
+
+If you have followed the above instructions, with the suggested defaults, then you should now have the
+Command Slack bot in your workspace. The default username in the example manifest is `@Command`. You
+should be able to talk to this user directly, or invite `@Command` to a channel. In order for it to
+respond in a channel, you must tag the user `@Command`. Once `@Command` has been tagged in a thread,
+it will continue responding to that thread without being tagged.
+
+### Optionally set channel parameters to override default model settings
+
+To see the full list of commands available, type `/command-help` in your workspace in the Slack application.
+
+The configuration commands available include:
+
+- `/set-model [model name]` - Set the model used for a specific channel
+- `/view-model` - View the model used for a specific channel
+- `/set-temperature [0.0 - 5.0]` - Set the temperature used for a specific channel
+- `/view-temperature` - View the temperature used for a specific channel
+- `/set-preamble [preamble]` - Set the preamble override used for a specific channel
+- `/view-preamble` - View the preamble override used for a specific channel
+- `/set-tools` - Set tools for a specific channel
+- `/view-tools [all]` - View all tools available in your Cohere account or tools enabled for a specific channel
+
+### Begin chatting!
+
+You should now be able to use the Command Slack bot in your workspace. You can communicate with `@Command` via
+direct message, or tagging `@Command` in channel messages. There are also several other commands available,
+to perform actions such as summarize a thread. To see the full list of things `@Command` can do, run the
+`/command-help` command.
+
 ## Usage
+
+The Command Slack bot is a Node application built with TypeScript.
 
 ```shell
 # start in development mode
@@ -36,8 +237,8 @@ pnpm test:watch
 slack_bot/
 ├─ src/
 │  ├─ constants.ts
-│  ├─ api/
-│  │   ∟ functions that interact with the cohere api live here
+│  ├─ cohere-client/
+│  │   ∟ functions that interact with the toolkit api live here
 │  ├─ handlers/
 │  │   ∟ functions that handle slack events live here
 │  ├─ utils/
@@ -62,27 +263,6 @@ See also:
 
 - https://api.slack.com/apis/connections/socket
 - https://slack.dev/bolt-js/concepts#socket-mode
-
-## Database setup
-
-The Command Slack bot requires a PostgreSQL database instance. Once you have PostgreSQL running, the following steps can be used to create a database for the Command Slack bot. These steps are a guide for local development.
-
-Create a database named `commandslackdb` with user `commandslack` and password `password` (with the `CREATEDB` privilege for [Prisma Migrate](https://www.prisma.io/docs/concepts/components/prisma-migrate/shadow-database) in development only). You can do this with the following commands:
-
-```shell
-psql --host=localhost --port=5432 --username=postgres
-```
-
-Then, in the psql shell:
-
-```
-CREATE DATABASE commandslackdb;
-CREATE USER commandslack WITH PASSWORD 'password';
-GRANT ALL PRIVILEGES ON DATABASE commandslackdb TO commandslack;
-ALTER USER commandslack WITH CREATEDB;
-```
-
-For production use, configure PostgreSQL appropriately and set the `DATABASE_URL` variable in the environment or `.env` file.
 
 ## Database migrations
 
@@ -160,7 +340,6 @@ For some ngrok features, you will need to sign up with a free account: https://n
 | `TOOLKIT_API_HOST`       | Yes                      | Yes                    | `http://0.0.0.0:8000`                                              | Protocol and host to access the Cohere Toolkit API.                                                                            |
 | `COHERE_SLACK_TEAM_ID`   | Yes                      | Yes                    | `TV82C32HX`                                                        | Cohere's Slack Workspace Team ID. Can include multiple comma separated IDs                                                     |
 | `COHERE_ORGANIZATION_ID` | Yes                      | Yes                    | `d489c39a-e152-49da-9ddc-9801bd74d823`                             | Cohere's Org ID                                                                                                                |
-| `COHERE_LOCAL_API_KEY`   | No                       | No                     | `abc123`                                                           | API key used for local development when running in socket mode. Can be set through the `/setup-command` command.               |
 | `SLACK_CONNECTION_MODE`  | Yes                      | Yes                    | `socket` or `http`                                                 | Whether to use Socket Mode or HTTP Mode.                                                                                       |
 | `SLACK_SIGNING_SECRET`   | Yes                      | Yes                    | `abc123`                                                           | Signing secret from _Basic Information -> App Credentials -> Signing Secret_.                                                  |
 | `SLACK_BOT_TOKEN`        | Yes                      | No                     | `xoxb-abc123`                                                      | OAuth token from _OAuth & Permissions -> Bot User OAuth Token_.                                                                |
