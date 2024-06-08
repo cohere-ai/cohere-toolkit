@@ -2,15 +2,21 @@ import { useLocalStorageValue } from '@react-hookz/web';
 import {
   DehydratedState,
   HydrationBoundary,
+  QueryCache,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import fetch from 'cross-fetch';
 import type { AppProps } from 'next/app';
+import { useRouter } from 'next/router';
 
-
-import { CohereClient, CohereClientProvider, Fetch } from '@/cohere-client';
+import {
+  CohereClient,
+  CohereClientProvider,
+  CohereUnauthorizedError,
+  Fetch,
+} from '@/cohere-client';
 import { ToastNotification } from '@/components/Shared';
 import { WebManifestHead } from '@/components/Shared';
 import { GlobalHead } from '@/components/Shared/GlobalHead';
@@ -50,14 +56,36 @@ export const appSSR = {
 type Props = AppProps<PageAppProps>;
 
 const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
-  const { value: authToken } = useLocalStorageValue(
+  const { value: authToken, remove: clearAuthToken } = useLocalStorageValue(
     LOCAL_STORAGE_KEYS.authToken,
     {
       defaultValue: undefined,
     }
   );
+  const router = useRouter();
   const cohereClient = useLazyRef(() => makeCohereClient(authToken));
-  const queryClient = useLazyRef(() => new QueryClient());
+  const queryClient = useLazyRef(
+    () =>
+      new QueryClient({
+        queryCache: new QueryCache({
+          onError: (error) => {
+            if (error instanceof CohereUnauthorizedError) {
+              clearAuthToken();
+              // Extract the current URL without query parameters or host.
+              const currentPath = window.location.pathname + window.location.hash;
+              // !DNC Remove the log line
+              console.log(
+                'Redirecting to login page with redirect_uri:',
+                currentPath,
+                window.location.pathname,
+                window.location.hash
+              );
+              router.push(`/login?redirect_uri=${encodeURIComponent(currentPath)}`);
+            }
+          },
+        }),
+      })
+  );
 
   const reactQueryState = pageProps.appProps?.reactQueryState;
   if (!reactQueryState && !['/404', '/500', '/_error', '/_ping'].includes(props.router.route)) {

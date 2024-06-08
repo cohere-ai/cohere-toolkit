@@ -1,17 +1,12 @@
-// import { EventSourceMessage } from '@microsoft/fetch-event-source';
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation } from '@tanstack/react-query';
 import { jwtDecode } from 'jwt-decode';
-// import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
+import { useCallback, useMemo } from 'react';
+
+import { useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
-
-import {
-  useCohereClient,
-} from '@/cohere-client';
-import { on } from 'events';
-import { useMemo } from 'react';
-// import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 
 interface LoginParams {
   email: string;
@@ -31,17 +26,24 @@ interface UserSession {
 }
 
 export const useSession = () => {
+  const router = useRouter();
   const { data: authStrategies } = useServerAuthStrategies();
-  const { value: authToken, set: setAuthToken } = useLocalStorageValue<string | undefined>(
-    LOCAL_STORAGE_KEYS.authToken,
-    {
-      defaultValue: undefined,
-    }
+  const {
+    value: authToken,
+    set: setAuthToken,
+    remove: clearAuthToken,
+  } = useLocalStorageValue<string | undefined>(LOCAL_STORAGE_KEYS.authToken, {
+    defaultValue: undefined,
+  });
+
+  const isLoggedIn = useMemo(
+    () =>
+      (authStrategies && authStrategies.length > 0 && !!authToken) ||
+      !authStrategies ||
+      authStrategies.length === 0,
+    [authToken, authStrategies]
   );
 
-  const isLoggedIn = useMemo(() => (
-    (authStrategies && authStrategies.length > 0 && !!authToken) || !authStrategies || authStrategies.length === 0
-  ), [authToken, authStrategies]);
   const cohereClient = useCohereClient();
   const session: UserSession = authToken ? jwtDecode(authToken).context : {};
 
@@ -52,12 +54,12 @@ export const useSession = () => {
     onSuccess: (data: { token: string }) => {
       setAuthToken(data.token);
       return new Promise((resolve) => resolve(data.token));
-    }
+    },
   });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      setAuthToken(undefined);
+      clearAuthToken();
       return cohereClient.logout();
     },
   });
@@ -68,6 +70,10 @@ export const useSession = () => {
     },
   });
 
+  const redirectToLogin = useCallback(() => {
+    router.push(`/login?redirect_uri=${encodeURIComponent(window.location.href)}`);
+  }, [router]);
+
   return {
     session,
     authToken,
@@ -75,5 +81,6 @@ export const useSession = () => {
     loginMutation,
     logoutMutation,
     registerMutation,
+    redirectToLogin,
   };
 };

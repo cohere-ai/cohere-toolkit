@@ -2,14 +2,13 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
-import { GoogleSSOButton } from '@/components/Welcome/GoogleSSOButton';
+// import { GoogleSSOButton } from '@/components/Welcome/GoogleSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
-import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
+// import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
 import { useSession } from '@/hooks/session';
 import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString, simpleEmailValidation } from '@/utils';
@@ -26,9 +25,9 @@ type LoginStatus = 'idle' | 'pending';
 /**
  * @description The login page supports logging in with an email and password.
  */
-const LoginPage: NextPage<Props> = (props) => {
+const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
-  const { isLoggedIn, loginMutation } = useSession();
+  const { loginMutation } = useSession();
 
   const loginStatus: LoginStatus = loginMutation.isLoading ? 'pending' : 'idle';
 
@@ -36,26 +35,17 @@ const LoginPage: NextPage<Props> = (props) => {
   const redirect = getQueryString(router.query.redirect_uri);
   const errors: string[] = [];
 
-  // const { googleAuth } = useGoogleAuthRoute();
-  // const googleAuthStart = async () => {
-  //   // const googleRecaptchaToken = await executeRecaptcha?.(RecaptchaAction.AUTH_GOOGLE);
-  //   const googleRecaptchaToken = '';
-  //   googleAuth.start({
-  //     redirect,
-  //     recaptchaToken: googleRecaptchaToken,
-  //   });
-  // };
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push(redirect || '/');
-    }
-  }, [isLoggedIn, router, redirect]);
-
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
     const { email, password } = data;
     try {
-      await loginMutation.mutate({ email, password });
+      await loginMutation.mutate(
+        { email, password },
+        {
+          onSuccess: () => {
+            router.push(redirect || '/');
+          },
+        }
+      );
     } catch (error) {
       console.error(error);
     }
@@ -129,7 +119,7 @@ const LoginPage: NextPage<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const deps = appSSR.initialize() as {
     queryClient: QueryClient;
     cohereClient: CohereClient;

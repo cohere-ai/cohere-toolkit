@@ -11,16 +11,16 @@ import { Layout, LayoutSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
+import { useServerAuthStrategies } from '@/hooks/authStrategies';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { useSession } from '@/hooks/session';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
-import { useServerAuthStrategies } from '@/hooks/authStrategies';
-import { useSession } from '@/hooks/session';
 
 type Props = {
   reactQueryState: DehydratedState;
@@ -41,15 +41,6 @@ const ConversationPage: NextPage<Props> = () => {
   const urlConversationId = Array.isArray(router.query.id)
     ? router.query.id[0]
     : (router.query.id as string);
-
-  const { data: authStrategies } = useServerAuthStrategies();
-  const { authToken } = useSession();
-
-  useEffect(() => {
-    if (!authToken && authStrategies && authStrategies.length > 0) {
-      router.push(`/login?redirect_uri=${encodeURIComponent(window.location.href)}`);
-    }
-  }, [authToken, authStrategies, router]);
 
   const {
     data: conversation,

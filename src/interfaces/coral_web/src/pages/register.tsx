@@ -2,11 +2,10 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
-import { Button, InlineLink, Input, Text } from '@/components/Shared';
+import { Button, Input, Text } from '@/components/Shared';
 import { WelcomePage } from '@/components/WelcomePage';
 import { useSession } from '@/hooks/session';
 import { PageAppProps, appSSR } from '@/pages/_app';
@@ -25,7 +24,7 @@ type RegisterStatus = 'idle' | 'pending';
 /**
  * @description The register page supports creating an account with an email and password.
  */
-const RegisterPage: NextPage<Props> = (props) => {
+const RegisterPage: NextPage<Props> = () => {
   const router = useRouter();
   const { registerMutation } = useSession();
 
@@ -35,21 +34,16 @@ const RegisterPage: NextPage<Props> = (props) => {
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
     const { name, email, password } = data;
     try {
-      await registerMutation.mutateAsync({ name, email, password }, { onSuccess: () => router.push('/login') });
+      await registerMutation.mutateAsync(
+        { name, email, password },
+        { onSuccess: () => router.push('/login') }
+      );
     } catch (error) {
       console.error(error);
     }
   };
 
   const redirect = getQueryString(router.query.redirect_uri);
-  
-  const { isLoggedIn } = useSession();
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push(redirect || '/');
-    }
-  }, [isLoggedIn, router, redirect]);
 
   const errors: string[] = [];
 
@@ -74,7 +68,7 @@ const RegisterPage: NextPage<Props> = (props) => {
               validate: (value) => !!value.trim(),
             })}
           />
-          
+
           <Input
             className="w-full"
             label="Email"
@@ -132,7 +126,7 @@ const RegisterPage: NextPage<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const deps = appSSR.initialize() as {
     queryClient: QueryClient;
     cohereClient: CohereClient;

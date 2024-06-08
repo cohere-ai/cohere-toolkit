@@ -1,27 +1,30 @@
 import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
 import { Text } from '@/components/Shared';
 import { WelcomePage } from '@/components/WelcomePage';
 import { useSession } from '@/hooks/session';
 import { PageAppProps, appSSR } from '@/pages/_app';
-import { useEffect } from 'react';
 
 type Props = PageAppProps & {};
 
 /**
  * @description The login page supports logging in with an email and password.
  */
-const LoginPage: NextPage<Props> = (props) => {
+const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
   const { logoutMutation } = useSession();
 
   useEffect(() => {
-    logoutMutation.mutate();
-    router.push('/login');
-  }, [logoutMutation, router]);
+    logoutMutation.mutate(undefined, {
+      onSettled: () => {
+        router.push('/login');
+      },
+    });
+  }, []);
 
   return (
     <WelcomePage title="Logout" navigationAction="login">
@@ -34,7 +37,7 @@ const LoginPage: NextPage<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const deps = appSSR.initialize() as {
     queryClient: QueryClient;
     cohereClient: CohereClient;
