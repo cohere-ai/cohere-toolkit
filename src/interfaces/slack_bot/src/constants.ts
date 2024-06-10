@@ -90,6 +90,10 @@ export const ALERTS = {
         `\nTo learn more about me, use the \`/command-help\` command.`,
 };
 export const MAX_PROMPT_LENGTH = 4000;
+export const PROMPTS = {
+  SUMMARIZE_FILE: `Summarize the following text extracted from a file:\n%FILE_TEXT%`,
+  SUMMARIZE_THREAD: 'Summarize the following conversation history:\n%CONVERSATION_HISTORY%',
+};
 export const ERRORS = {
   PREFIX: 'Whoops,',
   GENERAL: 'There was an error. Please try again.',

@@ -37,7 +37,7 @@ slack_bot/
 ├─ src/
 │  ├─ constants.ts
 │  ├─ api/
-│  │   ∟ functions that interact with the cohere api live here
+│  │   ∟ functions that interact with the toolkit api live here
 │  ├─ handlers/
 │  │   ∟ functions that handle slack events live here
 │  ├─ utils/

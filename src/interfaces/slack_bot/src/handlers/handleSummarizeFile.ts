@@ -1,5 +1,5 @@
 import { ApiError, OpenAPI, ToolkitClient } from '../cohere-client';
-import { ALERTS, ERRORS } from '../constants';
+import { ALERTS, ERRORS, PROMPTS } from '../constants';
 import { SlackFile, getFileRawText } from '../utils/files';
 import { getSlackFile } from '../utils/slackAuth';
 
@@ -45,11 +45,10 @@ export const handleSummarizeFile = async ({
     };
   }
   try {
-    const prompt: string = `Summarize the follow text extracted from a file:\n${fileText}`;
     const toolkitClient = new ToolkitClient(OpenAPI);
     const summaryResponse = await toolkitClient.default.chatChatPost({
       requestBody: {
-        message: prompt,
+        message: PROMPTS.SUMMARIZE_FILE.replace('%FILE_TEXT%', fileText),
       },
     });
     const currentBotReply = `${ALERTS.FILE_SUMMARY_PREFIX}${

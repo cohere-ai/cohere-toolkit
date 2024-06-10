@@ -375,10 +375,9 @@ app.action('dismiss_ephemeral', dismissEphemeral);
 // Feedback actions are tied to the feedback buttons put on every bot response
 app.action('stop_conversation', stopConversation);
 
-//Input field acknowledgements - used to acknowledge the user's input within text fields and checkboxes
-//Helps avoid errors on slack
+// Input field acknowledgements - used to acknowledge the user's input within text fields and checkboxes
+// Helps avoid errors on slack
 app.action('checkbox-action', async ({ ack }) => await ack());
-app.action('api_key_value', async ({ ack }) => await ack());
 app.action('api-key-lock-action', async ({ ack }) => await ack());
 
 (async () => {

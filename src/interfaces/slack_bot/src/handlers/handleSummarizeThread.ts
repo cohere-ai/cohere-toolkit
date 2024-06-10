@@ -1,7 +1,7 @@
 import { AllMiddlewareArgs, Context, MessageEvent, RespondFn, SayFn } from '@slack/bolt';
 
 import { ApiError, OpenAPI, ToolkitClient } from '../cohere-client';
-import { ALERTS, ERRORS } from '../constants';
+import { ALERTS, ERRORS, PROMPTS } from '../constants';
 import { getEphemeralBlocks } from '../utils/getMessageBlocks';
 import { getSanitizedConversationHistory } from '../utils/getSanitizedConversationHistory';
 import { handleError } from './';
@@ -111,11 +111,12 @@ export const handleSummarizeThread = async ({
   }
   try {
     const toolkitClient = new ToolkitClient(OpenAPI);
-    const summarizePrompt = ('Summarize the following conversation history:\n' +
-      sanitizedConversationHistoryString) as string;
     const summaryResponse = await toolkitClient.default.chatChatPost({
       requestBody: {
-        message: summarizePrompt,
+        message: PROMPTS.SUMMARIZE_THREAD.replace(
+          '%CONVERSATION_HISTORY%',
+          sanitizedConversationHistoryString as string,
+        ),
       },
     });
     /**
