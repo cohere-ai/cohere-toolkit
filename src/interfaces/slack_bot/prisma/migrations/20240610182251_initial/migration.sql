@@ -29,7 +29,6 @@ CREATE TABLE "ChannelSettings" (
     "modelName" TEXT,
     "temperature" DOUBLE PRECISION,
     "preamble" TEXT,
-    "ragEnabled" BOOLEAN NOT NULL DEFAULT true,
     "tools" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

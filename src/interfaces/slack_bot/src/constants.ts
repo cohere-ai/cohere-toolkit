@@ -43,16 +43,6 @@ export const ALERTS = {
     `All messages ${
       channelName !== 'directmessage' ? `in ${channelName} ` : ''
     }are currently being processed with the \`${modelName}\` model.`,
-  channelRagToggled: (channelName: string, ragEnabled: boolean, userId?: string) =>
-    `All messages with documents ${
-      channelName !== 'directmessage' ? `in ${channelName} ` : ''
-    }will ${ragEnabled ? 'now' : 'no longer'} be processed with the RAG model.${
-      userId ? ` Set by <@${userId}>.` : ''
-    }`,
-  channelRagView: (channelName: string, ragEnabled: boolean) =>
-    `All messages with documents ${
-      channelName !== 'directmessage' ? `in ${channelName} ` : ''
-    }are ${ragEnabled ? '' : 'not '}being processed using RAG.`,
   PROMPT_TOO_LONG:
     'Due to the length of your prompt, some information may be left out. Reducing your prompt to below 4000 characters may produce better results.',
   channelTemperatureSet: (channelName: string, temperature: number, userId?: string) =>

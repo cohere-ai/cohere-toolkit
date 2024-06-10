@@ -56,7 +56,6 @@ model ChannelSettings {
   modelName   String?
   temperature Float?
   preamble    String?
-  ragEnabled  Boolean @default(true)
   tools  String[] @default([])
 
   createdAt DateTime @default(now())
