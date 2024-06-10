@@ -1,8 +1,7 @@
+import argparse
 from enum import StrEnum
 
 import inquirer
-import argparse
-
 from dotenv import set_key
 
 from backend.config.deployments import (
@@ -239,7 +238,7 @@ TOOLS = {
 
 def start():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--use-community', action=argparse.BooleanOptionalAction)
+    parser.add_argument("--use-community", action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
 
     secrets = {}
