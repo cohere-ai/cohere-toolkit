@@ -1,24 +1,9 @@
 import datetime
-from enum import Enum
-from typing import List, Optional, Union
+from typing import Optional
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel
 
 from backend.database_models.agent import Deployment, Model
-
-
-class ModelType(str, Enum):
-    COMMAND_R = "command-r"
-    COMMAND_R_PLUS = "command-r-plus"
-    COMMAND_LIGHT = "command-light"
-    COMMAND = "command"
-
-
-class DeploymentType(str, Enum):
-    COHERE_PLATFORM = "Cohere Platform"
-    SAGE_MAKER = "SageMaker"
-    AZURE = "Azure"
-    BEDROCK = "Bedrock"
 
 
 class AgentBase(BaseModel):
