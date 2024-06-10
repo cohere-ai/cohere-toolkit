@@ -17,6 +17,7 @@ class ChatRole(StrEnum):
     CHATBOT = "CHATBOT"
     USER = "USER"
     SYSTEM = "SYSTEM"
+    TOOL = "TOOL"
 
 
 class ChatCitationQuality(StrEnum):
@@ -39,8 +40,12 @@ class ChatMessage(BaseModel):
     role: ChatRole = Field(
         title="One of CHATBOT|USER|SYSTEM to identify who the message is coming from.",
     )
-    message: str = Field(
+    message: str | None = Field(
         title="Contents of the chat message.",
+    )
+    tool_results: List[Dict[str, Any]] | None = Field(
+        title="Results from the tool call.",
+        default=[],
     )
 
     def to_dict(self) -> Dict[str, str]:
@@ -50,9 +55,6 @@ class ChatMessage(BaseModel):
 # TODO: fix titles of these types
 class ChatResponse(BaseModel):
     event_type: ClassVar[StreamEvent] = Field()
-    is_finished: bool = Field(
-        title="Denotes whether or not the chat stream has finished.",
-    )
 
 
 class StreamStart(ChatResponse):
@@ -150,7 +152,6 @@ class StreamToolCallsGeneration(ChatResponse):
 class StreamEnd(ChatResponse):
     response_id: str | None = Field(default=None)
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_END
-    is_finished: ClassVar[bool] = True
     generation_id: str | None = Field(default=None)
     conversation_id: str | None = Field(default=None)
     text: str = Field(
