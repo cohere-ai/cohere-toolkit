@@ -11,6 +11,5 @@ import type { Citation } from './Citation';
  * Stream citation generation event.
  */
 export type StreamCitationGeneration = {
-  is_finished: boolean;
   citations?: Array<Citation>;
 };

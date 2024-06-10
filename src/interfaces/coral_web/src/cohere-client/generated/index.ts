@@ -7,6 +7,10 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { Agent } from './models/Agent';
+export { AgentDeployment } from './models/AgentDeployment';
+export { AgentModel } from './models/AgentModel';
+export type { Auth } from './models/Auth';
 export type { Body_upload_file_v1_conversations_upload_file_post } from './models/Body_upload_file_v1_conversations_upload_file_post';
 export { Category } from './models/Category';
 export type { ChatMessage } from './models/ChatMessage';
@@ -17,7 +21,9 @@ export { CohereChatPromptTruncation } from './models/CohereChatPromptTruncation'
 export type { CohereChatRequest } from './models/CohereChatRequest';
 export type { Conversation } from './models/Conversation';
 export type { ConversationWithoutMessages } from './models/ConversationWithoutMessages';
+export type { CreateAgent } from './models/CreateAgent';
 export type { CreateUser } from './models/CreateUser';
+export type { DeleteAgent } from './models/DeleteAgent';
 export type { DeleteConversation } from './models/DeleteConversation';
 export type { DeleteFile } from './models/DeleteFile';
 export type { DeleteUser } from './models/DeleteUser';
@@ -47,6 +53,7 @@ export type { StreamToolResult } from './models/StreamToolResult';
 export type { Tool } from './models/Tool';
 export type { ToolCall } from './models/ToolCall';
 export { ToolInputType } from './models/ToolInputType';
+export type { UpdateAgent } from './models/UpdateAgent';
 export type { UpdateConversation } from './models/UpdateConversation';
 export type { UpdateDeploymentEnv } from './models/UpdateDeploymentEnv';
 export type { UpdateFile } from './models/UpdateFile';
