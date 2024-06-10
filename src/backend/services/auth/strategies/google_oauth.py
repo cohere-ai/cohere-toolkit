@@ -2,7 +2,6 @@ import logging
 from typing import List
 
 from authlib.integrations.starlette_client import OAuth
-from pydantic_settings import BaseSettings
 from starlette.requests import Request
 
 from backend.services.auth.strategies.base import BaseOAuthStrategy

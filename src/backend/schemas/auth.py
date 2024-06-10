@@ -1,4 +1,3 @@
-import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -20,16 +19,9 @@ class ListAuthStrategy(BaseModel):
     strategy: str
 
 
-class JWTToken(BaseModel):
-    iss: str
-    iat: datetime.datetime
-    exp: datetime.datetime
-    jti: str
-    context: dict
-
-
 class JWTResponse(BaseModel):
-    token: JWTToken
+    token: str
+
 
 class CreateBlacklist(BaseModel):
     token_id: str
