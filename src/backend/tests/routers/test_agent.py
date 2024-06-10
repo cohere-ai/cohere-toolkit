@@ -89,6 +89,18 @@ def test_create_agent_missing_deployment(
     assert response.status_code == 422
 
 
+def test_create_agent_missing_user_id_header(
+    session_client: TestClient, session: Session
+) -> None:
+    request_json = {
+        "name": "test agent",
+        "model": Model.COMMAND_R,
+        "deployment": Deployment.COHERE_PLATFORM,
+    }
+    response = session_client.post("/v1/agents", json=request_json)
+    assert response.status_code == 401
+
+
 def test_create_agent_missing_non_required_fields(
     session_client: TestClient, session: Session
 ) -> None:

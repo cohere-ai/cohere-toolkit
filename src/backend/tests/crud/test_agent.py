@@ -71,9 +71,44 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.deployment == Deployment.COHERE_PLATFORM
 
 
-def test_create_agent_empty_required_fields(session, user):
+def test_create_agent_missing_name(session, user):
     agent_data = Agent(
         user_id=user.id,
+        model=Model.COMMAND_R_PLUS,
+        deployment=Deployment.COHERE_PLATFORM,
+    )
+
+    with pytest.raises(IntegrityError):
+        _ = agent_crud.create_agent(session, agent_data)
+
+
+def test_create_agent_missing_model(session, user):
+    agent_data = Agent(
+        user_id=user.id,
+        name="test",
+        deployment=Deployment.COHERE_PLATFORM,
+    )
+
+    with pytest.raises(IntegrityError):
+        _ = agent_crud.create_agent(session, agent_data)
+
+
+def test_create_agent_missing_deployment(session, user):
+    agent_data = Agent(
+        user_id=user.id,
+        name="test",
+        model=Model.COMMAND_R_PLUS,
+    )
+
+    with pytest.raises(IntegrityError):
+        _ = agent_crud.create_agent(session, agent_data)
+
+
+def test_create_agent_missing_user_id(session):
+    agent_data = Agent(
+        name="test",
+        model=Model.COMMAND_R_PLUS,
+        deployment=Deployment.COHERE_PLATFORM,
     )
 
     with pytest.raises(IntegrityError):

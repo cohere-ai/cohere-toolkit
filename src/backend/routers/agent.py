@@ -6,6 +6,7 @@ from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, CreateAgent, DeleteAgent, UpdateAgent
 from backend.services.auth.utils import get_header_user_id
+from backend.services.request_validators import validate_user_header
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -13,7 +14,7 @@ router = APIRouter(
 router.name = RouterName.AGENT
 
 
-@router.post("", response_model=Agent)
+@router.post("", response_model=Agent, dependencies=[Depends(validate_user_header)])
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request):
     user_id = get_header_user_id(request)
 
