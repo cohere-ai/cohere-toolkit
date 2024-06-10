@@ -549,8 +549,9 @@ def generate_chat_response(
 
         chat_history.append(
             ChatMessage(
-                role=message["role"],
-                message=message["message"],
+                role=message.get("role", ChatRole.USER),
+                message=message.get("message"),
+                tool_results=message.get("tool_results"),
             )
         )
 
@@ -587,7 +588,6 @@ def generate_chat_response(
         documents=documents,
         search_results=response.get("search_results", []),
         event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
-        is_finished=True,
         conversation_id=conversation_id,
         tool_calls=tool_calls,
     )
@@ -624,7 +624,6 @@ def generate_langchain_chat_stream(
             ChatResponseEvent(
                 event=StreamEvent.STREAM_START,
                 data=StreamStart(
-                    is_finished=False,
                     conversation_id=conversation_id,
                 ),
             )
@@ -661,7 +660,6 @@ def generate_langchain_chat_stream(
 
                     # shape: "Plan: I will search for tips on writing an essay and fun facts about the Roman Empire. I will then write an answer using the information I find.\nAction: ```json\n[\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"tips for writing an essay\"\n        }\n    },\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"fun facts about the roman empire\"\n        }\n
                     stream_event = StreamToolInput(
-                        is_finished=False,
                         # TODO: switch to diff types
                         input_type=ToolInputType.CODE,
                         tool_name=tool_name,
@@ -690,7 +688,6 @@ def generate_langchain_chat_stream(
                 if isinstance(result, list):
                     stream_event = StreamToolResult(
                         tool_name=step.action.tool,
-                        is_finished=False,
                         result=result,
                         documents=[],
                     )
@@ -708,7 +705,6 @@ def generate_langchain_chat_stream(
                 if isinstance(result, dict):
                     stream_event = StreamToolResult(
                         tool_name=step.action.tool,
-                        is_finished=False,
                         result=result,
                         documents=[],
                     )

@@ -50,20 +50,17 @@ class LocalModelDeployment(BaseDeployment):
         yield {
             "event_type": "stream-start",
             "generation_id": "",
-            "is_finished": False,
         }
 
         for item in stream:
             yield {
                 "event_type": "text-generation",
                 "text": item["choices"][0]["text"],
-                "is_finished": False,
             }
 
         yield {
             "event_type": "stream-end",
             "finish_reason": "COMPLETE",
-            "is_finished": True,
         }
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
