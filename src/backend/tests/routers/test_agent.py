@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.database_models.agent import Agent, Deployment, Model
+from backend.database_models.agent import Agent, AgentDeployment, AgentModel
 from backend.tests.factories import get_factory
 
 
@@ -12,8 +12,8 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": Model.COMMAND_R,
-        "deployment": Deployment.COHERE_PLATFORM,
+        "model": AgentModel.COMMAND_R,
+        "deployment": AgentDeployment.COHERE_PLATFORM,
     }
 
     response = session_client.post(
@@ -48,8 +48,8 @@ def test_create_agent_missing_name(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": Model.COMMAND_R,
-        "deployment": Deployment.COHERE_PLATFORM,
+        "model": AgentModel.COMMAND_R,
+        "deployment": AgentDeployment.COHERE_PLATFORM,
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
@@ -65,7 +65,7 @@ def test_create_agent_missing_model(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "deployment": Deployment.COHERE_PLATFORM,
+        "deployment": AgentDeployment.COHERE_PLATFORM,
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
@@ -81,7 +81,7 @@ def test_create_agent_missing_deployment(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": Model.COMMAND_R,
+        "model": AgentModel.COMMAND_R,
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
@@ -94,8 +94,8 @@ def test_create_agent_missing_user_id_header(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": Model.COMMAND_R,
-        "deployment": Deployment.COHERE_PLATFORM,
+        "model": AgentModel.COMMAND_R,
+        "deployment": AgentDeployment.COHERE_PLATFORM,
     }
     response = session_client.post("/v1/agents", json=request_json)
     assert response.status_code == 401
@@ -106,8 +106,8 @@ def test_create_agent_missing_non_required_fields(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": Model.COMMAND_R,
-        "deployment": Deployment.COHERE_PLATFORM,
+        "model": AgentModel.COMMAND_R,
+        "deployment": AgentDeployment.COHERE_PLATFORM,
     }
 
     print(request_json)
@@ -216,8 +216,8 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=Model.COMMAND_R,
-        deployment=Deployment.COHERE_PLATFORM,
+        model=AgentModel.COMMAND_R,
+        deployment=AgentDeployment.COHERE_PLATFORM,
     )
 
     request_json = {
@@ -226,8 +226,8 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         "description": "updated description",
         "preamble": "updated preamble",
         "temperature": 0.7,
-        "model": Model.COMMAND_R_PLUS,
-        "deployment": Deployment.SAGE_MAKER,
+        "model": AgentModel.COMMAND_R_PLUS,
+        "deployment": AgentDeployment.SAGE_MAKER,
     }
 
     response = session_client.put(
@@ -240,8 +240,8 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
     assert updated_agent["description"] == "updated description"
     assert updated_agent["preamble"] == "updated preamble"
     assert updated_agent["temperature"] == 0.7
-    assert updated_agent["model"] == Model.COMMAND_R_PLUS
-    assert updated_agent["deployment"] == Deployment.SAGE_MAKER
+    assert updated_agent["model"] == AgentModel.COMMAND_R_PLUS
+    assert updated_agent["deployment"] == AgentDeployment.SAGE_MAKER
 
 
 def test_partial_update_agent(session_client: TestClient, session: Session) -> None:
@@ -251,8 +251,8 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=Model.COMMAND_R,
-        deployment=Deployment.COHERE_PLATFORM,
+        model=AgentModel.COMMAND_R,
+        deployment=AgentDeployment.COHERE_PLATFORM,
     )
 
     request_json = {
@@ -269,8 +269,8 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
     assert updated_agent["description"] == "test description"
     assert updated_agent["preamble"] == "test preamble"
     assert updated_agent["temperature"] == 0.5
-    assert updated_agent["model"] == Model.COMMAND_R
-    assert updated_agent["deployment"] == Deployment.COHERE_PLATFORM
+    assert updated_agent["model"] == AgentModel.COMMAND_R
+    assert updated_agent["deployment"] == AgentDeployment.COHERE_PLATFORM
 
 
 def test_update_nonexistent_agent(session_client: TestClient, session: Session) -> None:
@@ -293,8 +293,8 @@ def test_update_agent_wrong_model_deployment_enums(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=Model.COMMAND_R,
-        deployment=Deployment.COHERE_PLATFORM,
+        model=AgentModel.COMMAND_R,
+        deployment=AgentDeployment.COHERE_PLATFORM,
     )
 
     request_json = {

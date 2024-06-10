@@ -30,7 +30,7 @@ type Props = {
  * It shows the navigation bar, the left drawer and main content.
  * On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
-export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
+export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
   const { message: bannerMessage } = useContext(BannerContext);
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
