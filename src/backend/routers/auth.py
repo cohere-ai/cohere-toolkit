@@ -1,13 +1,13 @@
+from typing import Union
+
 from authlib.integrations.starlette_client import OAuthError
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
-from starlette.responses import RedirectResponse
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
-from backend.database_models import get_session
 from backend.database_models.database import DBSessionDep
-from backend.schemas.auth import Auth, Login
+from backend.schemas.auth import Auth, JWTResponse, ListAuthStrategy, Login, Logout
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.utils import (
     get_or_create_user,
@@ -18,8 +18,8 @@ router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
 
 
-@router.get("/auth_strategies")
-def get_strategies():
+@router.get("/auth_strategies", response_model=list[ListAuthStrategy])
+def get_strategies() -> list[ListAuthStrategy]:
     """
     Retrieves the currently enabled list of Authentication strategies.
 
@@ -34,7 +34,7 @@ def get_strategies():
     return strategies
 
 
-@router.post("/login")
+@router.post("/login", response_model=Union[JWTResponse, None])
 async def login(request: Request, login: Login, session: DBSessionDep):
     """
     Logs user in and either:
@@ -91,7 +91,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
         return {"token": token}
 
 
-@router.post("/auth")
+@router.post("/auth", response_model=JWTResponse)
 async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
     """
     Authentication endpoint used for OAuth strategies. Logs the user in the redirect environment and then
@@ -138,7 +138,7 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
     return {"token": token}
 
 
-@router.get("/logout")
+@router.get("/logout", response_model=Logout)
 async def logout(request: Request):
     """
     Logs out the current user.

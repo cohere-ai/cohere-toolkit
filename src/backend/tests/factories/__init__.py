@@ -5,9 +5,11 @@ from backend.tests.factories.document import DocumentFactory
 from backend.tests.factories.file import FileFactory
 from backend.tests.factories.message import MessageFactory
 from backend.tests.factories.user import UserFactory
+from backend.tests.factories.blacklist import BlacklistFactory
 
 FACTORY_MAPPING = {
     "User": UserFactory,
+    "Blacklist": BlacklistFactory,
     "File": FileFactory,
     "Conversation": ConversationFactory,
     "Citation": CitationFactory,
