@@ -24,6 +24,11 @@ class CohereDeployment(BaseDeployment):
         # Override the environment variable from the request
         self.api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR, **kwargs)
         self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
+    
+    @classmethod
+    def initialize_class_client(cls, **kwargs: Any):
+        if cls.api_key is None:
+            cls.api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR, **kwargs)
 
     @property
     def rerank_enabled(self) -> bool:
@@ -31,6 +36,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def list_models(cls) -> List[str]:
+        cls.initialize_class_client()
         if not CohereDeployment.is_available():
             return []
 
