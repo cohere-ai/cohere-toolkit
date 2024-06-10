@@ -20,6 +20,7 @@ class OpenIDConnect(BaseOAuthStrategy):
     """
 
     NAME = "OIDC"
+    REDIRECT_METHOD_NAME = "oidc_authenticate"
 
     def __init__(self):
         try:

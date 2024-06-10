@@ -19,6 +19,7 @@ class GoogleOAuth(BaseOAuthStrategy):
     """
 
     NAME = "Google"
+    REDIRECT_METHOD_NAME = "google_authenticate"
 
     def __init__(self):
         try:

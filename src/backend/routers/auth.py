@@ -7,7 +7,8 @@ from starlette.requests import Request
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.database_models.database import DBSessionDep
-from backend.schemas.auth import Auth, JWTResponse, ListAuthStrategy, Login, Logout
+from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
+from backend.services.auth import GoogleOAuth, OpenIDConnect
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.utils import (
     get_or_create_user,
@@ -75,7 +76,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     # Login with redirect to /auth
     if strategy.SHOULD_AUTH_REDIRECT:
         # Fetch endpoint with method name
-        redirect_uri = request.url_for("authenticate")
+        redirect_uri = request.url_for(strategy.REDIRECT_METHOD_NAME)
         return await strategy.login(request, redirect_uri)
     # Login with email/password and set session directly
     else:
@@ -91,15 +92,14 @@ async def login(request: Request, login: Login, session: DBSessionDep):
         return {"token": token}
 
 
-@router.post("/auth", response_model=JWTResponse)
-async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
+@router.get("/google/auth", response_model=JWTResponse)
+async def google_authenticate(request: Request, session: DBSessionDep):
     """
-    Authentication endpoint used for OAuth strategies. Logs the user in the redirect environment and then
-    sets the current session with the user returned from the auth token.
+    Callback authentication endpoint used for Google OAuth after redirecting to
+    the service's login screen.
 
     Args:
         request (Request): current Request object.
-        login (Login): Login payload.
 
     Returns:
         RedirectResponse: On success.
@@ -107,7 +107,50 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
     """
-    strategy_name = auth.strategy
+    strategy_name = GoogleOAuth.NAME
+
+    return await authenticate(request, session, strategy_name)
+
+
+@router.get("/oidc/auth", response_model=JWTResponse)
+async def oidc_authenticate(request: Request, session: DBSessionDep):
+    """
+    Callback authentication endpoint used for OIDC after redirecting to
+    the service's login screen.
+
+    Args:
+        request (Request): current Request object.
+
+    Returns:
+        RedirectResponse: On success.
+
+    Raises:
+        HTTPException: If authentication fails, or strategy is invalid.
+    """
+    strategy_name = OpenIDConnect.NAME
+
+    return await authenticate(request, session, strategy_name)
+
+
+@router.get("/logout", response_model=Logout)
+async def logout(request: Request):
+    """
+    Logs out the current user.
+
+    Args:
+        request (Request): current Request object.
+
+    Returns:
+        dict: Empty on success
+    """
+    # TODO: Design blacklist
+
+    return {}
+
+
+async def authenticate(
+    request: Request, session: DBSessionDep, strategy_name: str
+) -> JWTResponse:
     if not is_enabled_authentication_strategy(strategy_name):
         raise HTTPException(
             status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
@@ -136,19 +179,3 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
     token = JWTService().create_and_encode_jwt(user)
 
     return {"token": token}
-
-
-@router.get("/logout", response_model=Logout)
-async def logout(request: Request):
-    """
-    Logs out the current user.
-
-    Args:
-        request (Request): current Request object.
-
-    Returns:
-        dict: Empty on success
-    """
-    # TODO: Design blacklist
-
-    return {}
