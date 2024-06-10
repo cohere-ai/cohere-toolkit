@@ -19,6 +19,7 @@ class File(Base):
     file_name: Mapped[str]
     file_path: Mapped[str]
     file_size: Mapped[int] = mapped_column(default=0)
+    file_content: Mapped[str] = mapped_column(default="")
 
     __table_args__ = (
         Index("file_conversation_id_user_id", conversation_id, user_id),

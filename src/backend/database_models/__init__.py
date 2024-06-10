@@ -1,3 +1,4 @@
+from backend.database_models.agent import *
 from backend.database_models.base import *
 from backend.database_models.citation import *
 from backend.database_models.conversation import *

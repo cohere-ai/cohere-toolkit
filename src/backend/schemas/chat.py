@@ -12,10 +12,11 @@ from backend.schemas.tool import Tool, ToolCall
 
 
 class ChatRole(StrEnum):
-    """One of CHATBOT|USER to identify who the message is coming from."""
+    """One of CHATBOT|USER|SYSTEM to identify who the message is coming from."""
 
     CHATBOT = "CHATBOT"
     USER = "USER"
+    SYSTEM = "SYSTEM"
 
 
 class ChatCitationQuality(StrEnum):
@@ -36,7 +37,7 @@ class ChatMessage(BaseModel):
     """A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message."""
 
     role: ChatRole = Field(
-        title="One of CHATBOT|USER to identify who the message is coming from.",
+        title="One of CHATBOT|USER|SYSTEM to identify who the message is coming from.",
     )
     message: str = Field(
         title="Contents of the chat message.",
