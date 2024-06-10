@@ -23,11 +23,11 @@ class Model(StrEnum):
 class Agent(Base):
     __tablename__ = "agents"
 
-    version: Mapped[int] = mapped_column(Integer, default=1)
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    preamble: Mapped[str] = mapped_column(Text, nullable=True)
-    temperature: Mapped[float] = mapped_column(Float, default=0.3)
+    description: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    preamble: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    temperature: Mapped[float] = mapped_column(Float, default=0.3, nullable=False)
     # tool: Mapped[List["Tool"]] = relationship()
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented

@@ -1,9 +1,9 @@
 import datetime
-from typing import List, Optional, Union
+from typing import Optional
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel
 
-from backend.schemas.tool import Tool
+from backend.database_models.agent import Deployment, Model
 
 
 class AgentBase(BaseModel):
@@ -22,11 +22,26 @@ class Agent(AgentBase):
     temperature: float
     # tools: List[Tool]
 
-    model: str
-    deployment: str
+    model: Model
+    deployment: Deployment
 
     class Config:
         from_attributes = True
+        use_enum_values = True
+
+
+class CreateAgent(BaseModel):
+    name: str
+    version: Optional[int] = None
+    description: Optional[str] = None
+    preamble: Optional[str] = None
+    temperature: Optional[float] = None
+    model: Model
+    deployment: Deployment
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
 
 
 class UpdateAgent(BaseModel):
@@ -35,7 +50,14 @@ class UpdateAgent(BaseModel):
     description: Optional[str] = None
     preamble: Optional[str] = None
     temperature: Optional[float] = None
+    model: Optional[Model] = None
+    deployment: Optional[Deployment] = None
     # tools: Optional[List[Tool]] = None
 
     class Config:
         from_attributes = True
+        use_enum_values = True
+
+
+class DeleteAgent(BaseModel):
+    pass

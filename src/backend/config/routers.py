@@ -20,6 +20,7 @@ class RouterName(StrEnum):
     EXPERIMENTAL_FEATURES = "experimental_features"
     TOOL = "tool"
     USER = "user"
+    AGENT = "agent"
 
 
 # Router dependency mappings
@@ -85,6 +86,15 @@ ROUTER_DEPENDENCIES = {
         "auth": [
             # TODO: Remove auth only for create user endpoint
             Depends(get_session),
+        ],
+    },
+    RouterName.AGENT: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
         ],
     },
 }
