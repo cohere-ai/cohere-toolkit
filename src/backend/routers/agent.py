@@ -47,7 +47,6 @@ async def list_agents(
     Returns:
         list[Agent]: List of agents.
     """
-    user_id = get_header_user_id(request)
     return agent_crud.get_agents(session, offset=offset, limit=limit)
 
 
@@ -64,7 +63,6 @@ async def get_agent(agent_id: str, session: DBSessionDep, request: Request) -> A
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
     agent = agent_crud.get_agent(session, agent_id)
 
     if not agent:
@@ -98,7 +96,6 @@ async def update_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
     agent = agent_crud.get_agent(session, agent_id)
 
     if not agent:
@@ -130,7 +127,6 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
     agent = agent_crud.get_agent(session, agent_id)
 
     if not agent:

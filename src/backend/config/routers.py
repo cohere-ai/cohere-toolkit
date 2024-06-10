@@ -91,6 +91,7 @@ ROUTER_DEPENDENCIES = {
     RouterName.AGENT: {
         "default": [
             Depends(get_session),
+            Depends(validate_chat_request),
         ],
         "auth": [
             Depends(get_session),
