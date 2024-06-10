@@ -6,14 +6,14 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.database_models.base import Base
 
 
-class Deployment(StrEnum):
+class AgentDeployment(StrEnum):
     COHERE_PLATFORM = "Cohere Platform"
     SAGE_MAKER = "SageMaker"
     AZURE = "Azure"
     BEDROCK = "Bedrock"
 
 
-class Model(StrEnum):
+class AgentModel(StrEnum):
     COMMAND_R = "command-r"
     COMMAND_R_PLUS = "command-r-plus"
     COMMAND_LIGHT = "command-light"
@@ -33,9 +33,11 @@ class Agent(Base):
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
     # enum place holders
-    model: Mapped[Model] = mapped_column(Enum(Model, native_enum=False), nullable=False)
-    deployment: Mapped[Deployment] = mapped_column(
-        Enum(Deployment, native_enum=False), nullable=False
+    model: Mapped[AgentModel] = mapped_column(
+        Enum(AgentModel, native_enum=False), nullable=False
+    )
+    deployment: Mapped[AgentDeployment] = mapped_column(
+        Enum(AgentDeployment, native_enum=False), nullable=False
     )
 
     user_id: Mapped[str] = mapped_column(Text, nullable=False)
