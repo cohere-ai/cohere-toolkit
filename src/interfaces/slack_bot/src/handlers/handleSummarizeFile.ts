@@ -48,7 +48,7 @@ export const handleSummarizeFile = async ({
     const toolkitClient = new ToolkitClient(OpenAPI);
     const summaryResponse = await toolkitClient.default.chatChatPost({
       requestBody: {
-        message: PROMPTS.SUMMARIZE_FILE.replace('%FILE_TEXT%', fileText),
+        message: PROMPTS.summarizeFile(fileText),
       },
     });
     const currentBotReply = `${ALERTS.FILE_SUMMARY_PREFIX}${

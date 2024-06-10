@@ -113,10 +113,7 @@ export const handleSummarizeThread = async ({
     const toolkitClient = new ToolkitClient(OpenAPI);
     const summaryResponse = await toolkitClient.default.chatChatPost({
       requestBody: {
-        message: PROMPTS.SUMMARIZE_THREAD.replace(
-          '%CONVERSATION_HISTORY%',
-          sanitizedConversationHistoryString as string,
-        ),
+        message: PROMPTS.summarizeThread(sanitizedConversationHistoryString as string),
       },
     });
     /**

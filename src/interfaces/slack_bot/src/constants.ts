@@ -91,8 +91,10 @@ export const ALERTS = {
 };
 export const MAX_PROMPT_LENGTH = 4000;
 export const PROMPTS = {
-  SUMMARIZE_FILE: `Summarize the following text extracted from a file:\n%FILE_TEXT%`,
-  SUMMARIZE_THREAD: 'Summarize the following conversation history:\n%CONVERSATION_HISTORY%',
+  summarizeFile: (fileText: string) =>
+    `Summarize the following text extracted from a file:\n${fileText}`,
+  summarizeThread: (conversationHistory: string) =>
+    `Summarize the following conversation history:\n${conversationHistory}`,
 };
 export const ERRORS = {
   PREFIX: 'Whoops,',
