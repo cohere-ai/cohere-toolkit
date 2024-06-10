@@ -55,9 +55,6 @@ class ChatMessage(BaseModel):
 # TODO: fix titles of these types
 class ChatResponse(BaseModel):
     event_type: ClassVar[StreamEvent] = Field()
-    is_finished: bool = Field(
-        title="Denotes whether or not the chat stream has finished.",
-    )
 
 
 class StreamStart(ChatResponse):
@@ -155,7 +152,6 @@ class StreamToolCallsGeneration(ChatResponse):
 class StreamEnd(ChatResponse):
     response_id: str | None = Field(default=None)
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_END
-    is_finished: ClassVar[bool] = True
     generation_id: str | None = Field(default=None)
     conversation_id: str | None = Field(default=None)
     text: str = Field(

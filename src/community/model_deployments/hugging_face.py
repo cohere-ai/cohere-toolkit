@@ -72,7 +72,6 @@ class HuggingFaceDeployment(BaseDeployment):
         yield {
             "event-type": "event-start",
             "generation_id": "",
-            "is_finished": False,
         }
 
         gen_text = self.invoke_chat(chat_request)
@@ -80,12 +79,10 @@ class HuggingFaceDeployment(BaseDeployment):
         yield {
             "event-type": "text-generation",
             "text": gen_text.get("text", ""),
-            "is_finished": False,
         }
 
         yield {
             "event-type": "stream-end",
-            "is_finished": True,
             "finish_reason": "COMPLETE",
         }
 
