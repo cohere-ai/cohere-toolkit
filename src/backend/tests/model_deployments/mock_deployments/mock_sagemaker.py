@@ -31,16 +31,13 @@ class MockSageMakerDeployment(BaseDeployment):
             {
                 "event_type": StreamEvent.STREAM_START,
                 "generation_id": "test",
-                "is_finished": False,
             },
             {
                 "event_type": StreamEvent.TEXT_GENERATION,
                 "text": "This is a test.",
-                "is_finished": True,
             },
             {
                 "event_type": StreamEvent.STREAM_END,
-                "is_finished": True,
                 "generation_id": "test",
                 "citations": [],
                 "documents": [],
