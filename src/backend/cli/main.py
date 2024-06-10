@@ -1,6 +1,8 @@
 from enum import StrEnum
 
 import inquirer
+import argparse
+
 from dotenv import set_key
 
 from backend.config.deployments import (
@@ -236,6 +238,10 @@ TOOLS = {
 
 
 def start():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--use-community', action=argparse.BooleanOptionalAction)
+    args = parser.parse_args()
+
     secrets = {}
     print_styled(WELCOME_MESSAGE, bcolors.OKGREEN)
     print_styled(
@@ -247,9 +253,10 @@ def start():
         implementation(secrets)
 
     # SET UP TOOLS
-    use_community_features = community_tools_prompt(secrets)
-    if use_community_features:
-        TOOLS.update(COMMUNITY_TOOLS_SETUP)
+    if args['--use-community']:
+        use_community_features = community_tools_prompt(secrets)
+        if use_community_features:
+            TOOLS.update(COMMUNITY_TOOLS_SETUP)
 
     for name, configs in TOOLS.items():
         tool_prompt(secrets, name, configs)

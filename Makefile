@@ -22,6 +22,9 @@ reset-db:
 setup:
 	poetry install --with setup --verbose
 	poetry run python3 src/backend/cli/main.py
+setup-use-community:
+	poetry install --with setup,community --verbose
+	poetry run python3 src/backend/cli/main.py --use-community
 win-setup:
 	poetry install --with setup --verbose
 	poetry run python src/backend/cli/main.py
