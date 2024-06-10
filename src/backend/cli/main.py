@@ -253,10 +253,9 @@ def start():
         implementation(secrets)
 
     # SET UP TOOLS
-    if args['--use-community']:
-        use_community_features = community_tools_prompt(secrets)
-        if use_community_features:
-            TOOLS.update(COMMUNITY_TOOLS_SETUP)
+    use_community_features = args.use_community and community_tools_prompt(secrets)
+    if use_community_features:
+        TOOLS.update(COMMUNITY_TOOLS_SETUP)
 
     for name, configs in TOOLS.items():
         tool_prompt(secrets, name, configs)
