@@ -24,6 +24,9 @@ def list_experimental_features():
     experimental_features = {
         "USE_EXPERIMENTAL_LANGCHAIN": bool(
             strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false"))
+        ),
+        "USE_AGENTS_VIEW": bool(
+            strtobool(os.getenv("USE_AGENTS_VIEW", "false"))
         )
     }
     return experimental_features
