@@ -1,9 +1,10 @@
 from typing import Union
 
 from authlib.integrations.starlette_client import OAuthError
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 
+from backend.services.auth.request_validators import validate_authorization
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.database_models.database import DBSessionDep
@@ -133,7 +134,7 @@ async def oidc_authenticate(request: Request, session: DBSessionDep):
 
 
 @router.get("/logout", response_model=Logout)
-async def logout(request: Request):
+async def logout(request: Request, token: dict = Depends(validate_authorization)):
     """
     Logs out the current user.
 
@@ -144,7 +145,8 @@ async def logout(request: Request):
         dict: Empty on success
     """
     # TODO: Design blacklist
-
+    import pdb 
+    pdb.set_trace()
     return {}
 
 

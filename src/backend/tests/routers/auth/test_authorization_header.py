@@ -18,7 +18,7 @@ def test_validate_authorization_valid_token():
 
     token_user = validate_authorization(request_mock)
 
-    assert token_user == {"user_id": "test"}
+    assert token_user["context"] == {"user_id": "test"}
 
 
 def test_validate_authorization_no_authorization():

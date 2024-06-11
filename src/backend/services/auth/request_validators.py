@@ -38,4 +38,4 @@ def validate_authorization(request: Request) -> dict:
             status_code=401, detail="Bearer token is invalid or expired."
         )
 
-    return decoded["context"]
+    return decoded
