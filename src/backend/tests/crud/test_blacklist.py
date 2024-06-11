@@ -16,7 +16,7 @@ def test_create_blacklist(session):
     assert blacklist.token_id == token_id
 
 
-def test_get_user(session):
+def test_get_blacklist(session):
     token_id = str(uuid.uuid4())
 
     _ = get_factory("Blacklist", session).create(token_id=token_id)
@@ -26,6 +26,6 @@ def test_get_user(session):
     assert blacklist.token_id == token_id
 
 
-def test_fail_get_nonexistent_user(session):
+def test_fail_get_nonexistent_blacklist(session):
     blacklist = blacklist_crud.get_blacklist(session, "123")
     assert blacklist is None
