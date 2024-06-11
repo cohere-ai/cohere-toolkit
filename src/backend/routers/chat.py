@@ -43,6 +43,10 @@ async def chat_stream(
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
+
     (
         session,
         chat_request,
@@ -69,6 +73,7 @@ async def chat_stream(
                 session=session,
                 conversation_id=conversation_id,
                 user_id=user_id,
+                trace_id=trace_id,
             ),
             response_message,
             conversation_id,

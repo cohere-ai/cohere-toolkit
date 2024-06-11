@@ -1,3 +1,4 @@
+import time
 import logging
 import os
 from typing import Any, Dict, Generator, List
@@ -9,6 +10,7 @@ from cohere.types import StreamedChatResponse
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.services.metrics import report_metrics
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
@@ -58,8 +60,10 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        _ = kwargs.pop("trace_id", None)
+
         yield self.client.chat(
-            **chat_request.model_dump(exclude={"stream"}),
+            **chat_request.model_dump(exclude={"stream", "file_ids"}),
             force_single_step=True,
             **kwargs,
         )
@@ -67,6 +71,8 @@ class CohereDeployment(BaseDeployment):
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
+        trace_id = kwargs.pop("trace_id", None)
+
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids"}),
             force_single_step=True,
@@ -74,6 +80,11 @@ class CohereDeployment(BaseDeployment):
         )
         for event in stream:
             yield event.__dict__
+
+        self.report_metrics(
+            endpoint_name="co.chat",
+            trace_id=trace_id,
+        )
 
     def invoke_search_queries(
         self,
@@ -96,6 +107,13 @@ class CohereDeployment(BaseDeployment):
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
+        trace_id = kwargs.pop("trace_id", None)
+        
+        self.report_metrics(
+            endpoint_name="co.rerank",
+            trace_id=trace_id,
+        )
+
         return self.client.rerank(
             query=query, documents=documents, model="rerank-english-v2.0", **kwargs
         )
@@ -107,6 +125,7 @@ class CohereDeployment(BaseDeployment):
         chat_history: List[Dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> Generator[StreamedChatResponse, None, None]:
+        trace_id = kwargs.pop("trace_id", None)
         stream = self.client.chat_stream(
             message=message,
             tools=tools,
@@ -115,6 +134,20 @@ class CohereDeployment(BaseDeployment):
             chat_history=chat_history,
             **kwargs,
         )
-
         for event in stream:
             yield event.__dict__
+
+        self.report_metrics(
+            endpoint_name="co.chat",
+            trace_id=trace_id,
+        )
+
+    def report_metrics(self, endpoint_name, trace_id) -> None:
+        report_metrics(
+            {
+                "endpoint_name": endpoint_name,
+                "method": "POST",
+                "trace_id": trace_id,
+                "timestamp": time.time(),
+            }
+        )

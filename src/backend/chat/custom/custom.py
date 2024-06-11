@@ -34,6 +34,7 @@ class CustomChat(BaseChat):
             Generator[StreamResponse, None, None]: Chat response.
         """
         # Choose the deployment model - validation already performed by request validator
+        trace_id = kwargs.get("trace_id")
         deployment_model = get_deployment(kwargs.get("deployment_name"), **kwargs)
         logger.info(f"Using deployment {deployment_model.__class__.__name__}")
 
@@ -60,7 +61,7 @@ class CustomChat(BaseChat):
                 else deployment_model.invoke_chat
             )
 
-            yield from invoke_method(chat_request)
+            yield from invoke_method(chat_request, trace_id=trace_id)
 
     def handle_managed_tools(
         self,
@@ -128,6 +129,7 @@ class CustomChat(BaseChat):
             Any: The tool results or the chat response, and a boolean indicating if a direct answer was generated
 
         """
+        trace_id = kwargs.get("trace_id")
         tool_results = []
 
         # If the tool is Read_File or SearchFile, add the available files to the chat history
@@ -143,7 +145,7 @@ class CustomChat(BaseChat):
 
         logger.info(f"Invoking tools: {tools}")
         stream = deployment_model.invoke_tools(
-            message, tools, chat_history=chat_history
+            message, tools, chat_history=chat_history, trace_id=trace_id
         )
 
         # Invoke tools can return a direct answer or a stream of events with the tool calls
@@ -179,7 +181,7 @@ class CustomChat(BaseChat):
                     for output in outputs:
                         tool_results.append({"call": tool_call, "outputs": [output]})
 
-                tool_results = rerank_and_chunk(tool_results, deployment_model)
+                tool_results = rerank_and_chunk(tool_results, deployment_model, trace_id=trace_id)
                 logger.info(f"Tool results: {tool_results}")
                 yield tool_results, False
                 break

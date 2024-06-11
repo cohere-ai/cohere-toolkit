@@ -7,7 +7,7 @@ RELEVANCE_THRESHOLD = 0.5
 
 
 def rerank_and_chunk(
-    tool_results: List[Dict[str, Any]], model: BaseDeployment
+    tool_results: List[Dict[str, Any]], model: BaseDeployment, **kwargs: Any
 ) -> List[Dict[str, Any]]:
     """
     Takes a list of tool_results and internally reranks the documents for each query, if there's one e.g:
@@ -21,6 +21,7 @@ def rerank_and_chunk(
     Returns:
         List[Dict[str, Any]]: List of reranked and combined documents.
     """
+    trace_id = kwargs.get("trace_id")
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
         return tool_results
@@ -69,7 +70,7 @@ def rerank_and_chunk(
         if not chunked_outputs:
             continue
 
-        res = model.invoke_rerank(query=query, documents=chunked_outputs)
+        res = model.invoke_rerank(query=query, documents=chunked_outputs, trace_id=trace_id)
 
         # Sort the results by relevance score
         res.results.sort(key=lambda x: x.relevance_score, reverse=True)
