@@ -105,7 +105,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
     let md = message.text;
     if (isFulfilledMessage(message)) {
       // replace the code block with an iframe
-      md = replaceCodeBlockWithIframe(message.originalText);
+      md = replaceCodeBlockWithIframe(message.text);
     }
     content = (
       <>
