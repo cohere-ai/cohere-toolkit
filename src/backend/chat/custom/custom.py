@@ -148,11 +148,15 @@ class CustomChat(BaseChat):
                     if tool_calls:
                         tool_calls = [tool.__dict__ for tool in tool_calls]
 
+                    tool_results = message.get("tool_results")
+                    if tool_results:
+                        tool_results = [tool.__dict__ for tool in tool_results]
+
                     chat_history.append(
                         ChatMessage(
                             role=message.get("role"),
                             message=message.get("message"),
-                            tool_results=message.get("tool_results"),
+                            tool_results=tool_results,
                             tool_calls=tool_calls,
                         )
                     )
