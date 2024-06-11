@@ -130,7 +130,7 @@ class CohereDeployment(BaseDeployment):
             message=message,
             tools=tools,
             model="command-r",
-            force_single_step=True,
+            # force_single_step=True,
             chat_history=chat_history,
             **kwargs,
         )
