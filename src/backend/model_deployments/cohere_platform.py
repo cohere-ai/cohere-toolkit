@@ -1,6 +1,6 @@
-import time
 import logging
 import os
+import time
 from typing import Any, Dict, Generator, List
 
 import cohere
@@ -108,7 +108,7 @@ class CohereDeployment(BaseDeployment):
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         trace_id = kwargs.pop("trace_id", None)
-        
+
         self.report_metrics(
             endpoint_name="co.rerank",
             trace_id=trace_id,
@@ -130,7 +130,7 @@ class CohereDeployment(BaseDeployment):
             message=message,
             tools=tools,
             model="command-r",
-            # force_single_step=True,
+            force_single_step=True,
             chat_history=chat_history,
             **kwargs,
         )

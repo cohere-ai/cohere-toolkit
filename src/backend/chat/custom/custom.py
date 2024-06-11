@@ -17,7 +17,7 @@ from backend.schemas.tool import Category, Tool
 from backend.services.logger import get_logger
 
 logger = get_logger()
-MAX_STEPS = 10
+
 
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
@@ -45,25 +45,23 @@ class CustomChat(BaseChat):
 
         # If a direct answer is generated instead of tool calls, the chat will not be called again
         # Instead, the direct answer will be returned from the stream
-        for _ in range(MAX_STEPS):
-            stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
+        stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
 
-            first_event, generated_direct_answer = next(stream)
+        first_event, generated_direct_answer = next(stream)
 
-            if generated_direct_answer:
-                yield first_event
-                for event, _ in stream:
-                    yield event
-            else:
-                chat_request = first_event
-                invoke_method = (
-                    deployment_model.invoke_chat_stream
-                    if kwargs.get("stream", True)
-                    else deployment_model.invoke_chat
-                )
+        if generated_direct_answer:
+            yield first_event
+            for event, _ in stream:
+                yield event
+        else:
+            chat_request = first_event
+            invoke_method = (
+                deployment_model.invoke_chat_stream
+                if kwargs.get("stream", True)
+                else deployment_model.invoke_chat
+            )
 
-                yield from invoke_method(chat_request, trace_id=trace_id)
-                break
+            yield from invoke_method(chat_request, trace_id=trace_id)
 
     def handle_managed_tools(
         self,
@@ -91,22 +89,20 @@ class CustomChat(BaseChat):
         if not tools:
             yield chat_request, False
 
-        while True:
-            for event, should_return in self.get_tool_results(
-                chat_request.message,
-                chat_request.chat_history,
-                tools,
-                kwargs.get("conversation_id"),
-                deployment_model,
-                kwargs,
-            ):
-                if should_return:
-                    yield event, True
-                else:
-                    chat_request.tool_results = event
-                    chat_request.tools = tools
-                    # yield chat_request, False
-                    break
+        for event, should_return in self.get_tool_results(
+            chat_request.message,
+            chat_request.chat_history,
+            tools,
+            kwargs.get("conversation_id"),
+            deployment_model,
+            kwargs,
+        ):
+            if should_return:
+                yield event, True
+            else:
+                chat_request.tool_results = event
+                chat_request.tools = tools
+                yield chat_request, False
 
     def get_tool_results(
         self,
@@ -159,7 +155,10 @@ class CustomChat(BaseChat):
 
         tool_call_found = False
         for event in stream:
-            if event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION and "tool_calls" in event:
+            if (
+                event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION
+                and "tool_calls" in event
+            ):
                 tool_call_found = True
                 tool_calls = event["tool_calls"]
 
@@ -185,7 +184,9 @@ class CustomChat(BaseChat):
                     for output in outputs:
                         tool_results.append({"call": tool_call, "outputs": [output]})
 
-                tool_results = rerank_and_chunk(tool_results, deployment_model, trace_id=trace_id)
+                tool_results = rerank_and_chunk(
+                    tool_results, deployment_model, trace_id=trace_id
+                )
                 logger.info(f"Tool results: {tool_results}")
                 yield tool_results, False
                 break

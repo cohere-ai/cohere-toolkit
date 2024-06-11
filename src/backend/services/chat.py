@@ -459,7 +459,6 @@ def generate_chat_stream(
             )
             stream_end_data["search_queries"] = search_queries
         elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
-            print(event)
             tool_calls = []
             events = event.get("tool_calls", [])
             for tool_call in events:
@@ -472,7 +471,6 @@ def generate_chat_stream(
             stream_event = StreamToolCallsGeneration(
                 **event | {"tool_calls": tool_calls}
             )
-            print(stream_event)
             stream_end_data["tool_calls"] = tool_calls
         elif event["event_type"] == StreamEvent.CITATION_GENERATION:
             citations = []

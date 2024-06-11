@@ -7,11 +7,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.types import Message
 
-
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", "")
 
-from starlette.responses import Response
 import time
+
+from starlette.responses import Response
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -67,13 +67,13 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             print("Failed to get status code:", e)
             return 500
-        
+
 
 def report_metrics(data):
     if not REPORT_ENDPOINT:
         print("No report endpoint set")
         return
-    
+
     try:
         data["id"] = str(uuid.uuid4())
         requests.post(REPORT_ENDPOINT, json=data)

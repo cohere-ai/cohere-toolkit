@@ -70,7 +70,9 @@ def rerank_and_chunk(
         if not chunked_outputs:
             continue
 
-        res = model.invoke_rerank(query=query, documents=chunked_outputs, trace_id=trace_id)
+        res = model.invoke_rerank(
+            query=query, documents=chunked_outputs, trace_id=trace_id
+        )
 
         # Sort the results by relevance score
         res.results.sort(key=lambda x: x.relevance_score, reverse=True)
