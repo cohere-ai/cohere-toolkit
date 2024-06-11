@@ -2,7 +2,7 @@
 
 # Cohere Toolkit
 
-Toolkit is a collection of prebuilt components enabling users to quickly build and deploy RAG applications.
+Toolkit is a collection of prebuilt components enabling users to quickly build and deploy RAG applications!
 
 - [Try Toolkit](#try-now)
 - [About Toolkit](#about-toolkit)
