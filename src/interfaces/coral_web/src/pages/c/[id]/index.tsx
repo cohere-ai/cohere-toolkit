@@ -1,7 +1,7 @@
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 
 import { CohereClient, Document } from '@/cohere-client';
 import Conversation from '@/components/Conversation';
@@ -18,6 +18,7 @@ import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
+import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 type Props = {
@@ -40,12 +41,19 @@ const ConversationPage: NextPage<Props> = () => {
     ? router.query.id[0]
     : (router.query.id as string);
 
-  const {
-    data: conversation,
-    isLoading,
-    isError,
-    error,
-  } = useConversation({ conversationId: urlConversationId });
+  const { data, isLoading, isError, error } = useConversation({
+    conversationId: urlConversationId,
+  });
+  const conversation = useMemo(() => {
+    if (!data) return;
+
+    data.messages = data.messages.map((message) => ({
+      ...message,
+      text: replaceCodeBlockWithIframe(message.text),
+    }));
+
+    return data;
+  }, [data]);
   const { data: allDeployments } = useListAllDeployments();
 
   useEffect(() => {
