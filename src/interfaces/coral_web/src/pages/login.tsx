@@ -6,9 +6,10 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { CohereClient } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
-// import { GoogleSSOButton } from '@/components/Welcome/GoogleSSOButton';
+import { GoogleSSOButton } from '@/components/Welcome/GoogleSSOButton';
+import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
-// import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
+import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
 import { useSession } from '@/hooks/session';
 import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString, simpleEmailValidation } from '@/utils';
@@ -28,6 +29,7 @@ type LoginStatus = 'idle' | 'pending';
 const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
   const { loginMutation } = useSession();
+  const { googleAuth } = useGoogleAuthRoute();
 
   const loginStatus: LoginStatus = loginMutation.isLoading ? 'pending' : 'idle';
 
@@ -51,15 +53,22 @@ const LoginPage: NextPage<Props> = () => {
     }
   };
 
+  const googleAuthStart = () => {
+    googleAuth.start({
+      redirect,
+    });
+  }
+
   return (
     <WelcomePage title="Login" navigationAction="register">
       <div className="flex flex-col items-center justify-center">
         <Text as="h1" styleAs="h3">
           Log in
         </Text>
-        {/* <div className="mt-10 flex w-full flex-col items-center gap-1 sm:h-10 sm:flex-row">
+        <div className="mt-10 flex w-full flex-col items-center gap-1 sm:h-10 sm:flex-row">
           <GoogleSSOButton className="inline-flex w-full flex-auto" onClick={googleAuthStart} />
-        </div> */}
+          <OidcSSOButton className="inline-flex w-full flex-auto" onClick={() => {}}/>
+        </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex w-full flex-col">
           <Input

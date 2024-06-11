@@ -74,6 +74,16 @@ export const useSession = () => {
     router.push(`/login?redirect_uri=${encodeURIComponent(window.location.href)}`);
   }, [router]);
 
+  const googleSSOMutation = useMutation({
+    mutationFn: async (params: { state: string }) => {
+      return cohereClient.googleSSOAuth(params);
+    },
+    onSuccess: (data: { token: string }) => {
+      setAuthToken(data.token);
+      return new Promise((resolve) => resolve(data.token));
+    },
+  });
+
   return {
     session,
     authToken,
@@ -82,5 +92,6 @@ export const useSession = () => {
     logoutMutation,
     registerMutation,
     redirectToLogin,
+    googleSSOMutation,
   };
 };

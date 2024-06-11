@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
 
+import { useAuthConfig } from '@/hooks/authConfig';
+
 /**
  * Hook which redirects to the Google login/register page.
  * This hook is used on the auth host app's login page, in combination with `ssrUseLogin` called
@@ -8,13 +10,7 @@ import Cookies from 'js-cookie';
  * Upon successful login, the `useSession` hook will provide a valid session.
  */
 export const useGoogleAuthRoute = () => {
-  // const authConfig = useAuthConfig();
-  const authConfig = {
-    login: {
-      googleClientId: 'googleClientId',
-    },
-    baseUrl: 'baseUrl',
-  };
+  const authConfig = useAuthConfig();
 
   if (!authConfig.login) {
     throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
@@ -57,7 +53,7 @@ export const useGoogleAuthRoute = () => {
         response_type: 'code',
         client_id: authConfig.login.googleClientId,
         scope: 'openid email profile',
-        redirect_uri: `${authConfig.baseUrl}/api/auth/google_oauth_callback`,
+        redirect_uri: `${authConfig.baseUrl}/auth/complete`,
         prompt: 'select_account consent',
         state,
       }).toString()}`;
