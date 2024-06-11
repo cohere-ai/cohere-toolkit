@@ -63,7 +63,7 @@ class CustomChat(BaseChat):
                 break
 
     def is_not_direct_answer(self, event: Dict[str, Any]) -> bool:
-        """If the event contains tool calls, it is not a direct answer."""
+        # If the event contains tool calls, it is not a direct answer
         return (
             event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION
             and "tool_calls" in event
@@ -76,6 +76,7 @@ class CustomChat(BaseChat):
         if len(managed_tools) == len(chat_request.tools):
             chat_request.tools = managed_tools
 
+        # Get the tool calls stream and either return a direct answer or continue 
         tool_calls_stream = self.get_tool_calls(
             managed_tools, chat_request.chat_history, deployment_model, **kwargs
         )
@@ -88,6 +89,7 @@ class CustomChat(BaseChat):
                 yield event
             return
 
+        # If the stream contains tool calls, call the tools and update the chat history
         tool_results = None
         if new_chat_history:
             tool_results = self.call_tools(new_chat_history, deployment_model, **kwargs)
@@ -107,10 +109,11 @@ class CustomChat(BaseChat):
         self.chat_request.message = message
 
     def call_tools(self, chat_history, deployment_model, **kwargs: Any):
-        tool_calls = chat_history[-1].tool_calls
         tool_results = []
+        tool_calls = chat_history[-1].tool_calls
         logger.info(f"Tool calls: {tool_calls}")
 
+        # TODO: Call tools in parallel
         for tool_call in tool_calls:
             tool = AVAILABLE_TOOLS.get(tool_call["name"])
             if not tool:
@@ -134,6 +137,7 @@ class CustomChat(BaseChat):
         return tool_results
 
     def handle_tool_calls_stream(self, tool_results_stream):
+        # Process the stream and return the chat history, and a copy of the stream and a flag indicating if the response is a direct answer
         stream, stream_copy = tee(tool_results_stream)
         is_direct_answer = True
 
@@ -167,9 +171,6 @@ class CustomChat(BaseChat):
             ):
                 is_direct_answer = False
 
-        if chat_history and "tool_calls" in chat_history[-1]:
-            return is_direct_answer, chat_history, stream_copy
-
         return is_direct_answer, chat_history, stream_copy
 
     def get_managed_tools(self, chat_request: CohereChatRequest):
@@ -180,6 +181,7 @@ class CustomChat(BaseChat):
         ]
 
     def get_tool_calls(self, tools, chat_history, deployment_model, **kwargs: Any):
+        # If the chat history contains a read or search file tool, add the files to the chat history
         tool_names = [tool.name for tool in tools]
         if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
             chat_history = self.add_files_to_chat_history(
