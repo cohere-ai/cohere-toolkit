@@ -45,9 +45,9 @@ def rerank_and_chunk(
     reranked_results = {}
     for tool_call_hashable, tool_result in unified_tool_results.items():
         tool_call = tool_result["call"]
-        query = tool_call.parameters.get("query") or tool_call.parameters.get(
-            "search_query"
-        )
+        query = tool_call.get("parameters").get("query") or tool_call.get(
+            "parameters"
+        ).get("search_query")
 
         # Only rerank if there is a query
         if not query:

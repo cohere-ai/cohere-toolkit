@@ -47,6 +47,10 @@ class ChatMessage(BaseModel):
         title="Results from the tool call.",
         default=[],
     )
+    tool_calls: List[Dict[str, Any]] | None = Field(
+        title="List of tool calls generated for custom tools",
+        default=[],
+    )
 
     def to_dict(self) -> Dict[str, str]:
         return {"role": self.role, "message": self.message}
@@ -143,9 +147,13 @@ class StreamToolCallsGeneration(ChatResponse):
 
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_GENERATION
 
-    tool_calls: List[ToolCall] = Field(
+    tool_calls: List[ToolCall] | None = Field(
         title="List of tool calls generated for custom tools",
         default=[],
+    )
+
+    text: str | None = Field(
+        title="Contents of the chat message.",
     )
 
 

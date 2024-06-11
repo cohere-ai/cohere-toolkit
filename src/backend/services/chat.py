@@ -460,7 +460,8 @@ def generate_chat_stream(
             stream_end_data["search_queries"] = search_queries
         elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
             tool_calls = []
-            for tool_call in event["tool_calls"]:
+            tool_calls_event = event.get("tool_calls", [])
+            for tool_call in tool_calls_event:
                 tool_calls.append(
                     ToolCall(
                         name=tool_call.name,

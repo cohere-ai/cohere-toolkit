@@ -730,13 +730,13 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "cohere"
-version = "5.5.6"
+version = "5.5.7"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "cohere-5.5.6-py3-none-any.whl", hash = "sha256:10b2e38489ea30493b1eae8851216bcdc2eaf9c96a7b413ed518489c845b39d9"},
-    {file = "cohere-5.5.6.tar.gz", hash = "sha256:d146b6c87a5f709912861c15bfcbc4fca11cefe5e9843dc90bad9662df65968f"},
+    {file = "cohere-5.5.7-py3-none-any.whl", hash = "sha256:fb8b6fa478b947fa12783e2bad8e4b748c1b2aa789ff3df7d1425288c98f45d8"},
+    {file = "cohere-5.5.7.tar.gz", hash = "sha256:0801cfcfec4999c21cc2dc066436f4efb6c8d75bc94628247d8850064c6b7bcd"},
 ]
 
 [package.dependencies]
@@ -5620,4 +5620,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "9cc9a5368dc00f2885b28f8f302c0ffb83605e2280df7e5c508366c47c14b6ba"
+content-hash = "7b176efc8686b036babba6e1939e0fbc11113d091a48c2d3d5b5864052dd9c79"

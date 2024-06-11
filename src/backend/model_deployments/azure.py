@@ -92,14 +92,7 @@ class AzureDeployment(BaseDeployment):
 
     def invoke_tools(
         self,
-        message: str,
-        tools: List[Any],
-        chat_history: List[Dict[str, str]] | None = None,
+        chat_request: CohereChatRequest,
         **kwargs: Any,
     ) -> Generator[StreamedChatResponse, None, None]:
-        stream = self.client.chat_stream(
-            message=message, tools=tools, chat_history=chat_history, **kwargs
-        )
-
-        for event in stream:
-            yield event.__dict__
+        yield from self.invoke_chat_stream(chat_request, **kwargs)
