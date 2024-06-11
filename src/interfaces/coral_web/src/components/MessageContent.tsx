@@ -12,12 +12,10 @@ import {
   MessageType,
   isAbortedMessage,
   isErroredMessage,
-  isFulfilledMessage,
   isFulfilledOrTypingMessage,
   isLoadingMessage,
 } from '@/types/message';
 import { cn } from '@/utils';
-import { replaceCodeBlockWithIframe } from '@/utils/preview';
 
 type Props = {
   isLast: boolean;
@@ -102,18 +100,13 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   } else {
     const hasCitations =
       isTypingOrFulfilledMessage && message.citations && message.citations.length > 0;
-    let md = message.text;
-    if (isFulfilledMessage(message)) {
-      // replace the code block with an iframe
-      md = replaceCodeBlockWithIframe(message.originalText);
-    }
     content = (
       <>
         <Markdown
           className={cn({
             'text-volcanic-700': isAborted,
           })}
-          text={md}
+          text={message.text}
           customComponents={{
             img: MarkdownImage as any,
             cite: CitationTextHighlighter as any,

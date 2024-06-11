@@ -18,7 +18,8 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR)
+    # api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR)
+    api_key = None
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request

@@ -42,6 +42,7 @@ import {
   isGroundingOn,
   replaceTextWithCitations,
 } from '@/utils';
+import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
@@ -345,6 +346,9 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                   )
                 : botResponse;
 
+              // Replace HTML code blocks with iframes
+              const text = replaceCodeBlockWithIframe(finalText);
+
               setStreamingMessage({
                 type: MessageType.BOT,
                 state: BotState.FULFILLED,
@@ -352,7 +356,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
                 // so we need to manually apply this fix. Otherwise, this comes for free when we call
                 // `replaceTextWithCitations`.
-                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(finalText),
+                text: citations.length > 0 ? text : fixMarkdownImagesInText(text),
                 citations,
                 isRAGOn,
                 originalText: isRAGOn ? responseText : botResponse,
