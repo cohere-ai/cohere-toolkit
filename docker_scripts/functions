@@ -267,14 +267,14 @@ run_backend_poetry() {
 }
 
 run_frontend_proxy() {
-  cd /workspace/src/interfaces/coral_web
+  cd /workspace/src/interfaces/agents_web
   echo "Starting Frontend..."
   pm2 start pnpm -- start:single-docker-proxy
   echo "Frontend started..."
 }
 
 run_frontend() {
-  cd /workspace/src/interfaces/coral_web
+  cd /workspace/src/interfaces/agents_web
   echo "Building Frontend when we are not in a localhost environment"
   pnpm next:build
   echo "Starting Frontend..."

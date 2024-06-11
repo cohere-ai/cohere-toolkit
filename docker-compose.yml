@@ -1,11 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
     image: postgres:14.11-alpine
     restart: always
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready']
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -14,8 +14,8 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=toolkit
     ports:
-      - '5432:5432'
-    volumes: 
+      - "5432:5432"
+    volumes:
       - db:/var/lib/postgresql/data
   test_db:
     image: postgres:14.1-alpine
@@ -25,7 +25,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=test_toolkit
     ports:
-      - '5433:5432'
+      - "5433:5432"
   backend:
     build:
       context: .
@@ -38,20 +38,20 @@ services:
           path: ./src/backend
           target: /workspace/src/backend
           ignore:
-          - __pycache__/
-          - alembic/
-          - data/
+            - __pycache__/
+            - alembic/
+            - data/
         - action: sync
           path: ./src/community
           target: /workspace/src/community
           ignore:
-          - __pycache__/
-          - alembic/
-          - data/
+            - __pycache__/
+            - alembic/
+            - data/
     stdin_open: true
     tty: true
     ports:
-      - '8000:8000'
+      - "8000:8000"
     depends_on:
       - db
     volumes:
@@ -60,10 +60,10 @@ services:
       # Mount data folder to sync uploaded files
       - ./src/backend/data:/workspace/src/backend/data
     # network_mode: host
-      
+
   frontend:
     build:
-      context: ./src/interfaces/coral_web
+      context: ./src/interfaces/agents_web
       dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file
     environment:
@@ -75,16 +75,16 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./src/interfaces/coral_web 
+          path: ./src/interfaces/agents_web
           target: /app
           ignore:
-          - node_modules/
+            - node_modules/
   terrarium:
     image: ghcr.io/cohere-ai/terrarium:latest
     ports:
-      - '8080:8080'
+      - "8080:8080"
     expose:
-      - '8080'
+      - "8080"
 volumes:
   db:
     name: cohere_toolkit_db

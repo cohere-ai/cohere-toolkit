@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - src/interfaces/coral_web/**
+      - src/interfaces/agents_web/**
   pull_request: {}
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: src/interfaces/coral_web
+        working-directory: src/interfaces/agents_web
 
 steps:
   - name: Checkout repo
@@ -21,7 +21,7 @@ steps:
       fetch-depth: 2
   - name: Set up Node.js and install dependencies
     uses: ./.github/actions/js-install
-  - name: Check coral_web is formatted
+  - name: Check agents_web is formatted
     run: pnpm format
-  - name: Check coral_web can build
+  - name: Check agents_web can build
     run: pnpm build

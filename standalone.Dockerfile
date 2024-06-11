@@ -96,16 +96,16 @@ RUN chmod 755 /sbin/entrypoint.sh \
 
 
 # Install frontend dependencies
-WORKDIR /workspace/src/interfaces/coral_web
-COPY src/interfaces/coral_web/src ./src
-COPY src/interfaces/coral_web/public ./public
-COPY src/interfaces/coral_web/next.config.mjs .
-COPY src/interfaces/coral_web/tsconfig.json .
-COPY src/interfaces/coral_web/tailwind.config.js .
-COPY src/interfaces/coral_web/postcss.config.js .
-COPY src/interfaces/coral_web/package.json src/interfaces/coral_web/yarn.lock* src/interfaces/coral_web/package-lock.json* src/interfaces/coral_web/pnpm-lock.yaml* ./
-COPY src/interfaces/coral_web/.env.development .
-COPY src/interfaces/coral_web/.env.production .
+WORKDIR /workspace/src/interfaces/agents_web
+COPY src/interfaces/agents_web/src ./src
+COPY src/interfaces/agents_web/public ./public
+COPY src/interfaces/agents_web/next.config.mjs .
+COPY src/interfaces/agents_web/tsconfig.json .
+COPY src/interfaces/agents_web/tailwind.config.js .
+COPY src/interfaces/agents_web/postcss.config.js .
+COPY src/interfaces/agents_web/package.json src/interfaces/agents_web/yarn.lock* src/interfaces/agents_web/package-lock.json* src/interfaces/agents_web/pnpm-lock.yaml* ./
+COPY src/interfaces/agents_web/.env.development .
+COPY src/interfaces/agents_web/.env.production .
 
 RUN pnpm install \
     && pnpm next:build
