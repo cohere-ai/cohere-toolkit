@@ -16,7 +16,7 @@ type Props = {
   reactQueryState: DehydratedState;
 };
 
-const ChatPage: NextPage<Props> = () => {
+const ChatPage: NextPage = () => {
   const {
     conversation: { id },
     resetConversation,
