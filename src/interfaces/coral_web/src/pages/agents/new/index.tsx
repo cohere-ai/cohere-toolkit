@@ -3,12 +3,12 @@ import { GetServerSideProps, NextPage } from 'next';
 
 import { CohereClient } from '@/cohere-client';
 import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
-import LeftPanel from '@/components/Agents/LeftPanel';
+import { LeftPanel } from '@/components/Agents/LeftPanel';
 import { appSSR } from '@/pages/_app';
 
 type Props = {};
 
-const ChatPage: NextPage<Props> = () => {
+const AgentsNewPage: NextPage<Props> = () => {
   return (
     <Layout>
       <LeftSection>
@@ -34,4 +34,4 @@ export const getServerSideProps: GetServerSideProps = async () => {
   };
 };
 
-export default ChatPage;
+export default AgentsNewPage;
