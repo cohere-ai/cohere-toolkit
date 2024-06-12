@@ -1,15 +1,18 @@
 import { QueryClient, dehydrate } from '@tanstack/react-query';
+import { on } from 'events';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { CohereClient } from '@/cohere-client';
+import { CohereClient, CohereUnauthorizedError } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
 // import { GoogleSSOButton } from '@/components/Welcome/GoogleSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
 // import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
 import { useSession } from '@/hooks/session';
+import { useNotify } from '@/hooks/toast';
 import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
@@ -28,12 +31,12 @@ type LoginStatus = 'idle' | 'pending';
 const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
   const { loginMutation } = useSession();
-
+  const notify = useNotify();
   const loginStatus: LoginStatus = loginMutation.isLoading ? 'pending' : 'idle';
 
   const { register, handleSubmit, formState } = useForm<Credentials>();
   const redirect = getQueryString(router.query.redirect_uri);
-  const errors: string[] = [];
+  const [errors, setErrors] = useState<string[]>([]);
 
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
     const { email, password } = data;
@@ -44,24 +47,41 @@ const LoginPage: NextPage<Props> = () => {
           onSuccess: () => {
             router.push(redirect || '/');
           },
+          onError: (error) => {
+            if (error instanceof CohereUnauthorizedError) {
+              setErrors([...errors, 'Invalid email or password']);
+            }
+          },
         }
       );
     } catch (error) {
       console.error(error);
+      notify.error('An error occurred while logging in');
     }
   };
 
   return (
     <WelcomePage title="Login" navigationAction="register">
       <div className="flex flex-col items-center justify-center">
-        <Text as="h1" styleAs="h3">
+        <Text
+          as="h1"
+          styleAs="h3"
+          onClick={() => {
+            console.warn('Clicked title');
+            errors.push('Clicked title');
+          }}
+        >
           Log in
         </Text>
         {/* <div className="mt-10 flex w-full flex-col items-center gap-1 sm:h-10 sm:flex-row">
           <GoogleSSOButton className="inline-flex w-full flex-auto" onClick={googleAuthStart} />
         </div> */}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex w-full flex-col">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          onChange={() => setErrors([])}
+          className="mt-10 flex w-full flex-col"
+        >
           <Input
             className="w-full"
             label="Email"
