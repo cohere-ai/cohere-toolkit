@@ -2,12 +2,14 @@ import { ComponentPropsWithoutRef } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
 import remarkDirective from 'remark-directive';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { PluggableList } from 'unified';
 
 import { Text } from '@/components/Shared';
+import { Iframe } from '@/components/Shared/Markdown/tags/Iframe';
 import { cn } from '@/utils';
 
 import { renderRemarkCites } from './directives/cite';
@@ -48,7 +50,15 @@ export const getActiveMarkdownPlugins = (
     renderTableTools,
   ];
 
-  const rehypePlugins: PluggableList = [[rehypeHighlight, { detect: true, ignoreMissing: true }]];
+  const rehypePlugins: PluggableList = [
+    // remarkRaw is a plugin that allows raw HTML in markdown
+    rehypeRaw,
+    // rehypeHighlight is a plugin that adds syntax highlighting to code blocks
+    // Version 7.0.0 seems to have a memory leak bug that's why we are using 6.0.0
+    // https://github.com/remarkjs/react-markdown/issues/791#issuecomment-2096106784
+    // @ts-ignore
+    [rehypeHighlight, { detect: true, ignoreMissing: true }],
+  ];
 
   if (renderLaTex) {
     // remarkMath is a plugin that adds support for math
@@ -103,8 +113,9 @@ export const Markdown = ({
         components={{
           pre: Pre,
           p: P,
-          // @ts-ignore
           references: References,
+          // @ts-ignore
+          iframe: Iframe,
           ...customComponents,
         }}
       >

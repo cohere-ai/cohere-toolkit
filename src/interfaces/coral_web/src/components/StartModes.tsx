@@ -36,6 +36,7 @@ export const StartModes: React.FC<Props> = ({ show, className = '', onPromptSele
     <Transition
       appear
       show={show}
+      as="div"
       enter="transition-all duration-200 ease-out delay-200"
       enterFrom="opacity-0 translate-y-2"
       enterTo="opacity-100 translate-y-0"

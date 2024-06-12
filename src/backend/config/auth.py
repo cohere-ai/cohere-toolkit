@@ -1,4 +1,4 @@
-from backend.services.auth import BasicAuthentication, GoogleOAuth
+from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]

@@ -33,7 +33,7 @@ type Props = {
  * It shows the navigation bar, the left drawer and main content.
  * On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
-export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
+export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
   const { message: bannerMessage } = useContext(BannerContext);
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
@@ -75,6 +75,7 @@ export const Layout: React.FC<Props> = ({ title = 'Coral', children }) => {
 
         <div className={cn('relative flex h-full flex-grow flex-nowrap overflow-hidden')}>
           <Transition
+            as="div"
             show={isMobileConvListPanelOpen || (isConvListPanelOpen && isDesktop)}
             enterFrom={cn(
               '-translate-x-full lg:translate-x-0',
