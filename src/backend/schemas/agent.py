@@ -3,8 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from backend.database_models.agent import AgentDeployment, AgentModel
 from backend.config.tools import ToolName
+from backend.database_models.agent import AgentDeployment, AgentModel
 
 
 class AgentBase(BaseModel):

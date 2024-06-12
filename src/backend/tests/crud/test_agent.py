@@ -3,9 +3,9 @@ from datetime import datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
+from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent, AgentDeployment, AgentModel
-from backend.config.tools import ToolName
 from backend.schemas.agent import UpdateAgent
 from backend.tests.factories import get_factory
 
