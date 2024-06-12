@@ -6,7 +6,7 @@ import { Icon, Text } from '@/components/Shared';
 const AddAgentButton: React.FC = () => {
   return (
     <Menu>
-      <MenuButton className="border-marble-50000 group h-8 w-8 rounded-lg border p-[1px]">
+      <MenuButton className="group h-8 w-8 rounded border border-marble-500 p-[1px]">
         <div className="flex h-full w-full items-center justify-center rounded bg-green-50 transition-colors duration-300 group-hover:bg-green-100/80">
           <Icon name="add" className="text-volcanic-800" />
         </div>
