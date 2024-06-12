@@ -43,32 +43,52 @@ class CustomChat(BaseChat):
             )
 
         self.chat_request = chat_request
-        is_first_start = True
+        self.is_first_start = True
         should_break = False
+
         for _ in range(MAX_STEPS):
             stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
-            # Check if the stream contains any tool calls
             for event in stream:
-                if event["event_type"] == StreamEvent.STREAM_END:
-                    if (
-                        hasattr(event["response"], "tool_calls")
-                        and event["response"].tool_calls
-                    ):
-                        continue
-                    else:
-                        yield event
-                        should_break = True
-                        continue
-                elif event["event_type"] == StreamEvent.STREAM_START:
-                    if is_first_start:
-                        is_first_start = False
-                        yield event
-                    continue
-                yield event
+                result = self.handle_event(event)
+
+                if result:
+                    yield result
+
+                if event[
+                    "event_type"
+                ] == StreamEvent.STREAM_END and self.is_final_event(event):
+                    should_break = True
 
             if should_break:
                 break
+
+    def is_final_event(self, event: Dict[str, Any]) -> bool:
+        return not (
+            hasattr(event["response"], "tool_calls") and event["response"].tool_calls
+        )
+
+    def handle_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
+        # All events other than stream start and stream end are returned
+        if (
+            event["event_type"] != StreamEvent.STREAM_START
+            and event["event_type"] != StreamEvent.STREAM_END
+        ):
+            return event
+
+        # Only the first occurrence of stream start is returned
+        if event["event_type"] == StreamEvent.STREAM_START:
+            if self.is_first_start:
+                self.is_first_start = False
+                return event
+
+        # Only the final occurrence of stream end is returned
+        # The final event is the one that does not contain tool calls
+        if event["event_type"] == StreamEvent.STREAM_END:
+            if self.is_final_event(event):
+                return event
+
+        return None
 
     def is_not_direct_answer(self, event: Dict[str, Any]) -> bool:
         # If the event contains tool calls, it is not a direct answer
