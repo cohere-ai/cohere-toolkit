@@ -1,16 +1,18 @@
 from typing import Union
 
 from authlib.integrations.starlette_client import OAuthError
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
 
-from backend.services.auth.request_validators import validate_authorization
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.crud import blacklist as blacklist_crud
+from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
 from backend.services.auth import GoogleOAuth, OpenIDConnect
 from backend.services.auth.jwt import JWTService
+from backend.services.auth.request_validators import validate_authorization
 from backend.services.auth.utils import (
     get_or_create_user,
     is_enabled_authentication_strategy,
@@ -134,9 +136,13 @@ async def oidc_authenticate(request: Request, session: DBSessionDep):
 
 
 @router.get("/logout", response_model=Logout)
-async def logout(request: Request, token: dict = Depends(validate_authorization)):
+async def logout(
+    request: Request,
+    session: DBSessionDep,
+    token: dict | None = Depends(validate_authorization),
+):
     """
-    Logs out the current user.
+    Logs out the current user, adding the given JWT token to the blacklist.
 
     Args:
         request (Request): current Request object.
@@ -144,9 +150,10 @@ async def logout(request: Request, token: dict = Depends(validate_authorization)
     Returns:
         dict: Empty on success
     """
-    # TODO: Design blacklist
-    import pdb 
-    pdb.set_trace()
+    if token is not None:
+        db_blacklist = Blacklist(token_id=token["jti"])
+        blacklist_crud.create_blacklist(session, db_blacklist)
+
     return {}
 
 
