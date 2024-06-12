@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent, AgentDeployment, AgentModel
 from backend.tests.factories import get_factory
+from backend.config.tools import ToolName
 
 
 def test_create_agent(session_client: TestClient, session: Session) -> None:
@@ -14,6 +15,7 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
         "temperature": 0.5,
         "model": AgentModel.COMMAND_R,
         "deployment": AgentDeployment.COHERE_PLATFORM,
+        "tools": [ToolName.Wiki_Retriever_LangChain],
     }
 
     response = session_client.post(
@@ -29,6 +31,7 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
     assert response_agent["temperature"] == request_json["temperature"]
     assert response_agent["model"] == request_json["model"]
     assert response_agent["deployment"] == request_json["deployment"]
+    assert response_agent["tools"] == request_json["tools"]
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None
@@ -39,6 +42,7 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
     assert agent.temperature == request_json["temperature"]
     assert agent.model == request_json["model"]
     assert agent.deployment == request_json["deployment"]
+    assert agent.tools == request_json["tools"]
 
 
 def test_create_agent_missing_name(
@@ -155,6 +159,18 @@ def test_create_agent_wrong_model_deployment_enums(
     )
     assert response.status_code == 422
 
+def test_create_agent_wrong_tool_name_enums(session_client: TestClient, session: Session) -> None:
+    request_json = {
+        "name": "test agent",
+        "model": AgentModel.COMMAND_R,
+        "deployment": AgentDeployment.COHERE_PLATFORM,
+        "tools": ["not a real tool"],
+    }
+
+    response = session_client.post(
+        "/v1/agents", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 422
 
 def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/agents", headers={"User-Id": "123"})
