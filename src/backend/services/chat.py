@@ -30,6 +30,7 @@ from backend.schemas.chat import (
     StreamSearchResults,
     StreamStart,
     StreamTextGeneration,
+    StreamToolCallsChunk,
     StreamToolCallsGeneration,
     StreamToolInput,
     StreamToolResult,
@@ -39,7 +40,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
-from backend.schemas.tool import ToolCall
+from backend.schemas.tool import ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 
 
@@ -489,6 +490,18 @@ def generate_chat_stream(
                 citations.append(citation)
             stream_event = StreamCitationGeneration(**event | {"citations": citations})
             all_citations.extend(citations)
+        elif event["event_type"] == StreamEvent.TOOL_CALLS_CHUNK:
+            event["text"] = event.get("text", "")
+            tool_call_delta = event.get("tool_call_delta", None)
+            if tool_call_delta:
+                tool_call = ToolCallDelta(
+                    name=tool_call_delta.name,
+                    index=tool_call_delta.index,
+                    parameters=tool_call_delta.parameters,
+                )
+                event["tool_call_delta"] = tool_call
+
+            stream_event = StreamToolCallsChunk.model_validate(event)
         elif event["event_type"] == StreamEvent.STREAM_END:
             response_message.citations = all_citations
             response_message.text = final_message_text

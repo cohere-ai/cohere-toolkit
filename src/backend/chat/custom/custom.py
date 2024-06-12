@@ -10,10 +10,9 @@ from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.crud.file import get_files_by_conversation_id
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.chat import ChatMessage
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.tool import Category, Tool
+from backend.schemas.tool import Tool
 from backend.services.logger import get_logger
 
 logger = get_logger()
@@ -44,22 +43,31 @@ class CustomChat(BaseChat):
             )
 
         self.chat_request = chat_request
+        is_first_start = True
+        should_break = False
         for _ in range(MAX_STEPS):
             stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
-            stream, stream_copy = tee(stream)
 
             # Check if the stream contains any tool calls
-            is_direct_answer = True
             for event in stream:
-                if self.is_not_direct_answer(event):
-                    is_direct_answer = False
-                    break
+                if event["event_type"] == StreamEvent.STREAM_END:
+                    if (
+                        hasattr(event["response"], "tool_calls")
+                        and event["response"].tool_calls
+                    ):
+                        continue
+                    else:
+                        yield event
+                        should_break = True
+                        continue
+                elif event["event_type"] == StreamEvent.STREAM_START:
+                    if is_first_start:
+                        is_first_start = False
+                        yield event
+                    continue
+                yield event
 
-            # If the stream does not contain any tool calls, return the stream
-            # Otherwise, continue to the next hop
-            if is_direct_answer:
-                for event in stream_copy:
-                    yield event
+            if should_break:
                 break
 
     def is_not_direct_answer(self, event: Dict[str, Any]) -> bool:
@@ -76,7 +84,7 @@ class CustomChat(BaseChat):
         if len(managed_tools) == len(chat_request.tools):
             chat_request.tools = managed_tools
 
-        # Get the tool calls stream and either return a direct answer or continue 
+        # Get the tool calls stream and either return a direct answer or continue
         tool_calls_stream = self.get_tool_calls(
             managed_tools, chat_request.chat_history, deployment_model, **kwargs
         )
@@ -84,17 +92,16 @@ class CustomChat(BaseChat):
             tool_calls_stream
         )
 
+        for event in stream:
+            yield event
+
         if is_direct_answer:
-            for event in stream:
-                yield event
             return
 
         # If the stream contains tool calls, call the tools and update the chat history
-        tool_results = None
-        if new_chat_history:
-            tool_results = self.call_tools(new_chat_history, deployment_model, **kwargs)
-            chat_request.tool_results = [result for result in tool_results]
-            chat_request.chat_history = new_chat_history
+        tool_results = self.call_tools(new_chat_history, deployment_model, **kwargs)
+        chat_request.tool_results = [result for result in tool_results]
+        chat_request.chat_history = new_chat_history
 
         # Remove the message if tool results are present
         message = chat_request.message
@@ -102,14 +109,20 @@ class CustomChat(BaseChat):
             chat_request.message = ""
 
         for event in deployment_model.invoke_chat_stream(chat_request):
-            yield event
+            if event["event_type"] != StreamEvent.STREAM_START:
+                yield event
+            if event["event_type"] == StreamEvent.STREAM_END:
+                chat_request.chat_history = event["response"].chat_history
 
         # Update the chat request and restore the message
         self.chat_request = chat_request
-        self.chat_request.message = message
 
     def call_tools(self, chat_history, deployment_model, **kwargs: Any):
         tool_results = []
+        if not hasattr(chat_history[-1], "tool_results"):
+            logging.warning("No tool calls found in chat history.")
+            return tool_results
+
         tool_calls = chat_history[-1].tool_calls
         logger.info(f"Tool calls: {tool_calls}")
 

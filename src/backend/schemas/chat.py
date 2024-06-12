@@ -8,7 +8,7 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.search_query import SearchQuery
-from backend.schemas.tool import Tool, ToolCall
+from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 
 
 class ChatRole(StrEnum):
@@ -228,6 +228,23 @@ class NonStreamedChatResponse(ChatResponse):
     )
 
 
+class StreamToolCallsChunk(ChatResponse):
+    event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_CHUNK
+
+    tool_call_delta: ToolCallDelta | None = Field(
+        title="Partial tool call",
+        default=ToolCallDelta(
+            name=None,
+            index=None,
+            parameters=None,
+        ),
+    )
+
+    text: str | None = Field(
+        title="Contents of the chat message.",
+    )
+
+
 class ChatResponseEvent(BaseModel):
     event: StreamEvent = Field(
         title="type of stream event",
@@ -244,6 +261,7 @@ class ChatResponseEvent(BaseModel):
         StreamToolResult,
         StreamSearchQueriesGeneration,
         StreamToolCallsGeneration,
+        StreamToolCallsChunk,
         NonStreamedChatResponse,
     ] = Field(
         title="Data returned from chat response of a given event type",
