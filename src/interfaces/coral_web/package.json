@@ -17,7 +17,7 @@
   "dependencies": {
     "@babel/core": "^7.23.3",
     "@floating-ui/react": "^0.26.9",
-    "@headlessui/react": "1.7.11",
+    "@headlessui/react": "^2.0.4",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@popperjs/core": "^2.11.8",
     "@react-hookz/web": "^23.1.0",
