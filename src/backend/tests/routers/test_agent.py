@@ -1,9 +1,9 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from backend.config.tools import ToolName
 from backend.database_models.agent import Agent, AgentDeployment, AgentModel
 from backend.tests.factories import get_factory
-from backend.config.tools import ToolName
 
 
 def test_create_agent(session_client: TestClient, session: Session) -> None:
@@ -159,7 +159,10 @@ def test_create_agent_wrong_model_deployment_enums(
     )
     assert response.status_code == 422
 
-def test_create_agent_wrong_tool_name_enums(session_client: TestClient, session: Session) -> None:
+
+def test_create_agent_wrong_tool_name_enums(
+    session_client: TestClient, session: Session
+) -> None:
     request_json = {
         "name": "test agent",
         "model": AgentModel.COMMAND_R,
@@ -171,6 +174,7 @@ def test_create_agent_wrong_tool_name_enums(session_client: TestClient, session:
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
     assert response.status_code == 422
+
 
 def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/agents", headers={"User-Id": "123"})
