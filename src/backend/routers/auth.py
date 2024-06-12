@@ -1,7 +1,7 @@
 from typing import Union
 
 from authlib.integrations.starlette_client import OAuthError
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
