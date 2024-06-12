@@ -21,8 +21,11 @@ def test_list_tools(session_client: TestClient, session: Session) -> None:
         assert tool["category"] == tool_definition.category
         assert tool["description"] == tool_definition.description
 
+
 def test_list_tools_with_agent(session_client: TestClient, session: Session) -> None:
-    agent = get_factory("Agent", session).create(name="test agent", tools=[ToolName.Wiki_Retriever_LangChain])
+    agent = get_factory("Agent", session).create(
+        name="test agent", tools=[ToolName.Wiki_Retriever_LangChain]
+    )
 
     response = session_client.get("/v1/tools", params={"agent_id": agent.id})
     assert response.status_code == 200
@@ -41,7 +44,10 @@ def test_list_tools_with_agent(session_client: TestClient, session: Session) -> 
     assert tool["category"] == tool_definition.category
     assert tool["description"] == tool_definition.description
 
-def test_list_tools_with_agent_that_doesnt_exist(session_client: TestClient, session: Session) -> None:
+
+def test_list_tools_with_agent_that_doesnt_exist(
+    session_client: TestClient, session: Session
+) -> None:
     response = session_client.get("/v1/tools", params={"agent_id": "fake_id"})
     assert response.status_code == 404
     assert response.json() == {"detail": "Agent with ID: fake_id not found."}

@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException
 from typing import Optional
+
+from fastapi import APIRouter, HTTPException
+
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.schemas.tool import ManagedTool
 from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
+from backend.schemas.tool import ManagedTool
 
 router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL
