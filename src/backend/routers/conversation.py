@@ -81,13 +81,8 @@ async def list_conversations(
     """
     user_id = get_header_user_id(request)
 
-    if agent_id:
-        return conversation_crud.get_conversations(
-            session, offset=offset, limit=limit, agent_id=agent_id, user_id=user_id
-        )
-
     return conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, user_id=user_id
+        session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
     )
 
 
