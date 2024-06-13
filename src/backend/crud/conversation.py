@@ -35,15 +35,17 @@ def get_conversation(
     Returns:
         Conversation: Conversation with the given conversation ID and user ID.
     """
-    return (
+    query = (
         db.query(Conversation)
         .filter(
             Conversation.id == conversation_id,
             Conversation.user_id == user_id,
-            Conversation.agent_id == agent_id,
         )
-        .first()
     )
+    if agent_id is not None:
+        query = query.filter(Conversation.agent_id == agent_id)
+
+    return query.first()
 
 
 def get_conversations(
@@ -65,14 +67,16 @@ def get_conversations(
     Returns:
         list[Conversation]: List of conversations.
     """
-    return (
+    query = (
         db.query(Conversation)
         .filter(Conversation.user_id == user_id)
-        .filter(Conversation.agent_id == agent_id if agent_id is not None else True)
         .offset(offset)
         .limit(limit)
-        .all()
     )
+    if agent_id is not None:
+        query = query.filter(Conversation.agent_id == agent_id)
+
+    return query.all()
 
 
 def update_conversation(
