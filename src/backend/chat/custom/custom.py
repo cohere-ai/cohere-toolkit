@@ -46,29 +46,40 @@ class CustomChat(BaseChat):
         self.is_first_start = True
         should_break = False
 
-        for _ in range(MAX_STEPS):
+        for step in range(MAX_STEPS):
+            logger.info(f"Step {step + 1}")
             stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
             for event in stream:
-                result = self.handle_event(event)
+                result = self.handle_event(event, chat_request)
 
                 if result:
                     yield result
 
                 if event[
                     "event_type"
-                ] == StreamEvent.STREAM_END and self.is_final_event(event):
+                ] == StreamEvent.STREAM_END and self.is_final_event(
+                    event, chat_request
+                ):
                     should_break = True
+                    break
 
             if should_break:
                 break
 
-    def is_final_event(self, event: Dict[str, Any]) -> bool:
+    def is_final_event(
+        self, event: Dict[str, Any], chat_request: CohereChatRequest
+    ) -> bool:
+        # The event is final if:
+        # 1. It is a stream end event with no tool calls
+        # 2. It is a stream end event with tool calls, but no managed tools
         return not (
             hasattr(event["response"], "tool_calls") and event["response"].tool_calls
-        )
+        ) or (chat_request.tools and not self.get_managed_tools(self.chat_request))
 
-    def handle_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
+    def handle_event(
+        self, event: Dict[str, Any], chat_request: CohereChatRequest
+    ) -> Dict[str, Any]:
         # All events other than stream start and stream end are returned
         if (
             event["event_type"] != StreamEvent.STREAM_START
@@ -85,7 +96,7 @@ class CustomChat(BaseChat):
         # Only the final occurrence of stream end is returned
         # The final event is the one that does not contain tool calls
         if event["event_type"] == StreamEvent.STREAM_END:
-            if self.is_final_event(event):
+            if self.is_final_event(event, chat_request):
                 return event
 
         return None
@@ -124,7 +135,6 @@ class CustomChat(BaseChat):
         chat_request.chat_history = new_chat_history
 
         # Remove the message if tool results are present
-        message = chat_request.message
         if tool_results:
             chat_request.message = ""
 
