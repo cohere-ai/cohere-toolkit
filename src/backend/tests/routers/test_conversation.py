@@ -26,6 +26,22 @@ def test_list_conversations(session_client: TestClient, session: Session) -> Non
     assert response.status_code == 200
     assert len(results) == 1
 
+def test_list_conversations_with_agent(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(id="agent_id", name="test agent", user_id="123")
+    conversation1 = get_factory("Conversation", session).create(agent_id="agent_id", user_id="123")
+    conversation2 = get_factory("Conversation", session).create(user_id="123")
+    
+    response = session_client.get(
+        "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
+    )
+    results = response.json()
+    
+    assert response.status_code == 200
+    assert len(results) == 1
+
+    conversation = results[0]
+    assert conversation["id"] == conversation1.id
+
 
 def test_list_conversations_missing_user_id(
     session_client: TestClient, session: Session

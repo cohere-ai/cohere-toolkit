@@ -22,7 +22,7 @@ def create_conversation(db: Session, conversation: Conversation) -> Conversation
 
 
 def get_conversation(
-    db: Session, conversation_id: str, user_id: str
+    db: Session, conversation_id: str, user_id: str, agent_id: str | None = None
 ) -> Conversation | None:
     """
     Get a conversation by ID.
@@ -37,13 +37,13 @@ def get_conversation(
     """
     return (
         db.query(Conversation)
-        .filter(Conversation.id == conversation_id, Conversation.user_id == user_id)
+        .filter(Conversation.id == conversation_id, Conversation.user_id == user_id, Conversation.agent_id == agent_id)
         .first()
     )
 
 
 def get_conversations(
-    db: Session, user_id: str, offset: int = 0, limit: int = 100
+    db: Session, user_id: str, offset: int = 0, limit: int = 100, agent_id: str | None = None
 ) -> list[Conversation]:
     """
     List all conversations.
@@ -60,6 +60,7 @@ def get_conversations(
     return (
         db.query(Conversation)
         .filter(Conversation.user_id == user_id)
+        .filter(Conversation.agent_id == agent_id if agent_id is not None else True)
         .offset(offset)
         .limit(limit)
         .all()
