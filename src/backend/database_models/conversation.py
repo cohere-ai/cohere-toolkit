@@ -19,7 +19,9 @@ class Conversation(Base):
 
     text_messages: Mapped[List["Message"]] = relationship()
     files: Mapped[List["File"]] = relationship()
-    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"), nullable=True)
+    agent_id: Mapped[str] = mapped_column(
+        ForeignKey("agents.id", ondelete="CASCADE"), nullable=True
+    )
 
     @property
     def messages(self):

@@ -37,13 +37,21 @@ def get_conversation(
     """
     return (
         db.query(Conversation)
-        .filter(Conversation.id == conversation_id, Conversation.user_id == user_id, Conversation.agent_id == agent_id)
+        .filter(
+            Conversation.id == conversation_id,
+            Conversation.user_id == user_id,
+            Conversation.agent_id == agent_id,
+        )
         .first()
     )
 
 
 def get_conversations(
-    db: Session, user_id: str, offset: int = 0, limit: int = 100, agent_id: str | None = None
+    db: Session,
+    user_id: str,
+    offset: int = 0,
+    limit: int = 100,
+    agent_id: str | None = None,
 ) -> list[Conversation]:
     """
     List all conversations.

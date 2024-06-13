@@ -59,7 +59,12 @@ async def get_conversation(
 
 @router.get("", response_model=list[ConversationWithoutMessages])
 async def list_conversations(
-    *, offset: int = 0, limit: int = 100, agent_id: str = None, session: DBSessionDep, request: Request
+    *,
+    offset: int = 0,
+    limit: int = 100,
+    agent_id: str = None,
+    session: DBSessionDep,
+    request: Request,
 ) -> list[ConversationWithoutMessages]:
     """
     List all conversations.
