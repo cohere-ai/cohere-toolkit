@@ -3,13 +3,14 @@ from typing import Any, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import Request
+from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
 
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
+from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
@@ -44,7 +45,10 @@ from backend.services.auth.utils import get_header_user_id
 
 
 def process_chat(
-    session: DBSessionDep, chat_request: BaseChatRequest, request: Request, agent_id: str | None = None
+    session: DBSessionDep,
+    chat_request: BaseChatRequest,
+    request: Request,
+    agent_id: str | None = None,
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -67,6 +71,19 @@ def process_chat(
     # For example: "azure_key1=value1;azure_key2=value2"
     if not request.headers.get("Deployment-Config", "") == "":
         model_config = get_deployment_config(request)
+
+    if agent_id is not None:
+        agent = agent_crud.get_agent(session, agent_id)
+        if agent is None:
+            raise HTTPException(
+                status_code=404, detail=f"Agent with ID {agent_id} not found."
+            )
+
+        # Set the agent settings in the chat request
+        chat_request.preamble = agent.preamble
+        chat_request.tools = agent.tools
+        chat_request.model = agent.model
+
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
     )
@@ -183,7 +200,9 @@ def get_or_create_conversation(
         Conversation: Conversation object.
     """
     conversation_id = chat_request.conversation_id or ""
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id, agent_id)
+    conversation = conversation_crud.get_conversation(
+        session, conversation_id, user_id, agent_id
+    )
 
     if conversation is None:
         conversation = Conversation(

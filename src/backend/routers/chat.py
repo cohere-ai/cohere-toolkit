@@ -2,12 +2,13 @@ import os
 from distutils.util import strtobool
 from typing import Any, Generator
 
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
+from backend.crud.agent import agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -19,7 +20,6 @@ from backend.services.chat import (
     process_chat,
 )
 from backend.services.request_validators import validate_deployment_header
-from backend.crud.agent import agent_crud
 
 router = APIRouter(
     prefix="/v1",
@@ -27,7 +27,9 @@ router = APIRouter(
 router.name = RouterName.CHAT
 
 
-@router.post("/chat-stream/{agent_id}", dependencies=[Depends(validate_deployment_header)])
+@router.post(
+    "/chat-stream/{agent_id}", dependencies=[Depends(validate_deployment_header)]
+)
 async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
@@ -46,16 +48,6 @@ async def chat_stream(
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
-    if agent_id is not None:
-        agent = agent_crud.get_agent(session, agent_id)
-        if agent is None:
-            raise HTTPException(status_code=404, detail=f"Agent with ID {agent_id} not found.")
-        
-        # Set the agent settings in the chat request
-        chat_request.preamble = agent.preamble
-        chat_request.tools = agent.tools
-        chat_request.model = agent.model
-
     (
         session,
         chat_request,
@@ -111,16 +103,6 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
-    if agent_id is not None:
-        agent = agent_crud.get_agent(session, agent_id)
-        if agent is None:
-            raise HTTPException(status_code=404, detail=f"Agent with ID {agent_id} not found.")
-        
-        # Set the agent settings in the chat request
-        chat_request.preamble = agent.preamble
-        chat_request.tools = agent.tools
-        chat_request.model = agent.model
-
     (
         session,
         chat_request,
