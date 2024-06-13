@@ -51,6 +51,7 @@ def create_app():
     # These values must be set in config/routers.py
     dependencies_type = "default"
     if is_authentication_enabled():
+        # Required to save temporary OAuth state in session
         app.add_middleware(
             SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")
         )
