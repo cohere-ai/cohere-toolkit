@@ -6,8 +6,8 @@ from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 
 
 @pytest.fixture(autouse=True)
-def mock_jwt_secret_key_env(monkeypatch):
-    monkeypatch.setenv("JWT_SECRET_KEY", "test")
+def mock_auth_secret_key_env(monkeypatch):
+    monkeypatch.setenv("AUTH_SECRET_KEY", "test")
 
 
 @pytest.fixture(autouse=True)

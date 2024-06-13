@@ -57,6 +57,7 @@ class GoogleOAuth(BaseOAuthStrategy):
         Returns:
             Redirect to Google OAuth.
         """
+        print(f"Redirect URI: {redirect_uri}")
         return await self.oauth.google.authorize_redirect(request, redirect_uri)
 
     async def authenticate(self, request: Request) -> dict | None:
