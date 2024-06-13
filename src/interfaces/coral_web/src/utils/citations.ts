@@ -9,6 +9,8 @@ export const fixMarkdownImagesInText = (text: string) => {
   return text.replace('! [', '![');
 };
 
+const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
+
 /**
  * Replace text string with citations following the format:
  *  :cite[<text>]{generationId="<generationId>" start="<startIndex>" end"<endIndex>"}
@@ -26,9 +28,19 @@ export const replaceTextWithCitations = (
   let replacedText = text;
 
   let lengthDifference = 0; // Track the cumulative length difference
-  citations.forEach(({ start = 0, end = 0, text: citationText }) => {
+  let notFoundReferences: string[] = [];
+  citations.forEach(({ start = 0, end = 0, text: citationText }, index) => {
     const citeStart = start + lengthDifference;
     const citeEnd = end + lengthDifference;
+
+    // if citeStart is higher than the length of the text, add it to the bottom of the text as "Reference #n"
+    if (start >= text.length || isReferenceBetweenIframes(replacedText, start)) {
+      const ref = `Reference #${index + 1}`;
+      notFoundReferences.push(
+        `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
+      );
+      return;
+    }
 
     const fixedText = fixMarkdownImagesInText(citationText);
 
@@ -42,8 +54,22 @@ export const replaceTextWithCitations = (
     replacedText = replacedText.slice(0, citeStart) + citationId + replacedText.slice(citeEnd);
     lengthDifference += citationId.length - (citeEnd - citeStart);
   });
+
+  const references = 'From: ' + formatter.format(notFoundReferences);
+  if (notFoundReferences.length > 0) {
+    return references + '\n' + replacedText;
+  }
   return replacedText;
 };
 
 export const createStartEndKey = (start: number | string, end: number | string) =>
   `${start}-${end}`;
+
+function isReferenceBetweenIframes(replacedText: string, citeStart: number): boolean {
+  const IFRAME_REGEX = /<iframe.*<\/iframe>/g;
+  const match = IFRAME_REGEX.exec(replacedText);
+
+  if (!match) return false;
+
+  return match.index < citeStart && citeStart < match.index + match[0].length;
+}

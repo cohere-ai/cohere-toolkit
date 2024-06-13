@@ -18,7 +18,6 @@ import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
-import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 type Props = {
@@ -77,13 +76,9 @@ const ConversationPage: NextPage<Props> = () => {
     if (!conversation) return;
 
     const messages = mapHistoryToMessages(
-      conversation?.messages
-        ?.sort((a, b) => a.position - b.position)
-        .map((message) => ({
-          ...message,
-          text: replaceCodeBlockWithIframe(message.text),
-        }))
+      conversation?.messages?.sort((a, b) => a.position - b.position)
     );
+
     setConversation({ name: conversation.title, messages });
 
     let documentsMap: { [documentId: string]: Document } = {};

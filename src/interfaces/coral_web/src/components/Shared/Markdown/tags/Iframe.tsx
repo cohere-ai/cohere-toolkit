@@ -1,4 +1,4 @@
-import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
+import type { Component } from 'hast-util-to-jsx-runtime/lib/components';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
