@@ -144,7 +144,7 @@ You can chat with me to learn new subjects through open and engaging conversatio
 :warning: - An error occurred while processing the specific message that has this reaction. The message sender will be provided with more information regarding the error in an ephemeral message.
 
 
-For further support, feel free to reach out to <mailto:coralbot@cohere.com?Subject=Command%20Slackbot%20Support|coralbot@cohere.com>.
+For further support, feel free to reach out to <mailto:support@cohere.com?Subject=Command%20Slackbot%20Support|support@cohere.com>.
 `;
 
 export const ACCEPTABLE_SUMMARIZE_FILE_TYPES = new Set(['pdf', 'doc', 'docx', 'text']);
