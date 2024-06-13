@@ -127,8 +127,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             className={cx(
               'z-tooltip',
               {
-                'max-w-[400px] rounded-sm border-none bg-secondary-900 !px-1 !py-0.5':
-                  size === 'sm',
+                'max-w-[400px] rounded-sm border-none bg-secondary-900 px-1 py-0.5': size === 'sm',
                 'max-w-[300px] rounded border border-marble-400 bg-marble-200 px-4 py-2.5':
                   size === 'md',
               },

@@ -2,10 +2,10 @@ import { useResizeObserver } from '@react-hookz/web';
 import { useEffect, useRef, useState } from 'react';
 
 import { Tool } from '@/cohere-client';
-import { ComposerError } from '@/components/Conversation/ComposerError';
-import { ComposerFiles } from '@/components/Conversation/ComposerFiles';
-import { ComposerToolbar } from '@/components/Conversation/ComposerToolbar';
-import { DragDropFileUploadOverlay } from '@/components/Conversation/DragDropFileUploadOverlay';
+import { ComposerError } from '@/components/Conversation/Composer/ComposerError';
+import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
+import { ComposerToolbar } from '@/components/Conversation/Composer/ComposerToolbar';
+import { DragDropFileUploadOverlay } from '@/components/Conversation/Composer/DragDropFileUploadOverlay';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
@@ -25,7 +25,7 @@ type Props = {
   chatWindowRef?: React.RefObject<HTMLDivElement>;
 };
 
-const Composer: React.FC<Props> = ({
+export const Composer: React.FC<Props> = ({
   isFirstTurn,
   value,
   isStreaming,
@@ -198,5 +198,3 @@ const Square = () => (
     <path d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z" />
   </svg>
 );
-
-export default Composer;

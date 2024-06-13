@@ -1,8 +1,7 @@
-import { uniqBy } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
-import { FILE_TOOL_CATEGORY, Tool } from '@/cohere-client';
-import Composer from '@/components/Conversation/Composer';
+import { Tool } from '@/cohere-client';
+import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import { Spinner } from '@/components/Shared';
