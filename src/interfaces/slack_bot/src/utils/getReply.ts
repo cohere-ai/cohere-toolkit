@@ -1,7 +1,7 @@
 import { AllMiddlewareArgs, AppMentionEvent, MessageEvent } from '@slack/bolt';
 
 import { ApiError, CohereChatRequest, OpenAPI, Tool, ToolkitClient } from '../cohere-client';
-import { DEFAULT_MODELS, ERRORS } from '../constants';
+import { ERRORS } from '../constants';
 import { formatRagCitations } from './formatRagCitations';
 import { getSanitizedMessage } from './getSanitizedMessage';
 import { GetUsersRealNameArgs, getUsersRealName } from './getUsersRealName';
@@ -9,7 +9,7 @@ import { GetUsersRealNameArgs, getUsersRealName } from './getUsersRealName';
 type GetReplyArgs = Pick<AllMiddlewareArgs, 'client'> & {
   event: MessageEvent | AppMentionEvent;
   tools?: Tool[];
-  model?: string;
+  model?: string | null;
   temperature?: number | null;
   preambleOverride?: string | null;
   conversationId: string | undefined;
@@ -55,11 +55,11 @@ export const getReply = async ({
 
   const params: CohereChatRequest = {
     message: messageWithoutUsername,
-    model: model ?? DEFAULT_MODELS.CHAT,
     conversation_id: conversationId,
     prompt_truncation: 'AUTO_PRESERVE_ORDER',
   };
 
+  if (model) params.model = model;
   if (temperature) params.temperature = temperature;
   if (preambleOverride) params.preamble = preambleOverride;
   if (tools.length > 0) params.tools = tools;

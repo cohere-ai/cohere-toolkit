@@ -12,7 +12,7 @@ type HandleRagChatWithFile = {
   client: WebClient;
   file: SlackFile | undefined;
   text: string;
-  model: string;
+  model: string | null;
   teamId?: string;
   botUserId?: string;
   enterpriseId?: string;

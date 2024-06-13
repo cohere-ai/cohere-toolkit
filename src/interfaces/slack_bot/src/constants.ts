@@ -1,15 +1,9 @@
 import { Action } from './utils/actions';
 
 export const COMMAND_SUFFIX = process.env.COMMAND_SUFFIX || '';
-export const COHERE_API_TIMEOUT_SECONDS = 60 * 5; // 5 minutes
 
 // todo: change to follow the format of the other envs above
 export const DEFAULT_CHAT_TEMPERATURE = 0.3;
-export const DEFAULT_MODELS = {
-  CHAT: 'command-r',
-  RERANK: 'rerank-english-v2.0',
-  SUMMARIZE: 'summarize-xlarge',
-};
 
 export const PENDING_MESSAGES: { [key in Action['type']]: string } = {
   chat: '_Typing..._',
@@ -33,16 +27,16 @@ export const ALERTS = {
   TYPING: '_Typing..._',
   MODEL_PREFIX: '*Model:*',
   NOT_ADMIN: `Sorry, Command can only be set up by a workspace admin. If you would like to set up Command, please contact them.`,
-  channelModelSet: (channelName: string, modelName: string, userId?: string) =>
+  channelModelSet: (channelName: string, modelName: string | null, userId?: string) =>
     `All messages ${
       channelName !== 'directmessage' ? `in ${channelName} ` : ''
-    }will now be processed with the \`${modelName}\` model.${
+    }will now be processed with the \`${modelName ? modelName : 'default'}\` model.${
       userId ? ` Set by <@${userId}>.` : ''
     }`,
-  channelModelView: (channelName: string, modelName: string) =>
+  channelModelView: (channelName: string, modelName: string | null) =>
     `All messages ${
       channelName !== 'directmessage' ? `in ${channelName} ` : ''
-    }are currently being processed with the \`${modelName}\` model.`,
+    }are currently being processed with the \`${modelName ? modelName : 'default'}\` model.`,
   PROMPT_TOO_LONG:
     'Due to the length of your prompt, some information may be left out. Reducing your prompt to below 4000 characters may produce better results.',
   channelTemperatureSet: (channelName: string, temperature: number, userId?: string) =>

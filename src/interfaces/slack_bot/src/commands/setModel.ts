@@ -1,7 +1,7 @@
 import { Middleware, SlackCommandMiddlewareArgs } from '@slack/bolt';
 
 import { prisma } from '..';
-import { ALERTS, DEFAULT_MODELS } from '../constants';
+import { ALERTS } from '../constants';
 import { getEphemeralBlocks } from '../utils/getMessageBlocks';
 
 // Channel Model Commands
@@ -16,7 +16,7 @@ export const setModel: Middleware<SlackCommandMiddlewareArgs> = async ({
   const channelId = command.channel_id;
   const channelName = command.channel_name;
 
-  const modelName = command.text || DEFAULT_MODELS.CHAT;
+  const modelName = command.text || null;
   const workspaceSettings = await prisma.workspaceSettings.upsert({
     create: { teamId: context.teamId, enterpriseId: context.enterpriseId },
     update: {},

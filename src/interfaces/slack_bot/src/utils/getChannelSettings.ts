@@ -2,7 +2,6 @@ import { ChannelSettings as ChannelSettingsPrisma } from '@prisma/client';
 
 import { prisma } from '..';
 import { Tool } from '../cohere-client';
-import { DEFAULT_MODELS } from '../constants';
 
 type GetChannelSettingsArgs = {
   teamId: string | undefined;
@@ -11,7 +10,7 @@ type GetChannelSettingsArgs = {
 };
 
 type ChannelSettings = {
-  model: string;
+  model: string | null;
   temperature: number | null;
   preambleOverride: string | null;
   tools: Tool[];
@@ -40,7 +39,7 @@ export const getChannelSettings = async ({
   channelId,
 }: GetChannelSettingsArgs): Promise<ChannelSettings> => {
   const defaultSettings: ChannelSettings = {
-    model: DEFAULT_MODELS.CHAT,
+    model: null, // Leave to API default
     temperature: null, // Leave to API default
     preambleOverride: null, // Leave to API default
     tools: [],
