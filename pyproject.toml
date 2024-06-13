@@ -38,6 +38,7 @@ itsdangerous = "^2.2.0"
 bcrypt = "^4.1.2"
 pypdf = "^4.2.0"
 pyjwt = "^2.8.0"
+pydantic-settings = "^2.3.1"
 
 [tool.poetry.group.dev]
 optional = true

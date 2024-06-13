@@ -13,13 +13,8 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils/cn';
 
-const LeftDrawer: React.FC<PropsWithChildren> = ({ children }) => <>{children}</>;
-const Main: React.FC<PropsWithChildren> = ({ children }) => <>{children}</>;
-
-export const LayoutSection = {
-  LeftDrawer,
-  Main,
-};
+export const LeftSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
+export const MainSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
 
 type Props = {
   title?: string;
@@ -37,22 +32,19 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
   } = useSettingsStore();
   const isDesktop = useIsDesktop();
 
-  let leftDrawerElement: React.ReactNode = null;
+  let leftElement: React.ReactNode = null;
   let mainElement: React.ReactNode = null;
 
   Children.toArray(children).forEach((child: React.ReactNode) => {
     const element = child as React.ReactElement;
-    const { type } = element;
 
-    switch (type) {
-      case LeftDrawer:
-        leftDrawerElement = child;
-        break;
-      case Main:
-        mainElement = child;
-        break;
-      default:
-        break;
+    if (element.type === LeftSection) {
+      leftElement = child;
+      return;
+    }
+    if (element.type === MainSection) {
+      mainElement = child;
+      return;
     }
   });
 
@@ -68,41 +60,16 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
         </NavigationBar>
         {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}
 
-        <div className={cn('relative flex h-full flex-grow flex-nowrap overflow-hidden')}>
-          <Transition
-            as="div"
-            show={isMobileConvListPanelOpen || (isConvListPanelOpen && isDesktop)}
-            enterFrom={cn(
-              '-translate-x-full lg:translate-x-0',
-              'lg:mr-0 lg:opacity-0 lg:min-w-0 lg:max-w-0'
-            )}
-            enterTo={cn(
-              'translate-x-0',
-              'lg:mr-3 lg:opacity-100',
-              'lg:min-w-left-panel-lg 2xl:min-w-left-panel-2xl 3xl:min-w-left-panel-3xl',
-              'lg:max-w-left-panel-lg 2xl:max-w-left-panel-2xl 3xl:max-w-left-panel-3xl'
-            )}
-            leaveFrom={cn(
-              'translate-x-0',
-              'lg:mr-3 lg:opacity-100',
-              'lg:min-w-left-panel-lg 2xl:min-w-left-panel-2xl 3xl:min-w-left-panel-3xl',
-              'lg:max-w-left-panel-lg 2xl:max-w-left-panel-2xl 3xl:max-w-left-panel-3xl'
-            )}
-            leaveTo={cn(
-              '-translate-x-full lg:translate-x-0',
-              'lg:mr-0 lg:opacity-0 lg:border-0 lg:min-w-0 lg:max-w-0'
-            )}
+        <div className={cn('relative flex h-full flex-grow flex-nowrap gap-3 overflow-hidden')}>
+          <div
             className={cn(
-              'lg:flex-grow-0',
-              'transition-transform duration-500 ease-in-out',
-              'lg:transition-[min-width,max-width,margin,opacity,border-width] lg:duration-300',
-              'w-full',
+              'w-16 px-4 py-6 lg:flex-grow-0',
               'flex flex-grow flex-col rounded-lg border',
               'border-marble-400 bg-marble-100'
             )}
           >
-            {leftDrawerElement}
-          </Transition>
+            {leftElement}
+          </div>
           <Transition
             as="main"
             show={!isMobileConvListPanelOpen || isDesktop}

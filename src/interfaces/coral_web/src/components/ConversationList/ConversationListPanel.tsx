@@ -140,6 +140,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
         enterTo="opacity-100 h-12 mt-5"
         leaveFrom="opacity-100 h-12 mt-5"
         leaveTo="opacity-0 h-0 mt-0"
+        as="div"
         className="z-menu px-4 duration-300 ease-in-out"
       >
         <Input
