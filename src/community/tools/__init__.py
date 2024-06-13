@@ -6,6 +6,7 @@ from community.tools.connector import ConnectorRetriever
 from community.tools.llama_index import LlamaIndexUploadPDFRetriever
 from community.tools.pub_med import PubMedRetriever
 from community.tools.wolfram import WolframAlpha
+from community.tools.stackoverflow import StackOverflow
 
 __all__ = [
     "WolframAlpha",
@@ -14,4 +15,5 @@ __all__ = [
     "ConnectorRetriever",
     "LlamaIndexUploadPDFRetriever",
     "PubMedRetriever",
+    "StackOverflow",
 ]
