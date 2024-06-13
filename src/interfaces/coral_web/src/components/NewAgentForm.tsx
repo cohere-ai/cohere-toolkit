@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { AgentModel, CreateAgent, ToolName } from '@/cohere-client';
 import IconButton from '@/components/IconButton';
@@ -8,6 +8,9 @@ import { cn } from '@/utils';
 
 type AgentForm = Omit<CreateAgent, 'version' | 'temperature' | 'deployment'>;
 
+/**
+ * @description Form to create a new agent.
+ */
 export const NewAgentForm: React.FC = () => {
   const { mutateAsync: createAgent } = useCreateAgent();
   const tools = Object.values(ToolName);
