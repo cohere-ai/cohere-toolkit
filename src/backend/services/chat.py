@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, Generator, List, Union
 from uuid import uuid4
 
@@ -26,6 +27,7 @@ from backend.schemas.chat import (
     NonStreamedChatResponse,
     StreamCitationGeneration,
     StreamEnd,
+    StreamEventType,
     StreamSearchQueriesGeneration,
     StreamSearchResults,
     StreamStart,
@@ -369,6 +371,60 @@ def update_conversation_after_turn(
     conversation_crud.update_conversation(session, conversation, new_conversation)
 
 
+def generate_chat_response(
+    session: DBSessionDep,
+    model_deployment_stream: Generator[StreamedChatResponse, None, None],
+    response_message: Message,
+    conversation_id: str,
+    user_id: str,
+    should_store: bool = True,
+    **kwargs: Any,
+) -> NonStreamedChatResponse:
+    """
+    Generate chat response from model deployment non streaming response.
+
+    Args:
+        session (DBSessionDep): Database session.
+        model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
+        response_message (Message): Response message object.
+        conversation_id (str): Conversation ID.
+        user_id (str): User ID.
+        should_store (bool): Whether to store the conversation in the database.
+        **kwargs (Any): Additional keyword arguments.
+
+    Yields:
+        bytes: Byte representation of chat response event.
+    """
+    stream = generate_chat_stream(
+        session,
+        model_deployment_stream,
+        response_message,
+        conversation_id,
+        user_id,
+        should_store,
+        **kwargs,
+    )
+
+    for event in stream:
+        event = json.loads(event)
+        if event["event"] == StreamEvent.STREAM_END:
+            data = event["data"]
+            return NonStreamedChatResponse(
+                text=data.get("text", ""),
+                response_id=response_message.id,
+                generation_id=response_message.generation_id,
+                chat_history=data.get("chat_history", []),
+                finish_reason=data.get("finish_reason", ""),
+                citations=data.get("citations", []),
+                search_queries=data.get("search_queries", []),
+                documents=data.get("documents", []),
+                search_results=data.get("search_results", []),
+                event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
+                conversation_id=conversation_id,
+                tool_calls=data.get("tool_calls", []),
+            )
+
+
 def generate_chat_stream(
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
@@ -396,120 +452,29 @@ def generate_chat_stream(
     stream_end_data = {
         "conversation_id": conversation_id,
         "response_id": response_message.id,
+        "text": "",
+        "citations": [],
+        "documents": [],
+        "search_results": [],
+        "search_queries": [],
+        "tool_calls": [],
+        "tool_results": [],
     }
-
-    # Given a stream of CohereEventStream objects, save the final message to DB and yield byte representations
-    final_message_text = ""
 
     # Map the user facing document_ids field returned from model to storage ID for document model
     document_ids_to_document = {}
-    all_citations = []
 
     stream_event = None
     for event in model_deployment_stream:
-        if event["event_type"] == StreamEvent.STREAM_START:
-            stream_event = StreamStart.model_validate(event)
-            response_message.generation_id = event["generation_id"]
-            stream_end_data["generation_id"] = event["generation_id"]
-        elif event["event_type"] == StreamEvent.TEXT_GENERATION:
-            final_message_text += event["text"]
-            stream_event = StreamTextGeneration.model_validate(event)
-        elif event["event_type"] == StreamEvent.SEARCH_RESULTS:
-            for document in event["documents"]:
-                storage_document = Document(
-                    document_id=document.get("id", ""),
-                    text=document.get("text", ""),
-                    title=document.get("title", ""),
-                    url=document.get("url", ""),
-                    tool_name=document.get("tool_name", ""),
-                    # all document fields except for id, tool_name and text
-                    fields={
-                        k: v
-                        for k, v in document.items()
-                        if k not in ["id", "tool_name", "text"]
-                    },
-                    user_id=response_message.user_id,
-                    conversation_id=response_message.conversation_id,
-                    message_id=response_message.id,
-                )
-                document_ids_to_document[document["id"]] = storage_document
-
-            documents = list(document_ids_to_document.values())
-            response_message.documents = documents
-            stream_end_data["documents"] = documents
-            if "search_results" not in event or event["search_results"] is None:
-                event["search_results"] = []
-            stream_event = StreamSearchResults(
-                **event
-                | {
-                    "documents": documents,
-                    "search_results": event["search_results"],
-                },
+        stream_event, stream_end_data, response_message, document_ids_to_document = (
+            handle_stream_event(
+                event,
+                conversation_id,
+                stream_end_data,
+                response_message,
+                document_ids_to_document,
             )
-        elif event["event_type"] == StreamEvent.SEARCH_QUERIES_GENERATION:
-            search_queries = []
-            for search_query in event["search_queries"]:
-                search_queries.append(
-                    SearchQuery(
-                        text=search_query.text,
-                        generation_id=search_query.generation_id,
-                    )
-                )
-            stream_event = StreamSearchQueriesGeneration(
-                **event | {"search_queries": search_queries}
-            )
-            stream_end_data["search_queries"] = search_queries
-        elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
-            tool_calls = []
-            tool_calls_event = event.get("tool_calls", [])
-            for tool_call in tool_calls_event:
-                tool_calls.append(
-                    ToolCall(
-                        name=tool_call.name,
-                        parameters=tool_call.parameters,
-                    )
-                )
-            stream_event = StreamToolCallsGeneration(
-                **event | {"tool_calls": tool_calls}
-            )
-            stream_end_data["tool_calls"] = tool_calls
-        elif event["event_type"] == StreamEvent.CITATION_GENERATION:
-            citations = []
-            for event_citation in event["citations"]:
-                citation = Citation(
-                    text=event_citation.text,
-                    user_id=response_message.user_id,
-                    start=event_citation.start,
-                    end=event_citation.end,
-                    document_ids=event_citation.document_ids,
-                )
-                for document_id in citation.document_ids:
-                    document = document_ids_to_document.get(document_id, None)
-                    if document is not None:
-                        citation.documents.append(document)
-                citations.append(citation)
-            stream_event = StreamCitationGeneration(**event | {"citations": citations})
-            all_citations.extend(citations)
-        elif event["event_type"] == StreamEvent.TOOL_CALLS_CHUNK:
-            event["text"] = event.get("text", "")
-            tool_call_delta = event.get("tool_call_delta", None)
-            if tool_call_delta:
-                tool_call = ToolCallDelta(
-                    name=tool_call_delta.name,
-                    index=tool_call_delta.index,
-                    parameters=tool_call_delta.parameters,
-                )
-                event["tool_call_delta"] = tool_call
-
-            stream_event = StreamToolCallsChunk.model_validate(event)
-        elif event["event_type"] == StreamEvent.STREAM_END:
-            response_message.citations = all_citations
-            response_message.text = final_message_text
-
-            stream_end_data["citations"] = all_citations
-            stream_end_data["text"] = final_message_text
-            stream_end = StreamEnd.model_validate(event | stream_end_data)
-            stream_event = stream_end
+        )
 
         yield json.dumps(
             jsonable_encoder(
@@ -522,103 +487,214 @@ def generate_chat_stream(
 
     if should_store:
         update_conversation_after_turn(
-            session, response_message, conversation_id, final_message_text, user_id
+            session, response_message, conversation_id, stream_end_data["text"], user_id
         )
 
 
-def generate_chat_response(
-    session: DBSessionDep,
-    model_deployment_response: Generator[StreamedChatResponse, None, None],
-    response_message: Message,
+def handle_stream_event(
+    event: dict[str, Any],
     conversation_id: str,
-    user_id: str,
-    should_store: bool = True,
-    **kwargs: Any,
-) -> NonStreamedChatResponse:
-    """
-    Generate chat response from model deployment non streaming response.
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document] = {},
+) -> tuple[StreamEventType, dict[str, Any], Message, dict[str, Document]]:
+    handlers = {
+        StreamEvent.STREAM_START: handle_stream_start,
+        StreamEvent.TEXT_GENERATION: handle_stream_text_generation,
+        StreamEvent.SEARCH_RESULTS: handle_stream_search_results,
+        StreamEvent.SEARCH_QUERIES_GENERATION: handle_stream_search_queries_generation,
+        StreamEvent.TOOL_CALLS_GENERATION: handle_stream_tool_calls_generation,
+        StreamEvent.CITATION_GENERATION: handle_stream_citation_generation,
+        StreamEvent.TOOL_CALLS_CHUNK: handle_stream_tool_calls_chunk,
+        StreamEvent.STREAM_END: handle_stream_end,
+    }
+    event_type = event["event_type"]
 
-    Args:
-        session (DBSessionDep): Database session.
-        model_deployment_response (Any): Model deployment response.
-        response_message (Message): Response message object.
-        conversation_id (str): Conversation ID.
-        user_id (str): User ID.
-        should_store (bool): Whether to store the conversation in the database.
-        **kwargs (Any): Additional keyword arguments.
+    if event_type not in handlers.keys():
+        logging.warning(f"Event type {event_type} not supported")
+        return None, stream_end_data, response_message, document_ids_to_document
 
-    Returns:
-        NonStreamedChatResponse: Chat response.
-    """
-    model_deployment_response = next(model_deployment_response)
-    if not isinstance(model_deployment_response, dict):
-        response = model_deployment_response.__dict__
-    else:
-        response = model_deployment_response
-
-    chat_history = []
-    for message in response.get("chat_history", []):
-        if not isinstance(message, dict):
-            message = message.__dict__
-
-        chat_history.append(
-            ChatMessage(
-                role=message.get("role", ChatRole.USER),
-                message=message.get("message"),
-                tool_results=message.get("tool_results"),
-            )
-        )
-
-    documents = []
-    if "documents" in response and response["documents"]:
-        documents = [
-            Document(
-                document_id=document.get("id", ""),
-                text=document.get("text", ""),
-                title=document.get("title", ""),
-                url=document.get("url", ""),
-            )
-            for document in response.get("documents")
-        ]
-
-    tool_calls = []
-    if "tool_calls" in response and response["tool_calls"]:
-        for tool_call in response.get("tool_calls", []):
-            tool_calls.append(
-                ToolCall(
-                    name=tool_call.name,
-                    parameters=tool_call.parameters,
-                )
-            )
-
-    non_streamed_chat_response = NonStreamedChatResponse(
-        text=response.get("text", ""),
-        response_id=response.get("response_id", ""),
-        generation_id=response.get("generation_id", ""),
-        chat_history=chat_history,
-        finish_reason=response.get("finish_reason", ""),
-        citations=response.get("citations", []),
-        search_queries=response.get("search_queries", []),
-        documents=documents,
-        search_results=response.get("search_results", []),
-        event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
-        conversation_id=conversation_id,
-        tool_calls=tool_calls,
+    return handlers[event_type](
+        event,
+        conversation_id,
+        stream_end_data,
+        response_message,
+        document_ids_to_document,
     )
 
-    response_message.text = non_streamed_chat_response.text
-    response_message.generation_id = non_streamed_chat_response.generation_id
 
-    if should_store:
-        update_conversation_after_turn(
-            session,
-            response_message,
-            conversation_id,
-            non_streamed_chat_response.text,
-            user_id,
+def handle_stream_start(
+    event: dict[str, Any],
+    conversation_id: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamStart, dict[str, Any], Message, dict[str, Document]]:
+    event["conversation_id"] = conversation_id
+    stream_event = StreamStart.model_validate(event)
+    response_message.generation_id = event["generation_id"]
+    stream_end_data["generation_id"] = event["generation_id"]
+    return stream_event, stream_end_data, response_message, document_ids_to_document
+
+
+def handle_stream_text_generation(
+    event: dict[str, Any],
+    _: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamTextGeneration, dict[str, Any], Message, dict[str, Document]]:
+    stream_end_data["text"] += event["text"]
+    stream_event = StreamTextGeneration.model_validate(event)
+    return stream_event, stream_end_data, response_message, document_ids_to_document
+
+
+def handle_stream_search_results(
+    event: dict[str, Any],
+    _: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamSearchResults, dict[str, Any], Message, dict[str, Document]]:
+    for document in event["documents"]:
+        storage_document = Document(
+            document_id=document.get("id", ""),
+            text=document.get("text", ""),
+            title=document.get("title", ""),
+            url=document.get("url", ""),
+            tool_name=document.get("tool_name", ""),
+            # all document fields except for id, tool_name and text
+            fields={
+                k: v
+                for k, v in document.items()
+                if k not in ["id", "tool_name", "text"]
+            },
+            user_id=response_message.user_id,
+            conversation_id=response_message.conversation_id,
+            message_id=response_message.id,
         )
+        document_ids_to_document[document["id"]] = storage_document
 
-    return non_streamed_chat_response
+    documents = list(document_ids_to_document.values())
+    response_message.documents = documents
+
+    stream_end_data["documents"].extend(documents)
+    if "search_results" not in event or event["search_results"] is None:
+        event["search_results"] = []
+
+    stream_event = StreamSearchResults(
+        **event
+        | {
+            "documents": documents,
+            "search_results": event["search_results"],
+        },
+    )
+    stream_end_data["search_results"].extend(event["search_results"])
+    return stream_event, stream_end_data, response_message, document_ids_to_document
+
+
+def handle_stream_search_queries_generation(
+    event: dict[str, Any],
+    _: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamSearchQueriesGeneration, dict[str, Any], Message, dict[str, Document]]:
+    search_queries = []
+    for search_query in event["search_queries"]:
+        search_queries.append(
+            SearchQuery(
+                text=search_query.text,
+                generation_id=search_query.generation_id,
+            )
+        )
+    stream_event = StreamSearchQueriesGeneration(
+        **event | {"search_queries": search_queries}
+    )
+    stream_end_data["search_queries"] = search_queries
+    return stream_event, stream_end_data, response_message, document_ids_to_document
+
+
+def handle_stream_tool_calls_generation(
+    event: dict[str, Any],
+    _: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamToolCallsGeneration, dict[str, Any], Message, dict[str, Document]]:
+    tool_calls = []
+    tool_calls_event = event.get("tool_calls", [])
+    for tool_call in tool_calls_event:
+        tool_calls.append(
+            ToolCall(
+                name=tool_call.name,
+                parameters=tool_call.parameters,
+            )
+        )
+    stream_event = StreamToolCallsGeneration(**event | {"tool_calls": tool_calls})
+    stream_end_data["tool_calls"].extend(tool_calls)
+    return stream_event, stream_end_data, response_message, document_ids_to_document
+
+
+def handle_stream_citation_generation(
+    event: dict[str, Any],
+    _: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamCitationGeneration, dict[str, Any], Message, dict[str, Document]]:
+    citations = []
+    for event_citation in event["citations"]:
+        citation = Citation(
+            text=event_citation.text,
+            user_id=response_message.user_id,
+            start=event_citation.start,
+            end=event_citation.end,
+            document_ids=event_citation.document_ids,
+        )
+        for document_id in citation.document_ids:
+            document = document_ids_to_document.get(document_id, None)
+            if document is not None:
+                citation.documents.append(document)
+        citations.append(citation)
+    stream_event = StreamCitationGeneration(**event | {"citations": citations})
+    stream_end_data["citations"].extend(citations)
+    return stream_event, stream_end_data, response_message, document_ids_to_document
+
+
+def handle_stream_tool_calls_chunk(
+    event: dict[str, Any],
+    _: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamToolCallsChunk, dict[str, Any], Message, dict[str, Document]]:
+    event["text"] = event.get("text", "")
+    tool_call_delta = event.get("tool_call_delta", None)
+    if tool_call_delta:
+        tool_call = ToolCallDelta(
+            name=tool_call_delta.name,
+            index=tool_call_delta.index,
+            parameters=tool_call_delta.parameters,
+        )
+        event["tool_call_delta"] = tool_call
+
+    stream_event = StreamToolCallsChunk.model_validate(event)
+    return stream_event, stream_end_data, response_message, document_ids_to_document
+
+
+def handle_stream_end(
+    event: dict[str, Any],
+    _: str,
+    stream_end_data: dict[str, Any],
+    response_message: Message,
+    document_ids_to_document: dict[str, Document],
+) -> tuple[StreamEnd, dict[str, Any], Message, dict[str, Document]]:
+    response_message.citations = stream_end_data["citations"]
+    response_message.text = stream_end_data["text"]
+    stream_end = StreamEnd.model_validate(event | stream_end_data)
+    stream_event = stream_end
+    return stream_event, stream_end_data, response_message, document_ids_to_document
 
 
 def generate_langchain_chat_stream(

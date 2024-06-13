@@ -245,25 +245,28 @@ class StreamToolCallsChunk(ChatResponse):
     )
 
 
+StreamEventType = Union[
+    StreamStart,
+    StreamTextGeneration,
+    StreamCitationGeneration,
+    StreamQueryGeneration,
+    StreamSearchResults,
+    StreamEnd,
+    StreamToolInput,
+    StreamToolResult,
+    StreamSearchQueriesGeneration,
+    StreamToolCallsGeneration,
+    StreamToolCallsChunk,
+    NonStreamedChatResponse,
+]
+
+
 class ChatResponseEvent(BaseModel):
     event: StreamEvent = Field(
         title="type of stream event",
     )
 
-    data: Union[
-        StreamStart,
-        StreamTextGeneration,
-        StreamCitationGeneration,
-        StreamQueryGeneration,
-        StreamSearchResults,
-        StreamEnd,
-        StreamToolInput,
-        StreamToolResult,
-        StreamSearchQueriesGeneration,
-        StreamToolCallsGeneration,
-        StreamToolCallsChunk,
-        NonStreamedChatResponse,
-    ] = Field(
+    data: StreamEventType = Field(
         title="Data returned from chat response of a given event type",
     )
 
