@@ -44,7 +44,7 @@ from backend.services.auth.utils import get_header_user_id
 
 
 def process_chat(
-    session: DBSessionDep, chat_request: BaseChatRequest, request: Request
+    session: DBSessionDep, chat_request: BaseChatRequest, request: Request, agent_id: str | None = None
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -71,7 +71,7 @@ def process_chat(
         chat_request
     )
     conversation = get_or_create_conversation(
-        session, chat_request, user_id, should_store
+        session, chat_request, user_id, should_store, agent_id
     )
 
     # Get position to put next message in
@@ -168,6 +168,7 @@ def get_or_create_conversation(
     chat_request: BaseChatRequest,
     user_id: str,
     should_store: bool,
+    agent_id: str | None = None,
 ) -> Conversation:
     """
     Gets or creates a Conversation based on the chat request.
@@ -182,12 +183,13 @@ def get_or_create_conversation(
         Conversation: Conversation object.
     """
     conversation_id = chat_request.conversation_id or ""
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    conversation = conversation_crud.get_conversation(session, conversation_id, user_id, agent_id)
 
     if conversation is None:
         conversation = Conversation(
             user_id=user_id,
             id=chat_request.conversation_id,
+            agent_id=agent_id,
         )
 
         if should_store:

@@ -2,7 +2,7 @@ import os
 from distutils.util import strtobool
 from typing import Any, Generator
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
@@ -19,6 +19,7 @@ from backend.services.chat import (
     process_chat,
 )
 from backend.services.request_validators import validate_deployment_header
+from backend.crud.agent import agent_crud
 
 router = APIRouter(
     prefix="/v1",
@@ -26,11 +27,12 @@ router = APIRouter(
 router.name = RouterName.CHAT
 
 
-@router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
+@router.post("/chat-stream/{agent_id}", dependencies=[Depends(validate_deployment_header)])
 async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    agent_id: str | None = None,
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
@@ -39,10 +41,21 @@ async def chat_stream(
         session (DBSessionDep): Database session.
         chat_request (CohereChatRequest): Chat request data.
         request (Request): Request object.
+        agent_id (str | None): Query parameter for agent ID.
 
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
+    if agent_id is not None:
+        agent = agent_crud.get_agent(session, agent_id)
+        if agent is None:
+            raise HTTPException(status_code=404, detail=f"Agent with ID {agent_id} not found.")
+        
+        # Set the agent settings in the chat request
+        chat_request.preamble = agent.preamble
+        chat_request.tools = agent.tools
+        chat_request.model = agent.model
+
     (
         session,
         chat_request,
@@ -54,7 +67,7 @@ async def chat_stream(
         should_store,
         managed_tools,
         deployment_config,
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, agent_id)
 
     return EventSourceResponse(
         generate_chat_stream(
@@ -79,11 +92,12 @@ async def chat_stream(
     )
 
 
-@router.post("/chat", dependencies=[Depends(validate_deployment_header)])
+@router.post("/chat/{agent_id}", dependencies=[Depends(validate_deployment_header)])
 async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    agent_id: str | None = None,
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
@@ -92,10 +106,20 @@ async def chat(
         chat_request (CohereChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        agent_id (str | None): Query parameter for agent ID.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
+    if agent_id is not None:
+        agent = agent_crud.get_agent(session, agent_id)
+        if agent is None:
+            raise HTTPException(status_code=404, detail=f"Agent with ID {agent_id} not found.")
+        
+        # Set the agent settings in the chat request
+        chat_request.preamble = agent.preamble
+        chat_request.tools = agent.tools
+        chat_request.model = agent.model
 
     (
         session,
@@ -108,7 +132,7 @@ async def chat(
         should_store,
         managed_tools,
         deployment_config,
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, agent_id)
 
     return generate_chat_response(
         session,
