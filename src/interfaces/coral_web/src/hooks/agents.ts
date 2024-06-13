@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-=======
-import { useMutation, useQuery } from '@tanstack/react-query';
->>>>>>> 7d44a35 (render agents list)
 
 import { CreateAgent, useCohereClient } from '@/cohere-client';
 
