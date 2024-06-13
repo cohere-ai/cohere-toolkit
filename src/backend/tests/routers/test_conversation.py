@@ -36,7 +36,7 @@ def test_list_conversations_with_agent(
     conversation1 = get_factory("Conversation", session).create(
         agent_id="agent_id", user_id="123"
     )
-    conversation2 = get_factory("Conversation", session).create(user_id="123")
+    _ = get_factory("Conversation", session).create(user_id="123")
 
     response = session_client.get(
         "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
