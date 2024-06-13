@@ -6,7 +6,7 @@ export const COHERE_API_TIMEOUT_SECONDS = 60 * 5; // 5 minutes
 // todo: change to follow the format of the other envs above
 export const DEFAULT_CHAT_TEMPERATURE = 0.3;
 export const DEFAULT_MODELS = {
-  CHAT: 'command-nightly',
+  CHAT: 'command-r',
   RERANK: 'rerank-english-v2.0',
   SUMMARIZE: 'summarize-xlarge',
 };
