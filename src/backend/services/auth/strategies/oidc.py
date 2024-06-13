@@ -8,32 +8,33 @@ from backend.services.auth.strategies.base import BaseOAuthStrategy
 from backend.services.auth.strategies.settings import Settings
 
 
-class GoogleOauthSettings(Settings):
-    google_client_id: str
-    google_client_secret: str
+class OIDCSettings(Settings):
+    oidc_client_id: str
+    oidc_client_secret: str
+    oidc_config_endpoint: str
 
 
-class GoogleOAuth(BaseOAuthStrategy):
+class OpenIDConnect(BaseOAuthStrategy):
     """
-    Google OAuth2.0 strategy.
+    OpenID Connect strategy.
     """
 
-    NAME = "Google"
-    REDIRECT_METHOD_NAME = "google_authenticate"
+    NAME = "OIDC"
+    REDIRECT_METHOD_NAME = "oidc_authenticate"
 
     def __init__(self):
         try:
-            settings = GoogleOauthSettings()
+            settings = OIDCSettings()
             self.oauth = OAuth()
             self.oauth.register(
-                name="google",
-                server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-                client_id=settings.google_client_id,
-                client_secret=settings.google_client_secret,
+                name="auth0",
+                client_id=settings.oidc_client_id,
+                client_secret=settings.oidc_client_secret,
+                server_metadata_url=settings.oidc_config_endpoint,
                 client_kwargs={"scope": "openid email profile"},
             )
         except Exception as e:
-            logging.error(f"Error during initializing of GoogleOAuth class: {str(e)}")
+            logging.error(f"Error during initializing of OpenIDConnect class: {str(e)}")
             raise
 
     @staticmethod
@@ -48,20 +49,20 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     async def login(self, request: Request, redirect_uri: str) -> dict | None:
         """
-        Redirects to the /auth endpoint for user to sign onto their Google account.
+        Redirects to the /auth endpoint for user to sign onto their SSO account.
 
         Args:
             request (Request): Current request.
             redirect_uri (str): Redirect URI.
 
         Returns:
-            Redirect to Google OAuth.
+            Redirect to SSO.
         """
-        return await self.oauth.google.authorize_redirect(request, redirect_uri)
+        return await self.oauth.auth0.authorize_redirect(request, redirect_uri)
 
     async def authenticate(self, request: Request) -> dict | None:
         """
-        Authenticates the current user using their Google account.
+        Authenticates the current user using their SSO account.
 
         Args:
             request (Request): Current request.

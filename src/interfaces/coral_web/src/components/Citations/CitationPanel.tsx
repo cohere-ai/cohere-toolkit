@@ -33,6 +33,7 @@ export const CitationPanel: React.FC<Props> = ({
       enter="transition-opacity delay-1000 ease-in-out duration-1000"
       enterFrom="opacity-0"
       enterTo="opacity-100"
+      as="div"
       className={cn('h-auto flex-col gap-y-2 md:items-end lg:items-center', className)}
     >
       <div className="relative flex h-full w-full flex-col gap-y-2 overflow-hidden pb-12 pt-1">

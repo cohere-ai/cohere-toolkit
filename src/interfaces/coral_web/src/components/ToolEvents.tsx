@@ -28,6 +28,7 @@ export const ToolEvents: React.FC<Props> = ({ show, events }) => {
       enter="duration-500"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
+      as="div"
       className={cn('flex w-full flex-col gap-y-2 pb-2', 'transition-opacity ease-in-out')}
     >
       {events?.map((toolEvent, i) => (
