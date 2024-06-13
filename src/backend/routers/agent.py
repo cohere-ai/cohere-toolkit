@@ -26,7 +26,7 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request):
         user_id=user_id,
         model=agent.model,
         deployment=agent.deployment,
-        # tools=request.json().get("tools"),
+        tools=agent.tools,
     )
 
     return agent_crud.create_agent(session, agent_data)
