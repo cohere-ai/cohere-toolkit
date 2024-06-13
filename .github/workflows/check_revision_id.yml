@@ -3,10 +3,10 @@ name: Check for duplicate revision IDs
 on:
   pull_request:
     paths:
-      - 'src/backend/alembic/versions/'
+      - 'src/backend/alembic/versions/**'
   push:
     paths:
-      - 'src/backend/alembic/versions/'
+      - 'src/backend/alembic/versions/**'
 
 jobs:
   check-alembic-revision-ids:

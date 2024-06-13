@@ -47,7 +47,9 @@ const ConversationPage: NextPage<Props> = () => {
     isLoading,
     isError,
     error,
-  } = useConversation({ conversationId: urlConversationId });
+  } = useConversation({
+    conversationId: urlConversationId,
+  });
   const { data: allDeployments } = useListAllDeployments();
 
   useEffect(() => {
@@ -78,6 +80,7 @@ const ConversationPage: NextPage<Props> = () => {
     const messages = mapHistoryToMessages(
       conversation?.messages?.sort((a, b) => a.position - b.position)
     );
+
     setConversation({ name: conversation.title, messages });
 
     let documentsMap: { [documentId: string]: Document } = {};

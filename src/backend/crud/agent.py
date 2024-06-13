@@ -64,7 +64,7 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
     Returns:
       Agent: Updated agent.
     """
-    for attr, value in new_agent.model_dump().items():
+    for attr, value in new_agent.model_dump(exclude_none=True).items():
         setattr(agent, attr, value)
     db.commit()
     db.refresh(agent)

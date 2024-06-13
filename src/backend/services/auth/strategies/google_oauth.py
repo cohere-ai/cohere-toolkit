@@ -1,12 +1,16 @@
 import logging
-import os
 from typing import List
 
 from authlib.integrations.starlette_client import OAuth
-from starlette.config import Config
 from starlette.requests import Request
 
 from backend.services.auth.strategies.base import BaseOAuthStrategy
+from backend.services.auth.strategies.settings import Settings
+
+
+class GoogleOauthSettings(Settings):
+    google_client_id: str
+    google_client_secret: str
 
 
 class GoogleOAuth(BaseOAuthStrategy):
@@ -15,22 +19,17 @@ class GoogleOAuth(BaseOAuthStrategy):
     """
 
     NAME = "Google"
+    REDIRECT_METHOD_NAME = "google_authenticate"
 
     def __init__(self):
-        client_id = os.environ.get("GOOGLE_CLIENT_ID")
-        client_secret = os.environ.get("GOOGLE_CLIENT_SECRET")
-
-        if any([client_id is None, client_secret is None]):
-            raise ValueError(
-                "To use Google OAuth, please set the GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables."
-            )
-
         try:
-            config = Config(".env")
-            self.oauth = OAuth(config)
+            settings = GoogleOauthSettings()
+            self.oauth = OAuth()
             self.oauth.register(
                 name="google",
                 server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+                client_id=settings.google_client_id,
+                client_secret=settings.google_client_secret,
                 client_kwargs={"scope": "openid email profile"},
             )
         except Exception as e:

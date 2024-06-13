@@ -1,16 +1,22 @@
 import { Message, MessageAgent } from '@/cohere-client';
 import { BotMessage, BotState, MessageType, UserMessage } from '@/types/message';
 import { replaceTextWithCitations } from '@/utils/citations';
+import { replaceCodeBlockWithIframe } from '@/utils/preview';
 
 export const mapHistoryToMessages = (history?: Message[]) => {
   return history
     ? history.map<UserMessage | BotMessage>((message) => {
+        const isBotMessage = message.agent === MessageAgent.CHATBOT;
+        let text = message.text;
+        if (isBotMessage) {
+          text = replaceCodeBlockWithIframe(message.text);
+        }
         return {
-          ...(message.agent === MessageAgent.CHATBOT
+          ...(isBotMessage
             ? { type: MessageType.BOT, state: BotState.FULFILLED, originalText: message.text ?? '' }
             : { type: MessageType.USER }),
           text: replaceTextWithCitations(
-            message.text ?? '',
+            text ?? '',
             message.citations ?? [],
             message.generation_id ?? ''
           ),

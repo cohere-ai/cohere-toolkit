@@ -112,6 +112,7 @@ export const Header: React.FC<Props> = ({ conversationId, isStreaming }) => {
               leave="delay-300 transition ease-in-out duration-300"
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
+              as="div"
               className={cn({
                 'lg:hidden': isConvListPanelOpen,
               })}

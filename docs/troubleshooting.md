@@ -50,3 +50,18 @@ import pdb; pdb.set_trace()
 
 it will allow you to debug.
 
+
+## Alembic migrations out of sync error:
+
+When developing on the backend if database model changes are made in different git branches your Alembic migrations may diverge.
+
+If you have changes on your branch_a that contains a migration <my_migration_id>.py that is out of sync with the main branch, first downgrade your local branch using:
+
+docker compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
+Then delete <my_migration_id>.py for your existing changes, and run:
+
+make migrate
+To sync with main, then:
+
+make migration
+to regenerate your migrations.
