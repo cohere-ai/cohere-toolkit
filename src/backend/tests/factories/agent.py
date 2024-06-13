@@ -1,6 +1,6 @@
 import factory
 
-from backend.database_models.agent import Agent, Deployment, Model
+from backend.database_models.agent import Agent, AgentDeployment, AgentModel
 
 from .base import BaseFactory
 
@@ -20,18 +20,18 @@ class AgentFactory(BaseFactory):
     model = factory.Faker(
         "random_element",
         elements=(
-            Model.COMMAND_R,
-            Model.COMMAND_R_PLUS,
-            Model.COMMAND_LIGHT,
-            Model.COMMAND,
+            AgentModel.COMMAND_R,
+            AgentModel.COMMAND_R_PLUS,
+            AgentModel.COMMAND_LIGHT,
+            AgentModel.COMMAND,
         ),
     )
     deployment = factory.Faker(
         "random_element",
         elements=(
-            Deployment.COHERE_PLATFORM,
-            Deployment.SAGE_MAKER,
-            Deployment.AZURE,
-            Deployment.BEDROCK,
+            AgentDeployment.COHERE_PLATFORM,
+            AgentDeployment.SAGE_MAKER,
+            AgentDeployment.AZURE,
+            AgentDeployment.BEDROCK,
         ),
     )

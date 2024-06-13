@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from backend.crud import agent as agent_crud
-from backend.database_models.agent import Agent, Deployment, Model
+from backend.database_models.agent import Agent, AgentDeployment, AgentModel
 from backend.schemas.agent import UpdateAgent
 from backend.tests.factories import get_factory
 
@@ -17,8 +17,8 @@ def test_create_agent(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        model=Model.COMMAND_R_PLUS,
-        deployment=Deployment.COHERE_PLATFORM,
+        model=AgentModel.COMMAND_R_PLUS,
+        deployment=AgentDeployment.COHERE_PLATFORM,
     )
 
     agent = agent_crud.create_agent(session, agent_data)
@@ -28,8 +28,8 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.model == Model.COMMAND_R_PLUS
-    assert agent.deployment == Deployment.COHERE_PLATFORM
+    assert agent.model == AgentModel.COMMAND_R_PLUS
+    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
 
     agent = agent_crud.get_agent(session, agent.id)
     assert agent.user_id == user.id
@@ -38,8 +38,81 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.model == Model.COMMAND_R_PLUS
-    assert agent.deployment == Deployment.COHERE_PLATFORM
+    assert agent.model == AgentModel.COMMAND_R_PLUS
+    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+
+
+def test_create_agent_empty_non_required_fields(session, user):
+    agent_data = Agent(
+        user_id=user.id,
+        name="test",
+        deployment=AgentDeployment.COHERE_PLATFORM,
+        model=AgentModel.COMMAND_R_PLUS,
+    )
+
+    agent = agent_crud.create_agent(session, agent_data)
+    assert agent.user_id == user.id
+    assert agent.version == 1
+    assert agent.name == "test"
+    assert agent.description == ""
+    assert agent.preamble == ""
+    assert agent.temperature == 0.3
+    assert agent.model == AgentModel.COMMAND_R_PLUS
+    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+
+    agent = agent_crud.get_agent(session, agent.id)
+    assert agent.user_id == user.id
+    assert agent.version == 1
+    assert agent.name == "test"
+    assert agent.description == ""
+    assert agent.preamble == ""
+    assert agent.temperature == 0.3
+    assert agent.model == AgentModel.COMMAND_R_PLUS
+    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+
+
+def test_create_agent_missing_name(session, user):
+    agent_data = Agent(
+        user_id=user.id,
+        model=AgentModel.COMMAND_R_PLUS,
+        deployment=AgentDeployment.COHERE_PLATFORM,
+    )
+
+    with pytest.raises(IntegrityError):
+        _ = agent_crud.create_agent(session, agent_data)
+
+
+def test_create_agent_missing_model(session, user):
+    agent_data = Agent(
+        user_id=user.id,
+        name="test",
+        deployment=AgentDeployment.COHERE_PLATFORM,
+    )
+
+    with pytest.raises(IntegrityError):
+        _ = agent_crud.create_agent(session, agent_data)
+
+
+def test_create_agent_missing_deployment(session, user):
+    agent_data = Agent(
+        user_id=user.id,
+        name="test",
+        model=AgentModel.COMMAND_R_PLUS,
+    )
+
+    with pytest.raises(IntegrityError):
+        _ = agent_crud.create_agent(session, agent_data)
+
+
+def test_create_agent_missing_user_id(session):
+    agent_data = Agent(
+        name="test",
+        model=AgentModel.COMMAND_R_PLUS,
+        deployment=AgentDeployment.COHERE_PLATFORM,
+    )
+
+    with pytest.raises(IntegrityError):
+        _ = agent_crud.create_agent(session, agent_data)
 
 
 def test_create_agent_duplicate_name_version(session, user):
@@ -54,8 +127,8 @@ def test_create_agent_duplicate_name_version(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        model=Model.COMMAND_R_PLUS,
-        deployment=Deployment.COHERE_PLATFORM,
+        model=AgentModel.COMMAND_R_PLUS,
+        deployment=AgentDeployment.COHERE_PLATFORM,
     )
 
     with pytest.raises(IntegrityError):

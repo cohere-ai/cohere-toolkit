@@ -6,6 +6,5 @@
  * Stream text generation event.
  */
 export type StreamTextGeneration = {
-  is_finished: boolean;
   text: string;
 };

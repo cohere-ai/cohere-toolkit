@@ -176,7 +176,7 @@ class StreamEnd(ChatResponse):
         title="List of tool calls generated for custom tools",
         default=[],
     )
-    finish_reason: str = Field()
+    finish_reason: str | None = Field(default=None)
 
 
 class NonStreamedChatResponse(ChatResponse):

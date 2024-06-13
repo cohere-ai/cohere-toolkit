@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config.auth import is_authentication_enabled
 from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
@@ -41,6 +42,7 @@ def create_app():
         tool_router,
         deployment_router,
         experimental_feature_router,
+        agent_router,
     ]
 
     # Dynamically set router dependencies
