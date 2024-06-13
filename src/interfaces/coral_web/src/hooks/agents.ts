@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { CreateAgent, useCohereClient } from '@/cohere-client';
 
@@ -19,6 +19,7 @@ export const useListAgents = () => {
 
 export const useCreateAgent = () => {
   const cohereClient = useCohereClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (request: CreateAgent) => {
       try {
@@ -27,6 +28,9 @@ export const useCreateAgent = () => {
         console.error(e);
         throw e;
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['listAgents'] });
     },
   });
 };

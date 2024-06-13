@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
 import { AgentModel, CreateAgent, ToolName } from '@/cohere-client';
@@ -13,6 +14,7 @@ type AgentForm = Omit<CreateAgent, 'version' | 'temperature' | 'deployment'>;
  * @description Form to create a new agent.
  */
 export const NewAgentForm: React.FC = () => {
+  const router = useRouter();
   const { mutateAsync: createAgent } = useCreateAgent();
   const tools = Object.values(ToolName);
   const modelOptions = [
@@ -54,7 +56,12 @@ export const NewAgentForm: React.FC = () => {
   const handleSubmit = () => {
     if (!canSubmit) return;
 
-    createAgent(fields);
+    try {
+      createAgent(fields);
+      router.push('/agents', undefined, { shallow: true });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
