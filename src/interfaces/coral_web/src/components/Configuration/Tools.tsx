@@ -69,6 +69,19 @@ const ToolSection = () => {
     const updatedTools = checked
       ? [...enabledTools, { name }]
       : enabledTools.filter((enabledTool) => enabledTool.name !== name);
+    // If the tool requires auth by this specific user then direct them to the auth URL
+    // On return preferably the tool should be enabled
+    // Otherwise just enable the tool
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
+      response_type: 'code',
+      client_id: "",
+      scope: 'openid email profile',
+      redirect_uri: `http://localhost:8000/v1/tool/auth`,
+      prompt: 'select_account consent',
+      state: name,
+    }).toString()}`;
+
+    window.location.assign(url);
     updateEnabledTools(updatedTools);
   };
 

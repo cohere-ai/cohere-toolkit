@@ -152,3 +152,15 @@ async def logout(request: Request):
     # TODO: Design blacklist
 
     return {}
+
+
+@router.get("/tool/auth")
+async def login(request: Request):
+    # TODO the client redirect to this endpoint which should store the URL with the User ID in the DB with tools name 
+    # General Flow:
+    # store the url in the tools config 
+    # store the access token per tool 
+    # in the tool get the access token to search 
+    # document all of this 
+    response = RedirectResponse("http://localhost:4000")
+    return response

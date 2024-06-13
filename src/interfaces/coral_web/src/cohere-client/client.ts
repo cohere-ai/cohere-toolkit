@@ -16,6 +16,7 @@ import {
 } from '.';
 import { mapToChatRequest } from './mappings';
 
+
 export class CohereNetworkError extends Error {
   public status: number;
 
@@ -406,6 +407,7 @@ export class CohereClient {
     const headers: HeadersInit = {
       ...(omitContentType ? {} : { 'Content-Type': 'application/json' }),
       'User-Id': 'user-id',
+      'cookie': "cookies"
     };
     return headers;
   }

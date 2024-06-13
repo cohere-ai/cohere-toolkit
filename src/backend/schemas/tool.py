@@ -24,6 +24,8 @@ class ManagedTool(Tool):
     kwargs: dict = {}
     is_visible: bool = False
     is_available: bool = False
+    auth_required: bool = False # Per user
+    auth_url: Optional[str] = "" # per tool
     error_message: Optional[str] = ""
     category: Category = Category.DataLoader
     implementation: Any = Field(exclude=True)
