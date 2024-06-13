@@ -1,53 +1,71 @@
-import { ChangeEvent, useEffect, useRef } from 'react';
+import { useResizeObserver } from '@react-hookz/web';
+import { useEffect, useRef, useState } from 'react';
 
 import { Tool } from '@/cohere-client';
+import { ComposerError } from '@/components/Conversation/ComposerError';
 import { ComposerFiles } from '@/components/Conversation/ComposerFiles';
-import { ComposerMenu } from '@/components/Conversation/ComposerMenu';
+import { ComposerToolbar } from '@/components/Conversation/ComposerToolbar';
+import { DragDropFileUploadOverlay } from '@/components/Conversation/DragDropFileUploadOverlay';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
-import { useIsDesktop } from '@/hooks/breakpoint';
-import { useFileActions } from '@/hooks/files';
+import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
 import { useSettingsStore } from '@/stores';
 import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
 
 type Props = {
+  isFirstTurn: boolean;
   isStreaming: boolean;
   value: string;
-  messages: ChatMessage[];
   streamingMessage: ChatMessage | null;
   onStop: VoidFunction;
   onSend: (message?: string, tools?: Tool[]) => void;
-  onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  onChange: (message: string) => void;
   onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  chatWindowRef?: React.RefObject<HTMLDivElement>;
 };
 
 const Composer: React.FC<Props> = ({
+  isFirstTurn,
   value,
   isStreaming,
   onSend,
   onChange,
   onStop,
   onUploadFile,
+  chatWindowRef,
 }) => {
-  const isReadyToReceiveMessage = !isStreaming;
-  const canSend = isReadyToReceiveMessage && value.trim().length > 0;
   const {
     settings: { isMobileConvListPanelOpen },
   } = useSettingsStore();
-  const { uploadingFiles, composerFiles, deleteComposerFile, deleteUploadingFile } =
-    useFileActions();
   const isDesktop = useIsDesktop();
+  const breakpoint = useBreakpoint();
+  const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const [isComposing, setIsComposing] = useState(false);
+  const [chatWindowHeight, setChatWindowHeight] = useState(0);
+  const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
+
+  const isReadyToReceiveMessage = !isStreaming;
+  const canSend = isReadyToReceiveMessage && value.trim().length > 0;
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isComposing) {
       // Do expected default behaviour (add a newline inside of the textarea)
-      if (e.shiftKey) return;
+      if (e.shiftKey || isSmallBreakpoint) return;
 
       e.preventDefault();
       if (canSend) {
-        onSend(undefined);
+        onSend(value);
       }
     }
   };
@@ -57,6 +75,8 @@ const Composer: React.FC<Props> = ({
     if (textarea) {
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
+      textarea.addEventListener('compositionstart', handleCompositionStart);
+      textarea.addEventListener('compositionend', handleCompositionEnd);
 
       // if the content overflows the max height, show the scrollbar
       if (textarea.scrollHeight > textarea.clientHeight + 2) {
@@ -64,6 +84,13 @@ const Composer: React.FC<Props> = ({
       } else {
         textarea.style.overflowY = 'hidden';
       }
+
+      return () => {
+        if (textarea) {
+          textarea.removeEventListener('compositionstart', handleCompositionStart);
+          textarea.removeEventListener('compositionend', handleCompositionEnd);
+        }
+      };
     }
   }, [value]);
 
@@ -84,56 +111,65 @@ const Composer: React.FC<Props> = ({
     return () => clearTimeout(timer);
   }, [isMobileConvListPanelOpen, isDesktop, textareaRef.current]);
 
+  useResizeObserver(chatWindowRef || null, (e) => {
+    setChatWindowHeight(e.target.clientHeight);
+  });
+
   return (
     <div className="flex w-full flex-col gap-y-2">
-      <div className="flex items-end gap-x-2 md:gap-x-4">
-        <ComposerMenu onUploadFile={onUploadFile} />
-        <div
-          className={cn(
-            'flex w-full items-end',
-            'transition ease-in-out',
-            'rounded border bg-marble-100',
-            'border-marble-500 focus-within:border-secondary-700',
-            'pr-2 md:pr-4'
-          )}
-        >
-          <div className="relative grow flex-col">
-            <textarea
-              id={CHAT_COMPOSER_TEXTAREA_ID}
-              dir="auto"
-              ref={textareaRef}
-              value={value}
-              placeholder="Message..."
-              className={cn(
-                'min-h-[3rem] md:min-h-[4rem]',
-                'max-h-48 w-full flex-1 resize-none overflow-hidden',
-                'self-center',
-                'p-2 md:p-4',
-                'rounded',
-                'bg-marble-100',
-                'transition ease-in-out',
-                'focus:outline-none',
-                STYLE_LEVEL_TO_CLASSES.p,
-                'leading-[200%]'
-              )}
-              rows={1}
-              onKeyDown={handleKeyDown}
-              onChange={onChange}
-            />
-            <ComposerFiles
-              uploadingFiles={uploadingFiles}
-              composerFiles={composerFiles}
-              deleteFile={deleteComposerFile}
-              deleteUploadingFile={deleteUploadingFile}
-            />
-          </div>
+      <div
+        className={cn(
+          'relative flex w-full flex-col',
+          'transition ease-in-out',
+          'rounded border bg-marble-100',
+          'border-marble-500 focus-within:border-secondary-700'
+        )}
+        onDragEnter={() => setIsDragDropInputActive(true)}
+        onDragOver={() => setIsDragDropInputActive(true)}
+        onDragLeave={() => setIsDragDropInputActive(false)}
+        onDrop={() => {
+          setTimeout(() => {
+            setIsDragDropInputActive(false);
+          }, 100);
+        }}
+      >
+        <DragDropFileUploadOverlay active={isDragDropInputActive} onUploadFile={onUploadFile} />
+        <div className="relative flex items-end pr-2 md:pr-4">
+          <textarea
+            id={CHAT_COMPOSER_TEXTAREA_ID}
+            dir="auto"
+            ref={textareaRef}
+            value={value}
+            placeholder="Message..."
+            className={cn(
+              'w-full flex-1 resize-none overflow-hidden',
+              'self-center',
+              'px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-4',
+              'rounded',
+              'bg-marble-100',
+              'transition ease-in-out',
+              'focus:outline-none',
+              STYLE_LEVEL_TO_CLASSES.p,
+              'leading-[150%]'
+            )}
+            style={{
+              maxHeight: `${
+                chatWindowHeight * (isSmallBreakpoint || breakpoint === 'md' ? 0.6 : 0.75)
+              }px`,
+            }}
+            rows={1}
+            onKeyDown={handleKeyDown}
+            onChange={(e) => {
+              onChange(e.target.value);
+            }}
+          />
           <button
             className={cn(
               'h-8 w-8',
               'my-2 ml-1 md:my-4',
               'flex flex-shrink-0 items-center justify-center rounded',
-              'border transition ease-in-out',
-              'border-secondary-400 bg-secondary-200 text-secondary-800 hover:bg-secondary-300'
+              'transition ease-in-out',
+              'text-secondary-800 hover:bg-secondary-100'
             )}
             type="button"
             onClick={() => (canSend ? onSend(undefined) : onStop())}
@@ -141,7 +177,10 @@ const Composer: React.FC<Props> = ({
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>
         </div>
+        <ComposerFiles />
+        <ComposerToolbar onUploadFile={onUploadFile} />
       </div>
+      <ComposerError />
     </div>
   );
 };
