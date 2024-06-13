@@ -1,8 +1,11 @@
+import asyncio
 import os
+import threading
 import time
 import uuid
+from time import sleep
 
-import requests
+import httpx
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.types import Message
@@ -20,12 +23,12 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
         response = await call_next(request)
         duration = time.time() - start_time
-
-        self.report_request_metrics(request.scope, response, duration, request)
-
+        data = self.get_data(request.scope, response, duration, request)
+        threading.Thread(target=run_in_new_thread, args=(data,)).start()
         return response
 
-    def report_request_metrics(self, scope, response, duration, request):
+    def get_data(self, scope, response, duration, request):
+        data = {}
         trace_id = None
         if hasattr(request.state, "trace_id"):
             trace_id = request.state.trace_id
@@ -41,7 +44,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 "duration": duration,
             }
 
-            report_metrics(data)
+        return data
 
     def get_method(self, scope):
         try:
@@ -69,13 +72,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             return 500
 
 
-def report_metrics(data):
+async def report_metrics(data):
     if not REPORT_ENDPOINT:
         print("No report endpoint set")
         return
 
     try:
         data["id"] = str(uuid.uuid4())
-        requests.post(REPORT_ENDPOINT, json=data)
+        async with httpx.AsyncClient() as client:
+            await client.post(REPORT_ENDPOINT, json=data)
     except Exception as e:
         print("Failed to report metrics:", e)
+
+
+def run_in_new_thread(data):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(report_metrics(data))
+    loop.close()

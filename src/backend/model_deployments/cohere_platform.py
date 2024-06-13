@@ -1,5 +1,7 @@
+import asyncio
 import logging
 import os
+import threading
 import time
 from typing import Any, Dict, Generator, List
 
@@ -10,7 +12,7 @@ from cohere.types import StreamedChatResponse
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.services.metrics import report_metrics
+from backend.services.metrics import report_metrics, run_in_new_thread
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
@@ -73,16 +75,26 @@ class CohereDeployment(BaseDeployment):
     ) -> Generator[StreamedChatResponse, None, None]:
         trace_id = kwargs.pop("trace_id", None)
 
-        stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream", "file_ids"}),
-            force_single_step=True,
-            **kwargs,
-        )
+        success = True
+        try:
+            stream = self.client.chat_stream(
+                **chat_request.model_dump(exclude={"stream", "file_ids"}),
+                force_single_step=True,
+                **kwargs,
+            )
+        except Exception as e:
+            success = False
+            logging.error(f"Error invoking chat stream: {e}")
+
         for event in stream:
+            if hasattr(event, "finish_reason") and event.finish_reason == "ERROR":
+                success = False
+
             yield event.__dict__
 
         self.report_metrics(
             endpoint_name="co.chat",
+            success=success,
             trace_id=trace_id,
         )
 
@@ -109,14 +121,25 @@ class CohereDeployment(BaseDeployment):
     ) -> Any:
         trace_id = kwargs.pop("trace_id", None)
 
+        success = True
+        try:
+            response = self.client.rerank(
+                query=query, documents=documents, model="rerank-english-v2.0", **kwargs
+            )
+        except Exception as e:
+            self.report_metrics(
+                endpoint_name="co.rerank",
+                success=False,
+                trace_id=trace_id,
+            )
+            raise e
+
         self.report_metrics(
             endpoint_name="co.rerank",
+            success=success,
             trace_id=trace_id,
         )
-
-        return self.client.rerank(
-            query=query, documents=documents, model="rerank-english-v2.0", **kwargs
-        )
+        return response
 
     def invoke_tools(
         self,
@@ -142,12 +165,12 @@ class CohereDeployment(BaseDeployment):
             trace_id=trace_id,
         )
 
-    def report_metrics(self, endpoint_name, trace_id) -> None:
-        report_metrics(
-            {
-                "endpoint_name": endpoint_name,
-                "method": "POST",
-                "trace_id": trace_id,
-                "timestamp": time.time(),
-            }
-        )
+    def report_metrics(self, endpoint_name, success, trace_id) -> None:
+        data = {
+            "endpoint_name": endpoint_name,
+            "method": "POST",
+            "success": success,
+            "trace_id": trace_id,
+            "timestamp": time.time(),
+        }
+        threading.Thread(target=run_in_new_thread, args=(data,)).start()
