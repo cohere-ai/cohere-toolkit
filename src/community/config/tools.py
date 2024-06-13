@@ -9,6 +9,7 @@ from community.tools import (
     ManagedTool,
     PubMedRetriever,
     WolframAlpha,
+    StackOverflow,
 )
 
 
@@ -19,6 +20,7 @@ class CommunityToolName(StrEnum):
     File_Upload_LlamaIndex = "File Reader - LlamaIndex"
     Wolfram_Alpha = "Wolfram_Alpha"
     ClinicalTrials = "ClinicalTrials"
+    StackOverflow = "StackOverflow"
 
 
 COMMUNITY_TOOLS = {
@@ -110,6 +112,22 @@ COMMUNITY_TOOLS = {
                 "type": "bool",
                 "required": False,
             },
+        },
+    ),
+    CommunityToolName.StackOverflow: ManagedTool(
+        name=CommunityToolName.StackOverflow,
+        implementation=StackOverflow,
+        is_visible=True,
+        is_available=StackOverflow.is_available(),
+        error_message="StackOverflowTool is not available.",
+        category=Category.Function,
+        description="Searches for answers to programming questions on Stack Overflow.",
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
         },
     ),
 }
