@@ -1,8 +1,10 @@
 from enum import StrEnum
 
 from sqlalchemy import Enum, Float, Integer, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, mapped_column
 
+from backend.config.tools import ToolName
 from backend.database_models.base import Base
 
 
@@ -28,7 +30,9 @@ class Agent(Base):
     description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     preamble: Mapped[str] = mapped_column(Text, default="", nullable=False)
     temperature: Mapped[float] = mapped_column(Float, default=0.3, nullable=False)
-    # tool: Mapped[List["Tool"]] = relationship()
+    tools: Mapped[list[ToolName]] = mapped_column(
+        ARRAY(Enum(ToolName, native_enum=False)), default=[], nullable=False
+    )
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
