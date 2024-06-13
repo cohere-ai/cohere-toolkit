@@ -18,3 +18,11 @@ def test_list_tools(client: TestClient) -> None:
         assert tool["error_message"] == tool_definition.error_message
         assert tool["category"] == tool_definition.category
         assert tool["description"] == tool_definition.description
+
+
+def test_list_tools_error_message_none_if_available(client: TestClient) -> None:
+    response = client.get("/v1/tools")
+    assert response.status_code == 200
+    for tool in response.json():
+        if tool["is_available"]:
+            assert tool["error_message"] is None
