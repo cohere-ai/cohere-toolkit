@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useState } from 'react';
 
 import { AgentModel, CreateAgent, ToolName } from '@/cohere-client';
@@ -58,10 +59,10 @@ export const NewAgentForm: React.FC = () => {
 
   return (
     <div className="flex max-w-[650px] flex-col p-10">
-      <div className="mb-4 flex items-center gap-x-2 text-green-700">
+      <Link className="mb-4 flex items-center gap-x-2 text-green-700" href="/agents">
         <IconButton iconName="chevron-left" />
         <Text>Back to Assistant</Text>
-      </div>
+      </Link>
       <Text styleAs="h3">New Assistant</Text>
       <div className="my-10 flex flex-col gap-y-4">
         <Input
@@ -76,23 +77,25 @@ export const NewAgentForm: React.FC = () => {
           placeholder="What does your assistant do?"
           onChange={(e) => handleTextFieldChange('description', e.target.value)}
         />
-        <InputLabel label="Preamble">
-          <textarea
-            value={fields.preamble ?? ''}
-            placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
-            className={cn(
-              'mt-2 w-full flex-1 resize-none p-3',
-              'transition ease-in-out',
-              'rounded-lg border',
-              'bg-marble-100',
-              'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
-              'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
-            )}
-            rows={5}
-            onChange={(e) => handleTextFieldChange('preamble', e.target.value)}
-            data-testid="input-preamble"
-          />
-        </InputLabel>
+        <div
+          className={cn(
+            'mt-2 w-full flex-1 resize-none p-3',
+            'rounded-lg border',
+            'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
+            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
+          )}
+        >
+          <InputLabel label="Preamble">
+            <textarea
+              value={fields.preamble ?? ''}
+              placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
+              className="mt-1 w-full resize-none bg-marble-100 text-sm"
+              rows={5}
+              onChange={(e) => handleTextFieldChange('preamble', e.target.value)}
+              data-testid="input-preamble"
+            />
+          </InputLabel>
+        </div>
         <Dropdown
           className="w-full"
           label="Model"
