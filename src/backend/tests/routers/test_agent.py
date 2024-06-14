@@ -76,6 +76,7 @@ def test_create_agent_missing_model(
     )
     assert response.status_code == 422
 
+
 def test_create_agent_missing_user_id_header(
     session_client: TestClient, session: Session
 ) -> None:
