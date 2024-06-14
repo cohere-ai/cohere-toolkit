@@ -2,7 +2,7 @@ name: Automated Migrations
 
 on:
   push:
-    branches: [ eugene/TLK-581_automated_migrations ]
+    branches: [ main ]
 jobs:
   run-alembic-migrations-ssh:
     runs-on: ubuntu-latest

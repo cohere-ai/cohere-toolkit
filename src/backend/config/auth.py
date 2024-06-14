@@ -1,8 +1,10 @@
 import os
-from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
+
 from dotenv import load_dotenv
-from fastapi import HTTPException, Depends, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 
 load_dotenv()
 
