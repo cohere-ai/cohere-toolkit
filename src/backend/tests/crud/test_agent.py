@@ -50,7 +50,6 @@ def test_create_agent_empty_non_required_fields(session, user):
     agent_data = Agent(
         user_id=user.id,
         name="test",
-        deployment=AgentDeployment.COHERE_PLATFORM,
         model=AgentModel.COMMAND_R_PLUS,
     )
 
@@ -93,17 +92,6 @@ def test_create_agent_missing_model(session, user):
         user_id=user.id,
         name="test",
         deployment=AgentDeployment.COHERE_PLATFORM,
-    )
-
-    with pytest.raises(IntegrityError):
-        _ = agent_crud.create_agent(session, agent_data)
-
-
-def test_create_agent_missing_deployment(session, user):
-    agent_data = Agent(
-        user_id=user.id,
-        name="test",
-        model=AgentModel.COMMAND_R_PLUS,
     )
 
     with pytest.raises(IntegrityError):
