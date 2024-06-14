@@ -29,8 +29,17 @@ def get_strategies() -> list[ListAuthStrategy]:
         List[dict]: List of dictionaries containing the enabled auth strategy names.
     """
     strategies = []
-    for key in ENABLED_AUTH_STRATEGY_MAPPING.keys():
-        strategies.append({"strategy": key})
+    for strategy_name, strategy_instance in ENABLED_AUTH_STRATEGY_MAPPING.items():
+        strategies.append(
+            {
+                "strategy": strategy_name,
+                "client_id": (
+                    strategy_instance.get_client_id()
+                    if hasattr(strategy_instance, "get_client_id")
+                    else None
+                ),
+            }
+        )
 
     return strategies
 
@@ -161,10 +170,6 @@ async def authorize(
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
         )
-
-    import pdb
-
-    pdb.set_trace()
 
     # Get or create user, then set session user
     user = get_or_create_user(session, userinfo)

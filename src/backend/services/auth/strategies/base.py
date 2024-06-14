@@ -50,14 +50,21 @@ class BaseOAuthStrategy:
             raise ValueError(f"{self.__name__} must have NAME parameter(s) defined.")
 
     @abstractmethod
-    def get_endpoints(self, **kwargs: Any):
+    def get_client_id(self, **kwargs: Any):
+        """
+        Retrieves the OAuth app's client ID
+        """
+        ...
+
+    @abstractmethod
+    async def get_endpoints(self, **kwargs: Any):
         """
         Retrieves the /token and /userinfo endpoints.
         """
         ...
 
     @abstractmethod
-    def authorize(self, **kwargs: Any):
+    async def authorize(self, **kwargs: Any):
         """
         Authentication logic: dealing with user data and returning it
         to set the current user session for OAuth strategies.

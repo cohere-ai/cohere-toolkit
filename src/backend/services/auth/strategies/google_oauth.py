@@ -24,15 +24,18 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            settings = GoogleOauthSettings()
-            self.REDIRECT_URI = f"{settings.frontend_hostname}/auth/complete"
+            self.settings = GoogleOauthSettings()
+            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/complete"
             self.client = OAuth2Session(
-                client_id=settings.google_client_id,
-                client_secret=settings.google_client_secret,
+                client_id=self.settings.google_client_id,
+                client_secret=self.settings.google_client_secret,
             )
         except Exception as e:
             logging.error(f"Error during initializing of GoogleOAuth class: {str(e)}")
             raise
+
+    def get_client_id(self):
+        return self.settings.google_client_id
 
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)
