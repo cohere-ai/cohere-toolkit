@@ -532,8 +532,8 @@ export class CohereClient {
     return body as {};
   }
 
-  public async googleSSOAuth({ state }: { state: string }) {
-    const response = await this.fetch(`${this.getEndpoint('google/auth')}?state=${state}`, {
+  public async googleSSOAuth({ code }: { code: string }) {
+    const response = await this.fetch(`${this.getEndpoint('google/auth')}?code=${code}`, {
       method: 'GET',
       headers: this.getHeaders()
     });

@@ -75,7 +75,7 @@ export const useSession = () => {
   }, [router]);
 
   const googleSSOMutation = useMutation({
-    mutationFn: async (params: { state: string }) => {
+    mutationFn: async (params: { code: string }) => {
       return cohereClient.googleSSOAuth(params);
     },
     onSuccess: (data: { token: string }) => {
