@@ -31,6 +31,7 @@ def get_conversation(
         db (Session): Database session.
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
+        agent_id (str | None): Optionally filter by Agent ID.
 
     Returns:
         Conversation: Conversation with the given conversation ID and user ID.

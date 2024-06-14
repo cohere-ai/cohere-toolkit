@@ -8,7 +8,6 @@ from sse_starlette.sse import EventSourceResponse
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
-from backend.crud.agent import agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -26,9 +25,9 @@ router = APIRouter(
 )
 router.name = RouterName.CHAT
 
-
+# TODO @scott-cohere: create separate endpoint for creating conversation
 @router.post(
-    "/chat-stream/{agent_id}", dependencies=[Depends(validate_deployment_header)]
+    "/chat-stream", dependencies=[Depends(validate_deployment_header)]
 )
 async def chat_stream(
     session: DBSessionDep,
@@ -84,7 +83,7 @@ async def chat_stream(
     )
 
 
-@router.post("/chat/{agent_id}", dependencies=[Depends(validate_deployment_header)])
+@router.post("/chat", dependencies=[Depends(validate_deployment_header)])
 async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,

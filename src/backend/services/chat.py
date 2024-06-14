@@ -40,7 +40,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
-from backend.schemas.tool import ToolCall
+from backend.schemas.tool import ToolCall, Tool
 from backend.services.auth.utils import get_header_user_id
 
 
@@ -81,7 +81,7 @@ def process_chat(
 
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
-        chat_request.tools = agent.tools
+        chat_request.tools = [Tool(name=tool) for tool in agent.tools]
         chat_request.model = agent.model
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
