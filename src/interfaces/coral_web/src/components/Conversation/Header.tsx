@@ -84,6 +84,10 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
     conversationId: id,
   });
 
+  const handleOpenAgentDrawer = () => {
+    setSettings({ isEditAgentDrawerOpen: true });
+  };
+
   return (
     <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-400')}>
       <div
