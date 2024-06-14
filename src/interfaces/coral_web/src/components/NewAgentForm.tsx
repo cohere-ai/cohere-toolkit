@@ -72,37 +72,39 @@ export const NewAgentForm: React.FC = () => {
       </Link>
       <Text styleAs="h3">New Assistant</Text>
       <div className="my-10 flex flex-col gap-y-4">
-        <Input
-          value={fields.name ?? ''}
-          label="name"
-          placeholder="Give your assistant a name"
-          onChange={(e) => handleTextFieldChange('name', e.target.value)}
-        />
-        <Input
-          value={fields.description ?? ''}
-          label="description"
-          placeholder="What does your assistant do?"
-          onChange={(e) => handleTextFieldChange('description', e.target.value)}
-        />
-        <div
-          className={cn(
-            'mt-2 w-full flex-1 resize-none p-3',
-            'rounded-lg border',
-            'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
-            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
-          )}
-        >
-          <InputLabel label="Preamble">
-            <textarea
-              value={fields.preamble ?? ''}
-              placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
-              className="mt-1 w-full resize-none bg-marble-100 text-sm"
-              rows={5}
-              onChange={(e) => handleTextFieldChange('preamble', e.target.value)}
-              data-testid="input-preamble"
-            />
-          </InputLabel>
-        </div>
+        <InputLabel label="name">
+          <Input
+            kind="default"
+            value={fields.name ?? ''}
+            placeholder="Give your assistant a name"
+            onChange={(e) => handleTextFieldChange('name', e.target.value)}
+          />
+        </InputLabel>
+        <InputLabel label="description">
+          <Input
+            kind="default"
+            value={fields.description ?? ''}
+            placeholder="What does your assistant do?"
+            onChange={(e) => handleTextFieldChange('description', e.target.value)}
+          />
+        </InputLabel>
+        <InputLabel label="Preamble">
+          <textarea
+            value={fields.preamble ?? ''}
+            placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
+            className={cn(
+              'mt-2 w-full flex-1 resize-none p-3',
+              'transition ease-in-out',
+              'rounded-lg border',
+              'bg-marble-100',
+              'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
+              'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
+            )}
+            rows={5}
+            onChange={(e) => handleTextFieldChange('preamble', e.target.value)}
+            data-testid="input-preamble"
+          />
+        </InputLabel>
         <Dropdown
           className="w-full"
           label="Model"
@@ -111,31 +113,25 @@ export const NewAgentForm: React.FC = () => {
           onChange={(model: string) => handleTextFieldChange('model', model)}
           optionGroups={modelOptions}
         />
-        <div
-          className={cn(
-            'w-full flex-1 p-3',
-            'transition ease-in-out',
-            'rounded-lg border',
-            'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700'
-          )}
-        >
-          <InputLabel label="Tools" className="mb-2" />
-          <div className="flex flex-col gap-y-4">
-            {tools.map((toolName) => {
-              const enabledTools = [...(fields.tools ? fields.tools : [])];
-              const enabledTool = enabledTools.find((tool) => tool === toolName);
-              const checked = !!enabledTool;
-              return (
-                <Checkbox
-                  key={toolName}
-                  label={toolName}
-                  checked={checked}
-                  onChange={(e) => handleToolToggle(toolName, e.target.checked)}
-                />
-              );
-            })}
+        <InputLabel label="Tools" className="mb-2">
+          <div className="w-full flex-1 p-3">
+            <div className="flex flex-col gap-y-4">
+              {tools.map((toolName) => {
+                const enabledTools = [...(fields.tools ? fields.tools : [])];
+                const enabledTool = enabledTools.find((tool) => tool === toolName);
+                const checked = !!enabledTool;
+                return (
+                  <Checkbox
+                    key={toolName}
+                    label={toolName}
+                    checked={checked}
+                    onChange={(e) => handleToolToggle(toolName, e.target.checked)}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </InputLabel>
       </div>
       <Button
         splitIcon="check-mark"
