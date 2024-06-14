@@ -1,7 +1,6 @@
 import logging
-from typing import List
 
-from authlib.integrations.starlette_client import OAuth
+from authlib.integrations.requests_client import OAuth2Session
 from starlette.requests import Request
 
 from backend.services.auth.strategies.base import BaseOAuthStrategy
@@ -11,7 +10,9 @@ from backend.services.auth.strategies.settings import Settings
 class OIDCSettings(Settings):
     oidc_client_id: str
     oidc_client_secret: str
-    oidc_config_endpoint: str
+    oidc_token_endpoint: str
+    oidc_userinfo_endpoint: str
+    frontend_hostname: str
 
 
 class OpenIDConnect(BaseOAuthStrategy):
@@ -20,49 +21,25 @@ class OpenIDConnect(BaseOAuthStrategy):
     """
 
     NAME = "OIDC"
-    REDIRECT_METHOD_NAME = "oidc_authenticate"
 
     def __init__(self):
         try:
             settings = OIDCSettings()
-            self.oauth = OAuth()
-            self.oauth.register(
-                name="auth0",
+            # TODO: switch out to proper oidc strategy name
+            self.REDIRECT_URI = f"{settings.frontend_hostname}/auth/complete"
+            self.TOKEN_ENDPOINT = settings.oidc_token_endpoint
+            self.USERINFO_ENDPOINT = settings.oidc_userinfo_endpoint
+            self.client = OAuth2Session(
                 client_id=settings.oidc_client_id,
                 client_secret=settings.oidc_client_secret,
-                server_metadata_url=settings.oidc_config_endpoint,
-                client_kwargs={"scope": "openid email profile"},
             )
         except Exception as e:
             logging.error(f"Error during initializing of OpenIDConnect class: {str(e)}")
             raise
 
-    @staticmethod
-    def get_required_payload() -> List[str]:
+    async def authorize(self, request: Request) -> dict | None:
         """
-        Retrieves the required /login payload for the Auth strategy.
-
-        Returns:
-            List[str]: List of required variables.
-        """
-        return []
-
-    async def login(self, request: Request, redirect_uri: str) -> dict | None:
-        """
-        Redirects to the /auth endpoint for user to sign onto their SSO account.
-
-        Args:
-            request (Request): Current request.
-            redirect_uri (str): Redirect URI.
-
-        Returns:
-            Redirect to SSO.
-        """
-        return await self.oauth.auth0.authorize_redirect(request, redirect_uri)
-
-    async def authenticate(self, request: Request) -> dict | None:
-        """
-        Authenticates the current user using their SSO account.
+        Authenticates the current user using their OIDC account.
 
         Args:
             request (Request): Current request.
@@ -70,4 +47,11 @@ class OpenIDConnect(BaseOAuthStrategy):
         Returns:
             Access token.
         """
-        return await self.oauth.google.authorize_access_token(request)
+        token = self.client.fetch_token(
+            url=self.TOKEN_ENDPOINT,
+            authorization_response=str(request.url),
+            redirect_uri=self.redirect_uri,
+        )
+        user_info = self.client.get(self.USERINFO_ENDPOINT)
+
+        return user_info.json()

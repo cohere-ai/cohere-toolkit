@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from authlib.integrations.requests_client import OAuth2Session
 from starlette.requests import Request
@@ -21,12 +20,12 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     NAME = "Google"
     TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
-    USER_INFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo"
+    USERINFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo"
 
     def __init__(self):
         try:
             settings = GoogleOauthSettings()
-            self.redirect_uri = f"{settings.frontend_hostname}/auth/complete"
+            self.REDIRECT_URI = f"{settings.frontend_hostname}/auth/complete"
             self.client = OAuth2Session(
                 client_id=settings.google_client_id,
                 client_secret=settings.google_client_secret,
@@ -48,8 +47,8 @@ class GoogleOAuth(BaseOAuthStrategy):
         token = self.client.fetch_token(
             url=self.TOKEN_ENDPOINT,
             authorization_response=str(request.url),
-            redirect_uri=self.redirect_uri,
+            redirect_uri=self.REDIRECT_URI,
         )
-        user_info = self.client.get(self.USER_INFO_ENDPOINT)
+        user_info = self.client.get(self.USERINFO_ENDPOINT)
 
         return user_info.json()

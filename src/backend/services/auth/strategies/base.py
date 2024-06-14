@@ -39,19 +39,22 @@ class BaseOAuthStrategy:
 
     NAME = None
     TOKEN_ENDPOINT = None
-    USER_INFO_ENDPOINT = None
+    USERINFO_ENDPOINT = None
 
-    def __init__subclass(cls, **kwargs):
-        super().__init__subclass__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._post_init_check()
+
+    def _post_init_check(self):
         if any(
             [
-                cls.NAME is None,
-                cls.TOKEN_ENDPOINT is None,
-                cls.USER_INFO_ENDPOINT is None,
+                self.NAME is None,
+                self.TOKEN_ENDPOINT is None,
+                self.USERINFO_ENDPOINT is None,
             ]
         ):
             raise ValueError(
-                f"{cls.__name__} must have NAME, TOKEN_ENDPOINT and USER_INFO_ENDPOINT parameters defined."
+                f"{self.__name__} must have NAME, TOKEN_ENDPOINT and USER_INFO_ENDPOINT parameters defined."
             )
 
     @abstractmethod
