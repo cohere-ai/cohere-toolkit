@@ -1,19 +1,12 @@
 from enum import StrEnum
 
-from sqlalchemy import Enum, Float, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Enum, Float, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.config.tools import ToolName
 from backend.database_models.base import Base
-
-
-class AgentDeployment(StrEnum):
-    COHERE_PLATFORM = "Cohere Platform"
-    SAGE_MAKER = "SageMaker"
-    AZURE = "Azure"
-    BEDROCK = "Bedrock"
-
+from backend.config.deployments import ModelDeploymentName
 
 class Agent(Base):
     __tablename__ = "agents"
@@ -30,9 +23,8 @@ class Agent(Base):
     # enum place holders
     model: Mapped[str] = mapped_column(Text, nullable=False)
     # This is not used for now, just default it to Cohere Platform
-    deployment: Mapped[AgentDeployment] = mapped_column(
-        Enum(AgentDeployment, native_enum=False),
-        default=AgentDeployment.COHERE_PLATFORM,
+    deployment: Mapped[ModelDeploymentName] = mapped_column(
+        Enum(ModelDeploymentName, native_enum=False),
         nullable=False,
     )
 

@@ -123,6 +123,8 @@ async def validate_agent_params(request: Request):
         HTTPException: If the request does not have the appropriate values in the body
     """
     body = await request.json()
+
+    # Validate tools
     tools = body.get("tools")
     if not tools:
         return
@@ -130,3 +132,9 @@ async def validate_agent_params(request: Request):
     for tool in tools:
         if tool not in AVAILABLE_TOOLS:
             raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
+
+    # Validate model
+    deployment = body.get("deployment")
+    if deployment not in AVAILABLE_MODEL_DEPLOYMENTS.keys():
+        raise HTTPException(status_code=400, detail=f"Model {body.get('model')} not found.")
+
