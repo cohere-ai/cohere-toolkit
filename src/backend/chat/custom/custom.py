@@ -205,9 +205,9 @@ class CustomChat(BaseChat):
                     chat_history.append(
                         ChatMessage(
                             role=message.get("role"),
-                            message=message.get("message"),
-                            tool_results=message.get("tool_results", []),
-                            tool_calls=message.get("tool_calls", []),
+                            message=message.get("message", ""),
+                            tool_results=message.get("tool_results", None),
+                            tool_calls=message.get("tool_calls", None),
                         )
                     )
 

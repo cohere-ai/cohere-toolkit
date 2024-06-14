@@ -60,10 +60,11 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        yield self.client.chat(
+        response = self.client.chat(
             **chat_request.model_dump(exclude={"stream"}),
             **kwargs,
         )
+        yield to_dict(response)
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
