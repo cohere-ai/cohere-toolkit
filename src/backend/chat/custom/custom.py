@@ -79,7 +79,10 @@ class CustomChat(BaseChat):
             return True
 
         return not ("tool_calls" in response and response["tool_calls"]) or (
-            chat_request.tools and not self.get_managed_tools(self.chat_request)
+            "tool_calls" in response
+            and response["tool_calls"]
+            and chat_request.tools
+            and not self.get_managed_tools(self.chat_request)
         )
 
     def handle_event(
