@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from typing import Any, Dict, Generator, List
@@ -6,6 +7,8 @@ import cohere
 import requests
 from cohere.types import StreamedChatResponse
 
+from backend.chat.collate import to_dict
+from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -59,7 +62,6 @@ class CohereDeployment(BaseDeployment):
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         yield self.client.chat(
             **chat_request.model_dump(exclude={"stream"}),
-            # force_single_step=True,
             **kwargs,
         )
 
@@ -71,7 +73,7 @@ class CohereDeployment(BaseDeployment):
             **kwargs,
         )
         for event in stream:
-            yield event.__dict__
+            yield to_dict(event)
 
     def invoke_search_queries(
         self,

@@ -405,11 +405,12 @@ def generate_chat_response(
         **kwargs,
     )
 
+    non_streamed_chat_response = None
     for event in stream:
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
-            return NonStreamedChatResponse(
+            non_streamed_chat_response = NonStreamedChatResponse(
                 text=data.get("text", ""),
                 response_id=response_message.id,
                 generation_id=response_message.generation_id,
@@ -423,6 +424,8 @@ def generate_chat_response(
                 conversation_id=conversation_id,
                 tool_calls=data.get("tool_calls", []),
             )
+
+    return non_streamed_chat_response
 
 
 def generate_chat_stream(
@@ -627,8 +630,8 @@ def handle_stream_tool_calls_generation(
     for tool_call in tool_calls_event:
         tool_calls.append(
             ToolCall(
-                name=tool_call.name,
-                parameters=tool_call.parameters,
+                name=tool_call.get("name"),
+                parameters=tool_call.get("parameters"),
             )
         )
     stream_event = StreamToolCallsGeneration(**event | {"tool_calls": tool_calls})
@@ -646,11 +649,11 @@ def handle_stream_citation_generation(
     citations = []
     for event_citation in event["citations"]:
         citation = Citation(
-            text=event_citation.text,
+            text=event_citation.get("text"),
             user_id=response_message.user_id,
-            start=event_citation.start,
-            end=event_citation.end,
-            document_ids=event_citation.document_ids,
+            start=event_citation.get("start"),
+            end=event_citation.get("end"),
+            document_ids=event_citation.get("document_ids"),
         )
         for document_id in citation.document_ids:
             document = document_ids_to_document.get(document_id, None)
@@ -673,9 +676,9 @@ def handle_stream_tool_calls_chunk(
     tool_call_delta = event.get("tool_call_delta", None)
     if tool_call_delta:
         tool_call = ToolCallDelta(
-            name=tool_call_delta.name,
-            index=tool_call_delta.index,
-            parameters=tool_call_delta.parameters,
+            name=tool_call_delta.get("name"),
+            index=tool_call_delta.get("index"),
+            parameters=tool_call_delta.get("parameters"),
         )
         event["tool_call_delta"] = tool_call
 

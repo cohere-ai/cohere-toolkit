@@ -1,4 +1,4 @@
-from itertools import zip_longest
+import json
 from typing import Any, Dict, List
 
 from backend.model_deployments.base import BaseDeployment
@@ -122,3 +122,7 @@ def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=
         chunks.append(current_chunk.strip())
 
     return chunks
+
+
+def to_dict(obj):
+    return json.loads(json.dumps(obj, default=lambda o: o.__dict__))

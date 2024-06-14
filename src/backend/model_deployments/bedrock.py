@@ -4,6 +4,7 @@ from typing import Any, Dict, Generator, List
 import cohere
 from cohere.types import StreamedChatResponse
 
+from backend.chat.collate import to_dict
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -76,7 +77,7 @@ class BedrockDeployment(BaseDeployment):
             **kwargs,
         )
         for event in stream:
-            yield event.__dict__
+            yield to_dict(event)
 
     def invoke_search_queries(
         self,

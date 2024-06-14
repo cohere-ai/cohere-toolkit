@@ -45,11 +45,11 @@ class ChatMessage(BaseModel):
     )
     tool_results: List[Dict[str, Any]] | None = Field(
         title="Results from the tool call.",
-        default=[],
+        default=None,
     )
     tool_calls: List[Dict[str, Any]] | None = Field(
         title="List of tool calls generated for custom tools",
-        default=[],
+        default=None,
     )
 
     def to_dict(self) -> Dict[str, str]:

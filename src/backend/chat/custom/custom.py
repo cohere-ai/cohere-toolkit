@@ -5,7 +5,7 @@ from typing import Any, Dict, Generator, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import rerank_and_chunk
+from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
@@ -71,11 +71,16 @@ class CustomChat(BaseChat):
         self, event: Dict[str, Any], chat_request: CohereChatRequest
     ) -> bool:
         # The event is final if:
-        # 1. It is a stream end event with no tool calls
-        # 2. It is a stream end event with tool calls, but no managed tools
-        return not (
-            hasattr(event["response"], "tool_calls") and event["response"].tool_calls
-        ) or (chat_request.tools and not self.get_managed_tools(self.chat_request))
+        # 1. It is a stream end event with no tool calls - direct answer
+        # 2. It is a stream end event with tool calls, but no managed tools - tool calls generation only
+        if "response" in event:
+            response = event["response"]
+        else:
+            return True
+
+        return not ("tool_calls" in response and response["tool_calls"]) or (
+            chat_request.tools and not self.get_managed_tools(self.chat_request)
+        )
 
     def handle_event(
         self, event: Dict[str, Any], chat_request: CohereChatRequest
@@ -142,7 +147,7 @@ class CustomChat(BaseChat):
             if event["event_type"] != StreamEvent.STREAM_START:
                 yield event
             if event["event_type"] == StreamEvent.STREAM_END:
-                chat_request.chat_history = event["response"].chat_history
+                chat_request.chat_history = event["response"].get("chat_history", [])
 
         # Update the chat request and restore the message
         self.chat_request = chat_request
@@ -187,24 +192,22 @@ class CustomChat(BaseChat):
         chat_history = []
         for event in stream:
             if event["event_type"] == StreamEvent.STREAM_END:
-                for message in event["response"].chat_history:
+                stream_chat_history = []
+                if "response" in event:
+                    stream_chat_history = event["response"].get("chat_history", [])
+                elif "chat_history" in event:
+                    stream_chat_history = event["chat_history"]
+
+                for message in stream_chat_history:
                     if not isinstance(message, dict):
-                        message = message.__dict__
-
-                    tool_calls = message.get("tool_calls")
-                    if tool_calls:
-                        tool_calls = [tool.__dict__ for tool in tool_calls]
-
-                    tool_results = message.get("tool_results")
-                    if tool_results:
-                        tool_results = [tool.__dict__ for tool in tool_results]
+                        message = to_dict(message)
 
                     chat_history.append(
                         ChatMessage(
                             role=message.get("role"),
                             message=message.get("message"),
-                            tool_results=tool_results,
-                            tool_calls=tool_calls,
+                            tool_results=message.get("tool_results", []),
+                            tool_calls=message.get("tool_calls", []),
                         )
                     )
 
