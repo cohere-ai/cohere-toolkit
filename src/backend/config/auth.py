@@ -16,9 +16,7 @@ ENABLED_AUTH_STRATEGIES = []
 ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
 
 # Token to authorize migration requests
-MIGRATE_TOKEN = os.environ.get(
-    "MIGRATE_TOKEN", None
-)
+MIGRATE_TOKEN = os.environ.get("MIGRATE_TOKEN", None)
 
 security = HTTPBearer()
 
