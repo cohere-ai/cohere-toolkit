@@ -8,11 +8,9 @@ class BaseAuthenticationStrategy:
 
     Attributes:
         NAME (str): The name of the strategy.
-        SHOULD_AUTH_REDIRECT (str): Whether the strategy requires a redirect to the /auth endpoint after login.
     """
 
     NAME = "Base"
-    SHOULD_AUTH_REDIRECT = False
 
     @staticmethod
     def get_required_payload(self) -> List[str]:
@@ -24,35 +22,40 @@ class BaseAuthenticationStrategy:
     @abstractmethod
     def login(self, **kwargs: Any):
         """
-        Login logic: dealing with checking credentials, returning user object
-        to store into session if finished. For OAuth strategies, the next step
-        will be to authenticate.
+        Check email/password credentials and return JWT token.
         """
         ...
 
 
-class BaseOAuthStrategy(BaseAuthenticationStrategy):
+class BaseOAuthStrategy:
     """
     Base strategy for OAuth, abstract class that should be inherited from.
 
     Attributes:
         NAME (str): The name of the strategy.
-        SHOULD_AUTH_REDIRECT (str): Whether the strategy requires a redirect to the /auth endpoint after login.
-        REDIRECT_METHOD_NAME (str | None): The router method name that should be used for redirect callback.
+        TOKEN_ENDPOINT (str | None): The OAuth token endpoint to validate an authorization code.
+        USER_INFO_ENDPOINT (str | None): The OAuth userinfo endpoint to retrieve user data from the access token, after authorization.
     """
 
-    SHOULD_AUTH_REDIRECT = True
-    REDIRECT_METHOD_NAME = None
+    NAME = None
+    TOKEN_ENDPOINT = None
+    USER_INFO_ENDPOINT = None
 
     def __init__subclass(cls, **kwargs):
         super().__init__subclass__(**kwargs)
-        if cls.REDIRECT_METHOD_NAME is None:
+        if any(
+            [
+                cls.NAME is None,
+                cls.TOKEN_ENDPOINT is None,
+                cls.USER_INFO_ENDPOINT is None,
+            ]
+        ):
             raise ValueError(
-                f"{cls.__name__} must have a REDIRECT_METHOD_NAME defined, and a corresponding router definition."
+                f"{cls.__name__} must have NAME, TOKEN_ENDPOINT and USER_INFO_ENDPOINT parameters defined."
             )
 
     @abstractmethod
-    def authenticate(self, **kwargs: Any):
+    def authorize(self, **kwargs: Any):
         """
         Authentication logic: dealing with user data and returning it
         to set the current user session for OAuth strategies.
