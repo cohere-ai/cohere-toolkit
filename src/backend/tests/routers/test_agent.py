@@ -77,22 +77,6 @@ def test_create_agent_missing_model(
     assert response.status_code == 422
 
 
-def test_create_agent_missing_deployment(
-    session_client: TestClient, session: Session
-) -> None:
-    request_json = {
-        "name": "test agent",
-        "description": "test description",
-        "preamble": "test preamble",
-        "temperature": 0.5,
-        "model": AgentModel.COMMAND_R,
-    }
-    response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": "123"}
-    )
-    assert response.status_code == 422
-
-
 def test_create_agent_missing_user_id_header(
     session_client: TestClient, session: Session
 ) -> None:
@@ -111,7 +95,6 @@ def test_create_agent_missing_non_required_fields(
     request_json = {
         "name": "test agent",
         "model": AgentModel.COMMAND_R,
-        "deployment": AgentDeployment.COHERE_PLATFORM,
     }
 
     print(request_json)
@@ -128,7 +111,6 @@ def test_create_agent_missing_non_required_fields(
     assert response_agent["preamble"] == ""
     assert response_agent["temperature"] == 0.3
     assert response_agent["model"] == request_json["model"]
-    assert response_agent["deployment"] == request_json["deployment"]
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None
@@ -138,7 +120,6 @@ def test_create_agent_missing_non_required_fields(
     assert agent.preamble == ""
     assert agent.temperature == 0.3
     assert agent.model == request_json["model"]
-    assert agent.deployment == request_json["deployment"]
 
 
 def test_create_agent_wrong_model_deployment_enums(

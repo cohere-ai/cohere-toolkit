@@ -41,7 +41,9 @@ class Agent(Base):
         Enum(AgentModel, native_enum=False), nullable=False
     )
     deployment: Mapped[AgentDeployment] = mapped_column(
-        Enum(AgentDeployment, native_enum=False), nullable=False
+        Enum(AgentDeployment, native_enum=False),
+        default=AgentDeployment.COHERE_PLATFORM,
+        nullable=False,
     )
 
     user_id: Mapped[str] = mapped_column(Text, nullable=False)
