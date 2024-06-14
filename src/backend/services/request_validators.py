@@ -110,3 +110,23 @@ async def validate_env_vars(request: Request):
                 + ",".join(invalid_keys)
             ),
         )
+
+
+async def validate_agent_tools(request: Request):
+    """
+    Validate that the request has the appropriate values in the body
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If the request does not have the appropriate values in the body
+    """
+    body = await request.json()
+    tools = body.get("tools")
+    if not tools:
+        return
+
+    for tool in tools:
+        if tool not in AVAILABLE_TOOLS:
+            raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")

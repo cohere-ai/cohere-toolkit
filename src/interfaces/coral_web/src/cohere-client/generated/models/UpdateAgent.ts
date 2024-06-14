@@ -7,7 +7,6 @@
 /* eslint-disable */
 import type { AgentDeployment } from './AgentDeployment';
 import type { AgentModel } from './AgentModel';
-import type { ToolName } from './ToolName';
 
 export type UpdateAgent = {
   name?: string | null;
@@ -17,5 +16,5 @@ export type UpdateAgent = {
   temperature?: number | null;
   model?: AgentModel | null;
   deployment?: AgentDeployment | null;
-  tools?: Array<ToolName> | null;
+  tools?: Array<string> | null;
 };

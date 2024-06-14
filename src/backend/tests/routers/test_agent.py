@@ -15,7 +15,7 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
         "temperature": 0.5,
         "model": AgentModel.COMMAND_R,
         "deployment": AgentDeployment.COHERE_PLATFORM,
-        "tools": [ToolName.Wiki_Retriever_LangChain],
+        "tools": [ToolName.Calculator],
     }
 
     response = session_client.post(
@@ -141,20 +141,21 @@ def test_create_agent_wrong_model_deployment_enums(
     assert response.status_code == 422
 
 
-def test_create_agent_wrong_tool_name_enums(
+def test_create_agent_invalid_tool(
     session_client: TestClient, session: Session
 ) -> None:
     request_json = {
         "name": "test agent",
         "model": AgentModel.COMMAND_R,
         "deployment": AgentDeployment.COHERE_PLATFORM,
-        "tools": ["not a real tool"],
+        "tools": [ToolName.Calculator, "not a real tool"],
     }
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
 def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
