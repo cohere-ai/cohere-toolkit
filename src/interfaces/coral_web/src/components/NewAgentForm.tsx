@@ -65,57 +65,57 @@ export const NewAgentForm: React.FC = () => {
   };
 
   return (
-    <div className="flex max-w-[650px] flex-col p-10">
-      <Link className="mb-4 flex items-center gap-x-2 text-green-700" href="/agents">
-        <IconButton iconName="chevron-left" />
-        <Text>Back to Assistant</Text>
-      </Link>
-      <Text styleAs="h3">New Assistant</Text>
-      <div className="my-10 flex flex-col gap-y-4">
-        <InputLabel label="name">
-          <Input
+    <div className="relative h-full w-full">
+      <div className="flex h-full max-w-[650px] flex-col p-10">
+        <Link className="mb-4 flex items-center gap-x-2 text-green-700" href="/agents">
+          <IconButton iconName="chevron-left" />
+          <Text>Back to Assistant</Text>
+        </Link>
+        <Text styleAs="h3">New Assistant</Text>
+        <div className="my-10 flex flex-col gap-y-4">
+          <InputLabel label="name" className="pb-2">
+            <Input
+              kind="default"
+              value={fields.name ?? ''}
+              placeholder="Give your assistant a name"
+              onChange={(e) => handleTextFieldChange('name', e.target.value)}
+            />
+          </InputLabel>
+          <InputLabel label="description" className="pb-2">
+            <Input
+              kind="default"
+              value={fields.description ?? ''}
+              placeholder="What does your assistant do?"
+              onChange={(e) => handleTextFieldChange('description', e.target.value)}
+            />
+          </InputLabel>
+          <InputLabel label="Preamble">
+            <textarea
+              value={fields.preamble ?? ''}
+              placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
+              className={cn(
+                'mt-2 w-full flex-1 resize-none p-3',
+                'transition ease-in-out',
+                'rounded-lg border',
+                'bg-marble-100',
+                'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
+                'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
+              )}
+              rows={5}
+              onChange={(e) => handleTextFieldChange('preamble', e.target.value)}
+              data-testid="input-preamble"
+            />
+          </InputLabel>
+          <Dropdown
+            className="w-full"
+            label="Model"
             kind="default"
-            value={fields.name ?? ''}
-            placeholder="Give your assistant a name"
-            onChange={(e) => handleTextFieldChange('name', e.target.value)}
+            value={fields.model}
+            onChange={(model: string) => handleTextFieldChange('model', model)}
+            optionGroups={modelOptions}
           />
-        </InputLabel>
-        <InputLabel label="description">
-          <Input
-            kind="default"
-            value={fields.description ?? ''}
-            placeholder="What does your assistant do?"
-            onChange={(e) => handleTextFieldChange('description', e.target.value)}
-          />
-        </InputLabel>
-        <InputLabel label="Preamble">
-          <textarea
-            value={fields.preamble ?? ''}
-            placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
-            className={cn(
-              'mt-2 w-full flex-1 resize-none p-3',
-              'transition ease-in-out',
-              'rounded-lg border',
-              'bg-marble-100',
-              'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
-              'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
-            )}
-            rows={5}
-            onChange={(e) => handleTextFieldChange('preamble', e.target.value)}
-            data-testid="input-preamble"
-          />
-        </InputLabel>
-        <Dropdown
-          className="w-full"
-          label="Model"
-          kind="default"
-          value={fields.model}
-          onChange={(model: string) => handleTextFieldChange('model', model)}
-          optionGroups={modelOptions}
-        />
-        <InputLabel label="Tools" className="mb-2">
-          <div className="w-full flex-1 p-3">
-            <div className="flex flex-col gap-y-4">
+          <InputLabel label="Tools" className="mb-2">
+            <div className="flex flex-col gap-y-4 px-3">
               {tools.map((toolName) => {
                 const enabledTools = [...(fields.tools ? fields.tools : [])];
                 const enabledTool = enabledTools.find((tool) => tool === toolName);
@@ -130,17 +130,14 @@ export const NewAgentForm: React.FC = () => {
                 );
               })}
             </div>
-          </div>
-        </InputLabel>
+          </InputLabel>
+        </div>
       </div>
-      <Button
-        splitIcon="check-mark"
-        onClick={handleSubmit}
-        disabled={!canSubmit}
-        className="self-end"
-      >
-        Create
-      </Button>
+      <div className="absolute bottom-0 right-0 flex w-full justify-end border-t border-marble-400 bg-white px-4 py-8">
+        <Button splitIcon="add" onClick={handleSubmit} disabled={!canSubmit}>
+          Create
+        </Button>
+      </div>
     </div>
   );
 };
