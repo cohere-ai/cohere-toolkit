@@ -15,8 +15,8 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        "deployment": ModelDeploymentName.COHERE_PLATFORM,
+        "model": "command_r_plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
         "tools": [ToolName.Calculator],
     }
 
@@ -54,8 +54,8 @@ def test_create_agent_missing_name(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        "deployment": ModelDeploymentName.COHERE_PLATFORM,
+        "model": "command_r_plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
@@ -71,7 +71,7 @@ def test_create_agent_missing_model(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "deployment": ModelDeploymentName.COHERE_PLATFORM,
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
@@ -87,7 +87,7 @@ def test_create_agent_missing_deployment(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
+        "model": "command_r_plus",
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
@@ -100,8 +100,8 @@ def test_create_agent_missing_user_id_header(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        "deployment": ModelDeploymentName.COHERE_PLATFORM,
+        "model": "command_r_plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
     response = session_client.post("/v1/agents", json=request_json)
     assert response.status_code == 401
@@ -112,8 +112,8 @@ def test_create_agent_missing_non_required_fields(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        "deployment": ModelDeploymentName.COHERE_PLATFORM,
+        "model": "command_r_plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
 
     print(request_json)
@@ -165,8 +165,8 @@ def test_create_agent_invalid_tool(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        "deployment": ModelDeploymentName.COHERE_PLATFORM,
+        "model": "command_r_plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
         "tools": [ToolName.Calculator, "not a real tool"],
     }
 
@@ -237,8 +237,8 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        deployment=ModelDeploymentName.COHERE_PLATFORM,
+        model="command_r_plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     request_json = {
@@ -272,8 +272,8 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        deployment=ModelDeploymentName.COHERE_PLATFORM,
+        model="command_r_plus",
+        deployment=ModelDeploymentName.CoherePlatform,
         tools=[ToolName.Calculator],
     )
 
@@ -292,8 +292,8 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
     assert updated_agent["description"] == "test description"
     assert updated_agent["preamble"] == "test preamble"
     assert updated_agent["temperature"] == 0.5
-    assert updated_agent["model"] == ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"]
-    assert updated_agent["deployment"] == ModelDeploymentName.COHERE_PLATFORM
+    assert updated_agent["model"] == "command_r_plus"
+    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
     assert updated_agent["tools"] == [ToolName.Search_File, ToolName.Read_File]
 
 
@@ -317,8 +317,8 @@ def test_update_agent_wrong_model_deployment_enums(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        deployment=ModelDeploymentName.COHERE_PLATFORM,
+        model="command_r_plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     request_json = {
@@ -341,8 +341,8 @@ def test_update_agent_invalid_tool(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=ALL_MODEL_DEPLOYMENTS[ModelDeploymentName.COHERE_PLATFORM]["models"]["command_r_plus"],
-        deployment=ModelDeploymentName.COHERE_PLATFORM,
+        model="command_r_plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     request_json = {

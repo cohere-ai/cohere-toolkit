@@ -133,8 +133,12 @@ async def validate_agent_params(request: Request):
         if tool not in AVAILABLE_TOOLS:
             raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
 
-    # Validate model
+    # Validate deployment
     deployment = body.get("deployment")
     if deployment not in AVAILABLE_MODEL_DEPLOYMENTS.keys():
-        raise HTTPException(status_code=400, detail=f"Model {body.get('model')} not found.")
+        raise HTTPException(status_code=400, detail=f"Deployment {deployment} not found or is not available.")
+
+    # Validate model
+    if body.get("model") not in AVAILABLE_MODEL_DEPLOYMENTS[deployment]["models"]:
+        raise HTTPException(status_code=4000, detail=f"Model {body.get('model')} not found for deployment {deployment}.")
 

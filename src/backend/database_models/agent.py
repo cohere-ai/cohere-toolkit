@@ -4,9 +4,7 @@ from sqlalchemy import Enum, Float, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.config.tools import ToolName
 from backend.database_models.base import Base
-from backend.config.deployments import ModelDeploymentName
 
 class Agent(Base):
     __tablename__ = "agents"
@@ -23,8 +21,8 @@ class Agent(Base):
     # enum place holders
     model: Mapped[str] = mapped_column(Text, nullable=False)
     # This is not used for now, just default it to Cohere Platform
-    deployment: Mapped[ModelDeploymentName] = mapped_column(
-        Enum(ModelDeploymentName, native_enum=False),
+    deployment: Mapped[str] = mapped_column(
+        Text,
         nullable=False,
     )
 
