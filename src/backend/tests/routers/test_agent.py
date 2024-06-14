@@ -255,10 +255,12 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
         temperature=0.5,
         model=AgentModel.COMMAND_R,
         deployment=AgentDeployment.COHERE_PLATFORM,
+        tools=[ToolName.Calculator],
     )
 
     request_json = {
         "name": "updated name",
+        "tools": [ToolName.Search_File, ToolName.Read_File],
     }
 
     response = session_client.put(
@@ -273,6 +275,7 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
     assert updated_agent["temperature"] == 0.5
     assert updated_agent["model"] == AgentModel.COMMAND_R
     assert updated_agent["deployment"] == AgentDeployment.COHERE_PLATFORM
+    assert updated_agent["tools"] == [ToolName.Search_File, ToolName.Read_File]
 
 
 def test_update_nonexistent_agent(session_client: TestClient, session: Session) -> None:
@@ -308,6 +311,32 @@ def test_update_agent_wrong_model_deployment_enums(
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
     )
     assert response.status_code == 422
+
+
+def test_update_agent_invalid_tool(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model=AgentModel.COMMAND_R,
+        deployment=AgentDeployment.COHERE_PLATFORM,
+    )
+
+    request_json = {
+        "model": "not a real model",
+        "deployment": "not a real deployment",
+        "tools": [ToolName.Calculator, "not a real tool"],
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
 def test_delete_agent(session_client: TestClient, session: Session) -> None:
