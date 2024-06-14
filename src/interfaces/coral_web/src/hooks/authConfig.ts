@@ -1,11 +1,18 @@
+import { useMemo } from 'react';
+import { useServerAuthStrategies } from '@/hooks/authStrategies';
+
 export const useAuthConfig = () => {
+  const { data: authStrategies } = useServerAuthStrategies();
+
+  const loginStrategies = useMemo(() => {
+    return authStrategies ? authStrategies.filter((strategy) => strategy.strategy !== 'Basic') : [];
+  }, [authStrategies]);
+
   return {
     loginUrl: '/login',
     registerUrl: '/register',
     logoutUrl: '/logout',
-    login: {
-      googleClientId: '450029371612-juq2nac3cnhcqhhq49ho0ttnis8j30rt.apps.googleusercontent.com',
-    },
+    login: loginStrategies,
     baseUrl: 'http://localhost:4000',
   };
 };

@@ -13,6 +13,7 @@ import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
 import { useSession } from '@/hooks/session';
 import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString, simpleEmailValidation } from '@/utils';
+import { useAuthConfig } from '@/hooks/authConfig';
 
 interface Credentials {
   email: string;
@@ -29,6 +30,7 @@ type LoginStatus = 'idle' | 'pending';
 const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
   const { loginMutation } = useSession();
+  const { login: ssoLogins } = useAuthConfig();
   const { googleAuth } = useGoogleAuthRoute();
 
   const loginStatus: LoginStatus = loginMutation.isLoading ? 'pending' : 'idle';
@@ -65,9 +67,11 @@ const LoginPage: NextPage<Props> = () => {
         <Text as="h1" styleAs="h3">
           Log in
         </Text>
-        <div className="mt-10 flex w-full flex-col items-center gap-1 sm:h-10 sm:flex-row">
+        <div className="mt-10 flex w-full flex-col items-center gap-1">
           <GoogleSSOButton className="inline-flex w-full flex-auto" onClick={googleAuthStart} />
-          <OidcSSOButton className="inline-flex w-full flex-auto" onClick={() => {}}/>
+          { ssoLogins.map((login) => (
+            <OidcSSOButton key={login.strategy} className="inline-flex w-full flex-auto" service={login.strategy} onClick={() => {}}/>
+          ))}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex w-full flex-col">

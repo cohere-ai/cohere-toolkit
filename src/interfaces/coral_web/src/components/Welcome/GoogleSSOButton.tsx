@@ -37,7 +37,7 @@ export const GoogleSSOButton: React.FC<ButtonProps> = ({ className, onClick }) =
     <BasicButton
       startIcon={googleLogo}
       onClick={onClick}
-      label="Continue with Google"
+      label="Continue with Google (google/auth)"
       size="sm"
       kind="secondary"
       className={cn(

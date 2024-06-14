@@ -84,6 +84,16 @@ export const useSession = () => {
     },
   });
 
+  const oidcSSOMutation = useMutation({
+    mutationFn: async (params: { code: string, strategy: string }) => {
+      return cohereClient.oidcSSOAuth(params);
+    },
+    onSuccess: (data: { token: string }) => {
+      setAuthToken(data.token);
+      return new Promise((resolve) => resolve(data.token));
+    },
+  });
+
   return {
     session,
     authToken,
@@ -93,5 +103,6 @@ export const useSession = () => {
     registerMutation,
     redirectToLogin,
     googleSSOMutation,
+    oidcSSOMutation,
   };
 };
