@@ -15,13 +15,6 @@ class AgentDeployment(StrEnum):
     BEDROCK = "Bedrock"
 
 
-class AgentModel(StrEnum):
-    COMMAND_R = "command-r"
-    COMMAND_R_PLUS = "command-r-plus"
-    COMMAND_LIGHT = "command-light"
-    COMMAND = "command"
-
-
 class Agent(Base):
     __tablename__ = "agents"
 
@@ -35,9 +28,8 @@ class Agent(Base):
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
     # enum place holders
-    model: Mapped[AgentModel] = mapped_column(
-        Enum(AgentModel, native_enum=False), nullable=False
-    )
+    model: Mapped[str] = mapped_column(Text, nullable=False)
+    # This is not used for now, just default it to Cohere Platform
     deployment: Mapped[AgentDeployment] = mapped_column(
         Enum(AgentDeployment, native_enum=False),
         default=AgentDeployment.COHERE_PLATFORM,

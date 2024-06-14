@@ -112,9 +112,9 @@ async def validate_env_vars(request: Request):
         )
 
 
-async def validate_agent_tools(request: Request):
+async def validate_agent_params(request: Request):
     """
-    Validate that the request has the appropriate values in the body
+    Validate that the request has valid tools and model settings for an agent.
 
     Args:
         request (Request): The request to validate
