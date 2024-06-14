@@ -607,8 +607,8 @@ def handle_stream_search_queries_generation(
     for search_query in event["search_queries"]:
         search_queries.append(
             SearchQuery(
-                text=search_query.text,
-                generation_id=search_query.generation_id,
+                text=search_query.get("text", ""),
+                generation_id=search_query.get("generation_id", ""),
             )
         )
     stream_event = StreamSearchQueriesGeneration(

@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from backend.config.tools import ToolName
 from backend.database_models.agent import AgentDeployment, AgentModel
 
 
@@ -20,7 +21,7 @@ class Agent(AgentBase):
     description: Optional[str]
     preamble: Optional[str]
     temperature: float
-    # tools: List[Tool]
+    tools: list[ToolName]
 
     model: AgentModel
     deployment: AgentDeployment
@@ -38,6 +39,7 @@ class CreateAgent(BaseModel):
     temperature: Optional[float] = None
     model: AgentModel
     deployment: AgentDeployment
+    tools: Optional[list[ToolName]] = None
 
     class Config:
         from_attributes = True
@@ -52,7 +54,7 @@ class UpdateAgent(BaseModel):
     temperature: Optional[float] = None
     model: Optional[AgentModel] = None
     deployment: Optional[AgentDeployment] = None
-    # tools: Optional[List[Tool]] = None
+    tools: Optional[list[ToolName]] = None
 
     class Config:
         from_attributes = True

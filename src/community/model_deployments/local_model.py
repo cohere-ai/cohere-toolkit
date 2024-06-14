@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 
+# To use local models install poetry with: poetry install --with setup,community,local-model --verbose
 from llama_cpp import Llama
 
 from backend.schemas.cohere_chat import CohereChatRequest

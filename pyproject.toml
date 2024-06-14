@@ -78,8 +78,13 @@ optional = true
 wolframalpha = "^5.0.0"
 transformers = "^4.3.3"
 torch = "^2.3.0"
-llama-cpp-python = "^0.2.67"
 llama-index = "^0.10.11"
+
+[tool.poetry.group.local-model]
+optional = true
+
+[tool.poetry.group.local-model.dependencies]
+llama-cpp-python = "^0.2.67"
 
 [build-system]
 requires = ["poetry-core"]
