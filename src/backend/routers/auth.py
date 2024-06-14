@@ -162,6 +162,10 @@ async def authorize(
             status_code=401, detail=f"Could not get user from auth token: {token}."
         )
 
+    import pdb
+
+    pdb.set_trace()
+
     # Get or create user, then set session user
     user = get_or_create_user(session, userinfo)
 

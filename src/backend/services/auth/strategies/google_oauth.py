@@ -1,5 +1,6 @@
 import logging
 
+import requests
 from authlib.integrations.requests_client import OAuth2Session
 from starlette.requests import Request
 
@@ -19,8 +20,7 @@ class GoogleOAuth(BaseOAuthStrategy):
     """
 
     NAME = "Google"
-    TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
-    USERINFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo"
+    WELL_KNOWN_ENDPOINT = "https://accounts.google.com/.well-known/openid-configuration"
 
     def __init__(self):
         try:
@@ -34,6 +34,19 @@ class GoogleOAuth(BaseOAuthStrategy):
             logging.error(f"Error during initializing of GoogleOAuth class: {str(e)}")
             raise
 
+    async def get_endpoints(self):
+        response = requests.get(self.WELL_KNOWN_ENDPOINT)
+        endpoints = response.json()
+
+        try:
+            self.TOKEN_ENDPOINT = endpoints["token_endpoint"]
+            self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
+        except Exception as e:
+            logging.error(
+                f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
+            )
+            raise
+
     async def authorize(self, request: Request) -> dict | None:
         """
         Authenticates the current user using their Google account.
@@ -44,6 +57,9 @@ class GoogleOAuth(BaseOAuthStrategy):
         Returns:
             Access token.
         """
+        # Retrieve the /token and /userinfo endpoints
+        await self.get_endpoints()
+
         token = self.client.fetch_token(
             url=self.TOKEN_ENDPOINT,
             authorization_response=str(request.url),

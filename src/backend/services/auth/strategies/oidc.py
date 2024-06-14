@@ -10,8 +10,7 @@ from backend.services.auth.strategies.settings import Settings
 class OIDCSettings(Settings):
     oidc_client_id: str
     oidc_client_secret: str
-    oidc_token_endpoint: str
-    oidc_userinfo_endpoint: str
+    oidc_well_known_endpoint: str
     frontend_hostname: str
 
 
@@ -27,8 +26,7 @@ class OpenIDConnect(BaseOAuthStrategy):
             settings = OIDCSettings()
             # TODO: switch out to proper oidc strategy name
             self.REDIRECT_URI = f"{settings.frontend_hostname}/auth/complete"
-            self.TOKEN_ENDPOINT = settings.oidc_token_endpoint
-            self.USERINFO_ENDPOINT = settings.oidc_userinfo_endpoint
+            self.WELL_KNOWN_ENDPOINT = settings.oidc_well_known_endpoint
             self.client = OAuth2Session(
                 client_id=settings.oidc_client_id,
                 client_secret=settings.oidc_client_secret,

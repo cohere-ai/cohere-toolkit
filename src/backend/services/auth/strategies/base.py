@@ -33,13 +33,9 @@ class BaseOAuthStrategy:
 
     Attributes:
         NAME (str): The name of the strategy.
-        TOKEN_ENDPOINT (str | None): The OAuth token endpoint to validate an authorization code.
-        USER_INFO_ENDPOINT (str | None): The OAuth userinfo endpoint to retrieve user data from the access token, after authorization.
     """
 
     NAME = None
-    TOKEN_ENDPOINT = None
-    USERINFO_ENDPOINT = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,13 +45,16 @@ class BaseOAuthStrategy:
         if any(
             [
                 self.NAME is None,
-                self.TOKEN_ENDPOINT is None,
-                self.USERINFO_ENDPOINT is None,
             ]
         ):
-            raise ValueError(
-                f"{self.__name__} must have NAME, TOKEN_ENDPOINT and USER_INFO_ENDPOINT parameters defined."
-            )
+            raise ValueError(f"{self.__name__} must have NAME parameter(s) defined.")
+
+    @abstractmethod
+    def get_endpoints(self, **kwargs: Any):
+        """
+        Retrieves the /token and /userinfo endpoints.
+        """
+        ...
 
     @abstractmethod
     def authorize(self, **kwargs: Any):
