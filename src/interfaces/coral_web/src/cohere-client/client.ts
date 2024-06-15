@@ -535,7 +535,7 @@ export class CohereClient {
   public async googleSSOAuth({ code }: { code: string }) {
     const response = await this.fetch(`${this.getEndpoint('google/auth')}?code=${code}`, {
       method: 'GET',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
     });
 
     const body = await response.json();
@@ -548,11 +548,14 @@ export class CohereClient {
     return body as { token: string };
   }
 
-  public async oidcSSOAuth({ code, strategy }: { code: string, strategy: string }) {
-    const response = await this.fetch(`${this.getEndpoint('oidc/auth')}?code=${code}&strategy=${strategy}`, {
-      method: 'GET',
-      headers: this.getHeaders()
-    });
+  public async oidcSSOAuth({ code, strategy }: { code: string; strategy: string }) {
+    const response = await this.fetch(
+      `${this.getEndpoint('oidc/auth')}?code=${code}&strategy=${strategy}`,
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+      }
+    );
 
     const body = await response.json();
     this.authToken = body.token;

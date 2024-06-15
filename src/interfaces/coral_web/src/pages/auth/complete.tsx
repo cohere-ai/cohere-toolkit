@@ -21,17 +21,19 @@ const CompleteOauthPage: NextPage<Props> = () => {
   const redirect = getQueryString(router.query.redirect_uri);
 
   useEffect(() => {
-    googleSSOMutation.mutate({
-      code: router.query.code as string,
-    },
-    {
-      onSuccess: () => {
-        router.push(redirect || '/');
+    googleSSOMutation.mutate(
+      {
+        code: router.query.code as string,
       },
-      onError: () => {
-        router.push('/login');
+      {
+        onSuccess: () => {
+          router.push(redirect || '/');
+        },
+        onError: () => {
+          router.push('/login');
+        },
       }
-    });
+    );
   }, []);
 
   return (

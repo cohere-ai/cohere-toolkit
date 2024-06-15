@@ -6,8 +6,8 @@ import { useEffect } from 'react';
 import { CohereClient } from '@/cohere-client';
 import { Text } from '@/components/Shared';
 import { WelcomePage } from '@/components/WelcomePage';
-import { useSession } from '@/hooks/session';
 import { useAuthConfig } from '@/hooks/authConfig';
+import { useSession } from '@/hooks/session';
 import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString } from '@/utils';
 
@@ -18,31 +18,52 @@ type Props = PageAppProps & {};
  */
 const CompleteOauthPage: NextPage<Props> = () => {
   const router = useRouter();
-  const { oidcSSOMutation } = useSession();
+  // TODO(AW): In the future, Google can just use the generic OIDC SSO mutation, once the backend supports it.
+  const { oidcSSOMutation, googleSSOMutation } = useSession();
   const redirect = getQueryString(router.query.redirect_uri);
   const { login: ssoLogins } = useAuthConfig();
 
-  const loginType = ssoLogins.find((login) => encodeURIComponent(login.strategy.toLowerCase()) == router.query.strategy);
+  const loginType = ssoLogins.find(
+    (login) => encodeURIComponent(login.strategy.toLowerCase()) == router.query.strategy
+  );
 
   useEffect(() => {
     if (!loginType) {
-      router.push('/login');
       return;
     }
 
-    oidcSSOMutation.mutate({
-      code: router.query.code as string,
-      strategy: loginType.strategy,
-    },
-    {
-      onSuccess: () => {
-        router.push(redirect || '/');
+    if (loginType.strategy.toLowerCase() === 'google') {
+      googleSSOMutation.mutate(
+        {
+          code: router.query.code as string,
+        },
+        {
+          onSuccess: () => {
+            router.push(redirect || '/');
+          },
+          onError: () => {
+            router.push('/login');
+          },
+        }
+      );
+      return;
+    }
+
+    oidcSSOMutation.mutate(
+      {
+        code: router.query.code as string,
+        strategy: loginType.strategy,
       },
-      onError: () => {
-        router.push('/login');
+      {
+        onSuccess: () => {
+          router.push(redirect || '/');
+        },
+        onError: () => {
+          router.push('/login');
+        },
       }
-    });
-  }, []);
+    );
+  }, [loginType]);
 
   return (
     <WelcomePage title="Login">

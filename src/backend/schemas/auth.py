@@ -18,6 +18,7 @@ class Logout(BaseModel):
 class ListAuthStrategy(BaseModel):
     strategy: str
     client_id: str | None
+    authorization_endpoint: str | None
 
 
 class JWTResponse(BaseModel):

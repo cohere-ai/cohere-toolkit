@@ -25,7 +25,7 @@ class GoogleOAuth(BaseOAuthStrategy):
     def __init__(self):
         try:
             self.settings = GoogleOauthSettings()
-            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/complete"
+            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/google"
             self.client = OAuth2Session(
                 client_id=self.settings.google_client_id,
                 client_secret=self.settings.google_client_secret,
@@ -36,14 +36,17 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def get_client_id(self):
         return self.settings.google_client_id
+    
+    def get_authorization_endpoint(self):
+        return self.AUTHORIZATION_ENDPOINT
 
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)
         endpoints = response.json()
-
         try:
             self.TOKEN_ENDPOINT = endpoints["token_endpoint"]
             self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
+            self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
         except Exception as e:
             logging.error(
                 f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
@@ -60,9 +63,6 @@ class GoogleOAuth(BaseOAuthStrategy):
         Returns:
             Access token.
         """
-        # Retrieve the /token and /userinfo endpoints
-        await self.get_endpoints()
-
         token = self.client.fetch_token(
             url=self.TOKEN_ENDPOINT,
             authorization_response=str(request.url),

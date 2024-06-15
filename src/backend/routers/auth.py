@@ -38,6 +38,11 @@ def get_strategies() -> list[ListAuthStrategy]:
                     if hasattr(strategy_instance, "get_client_id")
                     else None
                 ),
+                "authorization_endpoint": (
+                    strategy_instance.get_authorization_endpoint()
+                    if hasattr(strategy_instance, "get_authorization_endpoint")
+                    else None
+                ),
             }
         )
 

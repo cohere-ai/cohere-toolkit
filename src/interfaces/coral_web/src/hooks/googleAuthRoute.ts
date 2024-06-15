@@ -12,9 +12,10 @@ import { useAuthConfig } from '@/hooks/authConfig';
 export const useGoogleAuthRoute = () => {
   const authConfig = useAuthConfig();
   // TODO(AW): Remove this later, especially if we can use the generic oidcAuthRoute
-  const googleStrategy: { strategy: string, clientId: string } = authConfig.login.find((strategy) => strategy.strategy === 'Google') || {
-    strategy: "Google",
-    clientId: "fakeClientId"
+  const googleStrategy: { strategy: string; clientId: string } = (authConfig.login &&
+    authConfig.login.find((strategy) => strategy.strategy === 'Google')) || {
+    strategy: 'Google',
+    client_id: 'fakeClientId',
   };
 
   if (!authConfig.login) {
@@ -56,7 +57,7 @@ export const useGoogleAuthRoute = () => {
 
       const url = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
         response_type: 'code',
-        client_id: googleStrategy.clientId,
+        client_id: googleStrategy.client_id,
         scope: 'openid email profile',
         redirect_uri: `${authConfig.baseUrl}/auth/complete`,
         prompt: 'select_account consent',

@@ -23,6 +23,7 @@ export const useOidcAuthRoute = () => {
   const handleOidcAuth = {
     start({
       strategy,
+      authorizationEndpoint,
       redirectToReadMe = false,
       redirect,
       freeCreditCode,
@@ -30,6 +31,7 @@ export const useOidcAuthRoute = () => {
       recaptchaToken = '',
     }: {
       strategy: string;
+      authorizationEndpoint: string;
       redirectToReadMe?: boolean;
       redirect?: string;
       freeCreditCode?: string;
@@ -40,7 +42,9 @@ export const useOidcAuthRoute = () => {
         throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
       }
 
-      const strategyConfig = authConfig.login.find((strategyConfig) => strategyConfig.strategy === strategy);
+      const strategyConfig = authConfig.login.find(
+        (strategyConfig) => strategyConfig.strategy === strategy
+      );
 
       if (!strategyConfig) {
         throw new Error(`Strategy ${strategy} not found in authConfig`);
@@ -62,11 +66,13 @@ export const useOidcAuthRoute = () => {
       //   secure: true,
       // });
 
-      const url = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
+      const url = `${authorizationEndpoint}?${new URLSearchParams({
         response_type: 'code',
-        client_id: strategyConfig.clientId,
+        client_id: strategyConfig.client_id,
         scope: 'openid email profile',
-        redirect_uri: `${authConfig.baseUrl}/auth/complete`,
+        redirect_uri: `${authConfig.baseUrl}/auth/${encodeURIComponent(
+          strategyConfig.strategy.toLowerCase()
+        )}`,
         prompt: 'select_account consent',
         state,
       }).toString()}`;

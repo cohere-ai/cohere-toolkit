@@ -85,7 +85,7 @@ export const useSession = () => {
   });
 
   const oidcSSOMutation = useMutation({
-    mutationFn: async (params: { code: string, strategy: string }) => {
+    mutationFn: async (params: { code: string; strategy: string }) => {
       return cohereClient.oidcSSOAuth(params);
     },
     onSuccess: (data: { token: string }) => {

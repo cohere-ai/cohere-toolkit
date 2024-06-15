@@ -57,6 +57,13 @@ class BaseOAuthStrategy:
         ...
 
     @abstractmethod
+    def get_authorization_endpoint(self, **kwargs: Any):
+        """
+        Retrieves the OAuth app's authorization endpoint.
+        """
+        ...
+
+    @abstractmethod
     async def get_endpoints(self, **kwargs: Any):
         """
         Retrieves the /token and /userinfo endpoints.
