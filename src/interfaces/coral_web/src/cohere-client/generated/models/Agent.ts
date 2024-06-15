@@ -1,13 +1,7 @@
 /* generated using openapi-typescript-codegen -- do no edit */
-
 /* istanbul ignore file */
-
 /* tslint:disable */
-
 /* eslint-disable */
-import type { AgentDeployment } from './AgentDeployment';
-import type { AgentModel } from './AgentModel';
-
 export type Agent = {
   user_id: string;
   id: string;
@@ -19,6 +13,6 @@ export type Agent = {
   preamble: string | null;
   temperature: number;
   tools: Array<string>;
-  model: AgentModel;
-  deployment: AgentDeployment;
+  model: string;
+  deployment: string;
 };
