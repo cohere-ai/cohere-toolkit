@@ -3,12 +3,12 @@ from datetime import datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
-from backend.schemas.agent import UpdateAgent
 from backend.database_models.agent import Agent
+from backend.schemas.agent import UpdateAgent
 from backend.tests.factories import get_factory
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 
 
 def test_create_agent(session, user):

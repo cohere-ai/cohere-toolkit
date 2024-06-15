@@ -112,9 +112,9 @@ async def validate_env_vars(request: Request):
         )
 
 
-async def validate_agent_params(request: Request):
+async def validate_create_agent_request(request: Request):
     """
-    Validate that the request has valid tools and model settings for an agent.
+    Validate that the create agent request has valid tools, deployments, and compatible models.
 
     Args:
         request (Request): The request to validate
@@ -126,19 +126,76 @@ async def validate_agent_params(request: Request):
 
     # Validate tools
     tools = body.get("tools")
-    if not tools:
-        return
+    if tools:
+        for tool in tools:
+            if tool not in AVAILABLE_TOOLS:
+                raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
 
-    for tool in tools:
-        if tool not in AVAILABLE_TOOLS:
-            raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
+    name = body.get("name")
+    model = body.get("model")
+    deployment = body.get("deployment")
+    if not name or not model or not deployment:
+        raise HTTPException(
+            status_code=400, detail="Name, model, and deployment are required."
+        )
 
     # Validate deployment
-    deployment = body.get("deployment")
     if deployment not in AVAILABLE_MODEL_DEPLOYMENTS.keys():
-        raise HTTPException(status_code=400, detail=f"Deployment {deployment} not found or is not available.")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Deployment {deployment} not found or is not available.",
+        )
 
     # Validate model
-    if body.get("model") not in AVAILABLE_MODEL_DEPLOYMENTS[deployment]["models"]:
-        raise HTTPException(status_code=4000, detail=f"Model {body.get('model')} not found for deployment {deployment}.")
+    if model not in AVAILABLE_MODEL_DEPLOYMENTS[deployment].models:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Model {model} not found for deployment {deployment}.",
+        )
 
+
+async def validate_update_agent_request(request: Request):
+    """
+    Validate that the update agent request has valid tools, deployments, and compatible models.
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If the request does not have the appropriate values in the body
+    """
+    body = await request.json()
+
+    # Validate tools
+    tools = body.get("tools")
+    if tools:
+        for tool in tools:
+            if tool not in AVAILABLE_TOOLS:
+                raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
+
+    model, deployment = body.get("model"), body.get("deployment")
+    # Model and deployment must be updated together to ensure compatibility
+    if not model and deployment:
+        raise HTTPException(
+            status_code=400,
+            detail="If updating an agent's deployment type, the model must also be provided.",
+        )
+    elif model and not deployment:
+        raise HTTPException(
+            status_code=400,
+            detail=f"If updating an agent's model, the deployment must also be provided.",
+        )
+    elif model and deployment:
+        # Validate deployment
+        if deployment not in AVAILABLE_MODEL_DEPLOYMENTS.keys():
+            raise HTTPException(
+                status_code=400,
+                detail=f"Deployment {deployment} not found or is not available.",
+            )
+
+        # Validate model
+        if model not in AVAILABLE_MODEL_DEPLOYMENTS[deployment].models:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Model {model} not found for deployment {deployment}.",
+            )

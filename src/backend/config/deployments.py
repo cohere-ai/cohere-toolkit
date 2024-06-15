@@ -22,6 +22,7 @@ class ModelDeploymentName(StrEnum):
     Azure = "Azure"
     Bedrock = "Bedrock"
 
+
 use_community_features = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "false")))
 
 

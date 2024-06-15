@@ -1,7 +1,7 @@
 import factory
 
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.config.tools import ToolName
-from backend.config.deployments import ModelDeploymentName, ALL_MODEL_DEPLOYMENTS
 from backend.database_models.agent import Agent
 
 from .base import BaseFactory

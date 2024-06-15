@@ -35,7 +35,7 @@ class CreateAgent(BaseModel):
     preamble: Optional[str] = None
     temperature: Optional[float] = None
     model: str
-    deployment: str = None
+    deployment: str
     tools: Optional[list[str]] = None
 
     class Config:
