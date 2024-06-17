@@ -51,19 +51,33 @@ def get_agent_by_name(db: Session, agent_name: str) -> Agent:
     return db.query(Agent).filter(Agent.name == agent_name).first()
 
 
-def get_agents(db: Session, offset: int = 0, limit: int = 100) -> list[Agent]:
+def get_agents(
+    db: Session,
+    user_id: str,
+    organization_id: str = None,
+    offset: int = 0,
+    limit: int = 100,
+) -> list[Agent]:
     """
     Get all agents for a user.
 
     Args:
       db (Session): Database session.
+      user_id (str): User ID.
+      organization_id (str): Organization ID.
       offset (int): Offset of the results.
       limit (int): Limit of the results.
 
     Returns:
       list[Agent]: List of agents.
     """
-    return db.query(Agent).offset(offset).limit(limit).all()
+    return (
+        db.query(Agent)
+        .filter(Agent.user_id == user_id, Agent.organization_id == organization_id)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
 
 
 def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
