@@ -1,0 +1,53 @@
+name: Deploy Backend
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Branch or tag (e.g: v0.0.1)'
+        required: false
+        type: string
+
+env:
+  IMAGE_NAME: cohere-toolkit-backend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # needs: build-and-push-backend-image
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker
+
+      # Deploy the image to Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.IMAGE_NAME }} \
+            --project=${{ vars.GCP_PROJECT_ID }} \
+            --image=${{ vars.REGISTRY }}/${{ env.IMAGE_NAME }} \
+            --platform=managed \
+            --region=us-central1 \
+            --allow-unauthenticated \
+            --update-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }},COHERE_API_KEY=${{ secrets.COHERE_API_KEY }} \
+            --memory=4Gi \
+            --cpu=4 \
+            --max-instances=1

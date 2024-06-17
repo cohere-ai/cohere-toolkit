@@ -1,8 +1,8 @@
 substitutions:
-  _GCP_PROJECT_ID: <GCP_PROJECT_ID>
-  _GCP_REGION: <GCP_REGION>
-  _DATABASE_URL: <DB_CONNECTION_STRING>
-  _COHERE_API_KEY: <COHERE_API_KEY>
+  _GCP_PROJECT_ID: $PROJECT_ID
+  _GCP_REGION: $REGION
+  _DATABASE_URL: $DATABASE_URL
+  _COHERE_API_KEY: $COHERE_API_KEY
 
 steps:
 # 1. BACKEND STEPS
@@ -15,8 +15,8 @@ steps:
 # c) Deploy container image to Cloud Run
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
-  args: ['run', 'deploy', 'toolkit-backend', 
-  '--image', 'gcr.io/$_GCP_PROJECT_ID/toolkit-backend', 
+  args: ['run', 'deploy', 'toolkit-backend',
+  '--image', 'gcr.io/$_GCP_PROJECT_ID/toolkit-backend',
   '--region', '$_GCP_REGION',
   '--port', '8000',
   '--set-env-vars', 'DATABASE_URL=$_DATABASE_URL',
@@ -33,10 +33,10 @@ steps:
 # e) Apply backend Alembic migrations
 - name: gcr.io/cloud-builders/curl
   entrypoint: bash
-  args: 
+  args:
     - '-c'
     - 'curl -X POST "$(cat /workspace/backend_url.txt)/migrate"'
-  
+
 # 2. FRONTEND STEPS
 # a) Build frontend container image
 - name: 'gcr.io/cloud-builders/docker'
@@ -50,7 +50,7 @@ steps:
   args:
     - '-c'
     - |
-        gcloud run deploy toolkit-frontend --port 4000 --memory 2Gi --image gcr.io/$_GCP_PROJECT_ID/toolkit-frontend --region $_GCP_REGION  --allow-unauthenticated --set-env-vars NEXT_PUBLIC_API_HOSTNAME=$(cat /workspace/backend_url.txt) 
+        gcloud run deploy toolkit-frontend --port 4000 --memory 2Gi --image gcr.io/$_GCP_PROJECT_ID/toolkit-frontend --region $_GCP_REGION  --allow-unauthenticated --set-env-vars NEXT_PUBLIC_API_HOSTNAME=$(cat /workspace/backend_url.txt)
 images:
 - gcr.io/$_GCP_PROJECT_ID/toolkit-backend
 - gcr.io/$_GCP_PROJECT_ID/toolkit-frontend

@@ -28,7 +28,7 @@ ARG INSTALL_COMMUNITY_DEPS
 COPY pyproject.toml poetry.lock ./
 
 # Install poetry
-RUN pip install --no-cache-dir poetry==1.6.1
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel poetry
 
 # Conditional installation of dependencies
 RUN if [ "$INSTALL_COMMUNITY_DEPS" = "true" ]; then \
@@ -40,7 +40,7 @@ RUN if [ "$INSTALL_COMMUNITY_DEPS" = "true" ]; then \
 COPY src/backend/ src/backend/
 COPY src/community src/community/
 
-# Copy environment variables optionally 
+# Copy environment variables optionally
 # IMPORTANT: Can't be put in the docker-compose, will break tests
 COPY .en[v] .env
 
