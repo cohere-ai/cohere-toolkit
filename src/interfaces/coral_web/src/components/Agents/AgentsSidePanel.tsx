@@ -23,10 +23,10 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         'box-content px-4 py-6',
         'flex flex-grow flex-col gap-y-8 rounded-lg border',
         'border-marble-400 bg-marble-100',
-        'transition-[width]',
+        'transition-[min-width,max-width]',
         {
-          'w-12': !isAgentsSidePanelOpen,
-          'w-64': isAgentsSidePanelOpen,
+          'min-w-12 max-w-12': !isAgentsSidePanelOpen,
+          'min-w-64 max-w-64': isAgentsSidePanelOpen,
         }
       )}
     >
@@ -39,12 +39,12 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         <Transition
           as="div"
           show={isAgentsSidePanelOpen}
-          enter="transition-transform duration-100 ease-in-out"
-          enterFrom="-translate-x-full"
-          enterTo="translate-x-0"
-          leave="transition-transform duration-100 ease-in-out"
-          leaveFrom="translate-x-0"
-          leaveTo="-translate-x-full"
+          enter="transition-all duration-100 ease-in-out"
+          enterFrom="-translate-x-full opacity-0"
+          enterTo="translate-x-0 opacity-100"
+          leave="transition-all duration-100 ease-in-out"
+          leaveFrom="translate-x-0 opacity-100"
+          leaveTo="-translate-x-full opacity-0"
         >
           <Link href="/">
             <div className="mr-3 flex items-baseline">
