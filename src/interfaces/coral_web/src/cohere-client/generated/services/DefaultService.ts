@@ -9,7 +9,6 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 import type { Agent } from '../models/Agent';
-import type { Auth } from '../models/Auth';
 import type { Body_upload_file_v1_conversations_upload_file_post } from '../models/Body_upload_file_v1_conversations_upload_file_post';
 import type { ChatResponseEvent } from '../models/ChatResponseEvent';
 import type { CohereChatRequest } from '../models/CohereChatRequest';
@@ -23,9 +22,12 @@ import type { DeleteFile } from '../models/DeleteFile';
 import type { DeleteUser } from '../models/DeleteUser';
 import type { Deployment } from '../models/Deployment';
 import type { File } from '../models/File';
+import type { JWTResponse } from '../models/JWTResponse';
 import type { LangchainChatRequest } from '../models/LangchainChatRequest';
+import type { ListAuthStrategy } from '../models/ListAuthStrategy';
 import type { ListFile } from '../models/ListFile';
 import type { Login } from '../models/Login';
+import type { Logout } from '../models/Logout';
 import type { ManagedTool } from '../models/ManagedTool';
 import type { NonStreamedChatResponse } from '../models/NonStreamedChatResponse';
 import type { UpdateAgent } from '../models/UpdateAgent';
@@ -44,10 +46,10 @@ export class DefaultService {
    *
    * Returns:
    * List[dict]: List of dictionaries containing the enabled auth strategy names.
-   * @returns any Successful Response
+   * @returns ListAuthStrategy Successful Response
    * @throws ApiError
    */
-  public static getStrategiesV1AuthStrategiesGet(): CancelablePromise<any> {
+  public static getStrategiesV1AuthStrategiesGet(): CancelablePromise<Array<ListAuthStrategy>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/auth_strategies',
@@ -74,7 +76,11 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static loginV1LoginPost({ requestBody }: { requestBody: Login }): CancelablePromise<any> {
+  public static loginV1LoginPost({
+    requestBody,
+  }: {
+    requestBody: Login;
+  }): CancelablePromise<JWTResponse | null> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/login',
@@ -86,35 +92,47 @@ export class DefaultService {
     });
   }
   /**
-   * Authenticate
-   * Authentication endpoint used for OAuth strategies. Logs the user in the redirect environment and then
-   * sets the current session with the user returned from the auth token.
+   * Google Authenticate
+   * Callback authentication endpoint used for Google OAuth after redirecting to
+   * the service's login screen.
    *
    * Args:
    * request (Request): current Request object.
-   * login (Login): Login payload.
    *
    * Returns:
    * RedirectResponse: On success.
    *
    * Raises:
    * HTTPException: If authentication fails, or strategy is invalid.
-   * @returns any Successful Response
+   * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public static authenticateV1AuthPost({
-    requestBody,
-  }: {
-    requestBody: Auth;
-  }): CancelablePromise<any> {
+  public static googleAuthenticateV1GoogleAuthGet(): CancelablePromise<JWTResponse> {
     return __request(OpenAPI, {
-      method: 'POST',
-      url: '/v1/auth',
-      body: requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: `Validation Error`,
-      },
+      method: 'GET',
+      url: '/v1/google/auth',
+    });
+  }
+  /**
+   * Oidc Authenticate
+   * Callback authentication endpoint used for OIDC after redirecting to
+   * the service's login screen.
+   *
+   * Args:
+   * request (Request): current Request object.
+   *
+   * Returns:
+   * RedirectResponse: On success.
+   *
+   * Raises:
+   * HTTPException: If authentication fails, or strategy is invalid.
+   * @returns JWTResponse Successful Response
+   * @throws ApiError
+   */
+  public static oidcAuthenticateV1OidcAuthGet(): CancelablePromise<JWTResponse> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/oidc/auth',
     });
   }
   /**
@@ -126,10 +144,10 @@ export class DefaultService {
    *
    * Returns:
    * dict: Empty on success
-   * @returns any Successful Response
+   * @returns Logout Successful Response
    * @throws ApiError
    */
-  public static logoutV1LogoutGet(): CancelablePromise<any> {
+  public static logoutV1LogoutGet(): CancelablePromise<Logout> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/logout',
@@ -663,10 +681,20 @@ export class DefaultService {
    * @returns ManagedTool Successful Response
    * @throws ApiError
    */
-  public static listToolsV1ToolsGet(): CancelablePromise<Array<ManagedTool>> {
+  public static listToolsV1ToolsGet({
+    agentId,
+  }: {
+    agentId?: string | null;
+  }): CancelablePromise<Array<ManagedTool>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/tools',
+      query: {
+        agent_id: agentId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
     });
   }
   /**
