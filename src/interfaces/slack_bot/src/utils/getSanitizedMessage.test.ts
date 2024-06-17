@@ -3,9 +3,9 @@ import { expect, test } from 'vitest';
 import { getSanitizedMessage } from './getSanitizedMessage';
 
 const REAL_NAME_OBJ: { [key: string]: string } = {
-  U03N7809HN2: 'Shubham Shukla',
-  U039SJJFB62: 'Spencer Elliott',
-  U057LCN53UK: 'Alicja Mahr',
+  U03N7809HN2: 'John Doe',
+  U039SJJFB62: 'Richard Roe',
+  U057LCN53UK: 'Jane Smith',
   U059C8BPCP4: 'Command',
 };
 
@@ -13,14 +13,14 @@ const getUsersRealName = ({ userId }: { userId: string }) => {
   return REAL_NAME_OBJ[userId];
 };
 const sanitizeTestData = [
-  ['Hi <@U03N7809HN2>! How are you?', 'Hi Shubham Shukla! How are you?\n'],
+  ['Hi <@U03N7809HN2>! How are you?', 'Hi John Doe! How are you?\n'],
   [
     'I, <@U03N7809HN2>, am gonna have a chat with <@U039SJJFB62> over in <#C05594QMD9Q|command-slack-bot>',
-    'I, Shubham Shukla, am gonna have a chat with Spencer Elliott over in #command-slack-bot\n',
+    'I, John Doe, am gonna have a chat with Richard Roe over in #command-slack-bot\n',
   ],
   [
     "<@U039SJJFB62>, will be working with <@U057LCN53UK> on a future project, updates for which they'll provide in <#C03SMGA4P62|squad-growth>. They'll move updates to <#C03SMGA4P62|secret-project> once enough people have joined the channel.",
-    "Spencer Elliott, will be working with Alicja Mahr on a future project, updates for which they'll provide in #squad-growth. They'll move updates to #secret-project once enough people have joined the channel.\n",
+    "Richard Roe, will be working with Jane Smith on a future project, updates for which they'll provide in #squad-growth. They'll move updates to #secret-project once enough people have joined the channel.\n",
   ],
   [
     "This message doesn't have any mentions or channel links, so nothing should change.",
@@ -50,7 +50,7 @@ test.each(sanitizeTestData)('Sanitizes message correctly', async (input, expecte
 });
 
 const sanitizeFirstMessageTestData = [
-  ['Hi <@U03N7809HN2>! How are you?', 'Hi Shubham Shukla! How are you?\n'],
+  ['Hi <@U03N7809HN2>! How are you?', 'Hi John Doe! How are you?\n'],
   ['<@U059C8BPCP4> How are you?', 'How are you?\n'],
   ['<@U059C8BPCP4> How is <@U059C8BPCP4>?', 'How is Command?\n'],
 ];

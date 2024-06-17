@@ -12,7 +12,7 @@ type GetSanitizedMessageArgs = {
  * Replaces channel links in the form of <#C04J5P41JSD|chat-interfaces> with channel names, i.e. #chat-interfaces
  * ex:
  *    input I, <@U03N7809HN2>, am gonna have a chat with <@U039SJJFB62> over in <#C05594QMD9Q|command-slack-bot>
- *    output: I, Shubham Shukla, am gonna have a chat with Spencer Elliott over in #command-slack-bot
+ *    output: I, John Doe, am gonna have a chat with Richard Roe over in #command-slack-bot
  *
  */
 export const getSanitizedMessage = async ({
