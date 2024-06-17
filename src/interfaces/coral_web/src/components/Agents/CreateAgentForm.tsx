@@ -1,12 +1,20 @@
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
 
+<<<<<<< HEAD
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
+=======
+import { AgentForm, AgentFormFields, AgentFormTextFieldKeys } from '@/components/Agents/AgentForm';
+import { Button, Text } from '@/components/Shared';
+import { COMMMAND_R_PLUS_TOOL_ID } from '@/constants';
+import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
+import { useModels } from '@/hooks/deployments';
+>>>>>>> 8980f4c (check if agent name is unique)
 import { useParamsStore } from '@/stores';
 
 /**
@@ -20,8 +28,14 @@ export const CreateAgentForm: React.FC = () => {
   const {
     params: { preamble },
   } = useParamsStore();
+<<<<<<< HEAD
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
+=======
+  const { models } = useModels();
+  const isAgentNameUnique = useIsAgentNameUnique();
+
+>>>>>>> 8980f4c (check if agent name is unique)
   const [fields, setFields] = useState<AgentFormFields>({
     name: '',
     description: '',
@@ -36,12 +50,20 @@ export const CreateAgentForm: React.FC = () => {
   };
 
   const canSubmit = (() => {
+<<<<<<< HEAD
     const { name, deployment, model } = fields;
     const requredFields = { name, deployment, model };
     return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
 
   const handleChange = (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => {
+=======
+    const { tools, preamble, ...requredFields } = fields;
+    return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
+  })();
+
+  const handleTextFieldChange = (key: AgentFormTextFieldKeys, value: string) => {
+>>>>>>> 8980f4c (check if agent name is unique)
     setFields({
       ...fields,
       [key as string]: value,
