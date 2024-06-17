@@ -388,6 +388,8 @@ def generate_chat_response(
 ) -> NonStreamedChatResponse:
     """
     Generate chat response from model deployment non streaming response.
+    Use the stream to generate the response and all the intermediate steps, then
+    return only the final step as a non-streamed response.
 
     Args:
         session (DBSessionDep): Database session.
