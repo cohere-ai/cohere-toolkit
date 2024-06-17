@@ -8,7 +8,7 @@ from backend.services.auth.strategies.base import BaseOAuthStrategy
 from backend.services.auth.strategies.settings import Settings
 
 
-class GoogleOauthSettings(Settings):
+class GoogleOAuthSettings(Settings):
     google_client_id: str
     google_client_secret: str
 
@@ -23,7 +23,7 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            settings = GoogleOauthSettings()
+            settings = GoogleOAuthSettings()
             self.oauth = OAuth()
             self.oauth.register(
                 name="google",
