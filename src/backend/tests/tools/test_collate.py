@@ -15,24 +15,61 @@ is_cohere_env_set = (
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_rerank() -> None:
     model = CohereDeployment(model_config={})
-    tool_results = [
+    outputs = [
         {
-            "call": ToolCall(parameters={"query": "mountain"}, name="retriever"),
-            "outputs": [{"text": "hill"}, {"text": "goat"}, {"text": "cable"}],
+            "text": "Mount Everest is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas"
         },
         {
-            "call": ToolCall(parameters={"query": "computer"}, name="retriever"),
-            "outputs": [{"text": "cable"}, {"text": "software"}, {"text": "penguin"}],
+            "text": "There are four components - or parts - of the blood: red blood cells, white blood cells, plasma and platelets."
+        },
+        {
+            "text": "'My Man Rocks Me (with One Steady Roll)' by Trixie Smith was issued in 1922, the first record to refer to 'rocking' and 'rolling' in a secular context"
+        },
+    ]
+    tool_results = [
+        {
+            "call": {
+                "parameters": {"query": "what is the highest mountain in the world?"},
+                "name": "retriever",
+            },
+            "outputs": outputs,
+        },
+        {
+            "call": {
+                "parameters": {"query": "What are the 4 major components of blood?"},
+                "name": "retriever",
+            },
+            "outputs": outputs,
+        },
+        {
+            "call": {
+                "parameters": {"query": "When was 1st Olympics in history?"},
+                "name": "retriever",
+            },
+            "outputs": outputs,
         },
     ]
 
     expected_output = [
         {
-            "call": ToolCall(name="retriever", parameters={"query": "mountain"}),
-            "outputs": [],
+            "call": {
+                "parameters": {"query": "what is the highest mountain in the world?"},
+                "name": "retriever",
+            },
+            "outputs": [outputs[0]],
         },
         {
-            "call": ToolCall(name="retriever", parameters={"query": "computer"}),
+            "call": {
+                "parameters": {"query": "What are the 4 major components of blood?"},
+                "name": "retriever",
+            },
+            "outputs": [outputs[1]],
+        },
+        {
+            "call": {
+                "parameters": {"query": "When was 1st Olympics in history?"},
+                "name": "retriever",
+            },
             "outputs": [],
         },
     ]

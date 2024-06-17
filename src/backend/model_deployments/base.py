@@ -13,7 +13,6 @@ class BaseDeployment:
     invoke_chat_stream: Generator[StreamedChatResponse, None, None]: Invoke the chat stream.
     invoke_search_queries: list[str]: Invoke the search queries.
     invoke_rerank: Any: Invoke the rerank.
-    invoke_tools: Any: Invoke the tools.
     list_models: List[str]: List all models.
     is_available: bool: Check if the deployment is available.
     """
@@ -48,12 +47,3 @@ class BaseDeployment:
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any: ...
-
-    @abstractmethod
-    def invoke_tools(
-        self,
-        message: str,
-        tools: List[Any],
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any
-    ) -> Generator[StreamedChatResponse, None, None]: ...

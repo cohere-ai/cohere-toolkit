@@ -8,22 +8,29 @@
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
+import type { Agent } from '../models/Agent';
 import type { Body_upload_file_v1_conversations_upload_file_post } from '../models/Body_upload_file_v1_conversations_upload_file_post';
 import type { ChatResponseEvent } from '../models/ChatResponseEvent';
 import type { CohereChatRequest } from '../models/CohereChatRequest';
 import type { Conversation } from '../models/Conversation';
 import type { ConversationWithoutMessages } from '../models/ConversationWithoutMessages';
+import type { CreateAgent } from '../models/CreateAgent';
 import type { CreateUser } from '../models/CreateUser';
+import type { DeleteAgent } from '../models/DeleteAgent';
 import type { DeleteConversation } from '../models/DeleteConversation';
 import type { DeleteFile } from '../models/DeleteFile';
 import type { DeleteUser } from '../models/DeleteUser';
 import type { Deployment } from '../models/Deployment';
 import type { File } from '../models/File';
+import type { JWTResponse } from '../models/JWTResponse';
 import type { LangchainChatRequest } from '../models/LangchainChatRequest';
+import type { ListAuthStrategy } from '../models/ListAuthStrategy';
 import type { ListFile } from '../models/ListFile';
 import type { Login } from '../models/Login';
+import type { Logout } from '../models/Logout';
 import type { ManagedTool } from '../models/ManagedTool';
 import type { NonStreamedChatResponse } from '../models/NonStreamedChatResponse';
+import type { UpdateAgent } from '../models/UpdateAgent';
 import type { UpdateConversation } from '../models/UpdateConversation';
 import type { UpdateDeploymentEnv } from '../models/UpdateDeploymentEnv';
 import type { UpdateFile } from '../models/UpdateFile';
@@ -33,30 +40,26 @@ import type { User } from '../models/User';
 
 export class DefaultService {
   /**
-   * Get Session
-   * Retrievers the current session user.
+   * Get Strategies
+   * Retrieves the currently enabled list of Authentication strategies.
    *
-   * Args:
-   * request (Request): current Request object.
    *
    * Returns:
-   * session: current user session ({} if no active session)
-   *
-   * Raises:
-   * 401 HTTPException if no user found in session.
-   * @returns any Successful Response
+   * List[dict]: List of dictionaries containing the enabled auth strategy names.
+   * @returns ListAuthStrategy Successful Response
    * @throws ApiError
    */
-  public static getSessionSessionGet(): CancelablePromise<any> {
+  public static getStrategiesV1AuthStrategiesGet(): CancelablePromise<Array<ListAuthStrategy>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/session',
+      url: '/v1/auth_strategies',
     });
   }
   /**
    * Login
-   * Logs user in, verifying their credentials and either setting the user session,
-   * or redirecting to /auth endpoint.
+   * Logs user in and either:
+   * - (Basic email/password authentication) Verifies their credentials, retrieves the user and returns a JWT token.
+   * - (OAuth) Redirects to the /auth endpoint.
    *
    * Args:
    * request (Request): current Request object.
@@ -64,17 +67,23 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    *
    * Returns:
-   * dict: On success.
+   * dict: JWT token on basic auth success
+   * or
+   * Redirect: to /auth endpoint
    *
    * Raises:
    * HTTPException: If the strategy or payload are invalid, or if the login fails.
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static loginLoginPost({ requestBody }: { requestBody: Login }): CancelablePromise<any> {
+  public static loginV1LoginPost({
+    requestBody,
+  }: {
+    requestBody: Login;
+  }): CancelablePromise<JWTResponse | null> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/login',
+      url: '/v1/login',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -83,32 +92,65 @@ export class DefaultService {
     });
   }
   /**
-   * Auth
-   * @returns any Successful Response
-   * @throws ApiError
-   */
-  public static authAuthPost(): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/auth',
-    });
-  }
-  /**
-   * Logout
-   * Logs out the current user session.
+   * Google Authenticate
+   * Callback authentication endpoint used for Google OAuth after redirecting to
+   * the service's login screen.
    *
    * Args:
    * request (Request): current Request object.
    *
    * Returns:
-   * dict: On success.
-   * @returns any Successful Response
+   * RedirectResponse: On success.
+   *
+   * Raises:
+   * HTTPException: If authentication fails, or strategy is invalid.
+   * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public static logoutLogoutGet(): CancelablePromise<any> {
+  public static googleAuthenticateV1GoogleAuthGet(): CancelablePromise<JWTResponse> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/logout',
+      url: '/v1/google/auth',
+    });
+  }
+  /**
+   * Oidc Authenticate
+   * Callback authentication endpoint used for OIDC after redirecting to
+   * the service's login screen.
+   *
+   * Args:
+   * request (Request): current Request object.
+   *
+   * Returns:
+   * RedirectResponse: On success.
+   *
+   * Raises:
+   * HTTPException: If authentication fails, or strategy is invalid.
+   * @returns JWTResponse Successful Response
+   * @throws ApiError
+   */
+  public static oidcAuthenticateV1OidcAuthGet(): CancelablePromise<JWTResponse> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/oidc/auth',
+    });
+  }
+  /**
+   * Logout
+   * Logs out the current user.
+   *
+   * Args:
+   * request (Request): current Request object.
+   *
+   * Returns:
+   * dict: Empty on success
+   * @returns Logout Successful Response
+   * @throws ApiError
+   */
+  public static logoutV1LogoutGet(): CancelablePromise<Logout> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/logout',
     });
   }
   /**
@@ -639,10 +681,20 @@ export class DefaultService {
    * @returns ManagedTool Successful Response
    * @throws ApiError
    */
-  public static listToolsV1ToolsGet(): CancelablePromise<Array<ManagedTool>> {
+  public static listToolsV1ToolsGet({
+    agentId,
+  }: {
+    agentId?: string | null;
+  }): CancelablePromise<Array<ManagedTool>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/tools',
+      query: {
+        agent_id: agentId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
     });
   }
   /**
@@ -712,6 +764,161 @@ export class DefaultService {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/experimental_features/',
+    });
+  }
+  /**
+   * Create Agent
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public static createAgentV1AgentsPost({
+    requestBody,
+  }: {
+    requestBody: CreateAgent;
+  }): CancelablePromise<Agent> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/v1/agents',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * List Agents
+   * List all agents.
+   *
+   * Args:
+   * offset (int): Offset to start the list.
+   * limit (int): Limit of agents to be listed.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * list[Agent]: List of agents.
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public static listAgentsV1AgentsGet({
+    offset,
+    limit = 100,
+  }: {
+    offset?: number;
+    limit?: number;
+  }): CancelablePromise<Array<Agent>> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/agents',
+      query: {
+        offset: offset,
+        limit: limit,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Get Agent
+   * Args:
+   * agent_id (str): Agent ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * Agent: Agent.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public static getAgentV1AgentsAgentIdGet({
+    agentId,
+  }: {
+    agentId: string;
+  }): CancelablePromise<Agent> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/agents/{agent_id}',
+      path: {
+        agent_id: agentId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Update Agent
+   * Update an agent by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * new_agent (UpdateAgent): New agent data.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * Agent: Updated agent.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public static updateAgentV1AgentsAgentIdPut({
+    agentId,
+    requestBody,
+  }: {
+    agentId: string;
+    requestBody: UpdateAgent;
+  }): CancelablePromise<Agent> {
+    return __request(OpenAPI, {
+      method: 'PUT',
+      url: '/v1/agents/{agent_id}',
+      path: {
+        agent_id: agentId,
+      },
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Delete Agent
+   * Delete an agent by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * DeleteAgent: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @returns DeleteAgent Successful Response
+   * @throws ApiError
+   */
+  public static deleteAgentV1AgentsAgentIdDelete({
+    agentId,
+  }: {
+    agentId: string;
+  }): CancelablePromise<DeleteAgent> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
+      url: '/v1/agents/{agent_id}',
+      path: {
+        agent_id: agentId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
     });
   }
   /**

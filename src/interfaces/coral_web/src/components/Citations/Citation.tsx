@@ -95,6 +95,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
 
   return (
     <Transition
+      as="div"
       id={generationId ? `citation-${generationId}` : undefined}
       show={true}
       enter="delay-300 duration-300 ease-out transition-[transform,opacity]" // delay to wait for the citation side panel to open

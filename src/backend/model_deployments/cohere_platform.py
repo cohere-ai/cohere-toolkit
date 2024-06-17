@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import threading
@@ -9,6 +10,8 @@ import cohere
 import requests
 from cohere.types import StreamedChatResponse
 
+from backend.chat.collate import to_dict
+from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -22,11 +25,10 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = None
+    api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR)
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
-        self.api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR, **kwargs)
         self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
 
     @property
@@ -62,13 +64,26 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        _ = kwargs.pop("trace_id", None)
+        trace_id = kwargs.pop("trace_id", None)
 
-        yield self.client.chat(
-            **chat_request.model_dump(exclude={"stream", "file_ids"}),
-            force_single_step=True,
-            **kwargs,
+        success = True
+        response = {}
+        try:
+            response = self.client.chat(
+                **chat_request.model_dump(exclude={"stream", "file_ids"}),
+                **kwargs,
+            )
+        except Exception as e:
+            success = False
+            logging.error(f"Error invoking chat stream: {e}")
+
+        self.report_metrics(
+            endpoint_name="co.chat",
+            success=success,
+            trace_id=trace_id,
         )
+        
+        return to_dict(response)
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
@@ -79,7 +94,6 @@ class CohereDeployment(BaseDeployment):
         try:
             stream = self.client.chat_stream(
                 **chat_request.model_dump(exclude={"stream", "file_ids"}),
-                force_single_step=True,
                 **kwargs,
             )
         except Exception as e:
@@ -87,10 +101,13 @@ class CohereDeployment(BaseDeployment):
             logging.error(f"Error invoking chat stream: {e}")
 
         for event in stream:
-            if hasattr(event, "finish_reason") and event.finish_reason == "ERROR":
+            event_dict = to_dict(event)
+            
+            if event_dict.get("finish_reason") == "ERROR":
                 success = False
+            
+            yield event_dict
 
-            yield event.__dict__
 
         self.report_metrics(
             endpoint_name="co.chat",
@@ -143,9 +160,7 @@ class CohereDeployment(BaseDeployment):
 
     def invoke_tools(
         self,
-        message: str,
-        tools: List[Any],
-        chat_history: List[Dict[str, str]] | None = None,
+        chat_request: CohereChatRequest,
         **kwargs: Any,
     ) -> Generator[StreamedChatResponse, None, None]:
         trace_id = kwargs.pop("trace_id", None)

@@ -17,7 +17,7 @@ import { visit } from 'unist-util-visit';
 
 export const renderRemarkCites: Plugin<void[], Root> = () => {
   return (tree, file) => {
-    visit(tree, (node: any, index, parent) => {
+    visit(tree, (node: any) => {
       if (
         node.type === 'textDirective' ||
         node.type === 'leafDirective' ||
