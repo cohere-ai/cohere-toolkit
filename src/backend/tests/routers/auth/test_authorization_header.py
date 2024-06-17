@@ -14,14 +14,18 @@ from backend.tests.factories import get_factory
 freezegun.configure(extend_ignore_list=["transformers"])
 
 
-def test_validate_authorization_valid_token():
+def test_validate_authorization_valid_token(
+    session_client: TestClient,
+):
     user = {"user_id": "test"}
     token = JWTService().create_and_encode_jwt(user)
-    request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
 
-    token_user = validate_authorization(request_mock)
+    # Use /logout endpoint to test request validator
+    response = session_client.get(
+        "/v1/logout", headers={"Authorization": f"Bearer {token}"}
+    )
 
-    assert token_user["context"] == {"user_id": "test"}
+    assert response.status_code == 200
 
 
 def test_validate_authorization_no_authorization():
