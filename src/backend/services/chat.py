@@ -332,8 +332,14 @@ def create_chat_history(
     if chat_request.chat_history is not None:
         return chat_request.chat_history
 
+    if conversation.messages is None:
+        return []
+
+    # Don't include the user message that was just sent
     text_messages = [
-        message for message in conversation.messages[:user_message_position]
+        message
+        for message in conversation.messages
+        if message.position < user_message_position
     ]
     return [
         ChatMessage(
