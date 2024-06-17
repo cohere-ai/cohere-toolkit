@@ -22,6 +22,8 @@ def rerank_and_chunk(
         List[Dict[str, Any]]: List of reranked and combined documents.
     """
     trace_id = kwargs.get("trace_id")
+    user_id = kwargs.get("user_id")
+
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
         return tool_results
@@ -71,7 +73,7 @@ def rerank_and_chunk(
             continue
 
         res = model.invoke_rerank(
-            query=query, documents=chunked_outputs, trace_id=trace_id
+            query=query, documents=chunked_outputs, trace_id=trace_id, user_id=user_id
         )
 
         # Sort the results by relevance score

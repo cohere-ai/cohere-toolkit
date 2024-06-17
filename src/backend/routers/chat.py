@@ -47,6 +47,8 @@ async def chat_stream(
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
 
+    user_id = request.headers.get("User-Id", None)
+
     (
         session,
         chat_request,

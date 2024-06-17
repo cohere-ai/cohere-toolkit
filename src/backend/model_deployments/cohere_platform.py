@@ -15,7 +15,7 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.services.metrics import report_metrics, run_in_new_thread
+from backend.services.metrics import hash_string, run_in_new_thread
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
@@ -65,6 +65,7 @@ class CohereDeployment(BaseDeployment):
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         trace_id = kwargs.pop("trace_id", None)
+        user_id = kwargs.pop("user_id", None)
 
         success = True
         response = {}
@@ -81,14 +82,16 @@ class CohereDeployment(BaseDeployment):
             endpoint_name="co.chat",
             success=success,
             trace_id=trace_id,
+            user_id=user_id,
         )
-        
+
         return to_dict(response)
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         trace_id = kwargs.pop("trace_id", None)
+        user_id = kwargs.pop("user_id", None)
 
         success = True
         try:
@@ -102,17 +105,17 @@ class CohereDeployment(BaseDeployment):
 
         for event in stream:
             event_dict = to_dict(event)
-            
+
             if event_dict.get("finish_reason") == "ERROR":
                 success = False
-            
-            yield event_dict
 
+            yield event_dict
 
         self.report_metrics(
             endpoint_name="co.chat",
             success=success,
             trace_id=trace_id,
+            user_id=user_id,
         )
 
     def invoke_search_queries(
@@ -137,6 +140,7 @@ class CohereDeployment(BaseDeployment):
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         trace_id = kwargs.pop("trace_id", None)
+        user_id = kwargs.pop("user_id", None)
 
         success = True
         try:
@@ -155,6 +159,7 @@ class CohereDeployment(BaseDeployment):
             endpoint_name="co.rerank",
             success=success,
             trace_id=trace_id,
+            user_id=user_id,
         )
         return response
 
@@ -164,12 +169,14 @@ class CohereDeployment(BaseDeployment):
         **kwargs: Any,
     ) -> Generator[StreamedChatResponse, None, None]:
         trace_id = kwargs.pop("trace_id", None)
+        user_id = kwargs.pop("user_id", None)
+
         stream = self.client.chat_stream(
-            message=message,
-            tools=tools,
+            message=chat_request.message,
+            tools=chat_request.tools,
             model="command-r",
             force_single_step=True,
-            chat_history=chat_history,
+            chat_history=chat_request.chat_history,
             **kwargs,
         )
         for event in stream:
@@ -178,12 +185,14 @@ class CohereDeployment(BaseDeployment):
         self.report_metrics(
             endpoint_name="co.chat",
             trace_id=trace_id,
+            user_id=user_id,
         )
 
-    def report_metrics(self, endpoint_name, success, trace_id) -> None:
+    def report_metrics(self, endpoint_name, success, trace_id, user_id) -> None:
         data = {
-            "endpoint_name": endpoint_name,
             "method": "POST",
+            "endpoint_name": endpoint_name,
+            "user_id_hash": hash_string(user_id),
             "success": success,
             "trace_id": trace_id,
             "timestamp": time.time(),

@@ -34,7 +34,6 @@ class CustomChat(BaseChat):
             Generator[StreamResponse, None, None]: Chat response.
         """
         # Choose the deployment model - validation already performed by request validator
-        trace_id = kwargs.get("trace_id")
         deployment_model = get_deployment(kwargs.get("deployment_name"), **kwargs)
         logger.info(f"Using deployment {deployment_model.__class__.__name__}")
 
@@ -119,6 +118,7 @@ class CustomChat(BaseChat):
 
     def call_chat(self, chat_request, deployment_model, **kwargs: Any):
         trace_id = kwargs.get("trace_id")
+        user_id = kwargs.get("user_id")
         managed_tools = self.get_managed_tools(chat_request)
 
         # If tools are managed and not zero shot tools, replace the tools in the chat request
@@ -148,7 +148,9 @@ class CustomChat(BaseChat):
         if tool_results:
             chat_request.message = ""
 
-        for event in deployment_model.invoke_chat_stream(chat_request, trace_id=trace_id):
+        for event in deployment_model.invoke_chat_stream(
+            chat_request, trace_id=trace_id, user_id=user_id
+        ):
             if event["event_type"] != StreamEvent.STREAM_START:
                 yield event
             if event["event_type"] == StreamEvent.STREAM_END:
@@ -186,7 +188,7 @@ class CustomChat(BaseChat):
             for output in outputs:
                 tool_results.append({"call": tool_call, "outputs": [output]})
 
-        tool_results = rerank_and_chunk(tool_results, deployment_model)
+        tool_results = rerank_and_chunk(tool_results, deployment_model, **kwargs)
         return tool_results
 
     def handle_tool_calls_stream(self, tool_results_stream):
@@ -233,6 +235,7 @@ class CustomChat(BaseChat):
 
     def get_tool_calls(self, tools, chat_history, deployment_model, **kwargs: Any):
         trace_id = kwargs.get("trace_id")
+        user_id = kwargs.get("user_id")
         # If the chat history contains a read or search file tool, add the files to the chat history
         tool_names = [tool.name for tool in tools]
         if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
@@ -245,7 +248,9 @@ class CustomChat(BaseChat):
             self.chat_request.chat_history = chat_history
 
         logger.info(f"Available tools: {tools}")
-        stream = deployment_model.invoke_chat_stream(self.chat_request, trace_id=trace_id)
+        stream = deployment_model.invoke_chat_stream(
+            self.chat_request, trace_id=trace_id, user_id=user_id
+        )
 
         return stream
 

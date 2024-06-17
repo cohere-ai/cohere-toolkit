@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import os
 import threading
 import time
@@ -36,12 +37,14 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         if scope["type"] == "http":
             timestamp = time.time()
             data = {
-                "trace_id": trace_id,
-                "endpoint_name": self.get_endpoint_name(scope),
                 "method": self.get_method(scope),
-                "status_code": self.get_status_code(response),
+                "endpoint_name": self.get_endpoint_name(scope),
+                "user_id_hash": self.get_user_id_hash(request),
+                "success": self.get_success(response),
+                "trace_id": trace_id,
                 "timestamp": timestamp,
                 "duration": duration,
+                "status_code": self.get_status_code(response),
             }
 
         return data
@@ -71,14 +74,37 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             print("Failed to get status code:", e)
             return 500
 
+    def get_success(self, response):
+        try:
+            return 200 <= response.status_code < 400
+        except Exception as e:
+            print("Failed to get success:", e)
+            return False
+
+    def get_user_id_hash(self, request):
+        try:
+            user_id = request.headers.get("User-Id", None)
+            return hash_string(user_id)
+        except Exception as e:
+            print("Failed to get user id hash:", e)
+            return None
+
+
+def hash_string(s):
+    if s is None:
+        return None
+
+    return hashlib.sha256(s.encode()).hexdigest()
+
 
 async def report_metrics(data):
+    data["id"] = str(uuid.uuid4())
+
     if not REPORT_ENDPOINT:
         print("No report endpoint set")
         return
 
     try:
-        data["id"] = str(uuid.uuid4())
         async with httpx.AsyncClient() as client:
             await client.post(REPORT_ENDPOINT, json=data)
     except Exception as e:
