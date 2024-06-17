@@ -5,6 +5,7 @@ import React, { Children, PropsWithChildren, useContext } from 'react';
 import { ConfigurationDrawer } from '@/components/Conversation/ConfigurationDrawer';
 import { DeploymentsDropdown } from '@/components/DeploymentsDropdown';
 import { EditEnvVariablesButton } from '@/components/EditEnvVariablesButton';
+import { NavigationUserMenu } from '@/components/NavigationUserMenu';
 import { Banner } from '@/components/Shared';
 import { NavigationBar } from '@/components/Shared/NavigationBar/NavigationBar';
 import { PageHead } from '@/components/Shared/PageHead';
@@ -13,8 +14,6 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { useSession } from '@/hooks/session';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils/cn';
-
-import { NavigationUserMenu } from './NavigationUserMenu';
 
 const LeftDrawer: React.FC<PropsWithChildren> = ({ children }) => <>{children}</>;
 const Main: React.FC<PropsWithChildren> = ({ children }) => <>{children}</>;

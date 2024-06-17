@@ -57,7 +57,7 @@ export const useGoogleAuthRoute = () => {
         response_type: 'code',
         client_id: authConfig.login.googleClientId,
         scope: 'openid email profile',
-        redirect_uri: `${authConfig.baseUrl}/api/auth/google_oauth_callback`,
+        redirect_uri: `${authConfig.baseUrl}/auth/complete`,
         prompt: 'select_account consent',
         state,
       }).toString()}`;
