@@ -2,6 +2,7 @@ import { Transition } from '@headlessui/react';
 
 import { AgentCard } from '@/components/Agents/AgentCard';
 import { Text } from '@/components/Shared';
+import { useListAgents } from '@/hooks/agents';
 import { useSettingsStore } from '@/stores';
 
 /**
@@ -12,6 +13,7 @@ export const AgentsList: React.FC = () => {
   const {
     settings: { isAgentsSidePanelOpen },
   } = useSettingsStore();
+  const { data: agents } = useListAgents();
 
   return (
     <div className="flex flex-col gap-3">
@@ -38,6 +40,14 @@ export const AgentsList: React.FC = () => {
         name="Financial Advisor"
         id="financial-advisor-01"
       />
+      {agents?.map((agent) => (
+        <AgentCard
+          key={agent.id}
+          isExpanded={isAgentsSidePanelOpen}
+          name={agent.name}
+          id={agent.id}
+        />
+      ))}
     </div>
   );
 };

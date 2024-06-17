@@ -2,8 +2,8 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 
 import { CohereClient } from '@/cohere-client';
-import { CreateAgentForm } from '@/components/Agents/CreateAgentForm';
 import { AgentsList } from '@/components/Agents/AgentsList';
+import { CreateAgentForm } from '@/components/Agents/CreateAgentForm';
 import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
 import { appSSR } from '@/pages/_app';
 
