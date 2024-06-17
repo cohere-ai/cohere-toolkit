@@ -5,7 +5,11 @@ export const DEFAULT_CONVERSATION_NAME = 'New Conversation';
 export const DEFAULT_TYPING_VELOCITY = 35;
 
 export const DEPLOYMENT_COHERE_PLATFORM = 'Cohere Platform';
+<<<<<<< HEAD
 export const DEFAULT_AGENT_MODEL = 'command-r-plus';
+=======
+export const MODEL_COMMMAND_R_PLUS = 'command-r-plus';
+>>>>>>> 94478e8 (and deployment + env variables to agent form)
 
 export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'text/csv',
@@ -57,5 +61,3 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { name: string; icon: Icon
   [TOOL_PYTHON_INTERPRETER_ID]: { name: 'Python Interpreter', icon: 'code' },
   [TOOL_CALCULATOR_ID]: { name: 'Calculator', icon: 'calculator' },
 };
-
-export const COMMMAND_R_PLUS_TOOL_ID = 'command-r-plus';
