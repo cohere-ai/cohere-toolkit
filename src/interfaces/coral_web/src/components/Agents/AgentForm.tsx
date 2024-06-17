@@ -6,11 +6,12 @@ import { useModels } from '@/hooks/deployments';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
-type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature' | 'deployment'>;
+export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature' | 'deployment'>;
+export type AgentFormTextFields = Omit<keyof AgentFormFields, 'tools'>;
 
 type Props = {
   fields: AgentFormFields;
-  onTextFieldChange: (key: Omit<keyof AgentFormFields, 'tools'>, value: string) => void;
+  onTextFieldChange: (key: AgentFormTextFields, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean) => void;
   className?: string;
 };

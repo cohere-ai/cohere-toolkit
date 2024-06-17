@@ -1,15 +1,12 @@
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
-import { CreateAgent } from '@/cohere-client';
-import { AgentForm } from '@/components/Agents/AgentForm';
+import { AgentForm, AgentFormFields, AgentFormTextFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import { COMMMAND_R_PLUS_TOOL_ID } from '@/constants';
 import { useCreateAgent } from '@/hooks/agents';
 import { useModels } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
-
-type AgentForm = Omit<CreateAgent, 'version' | 'temperature' | 'deployment'>;
 
 /**
  * @description Form to create a new agent.
@@ -21,7 +18,7 @@ export const CreateAgentForm: React.FC = () => {
     params: { deployment, preamble },
   } = useParamsStore();
   const { models } = useModels();
-  const [fields, setFields] = useState<AgentForm>({
+  const [fields, setFields] = useState<AgentFormFields>({
     name: '',
     description: '',
     preamble,
@@ -35,7 +32,7 @@ export const CreateAgentForm: React.FC = () => {
     return Object.values(requredFields).every(Boolean);
   })();
 
-  const handleTextFieldChange = (key: Omit<keyof AgentForm, 'tools'>, value: string) => {
+  const handleTextFieldChange = (key: AgentFormTextFields, value: string) => {
     setFields({
       ...fields,
       [key as string]: value,
