@@ -2,7 +2,7 @@ import React from 'react';
 
 import Conversation from '@/components/Conversation';
 
-import { UpdateAgentDrawer } from './UpdateAgentDrawer';
+import { UpdateAgentDrawer } from './Agents/UpdateAgentDrawer';
 
 type Props = {
   conversationId?: string;

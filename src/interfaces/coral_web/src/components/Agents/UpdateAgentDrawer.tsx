@@ -1,10 +1,11 @@
 import { Transition } from '@headlessui/react';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Agent } from '@/cohere-client';
+import { AgentForm } from '@/components/Agents/AgentForm';
 import IconButton from '@/components/IconButton';
 import { Button, Text } from '@/components/Shared';
-import { useSettingsStore } from '@/stores';
+import { useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
@@ -16,14 +17,42 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
     settings: { isEditAgentDrawerOpen },
     setSettings,
   } = useSettingsStore();
+  const {
+    params: { deployment },
+  } = useParamsStore();
+  const { mutateAsync: updateAgent } = useUpdateAgent();
+  const [fields, setFields] = useState<AgentForm>({});
   const canSubmit = false;
 
   const handleClose = () => {
     setSettings({ isEditAgentDrawerOpen: false });
   };
 
-  const handleUpdate = () => {
+  const handleTextFieldChange = (key: Omit<keyof AgentForm, 'tools'>, value: string) => {
+    setFields({
+      ...fields,
+      [key as string]: value,
+    });
+  };
+
+  const handleToolToggle = (toolName: string, checked: boolean) => {
+    const enabledTools = [...(fields.tools ? fields.tools : [])];
+    setFields({
+      ...fields,
+      tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
+    });
+  };
+
+  const handleSubmit = async () => {
     if (!canSubmit) return;
+
+    const request = { ...fields, deployment: deployment ?? '' };
+
+    try {
+      await updateAgent(request);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -50,14 +79,18 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
         <IconButton iconName="close" onClick={handleClose} />
       </header>
       <div className="flex flex-col gap-y-5 px-14 py-8">
-        {/* form */}
+        <AgentForm
+          fields={{}}
+          onTextFieldChange={handleTextFieldChange}
+          onToolToggle={handleToolToggle}
+        />
         <div className="w-full rounded border-2 border-dashed border-marble-500 bg-secondary-50 px-5 py-4">
           Updating {agent.name} will affect everyone using the assistant
         </div>
         <Button
           className="self-end"
           splitIcon="check-mark"
-          onClick={handleUpdate}
+          onClick={handleSubmit}
           disabled={!canSubmit}
         >
           Update
