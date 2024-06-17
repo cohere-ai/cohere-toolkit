@@ -67,7 +67,6 @@ def test_list_conversations_with_pagination(session, user):
     assert len(conversations) == 5
 
     for i, conversation in enumerate(conversations):
-        print(conversation.title)
         assert conversation.title == f"Conversation {i + 5}"
 
 
