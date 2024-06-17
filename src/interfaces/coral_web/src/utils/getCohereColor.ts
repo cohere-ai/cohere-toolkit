@@ -8,7 +8,7 @@ export const COLOR_LIST = [
 ];
 
 /**
- * Get a color from the Cohere color palette, when no index is provided, a random color is returned
+ * @description Get a color from the Cohere color palette, when no index is provided, a random color is returned
  * @param id - id for generating a constant color in the palette
  * @returns color from the Cohere color palette
  */

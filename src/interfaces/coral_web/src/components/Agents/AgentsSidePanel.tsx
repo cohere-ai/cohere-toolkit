@@ -7,7 +7,7 @@ import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
- * This component renders the agents side panel.
+ * @description This component renders the agents side panel.
  * It contains the logo and a button to expand or collapse the panel.
  * It also renders the children components that are passed to it.
  */
