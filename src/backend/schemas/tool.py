@@ -35,3 +35,9 @@ class ManagedTool(Tool):
 class ToolCall(BaseModel):
     name: str
     parameters: dict = {}
+
+
+class ToolCallDelta(BaseModel):
+    name: str | None
+    index: int | None
+    parameters: str | None

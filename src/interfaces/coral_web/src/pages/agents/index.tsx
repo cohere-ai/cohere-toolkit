@@ -3,8 +3,8 @@ import { GetServerSideProps, NextPage } from 'next';
 import { useContext, useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
+import { AgentsList } from '@/components/Agents/AgentsList';
 import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
-import { LeftPanel } from '@/components/Agents/LeftPanel';
 import Conversation from '@/components/Conversation';
 import { BannerContext } from '@/context/BannerContext';
 import { useListAllDeployments } from '@/hooks/deployments';
@@ -53,7 +53,7 @@ const AgentsPage: NextPage<Props> = () => {
   return (
     <Layout>
       <LeftSection>
-        <LeftPanel />
+        <AgentsList />
       </LeftSection>
       <MainSection>
         <Conversation conversationId={id} startOptionsEnabled />

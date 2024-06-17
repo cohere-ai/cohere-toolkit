@@ -1,3 +1,4 @@
+import argparse
 from enum import StrEnum
 
 import inquirer
@@ -236,6 +237,10 @@ TOOLS = {
 
 
 def start():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--use-community", action=argparse.BooleanOptionalAction)
+    args = parser.parse_args()
+
     secrets = {}
     print_styled(WELCOME_MESSAGE, bcolors.OKGREEN)
     print_styled(
@@ -247,7 +252,7 @@ def start():
         implementation(secrets)
 
     # SET UP TOOLS
-    use_community_features = community_tools_prompt(secrets)
+    use_community_features = args.use_community and community_tools_prompt(secrets)
     if use_community_features:
         TOOLS.update(COMMUNITY_TOOLS_SETUP)
 

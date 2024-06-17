@@ -152,17 +152,20 @@ def get_available_tools() -> dict[ToolName, dict]:
             key: value for key, value in ALL_TOOLS.items() if key in langchain_tools
         }
 
+    tools = ALL_TOOLS.copy()
     if use_community_tools:
         try:
             from community.config.tools import COMMUNITY_TOOLS
 
             tools = ALL_TOOLS.copy()
             tools.update(COMMUNITY_TOOLS)
-            return tools
         except ImportError:
             logging.warning("Community tools are not available. Skipping.")
 
-    return ALL_TOOLS
+    for tool in tools.values():
+        tool.error_message = tool.error_message if not tool.is_available else None
+
+    return tools
 
 
 AVAILABLE_TOOLS = get_available_tools()

@@ -20,5 +20,5 @@ export type StreamEnd = {
   search_results?: Array<Record<string, any>>;
   search_queries?: Array<SearchQuery>;
   tool_calls?: Array<ToolCall>;
-  finish_reason: string;
+  finish_reason?: string | null;
 };

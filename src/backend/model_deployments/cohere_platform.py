@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from typing import Any, Dict, Generator, List
@@ -6,6 +7,8 @@ import cohere
 import requests
 from cohere.types import StreamedChatResponse
 
+from backend.chat.collate import to_dict
+from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -57,22 +60,21 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        yield self.client.chat(
+        response = self.client.chat(
             **chat_request.model_dump(exclude={"stream"}),
-            force_single_step=True,
             **kwargs,
         )
+        yield to_dict(response)
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids"}),
-            force_single_step=True,
             **kwargs,
         )
         for event in stream:
-            yield event.__dict__
+            yield to_dict(event)
 
     def invoke_search_queries(
         self,
@@ -101,19 +103,7 @@ class CohereDeployment(BaseDeployment):
 
     def invoke_tools(
         self,
-        message: str,
-        tools: List[Any],
-        chat_history: List[Dict[str, str]] | None = None,
+        chat_request: CohereChatRequest,
         **kwargs: Any,
     ) -> Generator[StreamedChatResponse, None, None]:
-        stream = self.client.chat_stream(
-            message=message,
-            tools=tools,
-            model="command-r",
-            force_single_step=True,
-            chat_history=chat_history,
-            **kwargs,
-        )
-
-        for event in stream:
-            yield event.__dict__
+        yield from self.invoke_chat_stream(chat_request, **kwargs)
