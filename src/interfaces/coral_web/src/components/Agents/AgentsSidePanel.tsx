@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 
-import { Button, Icon, Logo } from '@/components/Shared';
+import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -16,6 +16,16 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     settings: { isAgentsSidePanelOpen },
     setIsAgentsSidePanelOpen,
   } = useSettingsStore();
+
+  const navigationItems: {
+    label: string;
+    icon: IconProps['name'];
+    href?: string;
+    onClick?: () => void;
+  }[] = [
+    { label: 'Create Assistant ', icon: 'add', href: '/agents/new' },
+    { label: 'Sign Out', icon: 'profile', onClick: () => void 0 },
+  ];
 
   return (
     <div
@@ -36,22 +46,13 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
           'justify-center': !isAgentsSidePanelOpen,
         })}
       >
-        <Transition
-          as="div"
-          show={isAgentsSidePanelOpen}
-          enter="transition-all duration-100 ease-in-out"
-          enterFrom="-translate-x-full opacity-0"
-          enterTo="translate-x-0 opacity-100"
-          leave="transition-all duration-100 ease-in-out"
-          leaveFrom="translate-x-0 opacity-100"
-          leaveTo="-translate-x-full opacity-0"
-        >
-          <Link href="/">
+        {isAgentsSidePanelOpen && (
+          <Link href="/" shallow>
             <div className="mr-3 flex items-baseline">
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
             </div>
           </Link>
-        </Transition>
+        )}
         <button
           onClick={() => setIsAgentsSidePanelOpen(!isAgentsSidePanelOpen)}
           className={cn('transition delay-100 duration-200 ease-in-out', {
@@ -62,21 +63,48 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         </button>
       </div>
       <div className="flex-grow overflow-y-auto">{children}</div>
-      <div className="flex flex-shrink-0 flex-col gap-y-4">
-        <Button
-          kind="secondary"
-          className="text-secondary-900"
-          startIcon={<Icon name="add" className="text-secondary-900" />}
-          label="Create Assistant"
-          href="/agents/new"
-        />
-        <Button
-          kind="secondary"
-          className="text-secondary-900"
-          startIcon={<Icon name="profile" className="text-secondary-900" />}
-          label="Sign out"
-        />
-      </div>
+      <Transition
+        show={!isAgentsSidePanelOpen}
+        as="div"
+        className="flex flex-shrink-0 flex-col gap-y-4"
+        enter="transition-opacity duration-100 ease-in-out delay-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+      >
+        {navigationItems.map(({ label, icon, href, onClick }) => (
+          <Tooltip key={label} label={label} hover placement="right">
+            {href ? (
+              <Link className="flex w-full justify-center" href={href} shallow>
+                <Icon name={icon} className="text-secondary-900" />
+              </Link>
+            ) : (
+              <button className="w-full" onClick={onClick}>
+                <Icon name={icon} className="text-secondary-900" />
+              </button>
+            )}
+          </Tooltip>
+        ))}
+      </Transition>
+      <Transition
+        show={isAgentsSidePanelOpen}
+        as="div"
+        className="flex flex-shrink-0 flex-col gap-y-4"
+        enter="transition-opacity duration-100 ease-in-out delay-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+      >
+        {navigationItems.map(({ label, icon, href, onClick }) => (
+          <Button
+            key={label}
+            kind="secondary"
+            className="text-secondary-900"
+            startIcon={<Icon name={icon} className="text-secondary-900" />}
+            label={label}
+            href={href}
+            onClick={onClick}
+          />
+        ))}
+      </Transition>
     </div>
   );
 };

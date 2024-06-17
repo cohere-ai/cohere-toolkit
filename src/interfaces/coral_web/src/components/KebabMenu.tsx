@@ -1,4 +1,4 @@
-import { Menu, Transition } from '@headlessui/react';
+import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { useState } from 'react';
 import { usePopper } from 'react-popper';
 
@@ -48,18 +48,19 @@ export const KebabMenu: React.FC<Props> = ({ items, className = '' }) => {
     <Menu as="div" className={cn('flex flex-col')}>
       {({ open }) => (
         <>
-          <Menu.Button
+          <MenuButton
             className={cn('flex cursor-pointer p-0 text-secondary-800', className, {
               // Always override styles and show the kebab button if the menu is open
               'md:flex': open,
             })}
+            onClick={(e) => e.stopPropagation()}
             ref={setReferenceElement}
           >
             <Icon name="kebab" />
-          </Menu.Button>
+          </MenuButton>
 
           <Transition
-            as={Menu.Items}
+            as={MenuItems}
             appear
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -76,7 +77,7 @@ export const KebabMenu: React.FC<Props> = ({ items, className = '' }) => {
             {items.map(
               ({ label, iconName, icon, onClick, className, visible = true }, index) =>
                 visible && (
-                  <Menu.Item
+                  <MenuItem
                     key={label}
                     as="li"
                     className={cn(
@@ -102,7 +103,7 @@ export const KebabMenu: React.FC<Props> = ({ items, className = '' }) => {
                     )}
                     {!!icon && icon}
                     <Text>{label}</Text>
-                  </Menu.Item>
+                  </MenuItem>
                 )
             )}
           </Transition>
