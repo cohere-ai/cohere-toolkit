@@ -47,7 +47,7 @@ jobs:
             --platform=managed \
             --region=us-central1 \
             --allow-unauthenticated \
-            --update-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }},COHERE_API_KEY=${{ secrets.COHERE_API_KEY }} \
+            --update-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }},COHERE_API_KEY=${{ secrets.COHERE_API_KEY }},MINIMAP_API_URL=${{ vars.MINIMAP_API_URL }} \
             --memory=4Gi \
             --cpu=4 \
             --max-instances=1

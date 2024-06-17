@@ -11,13 +11,14 @@ from backend.tools import (
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
+    LangChainMinimapRetriever,
 )
 
 """
-List of available tools. Each tool should have a name, implementation, is_visible and category. 
+List of available tools. Each tool should have a name, implementation, is_visible and category.
 They can also have kwargs if necessary.
 
-You can switch the visibility of a tool by changing the is_visible parameter to True or False. 
+You can switch the visibility of a tool by changing the is_visible parameter to True or False.
 If a tool is not visible, it will not be shown in the frontend.
 
 If you want to add a new tool, check the instructions on how to implement a retriever in the documentation.
@@ -32,6 +33,7 @@ class ToolName(StrEnum):
     Python_Interpreter = "Python_Interpreter"
     Calculator = "Calculator"
     Tavily_Internet_Search = "Internet_Search"
+    MiniMap = "MiniMap"
 
 
 ALL_TOOLS = {
@@ -51,6 +53,22 @@ ALL_TOOLS = {
         error_message="LangChainWikiRetriever not available.",
         category=Category.DataLoader,
         description="Retrieves documents from Wikipedia using LangChain.",
+    ),
+    ToolName.MiniMap: ManagedTool(
+        name=ToolName.MiniMap,
+        implementation=LangChainMinimapRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for searching the news. It can be a topic, a named entities, or a quoted keyword.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=LangChainMinimapRetriever.is_available(),
+        error_message="Minimap API not available.",
+        category=Category.DataLoader,
+        description="Fetches the most relevant news and content from Minimap.ai.",
     ),
     ToolName.Search_File: ManagedTool(
         name=ToolName.Search_File,
