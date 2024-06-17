@@ -2,7 +2,7 @@ import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 
 import IconButton from '@/components/IconButton';
-import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
+import { Button, Icon, IconProps, Logo, Text, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -25,6 +25,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     onClick?: () => void;
   }[] = [
     { label: 'Create Assistant ', icon: 'add', href: '/agents/new' },
+    { label: 'Discover', icon: 'flask', href: '/agents/discover' },
     { label: 'Sign Out', icon: 'profile', onClick: () => void 0 },
   ];
 
@@ -63,47 +64,36 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         />
       </div>
       <div className="flex-grow overflow-y-auto">{children}</div>
-      <Transition
-        show={!isAgentsSidePanelOpen}
-        as="div"
-        className="flex flex-shrink-0 flex-col gap-y-4"
-        enter="transition-opacity duration-100 ease-in-out delay-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-      >
-        {navigationItems.map(({ label, icon, href, onClick }) => (
-          <Tooltip key={label} label={label} hover placement="right">
-            <IconButton
-              iconName={icon}
-              iconClassName="text-secondary-900"
-              shallow
-              onClick={onClick}
+      {isAgentsSidePanelOpen ? (
+        <div className="flex flex-shrink-0 flex-col gap-y-4">
+          {navigationItems.map(({ label, icon, href, onClick }) => (
+            <Button
+              key={label}
+              kind="secondary"
+              className="truncate text-secondary-900"
+              startIcon={<Icon name={icon} className="text-secondary-900" />}
+              label={label}
               href={href}
-              className="w-full text-secondary-900"
+              onClick={onClick}
             />
-          </Tooltip>
-        ))}
-      </Transition>
-      <Transition
-        show={isAgentsSidePanelOpen}
-        as="div"
-        className="flex flex-shrink-0 flex-col gap-y-4"
-        enter="transition-opacity duration-100 ease-in-out delay-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-      >
-        {navigationItems.map(({ label, icon, href, onClick }) => (
-          <Button
-            key={label}
-            kind="secondary"
-            className="text-secondary-900"
-            startIcon={<Icon name={icon} className="text-secondary-900" />}
-            label={label}
-            href={href}
-            onClick={onClick}
-          />
-        ))}
-      </Transition>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-shrink-0 flex-col gap-y-4">
+          {navigationItems.map(({ label, icon, href, onClick }) => (
+            <Tooltip key={label} label={label} hover placement="right">
+              <IconButton
+                iconName={icon}
+                iconClassName="text-secondary-900"
+                shallow
+                onClick={onClick}
+                href={href}
+                className="w-full text-secondary-900"
+              />
+            </Tooltip>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

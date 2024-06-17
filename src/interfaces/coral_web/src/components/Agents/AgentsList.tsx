@@ -22,7 +22,7 @@ export const AgentsList: React.FC = () => {
         enterFrom="opacity-0"
         enterTo="opacity-100"
       >
-        <Text styleAs="label" className="text-green-800">
+        <Text styleAs="label" className="truncate text-green-800">
           Most recent
         </Text>
       </Transition>
