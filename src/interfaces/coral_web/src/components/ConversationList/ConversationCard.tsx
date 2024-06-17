@@ -123,6 +123,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       {conversationLink}
       <div className="absolute right-3 top-3.5 flex">
         <KebabMenu
+          anchor="left start"
           items={menuItems}
           className={cn('flex', {
             'hidden group-hover:flex': !isTouchDevice,

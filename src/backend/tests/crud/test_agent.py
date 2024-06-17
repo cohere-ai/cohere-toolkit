@@ -3,9 +3,10 @@ from datetime import datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
-from backend.database_models.agent import Agent, AgentDeployment, AgentModel
+from backend.database_models.agent import Agent
 from backend.schemas.agent import UpdateAgent
 from backend.tests.factories import get_factory
 
@@ -19,8 +20,8 @@ def test_create_agent(session, user):
         preamble="test",
         temperature=0.5,
         tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     agent = agent_crud.create_agent(session, agent_data)
@@ -31,8 +32,8 @@ def test_create_agent(session, user):
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
     assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
     agent = agent_crud.get_agent(session, agent.id)
     assert agent.user_id == user.id
@@ -42,15 +43,16 @@ def test_create_agent(session, user):
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
     assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
 
 def test_create_agent_empty_non_required_fields(session, user):
     agent_data = Agent(
         user_id=user.id,
         name="test",
-        model=AgentModel.COMMAND_R_PLUS,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     agent = agent_crud.create_agent(session, agent_data)
@@ -61,8 +63,8 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.preamble == ""
     assert agent.temperature == 0.3
     assert agent.tools == []
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
     agent = agent_crud.get_agent(session, agent.id)
     assert agent.user_id == user.id
@@ -72,15 +74,15 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.preamble == ""
     assert agent.temperature == 0.3
     assert agent.tools == []
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
 
 def test_create_agent_missing_name(session, user):
     agent_data = Agent(
         user_id=user.id,
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
@@ -91,7 +93,7 @@ def test_create_agent_missing_model(session, user):
     agent_data = Agent(
         user_id=user.id,
         name="test",
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
@@ -101,8 +103,8 @@ def test_create_agent_missing_model(session, user):
 def test_create_agent_missing_user_id(session):
     agent_data = Agent(
         name="test",
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
@@ -122,8 +124,8 @@ def test_create_agent_duplicate_name_version(session, user):
         preamble="test",
         temperature=0.5,
         tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
