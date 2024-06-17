@@ -1,6 +1,7 @@
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 
+import IconButton from '@/components/IconButton';
 import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useSettingsStore } from '@/stores';
@@ -53,14 +54,13 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
             </div>
           </Link>
         )}
-        <button
+        <IconButton
+          iconName="close-drawer"
           onClick={() => setIsAgentsSidePanelOpen(!isAgentsSidePanelOpen)}
           className={cn('transition delay-100 duration-200 ease-in-out', {
             'rotate-180 transform text-secondary-700': isAgentsSidePanelOpen,
           })}
-        >
-          <Icon name="close-drawer" />
-        </button>
+        />
       </div>
       <div className="flex-grow overflow-y-auto">{children}</div>
       <Transition
@@ -73,15 +73,14 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
       >
         {navigationItems.map(({ label, icon, href, onClick }) => (
           <Tooltip key={label} label={label} hover placement="right">
-            {href ? (
-              <Link className="flex w-full justify-center" href={href} shallow>
-                <Icon name={icon} className="text-secondary-900" />
-              </Link>
-            ) : (
-              <button className="w-full" onClick={onClick}>
-                <Icon name={icon} className="text-secondary-900" />
-              </button>
-            )}
+            <IconButton
+              iconName={icon}
+              iconClassName="text-secondary-900"
+              shallow
+              onClick={onClick}
+              href={href}
+              className="w-full text-secondary-900"
+            />
           </Tooltip>
         ))}
       </Transition>

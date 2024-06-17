@@ -15,10 +15,10 @@ export const COLOR_LIST = [
 export const getCohereColor = (id?: string) => {
   if (id === undefined) {
     const randomIndex = Math.floor(Math.random() * COLOR_LIST.length);
-    console.log(randomIndex);
+
     return COLOR_LIST[randomIndex];
   }
 
   const index = id.charCodeAt(0) % COLOR_LIST.length;
-  return COLOR_LIST[index % COLOR_LIST.length];
+  return COLOR_LIST[index];
 };

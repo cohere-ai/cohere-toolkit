@@ -1,7 +1,8 @@
-import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
+import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 
-import { CoralLogo, Icon, Text, Tooltip } from '@/components/Shared';
+import { KebabMenu } from '@/components/KebabMenu';
+import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -58,34 +59,21 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
           enterFrom="opacity-0"
           enterTo="opacity-100"
         >
-          <Menu>
-            <MenuButton className="rounded p-px hover:bg-marble-400">
-              <Icon name="kebab" className="text-volcanic-700" />
-            </MenuButton>
-            <MenuItems
-              anchor="right start"
-              className="z-menu ml-3 rounded bg-white px-2 py-1 shadow-menu"
-            >
-              <MenuItem
-                as={Link}
-                href={`/agents?id=${id}`}
-                onClick={(e) => e.stopPropagation()}
-                className="flex w-full items-center gap-x-2 rounded bg-white p-2 hover:bg-secondary-50"
-              >
-                <Icon name="new-message" kind="outline" className="text-secondary-700" />
-                <Text>New chat</Text>
-              </MenuItem>
-              <div className="my-1 h-px w-full border-t border-marble-400" />
-              <MenuItem
-                as="button"
-                onClick={(e) => e.stopPropagation()}
-                className="flex w-full items-center gap-x-2 rounded bg-white p-2 hover:bg-secondary-50"
-              >
-                <Icon name="hide" kind="outline" className="text-secondary-700" />
-                <Text>Hide assistant</Text>
-              </MenuItem>
-            </MenuItems>
-          </Menu>
+          <KebabMenu
+            anchor="right start"
+            items={[
+              {
+                label: 'New chat',
+                href: `/agents?id=${id}`,
+                iconName: 'new-message',
+              },
+              {
+                label: 'Hide assistant',
+                onClick: () => {},
+                iconName: 'hide',
+              },
+            ]}
+          />
         </Transition>
       </Link>
     </Tooltip>
