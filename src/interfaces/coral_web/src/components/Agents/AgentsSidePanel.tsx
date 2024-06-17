@@ -25,6 +25,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     onClick?: () => void;
   }[] = [
     { label: 'Create Assistant ', icon: 'add', href: '/agents/new' },
+    { label: 'Discover', icon: 'flask', href: '/agents/discover' },
     { label: 'Sign Out', icon: 'profile', onClick: () => void 0 },
   ];
 

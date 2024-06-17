@@ -1,10 +1,10 @@
 export const COLOR_LIST = [
   'bg-quartz-500',
-  'bg-green-500',
-  'bg-primary-500',
+  'bg-green-400',
+  'bg-primary-400',
   'bg-quartz-700',
   'bg-green-700',
-  'bg-primary-700',
+  'bg-primary-500',
 ];
 
 /**

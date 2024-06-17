@@ -2,9 +2,9 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 
 import { CohereClient } from '@/cohere-client';
+import { AgentsList } from '@/components/Agents/AgentsList';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
 import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
-import { LeftPanel } from '@/components/Agents/LeftPanel';
 import { Input, Text } from '@/components/Shared';
 import { appSSR } from '@/pages/_app';
 import { cn } from '@/utils';
@@ -78,7 +78,7 @@ const AgentsNewPage: NextPage<Props> = () => {
   return (
     <Layout>
       <LeftSection>
-        <LeftPanel />
+        <AgentsList />
       </LeftSection>
       <MainSection>
         <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-400 bg-marble-100 md:ml-0">
@@ -98,7 +98,7 @@ const AgentsNewPage: NextPage<Props> = () => {
             </Text>
           </div>
           <div className="max-w-screen-xl flex-grow overflow-y-auto px-4 py-10 md:px-9 lg:px-10">
-            <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-2 xl:grid-cols-3">
               {agents.length >= 10 && (
                 <>
                   <Input size="sm" kind="default" actionType="search" placeholder="Search" />

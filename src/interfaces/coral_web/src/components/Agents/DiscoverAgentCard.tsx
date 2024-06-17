@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
 import { cn } from '@/utils';
+import { getCohereColor } from '@/utils/getCohereColor';
 
 type Props = {
   name: string;
@@ -26,7 +27,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               className={cn(
                 'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
                 'truncate',
-                // id && getCohereColor(id),
+                id && getCohereColor(id),
                 {
                   'bg-secondary-400': isBaseAgent,
                 }
