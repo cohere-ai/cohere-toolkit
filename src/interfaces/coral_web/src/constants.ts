@@ -5,6 +5,7 @@ export const DEFAULT_CONVERSATION_NAME = 'New conversation';
 export const DEFAULT_TYPING_VELOCITY = 35;
 
 export const DEPLOYMENT_COHERE_PLATFORM = 'Cohere Platform';
+export const MODEL_COMMMAND_R_PLUS = 'command-r-plus';
 
 export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'text/csv',
@@ -47,5 +48,3 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { name: string; icon: Icon
   [TOOL_INTERNET_SEARCH_ID]: { name: 'Internet Search', icon: 'search' },
   [TOOL_PYTHON_INTERPRETER_ID]: { name: 'Python Interpreter', icon: 'code' },
 };
-
-export const COMMMAND_R_PLUS_TOOL_ID = 'command-r-plus';

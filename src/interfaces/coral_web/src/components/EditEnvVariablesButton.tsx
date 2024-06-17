@@ -1,13 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
 
-import {
-  BasicButton,
-  Button,
-  Dropdown,
-  DropdownOptionGroups,
-  Input,
-  Text,
-} from '@/components/Shared';
+import { BasicButton, Button, Dropdown, DropdownOptionGroups, Input } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
@@ -101,22 +94,13 @@ export const EditEnvVariablesModal: React.FC<{
 
   return (
     <div className="flex flex-col gap-y-4 p-4">
-      <Dropdown
-        value={deployment}
-        optionGroups={deploymentOptions}
-        onChange={handleDeploymentChange}
+      <EnvVariablesForm
+        deployment={deployment ?? ''}
+        deploymentOptions={deploymentOptions}
+        envVariables={envVariables}
+        onDeploymentChange={handleDeploymentChange}
+        onEnvVariableChange={handleEnvVariableChange}
       />
-
-      {Object.keys(envVariables).map((envVar) => (
-        <Input
-          key={envVar}
-          placeholder="value"
-          label={envVar}
-          type="password"
-          value={envVariables[envVar]}
-          onChange={handleEnvVariableChange(envVar)}
-        />
-      ))}
 
       <span className="mt-10 flex items-center justify-between">
         <BasicButton kind="minimal" size="sm" label="Cancel" onClick={onClose} />
@@ -127,6 +111,31 @@ export const EditEnvVariablesModal: React.FC<{
           disabled={isSubmitting}
         />
       </span>
+    </div>
+  );
+};
+
+export const EnvVariablesForm: React.FC<{
+  deployment: string;
+  deploymentOptions: DropdownOptionGroups;
+  envVariables: Record<string, string>;
+  onDeploymentChange: (newDeployment: string) => void;
+  onEnvVariableChange: (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+}> = ({ deployment, deploymentOptions, envVariables, onDeploymentChange, onEnvVariableChange }) => {
+  return (
+    <div className="flex flex-col gap-y-4">
+      <Dropdown value={deployment} optionGroups={deploymentOptions} onChange={onDeploymentChange} />
+
+      {Object.keys(envVariables).map((envVar) => (
+        <Input
+          key={envVar}
+          placeholder="value"
+          label={envVar}
+          type="password"
+          value={envVariables[envVar]}
+          onChange={onEnvVariableChange(envVar)}
+        />
+      ))}
     </div>
   );
 };

@@ -1,19 +1,23 @@
 import React from 'react';
 
 import { CreateAgent } from '@/cohere-client';
-import { Checkbox, Dropdown, Input, InputLabel } from '@/components/Shared';
-import { useModels } from '@/hooks/deployments';
+import { EnvVariablesForm } from '@/components/EditEnvVariablesButton';
+import { Checkbox, Dropdown, DropdownOptionGroups, Input, InputLabel } from '@/components/Shared';
+import { DEPLOYMENT_COHERE_PLATFORM, MODEL_COMMMAND_R_PLUS } from '@/constants';
+import { useListAllDeployments, useModels } from '@/hooks/deployments';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
-export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature' | 'deployment'>;
+export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
 export type AgentFormFieldKeys = keyof AgentFormFields;
 export type AgentFormTextFieldKeys = Omit<keyof AgentFormFieldKeys, 'tools'>;
 
 type Props = {
   fields: AgentFormFields;
-  onTextFieldChange: (key: AgentFormTextFieldKeys, value: string) => void;
+  envVariables: Record<string, string>;
+  onChange: (key: AgentFormTextFieldKeys, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean) => void;
+  onEnvVariableChange: (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
   className?: string;
 };
@@ -22,13 +26,24 @@ type Props = {
  */
 export const AgentForm: React.FC<Props> = ({
   fields,
-  onTextFieldChange,
+  envVariables,
+  onChange,
   onToolToggle,
+  onEnvVariableChange,
   errors,
   className,
 }) => {
+  const { data: deployments } = useListAllDeployments();
   const { models } = useModels();
-  const modelOptions = [
+  const deploymentOptions: DropdownOptionGroups = [
+    {
+      options: (deployments ?? []).map(({ name }) => ({
+        label: name,
+        value: name,
+      })),
+    },
+  ];
+  const modelOptions: DropdownOptionGroups = [
     {
       options: models.map((model) => ({
         label: model,
@@ -39,6 +54,16 @@ export const AgentForm: React.FC<Props> = ({
   const { data: toolsData } = useListTools();
   const tools = toolsData ?? [];
 
+  const handleDeploymentChange = (value: string) => {
+    onChange('deployment', value);
+
+    if (value === DEPLOYMENT_COHERE_PLATFORM) {
+      onChange('model', MODEL_COMMMAND_R_PLUS);
+    } else {
+      onChange('model', '');
+    }
+  };
+
   return (
     <div className={cn('flex flex-col gap-y-4', className)}>
       <InputLabel label="name" className="pb-2">
@@ -46,7 +71,7 @@ export const AgentForm: React.FC<Props> = ({
           kind="default"
           value={fields.name ?? ''}
           placeholder="Give your assistant a name"
-          onChange={(e) => onTextFieldChange('name', e.target.value)}
+          onChange={(e) => onChange('name', e.target.value)}
           hasError={!!errors?.name}
           errorText={errors?.name}
         />
@@ -56,7 +81,7 @@ export const AgentForm: React.FC<Props> = ({
           kind="default"
           value={fields.description ?? ''}
           placeholder="What does your assistant do?"
-          onChange={(e) => onTextFieldChange('description', e.target.value)}
+          onChange={(e) => onChange('description', e.target.value)}
         />
       </InputLabel>
       <InputLabel label="Preamble">
@@ -72,8 +97,17 @@ export const AgentForm: React.FC<Props> = ({
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
           )}
           rows={5}
-          onChange={(e) => onTextFieldChange('preamble', e.target.value)}
+          onChange={(e) => onChange('preamble', e.target.value)}
           data-testid="input-preamble"
+        />
+      </InputLabel>
+      <InputLabel label="Deployment" className="pb-2">
+        <EnvVariablesForm
+          deployment={fields.deployment}
+          deploymentOptions={deploymentOptions}
+          envVariables={envVariables}
+          onDeploymentChange={handleDeploymentChange}
+          onEnvVariableChange={onEnvVariableChange}
         />
       </InputLabel>
       <Dropdown
@@ -81,7 +115,7 @@ export const AgentForm: React.FC<Props> = ({
         label="Model"
         kind="default"
         value={fields.model}
-        onChange={(model: string) => onTextFieldChange('model', model)}
+        onChange={(model: string) => onChange('model', model)}
         optionGroups={modelOptions}
       />
       <InputLabel label="Tools" className="mb-2">

@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 
 import { AgentForm, AgentFormFields, AgentFormTextFieldKeys } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
-import { COMMMAND_R_PLUS_TOOL_ID } from '@/constants';
 import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
-import { useModels } from '@/hooks/deployments';
+import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
 
 /**
@@ -15,17 +14,28 @@ export const CreateAgentForm: React.FC = () => {
   const router = useRouter();
   const { mutateAsync: createAgent } = useCreateAgent();
   const {
-    params: { deployment, preamble },
+    params: { preamble },
   } = useParamsStore();
-  const { models } = useModels();
+  const { data: deployments } = useListAllDeployments();
   const isAgentNameUnique = useIsAgentNameUnique();
 
   const [fields, setFields] = useState<AgentFormFields>({
     name: '',
     description: '',
     preamble,
-    model: models.includes(COMMMAND_R_PLUS_TOOL_ID) ? COMMMAND_R_PLUS_TOOL_ID : '',
+    deployment: 'Azure',
+    model: '',
     tools: [],
+  });
+
+  const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => {
+    const selectedDeployment = deployments?.find(({ name }) => name === fields.deployment);
+    return (
+      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+        acc[envVar] = '';
+        return acc;
+      }, {}) ?? {}
+    );
   });
 
   const fieldErrors = {
@@ -37,7 +47,8 @@ export const CreateAgentForm: React.FC = () => {
     return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
 
-  const handleTextFieldChange = (key: AgentFormTextFieldKeys, value: string) => {
+  const handleChange = (key: AgentFormTextFieldKeys, value: string) => {
+    console.debug(key, value);
     setFields({
       ...fields,
       [key as string]: value,
@@ -52,13 +63,15 @@ export const CreateAgentForm: React.FC = () => {
     });
   };
 
+  const handleEnvVariableChange = (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEnvVariables({ ...envVariables, [envVar]: e.target.value });
+  };
+
   const handleSubmit = async () => {
     if (!canSubmit) return;
 
-    const request = { ...fields, deployment: deployment ?? '' };
-
     try {
-      await createAgent(request);
+      await createAgent(fields);
       router.push('/agents', undefined, { shallow: true });
     } catch (e) {
       console.error(e);
@@ -74,8 +87,10 @@ export const CreateAgentForm: React.FC = () => {
         </Text>
         <AgentForm
           fields={fields}
-          onTextFieldChange={handleTextFieldChange}
+          envVariables={envVariables}
+          onChange={handleChange}
           onToolToggle={handleToolToggle}
+          onEnvVariableChange={handleEnvVariableChange}
           errors={fieldErrors}
           className="mt-6"
         />
