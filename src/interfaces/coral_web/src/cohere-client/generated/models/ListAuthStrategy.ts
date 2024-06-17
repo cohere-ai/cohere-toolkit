@@ -3,6 +3,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export type ListAuthStrategy = {
-    strategy: string;
+  strategy: string;
 };
-

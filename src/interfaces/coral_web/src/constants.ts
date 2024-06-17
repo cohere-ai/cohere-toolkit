@@ -57,3 +57,5 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { name: string; icon: Icon
   [TOOL_PYTHON_INTERPRETER_ID]: { name: 'Python Interpreter', icon: 'code' },
   [TOOL_CALCULATOR_ID]: { name: 'Calculator', icon: 'calculator' },
 };
+
+export const COMMMAND_R_PLUS_TOOL_ID = 'command-r-plus';

@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Login = {
-    strategy: string;
-    payload?: (Record<string, string> | null);
+  strategy: string;
+  payload?: Record<string, string> | null;
 };
-
