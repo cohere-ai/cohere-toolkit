@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -19,6 +19,9 @@ class Conversation(Base):
 
     text_messages: Mapped[List["Message"]] = relationship()
     files: Mapped[List["File"]] = relationship()
+    organization_id: Mapped[Optional[str]] = mapped_column(
+        ForeignKey("organizations.id", name="conversations_organization_id_fkey", ondelete="CASCADE")
+    )
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=True
     )

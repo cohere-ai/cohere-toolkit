@@ -1,5 +1,6 @@
 import json
 import os
+from dotenv import load_dotenv
 from typing import Any, Dict, Mapping
 
 import requests
@@ -7,6 +8,8 @@ from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
 from backend.tools.base import BaseTool
+
+load_dotenv()
 
 
 class LangchainPythonInterpreterToolInput(BaseModel):
