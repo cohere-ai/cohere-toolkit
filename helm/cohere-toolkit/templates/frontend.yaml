@@ -43,25 +43,38 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: toolkit-frontend
+      {{- with $values.podSecurityContext }}
       securityContext:
-        {{- toYaml $values.podSecurityContext | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: toolkit-frontend
           image: {{ $values.image.repository }}:{{ $values.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ $values.image.pullPolicy }}
+          {{- with $values.securityContext }}
           securityContext:
-            {{- toYaml $values.securityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $values.resources }}
           resources:
-            {{- toYaml $values.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 4000
               protocol: TCP
               name: http
           envFrom:
-            - configMapRef:
+            - secretRef:
                 name: toolkit-frontend
                 optional: false
-          # TODO: Add livenessProbe and readinessProbe
+          {{- /* TODO: Add livenessProbe and readinessProbe */}}
+          {{- with $values.sidecars }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
       restartPolicy: Always
       {{- with $values.nodeSelector }}
       nodeSelector:
@@ -132,7 +145,7 @@ spec:
 ---
 
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
   name: toolkit-frontend
   namespace: {{ .Release.Namespace }}
@@ -140,4 +153,4 @@ metadata:
     app.kubernetes.io/name: toolkit-frontend
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
 data:
-  {{- toYaml $values.config | nindent 2 }}
+  NEXT_PUBLIC_API_HOSTNAME: "{{ required .Values.global.backend_url "global.backend_url value is required" }}"

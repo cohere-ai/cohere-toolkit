@@ -1,16 +1,26 @@
 # Default values for cohere-toolkit.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
-cohere:
-  api_key: ""  # Required
-
 postgresql:
   enabled: true
-  fullnameOverride: "toolkit-db"
+  fullnameOverride: &database_name "toolkit-db"
   auth:
     enablePostgresUser: true
-    postgresPassword: "postgres"
+    postgresPassword: &database_password "postgres"
+  containerPorts:
+    postgresql: &database_port 5432
+
+global:
+  backend_url: "" # required
+  cohere:
+    api_key: "" # Required
+  database:
+    name: "postgres"
+    host: *database_name
+    port: *database_port
+    username: "postgres"
+    password: *database_password
+    connection_string: "" # overrides host, port, username, and password
 
 backend:
   replicaCounts: 1
@@ -69,6 +79,10 @@ backend:
 
   affinity: {}
 
+  initContainers: []
+
+  sidecars: []
+
 frontend:
   replicaCounts: 1
 
@@ -125,3 +139,7 @@ frontend:
   tolerations: []
 
   affinity: {}
+
+  initContainers: [ ]
+
+  sidecars: [ ]

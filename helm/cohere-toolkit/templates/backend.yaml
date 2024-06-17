@@ -43,28 +43,38 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: toolkit-backend
+      {{- with $values.podSecurityContext }}
       securityContext:
-        {{- toYaml $values.podSecurityContext | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: toolkit-backend
           image: {{ $values.image.repository }}:{{ $values.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ $values.image.pullPolicy }}
+          {{- with $values.securityContext }}
           securityContext:
-            {{- toYaml $values.securityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $values.resources }}
           resources:
-            {{- toYaml $values.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 8000
               protocol: TCP
               name: http
           envFrom:
-            - configMapRef:
+            - secretRef:
                 name: toolkit-backend
                 optional: false
-            - secretRef:
-                name: toolkit-secrets
-                optional: false
-          # TODO: Add livenessProbe and readinessProbe
+          {{- /* TODO: Add livenessProbe and readinessProbe */}}
+          {{- with $values.sidecars }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
       restartPolicy: Always
       {{- with $values.nodeSelector }}
       nodeSelector:
@@ -135,7 +145,7 @@ spec:
 ---
 
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
   name: toolkit-backend
   namespace: {{ .Release.Namespace }}
@@ -143,4 +153,5 @@ metadata:
     app.kubernetes.io/name: toolkit-backend
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
 data:
-  {{- toYaml $values.config | nindent 2 }}
+  COHERE_API_KEY: "{{ .Values.global.cohere.api_key }}"
+  DATABASE_URL: "{{ template "cohere-toolkit.database-url" $ }}"
