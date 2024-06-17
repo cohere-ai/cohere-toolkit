@@ -70,6 +70,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
 
         <div className={cn('relative flex h-full flex-grow flex-nowrap overflow-hidden')}>
           <Transition
+            as="div"
             show={isMobileConvListPanelOpen || (isConvListPanelOpen && isDesktop)}
             enterFrom={cn(
               '-translate-x-full lg:translate-x-0',

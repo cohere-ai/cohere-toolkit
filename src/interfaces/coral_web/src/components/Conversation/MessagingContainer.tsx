@@ -118,6 +118,7 @@ const Content: React.FC<Props> = (props) => {
             leave="duration-300 ease-in transition-all"
             leaveFrom="translate-y-0 opacity-100"
             leaveTo="translate-y-10 opacity-0"
+            as="div"
             className="absolute bottom-full left-1/2 -z-10 flex h-fit -translate-x-1/2 transform pb-4"
           >
             <Button

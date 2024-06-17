@@ -8,7 +8,7 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.search_query import SearchQuery
-from backend.schemas.tool import Tool, ToolCall
+from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 
 
 class ChatRole(StrEnum):
@@ -45,7 +45,11 @@ class ChatMessage(BaseModel):
     )
     tool_results: List[Dict[str, Any]] | None = Field(
         title="Results from the tool call.",
-        default=[],
+        default=None,
+    )
+    tool_calls: List[Dict[str, Any]] | None = Field(
+        title="List of tool calls generated for custom tools",
+        default=None,
     )
 
     def to_dict(self) -> Dict[str, str]:
@@ -143,9 +147,13 @@ class StreamToolCallsGeneration(ChatResponse):
 
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_GENERATION
 
-    tool_calls: List[ToolCall] = Field(
+    tool_calls: List[ToolCall] | None = Field(
         title="List of tool calls generated for custom tools",
         default=[],
+    )
+
+    text: str | None = Field(
+        title="Contents of the chat message.",
     )
 
 
@@ -176,7 +184,7 @@ class StreamEnd(ChatResponse):
         title="List of tool calls generated for custom tools",
         default=[],
     )
-    finish_reason: str = Field()
+    finish_reason: str | None = Field(default=None)
 
 
 class NonStreamedChatResponse(ChatResponse):
@@ -220,24 +228,45 @@ class NonStreamedChatResponse(ChatResponse):
     )
 
 
+class StreamToolCallsChunk(ChatResponse):
+    event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_CHUNK
+
+    tool_call_delta: ToolCallDelta | None = Field(
+        title="Partial tool call",
+        default=ToolCallDelta(
+            name=None,
+            index=None,
+            parameters=None,
+        ),
+    )
+
+    text: str | None = Field(
+        title="Contents of the chat message.",
+    )
+
+
+StreamEventType = Union[
+    StreamStart,
+    StreamTextGeneration,
+    StreamCitationGeneration,
+    StreamQueryGeneration,
+    StreamSearchResults,
+    StreamEnd,
+    StreamToolInput,
+    StreamToolResult,
+    StreamSearchQueriesGeneration,
+    StreamToolCallsGeneration,
+    StreamToolCallsChunk,
+    NonStreamedChatResponse,
+]
+
+
 class ChatResponseEvent(BaseModel):
     event: StreamEvent = Field(
         title="type of stream event",
     )
 
-    data: Union[
-        StreamStart,
-        StreamTextGeneration,
-        StreamCitationGeneration,
-        StreamQueryGeneration,
-        StreamSearchResults,
-        StreamEnd,
-        StreamToolInput,
-        StreamToolResult,
-        StreamSearchQueriesGeneration,
-        StreamToolCallsGeneration,
-        NonStreamedChatResponse,
-    ] = Field(
+    data: StreamEventType = Field(
         title="Data returned from chat response of a given event type",
     )
 

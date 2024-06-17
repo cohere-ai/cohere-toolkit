@@ -2,7 +2,7 @@ from enum import StrEnum
 from typing import List
 
 from sqlalchemy import Boolean, Enum, ForeignKey, Index, String
-from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 from backend.database_models.citation import Citation

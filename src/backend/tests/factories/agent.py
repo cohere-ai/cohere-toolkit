@@ -1,6 +1,8 @@
 import factory
 
-from backend.database_models.agent import Agent, AgentDeployment, AgentModel
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.tools import ToolName
+from backend.database_models.agent import Agent
 
 from .base import BaseFactory
 
@@ -17,21 +19,20 @@ class AgentFactory(BaseFactory):
     temperature = factory.Faker("pyfloat")
     created_at = factory.Faker("date_time")
     updated_at = factory.Faker("date_time")
-    model = factory.Faker(
-        "random_element",
-        elements=(
-            AgentModel.COMMAND_R,
-            AgentModel.COMMAND_R_PLUS,
-            AgentModel.COMMAND_LIGHT,
-            AgentModel.COMMAND,
-        ),
+    tools = factory.List(
+        [
+            factory.Faker(
+                "random_element",
+                elements=[
+                    ToolName.Wiki_Retriever_LangChain,
+                    ToolName.Search_File,
+                    ToolName.Read_File,
+                    ToolName.Python_Interpreter,
+                    ToolName.Calculator,
+                    ToolName.Tavily_Internet_Search,
+                ],
+            )
+        ]
     )
-    deployment = factory.Faker(
-        "random_element",
-        elements=(
-            AgentDeployment.COHERE_PLATFORM,
-            AgentDeployment.SAGE_MAKER,
-            AgentDeployment.AZURE,
-            AgentDeployment.BEDROCK,
-        ),
-    )
+    model = "command-r-plus"
+    deployment = ModelDeploymentName.CoherePlatform
