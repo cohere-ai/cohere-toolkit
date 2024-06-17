@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { Deployment, useCohereClient } from '@/cohere-client';
+import { useParamsStore } from '@/stores';
 
 /**
  * @description Hook to get all possible deployments.
@@ -20,4 +22,21 @@ export const useListAllDeployments = (options?: { enabled?: boolean }) => {
     refetchOnWindowFocus: false,
     ...options,
   });
+};
+
+/**
+ * @description Hook that returns available models based on the selected deployment.
+ */
+export const useModels = () => {
+  const { data: deployments } = useListAllDeployments();
+  const {
+    params: { deployment },
+  } = useParamsStore();
+  const models = useMemo(() => {
+    const selectedDeployment = deployments?.find(({ name }) => name === deployment);
+    if (!selectedDeployment) return [];
+    return selectedDeployment.models;
+  }, [deployment]);
+
+  return { models };
 };

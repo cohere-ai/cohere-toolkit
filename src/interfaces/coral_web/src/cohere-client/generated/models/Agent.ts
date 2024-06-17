@@ -3,17 +3,16 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Agent = {
-    user_id: string;
-    id: string;
-    created_at: string;
-    updated_at: string;
-    version: number;
-    name: string;
-    description: (string | null);
-    preamble: (string | null);
-    temperature: number;
-    tools: Array<string>;
-    model: string;
-    deployment: string;
+  user_id: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+  version: number;
+  name: string;
+  description: string | null;
+  preamble: string | null;
+  temperature: number;
+  tools: Array<string>;
+  model: string;
+  deployment: string;
 };
-

@@ -3,9 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateUser = {
-    password?: (string | null);
-    hashed_password?: (Blob | null);
-    fullname: string;
-    email?: (string | null);
+  password?: string | null;
+  hashed_password?: Blob | null;
+  fullname: string;
+  email?: string | null;
 };
-

@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type ToolCall = {
-    name: string;
-    parameters?: Record<string, any>;
+  name: string;
+  parameters?: Record<string, any>;
 };
-

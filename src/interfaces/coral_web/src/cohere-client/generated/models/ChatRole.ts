@@ -6,8 +6,8 @@
  * One of CHATBOT|USER|SYSTEM to identify who the message is coming from.
  */
 export enum ChatRole {
-    CHATBOT = 'CHATBOT',
-    USER = 'USER',
-    SYSTEM = 'SYSTEM',
-    TOOL = 'TOOL',
+  CHATBOT = 'CHATBOT',
+  USER = 'USER',
+  SYSTEM = 'SYSTEM',
+  TOOL = 'TOOL',
 }

@@ -412,6 +412,7 @@ export class CohereClient {
 
   public async createAgent(request: CreateAgent): Promise<Agent> {
     const endpoint = this.getEndpoint('agents');
+    console.debug('client.createAgent', request);
     const response = await this.fetch(endpoint, {
       method: 'POST',
       headers: this.getHeaders(true),
