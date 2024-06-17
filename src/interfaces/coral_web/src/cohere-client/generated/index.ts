@@ -55,7 +55,6 @@ export type { Tool } from './models/Tool';
 export type { ToolCall } from './models/ToolCall';
 export type { ToolCallDelta } from './models/ToolCallDelta';
 export { ToolInputType } from './models/ToolInputType';
-export { ToolName } from './models/ToolName';
 export type { UpdateAgent } from './models/UpdateAgent';
 export type { UpdateConversation } from './models/UpdateConversation';
 export type { UpdateDeploymentEnv } from './models/UpdateDeploymentEnv';
