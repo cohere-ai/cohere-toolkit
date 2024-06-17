@@ -4,6 +4,7 @@ from typing import Any, Dict, Generator, List
 import cohere
 from cohere.types import StreamedChatResponse
 
+from backend.chat.collate import to_dict
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -65,7 +66,7 @@ class AzureDeployment(BaseDeployment):
             **kwargs,
         )
         for event in stream:
-            yield event.__dict__
+            yield to_dict(event)
 
     def invoke_search_queries(
         self,
@@ -92,14 +93,7 @@ class AzureDeployment(BaseDeployment):
 
     def invoke_tools(
         self,
-        message: str,
-        tools: List[Any],
-        chat_history: List[Dict[str, str]] | None = None,
+        chat_request: CohereChatRequest,
         **kwargs: Any,
     ) -> Generator[StreamedChatResponse, None, None]:
-        stream = self.client.chat_stream(
-            message=message, tools=tools, chat_history=chat_history, **kwargs
-        )
-
-        for event in stream:
-            yield event.__dict__
+        yield from self.invoke_chat_stream(chat_request, **kwargs)

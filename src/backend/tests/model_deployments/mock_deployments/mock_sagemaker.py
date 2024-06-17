@@ -38,11 +38,13 @@ class MockSageMakerDeployment(BaseDeployment):
             },
             {
                 "event_type": StreamEvent.STREAM_END,
-                "generation_id": "test",
-                "citations": [],
-                "documents": [],
-                "search_results": [],
-                "search_queries": [],
+                "response": {
+                    "generation_id": "test",
+                    "citations": [],
+                    "documents": [],
+                    "search_results": [],
+                    "search_queries": [],
+                },
                 "finish_reason": "MAX_TOKENS",
             },
         ]

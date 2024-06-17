@@ -132,7 +132,11 @@ export const Header: React.FC<Props> = ({ conversationId, isStreaming }) => {
           </Text>
         </span>
         <span className="flex items-center gap-x-2 py-4 pl-4 md:pl-0">
-          <KebabMenu className={cn('md:hidden', { hidden: !conversationId })} items={menuItems} />
+          <KebabMenu
+            className={cn('md:hidden', { hidden: !conversationId })}
+            items={menuItems}
+            anchor="left start"
+          />
           <IconButton
             iconName="trash"
             onClick={handleDelete}
