@@ -7,12 +7,14 @@ import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
 export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature' | 'deployment'>;
-export type AgentFormTextFields = Omit<keyof AgentFormFields, 'tools'>;
+export type AgentFormFieldKeys = keyof AgentFormFields;
+export type AgentFormTextFieldKeys = Omit<keyof AgentFormFieldKeys, 'tools'>;
 
 type Props = {
   fields: AgentFormFields;
-  onTextFieldChange: (key: AgentFormTextFields, value: string) => void;
+  onTextFieldChange: (key: AgentFormTextFieldKeys, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean) => void;
+  errors?: Partial<Record<AgentFormFieldKeys, string>>;
   className?: string;
 };
 /**
@@ -22,6 +24,7 @@ export const AgentForm: React.FC<Props> = ({
   fields,
   onTextFieldChange,
   onToolToggle,
+  errors,
   className,
 }) => {
   const { models } = useModels();
@@ -44,6 +47,8 @@ export const AgentForm: React.FC<Props> = ({
           value={fields.name ?? ''}
           placeholder="Give your assistant a name"
           onChange={(e) => onTextFieldChange('name', e.target.value)}
+          hasError={!!errors?.name}
+          errorText={errors?.name}
         />
       </InputLabel>
       <InputLabel label="description" className="pb-2">

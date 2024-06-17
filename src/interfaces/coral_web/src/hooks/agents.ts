@@ -34,3 +34,11 @@ export const useCreateAgent = () => {
     },
   });
 };
+
+/**
+ * @description Returns a function to check if an agent name is unique.
+ */
+export const useIsAgentNameUnique = () => {
+  const { data: agents } = useListAgents();
+  return (name: string) => !agents?.some((agent) => agent.name === name);
+};

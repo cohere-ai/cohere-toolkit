@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
-import { AgentForm, AgentFormFields, AgentFormTextFields } from '@/components/Agents/AgentForm';
+import { AgentForm, AgentFormFields, AgentFormTextFieldKeys } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import { COMMMAND_R_PLUS_TOOL_ID } from '@/constants';
-import { useCreateAgent } from '@/hooks/agents';
+import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
 import { useModels } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
 
@@ -18,6 +18,8 @@ export const CreateAgentForm: React.FC = () => {
     params: { deployment, preamble },
   } = useParamsStore();
   const { models } = useModels();
+  const isAgentNameUnique = useIsAgentNameUnique();
+
   const [fields, setFields] = useState<AgentFormFields>({
     name: '',
     description: '',
@@ -26,13 +28,16 @@ export const CreateAgentForm: React.FC = () => {
     tools: [],
   });
 
+  const fieldErrors = {
+    ...(isAgentNameUnique(fields.name) ? {} : { name: 'Assistant name must be unique' }),
+  };
+
   const canSubmit = (() => {
     const { tools, preamble, ...requredFields } = fields;
-
-    return Object.values(requredFields).every(Boolean);
+    return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
 
-  const handleTextFieldChange = (key: AgentFormTextFields, value: string) => {
+  const handleTextFieldChange = (key: AgentFormTextFieldKeys, value: string) => {
     setFields({
       ...fields,
       [key as string]: value,
@@ -71,6 +76,7 @@ export const CreateAgentForm: React.FC = () => {
           fields={fields}
           onTextFieldChange={handleTextFieldChange}
           onToolToggle={handleToolToggle}
+          errors={fieldErrors}
           className="mt-6"
         />
       </div>
