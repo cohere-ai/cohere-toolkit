@@ -60,6 +60,7 @@ def get_conversations(
     return (
         db.query(Conversation)
         .filter(Conversation.user_id == user_id)
+        .order_by(Conversation.updated_at.desc())
         .offset(offset)
         .limit(limit)
         .all()
