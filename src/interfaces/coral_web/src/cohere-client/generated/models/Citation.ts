@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Citation = {
-  text: string;
-  start: number;
-  end: number;
-  document_ids: Array<string>;
+    text: string;
+    start: number;
+    end: number;
+    document_ids: Array<string>;
 };
+
