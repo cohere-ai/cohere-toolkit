@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
-import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
 
 /**
@@ -15,9 +14,7 @@ export const CreateAgentForm: React.FC = () => {
   const { mutateAsync: createAgent } = useCreateAgent();
   const {
     params: { preamble },
-    setParams,
   } = useParamsStore();
-  const { data: deployments } = useListAllDeployments();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentFormFields>({
@@ -59,6 +56,14 @@ export const CreateAgentForm: React.FC = () => {
     try {
       setIsSubmitting(true);
       await createAgent(fields);
+      setFields({
+        name: '',
+        description: '',
+        preamble,
+        deployment: '',
+        model: '',
+        tools: [],
+      })
       router.push('/agents', undefined, { shallow: true });
     } catch (e) {
       console.error(e);
@@ -68,7 +73,7 @@ export const CreateAgentForm: React.FC = () => {
 
   return (
     <div className="relative h-full w-full">
-      <div className="flex h-full max-w-[650px] flex-col gap-y-2 p-10">
+      <div className="flex h-full max-w-[650px] flex-col gap-y-2 p-10 overflow-scroll">
         <Text styleAs="h4">Create an Assistant</Text>
         <Text className="text-volcanic-700">
           Create an unique assistant and share with your org
