@@ -9,7 +9,13 @@ import {
 } from '@/constants';
 import { useConversationActions } from '@/hooks/conversation';
 import { useNotify } from '@/hooks/toast';
-import { useCitationsStore, useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useFilesStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { MessageType, isFulfilledMessage } from '@/types/message';
 
 export const useFocusComposer = () => {
@@ -72,6 +78,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
     conversation: { id, messages },
     resetConversation,
   } = useConversationStore();
+  const { resetFileParams } = useParamsStore();
   const { resetCitations } = useCitationsStore();
   const { deleteConversation } = useConversationActions();
   const { focusComposer } = useFocusComposer();
@@ -85,6 +92,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
         await router.push('/', undefined, { shallow: true });
         resetConversation();
         resetCitations();
+        resetFileParams();
       },
     },
     {

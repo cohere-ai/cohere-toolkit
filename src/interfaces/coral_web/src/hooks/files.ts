@@ -9,7 +9,7 @@ import { useListTools } from '@/hooks/tools';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
 import { MessageType } from '@/types/message';
-import { getFileExtension } from '@/utils';
+import { getFileExtension, isDefaultFileLoaderTool } from '@/utils';
 
 class FileUploadError extends Error {
   constructor(message: string) {
@@ -184,15 +184,13 @@ export const useDefaultFileLoaderTool = () => {
   const { params, setParams } = useParamsStore();
   // Returns the first visible file loader tool from tools list
   const defaultFileLoaderTool = useMemo(
-    () => tools?.find((tool) => tool.category === FILE_TOOL_CATEGORY && tool.is_visible),
+    () => tools?.find(isDefaultFileLoaderTool),
     [tools?.length]
   );
 
   const enableDefaultFileLoaderTool = () => {
     if (!defaultFileLoaderTool) return;
-    const visibleFileToolNames =
-      tools?.filter((t) => t.category === FILE_TOOL_CATEGORY && t.is_visible).map((t) => t.name) ??
-      [];
+    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
 
     const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
       params.tools?.some((tool) => tool.name === name)

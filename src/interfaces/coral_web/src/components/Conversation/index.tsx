@@ -6,16 +6,21 @@ import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import { Spinner } from '@/components/Shared';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
-import { PromptOption } from '@/components/StartModes';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
-import { useFocusComposer } from '@/hooks/actions';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useRouteChange } from '@/hooks/route';
-import { useCitationsStore, useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useFilesStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
+import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 
 type Props = {
@@ -46,6 +51,9 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
   } = useCitationsStore();
   const { files } = useFilesInConversation();
   const {
+    params: { fileIds },
+  } = useParamsStore();
+  const {
     files: { composerFiles },
   } = useFilesStore();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
@@ -66,7 +74,6 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
       }
     },
   });
-  const { focusComposer } = useFocusComposer();
 
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
@@ -118,23 +125,14 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
     enableDefaultFileLoaderTool();
   };
 
-  const handleSend = (msg?: string, overrideTools?: Tool[]) => {
-    const filesExist = files.length > 0 || composerFiles.length > 0;
-    const enableFileLoaderTool = filesExist && !!defaultFileLoaderTool;
-    const chatOverrideTools: Tool[] = [
-      ...(overrideTools ?? []),
-      ...(enableFileLoaderTool ? [{ name: defaultFileLoaderTool.name }] : []),
-    ];
+  const handleSend = (msg?: string, overrides?: Partial<ConfigurableParams>) => {
+    const areFilesSelected = fileIds && fileIds.length > 0;
+    const enableFileLoaderTool = areFilesSelected && !!defaultFileLoaderTool;
 
-    if (filesExist) {
+    if (enableFileLoaderTool) {
       enableDefaultFileLoaderTool();
     }
-    send({ suggestedMessage: msg }, { tools: chatOverrideTools });
-  };
-
-  const handlePromptSelected = (option: PromptOption) => {
-    focusComposer();
-    setUserMessage(option.prompt);
+    send({ suggestedMessage: msg }, overrides);
   };
 
   return (
@@ -150,7 +148,6 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
           onRetry={handleRetry}
           messages={messages}
           streamingMessage={streamingMessage}
-          onPromptSelected={handlePromptSelected}
           composer={
             <>
               <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />

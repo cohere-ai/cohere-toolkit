@@ -13,7 +13,7 @@ import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
 import { useNotify } from '@/hooks/toast';
-import { useCitationsStore, useConversationStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { isAbortError } from '@/utils';
 
 export const useConversations = () => {
@@ -122,6 +122,7 @@ export const useConversationActions = () => {
     resetConversation,
   } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
   const notify = useNotify();
   const { mutateAsync: deleteConversation, isPending } = useDeleteConversation();
 
@@ -139,6 +140,7 @@ export const useConversationActions = () => {
       if (id === conversationId) {
         resetConversation();
         resetCitations();
+        resetFileParams();
         router.push('/', undefined, { shallow: true }); // go to new chat
       }
     };
