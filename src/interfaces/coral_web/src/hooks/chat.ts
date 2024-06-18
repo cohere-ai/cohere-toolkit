@@ -72,7 +72,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { mutateAsync: streamChat } = chatMutation;
 
   const {
-    params: { temperature, tools, model, deployment, deploymentConfig },
+    params: { temperature, tools, model, deployment, deploymentConfig, fileIds },
   } = useParamsStore();
   const {
     conversation: { id, messages },
@@ -90,7 +90,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     clearComposerFiles,
   } = useFilesStore();
   const queryClient = useQueryClient();
-  const fileIds = composerFiles.map((file) => file.id);
 
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);

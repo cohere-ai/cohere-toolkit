@@ -29,6 +29,7 @@ const ConversationPage: NextPage<Props> = () => {
   const {
     params: { deployment },
     setParams,
+    resetFileParams,
   } = useParamsStore();
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
@@ -66,6 +67,8 @@ const ConversationPage: NextPage<Props> = () => {
 
   useEffect(() => {
     resetCitations();
+    resetFileParams();
+    setParams({ tools: [] });
 
     if (urlConversationId) {
       setConversation({ id: urlConversationId });

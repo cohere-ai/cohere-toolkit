@@ -72,6 +72,7 @@ export const useParamsStore = () => {
     (state) => ({
       params: state.params,
       setParams: state.setParams,
+      resetFileParams: state.resetFileParams,
     }),
     shallow
   );
