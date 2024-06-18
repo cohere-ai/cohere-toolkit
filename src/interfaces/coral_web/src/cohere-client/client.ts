@@ -411,6 +411,24 @@ export class CohereClient {
     return body as Agent[];
   }
 
+  public async getAgent(agentId: string): Promise<Agent> {
+    const response = await this.fetch(`${this.getEndpoint('agents')}/${agentId}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Agent;
+  }
+
   public async createAgent(request: CreateAgent): Promise<Agent> {
     const endpoint = this.getEndpoint('agents');
     const response = await this.fetch(endpoint, {

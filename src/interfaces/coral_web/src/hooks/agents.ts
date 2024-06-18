@@ -35,6 +35,22 @@ export const useCreateAgent = () => {
   });
 };
 
+export const useAgent = ({ agentId }: { agentId?: string }) => {
+  const cohereClient = useCohereClient();
+  return useQuery({
+    queryKey: ['agent', agentId],
+    enabled: !!agentId,
+    queryFn: async () => {
+      try {
+        return await cohereClient.getAgent(agentId ?? '');
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+  });
+};
+
 /**
  * @description Returns a function to check if an agent name is unique.
  */

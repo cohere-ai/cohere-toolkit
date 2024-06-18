@@ -5,7 +5,7 @@ import { Agent } from '@/cohere-client';
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import IconButton from '@/components/IconButton';
 import { Button, Text } from '@/components/Shared';
-import { useUpdateAgent } from '@/hooks/agents';
+import { useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -19,6 +19,8 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
     setSettings,
   } = useSettingsStore();
   const { mutateAsync: updateAgent } = useUpdateAgent();
+  const isAgentNameUnique = useIsAgentNameUnique();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentFormFields>({
     name: agent.name,
     description: agent.description,
@@ -26,7 +28,24 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
     model: agent.model,
     tools: agent.tools,
   });
-  const canSubmit = false;
+
+  const isDirty = () => {
+    return Object.entries(fields).some(
+      ([key, value]) => agent[key as AgentFormFieldKeys] !== value
+    );
+  };
+
+  const fieldErrors = {
+    ...(isAgentNameUnique(fields.name) ? {} : { name: 'Assistant name must be unique' }),
+  };
+
+  const canSubmit = (() => {
+    const { name, deployment, model } = fields;
+    const requredFields = { name, deployment, model };
+    return (
+      Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length && isDirty()
+    );
+  })();
 
   const handleClose = () => {
     setSettings({ isEditAgentDrawerOpen: false });
@@ -51,8 +70,11 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
     if (!canSubmit) return;
 
     try {
+      setIsSubmitting(true);
       await updateAgent({ ...fields, agentId: '' });
+      setIsSubmitting(false);
     } catch (e) {
+      setIsSubmitting(false);
       console.error(e);
     }
   };
@@ -86,12 +108,12 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
           Updating {agent.name} will affect everyone using the assistant
         </div>
         <Button
-          className="self-end"
+          className="mt-14 self-end"
           splitIcon="check-mark"
           onClick={handleSubmit}
           disabled={!canSubmit}
         >
-          Update
+          {isSubmitting ? 'Updating' : 'Update'}
         </Button>
       </div>
     </Transition>
