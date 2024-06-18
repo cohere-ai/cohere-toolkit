@@ -35,7 +35,8 @@ export const CreateAgentForm: React.FC = () => {
   };
 
   const canSubmit = (() => {
-    const { tools, preamble, ...requredFields } = fields;
+    const { name, deployment, model } = fields;
+    const requredFields = { name, deployment, model };
     return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
 

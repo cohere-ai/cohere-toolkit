@@ -31,10 +31,12 @@ export const AgentForm: React.FC<Props> = ({
   const { models } = useModels(fields.deployment);
   const deploymentOptions: DropdownOptionGroups = [
     {
-      options: (deployments ?? []).map(({ name }) => ({
-        label: name,
-        value: name,
-      })),
+      options: (deployments ?? [])
+        .filter((d) => d.is_available)
+        .map(({ name }) => ({
+          label: name,
+          value: name,
+        })),
     },
   ];
   const modelOptions: DropdownOptionGroups = [
@@ -104,16 +106,14 @@ export const AgentForm: React.FC<Props> = ({
         onChange={(deployment: string) => onChange('deployment', deployment)}
         optionGroups={deploymentOptions}
       />
-      {modelOptions[0].options.length > 0 && (
-        <Dropdown
-          className="w-full"
-          label="Model"
-          kind="default"
-          value={fields.model}
-          onChange={(model: string) => onChange('model', model)}
-          optionGroups={modelOptions}
-        />
-      )}
+      <Dropdown
+        className="w-full"
+        label="Model"
+        kind="default"
+        value={fields.model}
+        onChange={(model: string) => onChange('model', model)}
+        optionGroups={modelOptions}
+      />
       <InputLabel label="Tools" className="mb-2">
         <div className="flex flex-col gap-y-4 px-3">
           {tools.map((tool) => {
