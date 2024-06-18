@@ -56,7 +56,7 @@ async def chat_stream(
         should_store,
         managed_tools,
         deployment_config,
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, agent_id)
 
     return EventSourceResponse(
         generate_chat_stream(
