@@ -180,6 +180,19 @@ def test_create_agent_invalid_tool(
     assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
+def test_create_existing_agent(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(name="test agent")
+    request_json = {
+        "name": agent.name,
+    }
+
+    response = session_client.post(
+        "/v1/agents", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Agent test agent already exists."}
+
+
 def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/agents", headers={"User-Id": "123"})
     assert response.status_code == 200

@@ -67,6 +67,7 @@ async def list_agents(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/{agent_id}", response_model=Agent)
 async def get_agent(agent_id: str, session: DBSessionDep, request: Request) -> Agent:
     """
@@ -81,7 +82,7 @@ async def get_agent(agent_id: str, session: DBSessionDep, request: Request) -> A
         HTTPException: If the agent with the given ID is not found.
     """
     try:
-        agent = agent_crud.get_agent(session, agent_id)
+        agent = agent_crud.get_agent_by_id(session, agent_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
