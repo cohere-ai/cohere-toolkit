@@ -49,6 +49,7 @@ def test_list_conversations_with_agent(
     conversation = results[0]
     assert conversation["id"] == conversation1.id
 
+
 def test_list_conversation_with_deleted_agent(
     session_client: TestClient, session: Session
 ) -> None:
