@@ -84,7 +84,7 @@ curl --location 'http://localhost:8000/v1/langchain-chat' \
 --header 'Content-Type: application/json' \
 --data '{
     "message": "Tell me about the aya model",
-    "tools": [{"name": "Python_Interpreter"},{"name": "Internet_Search"},]
+    "tools": [{"name": "Python_Interpreter"},{"name": "Internet_Search"}]
 }'
 ```
 
