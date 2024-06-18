@@ -1,9 +1,11 @@
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
+import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
+import { useNotify } from '@/hooks/toast';
 import { useParamsStore } from '@/stores';
 
 /**
@@ -11,6 +13,8 @@ import { useParamsStore } from '@/stores';
  */
 export const CreateAgentForm: React.FC = () => {
   const router = useRouter();
+  const { open, close } = useContext(ModalContext);
+  const { error } = useNotify();
   const { mutateAsync: createAgent } = useCreateAgent();
   const {
     params: { preamble },
@@ -50,6 +54,19 @@ export const CreateAgentForm: React.FC = () => {
     });
   };
 
+  const handleOpenSubmitModal = () => {
+    open({
+      title: `Create ${fields.name}?`,
+      content: (
+        <SubmitModalContent
+          agentName={fields.name}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          onClose={close}
+        />
+      ),
+    });
+  };
   const handleSubmit = async () => {
     if (!canSubmit) return;
 
@@ -63,17 +80,21 @@ export const CreateAgentForm: React.FC = () => {
         deployment: '',
         model: '',
         tools: [],
-      })
+      });
+      close();
+      setIsSubmitting(false);
       router.push('/agents', undefined, { shallow: true });
     } catch (e) {
+      setIsSubmitting(false);
+      close();
+      error('Failed to create assistant');
       console.error(e);
     }
-    setIsSubmitting(false);
   };
 
   return (
     <div className="relative h-full w-full">
-      <div className="flex h-full max-w-[650px] flex-col gap-y-2 p-10 overflow-scroll">
+      <div className="flex h-full max-w-[650px] flex-col gap-y-2 overflow-scroll p-10 pb-32">
         <Text styleAs="h4">Create an Assistant</Text>
         <Text className="text-volcanic-700">
           Create an unique assistant and share with your org
@@ -87,10 +108,32 @@ export const CreateAgentForm: React.FC = () => {
         />
       </div>
       <div className="absolute bottom-0 right-0 flex w-full justify-end border-t border-marble-400 bg-white px-4 py-8">
-        <Button splitIcon="add" onClick={handleSubmit} disabled={!canSubmit || isSubmitting}>
-          {isSubmitting ? 'Creating assistant' : 'Create'}
+        <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
+          Create
         </Button>
       </div>
     </div>
   );
 };
+
+const SubmitModalContent: React.FC<{
+  agentName: string;
+  isSubmitting: boolean;
+  onSubmit: () => void;
+  onClose: () => void;
+}> = ({ agentName, isSubmitting, onSubmit, onClose }) => (
+  <div className="flex flex-col gap-y-20">
+    <Text>
+      Your {agentName} is about be visible publicly. Everyone in your organization will be able to
+      see and use it.
+    </Text>
+    <div className="flex justify-between">
+      <Button kind="secondary" onClick={onClose}>
+        Cancel
+      </Button>
+      <Button kind="green" onClick={onSubmit} splitIcon="arrow-right" disabled={isSubmitting}>
+        {isSubmitting ? 'Creating assistant' : 'Yes, make it public'}
+      </Button>
+    </div>
+  </div>
+);
