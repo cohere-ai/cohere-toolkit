@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 
 type Props = {

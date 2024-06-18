@@ -17,7 +17,7 @@ type Props = {
 /**
  * Convenience component for rendering an icon button that follows Coral UI's design patterns.
  */
-const IconButton: React.FC<Props> = ({
+export const IconButton: React.FC<Props> = ({
   iconName,
   iconKind = 'outline',
   iconClassName,

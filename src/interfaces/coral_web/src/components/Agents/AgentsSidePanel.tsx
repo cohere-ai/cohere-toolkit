@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useSettingsStore } from '@/stores';
