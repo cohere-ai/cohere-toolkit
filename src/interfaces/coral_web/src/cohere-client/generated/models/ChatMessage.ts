@@ -14,4 +14,5 @@ export type ChatMessage = {
   role: ChatRole;
   message: string | null;
   tool_results?: null;
+  tool_calls?: null;
 };

@@ -1,8 +1,8 @@
 import cx from 'classnames';
 
 export const Icons = [
-  'add-in-frame',
   'add',
+  'add-in-frame',
   'arrow-down',
   'arrow-left',
   'arrow-right',
