@@ -28,6 +28,5 @@ class Conversation(Base):
         return sorted(self.text_messages, key=lambda x: x.position)
 
     __table_args__ = (
-        Index("conversation_user_id", user_id),
-        Index("conversation_agent_id", agent_id),
+        Index("conversation_user_agent_index", user_id, agent_id),
     )
