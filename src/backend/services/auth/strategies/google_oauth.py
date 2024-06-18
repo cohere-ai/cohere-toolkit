@@ -36,7 +36,7 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def get_client_id(self):
         return self.settings.google_client_id
-    
+
     def get_authorization_endpoint(self):
         return self.AUTHORIZATION_ENDPOINT
 
