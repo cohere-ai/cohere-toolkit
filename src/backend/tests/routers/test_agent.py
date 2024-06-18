@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.tests.factories import get_factory
