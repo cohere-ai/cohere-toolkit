@@ -72,7 +72,7 @@ export const CreateAgentForm: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      await createAgent(fields);
+      const agent = await createAgent(fields);
       setFields({
         name: '',
         description: '',
@@ -83,7 +83,7 @@ export const CreateAgentForm: React.FC = () => {
       });
       close();
       setIsSubmitting(false);
-      router.push('/agents', undefined, { shallow: true });
+      router.push(`/agents?id=${agent.id}`, undefined, { shallow: true });
     } catch (e) {
       setIsSubmitting(false);
       close();
