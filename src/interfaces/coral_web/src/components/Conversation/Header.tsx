@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 
 import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
-import { Text, Tooltip } from '@/components/Shared';
+import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -117,24 +117,22 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
         </span>
         <span className="flex items-center gap-x-2 py-4 pl-4 md:pl-0">
           <KebabMenu className="md:hidden" items={menuItems} anchor="left start" />
-          <Tooltip label="New chat" placement="bottom-end" hover>
+          <IconButton
+            tooltip={{ label: 'New chat', placement: 'bottom-end', size: 'md' }}
+            className="hidden hover:bg-secondary-100 md:flex"
+            iconName="new-message"
+            onClick={handleNewChat}
+            disabled={isStreaming}
+          />
+          <div className="relative">
             <IconButton
+              tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
+              data-testid="button-grounding-drawer"
               className="hidden hover:bg-secondary-100 md:flex"
-              iconName="new-message"
-              onClick={handleNewChat}
+              onClick={handleOpenSettings}
+              iconName="settings"
               disabled={isStreaming}
             />
-          </Tooltip>
-          <div className="relative">
-            <Tooltip label="Settings" placement="bottom-end" hover>
-              <IconButton
-                data-testid="button-grounding-drawer"
-                className="hidden hover:bg-secondary-100 md:flex"
-                onClick={handleOpenSettings}
-                iconName="settings"
-                disabled={isStreaming}
-              />
-            </Tooltip>
             <WelcomeGuideTooltip
               step={1}
               className={cn('right-0 top-full mt-9', {

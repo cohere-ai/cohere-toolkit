@@ -42,5 +42,7 @@ const ToolbarActionButton: React.FC<{
   icon: IconName;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
 }> = ({ tooltipLabel, icon, onClick }) => {
-  return <IconButton iconName={icon} tooltipLabel={tooltipLabel} onClick={onClick} size="sm" />;
+  return (
+    <IconButton iconName={icon} tooltip={{ label: tooltipLabel }} onClick={onClick} size="sm" />
+  );
 };
