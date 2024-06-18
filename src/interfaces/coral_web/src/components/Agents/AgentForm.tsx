@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { CreateAgent } from '@/cohere-client';
 import { Checkbox, Dropdown, DropdownOptionGroups, Input, InputLabel } from '@/components/Shared';
-import { DEPLOYMENT_COHERE_PLATFORM, MODEL_COMMMAND_R_PLUS } from '@/constants';
-import { useListAllDeployments, useModels } from '@/hooks/deployments';
+import { useModels } from '@/hooks/deployments';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
@@ -27,18 +26,7 @@ export const AgentForm: React.FC<Props> = ({
   errors,
   className,
 }) => {
-  const { data: deployments } = useListAllDeployments();
   const { models } = useModels(fields.deployment);
-  const deploymentOptions: DropdownOptionGroups = [
-    {
-      options: (deployments ?? [])
-        .filter((d) => d.is_available)
-        .map(({ name }) => ({
-          label: name,
-          value: name,
-        })),
-    },
-  ];
   const modelOptions: DropdownOptionGroups = [
     {
       options: models.map((model) => ({
@@ -49,17 +37,6 @@ export const AgentForm: React.FC<Props> = ({
   ];
   const { data: toolsData } = useListTools();
   const tools = toolsData?.filter((t) => t.is_available) ?? [];
-
-  useEffect(() => {
-    // need to wait for deployments to finish changing
-    // otherwise, there will be a race condition when
-    // setting the model
-    if (fields.deployment === DEPLOYMENT_COHERE_PLATFORM) {
-      onChange('model', MODEL_COMMMAND_R_PLUS);
-    } else {
-      onChange('model', '');
-    }
-  }, [fields.deployment]);
 
   return (
     <div className={cn('flex flex-col gap-y-4', className)}>
@@ -98,14 +75,6 @@ export const AgentForm: React.FC<Props> = ({
           data-testid="input-preamble"
         />
       </InputLabel>
-      <Dropdown
-        className="w-full"
-        label="Deployment"
-        kind="default"
-        value={fields.deployment}
-        onChange={(deployment: string) => onChange('deployment', deployment)}
-        optionGroups={deploymentOptions}
-      />
       <Dropdown
         className="w-full"
         label="Model"

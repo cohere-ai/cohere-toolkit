@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
+import { DEPLOYMENT_COHERE_PLATFORM, MODEL_COMMMAND_R_PLUS } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -25,8 +26,8 @@ export const CreateAgentForm: React.FC = () => {
     name: '',
     description: '',
     preamble,
-    deployment: '',
-    model: '',
+    deployment: DEPLOYMENT_COHERE_PLATFORM,
+    model: MODEL_COMMMAND_R_PLUS,
     tools: [],
   });
 
