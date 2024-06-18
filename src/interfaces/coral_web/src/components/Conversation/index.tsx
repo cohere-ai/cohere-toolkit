@@ -1,31 +1,22 @@
-import { uniqBy } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
-import { FILE_TOOL_CATEGORY, Tool } from '@/cohere-client';
-import Composer from '@/components/Conversation/Composer';
+import { Tool } from '@/cohere-client';
+import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
-import { DragDropFileInput, Spinner } from '@/components/Shared';
+import { Spinner } from '@/components/Shared';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { PromptOption } from '@/components/StartModes';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { ACCEPTED_FILE_TYPES, ReservedClasses } from '@/constants';
+import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
 import { useFocusComposer } from '@/hooks/actions';
 import { useChat } from '@/hooks/chat';
-import { useFileActions, useFilesInConversation } from '@/hooks/files';
+import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useRouteChange } from '@/hooks/route';
-import { useListTools } from '@/hooks/tools';
-import {
-  useCitationsStore,
-  useConversationStore,
-  useFilesStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useCitationsStore, useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 import { ChatMessage } from '@/types/message';
-import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -38,7 +29,6 @@ type Props = {
  * composer, and the citation panel.
  */
 const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = false }) => {
-  const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
   const chatHotKeys = useChatHotKeys();
 
   const { uploadFile } = useFileActions();
@@ -54,12 +44,11 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
     citations: { selectedCitation },
     selectCitation,
   } = useCitationsStore();
-  const { data: tools } = useListTools();
   const { files } = useFilesInConversation();
   const {
     files: { composerFiles },
   } = useFilesStore();
-  const { params, setParams } = useParamsStore();
+  const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
   const {
     userMessage,
@@ -79,11 +68,7 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
   });
   const { focusComposer } = useFocusComposer();
 
-  // Returns the first visible file loader tool from tools list
-  const defaultFileLoaderTool = useMemo(
-    () => tools?.find((tool) => tool.category === FILE_TOOL_CATEGORY && tool.is_visible),
-    [tools?.length]
-  );
+  const chatWindowRef = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -127,21 +112,6 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
     );
   }
 
-  const enableDefaultFileLoaderTool = () => {
-    if (!defaultFileLoaderTool) return;
-    const visibleFileToolNames =
-      tools?.filter((t) => t.category === FILE_TOOL_CATEGORY && t.is_visible).map((t) => t.name) ??
-      [];
-
-    const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
-      params.tools?.some((tool) => tool.name === name)
-    );
-    if (isDefaultFileLoaderToolEnabled) return;
-
-    const newTools = uniqBy([...(params.tools ?? []), defaultFileLoaderTool], 'name');
-    setParams({ tools: newTools });
-  };
-
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFileIds = await uploadFile(e.target.files?.[0], conversationId);
     if (!newFileIds) return;
@@ -172,31 +142,7 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
       <HotKeysProvider customHotKeys={chatHotKeys} />
       <Header conversationId={conversationId} isStreaming={isStreaming} />
 
-      <div
-        className="relative flex h-full w-full flex-col"
-        onDragEnter={() => setIsDragDropInputActive(true)}
-        onDragOver={() => setIsDragDropInputActive(true)}
-        onDragLeave={() => setIsDragDropInputActive(false)}
-        onDrop={() => {
-          setTimeout(() => {
-            setIsDragDropInputActive(false);
-          }, 100);
-        }}
-      >
-        <DragDropFileInput
-          label=""
-          subLabel=""
-          onChange={handleUploadFile}
-          multiple={false}
-          accept={ACCEPTED_FILE_TYPES}
-          dragActiveDefault={true}
-          className={cn(
-            'absolute inset-0 z-drag-drop-input-overlay hidden h-full w-full rounded-none border-none bg-marble-100 opacity-90',
-            {
-              flex: isDragDropInputActive,
-            }
-          )}
-        />
+      <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
         <MessagingContainer
           conversationId={conversationId}
           startOptionsEnabled={startOptionsEnabled}
@@ -211,9 +157,10 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
               <Composer
                 isStreaming={isStreaming}
                 value={userMessage}
-                messages={messages}
+                isFirstTurn={messages.length === 0}
                 streamingMessage={streamingMessage}
-                onChange={(e) => setUserMessage(e.target.value)}
+                chatWindowRef={chatWindowRef}
+                onChange={(message) => setUserMessage(message)}
                 onSend={handleSend}
                 onStop={handleStop}
                 onUploadFile={handleUploadFile}

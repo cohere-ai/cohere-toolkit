@@ -43,7 +43,11 @@ def get_conversation(
 
 
 def get_conversations(
-    db: Session, user_id: str, offset: int = 0, limit: int = 100
+    db: Session,
+    user_id: str,
+    offset: int = 0,
+    limit: int = 100,
+    agent_id: str | None = None,
 ) -> list[Conversation]:
     """
     List all conversations.
@@ -57,13 +61,13 @@ def get_conversations(
     Returns:
         list[Conversation]: List of conversations.
     """
-    return (
-        db.query(Conversation)
-        .filter(Conversation.user_id == user_id)
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
+    query = db.query(Conversation).filter(Conversation.user_id == user_id)
+    if agent_id is not None:
+        query = query.filter(Conversation.agent_id == agent_id)
+
+    query = query.offset(offset).limit(limit)
+
+    return query.all()
 
 
 def update_conversation(

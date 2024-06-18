@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useMemo } from 'react';
 
 import { ListFile } from '@/cohere-client';
-import { Text, Tooltip } from '@/components/Shared';
+import { Checkbox, Text, Tooltip } from '@/components/Shared';
 import { useFocusFileInput } from '@/hooks/actions';
-import { useFilesInConversation } from '@/hooks/files';
-import { useParamsStore } from '@/stores';
+import { useDefaultFileLoaderTool, useFilesInConversation } from '@/hooks/files';
+import { useFilesStore, useParamsStore } from '@/stores';
 import { cn, formatFileSize, getWeeksAgo } from '@/utils';
 
 export interface UploadedFile extends ListFile {
@@ -17,9 +17,15 @@ export interface UploadedFile extends ListFile {
 const Files: React.FC = () => {
   const {
     params: { fileIds },
+    setParams,
   } = useParamsStore();
+  const {
+    files: { composerFiles },
+    deleteComposerFile,
+  } = useFilesStore();
   const { isFileInputQueuedToFocus, focusFileInput } = useFocusFileInput();
   const { files } = useFilesInConversation();
+  const { enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
   useEffect(() => {
     if (isFileInputQueuedToFocus) {
@@ -56,6 +62,24 @@ const Files: React.FC = () => {
     return groupedFiles;
   }, {});
 
+  const handleToggle = (fileId?: string) => {
+    if (!fileId) return;
+
+    let newFileIds: string[] = [];
+    if (fileIds?.some((id) => id === fileId)) {
+      newFileIds = fileIds.filter((id) => id !== fileId);
+
+      if (composerFiles.some((file) => file.id === fileId)) {
+        deleteComposerFile(fileId);
+      }
+    } else {
+      newFileIds = [...(fileIds ?? []), fileId];
+    }
+
+    enableDefaultFileLoaderTool();
+    setParams({ fileIds: newFileIds });
+  };
+
   return (
     <div className="flex w-full flex-col gap-y-6">
       {uploadedFiles.length > 0 && (
@@ -69,11 +93,21 @@ const Files: React.FC = () => {
                       {title}
                     </Text>
                     {dateGroupedUploadedFiles[title].map(
-                      ({ file_name: name, file_size: size, id }) => (
+                      ({ file_name: name, file_size: size, id, checked }) => (
                         <div key={id} className="group flex w-full flex-col gap-y-2">
                           <div className="flex w-full items-center justify-between gap-x-2">
-                            <div className={cn('flex w-[60%] lg:w-[70%]')}>
-                              <Text className="ml-0 w-full truncate">{name || ''}</Text>
+                            <div className={cn('flex w-[60%] overflow-hidden lg:w-[70%]')}>
+                              <Checkbox
+                                checked={checked}
+                                onChange={() => handleToggle(id)}
+                                label={name}
+                                name={name}
+                                theme="secondary"
+                                className="w-full"
+                                labelClassName="ml-0 truncate w-full"
+                                labelSubContainerClassName="w-full"
+                                labelContainerClassName="w-full"
+                              />
                             </div>
                             <div className="flex h-5 w-32 grow items-center justify-end gap-x-1">
                               <Text styleAs="caption" className="text-volcanic-700">

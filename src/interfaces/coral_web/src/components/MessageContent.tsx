@@ -4,9 +4,9 @@ import { PropsWithChildren } from 'react';
 import { CitationTextHighlighter } from '@/components/Citations/CitationTextHighlighter';
 import { DataTable } from '@/components/DataTable';
 import { MarkdownImage } from '@/components/MarkdownImage';
+import { MessageFile } from '@/components/MessageFile';
 import { Icon } from '@/components/Shared';
 import { Markdown, Text } from '@/components/Shared';
-import { UploadedFile } from '@/components/UploadedFile';
 import {
   type ChatMessage,
   MessageType,
@@ -56,7 +56,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         {message.files && message.files.length > 0 && (
           <div className="flex flex-wrap gap-2 py-2">
             {message.files.map((file) => (
-              <UploadedFile key={file.id} file={file} />
+              <MessageFile key={file.id} name={file.file_name} size={file.file_size} />
             ))}
           </div>
         )}
@@ -68,6 +68,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
         {hasLoadingMessage && (
           <Transition
+            as="div"
             appear={true}
             show={true}
             enterFrom="opacity-0"

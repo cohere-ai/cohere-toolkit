@@ -22,7 +22,7 @@ def list_tools(session: DBSessionDep, agent_id: str | None = None) -> list[Manag
     """
     if agent_id:
         agent_tools = []
-        agent = agent_crud.get_agent(session, agent_id)
+        agent = agent_crud.get_agent_by_id(session, agent_id)
 
         if not agent:
             raise HTTPException(

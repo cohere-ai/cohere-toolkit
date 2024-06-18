@@ -189,7 +189,7 @@ def show_examples():
         bcolors.OKCYAN,
     )
     print_styled(
-        """\tcurl --location 'http://localhost:8000/chat-stream' --header 'User-Id: test-user' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
+        """\tcurl --location 'http://localhost:8000/v1/chat-stream' --header 'User-Id: test-user' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
         bcolors.OKCYAN,
     )
 
@@ -198,7 +198,7 @@ def show_examples():
         bcolors.OKCYAN,
     )
     print_styled(
-        """\tcurl --location 'http://localhost:8000/chat-stream' --header 'User-Id: test-user' --header 'Deployment-Name: SageMaker' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
+        """\tcurl --location 'http://localhost:8000/v1/chat-stream' --header 'User-Id: test-user' --header 'Deployment-Name: SageMaker' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
         bcolors.OKCYAN,
     )
 

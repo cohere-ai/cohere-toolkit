@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
@@ -35,7 +35,7 @@ def test_create_agent(session, user):
     assert agent.model == "command-r-plus"
     assert agent.deployment == ModelDeploymentName.CoherePlatform
 
-    agent = agent_crud.get_agent(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id)
     assert agent.user_id == user.id
     assert agent.version == 1
     assert agent.name == "test"
@@ -66,7 +66,7 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.model == "command-r-plus"
     assert agent.deployment == ModelDeploymentName.CoherePlatform
 
-    agent = agent_crud.get_agent(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id)
     assert agent.user_id == user.id
     assert agent.version == 1
     assert agent.name == "test"
@@ -132,14 +132,22 @@ def test_create_agent_duplicate_name_version(session, user):
         _ = agent_crud.create_agent(session, agent_data)
 
 
-def test_get_agent(session, user):
+def test_get_agent_by_id(session, user):
     _ = get_factory("Agent", session).create(id="1", name="test_agent")
-    agent = agent_crud.get_agent(session, "1")
+    agent = agent_crud.get_agent_by_id(session, "1")
+    assert agent.id == "1"
+    assert agent.name == "test_agent"
+
+
+def test_get_agent_by_name(session, user):
+    _ = get_factory("Agent", session).create(id="1", name="test_agent")
+    agent = agent_crud.get_agent_by_name(session, "test_agent")
+    assert agent.id == "1"
     assert agent.name == "test_agent"
 
 
 def test_fail_get_nonexistant_agent(session, user):
-    agent = agent_crud.get_agent(session, "123")
+    agent = agent_crud.get_agent_by_id(session, "123")
     assert agent is None
 
 
@@ -202,7 +210,7 @@ def test_delete_agent(session, user):
 
     agent_crud.delete_agent(session, agent.id)
 
-    agent = agent_crud.get_agent(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id)
     assert agent is None
 
 

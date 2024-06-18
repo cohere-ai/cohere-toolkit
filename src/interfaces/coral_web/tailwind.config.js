@@ -84,6 +84,7 @@ module.exports = {
         'selected-citation': '20',
         menu: '20',
         'guide-tooltip': '30',
+        tooltip: '50',
       },
       boxShadow: {
         drawer: '-10px 4px 12px -10px rgba(197, 188, 172, 0.48)', // secondary-400
