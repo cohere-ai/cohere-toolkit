@@ -271,8 +271,6 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
     )
 
-    print("DEBUGGG")
-    print(response.json())
     assert response.status_code == 200
     updated_agent = response.json()
     assert updated_agent["name"] == "updated name"
