@@ -16,4 +16,5 @@ export enum StreamEvent {
   STREAM_END = 'stream-end',
   NON_STREAMED_CHAT_RESPONSE = 'non-streamed-chat-response',
   TOOL_CALLS_GENERATION = 'tool-calls-generation',
+  TOOL_CALLS_CHUNK = 'tool-calls-chunk',
 }
