@@ -40,6 +40,7 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request):
         tools=agent.tools,
     )
 
+    request.state.agent = agent_data
     return agent_crud.create_agent(session, agent_data)
 
 

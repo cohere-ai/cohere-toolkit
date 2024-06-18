@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import threading
+import time
 from typing import Any, Dict, Generator, List
 
 import boto3
@@ -78,6 +79,7 @@ class SageMakerDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         # TODO: implement metrics correctly
+        start_time = time.perf_counter()
         metrics_data = MetricsData(
             endpoint_name="co.chat",
             method="POST",
@@ -105,6 +107,7 @@ class SageMakerDeployment(BaseDeployment):
             stream_event["index"] = index
             yield stream_event
 
+        metrics_data.duration = time.perf_counter() - start_time
         self.report_metrics(metrics_data)
 
     def invoke_rerank(

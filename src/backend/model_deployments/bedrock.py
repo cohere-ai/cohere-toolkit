@@ -1,6 +1,7 @@
 import logging
 import os
 import threading
+import time
 from typing import Any, Dict, Generator, List
 
 import cohere
@@ -59,6 +60,7 @@ class BedrockDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in BEDROCK_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        start_time = time.perf_counter()
         metrics_data = MetricsData(
             endpoint_name="co.chat",
             method="POST",
@@ -91,6 +93,7 @@ class BedrockDeployment(BaseDeployment):
         metrics_data.output_tokens = (
             response_dict.get("meta", {}).get("billed_units", {}).get("output_tokens")
         )
+        metrics_data.duration = time.perf_counter() - start_time
 
         self.report_metrics(metrics_data)
 
@@ -99,6 +102,7 @@ class BedrockDeployment(BaseDeployment):
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
+        start_time = time.perf_counter()
         metrics_data = MetricsData(
             endpoint_name="co.chat",
             method="POST",
@@ -151,6 +155,7 @@ class BedrockDeployment(BaseDeployment):
 
             yield event_dict
 
+        metrics_data.duration = time.perf_counter() - start_time
         self.report_metrics(metrics_data)
 
     def invoke_rerank(

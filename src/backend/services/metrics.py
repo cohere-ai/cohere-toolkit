@@ -1,15 +1,15 @@
 import asyncio
 import hashlib
-import json
+import logging
 import os
 import threading
-import time
 import uuid
 
-import httpx
+from httpx import AsyncHTTPTransport
+from httpx._client import AsyncClient
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.types import Message
+from starlette.responses import StreamingResponse
 
 from backend.chat.collate import to_dict
 from backend.schemas.metrics import MetricsData
@@ -24,12 +24,17 @@ from starlette.responses import Response
 class MetricsMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         request.state.trace_id = str(uuid.uuid4())
+        request.state.agent = None
+
+        start_time = time.perf_counter()
         response = await call_next(request)
-        data = self.get_data(request.scope, response, request)
+        duration = time.perf_counter() - start_time
+
+        data = self.get_data(request.scope, response, request, duration)
         threading.Thread(target=report_metrics_thread, args=(data,)).start()
         return response
 
-    def get_data(self, scope, response, request):
+    def get_data(self, scope, response, request, duration):
         data = {}
         trace_id = None
         if hasattr(request.state, "trace_id"):
@@ -46,7 +51,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             trace_id=trace_id,
             status_code=self.get_status_code(response),
             object_ids=self.get_object_ids(request),
-            error=self.get_error(response),
+            agent=self.get_agent(request),
+            duration=duration,
         )
 
         return data
@@ -57,7 +63,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            print("Failed to get method:", e)
+            logging.warning("Failed to get method:", e)
             return "unknown"
 
     def get_endpoint_name(self, scope, request):
@@ -70,21 +76,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            print("Failed to get endpoint name:", e)
+            logging.warning("Failed to get endpoint name:", e)
             return "unknown"
 
     def get_status_code(self, response):
         try:
             return response.status_code
         except Exception as e:
-            print("Failed to get status code:", e)
+            logging.warning("Failed to get status code:", e)
             return 500
 
     def get_success(self, response):
         try:
             return 200 <= response.status_code < 400
         except Exception as e:
-            print("Failed to get success:", e)
+            logging.warning("Failed to get success:", e)
             return False
 
     def get_user_id_hash(self, request):
@@ -92,31 +98,33 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             user_id = request.headers.get("User-Id", None)
             return hash_string(user_id)
         except Exception as e:
-            print("Failed to get user id hash:", e)
+            logging.warning("Failed to get user id hash:", e)
             return None
 
     def get_object_ids(self, request):
         object_ids = {}
         try:
             for key, value in request.path_params.items():
-                object_ids[key] = hash_string(value)
+                object_ids[key] = value
 
             for key, value in request.query_params.items():
-                object_ids[key] = hash_string(value)
+                object_ids[key] = value
 
             return object_ids
         except Exception as e:
-            print("Failed to get object ids:", e)
+            logging.warning("Failed to get object ids:", e)
             return {}
 
-    def get_error(self, response):
-        try:
-            if 400 <= response.status_code < 600:
-                return response.read().decode()
+    def get_agent(self, request):
+        if not hasattr(request.state, "agent") or not request.state.agent:
             return None
-        except Exception as e:
-            print("Failed to get error:", e)
-            return None
+
+        return {
+            "id": request.state.agent.id,
+            "name": request.state.agent.name,
+            "description": request.state.agent.description,
+            "model": request.state.agent.model,
+        }
 
 
 def hash_string(s):
@@ -131,16 +139,19 @@ async def report_metrics(data):
         data = to_dict(data)
 
     data["secret"] = "secret"
+    print(data)
+    return
 
     if not REPORT_ENDPOINT:
-        print("No report endpoint set")
+        logging.error("No report endpoint set")
         return
 
+    transport = AsyncHTTPTransport(retries=5)
     try:
-        async with httpx.AsyncClient() as client:
+        async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=data)
     except Exception as e:
-        print("Failed to report metrics:", e)
+        logging.error("Failed to report metrics:", e)
 
 
 def report_metrics_thread(data):

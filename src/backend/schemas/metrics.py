@@ -14,6 +14,7 @@ class MetricsDataBase(BaseModel):
     user_id_hash: str | None = None
     timestamp: float = time.time()
     secret: str = "secret"
+    duration: float | None = None
 
 
 class MetricsData(MetricsDataBase):
@@ -24,3 +25,4 @@ class MetricsData(MetricsDataBase):
     search_units: int | None = None
     model: str | None = None
     error: str | None = None
+    agent: dict[str, str] | None = None

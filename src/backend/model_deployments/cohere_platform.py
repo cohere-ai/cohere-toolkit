@@ -1,6 +1,7 @@
 import logging
 import os
 import threading
+import time
 from typing import Any, Dict, Generator, List
 
 import cohere
@@ -62,6 +63,7 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        start_time = time.perf_counter()
         metrics_data = MetricsData(
             endpoint_name="co.chat",
             method="POST",
@@ -89,6 +91,7 @@ class CohereDeployment(BaseDeployment):
         metrics_data.output_tokens = (
             response_dict.get("meta", {}).get("billed_units", {}).get("output_tokens")
         )
+        metrics_data.duration = time.perf_counter() - start_time
 
         self.report_metrics(metrics_data)
 
@@ -97,6 +100,7 @@ class CohereDeployment(BaseDeployment):
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
+        start_time = time.perf_counter()
         metrics_data = MetricsData(
             endpoint_name="co.chat",
             method="POST",
@@ -144,11 +148,13 @@ class CohereDeployment(BaseDeployment):
 
             yield event_dict
 
+        metrics_data.duration = time.perf_counter() - start_time
         self.report_metrics(metrics_data)
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
+        start_time = time.perf_counter()
         model = "rerank-english-v2.0"
         metrics_data = MetricsData(
             endpoint_name="co.rerank",
@@ -174,6 +180,7 @@ class CohereDeployment(BaseDeployment):
             response_dict.get("meta", {}).get("billed_units", {}).get("search_units")
         )
 
+        metrics_data.duration = time.perf_counter() - start_time
         self.report_metrics(metrics_data)
         return response_dict
 
