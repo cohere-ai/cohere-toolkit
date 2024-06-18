@@ -20,9 +20,9 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
     useWelcomeGuideState();
 
   const handleNewChat = () => {
-    const assistantId = router.query.agentId;
+    const assistantId = router.query.assistantId;
 
-    const url = assistantId ? `/?agentId=${assistantId}` : '/';
+    const url = assistantId ? `/?assistantId=${assistantId}` : '/';
     router.push(url, undefined, { shallow: true });
     resetConversation();
     resetCitations();

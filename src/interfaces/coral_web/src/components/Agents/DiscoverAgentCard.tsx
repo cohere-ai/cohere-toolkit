@@ -18,7 +18,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
   return (
     <article className="flex overflow-x-hidden rounded-lg border border-marble-400 bg-marble-200 p-4  hover:bg-marble-300">
       <Link
-        href={isBaseAgent ? '/agents' : `/agents?agentId=${id}`}
+        href={isBaseAgent ? '/agents' : `/agents?assistantId=${id}`}
         className="flex-grow overflow-x-hidden"
       >
         <div className="flex h-full flex-col items-start gap-y-2">
