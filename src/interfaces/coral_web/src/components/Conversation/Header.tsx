@@ -81,6 +81,7 @@ export const Header: React.FC<Props> = ({ conversationId, isStreaming }) => {
     setIsConvListPanelOpen,
   } = useSettingsStore();
   const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
   const menuItems = useMenuItems({ conversationId: id });
 
   const { deleteConversation } = useConversationActions();
@@ -102,7 +103,7 @@ export const Header: React.FC<Props> = ({ conversationId, isStreaming }) => {
             'relative flex min-w-0 flex-grow items-center gap-x-1 overflow-hidden py-4'
           )}
         >
-          {(!isDesktop || !isConvListPanelOpen) && (
+          {(isMobile || !isConvListPanelOpen) && (
             <Transition
               show={true}
               appear
@@ -113,14 +114,11 @@ export const Header: React.FC<Props> = ({ conversationId, isStreaming }) => {
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
               as="div"
-              className={cn({
-                'lg:hidden': isConvListPanelOpen,
-              })}
             >
               <IconButton
                 iconName="side-panel"
                 onClick={() => {
-                  setSettings({ isConfigDrawerOpen: false });
+                  setSettings({ isConfigDrawerOpen: false, isAgentsSidePanelOpen: false });
                   setIsConvListPanelOpen(true);
                 }}
               />

@@ -1,3 +1,4 @@
+import { Transition } from '@headlessui/react';
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useContext, useEffect } from 'react';
@@ -6,11 +7,18 @@ import { CohereClient } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
 import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
 import Conversation from '@/components/Conversation';
+import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { BannerContext } from '@/context/BannerContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
-import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
+import { cn } from '@/utils';
 
 type Props = {
   reactQueryState: DehydratedState;
@@ -21,6 +29,9 @@ const AgentsPage: NextPage<Props> = () => {
     conversation: { id },
     resetConversation,
   } = useConversationStore();
+  const {
+    settings: { isConvListPanelOpen },
+  } = useSettingsStore();
   const { resetCitations } = useCitationsStore();
   const {
     params: { deployment },
@@ -56,7 +67,23 @@ const AgentsPage: NextPage<Props> = () => {
         <AgentsList />
       </LeftSection>
       <MainSection>
-        <Conversation conversationId={id} startOptionsEnabled />
+        <div className="flex h-full">
+          <Transition
+            as="div"
+            className={cn(
+              'basis-1/2 border-r border-marble-400',
+              'transition-[max-width,opacity] duration-300'
+            )}
+            show={isConvListPanelOpen}
+            enterFrom="opacity-0 max-w-0"
+            enterTo="opacity-100 max-w-full"
+            leaveFrom="max-w-full"
+            leaveTo="max-w-0"
+          >
+            <ConversationListPanel />
+          </Transition>
+          <Conversation conversationId={id} startOptionsEnabled />
+        </div>
       </MainSection>
     </Layout>
   );
