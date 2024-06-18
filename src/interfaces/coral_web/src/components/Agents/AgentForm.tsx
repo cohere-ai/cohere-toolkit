@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { CreateAgent } from '@/cohere-client';
-import { EnvVariablesForm } from '@/components/EditEnvVariablesButton';
 import { Checkbox, Dropdown, DropdownOptionGroups, Input, InputLabel } from '@/components/Shared';
 import { DEPLOYMENT_COHERE_PLATFORM, MODEL_COMMMAND_R_PLUS } from '@/constants';
 import { useListAllDeployments, useModels } from '@/hooks/deployments';
@@ -10,14 +9,11 @@ import { cn } from '@/utils';
 
 export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
 export type AgentFormFieldKeys = keyof AgentFormFields;
-export type AgentFormTextFieldKeys = Omit<keyof AgentFormFieldKeys, 'tools'>;
 
 type Props = {
   fields: AgentFormFields;
-  envVariables: Record<string, string>;
-  onChange: (key: AgentFormTextFieldKeys, value: string) => void;
+  onChange: (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean) => void;
-  onEnvVariableChange: (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
   className?: string;
 };
@@ -26,15 +22,13 @@ type Props = {
  */
 export const AgentForm: React.FC<Props> = ({
   fields,
-  envVariables,
   onChange,
   onToolToggle,
-  onEnvVariableChange,
   errors,
   className,
 }) => {
   const { data: deployments } = useListAllDeployments();
-  const { models } = useModels();
+  const { models } = useModels(fields.deployment);
   const deploymentOptions: DropdownOptionGroups = [
     {
       options: (deployments ?? []).map(({ name }) => ({
@@ -52,17 +46,18 @@ export const AgentForm: React.FC<Props> = ({
     },
   ];
   const { data: toolsData } = useListTools();
-  const tools = toolsData ?? [];
+  const tools = toolsData?.filter((t) => t.is_available) ?? [];
 
-  const handleDeploymentChange = (value: string) => {
-    onChange('deployment', value);
-
-    if (value === DEPLOYMENT_COHERE_PLATFORM) {
+  useEffect(() => {
+    // need to wait for deployments to finish changing
+    // otherwise, there will be a race condition when
+    // setting the model
+    if (fields.deployment === DEPLOYMENT_COHERE_PLATFORM) {
       onChange('model', MODEL_COMMMAND_R_PLUS);
     } else {
       onChange('model', '');
     }
-  };
+  }, [fields.deployment]);
 
   return (
     <div className={cn('flex flex-col gap-y-4', className)}>
@@ -101,23 +96,24 @@ export const AgentForm: React.FC<Props> = ({
           data-testid="input-preamble"
         />
       </InputLabel>
-      <InputLabel label="Deployment" className="pb-2">
-        <EnvVariablesForm
-          deployment={fields.deployment}
-          deploymentOptions={deploymentOptions}
-          envVariables={envVariables}
-          onDeploymentChange={handleDeploymentChange}
-          onEnvVariableChange={onEnvVariableChange}
-        />
-      </InputLabel>
       <Dropdown
         className="w-full"
-        label="Model"
+        label="Deployment"
         kind="default"
-        value={fields.model}
-        onChange={(model: string) => onChange('model', model)}
-        optionGroups={modelOptions}
+        value={fields.deployment}
+        onChange={(deployment: string) => onChange('deployment', deployment)}
+        optionGroups={deploymentOptions}
       />
+      {modelOptions[0].options.length > 0 && (
+        <Dropdown
+          className="w-full"
+          label="Model"
+          kind="default"
+          value={fields.model}
+          onChange={(model: string) => onChange('model', model)}
+          optionGroups={modelOptions}
+        />
+      )}
       <InputLabel label="Tools" className="mb-2">
         <div className="flex flex-col gap-y-4 px-3">
           {tools.map((tool) => {

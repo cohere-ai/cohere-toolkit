@@ -10,13 +10,13 @@ import { cn } from '@/utils';
  */
 export const Settings: React.FC = () => {
   const {
-    params: { temperature, preamble, model },
+    params: { deployment, temperature, preamble, model },
     setParams,
   } = useParamsStore();
   const defaults = useSettingsDefaults();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const { models } = useModels();
+  const { models } = useModels(deployment ?? '');
   const modelOptions = [
     {
       options: models.map((model) => ({
