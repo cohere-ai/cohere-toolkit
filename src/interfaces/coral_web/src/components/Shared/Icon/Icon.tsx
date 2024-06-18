@@ -77,6 +77,8 @@ export const Icons = [
   'warning',
   'web',
   'compass',
+  'wrench',
+  'share',
 ] as const;
 
 export type IconName = (typeof Icons)[number];
