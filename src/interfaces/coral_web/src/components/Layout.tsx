@@ -2,10 +2,10 @@ import { Transition } from '@headlessui/react';
 import { capitalize } from 'lodash';
 import React, { Children, PropsWithChildren, useContext } from 'react';
 
-import { ConfigurationDrawer } from '@/components/Conversation/ConfigurationDrawer';
 import { DeploymentsDropdown } from '@/components/DeploymentsDropdown';
 import { EditEnvVariablesButton } from '@/components/EditEnvVariablesButton';
 import { NavigationUserMenu } from '@/components/NavigationUserMenu';
+import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
 import { Banner } from '@/components/Shared';
 import { NavigationBar } from '@/components/Shared/NavigationBar/NavigationBar';
 import { PageHead } from '@/components/Shared/PageHead';
@@ -131,7 +131,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
               {mainElement}
             </section>
           </Transition>
-          <ConfigurationDrawer />
+          <SettingsDrawer />
         </div>
       </div>
     </>

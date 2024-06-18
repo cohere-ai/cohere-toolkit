@@ -5,7 +5,7 @@ import { CustomHotKey } from '@/components/Shared/HotKeys';
 import {
   CHAT_COMPOSER_TEXTAREA_ID,
   CONFIGURATION_FILE_UPLOAD_ID,
-  CONFIGURATION_PANEL_ID,
+  SETTINGS_DRAWER_ID,
 } from '@/constants';
 import { useConversationActions } from '@/hooks/conversation';
 import { useNotify } from '@/hooks/toast';
@@ -56,11 +56,11 @@ export const useFocusFileInput = () => {
 
   const focusFileInput = () => {
     const fileInput = document.getElementById(CONFIGURATION_FILE_UPLOAD_ID) as HTMLInputElement;
-    const configurationPanel = document.getElementById(CONFIGURATION_PANEL_ID) as HTMLElement;
-    if (!fileInput || !configurationPanel) return;
+    const settingsDrawer = document.getElementById(SETTINGS_DRAWER_ID) as HTMLElement;
+    if (!fileInput || !settingsDrawer) return;
 
     const top = fileInput.getBoundingClientRect().top;
-    configurationPanel.scrollTo({ top, behavior: 'smooth' });
+    settingsDrawer.scrollTo({ top, behavior: 'smooth' });
     clearFocus();
   };
 
