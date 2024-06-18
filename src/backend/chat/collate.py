@@ -77,15 +77,15 @@ def rerank_and_chunk(
         )
 
         # Sort the results by relevance score
-        res.results.sort(key=lambda x: x.relevance_score, reverse=True)
+        res["results"].sort(key=lambda x: x["relevance_score"], reverse=True)
 
         # Map the results back to the original documents
         reranked_results[tool_call_hashable] = {
             "call": tool_call,
             "outputs": [
-                chunked_outputs[r.index]
-                for r in res.results
-                if r.relevance_score > RELEVANCE_THRESHOLD
+                chunked_outputs[r["index"]]
+                for r in res["results"]
+                if r["relevance_score"] > RELEVANCE_THRESHOLD
             ],
         }
 

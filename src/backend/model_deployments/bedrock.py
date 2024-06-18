@@ -1,13 +1,18 @@
+import logging
 import os
+import threading
 from typing import Any, Dict, Generator, List
 
 import cohere
 from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
+from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.metrics import MetricsData
+from backend.services.metrics import hash_string, report_metrics_thread
 
 BEDROCK_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
 BEDROCK_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"
@@ -54,59 +59,104 @@ class BedrockDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in BEDROCK_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        metrics_data = MetricsData(
+            endpoint_name="co.chat",
+            method="POST",
+            trace_id=kwargs.pop("trace_id", None),
+            user_id_hash=hash_string(kwargs.pop("user_id", None)),
+            model=chat_request.model,
+            success=True,
+        )
+
+        response = {}
         # bedrock accepts a subset of the chat request fields
         bedrock_chat_req = chat_request.model_dump(
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
         )
 
-        yield self.client.chat(
-            **bedrock_chat_req,
-            **kwargs,
+        try:
+            yield self.client.chat(
+                **bedrock_chat_req,
+                **kwargs,
+            )
+            response_dict = to_dict(response)
+        except Exception as e:
+            metrics_data.success = False
+            metrics_data.error = str(e)
+            logging.error(f"Error invoking chat: {e}")
+
+        metrics_data.input_tokens = (
+            response_dict.get("meta", {}).get("billed_units", {}).get("input_tokens")
         )
+        metrics_data.output_tokens = (
+            response_dict.get("meta", {}).get("billed_units", {}).get("output_tokens")
+        )
+
+        self.report_metrics(metrics_data)
+
+        return response_dict
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
+        metrics_data = MetricsData(
+            endpoint_name="co.chat",
+            method="POST",
+            trace_id=kwargs.pop("trace_id", None),
+            user_id_hash=hash_string(kwargs.pop("user_id", None)),
+            model=chat_request.model,
+            success=True,
+        )
+
         # bedrock accepts a subset of the chat request fields
         bedrock_chat_req = chat_request.model_dump(
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
         )
 
-        stream = self.client.chat_stream(
-            **bedrock_chat_req,
-            **kwargs,
-        )
+        stream = []
+        try:
+            stream = self.client.chat_stream(
+                **bedrock_chat_req,
+                **kwargs,
+            )
+        except Exception as e:
+            metrics_data.success = False
+            metrics_data.error = str(e)
+            logging.error(f"Error invoking chat stream: {e}")
+
         for event in stream:
-            yield to_dict(event)
+            event_dict = to_dict(event)
 
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> list[str]:
-        res = self.client.chat(
-            message=message,
-            chat_history=chat_history,
-            search_queries_only=True,
-            **kwargs,
-        )
+            if (
+                event_dict.get("event_type") == StreamEvent.STREAM_END
+                and event_dict.get("finish_reason") != "COMPLETE"
+                and event_dict.get("event") != "MAX_TOKENS"
+            ):
+                metrics_data.success = False
+                metrics_data.error = event_dict.get("error")
 
-        if not res.search_queries:
-            return []
+            if event_dict.get("event_type") == StreamEvent.STREAM_END:
+                metrics_data.input_nb_tokens = (
+                    event_dict.get("response", {})
+                    .get("meta", {})
+                    .get("billed_units", {})
+                    .get("input_tokens")
+                )
+                metrics_data.output_nb_tokens = (
+                    event_dict.get("response", {})
+                    .get("meta", {})
+                    .get("billed_units", {})
+                    .get("output_tokens")
+                )
 
-        return [s.text for s in res.search_queries]
+            yield event_dict
+
+        self.report_metrics(metrics_data)
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None
 
-    def invoke_tools(
-        self,
-        message: str,
-        tools: List[Any],
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> Generator[StreamedChatResponse, None, None]:
-        return None
+    def report_metrics(self, metrics_data: MetricsData) -> None:
+        threading.Thread(target=report_metrics_thread, args=(metrics_data,)).start()

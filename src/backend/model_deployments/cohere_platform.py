@@ -1,9 +1,6 @@
-import asyncio
-import json
 import logging
 import os
 import threading
-import time
 from typing import Any, Dict, Generator, List
 
 import cohere
@@ -15,7 +12,8 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.services.metrics import hash_string, run_in_new_thread
+from backend.schemas.metrics import MetricsData
+from backend.services.metrics import hash_string, report_metrics_thread
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
@@ -64,137 +62,120 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        trace_id = kwargs.pop("trace_id", None)
-        user_id = kwargs.pop("user_id", None)
+        metrics_data = MetricsData(
+            endpoint_name="co.chat",
+            method="POST",
+            trace_id=kwargs.pop("trace_id", None),
+            user_id_hash=hash_string(kwargs.pop("user_id", None)),
+            model=chat_request.model,
+            success=True,
+        )
 
-        success = True
         response = {}
         try:
             response = self.client.chat(
                 **chat_request.model_dump(exclude={"stream", "file_ids"}),
                 **kwargs,
             )
+            response_dict = to_dict(response)
         except Exception as e:
-            success = False
+            metrics_data.success = False
+            metrics_data.error = str(e)
             logging.error(f"Error invoking chat stream: {e}")
 
-        self.report_metrics(
-            endpoint_name="co.chat",
-            success=success,
-            trace_id=trace_id,
-            user_id=user_id,
+        metrics_data.input_tokens = (
+            response_dict.get("meta", {}).get("billed_units", {}).get("input_tokens")
+        )
+        metrics_data.output_tokens = (
+            response_dict.get("meta", {}).get("billed_units", {}).get("output_tokens")
         )
 
-        return to_dict(response)
+        self.report_metrics(metrics_data)
+
+        return response_dict
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        trace_id = kwargs.pop("trace_id", None)
-        user_id = kwargs.pop("user_id", None)
+        metrics_data = MetricsData(
+            endpoint_name="co.chat",
+            method="POST",
+            trace_id=kwargs.pop("trace_id", None),
+            user_id_hash=hash_string(kwargs.pop("user_id", None)),
+            model=chat_request.model,
+            success=True,
+        )
 
-        success = True
+        stream = []
         try:
             stream = self.client.chat_stream(
                 **chat_request.model_dump(exclude={"stream", "file_ids"}),
                 **kwargs,
             )
         except Exception as e:
-            success = False
+            metrics_data.success = False
+            metrics_data.error = str(e)
             logging.error(f"Error invoking chat stream: {e}")
 
         for event in stream:
             event_dict = to_dict(event)
 
-            if event_dict.get("finish_reason") == "ERROR":
-                success = False
+            if (
+                event_dict.get("event_type") == StreamEvent.STREAM_END
+                and event_dict.get("finish_reason") != "COMPLETE"
+                and event_dict.get("event") != "MAX_TOKENS"
+            ):
+                metrics_data.success = False
+                metrics_data.error = event_dict.get("error")
+
+            if event_dict.get("event_type") == StreamEvent.STREAM_END:
+                metrics_data.input_nb_tokens = (
+                    event_dict.get("response", {})
+                    .get("meta", {})
+                    .get("billed_units", {})
+                    .get("input_tokens")
+                )
+                metrics_data.output_nb_tokens = (
+                    event_dict.get("response", {})
+                    .get("meta", {})
+                    .get("billed_units", {})
+                    .get("output_tokens")
+                )
 
             yield event_dict
 
-        self.report_metrics(
-            endpoint_name="co.chat",
-            success=success,
-            trace_id=trace_id,
-            user_id=user_id,
-        )
-
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> list[str]:
-        res = self.client.chat(
-            message=message,
-            chat_history=chat_history,
-            search_queries_only=True,
-            **kwargs,
-        )
-
-        if not res.search_queries:
-            return []
-
-        return [s.text for s in res.search_queries]
+        self.report_metrics(metrics_data)
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        trace_id = kwargs.pop("trace_id", None)
-        user_id = kwargs.pop("user_id", None)
+        model = "rerank-english-v2.0"
+        metrics_data = MetricsData(
+            endpoint_name="co.rerank",
+            method="POST",
+            trace_id=kwargs.pop("trace_id", None),
+            user_id_hash=hash_string(kwargs.pop("user_id", None)),
+            model=model,
+            success=True,
+        )
 
-        success = True
+        response = {}
         try:
             response = self.client.rerank(
-                query=query, documents=documents, model="rerank-english-v2.0", **kwargs
+                query=query, documents=documents, model=model, **kwargs
             )
+            response_dict = to_dict(response)
         except Exception as e:
-            self.report_metrics(
-                endpoint_name="co.rerank",
-                success=False,
-                trace_id=trace_id,
-            )
-            raise e
+            metrics_data.success = False
+            metrics_data.error = str(e)
+            logging.error(f"Error invoking rerank: {e}")
 
-        self.report_metrics(
-            endpoint_name="co.rerank",
-            success=success,
-            trace_id=trace_id,
-            user_id=user_id,
-        )
-        return response
-
-    def invoke_tools(
-        self,
-        chat_request: CohereChatRequest,
-        **kwargs: Any,
-    ) -> Generator[StreamedChatResponse, None, None]:
-        trace_id = kwargs.pop("trace_id", None)
-        user_id = kwargs.pop("user_id", None)
-
-        stream = self.client.chat_stream(
-            message=chat_request.message,
-            tools=chat_request.tools,
-            model="command-r",
-            force_single_step=True,
-            chat_history=chat_request.chat_history,
-            **kwargs,
-        )
-        for event in stream:
-            yield event.__dict__
-
-        self.report_metrics(
-            endpoint_name="co.chat",
-            trace_id=trace_id,
-            user_id=user_id,
+        metrics_data.search_units = (
+            response_dict.get("meta", {}).get("billed_units", {}).get("search_units")
         )
 
-    def report_metrics(self, endpoint_name, success, trace_id, user_id) -> None:
-        data = {
-            "method": "POST",
-            "endpoint_name": endpoint_name,
-            "user_id_hash": hash_string(user_id),
-            "success": success,
-            "trace_id": trace_id,
-            "timestamp": time.time(),
-        }
-        threading.Thread(target=run_in_new_thread, args=(data,)).start()
+        self.report_metrics(metrics_data)
+        return response_dict
+
+    def report_metrics(self, metrics_data: MetricsData) -> None:
+        threading.Thread(target=report_metrics_thread, args=(metrics_data,)).start()
