@@ -20,7 +20,6 @@ type Props = {
   fields: AgentFormFields;
   onChange: (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean) => void;
-  onEnvVariableChange: (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
   className?: string;
 };
@@ -31,7 +30,6 @@ export const AgentForm: React.FC<Props> = ({
   fields,
   onChange,
   onToolToggle,
-  onEnvVariableChange,
   errors,
   className,
 }) => {
@@ -46,16 +44,6 @@ export const AgentForm: React.FC<Props> = ({
   ];
   const { data: toolsData } = useListTools();
   const tools = toolsData?.filter((t) => t.is_available) ?? [];
-
-  const handleDeploymentChange = (value: string) => {
-    onChange('deployment', value);
-
-    if (value === DEPLOYMENT_COHERE_PLATFORM) {
-      onChange('model', MODEL_COMMMAND_R_PLUS);
-    } else {
-      onChange('model', '');
-    }
-  };
 
   return (
     <div className={cn('flex flex-col gap-y-4', className)}>
@@ -93,15 +81,6 @@ export const AgentForm: React.FC<Props> = ({
           rows={5}
           onChange={(e) => onChange('preamble', e.target.value)}
           data-testid="input-preamble"
-        />
-      </InputLabel>
-      <InputLabel label="Deployment" className="pb-2">
-        <EnvVariablesForm
-          deployment={fields.deployment}
-          deploymentOptions={deploymentOptions}
-          envVariables={envVariables}
-          onDeploymentChange={handleDeploymentChange}
-          onEnvVariableChange={onEnvVariableChange}
         />
       </InputLabel>
       <Dropdown
