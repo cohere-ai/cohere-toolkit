@@ -1,5 +1,4 @@
 import { QueryClient, dehydrate } from '@tanstack/react-query';
-import { on } from 'events';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
@@ -8,12 +7,10 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { CohereClient, CohereUnauthorizedError } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
-// import { GoogleSSOButton } from '@/components/Welcome/GoogleSSOButton';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
 import { useAuthConfig } from '@/hooks/authConfig';
 import { useOidcAuthRoute } from '@/hooks/oidcAuthRoute';
-// import { useGoogleAuthRoute } from '@/hooks/googleAuthRoute';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
 import { PageAppProps, appSSR } from '@/pages/_app';
@@ -35,7 +32,6 @@ const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
   const { loginMutation } = useSession();
   const { login: authStrategies } = useAuthConfig();
-  // const { googleAuth } = useGoogleAuthRoute();
   const { oidcAuth } = useOidcAuthRoute();
 
   const notify = useNotify();
@@ -71,12 +67,6 @@ const LoginPage: NextPage<Props> = () => {
     }
   };
 
-  // const googleAuthStart = () => {
-  //   googleAuth.start({
-  //     redirect,
-  //   });
-  // }
-
   const oidcAuthStart = (strategy: string, authorizationEndpoint: string) => {
     oidcAuth.start({
       redirect,
@@ -99,7 +89,6 @@ const LoginPage: NextPage<Props> = () => {
           Log in
         </Text>
         <div className="mt-10 flex w-full flex-col items-center gap-1">
-          {/* <GoogleSSOButton className="inline-flex w-full flex-auto" onClick={googleAuthStart} /> */}
           {ssoStrategies.map((ssoConfig) => (
             <OidcSSOButton
               key={ssoConfig.strategy}
