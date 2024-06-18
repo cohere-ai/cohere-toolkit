@@ -11,7 +11,12 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useIsGroundingOn } from '@/hooks/grounding';
-import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 
 const useMenuItems = ({ conversationId }: { conversationId?: string }) => {
@@ -19,6 +24,7 @@ const useMenuItems = ({ conversationId }: { conversationId?: string }) => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { settings, setSettings } = useSettingsStore();
+  const { resetFileParams } = useParamsStore();
   const router = useRouter();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
@@ -58,6 +64,7 @@ const useMenuItems = ({ conversationId }: { conversationId?: string }) => {
           router.push('/', undefined, { shallow: true });
           resetConversation();
           resetCitations();
+          resetFileParams();
         },
       },
     ];
