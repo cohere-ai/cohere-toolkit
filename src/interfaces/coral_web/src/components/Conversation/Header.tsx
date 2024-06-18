@@ -131,7 +131,12 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
             className="hidden md:flex"
             iconName="new-message"
             onClick={handleNewChat}
-            disabled={isStreaming}
+          />
+            
+          <IconButton
+            iconName="edit"
+            onClick={handleOpenAgentDrawer}
+            // className={cn('hidden', { 'md:flex': !!agentId })}
           />
           <div className="relative">
             <IconButton

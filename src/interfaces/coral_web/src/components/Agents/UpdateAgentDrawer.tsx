@@ -2,10 +2,11 @@ import { Transition } from '@headlessui/react';
 import React, { useState } from 'react';
 
 import { Agent } from '@/cohere-client';
-import { AgentForm } from '@/components/Agents/AgentForm';
+import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import IconButton from '@/components/IconButton';
 import { Button, Text } from '@/components/Shared';
-import { useParamsStore, useSettingsStore } from '@/stores';
+import { useUpdateAgent } from '@/hooks/agents';
+import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
@@ -17,18 +18,21 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
     settings: { isEditAgentDrawerOpen },
     setSettings,
   } = useSettingsStore();
-  const {
-    params: { deployment },
-  } = useParamsStore();
   const { mutateAsync: updateAgent } = useUpdateAgent();
-  const [fields, setFields] = useState<AgentForm>({});
+  const [fields, setFields] = useState<AgentFormFields>({
+    name: agent.name,
+    description: agent.description,
+    deployment: agent.deployment,
+    model: agent.model,
+    tools: agent.tools,
+  });
   const canSubmit = false;
 
   const handleClose = () => {
     setSettings({ isEditAgentDrawerOpen: false });
   };
 
-  const handleTextFieldChange = (key: Omit<keyof AgentForm, 'tools'>, value: string) => {
+  const handleChange = (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => {
     setFields({
       ...fields,
       [key as string]: value,
@@ -46,10 +50,8 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
   const handleSubmit = async () => {
     if (!canSubmit) return;
 
-    const request = { ...fields, deployment: deployment ?? '' };
-
     try {
-      await updateAgent(request);
+      await updateAgent({ ...fields, agentId: '' });
     } catch (e) {
       console.error(e);
     }
@@ -79,11 +81,7 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agent }) => {
         <IconButton iconName="close" onClick={handleClose} />
       </header>
       <div className="flex flex-col gap-y-5 px-14 py-8">
-        <AgentForm
-          fields={{}}
-          onTextFieldChange={handleTextFieldChange}
-          onToolToggle={handleToolToggle}
-        />
+        <AgentForm fields={fields} onChange={handleChange} onToolToggle={handleToolToggle} />
         <div className="w-full rounded border-2 border-dashed border-marble-500 bg-secondary-50 px-5 py-4">
           Updating {agent.name} will affect everyone using the assistant
         </div>

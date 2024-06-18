@@ -12,6 +12,7 @@ import {
   FinishReason,
   ListFile,
   Tool,
+  UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
   UploadFile,
@@ -416,6 +417,27 @@ export class CohereClient {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(request),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Agent;
+  }
+
+  public async updateAgent(request: UpdateAgent & { agentId: string }): Promise<Agent> {
+    const { agentId, ...requestBody } = request;
+    const endpoint = `${this.getEndpoint('agents')}/${agentId}`;
+    const response = await this.fetch(endpoint, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify(requestBody),
     });
 
     const body = await response.json();

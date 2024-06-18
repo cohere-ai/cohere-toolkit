@@ -3,6 +3,7 @@ import React, { Children, PropsWithChildren } from 'react';
 
 import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
 import { MobileHeader } from '@/components/Agents/MobileHeader';
+import { UpdateAgentDrawer } from '@/components/Agents/UpdateAgentDrawer';
 import { ConfigurationDrawer } from '@/components/Conversation/ConfigurationDrawer';
 import { PageHead } from '@/components/Shared/PageHead';
 import { cn } from '@/utils/cn';
@@ -58,6 +59,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
             {mainElement}
           </section>
           <ConfigurationDrawer />
+          <UpdateAgentDrawer agent={{}} />
         </div>
       </div>
     </>

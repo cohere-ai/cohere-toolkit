@@ -42,3 +42,21 @@ export const useIsAgentNameUnique = () => {
   const { data: agents } = useListAgents();
   return (name: string) => !agents?.some((agent) => agent.name === name);
 };
+
+export const useUpdateAgent = () => {
+  const cohereClient = useCohereClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (request: CreateAgent & { agentId: string }) => {
+      try {
+        return await cohereClient.updateAgent(request);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['listAgents'] });
+    },
+  });
+};
