@@ -73,13 +73,6 @@ const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
               clearAuthToken();
               // Extract the current URL without query parameters or host.
               const currentPath = window.location.pathname + window.location.hash;
-              // !DNC Remove the log line
-              console.log(
-                'Redirecting to login page with redirect_uri:',
-                currentPath,
-                window.location.pathname,
-                window.location.hash
-              );
               router.push(`/login?redirect_uri=${encodeURIComponent(currentPath)}`);
             }
           },
