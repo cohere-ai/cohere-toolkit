@@ -8,7 +8,6 @@
 import type { ToolInputType } from './ToolInputType';
 
 export type StreamToolInput = {
-  is_finished: boolean;
   input_type: ToolInputType;
   tool_name: string;
   input: string;

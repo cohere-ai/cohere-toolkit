@@ -12,5 +12,7 @@ import type { ChatRole } from './ChatRole';
  */
 export type ChatMessage = {
   role: ChatRole;
-  message: string;
+  message: string | null;
+  tool_results?: null;
+  tool_calls?: null;
 };

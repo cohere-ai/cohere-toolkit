@@ -4,6 +4,7 @@ from typing import Any, Dict, Generator, List
 import cohere
 from cohere.types import StreamedChatResponse
 
+from backend.chat.collate import to_dict
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -58,7 +59,7 @@ class BedrockDeployment(BaseDeployment):
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
         )
 
-        return self.client.chat(
+        yield self.client.chat(
             **bedrock_chat_req,
             **kwargs,
         )
@@ -76,7 +77,7 @@ class BedrockDeployment(BaseDeployment):
             **kwargs,
         )
         for event in stream:
-            yield event.__dict__
+            yield to_dict(event)
 
     def invoke_search_queries(
         self,
@@ -101,5 +102,11 @@ class BedrockDeployment(BaseDeployment):
     ) -> Any:
         return None
 
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
+    def invoke_tools(
+        self,
+        message: str,
+        tools: List[Any],
+        chat_history: List[Dict[str, str]] | None = None,
+        **kwargs: Any,
+    ) -> Generator[StreamedChatResponse, None, None]:
         return None

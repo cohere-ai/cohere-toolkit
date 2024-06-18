@@ -101,3 +101,11 @@ class CohereChatRequest(BaseChatRequest):
         default=CohereChatPromptTruncation.AUTO_PRESERVE_ORDER,
         title="Dictates how the prompt will be constructed. Defaults to 'AUTO_PRESERVE_ORDER'.",
     )
+    tool_results: List[Dict[str, Any]] | None = Field(
+        default=None,
+        title="A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations.",
+    )
+    force_single_step: bool | None = Field(
+        default=None,
+        title="If set to true, the model will generate a single response in a single step. This is useful for generating a response to a single message.",
+    )

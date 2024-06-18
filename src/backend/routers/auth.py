@@ -1,59 +1,49 @@
+from typing import Union
+
 from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
-from starlette.responses import RedirectResponse
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
-from backend.database_models import get_session
+from backend.config.routers import RouterName
+from backend.crud import blacklist as blacklist_crud
+from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
-from backend.schemas.auth import Auth, Login
+from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
+from backend.services.auth import GoogleOAuth, OpenIDConnect
+from backend.services.auth.jwt import JWTService
+from backend.services.auth.request_validators import validate_authorization
 from backend.services.auth.utils import (
     get_or_create_user,
     is_enabled_authentication_strategy,
 )
 
-router = APIRouter(dependencies=[Depends(get_session)])
+router = APIRouter(prefix="/v1")
+router.name = RouterName.AUTH
 
 
-@router.get("/auth_strategies")
-def get_session():
+@router.get("/auth_strategies", response_model=list[ListAuthStrategy])
+def get_strategies() -> list[ListAuthStrategy]:
     """
     Retrieves the currently enabled list of Authentication strategies.
 
 
     Returns:
-        List[str]: List of names for enabled Authentication strategies, can be empty.
+        List[dict]: List of dictionaries containing the enabled auth strategy names.
     """
-    return ENABLED_AUTH_STRATEGY_MAPPING.keys()
+    strategies = []
+    for key in ENABLED_AUTH_STRATEGY_MAPPING.keys():
+        strategies.append({"strategy": key})
+
+    return strategies
 
 
-@router.get("/session")
-def get_session(request: Request):
-    """
-    Retrievers the current session user.
-
-    Args:
-        request (Request): current Request object.
-
-    Returns:
-        session: current user session ({} if no active session)
-
-    Raises:
-        401 HTTPException if no user found in session.
-    """
-
-    if not request.session:
-        raise HTTPException(status_code=401, detail="Not authenticated.")
-
-    return request.session.get("user")
-
-
-@router.post("/login")
+@router.post("/login", response_model=Union[JWTResponse, None])
 async def login(request: Request, login: Login, session: DBSessionDep):
     """
-    Logs user in and EITHER:
-    - Verifies their credentials and sets the current session
-    - Redirects to the /auth endpoint.
+    Logs user in and either:
+    - (Basic email/password authentication) Verifies their credentials, retrieves the user and returns a JWT token.
+    - (OAuth) Redirects to the /auth endpoint.
 
     Args:
         request (Request): current Request object.
@@ -61,7 +51,9 @@ async def login(request: Request, login: Login, session: DBSessionDep):
         session (DBSessionDep): Database session.
 
     Returns:
-        RedirectResponse: On success
+        dict: JWT token on basic auth success
+        or
+        Redirect: to /auth endpoint
 
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
@@ -86,7 +78,8 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
     # Login with redirect to /auth
     if strategy.SHOULD_AUTH_REDIRECT:
-        redirect_uri = request.url_for("authenticate")
+        # Fetch endpoint with method name
+        redirect_uri = request.url_for(strategy.REDIRECT_METHOD_NAME)
         return await strategy.login(request, redirect_uri)
     # Login with email/password and set session directly
     else:
@@ -97,21 +90,19 @@ async def login(request: Request, login: Login, session: DBSessionDep):
                 detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
             )
 
-        # Set session user
-        request.session["user"] = user
+        token = JWTService().create_and_encode_jwt(user)
 
-    return {}
+        return {"token": token}
 
 
-@router.post("/auth")
-async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
+@router.get("/google/auth", response_model=JWTResponse)
+async def google_authenticate(request: Request, session: DBSessionDep):
     """
-    Authentication endpoint used for OAuth strategies. Logs the user in the redirect environment and then
-    sets the current session with the user returned from the auth token.
+    Callback authentication endpoint used for Google OAuth after redirecting to
+    the service's login screen.
 
     Args:
         request (Request): current Request object.
-        login (Login): Login payload.
 
     Returns:
         RedirectResponse: On success.
@@ -119,7 +110,56 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
     """
-    strategy_name = auth.strategy
+    strategy_name = GoogleOAuth.NAME
+
+    return await authenticate(request, session, strategy_name)
+
+
+@router.get("/oidc/auth", response_model=JWTResponse)
+async def oidc_authenticate(request: Request, session: DBSessionDep):
+    """
+    Callback authentication endpoint used for OIDC after redirecting to
+    the service's login screen.
+
+    Args:
+        request (Request): current Request object.
+
+    Returns:
+        RedirectResponse: On success.
+
+    Raises:
+        HTTPException: If authentication fails, or strategy is invalid.
+    """
+    strategy_name = OpenIDConnect.NAME
+
+    return await authenticate(request, session, strategy_name)
+
+
+@router.get("/logout", response_model=Logout)
+async def logout(
+    request: Request,
+    session: DBSessionDep,
+    token: dict | None = Depends(validate_authorization),
+):
+    """
+    Logs out the current user, adding the given JWT token to the blacklist.
+
+    Args:
+        request (Request): current Request object.
+
+    Returns:
+        dict: Empty on success
+    """
+    if token is not None:
+        db_blacklist = Blacklist(token_id=token["jti"])
+        blacklist_crud.create_blacklist(session, db_blacklist)
+
+    return {}
+
+
+async def authenticate(
+    request: Request, session: DBSessionDep, strategy_name: str
+) -> JWTResponse:
     if not is_enabled_authentication_strategy(strategy_name):
         raise HTTPException(
             status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
@@ -144,22 +184,7 @@ async def authenticate(request: Request, auth: Auth, session: DBSessionDep):
 
     # Get or create user, then set session user
     user = get_or_create_user(session, token_user)
-    request.session["user"] = user
 
-    return {}
+    token = JWTService().create_and_encode_jwt(user)
 
-
-@router.get("/logout")
-async def logout(request: Request):
-    """
-    Logs out the current user session.
-
-    Args:
-        request (Request): current Request object.
-
-    Returns:
-        RedirectResponse: On success.
-    """
-    request.session.pop("user", None)
-
-    return {}
+    return {"token": token}

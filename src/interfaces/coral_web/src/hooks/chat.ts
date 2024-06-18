@@ -42,6 +42,7 @@ import {
   isGroundingOn,
   replaceTextWithCitations,
 } from '@/utils';
+import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
@@ -332,14 +333,20 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               saveCitations(generationId, citations, documentsMap);
               saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
 
+              const outputText =
+                data?.finish_reason === FinishReason.FINISH_REASON_MAX_TOKENS
+                  ? botResponse
+                  : responseText;
+
+              // Replace HTML code blocks with iframes
+              const transformedText = replaceCodeBlockWithIframe(outputText);
+
               const finalText = isRAGOn
                 ? replaceTextWithCitations(
                     // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
                     // because the final response doesn't give us the full text yet. Note - this means that
                     // citations will only appear for the first 'block' of text generated.
-                    data?.finish_reason === FinishReason.FINISH_REASON_MAX_TOKENS
-                      ? botResponse
-                      : responseText,
+                    transformedText,
                     citations,
                     generationId
                   )
@@ -352,7 +359,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
                 // so we need to manually apply this fix. Otherwise, this comes for free when we call
                 // `replaceTextWithCitations`.
-                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(finalText),
+                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
                 citations,
                 isRAGOn,
                 originalText: isRAGOn ? responseText : botResponse,

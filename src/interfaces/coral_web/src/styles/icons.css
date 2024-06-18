@@ -303,3 +303,38 @@
 .icon-calculator:before {
   content: '\e944';
 }
+
+.icon-github:before {
+  content: '\e945';
+}
+
+.icon-at:before {
+  content: '\e946';
+}
+
+.icon-plugs-connected:before {
+  content: '\e947';
+}
+
+.icon-settings:before {
+  content: '\e948';
+}
+
+.icon-magnifying-glass:before {
+  content: '\e949';
+}
+
+.icon-code-block:before {
+  content: '\e94a';
+}
+
+.icon-compass:before {
+  content: '\e94b';
+}
+
+.icon-wrench:before {
+  content: '\e94c';
+}
+.icon-share:before {
+  content: '\e94d';
+}

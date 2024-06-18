@@ -32,4 +32,6 @@ export type CohereChatRequest = {
   presence_penalty?: number | null;
   frequency_penalty?: number | null;
   prompt_truncation?: CohereChatPromptTruncation;
+  tool_results?: null;
+  force_single_step?: boolean | null;
 };

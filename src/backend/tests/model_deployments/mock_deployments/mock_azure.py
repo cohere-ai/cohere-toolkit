@@ -28,7 +28,7 @@ class MockAzureDeployment(BaseDeployment):
         return True
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        return {
+        event = {
             "text": "Hi! Hello there! How's it going?",
             "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
             "citations": None,
@@ -50,6 +50,8 @@ class MockAzureDeployment(BaseDeployment):
             },
         }
 
+        yield event
+
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
@@ -57,21 +59,20 @@ class MockAzureDeployment(BaseDeployment):
             {
                 "event_type": StreamEvent.STREAM_START,
                 "generation_id": "test",
-                "is_finished": False,
             },
             {
                 "event_type": StreamEvent.TEXT_GENERATION,
                 "text": "This is a test.",
-                "is_finished": True,
             },
             {
                 "event_type": StreamEvent.STREAM_END,
-                "is_finished": True,
-                "generation_id": "test",
-                "citations": [],
-                "documents": [],
-                "search_results": [],
-                "search_queries": [],
+                "response": {
+                    "generation_id": "test",
+                    "citations": [],
+                    "documents": [],
+                    "search_results": [],
+                    "search_queries": [],
+                },
                 "finish_reason": "MAX_TOKENS",
             },
         ]
@@ -93,6 +94,28 @@ class MockAzureDeployment(BaseDeployment):
     ) -> Any:
         return None
 
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
-        # TODO: Add
-        pass
+    def invoke_tools(
+        self, message: str, tools: List[Any], **kwargs: Any
+    ) -> Generator[StreamedChatResponse, None, None]:
+        events = [
+            {
+                "event_type": StreamEvent.STREAM_START,
+                "generation_id": "test",
+            },
+            {
+                "event_type": StreamEvent.TEXT_GENERATION,
+                "text": "This is a test.",
+            },
+            {
+                "event_type": StreamEvent.STREAM_END,
+                "generation_id": "test",
+                "citations": [],
+                "documents": [],
+                "search_results": [],
+                "search_queries": [],
+                "finish_reason": "MAX_TOKENS",
+            },
+        ]
+
+        for event in events:
+            yield event

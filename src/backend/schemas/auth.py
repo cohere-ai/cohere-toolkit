@@ -9,3 +9,15 @@ class Auth(BaseModel):
 
 class Login(Auth):
     payload: Optional[dict[str, str]] = None
+
+
+class Logout(BaseModel):
+    pass
+
+
+class ListAuthStrategy(BaseModel):
+    strategy: str
+
+
+class JWTResponse(BaseModel):
+    token: str

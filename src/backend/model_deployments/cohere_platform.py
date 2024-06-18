@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from typing import Any, Dict, Generator, List
@@ -6,6 +7,8 @@ import cohere
 import requests
 from cohere.types import StreamedChatResponse
 
+from backend.chat.collate import to_dict
+from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -18,11 +21,10 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = None
+    api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR)
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
-        self.api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR, **kwargs)
         self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
 
     @property
@@ -58,20 +60,21 @@ class CohereDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        return self.client.chat(
+        response = self.client.chat(
             **chat_request.model_dump(exclude={"stream"}),
             **kwargs,
         )
+        yield to_dict(response)
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream"}),
+            **chat_request.model_dump(exclude={"stream", "file_ids"}),
             **kwargs,
         )
         for event in stream:
-            yield event.__dict__
+            yield to_dict(event)
 
     def invoke_search_queries(
         self,
@@ -98,7 +101,9 @@ class CohereDeployment(BaseDeployment):
             query=query, documents=documents, model="rerank-english-v2.0", **kwargs
         )
 
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
-        return self.client.chat(
-            message=message, tools=tools, model="command-r", **kwargs
-        )
+    def invoke_tools(
+        self,
+        chat_request: CohereChatRequest,
+        **kwargs: Any,
+    ) -> Generator[StreamedChatResponse, None, None]:
+        yield from self.invoke_chat_stream(chat_request, **kwargs)

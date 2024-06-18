@@ -42,7 +42,7 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
 export const EditEnvVariablesModal: React.FC<{
   defaultDeployment: string;
   onClose: () => void;
-}> = ({defaultDeployment, onClose }) => {
+}> = ({ defaultDeployment, onClose }) => {
   const { data: deployments } = useListAllDeployments();
 
   const [deployment, setDeployment] = useState<string | undefined>(defaultDeployment);

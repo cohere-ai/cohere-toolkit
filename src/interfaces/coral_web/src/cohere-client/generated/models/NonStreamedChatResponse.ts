@@ -12,7 +12,6 @@ import type { SearchQuery } from './SearchQuery';
 import type { ToolCall } from './ToolCall';
 
 export type NonStreamedChatResponse = {
-  is_finished: boolean;
   response_id: string | null;
   generation_id: string | null;
   chat_history: Array<ChatMessage> | null;

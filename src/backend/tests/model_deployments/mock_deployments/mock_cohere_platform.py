@@ -24,8 +24,10 @@ class MockCohereDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return True
 
-    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        return {
+    def invoke_chat(
+        self, chat_request: CohereChatRequest, **kwargs: Any
+    ) -> Generator[StreamedChatResponse, None, None]:
+        event = {
             "text": "Hi! Hello there! How's it going?",
             "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
             "citations": None,
@@ -46,6 +48,7 @@ class MockCohereDeployment(BaseDeployment):
                 "tokens": {"input_tokens": 67, "output_tokens": 10},
             },
         }
+        yield event
 
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
@@ -54,21 +57,20 @@ class MockCohereDeployment(BaseDeployment):
             {
                 "event_type": StreamEvent.STREAM_START,
                 "generation_id": "test",
-                "is_finished": False,
             },
             {
                 "event_type": StreamEvent.TEXT_GENERATION,
                 "text": "This is a test.",
-                "is_finished": True,
             },
             {
                 "event_type": StreamEvent.STREAM_END,
-                "is_finished": True,
-                "generation_id": "test",
-                "citations": [],
-                "documents": [],
-                "search_results": [],
-                "search_queries": [],
+                "response": {
+                    "generation_id": "test",
+                    "citations": [],
+                    "documents": [],
+                    "search_results": [],
+                    "search_queries": [],
+                },
                 "finish_reason": "MAX_TOKENS",
             },
         ]

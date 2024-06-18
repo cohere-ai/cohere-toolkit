@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { File as CohereFile, ListFile, useCohereClient } from '@/cohere-client';
+import { File as CohereFile, FILE_TOOL_CATEGORY, ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { useNotify } from '@/hooks/toast';
+import { useListTools } from '@/hooks/tools';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
 import { MessageType } from '@/types/message';
@@ -171,4 +173,35 @@ export const useFileActions = () => {
     deleteComposerFile,
     clearComposerFiles,
   };
+};
+
+/**
+ * @description Hook to fetch and enable the default file loader tool.
+ * This tool must be on for files to work in the conversation.
+ */
+export const useDefaultFileLoaderTool = () => {
+  const { data: tools } = useListTools();
+  const { params, setParams } = useParamsStore();
+  // Returns the first visible file loader tool from tools list
+  const defaultFileLoaderTool = useMemo(
+    () => tools?.find((tool) => tool.category === FILE_TOOL_CATEGORY && tool.is_visible),
+    [tools?.length]
+  );
+
+  const enableDefaultFileLoaderTool = () => {
+    if (!defaultFileLoaderTool) return;
+    const visibleFileToolNames =
+      tools?.filter((t) => t.category === FILE_TOOL_CATEGORY && t.is_visible).map((t) => t.name) ??
+      [];
+
+    const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
+      params.tools?.some((tool) => tool.name === name)
+    );
+    if (isDefaultFileLoaderToolEnabled) return;
+
+    const newTools = uniqBy([...(params.tools ?? []), defaultFileLoaderTool], 'name');
+    setParams({ tools: newTools });
+  };
+
+  return { defaultFileLoaderTool, enableDefaultFileLoaderTool };
 };

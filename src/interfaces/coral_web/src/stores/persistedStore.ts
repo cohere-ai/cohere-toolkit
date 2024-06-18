@@ -18,7 +18,7 @@ const usePersistedStore = create<PersistedStore>()(
     }),
     {
       name: 'settings',
-      version: 1,
+      version: 2,
     }
   )
 );
@@ -48,6 +48,7 @@ export const useSettingsStore = () => {
       settings: state.settings,
       setSettings: state.setSettings,
       setIsConvListPanelOpen: state.setIsConvListPanelOpen,
+      setIsAgentsSidePanelOpen: state.setIsAgentsSidePanelOpen,
     }),
     shallow
   );

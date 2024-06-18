@@ -1,14 +1,15 @@
 import os
 from distutils.util import strtobool
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from backend.database_models import get_session
+from backend.config.routers import RouterName
 
 router = APIRouter(
     prefix="/v1/experimental_features",
-    dependencies=[Depends(get_session)],
 )
+
+router.name = RouterName.EXPERIMENTAL_FEATURES
 
 
 @router.get("/")
@@ -23,6 +24,7 @@ def list_experimental_features():
     experimental_features = {
         "USE_EXPERIMENTAL_LANGCHAIN": bool(
             strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false"))
-        )
+        ),
+        "USE_AGENTS_VIEW": bool(strtobool(os.getenv("USE_AGENTS_VIEW", "false"))),
     }
     return experimental_features
