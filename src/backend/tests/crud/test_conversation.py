@@ -92,7 +92,7 @@ def test_list_converstions_with_agent_id_filter_and_pagination(session, user):
     )
     for i in range(10):
         get_factory("Conversation", session).create(
-            title=f"Conversation {i} with agent", user_id=user.id, agent_id=agent.id
+            title=f"Conversation {i} with agent", user_id=user.id, agent_id=agent.id, updated_at=f"2021-01-{31-i}"
         )
 
     for i in range(10):
