@@ -15,7 +15,5 @@ class Organization(Base):
     users: Mapped[List["User"]] = relationship(
         secondary=user_organization_association, backref="organizations"
     )
-    conversations: Mapped[List["Conversation"]] = relationship(
-        backref="organization"
-    )
+    conversations: Mapped[List["Conversation"]] = relationship(backref="organization")
     agents: Mapped[List["Agent"]] = relationship(backref="organization")

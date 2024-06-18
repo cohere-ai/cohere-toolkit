@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
 
 from backend.database_models.organization import Organization
 from backend.database_models.user import User, user_organization_association
@@ -38,7 +37,7 @@ def get_organization(db: Session, organization_id: str) -> Organization:
 
 
 def get_organizations(
-        db: Session, offset: int = 0, limit: int = 100
+    db: Session, offset: int = 0, limit: int = 100
 ) -> list[Organization]:
     """
     List all organizations.
@@ -55,7 +54,7 @@ def get_organizations(
 
 
 def get_organizations_by_user_id(
-        db: Session, user_id: str, offset: int = 0, limit: int = 100
+    db: Session, user_id: str, offset: int = 0, limit: int = 100
 ) -> list[Organization]:
     """
     List all organizations by user id
@@ -83,7 +82,7 @@ def get_organizations_by_user_id(
 
 
 def update_organization(
-        db: Session, organization: Organization, new_organization: UpdateOrganization
+    db: Session, organization: Organization, new_organization: UpdateOrganization
 ) -> Organization:
     """
     Update a organization by ID.
@@ -134,7 +133,7 @@ def add_user_to_organization(db: Session, user_id: str, organization_id: str) ->
 
 
 def remove_user_from_organization(
-        db: Session, user_id: str, organization_id: str
+    db: Session, user_id: str, organization_id: str
 ) -> None:
     """
     Remove a user from an organization.
@@ -144,21 +143,26 @@ def remove_user_from_organization(
         user_id (str): User ID.
         organization_id (str): Organization ID.
     """
-    record = db.query(user_organization_association).filter(
+    record = (
+        db.query(user_organization_association)
+        .filter(
             user_organization_association.c.user_id == user_id,
-            user_organization_association.c.organization_id == organization_id
-    ).first()
+            user_organization_association.c.organization_id == organization_id,
+        )
+        .first()
+    )
     if record:
         db.execute(
             user_organization_association.delete().where(
-                    user_organization_association.c.user_id == user_id,
-                    user_organization_association.c.organization_id == organization_id)
+                user_organization_association.c.user_id == user_id,
+                user_organization_association.c.organization_id == organization_id,
+            )
         )
         db.commit()
 
 
 def get_users_by_organization_id(
-        db: Session, organization_id: str, offset: int = 0, limit: int = 100
+    db: Session, organization_id: str, offset: int = 0, limit: int = 100
 ) -> list[User]:
     """
     List all users by organization ID.

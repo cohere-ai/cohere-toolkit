@@ -1,8 +1,9 @@
+import pytest
+
 from backend.crud import organization as organization_crud
 from backend.database_models.organization import Organization
 from backend.schemas.organization import UpdateOrganization
 from backend.tests.factories import get_factory
-import pytest
 
 
 def test_create_organization(session):
@@ -193,4 +194,3 @@ def test_add_user_to_non_existent_organization(session):
     user = get_factory("User", session).create()
     with pytest.raises(Exception):
         organization_crud.add_user_to_organization(session, user.id, "123")
-
