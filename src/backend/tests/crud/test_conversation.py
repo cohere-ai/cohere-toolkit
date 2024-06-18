@@ -58,7 +58,7 @@ def test_list_conversations_empty(session, user):
 def test_list_conversations_with_pagination(session, user):
     for i in range(10):
         get_factory("Conversation", session).create(
-            title=f"Conversation {i}", user_id=user.id
+            title=f"Conversation {i}", user_id=user.id, updated_at=f"2021-01-{31-i}"
         )
 
     conversations = conversation_crud.get_conversations(

@@ -8,7 +8,7 @@ from backend.services.auth.strategies.base import BaseOAuthStrategy
 from backend.services.auth.strategies.settings import Settings
 
 
-class GoogleOauthSettings(Settings):
+class GoogleOAuthSettings(Settings):
     google_client_id: str
     google_client_secret: str
     frontend_hostname: str
@@ -24,7 +24,7 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            self.settings = GoogleOauthSettings()
+            self.settings = GoogleOAuthSettings()
             self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/google"
             self.client = OAuth2Session(
                 client_id=self.settings.google_client_id,

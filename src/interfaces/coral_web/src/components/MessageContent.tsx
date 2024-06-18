@@ -68,6 +68,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
         {hasLoadingMessage && (
           <Transition
+            as="div"
             appear={true}
             show={true}
             enterFrom="opacity-0"

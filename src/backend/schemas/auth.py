@@ -23,7 +23,3 @@ class ListAuthStrategy(BaseModel):
 
 class JWTResponse(BaseModel):
     token: str
-
-
-class CreateBlacklist(BaseModel):
-    token_id: str

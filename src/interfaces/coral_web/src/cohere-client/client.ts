@@ -466,6 +466,10 @@ export class CohereClient {
       }),
     });
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     const body = await response.json();
     this.authToken = body.token;
 

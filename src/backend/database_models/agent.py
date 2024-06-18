@@ -1,23 +1,10 @@
 from enum import StrEnum
 
-from sqlalchemy import Enum, Float, Integer, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Enum, Float, Integer, Text, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base
-
-
-class AgentDeployment(StrEnum):
-    COHERE_PLATFORM = "Cohere Platform"
-    SAGE_MAKER = "SageMaker"
-    AZURE = "Azure"
-    BEDROCK = "Bedrock"
-
-
-class AgentModel(StrEnum):
-    COMMAND_R = "command-r"
-    COMMAND_R_PLUS = "command-r-plus"
-    COMMAND_LIGHT = "command-light"
-    COMMAND = "command"
 
 
 class Agent(Base):
@@ -28,16 +15,16 @@ class Agent(Base):
     description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     preamble: Mapped[str] = mapped_column(Text, default="", nullable=False)
     temperature: Mapped[float] = mapped_column(Float, default=0.3, nullable=False)
-    # tool: Mapped[List["Tool"]] = relationship()
+    tools: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[], nullable=False)
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
     # enum place holders
-    model: Mapped[AgentModel] = mapped_column(
-        Enum(AgentModel, native_enum=False), nullable=False
-    )
-    deployment: Mapped[AgentDeployment] = mapped_column(
-        Enum(AgentDeployment, native_enum=False), nullable=False
+    model: Mapped[str] = mapped_column(Text, nullable=False)
+    # This is not used for now, just default it to Cohere Platform
+    deployment: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
     )
 
     user_id: Mapped[str] = mapped_column(Text, nullable=False)
