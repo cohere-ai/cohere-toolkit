@@ -2,7 +2,9 @@ import { Transition } from '@headlessui/react';
 
 import { AgentCard } from '@/components/Agents/AgentCard';
 import { Text } from '@/components/Shared';
+import { useIsDesktop } from '@/hooks/breakpoint';
 import { useSettingsStore } from '@/stores';
+import { cn } from '@/utils';
 
 /**
  * @description This component renders a list of agents.
@@ -12,9 +14,11 @@ export const AgentsList: React.FC = () => {
   const {
     settings: { isAgentsSidePanelOpen },
   } = useSettingsStore();
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className={cn('flex flex-col gap-3', { 'flex-row': isMobile })}>
       <Transition
         as="div"
         show={isAgentsSidePanelOpen}

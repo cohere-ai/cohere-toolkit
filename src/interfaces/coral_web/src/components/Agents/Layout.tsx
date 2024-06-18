@@ -26,6 +26,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
     settings: { isMobileConvListPanelOpen },
   } = useSettingsStore();
   const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
 
   let leftElement: React.ReactNode = null;
   let mainElement: React.ReactNode = null;
@@ -47,32 +48,22 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
     <>
       <PageHead title={capitalize(title)} />
       <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
-        <div className={cn('relative flex h-full flex-grow flex-nowrap gap-3 overflow-hidden')}>
+        <div
+          className={cn('relative flex h-full flex-grow flex-nowrap gap-3 overflow-hidden', {
+            'flex-col': isMobile,
+          })}
+        >
           <AgentsSidePanel>{leftElement}</AgentsSidePanel>
-          <Transition
-            as="main"
-            show={!isMobileConvListPanelOpen || isDesktop}
-            enterFrom="translate-x-full lg:translate-x-0"
-            enterTo="translate-x-0"
-            leaveFrom="translate-x-0"
-            leaveTo="translate-x-full lg:translate-x-0"
+          <section
             className={cn(
-              'z-main-section flex flex-grow lg:min-w-0',
-              'absolute h-full w-full lg:static lg:h-auto',
-              'transition-transform duration-500 ease-in-out lg:transition-none'
+              'relative flex h-full min-w-0 flex-grow flex-col',
+              'rounded-lg border',
+              'border-marble-400 bg-marble-100',
+              'overflow-hidden'
             )}
           >
-            <section
-              className={cn(
-                'relative flex h-full min-w-0 flex-grow flex-col',
-                'rounded-lg border',
-                'border-marble-400 bg-marble-100',
-                'overflow-hidden'
-              )}
-            >
-              {mainElement}
-            </section>
-          </Transition>
+            {mainElement}
+          </section>
           <ConfigurationDrawer />
         </div>
       </div>

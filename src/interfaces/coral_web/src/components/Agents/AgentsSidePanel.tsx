@@ -4,6 +4,7 @@ import Link from 'next/link';
 import IconButton from '@/components/IconButton';
 import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
+import { useIsDesktop } from '@/hooks/breakpoint';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -17,6 +18,9 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     settings: { isAgentsSidePanelOpen },
     setIsAgentsSidePanelOpen,
   } = useSettingsStore();
+
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
 
   const navigationItems: {
     label: string;
@@ -38,6 +42,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         {
           'min-w-12 max-w-12': !isAgentsSidePanelOpen,
           'min-w-64 max-w-64': isAgentsSidePanelOpen,
+          'h-12 max-w-none flex-row px-2 py-2': isMobile,
         }
       )}
     >
@@ -66,12 +71,13 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
           onClick={() => setIsAgentsSidePanelOpen(!isAgentsSidePanelOpen)}
           className={cn('transition delay-100 duration-200 ease-in-out', {
             'rotate-180 transform text-secondary-700': isAgentsSidePanelOpen,
+            hidden: isMobile,
           })}
         />
       </div>
       <div className="flex-grow overflow-y-auto">{children}</div>
       {isAgentsSidePanelOpen ? (
-        <div className="flex flex-shrink-0 flex-col gap-y-4">
+        <div className={cn('flex flex-shrink-0 flex-col gap-y-4')}>
           {navigationItems.map(({ label, icon, href, onClick }) => (
             <Button
               key={label}
@@ -86,7 +92,11 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
           ))}
         </div>
       ) : (
-        <div className="flex flex-shrink-0 flex-col gap-y-4">
+        <div
+          className={cn('flex flex-shrink-0 flex-col items-center gap-y-4', {
+            'mr-2 flex-row gap-x-1': isMobile,
+          })}
+        >
           {navigationItems.map(({ label, icon, href, onClick }) => (
             <Tooltip key={label} label={label} hover placement="right">
               <IconButton
