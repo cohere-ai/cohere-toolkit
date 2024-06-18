@@ -71,7 +71,7 @@ const AgentsPage: NextPage<Props> = () => {
           <Transition
             as="div"
             className={cn(
-              'basis-1/2 border-r border-marble-400',
+              'w-[300px] flex-shrink-0 border-r border-marble-400',
               'transition-[max-width,opacity] duration-300'
             )}
             show={isConvListPanelOpen}
