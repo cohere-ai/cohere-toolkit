@@ -8,11 +8,6 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { Agent } from './models/Agent';
-<<<<<<< HEAD
-export { AgentDeployment } from './models/AgentDeployment';
-export { AgentModel } from './models/AgentModel';
-=======
->>>>>>> b840c79b5fbeaf115fd0390f5c2d63efb1161cf0
 export type { Body_upload_file_v1_conversations_upload_file_post } from './models/Body_upload_file_v1_conversations_upload_file_post';
 export { Category } from './models/Category';
 export type { ChatMessage } from './models/ChatMessage';
@@ -52,13 +47,14 @@ export type { StreamSearchQueriesGeneration } from './models/StreamSearchQueries
 export type { StreamSearchResults } from './models/StreamSearchResults';
 export type { StreamStart } from './models/StreamStart';
 export type { StreamTextGeneration } from './models/StreamTextGeneration';
+export type { StreamToolCallsChunk } from './models/StreamToolCallsChunk';
 export type { StreamToolCallsGeneration } from './models/StreamToolCallsGeneration';
 export type { StreamToolInput } from './models/StreamToolInput';
 export type { StreamToolResult } from './models/StreamToolResult';
 export type { Tool } from './models/Tool';
 export type { ToolCall } from './models/ToolCall';
+export type { ToolCallDelta } from './models/ToolCallDelta';
 export { ToolInputType } from './models/ToolInputType';
-export { ToolName } from './models/ToolName';
 export type { UpdateAgent } from './models/UpdateAgent';
 export type { UpdateConversation } from './models/UpdateConversation';
 export type { UpdateDeploymentEnv } from './models/UpdateDeploymentEnv';

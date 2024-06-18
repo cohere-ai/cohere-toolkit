@@ -137,7 +137,7 @@ export class DefaultService {
   }
   /**
    * Logout
-   * Logs out the current user.
+   * Logs out the current user, adding the given JWT token to the blacklist.
    *
    * Args:
    * request (Request): current Request object.
