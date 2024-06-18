@@ -18,7 +18,6 @@ type Props = PageAppProps & {};
  */
 const CompleteOauthPage: NextPage<Props> = () => {
   const router = useRouter();
-  // TODO(AW): In the future, Google can just use the generic OIDC SSO mutation, once the backend supports it.
   const { oidcSSOMutation, googleSSOMutation } = useSession();
   const redirect = getQueryString(router.query.redirect_uri);
   const { login: ssoLogins } = useAuthConfig();

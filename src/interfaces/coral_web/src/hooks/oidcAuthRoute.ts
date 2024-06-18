@@ -60,12 +60,6 @@ export const useOidcAuthRoute = () => {
       };
       const state = JSON.stringify(oauthState);
 
-      // TODO(AW): Do we need this cookie? Doesn't appear to be read anywhere on our end
-      // Cookies.set('google_oauth_state', state, {
-      //   sameSite: 'lax',
-      //   secure: true,
-      // });
-
       const url = `${authorizationEndpoint}?${new URLSearchParams({
         response_type: 'code',
         client_id: strategyConfig.client_id,
