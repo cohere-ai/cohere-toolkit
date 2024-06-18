@@ -35,6 +35,17 @@ def test_get_conversation(session, user):
     assert conversation.id == "1"
 
 
+def test_get_conversation_with_agent_id(session, user):
+    agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
+    _ = get_factory("Conversation", session).create(
+        id="1", title="Hello, World!", user_id=user.id, agent_id=agent.id
+    )
+
+    conversation = conversation_crud.get_conversation(session, "1", user.id, "agent_id")
+    assert conversation.title == "Hello, World!"
+    assert conversation.id == "1"
+
+
 def test_fail_get_nonexistent_conversation(session, user):
     conversation = conversation_crud.get_conversation(session, "123", user_id=user.id)
     assert conversation is None
@@ -68,22 +79,6 @@ def test_list_conversations_with_pagination(session, user):
 
     for i, conversation in enumerate(conversations):
         assert conversation.title == f"Conversation {i + 5}"
-
-
-def test_list_converstions_with_agent_id_filter(session, user):
-    agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id=user.id
-    )
-    conversation1 = get_factory("Conversation", session).create(
-        agent_id=agent.id, user_id=user.id
-    )
-    _ = get_factory("Conversation", session).create(user_id=user.id)
-
-    conversations = conversation_crud.get_conversations(
-        session, user_id=user.id, agent_id=agent.id
-    )
-    assert len(conversations) == 1
-    assert conversations[0].id == conversation1.id
 
 
 def test_list_converstions_with_agent_id_filter_and_pagination(session, user):

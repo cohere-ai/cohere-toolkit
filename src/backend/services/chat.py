@@ -4,7 +4,7 @@ from typing import Any, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import Request, HTTPException
+from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
@@ -43,12 +43,15 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
-from backend.schemas.tool import ToolCall, ToolCallDelta, Tool
+from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 
 
 def process_chat(
-    session: DBSessionDep, chat_request: BaseChatRequest, request: Request, agent_id: str | None = None
+    session: DBSessionDep,
+    chat_request: BaseChatRequest,
+    request: Request,
+    agent_id: str | None = None,
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -73,7 +76,7 @@ def process_chat(
         model_config = get_deployment_config(request)
 
     if agent_id is not None:
-        agent = agent_crud.get_agent(session, agent_id)
+        agent = agent_crud.get_agent_by_id(session, agent_id)
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
@@ -200,7 +203,7 @@ def get_or_create_conversation(
         Conversation: Conversation object.
     """
     conversation_id = chat_request.conversation_id or ""
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id, agent_id)
+    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if conversation is None:
         conversation = Conversation(
