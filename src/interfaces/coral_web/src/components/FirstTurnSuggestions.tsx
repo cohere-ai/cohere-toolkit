@@ -30,14 +30,14 @@ const SUGGESTED_PROMPTS: Prompt[] = [
       ],
     },
     message:
-      'Plot the average 1 bedroom rental price in Jan 2024 for the 5 most expensive cities in north america',
+      'Plot the average 1 bedroom rental price in Jan 2024 for the 5 most expensive cities in North America',
   },
   {
     label: 'Clean up data in Python',
     params: { fileIds: [], tools: [] },
-    message: `I want to figure out how to remove nan values from my array. For example, My array looks something like this:
+    message: `I want to figure out how to remove nan values from my array. For example, my array looks something like this:
     
-    x = [1400, 1500, 1600, nan, nan, nan ,1700] #Not in this exact configuration
+    x = [1400, 1500, 1600, nan, nan, nan, 1700] #Not in this exact configuration
         
     How can I remove the nan values from x to get something like:
         

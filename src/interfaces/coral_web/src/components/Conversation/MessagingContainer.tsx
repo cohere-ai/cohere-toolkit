@@ -164,43 +164,41 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
   ref
 ) {
   const isChatEmpty = messages.length === 0;
-  return (
-    <>
-      {isChatEmpty ? (
-        <div className="m-auto p-4">
-          <Welcome show={isChatEmpty} />
-        </div>
-      ) : (
-        <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
-          <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
-            {messages.map((m, i) => {
-              const isLastInList = i === messages.length - 1;
-              return (
-                <MessageRow
-                  key={i}
-                  message={m}
-                  isLast={isLastInList && !streamingMessage}
-                  className={cn({
-                    // Hide the last message if it is the same as the separate streamed message
-                    // to avoid a flash of duplicate messages.
-                    hidden:
-                      isLastInList &&
-                      streamingMessage &&
-                      isFulfilledMessage(streamingMessage) &&
-                      isFulfilledMessage(m) &&
-                      streamingMessage.generationId === m.generationId,
-                  })}
-                  onRetry={onRetry}
-                />
-              );
-            })}
-          </div>
+  if (isChatEmpty) {
+    return (
+      <div className="m-auto p-4">
+        <Welcome show={isChatEmpty} />
+      </div>
+    );
+  }
 
-          {streamingMessage && (
-            <MessageRow message={streamingMessage} isLast={true} onRetry={onRetry} />
-          )}
-        </div>
-      )}
-    </>
+  return (
+    <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
+      <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
+        {messages.map((m, i) => {
+          const isLastInList = i === messages.length - 1;
+          return (
+            <MessageRow
+              key={i}
+              message={m}
+              isLast={isLastInList && !streamingMessage}
+              className={cn({
+                // Hide the last message if it is the same as the separate streamed message
+                // to avoid a flash of duplicate messages.
+                hidden:
+                  isLastInList &&
+                  streamingMessage &&
+                  isFulfilledMessage(streamingMessage) &&
+                  isFulfilledMessage(m) &&
+                  streamingMessage.generationId === m.generationId,
+              })}
+              onRetry={onRetry}
+            />
+          );
+        })}
+      </div>
+
+      {streamingMessage && <MessageRow isLast message={streamingMessage} onRetry={onRetry} />}
+    </div>
   );
 });
