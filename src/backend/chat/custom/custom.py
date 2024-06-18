@@ -5,18 +5,18 @@ from typing import Any, Dict, Generator, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import rerank_and_chunk
+from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.crud.file import get_files_by_conversation_id
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.chat import ChatMessage
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.tool import Category, Tool
+from backend.schemas.tool import Tool
 from backend.services.logger import get_logger
 
 logger = get_logger()
+MAX_STEPS = 15
 
 
 class CustomChat(BaseChat):
@@ -42,151 +42,209 @@ class CustomChat(BaseChat):
                 status_code=400, detail="Both tools and documents cannot be provided."
             )
 
-        # If a direct answer is generated instead of tool calls, the chat will not be called again
-        # Instead, the direct answer will be returned from the stream
-        stream = self.handle_managed_tools(chat_request, deployment_model, **kwargs)
+        self.chat_request = chat_request
+        self.is_first_start = True
+        should_break = False
 
-        first_event, generated_direct_answer = next(stream)
+        for step in range(MAX_STEPS):
+            logger.info(f"Step {step + 1}")
+            stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
-        if generated_direct_answer:
-            yield first_event
-            for event, _ in stream:
-                yield event
+            for event in stream:
+                result = self.handle_event(event, chat_request)
+
+                if result:
+                    yield result
+
+                if event[
+                    "event_type"
+                ] == StreamEvent.STREAM_END and self.is_final_event(
+                    event, chat_request
+                ):
+                    should_break = True
+                    break
+
+            if should_break:
+                break
+
+    def is_final_event(
+        self, event: Dict[str, Any], chat_request: CohereChatRequest
+    ) -> bool:
+        # The event is final if:
+        # 1. It is a stream end event with no tool calls - direct answer
+        # 2. It is a stream end event with tool calls, but no managed tools - tool calls generation only
+        if "response" in event:
+            response = event["response"]
         else:
-            chat_request = first_event
-            invoke_method = (
-                deployment_model.invoke_chat_stream
-                if kwargs.get("stream", True)
-                else deployment_model.invoke_chat
+            return True
+
+        return not ("tool_calls" in response and response["tool_calls"]) or (
+            "tool_calls" in response
+            and response["tool_calls"]
+            and chat_request.tools
+            and not self.get_managed_tools(self.chat_request)
+        )
+
+    def handle_event(
+        self, event: Dict[str, Any], chat_request: CohereChatRequest
+    ) -> Dict[str, Any]:
+        # All events other than stream start and stream end are returned
+        if (
+            event["event_type"] != StreamEvent.STREAM_START
+            and event["event_type"] != StreamEvent.STREAM_END
+        ):
+            return event
+
+        # Only the first occurrence of stream start is returned
+        if event["event_type"] == StreamEvent.STREAM_START:
+            if self.is_first_start:
+                self.is_first_start = False
+                return event
+
+        # Only the final occurrence of stream end is returned
+        # The final event is the one that does not contain tool calls
+        if event["event_type"] == StreamEvent.STREAM_END:
+            if self.is_final_event(event, chat_request):
+                return event
+
+        return None
+
+    def is_not_direct_answer(self, event: Dict[str, Any]) -> bool:
+        # If the event contains tool calls, it is not a direct answer
+        return (
+            event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION
+            and "tool_calls" in event
+        )
+
+    def call_chat(self, chat_request, deployment_model, **kwargs: Any):
+        managed_tools = self.get_managed_tools(chat_request)
+
+        # If tools are managed and not zero shot tools, replace the tools in the chat request
+        if len(managed_tools) == len(chat_request.tools):
+            chat_request.tools = managed_tools
+
+        # Get the tool calls stream and either return a direct answer or continue
+        tool_calls_stream = self.get_tool_calls(
+            managed_tools, chat_request.chat_history, deployment_model, **kwargs
+        )
+        is_direct_answer, new_chat_history, stream = self.handle_tool_calls_stream(
+            tool_calls_stream
+        )
+
+        for event in stream:
+            yield event
+
+        if is_direct_answer:
+            return
+
+        # If the stream contains tool calls, call the tools and update the chat history
+        tool_results = self.call_tools(new_chat_history, deployment_model, **kwargs)
+        chat_request.tool_results = [result for result in tool_results]
+        chat_request.chat_history = new_chat_history
+
+        # Remove the message if tool results are present
+        if tool_results:
+            chat_request.message = ""
+
+        for event in deployment_model.invoke_chat_stream(chat_request):
+            if event["event_type"] != StreamEvent.STREAM_START:
+                yield event
+            if event["event_type"] == StreamEvent.STREAM_END:
+                chat_request.chat_history = event["response"].get("chat_history", [])
+
+        # Update the chat request and restore the message
+        self.chat_request = chat_request
+
+    def call_tools(self, chat_history, deployment_model, **kwargs: Any):
+        tool_results = []
+        if not hasattr(chat_history[-1], "tool_results"):
+            logging.warning("No tool calls found in chat history.")
+            return tool_results
+
+        tool_calls = chat_history[-1].tool_calls
+        logger.info(f"Tool calls: {tool_calls}")
+
+        # TODO: Call tools in parallel
+        for tool_call in tool_calls:
+            tool = AVAILABLE_TOOLS.get(tool_call["name"])
+            if not tool:
+                logging.warning(f"Couldn't find tool {tool_call['name']}")
+                continue
+
+            outputs = tool.implementation().call(
+                parameters=tool_call.get("parameters"),
+                session=kwargs.get("session"),
+                model_deployment=deployment_model,
+                user_id=kwargs.get("user_id"),
             )
 
-            yield from invoke_method(chat_request)
+            # If the tool returns a list of outputs, append each output to the tool_results list
+            # Otherwise, append the single output to the tool_results list
+            outputs = outputs if isinstance(outputs, list) else [outputs]
+            for output in outputs:
+                tool_results.append({"call": tool_call, "outputs": [output]})
 
-    def handle_managed_tools(
-        self,
-        chat_request: CohereChatRequest,
-        deployment_model: BaseDeployment,
-        **kwargs: Any,
-    ) -> Generator[Any, None, None]:
-        """
-        This function handles the managed tools.
+        tool_results = rerank_and_chunk(tool_results, deployment_model)
+        return tool_results
 
-        Args:
-            chat_request (CohereChatRequest): The chat request
-            deployment_model (BaseDeployment): The deployment model
-            **kwargs (Any): The keyword arguments
+    def handle_tool_calls_stream(self, tool_results_stream):
+        # Process the stream and return the chat history, and a copy of the stream and a flag indicating if the response is a direct answer
+        stream, stream_copy = tee(tool_results_stream)
+        is_direct_answer = True
 
-        Returns:
-            Generator[Any, None, None]: The tool results or the chat response, and a boolean indicating if a direct answer was generated
-        """
-        tools = [
+        chat_history = []
+        for event in stream:
+            if event["event_type"] == StreamEvent.STREAM_END:
+                stream_chat_history = []
+                if "response" in event:
+                    stream_chat_history = event["response"].get("chat_history", [])
+                elif "chat_history" in event:
+                    stream_chat_history = event["chat_history"]
+
+                for message in stream_chat_history:
+                    if not isinstance(message, dict):
+                        message = to_dict(message)
+
+                    chat_history.append(
+                        ChatMessage(
+                            role=message.get("role"),
+                            message=message.get("message", ""),
+                            tool_results=message.get("tool_results", None),
+                            tool_calls=message.get("tool_calls", None),
+                        )
+                    )
+
+            elif (
+                event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION
+                and "tool_calls" in event
+            ):
+                is_direct_answer = False
+
+        return is_direct_answer, chat_history, stream_copy
+
+    def get_managed_tools(self, chat_request: CohereChatRequest):
+        return [
             Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump())
             for tool in chat_request.tools
             if AVAILABLE_TOOLS.get(tool.name)
         ]
 
-        if not tools:
-            yield chat_request, False
-
-        for event, should_return in self.get_tool_results(
-            chat_request.message,
-            chat_request.chat_history,
-            tools,
-            kwargs.get("conversation_id"),
-            deployment_model,
-            kwargs,
-        ):
-            if should_return:
-                yield event, True
-            else:
-                chat_request.tool_results = event
-                chat_request.tools = tools
-                yield chat_request, False
-
-    def get_tool_results(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]],
-        tools: list[Tool],
-        conversation_id: str,
-        deployment_model: BaseDeployment,
-        kwargs: Any,
-    ) -> Any:
-        """
-        Invokes the tools and returns the results. If no tools calls are generated, it returns the chat response
-        as a direct answer.
-
-        Args:
-            message (str): The message to be processed
-            chat_history (List[Dict[str, str]]): The chat history
-            tools (list[Tool]): The tools to be invoked
-            conversation_id (str): The conversation ID
-            deployment_model (BaseDeployment): The deployment model
-            kwargs (Any): The keyword arguments
-
-        Returns:
-            Any: The tool results or the chat response, and a boolean indicating if a direct answer was generated
-
-        """
-        tool_results = []
-
-        # If the tool is Read_File or SearchFile, add the available files to the chat history
-        # so that the model knows what files are available
+    def get_tool_calls(self, tools, chat_history, deployment_model, **kwargs: Any):
+        # If the chat history contains a read or search file tool, add the files to the chat history
         tool_names = [tool.name for tool in tools]
         if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
             chat_history = self.add_files_to_chat_history(
                 chat_history,
-                conversation_id,
+                kwargs.get("conversation_id"),
                 kwargs.get("session"),
                 kwargs.get("user_id"),
             )
+            self.chat_request.chat_history = chat_history
 
-        logger.info(f"Invoking tools: {tools}")
-        stream = deployment_model.invoke_tools(
-            message, tools, chat_history=chat_history
-        )
+        logger.info(f"Available tools: {tools}")
+        stream = deployment_model.invoke_chat_stream(self.chat_request)
 
-        # Invoke tools can return a direct answer or a stream of events with the tool calls
-        # If one of the events is a tool call generation, the tools are invoked, and the results are returned
-        # Otherwise, the chat response is returned as a direct answer
-        stream, stream_copy = tee(stream)
-
-        tool_call_found = False
-        for event in stream:
-            if event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
-                tool_call_found = True
-                tool_calls = event["tool_calls"]
-
-                logger.info(f"Tool calls: {tool_calls}")
-
-                # TODO: parallelize tool calls
-                for tool_call in tool_calls:
-                    tool = AVAILABLE_TOOLS.get(tool_call.name)
-                    if not tool:
-                        logging.warning(f"Couldn't find tool {tool_call.name}")
-                        continue
-
-                    outputs = tool.implementation().call(
-                        parameters=tool_call.parameters,
-                        session=kwargs.get("session"),
-                        model_deployment=deployment_model,
-                        user_id=kwargs.get("user_id"),
-                    )
-
-                    # If the tool returns a list of outputs, append each output to the tool_results list
-                    # Otherwise, append the single output to the tool_results list
-                    outputs = outputs if isinstance(outputs, list) else [outputs]
-                    for output in outputs:
-                        tool_results.append({"call": tool_call, "outputs": [output]})
-
-                tool_results = rerank_and_chunk(tool_results, deployment_model)
-                logger.info(f"Tool results: {tool_results}")
-                yield tool_results, False
-                break
-
-        if not tool_call_found:
-            for event in stream_copy:
-                yield event, True
+        return stream
 
     def add_files_to_chat_history(
         self,

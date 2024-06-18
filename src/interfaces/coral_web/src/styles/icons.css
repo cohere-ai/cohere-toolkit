@@ -319,3 +319,15 @@
 .icon-settings:before {
   content: '\e948';
 }
+
+.icon-magnifying-glass:before {
+  content: '\e949';
+}
+
+.icon-code-block:before {
+  content: '\e94a';
+}
+
+.icon-compass:before {
+  content: '\e94b';
+}

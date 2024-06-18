@@ -1,8 +1,9 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.config.tools import ToolName
-from backend.database_models.agent import Agent, AgentDeployment, AgentModel
+from backend.database_models.agent import Agent
 from backend.tests.factories import get_factory
 
 
@@ -13,9 +14,9 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": AgentModel.COMMAND_R,
-        "deployment": AgentDeployment.COHERE_PLATFORM,
-        "tools": [ToolName.Wiki_Retriever_LangChain],
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [ToolName.Calculator],
     }
 
     response = session_client.post(
@@ -52,13 +53,14 @@ def test_create_agent_missing_name(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": AgentModel.COMMAND_R,
-        "deployment": AgentDeployment.COHERE_PLATFORM,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Name, model, and deployment are required."}
 
 
 def test_create_agent_missing_model(
@@ -69,12 +71,13 @@ def test_create_agent_missing_model(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "deployment": AgentDeployment.COHERE_PLATFORM,
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Name, model, and deployment are required."}
 
 
 def test_create_agent_missing_deployment(
@@ -85,12 +88,13 @@ def test_create_agent_missing_deployment(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": AgentModel.COMMAND_R,
+        "model": "command-r-plus",
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Name, model, and deployment are required."}
 
 
 def test_create_agent_missing_user_id_header(
@@ -98,8 +102,8 @@ def test_create_agent_missing_user_id_header(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": AgentModel.COMMAND_R,
-        "deployment": AgentDeployment.COHERE_PLATFORM,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
     response = session_client.post("/v1/agents", json=request_json)
     assert response.status_code == 401
@@ -110,11 +114,9 @@ def test_create_agent_missing_non_required_fields(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": AgentModel.COMMAND_R,
-        "deployment": AgentDeployment.COHERE_PLATFORM,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
-
-    print(request_json)
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
@@ -128,7 +130,6 @@ def test_create_agent_missing_non_required_fields(
     assert response_agent["preamble"] == ""
     assert response_agent["temperature"] == 0.3
     assert response_agent["model"] == request_json["model"]
-    assert response_agent["deployment"] == request_json["deployment"]
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None
@@ -138,10 +139,9 @@ def test_create_agent_missing_non_required_fields(
     assert agent.preamble == ""
     assert agent.temperature == 0.3
     assert agent.model == request_json["model"]
-    assert agent.deployment == request_json["deployment"]
 
 
-def test_create_agent_wrong_model_deployment_enums(
+def test_create_agent_invalid_deployment(
     session_client: TestClient, session: Session
 ) -> None:
     request_json = {
@@ -150,30 +150,34 @@ def test_create_agent_wrong_model_deployment_enums(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": "not a real model",
+        "model": "command-r-plus",
         "deployment": "not a real deployment",
     }
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "Deployment not a real deployment not found or is not available."
+    }
 
 
-def test_create_agent_wrong_tool_name_enums(
+def test_create_agent_invalid_tool(
     session_client: TestClient, session: Session
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": AgentModel.COMMAND_R,
-        "deployment": AgentDeployment.COHERE_PLATFORM,
-        "tools": ["not a real tool"],
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [ToolName.Calculator, "not a real tool"],
     }
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
 def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
@@ -236,8 +240,8 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=AgentModel.COMMAND_R,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     request_json = {
@@ -246,13 +250,16 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         "description": "updated description",
         "preamble": "updated preamble",
         "temperature": 0.7,
-        "model": AgentModel.COMMAND_R_PLUS,
-        "deployment": AgentDeployment.SAGE_MAKER,
+        "model": "command-r",
+        "deployment": ModelDeploymentName.CoherePlatform,
     }
 
     response = session_client.put(
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
     )
+
+    print("DEBUGGG")
+    print(response.json())
     assert response.status_code == 200
     updated_agent = response.json()
     assert updated_agent["name"] == "updated name"
@@ -260,8 +267,8 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
     assert updated_agent["description"] == "updated description"
     assert updated_agent["preamble"] == "updated preamble"
     assert updated_agent["temperature"] == 0.7
-    assert updated_agent["model"] == AgentModel.COMMAND_R_PLUS
-    assert updated_agent["deployment"] == AgentDeployment.SAGE_MAKER
+    assert updated_agent["model"] == "command-r"
+    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
 
 
 def test_partial_update_agent(session_client: TestClient, session: Session) -> None:
@@ -271,12 +278,14 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=AgentModel.COMMAND_R,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+        tools=[ToolName.Calculator],
     )
 
     request_json = {
         "name": "updated name",
+        "tools": [ToolName.Search_File, ToolName.Read_File],
     }
 
     response = session_client.put(
@@ -289,8 +298,9 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
     assert updated_agent["description"] == "test description"
     assert updated_agent["preamble"] == "test preamble"
     assert updated_agent["temperature"] == 0.5
-    assert updated_agent["model"] == AgentModel.COMMAND_R
-    assert updated_agent["deployment"] == AgentDeployment.COHERE_PLATFORM
+    assert updated_agent["model"] == "command-r-plus"
+    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
+    assert updated_agent["tools"] == [ToolName.Search_File, ToolName.Read_File]
 
 
 def test_update_nonexistent_agent(session_client: TestClient, session: Session) -> None:
@@ -304,7 +314,7 @@ def test_update_nonexistent_agent(session_client: TestClient, session: Session) 
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
-def test_update_agent_wrong_model_deployment_enums(
+def test_update_agent_invalid_model(
     session_client: TestClient, session: Session
 ) -> None:
     agent = get_factory("Agent", session).create(
@@ -313,19 +323,127 @@ def test_update_agent_wrong_model_deployment_enums(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model=AgentModel.COMMAND_R,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     request_json = {
         "model": "not a real model",
+        "deployment": ModelDeploymentName.CoherePlatform,
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "Model not a real model not found for deployment Cohere Platform."
+    }
+
+
+def test_update_agent_invalid_deployment(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+    )
+
+    request_json = {
+        "model": "command-r",
         "deployment": "not a real deployment",
     }
 
     response = session_client.put(
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "Deployment not a real deployment not found or is not available."
+    }
+
+
+def test_update_agent_model_without_deployment(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+    )
+
+    request_json = {
+        "model": "command-r",
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "If updating an agent's model, the deployment must also be provided."
+    }
+
+
+def test_update_agent_deployment_without_model(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+    )
+
+    request_json = {
+        "deployment": ModelDeploymentName.CoherePlatform,
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "If updating an agent's deployment type, the model must also be provided."
+    }
+
+
+def test_update_agent_invalid_tool(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+    )
+
+    request_json = {
+        "model": "not a real model",
+        "deployment": "not a real deployment",
+        "tools": [ToolName.Calculator, "not a real tool"],
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
 def test_delete_agent(session_client: TestClient, session: Session) -> None:

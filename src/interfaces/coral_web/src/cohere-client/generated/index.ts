@@ -8,8 +8,11 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { Agent } from './models/Agent';
+<<<<<<< HEAD
 export { AgentDeployment } from './models/AgentDeployment';
 export { AgentModel } from './models/AgentModel';
+=======
+>>>>>>> b840c79b5fbeaf115fd0390f5c2d63efb1161cf0
 export type { Body_upload_file_v1_conversations_upload_file_post } from './models/Body_upload_file_v1_conversations_upload_file_post';
 export { Category } from './models/Category';
 export type { ChatMessage } from './models/ChatMessage';

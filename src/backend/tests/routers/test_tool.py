@@ -22,6 +22,14 @@ def test_list_tools(session_client: TestClient, session: Session) -> None:
         assert tool["description"] == tool_definition.description
 
 
+def test_list_tools_error_message_none_if_available(client: TestClient) -> None:
+    response = client.get("/v1/tools")
+    assert response.status_code == 200
+    for tool in response.json():
+        if tool["is_available"]:
+            assert tool["error_message"] is None
+
+
 def test_list_tools_with_agent(session_client: TestClient, session: Session) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent", tools=[ToolName.Wiki_Retriever_LangChain]
