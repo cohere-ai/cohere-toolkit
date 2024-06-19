@@ -89,4 +89,3 @@ export const IconButton: React.FC<Props> = ({
     iconButton
   );
 };
-export default IconButton;

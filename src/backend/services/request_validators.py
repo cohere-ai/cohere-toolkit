@@ -4,6 +4,8 @@ from fastapi import HTTPException, Request
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import AVAILABLE_TOOLS
+from backend.crud import agent as agent_crud
+from backend.database_models.database import DBSessionDep
 
 
 def validate_user_header(request: Request):
@@ -112,7 +114,7 @@ async def validate_env_vars(request: Request):
         )
 
 
-async def validate_create_agent_request(request: Request):
+async def validate_create_agent_request(session: DBSessionDep, request: Request):
     """
     Validate that the create agent request has valid tools, deployments, and compatible models.
 
@@ -123,6 +125,14 @@ async def validate_create_agent_request(request: Request):
         HTTPException: If the request does not have the appropriate values in the body
     """
     body = await request.json()
+
+    # TODO @scott-cohere: for now we disregard versions and assume agents have unique names, enforce versioning later
+    agent_name = body.get("name")
+    agent = agent_crud.get_agent_by_name(session, agent_name)
+    if agent:
+        raise HTTPException(
+            status_code=400, detail=f"Agent {agent_name} already exists."
+        )
 
     # Validate tools
     tools = body.get("tools")

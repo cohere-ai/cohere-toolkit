@@ -179,7 +179,7 @@ Remember, you can also access your tools via the API.
 - List tools:
 
 ```bash
-curl --location --request GET 'http://localhost:8000/tools' \
+curl --location --request GET 'http://localhost:8000/v1/tools' \
 --header 'User-Id: me' \
 --header 'Content-Type: application/json' \
 --data '{}'
@@ -188,7 +188,7 @@ curl --location --request GET 'http://localhost:8000/tools' \
 - Chat turns with tools:
 
 ```bash
-curl --location 'http://localhost:8000/chat-stream' \
+curl --location 'http://localhost:8000/v1/chat-stream' \
 --header 'User-Id: me' \
 --header 'Content-Type: application/json' \
 --data '{

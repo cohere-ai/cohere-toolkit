@@ -7,14 +7,20 @@ import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
-import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 
 const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
-  const { setSettings } = useSettingsStore();
 
+  const { settings, setSettings } = useSettingsStore();
+  const { resetFileParams } = useParamsStore();
   const router = useRouter();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
@@ -26,6 +32,7 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
     router.push(url, undefined, { shallow: true });
     resetConversation();
     resetCitations();
+    resetFileParams();
   };
 
   const handleOpenSettings = () => {
@@ -119,7 +126,7 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
           <KebabMenu className="md:hidden" items={menuItems} anchor="left start" />
           <IconButton
             tooltip={{ label: 'New chat', placement: 'bottom-end', size: 'md' }}
-            className="hidden hover:bg-secondary-100 md:flex"
+            className="hidden md:flex"
             iconName="new-message"
             onClick={handleNewChat}
             disabled={isStreaming}
@@ -127,8 +134,7 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
           <div className="relative">
             <IconButton
               tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
-              data-testid="button-grounding-drawer"
-              className="hidden hover:bg-secondary-100 md:flex"
+              className="hidden md:flex"
               onClick={handleOpenSettings}
               iconName="settings"
               disabled={isStreaming}

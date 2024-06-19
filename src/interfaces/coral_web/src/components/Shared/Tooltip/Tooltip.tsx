@@ -142,7 +142,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             {...getFloatingProps()}
           >
             {size === 'sm' ? (
-              <Text as="span" styleAs="p-sm" className="text-marble-300">
+              <Text as="span" styleAs="p-sm" className="flex text-marble-300">
                 {label}
               </Text>
             ) : (

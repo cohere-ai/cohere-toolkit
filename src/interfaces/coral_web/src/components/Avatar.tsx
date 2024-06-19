@@ -61,7 +61,7 @@ export const Avatar: React.FC<Props> = ({ message }) => {
   );
 };
 
-const BotAvatar: React.FC<{
+export const BotAvatar: React.FC<{
   state: BotState;
   style: React.ComponentProps<typeof CoralLogo>['style'];
 }> = ({ state, style }) => {
