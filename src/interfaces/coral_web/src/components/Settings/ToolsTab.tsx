@@ -1,45 +1,24 @@
 import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
-import { FilesSection } from '@/components/Settings/Files';
 import { ToolsInfoBox } from '@/components/Settings/ToolsInfoBox';
 import { Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
-import { useDefaultFileLoaderTool, useFilesInConversation } from '@/hooks/files';
+import { useDefaultFileLoaderTool } from '@/hooks/files';
 import { useListTools } from '@/hooks/tools';
-import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
+import { useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { cn } from '@/utils';
 
 /**
  * @description Tools tab content that shows a list of available tools and files
  */
-export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const {
-    conversation: { id: conversationId },
-  } = useConversationStore();
-  const { files } = useFilesInConversation();
-  return (
-    <article className={cn('flex flex-col pb-10', className)}>
-      <ToolSection />
-
-      {/* File upload is not supported for conversarions without an id */}
-      {conversationId && files.length > 0 && (
-        <>
-          <hr className="my-6 border-t border-marble-400" />
-          <FilesSection />
-        </>
-      )}
-    </article>
-  );
-};
-
-/**
- * @description List of available tools.
- */
-const ToolSection = () => {
+export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }> = ({
+  requiredTools,
+  className = '',
+}) => {
   const { params, setParams } = useParamsStore();
   const { data } = useListTools();
   const { tools: paramTools } = params;
@@ -79,7 +58,7 @@ const ToolSection = () => {
   };
 
   return (
-    <section className="relative flex flex-col gap-y-5 px-5">
+    <section className={cn('relative flex flex-col gap-y-5 px-5 pb-10', className)}>
       <ToolsInfoBox />
       <article className={cn('flex flex-col gap-y-5 pb-10')}>
         <Text styleAs="p-sm" className="text-secondary-800">
@@ -122,29 +101,26 @@ const ToolSection = () => {
             </Text>
 
             <div className="flex flex-col gap-y-5">
-              {availableTools.map(
-                ({ name, display_name, is_available, description, error_message }) => {
-                  const enabledTool = enabledTools.find(
-                    (enabledTool) =>
-                      enabledTool.name.toLocaleLowerCase() === name.toLocaleLowerCase()
-                  );
-                  const checked = !!enabledTool;
-                  const disabled = !is_available;
+              {availableTools.map(({ name, display_name, description, error_message }) => {
+                const enabledTool = enabledTools.find(
+                  (enabledTool) => enabledTool.name.toLocaleLowerCase() === name.toLocaleLowerCase()
+                );
+                const checked = !!enabledTool;
+                const disabled = requiredTools.some((t) => t === name);
 
-                  return (
-                    <ToggleCard
-                      key={name}
-                      disabled={disabled}
-                      errorMessage={error_message}
-                      checked={checked}
-                      label={display_name ?? name}
-                      icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
-                      description={description ?? ''}
-                      onToggle={(checked) => handleToggle(name, checked)}
-                    />
-                  );
-                }
-              )}
+                return (
+                  <ToggleCard
+                    key={name}
+                    disabled={disabled}
+                    errorMessage={error_message}
+                    checked={checked}
+                    label={display_name ?? name}
+                    icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
+                    description={description ?? ''}
+                    onToggle={(checked) => handleToggle(name, checked)}
+                  />
+                );
+              })}
             </div>
           </>
         )}

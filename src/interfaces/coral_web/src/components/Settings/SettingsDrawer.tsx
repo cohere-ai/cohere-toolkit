@@ -1,14 +1,24 @@
 import { Transition } from '@headlessui/react';
-import React, { useState } from 'react';
+import React, { createElement, useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
+import { FilesTab } from '@/components/Settings/FilesTab';
+import { SettingsTab } from '@/components/Settings/SettingsTab';
+import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
-import { useCitationsStore, useSettingsStore } from '@/stores';
+import { useFilesInConversation } from '@/hooks/files';
+import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
-import { SettingsTab } from './SettingsTab';
-import { ToolsTab } from './ToolsTab';
+// TODO(@wujessica): grab these from the agents api
+const REQUIRED_TOOLS: string[] = [];
+
+type Tab = {
+  name: string;
+  component: React.FC;
+  props?: Record<string, unknown>;
+};
 
 /**
  * @description Renders the settings drawer of the main content.
@@ -17,12 +27,29 @@ import { ToolsTab } from './ToolsTab';
 export const SettingsDrawer: React.FC = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const {
+    conversation: { id: conversationId },
+  } = useConversationStore();
+  const {
     settings: { isConfigDrawerOpen },
     setSettings,
   } = useSettingsStore();
   const {
     citations: { hasCitations },
   } = useCitationsStore();
+  const { files } = useFilesInConversation();
+
+  const tabs = useMemo<Tab[]>(() => {
+    return files.length > 0 && conversationId
+      ? [
+          { name: 'Tools', component: ToolsTab, props: { requiredTools: REQUIRED_TOOLS } },
+          { name: 'Files', component: FilesTab },
+          { name: 'Settings', component: SettingsTab },
+        ]
+      : [
+          { name: 'Tools', component: ToolsTab, props: { requiredTools: REQUIRED_TOOLS } },
+          { name: 'Settings', component: SettingsTab },
+        ];
+  }, [files.length]);
 
   return (
     <Transition
@@ -59,7 +86,7 @@ export const SettingsDrawer: React.FC = () => {
 
       <section id={SETTINGS_DRAWER_ID} className="h-full w-full overflow-y-auto rounded-b-lg">
         <Tabs
-          tabs={['Tools', 'Settings']}
+          tabs={tabs.map((t) => t.name)}
           selectedIndex={selectedTabIndex}
           onChange={setSelectedTabIndex}
           tabGroupClassName="h-full"
@@ -67,8 +94,7 @@ export const SettingsDrawer: React.FC = () => {
           panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
           fitTabsContent={true}
         >
-          <ToolsTab />
-          <SettingsTab />
+          {tabs.map((t) => createElement(t.component, { key: t.name, ...t.props }))}
         </Tabs>
       </section>
     </Transition>
