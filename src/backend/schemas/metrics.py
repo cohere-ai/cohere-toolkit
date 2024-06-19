@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 class MetricsDataBase(BaseModel):
     id: str = str(uuid.uuid4())
-    # assistant_id: str
     trace_id: str
     method: str
     endpoint_name: str
@@ -26,5 +25,5 @@ class MetricsData(MetricsDataBase):
     search_units: int | None = None
     model: str | None = None
     error: str | None = None
-    agent: dict[str, str] | None = None
+    agent: dict[str, Any] | None = None
     meta: dict[str, Any] | None = None

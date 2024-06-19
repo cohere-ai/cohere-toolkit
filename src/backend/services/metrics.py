@@ -15,6 +15,7 @@ from backend.chat.collate import to_dict
 from backend.schemas.metrics import MetricsData
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", "")
+NUM_RETRIES = 5
 
 import time
 
@@ -36,9 +37,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def get_data(self, scope, response, request, duration):
         data = {}
-        trace_id = None
-        if hasattr(request.state, "trace_id"):
-            trace_id = request.state.trace_id
 
         if scope["type"] != "http":
             return None
@@ -48,7 +46,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             endpoint_name=self.get_endpoint_name(scope, request),
             user_id_hash=self.get_user_id_hash(request),
             success=self.get_success(response),
-            trace_id=trace_id,
+            trace_id=request.state.trace_id,
             status_code=self.get_status_code(response),
             object_ids=self.get_object_ids(request),
             agent=self.get_agent(request),
@@ -63,7 +61,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            logging.warning("Failed to get method:", e)
+            logging.warning(f"Failed to get method:  {e}")
             return "unknown"
 
     def get_endpoint_name(self, scope, request):
@@ -76,21 +74,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            logging.warning("Failed to get endpoint name:", e)
+            logging.warning(f"Failed to get endpoint name: {e}")
             return "unknown"
 
     def get_status_code(self, response):
         try:
             return response.status_code
         except Exception as e:
-            logging.warning("Failed to get status code:", e)
+            logging.warning(f"Failed to get status code: {e}")
             return 500
 
     def get_success(self, response):
         try:
             return 200 <= response.status_code < 400
         except Exception as e:
-            logging.warning("Failed to get success:", e)
+            logging.warning(f"Failed to get success: {e}")
             return False
 
     def get_user_id_hash(self, request):
@@ -98,7 +96,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             user_id = request.headers.get("User-Id", None)
             return hash_string(user_id)
         except Exception as e:
-            logging.warning("Failed to get user id hash:", e)
+            logging.warning(f"Failed to get user id hash: {e}")
             return None
 
     def get_object_ids(self, request):
@@ -112,7 +110,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             return object_ids
         except Exception as e:
-            logging.warning("Failed to get object ids:", e)
+            logging.warning(f"Failed to get object ids: {e}")
             return {}
 
     def get_agent(self, request):
@@ -145,22 +143,24 @@ async def report_metrics(data):
 
     data["secret"] = "secret"
     print(data)
-    return
 
     if not REPORT_ENDPOINT:
         logging.error("No report endpoint set")
         return
 
-    transport = AsyncHTTPTransport(retries=5)
+    transport = AsyncHTTPTransport(retries=NUM_RETRIES)
     try:
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=data)
     except Exception as e:
-        logging.error("Failed to report metrics:", e)
+        logging.error(f"Failed to report metrics: {e}")
 
 
 def report_metrics_thread(data):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(report_metrics(data))
-    loop.close()
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(report_metrics(data))
+        loop.close()
+    except Exception as e:
+        pass
