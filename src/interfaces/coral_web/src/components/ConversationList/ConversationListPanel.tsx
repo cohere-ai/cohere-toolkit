@@ -116,10 +116,10 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
     <Transition.Child
       ref={panelRef}
       as="nav"
-      enterFrom="lg:opacity-0"
-      enterTo="lg:opacity-100"
+      enterFrom="opacity-100 lg:opacity-0"
+      enterTo="opacity-100"
       leaveFrom="lg:opacity-100"
-      leaveTo="lg:opacity-0"
+      leaveTo="opacity-100 lg:opacity-0"
       className={cn(
         'transition-opacity ease-in-out lg:duration-500',
         'flex h-full w-full flex-grow flex-col',
