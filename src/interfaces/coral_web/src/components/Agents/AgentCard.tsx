@@ -1,8 +1,10 @@
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { getIsTouchDevice } from '@/hooks/breakpoint';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -19,11 +21,20 @@ type Props = {
  * If the agent is a base agent, it shows the Coral logo instead.
  */
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
+  const isTouchDevice = getIsTouchDevice();
+  const { query } = useRouter();
+  const isActive = isBaseAgent ? !query.id : query.id === id;
+
   return (
     <Tooltip label={name} placement="right" hover={!isExpanded}>
       <Link
         href={isBaseAgent ? '/agents' : `/agents?id=${id}`}
-        className="flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:bg-marble-300"
+        className={cn(
+          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:bg-marble-300',
+          {
+            'bg-marble-300': isActive,
+          }
+        )}
         shallow
       >
         <div
@@ -61,6 +72,9 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
         >
           <KebabMenu
             anchor="right start"
+            className={cn('flex', {
+              'hidden group-hover:flex': !isTouchDevice,
+            })}
             items={[
               {
                 label: 'New chat',

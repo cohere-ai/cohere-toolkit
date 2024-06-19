@@ -15,5 +15,6 @@ export type ConversationWithoutMessages = {
   title: string;
   files: Array<File>;
   description: string | null;
+  agent_id: string | null;
   readonly total_file_size: number;
 };

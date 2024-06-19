@@ -6,7 +6,7 @@ import { cn } from '@/utils';
 type Kind = 'primary' | 'secondary' | 'tertiary' | 'minimal';
 type Theme = 'primary' | 'volcanic' | 'green';
 type Size = 'sm' | 'md' | 'lg';
-type Target = '_blank' | '_self' | '_parent' | '_top';
+export type Target = '_blank' | '_self' | '_parent' | '_top';
 type Type = 'button' | 'submit' | 'reset';
 
 export type BasicButtonProps = {

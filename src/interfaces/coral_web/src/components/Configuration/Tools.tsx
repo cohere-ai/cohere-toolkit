@@ -1,5 +1,5 @@
 import { uniq } from 'lodash';
-import React, { Fragment } from 'react';
+import React from 'react';
 
 import { Tool } from '@/cohere-client';
 import { FilesSection } from '@/components/Configuration/Files';
@@ -65,7 +65,7 @@ const ToolSection = () => {
     updateEnabledTools(updatedTools);
   };
 
-  const onToolToggle = (name: string, checked: boolean) => {
+  const handleToolToggle = (name: string, checked: boolean) => {
     const updatedTools = checked
       ? [...enabledTools, { name }]
       : enabledTools.filter((enabledTool) => enabledTool.name !== name);
@@ -107,7 +107,7 @@ const ToolSection = () => {
                   <Checkbox
                     checked={checked}
                     onChange={(e) => {
-                      onToolToggle(name, e.target.checked);
+                      handleToolToggle(name, e.target.checked);
                     }}
                     label={name}
                     name={name}
