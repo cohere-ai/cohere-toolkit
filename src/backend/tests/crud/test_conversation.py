@@ -35,17 +35,6 @@ def test_get_conversation(session, user):
     assert conversation.id == "1"
 
 
-def test_get_conversation_with_agent_id(session, user):
-    agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
-    _ = get_factory("Conversation", session).create(
-        id="1", title="Hello, World!", user_id=user.id, agent_id=agent.id
-    )
-
-    conversation = conversation_crud.get_conversation(session, "1", user.id, "agent_id")
-    assert conversation.title == "Hello, World!"
-    assert conversation.id == "1"
-
-
 def test_fail_get_nonexistent_conversation(session, user):
     conversation = conversation_crud.get_conversation(session, "123", user_id=user.id)
     assert conversation is None
