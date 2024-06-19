@@ -25,7 +25,7 @@ class JWTService:
 
         self.secret_key = secret_key
 
-    def create_and_encode_jwt(self, user: dict) -> str:
+    def create_and_encode_jwt(self, user: dict, strategy_name: str) -> str:
         """
         Creates a payload based on user info and creates a JWT token.
 
@@ -41,6 +41,7 @@ class JWTService:
             "iat": now,
             "exp": now + datetime.timedelta(hours=self.EXPIRY_HOURS),
             "jti": str(uuid.uuid4()),
+            "strategy": strategy_name,
             "context": user,
         }
 

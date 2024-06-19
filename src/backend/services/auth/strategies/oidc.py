@@ -42,6 +42,9 @@ class OpenIDConnect(BaseOAuthStrategy):
     def get_authorization_endpoint(self):
         return self.AUTHORIZATION_ENDPOINT
 
+    def get_refresh_token_params(self):
+        return None
+
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)
         endpoints = response.json()

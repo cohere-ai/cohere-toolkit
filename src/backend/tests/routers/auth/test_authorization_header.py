@@ -18,7 +18,7 @@ def test_validate_authorization_valid_token(
     session_client: TestClient,
 ):
     user = {"user_id": "test"}
-    token = JWTService().create_and_encode_jwt(user)
+    token = JWTService().create_and_encode_jwt(user, "")
 
     # Use /logout endpoint to test request validator
     response = session_client.get(
@@ -68,7 +68,7 @@ def test_validate_authorization_invalid_token():
 def test_validate_authorization_expired_token():
     user = {"user_id": "test"}
     with freezegun.freeze_time("2024-01-01 00:00:00"):
-        token = JWTService().create_and_encode_jwt(user)
+        token = JWTService().create_and_encode_jwt(user, "")
 
     request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
 
@@ -85,7 +85,7 @@ def test_validate_authorization_blacklisted_token(
     session_client: TestClient, session: Session
 ):
     user = {"user_id": "test"}
-    token = JWTService().create_and_encode_jwt(user)
+    token = JWTService().create_and_encode_jwt(user, "")
     decoded = JWTService().decode_jwt(token)
 
     # Create a Blacklist entry

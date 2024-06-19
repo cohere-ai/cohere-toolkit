@@ -46,6 +46,11 @@ def get_strategies() -> list[ListAuthStrategy]:
                     if hasattr(strategy_instance, "get_authorization_endpoint")
                     else None
                 ),
+                "refresh_token_params": (
+                    strategy_instance.get_refresh_token_params()
+                    if hasattr(strategy_instance, "get_refresh_token_params")
+                    else None
+                ),
             }
         )
 
@@ -94,7 +99,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
             detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
         )
 
-    token = JWTService().create_and_encode_jwt(user)
+    token = JWTService().create_and_encode_jwt(user, strategy_name)
 
     return {"token": token}
 
@@ -188,6 +193,6 @@ async def authorize(
     # Get or create user, then set session user
     user = get_or_create_user(session, userinfo)
 
-    token = JWTService().create_and_encode_jwt(user)
+    token = JWTService().create_and_encode_jwt(user, strategy_name)
 
     return {"token": token}

@@ -64,6 +64,14 @@ class BaseOAuthStrategy:
         ...
 
     @abstractmethod
+    def get_refresh_token_params(self, **kwargs: Any):
+        """
+        Retrieves the OAuth app's refresh token query parameters,
+        returned in dict format.
+        """
+        ...
+
+    @abstractmethod
     async def get_endpoints(self, **kwargs: Any):
         """
         Retrieves the /token and /userinfo endpoints.

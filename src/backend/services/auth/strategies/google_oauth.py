@@ -40,6 +40,9 @@ class GoogleOAuth(BaseOAuthStrategy):
     def get_authorization_endpoint(self):
         return self.AUTHORIZATION_ENDPOINT
 
+    def get_refresh_token_params(self):
+        return {"access_type": "offline", "prompt": "consent"}
+
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)
         endpoints = response.json()
@@ -68,6 +71,10 @@ class GoogleOAuth(BaseOAuthStrategy):
             authorization_response=str(request.url),
             redirect_uri=self.REDIRECT_URI,
         )
+
+        import pdb
+
+        pdb.set_trace()
         user_info = self.client.get(self.USERINFO_ENDPOINT)
 
         return user_info.json()

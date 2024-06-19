@@ -86,7 +86,7 @@ def test_login_no_payload(session_client: TestClient):
 
 def test_logout_success(session_client: TestClient, session: Session):
     user = {"user_id": "test"}
-    token = JWTService().create_and_encode_jwt(user)
+    token = JWTService().create_and_encode_jwt(user, "")
     decoded = JWTService().decode_jwt(token)
 
     response = session_client.get(
