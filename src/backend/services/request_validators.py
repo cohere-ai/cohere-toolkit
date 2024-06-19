@@ -164,7 +164,7 @@ async def validate_create_agent_request(session: DBSessionDep, request: Request)
         )
 
 
-async def validate_update_agent_request(request: Request):
+async def validate_update_agent_request(session: DBSessionDep, request: Request):
     """
     Validate that the update agent request has valid tools, deployments, and compatible models.
 
@@ -174,8 +174,22 @@ async def validate_update_agent_request(request: Request):
     Raises:
         HTTPException: If the request does not have the appropriate values in the body
     """
-    body = await request.json()
+    agent_id = request.path_params.get("agent_id")
+    if not agent_id:
+        raise HTTPException(status_code=400, detail="Agent ID is required.")
 
+    agent = agent_crud.get_agent_by_id(session, agent_id)
+    if not agent:
+        raise HTTPException(
+            status_code=400, detail=f"Agent with ID {agent_id} not found."
+        )
+
+    if agent.user_id != request.headers.get("User-Id"):
+        raise HTTPException(
+            status_code=401, detail=f"Agent with ID {agent_id} does not belong to user."
+        )
+
+    body = await request.json()
     # Validate tools
     tools = body.get("tools")
     if tools:

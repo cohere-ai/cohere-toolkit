@@ -90,7 +90,7 @@ async def get_agent_by_id(
 
     if not agent:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
@@ -127,19 +127,16 @@ async def update_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     agent = agent_crud.get_agent_by_id(session, agent_id)
-
     if not agent:
         raise HTTPException(
-            status_code=404,
-            detail=f"Agent with ID: {agent_id} not found.",
+            status_code=400,
+            detail=f"Agent with ID {agent_id} not found.",
         )
 
     try:
-        agent = agent_crud.update_agent(session, agent, new_agent)
+        return agent_crud.update_agent(session, agent, new_agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-    return agent
 
 
 @router.delete("/{agent_id}")
@@ -164,13 +161,11 @@ async def delete_agent(
 
     if not agent:
         raise HTTPException(
-            status_code=404,
-            detail=f"Agent with ID: {agent_id} not found.",
+            status_code=400,
+            detail=f"Agent with ID {agent_id} not found.",
         )
 
     try:
-        agent_crud.delete_agent(session, agent_id)
+        return agent_crud.delete_agent(session, agent_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-    return DeleteAgent()
