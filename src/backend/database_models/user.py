@@ -5,17 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 
-# user_organization_association = Table(
-#     "user_organization",
-#     Base.metadata,
-#     Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
-#     Column(
-#         "organization_id",
-#         ForeignKey("organizations.id", ondelete="CASCADE"),
-#         primary_key=True,
-#     ),
-# )
-
 
 class UserOrganizationAssociation(Base):
     __tablename__ = "user_organization"
