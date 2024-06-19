@@ -1,15 +1,7 @@
 import React from 'react';
 
 import { CreateAgent } from '@/cohere-client';
-import {
-  Checkbox,
-  Dropdown,
-  DropdownOptionGroups,
-  Input,
-  InputLabel,
-  STYLE_LEVEL_TO_CLASSES,
-} from '@/components/Shared';
-import { useModels } from '@/hooks/deployments';
+import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
@@ -33,15 +25,6 @@ export const AgentForm: React.FC<Props> = ({
   errors,
   className,
 }) => {
-  const { models } = useModels(fields.deployment);
-  const modelOptions: DropdownOptionGroups = [
-    {
-      options: models.map((model) => ({
-        label: model,
-        value: model,
-      })),
-    },
-  ];
   const { data: toolsData } = useListTools();
   const tools = toolsData?.filter((t) => t.is_available) ?? [];
 
@@ -83,14 +66,6 @@ export const AgentForm: React.FC<Props> = ({
           data-testid="input-preamble"
         />
       </InputLabel>
-      <Dropdown
-        className="w-full"
-        label="Model"
-        kind="default"
-        value={fields.model}
-        onChange={(model: string) => onChange('model', model)}
-        optionGroups={modelOptions}
-      />
       <InputLabel label="Tools" className="mb-2">
         <div className="flex flex-col gap-y-4 px-3">
           {tools.map((tool) => {
