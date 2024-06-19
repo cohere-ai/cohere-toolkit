@@ -152,5 +152,8 @@ metadata:
   labels:
     app.kubernetes.io/name: toolkit-frontend
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
-data:
-  NEXT_PUBLIC_API_HOSTNAME: "{{ required .Values.global.backend_url "global.backend_url value is required" }}"
+stringData:
+  NEXT_PUBLIC_API_HOSTNAME: "{{ required "global.backend_url value is required" .Values.global.backend_url }}"
+  {{- with $values.config }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}

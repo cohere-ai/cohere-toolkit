@@ -152,6 +152,9 @@ metadata:
   labels:
     app.kubernetes.io/name: toolkit-backend
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
-data:
+stringData:
   COHERE_API_KEY: "{{ .Values.global.cohere.api_key }}"
   DATABASE_URL: "{{ template "cohere-toolkit.database-url" $ }}"
+  {{- with $values.config }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}

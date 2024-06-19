@@ -83,6 +83,8 @@ backend:
 
   sidecars: []
 
+  config: {}
+
 frontend:
   replicaCounts: 1
 
@@ -143,3 +145,5 @@ frontend:
   initContainers: [ ]
 
   sidecars: [ ]
+
+  config: {}
