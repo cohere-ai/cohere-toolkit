@@ -26,7 +26,7 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
   } = useFilesStore();
   const { isFileInputQueuedToFocus, focusFileInput } = useFocusFileInput();
   const { files } = useFilesInConversation();
-  const { enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
+  const { enableDefaultFileLoaderTool, disableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
   useEffect(() => {
     if (isFileInputQueuedToFocus) {
@@ -77,7 +77,12 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
       newFileIds = [...(fileIds ?? []), fileId];
     }
 
-    enableDefaultFileLoaderTool();
+    if (newFileIds.length === 0) {
+      disableDefaultFileLoaderTool();
+    } else {
+      enableDefaultFileLoaderTool();
+    }
+
     setParams({ fileIds: newFileIds });
   };
 

@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react';
-import React, { createElement, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
 import { FilesTab } from '@/components/Settings/FilesTab';
@@ -13,12 +13,6 @@ import { cn } from '@/utils';
 
 // TODO(@wujessica): grab these from the agents api
 const REQUIRED_TOOLS: string[] = [];
-
-type Tab = {
-  name: string;
-  component: React.FC;
-  props?: Record<string, unknown>;
-};
 
 /**
  * @description Renders the settings drawer of the main content.
@@ -38,18 +32,18 @@ export const SettingsDrawer: React.FC = () => {
   } = useCitationsStore();
   const { files } = useFilesInConversation();
 
-  const tabs = useMemo<Tab[]>(() => {
+  const tabs = useMemo(() => {
     return files.length > 0 && conversationId
       ? [
-          { name: 'Tools', component: ToolsTab, props: { requiredTools: REQUIRED_TOOLS } },
-          { name: 'Files', component: FilesTab },
-          { name: 'Settings', component: SettingsTab },
+          { name: 'Tools', component: <ToolsTab requiredTools={REQUIRED_TOOLS} /> },
+          { name: 'Files', component: <FilesTab /> },
+          { name: 'Settings', component: <SettingsTab /> },
         ]
       : [
-          { name: 'Tools', component: ToolsTab, props: { requiredTools: REQUIRED_TOOLS } },
-          { name: 'Settings', component: SettingsTab },
+          { name: 'Tools', component: <ToolsTab requiredTools={REQUIRED_TOOLS} /> },
+          { name: 'Settings', component: <SettingsTab /> },
         ];
-  }, [files.length]);
+  }, [files.length, conversationId]);
 
   return (
     <Transition
@@ -94,7 +88,7 @@ export const SettingsDrawer: React.FC = () => {
           panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
           fitTabsContent={true}
         >
-          {tabs.map((t) => createElement(t.component, { key: t.name, ...t.props }))}
+          {tabs.map((t) => t.component)}
         </Tabs>
       </section>
     </Transition>
