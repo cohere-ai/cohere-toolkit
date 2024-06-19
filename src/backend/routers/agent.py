@@ -134,9 +134,11 @@ async def update_agent(
         )
 
     try:
-        return agent_crud.update_agent(session, agent, new_agent)
+        agent = agent_crud.update_agent(session, agent, new_agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    return agent
 
 
 @router.delete("/{agent_id}")
@@ -166,6 +168,8 @@ async def delete_agent(
         )
 
     try:
-        return agent_crud.delete_agent(session, agent_id)
+        agent_crud.delete_agent(session, agent_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    return DeleteAgent()

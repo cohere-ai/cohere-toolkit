@@ -341,7 +341,9 @@ def test_update_agent_wrong_user(session_client: TestClient, session: Session) -
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "456"}
     )
     assert response.status_code == 401
-    assert response.json() == {"detail": f"Agent with ID {agent.id} does not belong to user."}
+    assert response.json() == {
+        "detail": f"Agent with ID {agent.id} does not belong to user."
+    }
 
 
 def test_update_agent_invalid_model(
@@ -498,8 +500,6 @@ def test_delete_agent(session_client: TestClient, session: Session) -> None:
 def test_fail_delete_nonexistent_agent(
     session_client: TestClient, session: Session
 ) -> None:
-    response = session_client.delete(
-        "/v1/agents/456", headers={"User-Id": "123"}
-    )
+    response = session_client.delete("/v1/agents/456", headers={"User-Id": "123"})
     assert response.status_code == 400
     assert response.json() == {"detail": "Agent with ID 456 not found."}
