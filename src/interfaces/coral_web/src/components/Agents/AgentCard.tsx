@@ -23,12 +23,12 @@ type Props = {
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
   const { query } = useRouter();
-  const isActive = isBaseAgent ? !query.id : query.id === id;
+  const isActive = isBaseAgent ? !query.assistantId : query.assistantId === id;
 
   return (
     <Tooltip label={name} placement="right" hover={!isExpanded}>
       <Link
-        href={isBaseAgent ? '/agents' : `/agents?id=${id}`}
+        href={isBaseAgent ? '/agents' : `/agents?assistantId=${id}`}
         className={cn(
           'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:bg-marble-300',
           {
@@ -78,7 +78,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
             items={[
               {
                 label: 'New chat',
-                href: `/agents?id=${id}`,
+                href: `/agents?assistantId=${id}`,
                 iconName: 'new-message',
               },
               {

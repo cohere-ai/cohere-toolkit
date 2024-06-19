@@ -1,4 +1,4 @@
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
 import {
   useCitationsStore,
