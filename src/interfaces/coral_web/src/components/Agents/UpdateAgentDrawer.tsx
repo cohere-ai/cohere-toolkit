@@ -45,11 +45,6 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
   const canSubmit = (() => {
     const { name, deployment, model } = fields;
     const requredFields = { name, deployment, model };
-    console.debug(
-      Object.values(requredFields).every(Boolean),
-      !Object.keys(fieldErrors).length,
-      isDirty()
-    );
     return (
       Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length && isDirty()
     );
@@ -65,7 +60,7 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
         tools: agent.tools,
       });
     }
-  }, [agent, isLoading]);
+  }, [agent]);
 
   const handleClose = () => {
     setSettings({ isEditAgentDrawerOpen: false });
@@ -91,9 +86,9 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
 
     try {
       setIsSubmitting(true);
-      await updateAgent({ ...fields, agentId });
+      const newAgent = await updateAgent({ ...fields, agentId });
       setIsSubmitting(false);
-      success(`Updated ${agent?.name}`);
+      success(`Updated ${newAgent?.name}`);
     } catch (e) {
       setIsSubmitting(false);
       error(`Failed to update ${agent?.name}`);
