@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 
 import { Document } from '@/cohere-client';
 import { CitationDocument } from '@/components/Citations/CitationDocument';
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { Text } from '@/components/Shared/Text';
 import { ReservedClasses } from '@/constants';
 import { CitationStyles, useCalculateCitationTranslateY } from '@/hooks/citations';

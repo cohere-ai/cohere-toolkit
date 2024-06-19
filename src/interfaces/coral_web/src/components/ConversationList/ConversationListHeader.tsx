@@ -1,6 +1,11 @@
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
-import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
@@ -21,6 +26,7 @@ export const ConversationListHeader: React.FC<Props> = ({
   const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
 
   return (
     <header
@@ -74,6 +80,7 @@ export const ConversationListHeader: React.FC<Props> = ({
                 resetConversation();
                 resetCitations();
                 setSettings({ isMobileConvListPanelOpen: false });
+                resetFileParams();
               }}
             />
           </div>

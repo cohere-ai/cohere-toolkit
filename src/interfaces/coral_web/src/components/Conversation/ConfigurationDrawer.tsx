@@ -2,10 +2,8 @@ import { Transition } from '@headlessui/react';
 import React from 'react';
 
 import { Configuration } from '@/components/Configuration';
-import { Dot } from '@/components/Dot';
-import IconButton from '@/components/IconButton';
-import { Text } from '@/components/Shared';
-import { useIsGroundingOn } from '@/hooks/grounding';
+import { IconButton } from '@/components/IconButton';
+import { Icon, Text } from '@/components/Shared';
 import { useCitationsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -21,7 +19,6 @@ export const ConfigurationDrawer: React.FC = () => {
   const {
     citations: { hasCitations },
   } = useCitationsStore();
-  const isGroundingOn = useIsGroundingOn();
 
   return (
     <Transition
@@ -46,13 +43,13 @@ export const ConfigurationDrawer: React.FC = () => {
       <header className="flex h-header items-center gap-2 border-b border-marble-400 p-5">
         <IconButton
           iconName="close-drawer"
-          tooltipLabel="Close drawer"
+          tooltip={{ label: 'Close drawer', size: 'md' }}
           isDefaultOnHover={false}
           onClick={() => setSettings({ isConfigDrawerOpen: false })}
         />
         <span className="flex items-center gap-2">
-          <Dot on={isGroundingOn} />
-          <Text styleAs="p-lg">Tools</Text>
+          <Icon name="settings" className="text-volcanic-700" kind="outline" />
+          <Text styleAs="p-lg">Settings</Text>
         </span>
       </header>
       <Configuration />
