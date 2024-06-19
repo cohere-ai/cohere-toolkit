@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 import { EnabledDataSources } from '@/components/Conversation/Composer/EnabledDataSources';
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { IconName } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { cn } from '@/utils';
@@ -42,5 +42,7 @@ const ToolbarActionButton: React.FC<{
   icon: IconName;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
 }> = ({ tooltipLabel, icon, onClick }) => {
-  return <IconButton iconName={icon} tooltipLabel={tooltipLabel} onClick={onClick} size="sm" />;
+  return (
+    <IconButton iconName={icon} tooltip={{ label: tooltipLabel }} onClick={onClick} size="sm" />
+  );
 };

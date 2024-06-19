@@ -1,11 +1,16 @@
+import { Placement } from '@floating-ui/react';
 import React from 'react';
 
-import { BasicButton, Icon, IconName, Target, Text, Tooltip } from '@/components/Shared';
+import { BasicButton, Icon, IconName, Target, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
   iconName: IconName;
-  tooltipLabel?: React.ReactNode;
+  tooltip?: {
+    label: string;
+    size?: 'sm' | 'md';
+    placement?: Placement;
+  };
   size?: 'sm' | 'md';
   href?: string;
   target?: Target;
@@ -22,9 +27,9 @@ type Props = {
 /**
  * @description Convenience component for rendering an icon button that follows Chat UI's design patterns.
  */
-const IconButton: React.FC<Props> = ({
+export const IconButton: React.FC<Props> = ({
   iconName,
-  tooltipLabel,
+  tooltip,
   size = 'md',
   iconKind = 'outline',
   iconClassName,
@@ -70,12 +75,17 @@ const IconButton: React.FC<Props> = ({
     />
   );
 
-  return tooltipLabel ? (
-    <Tooltip label={tooltipLabel} size="sm" hover hoverDelay={{ open: 250 }}>
+  return tooltip ? (
+    <Tooltip
+      label={tooltip.label}
+      size={tooltip.size ?? 'sm'}
+      placement={tooltip.placement}
+      hover
+      hoverDelay={{ open: 250 }}
+    >
       {iconButton}
     </Tooltip>
   ) : (
     iconButton
   );
 };
-export default IconButton;
