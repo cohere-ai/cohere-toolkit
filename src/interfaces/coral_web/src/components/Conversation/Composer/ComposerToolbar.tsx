@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 import { EnabledDataSources } from '@/components/Conversation/Composer/EnabledDataSources';
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { IconName } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { cn } from '@/utils';
