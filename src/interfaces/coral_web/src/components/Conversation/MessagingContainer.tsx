@@ -164,10 +164,11 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
   ref
 ) {
   const isChatEmpty = messages.length === 0;
+
   if (isChatEmpty) {
     return (
       <div className="m-auto p-4">
-        <Welcome show={isChatEmpty} />
+        <Welcome show={isChatEmpty} isBaseAgent />
       </div>
     );
   }
