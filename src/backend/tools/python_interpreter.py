@@ -3,10 +3,13 @@ import os
 from typing import Any, Dict, Mapping
 
 import requests
+from dotenv import load_dotenv
 from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
 from backend.tools.base import BaseTool
+
+load_dotenv()
 
 
 class LangchainPythonInterpreterToolInput(BaseModel):
