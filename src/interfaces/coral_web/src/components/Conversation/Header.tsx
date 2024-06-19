@@ -132,7 +132,7 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
             iconName="new-message"
             onClick={handleNewChat}
           />
-            
+
           <IconButton
             iconName="edit"
             onClick={handleOpenAgentDrawer}

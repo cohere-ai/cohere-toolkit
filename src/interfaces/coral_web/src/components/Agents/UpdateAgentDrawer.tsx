@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import { Agent } from '@/cohere-client';
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { Button, Text } from '@/components/Shared';
 import { useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSettingsStore } from '@/stores';
