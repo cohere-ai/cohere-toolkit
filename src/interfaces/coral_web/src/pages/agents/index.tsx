@@ -9,6 +9,7 @@ import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
 import Conversation from '@/components/Conversation';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { BannerContext } from '@/context/BannerContext';
+import { useIsDesktop } from '@/hooks/breakpoint';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
@@ -30,8 +31,11 @@ const AgentsPage: NextPage<Props> = () => {
     resetConversation,
   } = useConversationStore();
   const {
-    settings: { isConvListPanelOpen },
+    settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
+
   const { resetCitations } = useCitationsStore();
   const {
     params: { deployment },
@@ -69,20 +73,35 @@ const AgentsPage: NextPage<Props> = () => {
       <MainSection>
         <div className="flex h-full">
           <Transition
-            as="div"
+            as="main"
+            show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
+            enterFrom="translate-x-full lg:translate-x-0 lg:w-0"
+            enterTo="translate-x-0 lg:w-[300px]"
+            leaveFrom="translate-x-0 lg:w-[300px]"
+            leaveTo="translate-x-full lg:translate-x-0 lg:w-0"
             className={cn(
-              'w-[300px] flex-shrink-0 border-r border-marble-400',
-              'transition-[max-width,opacity] duration-300'
+              'z-main-section flex flex-grow lg:min-w-0',
+              'absolute h-full w-full lg:static lg:h-auto',
+              'border-0 border-marble-400 md:border-r',
+              'transition-[transform, width] duration-500 ease-in-out'
             )}
-            show={isConvListPanelOpen}
-            enterFrom="opacity-0 max-w-0"
-            enterTo="opacity-100 max-w-full"
-            leaveFrom="max-w-full"
-            leaveTo="max-w-0"
           >
             <ConversationListPanel />
           </Transition>
-          <Conversation conversationId={id} startOptionsEnabled />
+          <Transition
+            as="div"
+            show={isDesktop || !isMobileConvListPanelOpen}
+            enterFrom="-translate-x-full"
+            enterTo="translate-x-0"
+            leaveFrom="translate-x-0"
+            leaveTo="-translate-x-full"
+            className={cn(
+              'flex min-w-0 flex-grow flex-col',
+              'transition-transform duration-500 ease-in-out'
+            )}
+          >
+            <Conversation conversationId={id} startOptionsEnabled />
+          </Transition>
         </div>
       </MainSection>
     </Layout>
