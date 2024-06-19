@@ -1,5 +1,6 @@
 import time
 import uuid
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -26,3 +27,4 @@ class MetricsData(MetricsDataBase):
     model: str | None = None
     error: str | None = None
     agent: dict[str, str] | None = None
+    meta: dict[str, Any] | None = None

@@ -121,9 +121,14 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         return {
             "id": request.state.agent.id,
+            "version": request.state.agent.version,
             "name": request.state.agent.name,
-            "description": request.state.agent.description,
+            "temperature": request.state.agent.temperature,
             "model": request.state.agent.model,
+            "deployment": request.state.agent.deployment,
+            "description": request.state.agent.description,
+            "preamble": request.state.agent.preamble,
+            "tools": [tool.name for tool in request.state.agent.tools],
         }
 
 
