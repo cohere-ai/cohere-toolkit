@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.organization import Organization
-from backend.database_models.user import User, user_organization_association
+from backend.database_models.user import User, UserOrganizationAssociation
 from backend.schemas.organization import UpdateOrganization
 
 
@@ -71,10 +71,10 @@ def get_organizations_by_user_id(
     return (
         db.query(Organization)
         .join(
-            user_organization_association,
-            Organization.id == user_organization_association.c.organization_id,
+            UserOrganizationAssociation,
+            Organization.id == UserOrganizationAssociation.organization_id,
         )
-        .filter(user_organization_association.c.user_id == user_id)
+        .filter(UserOrganizationAssociation.user_id == user_id)
         .limit(limit)
         .offset(offset)
         .all()
@@ -124,11 +124,10 @@ def add_user_to_organization(db: Session, user_id: str, organization_id: str) ->
         user_id (str): User ID.
         organization_id (str): Organization ID.
     """
-    db.execute(
-        user_organization_association.insert().values(
-            user_id=user_id, organization_id=organization_id
-        )
+    user_organization_association = UserOrganizationAssociation(
+        user_id=user_id, organization_id=organization_id
     )
+    db.add(user_organization_association)
     db.commit()
 
 
@@ -143,21 +142,13 @@ def remove_user_from_organization(
         user_id (str): User ID.
         organization_id (str): Organization ID.
     """
-    record = (
-        db.query(user_organization_association)
-        .filter(
-            user_organization_association.c.user_id == user_id,
-            user_organization_association.c.organization_id == organization_id,
-        )
+    user_organization_association = (
+        db.query(UserOrganizationAssociation)
+        .filter(user_id == user_id, organization_id == organization_id)
         .first()
     )
-    if record:
-        db.execute(
-            user_organization_association.delete().where(
-                user_organization_association.c.user_id == user_id,
-                user_organization_association.c.organization_id == organization_id,
-            )
-        )
+    if user_organization_association:
+        db.delete(user_organization_association)
         db.commit()
 
 
@@ -179,10 +170,10 @@ def get_users_by_organization_id(
     return (
         db.query(User)
         .join(
-            user_organization_association,
-            User.id == user_organization_association.c.user_id,
+            UserOrganizationAssociation,
+            User.id == UserOrganizationAssociation.user_id,
         )
-        .filter(user_organization_association.c.organization_id == organization_id)
+        .filter(UserOrganizationAssociation.organization_id == organization_id)
         .limit(limit)
         .offset(offset)
         .all()

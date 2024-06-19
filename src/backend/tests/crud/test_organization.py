@@ -194,3 +194,49 @@ def test_add_user_to_non_existent_organization(session):
     user = get_factory("User", session).create()
     with pytest.raises(Exception):
         organization_crud.add_user_to_organization(session, user.id, "123")
+
+
+def test_user_organization_association(session):
+    organization = get_factory("Organization", session).create(name="Test Organization")
+    user = get_factory("User", session).create(fullname="John Doe")
+    user.organizations.append(organization)
+    assert user.organizations[0].name == "Test Organization"
+
+
+def test_user_organization_association_reverse(session):
+    organization = get_factory("Organization", session).create(name="Test Organization")
+    user = get_factory("User", session).create(fullname="John Doe")
+    organization.users.append(user)
+    assert organization.users[0].fullname == "John Doe"
+
+
+def test_agent_organization_association(session):
+    organization = get_factory("Organization", session).create(name="Test Organization")
+    agent = get_factory("Agent", session).create(name="Test Agent")
+    agent.organization = organization
+    assert agent.organization.name == "Test Organization"
+
+
+def test_agent_organization_association_reverse(session):
+    organization = get_factory("Organization", session).create(name="Test Organization")
+    agent = get_factory("Agent", session).create(name="Test Agent")
+    organization.agents.append(agent)
+    assert organization.agents[0].name == "Test Agent"
+
+
+def test_conversation_organization_association(session):
+    organization = get_factory("Organization", session).create(name="Test Organization")
+    conversation = get_factory("Conversation", session).create(
+        title="Test Conversation"
+    )
+    conversation.organization = organization
+    assert conversation.organization.name == "Test Organization"
+
+
+def test_conversation_organization_association_reverse(session):
+    organization = get_factory("Organization", session).create(name="Test Organization")
+    conversation = get_factory("Conversation", session).create(
+        title="Test Conversation"
+    )
+    organization.conversations.append(conversation)
+    assert organization.conversations[0].title == "Test Conversation"
