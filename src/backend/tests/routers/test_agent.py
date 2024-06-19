@@ -368,8 +368,6 @@ def test_update_agent_invalid_model(
     response = session_client.put(
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
     )
-    print("debug")
-    print(response.json())
     assert response.status_code == 400
     assert response.json() == {
         "detail": "Model not a real model not found for deployment Cohere Platform."
