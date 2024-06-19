@@ -14,7 +14,7 @@ from starlette.responses import StreamingResponse
 from backend.chat.collate import to_dict
 from backend.schemas.metrics import MetricsData
 
-REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", "")
+REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 NUM_RETRIES = 5
 
 import time
@@ -126,7 +126,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             "deployment": request.state.agent.deployment,
             "description": request.state.agent.description,
             "preamble": request.state.agent.preamble,
-            "tools": [tool.name for tool in request.state.agent.tools],
+            "tools": request.state.agent.tools,
         }
 
 
@@ -142,11 +142,10 @@ async def report_metrics(data):
         data = to_dict(data)
 
     data["secret"] = "secret"
-    print(data)
+    logging.info(data)
 
     if not REPORT_ENDPOINT:
-        logging.error("No report endpoint set")
-        return
+        raise Exception("No report endpoint set")
 
     transport = AsyncHTTPTransport(retries=NUM_RETRIES)
     try:
@@ -157,6 +156,9 @@ async def report_metrics(data):
 
 
 def report_metrics_thread(data):
+    if not REPORT_ENDPOINT:
+        return
+
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)

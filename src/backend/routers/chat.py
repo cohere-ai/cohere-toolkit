@@ -103,6 +103,9 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
 
     (
         session,
@@ -126,6 +129,7 @@ async def chat(
             deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
+            trace_id=trace_id,
         ),
         response_message,
         conversation_id,
