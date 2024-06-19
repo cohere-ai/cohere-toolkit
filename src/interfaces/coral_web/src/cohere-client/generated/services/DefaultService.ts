@@ -825,7 +825,7 @@ export class DefaultService {
     });
   }
   /**
-   * Get Agent
+   * Get Agent By Id
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
@@ -838,7 +838,7 @@ export class DefaultService {
    * @returns Agent Successful Response
    * @throws ApiError
    */
-  public static getAgentV1AgentsAgentIdGet({
+  public static getAgentByIdV1AgentsAgentIdGet({
     agentId,
   }: {
     agentId: string;
