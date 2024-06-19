@@ -19,7 +19,7 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
 
-  const { settings, setSettings } = useSettingsStore();
+  const { setSettings } = useSettingsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
@@ -79,6 +79,7 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
   const { welcomeGuideState } = useWelcomeGuideState();
 
   const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
   const { menuItems, handleNewChat, handleOpenSettings } = useHeaderMenu({
     conversationId: id,
   });
@@ -93,7 +94,7 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
             'relative flex min-w-0 flex-grow items-center gap-x-1 overflow-hidden py-4'
           )}
         >
-          {(!isDesktop || !isConvListPanelOpen) && (
+          {(isMobile || !isConvListPanelOpen) && (
             <Transition
               show={true}
               appear
@@ -104,14 +105,11 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
               as="div"
-              className={cn({
-                'lg:hidden': isConvListPanelOpen,
-              })}
             >
               <IconButton
                 iconName="side-panel"
                 onClick={() => {
-                  setSettings({ isConfigDrawerOpen: false });
+                  setSettings({ isConfigDrawerOpen: false, isAgentsSidePanelOpen: false });
                   setIsConvListPanelOpen(true);
                 }}
               />
