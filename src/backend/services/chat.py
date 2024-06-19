@@ -105,9 +105,10 @@ def process_chat(
     file_paths = None
     if isinstance(chat_request, CohereChatRequest):
         file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
-        attach_files_to_messages(
-            session, user_id, user_message.id, chat_request.file_ids
-        )
+        if should_store:
+            attach_files_to_messages(
+                session, user_id, user_message.id, chat_request.file_ids
+            )
 
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request
