@@ -26,7 +26,7 @@ router.name = RouterName.AGENT
         Depends(validate_create_agent_request),
     ],
 )
-def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request):
+def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
     user_id = get_header_user_id(request)
 
     agent_data = AgentModel(
@@ -40,7 +40,10 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request):
         tools=agent.tools,
     )
 
-    return agent_crud.create_agent(session, agent_data)
+    try:
+        return agent_crud.create_agent(session, agent_data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("", response_model=list[Agent])
@@ -59,11 +62,16 @@ async def list_agents(
     Returns:
         list[Agent]: List of agents.
     """
-    return agent_crud.get_agents(session, offset=offset, limit=limit)
+    try:
+        return agent_crud.get_agents(session, offset=offset, limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/{agent_id}", response_model=Agent)
-async def get_agent(agent_id: str, session: DBSessionDep, request: Request) -> Agent:
+async def get_agent_by_id(
+    agent_id: str, session: DBSessionDep, request: Request
+) -> Agent:
     """
     Args:
         agent_id (str): Agent ID.
@@ -75,7 +83,10 @@ async def get_agent(agent_id: str, session: DBSessionDep, request: Request) -> A
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    agent = agent_crud.get_agent(session, agent_id)
+    try:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     if not agent:
         raise HTTPException(
@@ -115,7 +126,7 @@ async def update_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    agent = agent_crud.get_agent(session, agent_id)
+    agent = agent_crud.get_agent_by_id(session, agent_id)
 
     if not agent:
         raise HTTPException(
@@ -123,7 +134,10 @@ async def update_agent(
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
-    agent = agent_crud.update_agent(session, agent, new_agent)
+    try:
+        agent = agent_crud.update_agent(session, agent, new_agent)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return agent
 
@@ -146,7 +160,7 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    agent = agent_crud.get_agent(session, agent_id)
+    agent = agent_crud.get_agent_by_id(session, agent_id)
 
     if not agent:
         raise HTTPException(
@@ -154,6 +168,9 @@ async def delete_agent(
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
-    agent_crud.delete_agent(session, agent_id)
+    try:
+        agent_crud.delete_agent(session, agent_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return DeleteAgent()

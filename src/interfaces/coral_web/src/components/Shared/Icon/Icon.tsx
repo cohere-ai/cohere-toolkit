@@ -1,8 +1,8 @@
 import cx from 'classnames';
 
 export const Icons = [
-  'add-in-frame',
   'add',
+  'add-in-frame',
   'arrow-down',
   'arrow-left',
   'arrow-right',
@@ -77,6 +77,8 @@ export const Icons = [
   'warning',
   'web',
   'compass',
+  'wrench',
+  'share',
 ] as const;
 
 export type IconName = (typeof Icons)[number];

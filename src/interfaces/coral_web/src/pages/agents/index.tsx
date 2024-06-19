@@ -40,6 +40,7 @@ const AgentsPage: NextPage<Props> = () => {
   const {
     params: { deployment },
     setParams,
+    resetFileParams,
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
   const { data: experimentalFeatures } = useExperimentalFeatures();
@@ -49,6 +50,7 @@ const AgentsPage: NextPage<Props> = () => {
   useEffect(() => {
     resetConversation();
     resetCitations();
+    resetFileParams();
   }, []);
 
   useEffect(() => {

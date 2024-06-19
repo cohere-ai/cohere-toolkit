@@ -331,3 +331,10 @@
 .icon-compass:before {
   content: '\e94b';
 }
+
+.icon-wrench:before {
+  content: '\e94c';
+}
+.icon-share:before {
+  content: '\e94d';
+}
