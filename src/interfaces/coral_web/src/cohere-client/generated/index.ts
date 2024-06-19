@@ -47,11 +47,13 @@ export type { StreamSearchQueriesGeneration } from './models/StreamSearchQueries
 export type { StreamSearchResults } from './models/StreamSearchResults';
 export type { StreamStart } from './models/StreamStart';
 export type { StreamTextGeneration } from './models/StreamTextGeneration';
+export type { StreamToolCallsChunk } from './models/StreamToolCallsChunk';
 export type { StreamToolCallsGeneration } from './models/StreamToolCallsGeneration';
 export type { StreamToolInput } from './models/StreamToolInput';
 export type { StreamToolResult } from './models/StreamToolResult';
 export type { Tool } from './models/Tool';
 export type { ToolCall } from './models/ToolCall';
+export type { ToolCallDelta } from './models/ToolCallDelta';
 export { ToolInputType } from './models/ToolInputType';
 export type { UpdateAgent } from './models/UpdateAgent';
 export type { UpdateConversation } from './models/UpdateConversation';

@@ -1,3 +1,5 @@
+import { FILE_TOOL_CATEGORY, ManagedTool } from '@/cohere-client';
+
 /**
  * Gets the file extension from its name.
  * @param filename
@@ -36,3 +38,9 @@ export const getFileUploadTimeEstimateInMs = (fileSizeInBytes: number) => {
   // This equation estimates upload speed based on some existing data points with various file sizes.
   return ((3.51 * fileSizeInBytes) / 1000000 - 0.3) * 1000;
 };
+
+/**
+ * @description Determines if a tool is the default file loader tool.
+ */
+export const isDefaultFileLoaderTool = (t: ManagedTool) =>
+  t.category === FILE_TOOL_CATEGORY && t.is_visible;

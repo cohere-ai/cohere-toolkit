@@ -137,7 +137,7 @@ export class DefaultService {
   }
   /**
    * Logout
-   * Logs out the current user.
+   * Logs out the current user, adding the given JWT token to the blacklist.
    *
    * Args:
    * request (Request): current Request object.
@@ -502,6 +502,7 @@ export class DefaultService {
    * Args:
    * offset (int): Offset to start the list.
    * limit (int): Limit of conversations to be listed.
+   * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
    *
@@ -513,9 +514,11 @@ export class DefaultService {
   public static listConversationsV1ConversationsGet({
     offset,
     limit = 100,
+    agentId,
   }: {
     offset?: number;
     limit?: number;
+    agentId?: string;
   }): CancelablePromise<Array<ConversationWithoutMessages>> {
     return __request(OpenAPI, {
       method: 'GET',
@@ -523,6 +526,7 @@ export class DefaultService {
       query: {
         offset: offset,
         limit: limit,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,

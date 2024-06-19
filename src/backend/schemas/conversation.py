@@ -20,6 +20,7 @@ class Conversation(ConversationBase):
     messages: List[Message]
     files: List[File]
     description: Optional[str]
+    agent_id: Optional[str]
 
     @computed_field(return_type=int)
     def total_file_size(self):

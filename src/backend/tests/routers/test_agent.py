@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.tests.factories import get_factory
@@ -180,6 +180,19 @@ def test_create_agent_invalid_tool(
     assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
+def test_create_existing_agent(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(name="test agent")
+    request_json = {
+        "name": agent.name,
+    }
+
+    response = session_client.post(
+        "/v1/agents", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Agent test agent already exists."}
+
+
 def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/agents", headers={"User-Id": "123"})
     assert response.status_code == 200
@@ -258,8 +271,6 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
     )
 
-    print("DEBUGGG")
-    print(response.json())
     assert response.status_code == 200
     updated_agent = response.json()
     assert updated_agent["name"] == "updated name"

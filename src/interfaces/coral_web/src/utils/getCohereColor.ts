@@ -1,10 +1,10 @@
 export const COLOR_LIST = [
   'bg-quartz-500',
-  'bg-green-500',
-  'bg-primary-500',
+  'bg-green-400',
+  'bg-primary-400',
   'bg-quartz-700',
   'bg-green-700',
-  'bg-primary-700',
+  'bg-primary-500',
 ];
 
 /**
@@ -18,7 +18,7 @@ export const getCohereColor = (id?: string) => {
 
     return COLOR_LIST[randomIndex];
   }
-
-  const index = id.charCodeAt(0) % COLOR_LIST.length;
+  const idNumber = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const index = idNumber % COLOR_LIST.length;
   return COLOR_LIST[index];
 };
