@@ -6,7 +6,7 @@ import { getCohereColor } from '@/utils/getCohereColor';
 
 type Props = {
   name: string;
-  description: string;
+  description?: string;
   isBaseAgent?: boolean;
   id?: string;
 };

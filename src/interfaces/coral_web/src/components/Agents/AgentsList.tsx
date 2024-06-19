@@ -30,16 +30,6 @@ export const AgentsList: React.FC = () => {
       </Transition>
 
       <AgentCard isExpanded={isAgentsSidePanelOpen} name="Command R+" isBaseAgent />
-      <AgentCard
-        isExpanded={isAgentsSidePanelOpen}
-        name="HR Policy Advisor"
-        id="hr-policy-advisor-01"
-      />
-      <AgentCard
-        isExpanded={isAgentsSidePanelOpen}
-        name="Financial Advisor"
-        id="financial-advisor-01"
-      />
       {agents?.map((agent) => (
         <AgentCard
           key={agent.id}
