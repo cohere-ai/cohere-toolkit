@@ -85,7 +85,9 @@ def process_chat(
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-        chat_request.model = agent.model
+        # NOTE TEMPORARY: we do not set a the model for now and just use the default model
+        chat_request.model = None
+        # chat_request.model = agent.model
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
