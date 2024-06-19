@@ -13,7 +13,7 @@ import {
 } from '@/components/Shared/Button/MinimalButton';
 import { cn } from '@/utils';
 
-type CellButtonKind = 'primary' | 'primaryOutline' | 'danger' | 'volcanic';
+type CellButtonKind = 'primary' | 'primaryOutline' | 'danger' | 'volcanic' | 'green';
 export type ButtonKind = CellButtonKind | 'secondary';
 
 const BUTTON_KIND_THEMES: Record<CellButtonKind, CellButtonTheme> = {
@@ -50,6 +50,15 @@ const BUTTON_KIND_THEMES: Record<CellButtonKind, CellButtonTheme> = {
     theme: 'volcanic',
     hoverTheme: 'volcanic',
     focusTheme: 'volcanicLight',
+    disabledTheme: 'gray',
+    leftCell: false,
+    rightCell: true,
+  },
+  green: {
+    cellKind: 'default',
+    theme: 'green',
+    hoverTheme: 'green',
+    focusTheme: 'green',
     disabledTheme: 'gray',
     leftCell: false,
     rightCell: true,

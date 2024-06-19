@@ -1,7 +1,5 @@
-import { useMemo } from 'react';
-
 import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
-import { useListAllDeployments } from '@/hooks/deployments';
+import { useModels } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSettingsDefaults } from '@/hooks/settings';
 import { useParamsStore } from '@/stores';
@@ -12,25 +10,21 @@ import { cn } from '@/utils';
  */
 export const Settings: React.FC = () => {
   const {
-    params: { temperature, preamble, deployment, model },
+    params: { deployment, temperature, preamble, model },
     setParams,
   } = useParamsStore();
   const defaults = useSettingsDefaults();
-  const { data: deployments = [] } = useListAllDeployments();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const modelOptions = useMemo(() => {
-    const selectedDeployment = deployments?.find(({ name }) => name === deployment);
-    if (!selectedDeployment) return [];
-    return [
-      {
-        options: selectedDeployment.models.map((model) => ({
-          label: model,
-          value: model,
-        })),
-      },
-    ];
-  }, [deployment]);
+  const { models } = useModels(deployment ?? '');
+  const modelOptions = [
+    {
+      options: models.map((model) => ({
+        label: model,
+        value: model,
+      })),
+    },
+  ];
 
   const reset = () => {
     setParams({
