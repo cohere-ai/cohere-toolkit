@@ -23,7 +23,7 @@ def create_agent(db: Session, agent: Agent) -> Agent:
     return agent
 
 
-def get_agent(db: Session, agent_id: str) -> Agent:
+def get_agent_by_id(db: Session, agent_id: str) -> Agent:
     """
     Get an agent by its ID.
 
@@ -35,6 +35,20 @@ def get_agent(db: Session, agent_id: str) -> Agent:
       Agent: Agent with the given ID.
     """
     return db.query(Agent).filter(Agent.id == agent_id).first()
+
+
+def get_agent_by_name(db: Session, agent_name: str) -> Agent:
+    """
+    Get an agent by its name.
+
+    Args:
+      db (Session): Database session.
+      agent_name (str): Agent name.
+
+    Returns:
+      Agent: Agent with the given name.
+    """
+    return db.query(Agent).filter(Agent.name == agent_name).first()
 
 
 def get_agents(db: Session, offset: int = 0, limit: int = 100) -> list[Agent]:
