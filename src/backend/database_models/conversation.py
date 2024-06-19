@@ -1,9 +1,8 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.database_models.agent import Agent
 from backend.database_models.base import Base
 from backend.database_models.file import File
 from backend.database_models.message import Message
@@ -21,6 +20,13 @@ class Conversation(Base):
     files: Mapped[List["File"]] = relationship()
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=True
+    )
+    organization_id: Mapped[Optional[str]] = mapped_column(
+        ForeignKey(
+            "organizations.id",
+            name="conversations_organization_id_fkey",
+            ondelete="CASCADE",
+        )
     )
 
     @property

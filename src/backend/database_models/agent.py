@@ -1,6 +1,6 @@
-from enum import StrEnum
+from typing import Optional
 
-from sqlalchemy import Enum, Float, Integer, Text, UniqueConstraint
+from sqlalchemy import Float, ForeignKey, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -28,5 +28,10 @@ class Agent(Base):
     )
 
     user_id: Mapped[str] = mapped_column(Text, nullable=False)
+    organization_id: Mapped[Optional[str]] = mapped_column(
+        ForeignKey(
+            "organizations.id", name="agents_organization_id_fkey", ondelete="CASCADE"
+        )
+    )
 
     __table_args__ = (UniqueConstraint("name", "version", name="_name_version_uc"),)
