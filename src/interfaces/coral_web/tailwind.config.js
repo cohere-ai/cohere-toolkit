@@ -32,6 +32,9 @@ module.exports = {
         'citation-lg': '298px',
         'citation-xl': '320px',
         file: '224px',
+        'agent-drawer': '350px',
+        'agent-drawer-lg': '500px',
+        'agent-drawer-2xl': '650px',
       },
       maxWidth: {
         'modal-xs': '352px',
@@ -44,8 +47,6 @@ module.exports = {
         message: '976px',
         drawer: '288px',
         'drawer-lg': '360px',
-        'agent-drawer': '600px',
-        'agent-drawer-lg': '685px',
         'left-panel-lg': '242px',
         'left-panel-2xl': '300px',
         'left-panel-3xl': '360px',

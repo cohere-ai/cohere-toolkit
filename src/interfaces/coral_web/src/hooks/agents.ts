@@ -56,7 +56,8 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
  */
 export const useIsAgentNameUnique = () => {
   const { data: agents } = useListAgents();
-  return (name: string) => !agents?.some((agent) => agent.name === name);
+  return (name: string, omittedAgentId?: string) =>
+    !agents?.some((agent) => agent.name === name && agent.id !== omittedAgentId);
 };
 
 export const useUpdateAgent = () => {
@@ -71,7 +72,8 @@ export const useUpdateAgent = () => {
         throw e;
       }
     },
-    onSettled: () => {
+    onSettled: (agent) => {
+      queryClient.invalidateQueries({ queryKey: ['agent', agent?.id] });
       queryClient.invalidateQueries({ queryKey: ['listAgents'] });
     },
   });

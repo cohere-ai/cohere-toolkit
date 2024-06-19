@@ -13,6 +13,7 @@ type Props = {
   onChange: (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean) => void;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
+  disabled?: boolean;
   className?: string;
 };
 /**
@@ -23,6 +24,7 @@ export const AgentForm: React.FC<Props> = ({
   onChange,
   onToolToggle,
   errors,
+  disabled,
   className,
 }) => {
   const { data: toolsData } = useListTools();
@@ -38,6 +40,10 @@ export const AgentForm: React.FC<Props> = ({
           onChange={(e) => onChange('name', e.target.value)}
           hasError={!!errors?.name}
           errorText={errors?.name}
+          disabled={disabled}
+          className={cn({
+            'border-marble-500 bg-marble-300': disabled,
+          })}
         />
       </InputLabel>
       <InputLabel label="description" className="pb-2">
@@ -46,6 +52,10 @@ export const AgentForm: React.FC<Props> = ({
           value={fields.description ?? ''}
           placeholder="What does your assistant do?"
           onChange={(e) => onChange('description', e.target.value)}
+          disabled={disabled}
+          className={cn({
+            'border-marble-500 bg-marble-300': disabled,
+          })}
         />
       </InputLabel>
       <InputLabel label="Preamble">
@@ -59,11 +69,16 @@ export const AgentForm: React.FC<Props> = ({
             'bg-marble-100',
             'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+            'disabled:text-volcanic-700',
+            {
+              'border-marble-500 bg-marble-300': disabled,
+            },
             STYLE_LEVEL_TO_CLASSES.p
           )}
           rows={5}
           onChange={(e) => onChange('preamble', e.target.value)}
           data-testid="input-preamble"
+          disabled={disabled}
         />
       </InputLabel>
       <InputLabel label="Tools" className="mb-2">
@@ -78,6 +93,7 @@ export const AgentForm: React.FC<Props> = ({
                 label={tool.name}
                 checked={checked}
                 onChange={(e) => onToolToggle(tool.name, e.target.checked)}
+                disabled={disabled}
               />
             );
           })}
