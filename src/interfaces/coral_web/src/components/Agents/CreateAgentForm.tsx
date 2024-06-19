@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
-import { DEPLOYMENT_COHERE_PLATFORM, MODEL_COMMMAND_R_PLUS } from '@/constants';
+import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -27,7 +27,7 @@ export const CreateAgentForm: React.FC = () => {
     description: '',
     preamble,
     deployment: DEPLOYMENT_COHERE_PLATFORM,
-    model: MODEL_COMMMAND_R_PLUS,
+    model: DEFAULT_AGENT_MODEL,
     tools: [],
   });
 
@@ -85,7 +85,7 @@ export const CreateAgentForm: React.FC = () => {
       });
       close();
       setIsSubmitting(false);
-      router.push(`/agents?id=${agent.id}`, undefined, { shallow: true });
+      router.push(`/agents?assistantId=${agent.id}`, undefined, { shallow: true });
     } catch (e) {
       setIsSubmitting(false);
       close();
@@ -126,8 +126,8 @@ const SubmitModalContent: React.FC<{
 }> = ({ agentName, isSubmitting, onSubmit, onClose }) => (
   <div className="flex flex-col gap-y-20">
     <Text>
-      Your {agentName} is about be visible publicly. Everyone in your organization will be able to
-      see and use it.
+      Your assistant {agentName} is about be visible publicly. Everyone in your organization will be
+      able to see and use it.
     </Text>
     <div className="flex justify-between">
       <Button kind="secondary" onClick={onClose}>

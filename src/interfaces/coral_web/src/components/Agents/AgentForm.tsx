@@ -1,7 +1,14 @@
 import React from 'react';
 
 import { CreateAgent } from '@/cohere-client';
-import { Checkbox, Dropdown, DropdownOptionGroups, Input, InputLabel } from '@/components/Shared';
+import {
+  Checkbox,
+  Dropdown,
+  DropdownOptionGroups,
+  Input,
+  InputLabel,
+  STYLE_LEVEL_TO_CLASSES,
+} from '@/components/Shared';
 import { useModels } from '@/hooks/deployments';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
@@ -68,7 +75,8 @@ export const AgentForm: React.FC<Props> = ({
             'rounded-lg border',
             'bg-marble-100',
             'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
-            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
+            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+            STYLE_LEVEL_TO_CLASSES.p
           )}
           rows={5}
           onChange={(e) => onChange('preamble', e.target.value)}
