@@ -172,7 +172,7 @@ ALL_TOOLS = {
                 "description": "Query to search the webpage for.",
                 "type": "str",
                 "required": False,
-            }
+            },
         },
         is_visible=True,
         is_available=WebScrapeTool.is_available(),

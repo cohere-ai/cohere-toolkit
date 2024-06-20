@@ -6,7 +6,6 @@ from backend.tools.python_interpreter import PythonInterpreter
 from backend.tools.tavily import TavilyInternetSearch
 from backend.tools.web_scrape import WebScrapeTool
 
-
 __all__ = [
     "Calculator",
     "PythonInterpreter",
