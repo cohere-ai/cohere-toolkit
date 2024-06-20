@@ -11,10 +11,6 @@ import { useAuthConfig } from '@/hooks/authConfig';
  */
 export const useOidcAuthRoute = () => {
   const authConfig = useAuthConfig();
-  // const googleStrategy: { strategy: string, clientId: string } = authConfig.login.find((strategy) => strategy.strategy === 'Google') || {
-  //   strategy: "Google",
-  //   clientId: "fakeClientId"
-  // };
 
   if (!authConfig.login) {
     throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
