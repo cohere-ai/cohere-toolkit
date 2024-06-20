@@ -1,16 +1,19 @@
-import os
 import logging
+import os
 from typing import Any, Dict, List
-from compass_sdk import CompassDocument
-from compass_sdk import ParserConfig, MetadataConfig
-from compass_sdk.parser import CompassParserClient
+
+from compass_sdk import MetadataConfig, ParserConfig
 from compass_sdk.compass import CompassClient
+from compass_sdk.parser import CompassParserClient
+
 from backend.tools.base import BaseTool
 
 logger = logging.getLogger()
 
+
 class CompassTool(BaseTool):
     """Tool to interact with a Compass instance."""
+
     @classmethod
     def is_available(cls) -> bool:
         vars = [
@@ -21,14 +24,14 @@ class CompassTool(BaseTool):
         return all(os.getenv(var) is not None for var in vars)
 
     def __init__(
-            self,
-            compass_url=None,
-            compass_username=None,
-            compass_password=None,
-            metadata_config=MetadataConfig(),
-            parser_config=ParserConfig(),
-        ):
-        """Initialize the Compass tool. Pass the Compass URL, username, and password 
+        self,
+        compass_url=None,
+        compass_username=None,
+        compass_password=None,
+        metadata_config=MetadataConfig(),
+        parser_config=ParserConfig(),
+    ):
+        """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
         self.url = compass_url or os.getenv("COHERE_COMPASS_URL")
         self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
@@ -40,7 +43,7 @@ class CompassTool(BaseTool):
             # to check if the credentials are correct.
             self.parser_client = CompassParserClient(
                 parser_url=self.url + "/parse",
-                parser_config=self.username,
+                username=self.username,
                 password=self.password,
                 parser_config=self.parser_config,
                 metadata_config=self.metadata_config,
@@ -52,9 +55,7 @@ class CompassTool(BaseTool):
             )
             self.compass_client.list_indexes()
         except Exception as e:
-            logger.exception(
-                f"Compass Tool: Error initializing Compass client: {e}"
-            )
+            logger.exception(f"Compass Tool: Error initializing Compass client: {e}")
             raise e
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
@@ -77,8 +78,13 @@ class CompassTool(BaseTool):
             return
         # Check if action is valid
         valid_actions = [
-            "list_indexes", "create_index", "delete_index",
-            "create", "search", "update", "delete"
+            "list_indexes",
+            "create_index",
+            "delete_index",
+            "create",
+            "search",
+            "update",
+            "delete",
         ]
         if parameters["action"] not in valid_actions:
             logger.error(
@@ -99,7 +105,7 @@ class CompassTool(BaseTool):
         if parameters["action"] == "list_indexes":
             return self.compass_client.list_indexes()
         elif parameters["action"] == "create_index":
-            return self.compass_client.create_index(index_name=parameters["index"])            
+            return self.compass_client.create_index(index_name=parameters["index"])
         elif parameters["action"] == "delete_index":
             return self.compass_client.delete_index(index_name=parameters["index"])
         # Check if file_id is specified for file-related actions
@@ -141,14 +147,16 @@ class CompassTool(BaseTool):
             )
             return None
         parser_config = self.parser_config or parameters.get("parser_config", None)
-        metadata_config = self.metadata_config or parameters.get("metadata_config", None)
+        metadata_config = self.metadata_config or parameters.get(
+            "metadata_config", None
+        )
         return self.parser_client.process_file(
             file_path=file_path,
             file_id=parameters["file_id"],
             parser_config=parser_config,
             metadata_config=metadata_config,
             custom_context=parameters.get("custom_context", None),
-            is_dataset=False
+            is_dataset=False,
         )
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
@@ -158,8 +166,7 @@ class CompassTool(BaseTool):
             # Parsing failed
             return
         error = self.compass_client.insert_docs(
-            index_name=parameters["index"],
-            docs=compass_docs
+            index_name=parameters["index"], docs=compass_docs
         )
         if error is not None:
             logger.error(
@@ -173,8 +180,7 @@ class CompassTool(BaseTool):
         if not parameters.get("query", None):
             logger.error(
                 "Compass Tool: No search query specified. ",
-                "Returning empty list. "
-                "Parameters specified: {parameters}"
+                "Returning empty list. " "Parameters specified: {parameters}",
             )
             return []
         return self.compass_client.search(
@@ -192,6 +198,5 @@ class CompassTool(BaseTool):
     def _delete(self, parameters: dict, **kwargs: Any) -> None:
         """Delete file from Compass"""
         self.compass_client.delete_document(
-            index_name=parameters["index"],
-            doc_id=parameters["file_id"]
+            index_name=parameters["index"], doc_id=parameters["file_id"]
         )
