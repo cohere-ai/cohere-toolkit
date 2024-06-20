@@ -5,8 +5,10 @@ import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
+import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
+import { useSession } from '@/hooks/session';
 import {
   useCitationsStore,
   useConversationStore,
@@ -15,11 +17,23 @@ import {
 } from '@/stores';
 import { cn } from '@/utils';
 
-const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
+const useHeaderMenu = ({
+  conversationId,
+  agentId,
+}: {
+  conversationId?: string;
+  agentId?: string;
+}) => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const { userId } = useSession();
+  const { data: agent } = useAgent({ agentId });
+  const isAgentCreator = userId === agent?.user_id;
 
-  const { setSettings } = useSettingsStore();
+  const {
+    settings: { isEditAgentPanelOpen },
+    setSettings,
+  } = useSettingsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
@@ -28,7 +42,7 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
   const handleNewChat = () => {
     const assistantId = router.query.assistantId;
 
-    const url = assistantId ? `/?assistantId=${assistantId}` : '/';
+    const url = assistantId ? `/agents/?assistantId=${assistantId}` : '/agents';
     router.push(url, undefined, { shallow: true });
     resetConversation();
     resetCitations();
@@ -45,7 +59,20 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
     }
   };
 
+  const handleOpenAgentDrawer = () => {
+    setSettings({ isEditAgentPanelOpen: !isEditAgentPanelOpen });
+  };
+
   const menuItems: KebabMenuItem[] = [
+    ...(!!agent
+      ? [
+          {
+            label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+            iconName: isAgentCreator ? 'edit' : 'information',
+            onClick: handleOpenAgentDrawer,
+          } as KebabMenuItem,
+        ]
+      : []),
     {
       label: 'Settings',
       iconName: 'settings',
@@ -58,15 +85,16 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
     },
   ];
 
-  return { menuItems, handleNewChat, handleOpenSettings };
+  return { menuItems, isAgentCreator, handleNewChat, handleOpenSettings, handleOpenAgentDrawer };
 };
 
 type Props = {
   isStreaming?: boolean;
   conversationId?: string;
+  agentId?: string;
 };
 
-export const Header: React.FC<Props> = ({ isStreaming }) => {
+export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
   const {
     conversation: { id, name },
   } = useConversationStore();
@@ -80,9 +108,11 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
 
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-  const { menuItems, handleNewChat, handleOpenSettings } = useHeaderMenu({
-    conversationId: id,
-  });
+  const { menuItems, isAgentCreator, handleNewChat, handleOpenSettings, handleOpenAgentDrawer } =
+    useHeaderMenu({
+      conversationId: id,
+      agentId,
+    });
 
   return (
     <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-400')}>
@@ -127,7 +157,6 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
             className="hidden md:flex"
             iconName="new-message"
             onClick={handleNewChat}
-            disabled={isStreaming}
           />
           <div className="relative">
             <IconButton
@@ -144,6 +173,16 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
               })}
             />
           </div>
+          <IconButton
+            tooltip={{
+              label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+              placement: 'bottom-end',
+              size: 'md',
+            }}
+            iconName={isAgentCreator ? 'edit' : 'information'}
+            onClick={handleOpenAgentDrawer}
+            className={cn('hidden', { 'md:flex': !!agentId })}
+          />
         </span>
       </div>
     </div>

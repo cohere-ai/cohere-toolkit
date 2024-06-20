@@ -1,5 +1,7 @@
+import { Transition } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
+import { UpdateAgentPanel } from '@/components/Agents/UpdateAgentPanel';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
@@ -26,7 +28,7 @@ import { ChatMessage } from '@/types/message';
 type Props = {
   startOptionsEnabled?: boolean;
   conversationId?: string;
-  assistantId?: string;
+  agentId?: string;
   history?: ChatMessage[];
 };
 
@@ -36,7 +38,7 @@ type Props = {
  */
 const Conversation: React.FC<Props> = ({
   conversationId,
-  assistantId,
+  agentId,
   startOptionsEnabled = false,
 }) => {
   const chatHotKeys = useChatHotKeys();
@@ -59,6 +61,9 @@ const Conversation: React.FC<Props> = ({
     params: { fileIds },
   } = useParamsStore();
   const {
+    settings: { isEditAgentPanelOpen },
+  } = useSettingsStore();
+  const {
     files: { composerFiles },
   } = useFilesStore();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
@@ -75,8 +80,8 @@ const Conversation: React.FC<Props> = ({
     handleRetry,
   } = useChat({
     onSend: () => {
-      if (assistantId) {
-        addRecentAgentId(assistantId);
+      if (agentId) {
+        addRecentAgentId(agentId);
       }
       if (isConfigDrawerOpen) setSettings({ isConfigDrawerOpen: false });
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
@@ -146,36 +151,52 @@ const Conversation: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <HotKeysProvider customHotKeys={chatHotKeys} />
-      <Header conversationId={conversationId} isStreaming={isStreaming} />
+    <div className="flex h-full w-full">
+      <div className="flex h-full w-full flex-col">
+        <HotKeysProvider customHotKeys={chatHotKeys} />
+        <Header conversationId={conversationId} agentId={agentId} isStreaming={isStreaming} />
 
-      <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
-        <MessagingContainer
-          conversationId={conversationId}
-          startOptionsEnabled={startOptionsEnabled}
-          isStreaming={isStreaming}
-          onRetry={handleRetry}
-          messages={messages}
-          streamingMessage={streamingMessage}
-          composer={
-            <>
-              <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
-              <Composer
-                isStreaming={isStreaming}
-                value={userMessage}
-                isFirstTurn={messages.length === 0}
-                streamingMessage={streamingMessage}
-                chatWindowRef={chatWindowRef}
-                onChange={(message) => setUserMessage(message)}
-                onSend={handleSend}
-                onStop={handleStop}
-                onUploadFile={handleUploadFile}
-              />
-            </>
-          }
-        />
+        <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
+          <MessagingContainer
+            conversationId={conversationId}
+            startOptionsEnabled={startOptionsEnabled}
+            isStreaming={isStreaming}
+            onRetry={handleRetry}
+            messages={messages}
+            streamingMessage={streamingMessage}
+            composer={
+              <>
+                <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
+                <Composer
+                  isStreaming={isStreaming}
+                  value={userMessage}
+                  isFirstTurn={messages.length === 0}
+                  streamingMessage={streamingMessage}
+                  chatWindowRef={chatWindowRef}
+                  onChange={(message) => setUserMessage(message)}
+                  onSend={handleSend}
+                  onStop={handleStop}
+                  onUploadFile={handleUploadFile}
+                />
+              </>
+            }
+          />
+        </div>
       </div>
+
+      <Transition
+        show={isEditAgentPanelOpen}
+        as="div"
+        className="z-configuration-drawer h-auto border-l border-marble-400"
+        enter="transition-all ease-in-out duration-300"
+        enterFrom="w-0"
+        enterTo="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
+        leave="transition-all ease-in-out duration-300"
+        leaveFrom="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
+        leaveTo="w-0"
+      >
+        <UpdateAgentPanel agentId={agentId} />
+      </Transition>
     </div>
   );
 };

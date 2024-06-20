@@ -34,11 +34,10 @@ const AgentsPage: NextPage<Props> = () => {
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
+  const router = useRouter();
+  const agentId = router.query.assistantId as string | undefined;
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-
-  const { query } = useRouter();
-  const assistantId = query.assistantId as string | undefined;
 
   const { resetCitations } = useCitationsStore();
   const {
@@ -106,7 +105,7 @@ const AgentsPage: NextPage<Props> = () => {
               'transition-transform duration-500 ease-in-out'
             )}
           >
-            <Conversation conversationId={id} assistantId={assistantId} startOptionsEnabled />
+            <Conversation conversationId={id} agentId={agentId} startOptionsEnabled />
           </Transition>
         </div>
       </MainSection>
