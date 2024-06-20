@@ -15,6 +15,7 @@ import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useRouteChange } from '@/hooks/route';
 import {
+  useAgentsStore,
   useCitationsStore,
   useConversationStore,
   useFilesStore,
@@ -68,6 +69,8 @@ const Conversation: React.FC<Props> = ({
   } = useFilesStore();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
+  const { addRecentAgentId } = useAgentsStore();
+
   const {
     userMessage,
     isStreaming,
@@ -78,6 +81,9 @@ const Conversation: React.FC<Props> = ({
     handleRetry,
   } = useChat({
     onSend: () => {
+      if (agentId) {
+        addRecentAgentId(agentId);
+      }
       if (isConfigDrawerOpen) setSettings({ isConfigDrawerOpen: false });
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
         finishWelcomeGuide();

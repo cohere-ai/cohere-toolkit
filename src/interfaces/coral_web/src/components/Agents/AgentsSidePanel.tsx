@@ -48,13 +48,14 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     >
       <div
         className={cn(
-          'box-content h-full px-4 py-6',
+          'h-full px-4 py-6',
           'flex flex-grow flex-col gap-y-8 rounded-lg border',
           'border-marble-400 bg-marble-100',
           'transition-[min-width,max-width]',
           {
-            'min-w-12 max-w-12': !isAgentsSidePanelOpen,
-            'min-w-64 max-w-64': isAgentsSidePanelOpen,
+            'min-w-agents-panel-collapsed max-w-agents-panel-collapsed': !isAgentsSidePanelOpen,
+            'min-w-agents-panel-expanded max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
+              isAgentsSidePanelOpen,
           }
         )}
       >

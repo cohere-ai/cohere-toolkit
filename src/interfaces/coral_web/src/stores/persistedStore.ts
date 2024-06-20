@@ -3,22 +3,25 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 
+import { AgentsStore, createAgentsSlice } from '@/stores/slices/agentsSlice';
 import { SettingsStore, createSettingsSlice } from '@/stores/slices/settingsSlice';
 
-type PersistedStore = SettingsStore;
+type PersistedStore = SettingsStore & AgentsStore;
 
 const useEmptyPersistedStore = create<PersistedStore>((...a) => ({
   ...createSettingsSlice(...a),
+  ...createAgentsSlice(...a),
 }));
 
 const usePersistedStore = create<PersistedStore>()(
   persist(
     (...a) => ({
       ...createSettingsSlice(...a),
+      ...createAgentsSlice(...a),
     }),
     {
-      name: 'settings',
-      version: 2,
+      name: 'persisted-store',
+      version: 1,
     }
   )
 );
@@ -49,6 +52,17 @@ export const useSettingsStore = () => {
       setSettings: state.setSettings,
       setIsConvListPanelOpen: state.setIsConvListPanelOpen,
       setIsAgentsSidePanelOpen: state.setIsAgentsSidePanelOpen,
+    }),
+    shallow
+  );
+};
+
+export const useAgentsStore = () => {
+  return usePersistedStoresWithHydration(
+    (state) => ({
+      agents: state.agents,
+      addRecentAgentId: state.addRecentAgentId,
+      removeRecentAgentId: state.removeRecentAgentId,
     }),
     shallow
   );
