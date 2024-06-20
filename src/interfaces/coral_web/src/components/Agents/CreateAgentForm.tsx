@@ -7,7 +7,7 @@ import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
-import { useParamsStore } from '@/stores';
+import { useAgentsStore, useParamsStore } from '@/stores';
 
 /**
  * @description Form to create a new agent.
@@ -20,6 +20,7 @@ export const CreateAgentForm: React.FC = () => {
   const {
     params: { preamble },
   } = useParamsStore();
+  const { addRecentAgentId } = useAgentsStore();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentFormFields>({
@@ -75,6 +76,7 @@ export const CreateAgentForm: React.FC = () => {
     try {
       setIsSubmitting(true);
       const agent = await createAgent(fields);
+      addRecentAgentId(agent.id);
       setFields({
         name: '',
         description: '',

@@ -1,6 +1,7 @@
 import { Transition } from '@headlessui/react';
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 
 import { CohereClient } from '@/cohere-client';
@@ -35,6 +36,9 @@ const AgentsPage: NextPage<Props> = () => {
   } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
+
+  const { query } = useRouter();
+  const assistantId = query.assistantId as string | undefined;
 
   const { resetCitations } = useCitationsStore();
   const {
@@ -102,7 +106,7 @@ const AgentsPage: NextPage<Props> = () => {
               'transition-transform duration-500 ease-in-out'
             )}
           >
-            <Conversation conversationId={id} startOptionsEnabled />
+            <Conversation conversationId={id} assistantId={assistantId} startOptionsEnabled />
           </Transition>
         </div>
       </MainSection>

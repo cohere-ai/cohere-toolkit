@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 
-import { Tool } from '@/cohere-client';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
@@ -14,6 +13,7 @@ import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useRouteChange } from '@/hooks/route';
 import {
+  useAgentsStore,
   useCitationsStore,
   useConversationStore,
   useFilesStore,
@@ -26,6 +26,7 @@ import { ChatMessage } from '@/types/message';
 type Props = {
   startOptionsEnabled?: boolean;
   conversationId?: string;
+  assistantId?: string;
   history?: ChatMessage[];
 };
 
@@ -33,7 +34,11 @@ type Props = {
  * @description Renders the entire conversation pane, which includes the header, messages,
  * composer, and the citation panel.
  */
-const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = false }) => {
+const Conversation: React.FC<Props> = ({
+  conversationId,
+  assistantId,
+  startOptionsEnabled = false,
+}) => {
   const chatHotKeys = useChatHotKeys();
 
   const { uploadFile } = useFileActions();
@@ -58,6 +63,8 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
   } = useFilesStore();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
+  const { addRecentAgentId } = useAgentsStore();
+
   const {
     userMessage,
     isStreaming,
@@ -68,6 +75,9 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
     handleRetry,
   } = useChat({
     onSend: () => {
+      if (assistantId) {
+        addRecentAgentId(assistantId);
+      }
       if (isConfigDrawerOpen) setSettings({ isConfigDrawerOpen: false });
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
         finishWelcomeGuide();

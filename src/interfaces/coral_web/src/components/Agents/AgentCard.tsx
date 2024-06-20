@@ -1,10 +1,10 @@
 import { Transition } from '@headlessui/react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
+import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -24,18 +24,35 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const isTouchDevice = getIsTouchDevice();
   const { query } = useRouter();
   const isActive = isBaseAgent ? !query.assistantId : query.assistantId === id;
+  const { removeRecentAgentId } = useAgentsStore();
+  const router = useRouter();
+
+  const { resetConversation } = useConversationStore();
+  const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
+
+  const handleNewChat = () => {
+    const url = id ? `/agents?assistantId=${id}` : '/agents';
+    router.push(url, undefined, { shallow: true });
+    resetConversation();
+    resetCitations();
+    resetFileParams();
+  };
+
+  const handleHideAssistant = () => {
+    if (id) removeRecentAgentId(id);
+  };
 
   return (
     <Tooltip label={name} placement="right" hover={!isExpanded}>
-      <Link
-        href={isBaseAgent ? '/agents' : `/agents?assistantId=${id}`}
+      <div
+        onClick={handleNewChat}
         className={cn(
-          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:bg-marble-300',
+          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-marble-300',
           {
             'bg-marble-300': isActive,
           }
         )}
-        shallow
       >
         <div
           className={cn(
@@ -78,18 +95,18 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
             items={[
               {
                 label: 'New chat',
-                href: `/agents?assistantId=${id}`,
+                onClick: handleNewChat,
                 iconName: 'new-message',
               },
               {
                 label: 'Hide assistant',
-                onClick: () => {},
+                onClick: handleHideAssistant,
                 iconName: 'hide',
               },
             ]}
           />
         </Transition>
-      </Link>
+      </div>
     </Tooltip>
   );
 };

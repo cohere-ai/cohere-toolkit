@@ -12,6 +12,9 @@ module.exports = {
         'citation-panel-lg': '325px', // subtract 10px for scrollbar and 1px for border
         'citation-panel-xl': '349px', // subtract 10px for scrollbar and 1px for border
         menu: '174px',
+        'agents-panel-collapsed': '82px',
+        'agents-panel-expanded': '288px',
+        'agents-panel-expanded-lg': '320px',
         'left-panel-lg': '242px',
         'left-panel-2xl': '300px',
         'left-panel-3xl': '360px',
@@ -40,8 +43,10 @@ module.exports = {
         modal: '648px',
         'modal-lg': '1062px',
         'modal-xl': '1600px',
-
         message: '976px',
+        'agents-panel-collapsed': '82px',
+        'agents-panel-expanded': '288px',
+        'agents-panel-expanded-lg': '320px',
         drawer: '288px',
         'drawer-lg': '360px',
         'left-panel-lg': '242px',
@@ -82,7 +87,7 @@ module.exports = {
         'drag-drop-input-overlay': '10',
         'configuration-drawer': '20',
         'selected-citation': '20',
-        menu: '20',
+        menu: '90',
         'guide-tooltip': '30',
         tooltip: '50',
       },
