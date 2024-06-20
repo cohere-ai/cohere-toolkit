@@ -31,6 +31,7 @@ async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    agent_id: str | None = None,
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
@@ -39,6 +40,7 @@ async def chat_stream(
         session (DBSessionDep): Database session.
         chat_request (CohereChatRequest): Chat request data.
         request (Request): Request object.
+        agent_id (str | None): Agent ID.
 
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
@@ -54,7 +56,7 @@ async def chat_stream(
         should_store,
         managed_tools,
         deployment_config,
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, agent_id)
 
     return EventSourceResponse(
         generate_chat_stream(
@@ -84,6 +86,7 @@ async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    agent_id: str | None = None,
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
@@ -92,6 +95,7 @@ async def chat(
         chat_request (CohereChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        agent_id (str | None): Agent ID.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
@@ -108,7 +112,7 @@ async def chat(
         should_store,
         managed_tools,
         deployment_config,
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, agent_id)
 
     return generate_chat_response(
         session,

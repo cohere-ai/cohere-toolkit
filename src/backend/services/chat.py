@@ -4,13 +4,14 @@ from typing import Any, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import Request
+from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
 
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
+from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
@@ -42,12 +43,15 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
-from backend.schemas.tool import ToolCall, ToolCallDelta
+from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 
 
 def process_chat(
-    session: DBSessionDep, chat_request: BaseChatRequest, request: Request
+    session: DBSessionDep,
+    chat_request: BaseChatRequest,
+    request: Request,
+    agent_id: str | None = None,
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -70,11 +74,26 @@ def process_chat(
     # For example: "azure_key1=value1;azure_key2=value2"
     if not request.headers.get("Deployment-Config", "") == "":
         model_config = get_deployment_config(request)
+
+    if agent_id is not None:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent is None:
+            raise HTTPException(
+                status_code=404, detail=f"Agent with ID {agent_id} not found."
+            )
+
+        # Set the agent settings in the chat request
+        chat_request.preamble = agent.preamble
+        chat_request.tools = [Tool(name=tool) for tool in agent.tools]
+        # NOTE TEMPORARY: we do not set a the model for now and just use the default model
+        chat_request.model = None
+        # chat_request.model = agent.model
+
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
     )
     conversation = get_or_create_conversation(
-        session, chat_request, user_id, should_store
+        session, chat_request, user_id, should_store, agent_id
     )
 
     # Get position to put next message in
@@ -105,9 +124,10 @@ def process_chat(
     file_paths = None
     if isinstance(chat_request, CohereChatRequest):
         file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
-        attach_files_to_messages(
-            session, user_id, user_message.id, chat_request.file_ids
-        )
+        if should_store:
+            attach_files_to_messages(
+                session, user_id, user_message.id, chat_request.file_ids
+            )
 
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request
@@ -171,6 +191,7 @@ def get_or_create_conversation(
     chat_request: BaseChatRequest,
     user_id: str,
     should_store: bool,
+    agent_id: str | None = None,
 ) -> Conversation:
     """
     Gets or creates a Conversation based on the chat request.
@@ -191,6 +212,7 @@ def get_or_create_conversation(
         conversation = Conversation(
             user_id=user_id,
             id=chat_request.conversation_id,
+            agent_id=agent_id,
         )
 
         if should_store:

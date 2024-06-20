@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class AgentBase(BaseModel):
     user_id: str
+    organization_id: Optional[str] = None
 
 
 class Agent(AgentBase):
