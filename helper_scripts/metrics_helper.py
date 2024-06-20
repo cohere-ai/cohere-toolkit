@@ -1,5 +1,6 @@
-import re
 import json
+import re
+
 import requests
 
 base_url = "http://localhost:8000/v1"
@@ -15,6 +16,7 @@ headers = {
 response = requests.post(f"{base_url}/users", headers=headers, json={"fullname": "me"})
 response_json = response.json()
 user_id = response_json["id"]
+
 
 def agents():
     print("Running Agents")
@@ -42,6 +44,7 @@ def agents():
     )
     _ = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
 
+
 def users():
     # # List Users
     _ = requests.get(f"{base_url}/users", headers=headers)
@@ -58,7 +61,7 @@ def users():
 # Chat
 def chat():
     print("Running Agents")
-    
+
     response = requests.post(
         "http://localhost:8000/v1/chat-stream",
         headers=headers,
@@ -103,6 +106,7 @@ def tools():
     # del conversation
     _ = requests.delete(f"{base_url}/conversations/{conversation_id}", headers=headers)
 
+
 ## Files
 # _ = requests.get(f"{base_url}/files/conversation_id", headers=headers)
 # _ = requests.put(f"{base_url}/files/test-file-id", headers=headers, data={"title": "new_title"})
@@ -112,7 +116,7 @@ def tools():
 # Delete Everything
 def del_user():
     _ = requests.delete(f"{base_url}/users/{user_id}", headers=headers)
-    
+
 
 agents()
 chat()
