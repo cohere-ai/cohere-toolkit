@@ -22,7 +22,7 @@ def validate_user_header(request: Request):
 
     """
 
-    user_id = get_header_user_id(request)
+    user_id = request.headers.get(request)
     if not user_id:
         raise HTTPException(
             status_code=401, detail="User-Id required in request headers."
