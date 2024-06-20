@@ -137,7 +137,7 @@ export class DefaultService {
   }
   /**
    * Logout
-   * Logs out the current user.
+   * Logs out the current user, adding the given JWT token to the blacklist.
    *
    * Args:
    * request (Request): current Request object.
@@ -161,6 +161,7 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
+   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
@@ -169,12 +170,17 @@ export class DefaultService {
    */
   public static chatStreamV1ChatStreamPost({
     requestBody,
+    agentId,
   }: {
     requestBody: CohereChatRequest;
+    agentId?: string | null;
   }): CancelablePromise<Array<ChatResponseEvent>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat-stream',
+      query: {
+        agent_id: agentId,
+      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -190,6 +196,7 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
+   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
@@ -198,12 +205,17 @@ export class DefaultService {
    */
   public static chatV1ChatPost({
     requestBody,
+    agentId,
   }: {
     requestBody: CohereChatRequest;
+    agentId?: string | null;
   }): CancelablePromise<NonStreamedChatResponse> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat',
+      query: {
+        agent_id: agentId,
+      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -502,6 +514,7 @@ export class DefaultService {
    * Args:
    * offset (int): Offset to start the list.
    * limit (int): Limit of conversations to be listed.
+   * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
    *
@@ -513,9 +526,11 @@ export class DefaultService {
   public static listConversationsV1ConversationsGet({
     offset,
     limit = 100,
+    agentId,
   }: {
     offset?: number;
     limit?: number;
+    agentId?: string;
   }): CancelablePromise<Array<ConversationWithoutMessages>> {
     return __request(OpenAPI, {
       method: 'GET',
@@ -523,6 +538,7 @@ export class DefaultService {
       query: {
         offset: offset,
         limit: limit,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,
@@ -821,7 +837,7 @@ export class DefaultService {
     });
   }
   /**
-   * Get Agent
+   * Get Agent By Id
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
@@ -834,7 +850,7 @@ export class DefaultService {
    * @returns Agent Successful Response
    * @throws ApiError
    */
-  public static getAgentV1AgentsAgentIdGet({
+  public static getAgentByIdV1AgentsAgentIdGet({
     agentId,
   }: {
     agentId: string;

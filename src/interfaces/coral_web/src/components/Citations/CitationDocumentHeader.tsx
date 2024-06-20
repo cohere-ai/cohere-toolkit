@@ -1,4 +1,4 @@
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { DocumentIcon, Icon, IconName, Text } from '@/components/Shared';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_INTERNET_SEARCH_ID } from '@/constants';
 import { cn, getSafeUrl, getWebDomain } from '@/utils';

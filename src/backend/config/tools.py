@@ -26,17 +26,18 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
-    Wiki_Retriever_LangChain = "Wikipedia"
+    Wiki_Retriever_LangChain = "wikipedia"
     Search_File = "search_file"
     Read_File = "read_document"
-    Python_Interpreter = "Python_Interpreter"
-    Calculator = "Calculator"
-    Tavily_Internet_Search = "Internet_Search"
+    Python_Interpreter = "python_interpreter"
+    Calculator = "calculator"
+    Tavily_Internet_Search = "internet_search"
 
 
 ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
         name=ToolName.Wiki_Retriever_LangChain,
+        display_name="Wikipedia",
         implementation=LangChainWikiRetriever,
         parameter_definitions={
             "query": {
@@ -54,6 +55,7 @@ ALL_TOOLS = {
     ),
     ToolName.Search_File: ManagedTool(
         name=ToolName.Search_File,
+        display_name="Search File",
         implementation=SearchFileTool,
         parameter_definitions={
             "search_query": {
@@ -75,6 +77,7 @@ ALL_TOOLS = {
     ),
     ToolName.Read_File: ManagedTool(
         name=ToolName.Read_File,
+        display_name="Read Document",
         implementation=ReadFileTool,
         parameter_definitions={
             "filename": {
@@ -91,6 +94,7 @@ ALL_TOOLS = {
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
+        display_name="Python Interpreter",
         implementation=PythonInterpreter,
         parameter_definitions={
             "code": {
@@ -107,6 +111,7 @@ ALL_TOOLS = {
     ),
     ToolName.Calculator: ManagedTool(
         name=ToolName.Calculator,
+        display_name="Calculator",
         implementation=Calculator,
         parameter_definitions={
             "code": {
@@ -123,6 +128,7 @@ ALL_TOOLS = {
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
+        display_name="Web Search",
         implementation=TavilyInternetSearch,
         parameter_definitions={
             "query": {

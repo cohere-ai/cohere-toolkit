@@ -19,10 +19,10 @@ To add your own deployment:
 
 ## How to call the backend as an API
 
-It is possible to just run the backend service, and call it in the same manner as the Cohere API. Note streaming and non streaming endpoints are split into 'http://localhost:8000/chat-stream' and 'http://localhost:8000/chat' compared to the API. For example, to stream:
+It is possible to just run the backend service, and call it in the same manner as the Cohere API. Note streaming and non streaming endpoints are split into 'http://localhost:8000/v1/chat-stream' and 'http://localhost:8000/v1/chat' compared to the API. For example, to stream:
 
 ```bash
-curl --location 'http://localhost:8000/chat-stream' \
+curl --location 'http://localhost:8000/v1/chat-stream' \
 --header 'User-Id: me' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -79,12 +79,12 @@ Python interpreter and Tavily Internet search are provided in the toolkit by def
 
 Example API call:
 ```bash
-curl --location 'http://localhost:8000/langchain-chat' \
+curl --location 'http://localhost:8000/v1/langchain-chat' \
 --header 'User-Id: me' \
 --header 'Content-Type: application/json' \
 --data '{
     "message": "Tell me about the aya model",
-    "tools": [{"name": "Python_Interpreter"},{"name": "Internet Search"},]
+    "tools": [{"name": "Python_Interpreter"},{"name": "Internet_Search"}]
 }'
 ```
 

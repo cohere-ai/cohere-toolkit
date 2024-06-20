@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useState } from 'react';
 import { useLongPress } from 'react-aria';
 
 import { Avatar } from '@/components/Avatar';
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { LongPressMenu } from '@/components/LongPressMenu';
 import { MessageContent } from '@/components/MessageContent';
 import {

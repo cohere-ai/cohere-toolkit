@@ -96,6 +96,7 @@ export const useSession = () => {
 
   return {
     session,
+    userId: 'id' in session ? session.id : 'user-id',
     authToken,
     isLoggedIn,
     loginMutation,

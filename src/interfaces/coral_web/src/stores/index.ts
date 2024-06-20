@@ -72,9 +72,10 @@ export const useParamsStore = () => {
     (state) => ({
       params: state.params,
       setParams: state.setParams,
+      resetFileParams: state.resetFileParams,
     }),
     shallow
   );
 };
 
-export { useSettingsStore } from '@/stores/persistedStore';
+export { useSettingsStore, useAgentsStore } from '@/stores/persistedStore';

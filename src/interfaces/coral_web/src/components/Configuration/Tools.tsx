@@ -1,5 +1,5 @@
 import { uniq } from 'lodash';
-import React, { Fragment } from 'react';
+import React from 'react';
 
 import { Tool } from '@/cohere-client';
 import { FilesSection } from '@/components/Configuration/Files';
@@ -65,7 +65,7 @@ const ToolSection = () => {
     updateEnabledTools(updatedTools);
   };
 
-  const onToolToggle = (name: string, checked: boolean) => {
+  const handleToolToggle = (name: string, checked: boolean) => {
     const updatedTools = checked
       ? [...enabledTools, { name }]
       : enabledTools.filter((enabledTool) => enabledTool.name !== name);
@@ -95,7 +95,7 @@ const ToolSection = () => {
             />
           </div>
           <div className="flex flex-col gap-y-5">
-            {tools.map(({ name, is_available, description, error_message }) => {
+            {tools.map(({ name, display_name, is_available, description, error_message }) => {
               const enabledTool = enabledTools.find(
                 (enabledTool) => enabledTool.name.toLocaleLowerCase() === name.toLocaleLowerCase()
               );
@@ -107,9 +107,9 @@ const ToolSection = () => {
                   <Checkbox
                     checked={checked}
                     onChange={(e) => {
-                      onToolToggle(name, e.target.checked);
+                      handleToolToggle(name, e.target.checked);
                     }}
-                    label={name}
+                    label={display_name}
                     name={name}
                     theme="secondary"
                     dataTestId={`checkbox-tool-${name}`}
