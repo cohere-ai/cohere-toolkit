@@ -147,6 +147,7 @@ class CompassTool(BaseTool):
             file_id=parameters["file_id"],
             parser_config=parser_config,
             metadata_config=metadata_config,
+            custom_context=parameters.get("custom_context", None),
             is_dataset=False
         )
 
@@ -167,8 +168,8 @@ class CompassTool(BaseTool):
             )
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
-        """Run a search query on Compass and return the top_k results. 
-        By default, k=10."""
+        """Run a search query on Compass and return the
+        top_k results. By default, k=10."""
         if not parameters.get("query", None):
             logger.error(
                 "Compass Tool: No search query specified. ",
@@ -179,7 +180,8 @@ class CompassTool(BaseTool):
         return self.compass_client.search(
             index_name=parameters["index"],
             query=parameters["query"],
-            top_k=parameters.get("top_k", 10)
+            top_k=parameters.get("top_k", 10),
+            filters=parameters.get("filters", None),
         )
 
     def _update(self, parameters: dict, **kwargs: Any) -> None:
