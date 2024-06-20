@@ -1,11 +1,11 @@
 import asyncio
+import json
 import logging
 import os
 import time
 import uuid
 from functools import wraps
 from typing import Any, Callable, Dict
-import json
 
 from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
@@ -45,7 +45,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         if scope["type"] != "http":
             return None
-
 
         agent = self.get_agent(request)
         agent_id = agent.get("id", None) if agent else None
