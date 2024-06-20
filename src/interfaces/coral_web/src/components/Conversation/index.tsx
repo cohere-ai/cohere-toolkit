@@ -24,6 +24,7 @@ import {
 } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
+import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
