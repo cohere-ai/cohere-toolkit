@@ -1,11 +1,8 @@
-import os
 from typing import Any, Dict, List
 
-import nh3
 from bs4 import BeautifulSoup
 from requests import get
 
-from backend.chat.collate import chunk
 from backend.tools.base import BaseTool
 
 
