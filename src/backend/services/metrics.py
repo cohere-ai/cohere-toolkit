@@ -1,17 +1,20 @@
 import asyncio
-import hashlib
 import logging
 import os
-import threading
+import time
 import uuid
+from functools import wraps
+from typing import Any, Callable, Dict
 
+from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import StreamingResponse
 
 from backend.chat.collate import to_dict
+from backend.chat.enums import StreamEvent
+from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import MetricsData
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
@@ -33,7 +36,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         duration_ms = time.perf_counter() - start_time
 
         data = self.get_data(request.scope, response, request, duration_ms)
-        threading.Thread(target=report_metrics_thread, args=(data,)).start()
+        await report_metrics_task(data)
         return response
 
     def get_data(self, scope, response, request, duration_ms):
@@ -160,13 +163,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         }
 
 
-def hash_string(s):
-    if s is None:
-        return None
-
-    return hashlib.sha256(s.encode()).hexdigest().lower()
-
-
 async def report_metrics(data):
     if not isinstance(data, dict):
         data = to_dict(data)
@@ -186,14 +182,140 @@ async def report_metrics(data):
         logging.error(f"Failed to report metrics: {e}")
 
 
-def report_metrics_thread(data):
-    if not REPORT_ENDPOINT:
-        return
+async def report_metrics_task(data):
+    await asyncio.create_task(report_metrics(data))
 
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(report_metrics(data))
-        loop.close()
-    except Exception as e:
-        pass
+
+# DECORATORS
+def collect_metrics_chat(func: Callable) -> Callable:
+    @wraps(func)
+    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        start_time = time.perf_counter()
+        metrics_data = initialize_metrics_data("chat", chat_request, **kwargs)
+
+        response_dict = {}
+        try:
+            response = func(self, chat_request, **kwargs)
+            response_dict = to_dict(response)
+        except Exception as e:
+            metrics_data = handle_error(metrics_data, e)
+            raise e
+        finally:
+            metrics_data.input_tokens, metrics_data.output_tokens = (
+                get_input_output_tokens(response_dict)
+            )
+            metrics_data.duration_ms = time.perf_counter() - start_time
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(report_metrics_task(metrics_data))
+
+            return response_dict
+
+    return wrapper
+
+
+def collect_metrics_chat_stream(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        start_time = time.perf_counter()
+        metrics_data, kwargs = initialize_metrics_data("chat", chat_request, **kwargs)
+
+        stream = func(self, chat_request, **kwargs)
+
+        try:
+            for event in stream:
+                event_dict = to_dict(event)
+
+                if is_event_end_with_error(event_dict):
+                    metrics_data.success = False
+                    metrics_data.error = event_dict.get("error")
+
+                if event_dict.get("event_type") == StreamEvent.STREAM_END:
+                    metrics_data.input_nb_tokens, metrics_data.output_nb_tokens = (
+                        get_input_output_tokens(event_dict.get("response"))
+                    )
+
+                yield event_dict
+        except Exception as e:
+            metrics_data = handle_error(metrics_data, e)
+            raise e
+        finally:
+            metrics_data.duration_ms = time.perf_counter() - start_time
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(report_metrics_task(metrics_data))
+
+    return wrapper
+
+
+def collect_metrics_rerank(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
+        start_time = time.perf_counter()
+        metrics_data, kwargs = initialize_metrics_data("rerank", None, **kwargs)
+
+        response_dict = {}
+        try:
+            response = func(self, query, documents, **kwargs)
+            response_dict = to_dict(response)
+            metrics_data.search_units = get_search_units(response_dict)
+        except Exception as e:
+            metrics_data = handle_error(metrics_data, e)
+            raise e
+        finally:
+            metrics_data.duration_ms = time.perf_counter() - start_time
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(report_metrics_task(metrics_data))
+            return response_dict
+
+    return wrapper
+
+
+def initialize_metrics_data(
+    func_name: str, chat_request: CohereChatRequest, **kwargs: Any
+) -> tuple[MetricsData, Any]:
+    return (
+        MetricsData(
+            endpoint_name=f"co.{func_name}",
+            method="POST",
+            trace_id=kwargs.pop("trace_id", None),
+            user_id=kwargs.pop("user_id", None),
+            model=chat_request.model if chat_request else None,
+            success=True,
+        ),
+        kwargs,
+    )
+
+
+def get_input_output_tokens(response_dict: dict) -> tuple[int, int]:
+    if response_dict is None:
+        return None, None
+
+    input_tokens = (
+        response_dict.get("meta", {}).get("billed_units", {}).get("input_tokens")
+    )
+    output_tokens = (
+        response_dict.get("meta", {}).get("billed_units", {}).get("output_tokens")
+    )
+    return input_tokens, output_tokens
+
+
+def get_search_units(response_dict: dict) -> int:
+    return response_dict.get("meta", {}).get("billed_units", {}).get("search_units")
+
+
+def is_event_end_with_error(event_dict: dict) -> bool:
+    return (
+        event_dict.get("event_type") == StreamEvent.STREAM_END
+        and event_dict.get("finish_reason") != "COMPLETE"
+        and event_dict.get("finish_reason") != "MAX_TOKENS"
+    )
+
+
+def handle_error(metrics_data: MetricsData, e: Exception) -> None:
+    metrics_data.success = False
+    metrics_data.error = str(e)
+    if isinstance(e, ApiError):
+        metrics_data.status_code = e.status_code
+    return metrics_data

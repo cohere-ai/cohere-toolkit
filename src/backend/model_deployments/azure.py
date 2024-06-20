@@ -13,8 +13,11 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData
-from backend.services.metrics import hash_string, report_metrics_thread
+from backend.services.metrics import (
+    collect_metrics_chat,
+    collect_metrics_chat_stream,
+    collect_metrics_rerank,
+)
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
@@ -59,110 +62,27 @@ class AzureDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
+    @collect_metrics_chat
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        start_time = time.perf_counter()
-        metrics_data = MetricsData(
-            endpoint_name="co.chat",
-            method="POST",
-            trace_id=kwargs.pop("trace_id", None),
-            user_id=kwargs.pop("user_id", None),
-            model=chat_request.model,
-            success=True,
+        response = self.client.chat(
+            **chat_request.model_dump(exclude={"stream", "file_ids"}),
+            **kwargs,
         )
+        yield to_dict(response)
 
-        response = {}
-        try:
-            response = self.client.chat(
-                **chat_request.model_dump(exclude={"stream", "file_ids"}),
-                **kwargs,
-            )
-            response_dict = to_dict(response)
-        except ApiError as e:
-            metrics_data.success = False
-            metrics_data.error = str(e)
-            metrics_data.status_code = e.status_code
-            raise e
-        except Exception as e:
-            metrics_data.success = False
-            metrics_data.error = str(e)
-            raise e
-        finally:
-            metrics_data.input_tokens = (
-                response_dict.get("meta", {})
-                .get("billed_units", {})
-                .get("input_tokens")
-            )
-            metrics_data.output_tokens = (
-                response_dict.get("meta", {})
-                .get("billed_units", {})
-                .get("output_tokens")
-            )
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            self.report_metrics(metrics_data)
-
-            return response_dict
-
+    @collect_metrics_chat_stream
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        start_time = time.perf_counter()
-        metrics_data = MetricsData(
-            endpoint_name="co.chat",
-            method="POST",
-            trace_id=kwargs.pop("trace_id", None),
-            user_id=kwargs.pop("user_id", None),
-            model=chat_request.model,
-            success=True,
-        )
-
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids"}),
             **kwargs,
         )
 
-        try:
-            for event in stream:
-                event_dict = to_dict(event)
-
-                if (
-                    event_dict.get("event_type") == StreamEvent.STREAM_END
-                    and event_dict.get("finish_reason") != "COMPLETE"
-                    and event_dict.get("event") != "MAX_TOKENS"
-                ):
-                    metrics_data.success = False
-                    metrics_data.error = event_dict.get("error")
-
-                if event_dict.get("event_type") == StreamEvent.STREAM_END:
-                    metrics_data.input_nb_tokens = (
-                        event_dict.get("response", {})
-                        .get("meta", {})
-                        .get("billed_units", {})
-                        .get("input_tokens")
-                    )
-                    metrics_data.output_nb_tokens = (
-                        event_dict.get("response", {})
-                        .get("meta", {})
-                        .get("billed_units", {})
-                        .get("output_tokens")
-                    )
-
-                yield event_dict
-        except ApiError as e:
-            metrics_data.success = False
-            metrics_data.error = str(e)
-            metrics_data.status_code = e.status_code
-        except Exception as e:
-            metrics_data.success = False
-            metrics_data.error = str(e)
-            raise e
-        finally:
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            self.report_metrics(metrics_data)
+        for event in stream:
+            yield to_dict(event)
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None
-
-    def report_metrics(self, metrics_data: MetricsData) -> None:
-        threading.Thread(target=report_metrics_thread, args=(metrics_data,)).start()

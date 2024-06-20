@@ -12,8 +12,11 @@ from cohere.types import StreamedChatResponse
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData
-from backend.services.metrics import hash_string, report_metrics_thread
+from backend.services.metrics import (
+    collect_metrics_chat,
+    collect_metrics_chat_stream,
+    collect_metrics_rerank,
+)
 
 SAGE_MAKER_ACCESS_KEY_ENV_VAR = "SAGE_MAKER_ACCESS_KEY"
 SAGE_MAKER_SECRET_KEY_ENV_VAR = "SAGE_MAKER_SECRET_KEY"
@@ -75,19 +78,10 @@ class SageMakerDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
+    @collect_metrics_chat_stream
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        start_time = time.perf_counter()
-        metrics_data = MetricsData(
-            endpoint_name="co.chat",
-            method="POST",
-            trace_id=kwargs.pop("trace_id", None),
-            user_id=kwargs.pop("user_id", None),
-            model=chat_request.model,
-            success=True,
-        )
-
         # Create the payload for the request
         json_params = {
             "prompt_truncation": "AUTO_PRESERVE_ORDER",
@@ -99,30 +93,17 @@ class SageMakerDeployment(BaseDeployment):
         self.params["Body"] = json.dumps(json_params)
 
         # Invoke the model and print the response
-        try:
-            result = self.client.invoke_endpoint_with_response_stream(**self.params)
-            event_stream = result["Body"]
-            for index, line in enumerate(
-                SageMakerDeployment.LineIterator(event_stream)
-            ):
-                stream_event = json.loads(line.decode())
-                stream_event["index"] = index
-                yield stream_event
-        except Exception as e:
-            metrics_data.success = False
-            metrics_data.error = str(e)
-            raise e
-        finally:
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            self.report_metrics(metrics_data)
+        result = self.client.invoke_endpoint_with_response_stream(**self.params)
+        event_stream = result["Body"]
+        for index, line in enumerate(SageMakerDeployment.LineIterator(event_stream)):
+            stream_event = json.loads(line.decode())
+            stream_event["index"] = index
+            yield stream_event
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None
-
-    def report_metrics(self, metrics_data: MetricsData) -> None:
-        threading.Thread(target=report_metrics_thread, args=(metrics_data,)).start()
 
     # This class iterates through each line of Sagemaker's response
     # https://aws.amazon.com/blogs/machine-learning/elevating-the-generative-ai-experience-introducing-streaming-support-in-amazon-sagemaker-hosting/

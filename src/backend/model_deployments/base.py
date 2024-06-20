@@ -39,6 +39,3 @@ class BaseDeployment:
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any: ...
-
-    @abstractmethod
-    def report_metrics(self, metrics_data: MetricsData) -> None: ...
