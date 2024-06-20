@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config.auth import get_strategy_endpoints, is_authentication_enabled
+from backend.config.auth import get_auth_strategy_endpoints, is_authentication_enabled
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -25,17 +25,10 @@ load_dotenv()
 
 # CORS Origins
 ORIGINS = ["*"]
-# Session expiration time in seconds, set to None to last only browser session
-SESSION_EXPIRY = 60 * 60 * 24 * 7  # A week
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    yield
 
 
 def create_app():
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI()
 
     routers = [
         auth_router,
@@ -52,7 +45,6 @@ def create_app():
     # These values must be set in config/routers.py
     dependencies_type = "default"
     if is_authentication_enabled():
-        asyncio.create_task(get_strategy_endpoints())
         # Required to save temporary OAuth state in session
         app.add_middleware(
             SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")
@@ -80,6 +72,15 @@ def create_app():
 
 
 app = create_app()
+
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    Retrieves all the Auth provider endpoints if authentication is enabled.
+    """
+    if is_authentication_enabled():
+        await get_auth_strategy_endpoints()
 
 
 @app.get("/health")
