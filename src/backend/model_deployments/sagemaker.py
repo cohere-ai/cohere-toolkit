@@ -83,7 +83,7 @@ class SageMakerDeployment(BaseDeployment):
             endpoint_name="co.chat",
             method="POST",
             trace_id=kwargs.pop("trace_id", None),
-            user_id_hash=hash_string(kwargs.pop("user_id", None)),
+            user_id=kwargs.pop("user_id", None),
             model=chat_request.model,
             success=True,
         )

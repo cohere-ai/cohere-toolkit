@@ -26,6 +26,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
+        request.state.user = None
 
         start_time = time.perf_counter()
         response = await call_next(request)
@@ -41,15 +42,20 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         if scope["type"] != "http":
             return None
 
+        agent = self.get_agent(request)
+        agent_id = agent.get("id", None) if agent else None
+
         data = MetricsData(
             method=self.get_method(scope),
             endpoint_name=self.get_endpoint_name(scope, request),
-            user_id_hash=self.get_user_id_hash(request),
+            user_id=self.get_user_id(request),
+            user=self.get_user(request),
             success=self.get_success(response),
             trace_id=request.state.trace_id,
             status_code=self.get_status_code(response),
             object_ids=self.get_object_ids(request),
-            agent=self.get_agent(request),
+            assistant=agent,
+            assistant_id=agent_id,
             duration_ms=duration_ms,
         )
 
@@ -70,6 +76,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             # Replace path parameters with their names
             for key, value in request.path_params.items():
                 path = path.replace(value, f":{key}")
+
+            path = path[:-1] if path.endswith("/") else path
             return path.lower()
         except KeyError:
             return "unknown"
@@ -91,12 +99,34 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get success: {e}")
             return False
 
-    def get_user_id_hash(self, request):
+    def get_user_id(self, request):
         try:
             user_id = request.headers.get("User-Id", None)
-            return hash_string(user_id)
+
+            if not user_id:
+                user_id = (
+                    request.state.user.id
+                    if hasattr(request.state, "user") and request.state.user
+                    else None
+                )
+
+            return user_id
         except Exception as e:
-            logging.warning(f"Failed to get user id hash: {e}")
+            logging.warning(f"Failed to get user id: {e}")
+            return None
+
+    def get_user(self, request):
+        if not hasattr(request.state, "user") or not request.state.user:
+            return None
+
+        try:
+            return {
+                "id": request.state.user.id,
+                "fullname": request.state.user.fullname,
+                "email": request.state.user.email,
+            }
+        except Exception as e:
+            logging.warning(f"Failed to get user: {e}")
             return None
 
     def get_object_ids(self, request):
@@ -142,7 +172,8 @@ async def report_metrics(data):
         data = to_dict(data)
 
     data["secret"] = "secret"
-    logging.info(data)
+    signal = {"signal": data}
+    print(signal)
 
     if not REPORT_ENDPOINT:
         raise Exception("No report endpoint set")
@@ -150,7 +181,7 @@ async def report_metrics(data):
     transport = AsyncHTTPTransport(retries=NUM_RETRIES)
     try:
         async with AsyncClient(transport=transport) as client:
-            await client.post(REPORT_ENDPOINT, json=data)
+            await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
         logging.error(f"Failed to report metrics: {e}")
 
