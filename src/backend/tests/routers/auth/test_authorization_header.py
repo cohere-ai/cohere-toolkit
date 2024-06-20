@@ -20,65 +20,57 @@ def test_validate_authorization_valid_token(
     user = {"user_id": "test"}
     token = JWTService().create_and_encode_jwt(user, "")
 
-    # Use /logout endpoint to test request validator
     response = session_client.get(
-        "/v1/logout", headers={"Authorization": f"Bearer {token}"}
+        "/test-auth", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 200
 
 
-def test_validate_authorization_no_authorization():
-    request_mock = MagicMock(headers={})
+def test_validate_authorization_no_authorization(session_client: TestClient):
+    response = session_client.get("/test-auth", headers={})
 
-    with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization(request_mock)
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authorization: Bearer <token> required in request headers."
+    }
 
-    exception = exc.value
-    assert exception.status_code == 401
-    assert (
-        exception.detail == "Authorization: Bearer <token> required in request headers."
+
+def test_validate_authorization_no_bearer(session_client: TestClient):
+    response = session_client.get(
+        "/test-auth", headers={"Authorization": "test invalid_token"}
     )
 
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Authorization: Bearer <token> required in request headers."
+    }
 
-def test_validate_authorization_no_bearer():
-    request_mock = MagicMock(headers={"Authorization": "test invalid_token"})
 
-    with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization(request_mock)
-
-    exception = exc.value
-    assert exception.status_code == 401
-    assert (
-        exception.detail == "Authorization: Bearer <token> required in request headers."
+def test_validate_authorization_invalid_token(session_client: TestClient):
+    response = session_client.get(
+        "/test-auth", headers={"Authorization": "Bearer invalid_token"}
     )
 
-
-def test_validate_authorization_invalid_token():
-    request_mock = MagicMock(headers={"Authorization": "Bearer invalid_token"})
-
-    with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization(request_mock)
-
-    exception = exc.value
-    assert exception.status_code == 401
-    assert exception.detail == "Bearer token is invalid or expired."
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Bearer token is invalid."}
 
 
-def test_validate_authorization_expired_token():
+def test_validate_authorization_expired_token(
+    session_client: TestClient,
+):
     user = {"user_id": "test"}
     with freezegun.freeze_time("2024-01-01 00:00:00"):
         token = JWTService().create_and_encode_jwt(user, "")
 
-    request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
-
+    # Call endpoint a month later
     with freezegun.freeze_time("2024-02-01 00:00:00"):
-        with pytest.raises(HTTPException) as exc:
-            _ = validate_authorization(request_mock)
+        response = session_client.get(
+            "/test-auth", headers={"Authorization": f"Bearer {token}"}
+        )
 
-    exception = exc.value
-    assert exception.status_code == 401
-    assert exception.detail == "Bearer token is invalid or expired."
+    assert response.status_code == 401
+    assert response.detail == "Bearer token is invalid or expired."
 
 
 def test_validate_authorization_blacklisted_token(
@@ -92,7 +84,7 @@ def test_validate_authorization_blacklisted_token(
     _ = get_factory("Blacklist", session).create(token_id=decoded["jti"])
 
     response = session_client.get(
-        "/v1/logout", headers={"Authorization": f"Bearer {token}"}
+        "/test-auth", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 401

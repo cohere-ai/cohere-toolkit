@@ -25,7 +25,6 @@ class OpenIDConnect(BaseOAuthStrategy):
     def __init__(self):
         try:
             self.settings = OIDCSettings()
-            # TODO: switch out to proper oidc strategy name
             self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/oidc"
             self.WELL_KNOWN_ENDPOINT = self.settings.oidc_well_known_endpoint
             self.client = OAuth2Session(
@@ -44,35 +43,3 @@ class OpenIDConnect(BaseOAuthStrategy):
 
     def get_refresh_token_params(self):
         return None
-
-    async def get_endpoints(self):
-        response = requests.get(self.WELL_KNOWN_ENDPOINT)
-        endpoints = response.json()
-        try:
-            self.TOKEN_ENDPOINT = endpoints["token_endpoint"]
-            self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
-            self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
-        except Exception as e:
-            logging.error(
-                f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
-            )
-            raise
-
-    async def authorize(self, request: Request) -> dict | None:
-        """
-        Authenticates the current user using their OIDC account.
-
-        Args:
-            request (Request): Current request.
-
-        Returns:
-            Access token.
-        """
-        token = self.client.fetch_token(
-            url=self.TOKEN_ENDPOINT,
-            authorization_response=str(request.url),
-            redirect_uri=self.REDIRECT_URI,
-        )
-        user_info = self.client.get(self.USERINFO_ENDPOINT)
-
-        return user_info.json()

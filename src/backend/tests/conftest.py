@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from alembic.command import upgrade
 from alembic.config import Config
+from fastapi import Depends
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -12,9 +13,9 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import get_session
 from backend.main import app, create_app
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.deployment import Deployment
 from backend.schemas.user import User
+from backend.services.auth.request_validators import validate_authorization
 from backend.tests.factories import get_factory
 
 DATABASE_URL = os.environ["DATABASE_URL"]
@@ -71,9 +72,15 @@ def session_client(session: Session) -> Generator[TestClient, None, None]:
         yield session
 
     app = create_app()
-    app.dependency_overrides[get_session] = override_get_session
 
-    print("Session at fixture " + str(session))
+    # Define test endpoint for testing Authorization Bearer validation
+    @app.get("/test-auth")
+    def test_validate_authorization(token=Depends(validate_authorization)):
+        return {}
+
+    # Override get_session to enforce same DB session used in unit tests
+    # and endpoints
+    app.dependency_overrides[get_session] = override_get_session
 
     with TestClient(app) as client:
         yield client
@@ -134,9 +141,10 @@ def session_client_chat(session_chat: Session) -> Generator[TestClient, None, No
         yield session_chat
 
     app = create_app()
-    app.dependency_overrides[get_session] = override_get_session
 
-    print("Session at fixture " + str(session_chat))
+    # Override get_session to enforce same DB session used in unit tests
+    # and endpoints
+    app.dependency_overrides[get_session] = override_get_session
 
     with TestClient(app) as client:
         yield client

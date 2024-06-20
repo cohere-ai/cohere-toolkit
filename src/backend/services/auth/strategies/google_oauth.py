@@ -1,8 +1,6 @@
 import logging
 
-import requests
 from authlib.integrations.requests_client import OAuth2Session
-from starlette.requests import Request
 
 from backend.services.auth.strategies.base import BaseOAuthStrategy
 from backend.services.auth.strategies.settings import Settings
@@ -42,39 +40,3 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def get_refresh_token_params(self):
         return {"access_type": "offline", "prompt": "consent"}
-
-    async def get_endpoints(self):
-        response = requests.get(self.WELL_KNOWN_ENDPOINT)
-        endpoints = response.json()
-        try:
-            self.TOKEN_ENDPOINT = endpoints["token_endpoint"]
-            self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
-            self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
-        except Exception as e:
-            logging.error(
-                f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
-            )
-            raise
-
-    async def authorize(self, request: Request) -> dict | None:
-        """
-        Authenticates the current user using their Google account.
-
-        Args:
-            request (Request): Current request.
-
-        Returns:
-            Access token.
-        """
-        token = self.client.fetch_token(
-            url=self.TOKEN_ENDPOINT,
-            authorization_response=str(request.url),
-            redirect_uri=self.REDIRECT_URI,
-        )
-
-        import pdb
-
-        pdb.set_trace()
-        user_info = self.client.get(self.USERINFO_ENDPOINT)
-
-        return user_info.json()

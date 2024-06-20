@@ -9,8 +9,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config.auth import get_strategy_endpoints, is_authentication_enabled
+from backend.config.auth import get_auth_strategy_endpoints, is_authentication_enabled
 from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.middleware import LoggingMiddleware
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
@@ -19,7 +20,6 @@ from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.services.logger import LoggingMiddleware
 
 load_dotenv()
 
@@ -52,7 +52,7 @@ def create_app():
     # These values must be set in config/routers.py
     dependencies_type = "default"
     if is_authentication_enabled():
-        asyncio.create_task(get_strategy_endpoints())
+        asyncio.create_task(get_auth_strategy_endpoints())
         # Required to save temporary OAuth state in session
         app.add_middleware(
             SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")

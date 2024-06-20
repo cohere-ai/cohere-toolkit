@@ -4,7 +4,7 @@ from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.requests import Request
 
-from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
+from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING, get_auth_strategy
 from backend.config.routers import RouterName
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
@@ -13,10 +13,7 @@ from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
 from backend.services.auth import GoogleOAuth, OpenIDConnect
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
-from backend.services.auth.utils import (
-    get_or_create_user,
-    is_enabled_authentication_strategy,
-)
+from backend.services.auth.utils import get_or_create_user
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -77,13 +74,12 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy_name = login.strategy
     payload = login.payload
 
-    if not is_enabled_authentication_strategy(strategy_name):
+    strategy = get_auth_strategy(strategy_name)
+    if not strategy:
         raise HTTPException(
             status_code=422, detail=f"Invalid Authentication strategy: {strategy_name}."
         )
 
-    # Check that the payload required is given
-    strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
         missing_keys = [key for key in strategy_payload if key not in payload.keys()]
@@ -170,12 +166,11 @@ async def logout(
 async def authorize(
     request: Request, session: DBSessionDep, strategy_name: str
 ) -> JWTResponse:
-    if not is_enabled_authentication_strategy(strategy_name):
+    strategy = get_auth_strategy(strategy_name)
+    if not strategy:
         raise HTTPException(
-            status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
+            status_code=422, detail=f"Invalid Authentication strategy: {strategy_name}."
         )
-
-    strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
 
     try:
         userinfo = await strategy.authorize(request)
@@ -190,9 +185,14 @@ async def authorize(
             status_code=401, detail=f"Could not get user from auth token: {token}."
         )
 
-    # Get or create user, then set session user
-    user = get_or_create_user(session, userinfo)
-
-    token = JWTService().create_and_encode_jwt(user, strategy_name)
+    try:
+        # Get or create user, then set session user
+        user = get_or_create_user(session, userinfo)
+        token = JWTService().create_and_encode_jwt(user, strategy_name)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Could not create user and encode JWT token.",
+        )
 
     return {"token": token}
