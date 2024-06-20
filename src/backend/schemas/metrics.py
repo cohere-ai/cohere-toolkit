@@ -11,6 +11,7 @@ class MetricsDataBase(BaseModel):
     method: str
     endpoint_name: str
     success: bool
+    user_id: str | None = None
     timestamp: float = time.time()
     secret: str = "secret"
 

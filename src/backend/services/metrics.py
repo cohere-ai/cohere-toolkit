@@ -5,6 +5,7 @@ import time
 import uuid
 from functools import wraps
 from typing import Any, Callable, Dict
+import json
 
 from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
@@ -45,9 +46,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         if scope["type"] != "http":
             return None
 
+
         agent = self.get_agent(request)
         agent_id = agent.get("id", None) if agent else None
-
         data = MetricsData(
             method=self.get_method(scope),
             endpoint_name=self.get_endpoint_name(scope, request),
@@ -170,6 +171,11 @@ async def report_metrics(data):
     data["secret"] = "secret"
     signal = {"signal": data}
     logging.info(signal)
+    json_string = json.dumps(signal)
+    # just general curl commands to test the endpoint for now
+    print(
+        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_string}' $ENDPOINT\n\n"
+    )
 
     if not REPORT_ENDPOINT:
         logging.error("No report endpoint set")
