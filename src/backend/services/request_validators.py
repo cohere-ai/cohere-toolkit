@@ -6,6 +6,7 @@ from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
+from backend.services.auth.utils import get_header_user_id
 
 
 def validate_user_header(request: Request):
@@ -21,7 +22,7 @@ def validate_user_header(request: Request):
 
     """
 
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
     if not user_id:
         raise HTTPException(
             status_code=401, detail="User-Id required in request headers."
@@ -184,7 +185,7 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
             status_code=400, detail=f"Agent with ID {agent_id} not found."
         )
 
-    if agent.user_id != request.headers.get("User-Id"):
+    if agent.user_id != get_header_user_id(request):
         raise HTTPException(
             status_code=401, detail=f"Agent with ID {agent_id} does not belong to user."
         )
