@@ -1,3 +1,5 @@
+import asyncio
+import os
 from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
@@ -5,8 +7,9 @@ from alembic.config import Config
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config.auth import is_authentication_enabled
+from backend.config.auth import get_strategy_endpoints, is_authentication_enabled
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -49,6 +52,11 @@ def create_app():
     # These values must be set in config/routers.py
     dependencies_type = "default"
     if is_authentication_enabled():
+        asyncio.create_task(get_strategy_endpoints())
+        # Required to save temporary OAuth state in session
+        app.add_middleware(
+            SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")
+        )
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():

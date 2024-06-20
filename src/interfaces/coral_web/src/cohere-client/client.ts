@@ -536,6 +536,41 @@ export class CohereClient {
     return body as {};
   }
 
+  public async googleSSOAuth({ code }: { code: string }) {
+    const response = await this.fetch(`${this.getEndpoint('google/auth')}?code=${code}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+    this.authToken = body.token;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as { token: string };
+  }
+
+  public async oidcSSOAuth({ code, strategy }: { code: string; strategy: string }) {
+    const response = await this.fetch(
+      `${this.getEndpoint('oidc/auth')}?code=${code}&strategy=${strategy}`,
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+      }
+    );
+
+    const body = await response.json();
+    this.authToken = body.token;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as { token: string };
+  }
+
   private getEndpoint(
     endpoint:
       | 'upload'
@@ -549,6 +584,8 @@ export class CohereClient {
       | 'logout'
       | 'auth_strategies'
       | 'users'
+      | 'google/auth'
+      | 'oidc/auth'
   ) {
     return `${this.hostname}/v1/${endpoint}`;
   }

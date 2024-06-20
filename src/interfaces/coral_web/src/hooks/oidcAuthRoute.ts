@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
 
+import { useAuthConfig } from '@/hooks/authConfig';
+
 /**
  * Hook which redirects to the Google login/register page.
  * This hook is used on the auth host app's login page, in combination with `ssrUseLogin` called
@@ -7,27 +9,25 @@ import Cookies from 'js-cookie';
  *
  * Upon successful login, the `useSession` hook will provide a valid session.
  */
-export const useGoogleAuthRoute = () => {
-  // const authConfig = useAuthConfig();
-  const authConfig = {
-    login: {
-      googleClientId: 'googleClientId',
-    },
-    baseUrl: 'baseUrl',
-  };
+export const useOidcAuthRoute = () => {
+  const authConfig = useAuthConfig();
 
   if (!authConfig.login) {
     throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
   }
 
-  const handleGoogleAuth = {
+  const handleOidcAuth = {
     start({
+      strategy,
+      authorizationEndpoint,
       redirectToReadMe = false,
       redirect,
       freeCreditCode,
       inviteHash,
       recaptchaToken = '',
     }: {
+      strategy: string;
+      authorizationEndpoint: string;
       redirectToReadMe?: boolean;
       redirect?: string;
       freeCreditCode?: string;
@@ -36,6 +36,14 @@ export const useGoogleAuthRoute = () => {
     }) {
       if (!authConfig.login) {
         throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
+      }
+
+      const strategyConfig = authConfig.login.find(
+        (strategyConfig) => strategyConfig.strategy === strategy
+      );
+
+      if (!strategyConfig) {
+        throw new Error(`Strategy ${strategy} not found in authConfig`);
       }
 
       const oauthState = {
@@ -48,16 +56,13 @@ export const useGoogleAuthRoute = () => {
       };
       const state = JSON.stringify(oauthState);
 
-      Cookies.set('google_oauth_state', state, {
-        sameSite: 'lax',
-        secure: true,
-      });
-
-      const url = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
+      const url = `${authorizationEndpoint}?${new URLSearchParams({
         response_type: 'code',
-        client_id: authConfig.login.googleClientId,
+        client_id: strategyConfig.client_id,
         scope: 'openid email profile',
-        redirect_uri: `${authConfig.baseUrl}/auth/complete`,
+        redirect_uri: `${authConfig.baseUrl}/auth/${encodeURIComponent(
+          strategyConfig.strategy.toLowerCase()
+        )}`,
         prompt: 'select_account consent',
         state,
       }).toString()}`;
@@ -67,6 +72,6 @@ export const useGoogleAuthRoute = () => {
   };
 
   return {
-    googleAuth: handleGoogleAuth,
+    oidcAuth: handleOidcAuth,
   };
 };
