@@ -91,7 +91,7 @@ We have a [detailed guide for these model providers here](../command_model_provi
 
 To add your own:
 - Add a file to `src/backend/model_deployments/{custom_provider}`
-- Implement the `.chat()` function 
+- Implement the `invoke` functions such as `invoke_chat_stream`
 - Add your model config at `src/backend/config/deployments.py`
 
 <p align="center">
