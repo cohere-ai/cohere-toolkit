@@ -186,7 +186,7 @@ const Conversation: React.FC<Props> = ({
       </div>
 
       <Transition
-        show={isEditAgentPanelOpen}
+        show={!!isEditAgentPanelOpen}
         as="div"
         className="z-configuration-drawer h-auto border-l border-marble-400"
         enter="transition-all ease-in-out duration-300"
