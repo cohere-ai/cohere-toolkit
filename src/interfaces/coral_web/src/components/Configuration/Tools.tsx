@@ -2,6 +2,7 @@ import { uniq } from 'lodash';
 import React from 'react';
 
 import { Tool } from '@/cohere-client';
+import { AgentToolsTabSection } from '@/components/Agents/AgentToolsTabSection';
 import { FilesSection } from '@/components/Configuration/Files';
 import { ToolsInfoBox } from '@/components/Configuration/ToolsInfoBox';
 import { Checkbox, Switch, Text, Tooltip } from '@/components/Shared';
@@ -44,6 +45,8 @@ const ToolSection = () => {
   const tools = data?.filter((t) => t.is_visible) ?? [];
   const enabledTools = paramTools ?? [];
   const name = `select-all-tools`;
+  const isAssistantsView = true;
+  const isDataConnectionRequired = true;
 
   const checked = tools.every((tool) =>
     enabledTools.some((enabledTool) => enabledTool.name === tool.name)
@@ -74,6 +77,7 @@ const ToolSection = () => {
 
   return (
     <section className="relative flex flex-col gap-y-5 px-5">
+      {isAssistantsView && <AgentToolsTabSection />}
       <ToolsInfoBox />
       {tools.length > 0 && (
         <>
