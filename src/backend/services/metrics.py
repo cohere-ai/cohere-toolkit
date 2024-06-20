@@ -29,13 +29,13 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         start_time = time.perf_counter()
         response = await call_next(request)
-        duration = time.perf_counter() - start_time
+        duration_ms = time.perf_counter() - start_time
 
-        data = self.get_data(request.scope, response, request, duration)
+        data = self.get_data(request.scope, response, request, duration_ms)
         threading.Thread(target=report_metrics_thread, args=(data,)).start()
         return response
 
-    def get_data(self, scope, response, request, duration):
+    def get_data(self, scope, response, request, duration_ms):
         data = {}
 
         if scope["type"] != "http":
@@ -50,7 +50,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             status_code=self.get_status_code(response),
             object_ids=self.get_object_ids(request),
             agent=self.get_agent(request),
-            duration=duration,
+            duration_ms=duration_ms,
         )
 
         return data

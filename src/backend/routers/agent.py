@@ -95,6 +95,7 @@ async def get_agent_by_id(
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
+    request.state.agent = agent
     return agent
 
 

@@ -101,7 +101,7 @@ class CohereDeployment(BaseDeployment):
                 .get("billed_units", {})
                 .get("output_tokens")
             )
-            metrics_data.duration = time.perf_counter() - start_time
+            metrics_data.duration_ms = time.perf_counter() - start_time
 
             self.report_metrics(metrics_data)
 
@@ -163,7 +163,7 @@ class CohereDeployment(BaseDeployment):
             metrics_data.error = str(e)
             raise e
         finally:
-            metrics_data.duration = time.perf_counter() - start_time
+            metrics_data.duration_ms = time.perf_counter() - start_time
             self.report_metrics(metrics_data)
 
     def invoke_rerank(
@@ -202,7 +202,7 @@ class CohereDeployment(BaseDeployment):
                 .get("search_units")
             )
 
-            metrics_data.duration = time.perf_counter() - start_time
+            metrics_data.duration_ms = time.perf_counter() - start_time
             self.report_metrics(metrics_data)
             return response_dict
 

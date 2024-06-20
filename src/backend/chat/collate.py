@@ -21,7 +21,7 @@ def rerank_and_chunk(
     Returns:
         List[Dict[str, Any]]: List of reranked and combined documents.
     """
-    trace_id = kwargs.get("trace_id")
+    trace_id = kwargs.get("trace_id", "")
     user_id = kwargs.get("user_id")
 
     # If rerank is not enabled return documents as is:

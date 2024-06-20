@@ -102,7 +102,7 @@ class BedrockDeployment(BaseDeployment):
                 .get("billed_units", {})
                 .get("output_tokens")
             )
-            metrics_data.duration = time.perf_counter() - start_time
+            metrics_data.duration_ms = time.perf_counter() - start_time
 
             self.report_metrics(metrics_data)
 
@@ -167,7 +167,7 @@ class BedrockDeployment(BaseDeployment):
             metrics_data.error = str(e)
             logging.error(f"Error invoking chat stream: {e}")
         finally:
-            metrics_data.duration = time.perf_counter() - start_time
+            metrics_data.duration_ms = time.perf_counter() - start_time
             self.report_metrics(metrics_data)
 
     def invoke_rerank(
