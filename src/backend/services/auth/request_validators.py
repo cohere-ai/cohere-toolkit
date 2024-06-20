@@ -78,7 +78,7 @@ def validate_authorization(
         if not strategy:
             raise HTTPException(
                 status_code=400,
-                detail=f"Tried refreshing token, but Auth strategy {strategy_name} is disabled.",
+                detail=f"Tried refreshing token, but Auth strategy {strategy_name} is disabled or does not exist.",
             )
 
         if not hasattr(strategy, "refresh"):
