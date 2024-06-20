@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { IconButton } from '@/components/IconButton';
-import { Button, Spinner, Text } from '@/components/Shared';
+import { Banner, Button, Spinner, Text } from '@/components/Shared';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
@@ -13,7 +13,7 @@ type Props = {
   agentId?: string;
 };
 
-export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
+export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
   const { setSettings } = useSettingsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
@@ -58,12 +58,13 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
         deployment: agent.deployment,
         model: agent.model,
         tools: agent.tools,
+        preamble: agent.preamble,
       });
     }
   }, [agent]);
 
   const handleClose = () => {
-    setSettings({ isEditAgentDrawerOpen: false });
+    setSettings({ isEditAgentPanelOpen: false });
   };
 
   const handleChange = (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => {
@@ -74,7 +75,7 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
   };
 
   const handleToolToggle = (toolName: string, checked: boolean) => {
-    const enabledTools = [...(fields.tools ? fields.tools : [])];
+    const enabledTools = fields.tools ?? [];
     setFields({
       ...fields,
       tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
@@ -116,14 +117,14 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
     <div
       className={cn(
         'flex h-full flex-col bg-marble-100',
-        '2xl:agent-drawer-2xl absolute left-0 top-0 z-configuration-drawer w-full md:relative md:w-agent-drawer lg:w-agent-drawer-lg'
+        '2xl:agent-panel-2xl absolute left-0 top-0 w-full md:relative md:w-agent-panel lg:w-agent-panel-lg'
       )}
     >
-      <header className="flex h-header items-center justify-between border-b border-marble-400 pl-14 pr-6">
+      <header className="flex h-header flex-shrink-0 items-center justify-between border-b border-marble-400 pl-14 pr-6">
         <Text>{isAgentCreator ? `Update ${agent.name}` : `About ${agent.name}`}</Text>
         <IconButton iconName="close" onClick={handleClose} />
       </header>
-      <div className="flex flex-col gap-y-5 px-14 py-8">
+      <div className="flex flex-col gap-y-5 overflow-y-auto px-14 py-8">
         <AgentForm
           fields={fields}
           errors={fieldErrors}
@@ -133,17 +134,16 @@ export const UpdateAgentDrawer: React.FC<Props> = ({ agentId }) => {
         />
         {isAgentCreator && (
           <>
-            <div className="w-full rounded border-2 border-dashed border-marble-500 bg-secondary-50 px-5 py-4">
+            <Banner className="w-full">
               Updating {agent.name} will affect everyone using the assistant
-            </div>
+            </Banner>
             <Button
               className="mt-14 self-end"
               splitIcon="check-mark"
+              label={isSubmitting ? 'Updating' : 'Update'}
               onClick={handleSubmit}
               disabled={!canSubmit}
-            >
-              {isSubmitting ? 'Updating' : 'Update'}
-            </Button>
+            />
           </>
         )}
       </div>

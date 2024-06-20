@@ -41,9 +41,6 @@ export const AgentForm: React.FC<Props> = ({
           hasError={!!errors?.name}
           errorText={errors?.name}
           disabled={disabled}
-          className={cn({
-            'border-marble-500 bg-marble-300': disabled,
-          })}
         />
       </InputLabel>
       <InputLabel label="description" className="pb-2">
@@ -53,9 +50,6 @@ export const AgentForm: React.FC<Props> = ({
           placeholder="What does your assistant do?"
           onChange={(e) => onChange('description', e.target.value)}
           disabled={disabled}
-          className={cn({
-            'border-marble-500 bg-marble-300': disabled,
-          })}
         />
       </InputLabel>
       <InputLabel label="Preamble">
@@ -83,7 +77,7 @@ export const AgentForm: React.FC<Props> = ({
       </InputLabel>
       <InputLabel label="Tools" className="mb-2">
         <div className="flex flex-col gap-y-4 px-3">
-          {tools.map((tool) => {
+          {tools.map((tool, i) => {
             const enabledTools = [...(fields.tools ? fields.tools : [])];
             const enabledTool = enabledTools.find((t) => t === tool.name);
             const checked = !!enabledTool;
@@ -91,6 +85,7 @@ export const AgentForm: React.FC<Props> = ({
               <Checkbox
                 key={tool.name}
                 label={tool.name}
+                name={tool.name + i}
                 checked={checked}
                 onChange={(e) => onToolToggle(tool.name, e.target.checked)}
                 disabled={disabled}

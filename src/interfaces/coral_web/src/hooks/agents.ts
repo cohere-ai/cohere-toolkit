@@ -57,7 +57,7 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
 export const useIsAgentNameUnique = () => {
   const { data: agents } = useListAgents();
   return (name: string, omittedAgentId?: string) =>
-    !agents?.some((agent) => agent.name === name && agent.id !== omittedAgentId);
+    agents?.every((agent) => agent.name !== name || agent.id === omittedAgentId);
 };
 
 export const useUpdateAgent = () => {

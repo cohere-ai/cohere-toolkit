@@ -1,6 +1,7 @@
+import { Transition } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
-import { UpdateAgentDrawer } from '@/components/Agents/UpdateAgentDrawer';
+import { UpdateAgentPanel } from '@/components/Agents/UpdateAgentPanel';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
@@ -60,7 +61,7 @@ const Conversation: React.FC<Props> = ({
     params: { fileIds },
   } = useParamsStore();
   const {
-    settings: { isEditAgentDrawerOpen },
+    settings: { isEditAgentPanelOpen },
   } = useSettingsStore();
   const {
     files: { composerFiles },
@@ -177,13 +178,20 @@ const Conversation: React.FC<Props> = ({
           />
         </div>
       </div>
-      <div
-        className={cn('hidden h-auto border-l border-marble-400', {
-          flex: isEditAgentDrawerOpen,
-        })}
+
+      <Transition
+        show={isEditAgentPanelOpen}
+        as="div"
+        className="z-configuration-drawer h-auto border-l border-marble-400"
+        enter="transition-all ease-in-out duration-300"
+        enterFrom="w-0"
+        enterTo="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
+        leave="transition-all ease-in-out duration-300"
+        leaveFrom="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
+        leaveTo="w-0"
       >
-        <UpdateAgentDrawer agentId={agentId} />
-      </div>
+        <UpdateAgentPanel agentId={agentId} />
+      </Transition>
     </div>
   );
 };
