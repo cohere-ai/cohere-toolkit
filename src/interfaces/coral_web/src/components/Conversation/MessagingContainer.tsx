@@ -10,7 +10,7 @@ import { Welcome } from '@/components/Welcome';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
-import { useCitationsStore } from '@/stores';
+import { useCitationsStore, useSettingsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -60,6 +60,9 @@ export default memo(MessagingContainer);
 const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
   const scrollToBottom = useScrollToBottom();
+  const {
+    settings: { isEditAgentPanelOpen },
+  } = useSettingsStore();
   const {
     citations: { hasCitations },
   } = useCitationsStore();
@@ -137,9 +140,10 @@ const Content: React.FC<Props> = (props) => {
       </div>
 
       <div
-        className={cn('hidden h-auto border-l border-marble-400', { 'md:flex': hasCitations })}
+        className={cn('hidden h-auto border-l border-marble-400', {
+          'md:flex': hasCitations || !isEditAgentPanelOpen,
+        })}
       />
-
       <CitationPanel
         citationToStyles={citationToStyles}
         streamingMessage={streamingMessage}

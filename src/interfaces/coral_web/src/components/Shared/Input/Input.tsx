@@ -334,6 +334,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     'py-3': kind === 'default' && size === 'sm',
     'py-4': kind === 'default' && size === 'md',
     'pt-7 pb-2.5': kind === 'cell',
+    'border-marble-500 bg-marble-300': disabled,
   });
 
   return (
