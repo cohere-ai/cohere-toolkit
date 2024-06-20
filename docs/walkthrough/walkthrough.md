@@ -85,7 +85,7 @@ Pre-built model providers which your can customize to your needs include:
 - Azure 
 - AWS (Bedrock and Sagemaker)
 - Local Models (with raw prompting)
-  - Hugging Face
+- Hugging Face
 
 We have a [detailed guide for these model providers here](../command_model_providers.md).
 
