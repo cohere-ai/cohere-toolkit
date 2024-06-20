@@ -32,6 +32,9 @@ module.exports = {
         'citation-lg': '298px',
         'citation-xl': '320px',
         file: '224px',
+        'agent-panel': '350px',
+        'agent-panel-lg': '500px',
+        'agent-panel-2xl': '650px',
       },
       maxWidth: {
         'modal-xs': '352px',
