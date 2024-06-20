@@ -36,7 +36,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         duration_ms = time.perf_counter() - start_time
 
         data = self.get_data(request.scope, response, request, duration_ms)
-        await report_metrics_task(data)
+        run_loop(data)
         return response
 
     def get_data(self, scope, response, request, duration_ms):
@@ -169,10 +169,11 @@ async def report_metrics(data):
 
     data["secret"] = "secret"
     signal = {"signal": data}
-    print(signal)
+    logging.info(signal)
 
     if not REPORT_ENDPOINT:
-        raise Exception("No report endpoint set")
+        logging.error("No report endpoint set")
+        return
 
     transport = AsyncHTTPTransport(retries=NUM_RETRIES)
     try:
@@ -180,10 +181,6 @@ async def report_metrics(data):
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
         logging.error(f"Failed to report metrics: {e}")
-
-
-async def report_metrics_task(data):
-    await asyncio.create_task(report_metrics(data))
 
 
 # DECORATORS
@@ -205,9 +202,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
                 get_input_output_tokens(response_dict)
             )
             metrics_data.duration_ms = time.perf_counter() - start_time
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(report_metrics_task(metrics_data))
+            run_loop(metrics_data)
 
             return response_dict
 
@@ -241,9 +236,7 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(report_metrics_task(metrics_data))
+            run_loop(metrics_data)
 
     return wrapper
 
@@ -264,12 +257,18 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(report_metrics_task(metrics_data))
+            run_loop(metrics_data)
             return response_dict
 
     return wrapper
+
+
+def run_loop(metrics_data):
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(report_metrics(metrics_data))
+    except RuntimeError:
+        asyncio.run(report_metrics(metrics_data))
 
 
 def initialize_metrics_data(
