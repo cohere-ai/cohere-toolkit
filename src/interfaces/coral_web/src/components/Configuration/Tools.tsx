@@ -95,7 +95,7 @@ const ToolSection = () => {
             />
           </div>
           <div className="flex flex-col gap-y-5">
-            {tools.map(({ name, is_available, description, error_message }) => {
+            {tools.map(({ name, display_name, is_available, description, error_message }) => {
               const enabledTool = enabledTools.find(
                 (enabledTool) => enabledTool.name.toLocaleLowerCase() === name.toLocaleLowerCase()
               );
@@ -109,7 +109,7 @@ const ToolSection = () => {
                     onChange={(e) => {
                       handleToolToggle(name, e.target.checked);
                     }}
-                    label={name}
+                    label={display_name}
                     name={name}
                     theme="secondary"
                     dataTestId={`checkbox-tool-${name}`}
