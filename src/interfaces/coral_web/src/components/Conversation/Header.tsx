@@ -42,7 +42,7 @@ const useHeaderMenu = ({
   const handleNewChat = () => {
     const assistantId = router.query.assistantId;
 
-    const url = assistantId ? `/?assistantId=${assistantId}` : '/';
+    const url = assistantId ? `/agents/?assistantId=${assistantId}` : '/agents';
     router.push(url, undefined, { shallow: true });
     resetConversation();
     resetCitations();

@@ -78,4 +78,4 @@ export const useParamsStore = () => {
   );
 };
 
-export { useSettingsStore } from '@/stores/persistedStore';
+export { useSettingsStore, useAgentsStore } from '@/stores/persistedStore';
