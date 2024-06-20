@@ -10,6 +10,7 @@ import {
   Deployment,
   ERROR_FINISH_REASON_TO_MESSAGE,
   FinishReason,
+  ListAuthStrategy,
   ListFile,
   Tool,
   UpdateAgent,
@@ -508,7 +509,7 @@ export class CohereClient {
       throw new CohereNetworkError('Something went wrong', response.status);
     }
 
-    return body as { strategies: string[] };
+    return body as ListAuthStrategy[];
   }
 
   public async createUser({

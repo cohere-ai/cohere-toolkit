@@ -45,7 +45,7 @@ export const useSession = () => {
   );
 
   const cohereClient = useCohereClient();
-  const session: UserSession = authToken ? jwtDecode(authToken).context : {};
+  const session = authToken ? (jwtDecode(authToken) as { context: UserSession }).context : null;
 
   const loginMutation = useMutation({
     mutationFn: async (params: LoginParams) => {
@@ -96,7 +96,7 @@ export const useSession = () => {
 
   return {
     session,
-    userId: 'id' in session ? session.id : 'user-id',
+    userId: session && 'id' in session ? session.id : 'user-id',
     authToken,
     isLoggedIn,
     loginMutation,

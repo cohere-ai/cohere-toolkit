@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { CohereClient, CohereUnauthorizedError } from '@/cohere-client';
+import { CohereClient, CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
@@ -14,6 +14,7 @@ import { useOidcAuthRoute } from '@/hooks/oidcAuthRoute';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
 import { PageAppProps, appSSR } from '@/pages/_app';
+import type { NoNullProperties } from '@/types/util';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
 interface Credentials {
@@ -31,18 +32,27 @@ type LoginStatus = 'idle' | 'pending';
 const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
   const { loginMutation } = useSession();
-  const { login: authStrategies } = useAuthConfig();
+  const { loginStrategies } = useAuthConfig();
   const { oidcAuth } = useOidcAuthRoute();
 
   const notify = useNotify();
-  const loginStatus: LoginStatus = loginMutation.isLoading ? 'pending' : 'idle';
+  const loginStatus: LoginStatus = loginMutation.isPending ? 'pending' : 'idle';
 
   const { register, handleSubmit, formState } = useForm<Credentials>();
   const redirect = getQueryString(router.query.redirect_uri);
-  const hasBasicAuth = authStrategies.some((login) => login.strategy.toLowerCase() === 'basic');
+  const hasBasicAuth = loginStrategies.some((login) => login.strategy.toLowerCase() === 'basic');
   const ssoStrategies = useMemo(() => {
-    return authStrategies ? authStrategies.filter((strategy) => strategy.strategy !== 'Basic') : [];
-  }, [authStrategies]);
+    return (
+      loginStrategies
+        ? loginStrategies.filter(
+            (strategy) =>
+              strategy.strategy !== 'Basic' &&
+              strategy.client_id !== null &&
+              strategy.authorization_endpoint !== null
+          )
+        : []
+    ) as NoNullProperties<ListAuthStrategy>[];
+  }, [loginStrategies]);
   const [errors, setErrors] = useState<string[]>([]);
 
   const onSubmit: SubmitHandler<Credentials> = async (data) => {

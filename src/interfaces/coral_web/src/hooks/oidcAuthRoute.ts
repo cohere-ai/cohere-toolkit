@@ -12,7 +12,7 @@ import { useAuthConfig } from '@/hooks/authConfig';
 export const useOidcAuthRoute = () => {
   const authConfig = useAuthConfig();
 
-  if (!authConfig.login) {
+  if (!authConfig.loginStrategies) {
     throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
   }
 
@@ -34,11 +34,11 @@ export const useOidcAuthRoute = () => {
       inviteHash?: string;
       recaptchaToken?: string;
     }) {
-      if (!authConfig.login) {
+      if (!authConfig.loginStrategies) {
         throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
       }
 
-      const strategyConfig = authConfig.login.find(
+      const strategyConfig = authConfig.loginStrategies.find(
         (strategyConfig) => strategyConfig.strategy === strategy
       );
 
@@ -58,13 +58,13 @@ export const useOidcAuthRoute = () => {
 
       const url = `${authorizationEndpoint}?${new URLSearchParams({
         response_type: 'code',
-        client_id: strategyConfig.client_id,
         scope: 'openid email profile',
         redirect_uri: `${authConfig.baseUrl}/auth/${encodeURIComponent(
           strategyConfig.strategy.toLowerCase()
         )}`,
         prompt: 'select_account consent',
         state,
+        ...(strategyConfig.client_id && { client_id: strategyConfig.client_id }),
       }).toString()}`;
 
       window.location.assign(url);

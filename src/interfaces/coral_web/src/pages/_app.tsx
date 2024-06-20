@@ -63,7 +63,7 @@ const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
     }
   );
   const router = useRouter();
-  const cohereClient = useLazyRef(() => makeCohereClient(authToken));
+  const cohereClient = useLazyRef(() => makeCohereClient(authToken || undefined));
   const queryClient = useLazyRef(
     () =>
       new QueryClient({

@@ -1,19 +1,20 @@
+import { ListAuthStrategy } from '@/cohere-client';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
 
 export const useAuthConfig = (): {
   loginUrl: string;
   registerUrl: string;
   logoutUrl: string;
-  login: { strategy: string; client_id: string; authorization_endpoint: string }[];
+  loginStrategies: ListAuthStrategy[];
   baseUrl: string;
 } => {
-  const { data: authStrategies } = useServerAuthStrategies();
+  const { data: authStrategies = [] } = useServerAuthStrategies();
 
   return {
     loginUrl: '/login',
     registerUrl: '/register',
     logoutUrl: '/logout',
-    login: authStrategies ? authStrategies : [],
+    loginStrategies: authStrategies,
     baseUrl: 'http://localhost:4000',
   };
 };
