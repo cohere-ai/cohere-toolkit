@@ -61,7 +61,7 @@ const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
   const scrollToBottom = useScrollToBottom();
   const {
-    settings: { isEditAgentDrawerOpen },
+    settings: { isEditAgentPanelOpen },
   } = useSettingsStore();
   const {
     citations: { hasCitations },
@@ -141,7 +141,7 @@ const Content: React.FC<Props> = (props) => {
 
       <div
         className={cn('hidden h-auto border-l border-marble-400', {
-          'md:flex': hasCitations || !isEditAgentDrawerOpen,
+          'md:flex': hasCitations || !isEditAgentPanelOpen,
         })}
       />
       <CitationPanel

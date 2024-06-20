@@ -31,7 +31,7 @@ const useHeaderMenu = ({
   const isAgentCreator = userId === agent?.user_id;
 
   const {
-    settings: { isEditAgentDrawerOpen },
+    settings: { isEditAgentPanelOpen },
     setSettings,
   } = useSettingsStore();
   const { resetFileParams } = useParamsStore();
@@ -60,14 +60,14 @@ const useHeaderMenu = ({
   };
 
   const handleOpenAgentDrawer = () => {
-    setSettings({ isEditAgentDrawerOpen: !isEditAgentDrawerOpen });
+    setSettings({ isEditAgentPanelOpen: !isEditAgentPanelOpen });
   };
 
   const menuItems: KebabMenuItem[] = [
     ...(!!agent
       ? [
           {
-            label: isAgentCreator ? 'Update assistant' : 'About assistant',
+            label: isAgentCreator ? 'Edit assistant' : 'About assistant',
             iconName: isAgentCreator ? 'edit' : 'information',
             onClick: handleOpenAgentDrawer,
           } as KebabMenuItem,
@@ -174,6 +174,11 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             />
           </div>
           <IconButton
+            tooltip={{
+              label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+              placement: 'bottom-end',
+              size: 'md',
+            }}
             iconName={isAgentCreator ? 'edit' : 'information'}
             onClick={handleOpenAgentDrawer}
             className={cn('hidden', { 'md:flex': !!agentId })}
