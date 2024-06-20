@@ -78,7 +78,6 @@ class SageMakerDeployment(BaseDeployment):
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        # TODO: implement metrics correctly
         start_time = time.perf_counter()
         metrics_data = MetricsData(
             endpoint_name="co.chat",
@@ -100,15 +99,22 @@ class SageMakerDeployment(BaseDeployment):
         self.params["Body"] = json.dumps(json_params)
 
         # Invoke the model and print the response
-        result = self.client.invoke_endpoint_with_response_stream(**self.params)
-        event_stream = result["Body"]
-        for index, line in enumerate(SageMakerDeployment.LineIterator(event_stream)):
-            stream_event = json.loads(line.decode())
-            stream_event["index"] = index
-            yield stream_event
-
-        metrics_data.duration = time.perf_counter() - start_time
-        self.report_metrics(metrics_data)
+        try:
+            result = self.client.invoke_endpoint_with_response_stream(**self.params)
+            event_stream = result["Body"]
+            for index, line in enumerate(
+                SageMakerDeployment.LineIterator(event_stream)
+            ):
+                stream_event = json.loads(line.decode())
+                stream_event["index"] = index
+                yield stream_event
+        except Exception as e:
+            metrics_data.success = False
+            metrics_data.error = str(e)
+            raise e
+        finally:
+            metrics_data.duration = time.perf_counter() - start_time
+            self.report_metrics(metrics_data)
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any

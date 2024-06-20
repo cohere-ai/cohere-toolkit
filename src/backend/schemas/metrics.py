@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class MetricsDataBase(BaseModel):
     id: str = str(uuid.uuid4())
-    trace_id: str
+    trace_id: str | None = None
     method: str
     endpoint_name: str
     success: bool

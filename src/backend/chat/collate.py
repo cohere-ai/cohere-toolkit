@@ -76,6 +76,10 @@ def rerank_and_chunk(
             query=query, documents=chunked_outputs, trace_id=trace_id, user_id=user_id
         )
 
+        if not res:
+            reranked_results[tool_call_hashable] = tool_result
+            continue
+
         # Sort the results by relevance score
         res["results"].sort(key=lambda x: x["relevance_score"], reverse=True)
 

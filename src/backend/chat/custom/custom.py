@@ -48,21 +48,30 @@ class CustomChat(BaseChat):
 
         for step in range(MAX_STEPS):
             logger.info(f"Step {step + 1}")
-            stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
+            try:
+                stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
-            for event in stream:
-                result = self.handle_event(event, chat_request)
+                for event in stream:
+                    result = self.handle_event(event, chat_request)
 
-                if result:
-                    yield result
+                    if result:
+                        yield result
 
-                if event[
-                    "event_type"
-                ] == StreamEvent.STREAM_END and self.is_final_event(
-                    event, chat_request
-                ):
-                    should_break = True
-                    break
+                    if event[
+                        "event_type"
+                    ] == StreamEvent.STREAM_END and self.is_final_event(
+                        event, chat_request
+                    ):
+                        should_break = True
+                        break
+            except Exception as e:
+                yield {
+                    "event_type": StreamEvent.STREAM_END,
+                    "finish_reason": "ERROR",
+                    "error": str(e),
+                    "status_code": 500,
+                }
+                should_break = True
 
             if should_break:
                 break

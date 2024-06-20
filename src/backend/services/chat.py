@@ -8,6 +8,7 @@ from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
+from starlette.exceptions import HTTPException
 
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS

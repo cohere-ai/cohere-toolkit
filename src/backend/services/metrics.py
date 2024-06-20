@@ -15,7 +15,7 @@ from backend.chat.collate import to_dict
 from backend.schemas.metrics import MetricsData
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
-NUM_RETRIES = 5
+NUM_RETRIES = 0
 
 import time
 
