@@ -3,6 +3,8 @@ from backend.tools.files import ReadFileTool, SearchFileTool
 from backend.tools.lang_chain import LangChainVectorDBRetriever, LangChainWikiRetriever
 from backend.tools.python_interpreter import PythonInterpreter
 from backend.tools.tavily import TavilyInternetSearch
+from backend.tools.web_scrape import WebScrapeTool
+
 
 __all__ = [
     "Calculator",
@@ -12,4 +14,5 @@ __all__ = [
     "TavilyInternetSearch",
     "ReadFileTool",
     "SearchFileTool",
+    "WebScrapeTool"
 ]

@@ -11,6 +11,7 @@ from backend.tools import (
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
+    WebScrapeTool,
 )
 
 """
@@ -31,7 +32,8 @@ class ToolName(StrEnum):
     Read_File = "read_document"
     Python_Interpreter = "python_interpreter"
     Calculator = "calculator"
-    Tavily_Internet_Search = "internet_search"
+    Tavily_Internet_Search = "web_search"
+    Web_Scrape = "web_scrape"
 
 
 ALL_TOOLS = {
@@ -142,6 +144,28 @@ ALL_TOOLS = {
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
+    ),
+    ToolName.Web_Scrape: ManagedTool(
+        name=ToolName.Web_Scrape,
+        display_name="Web Scrape",
+        implementation=WebScrapeTool,
+        parameter_definitions={
+            "url": {
+                "description": "URL to scrape.",
+                "type": "str",
+                "required": True,
+            },
+            "query": {
+                "description": "Query to search the webpage for.",
+                "type": "str",
+                "required": False,
+            }
+        },
+        is_visible=True,
+        is_available=WebScrapeTool.is_available(),
+        error_message="WebScrapeTool not available.",
+        category=Category.DataLoader,
+        description="Scrapes the content of a webpage, chunks and ranks the content by relevance to the query.",
     ),
 }
 
