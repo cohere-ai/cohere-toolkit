@@ -40,6 +40,7 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         tools=agent.tools,
     )
 
+    request.state.agent = agent_data
     try:
         return agent_crud.create_agent(session, agent_data)
     except Exception as e:
@@ -94,6 +95,7 @@ async def get_agent_by_id(
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
+    request.state.agent = agent
     return agent
 
 

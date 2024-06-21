@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.crud import user as user_crud
@@ -11,7 +11,9 @@ router.name = RouterName.USER
 
 
 @router.post("/", response_model=User)
-async def create_user(user: CreateUser, session: DBSessionDep) -> User:
+async def create_user(
+    user: CreateUser, session: DBSessionDep, request: Request
+) -> User:
     """
     Create a new user.
 
@@ -25,6 +27,7 @@ async def create_user(user: CreateUser, session: DBSessionDep) -> User:
     db_user = UserModel(**user.model_dump(exclude_none=True))
     db_user = user_crud.create_user(session, db_user)
 
+    request.state.user = db_user
     return db_user
 
 
@@ -47,7 +50,7 @@ async def list_users(
 
 
 @router.get("/{user_id}", response_model=User)
-async def get_user(user_id: str, session: DBSessionDep) -> User:
+async def get_user(user_id: str, session: DBSessionDep, request: Request) -> User:
     """
     Get a user by ID.
 
@@ -69,6 +72,7 @@ async def get_user(user_id: str, session: DBSessionDep) -> User:
             status_code=404, detail=f"User with ID: {user_id} not found."
         )
 
+    request.state.user = user
     return user
 
 
