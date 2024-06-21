@@ -6,11 +6,11 @@ import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bo
 import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
 import { Button } from '@/components/Shared';
-import { PromptOption, StartModes } from '@/components/StartModes';
+import { Welcome } from '@/components/Welcome';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
-import { useCitationsStore } from '@/stores';
+import { useCitationsStore, useSettingsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -23,7 +23,6 @@ type Props = {
   composer: ReactNode;
   conversationId?: string;
   scrollViewClassName?: string;
-  onPromptSelected?: (option: PromptOption) => void;
 };
 
 /**
@@ -37,8 +36,12 @@ const MessagingContainer: React.FC<Props> = (props) => {
       initialScrollBehavior="auto"
       className={cn(ReservedClasses.MESSAGES, 'relative flex h-0 flex-grow flex-col')}
       scrollViewClassName={cn(
-        'md:!h-full !h-fit',
+        '!h-full',
         'flex relative mt-auto overflow-x-hidden',
+        {
+          // For vertically centering the content in @/components/Welcome.tsx
+          'mt-0 md:mt-auto': props.messages.length === 0,
+        },
         scrollViewClassName
       )}
       followButtonClassName="hidden"
@@ -55,8 +58,11 @@ export default memo(MessagingContainer);
  * In order to access the state hooks for the scroll to bottom component, we need to wrap the content in a component.
  */
 const Content: React.FC<Props> = (props) => {
-  const { isStreaming, messages, composer, streamingMessage, onPromptSelected } = props;
+  const { isStreaming, messages, composer, streamingMessage } = props;
   const scrollToBottom = useScrollToBottom();
+  const {
+    settings: { isEditAgentPanelOpen },
+  } = useSettingsStore();
   const {
     citations: { hasCitations },
   } = useCitationsStore();
@@ -104,7 +110,7 @@ const Content: React.FC<Props> = (props) => {
   return (
     <div className="flex h-max min-h-full w-full">
       <div id={MESSAGE_LIST_CONTAINER_ID} className={cn('flex h-auto min-w-0 flex-1 flex-col')}>
-        <Messages {...props} ref={messageContainerDivRef} onPromptSelected={onPromptSelected} />
+        <Messages {...props} ref={messageContainerDivRef} />
         {/* Composer container */}
         <div
           className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-100')}
@@ -134,9 +140,10 @@ const Content: React.FC<Props> = (props) => {
       </div>
 
       <div
-        className={cn('hidden h-auto border-l border-marble-400', { 'md:flex': hasCitations })}
+        className={cn('hidden h-auto border-l border-marble-400', {
+          'md:flex': hasCitations || !isEditAgentPanelOpen,
+        })}
       />
-
       <CitationPanel
         citationToStyles={citationToStyles}
         streamingMessage={streamingMessage}
@@ -152,23 +159,26 @@ const Content: React.FC<Props> = (props) => {
   );
 };
 
-type MessagesProps = Props & { startOptionsEnabled: boolean };
+type MessagesProps = Props;
 /**
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { startOptionsEnabled, onRetry, messages, streamingMessage, onPromptSelected },
+  { onRetry, messages, streamingMessage },
   ref
 ) {
-  const isConversationEmpty = messages.length === 0;
+  const isChatEmpty = messages.length === 0;
+
+  if (isChatEmpty) {
+    return (
+      <div className="m-auto p-4">
+        <Welcome show={isChatEmpty} isBaseAgent />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
-      {startOptionsEnabled && (
-        <div className="flex h-full w-full flex-col justify-center p-4">
-          <StartModes show={isConversationEmpty} onPromptSelected={onPromptSelected} />
-        </div>
-      )}
-
       <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
         {messages.map((m, i) => {
           const isLastInList = i === messages.length - 1;
@@ -193,9 +203,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
         })}
       </div>
 
-      {streamingMessage && (
-        <MessageRow message={streamingMessage} isLast={true} onRetry={onRetry} />
-      )}
+      {streamingMessage && <MessageRow isLast message={streamingMessage} onRetry={onRetry} />}
     </div>
   );
 });

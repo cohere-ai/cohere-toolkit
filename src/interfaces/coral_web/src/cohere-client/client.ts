@@ -1,15 +1,18 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
+  Agent,
   CohereChatRequest,
   Conversation,
   ConversationWithoutMessages,
+  CreateAgent,
   DefaultService,
   Deployment,
   ERROR_FINISH_REASON_TO_MESSAGE,
   FinishReason,
   ListFile,
   Tool,
+  UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
   UploadFile,
@@ -390,6 +393,83 @@ export class CohereClient {
     return body as ExperimentalFeatures;
   }
 
+  public async listAgents(): Promise<Agent[]> {
+    const response = await this.fetch(this.getEndpoint('agents'), {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Agent[];
+  }
+
+  public async getAgent(agentId: string): Promise<Agent> {
+    const response = await this.fetch(`${this.getEndpoint('agents')}/${agentId}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Agent;
+  }
+
+  public async createAgent(request: CreateAgent): Promise<Agent> {
+    const endpoint = this.getEndpoint('agents');
+    const response = await this.fetch(endpoint, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(request),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Agent;
+  }
+
+  public async updateAgent(request: UpdateAgent & { agentId: string }): Promise<Agent> {
+    const { agentId, ...requestBody } = request;
+    const endpoint = `${this.getEndpoint('agents')}/${agentId}`;
+    const response = await this.fetch(endpoint, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify(requestBody),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Agent;
+  }
+
   private getEndpoint(
     endpoint:
       | 'upload'
@@ -399,6 +479,7 @@ export class CohereClient {
       | 'tools'
       | 'deployments'
       | 'experimental_features'
+      | 'agents'
   ) {
     return `${this.hostname}/v1/${endpoint}`;
   }

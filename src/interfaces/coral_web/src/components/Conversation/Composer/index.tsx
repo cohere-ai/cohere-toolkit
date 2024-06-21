@@ -1,15 +1,16 @@
 import { useResizeObserver } from '@react-hookz/web';
 import { useEffect, useRef, useState } from 'react';
 
-import { Tool } from '@/cohere-client';
 import { ComposerError } from '@/components/Conversation/Composer/ComposerError';
 import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
 import { ComposerToolbar } from '@/components/Conversation/Composer/ComposerToolbar';
 import { DragDropFileUploadOverlay } from '@/components/Conversation/Composer/DragDropFileUploadOverlay';
+import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
 import { useSettingsStore } from '@/stores';
+import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -19,7 +20,7 @@ type Props = {
   value: string;
   streamingMessage: ChatMessage | null;
   onStop: VoidFunction;
-  onSend: (message?: string, tools?: Tool[]) => void;
+  onSend: (message?: string, overrides?: Partial<ConfigurableParams>) => void;
   onChange: (message: string) => void;
   onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
   chatWindowRef?: React.RefObject<HTMLDivElement>;
@@ -116,7 +117,8 @@ export const Composer: React.FC<Props> = ({
   });
 
   return (
-    <div className="flex w-full flex-col gap-y-2">
+    <div className="flex w-full flex-col">
+      <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />
       <div
         className={cn(
           'relative flex w-full flex-col',
@@ -172,7 +174,7 @@ export const Composer: React.FC<Props> = ({
               'text-secondary-800 hover:bg-secondary-100'
             )}
             type="button"
-            onClick={() => (canSend ? onSend(undefined) : onStop())}
+            onClick={() => (canSend ? onSend(value) : onStop())}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>
@@ -180,7 +182,7 @@ export const Composer: React.FC<Props> = ({
         <ComposerFiles />
         <ComposerToolbar onUploadFile={onUploadFile} />
       </div>
-      <ComposerError />
+      <ComposerError className="pt-2" />
     </div>
   );
 };

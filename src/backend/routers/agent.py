@@ -91,7 +91,7 @@ async def get_agent_by_id(
 
     if not agent:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
@@ -129,11 +129,10 @@ async def update_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     agent = agent_crud.get_agent_by_id(session, agent_id)
-
     if not agent:
         raise HTTPException(
-            status_code=404,
-            detail=f"Agent with ID: {agent_id} not found.",
+            status_code=400,
+            detail=f"Agent with ID {agent_id} not found.",
         )
 
     try:
@@ -166,8 +165,8 @@ async def delete_agent(
 
     if not agent:
         raise HTTPException(
-            status_code=404,
-            detail=f"Agent with ID: {agent_id} not found.",
+            status_code=400,
+            detail=f"Agent with ID {agent_id} not found.",
         )
 
     try:

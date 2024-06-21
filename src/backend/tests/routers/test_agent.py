@@ -242,7 +242,7 @@ def test_get_agent(session_client: TestClient, session: Session) -> None:
 
 def test_get_nonexistent_agent(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/agents/456", headers={"User-Id": "123"})
-    assert response.status_code == 404
+    assert response.status_code == 400
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
@@ -255,6 +255,7 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
         temperature=0.5,
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
+        user_id="123",
     )
 
     request_json = {
@@ -268,7 +269,9 @@ def test_update_agent(session_client: TestClient, session: Session) -> None:
     }
 
     response = session_client.put(
-        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+        f"/v1/agents/{agent.id}",
+        json=request_json,
+        headers={"User-Id": "123"},
     )
 
     assert response.status_code == 200
@@ -292,6 +295,7 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
         tools=[ToolName.Calculator],
+        user_id="123",
     )
 
     request_json = {
@@ -300,7 +304,9 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
     }
 
     response = session_client.put(
-        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+        f"/v1/agents/{agent.id}",
+        json=request_json,
+        headers={"User-Id": "123"},
     )
     assert response.status_code == 200
     updated_agent = response.json()
@@ -321,8 +327,23 @@ def test_update_nonexistent_agent(session_client: TestClient, session: Session) 
     response = session_client.put(
         "/v1/agents/456", json=request_json, headers={"User-Id": "123"}
     )
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Agent with ID: 456 not found."}
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Agent with ID 456 not found."}
+
+
+def test_update_agent_wrong_user(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(user_id="123")
+    request_json = {
+        "name": "updated name",
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "456"}
+    )
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": f"Agent with ID {agent.id} does not belong to user."
+    }
 
 
 def test_update_agent_invalid_model(
@@ -336,6 +357,7 @@ def test_update_agent_invalid_model(
         temperature=0.5,
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
+        user_id="123",
     )
 
     request_json = {
@@ -363,6 +385,7 @@ def test_update_agent_invalid_deployment(
         temperature=0.5,
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
+        user_id="123",
     )
 
     request_json = {
@@ -390,6 +413,7 @@ def test_update_agent_model_without_deployment(
         temperature=0.5,
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
+        user_id="123",
     )
 
     request_json = {
@@ -416,6 +440,7 @@ def test_update_agent_deployment_without_model(
         temperature=0.5,
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
+        user_id="123",
     )
 
     request_json = {
@@ -442,6 +467,7 @@ def test_update_agent_invalid_tool(
         temperature=0.5,
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
+        user_id="123",
     )
 
     request_json = {
@@ -458,7 +484,7 @@ def test_update_agent_invalid_tool(
 
 
 def test_delete_agent(session_client: TestClient, session: Session) -> None:
-    agent = get_factory("Agent", session).create()
+    agent = get_factory("Agent", session).create(user_id="123")
     response = session_client.delete(
         f"/v1/agents/{agent.id}", headers={"User-Id": "123"}
     )
@@ -473,5 +499,5 @@ def test_fail_delete_nonexistent_agent(
     session_client: TestClient, session: Session
 ) -> None:
     response = session_client.delete("/v1/agents/456", headers={"User-Id": "123"})
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Agent with ID: 456 not found."}
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Agent with ID 456 not found."}
