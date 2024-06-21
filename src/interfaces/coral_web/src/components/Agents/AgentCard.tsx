@@ -29,7 +29,7 @@ type Props = {
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
   const { query } = useRouter();
-  const isActive = isBaseAgent ? !query.assistantId : query.assistantId === id;
+  const isActive = isBaseAgent ? !query.agentId : query.agentId === id;
   const { removeRecentAgentId } = useAgentsStore();
   const router = useRouter();
 
@@ -39,7 +39,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { resetFileParams } = useParamsStore();
 
   const handleNewChat = () => {
-    const url = id ? `/agents?assistantId=${id}` : '/agents';
+    const url = id ? `/agents/${id}` : '/agents';
     router.push(url, undefined, { shallow: true });
     setSettings({ isEditAgentPanelOpen: false });
     resetConversation();

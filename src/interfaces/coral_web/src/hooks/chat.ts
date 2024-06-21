@@ -313,7 +313,11 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               }
               // Make sure our URL is up to date with the conversationId
               if (!window.location.pathname.includes(`c/${conversationId}`) && conversationId) {
-                window?.history?.replaceState('', '', `c/${conversationId}`);
+                window?.history?.replaceState(
+                  '',
+                  '',
+                  window.location.pathname + `/c/${conversationId}`
+                );
                 queryClient.invalidateQueries({ queryKey: ['conversations'] });
               }
 
