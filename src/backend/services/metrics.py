@@ -259,22 +259,22 @@ def collect_metrics_rerank(func: Callable) -> Callable:
     return wrapper
 
 
-def wrap_data(data: MetricsData) -> MetricsSignal:
+# TODO: remove the logging once metrics are configured correctly
+def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
     # TODD: get from env
     data.secret = "secret"
     signal = MetricsSignal(signal=data)
     logging.info(signal)
     json_signal = json.dumps(to_dict(signal))
-    
     # just general curl commands to test the endpoint for now
-    print(
+    logging.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
     return signal
 
 
 def run_loop(metrics_data):
-    signal = wrap_data(metrics_data)
+    signal = wrap_and_log_data(metrics_data)
     
     # Don't report metrics if no data or endpoint is set
     if not metrics_data or not REPORT_ENDPOINT:
