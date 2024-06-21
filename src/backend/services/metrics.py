@@ -264,6 +264,11 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 
 
 def run_loop(metrics_data):
+    # Don't report metrics if no data or endpoint is set
+    if not metrics_data or not REPORT_ENDPOINT:
+        logging.warning("No metrics data or endpoint set")
+        return
+
     try:
         loop = asyncio.get_running_loop()
         loop.create_task(report_metrics(metrics_data))
