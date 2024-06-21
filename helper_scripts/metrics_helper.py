@@ -26,12 +26,13 @@ def agents():
         f"{base_url}/agents",
         headers=headers,
         json={
-            "name": "New agent",
+            "name": "hello-world",
             "model": "command-r",
             "deployment": "Cohere Platform",
-            "tools": ["wikipedia"],
+            "tools": ["web_search"],
         },
     )
+    print(response.json())
     agent_id = response.json()["id"]
     # # List Agents
     _ = requests.get(f"{base_url}/agents", headers=headers)
@@ -62,12 +63,15 @@ def users():
 
 # Chat
 def chat(agent_id):
-    print("Running Agents")
+    print("Running chat")
 
     response = requests.post(
         f"http://localhost:8000/v1/chat-stream?agent_id={agent_id}",
         headers=headers,
-        json={"message": "who is bo burnham?", "tools": [{"name": "wikipedia"}]},
+        json={
+            "message": "who is bo burnham?",
+            "tools": [{"name": "web_search"}],
+        },
     )
 
     conversation_id = None
