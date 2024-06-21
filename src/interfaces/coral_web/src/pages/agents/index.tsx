@@ -13,7 +13,6 @@ import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { getQueryString } from '@/hooks/route';
 import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
@@ -21,6 +20,7 @@ import {
   useParamsStore,
   useSettingsStore,
 } from '@/stores';
+import { getQueryString } from '@/utils';
 import { cn } from '@/utils';
 
 const AgentsPage: NextPage = () => {

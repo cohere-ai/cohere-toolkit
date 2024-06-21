@@ -15,7 +15,7 @@ import {
   useParamsStore,
   useSettingsStore,
 } from '@/stores';
-import { cn } from '@/utils';
+import { cn, getQueryString } from '@/utils';
 
 const useHeaderMenu = ({
   conversationId,
@@ -40,9 +40,13 @@ const useHeaderMenu = ({
     useWelcomeGuideState();
 
   const handleNewChat = () => {
-    const assistantId = router.query.assistantId;
+    const agentId = getQueryString(router.query.agentId);
 
-    const url = assistantId ? `/agents/?assistantId=${assistantId}` : '/agents';
+    const url = agentId
+      ? `/agents/${agentId}`
+      : router.asPath.includes('/agents')
+      ? '/agents'
+      : '/';
     router.push(url, undefined, { shallow: true });
     resetConversation();
     resetCitations();

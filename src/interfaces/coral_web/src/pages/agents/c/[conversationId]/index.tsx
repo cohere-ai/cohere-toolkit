@@ -17,7 +17,6 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { getQueryString } from '@/hooks/route';
 import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
@@ -26,6 +25,7 @@ import {
   useSettingsStore,
 } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
+import { getQueryString } from '@/utils';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 

@@ -6,8 +6,8 @@ import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
-import { getQueryString } from '@/hooks/route';
 import { useConversationStore, useSettingsStore } from '@/stores';
+import { getQueryString } from '@/utils';
 import { cn } from '@/utils';
 
 export type ConversationListItem = {
@@ -99,6 +99,8 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
 
   const conversationUrl = agentId
     ? `/agents/${agentId}/c/${conversationId}`
+    : router.asPath.includes('/agents')
+    ? `/agents/c/${conversationId}`
     : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');

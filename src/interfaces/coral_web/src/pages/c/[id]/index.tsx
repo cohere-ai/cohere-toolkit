@@ -14,10 +14,10 @@ import { BannerContext } from '@/context/BannerContext';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { getQueryString } from '@/hooks/route';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
+import { getQueryString } from '@/utils';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
