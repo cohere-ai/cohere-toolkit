@@ -9,6 +9,7 @@ import type { File } from './File';
 
 export type ConversationWithoutMessages = {
   user_id: string;
+  organization_id?: string | null;
   id: string;
   created_at: string;
   updated_at: string;

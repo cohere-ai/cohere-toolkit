@@ -21,3 +21,12 @@ def is_authentication_enabled() -> bool:
         return True
 
     return False
+
+
+async def get_auth_strategy_endpoints() -> None:
+    """
+    Fetches the endpoints for each enabled strategy.
+    """
+    for strategy in ENABLED_AUTH_STRATEGY_MAPPING.values():
+        if hasattr(strategy, "get_endpoints"):
+            await strategy.get_endpoints()
