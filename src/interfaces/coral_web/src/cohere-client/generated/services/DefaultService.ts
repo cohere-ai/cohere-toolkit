@@ -57,9 +57,8 @@ export class DefaultService {
   }
   /**
    * Login
-   * Logs user in and either:
-   * - (Basic email/password authentication) Verifies their credentials, retrieves the user and returns a JWT token.
-   * - (OAuth) Redirects to the /auth endpoint.
+   * Logs user in, performing basic email/password auth.
+   * Verifies their credentials, retrieves the user and returns a JWT token.
    *
    * Args:
    * request (Request): current Request object.
@@ -67,9 +66,7 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    *
    * Returns:
-   * dict: JWT token on basic auth success
-   * or
-   * Redirect: to /auth endpoint
+   * dict: JWT token on Basic auth success
    *
    * Raises:
    * HTTPException: If the strategy or payload are invalid, or if the login fails.
@@ -92,7 +89,7 @@ export class DefaultService {
     });
   }
   /**
-   * Google Authenticate
+   * Google Authorize
    * Callback authentication endpoint used for Google OAuth after redirecting to
    * the service's login screen.
    *
@@ -107,14 +104,14 @@ export class DefaultService {
    * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public static googleAuthenticateV1GoogleAuthGet(): CancelablePromise<JWTResponse> {
+  public static googleAuthorizeV1GoogleAuthGet(): CancelablePromise<JWTResponse> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/google/auth',
     });
   }
   /**
-   * Oidc Authenticate
+   * Oidc Authorize
    * Callback authentication endpoint used for OIDC after redirecting to
    * the service's login screen.
    *
@@ -129,7 +126,7 @@ export class DefaultService {
    * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public static oidcAuthenticateV1OidcAuthGet(): CancelablePromise<JWTResponse> {
+  public static oidcAuthorizeV1OidcAuthGet(): CancelablePromise<JWTResponse> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/oidc/auth',

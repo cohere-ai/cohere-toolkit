@@ -94,7 +94,8 @@ ROUTER_DEPENDENCIES = {
         ],
         "auth": [
             Depends(get_session),
-            Depends(validate_authorization),
+            # TODO: Add if the router's have to have authorization
+            # Depends(validate_authorization),
         ],
     },
 }

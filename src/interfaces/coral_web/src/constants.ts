@@ -42,6 +42,7 @@ export const CONFIGURATION_PANEL_ID = 'configuration';
 export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
+  authToken: 'authToken',
 };
 
 /**
