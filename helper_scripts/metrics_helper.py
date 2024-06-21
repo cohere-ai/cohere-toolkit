@@ -29,6 +29,7 @@ def agents():
             "name": "New agent",
             "model": "command-r",
             "deployment": "Cohere Platform",
+            "tools": ["wikipedia"]
         },
     )
     agent_id = response.json()["id"]
@@ -42,7 +43,8 @@ def agents():
     _ = requests.put(
         f"{base_url}/agents/{agent_id}", headers=headers, json={"name": "new_name"}
     )
-    _ = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
+    
+    return agent_id
 
 
 def users():
@@ -59,13 +61,13 @@ def users():
 
 
 # Chat
-def chat():
+def chat(agent_id):
     print("Running Agents")
 
     response = requests.post(
-        "http://localhost:8000/v1/chat-stream",
+        f"http://localhost:8000/v1/chat-stream?agent_id={agent_id}",
         headers=headers,
-        json={"message": "who is bo burnham?", "tools": [{"name": "Wikipedia"}]},
+        json={"message": "who is bo burnham?", "tools": [{"name": "wikipedia"}]},
     )
 
     conversation_id = None
@@ -79,9 +81,11 @@ def chat():
             match = re.search(r'"conversation_id": "([^"]*)"', str_event)
             if match:
                 conversation_id = match.group(1)
+    
+    return conversation_id
 
 
-def tools():
+def tools(conversation_id):
     ## Tools
     # List Tools
     _ = requests.get(f"{base_url}/tools", headers=headers)
@@ -114,11 +118,14 @@ def tools():
 
 
 # Delete Everything
-def del_user():
+def cleanup(user_id, agent_id):
     _ = requests.delete(f"{base_url}/users/{user_id}", headers=headers)
+    _ = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
 
 
-agents()
-chat()
+agent_id = agents()
+conversation_id = chat(agent_id=agent_id)
+
+tools(conversation_id=conversation_id)
 users()
-del_user()
+cleanup(user_id=user_id, agent_id=agent_id)
