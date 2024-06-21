@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
@@ -6,6 +7,7 @@ import { Text } from '@/components/Shared';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useSettingsStore } from '@/stores';
+import { getQueryString } from '@/utils';
 import { cn } from '@/utils';
 
 export type ConversationListItem = {
@@ -54,6 +56,8 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId, description } = conversation;
+  const router = useRouter();
+  const agentId = getQueryString(router.query.agentId);
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
@@ -93,13 +97,19 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     </div>
   );
 
+  const conversationUrl = agentId
+    ? `/agents/${agentId}/c/${conversationId}`
+    : router.asPath.includes('/agents')
+    ? `/agents/c/${conversationId}`
+    : `/c/${conversationId}`;
+
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
     isActive && isDesktop ? (
       <div className={cn('select-none', wrapperClassName)}>{info}</div>
     ) : (
       <Link
-        href={`/c/${conversationId}`}
+        href={conversationUrl}
         key={conversationId}
         shallow
         onClick={() => {
