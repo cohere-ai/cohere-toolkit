@@ -6,7 +6,7 @@ import requests
 base_url = "http://localhost:8000/v1"
 
 headers = {
-    "User-Id": "me",
+    "User-Id": "7a7e4a99-10af-4567-955b-8f34ed5e2f1d",
     "Deployment-Name": "Cohere Platform",
     "Content-Type": "application/json",
 }
