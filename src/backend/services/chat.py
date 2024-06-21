@@ -85,7 +85,6 @@ def process_chat(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
-
         tool_names = [tool.name for tool in chat_request.tools]
         if chat_request.tools:
             for tool in chat_request.tools:
