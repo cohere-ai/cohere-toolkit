@@ -17,6 +17,7 @@ from backend.routers.experimental_features import router as experimental_feature
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.logger import LoggingMiddleware
+from backend.services.metrics import MetricsMiddleware
 
 load_dotenv()
 
@@ -67,6 +68,7 @@ def create_app():
         allow_headers=["*"],
     )
     app.add_middleware(LoggingMiddleware)
+    app.add_middleware(MetricsMiddleware)
 
     return app
 
