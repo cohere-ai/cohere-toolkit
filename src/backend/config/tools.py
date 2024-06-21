@@ -29,9 +29,9 @@ class ToolName(StrEnum):
     Wiki_Retriever_LangChain = "wikipedia"
     Search_File = "search_file"
     Read_File = "read_document"
-    Python_Interpreter = "python_interpreter"
+    Python_Interpreter = "toolkit_python_interpreter"
     Calculator = "calculator"
-    Tavily_Internet_Search = "internet_search"
+    Tavily_Internet_Search = "web_search"
 
 
 ALL_TOOLS = {

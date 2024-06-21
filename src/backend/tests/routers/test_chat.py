@@ -167,6 +167,27 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_with_tools_not_in_agent_tools(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(user_id=user.id, tools=[])
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Hello", "max_tokens": 10, "tools": [{"name": "web_search"}]},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": f"Tool web_search not found in agent {agent.id}"
+    }
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):

@@ -85,6 +85,16 @@ def process_chat(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
+
+        tool_names = [tool.name for tool in chat_request.tools]
+        if chat_request.tools:
+            for tool in chat_request.tools:
+                if tool.name not in agent.tools:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Tool {tool.name} not found in agent {agent.id}",
+                    )
+
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
