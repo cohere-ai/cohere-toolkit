@@ -61,8 +61,6 @@ const AgentsPage: NextPage = () => {
     conversationId: conversationId,
   });
 
-  console.log({ conversation, conversationId });
-
   useEffect(() => {
     resetCitations();
     resetFileParams();
