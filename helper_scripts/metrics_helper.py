@@ -11,6 +11,12 @@ headers = {
     "Content-Type": "application/json",
 }
 
+# Notes:
+# web_search implicitly calls rerank
+# - TAVILY_API_KEY required for web search
+# in case of issues, prune docker images and try again
+
+
 ## Users
 # Create User
 response = requests.post(f"{base_url}/users", headers=headers, json={"fullname": "me"})
