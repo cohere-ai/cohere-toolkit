@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import time
@@ -47,7 +48,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         agent = self.get_agent(request)
         agent_id = agent.get("id", None) if agent else None
-
         data = MetricsData(
             method=self.get_method(scope),
             endpoint_name=self.get_endpoint_name(scope, request),
@@ -170,6 +170,11 @@ async def report_metrics(data):
     data["secret"] = "secret"
     signal = {"signal": data}
     logging.info(signal)
+    json_string = json.dumps(signal)
+    # just general curl commands to test the endpoint for now
+    print(
+        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_string}' $ENDPOINT\n\n"
+    )
 
     if not REPORT_ENDPOINT:
         logging.error("No report endpoint set")
@@ -264,11 +269,6 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 
 
 def run_loop(metrics_data):
-    # Don't report metrics if no data or endpoint is set
-    if not metrics_data or not REPORT_ENDPOINT:
-        logging.warning("No metrics data or endpoint set")
-        return
-
     try:
         loop = asyncio.get_running_loop()
         loop.create_task(report_metrics(metrics_data))
@@ -285,7 +285,6 @@ def initialize_metrics_data(
             method="POST",
             trace_id=kwargs.pop("trace_id", None),
             user_id=kwargs.pop("user_id", None),
-            assistant_id=kwargs.pop("agent_id", None),
             model=chat_request.model if chat_request else None,
             success=True,
         ),

@@ -27,5 +27,5 @@ class MetricsData(MetricsDataBase):
     meta: dict[str, Any] | None = None
     assistant_id: str | None = None
     assistant: dict[str, Any] | None = None
-    user_id: str | None = None
+    user_id: str
     user: dict[str, Any] | None = None
