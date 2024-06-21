@@ -21,6 +21,7 @@ from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
 from backend.database_models.message import Message, MessageAgent
+from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
@@ -78,6 +79,7 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
+        request.state.agent = Agent.model_validate(agent)
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."

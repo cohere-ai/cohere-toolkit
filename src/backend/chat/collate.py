@@ -23,6 +23,7 @@ def rerank_and_chunk(
     """
     trace_id = kwargs.get("trace_id", "")
     user_id = kwargs.get("user_id", "")
+    agent_id = kwargs.get("agent_id", "")
 
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
@@ -73,7 +74,11 @@ def rerank_and_chunk(
             continue
 
         res = model.invoke_rerank(
-            query=query, documents=chunked_outputs, trace_id=trace_id, user_id=user_id
+            query=query,
+            documents=chunked_outputs,
+            trace_id=trace_id,
+            user_id=user_id,
+            agent_id=agent_id,
         )
 
         if not res:

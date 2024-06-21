@@ -285,6 +285,7 @@ def initialize_metrics_data(
             method="POST",
             trace_id=kwargs.pop("trace_id", None),
             user_id=kwargs.pop("user_id", None),
+            assistant_id=kwargs.pop("agent_id", None),
             model=chat_request.model if chat_request else None,
             success=True,
         ),

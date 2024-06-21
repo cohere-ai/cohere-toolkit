@@ -78,6 +78,7 @@ async def chat_stream(
                 conversation_id=conversation_id,
                 user_id=user_id,
                 trace_id=trace_id,
+                agent_id=agent_id,
             ),
             response_message,
             conversation_id,
@@ -111,6 +112,8 @@ async def chat(
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
 
+    user_id = request.headers.get("User-Id", None)
+
     (
         session,
         chat_request,
@@ -134,6 +137,8 @@ async def chat(
             file_paths=file_paths,
             managed_tools=managed_tools,
             trace_id=trace_id,
+            user_id=user_id,
+            agent_id=agent_id,
         ),
         response_message,
         conversation_id,

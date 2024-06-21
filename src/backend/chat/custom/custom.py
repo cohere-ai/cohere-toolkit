@@ -128,6 +128,7 @@ class CustomChat(BaseChat):
     def call_chat(self, chat_request, deployment_model, **kwargs: Any):
         trace_id = kwargs.get("trace_id", "")
         user_id = kwargs.get("user_id", "")
+        agent_id = kwargs.get("agent_id", "")
         managed_tools = self.get_managed_tools(chat_request)
 
         # If tools are managed and not zero shot tools, replace the tools in the chat request
@@ -158,7 +159,7 @@ class CustomChat(BaseChat):
             chat_request.message = ""
 
         for event in deployment_model.invoke_chat_stream(
-            chat_request, trace_id=trace_id, user_id=user_id
+            chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
         ):
             if event["event_type"] != StreamEvent.STREAM_START:
                 yield event
@@ -245,6 +246,7 @@ class CustomChat(BaseChat):
     def get_tool_calls(self, tools, chat_history, deployment_model, **kwargs: Any):
         trace_id = kwargs.get("trace_id", "")
         user_id = kwargs.get("user_id", "")
+        agent_id = kwargs.get("agent_id", "")
         # If the chat history contains a read or search file tool, add the files to the chat history
         tool_names = [tool.name for tool in tools]
         if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
@@ -258,7 +260,7 @@ class CustomChat(BaseChat):
 
         logger.info(f"Available tools: {tools}")
         stream = deployment_model.invoke_chat_stream(
-            self.chat_request, trace_id=trace_id, user_id=user_id
+            self.chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
         )
 
         return stream
