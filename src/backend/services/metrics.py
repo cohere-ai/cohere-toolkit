@@ -1,10 +1,11 @@
 import asyncio
+import json
 import logging
 import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Union
 
 from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
@@ -15,7 +16,7 @@ from starlette.requests import Request
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData
+from backend.schemas.metrics import MetricsData, MetricsSignal
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 NUM_RETRIES = 0
@@ -26,7 +27,7 @@ from starlette.responses import Response
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next: Callable):
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.user = None
@@ -35,11 +36,11 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
 
-        data = self.get_data(request.scope, response, request, duration_ms)
+        data = self.get_event_data(request.scope, response, request, duration_ms)
         run_loop(data)
         return response
 
-    def get_data(self, scope, response, request, duration_ms):
+    def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
         data = {}
 
         if scope["type"] != "http":
@@ -47,6 +48,10 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         agent = self.get_agent(request)
         agent_id = agent.get("id", None) if agent else None
+
+        user_id = self.get_user_id(request)
+        if not user_id:
+            return None
 
         data = MetricsData(
             method=self.get_method(scope),
@@ -64,7 +69,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         return data
 
-    def get_method(self, scope):
+    def get_method(self, scope: dict) -> str:
         try:
             return scope["method"].lower()
         except KeyError:
@@ -73,7 +78,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get method:  {e}")
             return "unknown"
 
-    def get_endpoint_name(self, scope, request):
+    def get_endpoint_name(self, scope: dict, request: Request) -> str:
         try:
             path = scope["path"]
             # Replace path parameters with their names
@@ -88,21 +93,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get endpoint name: {e}")
             return "unknown"
 
-    def get_status_code(self, response):
+    def get_status_code(self, response: Response) -> int:
         try:
             return response.status_code
         except Exception as e:
             logging.warning(f"Failed to get status code: {e}")
             return 500
 
-    def get_success(self, response):
+    def get_success(self, response: Response) -> bool:
         try:
             return 200 <= response.status_code < 400
         except Exception as e:
             logging.warning(f"Failed to get success: {e}")
             return False
 
-    def get_user_id(self, request):
+    def get_user_id(self, request: Request) -> Union[str, None]:
         try:
             user_id = request.headers.get("User-Id", None)
 
@@ -118,7 +123,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get user id: {e}")
             return None
 
-    def get_user(self, request):
+    def get_user(self, request: Request) -> Union[Dict[str, Any], None]:
         if not hasattr(request.state, "user") or not request.state.user:
             return None
 
@@ -132,7 +137,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get user: {e}")
             return None
 
-    def get_object_ids(self, request):
+    def get_object_ids(self, request: Request) -> Dict[str, str]:
         object_ids = {}
         try:
             for key, value in request.path_params.items():
@@ -146,7 +151,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get object ids: {e}")
             return {}
 
-    def get_agent(self, request):
+    def get_agent(self, request: Request) -> Union[Dict[str, Any], None]:
         if not hasattr(request.state, "agent") or not request.state.agent:
             return None
 
@@ -163,13 +168,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         }
 
 
-async def report_metrics(data):
-    if not isinstance(data, dict):
-        data = to_dict(data)
-
-    data["secret"] = "secret"
-    signal = {"signal": data}
-    logging.info(signal)
+async def report_metrics(signal: MetricsSignal) -> None:
+    if not isinstance(signal, dict):
+        signal = to_dict(signal)
 
     if not REPORT_ENDPOINT:
         logging.error("No report endpoint set")
@@ -183,12 +184,43 @@ async def report_metrics(data):
         logging.error(f"Failed to report metrics: {e}")
 
 
+# TODO: remove the logging once metrics are configured correctly
+def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
+    if not data:
+        return None
+
+    # TODD: get from env
+    data.secret = "secret"
+    signal = MetricsSignal(signal=data)
+    logging.info(signal)
+    json_signal = json.dumps(to_dict(signal))
+    # just general curl commands to test the endpoint for now
+    logging.info(
+        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
+    )
+    return signal
+
+
+def run_loop(metrics_data: MetricsData) -> None:
+    signal = wrap_and_log_data(metrics_data)
+
+    # Don't report metrics if no data or endpoint is set
+    if not metrics_data or not REPORT_ENDPOINT:
+        logging.warning("No metrics data or endpoint set")
+        return
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(report_metrics(signal))
+    except RuntimeError:
+        asyncio.run(report_metrics(signal))
+
+
 # DECORATORS
 def collect_metrics_chat(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
-        metrics_data = initialize_metrics_data("chat", chat_request, **kwargs)
+        metrics_data = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
 
         response_dict = {}
         try:
@@ -213,7 +245,9 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
-        metrics_data, kwargs = initialize_metrics_data("chat", chat_request, **kwargs)
+        metrics_data, kwargs = initialize_sdk_metrics_data(
+            "chat", chat_request, **kwargs
+        )
 
         stream = func(self, chat_request, **kwargs)
 
@@ -245,7 +279,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
         start_time = time.perf_counter()
-        metrics_data, kwargs = initialize_metrics_data("rerank", None, **kwargs)
+        metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
 
         response_dict = {}
         try:
@@ -263,20 +297,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
     return wrapper
 
 
-def run_loop(metrics_data):
-    # Don't report metrics if no data or endpoint is set
-    if not metrics_data or not REPORT_ENDPOINT:
-        logging.warning("No metrics data or endpoint set")
-        return
-
-    try:
-        loop = asyncio.get_running_loop()
-        loop.create_task(report_metrics(metrics_data))
-    except RuntimeError:
-        asyncio.run(report_metrics(metrics_data))
-
-
-def initialize_metrics_data(
+def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
 ) -> tuple[MetricsData, Any]:
     return (
