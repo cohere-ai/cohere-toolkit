@@ -99,7 +99,6 @@ export const useStreamChat = () => {
               }
               onRead(data);
             } catch (e) {
-              console.log({ e });
               throw new Error('unable to parse event data');
             }
           },
