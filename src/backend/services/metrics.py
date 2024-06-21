@@ -275,7 +275,7 @@ def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
 
 def run_loop(metrics_data):
     signal = wrap_and_log_data(metrics_data)
-    
+
     # Don't report metrics if no data or endpoint is set
     if not metrics_data or not REPORT_ENDPOINT:
         logging.warning("No metrics data or endpoint set")
