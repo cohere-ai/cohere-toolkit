@@ -29,7 +29,7 @@ def agents():
             "name": "New agent",
             "model": "command-r",
             "deployment": "Cohere Platform",
-            "tools": ["wikipedia"]
+            "tools": ["wikipedia"],
         },
     )
     agent_id = response.json()["id"]
@@ -43,7 +43,7 @@ def agents():
     _ = requests.put(
         f"{base_url}/agents/{agent_id}", headers=headers, json={"name": "new_name"}
     )
-    
+
     return agent_id
 
 
@@ -81,7 +81,7 @@ def chat(agent_id):
             match = re.search(r'"conversation_id": "([^"]*)"', str_event)
             if match:
                 conversation_id = match.group(1)
-    
+
     return conversation_id
 
 
