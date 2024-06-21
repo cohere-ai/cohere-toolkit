@@ -19,6 +19,7 @@ type Props = {
   startOptionsEnabled: boolean;
   messages: ChatMessage[];
   streamingMessage: StreamingMessage | null;
+  agentId?: string;
   onRetry: VoidFunction;
   composer: ReactNode;
   conversationId?: string;
@@ -164,7 +165,7 @@ type MessagesProps = Props;
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { onRetry, messages, streamingMessage },
+  { onRetry, messages, streamingMessage, agentId },
   ref
 ) {
   const isChatEmpty = messages.length === 0;
@@ -172,7 +173,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
   if (isChatEmpty) {
     return (
       <div className="m-auto p-4">
-        <Welcome show={isChatEmpty} isBaseAgent />
+        <Welcome show={isChatEmpty} agentId={agentId} />
       </div>
     );
   }

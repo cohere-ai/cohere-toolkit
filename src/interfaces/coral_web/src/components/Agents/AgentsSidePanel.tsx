@@ -16,11 +16,17 @@ import { cn } from '@/utils';
 export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children }) => {
   const {
     settings: { isAgentsSidePanelOpen },
-    setIsAgentsSidePanelOpen,
+    setSettings,
+    setIsConvListPanelOpen,
   } = useSettingsStore();
 
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
+
+  const handleToggleAgentsSidePanel = () => {
+    setIsConvListPanelOpen(false);
+    setSettings({ isConfigDrawerOpen: false, isAgentsSidePanelOpen: !isAgentsSidePanelOpen });
+  };
 
   const navigationItems: {
     label: string;
@@ -82,7 +88,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
 
           <IconButton
             iconName="close-drawer"
-            onClick={() => setIsAgentsSidePanelOpen(!isAgentsSidePanelOpen)}
+            onClick={handleToggleAgentsSidePanel}
             className={cn('transition delay-100 duration-200 ease-in-out', {
               'rotate-180 transform text-secondary-700': isAgentsSidePanelOpen || isMobile,
             })}

@@ -78,23 +78,24 @@ const AgentsPage: NextPage<Props> = () => {
       <MainSection>
         <div className="flex h-full">
           <Transition
-            as="main"
+            as="aside"
             show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
-            enterFrom="translate-x-full lg:translate-x-0 lg:w-0"
-            enterTo="translate-x-0 lg:w-[300px]"
-            leaveFrom="translate-x-0 lg:w-[300px]"
-            leaveTo="translate-x-full lg:translate-x-0 lg:w-0"
+            enter="transition-all transform ease-in-out duration-300"
+            enterFrom="-translate-x-full w-0"
+            enterTo="translate-x-0 w-full md:w-[320px]"
+            leave="transition-all transform ease-in-out duration-300"
+            leaveFrom="translate-x-0 w-full md:w-[320px]"
+            leaveTo="-translate-x-full w-0"
             className={cn(
-              'z-main-section flex flex-grow lg:min-w-0',
-              'absolute h-full w-full lg:static lg:h-auto',
-              'border-0 border-marble-400 md:border-r',
-              'transition-[transform, width] duration-500 ease-in-out'
+              'z-main-section flex lg:min-w-0',
+              'absolute h-full lg:static lg:h-auto',
+              'border-0 border-marble-400 md:border-r'
             )}
           >
             <ConversationListPanel />
           </Transition>
           <Transition
-            as="div"
+            as="main"
             show={isDesktop || !isMobileConvListPanelOpen}
             enterFrom="-translate-x-full"
             enterTo="translate-x-0"
