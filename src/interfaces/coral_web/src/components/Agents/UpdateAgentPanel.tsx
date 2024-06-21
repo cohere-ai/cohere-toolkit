@@ -132,21 +132,21 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
           onToolToggle={handleToolToggle}
           disabled={!isAgentCreator}
         />
-        {isAgentCreator && (
-          <>
-            <Banner className="w-full">
-              Updating {agent.name} will affect everyone using the assistant
-            </Banner>
-            <Button
-              className="mt-14 self-end"
-              splitIcon="check-mark"
-              label={isSubmitting ? 'Updating' : 'Update'}
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-            />
-          </>
-        )}
       </div>
+      {isAgentCreator && (
+        <div className="flex flex-col gap-y-12 px-14 py-8">
+          <Banner className="w-full" theme="secondary" size="sm">
+            Updating {agent.name} will affect everyone using the assistant
+          </Banner>
+          <Button
+            className="self-end"
+            splitIcon="check-mark"
+            label={isSubmitting ? 'Updating' : 'Update'}
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+          />
+        </div>
+      )}
     </div>
   );
 };
