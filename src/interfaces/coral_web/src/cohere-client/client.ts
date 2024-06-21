@@ -182,6 +182,7 @@ export class CohereClient {
   public async chat({
     request,
     headers,
+    agentId,
     signal,
     onOpen,
     onMessage,
@@ -190,6 +191,7 @@ export class CohereClient {
   }: {
     request: CohereChatRequest;
     headers?: Record<string, string>;
+    agentId?: string;
     signal?: AbortSignal;
     onOpen?: FetchEventSourceInit['onopen'];
     onMessage?: FetchEventSourceInit['onmessage'];
@@ -200,7 +202,9 @@ export class CohereClient {
     const requestBody = JSON.stringify({
       ...chatRequest,
     });
-    return await fetchEventSource(this.getEndpoint('chat-stream'), {
+
+    const endpoint = `${this.getEndpoint('chat-stream')}${agentId ? `?agent_id=${agentId}` : ''}`;
+    return await fetchEventSource(endpoint, {
       method: 'POST',
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
