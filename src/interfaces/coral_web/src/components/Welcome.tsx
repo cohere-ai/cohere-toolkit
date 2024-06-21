@@ -3,40 +3,28 @@ import React from 'react';
 
 import { BotAvatar } from '@/components/Avatar';
 import { Text } from '@/components/Shared';
+import { useAgent } from '@/hooks/agents';
 import { BotState } from '@/types/message';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
-type BaseAgentProps = {
+type Props = {
   show: boolean;
-  isBaseAgent: true;
-};
-
-type AgentProps = {
-  show: boolean;
-  isBaseAgent?: false;
-  id: string;
-  name: string;
-  description?: string;
-};
-
-type Props = BaseAgentProps | AgentProps;
-
-const isBaseAgent = (props: AgentProps | BaseAgentProps): props is BaseAgentProps => {
-  return Boolean(props.isBaseAgent);
+  agentId?: string;
 };
 
 /**
  * @description Welcome message shown to the user when they first open the chat.
  */
-export const Welcome: React.FC<Props> = (props) => {
-  const isBaseAgentProps = isBaseAgent(props);
+export const Welcome: React.FC<Props> = ({ show, agentId }) => {
+  const { data: agent, isLoading } = useAgent({ agentId });
+  const isAgent = agentId !== undefined && !isLoading && !!agent;
 
   return (
     <Transition
-      show={props.show}
+      show={show}
       appear
-      className="flex flex-col items-center gap-y-4"
+      className="flex flex-col items-center gap-y-4 p-4 md:max-w-[480px] lg:max-w-[720px]"
       enter="transition-all duration-300 ease-out delay-300"
       enterFrom="opacity-0"
       enterTo="opacity-100"
@@ -48,17 +36,17 @@ export const Welcome: React.FC<Props> = (props) => {
       <div
         className={cn(
           'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
-          !isBaseAgentProps && getCohereColor(props.id),
+          isAgent && getCohereColor(agent.id),
           {
-            'bg-secondary-400': isBaseAgentProps,
+            'bg-secondary-400': !isAgent,
           }
         )}
       >
-        {isBaseAgentProps ? (
+        {!isAgent ? (
           <BotAvatar state={BotState.FULFILLED} style="secondary" />
         ) : (
           <Text className="uppercase text-white" styleAs="p-lg">
-            {props.name[0]}
+            {agent.name[0]}
           </Text>
         )}
       </div>
@@ -67,14 +55,14 @@ export const Welcome: React.FC<Props> = (props) => {
         styleAs="p-lg"
         className={cn(
           'text-center text-secondary-800 md:!text-h4',
-          !isBaseAgentProps && getCohereColor(props.id, { background: false })
+          isAgent && getCohereColor(agent.id, { background: false })
         )}
       >
-        {isBaseAgentProps ? 'Need help? Your wish is my command.' : props.name}
+        {!isAgent ? 'Need help? Your wish is my command.' : agent.name}
       </Text>
-      {!isBaseAgentProps && (
+      {isAgent && (
         <Text className="!text-p-md text-center text-volcanic-900 md:!text-p-lg">
-          {props.description}
+          {agent.description}
         </Text>
       )}
     </Transition>

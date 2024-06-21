@@ -165,6 +165,7 @@ const Conversation: React.FC<Props> = ({
             onRetry={handleRetry}
             messages={messages}
             streamingMessage={streamingMessage}
+            agentId={agentId}
             composer={
               <>
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
@@ -192,7 +193,7 @@ const Conversation: React.FC<Props> = ({
         enter="transition-all ease-in-out duration-300"
         enterFrom="w-0"
         enterTo="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
-        leave="transition-all ease-in-out duration-300"
+        leave="transition-all ease-in-out duration-0 md:duration-300"
         leaveFrom="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
         leaveTo="w-0"
       >
