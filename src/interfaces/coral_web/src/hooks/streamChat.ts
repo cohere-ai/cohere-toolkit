@@ -26,6 +26,7 @@ interface StreamingParams {
 export interface StreamingChatParams extends StreamingParams {
   request: CohereChatRequest;
   headers: Record<string, string>;
+  agentId?: string;
 }
 
 const getUpdatedConversations =
@@ -115,7 +116,7 @@ export const useStreamChat = () => {
         if (experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN) {
           await cohereClient.langchainChat(chatStreamParams);
         } else {
-          await cohereClient.chat(chatStreamParams);
+          await cohereClient.chat({ ...chatStreamParams, agentId: params.agentId });
         }
       } catch (e) {
         if (isUnauthorizedError(e)) {

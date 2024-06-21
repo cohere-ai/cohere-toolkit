@@ -1,4 +1,5 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
@@ -38,6 +39,7 @@ import {
 import {
   createStartEndKey,
   fixMarkdownImagesInText,
+  getQueryString,
   isAbortError,
   isGroundingOn,
   replaceTextWithCitations,
@@ -68,6 +70,7 @@ export type HandleSendChat = (
 ) => Promise<void>;
 
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
+  const router = useRouter();
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
 
@@ -94,6 +97,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
+  const agentId = getQueryString(router.query.agentId);
 
   useRouteChange({
     onRouteChangeStart: () => {
@@ -177,6 +181,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     newMessages: ChatMessage[];
     request: CohereChatRequest;
     headers: Record<string, string>;
+    agentId?: string;
     streamConverse: UseMutateAsyncFunction<
       StreamEnd | undefined,
       CohereNetworkError,
@@ -207,6 +212,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       await streamConverse({
         request,
         headers,
+        agentId,
         onRead: (eventData: ChatResponseEvent) => {
           switch (eventData.event) {
             case StreamEvent.STREAM_START: {
@@ -509,7 +515,13 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       files: composerFiles,
     });
 
-    await handleStreamConverse({ newMessages, request, headers, streamConverse: streamChat });
+    await handleStreamConverse({
+      newMessages,
+      request,
+      headers,
+      agentId,
+      streamConverse: streamChat,
+    });
   };
 
   const handleRetry = () => {
