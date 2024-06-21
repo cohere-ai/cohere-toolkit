@@ -136,7 +136,7 @@ async def oidc_authorize(request: Request, session: DBSessionDep):
     """
     strategy_name = OpenIDConnect.NAME
 
-    # TODO..
+    # TODO: Merge authorize endpoints into single one
     return await authorize(request, session, strategy_name)
 
 

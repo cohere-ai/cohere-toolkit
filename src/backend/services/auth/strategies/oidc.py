@@ -40,7 +40,9 @@ class OpenIDConnect(BaseOAuthStrategy):
         return self.settings.oidc_client_id
 
     def get_authorization_endpoint(self):
-        return self.AUTHORIZATION_ENDPOINT
+        if hasattr(self, "AUTHORIZATION_ENDPOINT"):
+            return self.AUTHORIZATION_ENDPOINT
+        return None
 
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)

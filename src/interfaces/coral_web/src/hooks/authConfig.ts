@@ -15,6 +15,6 @@ export const useAuthConfig = (): {
     registerUrl: '/register',
     logoutUrl: '/logout',
     loginStrategies: authStrategies,
-    baseUrl: 'http://localhost:4000',
+    baseUrl: window.location.href,
   };
 };
