@@ -30,5 +30,5 @@ class MetricsData(MetricsDataBase):
     user_id: str
     user: dict[str, Any] | None = None
 
-class MetricsSignal:
+class MetricsSignal(BaseModel):
     signal: MetricsData

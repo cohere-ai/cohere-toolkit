@@ -264,7 +264,8 @@ def wrap_data(data: MetricsData) -> MetricsSignal:
     data.secret = "secret"
     signal = MetricsSignal(signal=data)
     logging.info(signal)
-    json_signal = json.dumps(signal)
+    json_signal = json.dumps(to_dict(signal))
+    
     # just general curl commands to test the endpoint for now
     print(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
@@ -273,11 +274,12 @@ def wrap_data(data: MetricsData) -> MetricsSignal:
 
 
 def run_loop(metrics_data):
+    signal = wrap_data(metrics_data)
+    
     # Don't report metrics if no data or endpoint is set
     if not metrics_data or not REPORT_ENDPOINT:
         logging.warning("No metrics data or endpoint set")
         return
-    signal = wrap_data(metrics_data)
     try:
         loop = asyncio.get_running_loop()
         loop.create_task(report_metrics(signal))
