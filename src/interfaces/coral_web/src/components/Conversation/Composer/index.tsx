@@ -1,5 +1,5 @@
 import { useResizeObserver } from '@react-hookz/web';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { ComposerError } from '@/components/Conversation/Composer/ComposerError';
 import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
@@ -16,6 +16,7 @@ import { cn } from '@/utils';
 
 type Props = {
   isFirstTurn: boolean;
+  isToolAuthRequired: boolean;
   isStreaming: boolean;
   value: string;
   streamingMessage: ChatMessage | null;
@@ -28,6 +29,7 @@ type Props = {
 
 export const Composer: React.FC<Props> = ({
   isFirstTurn,
+  isToolAuthRequired,
   value,
   isStreaming,
   onSend,
@@ -49,7 +51,7 @@ export const Composer: React.FC<Props> = ({
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
-  const canSend = isReadyToReceiveMessage && value.trim().length > 0;
+  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isToolAuthRequired;
 
   const handleCompositionStart = () => {
     setIsComposing(true);
@@ -69,6 +71,13 @@ export const Composer: React.FC<Props> = ({
         onSend(value);
       }
     }
+  };
+
+  const handleComposerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (!isToolAuthRequired) {
+      return;
+    }
+    onChange(e.target.value);
   };
 
   useEffect(() => {
@@ -124,7 +133,10 @@ export const Composer: React.FC<Props> = ({
           'relative flex w-full flex-col',
           'transition ease-in-out',
           'rounded border bg-marble-100',
-          'border-marble-500 focus-within:border-secondary-700'
+          'border-marble-500 focus-within:border-secondary-700',
+          {
+            'border-marble-500 bg-marble-300': isToolAuthRequired,
+          }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
         onDragOver={() => setIsDragDropInputActive(true)}
@@ -152,7 +164,10 @@ export const Composer: React.FC<Props> = ({
               'transition ease-in-out',
               'focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
-              'leading-[150%]'
+              'leading-[150%]',
+              {
+                'bg-marble-300': isToolAuthRequired,
+              }
             )}
             style={{
               maxHeight: `${
@@ -161,9 +176,8 @@ export const Composer: React.FC<Props> = ({
             }}
             rows={1}
             onKeyDown={handleKeyDown}
-            onChange={(e) => {
-              onChange(e.target.value);
-            }}
+            onChange={handleComposerChange}
+            disabled={isToolAuthRequired}
           />
           <button
             className={cn(
@@ -175,6 +189,7 @@ export const Composer: React.FC<Props> = ({
             )}
             type="button"
             onClick={() => (canSend ? onSend(value) : onStop())}
+            disabled={!canSend}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>
@@ -182,7 +197,7 @@ export const Composer: React.FC<Props> = ({
         <ComposerFiles />
         <ComposerToolbar onUploadFile={onUploadFile} />
       </div>
-      <ComposerError className="pt-2" />
+      <ComposerError className="pt-2" isToolAuthRequired={isToolAuthRequired} />
     </div>
   );
 };

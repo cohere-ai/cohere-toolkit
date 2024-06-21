@@ -68,6 +68,7 @@ const Conversation: React.FC<Props> = ({
     files: { composerFiles },
   } = useFilesStore();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
+  const isToolAuthRequired = true;
 
   const { addRecentAgentId } = useAgentsStore();
 
@@ -172,6 +173,7 @@ const Conversation: React.FC<Props> = ({
                   isStreaming={isStreaming}
                   value={userMessage}
                   isFirstTurn={messages.length === 0}
+                  isToolAuthRequired={isToolAuthRequired}
                   streamingMessage={streamingMessage}
                   chatWindowRef={chatWindowRef}
                   onChange={(message) => setUserMessage(message)}
