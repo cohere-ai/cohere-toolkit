@@ -29,3 +29,6 @@ class MetricsData(MetricsDataBase):
     assistant: dict[str, Any] | None = None
     user_id: str
     user: dict[str, Any] | None = None
+
+class MetricsSignal:
+    signal: MetricsData

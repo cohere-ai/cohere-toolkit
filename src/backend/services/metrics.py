@@ -16,7 +16,7 @@ from starlette.requests import Request
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData
+from backend.schemas.metrics import MetricsData, MetricsSignal
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 NUM_RETRIES = 0
@@ -163,18 +163,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         }
 
 
-async def report_metrics(data):
-    if not isinstance(data, dict):
-        data = to_dict(data)
-
-    data["secret"] = "secret"
-    signal = {"signal": data}
-    logging.info(signal)
-    json_string = json.dumps(signal)
-    # just general curl commands to test the endpoint for now
-    print(
-        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_string}' $ENDPOINT\n\n"
-    )
+async def report_metrics(signal: MetricsSignal):
+    if not isinstance(signal, dict):
+        signal = to_dict(signal)
 
     if not REPORT_ENDPOINT:
         logging.error("No report endpoint set")
@@ -268,12 +259,30 @@ def collect_metrics_rerank(func: Callable) -> Callable:
     return wrapper
 
 
+def wrap_data(data: MetricsData) -> MetricsSignal:
+    # TODD: get from env
+    data.secret = "secret"
+    signal = MetricsSignal(signal=data)
+    logging.info(signal)
+    json_signal = json.dumps(signal)
+    # just general curl commands to test the endpoint for now
+    print(
+        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
+    )
+    return signal
+
+
 def run_loop(metrics_data):
+    # Don't report metrics if no data or endpoint is set
+    if not metrics_data or not REPORT_ENDPOINT:
+        logging.warning("No metrics data or endpoint set")
+        return
+    signal = wrap_data(metrics_data)
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(report_metrics(metrics_data))
+        loop.create_task(report_metrics(signal))
     except RuntimeError:
-        asyncio.run(report_metrics(metrics_data))
+        asyncio.run(report_metrics(signal))
 
 
 def initialize_metrics_data(
@@ -285,6 +294,7 @@ def initialize_metrics_data(
             method="POST",
             trace_id=kwargs.pop("trace_id", None),
             user_id=kwargs.pop("user_id", None),
+            assistant_id=kwargs.pop("agent_id", None),
             model=chat_request.model if chat_request else None,
             success=True,
         ),
