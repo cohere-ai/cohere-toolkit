@@ -137,6 +137,7 @@ async def update_agent(
 
     try:
         agent = agent_crud.update_agent(session, agent, new_agent)
+        request.state.agent = agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -169,6 +170,7 @@ async def delete_agent(
             detail=f"Agent with ID {agent_id} not found.",
         )
 
+    request.state.agent = agent
     try:
         agent_crud.delete_agent(session, agent_id)
     except Exception as e:
