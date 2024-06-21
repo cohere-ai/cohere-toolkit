@@ -18,7 +18,7 @@ export const AgentsList: React.FC = () => {
   return (
     <div className="flex flex-col gap-3">
       <Transition
-        as="div"
+        as="aside"
         show={isAgentsSidePanelOpen}
         enter="transition-all ease-in-out delay-300 duration-300"
         enterFrom="opacity-0"
