@@ -78,7 +78,7 @@ const AgentsPage: NextPage<Props> = () => {
       <MainSection>
         <div className="flex h-full">
           <Transition
-            as="div"
+            as="aside"
             show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
             enter="transition-all transform ease-in-out duration-300"
             enterFrom="-translate-x-full w-0"
@@ -95,7 +95,7 @@ const AgentsPage: NextPage<Props> = () => {
             <ConversationListPanel />
           </Transition>
           <Transition
-            as="div"
+            as="main"
             show={isDesktop || !isMobileConvListPanelOpen}
             enterFrom="-translate-x-full"
             enterTo="translate-x-0"
