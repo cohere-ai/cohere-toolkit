@@ -129,7 +129,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     return documents.reduce<{ documentsMap: IdToDocument; outputFilesMap: OutputFiles }>(
       ({ documentsMap, outputFilesMap }, doc) => {
         const docId = doc?.document_id ?? '';
-        const toolName = (doc?.tool_name ?? '').toLowerCase();
+        const toolName = doc?.tool_name ?? '';
         const newOutputFilesMapEntry: OutputFiles = {};
 
         if (toolName === TOOL_PYTHON_INTERPRETER_ID) {

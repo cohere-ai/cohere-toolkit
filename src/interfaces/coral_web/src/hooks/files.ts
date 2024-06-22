@@ -190,16 +190,31 @@ export const useDefaultFileLoaderTool = () => {
 
   const enableDefaultFileLoaderTool = () => {
     if (!defaultFileLoaderTool) return;
-    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
 
+    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
     const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
       params.tools?.some((tool) => tool.name === name)
     );
+
     if (isDefaultFileLoaderToolEnabled) return;
 
     const newTools = uniqBy([...(params.tools ?? []), defaultFileLoaderTool], 'name');
     setParams({ tools: newTools });
   };
 
-  return { defaultFileLoaderTool, enableDefaultFileLoaderTool };
+  const disableDefaultFileLoaderTool = () => {
+    if (!defaultFileLoaderTool) return;
+
+    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
+    const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
+      params.tools?.some((tool) => tool.name === name)
+    );
+
+    if (!isDefaultFileLoaderToolEnabled) return;
+
+    const newTools = (params.tools ?? []).filter((t) => t.name !== defaultFileLoaderTool.name);
+    setParams({ tools: newTools });
+  };
+
+  return { defaultFileLoaderTool, enableDefaultFileLoaderTool, disableDefaultFileLoaderTool };
 };
