@@ -67,7 +67,7 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
         <DataSourceChip
           key={`tool-${i}`}
           iconName={TOOL_ID_TO_DISPLAY_INFO[t.name]?.icon ?? TOOL_FALLBACK_ICON}
-          label={TOOL_ID_TO_DISPLAY_INFO[t.name]?.name ?? t.name}
+          label={t.display_name ?? t.name}
           onDelete={handleDeleteTool(t.name ?? '')}
         />
       ))}

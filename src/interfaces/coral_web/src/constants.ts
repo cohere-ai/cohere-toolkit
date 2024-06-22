@@ -48,17 +48,17 @@ export const LOCAL_STORAGE_KEYS = {
 /**
  * Tools
  */
-export const TOOL_INTERNET_SEARCH_ID = 'Internet_Search';
-export const TOOL_PYTHON_INTERPRETER_ID = 'Python_Interpreter';
-export const TOOL_CALCULATOR_ID = 'Calculator';
-export const TOOL_WIKIPEDIA_ID = 'Wikipedia';
+export const TOOL_INTERNET_SEARCH_ID = 'internet_search';
+export const TOOL_PYTHON_INTERPRETER_ID = 'python_interpreter';
+export const TOOL_CALCULATOR_ID = 'calculator';
+export const TOOL_WIKIPEDIA_ID = 'wikipedia';
 export const TOOL_SEARCH_FILE_ID = 'search_file';
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
-export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { name: string; icon: IconName } } = {
-  [TOOL_INTERNET_SEARCH_ID]: { name: 'Internet Search', icon: 'search' },
-  [TOOL_PYTHON_INTERPRETER_ID]: { name: 'Python Interpreter', icon: 'code' },
-  [TOOL_CALCULATOR_ID]: { name: 'Calculator', icon: 'calculator' },
-  [TOOL_WIKIPEDIA_ID]: { name: 'Wikipedia', icon: 'web' },
-  [TOOL_SEARCH_FILE_ID]: { name: 'File Search', icon: 'search' },
+export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
+  [TOOL_INTERNET_SEARCH_ID]: { icon: 'search' },
+  [TOOL_PYTHON_INTERPRETER_ID]: { icon: 'code' },
+  [TOOL_CALCULATOR_ID]: { icon: 'calculator' },
+  [TOOL_WIKIPEDIA_ID]: { icon: 'web' },
+  [TOOL_SEARCH_FILE_ID]: { icon: 'search' },
 };

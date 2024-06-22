@@ -102,9 +102,7 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
 
             <div className="flex flex-col gap-y-5">
               {availableTools.map(({ name, display_name, description, error_message }) => {
-                const enabledTool = enabledTools.find(
-                  (enabledTool) => enabledTool.name.toLocaleLowerCase() === name.toLocaleLowerCase()
-                );
+                const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
                 const checked = !!enabledTool;
                 const disabled = requiredTools.some((t) => t === name);
 
