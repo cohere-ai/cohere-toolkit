@@ -16,15 +16,9 @@ import {
   useParamsStore,
   useSettingsStore,
 } from '@/stores';
-import { cn, getQueryString } from '@/utils';
+import { cn } from '@/utils';
 
-const useHeaderMenu = ({
-  conversationId,
-  agentId,
-}: {
-  conversationId?: string;
-  agentId?: string;
-}) => {
+const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { userId } = useSession();
@@ -42,8 +36,6 @@ const useHeaderMenu = ({
     useWelcomeGuideState();
 
   const handleNewChat = () => {
-    const agentId = getQueryString(router.query.agentId);
-
     const url = agentId
       ? `/agents/${agentId}`
       : router.asPath.includes('/agents')
@@ -117,7 +109,6 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
   const isMobile = !isDesktop;
   const { menuItems, isAgentCreator, handleNewChat, handleOpenSettings, handleOpenAgentDrawer } =
     useHeaderMenu({
-      conversationId: id,
       agentId,
     });
 

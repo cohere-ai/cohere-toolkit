@@ -6,8 +6,8 @@ import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useConversationStore, useSettingsStore } from '@/stores';
-import { getQueryString } from '@/utils';
 import { cn } from '@/utils';
 
 export type ConversationListItem = {
@@ -57,7 +57,7 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId, description } = conversation;
   const router = useRouter();
-  const agentId = getQueryString(router.query.agentId);
+  const { agentId } = useSlugRoutes();
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
