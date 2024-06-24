@@ -102,7 +102,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def get_success(self, response: Response) -> bool:
         try:
-            return 200 <= response.status_code < 400
+            return 200 <= response.status_code < 300
         except Exception as e:
             logging.warning(f"Failed to get success: {e}")
             return False
