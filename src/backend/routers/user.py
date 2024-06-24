@@ -12,7 +12,7 @@ router = APIRouter(prefix="/v1/users")
 router.name = RouterName.USER
 
 
-@router.post("/", response_model=User)
+@router.post("", response_model=User)
 async def create_user(
     user: CreateUser, session: DBSessionDep, request: Request
 ) -> User:
@@ -33,7 +33,7 @@ async def create_user(
     return db_user
 
 
-@router.get("/", response_model=list[User])
+@router.get("", response_model=list[User])
 async def list_users(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep
 ) -> list[User]:
