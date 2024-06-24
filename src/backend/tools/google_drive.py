@@ -26,7 +26,7 @@ class GoogleDrive(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        return True
+        return False
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         # TODO: Improve the getting of files
@@ -66,6 +66,8 @@ class GoogleDrive(BaseTool):
 class GoogleDriveAuth(BaseAuth):
     @classmethod
     def get_auth_url(cls, user_id: str) -> str:
+        if not os.getenv("GOOGLE_DRIVE_CLIENT_ID"):
+            raise ValueError("GOOGLE_DRIVE_CLIENT_ID not set")
         redirect_url = os.getenv("NEXT_PUBLIC_API_HOSTNAME") + "/v1/tool/auth"
         base_url = "https://accounts.google.com/o/oauth2/v2/auth?"
         state = {"user_id": user_id, "tool_id": GOOGLE_DRIVE_TOOL_ID}
@@ -96,6 +98,12 @@ class GoogleDriveAuth(BaseAuth):
     def try_refresh_token(
         session: DBSessionDep, user_id: str, tool_auth: ToolAuth
     ) -> bool:
+        if not os.getenv("GOOGLE_DRIVE_CLIENT_ID") or not os.getenv(
+            "GOOGLE_DRIVE_CLIENT_SECRET"
+        ):
+            raise ValueError(
+                "GOOGLE_DRIVE_CLIENT_ID or GOOGLE_DRIVE_CLIENT_SECRET not set"
+            )
         url = "https://oauth2.googleapis.com/token"
         body = {
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
@@ -125,6 +133,12 @@ class GoogleDriveAuth(BaseAuth):
 
     @classmethod
     def process_auth_token(cls, request: Request, session: DBSessionDep) -> str:
+        if not os.getenv("GOOGLE_DRIVE_CLIENT_ID") or not os.getenv(
+            "GOOGLE_DRIVE_CLIENT_SECRET" or not os.getenv("NEXT_PUBLIC_API_HOSTNAME")
+        ):
+            raise ValueError(
+                "GOOGLE_DRIVE_CLIENT_ID or GOOGLE_DRIVE_CLIENT_SECRET not set"
+            )
         if request.query_params.get("error"):
             err = request.query_params.get("error")
             logger.error(f"Error in google drive auth: {err}")
