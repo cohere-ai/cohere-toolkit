@@ -40,7 +40,7 @@ def list_tools(
 
     user_id = get_header_user_id(request)
     for tool in all_tools:
-        if tool.auth_implementation is not None:
+        if tool.is_available and tool.auth_implementation is not None:
             tool.is_auth_required = tool.auth_implementation.is_auth_required(
                 session, user_id
             )
