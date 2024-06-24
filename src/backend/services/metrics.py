@@ -20,6 +20,8 @@ from backend.schemas.metrics import MetricsData, MetricsSignal
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 NUM_RETRIES = 0
+HEALTH_ENDPOINT = "health"
+HEALTH_ENDPOINT_USER_ID = "health"
 
 import time
 
@@ -110,6 +112,10 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     def get_user_id(self, request: Request) -> Union[str, None]:
         try:
             user_id = request.headers.get("User-Id", None)
+
+            # Health check does not have a user id - use a placeholder
+            if HEALTH_ENDPOINT in request.url.path:
+                return HEALTH_ENDPOINT_USER_ID
 
             if not user_id:
                 user_id = (
