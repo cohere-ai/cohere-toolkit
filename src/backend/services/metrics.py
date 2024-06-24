@@ -119,7 +119,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                     if hasattr(request.state, "user") and request.state.user
                     else None
                 )
-                
+
             # Health check does not have a user id - use a placeholder
             if not user_id and HEALTH_ENDPOINT in request.url.path:
                 return HEALTH_ENDPOINT_USER_ID
