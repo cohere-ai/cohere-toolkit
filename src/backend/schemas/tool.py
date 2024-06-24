@@ -1,6 +1,7 @@
 from enum import StrEnum
 from typing import Any, Optional
 
+from backend.tools.base import BaseAuth
 from pydantic import BaseModel, Field
 
 
@@ -16,19 +17,22 @@ class ToolInput(BaseModel):
 
 class Tool(BaseModel):
     name: str
+    display_name: str = ""
     description: Optional[str] = ""
     parameter_definitions: Optional[dict] = {}
-
 
 class ManagedTool(Tool):
     kwargs: dict = {}
     is_visible: bool = False
     is_available: bool = False
-    auth_required: bool = False # Per user
-    auth_url: Optional[str] = "" # per tool
     error_message: Optional[str] = ""
     category: Category = Category.DataLoader
+
+    is_auth_required: bool = False  # Per user
+    auth_url: Optional[str] = ""  # Per user
+
     implementation: Any = Field(exclude=True)
+    auth_implementation: Any = Field(default=None, exclude=True)
 
     class Config:
         from_attributes = True
@@ -37,3 +41,9 @@ class ManagedTool(Tool):
 class ToolCall(BaseModel):
     name: str
     parameters: dict = {}
+
+
+class ToolCallDelta(BaseModel):
+    name: str | None
+    index: int | None
+    parameters: str | None

@@ -9,7 +9,6 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 import type { Agent } from '../models/Agent';
-import type { Auth } from '../models/Auth';
 import type { Body_upload_file_v1_conversations_upload_file_post } from '../models/Body_upload_file_v1_conversations_upload_file_post';
 import type { ChatResponseEvent } from '../models/ChatResponseEvent';
 import type { CohereChatRequest } from '../models/CohereChatRequest';
@@ -23,9 +22,12 @@ import type { DeleteFile } from '../models/DeleteFile';
 import type { DeleteUser } from '../models/DeleteUser';
 import type { Deployment } from '../models/Deployment';
 import type { File } from '../models/File';
+import type { JWTResponse } from '../models/JWTResponse';
 import type { LangchainChatRequest } from '../models/LangchainChatRequest';
+import type { ListAuthStrategy } from '../models/ListAuthStrategy';
 import type { ListFile } from '../models/ListFile';
 import type { Login } from '../models/Login';
+import type { Logout } from '../models/Logout';
 import type { ManagedTool } from '../models/ManagedTool';
 import type { NonStreamedChatResponse } from '../models/NonStreamedChatResponse';
 import type { UpdateAgent } from '../models/UpdateAgent';
@@ -44,10 +46,10 @@ export class DefaultService {
    *
    * Returns:
    * List[dict]: List of dictionaries containing the enabled auth strategy names.
-   * @returns any Successful Response
+   * @returns ListAuthStrategy Successful Response
    * @throws ApiError
    */
-  public static getStrategiesV1AuthStrategiesGet(): CancelablePromise<any> {
+  public static getStrategiesV1AuthStrategiesGet(): CancelablePromise<Array<ListAuthStrategy>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/auth_strategies',
@@ -55,9 +57,8 @@ export class DefaultService {
   }
   /**
    * Login
-   * Logs user in and either:
-   * - (Basic email/password authentication) Verifies their credentials, retrieves the user and returns a JWT token.
-   * - (OAuth) Redirects to the /auth endpoint.
+   * Logs user in, performing basic email/password auth.
+   * Verifies their credentials, retrieves the user and returns a JWT token.
    *
    * Args:
    * request (Request): current Request object.
@@ -65,16 +66,18 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    *
    * Returns:
-   * dict: JWT token on basic auth success
-   * or
-   * Redirect: to /auth endpoint
+   * dict: JWT token on Basic auth success
    *
    * Raises:
    * HTTPException: If the strategy or payload are invalid, or if the login fails.
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static loginV1LoginPost({ requestBody }: { requestBody: Login }): CancelablePromise<any> {
+  public static loginV1LoginPost({
+    requestBody,
+  }: {
+    requestBody: Login;
+  }): CancelablePromise<JWTResponse | null> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/login',
@@ -86,53 +89,76 @@ export class DefaultService {
     });
   }
   /**
-   * Authenticate
-   * Authentication endpoint used for OAuth strategies. Logs the user in the redirect environment and then
-   * sets the current session with the user returned from the auth token.
+   * Google Authorize
+   * Callback authentication endpoint used for Google OAuth after redirecting to
+   * the service's login screen.
    *
    * Args:
    * request (Request): current Request object.
-   * login (Login): Login payload.
    *
    * Returns:
    * RedirectResponse: On success.
    *
    * Raises:
    * HTTPException: If authentication fails, or strategy is invalid.
-   * @returns any Successful Response
+   * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public static authenticateV1AuthPost({
-    requestBody,
-  }: {
-    requestBody: Auth;
-  }): CancelablePromise<any> {
+  public static googleAuthorizeV1GoogleAuthGet(): CancelablePromise<JWTResponse> {
     return __request(OpenAPI, {
-      method: 'POST',
-      url: '/v1/auth',
-      body: requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: `Validation Error`,
-      },
+      method: 'GET',
+      url: '/v1/google/auth',
+    });
+  }
+  /**
+   * Oidc Authorize
+   * Callback authentication endpoint used for OIDC after redirecting to
+   * the service's login screen.
+   *
+   * Args:
+   * request (Request): current Request object.
+   *
+   * Returns:
+   * RedirectResponse: On success.
+   *
+   * Raises:
+   * HTTPException: If authentication fails, or strategy is invalid.
+   * @returns JWTResponse Successful Response
+   * @throws ApiError
+   */
+  public static oidcAuthorizeV1OidcAuthGet(): CancelablePromise<JWTResponse> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/oidc/auth',
     });
   }
   /**
    * Logout
-   * Logs out the current user.
+   * Logs out the current user, adding the given JWT token to the blacklist.
    *
    * Args:
    * request (Request): current Request object.
    *
    * Returns:
    * dict: Empty on success
-   * @returns any Successful Response
+   * @returns Logout Successful Response
    * @throws ApiError
    */
-  public static logoutV1LogoutGet(): CancelablePromise<any> {
+  public static logoutV1LogoutGet(): CancelablePromise<Logout> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/logout',
+    });
+  }
+  /**
+   * Login
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static loginV1ToolAuthGet(): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/tool/auth',
     });
   }
   /**
@@ -143,6 +169,7 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
+   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
@@ -151,12 +178,17 @@ export class DefaultService {
    */
   public static chatStreamV1ChatStreamPost({
     requestBody,
+    agentId,
   }: {
     requestBody: CohereChatRequest;
+    agentId?: string | null;
   }): CancelablePromise<Array<ChatResponseEvent>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat-stream',
+      query: {
+        agent_id: agentId,
+      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -172,6 +204,7 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
+   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
@@ -180,12 +213,17 @@ export class DefaultService {
    */
   public static chatV1ChatPost({
     requestBody,
+    agentId,
   }: {
     requestBody: CohereChatRequest;
+    agentId?: string | null;
   }): CancelablePromise<NonStreamedChatResponse> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat',
+      query: {
+        agent_id: agentId,
+      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -484,6 +522,7 @@ export class DefaultService {
    * Args:
    * offset (int): Offset to start the list.
    * limit (int): Limit of conversations to be listed.
+   * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
    *
@@ -495,9 +534,11 @@ export class DefaultService {
   public static listConversationsV1ConversationsGet({
     offset,
     limit = 100,
+    agentId,
   }: {
     offset?: number;
     limit?: number;
+    agentId?: string;
   }): CancelablePromise<Array<ConversationWithoutMessages>> {
     return __request(OpenAPI, {
       method: 'GET',
@@ -505,6 +546,7 @@ export class DefaultService {
       query: {
         offset: offset,
         limit: limit,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,
@@ -663,10 +705,20 @@ export class DefaultService {
    * @returns ManagedTool Successful Response
    * @throws ApiError
    */
-  public static listToolsV1ToolsGet(): CancelablePromise<Array<ManagedTool>> {
+  public static listToolsV1ToolsGet({
+    agentId,
+  }: {
+    agentId?: string | null;
+  }): CancelablePromise<Array<ManagedTool>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/v1/tools',
+      query: {
+        agent_id: agentId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
     });
   }
   /**
@@ -793,7 +845,7 @@ export class DefaultService {
     });
   }
   /**
-   * Get Agent
+   * Get Agent By Id
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
@@ -806,7 +858,7 @@ export class DefaultService {
    * @returns Agent Successful Response
    * @throws ApiError
    */
-  public static getAgentV1AgentsAgentIdGet({
+  public static getAgentByIdV1AgentsAgentIdGet({
     agentId,
   }: {
     agentId: string;

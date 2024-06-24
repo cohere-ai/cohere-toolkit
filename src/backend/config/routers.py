@@ -36,8 +36,8 @@ ROUTER_DEPENDENCIES = {
     RouterName.CHAT: {
         "default": [
             Depends(get_session),
-            Depends(validate_chat_request),
             Depends(validate_user_header),
+            Depends(validate_chat_request),
         ],
         "auth": [
             Depends(get_session),
@@ -94,7 +94,8 @@ ROUTER_DEPENDENCIES = {
         ],
         "auth": [
             Depends(get_session),
-            Depends(validate_authorization),
+            # TODO: Add if the router's have to have authorization
+            # Depends(validate_authorization),
         ],
     },
 }

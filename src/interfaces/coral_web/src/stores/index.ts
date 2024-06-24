@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { shallow } from 'zustand/shallow';
 
-import { Tool } from '@/cohere-client';
+import { ManagedTool } from '@/cohere-client';
 import { CitationsStore, createCitationsSlice } from '@/stores/slices/citationsSlice';
 import { ConversationStore, createConversationSlice } from '@/stores/slices/conversationSlice';
 import { FilesStore, createFilesSlice } from '@/stores/slices/filesSlice';
@@ -11,7 +11,7 @@ export type ChatSettingsDefaultsValue = {
   preamble?: string;
   model?: string;
   temperature?: number;
-  tools?: Tool[];
+  tools?: ManagedTool[];
 };
 
 export type StoreState = CitationsStore & ConversationStore & FilesStore & ParamStore;
@@ -72,9 +72,10 @@ export const useParamsStore = () => {
     (state) => ({
       params: state.params,
       setParams: state.setParams,
+      resetFileParams: state.resetFileParams,
     }),
     shallow
   );
 };
 
-export { useSettingsStore } from '@/stores/persistedStore';
+export { useSettingsStore, useAgentsStore } from '@/stores/persistedStore';

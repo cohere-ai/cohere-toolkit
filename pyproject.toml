@@ -23,7 +23,7 @@ sse-starlette = "^2.0.0"
 boto3 = "^1.0.0"
 httpx = "^0.27.0"
 chromadb = "^0.4.16"
-cohere = "^5.5.6"
+cohere = "^5.5.7"
 llama-index = "^0.10.11"
 inquirer = "^3.2.4"
 langchain-community = "^0.0.32"
@@ -38,6 +38,11 @@ itsdangerous = "^2.2.0"
 bcrypt = "^4.1.2"
 pypdf = "^4.2.0"
 pyjwt = "^2.8.0"
+google_auth_oauthlib ="^1.2.0"
+google-auth-httplib2="^0.2.0"
+google-api-python-client="^2.133.0"
+pydantic-settings = "^2.3.1"
+transformers = "^4.41.2"
 
 [tool.poetry.group.dev]
 optional = true
@@ -75,10 +80,14 @@ optional = true
 
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
-transformers = "^4.3.3"
 torch = "^2.3.0"
-llama-cpp-python = "^0.2.67"
 llama-index = "^0.10.11"
+
+[tool.poetry.group.local-model]
+optional = true
+
+[tool.poetry.group.local-model.dependencies]
+llama-cpp-python = "^0.2.67"
 
 [build-system]
 requires = ["poetry-core"]

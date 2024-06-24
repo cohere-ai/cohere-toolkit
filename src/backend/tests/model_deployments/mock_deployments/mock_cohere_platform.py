@@ -64,11 +64,13 @@ class MockCohereDeployment(BaseDeployment):
             },
             {
                 "event_type": StreamEvent.STREAM_END,
-                "generation_id": "test",
-                "citations": [],
-                "documents": [],
-                "search_results": [],
-                "search_queries": [],
+                "response": {
+                    "generation_id": "test",
+                    "citations": [],
+                    "documents": [],
+                    "search_results": [],
+                    "search_queries": [],
+                },
                 "finish_reason": "MAX_TOKENS",
             },
         ]
@@ -76,21 +78,8 @@ class MockCohereDeployment(BaseDeployment):
         for event in events:
             yield event
 
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> list[str]:
-        # TODO: Add
-        pass
-
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        # TODO: Add
-        pass
-
-    def invoke_tools(self, message: str, tools: List[Any], **kwargs: Any) -> List[Any]:
         # TODO: Add
         pass

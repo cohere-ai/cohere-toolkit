@@ -8,11 +8,9 @@ class BaseAuthenticationStrategy:
 
     Attributes:
         NAME (str): The name of the strategy.
-        SHOULD_AUTH_REDIRECT (str): Whether the strategy requires a redirect to the /auth endpoint after login.
     """
 
     NAME = "Base"
-    SHOULD_AUTH_REDIRECT = False
 
     @staticmethod
     def get_required_payload(self) -> List[str]:
@@ -24,26 +22,56 @@ class BaseAuthenticationStrategy:
     @abstractmethod
     def login(self, **kwargs: Any):
         """
-        Login logic: dealing with checking credentials, returning user object
-        to store into session if finished. For OAuth strategies, the next step
-        will be to authenticate.
+        Check email/password credentials and return JWT token.
         """
         ...
 
 
-class BaseOAuthStrategy(BaseAuthenticationStrategy):
+class BaseOAuthStrategy:
     """
     Base strategy for OAuth, abstract class that should be inherited from.
 
     Attributes:
         NAME (str): The name of the strategy.
-        SHOULD_AUTH_REDIRECT (str): Whether the strategy requires a redirect to the /auth endpoint after login.
     """
 
-    SHOULD_AUTH_REDIRECT = True
+    NAME = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._post_init_check()
+
+    def _post_init_check(self):
+        if any(
+            [
+                self.NAME is None,
+            ]
+        ):
+            raise ValueError(f"{self.__name__} must have NAME parameter(s) defined.")
 
     @abstractmethod
-    def authenticate(self, **kwargs: Any):
+    def get_client_id(self, **kwargs: Any):
+        """
+        Retrieves the OAuth app's client ID
+        """
+        ...
+
+    @abstractmethod
+    def get_authorization_endpoint(self, **kwargs: Any):
+        """
+        Retrieves the OAuth app's authorization endpoint.
+        """
+        ...
+
+    @abstractmethod
+    async def get_endpoints(self, **kwargs: Any):
+        """
+        Retrieves the /token and /userinfo endpoints.
+        """
+        ...
+
+    @abstractmethod
+    async def authorize(self, **kwargs: Any):
         """
         Authentication logic: dealing with user data and returning it
         to set the current user session for OAuth strategies.

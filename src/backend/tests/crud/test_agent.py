@@ -3,8 +3,10 @@ from datetime import datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
+from backend.config.deployments import ModelDeploymentName
+from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
-from backend.database_models.agent import Agent, AgentDeployment, AgentModel
+from backend.database_models.agent import Agent
 from backend.schemas.agent import UpdateAgent
 from backend.tests.factories import get_factory
 
@@ -17,8 +19,9 @@ def test_create_agent(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     agent = agent_crud.create_agent(session, agent_data)
@@ -28,26 +31,28 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
-    agent = agent_crud.get_agent(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id)
     assert agent.user_id == user.id
     assert agent.version == 1
     assert agent.name == "test"
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
 
 def test_create_agent_empty_non_required_fields(session, user):
     agent_data = Agent(
         user_id=user.id,
         name="test",
-        deployment=AgentDeployment.COHERE_PLATFORM,
-        model=AgentModel.COMMAND_R_PLUS,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     agent = agent_crud.create_agent(session, agent_data)
@@ -57,25 +62,27 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.description == ""
     assert agent.preamble == ""
     assert agent.temperature == 0.3
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.tools == []
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
-    agent = agent_crud.get_agent(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id)
     assert agent.user_id == user.id
     assert agent.version == 1
     assert agent.name == "test"
     assert agent.description == ""
     assert agent.preamble == ""
     assert agent.temperature == 0.3
-    assert agent.model == AgentModel.COMMAND_R_PLUS
-    assert agent.deployment == AgentDeployment.COHERE_PLATFORM
+    assert agent.tools == []
+    assert agent.model == "command-r-plus"
+    assert agent.deployment == ModelDeploymentName.CoherePlatform
 
 
 def test_create_agent_missing_name(session, user):
     agent_data = Agent(
         user_id=user.id,
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
@@ -86,18 +93,7 @@ def test_create_agent_missing_model(session, user):
     agent_data = Agent(
         user_id=user.id,
         name="test",
-        deployment=AgentDeployment.COHERE_PLATFORM,
-    )
-
-    with pytest.raises(IntegrityError):
-        _ = agent_crud.create_agent(session, agent_data)
-
-
-def test_create_agent_missing_deployment(session, user):
-    agent_data = Agent(
-        user_id=user.id,
-        name="test",
-        model=AgentModel.COMMAND_R_PLUS,
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
@@ -107,8 +103,8 @@ def test_create_agent_missing_deployment(session, user):
 def test_create_agent_missing_user_id(session):
     agent_data = Agent(
         name="test",
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
@@ -127,22 +123,31 @@ def test_create_agent_duplicate_name_version(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        model=AgentModel.COMMAND_R_PLUS,
-        deployment=AgentDeployment.COHERE_PLATFORM,
+        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
     )
 
     with pytest.raises(IntegrityError):
         _ = agent_crud.create_agent(session, agent_data)
 
 
-def test_get_agent(session, user):
+def test_get_agent_by_id(session, user):
     _ = get_factory("Agent", session).create(id="1", name="test_agent")
-    agent = agent_crud.get_agent(session, "1")
+    agent = agent_crud.get_agent_by_id(session, "1")
+    assert agent.id == "1"
+    assert agent.name == "test_agent"
+
+
+def test_get_agent_by_name(session, user):
+    _ = get_factory("Agent", session).create(id="1", name="test_agent")
+    agent = agent_crud.get_agent_by_name(session, "test_agent")
+    assert agent.id == "1"
     assert agent.name == "test_agent"
 
 
 def test_fail_get_nonexistant_agent(session, user):
-    agent = agent_crud.get_agent(session, "123")
+    agent = agent_crud.get_agent_by_id(session, "123")
     assert agent is None
 
 
@@ -179,6 +184,7 @@ def test_update_agent(session, user):
         preamble="test",
         temperature=0.5,
         user_id=user.id,
+        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
     )
 
     new_agent_data = UpdateAgent(
@@ -187,6 +193,7 @@ def test_update_agent(session, user):
         version=2,
         preamble="new_test",
         temperature=0.6,
+        tools=[ToolName.Python_Interpreter, ToolName.Calculator],
     )
 
     agent = agent_crud.update_agent(session, agent, new_agent_data)
@@ -195,6 +202,7 @@ def test_update_agent(session, user):
     assert agent.version == new_agent_data.version
     assert agent.preamble == new_agent_data.preamble
     assert agent.temperature == new_agent_data.temperature
+    assert agent.tools == [ToolName.Python_Interpreter, ToolName.Calculator]
 
 
 def test_delete_agent(session, user):
@@ -202,7 +210,7 @@ def test_delete_agent(session, user):
 
     agent_crud.delete_agent(session, agent.id)
 
-    agent = agent_crud.get_agent(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id)
     assert agent is None
 
 

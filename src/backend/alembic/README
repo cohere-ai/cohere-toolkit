@@ -1,1 +1,3 @@
-Generic single-database configuration.
+To create a new database migration in the folder src/backend run the command  alembic revision -m "{insert update comment}"
+
+See more documentation [here](https://alembic.sqlalchemy.org/en/latest/tutorial.html) and please follow database best practices.

@@ -31,6 +31,7 @@ async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    agent_id: str | None = None,
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
@@ -39,10 +40,17 @@ async def chat_stream(
         session (DBSessionDep): Database session.
         chat_request (CohereChatRequest): Chat request data.
         request (Request): Request object.
+        agent_id (str | None): Agent ID.
 
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
+
+    user_id = request.headers.get("User-Id", None)
+
     (
         session,
         chat_request,
@@ -54,7 +62,7 @@ async def chat_stream(
         should_store,
         managed_tools,
         deployment_config,
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, agent_id)
 
     return EventSourceResponse(
         generate_chat_stream(
@@ -69,7 +77,8 @@ async def chat_stream(
                 session=session,
                 conversation_id=conversation_id,
                 user_id=user_id,
-                request_session=request.session,
+                trace_id=trace_id,
+                agent_id=agent_id,
             ),
             response_message,
             conversation_id,
@@ -85,6 +94,7 @@ async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    agent_id: str | None = None,
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
@@ -93,10 +103,16 @@ async def chat(
         chat_request (CohereChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        agent_id (str | None): Agent ID.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
+
+    user_id = request.headers.get("User-Id", None)
 
     (
         session,
@@ -109,7 +125,7 @@ async def chat(
         should_store,
         managed_tools,
         deployment_config,
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, agent_id)
 
     return generate_chat_response(
         session,
@@ -120,6 +136,9 @@ async def chat(
             deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
+            trace_id=trace_id,
+            user_id=user_id,
+            agent_id=agent_id,
         ),
         response_message,
         conversation_id,

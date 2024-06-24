@@ -10,6 +10,7 @@ import type { Message } from './Message';
 
 export type Conversation = {
   user_id: string;
+  organization_id?: string | null;
   id: string;
   created_at: string;
   updated_at: string;
@@ -17,5 +18,6 @@ export type Conversation = {
   messages: Array<Message>;
   files: Array<File>;
   description: string | null;
+  agent_id: string | null;
   readonly total_file_size: number;
 };

@@ -19,11 +19,17 @@ const sortByDate = (a: Conversation, b: Conversation) => {
 
 type Props = {
   className?: string;
+  agentId?: string;
 };
-export const ConversationListPanel: React.FC<Props> = ({ className }) => {
+
+export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) => {
   const panelRef = useRef(null);
   const { data, isLoading: isConversationsLoading, isError } = useConversations();
-  const conversations: Conversation[] = data ?? [];
+  const conversations: Conversation[] = useMemo(() => {
+    const conversations = data ?? [];
+    if (!agentId) return conversations.filter((d) => !d.agent_id);
+    return conversations.filter((d) => d.agent_id === agentId);
+  }, [data, agentId]);
 
   const {
     settings: { isConvListPanelOpen },
@@ -116,10 +122,10 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
     <Transition.Child
       ref={panelRef}
       as="nav"
-      enterFrom="lg:opacity-0"
-      enterTo="lg:opacity-100"
+      enterFrom="opacity-100 lg:opacity-0"
+      enterTo="opacity-100"
       leaveFrom="lg:opacity-100"
-      leaveTo="lg:opacity-0"
+      leaveTo="opacity-100 lg:opacity-0"
       className={cn(
         'transition-opacity ease-in-out lg:duration-500',
         'flex h-full w-full flex-grow flex-col',
@@ -140,6 +146,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
         enterTo="opacity-100 h-12 mt-5"
         leaveFrom="opacity-100 h-12 mt-5"
         leaveTo="opacity-0 h-0 mt-0"
+        as="div"
         className="z-menu px-4 duration-300 ease-in-out"
       >
         <Input

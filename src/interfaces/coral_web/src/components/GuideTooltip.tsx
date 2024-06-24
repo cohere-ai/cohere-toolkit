@@ -34,6 +34,7 @@ export const GuideTooltip: React.FC<Props> = ({
     <Transition
       show={show}
       appear
+      as="div"
       className={cn(
         'absolute z-guide-tooltip',
         'h-fit w-[260px] sm:w-[305px]',

@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 
 import { Document } from '@/cohere-client';
 import { CitationDocument } from '@/components/Citations/CitationDocument';
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { Text } from '@/components/Shared/Text';
 import { ReservedClasses } from '@/constants';
 import { CitationStyles, useCalculateCitationTranslateY } from '@/hooks/citations';
@@ -95,6 +95,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
 
   return (
     <Transition
+      as="div"
       id={generationId ? `citation-${generationId}` : undefined}
       show={true}
       enter="delay-300 duration-300 ease-out transition-[transform,opacity]" // delay to wait for the citation side panel to open

@@ -16,6 +16,24 @@ Make sure you run the following command before running make dev:
 make migrate
 ```
 
+## Error using with Codespaces 
+
+When using with codespaces you need to change the location of the backend: 
+- Next to the "terminal" tab, go to the "port" tab ([info on ports](https://docs.github.com/en/codespaces/developing-in-a-codespace/forwarding-ports-in-your-codespace))
+- Go to the port 8000 for the backend
+- Right-click and make the port visibility public.
+- Then set in the .env file the NEXT_PUBLIC_API_HOSTNAME value to the forwarded address for port 8000
+
+## Error installing psycopg2
+
+If you see the following error 
+
+```bash
+This error originates from the build backend, and is likely not a problem with poetry but with psycopg2 (2.9.9) not supporting PEP 517 builds. You can verify this by running ‘pip wheel --no-cache-dir --use-pep517 “psycopg2 (==2.9.9)“’.
+```
+
+Try changing psycopg2 with psycopg2-binary in pyproject.toml
+
 ##  Error: pg_config executable not found.
 
 Make sure that all requirements including postgres are properly installed.
@@ -27,6 +45,19 @@ brew install postgresql
 
 For other operating systems, you can check the [postgres documentation](https://www.postgresql.org/download/).
 
+## Error: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+
+Add `platform: linux/amd64` to docker_compose.yml for example: 
+
+```
+  terrarium:
+    platform: linux/amd64
+    image: ghcr.io/cohere-ai/terrarium:latest
+    ports:
+      - '8080:8080'
+    expose:
+      - '8080'
+```
 
 ##  Debugging locally
 

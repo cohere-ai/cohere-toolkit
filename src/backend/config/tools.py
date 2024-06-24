@@ -1,6 +1,5 @@
 import logging
 import os
-from backend.tools.google_drive import GoogleDrive
 from distutils.util import strtobool
 from enum import StrEnum
 
@@ -13,6 +12,7 @@ from backend.tools import (
     SearchFileTool,
     TavilyInternetSearch,
 )
+from backend.tools.google_drive import GOOGLE_DRIVE_TOOL_ID, GoogleDrive, GoogleDriveAuth
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 
@@ -27,18 +27,19 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
-    Wiki_Retriever_LangChain = "Wikipedia"
+    Wiki_Retriever_LangChain = "wikipedia"
     Search_File = "search_file"
     Read_File = "read_document"
-    Python_Interpreter = "Python_Interpreter"
-    Calculator = "Calculator"
-    Tavily_Internet_Search = "Internet_Search"
-    Google_Drive = "Google_Drive"
+    Python_Interpreter = "toolkit_python_interpreter"
+    Calculator = "calculator"
+    Tavily_Internet_Search = "web_search"
+    Google_Drive = GOOGLE_DRIVE_TOOL_ID
 
 
 ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
         name=ToolName.Wiki_Retriever_LangChain,
+        display_name="Wikipedia",
         implementation=LangChainWikiRetriever,
         parameter_definitions={
             "query": {
@@ -56,6 +57,7 @@ ALL_TOOLS = {
     ),
     ToolName.Search_File: ManagedTool(
         name=ToolName.Search_File,
+        display_name="Search File",
         implementation=SearchFileTool,
         parameter_definitions={
             "search_query": {
@@ -77,6 +79,7 @@ ALL_TOOLS = {
     ),
     ToolName.Read_File: ManagedTool(
         name=ToolName.Read_File,
+        display_name="Read Document",
         implementation=ReadFileTool,
         parameter_definitions={
             "filename": {
@@ -93,6 +96,7 @@ ALL_TOOLS = {
     ),
     ToolName.Python_Interpreter: ManagedTool(
         name=ToolName.Python_Interpreter,
+        display_name="Python Interpreter",
         implementation=PythonInterpreter,
         parameter_definitions={
             "code": {
@@ -109,6 +113,7 @@ ALL_TOOLS = {
     ),
     ToolName.Calculator: ManagedTool(
         name=ToolName.Calculator,
+        display_name="Calculator",
         implementation=Calculator,
         parameter_definitions={
             "code": {
@@ -125,6 +130,7 @@ ALL_TOOLS = {
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
+        display_name="Web Search",
         implementation=TavilyInternetSearch,
         parameter_definitions={
             "query": {
@@ -141,6 +147,7 @@ ALL_TOOLS = {
     ),
     ToolName.Google_Drive: ManagedTool(
         name=ToolName.Google_Drive,
+        display_name="Google Drive",
         implementation=GoogleDrive,
         parameter_definitions={
             "query": {
@@ -151,8 +158,7 @@ ALL_TOOLS = {
         },
         is_visible=True,
         is_available=GoogleDrive.is_available(),
-        auth_required=True, # TODO if the tool requires authentication - this should actually be per user 
-        auth_url="/tool/auth", # TODO the Auth URL to redirect to 
+        auth_implementation=GoogleDriveAuth,
         error_message="TODO 1",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
@@ -172,17 +178,20 @@ def get_available_tools() -> dict[ToolName, dict]:
             key: value for key, value in ALL_TOOLS.items() if key in langchain_tools
         }
 
+    tools = ALL_TOOLS.copy()
     if use_community_tools:
         try:
             from community.config.tools import COMMUNITY_TOOLS
 
             tools = ALL_TOOLS.copy()
             tools.update(COMMUNITY_TOOLS)
-            return tools
         except ImportError:
             logging.warning("Community tools are not available. Skipping.")
 
-    return ALL_TOOLS
+    for tool in tools.values():
+        tool.error_message = tool.error_message if not tool.is_available else None
+
+    return tools
 
 
 AVAILABLE_TOOLS = get_available_tools()

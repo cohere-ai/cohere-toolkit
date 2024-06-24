@@ -10,44 +10,46 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react';
-import { useEffect, useState } from 'react';
+import cx from 'classnames';
+import { PropsWithChildren, useEffect, useState } from 'react';
 
 import { Icon, Text } from '@/components/Shared';
-import { cn } from '@/utils';
 
-type Props = {
+export type TooltipProps = PropsWithChildren<{
   label: React.ReactNode;
-  children?: React.ReactNode;
+  size?: 'sm' | 'md';
   hover?: boolean;
+  hoverDelay?: number | Partial<{ open: number; close: number }>;
   duration?: number;
   icon?: React.ReactNode;
   iconClassName?: string;
   buttonClassName?: string;
-  textClassname?: string;
   className?: string;
+  onClickTrigger?: () => void;
   showOutline?: boolean;
   placement?: Placement;
-  onClickTrigger?: () => void;
-};
+}>;
 
 /**
  * Tooltip component is used to display a small piece of information when the user clicks over an icon.
  * We use floating-ui to handle the positioning and manage the state of the tooltip.
  * @param label - The text that will be displayed inside the tooltip.
+ * @param hover - If true, the tooltip will be displayed when the user hovers over the trigger element.
  * @param duration - The time in milliseconds that the tooltip will be displayed. If not provided, the tooltip will be displayed until the user clicks outside of it.
  * @param icon - The icon that will be displayed. If not provided, the default icon will be used.
  * @param textClassname - The class name that will be applied to the text.
  * @param iconClassName - The class name that will be applied to the icon.
  * @param className - The class name that will be applied to the tooltip.
  */
-export const Tooltip: React.FC<Props> = ({
+export const Tooltip: React.FC<TooltipProps> = ({
   label,
   className,
+  size = 'md',
   hover: hoverEnabled = false,
+  hoverDelay,
   children,
   iconClassName,
   buttonClassName,
-  textClassname,
   icon,
   duration,
   onClickTrigger,
@@ -66,7 +68,7 @@ export const Tooltip: React.FC<Props> = ({
   const click = useClick(context);
   const dismiss = useDismiss(context);
   const role = useRole(context);
-  const hover = useHover(context, { enabled: hoverEnabled });
+  const hover = useHover(context, { enabled: hoverEnabled, delay: hoverDelay });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role, hover]);
   const { onClick, ...restReferenceProps } = getReferenceProps();
@@ -86,7 +88,7 @@ export const Tooltip: React.FC<Props> = ({
       ) : (
         <button
           type="button"
-          className={cn(
+          className={cx(
             'flex h-full items-center',
             {
               'focus:rounded focus:outline focus:outline-1 focus:outline-offset-2 focus:outline-volcanic-700':
@@ -112,7 +114,7 @@ export const Tooltip: React.FC<Props> = ({
             <Icon
               name="information"
               kind="outline"
-              className={cn(iconClassName || 'text-volcanic-800', {
+              className={cx(iconClassName || 'text-volcanic-800', {
                 'hover:!font-iconDefault': hoverEnabled,
               })}
             />
@@ -122,8 +124,13 @@ export const Tooltip: React.FC<Props> = ({
       <FloatingPortal>
         {open && (
           <div
-            className={cn(
-              'z-50 max-w-[300px] rounded border border-marble-400 bg-marble-200 px-4 py-2.5',
+            className={cx(
+              'z-tooltip',
+              {
+                'max-w-[400px] rounded-sm border-none bg-secondary-900 px-1 py-0.5': size === 'sm',
+                'max-w-[300px] rounded border border-marble-400 bg-marble-200 px-4 py-2.5':
+                  size === 'md',
+              },
               className
             )}
             ref={refs.setFloating}
@@ -134,9 +141,13 @@ export const Tooltip: React.FC<Props> = ({
             }}
             {...getFloatingProps()}
           >
-            <Text className={cn('whitespace-normal text-volcanic-800', textClassname)}>
-              {label}
-            </Text>
+            {size === 'sm' ? (
+              <Text as="span" styleAs="p-sm" className="flex text-marble-300">
+                {label}
+              </Text>
+            ) : (
+              <Text as="span">{label}</Text>
+            )}
           </div>
         )}
       </FloatingPortal>
