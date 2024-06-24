@@ -25,11 +25,13 @@ def mock_cohere_deployment():
         mock.return_value = MockCohereDeployment()
         yield mock
 
+
 @pytest.fixture()
 def mock_single_container_deployment():
     with patch("backend.chat.custom.custom.get_deployment") as mock:
         mock.return_value = MockSingleContainerDeployment()
         yield mock
+
 
 @pytest.fixture()
 def mock_sagemaker_deployment():
