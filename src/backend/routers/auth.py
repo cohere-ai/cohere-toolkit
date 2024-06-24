@@ -3,13 +3,13 @@ import os
 from typing import Union
 
 from authlib.integrations.starlette_client import OAuthError
-from backend.config.tools import ALL_TOOLS
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.config.tools import ALL_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
@@ -204,7 +204,6 @@ async def login(request: Request, session: DBSessionDep):
     # TODO: Store user id and tool id in the DB for state key
     state = json.loads(request.query_params.get("state"))
     tool_id = state["tool_id"]
-    # TODO: Error handling
     if tool_id in ALL_TOOLS:
         tool = ALL_TOOLS.get(tool_id)
         if tool.auth_implementation is not None:

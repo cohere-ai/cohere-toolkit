@@ -40,6 +40,7 @@ def get_tool_auth(db: Session, tool_id: str, user_id: str) -> ToolAuth:
         .first()
     )
 
+
 def update_tool_auth(
     db: Session, tool_auth: ToolAuth, new_tool_auth: ToolAuth
 ) -> ToolAuth:
@@ -59,6 +60,7 @@ def update_tool_auth(
     db.commit()
     db.refresh(tool_auth)
     return tool_auth
+
 
 def delete_tool_auth(db: Session, user_id: str, tool_id: str) -> None:
     """

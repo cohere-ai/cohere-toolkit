@@ -1,6 +1,5 @@
 from typing import Optional
 
-from backend.services.auth.utils import get_header_user_id
 from fastapi import APIRouter, HTTPException, Request
 
 from backend.config.routers import RouterName
@@ -8,13 +7,16 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.tool import ManagedTool
+from backend.services.auth.utils import get_header_user_id
 
 router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL
 
 
 @router.get("", response_model=list[ManagedTool])
-def list_tools(request: Request, session: DBSessionDep, agent_id: str | None = None) -> list[ManagedTool]:
+def list_tools(
+    request: Request, session: DBSessionDep, agent_id: str | None = None
+) -> list[ManagedTool]:
     """
     List all available tools.
 
@@ -39,7 +41,9 @@ def list_tools(request: Request, session: DBSessionDep, agent_id: str | None = N
     user_id = get_header_user_id(request)
     for tool in all_tools:
         if tool.auth_implementation is not None:
-            tool.is_auth_required = tool.auth_implementation.is_auth_required(session, user_id)
+            tool.is_auth_required = tool.auth_implementation.is_auth_required(
+                session, user_id
+            )
             tool.auth_url = tool.auth_implementation.get_auth_url(user_id)
 
     return all_tools

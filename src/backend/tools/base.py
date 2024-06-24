@@ -1,8 +1,9 @@
 from abc import abstractmethod
 from typing import Any, Dict, List
 
-from backend.database_models.database import DBSessionDep
 from fastapi import Request
+
+from backend.database_models.database import DBSessionDep
 
 
 class BaseTool:
@@ -16,6 +17,7 @@ class BaseTool:
 
     @abstractmethod
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
+
 
 class BaseAuth:
     """

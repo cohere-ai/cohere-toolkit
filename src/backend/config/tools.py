@@ -1,6 +1,5 @@
 import logging
 import os
-from backend.tools.google_drive import GOOGLE_DRIVE_TOOL_ID, GoogleDrive, GoogleDriveAuth
 from distutils.util import strtobool
 from enum import StrEnum
 
@@ -12,6 +11,11 @@ from backend.tools import (
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
+)
+from backend.tools.google_drive import (
+    GOOGLE_DRIVE_TOOL_ID,
+    GoogleDrive,
+    GoogleDriveAuth,
 )
 
 """
@@ -34,6 +38,7 @@ class ToolName(StrEnum):
     Calculator = "calculator"
     Tavily_Internet_Search = "web_search"
     Google_Drive = GOOGLE_DRIVE_TOOL_ID
+
 
 ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
@@ -158,7 +163,7 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=GoogleDrive.is_available(),
         auth_implementation=GoogleDriveAuth,
-        error_message="TODO 1",
+        error_message="Google Drive not available",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
     ),

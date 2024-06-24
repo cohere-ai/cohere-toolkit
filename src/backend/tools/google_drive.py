@@ -4,7 +4,6 @@ import os
 import urllib.parse
 from typing import Any, Dict, List
 
-from backend.services.logger import get_logger
 import requests
 from fastapi import Request
 from google.oauth2.credentials import Credentials
@@ -13,10 +12,12 @@ from googleapiclient.discovery import build
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
+from backend.services.logger import get_logger
 from backend.tools.base import BaseAuth, BaseTool
 
 GOOGLE_DRIVE_TOOL_ID = "google_drive"
 logger = get_logger()
+
 
 class GoogleDrive(BaseTool):
     """
@@ -79,7 +80,7 @@ class GoogleDriveAuth(BaseAuth):
             "include_granted_scopes": "true",
         }
         return base_url + urllib.parse.urlencode(params)
-    
+
     @classmethod
     def is_auth_required(cls, session: DBSessionDep, user_id: str) -> bool:
         auth = tool_auth_crud.get_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
@@ -87,12 +88,14 @@ class GoogleDriveAuth(BaseAuth):
             return True
         if auth.expires_at < datetime.datetime.now():
             if cls.try_refresh_token(session, user_id, auth):
-                return False # Refreshed token successfully
+                return False  # Refreshed token successfully
             tool_auth_crud.delete_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
             return True
         return False
 
-    def try_refresh_token( session: DBSessionDep, user_id: str, tool_auth: ToolAuth) -> bool:
+    def try_refresh_token(
+        session: DBSessionDep, user_id: str, tool_auth: ToolAuth
+    ) -> bool:
         url = "https://oauth2.googleapis.com/token"
         body = {
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
