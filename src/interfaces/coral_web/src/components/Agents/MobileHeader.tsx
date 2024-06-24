@@ -1,14 +1,14 @@
 import { Logo } from '@/components/Shared';
-import { useSettingsStore } from '@/stores';
+import { useAgentsStore } from '@/stores';
 
 export const MobileHeader: React.FC = () => {
   const {
-    settings: { isAgentsSidePanelOpen },
-    setIsAgentsSidePanelOpen,
-  } = useSettingsStore();
+    agents: { isAgentsSidePanelOpen },
+    setAgentsSidePanelOpen,
+  } = useAgentsStore();
 
   const onToggleAgentsSidePanel = () => {
-    setIsAgentsSidePanelOpen(!isAgentsSidePanelOpen);
+    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
 
   return (
