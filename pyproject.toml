@@ -17,7 +17,6 @@ wikipedia = "^1.4.0"
 python-dotenv = "^1.0.1"
 pytest-dotenv = "^0.5.2"
 alembic = "^1.13.1"
-psycopg2 = "^2.9.9"
 psycopg2-binary = "^2.9.9"
 python-multipart = "^0.0.9"
 sse-starlette = "^2.0.0"
@@ -41,6 +40,9 @@ pypdf = "^4.2.0"
 pyjwt = "^2.8.0"
 pydantic-settings = "^2.3.1"
 transformers = "^4.41.2"
+google_auth_oauthlib ="^1.2.0"
+google-auth-httplib2="^0.2.0"
+google-api-python-client="^2.133.0"
 
 [tool.poetry.group.dev]
 optional = true

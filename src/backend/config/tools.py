@@ -1,5 +1,6 @@
 import logging
 import os
+from backend.tools.google_drive import GOOGLE_DRIVE_TOOL_ID, GoogleDrive, GoogleDriveAuth
 from distutils.util import strtobool
 from enum import StrEnum
 
@@ -32,7 +33,7 @@ class ToolName(StrEnum):
     Python_Interpreter = "toolkit_python_interpreter"
     Calculator = "calculator"
     Tavily_Internet_Search = "web_search"
-
+    Google_Drive = GOOGLE_DRIVE_TOOL_ID
 
 ALL_TOOLS = {
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
@@ -142,6 +143,24 @@ ALL_TOOLS = {
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
+    ),
+    ToolName.Google_Drive: ManagedTool(
+        name=ToolName.Google_Drive,
+        display_name="Google Drive",
+        implementation=GoogleDrive,
+        parameter_definitions={
+            "query": {
+                "description": "Query to search google drive documents with.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=GoogleDrive.is_available(),
+        auth_implementation=GoogleDriveAuth,
+        error_message="TODO 1",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for the user's google drive.",
     ),
 }
 

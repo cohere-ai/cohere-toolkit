@@ -9,3 +9,4 @@ from backend.database_models.file import *
 from backend.database_models.message import *
 from backend.database_models.organization import *
 from backend.database_models.user import *
+from backend.database_models.tool_auth import *
