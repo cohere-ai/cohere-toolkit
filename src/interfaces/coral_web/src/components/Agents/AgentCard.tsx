@@ -3,14 +3,9 @@ import { useRouter } from 'next/router';
 
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
-import {
-  useAgentsStore,
-  useCitationsStore,
-  useConversationStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -30,10 +25,10 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const isTouchDevice = getIsTouchDevice();
   const { query } = useRouter();
   const isActive = isBaseAgent ? !query.agentId : query.agentId === id;
-  const { removeRecentAgentId } = useAgentsStore();
   const router = useRouter();
 
-  const { setSettings } = useSettingsStore();
+  const { removeRecentAgentId } = useRecentAgents();
+  const { setEditAgentPanelOpen } = useAgentsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
@@ -41,7 +36,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const handleNewChat = () => {
     const url = id ? `/agents/${id}` : '/agents';
     router.push(url, undefined, { shallow: true });
-    setSettings({ isEditAgentPanelOpen: false });
+    setEditAgentPanelOpen(false);
     resetConversation();
     resetCitations();
     resetFileParams();

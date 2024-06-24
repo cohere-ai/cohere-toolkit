@@ -10,6 +10,7 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useSession } from '@/hooks/session';
 import {
+  useAgentsStore,
   useCitationsStore,
   useConversationStore,
   useParamsStore,
@@ -30,10 +31,11 @@ const useHeaderMenu = ({
   const { data: agent } = useAgent({ agentId });
   const isAgentCreator = userId === agent?.user_id;
 
+  const { setSettings } = useSettingsStore();
   const {
-    settings: { isEditAgentPanelOpen },
-    setSettings,
-  } = useSettingsStore();
+    agents: { isEditAgentPanelOpen },
+    setEditAgentPanelOpen,
+  } = useAgentsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
@@ -64,7 +66,7 @@ const useHeaderMenu = ({
   };
 
   const handleOpenAgentDrawer = () => {
-    setSettings({ isEditAgentPanelOpen: !isEditAgentPanelOpen });
+    setEditAgentPanelOpen(!isEditAgentPanelOpen);
   };
 
   const menuItems: KebabMenuItem[] = [
@@ -107,6 +109,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
     setSettings,
     setIsConvListPanelOpen,
   } = useSettingsStore();
+  const { setAgentsSidePanelOpen } = useAgentsStore();
 
   const { welcomeGuideState } = useWelcomeGuideState();
 
@@ -143,7 +146,8 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
               <IconButton
                 iconName="side-panel"
                 onClick={() => {
-                  setSettings({ isConfigDrawerOpen: false, isAgentsSidePanelOpen: false });
+                  setSettings({ isConfigDrawerOpen: false });
+                  setAgentsSidePanelOpen(false);
                   setIsConvListPanelOpen(true);
                 }}
               />

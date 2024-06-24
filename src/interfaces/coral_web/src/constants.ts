@@ -43,6 +43,7 @@ export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
   authToken: 'authToken',
+  recentAgents: 'recentAgents',
 };
 
 /**
