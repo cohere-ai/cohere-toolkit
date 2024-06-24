@@ -1,8 +1,10 @@
-import os
+import os, copy
 from typing import Any, Dict, List
 
 from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
+from bs4 import BeautifulSoup
+from requests import get
 
 from backend.tools.base import BaseTool
 
@@ -20,18 +22,41 @@ class TavilyInternetSearch(BaseTool):
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
-        content = self.client.search(query=query, search_depth="advanced")
+        initial_results = self.client.search(query=query, search_depth="advanced")
 
-        if "results" not in content:
+        if "results" not in initial_results:
             return []
 
-        return [
-            {
-                "url": result["url"],
-                "text": result["content"],
-            }
-            for result in content["results"]
-        ]
+        results_dict = {result["url"]: result for result in initial_results["results"]}
+        scraped = [self.scrape(link) for link in results_dict]
+        expanded = []
+        for scraped_result in scraped:
+            initial_result = results_dict[scraped_result["url"]]
+            expanded.append({
+                "url": initial_result["url"],
+                "text": initial_result["content"],
+            })
+            
+            if scraped_result["title"] is not None:
+                sentence = f"{scraped_result['title']} {scraped_result['content']}".split("\n")
+                for snippet in sentence:
+                    if len(snippet) > 20: # Skip short snippets
+                        expanded.append({
+                            "url": initial_result["url"],
+                            "text": snippet.strip(),
+                        })  
+
+        return expanded
+    
+    def scrape(self, url: str) -> Dict[str, Any]:
+        response = get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        return {
+            "url": url,
+            "title": soup.title.text if soup.title else None,
+            "content": ' '.join([p.text for p in soup.find_all('p')])
+        }
 
     def to_langchain_tool(self) -> TavilySearchResults:
         internet_search = TavilySearchResults()
