@@ -5,6 +5,7 @@ import { useContext, useEffect } from 'react';
 
 import { CohereClient, Document } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
+import { ConnectDataModal } from '@/components/Agents/ConnectDataModal';
 import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
@@ -12,11 +13,13 @@ import ConversationListPanel from '@/components/ConversationList/ConversationLis
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
+import { ModalContext } from '@/context/ModalContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useShowUnauthedToolsModal, useUnauthedTools } from '@/hooks/tools';
 import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
@@ -28,9 +31,6 @@ import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
-import { useShowUnauthedToolsModal, useUnauthedTools } from '@/hooks/tools';
-import { ModalContext } from '@/context/ModalContext';
-import { ConnectDataModal } from '@/components/Agents/ConnectDataModal';
 
 const AgentsPage: NextPage = () => {
   const { agentId, conversationId } = useSlugRoutes();
@@ -51,10 +51,10 @@ const AgentsPage: NextPage = () => {
   const { data: allDeployments } = useListAllDeployments();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal()
+  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
   const { setMessage } = useContext(BannerContext);
   const { open, close } = useContext(ModalContext);
-  
+
   const {
     data: conversation,
     isLoading,
@@ -65,16 +65,20 @@ const AgentsPage: NextPage = () => {
   });
 
   useEffect(() => {
-    if(showUnauthedToolsModal) {
+    if (showUnauthedToolsModal) {
       open({
         title: 'Connect your data',
-        content: <ConnectDataModal onClose={() => {
-          onDismissed()
-          close()
-        }} />
+        content: (
+          <ConnectDataModal
+            onClose={() => {
+              onDismissed();
+              close();
+            }}
+          />
+        ),
       });
     }
-  }, [showUnauthedToolsModal])
+  }, [showUnauthedToolsModal]);
 
   useEffect(() => {
     resetCitations();

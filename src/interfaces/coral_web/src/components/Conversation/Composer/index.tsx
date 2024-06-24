@@ -9,11 +9,11 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
+import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
-import { useUnauthedTools } from '@/hooks/tools';
 
 type Props = {
   isFirstTurn: boolean;
@@ -44,7 +44,7 @@ export const Composer: React.FC<Props> = ({
   const breakpoint = useBreakpoint();
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { isToolAuthRequired } = useUnauthedTools()
+  const { isToolAuthRequired } = useUnauthedTools();
 
   const [isComposing, setIsComposing] = useState(false);
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
