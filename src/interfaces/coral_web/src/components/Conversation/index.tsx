@@ -60,15 +60,16 @@ const Conversation: React.FC<Props> = ({
   const {
     params: { fileIds },
   } = useParamsStore();
-  const {
-    settings: { isEditAgentPanelOpen },
-  } = useSettingsStore();
+
   const {
     files: { composerFiles },
   } = useFilesStore();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
-  const { addRecentAgentId } = useAgentsStore();
+  const {
+    agents: { isEditAgentPanelOpen },
+    addRecentAgentId,
+  } = useAgentsStore();
 
   const {
     userMessage,

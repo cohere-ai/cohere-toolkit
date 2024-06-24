@@ -21,7 +21,7 @@ const usePersistedStore = create<PersistedStore>()(
     }),
     {
       name: 'persisted-store',
-      version: 1,
+      version: 2,
     }
   )
 );
@@ -51,7 +51,6 @@ export const useSettingsStore = () => {
       settings: state.settings,
       setSettings: state.setSettings,
       setIsConvListPanelOpen: state.setIsConvListPanelOpen,
-      setIsAgentsSidePanelOpen: state.setIsAgentsSidePanelOpen,
     }),
     shallow
   );
@@ -63,6 +62,8 @@ export const useAgentsStore = () => {
       agents: state.agents,
       addRecentAgentId: state.addRecentAgentId,
       removeRecentAgentId: state.removeRecentAgentId,
+      setAgentsSidePanelOpen: state.setAgentsSidePanelOpen,
+      setEditAgentPanelOpen: state.setEditAgentPanelOpen,
     }),
     shallow
   );
