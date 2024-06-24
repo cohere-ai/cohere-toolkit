@@ -166,7 +166,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
         className={cn(
           'relative flex h-0 flex-grow flex-col overflow-y-auto',
           'px-3 pb-4 pt-3 md:pb-8',
-          { 'hide-scrollbar pr-0.5': !getIsTouchDevice() }
+          { 'pr-0.5': !getIsTouchDevice() }
         )}
       >
         {content}

@@ -5,6 +5,7 @@ import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
@@ -23,8 +24,8 @@ type Props = {
  */
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
-  const { query } = useRouter();
-  const isActive = isBaseAgent ? !query.agentId : query.agentId === id;
+  const { agentId } = useSlugRoutes();
+  const isActive = isBaseAgent ? !agentId : agentId === id;
   const router = useRouter();
 
   const { removeRecentAgentId } = useRecentAgents();

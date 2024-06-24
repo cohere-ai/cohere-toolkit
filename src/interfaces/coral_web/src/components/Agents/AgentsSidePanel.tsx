@@ -73,7 +73,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         >
           <Transition
             show={isAgentsSidePanelOpen || isMobile}
-            appear
             as="div"
             enter="transition-all transform ease-in-out duration-200"
             enterFrom="-translate-x-full"
