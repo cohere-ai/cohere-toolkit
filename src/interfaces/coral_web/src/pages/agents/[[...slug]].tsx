@@ -1,7 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 
 import { CohereClient, Document } from '@/cohere-client';
@@ -17,6 +16,7 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
@@ -25,14 +25,11 @@ import {
   useSettingsStore,
 } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { getQueryString } from '@/utils';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const AgentsPage: NextPage = () => {
-  const router = useRouter();
-  const agentId = getQueryString(router.query.agentId);
-  const conversationId = getQueryString(router.query.conversationId);
+  const { agentId, conversationId } = useSlugRoutes();
 
   const { setConversation } = useConversationStore();
   const {
