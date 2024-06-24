@@ -141,8 +141,6 @@ class GoogleDriveAuth(BaseAuth):
         if res.status_code != 200:
             logger.error(f"Error in google drive auth: {res_body}")
             return res_body
-        print(res_body)
-        return
         tool_auth_crud.create_tool_auth(
             session,
             ToolAuth(

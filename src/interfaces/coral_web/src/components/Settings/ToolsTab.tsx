@@ -49,21 +49,18 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
     if (tool === undefined) {
       return;
     }
+    if (tool.is_auth_required && tool.auth_url !== null) {
+      window.location.assign(tool.auth_url!);
+    }
     const newParams: Partial<ConfigurableParams> = {
       tools: checked
-        ? [...enabledTools, { name }]
+        ? [...enabledTools, tool]
         : enabledTools.filter((enabledTool) => enabledTool.name !== name),
     };
 
     if (name === defaultFileLoaderTool?.name) {
       newParams.fileIds = [];
       clearComposerFiles();
-    }
-
-    for (const tool of enabledTools) {
-      if (tool.is_auth_required && tool.auth_url !== null) {
-        window.location.assign(tool.auth_url!);
-      }
     }
 
     setParams(newParams);
