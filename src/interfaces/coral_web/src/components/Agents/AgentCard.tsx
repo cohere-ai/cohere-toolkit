@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
 import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -24,9 +25,9 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const isTouchDevice = getIsTouchDevice();
   const { query } = useRouter();
   const isActive = isBaseAgent ? !query.agentId : query.agentId === id;
-  const { removeRecentAgentId } = useAgentsStore();
   const router = useRouter();
 
+  const { removeRecentAgentId } = useRecentAgents();
   const { setEditAgentPanelOpen } = useAgentsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();

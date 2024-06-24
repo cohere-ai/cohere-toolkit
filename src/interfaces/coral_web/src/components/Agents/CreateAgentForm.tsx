@@ -5,9 +5,8 @@ import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Age
 import { Button, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
-import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
+import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
-import { useAgentsStore } from '@/stores';
 
 /**
  * @description Form to create a new agent.
@@ -17,7 +16,7 @@ export const CreateAgentForm: React.FC = () => {
   const { open, close } = useContext(ModalContext);
   const { error } = useNotify();
   const { mutateAsync: createAgent } = useCreateAgent();
-  const { addRecentAgentId } = useAgentsStore();
+  const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentFormFields>({

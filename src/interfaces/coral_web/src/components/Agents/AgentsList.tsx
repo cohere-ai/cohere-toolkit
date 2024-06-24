@@ -13,7 +13,7 @@ export const AgentsList: React.FC = () => {
   const {
     agents: { isAgentsSidePanelOpen },
   } = useAgentsStore();
-  const recentAgents = useRecentAgents();
+  const { recentAgents } = useRecentAgents();
 
   return (
     <div className="flex flex-col gap-3">
@@ -30,7 +30,7 @@ export const AgentsList: React.FC = () => {
       </Transition>
 
       <AgentCard isExpanded={isAgentsSidePanelOpen} name="Command R+" isBaseAgent />
-      {recentAgents?.map((agent) => (
+      {recentAgents.map((agent) => (
         <AgentCard
           key={agent.id}
           isExpanded={isAgentsSidePanelOpen}

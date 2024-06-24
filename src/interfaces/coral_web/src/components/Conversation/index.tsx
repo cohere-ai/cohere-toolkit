@@ -10,6 +10,7 @@ import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
+import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -60,7 +61,7 @@ const Conversation: React.FC<Props> = ({
   const {
     params: { fileIds },
   } = useParamsStore();
-
+  const { addRecentAgentId } = useRecentAgents();
   const {
     files: { composerFiles },
   } = useFilesStore();
@@ -68,7 +69,6 @@ const Conversation: React.FC<Props> = ({
 
   const {
     agents: { isEditAgentPanelOpen },
-    addRecentAgentId,
   } = useAgentsStore();
 
   const {
