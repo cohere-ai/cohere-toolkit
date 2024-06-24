@@ -6,7 +6,7 @@ def test_list_users_empty(session_client: TestClient) -> None:
 
     assert response.status_code == 200
     assert response.json() == [
-        {"strategy": "Basic"},
-        {"strategy": "Google"},
-        {"strategy": "OIDC"},
+        {"strategy": "Basic", "client_id": None, "authorization_endpoint": None},
+        {"strategy": "Google", "client_id": "test", "authorization_endpoint": None},
+        {"strategy": "OIDC", "client_id": "test", "authorization_endpoint": None},
     ]

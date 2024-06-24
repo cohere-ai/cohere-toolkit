@@ -10,6 +10,7 @@ import type { Message } from './Message';
 
 export type Conversation = {
   user_id: string;
+  organization_id?: string | null;
   id: string;
   created_at: string;
   updated_at: string;

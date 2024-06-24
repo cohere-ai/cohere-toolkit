@@ -1,13 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
 
-import {
-  BasicButton,
-  Button,
-  Dropdown,
-  DropdownOptionGroups,
-  Input,
-  Text,
-} from '@/components/Shared';
+import { BasicButton, Button, Dropdown, DropdownOptionGroups, Input } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';

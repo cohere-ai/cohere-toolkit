@@ -4,6 +4,10 @@ from fastapi import HTTPException, Request
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import AVAILABLE_TOOLS
+from backend.crud import agent as agent_crud
+from backend.crud import conversation as conversation_crud
+from backend.database_models.database import DBSessionDep
+from backend.services.auth.utils import get_header_user_id
 
 
 def validate_user_header(request: Request):
@@ -46,7 +50,7 @@ def validate_deployment_header(request: Request):
         )
 
 
-async def validate_chat_request(request: Request):
+async def validate_chat_request(session: DBSessionDep, request: Request):
     """
     Validate that the request has the appropriate values in the body
 
@@ -56,7 +60,30 @@ async def validate_chat_request(request: Request):
     Raises:
         HTTPException: If the request does not have the appropriate values in the body
     """
+    # Validate that the agent_id is valid
     body = await request.json()
+    user_id = request.headers.get("User-Id")
+
+    agent_id = request.query_params.get("agent_id")
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent is None:
+            raise HTTPException(
+                status_code=400, detail=f"Agent with ID {agent_id} not found."
+            )
+
+    # If conversation_id is passed in with agent_id, then make sure that conversation exists with the agent_id
+    conversation_id = body.get("conversation_id")
+    if conversation_id and agent_id:
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
+        )
+        if conversation is None or conversation.agent_id != agent_id:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Conversation ID {conversation_id} not found for specified agent.",
+            )
+
     tools = body.get("tools")
     if not tools:
         return
@@ -112,7 +139,7 @@ async def validate_env_vars(request: Request):
         )
 
 
-async def validate_create_agent_request(request: Request):
+async def validate_create_agent_request(session: DBSessionDep, request: Request):
     """
     Validate that the create agent request has valid tools, deployments, and compatible models.
 
@@ -123,6 +150,14 @@ async def validate_create_agent_request(request: Request):
         HTTPException: If the request does not have the appropriate values in the body
     """
     body = await request.json()
+
+    # TODO @scott-cohere: for now we disregard versions and assume agents have unique names, enforce versioning later
+    agent_name = body.get("name")
+    agent = agent_crud.get_agent_by_name(session, agent_name)
+    if agent:
+        raise HTTPException(
+            status_code=400, detail=f"Agent {agent_name} already exists."
+        )
 
     # Validate tools
     tools = body.get("tools")
@@ -154,7 +189,7 @@ async def validate_create_agent_request(request: Request):
         )
 
 
-async def validate_update_agent_request(request: Request):
+async def validate_update_agent_request(session: DBSessionDep, request: Request):
     """
     Validate that the update agent request has valid tools, deployments, and compatible models.
 
@@ -164,8 +199,22 @@ async def validate_update_agent_request(request: Request):
     Raises:
         HTTPException: If the request does not have the appropriate values in the body
     """
-    body = await request.json()
+    agent_id = request.path_params.get("agent_id")
+    if not agent_id:
+        raise HTTPException(status_code=400, detail="Agent ID is required.")
 
+    agent = agent_crud.get_agent_by_id(session, agent_id)
+    if not agent:
+        raise HTTPException(
+            status_code=400, detail=f"Agent with ID {agent_id} not found."
+        )
+
+    if agent.user_id != get_header_user_id(request):
+        raise HTTPException(
+            status_code=401, detail=f"Agent with ID {agent_id} does not belong to user."
+        )
+
+    body = await request.json()
     # Validate tools
     tools = body.get("tools")
     if tools:

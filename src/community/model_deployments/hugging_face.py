@@ -86,17 +86,6 @@ class HuggingFaceDeployment(BaseDeployment):
             "finish_reason": "COMPLETE",
         }
 
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> list[str]:
-        logging.warning(
-            "invoke_search_queries not implemented for HuggingFaceDeployment"
-        )
-        return []
-
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:

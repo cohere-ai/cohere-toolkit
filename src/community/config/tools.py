@@ -13,17 +13,18 @@ from community.tools import (
 
 
 class CommunityToolName(StrEnum):
-    Arxiv = "Arxiv"
-    Connector = "Connector"
-    Pub_Med = "Pub Med"
-    File_Upload_LlamaIndex = "File Reader - LlamaIndex"
-    Wolfram_Alpha = "Wolfram_Alpha"
-    ClinicalTrials = "ClinicalTrials"
+    Arxiv = "arxiv"
+    Connector = "example_connector"
+    Pub_Med = "pub_med"
+    File_Upload_LlamaIndex = "file_reader_llamaindex"
+    Wolfram_Alpha = "wolfram_alpha"
+    ClinicalTrials = "clinical_trials"
 
 
 COMMUNITY_TOOLS = {
     CommunityToolName.Arxiv: ManagedTool(
         name=CommunityToolName.Arxiv,
+        display_name="Arxiv",
         implementation=ArxivRetriever,
         parameter_definitions={
             "query": {
@@ -40,6 +41,7 @@ COMMUNITY_TOOLS = {
     ),
     CommunityToolName.Connector: ManagedTool(
         name=CommunityToolName.Connector,
+        display_name="Example Connector",
         implementation=ConnectorRetriever,
         is_visible=True,
         is_available=ConnectorRetriever.is_available(),
@@ -49,6 +51,7 @@ COMMUNITY_TOOLS = {
     ),
     CommunityToolName.Pub_Med: ManagedTool(
         name=CommunityToolName.Pub_Med,
+        display_name="PubMed",
         implementation=PubMedRetriever,
         parameter_definitions={
             "query": {
@@ -65,6 +68,7 @@ COMMUNITY_TOOLS = {
     ),
     CommunityToolName.File_Upload_LlamaIndex: ManagedTool(
         name=CommunityToolName.File_Upload_LlamaIndex,
+        display_name="File Reader",
         implementation=LlamaIndexUploadPDFRetriever,
         is_visible=True,
         is_available=LlamaIndexUploadPDFRetriever.is_available(),
@@ -74,6 +78,7 @@ COMMUNITY_TOOLS = {
     ),
     CommunityToolName.Wolfram_Alpha: ManagedTool(
         name=CommunityToolName.Wolfram_Alpha,
+        display_name="Wolfram Alpha",
         implementation=WolframAlpha,
         is_visible=False,
         is_available=WolframAlpha.is_available(),
@@ -83,6 +88,7 @@ COMMUNITY_TOOLS = {
     ),
     CommunityToolName.ClinicalTrials: ManagedTool(
         name=CommunityToolName.ClinicalTrials,
+        display_name="Clinical Trials",
         implementation=ClinicalTrials,
         is_visible=True,
         is_available=ClinicalTrials.is_available(),

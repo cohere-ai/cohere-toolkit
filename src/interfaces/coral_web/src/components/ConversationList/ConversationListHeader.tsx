@@ -1,7 +1,14 @@
-import IconButton from '@/components/IconButton';
+import { useRouter } from 'next/router';
+
+import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
-import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
-import { cn } from '@/utils';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
+import { cn, getQueryString } from '@/utils';
 
 type Props = {
   isBulkActionMode: boolean;
@@ -21,6 +28,16 @@ export const ConversationListHeader: React.FC<Props> = ({
   const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
+  const router = useRouter();
+
+  const agentId = getQueryString(router.query.agentId);
+
+  const newChatUrl = agentId
+    ? `/agents/${agentId}`
+    : router.asPath.includes('/agents')
+    ? '/agents'
+    : '/';
 
   return (
     <header
@@ -67,13 +84,14 @@ export const ConversationListHeader: React.FC<Props> = ({
           <div className="flex items-center gap-x-3">
             <IconButton iconName="search" isDefaultOnHover={false} onClick={onSearchClick} />
             <IconButton
-              href="/"
+              href={newChatUrl}
               shallow
               iconName="new-message"
               onClick={() => {
                 resetConversation();
                 resetCitations();
                 setSettings({ isMobileConvListPanelOpen: false });
+                resetFileParams();
               }}
             />
           </div>

@@ -18,6 +18,7 @@ python-dotenv = "^1.0.1"
 pytest-dotenv = "^0.5.2"
 alembic = "^1.13.1"
 psycopg2 = "^2.9.9"
+psycopg2-binary = "^2.9.9"
 python-multipart = "^0.0.9"
 sse-starlette = "^2.0.0"
 boto3 = "^1.0.0"
@@ -39,6 +40,7 @@ bcrypt = "^4.1.2"
 pypdf = "^4.2.0"
 pyjwt = "^2.8.0"
 pydantic-settings = "^2.3.1"
+transformers = "^4.41.2"
 
 [tool.poetry.group.dev]
 optional = true
@@ -76,7 +78,6 @@ optional = true
 
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
-transformers = "^4.3.3"
 torch = "^2.3.0"
 llama-index = "^0.10.11"
 
