@@ -13,8 +13,8 @@ from backend.model_deployments import (
 from backend.model_deployments.azure import AZURE_ENV_VARS
 from backend.model_deployments.bedrock import BEDROCK_ENV_VARS
 from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
-from backend.model_deployments.single_container import SC_ENV_VARS
 from backend.model_deployments.sagemaker import SAGE_MAKER_ENV_VARS
+from backend.model_deployments.single_container import SC_ENV_VARS
 from backend.schemas.deployment import Deployment
 
 

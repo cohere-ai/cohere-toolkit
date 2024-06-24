@@ -10,7 +10,6 @@ from backend.tests.model_deployments.mock_deployments.mock_cohere_platform impor
 from backend.tests.model_deployments.mock_deployments.mock_sagemaker import (
     MockSageMakerDeployment,
 )
-
 from backend.tests.model_deployments.mock_deployments.mock_single_container import (
     MockSingleContainerDeployment,
 )
