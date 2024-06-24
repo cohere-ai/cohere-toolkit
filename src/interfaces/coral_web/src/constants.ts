@@ -44,6 +44,7 @@ export const LOCAL_STORAGE_KEYS = {
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
   authToken: 'authToken',
   recentAgents: 'recentAgents',
+  unauthedToolsModalDismissed: 'tools/unauthedModal/dismissed',
 };
 
 /**

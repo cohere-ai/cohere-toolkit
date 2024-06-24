@@ -28,6 +28,9 @@ import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import { useShowUnauthedToolsModal, useUnauthedTools } from '@/hooks/tools';
+import { ModalContext } from '@/context/ModalContext';
+import { ConnectDataModal } from '@/components/Agents/ConnectDataModal';
 
 const AgentsPage: NextPage = () => {
   const { agentId, conversationId } = useSlugRoutes();
@@ -48,8 +51,10 @@ const AgentsPage: NextPage = () => {
   const { data: allDeployments } = useListAllDeployments();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
+  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal()
   const { setMessage } = useContext(BannerContext);
-
+  const { open, close } = useContext(ModalContext);
+  
   const {
     data: conversation,
     isLoading,
@@ -58,6 +63,18 @@ const AgentsPage: NextPage = () => {
   } = useConversation({
     conversationId: conversationId,
   });
+
+  useEffect(() => {
+    if(showUnauthedToolsModal) {
+      open({
+        title: 'Connect your data',
+        content: <ConnectDataModal onClose={() => {
+          onDismissed()
+          close()
+        }} />
+      });
+    }
+  }, [showUnauthedToolsModal])
 
   useEffect(() => {
     resetCitations();

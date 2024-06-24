@@ -13,10 +13,10 @@ import { useSettingsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
+import { useUnauthedTools } from '@/hooks/tools';
 
 type Props = {
   isFirstTurn: boolean;
-  isToolAuthRequired: boolean;
   isStreaming: boolean;
   value: string;
   streamingMessage: ChatMessage | null;
@@ -29,7 +29,6 @@ type Props = {
 
 export const Composer: React.FC<Props> = ({
   isFirstTurn,
-  isToolAuthRequired,
   value,
   isStreaming,
   onSend,
@@ -45,6 +44,7 @@ export const Composer: React.FC<Props> = ({
   const breakpoint = useBreakpoint();
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { isToolAuthRequired } = useUnauthedTools()
 
   const [isComposing, setIsComposing] = useState(false);
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
@@ -197,7 +197,7 @@ export const Composer: React.FC<Props> = ({
         <ComposerFiles />
         <ComposerToolbar onUploadFile={onUploadFile} />
       </div>
-      <ComposerError className="pt-2" isToolAuthRequired={isToolAuthRequired} />
+      <ComposerError className="pt-2" />
     </div>
   );
 };

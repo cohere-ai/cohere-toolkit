@@ -2,12 +2,12 @@ import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
 import { ToolsInfoBox } from '@/components/Agents/Settings/ToolsInfoBox';
-import { Text } from '@/components/Shared';
+import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
-import { useListTools } from '@/hooks/tools';
+import { useListTools, useUnauthedTools } from '@/hooks/tools';
 import { useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { cn } from '@/utils';
@@ -26,20 +26,9 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
   const { defaultFileLoaderTool } = useDefaultFileLoaderTool();
   const { clearComposerFiles } = useFilesStore();
 
-  const { availableTools, unavailableTools } = useMemo(() => {
-    return (data ?? [])
-      .filter((t) => t.is_visible)
-      .reduce<{ availableTools: ManagedTool[]; unavailableTools: ManagedTool[] }>(
-        (acc, tool) => {
-          if (tool.is_available) {
-            acc.availableTools.push(tool);
-          } else {
-            acc.unavailableTools.push(tool);
-          }
-          return acc;
-        },
-        { availableTools: [], unavailableTools: [] }
-      );
+  const { unauthedTools } = useUnauthedTools()
+  const availableTools = useMemo(() => {
+    return (data ?? []).filter((t) => t.is_visible && t.is_available)
   }, [data]);
 
   const handleToggle = (name: string, checked: boolean) => {
@@ -65,32 +54,19 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
           Tools are data sources the assistant can search such as databases or the internet.
         </Text>
 
-        {unavailableTools.length > 0 && (
+        {unauthedTools.length > 0 && (
           <>
+          <div className="flex items-center justify-between">
             <Text as="span" styleAs="label" className="font-medium">
               Action Required
             </Text>
-
-            <div className="flex flex-col gap-y-5">
-              {unavailableTools.map(({ name, display_name, description, error_message }) => {
-                return (
-                  <ToggleCard
-                    key={name}
-                    disabled
-                    errorMessage={error_message}
-                    checked={false}
-                    label={display_name ?? name}
-                    icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
-                    description={description ?? ''}
-                    onToggle={(checked) => handleToggle(name, checked)}
-                  />
-                );
-              })}
-            </div>
+            <Icon name='warning' kind='outline' />
+          </div>
+            <ConnectDataBox tools={unauthedTools}/>
           </>
         )}
 
-        {unavailableTools.length > 0 && availableTools.length > 0 && (
+        {unauthedTools.length > 0 && availableTools.length > 0 && (
           <hr className="border-t border-marble-400" />
         )}
 
@@ -125,5 +101,35 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
       </article>
       <WelcomeGuideTooltip step={2} className="fixed right-0 mr-3 mt-12 md:right-full md:mt-0" />
     </section>
+  );
+};
+
+
+/**
+ *
+ * @description Info box that prompts the user to connect their data to enable tools
+ */
+const ConnectDataBox: React.FC<{
+  tools: ManagedTool[];
+}> = ({
+  tools,
+}) => {
+  return (
+    <div className="bg-primary-200 border-primary-400 flex flex-col gap-y-4 rounded border-2 border-dashed p-4">
+      <div className="flex flex-col gap-y-3">
+        <Text>Connect your data</Text>
+        <Text>
+          In order to get the most accurate answered grounded on your data, experience, connect the
+          following:
+        </Text>
+      </div>
+      <div className="flex flex-col gap-y-1">
+        {tools.map((tool) => (
+          <Button key={tool.name} kind="secondary" href={tool.auth_url ?? ''}>
+            {tool.display_name} <Icon name='arrow-up-right' />
+          </Button>
+        ))}
+      </div>
+    </div>
   );
 };
