@@ -28,7 +28,9 @@ class SingleContainerDeployment(BaseDeployment):
     def __init__(self, **kwargs: Any):
         self.url = get_model_config_var(SC_URL_ENV_VAR, **kwargs)
         self.model = get_model_config_var(SC_MODEL_ENV_VAR, **kwargs)
-        self.client = cohere.Client(base_url=self.url, client_name=self.client_name)
+        self.client = cohere.Client(
+            base_url=self.url, client_name=self.client_name, api_key="none"
+        )
 
     @property
     def rerank_enabled(self) -> bool:
@@ -48,7 +50,7 @@ class SingleContainerDeployment(BaseDeployment):
     @collect_metrics_chat
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
-            **chat_request.model_dump(exclude={"stream", "file_ids"}),
+            **chat_request.model_dump(exclude={"stream", "file_ids", "model"}),
             **kwargs,
         )
         yield to_dict(response)
@@ -58,7 +60,7 @@ class SingleContainerDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream", "file_ids"}),
+            **chat_request.model_dump(exclude={"stream", "file_ids", "model"}),
             **kwargs,
         )
 

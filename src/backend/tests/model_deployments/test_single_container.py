@@ -10,10 +10,10 @@ from backend.tests.model_deployments.mock_deployments import (
 def test_streamed_chat(
     session_client_chat: TestClient,
     user: User,
-    mock_single_container,
+    mock_single_container_deployment,
     mock_available_model_deployments,
 ):
-    deployment = mock_single_container.return_value
+    deployment = mock_single_container_deployment.return_value
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -30,10 +30,10 @@ def test_streamed_chat(
 def test_non_streamed_chat(
     session_client_chat: TestClient,
     user: User,
-    mock_single_container,
+    mock_single_container_deployment,
     mock_available_model_deployments,
 ):
-    deployment = mock_single_container.return_value
+    deployment = mock_single_container_deployment.return_value
     response = session_client_chat.post(
         "/v1/chat",
         headers={
