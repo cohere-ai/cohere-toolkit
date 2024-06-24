@@ -1,5 +1,6 @@
 import logging
 import os
+from enum import Enum
 from typing import Any, Dict, List
 
 from compass_sdk import MetadataConfig, ParserConfig
@@ -13,6 +14,15 @@ logger = logging.getLogger()
 
 class CompassTool(BaseTool):
     """Tool to interact with a Compass instance."""
+
+    class ValidActions(Enum):
+        LIST_INDEXES = "list_indexes"
+        CREATE_INDEX = "create_index"
+        DELETE_INDEX = "delete_index"
+        CREATE = "create"
+        SEARCH = "search"
+        UPDATE = "update"
+        DELETE = "delete"
 
     @classmethod
     def is_available(cls) -> bool:
@@ -71,108 +81,49 @@ class CompassTool(BaseTool):
         # Check if action is specified
         if not parameters.get("action", None):
             logger.error(
-                "Compass Tool: No action specified. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
+                "Compass Tool: No action specified. " "No action will be taken. " f"Parameters specified: {parameters}"
             )
             return
-        # Check if action is valid
-        valid_actions = [
-            "list_indexes",
-            "create_index",
-            "delete_index",
-            "create",
-            "search",
-            "update",
-            "delete",
-        ]
-        if parameters["action"] not in valid_actions:
-            logger.error(
-                f"Compass Tool: Invalid action {parameters['action']}. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
-            return
-        # Check if index is specified
-        if not parameters.get("index", None) and parameters["action"] != "list_indexes":
-            logger.error(
-                "Compass Tool: No index specified. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
-            return
-        # Index-related actions
-        if parameters["action"] == "list_indexes":
-            return self.compass_client.list_indexes()
-        elif parameters["action"] == "create_index":
-            return self.compass_client.create_index(index_name=parameters["index"])
-        elif parameters["action"] == "delete_index":
-            return self.compass_client.delete_index(index_name=parameters["index"])
-        # Check if file_id is specified for file-related actions
-        if not parameters.get("file_id", None):
-            logger.error(
-                "Compass Tool: No uninque identifier file_id specified. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
-            return
-        # Create index if it does not exist
-        self.compass_client.create_index(index_name=parameters.get("index"))
-        # Perform the file-related action
-        if parameters["action"] == "create":
-            self._create(parameters, **kwargs)
-        elif parameters["action"] == "search":
-            self._search(parameters, **kwargs)
-        elif parameters["action"] == "update":
-            self._update(parameters, **kwargs)
-        elif parameters["action"] == "delete":
-            self._delete(parameters, **kwargs)
 
-    def _parse(self, parameters: dict, **kwargs: Any) -> None:
-        """Parse the input file."""
-        if "file_path" not in parameters:
-            logger.error(
-                "Compass Tool: No file_path specified for "
-                "create/update operation. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
+        # Check if index is specified
+        if not parameters.get("index", None) and parameters["action"] != self.ValidActions.LIST_INDEXES:
+            raise Exception(
+                "Compass Tool: No index specified. " "No action will be taken. " f"Parameters specified: {parameters}"
             )
-            return None
-        file_path = parameters["file_path"]
-        if not os.path.exists(file_path):
-            logger.error(
-                f"Compass Tool: File {file_path} does not exist. "
-                "No action will be taken."
-                f"Parameters specified: {parameters}"
-            )
-            return None
-        parser_config = self.parser_config or parameters.get("parser_config", None)
-        metadata_config = self.metadata_config or parameters.get(
-            "metadata_config", None
-        )
-        return self.parser_client.process_file(
-            file_path=file_path,
-            file_id=parameters["file_id"],
-            parser_config=parser_config,
-            metadata_config=metadata_config,
-            custom_context=parameters.get("custom_context", None),
-            is_dataset=False,
-        )
+
+        # Index-related actions
+        match parameters["action"]:
+            case self.ValidActions.LIST_INDEXES:
+                return self.compass_client.list_indexes()
+            case self.ValidActions.CREATE_INDEX:
+                return self.compass_client.create_index(index_name=parameters["index"])
+            case self.ValidActions.CREATE_INDEX:
+                return self.compass_client.delete_index(index_name=parameters["index"])
+            case self.ValidActions.CREATE:
+                self._create(parameters, **kwargs)
+            case self.ValidActions.SEARCH:
+                self._search(parameters, **kwargs)
+            case self.ValidActions.UPDATE:
+                self._update(parameters, **kwargs)
+            case self.ValidActions.DELETE:
+                self._delete(parameters, **kwargs)
+            case _:
+                raise Exception(
+                    f"Compass Tool: Invalid action {parameters['action']}. "
+                    "No action will be taken. "
+                    f"Parameters specified: {parameters}"
+                )
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
         """Insert the document into Compass"""
-        compass_docs = self._parse(parameters, **kwargs)
+        compass_docs = self._process_file(parameters, **kwargs)
         if compass_docs is None:
             # Parsing failed
             return
-        error = self.compass_client.insert_docs(
-            index_name=parameters["index"], docs=compass_docs
-        )
+
+        error = self.compass_client.insert_docs(index_name=parameters["index"], docs=compass_docs)
         if error is not None:
-            logger.error(
-                f"Compass Tool: Error inserting/updating document "
-                f"into Compass: {error}"
-            )
+            logger.error(f"Compass Tool: Error inserting/updating document " f"into Compass: {error}")
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
         """Run a search query on Compass and return the
@@ -183,6 +134,7 @@ class CompassTool(BaseTool):
                 "Returning empty list. " "Parameters specified: {parameters}",
             )
             return []
+
         return self.compass_client.search(
             index_name=parameters["index"],
             query=parameters["query"],
@@ -197,6 +149,52 @@ class CompassTool(BaseTool):
 
     def _delete(self, parameters: dict, **kwargs: Any) -> None:
         """Delete file from Compass"""
-        self.compass_client.delete_document(
-            index_name=parameters["index"], doc_id=parameters["file_id"]
+        # Check if file_id is specified for file-related actions
+        if not parameters.get("file_id", None):
+            raise Exception(
+                "Compass Tool: No uninque identifier file_id specified. "
+                "No action will be taken. "
+                f"Parameters specified: {parameters}"
+            )
+        self.compass_client.delete_document(index_name=parameters["index"], doc_id=parameters["file_id"])
+
+    def _process_file(self, parameters: dict, **kwargs: Any) -> None:
+        """Parse the input file."""
+        # Check if file_id is specified for file-related actions
+        if not parameters.get("file_id", None):
+            raise Exception(
+                "Compass Tool: No uninque identifier file_id specified. "
+                "No action will be taken. "
+                f"Parameters specified: {parameters}"
+            )
+
+        # Check if file_path is specified for file-related actions
+        if not parameters.get("file_path", None):
+            logger.error(
+                "Compass Tool: No file_path specified for "
+                "create/update operation. "
+                "No action will be taken. "
+                f"Parameters specified: {parameters}"
+            )
+            return None
+
+        file_id = parameters["file_id"]
+        file_path = parameters["file_path"]
+        if not os.path.exists(file_path):
+            logger.error(
+                f"Compass Tool: File {file_path} does not exist. "
+                "No action will be taken."
+                f"Parameters specified: {parameters}"
+            )
+            return None
+
+        parser_config = self.parser_config or parameters.get("parser_config", None)
+        metadata_config = self.metadata_config or parameters.get("metadata_config", None)
+        return self.parser_client.process_file(
+            file_path=file_path,
+            file_id=file_id,
+            parser_config=parser_config,
+            metadata_config=metadata_config,
+            custom_context=parameters.get("custom_context", None),
+            is_dataset=False,
         )

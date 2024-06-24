@@ -1,4 +1,5 @@
 from backend.tools.calculator import Calculator
+from backend.tools.compass import CompassTool
 from backend.tools.files import ReadFileTool, SearchFileTool
 from backend.tools.lang_chain import LangChainVectorDBRetriever, LangChainWikiRetriever
 from backend.tools.python_interpreter import PythonInterpreter
@@ -12,4 +13,5 @@ __all__ = [
     "TavilyInternetSearch",
     "ReadFileTool",
     "SearchFileTool",
+    "CompassTool",
 ]
