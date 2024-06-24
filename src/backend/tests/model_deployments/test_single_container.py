@@ -30,10 +30,10 @@ def test_streamed_chat(
 def test_non_streamed_chat(
     session_client_chat: TestClient,
     user: User,
-    mock_cohere_deployment,
+    mock_single_container,
     mock_available_model_deployments,
 ):
-    deployment = mock_cohere_deployment.return_value
+    deployment = mock_single_container.return_value
     response = session_client_chat.post(
         "/v1/chat",
         headers={
