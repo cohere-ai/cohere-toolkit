@@ -26,6 +26,7 @@ import {
 } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
+import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const AgentsPage: NextPage = () => {
@@ -180,12 +181,29 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     cohereClient: CohereClient;
   };
 
-  const conversationId = context.params?.conversationId as string;
+  const { conversationId, agentId } = getSlugRoutes(context.query.slug);
+
+  if (!conversationId && !agentId && context.resolvedUrl !== '/agents') {
+    return {
+      redirect: {
+        destination: '/agents',
+        permanent: false,
+      },
+    };
+  }
 
   await Promise.allSettled([
     deps.queryClient.prefetchQuery({
+      queryKey: ['agent', agentId],
+      queryFn: async () => {
+        if (!agentId) return;
+        return await deps.cohereClient.getAgent(agentId);
+      },
+    }),
+    deps.queryClient.prefetchQuery({
       queryKey: ['conversation', conversationId],
       queryFn: async () => {
+        if (!conversationId) return;
         const conversation = await deps.cohereClient.getConversation({
           conversationId,
         });
