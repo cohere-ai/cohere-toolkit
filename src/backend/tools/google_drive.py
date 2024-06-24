@@ -74,7 +74,7 @@ class GoogleDriveAuth(BaseAuth):
         params = {
             "response_type": "code",
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
-            "scope": "https://www.googleapis.com/auth/drive",
+            "scope": "https://www.googleapis.com/auth/drive.readonly",
             "redirect_uri": redirect_url,
             "prompt": "select_account consent",
             "state": json.dumps(state),
