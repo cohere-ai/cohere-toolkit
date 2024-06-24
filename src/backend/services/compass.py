@@ -7,13 +7,11 @@ from compass_sdk import MetadataConfig, ParserConfig
 from compass_sdk.compass import CompassClient
 from compass_sdk.parser import CompassParserClient
 
-from backend.tools.base import BaseTool
-
 logger = logging.getLogger()
 
 
-class CompassTool(BaseTool):
-    """Tool to interact with a Compass instance."""
+class Compass:
+    """Interface to interact with a Compass instance."""
 
     class ValidActions(Enum):
         LIST_INDEXES = "list_indexes"
@@ -23,15 +21,6 @@ class CompassTool(BaseTool):
         SEARCH = "search"
         UPDATE = "update"
         DELETE = "delete"
-
-    @classmethod
-    def is_available(cls) -> bool:
-        vars = [
-            "COHERE_COMPASS_URL",
-            "COHERE_COMPASS_USERNAME",
-            "COHERE_COMPASS_PASSWORD",
-        ]
-        return all(os.getenv(var) is not None for var in vars)
 
     def __init__(
         self,
@@ -43,6 +32,17 @@ class CompassTool(BaseTool):
     ):
         """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
+        vars = [
+            "COHERE_COMPASS_URL",
+            "COHERE_COMPASS_USERNAME",
+            "COHERE_COMPASS_PASSWORD",
+        ]
+        if not all(os.getenv(var) is not None for var in vars):
+            raise Exception(
+                "Compass cannot be configured. ",
+                "Environment variables missing.",
+            )
+
         self.url = compass_url or os.getenv("COHERE_COMPASS_URL")
         self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
         self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
@@ -68,7 +68,12 @@ class CompassTool(BaseTool):
             logger.exception(f"Compass Tool: Error initializing Compass client: {e}")
             raise e
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    def invoke(
+        self,
+        action: ValidActions,
+        parameters: dict = {},
+        **kwargs: Any,
+    ) -> List[Dict[str, Any]]:
         """Call the Compass tool. Allowed `action` values:
         - list_indexes: List all indexes in Compass.
         - create_index: Create a new index in Compass.
@@ -78,21 +83,20 @@ class CompassTool(BaseTool):
         - update: Update an existing document in Compass.
         - delete: Delete an existing document in Compass.
         """
-        # Check if action is specified
-        if not parameters.get("action", None):
-            logger.error(
-                "Compass Tool: No action specified. " "No action will be taken. " f"Parameters specified: {parameters}"
-            )
-            return
 
         # Check if index is specified
-        if not parameters.get("index", None) and parameters["action"] != self.ValidActions.LIST_INDEXES:
+        if (
+            not parameters.get("index", None)
+            and action != self.ValidActions.LIST_INDEXES
+        ):
             raise Exception(
-                "Compass Tool: No index specified. " "No action will be taken. " f"Parameters specified: {parameters}"
+                "Compass Tool: No index specified. ",
+                "No action will be taken. ",
+                f"Parameters specified: {parameters}"
             )
 
         # Index-related actions
-        match parameters["action"]:
+        match action:
             case self.ValidActions.LIST_INDEXES:
                 return self.compass_client.list_indexes()
             case self.ValidActions.CREATE_INDEX:
@@ -121,9 +125,15 @@ class CompassTool(BaseTool):
             # Parsing failed
             return
 
-        error = self.compass_client.insert_docs(index_name=parameters["index"], docs=compass_docs)
+        error = self.compass_client.insert_docs(
+            index_name=parameters["index"],
+            docs=compass_docs,
+        )
         if error is not None:
-            logger.error(f"Compass Tool: Error inserting/updating document " f"into Compass: {error}")
+            logger.error(
+                "Compass Tool: Error inserting/updating document ",
+                f"into Compass: {error}"
+            )
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
         """Run a search query on Compass and return the
@@ -156,7 +166,10 @@ class CompassTool(BaseTool):
                 "No action will be taken. "
                 f"Parameters specified: {parameters}"
             )
-        self.compass_client.delete_document(index_name=parameters["index"], doc_id=parameters["file_id"])
+        self.compass_client.delete_document(
+            index_name=parameters["index"],
+            doc_id=parameters["file_id"],
+        )
 
     def _process_file(self, parameters: dict, **kwargs: Any) -> None:
         """Parse the input file."""
@@ -189,7 +202,10 @@ class CompassTool(BaseTool):
             return None
 
         parser_config = self.parser_config or parameters.get("parser_config", None)
-        metadata_config = self.metadata_config or parameters.get("metadata_config", None)
+        metadata_config = metadata_config = (
+            self.metadata_config
+            or parameters.get("metadata_config", None)
+        )
         return self.parser_client.process_file(
             file_path=file_path,
             file_id=file_id,
