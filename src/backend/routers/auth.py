@@ -1,11 +1,15 @@
+import json
+import os
 from typing import Union
 
 from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.config.tools import ALL_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
@@ -191,3 +195,20 @@ async def authorize(
     token = JWTService().create_and_encode_jwt(user)
 
     return {"token": token}
+
+
+# Tool based auth is experimental and in development
+@router.get("/tool/auth")
+async def login(request: Request, session: DBSessionDep):
+    redirect_url = os.getenv("FRONTEND_HOSTNAME")
+    # TODO: Store user id and tool id in the DB for state key
+    state = json.loads(request.query_params.get("state"))
+    tool_id = state["tool_id"]
+    if tool_id in ALL_TOOLS:
+        tool = ALL_TOOLS.get(tool_id)
+        if tool.auth_implementation is not None:
+            err = tool.auth_implementation.process_auth_token(request, session)
+            if err:
+                return RedirectResponse(redirect_url + "?error=" + err)
+    response = RedirectResponse(redirect_url)
+    return response

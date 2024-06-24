@@ -22,7 +22,6 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
   const { params, setParams } = useParamsStore();
   const { data } = useListTools();
   const { tools: paramTools } = params;
-  const enabledTools = paramTools ?? [];
   const { defaultFileLoaderTool } = useDefaultFileLoaderTool();
   const { clearComposerFiles } = useFilesStore();
 
@@ -41,11 +40,21 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
         { availableTools: [], unavailableTools: [] }
       );
   }, [data]);
+  const enabledTools = paramTools
+    ? availableTools.filter((t) => paramTools.map((t) => t.name).includes(t.name))
+    : [];
 
   const handleToggle = (name: string, checked: boolean) => {
+    let tool = availableTools.find((tool) => tool.name === name);
+    if (tool === undefined) {
+      return;
+    }
+    if (tool.is_auth_required && tool.auth_url !== null) {
+      window.location.assign(tool.auth_url!);
+    }
     const newParams: Partial<ConfigurableParams> = {
       tools: checked
-        ? [...enabledTools, { name }]
+        ? [...enabledTools, tool]
         : enabledTools.filter((enabledTool) => enabledTool.name !== name),
     };
 
