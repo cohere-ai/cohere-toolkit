@@ -2,14 +2,16 @@ import { Transition } from '@headlessui/react';
 import { capitalize } from 'lodash';
 import React, { Children, PropsWithChildren, useContext } from 'react';
 
-import { ConfigurationDrawer } from '@/components/Conversation/ConfigurationDrawer';
 import { DeploymentsDropdown } from '@/components/DeploymentsDropdown';
 import { EditEnvVariablesButton } from '@/components/EditEnvVariablesButton';
+import { NavigationUserMenu } from '@/components/NavigationUserMenu';
+import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
 import { Banner } from '@/components/Shared';
 import { NavigationBar } from '@/components/Shared/NavigationBar/NavigationBar';
 import { PageHead } from '@/components/Shared/PageHead';
 import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
+import { useSession } from '@/hooks/session';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils/cn';
 
@@ -36,6 +38,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
   const isDesktop = useIsDesktop();
+  const { session } = useSession();
 
   let leftDrawerElement: React.ReactNode = null;
   let mainElement: React.ReactNode = null;
@@ -64,6 +67,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
           <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
             <EditEnvVariablesButton className="py-0" />
+            {session && session.email && <NavigationUserMenu userEmail={session.email} />}
           </span>
         </NavigationBar>
         {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}
@@ -127,7 +131,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
               {mainElement}
             </section>
           </Transition>
-          <ConfigurationDrawer />
+          <SettingsDrawer />
         </div>
       </div>
     </>

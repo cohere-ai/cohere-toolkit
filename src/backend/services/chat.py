@@ -8,6 +8,7 @@ from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
+from starlette.exceptions import HTTPException
 
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
@@ -20,6 +21,7 @@ from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
 from backend.database_models.message import Message, MessageAgent
+from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
@@ -77,10 +79,20 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
+        request.state.agent = Agent.model_validate(agent)
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
+
+        tool_names = [tool.name for tool in chat_request.tools]
+        if chat_request.tools:
+            for tool in chat_request.tools:
+                if tool.name not in agent.tools:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Tool {tool.name} not found in agent {agent.id}",
+                    )
 
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble

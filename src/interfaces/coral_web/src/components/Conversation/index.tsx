@@ -10,6 +10,7 @@ import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
+import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -24,7 +25,6 @@ import {
 } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
-import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -61,16 +61,16 @@ const Conversation: React.FC<Props> = ({
   const {
     params: { fileIds },
   } = useParamsStore();
-  const {
-    settings: { isEditAgentPanelOpen },
-  } = useSettingsStore();
+  const { addRecentAgentId } = useRecentAgents();
   const {
     files: { composerFiles },
   } = useFilesStore();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
   const isToolAuthRequired = true;
 
-  const { addRecentAgentId } = useAgentsStore();
+  const {
+    agents: { isEditAgentPanelOpen },
+  } = useAgentsStore();
 
   const {
     userMessage,
@@ -166,6 +166,7 @@ const Conversation: React.FC<Props> = ({
             onRetry={handleRetry}
             messages={messages}
             streamingMessage={streamingMessage}
+            agentId={agentId}
             composer={
               <>
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
@@ -194,7 +195,7 @@ const Conversation: React.FC<Props> = ({
         enter="transition-all ease-in-out duration-300"
         enterFrom="w-0"
         enterTo="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
-        leave="transition-all ease-in-out duration-300"
+        leave="transition-all ease-in-out duration-0 md:duration-300"
         leaveFrom="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
         leaveTo="w-0"
       >

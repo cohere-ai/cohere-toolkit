@@ -1,38 +1,39 @@
 import { StateCreator } from 'zustand';
 
+import { StoreState } from '@/stores';
+
 const INITIAL_STATE = {
-  recentAgentsIds: [],
+  isEditAgentPanelOpen: false,
+  isAgentsSidePanelOpen: true,
 };
 
 type State = {
-  recentAgentsIds: string[];
+  isAgentsSidePanelOpen: boolean;
+  isEditAgentPanelOpen: boolean;
 };
 type Actions = {
-  addRecentAgentId: (agentId: string) => void;
-  removeRecentAgentId: (agentId: string) => void;
+  setAgentsSidePanelOpen: (isOpen: boolean) => void;
+  setEditAgentPanelOpen: (isOpen: boolean) => void;
 };
 
 export type AgentsStore = {
   agents: State;
 } & Actions;
 
-export const createAgentsSlice: StateCreator<AgentsStore, [], [], AgentsStore> = (set) => ({
-  addRecentAgentId(agentId) {
+export const createAgentsSlice: StateCreator<StoreState, [], [], AgentsStore> = (set) => ({
+  setAgentsSidePanelOpen(isOpen) {
     set((state) => ({
       agents: {
         ...state.agents,
-        recentAgentsIds: [
-          ...state.agents.recentAgentsIds,
-          ...(state.agents.recentAgentsIds.includes(agentId) ? [] : [agentId]),
-        ],
+        isAgentsSidePanelOpen: isOpen,
       },
     }));
   },
-  removeRecentAgentId(agentId) {
+  setEditAgentPanelOpen(isOpen) {
     set((state) => ({
       agents: {
         ...state.agents,
-        recentAgentsIds: state.agents.recentAgentsIds.filter((id) => id !== agentId),
+        isEditAgentPanelOpen: isOpen,
       },
     }));
   },

@@ -1,4 +1,5 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
@@ -22,6 +23,7 @@ import {
 } from '@/cohere-client';
 import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useRouteChange } from '@/hooks/route';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
@@ -68,6 +70,7 @@ export type HandleSendChat = (
 ) => Promise<void>;
 
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
+  const router = useRouter();
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
 
@@ -94,6 +97,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
+  const { agentId } = useSlugRoutes();
 
   useRouteChange({
     onRouteChangeStart: () => {
@@ -125,7 +129,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     return documents.reduce<{ documentsMap: IdToDocument; outputFilesMap: OutputFiles }>(
       ({ documentsMap, outputFilesMap }, doc) => {
         const docId = doc?.document_id ?? '';
-        const toolName = (doc?.tool_name ?? '').toLowerCase();
+        const toolName = doc?.tool_name ?? '';
         const newOutputFilesMapEntry: OutputFiles = {};
 
         if (toolName === TOOL_PYTHON_INTERPRETER_ID) {
@@ -177,6 +181,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     newMessages: ChatMessage[];
     request: CohereChatRequest;
     headers: Record<string, string>;
+    agentId?: string;
     streamConverse: UseMutateAsyncFunction<
       StreamEnd | undefined,
       CohereNetworkError,
@@ -207,6 +212,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       await streamConverse({
         request,
         headers,
+        agentId,
         onRead: (eventData: ChatResponseEvent) => {
           switch (eventData.event) {
             case StreamEvent.STREAM_START: {
@@ -313,7 +319,11 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               }
               // Make sure our URL is up to date with the conversationId
               if (!window.location.pathname.includes(`c/${conversationId}`) && conversationId) {
-                window?.history?.replaceState('', '', `c/${conversationId}`);
+                const newUrl =
+                  window.location.pathname === '/'
+                    ? `c/${conversationId}`
+                    : window.location.pathname + `/c/${conversationId}`;
+                window?.history?.replaceState('', '', newUrl);
                 queryClient.invalidateQueries({ queryKey: ['conversations'] });
               }
 
@@ -505,7 +515,13 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       files: composerFiles,
     });
 
-    await handleStreamConverse({ newMessages, request, headers, streamConverse: streamChat });
+    await handleStreamConverse({
+      newMessages,
+      request,
+      headers,
+      agentId,
+      streamConverse: streamChat,
+    });
   };
 
   const handleRetry = () => {

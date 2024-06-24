@@ -1,13 +1,23 @@
+import logging
 import os
+import threading
+import time
 from typing import Any, Dict, Generator, List
 
 import cohere
+from cohere.core.api_error import ApiError
 from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
+from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.services.metrics import (
+    collect_metrics_chat,
+    collect_metrics_chat_stream,
+    collect_metrics_rerank,
+)
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
@@ -52,48 +62,27 @@ class AzureDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
+    @collect_metrics_chat
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        yield self.client.chat(
-            **chat_request.model_dump(exclude={"stream"}),
+        response = self.client.chat(
+            **chat_request.model_dump(exclude={"stream", "file_ids"}),
             **kwargs,
         )
+        yield to_dict(response)
 
+    @collect_metrics_chat_stream
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream"}),
+            **chat_request.model_dump(exclude={"stream", "file_ids"}),
             **kwargs,
         )
+
         for event in stream:
             yield to_dict(event)
-
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> list[str]:
-        res = self.client.chat(
-            message=message,
-            chat_history=chat_history,
-            search_queries_only=True,
-            **kwargs,
-        )
-
-        if not res.search_queries:
-            return []
-
-        return [s.text for s in res.search_queries]
 
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None
-
-    def invoke_tools(
-        self,
-        chat_request: CohereChatRequest,
-        **kwargs: Any,
-    ) -> Generator[StreamedChatResponse, None, None]:
-        yield from self.invoke_chat_stream(chat_request, **kwargs)

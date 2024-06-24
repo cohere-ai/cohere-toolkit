@@ -1,11 +1,15 @@
+import json
+import os
 from typing import Union
 
 from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.config.tools import ALL_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
@@ -32,8 +36,22 @@ def get_strategies() -> list[ListAuthStrategy]:
         List[dict]: List of dictionaries containing the enabled auth strategy names.
     """
     strategies = []
-    for key in ENABLED_AUTH_STRATEGY_MAPPING.keys():
-        strategies.append({"strategy": key})
+    for strategy_name, strategy_instance in ENABLED_AUTH_STRATEGY_MAPPING.items():
+        strategies.append(
+            {
+                "strategy": strategy_name,
+                "client_id": (
+                    strategy_instance.get_client_id()
+                    if hasattr(strategy_instance, "get_client_id")
+                    else None
+                ),
+                "authorization_endpoint": (
+                    strategy_instance.get_authorization_endpoint()
+                    if hasattr(strategy_instance, "get_authorization_endpoint")
+                    else None
+                ),
+            }
+        )
 
     return strategies
 
@@ -41,9 +59,8 @@ def get_strategies() -> list[ListAuthStrategy]:
 @router.post("/login", response_model=Union[JWTResponse, None])
 async def login(request: Request, login: Login, session: DBSessionDep):
     """
-    Logs user in and either:
-    - (Basic email/password authentication) Verifies their credentials, retrieves the user and returns a JWT token.
-    - (OAuth) Redirects to the /auth endpoint.
+    Logs user in, performing basic email/password auth.
+    Verifies their credentials, retrieves the user and returns a JWT token.
 
     Args:
         request (Request): current Request object.
@@ -51,9 +68,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
         session (DBSessionDep): Database session.
 
     Returns:
-        dict: JWT token on basic auth success
-        or
-        Redirect: to /auth endpoint
+        dict: JWT token on Basic auth success
 
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
@@ -76,27 +91,20 @@ async def login(request: Request, login: Login, session: DBSessionDep):
             detail=f"Missing the following keys in the payload: {missing_keys}.",
         )
 
-    # Login with redirect to /auth
-    if strategy.SHOULD_AUTH_REDIRECT:
-        # Fetch endpoint with method name
-        redirect_uri = request.url_for(strategy.REDIRECT_METHOD_NAME)
-        return await strategy.login(request, redirect_uri)
-    # Login with email/password and set session directly
-    else:
-        user = strategy.login(session, payload)
-        if not user:
-            raise HTTPException(
-                status_code=401,
-                detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
-            )
+    user = strategy.login(session, payload)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
+        )
 
-        token = JWTService().create_and_encode_jwt(user)
+    token = JWTService().create_and_encode_jwt(user)
 
-        return {"token": token}
+    return {"token": token}
 
 
 @router.get("/google/auth", response_model=JWTResponse)
-async def google_authenticate(request: Request, session: DBSessionDep):
+async def google_authorize(request: Request, session: DBSessionDep):
     """
     Callback authentication endpoint used for Google OAuth after redirecting to
     the service's login screen.
@@ -112,11 +120,11 @@ async def google_authenticate(request: Request, session: DBSessionDep):
     """
     strategy_name = GoogleOAuth.NAME
 
-    return await authenticate(request, session, strategy_name)
+    return await authorize(request, session, strategy_name)
 
 
 @router.get("/oidc/auth", response_model=JWTResponse)
-async def oidc_authenticate(request: Request, session: DBSessionDep):
+async def oidc_authorize(request: Request, session: DBSessionDep):
     """
     Callback authentication endpoint used for OIDC after redirecting to
     the service's login screen.
@@ -132,7 +140,8 @@ async def oidc_authenticate(request: Request, session: DBSessionDep):
     """
     strategy_name = OpenIDConnect.NAME
 
-    return await authenticate(request, session, strategy_name)
+    # TODO: Merge authorize endpoints into single one
+    return await authorize(request, session, strategy_name)
 
 
 @router.get("/logout", response_model=Logout)
@@ -157,7 +166,7 @@ async def logout(
     return {}
 
 
-async def authenticate(
+async def authorize(
     request: Request, session: DBSessionDep, strategy_name: str
 ) -> JWTResponse:
     if not is_enabled_authentication_strategy(strategy_name):
@@ -168,23 +177,38 @@ async def authenticate(
     strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
 
     try:
-        token = await strategy.authenticate(request)
+        userinfo = await strategy.authorize(request)
     except OAuthError as e:
         raise HTTPException(
-            status_code=401,
-            detail=f"Could not authenticate, failed with error: {str(e)}",
+            status_code=400,
+            detail=f"Could not fetch access token from provider, failed with error: {str(e)}",
         )
 
-    token_user = token.get("userinfo")
-
-    if not token_user:
+    if not userinfo:
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
         )
 
     # Get or create user, then set session user
-    user = get_or_create_user(session, token_user)
+    user = get_or_create_user(session, userinfo)
 
     token = JWTService().create_and_encode_jwt(user)
 
     return {"token": token}
+
+
+# Tool based auth is experimental and in development
+@router.get("/tool/auth")
+async def login(request: Request, session: DBSessionDep):
+    redirect_url = os.getenv("FRONTEND_HOSTNAME")
+    # TODO: Store user id and tool id in the DB for state key
+    state = json.loads(request.query_params.get("state"))
+    tool_id = state["tool_id"]
+    if tool_id in ALL_TOOLS:
+        tool = ALL_TOOLS.get(tool_id)
+        if tool.auth_implementation is not None:
+            err = tool.auth_implementation.process_auth_token(request, session)
+            if err:
+                return RedirectResponse(redirect_url + "?error=" + err)
+    response = RedirectResponse(redirect_url)
+    return response

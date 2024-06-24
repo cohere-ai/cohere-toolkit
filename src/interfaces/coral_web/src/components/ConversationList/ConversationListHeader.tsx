@@ -1,5 +1,8 @@
+import { useRouter } from 'next/router';
+
 import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import {
   useCitationsStore,
   useConversationStore,
@@ -27,6 +30,14 @@ export const ConversationListHeader: React.FC<Props> = ({
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
+  const router = useRouter();
+  const { agentId } = useSlugRoutes();
+
+  const newChatUrl = agentId
+    ? `/agents/${agentId}`
+    : router.asPath.includes('/agents')
+    ? '/agents'
+    : '/';
 
   return (
     <header
@@ -73,7 +84,7 @@ export const ConversationListHeader: React.FC<Props> = ({
           <div className="flex items-center gap-x-3">
             <IconButton iconName="search" isDefaultOnHover={false} onClick={onSearchClick} />
             <IconButton
-              href="/"
+              href={newChatUrl}
               shallow
               iconName="new-message"
               onClick={() => {

@@ -19,11 +19,17 @@ const sortByDate = (a: Conversation, b: Conversation) => {
 
 type Props = {
   className?: string;
+  agentId?: string;
 };
-export const ConversationListPanel: React.FC<Props> = ({ className }) => {
+
+export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) => {
   const panelRef = useRef(null);
   const { data, isLoading: isConversationsLoading, isError } = useConversations();
-  const conversations: Conversation[] = data ?? [];
+  const conversations: Conversation[] = useMemo(() => {
+    const conversations = data ?? [];
+    if (!agentId) return conversations.filter((d) => !d.agent_id);
+    return conversations.filter((d) => d.agent_id === agentId);
+  }, [data, agentId]);
 
   const {
     settings: { isConvListPanelOpen },
@@ -160,7 +166,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
         className={cn(
           'relative flex h-0 flex-grow flex-col overflow-y-auto',
           'px-3 pb-4 pt-3 md:pb-8',
-          { 'hide-scrollbar pr-0.5': !getIsTouchDevice() }
+          { 'pr-0.5': !getIsTouchDevice() }
         )}
       >
         {content}

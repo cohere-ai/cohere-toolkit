@@ -10,6 +10,7 @@ import {
   Deployment,
   ERROR_FINISH_REASON_TO_MESSAGE,
   FinishReason,
+  ListAuthStrategy,
   ListFile,
   Tool,
   UpdateAgent,
@@ -47,6 +48,12 @@ export class CohereStreamError extends Error {
   }
 }
 
+export class CohereUnauthorizedError extends Error {
+  constructor() {
+    super('Unauthorized');
+  }
+}
+
 export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 export type ExperimentalFeatures = {
@@ -58,14 +65,26 @@ export class CohereClient {
   private readonly hostname: string;
   private readonly fetch: Fetch;
   private readonly source: string;
+  private authToken?: string;
 
   public cohereService?: DefaultService;
   public request?: any;
 
-  constructor({ hostname, source, fetch }: { hostname: string; source: string; fetch: Fetch }) {
+  constructor({
+    hostname,
+    source,
+    fetch,
+    authToken,
+  }: {
+    hostname: string;
+    source: string;
+    fetch: Fetch;
+    authToken?: string;
+  }) {
     this.hostname = hostname;
     this.source = source;
     this.fetch = fetch;
+    this.authToken = authToken;
   }
 
   public async uploadFile({
@@ -97,6 +116,10 @@ export class CohereClient {
 
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -116,6 +139,10 @@ export class CohereClient {
     });
 
     const body = await response.json();
+
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
 
     if (response.status !== 200) {
       throw new CohereNetworkError(
@@ -138,6 +165,10 @@ export class CohereClient {
 
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -151,6 +182,7 @@ export class CohereClient {
   public async chat({
     request,
     headers,
+    agentId,
     signal,
     onOpen,
     onMessage,
@@ -159,6 +191,7 @@ export class CohereClient {
   }: {
     request: CohereChatRequest;
     headers?: Record<string, string>;
+    agentId?: string;
     signal?: AbortSignal;
     onOpen?: FetchEventSourceInit['onopen'];
     onMessage?: FetchEventSourceInit['onmessage'];
@@ -169,7 +202,9 @@ export class CohereClient {
     const requestBody = JSON.stringify({
       ...chatRequest,
     });
-    return await fetchEventSource(this.getEndpoint('chat-stream'), {
+
+    const endpoint = `${this.getEndpoint('chat-stream')}${agentId ? `?agent_id=${agentId}` : ''}`;
+    return await fetchEventSource(endpoint, {
       method: 'POST',
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
@@ -227,6 +262,10 @@ export class CohereClient {
 
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -250,6 +289,10 @@ export class CohereClient {
     });
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -267,6 +310,10 @@ export class CohereClient {
     });
 
     const body = await response.json();
+
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
 
     if (response.status !== 200) {
       throw new CohereNetworkError(
@@ -295,6 +342,10 @@ export class CohereClient {
 
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -314,6 +365,10 @@ export class CohereClient {
 
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -332,6 +387,10 @@ export class CohereClient {
 
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -349,6 +408,10 @@ export class CohereClient {
     });
 
     const body = await response.json();
+
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
 
     if (response.status !== 200) {
       throw new CohereNetworkError(
@@ -370,6 +433,10 @@ export class CohereClient {
       }
     );
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError('Something went wrong', response.status);
     }
@@ -383,6 +450,10 @@ export class CohereClient {
 
     const body = await response.json();
 
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
     if (response.status !== 200) {
       throw new CohereNetworkError(
         body?.message || body?.error || 'Something went wrong',
@@ -393,8 +464,45 @@ export class CohereClient {
     return body as ExperimentalFeatures;
   }
 
-  public async listAgents(): Promise<Agent[]> {
-    const response = await this.fetch(this.getEndpoint('agents'), {
+  public async login({ email, password }: { email: string; password: string }) {
+    const response = await this.fetch(`${this.getEndpoint('login')}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({
+        strategy: 'Basic',
+        payload: { email, password },
+      }),
+    });
+
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
+    const body = await response.json();
+    this.authToken = body.token;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as { token: string };
+  }
+
+  public async logout() {
+    const response = await this.fetch(`${this.getEndpoint('logout')}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    this.authToken = undefined;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+  }
+
+  public async getAuthStrategies() {
+    const response = await this.fetch(`${this.getEndpoint('auth_strategies')}`, {
       method: 'GET',
       headers: this.getHeaders(),
     });
@@ -402,13 +510,73 @@ export class CohereClient {
     const body = await response.json();
 
     if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
+      throw new CohereNetworkError('Something went wrong', response.status);
     }
 
-    return body as Agent[];
+    return body as ListAuthStrategy[];
+  }
+
+  public async createUser({
+    name,
+    email,
+    password,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+  }) {
+    const response = await this.fetch(`${this.getEndpoint('users')}/`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({
+        fullname: name,
+        email,
+        password,
+      }),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as {};
+  }
+
+  public async googleSSOAuth({ code }: { code: string }) {
+    const response = await this.fetch(`${this.getEndpoint('google/auth')}?code=${code}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+    this.authToken = body.token;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as { token: string };
+  }
+
+  public async oidcSSOAuth({ code, strategy }: { code: string; strategy: string }) {
+    const response = await this.fetch(
+      `${this.getEndpoint('oidc/auth')}?code=${code}&strategy=${strategy}`,
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+      }
+    );
+
+    const body = await response.json();
+    this.authToken = body.token;
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError('Something went wrong', response.status);
+    }
+
+    return body as { token: string };
   }
 
   public async getAgent(agentId: string): Promise<Agent> {
@@ -449,6 +617,24 @@ export class CohereClient {
     return body as Agent;
   }
 
+  public async listAgents(): Promise<Agent[]> {
+    const response = await this.fetch(this.getEndpoint('agents'), {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as Agent[];
+  }
+
   public async updateAgent(request: UpdateAgent & { agentId: string }): Promise<Agent> {
     const { agentId, ...requestBody } = request;
     const endpoint = `${this.getEndpoint('agents')}/${agentId}`;
@@ -479,6 +665,12 @@ export class CohereClient {
       | 'tools'
       | 'deployments'
       | 'experimental_features'
+      | 'login'
+      | 'logout'
+      | 'auth_strategies'
+      | 'users'
+      | 'google/auth'
+      | 'oidc/auth'
       | 'agents'
   ) {
     return `${this.hostname}/v1/${endpoint}`;
@@ -487,6 +679,7 @@ export class CohereClient {
   private getHeaders(omitContentType = false) {
     const headers: HeadersInit = {
       ...(omitContentType ? {} : { 'Content-Type': 'application/json' }),
+      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
     };
     return headers;

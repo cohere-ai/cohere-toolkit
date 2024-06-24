@@ -12,6 +12,11 @@ from backend.tools import (
     SearchFileTool,
     TavilyInternetSearch,
 )
+from backend.tools.google_drive import (
+    GOOGLE_DRIVE_TOOL_ID,
+    GoogleDrive,
+    GoogleDriveAuth,
+)
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 
@@ -29,9 +34,10 @@ class ToolName(StrEnum):
     Wiki_Retriever_LangChain = "wikipedia"
     Search_File = "search_file"
     Read_File = "read_document"
-    Python_Interpreter = "python_interpreter"
+    Python_Interpreter = "toolkit_python_interpreter"
     Calculator = "calculator"
-    Tavily_Internet_Search = "internet_search"
+    Tavily_Internet_Search = "web_search"
+    Google_Drive = GOOGLE_DRIVE_TOOL_ID
 
 
 ALL_TOOLS = {
@@ -142,6 +148,24 @@ ALL_TOOLS = {
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
+    ),
+    ToolName.Google_Drive: ManagedTool(
+        name=ToolName.Google_Drive,
+        display_name="Google Drive",
+        implementation=GoogleDrive,
+        parameter_definitions={
+            "query": {
+                "description": "Query to search google drive documents with.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=False,
+        is_available=GoogleDrive.is_available(),
+        auth_implementation=GoogleDriveAuth,
+        error_message="Google Drive not available",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for the user's google drive.",
     ),
 }
 

@@ -16,11 +16,11 @@ class JWTService:
     ALGORITHM = "HS256"
 
     def __init__(self):
-        secret_key = os.environ.get("JWT_SECRET_KEY")
+        secret_key = os.environ.get("AUTH_SECRET_KEY")
 
         if not secret_key:
             raise ValueError(
-                "JWT_SECRET_KEY environment variable is missing, and is required to enable authentication."
+                "AUTH_SECRET_KEY environment variable is missing, and is required to enable authentication."
             )
 
         self.secret_key = secret_key

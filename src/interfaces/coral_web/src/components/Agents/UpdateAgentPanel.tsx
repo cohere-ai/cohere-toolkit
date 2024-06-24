@@ -6,7 +6,7 @@ import { Banner, Button, Spinner, Text } from '@/components/Shared';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
-import { useSettingsStore } from '@/stores';
+import { useAgentsStore } from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
@@ -15,7 +15,8 @@ type Props = {
 
 export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
-  const { setSettings } = useSettingsStore();
+
+  const { setEditAgentPanelOpen } = useAgentsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
   const { mutateAsync: updateAgent } = useUpdateAgent();
   const isAgentNameUnique = useIsAgentNameUnique();
@@ -64,7 +65,7 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
   }, [agent]);
 
   const handleClose = () => {
-    setSettings({ isEditAgentPanelOpen: false });
+    setEditAgentPanelOpen(false);
   };
 
   const handleChange = (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => {
@@ -132,21 +133,21 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
           onToolToggle={handleToolToggle}
           disabled={!isAgentCreator}
         />
-        {isAgentCreator && (
-          <>
-            <Banner className="w-full">
-              Updating {agent.name} will affect everyone using the assistant
-            </Banner>
-            <Button
-              className="mt-14 self-end"
-              splitIcon="check-mark"
-              label={isSubmitting ? 'Updating' : 'Update'}
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-            />
-          </>
-        )}
       </div>
+      {isAgentCreator && (
+        <div className="flex flex-col gap-y-12 px-14 py-8">
+          <Banner className="w-full" theme="secondary" size="sm">
+            Updating {agent.name} will affect everyone using the assistant
+          </Banner>
+          <Button
+            className="self-end"
+            splitIcon="check-mark"
+            label={isSubmitting ? 'Updating' : 'Update'}
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+          />
+        </div>
+      )}
     </div>
   );
 };

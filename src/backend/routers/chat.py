@@ -45,6 +45,12 @@ async def chat_stream(
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
+
+    user_id = request.headers.get("User-Id", None)
+
     (
         session,
         chat_request,
@@ -71,6 +77,8 @@ async def chat_stream(
                 session=session,
                 conversation_id=conversation_id,
                 user_id=user_id,
+                trace_id=trace_id,
+                agent_id=agent_id,
             ),
             response_message,
             conversation_id,
@@ -100,6 +108,11 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
+
+    user_id = request.headers.get("User-Id", None)
 
     (
         session,
@@ -123,6 +136,9 @@ async def chat(
             deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
+            trace_id=trace_id,
+            user_id=user_id,
+            agent_id=agent_id,
         ),
         response_message,
         conversation_id,

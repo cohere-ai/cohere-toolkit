@@ -5,7 +5,7 @@ import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
-import { useSettingsStore } from '@/stores';
+import { useAgentsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -14,13 +14,19 @@ import { cn } from '@/utils';
  * It also renders the children components that are passed to it.
  */
 export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
   const {
-    settings: { isAgentsSidePanelOpen },
-    setIsAgentsSidePanelOpen,
-  } = useSettingsStore();
-
+    agents: { isAgentsSidePanelOpen },
+    setAgentsSidePanelOpen,
+  } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
+
+  const handleToggleAgentsSidePanel = () => {
+    setIsConvListPanelOpen(false);
+    setSettings({ isConfigDrawerOpen: false });
+    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
+  };
 
   const navigationItems: {
     label: string;
@@ -67,7 +73,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         >
           <Transition
             show={isAgentsSidePanelOpen || isMobile}
-            appear
             as="div"
             enter="transition-all transform ease-in-out duration-200"
             enterFrom="-translate-x-full"
@@ -82,7 +87,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
 
           <IconButton
             iconName="close-drawer"
-            onClick={() => setIsAgentsSidePanelOpen(!isAgentsSidePanelOpen)}
+            onClick={handleToggleAgentsSidePanel}
             className={cn('transition delay-100 duration-200 ease-in-out', {
               'rotate-180 transform text-secondary-700': isAgentsSidePanelOpen || isMobile,
             })}
