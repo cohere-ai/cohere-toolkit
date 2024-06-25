@@ -12,7 +12,7 @@ class MetricsDataBase(BaseModel):
     endpoint_name: str
     success: bool
     timestamp: float = time.time()
-    secret: str
+    secret: str = ""
 
 
 class MetricsData(MetricsDataBase):
