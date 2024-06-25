@@ -3,9 +3,6 @@ from typing import Any, Dict, List
 
 from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
-from bs4 import BeautifulSoup
-from requests import get
-from backend.chat.collate import rerank_and_chunk
 from backend.model_deployments.base import BaseDeployment
 
 from backend.tools.base import BaseTool
@@ -24,38 +21,44 @@ class TavilyInternetSearch(BaseTool):
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
-        initial_results = self.client.search(query=query, search_depth="advanced", include_raw_content=True)
+        result = self.client.search(query=query, search_depth="advanced", include_raw_content=True)
 
-        if "results" not in initial_results:
+        if "results" not in result:
             return []
-        
-        res = []
-        for r in initial_results:
-            print(r)
-            print("\n\n")
-        
-        return []
 
-        # results_dict = {result["url"]: result for result in initial_results["results"]}
-        # scraped = [self.scrape(link) for link in results_dict]
-        # expanded = []
-        # for scraped_result in scraped:
-        #     initial_result = results_dict[scraped_result["url"]]
-        #     expanded.append({
-        #         "url": initial_result["url"],
-        #         "text": initial_result["content"],
-        #     })
-            
-        #     if scraped_result["title"] is not None:
-        #         sentence = f"{scraped_result['title']} {scraped_result['content']}".split("\n")
-        #         for snippet in sentence:
-        #             if len(snippet) > 20: # Skip short snippets
-        #                 expanded.append({
-        #                     "url": initial_result["url"],
-        #                     "text": snippet.strip(),
-        #                 })  
+        expanded = []
+        for result in result["results"]:
+            # Append original search result
+            expanded.append(result)
 
-        # return expanded
+            # Get other snippets
+            snippets = result["raw_content"].split("\n")
+            for snippet in snippets:
+                if result["content"] != snippet:
+                    if len(snippet.split()) > 10: # Skip snippets with less than 10 words
+                        new_result = {
+                            "url": result["url"],
+                            "title": result["title"],
+                            "content": snippet.strip()
+                        }
+                        expanded.append(new_result)
+
+        reranked_results = self.rerank_page_results(
+            query,
+            expanded,
+            allow_duplicate_urls=False,
+            use_title=True,
+            model=kwargs.get("model_deployment")
+        )
+
+        return [
+            {
+                "url": result["url"],
+                "text": result["content"]
+            } 
+            for result in reranked_results
+        ]
+
     
     def rerank_page_results(self, query: str, snippets: List[Dict[str, Any]], allow_duplicate_urls: bool, use_title: bool, model: BaseDeployment) -> List[Dict[str, Any]]:
         if len(snippets) == 0:
@@ -81,23 +84,16 @@ class TavilyInternetSearch(BaseTool):
         reranked, seen_urls = [], []
         for _, result in sorted(zip(relevance_scores, snippets), key=lambda x: -x[0]):
             if allow_duplicate_urls or (
-                result["link"] not in seen_urls
+                result["url"] not in seen_urls
             ):  # dont return same webpage several times unless allowed
-                seen_urls.append(result["link"])
+                seen_urls.append(result["url"])
                 reranked.append(result)
+        
+        for r in reranked:
+            print(r)
+            print("\n\n")
+        return reranked
 
-
-
-    
-    def scrape(self, url: str) -> Dict[str, Any]:
-        response = get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        return {
-            "url": url,
-            "title": soup.title.text if soup.title else None,
-            "content": ' '.join([p.text for p in soup.find_all('p')])
-        }
 
     def to_langchain_tool(self) -> TavilySearchResults:
         internet_search = TavilySearchResults()
