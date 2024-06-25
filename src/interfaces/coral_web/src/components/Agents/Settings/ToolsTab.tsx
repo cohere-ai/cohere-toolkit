@@ -15,7 +15,7 @@ import { cn } from '@/utils';
 /**
  * @description Tools tab content that shows a list of available tools and files
  */
-export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }> = ({
+export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className?: string }> = ({
   requiredTools,
   className = '',
 }) => {
@@ -28,8 +28,13 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
 
   const { unauthedTools } = useUnauthedTools();
   const availableTools = useMemo(() => {
-    return (data ?? []).filter((t) => t.is_visible && t.is_available);
-  }, [data]);
+    return (data ?? []).filter(
+      (t) =>
+        t.is_visible &&
+        t.is_available &&
+        (!requiredTools || requiredTools.some((rt) => rt === t.name))
+    );
+  }, [data, requiredTools]);
 
   const handleToggle = (name: string, checked: boolean) => {
     const newParams: Partial<ConfigurableParams> = {
@@ -80,7 +85,7 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
               {availableTools.map(({ name, display_name, description, error_message }) => {
                 const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
                 const checked = !!enabledTool;
-                const disabled = requiredTools.some((t) => t === name);
+                const disabled = !!requiredTools;
 
                 return (
                   <ToggleCard

@@ -4,11 +4,11 @@ import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
 
 type Props = {
   checked: boolean;
-  disabled: boolean;
   icon: IconName;
   label: string;
   description: string;
   onToggle: (checked: boolean) => void;
+  disabled?: boolean;
   errorMessage?: string | null;
   inputOptions?: {
     label: string;
@@ -26,7 +26,7 @@ type Props = {
  */
 export const ToggleCard: React.FC<Props> = ({
   checked,
-  disabled,
+  disabled = false,
   icon,
   label,
   description,
