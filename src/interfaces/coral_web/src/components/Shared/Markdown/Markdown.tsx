@@ -54,7 +54,7 @@ export const getActiveMarkdownPlugins = (
 
   const rehypePlugins: PluggableList = [
     // remarkRaw is a plugin that allows raw HTML in markdown
-    // rehypeRaw, // FIX: Disabled because it is causing issues with the rendering of the markdown
+    // rehypeRaw, // FIX(@tomtobac): Disabled because it is causing issues with the rendering of the markdown
     // rehypeHighlight is a plugin that adds syntax highlighting to code blocks
     // Version 7.0.0 seems to have a memory leak bug that's why we are using 6.0.0
     // https://github.com/remarkjs/react-markdown/issues/791#issuecomment-2096106784
