@@ -83,7 +83,11 @@ export const SettingsDrawer: React.FC = () => {
           panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
           fitTabsContent={true}
         >
-          {tabs.map((t) => t.component)}
+          {tabs.map((t) => (
+            <div key={t.name} className="h-full w-full">
+              {t.component}
+            </div>
+          ))}
         </Tabs>
       </section>
     </Transition>
