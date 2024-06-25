@@ -1,5 +1,4 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
@@ -70,7 +69,6 @@ export type HandleSendChat = (
 ) => Promise<void>;
 
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
-  const router = useRouter();
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
 

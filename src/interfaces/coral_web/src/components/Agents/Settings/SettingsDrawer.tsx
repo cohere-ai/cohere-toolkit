@@ -74,17 +74,25 @@ export const SettingsDrawer: React.FC = () => {
       </header>
 
       <section id={SETTINGS_DRAWER_ID} className="h-full w-full overflow-y-auto rounded-b-lg">
-        <Tabs
-          tabs={tabs.map((t) => t.name)}
-          selectedIndex={selectedTabIndex}
-          onChange={setSelectedTabIndex}
-          tabGroupClassName="h-full"
-          tabClassName="pt-2.5"
-          panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
-          fitTabsContent={true}
-        >
-          {tabs.map((t) => t.component)}
-        </Tabs>
+        {tabs.length === 1 ? (
+          <div className="pt-5">{tabs[0].component}</div>
+        ) : (
+          <Tabs
+            tabs={tabs.map((t) => t.name)}
+            selectedIndex={selectedTabIndex}
+            onChange={setSelectedTabIndex}
+            tabGroupClassName="h-full"
+            tabClassName="pt-2.5"
+            panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
+            fitTabsContent={true}
+          >
+            {tabs.map((t) => (
+              <div key={t.name} className="h-full w-full">
+                {t.component}
+              </div>
+            ))}
+          </Tabs>
+        )}
       </section>
     </Transition>
   );

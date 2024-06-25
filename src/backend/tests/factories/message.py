@@ -10,6 +10,7 @@ class MessageFactory(BaseFactory):
         model = Message
 
     text = factory.Faker("text")
+    tool_plan = factory.Faker("text")
     user_id = factory.Faker("uuid4")
     generation_id = factory.Faker("uuid4")
     conversation_id = factory.Faker("uuid4")

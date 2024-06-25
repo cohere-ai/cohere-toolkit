@@ -8,6 +8,7 @@ from backend.database_models.base import Base
 from backend.database_models.citation import Citation
 from backend.database_models.document import Document
 from backend.database_models.file import File
+from backend.database_models.tool_call import ToolCall
 
 
 class MessageAgent(StrEnum):
@@ -32,10 +33,12 @@ class Message(Base):
     position: Mapped[int]
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     generation_id: Mapped[str] = mapped_column(String, nullable=True)
+    tool_plan: Mapped[str] = mapped_column(String, nullable=True)
 
     documents: Mapped[List["Document"]] = relationship()
     citations: Mapped[List["Citation"]] = relationship()
     files: Mapped[List["File"]] = relationship()
+    tool_calls: Mapped[List["ToolCall"]] = relationship()
 
     agent: Mapped[MessageAgent] = mapped_column(
         Enum(MessageAgent, native_enum=False),
