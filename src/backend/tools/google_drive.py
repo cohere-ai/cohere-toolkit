@@ -26,7 +26,7 @@ class GoogleDrive(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        return False
+        return True
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         # TODO: Improve the getting of files
