@@ -5,6 +5,7 @@
 @import url('./fonts.css');
 @import url('./icons.css');
 @import url('./globals.css');
+@import url('./code-style.css');
 
 @layer base {
   html {
@@ -26,7 +27,7 @@
 
   ::-webkit-scrollbar-thumb {
     box-shadow: inset 0 0 5px 5px rgb(189 189 189 / 0.5); /* marble-500/50 */
-    @apply rounded-t-full rounded-b-full border-2 border-solid border-transparent;
+    @apply rounded-b-full rounded-t-full border-2 border-solid border-transparent;
   }
 }
 
