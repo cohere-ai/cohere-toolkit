@@ -152,7 +152,12 @@ def write_env_file(secrets):
     for key, value in secrets.items():
         set_key(DOT_ENV_FILE_PATH, key, str(value))
 
-    set_key(DOT_ENV_FILE_PATH, "NEXT_PUBLIC_FRONTEND_HOSTNAME", "${FRONTEND_HOSTNAME}", "never")
+    set_key(
+        DOT_ENV_FILE_PATH,
+        "NEXT_PUBLIC_FRONTEND_HOSTNAME",
+        "${FRONTEND_HOSTNAME}",
+        "never",
+    )
 
 
 def select_deployments_prompt(deployments, _):
