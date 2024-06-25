@@ -111,18 +111,22 @@ const ConnectDataBox: React.FC<{
   tools: ManagedTool[];
 }> = ({ tools }) => {
   return (
-    <div className="flex flex-col gap-y-4 rounded border-2 border-dashed border-primary-400 bg-primary-200 p-4">
+    <div className="flex flex-col gap-y-4 rounded border border-dashed border-primary-400 bg-primary-200 p-4">
       <div className="flex flex-col gap-y-3">
-        <Text>Connect your data</Text>
+        <Text styleAs="h5">Connect your data</Text>
         <Text>
-          In order to get the most accurate answered grounded on your data, experience, connect the
-          following:
+          In order to get the most accurate answers grounded on your data, connect the following:
         </Text>
       </div>
       <div className="flex flex-col gap-y-1">
         {tools.map((tool) => (
-          <Button key={tool.name} kind="secondary" href={tool.auth_url ?? ''}>
-            {tool.display_name} <Icon name="arrow-up-right" />
+          <Button
+            key={tool.name}
+            kind="secondary"
+            href={tool.auth_url ?? ''}
+            endIcon={<Icon name="arrow-up-right" className="ml-1" />}
+          >
+            {tool.display_name}
           </Button>
         ))}
       </div>

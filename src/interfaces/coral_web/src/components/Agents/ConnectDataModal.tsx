@@ -4,11 +4,11 @@ import { Button, Text } from '@/components/Shared';
 import { useSettingsStore } from '@/stores';
 
 type Props = {
-  onClose: () => void;
+  onClose: VoidFunction;
 };
 
 /**
- * @description Modal prompts the user to connect their data to enable tools and opens the setings drawer
+ * @description Modal that prompts the user to connect their data to enable tools and opens the settings drawer
  */
 export const ConnectDataModal: React.FC<Props> = ({ onClose }) => {
   const { setSettings } = useSettingsStore();

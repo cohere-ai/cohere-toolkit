@@ -74,7 +74,7 @@ export const Composer: React.FC<Props> = ({
   };
 
   const handleComposerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (!isToolAuthRequired) {
+    if (isToolAuthRequired) {
       return;
     }
     onChange(e.target.value);
