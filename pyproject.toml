@@ -41,7 +41,6 @@ pypdf = "^4.2.0"
 pyjwt = "^2.8.0"
 pydantic-settings = "^2.3.1"
 transformers = "^4.41.2"
-beautifulsoup4 = "^4.12.3"
 
 [tool.poetry.group.dev]
 optional = true

@@ -1,10 +1,11 @@
-import os, copy
+import copy
+import os
 from typing import Any, Dict, List
 
 from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
-from backend.model_deployments.base import BaseDeployment
 
+from backend.model_deployments.base import BaseDeployment
 from backend.tools.base import BaseTool
 
 
@@ -21,7 +22,9 @@ class TavilyInternetSearch(BaseTool):
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
-        result = self.client.search(query=query, search_depth="advanced", include_raw_content=True)
+        result = self.client.search(
+            query=query, search_depth="advanced", include_raw_content=True
+        )
 
         if "results" not in result:
             return []
@@ -35,62 +38,54 @@ class TavilyInternetSearch(BaseTool):
             snippets = result["raw_content"].split("\n")
             for snippet in snippets:
                 if result["content"] != snippet:
-                    if len(snippet.split()) > 10: # Skip snippets with less than 10 words
+                    if (
+                        len(snippet.split()) > 10
+                    ):  # Skip snippets with less than 10 words
                         new_result = {
                             "url": result["url"],
                             "title": result["title"],
-                            "content": snippet.strip()
+                            "content": snippet.strip(),
                         }
                         expanded.append(new_result)
 
         reranked_results = self.rerank_page_snippets(
-            query,
-            expanded,
-            allow_duplicate_urls=False,
-            use_title=True,
-            model=kwargs.get("model_deployment")
+            query, expanded, model=kwargs.get("model_deployment")
         )
 
         return [
-            {
-                "url": result["url"],
-                "text": result["content"]
-            } 
+            {"url": result["url"], "text": result["content"]}
             for result in reranked_results
         ]
 
-    
-    def rerank_page_snippets(self, query: str, snippets: List[Dict[str, Any]], allow_duplicate_urls: bool, use_title: bool, model: BaseDeployment) -> List[Dict[str, Any]]:
+    def rerank_page_snippets(
+        self, query: str, snippets: List[Dict[str, Any]], model: BaseDeployment
+    ) -> List[Dict[str, Any]]:
         if len(snippets) == 0:
             return []
-        
+
         rerank_batch_size = 500
         relevance_scores = [None for _ in range(len(snippets))]
         for batch_start in range(0, len(snippets), rerank_batch_size):
-            snippet_batch = snippets[batch_start: batch_start+rerank_batch_size]
-            if use_title:
-                batch_output = model.invoke_rerank(
-                    query=query,
-                    documents=[f"{snippet['title']} {snippet['content']}" for snippet in snippet_batch],
-                )
-            else:
-                batch_output = model.invoke_rerank(
-                    query=query,
-                    documents=[snippet["content"] for snippet in snippet_batch],
-                )
+            snippet_batch = snippets[batch_start : batch_start + rerank_batch_size]
+            batch_output = model.invoke_rerank(
+                query=query,
+                documents=[
+                    f"{snippet['title']} {snippet['content']}"
+                    for snippet in snippet_batch
+                ],
+            )
             for b in batch_output.results:
                 relevance_scores[batch_start + b.index] = b.relevance_score
 
         reranked, seen_urls = [], []
-        for _, result in sorted(zip(relevance_scores, snippets), key=lambda x: -x[0]):
-            if allow_duplicate_urls or (
-                result["url"] not in seen_urls
-            ):  # dont return same webpage several times unless allowed
+        for _, result in sorted(
+            zip(relevance_scores, snippets), key=lambda x: x[0], reverse=True
+        ):
+            if result["url"] not in seen_urls:
                 seen_urls.append(result["url"])
                 reranked.append(result)
 
-        return reranked[:self.num_results]
-
+        return reranked[: self.num_results]
 
     def to_langchain_tool(self) -> TavilySearchResults:
         internet_search = TavilySearchResults()
