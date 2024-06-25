@@ -105,7 +105,7 @@ const RequiredInputLabel: React.FC<{
 }> = ({ label, children, className }) => (
   <InputLabel
     label={
-      <div className="flex items-center gap-x-2 uppercase">
+      <div className="flex items-center gap-x-2">
         <Text as="span" styleAs="label" className="text-volcanic-900">
           {label}
         </Text>
