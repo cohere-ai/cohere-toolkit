@@ -10,6 +10,7 @@ from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
 from starlette.exceptions import HTTPException
 
+from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
@@ -737,6 +738,9 @@ def handle_stream_end(
 ) -> tuple[StreamEnd, dict[str, Any], Message, dict[str, Document]]:
     response_message.citations = stream_end_data["citations"]
     response_message.text = stream_end_data["text"]
+    stream_end_data["chat_history"] = (
+        to_dict(event).get("response", {}).get("chat_history", [])
+    )
     stream_end = StreamEnd.model_validate(event | stream_end_data)
     stream_event = stream_end
     return stream_event, stream_end_data, response_message, document_ids_to_document
