@@ -20,7 +20,6 @@ type Props = {
   iconClassName?: string;
   disabled?: boolean;
   className?: string;
-  dataTestId?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
@@ -39,7 +38,6 @@ export const IconButton: React.FC<Props> = ({
   href,
   target,
   shallow,
-  dataTestId,
   onClick,
 }) => {
   const iconButton = (
@@ -70,7 +68,6 @@ export const IconButton: React.FC<Props> = ({
       href={href}
       target={target}
       shallow={shallow}
-      dataTestId={dataTestId}
       onClick={onClick}
     />
   );
