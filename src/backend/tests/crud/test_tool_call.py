@@ -27,10 +27,25 @@ def test_create_tool_call(session):
     assert tool_call.parameters == tool_call_data.parameters
     assert tool_call.message_id == tool_call_data.message_id
 
-    tool_call = tool_call_crud.get_tool_call(session, tool_call.id)
+    tool_call = tool_call_crud.get_tool_call_by_id(session, tool_call.id)
     assert tool_call.name == tool_call_data.name
     assert tool_call.parameters == tool_call_data.parameters
     assert tool_call.message_id == tool_call_data.message_id
+
+
+def test_get_tool_call_by_id(session):
+    tool_call_data = ToolCall(
+        name="Hello, World!",
+        parameters={"test": "test"},
+        message_id="1",
+    )
+
+    tool_call = tool_call_crud.create_tool_call(session, tool_call_data)
+    assert tool_call_crud.get_tool_call_by_id(session, tool_call.id) == tool_call
+
+
+def test_get_tool_call_by_id_not_found(session):
+    assert tool_call_crud.get_tool_call_by_id(session, "1") is None
 
 
 def test_list_tool_calls_by_message_id(session):

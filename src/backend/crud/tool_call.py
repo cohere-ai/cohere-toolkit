@@ -20,6 +20,20 @@ def create_tool_call(db: Session, tool_call: ToolCall) -> ToolCall:
     return tool_call
 
 
+def get_tool_call_by_id(db: Session, tool_call_id: str) -> ToolCall:
+    """
+    Get a tool call by its ID.
+
+    Args:
+        db (Session): Database session.
+        tool_call_id (str): Tool call ID.
+
+    Returns:
+        ToolCall: Tool call with the given ID.
+    """
+    return db.query(ToolCall).filter(ToolCall.id == tool_call_id).first()
+
+
 def list_tool_calls_by_message_id(db: Session, message_id: str) -> list[ToolCall]:
     """
     List all tool calls by message ID.
