@@ -125,6 +125,18 @@ class CustomChat(BaseChat):
 
         if managed_tools:
             chat_request.tools = managed_tools
+            tool_names = [tool.name for tool in managed_tools]
+
+        # Add files to chat history if the tool requires it
+        if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
+            chat_request.chat_history = self.add_files_to_chat_history(
+                chat_request.chat_history,
+                kwargs.get("conversation_id"),
+                kwargs.get("session"),
+                kwargs.get("user_id"),
+            )
+
+        print(f"Chat history: {chat_request.chat_history}")
 
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
@@ -176,7 +188,9 @@ class CustomChat(BaseChat):
             return tool_results
 
         tool_calls = chat_history[-1]["tool_calls"]
+        tool_plan = chat_history[-1].get("message", None)
         logger.info(f"Tool calls: {tool_calls}")
+        logger.info(f"Tool plan: {tool_plan}")
 
         # TODO: Call tools in parallel
         for tool_call in tool_calls:
