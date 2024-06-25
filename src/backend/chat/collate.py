@@ -83,8 +83,8 @@ def rerank_and_chunk(
                 if r.relevance_score > RELEVANCE_THRESHOLD
             ],
         }
-
-    return list(reranked_results.values())
+    
+    return list(reranked_results.values())[:5]
 
 
 def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300):
