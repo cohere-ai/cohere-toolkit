@@ -6,7 +6,9 @@ import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
+import { useAgent } from '@/hooks/agents';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useListTools, useUnauthedTools } from '@/hooks/tools';
 import { useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -19,6 +21,8 @@ export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className
   requiredTools,
   className = '',
 }) => {
+  const { agentId } = useSlugRoutes();
+  const { data: agent } = useAgent({ agentId });
   const { params, setParams } = useParamsStore();
   const { data } = useListTools();
   const { tools: paramTools } = params;
@@ -56,7 +60,9 @@ export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className
       <ToolsInfoBox />
       <article className={cn('flex flex-col gap-y-5 pb-10')}>
         <Text styleAs="p-sm" className="text-secondary-800">
-          Tools are data sources the assistant can search such as databases or the internet.
+          {availableTools.length === 0
+            ? `${agent?.name} does not use any tools.`
+            : 'Tools are data sources the assistant can search such as databases or the internet.'}
         </Text>
 
         {unauthedTools.length > 0 && (
