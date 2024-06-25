@@ -58,16 +58,14 @@ services:
       # Mount data folder to sync uploaded files
       - ./src/backend/data:/workspace/src/backend/data
     # network_mode: host
-    env_file:
-      - .env
 
   frontend:
     build:
       context: ./src/interfaces/coral_web
       dockerfile: Dockerfile
-    env_file:
-      - .env
-
+    # Set environment variables directly in the docker-compose file
+    environment:
+      NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
     restart: always
     ports:
       - 4000:4000
@@ -78,12 +76,14 @@ services:
           target: /app
           ignore:
           - node_modules/
+
   terrarium:
     image: ghcr.io/cohere-ai/terrarium:latest
     ports:
       - '8080:8080'
     expose:
       - '8080'
+
 volumes:
   db:
     name: cohere_toolkit_db
