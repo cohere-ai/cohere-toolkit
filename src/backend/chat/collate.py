@@ -98,7 +98,7 @@ async def rerank_and_chunk(
                 if r["relevance_score"] > RELEVANCE_THRESHOLD
             ],
         }
-    
+
     return list(reranked_results.values())[:5]
 
 
