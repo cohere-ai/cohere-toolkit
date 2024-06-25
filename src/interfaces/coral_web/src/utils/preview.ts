@@ -64,6 +64,7 @@ const getReconstructedHtml = (rawHTML: string) => {
 };
 
 export const replaceCodeBlockWithIframe = (content: string) => {
+  return content; // FIX(@tomtobac): Disabled because it is causing issues with the rendering of the markdown
   const matchingRegex = /```html([\s\S]+)/;
   const replacingRegex = /```html([\s\S]+?)(```|$)/;
 

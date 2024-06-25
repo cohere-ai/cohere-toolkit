@@ -1,26 +1,25 @@
-import { ComponentPropsWithoutRef } from 'react';
-import ReactMarkdown, { Components } from 'react-markdown';
+import { ComponentPropsWithoutRef, useMemo } from 'react';
+import ReactMarkdown, { Components, UrlTransform } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
-import rehypeRaw from 'rehype-raw';
+// import rehypeRaw from 'rehype-raw';
 import remarkDirective from 'remark-directive';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { PluggableList } from 'unified';
 
-import { Text } from '@/components/Shared';
 import { Iframe } from '@/components/Shared/Markdown/tags/Iframe';
+import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
 import { renderRemarkCites } from './directives/cite';
 import { remarkReferences } from './directives/code';
 import { renderTableTools } from './directives/table-tools';
+import { renderRemarkTags } from './directives/tag';
 import { renderRemarkUnknowns } from './directives/unknown';
 import { P } from './tags/P';
 import { Pre } from './tags/Pre';
 import { References } from './tags/References';
-
-import 'highlight.js/styles/github-dark.css';
 
 type MarkdownTextProps = {
   text: string;
@@ -31,6 +30,7 @@ type MarkdownTextProps = {
   customRehypePlugins?: PluggableList;
   allowedElements?: Array<string>;
   unwrapDisallowed?: boolean;
+  urlTransform?: UrlTransform | null;
 } & ComponentPropsWithoutRef<'div'>;
 
 export const getActiveMarkdownPlugins = (
@@ -43,6 +43,8 @@ export const getActiveMarkdownPlugins = (
     remarkDirective,
     // renderRemarkCites is a plugin that adds support for :cite[] directives
     renderRemarkCites,
+    // renderRemarkTags is a plugin that adds support for :tag[] directives
+    renderRemarkTags,
     // renderRemarkUnknowns is a plugin that converts unrecognized directives to regular text nodes
     renderRemarkUnknowns,
     remarkReferences,
@@ -52,7 +54,7 @@ export const getActiveMarkdownPlugins = (
 
   const rehypePlugins: PluggableList = [
     // remarkRaw is a plugin that allows raw HTML in markdown
-    rehypeRaw,
+    // rehypeRaw, // FIX(@tomtobac): Disabled because it is causing issues with the rendering of the markdown
     // rehypeHighlight is a plugin that adds syntax highlighting to code blocks
     // Version 7.0.0 seems to have a memory leak bug that's why we are using 6.0.0
     // https://github.com/remarkjs/react-markdown/issues/791#issuecomment-2096106784
@@ -82,9 +84,23 @@ export const Markdown = ({
   renderLaTex = true,
   allowedElements,
   unwrapDisallowed,
+  urlTransform,
   ...rest
 }: MarkdownTextProps) => {
   const { remarkPlugins, rehypePlugins } = getActiveMarkdownPlugins(renderLaTex);
+
+  // Memoize to avoid re-rendering that occurs with Pre due to lambda function
+  // @ts-ignore
+  const components: Components = useMemo(
+    () => ({
+      pre: (props) => <Pre {...props} />,
+      p: P,
+      references: References,
+      iframe: Iframe,
+      ...customComponents,
+    }),
+    [customComponents]
+  );
 
   return (
     <Text
@@ -98,9 +114,11 @@ export const Markdown = ({
         'prose-li:my-0',
         'prose-pre prose-pre:mb-0 prose-pre:mt-0',
         'prose-code:!whitespace-pre-wrap prose-code:!bg-transparent prose-code:!p-0',
+        'prose-img:my-2',
         'prose-headings:my-0',
         'prose-h1:font-medium prose-h2:font-medium prose-h3:font-medium prose-h4:font-medium prose-h5:font-medium prose-h6:font-medium prose-strong:font-medium',
         'prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-h4:text-base prose-h5:text-base prose-h6:text-base',
+        'prose-pre:border prose-pre:border-secondary-100 prose-pre:bg-secondary-50 prose-pre:text-volcanic-900',
         className
       )}
       {...rest}
@@ -110,14 +128,8 @@ export const Markdown = ({
         rehypePlugins={[...rehypePlugins, ...customRehypePlugins]}
         unwrapDisallowed={unwrapDisallowed}
         allowedElements={allowedElements}
-        components={{
-          pre: Pre,
-          p: P,
-          references: References,
-          // @ts-ignore
-          iframe: Iframe,
-          ...customComponents,
-        }}
+        components={components}
+        urlTransform={urlTransform}
       >
         {text}
       </ReactMarkdown>
