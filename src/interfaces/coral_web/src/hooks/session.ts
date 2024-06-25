@@ -1,5 +1,6 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation } from '@tanstack/react-query';
+import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/router';
 import { useCallback, useMemo } from 'react';
@@ -85,12 +86,20 @@ export const useSession = () => {
   });
 
   const oidcSSOMutation = useMutation({
-    mutationFn: async (params: { code: string; strategy: string }) => {
-      return cohereClient.oidcSSOAuth(params);
+    mutationFn: async (params: { code: string; strategy: string; }) => {
+      const codeVerifier = Cookies.get('code_verifier');
+      return cohereClient.oidcSSOAuth({
+        ...params,
+        ...(codeVerifier && { codeVerifier }),
+      });
     },
     onSuccess: (data: { token: string }) => {
       setAuthToken(data.token);
       return new Promise((resolve) => resolve(data.token));
+    },
+    onSettled: () => {
+      Cookies.remove('code_verifier');
+      Cookies.remove('code_challenge');
     },
   });
 
