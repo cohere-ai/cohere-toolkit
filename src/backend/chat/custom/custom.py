@@ -123,6 +123,7 @@ class CustomChat(BaseChat):
         agent_id = kwargs.get("agent_id", "")
         managed_tools = self.get_managed_tools(chat_request)
 
+        tool_names = []
         if managed_tools:
             chat_request.tools = managed_tools
             tool_names = [tool.name for tool in managed_tools]
@@ -143,6 +144,7 @@ class CustomChat(BaseChat):
             logger.info(f"Step {step + 1}")
 
             # Invoke chat stream
+            has_tool_calls = False
             for event in deployment_model.invoke_chat_stream(
                 chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
             ):
@@ -150,11 +152,13 @@ class CustomChat(BaseChat):
                     chat_request.chat_history = event["response"].get(
                         "chat_history", []
                     )
+                elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
+                    has_tool_calls = True
 
                 yield event
 
             # Check for new tool calls in the chat history
-            if self.has_new_tool_calls(chat_request.chat_history):
+            if has_tool_calls:
                 # Handle tool calls
                 tool_results = self.call_tools(
                     chat_request.chat_history, deployment_model, **kwargs
@@ -169,9 +173,6 @@ class CustomChat(BaseChat):
 
         # Restore the original chat request message if needed
         self.chat_request = chat_request
-
-    def has_new_tool_calls(self, chat_history: List[Dict[str, Any]]) -> bool:
-        return chat_history[-1]["tool_calls"] is not None
 
     def update_chat_history_with_tool_results(
         self, chat_request: Any, tool_results: List[Dict[str, Any]]
