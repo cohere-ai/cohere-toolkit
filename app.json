@@ -6,6 +6,9 @@
       },
       "COHERE_API_KEY": {
           "description": "Your Cohere API key"
+      },
+      "INSTALL_COMMUNITY_DEPS": {
+          "description": "Whether to enable community features true/false"
       }
   },
   "hooks": {

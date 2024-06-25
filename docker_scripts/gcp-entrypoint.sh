@@ -11,7 +11,7 @@ if [[ -z ${1} ]]; then
   run_nginx
   run_frontend_proxy
   run_terrarium
-  run_backend
+  run_backend_poetry
 else
   exec "$@"
 fi

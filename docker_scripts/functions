@@ -257,7 +257,10 @@ run_backend() {
 
 run_backend_poetry() {
   cd /workspace
-  poetry install --without setup
+  if [ "${INSTALL_COMMUNITY_DEPS,,}" == "true" ]; then
+    echo "Install with community deps..."
+    poetry install --with community
+  fi
   source .venv/bin/activate
   echo "Migration started..."
   alembic -c src/backend/alembic.ini upgrade head
@@ -275,7 +278,7 @@ run_frontend_proxy() {
 
 run_frontend() {
   cd /workspace/src/interfaces/coral_web
-  echo "Building Frontend when we are not in a localhost environment"
+  echo "Building Frontend"
   pnpm next:build
   echo "Starting Frontend..."
   pm2 start pnpm -- start:single-docker
