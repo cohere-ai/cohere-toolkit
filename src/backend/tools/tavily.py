@@ -13,6 +13,7 @@ class TavilyInternetSearch(BaseTool):
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.tavily_api_key)
+        self.num_results = 6
 
     @classmethod
     def is_available(cls) -> bool:
@@ -42,7 +43,7 @@ class TavilyInternetSearch(BaseTool):
                         }
                         expanded.append(new_result)
 
-        reranked_results = self.rerank_page_results(
+        reranked_results = self.rerank_page_snippets(
             query,
             expanded,
             allow_duplicate_urls=False,
@@ -59,7 +60,7 @@ class TavilyInternetSearch(BaseTool):
         ]
 
     
-    def rerank_page_results(self, query: str, snippets: List[Dict[str, Any]], allow_duplicate_urls: bool, use_title: bool, model: BaseDeployment) -> List[Dict[str, Any]]:
+    def rerank_page_snippets(self, query: str, snippets: List[Dict[str, Any]], allow_duplicate_urls: bool, use_title: bool, model: BaseDeployment) -> List[Dict[str, Any]]:
         if len(snippets) == 0:
             return []
         
@@ -87,11 +88,8 @@ class TavilyInternetSearch(BaseTool):
             ):  # dont return same webpage several times unless allowed
                 seen_urls.append(result["url"])
                 reranked.append(result)
-        
-        for r in reranked:
-            print(r)
-            print("\n\n")
-        return reranked
+
+        return reranked[:self.num_results]
 
 
     def to_langchain_tool(self) -> TavilySearchResults:
