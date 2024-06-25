@@ -45,6 +45,7 @@ WELCOME_MESSAGE = r"""
 DATABASE_URL_DEFAULT = "postgresql+psycopg2://postgres:postgres@db:5432"
 PYTHON_INTERPRETER_URL_DEFAULT = "http://terrarium:8080"
 NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://localhost:8000"
+NEXT_PUBLIC_FRONTEND_HOSTNAME_DEFAULT = "http://localhost:4000"
 
 DOT_ENV_FILE_PATH = ".env"
 
@@ -82,8 +83,15 @@ def database_url_prompt(secrets):
         default=NEXT_PUBLIC_API_HOSTNAME_DEFAULT,
     )
 
+    print_styled("💾 And now the hostname for the frontend client")
+    next_public_frontend_hostname = inquirer.text(
+        "Enter your public API Hostname or press enter for default [recommended]",
+        default=NEXT_PUBLIC_FRONTEND_HOSTNAME_DEFAULT,
+    )
+
     secrets["DATABASE_URL"] = database_url
     secrets["NEXT_PUBLIC_API_HOSTNAME"] = next_public_api_hostname
+    secrets["NEXT_PUBLIC_FRONTEND_HOSTNAME"] = next_public_frontend_hostname
 
 
 def deployment_prompt(secrets, configs):
