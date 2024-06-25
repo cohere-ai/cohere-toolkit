@@ -3,7 +3,7 @@ import React, { Children, PropsWithChildren } from 'react';
 
 import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
 import { MobileHeader } from '@/components/Agents/MobileHeader';
-import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
+import { SettingsDrawer } from '@/components/Agents/Settings/SettingsDrawer';
 import { PageHead } from '@/components/Shared/PageHead';
 import { cn } from '@/utils/cn';
 

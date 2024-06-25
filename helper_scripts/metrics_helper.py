@@ -38,7 +38,6 @@ def agents():
             "tools": ["web_search"],
         },
     )
-    print(response.json())
     agent_id = response.json()["id"]
     # # List Agents
     _ = requests.get(f"{base_url}/agents", headers=headers)

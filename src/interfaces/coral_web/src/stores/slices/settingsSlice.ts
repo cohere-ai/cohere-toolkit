@@ -1,27 +1,22 @@
 import { StateCreator } from 'zustand';
 
 const INITIAL_STATE: Required<State> = {
-  isAgentsSidePanelOpen: true,
   isConfigDrawerOpen: false,
   activeConfigDrawerTab: '',
   isConvListPanelOpen: true,
   isMobileConvListPanelOpen: false,
-  isEditAgentPanelOpen: false,
 };
 
 type State = {
-  isAgentsSidePanelOpen: boolean;
   isConfigDrawerOpen: boolean;
   activeConfigDrawerTab: string;
   isConvListPanelOpen: boolean;
   isMobileConvListPanelOpen: boolean;
-  isEditAgentPanelOpen: boolean;
 };
 
 type Actions = {
   setSettings: (settings: Partial<State>) => void;
   setIsConvListPanelOpen: (isOpen: boolean) => void;
-  setIsAgentsSidePanelOpen: (isOpen: boolean) => void;
 };
 
 export type SettingsStore = {
@@ -34,14 +29,6 @@ export const createSettingsSlice: StateCreator<SettingsStore, [], [], SettingsSt
       settings: {
         ...state.settings,
         ...settings,
-      },
-    }));
-  },
-  setIsAgentsSidePanelOpen(isOpen) {
-    set((state) => ({
-      settings: {
-        ...state.settings,
-        isAgentsSidePanelOpen: isOpen,
       },
     }));
   },

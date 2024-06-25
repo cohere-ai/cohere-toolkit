@@ -17,4 +17,6 @@ export type ManagedTool = {
   is_available?: boolean;
   error_message?: string | null;
   category?: Category;
+  is_auth_required?: boolean;
+  auth_url?: string | null;
 };
