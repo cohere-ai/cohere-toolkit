@@ -63,7 +63,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
 
   useEffect(() => {
     if (session && session.email) {
-     setUserMenu(<NavigationUserMenu userEmail={session.email} />);
+      setUserMenu(<NavigationUserMenu userEmail={session.email} />);
     }
   }, [session]);
 
