@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { capitalize } from 'lodash';
-import React, { Children, PropsWithChildren, useContext } from 'react';
+import React, { Children, PropsWithChildren, useContext, useEffect, useState } from 'react';
 
 import { DeploymentsDropdown } from '@/components/DeploymentsDropdown';
 import { EditEnvVariablesButton } from '@/components/EditEnvVariablesButton';
@@ -59,16 +59,25 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
     }
   });
 
+  // let userMenu: React.ReactNode = null;
+  const [userMenu, setUserMenu] = useState<React.ReactNode>(null);
+
+  useEffect(() => {
+    if (session && session.email) {
+     setUserMenu(<NavigationUserMenu userEmail={session.email} />);
+    }
+  }, [session]);
+
   return (
     <>
       <PageHead title={capitalize(title)} />
       <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
         <NavigationBar>
-          <span className="flex items-center gap-x-2">
+          <div className="flex items-center gap-x-2">
             <DeploymentsDropdown />
             <EditEnvVariablesButton className="py-0" />
-            {session && session.email && <NavigationUserMenu userEmail={session.email} />}
-          </span>
+            {userMenu}
+          </div>
         </NavigationBar>
         {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}
 
