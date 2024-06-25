@@ -66,6 +66,7 @@ services:
     # Set environment variables directly in the docker-compose file
     environment:
       NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
+      NEXT_PUBLIC_FRONTEND_HOSTNAME: ${NEXT_PUBLIC_FRONTEND_HOSTNAME}
     restart: always
     ports:
       - 4000:4000
