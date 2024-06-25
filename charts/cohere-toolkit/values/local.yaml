@@ -1,0 +1,19 @@
+global:
+  backend_url: "http://localhost:8000"
+  cohere:
+    api_key: "<YOUR_API_KEY>"
+
+postgresql:
+  enabled: true
+
+backend:
+  image:
+    pullPolicy: IfNotPresent
+    repository: docker.io/library/cohere-toolkit-backend
+    tag: latest
+
+frontend:
+  image:
+    pullPolicy: IfNotPresent
+    repository: docker.io/library/cohere-toolkit-frontend
+    tag: latest

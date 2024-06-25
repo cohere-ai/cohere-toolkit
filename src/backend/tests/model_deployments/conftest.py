@@ -10,6 +10,7 @@ from backend.tests.model_deployments.mock_deployments import (
     MockBedrockDeployment,
     MockCohereDeployment,
     MockSageMakerDeployment,
+    MockSingleContainerDeployment,
 )
 
 
@@ -22,6 +23,13 @@ def user(session_chat: Session) -> User:
 def mock_cohere_deployment():
     with patch("backend.chat.custom.custom.get_deployment") as mock:
         mock.return_value = MockCohereDeployment()
+        yield mock
+
+
+@pytest.fixture()
+def mock_single_container_deployment():
+    with patch("backend.chat.custom.custom.get_deployment") as mock:
+        mock.return_value = MockSingleContainerDeployment()
         yield mock
 
 

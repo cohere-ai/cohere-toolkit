@@ -1,8 +1,7 @@
 import { PropsWithChildren, useCallback } from 'react';
 
-import { Icon } from '@/components/Shared/Icon';
+import { Icon, Text } from '@/components/Shared';
 import { StructuredTable } from '@/components/Shared/Markdown/directives/table-tools';
-import { Text } from '@/components/Shared/Text';
 import { useNotify } from '@/hooks/toast';
 import { useConversationStore } from '@/stores';
 import { cn } from '@/utils';
