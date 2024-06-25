@@ -44,6 +44,10 @@ class ChatMessage(BaseModel):
         title="Contents of the chat message.",
         default=None,
     )
+    tool_plan: str | None = Field(
+        title="Contents of the tool plan.",
+        default=None,
+    )
     tool_results: List[Dict[str, Any]] | None = Field(
         title="Results from the tool call.",
         default=None,

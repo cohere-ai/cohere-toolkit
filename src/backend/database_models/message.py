@@ -33,6 +33,7 @@ class Message(Base):
     position: Mapped[int]
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     generation_id: Mapped[str] = mapped_column(String, nullable=True)
+    tool_plan: Mapped[str] = mapped_column(String, nullable=True)
 
     documents: Mapped[List["Document"]] = relationship()
     citations: Mapped[List["Citation"]] = relationship()

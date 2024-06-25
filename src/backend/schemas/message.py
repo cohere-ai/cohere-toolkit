@@ -28,6 +28,7 @@ class Message(MessageBase):
     citations: List[Citation]
     files: List[File]
     tool_calls: List[ToolCall]
+    tool_plan: Union[str, None]
 
     agent: MessageAgent
 

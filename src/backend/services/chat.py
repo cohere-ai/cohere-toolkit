@@ -272,6 +272,7 @@ def create_message(
     agent: MessageAgent = MessageAgent.USER,
     should_store: bool = True,
     id: str | None = None,
+    tool_plan: str | None = None,
 ) -> Message:
     """
     Create a message object and store it in the database.
@@ -301,6 +302,7 @@ def create_message(
         position=user_message_position,
         is_active=True,
         agent=agent,
+        tool_plan=tool_plan,
     )
 
     if should_store:
@@ -445,6 +447,7 @@ def save_tool_calls_message(
         user_id=user_id,
         user_message_position=position,
         text=text,
+        tool_plan=text,
         agent=MessageAgent.CHATBOT,
         should_store=True,
     )
@@ -748,7 +751,7 @@ def handle_stream_tool_calls_generation(
     stream_end_data["tool_calls"].extend(tool_calls)
 
     # TODO: remove False condition to enable saving tool calls
-    if should_store and False:
+    if should_store:
         save_tool_calls_message(
             session,
             tool_calls,
