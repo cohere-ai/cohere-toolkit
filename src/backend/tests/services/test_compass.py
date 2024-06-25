@@ -1,7 +1,7 @@
 from backend.services.compass import Compass
 
 
-def test_calculator() -> None:
+def test_compass() -> None:
     compass = Compass()
     result = compass.invoke(
         action=Compass.ValidActions.CREATE_INDEX, parameters={"index": "foobar"}
