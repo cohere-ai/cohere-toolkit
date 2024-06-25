@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations
+  namespace: {{ .Release.Namespace }}
+  labels:
+      {{- include "cohere-toolkit.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+        - name: migrations
+          image: cgr.dev/chainguard/curl:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - "curl"
+            - "-X"
+            - "POST"
+            - "--fail-with-body"
+            - "http://toolkit-backend/migrate"
+      restartPolicy: OnFailure
