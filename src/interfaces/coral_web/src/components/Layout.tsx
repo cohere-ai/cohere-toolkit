@@ -59,7 +59,6 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
     }
   });
 
-  // let userMenu: React.ReactNode = null;
   const [userMenu, setUserMenu] = useState<React.ReactNode>(null);
 
   useEffect(() => {
@@ -73,11 +72,11 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
       <PageHead title={capitalize(title)} />
       <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
         <NavigationBar>
-          <div className="flex items-center gap-x-2">
+          <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
             <EditEnvVariablesButton className="py-0" />
             {userMenu}
-          </div>
+          </span>
         </NavigationBar>
         {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}
 
