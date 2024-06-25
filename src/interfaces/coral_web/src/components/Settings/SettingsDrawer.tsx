@@ -11,9 +11,6 @@ import { useFilesInConversation } from '@/hooks/files';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
-// TODO(@wujessica): grab these from the agents api
-const REQUIRED_TOOLS: string[] = [];
-
 /**
  * @description Renders the settings drawer of the main content.
  * It opens up on top of the citation panel/the main content.
@@ -35,12 +32,12 @@ export const SettingsDrawer: React.FC = () => {
   const tabs = useMemo(() => {
     return files.length > 0 && conversationId
       ? [
-          { name: 'Tools', component: <ToolsTab requiredTools={REQUIRED_TOOLS} /> },
+          { name: 'Tools', component: <ToolsTab /> },
           { name: 'Files', component: <FilesTab /> },
           { name: 'Settings', component: <SettingsTab /> },
         ]
       : [
-          { name: 'Tools', component: <ToolsTab requiredTools={REQUIRED_TOOLS} /> },
+          { name: 'Tools', component: <ToolsTab /> },
           { name: 'Settings', component: <SettingsTab /> },
         ];
   }, [files.length, conversationId]);

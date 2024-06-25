@@ -93,9 +93,11 @@ export const Markdown = ({
   // @ts-ignore
   const components: Components = useMemo(
     () => ({
+      // @ts-ignore
       pre: (props) => <Pre {...props} />,
       p: P,
       references: References,
+      // @ts-ignore
       iframe: Iframe,
       ...customComponents,
     }),

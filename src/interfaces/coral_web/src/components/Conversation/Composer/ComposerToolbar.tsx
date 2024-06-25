@@ -7,10 +7,11 @@ import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { cn } from '@/utils';
 
 type Props = {
+  canDisableDataSources: boolean;
   onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export const ComposerToolbar: React.FC<Props> = ({ onUploadFile }) => {
+export const ComposerToolbar: React.FC<Props> = ({ canDisableDataSources, onUploadFile }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenFileExplorer = () => {
@@ -32,7 +33,7 @@ export const ComposerToolbar: React.FC<Props> = ({ onUploadFile }) => {
         icon="clip"
         onClick={handleOpenFileExplorer}
       />
-      <EnabledDataSources isStreaming={false} />
+      <EnabledDataSources isStreaming={false} canDisable={canDisableDataSources} />
     </div>
   );
 };

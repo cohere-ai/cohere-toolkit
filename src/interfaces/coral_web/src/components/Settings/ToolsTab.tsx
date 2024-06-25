@@ -15,10 +15,7 @@ import { cn } from '@/utils';
 /**
  * @description Tools tab content that shows a list of available tools and files
  */
-export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }> = ({
-  requiredTools,
-  className = '',
-}) => {
+export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { params, setParams } = useParamsStore();
   const { data } = useListTools();
   const { tools: paramTools } = params;
@@ -113,12 +110,10 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
               {availableTools.map(({ name, display_name, description, error_message }) => {
                 const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
                 const checked = !!enabledTool;
-                const disabled = requiredTools.some((t) => t === name);
 
                 return (
                   <ToggleCard
                     key={name}
-                    disabled={disabled}
                     errorMessage={error_message}
                     checked={checked}
                     label={display_name ?? name}

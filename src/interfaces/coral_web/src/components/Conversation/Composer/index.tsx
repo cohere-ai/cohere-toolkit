@@ -18,6 +18,7 @@ import { cn } from '@/utils';
 type Props = {
   isFirstTurn: boolean;
   isStreaming: boolean;
+  canDisableDataSources: boolean;
   value: string;
   streamingMessage: ChatMessage | null;
   onStop: VoidFunction;
@@ -31,6 +32,7 @@ export const Composer: React.FC<Props> = ({
   isFirstTurn,
   value,
   isStreaming,
+  canDisableDataSources,
   onSend,
   onChange,
   onStop,
@@ -195,7 +197,10 @@ export const Composer: React.FC<Props> = ({
           </button>
         </div>
         <ComposerFiles />
-        <ComposerToolbar onUploadFile={onUploadFile} />
+        <ComposerToolbar
+          canDisableDataSources={canDisableDataSources}
+          onUploadFile={onUploadFile}
+        />
       </div>
       <ComposerError className="pt-2" />
     </div>

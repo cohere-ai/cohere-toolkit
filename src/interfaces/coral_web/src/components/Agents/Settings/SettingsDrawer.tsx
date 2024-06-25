@@ -6,12 +6,11 @@ import { ToolsTab } from '@/components/Agents/Settings/ToolsTab';
 import { IconButton } from '@/components/IconButton';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
+import { useAgent } from '@/hooks/agents';
 import { useFilesInConversation } from '@/hooks/files';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
-
-// TODO(@wujessica): grab these from the agents api
-const REQUIRED_TOOLS: string[] = [];
 
 /**
  * @description Renders the settings drawer of the main content.
@@ -30,15 +29,17 @@ export const SettingsDrawer: React.FC = () => {
     citations: { hasCitations },
   } = useCitationsStore();
   const { files } = useFilesInConversation();
+  const { agentId } = useSlugRoutes();
+  const { data: agent } = useAgent({ agentId });
 
   const tabs = useMemo(() => {
     return files.length > 0 && conversationId
       ? [
-          { name: 'Tools', component: <ToolsTab requiredTools={REQUIRED_TOOLS} /> },
+          { name: 'Tools', component: <ToolsTab requiredTools={agent?.tools} /> },
           { name: 'Files', component: <FilesTab /> },
         ]
-      : [{ name: 'Tools', component: <ToolsTab requiredTools={REQUIRED_TOOLS} /> }];
-  }, [files.length, conversationId]);
+      : [{ name: 'Tools', component: <ToolsTab requiredTools={agent?.tools} /> }];
+  }, [files.length, conversationId, agent?.tools]);
 
   return (
     <Transition

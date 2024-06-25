@@ -12,6 +12,7 @@ import {
   FinishReason,
   ListAuthStrategy,
   ListFile,
+  ManagedTool,
   Tool,
   UpdateAgent,
   UpdateConversation,
@@ -356,7 +357,7 @@ export class CohereClient {
     return body as Conversation;
   }
 
-  public async listTools({ signal }: { signal?: AbortSignal }): Promise<Tool[]> {
+  public async listTools({ signal }: { signal?: AbortSignal }): Promise<ManagedTool[]> {
     const response = await this.fetch(`${this.getEndpoint('tools')}`, {
       method: 'GET',
       headers: this.getHeaders(),
@@ -376,7 +377,7 @@ export class CohereClient {
       );
     }
 
-    return body as Tool[];
+    return body as ManagedTool[];
   }
 
   public async listDeployments(): Promise<Deployment[]> {
