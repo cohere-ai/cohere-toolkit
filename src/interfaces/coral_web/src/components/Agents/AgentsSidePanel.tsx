@@ -5,7 +5,7 @@ import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
-import { useSettingsStore } from '@/stores';
+import { useAgentsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -14,18 +14,18 @@ import { cn } from '@/utils';
  * It also renders the children components that are passed to it.
  */
 export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
   const {
-    settings: { isAgentsSidePanelOpen },
-    setSettings,
-    setIsConvListPanelOpen,
-  } = useSettingsStore();
-
+    agents: { isAgentsSidePanelOpen },
+    setAgentsSidePanelOpen,
+  } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
 
   const handleToggleAgentsSidePanel = () => {
     setIsConvListPanelOpen(false);
-    setSettings({ isConfigDrawerOpen: false, isAgentsSidePanelOpen: !isAgentsSidePanelOpen });
+    setSettings({ isConfigDrawerOpen: false });
+    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
 
   const navigationItems: {
@@ -73,7 +73,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
         >
           <Transition
             show={isAgentsSidePanelOpen || isMobile}
-            appear
             as="div"
             enter="transition-all transform ease-in-out duration-200"
             enterFrom="-translate-x-full"

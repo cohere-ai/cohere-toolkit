@@ -20,6 +20,8 @@ from backend.schemas.metrics import MetricsData, MetricsSignal
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 NUM_RETRIES = 0
+HEALTH_ENDPOINT = "health"
+HEALTH_ENDPOINT_USER_ID = "health"
 
 import time
 
@@ -102,7 +104,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def get_success(self, response: Response) -> bool:
         try:
-            return 200 <= response.status_code < 400
+            return 200 <= response.status_code < 300
         except Exception as e:
             logging.warning(f"Failed to get success: {e}")
             return False
@@ -117,6 +119,10 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                     if hasattr(request.state, "user") and request.state.user
                     else None
                 )
+
+            # Health check does not have a user id - use a placeholder
+            if not user_id and HEALTH_ENDPOINT in request.url.path:
+                return HEALTH_ENDPOINT_USER_ID
 
             return user_id
         except Exception as e:

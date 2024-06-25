@@ -1,7 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 
 import { CohereClient, Document } from '@/cohere-client';
@@ -17,6 +16,7 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
@@ -25,14 +25,12 @@ import {
   useSettingsStore,
 } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { getQueryString } from '@/utils';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
+import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const AgentsPage: NextPage = () => {
-  const router = useRouter();
-  const agentId = getQueryString(router.query.agentId);
-  const conversationId = getQueryString(router.query.conversationId);
+  const { agentId, conversationId } = useSlugRoutes();
 
   const { setConversation } = useConversationStore();
   const {
@@ -183,12 +181,29 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     cohereClient: CohereClient;
   };
 
-  const conversationId = context.params?.conversationId as string;
+  const { conversationId, agentId } = getSlugRoutes(context.query.slug);
+
+  if (!conversationId && !agentId && context.resolvedUrl !== '/agents') {
+    return {
+      redirect: {
+        destination: '/agents',
+        permanent: false,
+      },
+    };
+  }
 
   await Promise.allSettled([
     deps.queryClient.prefetchQuery({
+      queryKey: ['agent', agentId],
+      queryFn: async () => {
+        if (!agentId) return;
+        return await deps.cohereClient.getAgent(agentId);
+      },
+    }),
+    deps.queryClient.prefetchQuery({
       queryKey: ['conversation', conversationId],
       queryFn: async () => {
+        if (!conversationId) return;
         const conversation = await deps.cohereClient.getConversation({
           conversationId,
         });

@@ -3,7 +3,7 @@ import { Transition } from '@headlessui/react';
 import { AgentCard } from '@/components/Agents/AgentCard';
 import { Text } from '@/components/Shared';
 import { useRecentAgents } from '@/hooks/agents';
-import { useSettingsStore } from '@/stores';
+import { useAgentsStore } from '@/stores';
 
 /**
  * @description This component renders a list of agents.
@@ -11,9 +11,9 @@ import { useSettingsStore } from '@/stores';
  */
 export const AgentsList: React.FC = () => {
   const {
-    settings: { isAgentsSidePanelOpen },
-  } = useSettingsStore();
-  const recentAgents = useRecentAgents();
+    agents: { isAgentsSidePanelOpen },
+  } = useAgentsStore();
+  const { recentAgents } = useRecentAgents();
 
   return (
     <div className="flex flex-col gap-3">
@@ -30,7 +30,7 @@ export const AgentsList: React.FC = () => {
       </Transition>
 
       <AgentCard isExpanded={isAgentsSidePanelOpen} name="Command R+" isBaseAgent />
-      {recentAgents?.map((agent) => (
+      {recentAgents.map((agent) => (
         <AgentCard
           key={agent.id}
           isExpanded={isAgentsSidePanelOpen}

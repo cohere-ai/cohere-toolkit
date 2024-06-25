@@ -2,13 +2,14 @@ import { useRouter } from 'next/router';
 
 import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import {
   useCitationsStore,
   useConversationStore,
   useParamsStore,
   useSettingsStore,
 } from '@/stores';
-import { cn, getQueryString } from '@/utils';
+import { cn } from '@/utils';
 
 type Props = {
   isBulkActionMode: boolean;
@@ -30,8 +31,7 @@ export const ConversationListHeader: React.FC<Props> = ({
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
-
-  const agentId = getQueryString(router.query.agentId);
+  const { agentId } = useSlugRoutes();
 
   const newChatUrl = agentId
     ? `/agents/${agentId}`
