@@ -10,16 +10,15 @@ import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
-import { useRecentAgents } from '@/hooks/agents';
+import { useAgent, useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
-import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from '@/hooks/files';
+import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useRouteChange } from '@/hooks/route';
 import {
   useAgentsStore,
   useCitationsStore,
   useConversationStore,
-  useFilesStore,
   useParamsStore,
   useSettingsStore,
 } from '@/stores';
@@ -52,24 +51,20 @@ const Conversation: React.FC<Props> = ({
   } = useSettingsStore();
   const {
     conversation: { messages },
+    resetConversation,
   } = useConversationStore();
   const {
     citations: { selectedCitation },
     selectCitation,
   } = useCitationsStore();
-  const { files } = useFilesInConversation();
   const {
     params: { fileIds },
   } = useParamsStore();
-  const { addRecentAgentId } = useRecentAgents();
-  const {
-    files: { composerFiles },
-  } = useFilesStore();
-  const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
-
   const {
     agents: { isEditAgentPanelOpen },
   } = useAgentsStore();
+  const { addRecentAgentId } = useRecentAgents();
+  const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
   const {
     userMessage,
@@ -125,7 +120,11 @@ const Conversation: React.FC<Props> = ({
     };
   }, [handleClickOutside]);
 
-  const [isRouteChanging] = useRouteChange();
+  const [isRouteChanging] = useRouteChange({
+    onRouteChangeStart: () => {
+      resetConversation();
+    },
+  });
 
   if (isRouteChanging) {
     return (
@@ -171,6 +170,7 @@ const Conversation: React.FC<Props> = ({
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
                 <Composer
                   isStreaming={isStreaming}
+                  canDisableDataSources={!agentId}
                   value={userMessage}
                   isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}

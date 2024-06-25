@@ -125,7 +125,8 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
         <Text>{isAgentCreator ? `Update ${agent.name}` : `About ${agent.name}`}</Text>
         <IconButton iconName="close" onClick={handleClose} />
       </header>
-      <div className="flex flex-col gap-y-5 overflow-y-auto px-14 py-8">
+      <div className="flex flex-col gap-y-5 overflow-y-auto px-8 py-8 md:px-14">
+        {isAgentCreator && <InfoBanner agentName={agent.name} className="flex md:hidden" />}
         <AgentForm
           fields={fields}
           errors={fieldErrors}
@@ -135,10 +136,8 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
         />
       </div>
       {isAgentCreator && (
-        <div className="flex flex-col gap-y-12 px-14 py-8">
-          <Banner className="w-full" theme="secondary" size="sm">
-            Updating {agent.name} will affect everyone using the assistant
-          </Banner>
+        <div className="flex flex-col gap-y-12 px-8 py-4 md:px-14 md:pb-8 md:pt-0">
+          <InfoBanner agentName={agent.name} className="hidden md:flex" />
           <Button
             className="self-end"
             splitIcon="check-mark"
@@ -151,3 +150,12 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     </div>
   );
 };
+
+const InfoBanner: React.FC<{ agentName: string; className?: string }> = ({
+  agentName,
+  className,
+}) => (
+  <Banner theme="secondary" size="sm" className={cn('w-full', className)}>
+    Updating {agentName} will affect everyone using the assistant
+  </Banner>
+);

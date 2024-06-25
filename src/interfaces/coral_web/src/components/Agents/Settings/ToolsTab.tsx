@@ -2,12 +2,12 @@ import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
 import { ToolsInfoBox } from '@/components/Agents/Settings/ToolsInfoBox';
-import { Text } from '@/components/Shared';
+import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
-import { useListTools } from '@/hooks/tools';
+import { useListTools, useUnauthedTools } from '@/hooks/tools';
 import { useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { cn } from '@/utils';
@@ -15,7 +15,7 @@ import { cn } from '@/utils';
 /**
  * @description Tools tab content that shows a list of available tools and files
  */
-export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }> = ({
+export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className?: string }> = ({
   requiredTools,
   className = '',
 }) => {
@@ -26,21 +26,15 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
   const { defaultFileLoaderTool } = useDefaultFileLoaderTool();
   const { clearComposerFiles } = useFilesStore();
 
-  const { availableTools, unavailableTools } = useMemo(() => {
-    return (data ?? [])
-      .filter((t) => t.is_visible)
-      .reduce<{ availableTools: ManagedTool[]; unavailableTools: ManagedTool[] }>(
-        (acc, tool) => {
-          if (tool.is_available) {
-            acc.availableTools.push(tool);
-          } else {
-            acc.unavailableTools.push(tool);
-          }
-          return acc;
-        },
-        { availableTools: [], unavailableTools: [] }
-      );
-  }, [data]);
+  const { unauthedTools } = useUnauthedTools();
+  const availableTools = useMemo(() => {
+    return (data ?? []).filter(
+      (t) =>
+        t.is_visible &&
+        t.is_available &&
+        (!requiredTools || requiredTools.some((rt) => rt === t.name))
+    );
+  }, [data, requiredTools]);
 
   const handleToggle = (name: string, checked: boolean) => {
     const newParams: Partial<ConfigurableParams> = {
@@ -65,32 +59,19 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
           Tools are data sources the assistant can search such as databases or the internet.
         </Text>
 
-        {unavailableTools.length > 0 && (
+        {unauthedTools.length > 0 && (
           <>
-            <Text as="span" styleAs="label" className="font-medium">
-              Action Required
-            </Text>
-
-            <div className="flex flex-col gap-y-5">
-              {unavailableTools.map(({ name, display_name, description, error_message }) => {
-                return (
-                  <ToggleCard
-                    key={name}
-                    disabled
-                    errorMessage={error_message}
-                    checked={false}
-                    label={display_name ?? name}
-                    icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
-                    description={description ?? ''}
-                    onToggle={(checked) => handleToggle(name, checked)}
-                  />
-                );
-              })}
+            <div className="flex items-center justify-between">
+              <Text as="span" styleAs="label" className="font-medium">
+                Action Required
+              </Text>
+              <Icon name="warning" kind="outline" />
             </div>
+            <ConnectDataBox tools={unauthedTools} />
           </>
         )}
 
-        {unavailableTools.length > 0 && availableTools.length > 0 && (
+        {unauthedTools.length > 0 && availableTools.length > 0 && (
           <hr className="border-t border-marble-400" />
         )}
 
@@ -104,7 +85,7 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
               {availableTools.map(({ name, display_name, description, error_message }) => {
                 const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
                 const checked = !!enabledTool;
-                const disabled = requiredTools.some((t) => t === name);
+                const disabled = !!requiredTools;
 
                 return (
                   <ToggleCard
@@ -125,5 +106,35 @@ export const ToolsTab: React.FC<{ requiredTools: string[]; className?: string }>
       </article>
       <WelcomeGuideTooltip step={2} className="fixed right-0 mr-3 mt-12 md:right-full md:mt-0" />
     </section>
+  );
+};
+
+/**
+ * @description Info box that prompts the user to connect their data to enable tools
+ */
+const ConnectDataBox: React.FC<{
+  tools: ManagedTool[];
+}> = ({ tools }) => {
+  return (
+    <div className="flex flex-col gap-y-4 rounded border border-dashed border-primary-400 bg-primary-200 p-4">
+      <div className="flex flex-col gap-y-3">
+        <Text styleAs="h5">Connect your data</Text>
+        <Text>
+          In order to get the most accurate answers grounded on your data, connect the following:
+        </Text>
+      </div>
+      <div className="flex flex-col gap-y-1">
+        {tools.map((tool) => (
+          <Button
+            key={tool.name}
+            kind="secondary"
+            href={tool.auth_url ?? ''}
+            endIcon={<Icon name="arrow-up-right" className="ml-1" />}
+          >
+            {tool.display_name}
+          </Button>
+        ))}
+      </div>
+    </div>
   );
 };
