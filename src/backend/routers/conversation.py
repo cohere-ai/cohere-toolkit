@@ -54,6 +54,12 @@ async def get_conversation(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
+    # Don't return messages that have tool calls
+    # TODO: remove this when FE is ready to handle tool calls
+    conversation.messages = [
+        message for message in conversation.messages if not message.tool_calls
+    ]
+
     return conversation
 
 
