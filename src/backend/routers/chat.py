@@ -62,6 +62,7 @@ async def chat_stream(
         should_store,
         managed_tools,
         deployment_config,
+        next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
     return EventSourceResponse(
@@ -84,6 +85,7 @@ async def chat_stream(
             conversation_id,
             user_id,
             should_store=should_store,
+            next_message_position=next_message_position,
         ),
         media_type="text/event-stream",
     )
@@ -125,6 +127,7 @@ async def chat(
         should_store,
         managed_tools,
         deployment_config,
+        next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
     return generate_chat_response(
@@ -144,6 +147,7 @@ async def chat(
         conversation_id,
         user_id,
         should_store=should_store,
+        next_message_position=next_message_position,
     )
 
 
@@ -166,6 +170,7 @@ def langchain_chat_stream(
         _,
         should_store,
         managed_tools,
+        _,
         _,
     ) = process_chat(session, chat_request, request)
 
