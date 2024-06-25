@@ -99,7 +99,7 @@ async def rerank_and_chunk(
             ],
         }
 
-    return list(reranked_results.values())[:5]
+    return list(reranked_results.values())
 
 
 def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300):
