@@ -26,8 +26,8 @@ export const Pre: Component<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ c
         onClick={handleCopy}
       >
         <div className="flex items-center gap-1">
-          {copied && <Text className="text-white">Copied!</Text>}
-          <Icon name={copied ? 'check-mark' : 'copy'} size="md" className="text-white" />
+          {copied && <Text className="text-secondary-800">Copied!</Text>}
+          <Icon name={copied ? 'check-mark' : 'copy'} size="md" className="text-secondary-800" />
         </div>
       </Button>
       <div ref={ref}>{children}</div>

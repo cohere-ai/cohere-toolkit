@@ -52,6 +52,7 @@ const Conversation: React.FC<Props> = ({
   } = useSettingsStore();
   const {
     conversation: { messages },
+    resetConversation,
   } = useConversationStore();
   const {
     citations: { selectedCitation },
@@ -125,7 +126,11 @@ const Conversation: React.FC<Props> = ({
     };
   }, [handleClickOutside]);
 
-  const [isRouteChanging] = useRouteChange();
+  const [isRouteChanging] = useRouteChange({
+    onRouteChangeStart: () => {
+      resetConversation();
+    },
+  });
 
   if (isRouteChanging) {
     return (

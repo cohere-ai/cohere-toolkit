@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { CreateAgent } from '@/cohere-client';
-import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
+import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
@@ -32,7 +32,7 @@ export const AgentForm: React.FC<Props> = ({
 
   return (
     <div className={cn('flex flex-col gap-y-4', className)}>
-      <InputLabel label="name" className="pb-2">
+      <RequiredInputLabel label="name" className="pb-2">
         <Input
           kind="default"
           value={fields.name ?? ''}
@@ -42,7 +42,7 @@ export const AgentForm: React.FC<Props> = ({
           errorText={errors?.name}
           disabled={disabled}
         />
-      </InputLabel>
+      </RequiredInputLabel>
       <InputLabel label="description" className="pb-2">
         <Input
           kind="default"
@@ -97,3 +97,25 @@ export const AgentForm: React.FC<Props> = ({
     </div>
   );
 };
+
+const RequiredInputLabel: React.FC<{
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ label, children, className }) => (
+  <InputLabel
+    label={
+      <div className="flex items-center gap-x-2">
+        <Text as="span" styleAs="label" className="text-volcanic-900">
+          {label}
+        </Text>
+        <Text as="span" styleAs="label" className="text-danger-500">
+          *required
+        </Text>
+      </div>
+    }
+    className={className}
+  >
+    {children}
+  </InputLabel>
+);
