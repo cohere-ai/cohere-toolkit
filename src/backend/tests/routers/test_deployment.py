@@ -13,8 +13,12 @@ def test_list_deployments(
     response = client.get("/v1/deployments")
     assert response.status_code == 200
     deployments = response.json()
-
-    assert len(deployments) == len(AVAILABLE_MODEL_DEPLOYMENTS)
+    available_deployments = [
+        deployment
+        for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
+        if deployment.is_available
+    ]
+    assert len(deployments) == len(available_deployments)
     for deployment in deployments:
         assert "name" in deployment
         assert "models" in deployment
@@ -32,7 +36,12 @@ def test_list_deployments_only_shows_available_models_by_default(
     response = client.get("/v1/deployments")
     assert response.status_code == 200
     deployments = response.json()
-    assert len(deployments) == len(AVAILABLE_MODEL_DEPLOYMENTS) - 1
+    available_deployments = [
+        deployment
+        for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
+        if deployment.is_available
+    ]
+    assert len(deployments) == len(available_deployments)
     assert deployments[0]["name"] == ModelDeploymentName.CoherePlatform
     assert deployments[0]["models"] == ["command", "command-r"]
 
