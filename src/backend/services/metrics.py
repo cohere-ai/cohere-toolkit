@@ -59,7 +59,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         data = MetricsData(
             method=self.get_method(scope),
             endpoint_name=self.get_endpoint_name(scope, request),
-            user_id=self.get_user_id(request),
+            user_id=user_id,
             user=self.get_user(request),
             success=self.get_success(response),
             trace_id=request.state.trace_id,
@@ -130,16 +130,16 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get user id: {e}")
             return None
 
-    def get_user(self, request: Request) -> Union[Dict[str, Any], None]:
+    def get_user(self, request: Request) -> Union[MetricsUser, None]:
         if not hasattr(request.state, "user") or not request.state.user:
             return None
 
         try:
-            return {
-                "id": request.state.user.id,
-                "fullname": request.state.user.fullname,
-                "email": request.state.user.email,
-            }
+            return MetricsUser(
+                id=request.state.user.id,
+                fullname=request.state.user.fullname,
+                email=request.state.user.email,
+            )
         except Exception as e:
             logging.warning(f"Failed to get user: {e}")
             return None
@@ -158,11 +158,10 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get object ids: {e}")
             return {}
 
-    def get_agent(self, request: Request) -> Union[Dict[str, Any], None]:
+    def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
         if not hasattr(request.state, "agent") or not request.state.agent:
             return None
-
-        return {
+        dict_agent = {
             "id": request.state.agent.id,
             "version": request.state.agent.version,
             "name": request.state.agent.name,
@@ -173,6 +172,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             "preamble": request.state.agent.preamble,
             "tools": request.state.agent.tools,
         }
+        return MetricsAgent(**dict_agent)
 
 
 async def report_metrics(signal: MetricsSignal) -> None:
