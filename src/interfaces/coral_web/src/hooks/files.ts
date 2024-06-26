@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { File as CohereFile, FILE_TOOL_CATEGORY, ListFile, useCohereClient } from '@/cohere-client';
+import { File as CohereFile, ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { useNotify } from '@/hooks/toast';
 import { useListTools } from '@/hooks/tools';

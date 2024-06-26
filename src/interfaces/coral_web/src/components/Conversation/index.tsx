@@ -66,6 +66,8 @@ const Conversation: React.FC<Props> = ({
   const { addRecentAgentId } = useRecentAgents();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
+  const { data: agent } = useAgent({ agentId });
+
   const {
     userMessage,
     isStreaming,
@@ -170,11 +172,11 @@ const Conversation: React.FC<Props> = ({
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
                 <Composer
                   isStreaming={isStreaming}
-                  canDisableDataSources={!agentId}
                   value={userMessage}
                   isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}
                   chatWindowRef={chatWindowRef}
+                  requiredTools={agent?.tools}
                   onChange={(message) => setUserMessage(message)}
                   onSend={handleSend}
                   onStop={handleStop}
