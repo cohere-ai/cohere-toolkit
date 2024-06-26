@@ -96,7 +96,7 @@ COPY src/interfaces/coral_web/package.json src/interfaces/coral_web/yarn.lock* s
 COPY src/interfaces/coral_web/.env.development .
 COPY src/interfaces/coral_web/.env.production .
 
-RUN pnpm install
+RUN npm install
 
 # Terrarium
 WORKDIR /usr/src/app
