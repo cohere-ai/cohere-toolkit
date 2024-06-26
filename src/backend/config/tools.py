@@ -35,7 +35,7 @@ class ToolName(StrEnum):
     Search_File = "search_file"
     Read_File = "read_document"
     Python_Interpreter = "toolkit_python_interpreter"
-    Calculator = "calculator"
+    Calculator = "toolkit_calculator"
     Tavily_Internet_Search = "web_search"
     Google_Drive = GOOGLE_DRIVE_TOOL_ID
 
