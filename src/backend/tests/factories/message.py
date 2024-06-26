@@ -13,7 +13,7 @@ class MessageFactory(BaseFactory):
     tool_plan = factory.Faker("text")
     user_id = factory.Faker("uuid4")
     generation_id = factory.Faker("uuid4")
-    conversation_id = factory.Faker("uuid4", default="1")
+    conversation_id = factory.Faker("uuid4")
     position = factory.Faker("random_int")
     is_active = factory.Faker("boolean")
     documents = []
