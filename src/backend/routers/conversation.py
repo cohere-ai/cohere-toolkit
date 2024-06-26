@@ -211,26 +211,34 @@ async def upload_file(
     # Handle uploading File
     file_path = FileService().upload_file(file)
 
-    # Read file content
-    content = get_file_content(file_path)
-
     # Raise exception if file wasn't uploaded
     if not file_path.exists():
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file {file.filename}."
         )
 
-    # Create File
-    upload_file = FileModel(
-        user_id=conversation.user_id,
-        conversation_id=conversation.id,
-        file_name=file_path.name,
-        file_path=str(file_path),
-        file_size=file_path.stat().st_size,
-        file_content=content,
-    )
+    try:
+        # Read file content
+        content = get_file_content(file_path)
 
-    upload_file = file_crud.create_file(session, upload_file)
+        # Create File
+        upload_file = FileModel(
+            user_id=conversation.user_id,
+            conversation_id=conversation.id,
+            file_name=file_path.name,
+            file_path=str(file_path),
+            file_size=file_path.stat().st_size,
+            file_content=content,
+        )
+
+        upload_file = file_crud.create_file(session, upload_file)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error while uploading file {file.filename}."
+        )
+    finally:
+        # Remove local file
+        FileService().delete_file(file_path)
 
     return upload_file
 

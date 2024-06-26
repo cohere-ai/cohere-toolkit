@@ -458,8 +458,8 @@ def test_upload_file_existing_conversation(
     assert file["conversation_id"] == conversation.id
     assert file["user_id"] == conversation.user_id
 
-    # Clean up - remove the file from the directory
-    os.remove(saved_file_path)
+    # File should not exist in the directory
+    assert not os.path.exists(saved_file_path)
 
 
 def test_upload_file_nonexistent_conversation_creates_new_conversation(
@@ -486,8 +486,8 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
     assert "Mariana_Trench" in file["file_name"]
     assert file["conversation_id"] == created_conversation.id
 
-    # Clean up - remove the file from the directory
-    os.remove(saved_file_path)
+    # File should not exist in the directory
+    assert not os.path.exists(saved_file_path)
 
 
 def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
