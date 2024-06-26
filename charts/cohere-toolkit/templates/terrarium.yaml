@@ -67,10 +67,6 @@ spec:
             - containerPort: 8080
               protocol: TCP
               name: http
-          envFrom:
-            - secretRef:
-                name: terrarium
-                optional: false
           {{- /* TODO: Add livenessProbe and readinessProbe */}}
           {{- with $values.sidecars }}
           {{- toYaml . | nindent 12 }}
