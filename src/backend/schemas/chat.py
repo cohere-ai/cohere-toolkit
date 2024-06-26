@@ -290,7 +290,6 @@ class ChatResponseEvent(BaseModel):
 
 
 class BaseChatRequest(BaseModel):
-
     # user_id: str = Field(
     #     title="A user id to store to store the conversation under.", exclude=True
     # )

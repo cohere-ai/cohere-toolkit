@@ -10,7 +10,6 @@ services:
     environment:
       - PGUSER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=toolkit
     ports:
       - '5432:5432'
     volumes: 
@@ -21,7 +20,6 @@ services:
     environment:
       - PGUSER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=test_toolkit
     ports:
       - '5433:5432'
   backend:
@@ -67,6 +65,8 @@ services:
     environment:
       NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
       NEXT_PUBLIC_FRONTEND_HOSTNAME: ${NEXT_PUBLIC_FRONTEND_HOSTNAME}
+      NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}
+      NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: ${NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY}
     restart: always
     ports:
       - 4000:4000
