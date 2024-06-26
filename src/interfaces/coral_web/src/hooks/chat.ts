@@ -73,8 +73,9 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { mutateAsync: streamChat } = chatMutation;
 
   const {
-    params: { temperature, tools, model, deployment, deploymentConfig, fileIds },
+    params: { temperature, tools, model, deployment, deploymentConfig, fileIds, preamble },
   } = useParamsStore();
+
   const {
     conversation: { id, messages },
     setConversation,
@@ -477,6 +478,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       tools: requestTools?.map((tool) => ({ name: tool.name })),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
+      preamble,
       model,
       ...restOverrides,
     };
