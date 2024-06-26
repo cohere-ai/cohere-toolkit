@@ -6,6 +6,11 @@ from backend.tests.factories.document import DocumentFactory
 from backend.tests.factories.file import FileFactory
 from backend.tests.factories.message import MessageFactory
 from backend.tests.factories.organization import OrganizationFactory
+from backend.tests.factories.snapshot import (
+    SnapshotAccessFactory,
+    SnapshotFactory,
+    SnapshotLinkFactory,
+)
 from backend.tests.factories.tool_call import ToolCallFactory
 from backend.tests.factories.user import UserFactory
 
@@ -20,6 +25,9 @@ FACTORY_MAPPING = {
     "Agent": AgentFactory,
     "Organization": OrganizationFactory,
     "ToolCall": ToolCallFactory,
+    "Snapshot": SnapshotFactory,
+    "SnapshotLink": SnapshotLinkFactory,
+    "SnapshotAccess": SnapshotAccessFactory,
 }
 
 
