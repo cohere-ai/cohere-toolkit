@@ -45,6 +45,18 @@ google_auth_oauthlib ="^1.2.0"
 google-auth-httplib2="^0.2.0"
 google-api-python-client="^2.133.0"
 
+[tool.poetry.group.compass]
+optional = false
+
+[tool.poetry.group.compass.dependencies]
+fsspec = "2024.2.0"
+joblib = "*"
+pydantic = ">=2.6.3"
+python = ">=3.9,<3.12"
+requests = ">=2.25.0,<3.0.0"
+tenacity = "8.2.3"
+tqdm = ">=4.42.1"
+
 [tool.poetry.group.dev]
 optional = true
 

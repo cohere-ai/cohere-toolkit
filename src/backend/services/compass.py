@@ -1,11 +1,18 @@
+import json
 import logging
 import os
 from enum import Enum
 from typing import Any, Dict, List
 
-from compass_sdk import MetadataConfig, ParserConfig
-from compass_sdk.compass import CompassClient
-from compass_sdk.parser import CompassParserClient
+from backend.compass_sdk import (
+    CompassDocument,
+    MetadataConfig,
+    ParserConfig,
+    ProcessFileParameters,
+)
+from backend.compass_sdk.compass import CompassClient
+from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
+from backend.compass_sdk.parser import CompassParserClient
 
 logger = logging.getLogger()
 
@@ -92,7 +99,7 @@ class Compass:
             raise Exception(
                 "Compass Tool: No index specified. ",
                 "No action will be taken. ",
-                f"Parameters specified: {parameters}"
+                f"Parameters specified: {parameters}",
             )
 
         # Index-related actions
@@ -106,7 +113,7 @@ class Compass:
             case self.ValidActions.CREATE:
                 self._create(parameters, **kwargs)
             case self.ValidActions.SEARCH:
-                self._search(parameters, **kwargs)
+                return self._search(parameters, **kwargs)
             case self.ValidActions.UPDATE:
                 self._update(parameters, **kwargs)
             case self.ValidActions.DELETE:
@@ -122,28 +129,26 @@ class Compass:
         """Insert the document into Compass"""
         compass_docs = self._process_file(parameters, **kwargs)
         if compass_docs is None:
-            # Parsing failed
-            return
+            raise Exception("Parsing failed")
 
         error = self.compass_client.insert_docs(
             index_name=parameters["index"],
             docs=compass_docs,
         )
         if error is not None:
-            logger.error(
-                "Compass Tool: Error inserting/updating document ",
-                f"into Compass: {error}"
-            )
+            message = ("Compass Tool: Error inserting/updating document ",)
+            f"into Compass: {error}"
+            logger.error(message)
+            raise Exception(message)
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
         """Run a search query on Compass and return the
         top_k results. By default, k=10."""
         if not parameters.get("query", None):
-            logger.error(
-                "Compass Tool: No search query specified. ",
-                "Returning empty list. " "Parameters specified: {parameters}",
-            )
-            return []
+            message = ("Compass Tool: No search query specified. ",)
+            ("Returning empty list. " "Parameters specified: {parameters}",)
+            logger.error(message)
+            raise Exception(message)
 
         return self.compass_client.search(
             index_name=parameters["index"],
@@ -181,10 +186,12 @@ class Compass:
                 f"Parameters specified: {parameters}"
             )
 
-        # Check if file_path is specified for file-related actions
-        if not parameters.get("file_path", None):
+        # Check if filename is specified for file-related actions
+        if not parameters.get("filename", None) and not parameters.get(
+            "file_text", None
+        ):
             logger.error(
-                "Compass Tool: No file_path specified for "
+                "Compass Tool: No filename or file_text specified for "
                 "create/update operation. "
                 "No action will be taken. "
                 f"Parameters specified: {parameters}"
@@ -192,25 +199,65 @@ class Compass:
             return None
 
         file_id = parameters["file_id"]
-        file_path = parameters["file_path"]
-        if not os.path.exists(file_path):
+        filename = parameters.get("filename", None)
+        file_text = parameters.get("file_text", None)
+
+        if filename and not os.path.exists(filename):
             logger.error(
-                f"Compass Tool: File {file_path} does not exist. "
+                f"Compass Tool: File {filename} does not exist. "
                 "No action will be taken."
                 f"Parameters specified: {parameters}"
             )
             return None
 
         parser_config = self.parser_config or parameters.get("parser_config", None)
-        metadata_config = metadata_config = (
-            self.metadata_config
-            or parameters.get("metadata_config", None)
+        metadata_config = metadata_config = self.metadata_config or parameters.get(
+            "metadata_config", None
         )
-        return self.parser_client.process_file(
-            file_path=file_path,
-            file_id=file_id,
-            parser_config=parser_config,
-            metadata_config=metadata_config,
-            custom_context=parameters.get("custom_context", None),
-            is_dataset=False,
+
+        if filename:
+            return self.parser_client.process_file(
+                filename=filename,
+                file_id=file_id,
+                parser_config=parser_config,
+                metadata_config=metadata_config,
+                is_dataset=False,
+                custom_context=parameters.get("custom_context", None),
+            )
+        else:
+            return self._raw_parsing(text=file_text, file_id=file_id)
+
+    def _raw_parsing(self, text: str, file_id: str):
+        text_bytes = str.encode(text)
+        if len(text_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
+            logger.error(
+                f"File too large, supported file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "
+                f"mb, file_id {file_id}"
+            )
+            return []
+
+        params = ProcessFileParameters(
+            parser_config=self.parser_config,
+            metadata_config=self.metadata_config,
+            doc_id=file_id,
         )
+        auth = (
+            (self.username, self.password) if self.username and self.password else None
+        )
+        res = self.parser_client.session.post(
+            url=f"{self.parser_client.parser_url}/v1/process_file",
+            data={"data": json.dumps(params.model_dump())},
+            files={"file": (file_id, text_bytes)},
+            auth=auth,
+        )
+
+        if res.ok:
+            docs = [CompassDocument(**doc) for doc in res.json()["docs"]]
+            for doc in docs:
+                additional_metadata = CompassParserClient._get_metadata(doc=doc)
+                doc.content = {**doc.content, **additional_metadata}
+        else:
+            docs = []
+            logger.error(f"Error processing file: {res.text}")
+
+        return docs

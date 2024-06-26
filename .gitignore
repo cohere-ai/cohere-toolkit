@@ -142,3 +142,4 @@ secrets.toml
 
 # Local file storage
 /src/backend/data
+/src/backend/compass_sdk

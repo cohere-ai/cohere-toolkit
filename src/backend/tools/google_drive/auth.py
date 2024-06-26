@@ -77,6 +77,7 @@ class GoogleDriveAuth(BaseAuth):
             return False
         tool_auth_crud.update_tool_auth(
             session,
+            tool_auth,
             ToolAuth(
                 user_id=user_id,
                 tool_id=GOOGLE_DRIVE_TOOL_ID,

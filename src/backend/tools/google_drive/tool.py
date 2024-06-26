@@ -5,6 +5,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 from backend.crud import tool_auth as tool_auth_crud
+from backend.services.compass import Compass
 from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
 from backend.tools.utils import async_download
@@ -79,6 +80,38 @@ class GoogleDrive(BaseTool):
         """
         Insert into Compass
         """
-        # todo
+        compass = Compass()
 
-        return [dict({"text": text}) for text in id_to_texts.values()]
+        # idempotent create index
+        compass.invoke(
+            action=Compass.ValidActions.CREATE_INDEX,
+            parameters={"index": GOOGLE_DRIVE_TOOL_ID},
+        )
+
+        # insert documents
+        for file_id in id_to_texts:
+            compass.invoke(
+                action=Compass.ValidActions.CREATE,
+                parameters={
+                    "index": GOOGLE_DRIVE_TOOL_ID,
+                    "file_id": file_id,
+                    "file_text": id_to_texts[file_id],
+                },
+            )
+
+        # fetch documents from index
+        hits = compass.invoke(
+            action=Compass.ValidActions.SEARCH,
+            parameters={
+                "index": GOOGLE_DRIVE_TOOL_ID,
+                "query": query,
+                "top_k": SEARCH_LIMIT,
+            },
+        ).result["hits"]
+        chunks = [
+            {"text": chunk["content"]["text"], "score": chunk["score"]}
+            for hit in hits
+            for chunk in hit["chunks"]
+        ]
+
+        return [dict({"text": chunk[0]}) for chunk in chunks]

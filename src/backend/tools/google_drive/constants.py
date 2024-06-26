@@ -1,6 +1,6 @@
 CSV_MIMETYPE = "text/csv"
 TEXT_MIMETYPE = "text/plain"
-SEARCH_LIMIT = 10
+SEARCH_LIMIT = 5
 SCOPES = [
     "https://www.googleapis.com/auth/drive.metadata.readonly",
     "https://www.googleapis.com/auth/drive.readonly",
