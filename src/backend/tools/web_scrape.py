@@ -14,8 +14,11 @@ class WebScrapeTool(BaseTool):
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         url = parameters.get("url")
 
-        page_content = get(url).text
-        soup = BeautifulSoup(page_content, "html.parser")
+        response = get(url)
+        if not response.ok:
+            return Exception(f"Cannot open and scrape URL {url}")
+
+        soup = BeautifulSoup(response.text, "html.parser")
         text = soup.get_text(separator="\n")
 
         return [
