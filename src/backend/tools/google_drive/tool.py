@@ -31,7 +31,7 @@ class GoogleDrive(BaseTool):
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         """
-        Fetch from Google Drive
+        Google Drive logic
         """
         query = parameters.get("query", "")
         conditions = [
@@ -78,7 +78,7 @@ class GoogleDrive(BaseTool):
         id_to_texts = async_download.perform(id_to_urls, creds.token)
 
         """
-        Insert into Compass
+        Compass logic
         """
         compass = Compass()
 
@@ -114,4 +114,4 @@ class GoogleDrive(BaseTool):
             for chunk in hit["chunks"]
         ]
 
-        return [dict({"text": chunk[0]}) for chunk in chunks]
+        return [dict({"text": chunk["text"]}) for chunk in chunks]

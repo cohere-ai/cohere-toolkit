@@ -9,6 +9,7 @@ from fastapi import Request
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
+from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.logger import get_logger
 from backend.tools.base import BaseAuth
 
@@ -78,13 +79,14 @@ class GoogleDriveAuth(BaseAuth):
         tool_auth_crud.update_tool_auth(
             session,
             tool_auth,
-            ToolAuth(
+            UpdateToolAuth(
                 user_id=user_id,
                 tool_id=GOOGLE_DRIVE_TOOL_ID,
                 token_type=res_body["token_type"],
                 encrypted_access_token=str.encode(
                     res_body["access_token"]
                 ),  # TODO: Better storage of token
+                encrypted_refresh_token=tool_auth.encrypted_refresh_token,
                 expires_at=datetime.datetime.now()
                 + datetime.timedelta(seconds=res_body["expires_in"]),
             ),
