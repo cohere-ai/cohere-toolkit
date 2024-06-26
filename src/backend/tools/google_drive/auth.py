@@ -30,7 +30,7 @@ class GoogleDriveAuth(BaseAuth):
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
             "scope": " ".join(
                 [
-                    "https://www.googleapis.com/auth/drive",
+                    "https://www.googleapis.com/auth/drive.readonly",
                     "https://www.googleapis.com/auth/drive.activity.readonly",
                 ]
             ),
