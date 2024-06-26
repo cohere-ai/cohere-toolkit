@@ -143,7 +143,6 @@ class CompassParserClient:
         """
 
         def process_file(i: int) -> List[CompassDocument]:
-
             return self.process_file(
                 filename=filenames[i],
                 file_id=file_ids[i] if file_ids else None,
@@ -306,7 +305,6 @@ class CompassParserClient:
         metadata_config: Optional[MetadataConfig] = None,
         are_datasets: Optional[bool] = None,
     ) -> List[CompassDocument]:
-
         parser_config = parser_config or self.parser_config
         metadata_config = metadata_config or self.metadata_config
 

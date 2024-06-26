@@ -8,7 +8,7 @@ from backend.crud import tool_auth as tool_auth_crud
 from backend.services.compass import Compass
 from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
-from backend.tools.utils import async_download
+from backend.tools.utils import async_download, parallel_get_files
 
 from .constants import DOC_FIELDS, GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT, SEARCH_MIME_TYPES
 from .utils import extract_links
@@ -44,36 +44,46 @@ class GoogleDrive(BaseTool):
             + " or ".join([f"fullText contains '{word}'" for word in [query]])
             + ")",
         ]
-
-        # Condition on folder if exists
-        if gdrive_folder_id := parameters.get("folder_id", None):
-            conditions.append(f"'{gdrive_folder_id}' in parents ")
-
-        q = " and ".join(conditions)
-        fields = f"nextPageToken, files({DOC_FIELDS})"
         auth = tool_auth_crud.get_tool_auth(
             kwargs.get("session"), GOOGLE_DRIVE_TOOL_ID, kwargs.get("user_id")
         )
         creds = Credentials(auth.encrypted_access_token.decode())
 
-        search_results = []
-        try:
-            service = build("drive", "v3", credentials=creds)
-            search_results = (
-                service.files()
-                .list(pageSize=SEARCH_LIMIT, q=q, fields=fields)
-                .execute()
+        files = []
+        # Condition on files if exist
+        if file_ids := parameters.get("file_ids", None):
+            files = parallel_get_files.perform(
+                file_ids=file_ids, access_token=creds.token
             )
-        except Exception as e:
-            logger.error(str(e))
-            raise e
+        else:
+            # Condition on folders if exist
+            # parameters["folder_ids"] = ["1sftqQpEe9MkdqdskyA3UV7FJ9E8UvXBb"]
+            if folder_ids := parameters.get("folder_ids", None):
+                [
+                    conditions.append("'{}' in parents ".format(folder_id))
+                    for folder_id in folder_ids
+                ]
 
-        results = []
-        files = search_results.get("files", [])
-        if not files:
-            logger.debug("No files found.")
-            return results
+            q = " and ".join(conditions)
+            fields = f"nextPageToken, files({DOC_FIELDS})"
 
+            search_results = []
+            try:
+                service = build("drive", "v3", credentials=creds)
+                search_results = (
+                    service.files()
+                    .list(pageSize=SEARCH_LIMIT, q=q, fields=fields)
+                    .execute()
+                )
+            except Exception as e:
+                logger.error(str(e))
+                raise e
+
+            files = search_results.get("files", [])
+            if not files:
+                logger.debug("No files found.")
+
+        # extract links and download file contents
         id_to_urls = extract_links(files)
         id_to_texts = async_download.perform(id_to_urls, creds.token)
 

@@ -2,6 +2,7 @@ import useDrivePicker from 'react-google-drive-picker';
 
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
+import { env } from '@/env.mjs';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -15,9 +16,8 @@ export const GoogleDriveFilePicker: React.FC = () => {
 
   const handleOpenPicker = () => {
     openPicker({
-      clientId: 'client-id', // FIX:(@knajjars) move to env vars
-      developerKey: 'developer-key', // FIX:(@knajjars) move to env vars
-      viewId: 'DOCS',
+      clientId: env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID,
+      developerKey: env.NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY,
       setIncludeFolders: true,
       setSelectFolderEnabled: true,
       showUploadView: false,
