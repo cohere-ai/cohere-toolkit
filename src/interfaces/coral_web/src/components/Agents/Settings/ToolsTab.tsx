@@ -94,16 +94,19 @@ export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className
                 const disabled = !!requiredTools;
 
                 return (
-                  <ToggleCard
-                    key={name}
-                    disabled={disabled}
-                    errorMessage={error_message}
-                    checked={checked}
-                    label={display_name ?? name}
-                    icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
-                    description={description ?? ''}
-                    onToggle={(checked) => handleToggle(name, checked)}
-                  />
+                  <>
+                    <ToggleCard
+                      key={name}
+                      disabled={disabled}
+                      errorMessage={error_message}
+                      checked={checked}
+                      label={display_name ?? name}
+                      name={name}
+                      icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
+                      description={description ?? ''}
+                      onToggle={(checked) => handleToggle(name, checked)}
+                    />
+                  </>
                 );
               })}
             </div>
