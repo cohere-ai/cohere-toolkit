@@ -53,7 +53,9 @@ class Compass:
             )
 
         self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
-        self.compass_parser_url = compass_parser_url or os.getenv("COHERE_COMPASS_PARSER_URL")
+        self.compass_parser_url = compass_parser_url or os.getenv(
+            "COHERE_COMPASS_PARSER_URL"
+        )
         self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
         self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
         self.parser_config = parser_config
