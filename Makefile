@@ -39,5 +39,3 @@ win-first-run:
 	make win-setup
 	make migrate
 	make dev
-backend-logs:
-	@docker compose logs -f backend

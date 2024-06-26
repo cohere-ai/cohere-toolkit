@@ -10,9 +10,11 @@ repos:
     hooks:
     -   id: isort
         args: [--profile=black, --line-width=88, --force-grid-wrap=0, --use-parentheses, --float-to-top]
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.10
+-   repo: https://github.com/psf/black
+    rev: 22.10.0
     hooks:
-      - id: ruff
-        args: [ --fix ]
-      - id: ruff-format
+    -   id: black
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.94
+    hooks:
+    -   id: ruff
