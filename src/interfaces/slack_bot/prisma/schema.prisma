@@ -1,0 +1,66 @@
+// Prisma schema file
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model OAuthInstallation {
+  id Int @id @default(autoincrement())
+
+  // Either teamId or enterpriseId will be set, but not both
+  // https://slack.dev/bolt-js/concepts#authenticating-oauth
+  teamId       String? @unique
+  enterpriseId String? @unique
+
+  installation Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+  @@index([enterpriseId])
+}
+
+model WorkspaceSettings {
+  id Int @id @default(autoincrement())
+
+  // Either teamId or enterpriseId will be set, but not both
+  // https://slack.dev/bolt-js/concepts#authenticating-oauth
+  teamId           String?           @unique
+  enterpriseId     String?           @unique
+  channelSettings  ChannelSettings[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+  @@index([enterpriseId])
+}
+
+model ChannelSettings {
+  id Int @id @default(autoincrement())
+
+  // Channel IDs are unique within a workspace, but not across workspaces.
+  // Therefore we need to use the combination of channelId and
+  // workplaceId to uniquely identify a channel.
+  channelId   String
+  workspace   WorkspaceSettings @relation(fields: [workspaceId], references: [id])
+  workspaceId Int
+
+  modelName   String?
+  temperature Float?
+  preamble    String?
+  tools  String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([channelId, workspaceId], name: "channelSettingsId")
+  @@index([channelId, workspaceId])
+}
