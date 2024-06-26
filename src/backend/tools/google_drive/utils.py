@@ -1,7 +1,9 @@
+from typing import Dict, List
+
 from .constants import CSV_MIMETYPE, TEXT_MIMETYPE
 
 
-def extract_links(files):
+def extract_links(files: List[Dict[str, str]]) -> Dict[str, str]:
     id_to_urls = dict()
     for _file in files:
         export_links = _file.pop("exportLinks", {})

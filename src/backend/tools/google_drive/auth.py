@@ -13,7 +13,7 @@ from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.logger import get_logger
 from backend.tools.base import BaseAuth
 
-from .constants import GOOGLE_DRIVE_TOOL_ID
+from .constants import GOOGLE_DRIVE_TOOL_ID, SCOPES
 
 logger = get_logger()
 
@@ -29,12 +29,7 @@ class GoogleDriveAuth(BaseAuth):
         params = {
             "response_type": "code",
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
-            "scope": " ".join(
-                [
-                    "https://www.googleapis.com/auth/drive.readonly",
-                    "https://www.googleapis.com/auth/drive.activity.readonly",
-                ]
-            ),
+            "scope": " ".join(SCOPES),
             "redirect_uri": redirect_url,
             "prompt": "select_account consent",
             "state": json.dumps(state),

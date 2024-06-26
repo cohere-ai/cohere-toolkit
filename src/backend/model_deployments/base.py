@@ -4,7 +4,6 @@ from typing import Any, Dict, Generator, List
 from cohere.types import StreamedChatResponse
 
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData
 
 
 class BaseDeployment:
@@ -19,23 +18,29 @@ class BaseDeployment:
 
     @property
     @abstractmethod
-    def rerank_enabled(self) -> bool: ...
+    def rerank_enabled(self) -> bool:
+        ...
 
     @staticmethod
-    def list_models() -> List[str]: ...
+    def list_models() -> List[str]:
+        ...
 
     @staticmethod
-    def is_available() -> bool: ...
+    def is_available() -> bool:
+        ...
 
     @abstractmethod
-    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any: ...
+    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        ...
 
     @abstractmethod
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> Generator[StreamedChatResponse, None, None]: ...
+    ) -> Generator[StreamedChatResponse, None, None]:
+        ...
 
     @abstractmethod
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
-    ) -> Any: ...
+    ) -> Any:
+        ...

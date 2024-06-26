@@ -8,6 +8,5 @@ class BaseChat:
     """Base for all chat options."""
 
     @abstractmethod
-    def chat(
-        self, chat_request: Union[CohereChatRequest, None], **kwargs: Any
-    ) -> Any: ...
+    def chat(self, chat_request: Union[CohereChatRequest, None], **kwargs: Any) -> Any:
+        ...
