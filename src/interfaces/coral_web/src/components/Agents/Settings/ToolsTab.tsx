@@ -96,6 +96,7 @@ export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className
                 return (
                   <ToggleCard
                     key={name}
+                    name={name}
                     disabled={disabled}
                     errorMessage={error_message}
                     checked={checked}
