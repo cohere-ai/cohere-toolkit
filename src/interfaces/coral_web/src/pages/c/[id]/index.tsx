@@ -1,23 +1,31 @@
+import { Transition } from '@headlessui/react';
 import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 
 import { CohereClient, Document } from '@/cohere-client';
+import { AgentsList } from '@/components/Agents/AgentsList';
+import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
-import { Layout, LayoutSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
+import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
-import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { getQueryString } from '@/utils';
+import { cn, getQueryString } from '@/utils';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
@@ -37,6 +45,11 @@ const ConversationPage: NextPage<Props> = () => {
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
+  const {
+    settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
+  } = useSettingsStore();
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
 
   const urlConversationId = getQueryString(router.query.id);
 
@@ -117,21 +130,52 @@ const ConversationPage: NextPage<Props> = () => {
 
   return (
     <Layout>
-      <LayoutSection.LeftDrawer>
-        <ConversationListPanel />
-      </LayoutSection.LeftDrawer>
+      <LeftSection>
+        <AgentsList />
+      </LeftSection>
 
-      <LayoutSection.Main>
-        {isLoading ? (
-          <div className="flex h-full flex-grow flex-col items-center justify-center">
-            <Spinner />
-          </div>
-        ) : isError ? (
-          <ConversationError error={error} />
-        ) : (
-          <Conversation conversationId={urlConversationId} />
-        )}
-      </LayoutSection.Main>
+      <MainSection>
+        <div className="flex h-full">
+          <Transition
+            as="section"
+            show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
+            enterFrom="translate-x-full lg:translate-x-0 lg:w-0"
+            enterTo="translate-x-0 lg:w-[300px]"
+            leaveFrom="translate-x-0 lg:w-[300px]"
+            leaveTo="translate-x-full lg:translate-x-0 lg:w-0"
+            className={cn(
+              'z-main-section flex lg:min-w-0',
+              'absolute h-full w-full lg:static lg:h-auto',
+              'border-0 border-marble-400 md:border-r',
+              'transition-[transform, width] duration-500 ease-in-out'
+            )}
+          >
+            <ConversationListPanel />
+          </Transition>
+          <Transition
+            as="main"
+            show={isDesktop || !isMobileConvListPanelOpen}
+            enterFrom="-translate-x-full"
+            enterTo="translate-x-0"
+            leaveFrom="translate-x-0"
+            leaveTo="-translate-x-full"
+            className={cn(
+              'flex min-w-0 flex-grow flex-col',
+              'transition-transform duration-500 ease-in-out'
+            )}
+          >
+            {isLoading ? (
+              <div className="flex h-full flex-grow flex-col items-center justify-center">
+                <Spinner />
+              </div>
+            ) : isError ? (
+              <ConversationError error={error} />
+            ) : (
+              <Conversation conversationId={urlConversationId} />
+            )}
+          </Transition>
+        </div>
+      </MainSection>
     </Layout>
   );
 };
