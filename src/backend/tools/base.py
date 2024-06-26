@@ -13,12 +13,10 @@ class BaseTool:
 
     @classmethod
     @abstractmethod
-    def is_available(cls) -> bool:
-        ...
+    def is_available(cls) -> bool: ...
 
     @abstractmethod
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        ...
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
 
 
 class BaseAuth:
@@ -28,15 +26,12 @@ class BaseAuth:
 
     @classmethod
     @abstractmethod
-    def get_auth_url(user_id: str) -> str:
-        ...
+    def get_auth_url(user_id: str) -> str: ...
 
     @classmethod
     @abstractmethod
-    def is_auth_required(session: DBSessionDep, user_id: str) -> bool:
-        ...
+    def is_auth_required(session: DBSessionDep, user_id: str) -> bool: ...
 
     @classmethod
     @abstractmethod
-    def process_auth_token(request: Request, session: DBSessionDep) -> str:
-        ...
+    def process_auth_token(request: Request, session: DBSessionDep) -> str: ...
