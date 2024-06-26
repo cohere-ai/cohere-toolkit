@@ -14,6 +14,7 @@ repos:
     rev: 22.10.0
     hooks:
     -   id: black
+        args: ["--target-version", "py311"]
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.4.10
     hooks:

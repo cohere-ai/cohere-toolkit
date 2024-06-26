@@ -31,7 +31,8 @@ class Compass:
 
     def __init__(
         self,
-        compass_url=None,
+        compass_api_url=None,
+        compass_parser_url=None,
         compass_username=None,
         compass_password=None,
         metadata_config=MetadataConfig(),
@@ -40,7 +41,8 @@ class Compass:
         """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
         vars = [
-            "COHERE_COMPASS_URL",
+            "COHERE_COMPASS_API_URL",
+            "COHERE_COMPASS_PARSER_URL",
             "COHERE_COMPASS_USERNAME",
             "COHERE_COMPASS_PASSWORD",
         ]
@@ -50,7 +52,8 @@ class Compass:
                 "Environment variables missing.",
             )
 
-        self.url = compass_url or os.getenv("COHERE_COMPASS_URL")
+        self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
+        self.compass_parser_url = compass_parser_url or os.getenv("COHERE_COMPASS_PARSER_URL")
         self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
         self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
         self.parser_config = parser_config
@@ -59,14 +62,14 @@ class Compass:
             # Try initializing Compass Parser and Client and call list_indexes
             # to check if the credentials are correct.
             self.parser_client = CompassParserClient(
-                parser_url=self.url + "/parse",
+                parser_url=self.compass_parser_url,
                 username=self.username,
                 password=self.password,
                 parser_config=self.parser_config,
                 metadata_config=self.metadata_config,
             )
             self.compass_client = CompassClient(
-                index_url=self.url,
+                index_url=self.compass_api_url,
                 username=self.username,
                 password=self.password,
             )
