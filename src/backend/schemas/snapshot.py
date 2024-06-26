@@ -1,9 +1,7 @@
 import datetime
-from typing import List, Optional
+from typing import Union
 
 from pydantic import BaseModel
-
-from backend.schemas.message import Message
 
 
 class SnapshotBase(BaseModel):
@@ -18,9 +16,7 @@ class Snapshot(SnapshotBase):
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    messages: List[Message]
-    description: Optional[str]
-    title: str
+    snapshot: Union[dict, None]
 
     class Config:
         from_attributes = True
@@ -28,6 +24,7 @@ class Snapshot(SnapshotBase):
 
 class SnapshotLink(BaseModel):
     snapshot_id: str
+    user_id: str
 
     class Config:
         from_attributes = True

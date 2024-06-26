@@ -1,7 +1,6 @@
 import factory
 
 from backend.database_models import Snapshot, SnapshotAccess, SnapshotLink
-from backend.tests.factories import MessageFactory
 
 from .base import BaseFactory
 
@@ -16,20 +15,9 @@ class SnapshotFactory(BaseFactory):
     conversation_id = factory.Faker("uuid4")
     last_message_id = factory.Faker("uuid4")
     version = factory.Faker("random_int")
-    title = factory.Faker("sentence")
-    description = factory.Faker("sentence")
     created_at = factory.Faker("date_time")
     updated_at = factory.Faker("date_time")
-
-    @factory.post_generation
-    def text_messages(self, create, extracted, **kwargs):
-        if not create:
-            return
-
-        if extracted:
-            self.text_messages.extend(extracted)
-        else:
-            self.text_messages = []
+    snapshot = factory.Faker("dict")
 
 
 # SnapshotLink
@@ -38,6 +26,7 @@ class SnapshotLinkFactory(BaseFactory):
         model = SnapshotLink
 
     snapshot_id = factory.Faker("uuid4")
+    user_id = factory.Faker("uuid4")
 
 
 # SnapshotAccess
