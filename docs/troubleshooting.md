@@ -45,6 +45,19 @@ brew install postgresql
 
 For other operating systems, you can check the [postgres documentation](https://www.postgresql.org/download/).
 
+## Error: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+
+Add `platform: linux/amd64` to docker_compose.yml for example: 
+
+```
+  terrarium:
+    platform: linux/amd64
+    image: ghcr.io/cohere-ai/terrarium:latest
+    ports:
+      - '8080:8080'
+    expose:
+      - '8080'
+```
 
 ##  Debugging locally
 

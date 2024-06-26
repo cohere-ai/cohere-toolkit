@@ -78,14 +78,6 @@ class MockBedrockDeployment(BaseDeployment):
         for event in events:
             yield event
 
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any
-    ) -> list[str]:
-        pass
-
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:

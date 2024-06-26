@@ -10,21 +10,20 @@ import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
+import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
-import { useDefaultFileLoaderTool, useFileActions, useFilesInConversation } from '@/hooks/files';
+import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useRouteChange } from '@/hooks/route';
 import {
   useAgentsStore,
   useCitationsStore,
   useConversationStore,
-  useFilesStore,
   useParamsStore,
   useSettingsStore,
 } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
-import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -52,24 +51,20 @@ const Conversation: React.FC<Props> = ({
   } = useSettingsStore();
   const {
     conversation: { messages },
+    resetConversation,
   } = useConversationStore();
   const {
     citations: { selectedCitation },
     selectCitation,
   } = useCitationsStore();
-  const { files } = useFilesInConversation();
   const {
     params: { fileIds },
   } = useParamsStore();
   const {
-    settings: { isEditAgentPanelOpen },
-  } = useSettingsStore();
-  const {
-    files: { composerFiles },
-  } = useFilesStore();
+    agents: { isEditAgentPanelOpen },
+  } = useAgentsStore();
+  const { addRecentAgentId } = useRecentAgents();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
-
-  const { addRecentAgentId } = useAgentsStore();
 
   const {
     userMessage,
@@ -125,7 +120,11 @@ const Conversation: React.FC<Props> = ({
     };
   }, [handleClickOutside]);
 
-  const [isRouteChanging] = useRouteChange();
+  const [isRouteChanging] = useRouteChange({
+    onRouteChangeStart: () => {
+      resetConversation();
+    },
+  });
 
   if (isRouteChanging) {
     return (
@@ -165,11 +164,13 @@ const Conversation: React.FC<Props> = ({
             onRetry={handleRetry}
             messages={messages}
             streamingMessage={streamingMessage}
+            agentId={agentId}
             composer={
               <>
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
                 <Composer
                   isStreaming={isStreaming}
+                  canDisableDataSources={!agentId}
                   value={userMessage}
                   isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}
@@ -186,13 +187,13 @@ const Conversation: React.FC<Props> = ({
       </div>
 
       <Transition
-        show={isEditAgentPanelOpen}
+        show={!!isEditAgentPanelOpen}
         as="div"
         className="z-configuration-drawer h-auto border-l border-marble-400"
         enter="transition-all ease-in-out duration-300"
         enterFrom="w-0"
         enterTo="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
-        leave="transition-all ease-in-out duration-300"
+        leave="transition-all ease-in-out duration-0 md:duration-300"
         leaveFrom="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
         leaveTo="w-0"
       >

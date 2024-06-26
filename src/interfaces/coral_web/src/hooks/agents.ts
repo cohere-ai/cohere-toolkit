@@ -1,9 +1,10 @@
+import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isNil } from 'lodash';
 import { useMemo } from 'react';
 
 import { Agent, CreateAgent, useCohereClient } from '@/cohere-client';
-import { useAgentsStore } from '@/stores';
+import { LOCAL_STORAGE_KEYS } from '@/constants';
 
 export const useListAgents = () => {
   const cohereClient = useCohereClient();
@@ -85,20 +86,30 @@ export const useUpdateAgent = () => {
 /**
  * @description Returns the most recently used agents.
  */
+
 export const useRecentAgents = () => {
   const { data: agents } = useListAgents();
 
-  const {
-    agents: { recentAgentsIds },
-  } = useAgentsStore();
+  const { set, value: recentAgentsIds } = useLocalStorageValue(LOCAL_STORAGE_KEYS.recentAgents, {
+    defaultValue: [] as string[],
+  });
 
-  const recentAgents = useMemo(
-    () =>
-      recentAgentsIds
-        .map((id) => agents?.find((agent) => agent.id === id))
-        .filter((agent) => !isNil(agent)) as Agent[],
-    [agents, recentAgentsIds]
-  );
+  const addRecentAgentId = (agentId: string) => {
+    if (!recentAgentsIds) return;
+    set([...recentAgentsIds.filter((id) => id !== agentId), agentId]);
+  };
 
-  return recentAgents;
+  const removeRecentAgentId = (agentId: string) => {
+    if (!recentAgentsIds) return;
+    set(recentAgentsIds.filter((id) => id !== agentId));
+  };
+
+  const recentAgents = useMemo(() => {
+    if (!recentAgentsIds) return [];
+    return recentAgentsIds
+      .map((id) => agents?.find((agent) => agent.id === id))
+      .filter((agent) => !isNil(agent)) as Agent[];
+  }, [agents, recentAgentsIds]);
+
+  return { recentAgents, addRecentAgentId, removeRecentAgentId };
 };

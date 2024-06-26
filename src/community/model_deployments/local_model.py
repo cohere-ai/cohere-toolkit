@@ -86,14 +86,6 @@ class LocalModelDeployment(BaseDeployment):
 
         return model
 
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> List[str]:
-        return [message]
-
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:

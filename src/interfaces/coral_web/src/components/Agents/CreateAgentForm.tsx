@@ -5,9 +5,8 @@ import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Age
 import { Button, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
-import { useCreateAgent, useIsAgentNameUnique } from '@/hooks/agents';
+import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
-import { useAgentsStore, useParamsStore } from '@/stores';
 
 /**
  * @description Form to create a new agent.
@@ -17,16 +16,13 @@ export const CreateAgentForm: React.FC = () => {
   const { open, close } = useContext(ModalContext);
   const { error } = useNotify();
   const { mutateAsync: createAgent } = useCreateAgent();
-  const {
-    params: { preamble },
-  } = useParamsStore();
-  const { addRecentAgentId } = useAgentsStore();
+  const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentFormFields>({
     name: '',
     description: '',
-    preamble,
+    preamble: '',
     deployment: DEPLOYMENT_COHERE_PLATFORM,
     model: DEFAULT_AGENT_MODEL,
     tools: [],
@@ -80,14 +76,14 @@ export const CreateAgentForm: React.FC = () => {
       setFields({
         name: '',
         description: '',
-        preamble,
+        preamble: '',
         deployment: '',
         model: '',
         tools: [],
       });
       close();
       setIsSubmitting(false);
-      router.push(`/agents?assistantId=${agent.id}`, undefined, { shallow: true });
+      router.push(`/agents/${agent.id}`, undefined, { shallow: true });
     } catch (e) {
       setIsSubmitting(false);
       close();
@@ -97,21 +93,23 @@ export const CreateAgentForm: React.FC = () => {
   };
 
   return (
-    <div className="relative h-full w-full">
-      <div className="flex h-full max-w-[650px] flex-col gap-y-2 overflow-scroll p-10 pb-32">
-        <Text styleAs="h4">Create an Assistant</Text>
-        <Text className="text-volcanic-700">
-          Create an unique assistant and share with your org
-        </Text>
-        <AgentForm
-          fields={fields}
-          onChange={handleChange}
-          onToolToggle={handleToolToggle}
-          errors={fieldErrors}
-          className="mt-6"
-        />
+    <div className="relative flex h-full w-full flex-col">
+      <div className="flex-grow overflow-y-scroll">
+        <div className="flex max-w-[650px] flex-col gap-y-2 p-10">
+          <Text styleAs="h4">Create an Assistant</Text>
+          <Text className="text-volcanic-700">
+            Create an unique assistant and share with your org
+          </Text>
+          <AgentForm
+            fields={fields}
+            onChange={handleChange}
+            onToolToggle={handleToolToggle}
+            errors={fieldErrors}
+            className="mt-6"
+          />
+        </div>
       </div>
-      <div className="absolute bottom-0 right-0 flex w-full justify-end border-t border-marble-400 bg-white px-4 py-8">
+      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-400 bg-white px-4 py-8">
         <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
           Create
         </Button>

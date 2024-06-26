@@ -1,3 +1,5 @@
+import asyncio
+import os
 from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
@@ -5,8 +7,9 @@ from alembic.config import Config
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config.auth import is_authentication_enabled
+from backend.config.auth import get_auth_strategy_endpoints, is_authentication_enabled
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -17,22 +20,16 @@ from backend.routers.experimental_features import router as experimental_feature
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.logger import LoggingMiddleware
+from backend.services.metrics import MetricsMiddleware
 
 load_dotenv()
 
 # CORS Origins
 ORIGINS = ["*"]
-# Session expiration time in seconds, set to None to last only browser session
-SESSION_EXPIRY = 60 * 60 * 24 * 7  # A week
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    yield
 
 
 def create_app():
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI()
 
     routers = [
         auth_router,
@@ -49,6 +46,10 @@ def create_app():
     # These values must be set in config/routers.py
     dependencies_type = "default"
     if is_authentication_enabled():
+        # Required to save temporary OAuth state in session
+        app.add_middleware(
+            SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")
+        )
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():
@@ -67,11 +68,21 @@ def create_app():
         allow_headers=["*"],
     )
     app.add_middleware(LoggingMiddleware)
+    app.add_middleware(MetricsMiddleware)
 
     return app
 
 
 app = create_app()
+
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    Retrieves all the Auth provider endpoints if authentication is enabled.
+    """
+    if is_authentication_enabled():
+        await get_auth_strategy_endpoints()
 
 
 @app.get("/health")

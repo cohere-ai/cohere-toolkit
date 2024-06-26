@@ -45,6 +45,12 @@ async def chat_stream(
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
+
+    user_id = request.headers.get("User-Id", None)
+
     (
         session,
         chat_request,
@@ -56,6 +62,7 @@ async def chat_stream(
         should_store,
         managed_tools,
         deployment_config,
+        next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
     return EventSourceResponse(
@@ -71,11 +78,14 @@ async def chat_stream(
                 session=session,
                 conversation_id=conversation_id,
                 user_id=user_id,
+                trace_id=trace_id,
+                agent_id=agent_id,
             ),
             response_message,
             conversation_id,
             user_id,
             should_store=should_store,
+            next_message_position=next_message_position,
         ),
         media_type="text/event-stream",
     )
@@ -100,6 +110,11 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
+    trace_id = None
+    if hasattr(request.state, "trace_id"):
+        trace_id = request.state.trace_id
+
+    user_id = request.headers.get("User-Id", None)
 
     (
         session,
@@ -112,6 +127,7 @@ async def chat(
         should_store,
         managed_tools,
         deployment_config,
+        next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
     return generate_chat_response(
@@ -123,11 +139,15 @@ async def chat(
             deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
+            trace_id=trace_id,
+            user_id=user_id,
+            agent_id=agent_id,
         ),
         response_message,
         conversation_id,
         user_id,
         should_store=should_store,
+        next_message_position=next_message_position,
     )
 
 
@@ -150,6 +170,7 @@ def langchain_chat_stream(
         _,
         should_store,
         managed_tools,
+        _,
         _,
     ) = process_chat(session, chat_request, request)
 
