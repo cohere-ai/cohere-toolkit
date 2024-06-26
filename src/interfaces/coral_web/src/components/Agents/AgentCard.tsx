@@ -35,7 +35,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { resetFileParams } = useParamsStore();
 
   const handleNewChat = () => {
-    const url = id ? `/agents/${id}` : '/agents';
+    const url = isBaseAgent ? '/' : id ? `/a/${id}` : '/a';
     router.push(url, undefined, { shallow: true });
     setEditAgentPanelOpen(false);
     resetConversation();

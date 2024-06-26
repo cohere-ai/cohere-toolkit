@@ -33,11 +33,7 @@ export const ConversationListHeader: React.FC<Props> = ({
   const router = useRouter();
   const { agentId } = useSlugRoutes();
 
-  const newChatUrl = agentId
-    ? `/agents/${agentId}`
-    : router.asPath.includes('/agents')
-    ? '/agents'
-    : '/';
+  const newChatUrl = agentId ? `/a/${agentId}` : router.asPath.includes('/a') ? '/a' : '/';
 
   return (
     <header
