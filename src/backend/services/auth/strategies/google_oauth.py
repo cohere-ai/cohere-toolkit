@@ -25,7 +25,7 @@ class GoogleOAuth(BaseOAuthStrategy):
     def __init__(self):
         try:
             self.settings = GoogleOAuthSettings()
-            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/google"
+            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/{self.NAME.lower()}"
             self.client = OAuth2Session(
                 client_id=self.settings.google_client_id,
                 client_secret=self.settings.google_client_secret,
@@ -41,6 +41,11 @@ class GoogleOAuth(BaseOAuthStrategy):
         if hasattr(self, "AUTHORIZATION_ENDPOINT"):
             return self.AUTHORIZATION_ENDPOINT
         return None
+
+    def get_pkce_enabled(self):
+        if hasattr(self, "PKCE_ENABLED"):
+            return self.PKCE_ENABLED
+        return False
 
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)

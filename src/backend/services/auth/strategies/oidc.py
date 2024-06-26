@@ -21,12 +21,12 @@ class OpenIDConnect(BaseOAuthStrategy):
     """
 
     NAME = "OIDC"
+    PKCE_ENABLED = False
 
     def __init__(self):
         try:
             self.settings = OIDCSettings()
-            # TODO: switch out to proper oidc strategy name
-            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/oidc"
+            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/{self.NAME.lower()}"
             self.WELL_KNOWN_ENDPOINT = self.settings.oidc_well_known_endpoint
             self.client = OAuth2Session(
                 client_id=self.settings.oidc_client_id,
@@ -43,6 +43,11 @@ class OpenIDConnect(BaseOAuthStrategy):
         if hasattr(self, "AUTHORIZATION_ENDPOINT"):
             return self.AUTHORIZATION_ENDPOINT
         return None
+
+    def get_pkce_enabled(self):
+        if hasattr(self, "PKCE_ENABLED"):
+            return self.PKCE_ENABLED
+        return False
 
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)
