@@ -2,11 +2,7 @@ import { Transition } from '@headlessui/react';
 import React, { useMemo } from 'react';
 
 import ButtonGroup from '@/components/ButtonGroup';
-import {
-  TOOL_CALCULATOR_ID,
-  TOOL_INTERNET_SEARCH_ID,
-  TOOL_PYTHON_INTERPRETER_ID,
-} from '@/constants';
+import { TOOL_CALCULATOR_ID, TOOL_PYTHON_INTERPRETER_ID, TOOL_WEB_SEARCH_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -26,7 +22,7 @@ const SUGGESTED_PROMPTS: Prompt[] = [
       tools: [
         { name: TOOL_PYTHON_INTERPRETER_ID },
         { name: TOOL_CALCULATOR_ID },
-        { name: TOOL_INTERNET_SEARCH_ID },
+        { name: TOOL_WEB_SEARCH_ID },
       ],
     },
     message:

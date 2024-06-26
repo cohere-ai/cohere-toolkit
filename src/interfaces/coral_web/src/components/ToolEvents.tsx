@@ -1,19 +1,20 @@
 import { Transition } from '@headlessui/react';
 import { Fragment, PropsWithChildren } from 'react';
 
-import { StreamToolInput, ToolInputType } from '@/cohere-client';
+import { StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
 import { Icon, IconName, Markdown, Text } from '@/components/Shared';
 import {
+  TOOL_CALCULATOR_ID,
   TOOL_FALLBACK_ICON,
   TOOL_ID_TO_DISPLAY_INFO,
-  TOOL_INTERNET_SEARCH_ID,
   TOOL_PYTHON_INTERPRETER_ID,
+  TOOL_WEB_SEARCH_ID,
 } from '@/constants';
 import { cn } from '@/utils';
 
 type Props = {
   show: boolean;
-  events: StreamToolInput[] | undefined;
+  events: StreamToolCallsGeneration[] | undefined;
 };
 
 /**
@@ -34,7 +35,9 @@ export const ToolEvents: React.FC<Props> = ({ show, events }) => {
       {events?.map((toolEvent, i) => (
         <Fragment key={i}>
           {toolEvent.text && <ToolEvent plan={toolEvent.text} />}
-          <ToolEvent event={toolEvent} />
+          {toolEvent.tool_calls?.map((toolCall, j) => (
+            <ToolEvent key={`event-${j}`} event={toolCall} />
+          ))}
         </Fragment>
       ))}
     </Transition>
@@ -43,7 +46,7 @@ export const ToolEvents: React.FC<Props> = ({ show, events }) => {
 
 type ToolEventProps = {
   plan?: string;
-  event?: StreamToolInput;
+  event?: ToolCall;
 };
 
 /**
@@ -54,15 +57,14 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
     return <ToolEventWrapper>{plan}</ToolEventWrapper>;
   }
 
-  const toolName = event.tool_name;
-  const input = event.input;
-  const icon = toolName ? TOOL_ID_TO_DISPLAY_INFO[toolName]?.icon : TOOL_FALLBACK_ICON;
+  const toolName = event.name;
+  const icon = TOOL_ID_TO_DISPLAY_INFO[toolName]?.icon ?? TOOL_FALLBACK_ICON;
 
   switch (toolName) {
     case TOOL_PYTHON_INTERPRETER_ID: {
-      if (event.input_type === ToolInputType.CODE) {
+      if (event?.parameters?.code) {
         let codeString = '```python\n';
-        codeString += input;
+        codeString += event?.parameters?.code;
         codeString += '\n```';
 
         return (
@@ -82,10 +84,18 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
       }
     }
 
-    case TOOL_INTERNET_SEARCH_ID: {
+    case TOOL_CALCULATOR_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Searching <b className="font-medium">{input}</b>
+          Calculating <b className="font-medium">{event?.parameters?.expression}</b>
+        </ToolEventWrapper>
+      );
+    }
+
+    case TOOL_WEB_SEARCH_ID: {
+      return (
+        <ToolEventWrapper icon={icon}>
+          Searching <b className="font-medium">{event?.parameters?.query}</b>
         </ToolEventWrapper>
       );
     }
@@ -110,7 +120,9 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   return (
     <div className="flex w-full gap-x-2 rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
       <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-secondary-600" />
-      <Text className="text-secondary-800">{children}</Text>
+      <Text className="text-secondary-800" styleAs="p-sm">
+        {children}
+      </Text>
     </div>
   );
 };
