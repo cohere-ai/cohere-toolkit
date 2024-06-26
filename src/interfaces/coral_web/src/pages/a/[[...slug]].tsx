@@ -213,15 +213,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const { conversationId, agentId } = getSlugRoutes(context.query.slug);
 
-  if (!conversationId && !agentId && context.resolvedUrl !== '/agents') {
-    return {
-      redirect: {
-        destination: '/agents',
-        permanent: false,
-      },
-    };
-  }
-
   await Promise.allSettled([
     deps.queryClient.prefetchQuery({
       queryKey: ['agent', agentId],

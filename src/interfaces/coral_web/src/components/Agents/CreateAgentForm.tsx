@@ -83,7 +83,7 @@ export const CreateAgentForm: React.FC = () => {
       });
       close();
       setIsSubmitting(false);
-      router.push(`/agents/${agent.id}`, undefined, { shallow: true });
+      router.push(`/a/${agent.id}`, undefined, { shallow: true });
     } catch (e) {
       setIsSubmitting(false);
       close();
