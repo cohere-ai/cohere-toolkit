@@ -8,7 +8,6 @@ from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
-from starlette.exceptions import HTTPException
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
@@ -92,7 +91,6 @@ def process_chat(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
-        tool_names = [tool.name for tool in chat_request.tools]
         if chat_request.tools:
             for tool in chat_request.tools:
                 if tool.name not in agent.tools:
@@ -575,18 +573,21 @@ def generate_chat_stream(
 
     stream_event = None
     for event in model_deployment_stream:
-        stream_event, stream_end_data, response_message, document_ids_to_document = (
-            handle_stream_event(
-                event,
-                conversation_id,
-                stream_end_data,
-                response_message,
-                document_ids_to_document,
-                session=session,
-                should_store=should_store,
-                user_id=user_id,
-                next_message_position=kwargs.get("next_message_position", 0),
-            )
+        (
+            stream_event,
+            stream_end_data,
+            response_message,
+            document_ids_to_document,
+        ) = handle_stream_event(
+            event,
+            conversation_id,
+            stream_end_data,
+            response_message,
+            document_ids_to_document,
+            session=session,
+            should_store=should_store,
+            user_id=user_id,
+            next_message_position=kwargs.get("next_message_position", 0),
         )
 
         yield json.dumps(

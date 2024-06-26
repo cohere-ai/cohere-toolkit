@@ -98,6 +98,7 @@ export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className
                     key={name}
                     disabled={disabled}
                     errorMessage={error_message}
+                    name={name}
                     checked={checked}
                     label={display_name ?? name ?? ''}
                     icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
