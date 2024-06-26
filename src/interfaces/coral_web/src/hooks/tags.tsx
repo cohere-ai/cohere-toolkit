@@ -21,12 +21,13 @@ export const useDataSourceTags = ({ requiredTools }: { requiredTools?: string[] 
   const { data: tools = [] } = useListTools();
   const { data: files } = useListFiles(id);
   const onlyRequiredTools = useMemo(() => {
+    const availableTools = tools.filter((t) => t.is_visible && t.is_available);
     if (!requiredTools) {
-      return tools;
+      return availableTools;
     }
 
     return requiredTools
-      .map((rt) => tools.find((t) => t.name === rt))
+      .map((rt) => availableTools.find((t) => t.name === rt))
       .filter((t) => !!t) as ManagedTool[];
   }, [tools, requiredTools]);
 
