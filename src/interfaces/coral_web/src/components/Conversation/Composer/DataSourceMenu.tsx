@@ -64,7 +64,7 @@ export const DataSourceMenu: React.FC<Props> = ({
     params: { fileIds, tools },
     setParams,
   } = useParamsStore();
-  const optionsRef = useRef<HTMLDivElement>(null);
+  const buttonAndMenuRef = useRef<HTMLDivElement>(null);
   const [menuMode, setMenuMode] = useState<MenuMode>(MenuMode.OVERVIEW);
 
   const overviewTools = useMemo(() => {
@@ -212,10 +212,10 @@ export const DataSourceMenu: React.FC<Props> = ({
     }
   }, [show]);
 
-  useClickOutside(optionsRef, hideMenu);
+  useClickOutside(buttonAndMenuRef, hideMenu);
 
   return (
-    <div>
+    <div ref={buttonAndMenuRef}>
       <IconButton
         iconName="at"
         tooltip={{ label: 'Use data source', size: 'sm' }}
@@ -226,7 +226,6 @@ export const DataSourceMenu: React.FC<Props> = ({
         <div
           role="listbox"
           aria-multiselectable="true"
-          ref={optionsRef}
           className={cn(
             'absolute bottom-[85%] left-[1%] z-tag-suggestions max-h-[200px] md:w-[468px]',
             'w-full overflow-y-scroll rounded bg-marble-100 p-2 shadow-menu focus:outline-none'
