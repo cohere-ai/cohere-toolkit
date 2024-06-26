@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 16e91cfbdf35
+Revision ID: 52633db2dae9
 Revises: 658924a376dd
-Create Date: 2024-06-26 15:15:51.670474
+Create Date: 2024-06-26 16:29:18.652960
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "16e91cfbdf35"
+revision: str = "52633db2dae9"
 down_revision: Union[str, None] = "658924a376dd"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,8 +27,7 @@ def upgrade() -> None:
         sa.Column("conversation_id", sa.String(), nullable=False),
         sa.Column("last_message_id", sa.String(), nullable=False),
         sa.Column("version", sa.Integer(), nullable=False),
-        sa.Column("title", sa.String(), nullable=False),
-        sa.Column("description", sa.String(), nullable=True),
+        sa.Column("snapshot", sa.JSON(), nullable=False),
         sa.Column("id", sa.String(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
@@ -56,6 +55,7 @@ def upgrade() -> None:
     op.create_table(
         "snapshot_links",
         sa.Column("snapshot_id", sa.String(), nullable=False),
+        sa.Column("user_id", sa.String(), nullable=False),
         sa.Column("id", sa.String(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
