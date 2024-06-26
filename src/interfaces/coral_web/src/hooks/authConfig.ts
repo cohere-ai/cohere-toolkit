@@ -1,6 +1,6 @@
 import { ListAuthStrategy } from '@/cohere-client';
-import { useServerAuthStrategies } from '@/hooks/authStrategies';
 import { env } from '@/env.mjs';
+import { useServerAuthStrategies } from '@/hooks/authStrategies';
 
 export const useAuthConfig = (): {
   loginUrl: string;
