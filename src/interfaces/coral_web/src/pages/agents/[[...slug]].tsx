@@ -3,8 +3,9 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import { useContext, useEffect } from 'react';
 
-import { CohereClient, Document } from '@/cohere-client';
+import { CohereClient, Document, ManagedTool } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
+import { ConnectDataModal } from '@/components/Agents/ConnectDataModal';
 import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
@@ -12,11 +13,14 @@ import ConversationListPanel from '@/components/ConversationList/ConversationLis
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
+import { ModalContext } from '@/context/ModalContext';
+import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
 import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
@@ -46,9 +50,13 @@ const AgentsPage: NextPage = () => {
     resetFileParams,
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
+  const { data: agent } = useAgent({ agentId });
+  const { data: tools } = useListTools();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
+  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
   const { setMessage } = useContext(BannerContext);
+  const { open, close } = useContext(ModalContext);
 
   const {
     data: conversation,
@@ -60,14 +68,36 @@ const AgentsPage: NextPage = () => {
   });
 
   useEffect(() => {
+    if (showUnauthedToolsModal) {
+      open({
+        title: 'Connect your data',
+        content: (
+          <ConnectDataModal
+            onClose={() => {
+              onDismissed();
+              close();
+            }}
+          />
+        ),
+      });
+    }
+  }, [showUnauthedToolsModal]);
+
+  useEffect(() => {
     resetCitations();
     resetFileParams();
-    setParams({ tools: [] });
+
+    const agentTools = (agent?.tools
+      .map((name) => (tools ?? [])?.find((t) => t.name === name))
+      .filter((t) => t !== undefined) ?? []) as ManagedTool[];
+    setParams({
+      tools: agentTools,
+    });
 
     if (conversationId) {
       setConversation({ id: conversationId });
     }
-  }, [conversationId, setConversation, resetCitations]);
+  }, [conversationId, setConversation, resetCitations, agent, tools]);
 
   useEffect(() => {
     if (!conversation) return;

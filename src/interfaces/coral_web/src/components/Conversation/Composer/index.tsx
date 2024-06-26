@@ -1,5 +1,5 @@
 import { useResizeObserver } from '@react-hookz/web';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { ComposerError } from '@/components/Conversation/Composer/ComposerError';
 import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
@@ -9,6 +9,8 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
+import { useDataSourceTags } from '@/hooks/tags';
+import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
@@ -23,6 +25,7 @@ type Props = {
   onSend: (message?: string, overrides?: Partial<ConfigurableParams>) => void;
   onChange: (message: string) => void;
   onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  requiredTools?: string[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
 };
 
@@ -30,6 +33,7 @@ export const Composer: React.FC<Props> = ({
   isFirstTurn,
   value,
   isStreaming,
+  requiredTools,
   onSend,
   onChange,
   onStop,
@@ -43,13 +47,18 @@ export const Composer: React.FC<Props> = ({
   const breakpoint = useBreakpoint();
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { isToolAuthRequired } = useUnauthedTools();
+  const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
+    requiredTools,
+  });
 
   const [isComposing, setIsComposing] = useState(false);
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
+  const [showDataSourceMenu, setShowDataSourceMenu] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
-  const canSend = isReadyToReceiveMessage && value.trim().length > 0;
+  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isToolAuthRequired;
 
   const handleCompositionStart = () => {
     setIsComposing(true);
@@ -67,8 +76,40 @@ export const Composer: React.FC<Props> = ({
       e.preventDefault();
       if (canSend) {
         onSend(value);
+        setTagQuery('');
+        setShowDataSourceMenu(false);
+        onChange('');
       }
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (isToolAuthRequired) {
+      return;
+    }
+
+    onChange(e.target.value);
+    if (textareaRef.current) {
+      const newTagQuery = getTagQuery(e.target.value, textareaRef.current.selectionStart);
+      setTagQuery(newTagQuery);
+
+      if (newTagQuery.length === 1 && !showDataSourceMenu) {
+        setShowDataSourceMenu(true);
+      } else if (newTagQuery.length === 0 && showDataSourceMenu) {
+        setShowDataSourceMenu(false);
+      }
+    }
+  };
+
+  const handleTagSelect = () => {
+    if (!textareaRef.current) return;
+    onChange(value.slice(0, value.length - tagQuery.length));
+    setTagQuery('');
+    setShowDataSourceMenu(false);
+  };
+
+  const handleDataSourceMenuClick = () => {
+    setShowDataSourceMenu((prevShow) => !prevShow);
   };
 
   useEffect(() => {
@@ -124,7 +165,10 @@ export const Composer: React.FC<Props> = ({
           'relative flex w-full flex-col',
           'transition ease-in-out',
           'rounded border bg-marble-100',
-          'border-marble-500 focus-within:border-secondary-700'
+          'border-marble-500 focus-within:border-secondary-700',
+          {
+            'border-marble-500 bg-marble-300': isToolAuthRequired,
+          }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
         onDragOver={() => setIsDragDropInputActive(true)}
@@ -152,7 +196,10 @@ export const Composer: React.FC<Props> = ({
               'transition ease-in-out',
               'focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
-              'leading-[150%]'
+              'leading-[150%]',
+              {
+                'bg-marble-300': isToolAuthRequired,
+              }
             )}
             style={{
               maxHeight: `${
@@ -161,9 +208,8 @@ export const Composer: React.FC<Props> = ({
             }}
             rows={1}
             onKeyDown={handleKeyDown}
-            onChange={(e) => {
-              onChange(e.target.value);
-            }}
+            onChange={handleChange}
+            disabled={isToolAuthRequired}
           />
           <button
             className={cn(
@@ -175,12 +221,27 @@ export const Composer: React.FC<Props> = ({
             )}
             type="button"
             onClick={() => (canSend ? onSend(value) : onStop())}
+            disabled={!canSend}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>
         </div>
         <ComposerFiles />
-        <ComposerToolbar onUploadFile={onUploadFile} />
+        <ComposerToolbar
+          isStreaming={isStreaming}
+          onUploadFile={onUploadFile}
+          onDataSourceMenuToggle={handleDataSourceMenuClick}
+          menuProps={{
+            show: showDataSourceMenu,
+            tagQuery: tagQuery,
+            tags: suggestedTags,
+            totalTags: totalTags,
+            onChange: handleTagSelect,
+            onHide: () => setShowDataSourceMenu(false),
+            onToggle: handleDataSourceMenuClick,
+            onSeeAll: () => textareaRef.current?.focus(),
+          }}
+        />
       </div>
       <ComposerError className="pt-2" />
     </div>

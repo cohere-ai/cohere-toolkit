@@ -48,7 +48,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
   const isTool = !!toolId && !hasUrl && !!TOOL_ID_TO_DISPLAY_INFO[toolId];
   const toolDisplayInfo = toolId ? TOOL_ID_TO_DISPLAY_INFO[toolId] : undefined;
   // The title field is provided for web search documents and files, but not for tools.
-  const displayTitle = (title || toolDisplayInfo?.name) ?? toolId;
+  const displayTitle = title ?? toolId;
   const icon: IconName | undefined = hasUrl
     ? undefined
     : isFile

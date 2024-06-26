@@ -42,6 +42,11 @@ class ChatMessage(BaseModel):
     )
     message: str | None = Field(
         title="Contents of the chat message.",
+        default=None,
+    )
+    tool_plan: str | None = Field(
+        title="Contents of the tool plan.",
+        default=None,
     )
     tool_results: List[Dict[str, Any]] | None = Field(
         title="Results from the tool call.",
@@ -52,8 +57,13 @@ class ChatMessage(BaseModel):
         default=None,
     )
 
-    def to_dict(self) -> Dict[str, str]:
-        return {"role": self.role, "message": self.message}
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "role": self.role,
+            "message": self.message,
+            "tool_results": self.tool_results,
+            "tool_calls": self.tool_calls,
+        }
 
 
 # TODO: fix titles of these types
@@ -184,7 +194,15 @@ class StreamEnd(ChatResponse):
         title="List of tool calls generated for custom tools",
         default=[],
     )
-    finish_reason: str | None = Field(default=None)
+    finish_reason: str | None = (Field(default=None),)
+    chat_history: List[ChatMessage] | None = Field(
+        default=None,
+        title="A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.",
+    )
+    error: str | None = Field(
+        title="Error message if the response is an error.",
+        default=None,
+    )
 
 
 class NonStreamedChatResponse(ChatResponse):

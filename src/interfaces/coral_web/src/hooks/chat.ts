@@ -1,5 +1,4 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
@@ -70,7 +69,6 @@ export type HandleSendChat = (
 ) => Promise<void>;
 
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
-  const router = useRouter();
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
 
@@ -471,14 +469,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
   const getChatRequest = (message: string, overrides?: ChatRequestOverrides): CohereChatRequest => {
     const { tools: overrideTools, ...restOverrides } = overrides ?? {};
+
+    const requestTools = overrideTools ?? tools ?? undefined;
     return {
       message,
       conversation_id: id,
-      tools: !!overrideTools?.length
-        ? overrideTools
-        : tools && tools.length > 0
-        ? tools
-        : undefined,
+      tools: requestTools?.map((tool) => ({ name: tool.name })),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,

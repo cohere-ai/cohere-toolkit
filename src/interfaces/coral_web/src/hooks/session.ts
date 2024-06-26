@@ -46,7 +46,10 @@ export const useSession = () => {
   );
 
   const cohereClient = useCohereClient();
-  const session = authToken ? (jwtDecode(authToken) as { context: UserSession }).context : null;
+  const session = useMemo(
+    () => (authToken ? (jwtDecode(authToken) as { context: UserSession }).context : null),
+    [authToken]
+  );
 
   const loginMutation = useMutation({
     mutationFn: async (params: LoginParams) => {

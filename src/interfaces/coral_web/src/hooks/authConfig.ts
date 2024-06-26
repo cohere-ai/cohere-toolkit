@@ -1,4 +1,5 @@
 import { ListAuthStrategy } from '@/cohere-client';
+import { env } from '@/env.mjs';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
 
 export const useAuthConfig = (): {
@@ -15,6 +16,6 @@ export const useAuthConfig = (): {
     registerUrl: '/register',
     logoutUrl: '/logout',
     loginStrategies: authStrategies,
-    baseUrl: window.location.href,
+    baseUrl: env.NEXT_PUBLIC_FRONTEND_HOSTNAME,
   };
 };
