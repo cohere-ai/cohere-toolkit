@@ -232,7 +232,9 @@ def show_examples():
     )
 
 
-IMPLEMENTATIONS = {"database_url": database_url_prompt}
+IMPLEMENTATIONS = {
+    "database_url": database_url_prompt,
+}
 
 
 TOOLS = {
