@@ -36,8 +36,8 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     href?: string;
     onClick?: () => void;
   }[] = [
-    { label: 'Create Assistant ', icon: 'add', href: '/agents/new' },
-    { label: 'Discover', icon: 'compass', href: '/agents/discover' },
+    { label: 'Create Assistant ', icon: 'add', href: '/new' },
+    { label: 'Discover', icon: 'compass', href: '/discover' },
   ];
 
   return (

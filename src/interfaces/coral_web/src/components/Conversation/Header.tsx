@@ -37,11 +37,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     useWelcomeGuideState();
 
   const handleNewChat = () => {
-    const url = agentId
-      ? `/agents/${agentId}`
-      : router.asPath.includes('/agents')
-      ? '/agents'
-      : '/';
+    const url = agentId ? `/a/${agentId}` : router.asPath.includes('/a') ? '/a' : '/';
     router.push(url, undefined, { shallow: true });
     resetConversation();
     resetCitations();
