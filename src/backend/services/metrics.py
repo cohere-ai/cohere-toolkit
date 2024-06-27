@@ -62,6 +62,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             return None
 
         data = MetricsData(
+            id=str(uuid.uuid4()),
             method=self.get_method(scope),
             endpoint_name=self.get_endpoint_name(scope, request),
             user_id=user_id,
@@ -205,7 +206,6 @@ def attach_secret(data: MetricsData) -> MetricsData:
 
 # TODO: remove the logging once metrics are configured correctly
 def log_signal(signal: MetricsData) -> MetricsSignal:
-    logging.info(signal)
     json_signal = json.dumps(to_dict(signal))
     # just general curl commands to test the endpoint for now
     logging.info(
