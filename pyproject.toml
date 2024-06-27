@@ -82,7 +82,6 @@ optional = true
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
 torch = "^2.3.0"
-llama-index = "^0.10.11"
 
 [tool.poetry.group.local-model]
 optional = true
