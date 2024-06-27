@@ -1,22 +1,26 @@
 import { Transition } from '@headlessui/react';
-import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
+import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 
-import { CohereClient, Document } from '@/cohere-client';
+import { CohereClient, Document, ManagedTool } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
-import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
+import { ConnectDataModal } from '@/components/ConnectDataModal';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
+import { Layout, LeftSection, MainSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
+import { ModalContext } from '@/context/ModalContext';
+import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
 import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
@@ -25,33 +29,36 @@ import {
   useSettingsStore,
 } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { cn, getQueryString } from '@/utils';
-import { createStartEndKey, mapHistoryToMessages } from '@/utils';
+import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
+import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
-type Props = {
-  reactQueryState: DehydratedState;
-};
+const Page: NextPage = () => {
+  const { agentId, conversationId } = useSlugRoutes();
 
-const ConversationPage: NextPage<Props> = () => {
-  const router = useRouter();
+  const { setConversation } = useConversationStore();
+  const {
+    settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
+  } = useSettingsStore();
+
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
+
+  const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
   const {
     params: { deployment },
     setParams,
     resetFileParams,
   } = useParamsStore();
-  const { setConversation } = useConversationStore();
-  const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
+  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
+  const { data: allDeployments } = useListAllDeployments();
+  const { data: agent } = useAgent({ agentId });
+  const { data: tools } = useListTools();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const { setMessage } = useContext(BannerContext);
-  const {
-    settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
-  } = useSettingsStore();
-  const isDesktop = useIsDesktop();
-  const isMobile = !isDesktop;
 
-  const urlConversationId = getQueryString(router.query.id);
+  const { setMessage } = useContext(BannerContext);
+  const { open, close } = useContext(ModalContext);
 
   const {
     data: conversation,
@@ -59,33 +66,40 @@ const ConversationPage: NextPage<Props> = () => {
     isError,
     error,
   } = useConversation({
-    conversationId: urlConversationId,
+    conversationId: conversationId,
   });
-  const { data: allDeployments } = useListAllDeployments();
 
   useEffect(() => {
-    if (!deployment && allDeployments) {
-      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
-      if (firstAvailableDeployment) {
-        setParams({ deployment: firstAvailableDeployment.name });
-      }
+    if (showUnauthedToolsModal) {
+      open({
+        title: 'Connect your data',
+        content: (
+          <ConnectDataModal
+            onClose={() => {
+              onDismissed();
+              close();
+            }}
+          />
+        ),
+      });
     }
-  }, [deployment]);
-
-  useEffect(() => {
-    if (!isLangchainModeOn) return;
-    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isLangchainModeOn]);
+  }, [showUnauthedToolsModal]);
 
   useEffect(() => {
     resetCitations();
     resetFileParams();
-    setParams({ tools: [] });
 
-    if (urlConversationId) {
-      setConversation({ id: urlConversationId });
+    const agentTools = (agent?.tools
+      .map((name) => (tools ?? [])?.find((t) => t.name === name))
+      .filter((t) => t !== undefined) ?? []) as ManagedTool[];
+    setParams({
+      tools: agentTools,
+    });
+
+    if (conversationId) {
+      setConversation({ id: conversationId });
     }
-  }, [urlConversationId, setConversation, resetCitations]);
+  }, [conversationId, setConversation, resetCitations, agent, tools]);
 
   useEffect(() => {
     if (!conversation) return;
@@ -128,29 +142,42 @@ const ConversationPage: NextPage<Props> = () => {
     saveOutputFiles(outputFilesMap);
   }, [conversation?.id, setConversation]);
 
+  useEffect(() => {
+    if (!deployment && allDeployments) {
+      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
+      if (firstAvailableDeployment) {
+        setParams({ deployment: firstAvailableDeployment.name });
+      }
+    }
+  }, [deployment, allDeployments]);
+
+  useEffect(() => {
+    if (!isLangchainModeOn) return;
+    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
+  }, [isLangchainModeOn]);
+
   return (
     <Layout>
       <LeftSection>
         <AgentsList />
       </LeftSection>
-
       <MainSection>
         <div className="flex h-full">
           <Transition
             as="section"
             show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
-            enterFrom="translate-x-full lg:translate-x-0 lg:w-0"
-            enterTo="translate-x-0 lg:w-[300px]"
-            leaveFrom="translate-x-0 lg:w-[300px]"
-            leaveTo="translate-x-full lg:translate-x-0 lg:w-0"
+            enterFrom="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
+            enterTo="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
+            leaveFrom="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
+            leaveTo="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
             className={cn(
               'z-main-section flex lg:min-w-0',
               'absolute h-full w-full lg:static lg:h-auto',
               'border-0 border-marble-400 md:border-r',
-              'transition-[transform, width] duration-500 ease-in-out'
+              'transition-[transform,min-width,max-width] duration-300 ease-in-out'
             )}
           >
-            <ConversationListPanel />
+            <ConversationListPanel agentId={agentId} />
           </Transition>
           <Transition
             as="main"
@@ -171,7 +198,7 @@ const ConversationPage: NextPage<Props> = () => {
             ) : isError ? (
               <ConversationError error={error} />
             ) : (
-              <Conversation conversationId={urlConversationId} />
+              <Conversation conversationId={conversationId} agentId={agentId} startOptionsEnabled />
             )}
           </Transition>
         </div>
@@ -186,12 +213,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     cohereClient: CohereClient;
   };
 
-  const conversationId = context.params?.id as string;
+  const { conversationId, agentId } = getSlugRoutes(context.query.slug);
 
   await Promise.allSettled([
     deps.queryClient.prefetchQuery({
+      queryKey: ['agent', agentId],
+      queryFn: async () => {
+        if (!agentId) return;
+        return await deps.cohereClient.getAgent(agentId);
+      },
+    }),
+    deps.queryClient.prefetchQuery({
       queryKey: ['conversation', conversationId],
       queryFn: async () => {
+        if (!conversationId) return;
         const conversation = await deps.cohereClient.getConversation({
           conversationId,
         });
@@ -202,8 +237,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     deps.queryClient.prefetchQuery({
       queryKey: ['conversations'],
       queryFn: async () => {
-        const conversations = await deps.cohereClient.listConversations({});
-        return conversations;
+        return (await deps.cohereClient.listConversations({})) ?? [];
       },
     }),
     deps.queryClient.prefetchQuery({
@@ -225,4 +259,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default ConversationPage;
+export default Page;

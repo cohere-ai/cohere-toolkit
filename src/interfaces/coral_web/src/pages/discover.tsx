@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { CohereClient } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
-import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
+import { Layout, LeftSection, MainSection } from '@/components/Layout';
 import { Input, Text } from '@/components/Shared';
 import { useListAgents } from '@/hooks/agents';
 import { appSSR } from '@/pages/_app';
