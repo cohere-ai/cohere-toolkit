@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import Request
 
@@ -52,3 +52,8 @@ class BaseToolAuthentication:
     @classmethod
     @abstractmethod
     def process_auth_token(request: Request, session: DBSessionDep) -> str: ...
+
+    @classmethod
+    @abstractmethod
+    def get_token(user_id: str, session: DBSessionDep) -> Optional[str]:
+        return None
