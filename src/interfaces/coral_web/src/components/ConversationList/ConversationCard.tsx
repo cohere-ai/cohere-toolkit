@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMemo } from 'react';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
@@ -31,25 +30,22 @@ type Props = {
 const useMenuItems = ({ conversationId, name }: { conversationId: string; name: string }) => {
   const { deleteConversation, editConversationTitle } = useConversationActions();
 
-  const menuItems: KebabMenuItem[] = useMemo(
-    () => [
-      {
-        label: 'Edit title',
-        iconName: 'edit',
-        onClick: () => {
-          editConversationTitle({ id: conversationId, title: name });
-        },
+  const menuItems: KebabMenuItem[] = [
+    {
+      label: 'Edit title',
+      iconName: 'edit',
+      onClick: () => {
+        editConversationTitle({ id: conversationId, title: name });
       },
-      {
-        label: 'Delete chat',
-        iconName: 'trash',
-        onClick: () => {
-          deleteConversation({ id: conversationId });
-        },
+    },
+    {
+      label: 'Delete chat',
+      iconName: 'trash',
+      onClick: () => {
+        deleteConversation({ id: conversationId });
       },
-    ],
-    [conversationId]
-  );
+    },
+  ];
 
   return menuItems;
 };
