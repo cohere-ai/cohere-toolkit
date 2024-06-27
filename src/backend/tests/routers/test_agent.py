@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
+from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.tests.factories import get_factory
 
 
@@ -16,7 +17,7 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
         "temperature": 0.5,
         "model": "command-r-plus",
         "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [ToolName.Calculator],
+        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
     }
 
     response = session_client.post(
@@ -44,6 +45,9 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
     assert agent.model == request_json["model"]
     assert agent.deployment == request_json["deployment"]
     assert agent.tools == request_json["tools"]
+
+    agent_tool_metadata = session.query(AgentToolMetadata).filter(AgentToolMetadata.agent_id == agent.id).all()
+    assert len(agent_tool_metadata) == 3
 
 
 def test_create_agent_missing_name(

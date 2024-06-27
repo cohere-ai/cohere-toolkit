@@ -42,17 +42,19 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         tools=agent.tools,
     )
 
-    # create agent tool metadata in advance
-    for tool in agent.tools:
-        agent_tool_metadata_data = AgentToolMetadataModel(
-            agent_id=agent_data.id,
-            tool_name=tool.name,
-        )
-        agent_tool_metadata_crud.create_agent_tool_metadata(session, agent_tool_metadata_data)
-
     request.state.agent = agent_data
     try:
-        return agent_crud.create_agent(session, agent_data)
+        created_agent = agent_crud.create_agent(session, agent_data)
+        if agent.tools:
+            for tool in agent.tools:
+                agent_tool_metadata_data = AgentToolMetadataModel(
+                        user_id=user_id,
+                        agent_id=created_agent.id,
+                        tool_name=tool,
+                    )
+                agent_tool_metadata_crud.create_agent_tool_metadata(session, agent_tool_metadata_data)
+
+        return created_agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -9,11 +9,11 @@ from backend.database_models.base import Base
 class AgentToolMetadata(Base):
     __tablename__ = "agent_tool_metadata"
 
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(String, nullable=False)
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=False
     )
-    tool_name: Mapped[str] = mapped_column(String)
-    artifact_id: Mapped[str] = mapped_column(String)
+    tool_name: Mapped[str] = mapped_column(String, nullable=False)
+    artifact_id: Mapped[str] = mapped_column(String, nullable=True)
 
     __table_args__ = (UniqueConstraint("user_id", "agent_id", "tool_name", name="_user_agent_tool_name_uc"),)
