@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class MetricsDataBase(BaseModel):
     id: str = str(uuid.uuid4())
+    user_id: str
     trace_id: str
     method: str
     endpoint_name: str
@@ -44,7 +45,6 @@ class MetricsData(MetricsDataBase):
     meta: dict[str, Any] | None = None
     assistant_id: str | None = None
     assistant: MetricsAgent | None = None
-    user_id: str
     user: MetricsUser | None = None
 
 
