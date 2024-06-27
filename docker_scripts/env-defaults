@@ -18,3 +18,4 @@ export FRONTEND_HOSTNAME=${FRONTEND_HOSTNAME:-http://localhost:4000}
 export NEXT_PUBLIC_FRONTEND_HOSTNAME=${FRONTEND_HOSTNAME:-http://localhost:4000}
 export PYTHON_INTERPRETER_URL=${PYTHON_INTERPRETER_URL:-http://localhost:8080}
 export DATABASE_URL=${DATABASE_URL:-postgresql+psycopg2://postgre:postgre@localhost:5432/toolkit}
+export INSTALL_COMMUNITY_DEPS=${INSTALL_COMMUNITY_DEPS:false}

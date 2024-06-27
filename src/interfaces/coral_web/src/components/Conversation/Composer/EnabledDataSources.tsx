@@ -8,13 +8,12 @@ import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
 type Props = {
   isStreaming: boolean;
-  canDisable: boolean;
 };
 
 /**
  * @description Renders the enabled data sources in the composer toolbar.
  */
-export const EnabledDataSources: React.FC<Props> = ({ isStreaming, canDisable }) => {
+export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
   const {
     conversation: { id },
   } = useConversationStore();
@@ -62,7 +61,6 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming, canDisable })
           label={d?.file_name ?? ''}
           onDelete={handleDeleteFile(d?.id ?? '')}
           disabled={isStreaming}
-          canDisable={canDisable}
         />
       ))}
       {enabledTools?.map((t, i) => (
@@ -71,7 +69,6 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming, canDisable })
           iconName={TOOL_ID_TO_DISPLAY_INFO[t.name]?.icon ?? TOOL_FALLBACK_ICON}
           label={t.display_name ?? t.name}
           onDelete={handleDeleteTool(t.name ?? '')}
-          canDisable={canDisable}
         />
       ))}
     </div>
@@ -79,22 +76,13 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming, canDisable })
 };
 
 const DataSourceChip: React.FC<{
-  canDisable: boolean;
   iconName: IconName;
   label: string;
   onDelete: React.MouseEventHandler;
   disabled?: boolean;
   hasEditableConfiguration?: boolean;
   onEditConfiguration?: VoidFunction;
-}> = ({
-  canDisable,
-  iconName,
-  label,
-  onDelete,
-  disabled,
-  hasEditableConfiguration,
-  onEditConfiguration,
-}) => {
+}> = ({ iconName, label, onDelete, disabled, hasEditableConfiguration, onEditConfiguration }) => {
   return (
     <div className="flex items-center justify-between gap-x-2 rounded border border-dashed border-secondary-200 bg-secondary-50 px-2 py-0.5">
       <div className="flex items-center gap-x-1">
@@ -106,11 +94,9 @@ const DataSourceChip: React.FC<{
           <Icon name="kebab" size="sm" />
         </button>
       )}
-      {canDisable && (
-        <button className="flex" onClick={onDelete} disabled={disabled}>
-          <Icon name="close" size="sm" />
-        </button>
-      )}
+      <button className="flex" onClick={onDelete} disabled={disabled}>
+        <Icon name="close" size="sm" />
+      </button>
     </div>
   );
 };

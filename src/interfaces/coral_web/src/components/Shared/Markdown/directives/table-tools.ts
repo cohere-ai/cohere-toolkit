@@ -15,66 +15,62 @@ export type StructuredTable = {
  * @param {any} node - A markdown node containing the table to be parsed.
  */
 const extractStructureFromMarkdownTable = (node: any): StructuredTable | null => {
-  if (node.type !== 'table') return null;
   if (!Array.isArray(node.children) || node.children.length <= 1) return null;
 
-  let structuredTable: StructuredTable = {
+  const structuredTable: StructuredTable = {
     header: [],
     rows: [],
   };
 
-  /**
-   * A 'table' node in markdown has children which are of type `TableRow` and each `TableRow` has children of the type
-   * `TableCell`. Each `TableCell` may not just contain text (they can contain other directive such as cite or links) so
-   * we extract the textual content from each `TableCell` (similar to the `innerText` function in HTML)
-   **/
+  const header = node.children[0];
+  if (header.tagName !== 'thead') return null;
 
-  const firstChild = node?.children?.[0]?.children ?? [];
-  for (const tableCell of firstChild) {
-    const cellText = markdownNodeToString(tableCell);
-    structuredTable.header.push(cellText);
+  const headerRow = header.children[0];
+  if (headerRow.tagName !== 'tr') return null;
+
+  for (const cell of headerRow.children) {
+    if (cell.tagName !== 'th') return null;
+    structuredTable.header.push(markdownNodeToString(cell));
   }
 
-  if (structuredTable.header.length === 0) {
-    return null;
-  }
+  const body = node.children[1];
+  if (body.tagName !== 'tbody') return null;
 
-  const headerLength = structuredTable.header.length;
-  for (let i = 1; i < node.children.length; i++) {
-    const tableRow = node.children[i];
-    const row = [];
-    for (const tableCell of tableRow.children) {
-      const cellText = markdownNodeToString(tableCell);
-      row.push(cellText);
+  for (const row of body.children) {
+    if (row.tagName !== 'tr') return null;
+
+    const rowCells = [];
+    for (const cell of row.children) {
+      if (cell.tagName !== 'td') return null;
+      rowCells.push(markdownNodeToString(cell));
     }
 
-    if (row.length !== headerLength) {
-      return null;
-    }
-
-    structuredTable.rows.push(row);
+    if (rowCells.length !== structuredTable.header.length) return null;
+    structuredTable.rows.push(rowCells);
   }
 
   return structuredTable;
 };
 
+type Options = {};
+
 /**
  * A remark plugin that reads a Markdown table from the node and adds a hProperty with the table structure making
  * the table data available to plugins and markdown renderers after.
  **/
-export const renderTableTools: Plugin<void[], Root> = () => {
-  return (tree, file) => {
-    visit(tree, (node: any, index, parent) => {
-      if (node.type !== 'table') return;
+export const renderTableTools: Plugin<[Options?], Root> = () => {
+  const visitor = (node: any) => {
+    if (node.tagName !== 'table') return;
+    const structuredTable = extractStructureFromMarkdownTable(node);
+    if (structuredTable === null) return;
 
-      const structuredTable = extractStructureFromMarkdownTable(node);
-      if (structuredTable === null) return;
-
-      node.data = node.data || {};
-      node.data.hProperties = {
-        ...node.data.hProperties,
-        structuredTable: structuredTable,
-      };
-    });
+    node.data = node.data || {};
+    node.data.hProperties = {
+      ...node.data.hProperties,
+      structuredTable: structuredTable,
+    };
+  };
+  return (tree: Root) => {
+    visit(tree, 'element', visitor);
   };
 };

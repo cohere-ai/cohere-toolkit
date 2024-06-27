@@ -1,0 +1,21 @@
+{
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "isolatedModules": false,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "es2020",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "skipLibCheck": false,
+    "strict": true,
+    "target": "ES2017"
+  }
+}
