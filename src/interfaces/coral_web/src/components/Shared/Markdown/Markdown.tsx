@@ -2,12 +2,13 @@ import { ComponentPropsWithoutRef, useMemo } from 'react';
 import ReactMarkdown, { Components, UrlTransform } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
-// import rehypeRaw from 'rehype-raw';
+import rehypeRaw from 'rehype-raw';
 import remarkDirective from 'remark-directive';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { PluggableList } from 'unified';
 
+import { removeExtraBlankSpaces } from '@/components/Shared/Markdown/directives/utils';
 import { Iframe } from '@/components/Shared/Markdown/tags/Iframe';
 import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
@@ -48,13 +49,15 @@ export const getActiveMarkdownPlugins = (
     // renderRemarkUnknowns is a plugin that converts unrecognized directives to regular text nodes
     renderRemarkUnknowns,
     remarkReferences,
-    // renderTableTools is a plugin that detects tables and saves them in a readable structure
-    renderTableTools,
   ];
 
   const rehypePlugins: PluggableList = [
     // remarkRaw is a plugin that allows raw HTML in markdown
-    // rehypeRaw, // FIX(@tomtobac): Disabled because it is causing issues with the rendering of the markdown
+    rehypeRaw,
+    // removeExtraBlankSpaces is a plugin that removes extra blank spaces from the text elements
+    removeExtraBlankSpaces,
+    // renderTableTools is a plugin that detects tables and saves them in a readable structure
+    renderTableTools,
     // rehypeHighlight is a plugin that adds syntax highlighting to code blocks
     // Version 7.0.0 seems to have a memory leak bug that's why we are using 6.0.0
     // https://github.com/remarkjs/react-markdown/issues/791#issuecomment-2096106784
@@ -132,6 +135,7 @@ export const Markdown = ({
         allowedElements={allowedElements}
         components={components}
         urlTransform={urlTransform}
+        skipHtml={false}
       >
         {text}
       </ReactMarkdown>
