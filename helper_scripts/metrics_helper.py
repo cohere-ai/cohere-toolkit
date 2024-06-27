@@ -4,26 +4,6 @@ from uuid import uuid4
 
 import requests
 
-base_url = "http://localhost:8000/v1"
-
-headers = {
-    "User-Id": "7a7e4a99-10af-4567-955b-8f34ed5e2f1d",
-    "Deployment-Name": "Cohere Platform",
-    "Content-Type": "application/json",
-}
-
-# Notes:
-# web_search implicitly calls rerank
-# - TAVILY_API_KEY required for web search
-# in case of issues, prune docker images and try again
-
-
-## Users
-# Create User
-response = requests.post(f"{base_url}/users", headers=headers, json={"fullname": "me"})
-response_json = response.json()
-user_id = response_json["id"]
-
 
 def agents():
     print("Running Agents")
@@ -58,6 +38,8 @@ def agents():
     return agent_id
 
 
+## Users
+# Create User
 def users():
     # # List Users
     _ = requests.get(f"{base_url}/users", headers=headers)
@@ -132,6 +114,31 @@ def cleanup(user_id, agent_id):
     print(response.status_code)
     response = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
     print(response.status_code)
+
+
+base_url = "http://localhost:8000/v1"
+headers = {
+    "User-Id": "admin",
+    "Deployment-Name": "Cohere Platform",
+    "Content-Type": "application/json",
+}
+
+# Notes:
+# web_search implicitly calls rerank
+# - TAVILY_API_KEY required for web search
+# in case of issues, prune docker images and try again
+# TODO: please do not use global variables :,(
+
+# initial setup
+response = requests.post(
+    f"{base_url}/users", headers=headers, json={"fullname": "qa tester"}
+)
+response_json = response.json()
+user_id = response_json["id"]
+# update user id with correct value going forward
+headers["User-Id"] = user_id
+print("User info")
+print(response_json)
 
 
 users()
