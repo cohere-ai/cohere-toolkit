@@ -66,9 +66,11 @@ class DeleteAgent(BaseModel):
 class AgentToolMetadata(BaseModel):
     user_id: str
     tool_name: str
-    artifacts: list[str]
+    google_drive_file_ids: list[str]
+    google_drive_folder_ids: list[str]
 
 
 class UpdateAgentToolMetadata(BaseModel):
     tool_name: str
-    artifacts: Optional[list[str]] = None
+    google_drive_file_ids: Optional[list[str]] = None
+    google_drive_folder_ids: Optional[list[str]] = None

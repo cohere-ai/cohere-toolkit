@@ -52,18 +52,20 @@ class GoogleDrive(BaseTool):
         creds = Credentials(auth.encrypted_access_token.decode())
 
         files = []
+        tool_metadata = (
+            agent_tool_metadata_crud.get_agent_tool_metadata_by_agent_id_and_tool_name(
+                kwargs.get("session"), kwargs.get("agent_id"), ToolName.Google_Drive
+            )
+        )
         # Condition on files if exist
-        if file_ids := parameters.get("file_ids", None):
+        if file_ids := tool_metadata.google_drive_file_ids:
             files = parallel_get_files.perform(
                 file_ids=file_ids, access_token=creds.token
             )
         else:
             # Condition on folders if exist
             # parameters["folder_ids"] = ["1sftqQpEe9MkdqdskyA3UV7FJ9E8UvXBb"]
-            tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_agent_id_and_tool_name(
-                kwargs.get("session"), kwargs.get("agent_id"), ToolName.Google_Drive
-            )
-            if folder_ids := tool_metadata.artifacts:
+            if folder_ids := tool_metadata.google_drive_folder_ids:
                 [
                     conditions.append("'{}' in parents ".format(folder_id))
                     for folder_id in folder_ids
