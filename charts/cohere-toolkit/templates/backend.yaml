@@ -153,8 +153,13 @@ metadata:
     app.kubernetes.io/name: toolkit-backend
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
 stringData:
-  COHERE_API_KEY: "{{ .Values.global.cohere.api_key }}"
   DATABASE_URL: "{{ template "cohere-toolkit.database-url" $ }}"
+  {{- if .Values.global.cohere.api_key }}
+  COHERE_API_KEY: "{{ .Values.global.cohere.api_key }}"
+  {{- end }}
+  {{- if .Values.terrarium.enabled }}
+  PYTHON_INTERPRETER_URL: "http://terrarium"
+  {{- end }}
   {{- with $values.config }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
