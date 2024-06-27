@@ -67,3 +67,5 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_WIKIPEDIA_ID]: { icon: 'web' },
   [TOOL_SEARCH_FILE_ID]: { icon: 'search' },
 };
+
+export const DEFAULT_AGENT_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];

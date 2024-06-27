@@ -3,12 +3,7 @@ import React, { useContext, useState } from 'react';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
-import {
-  DEFAULT_AGENT_MODEL,
-  DEPLOYMENT_COHERE_PLATFORM,
-  TOOL_READ_DOCUMENT_ID,
-  TOOL_SEARCH_FILE_ID,
-} from '@/constants';
+import { DEFAULT_AGENT_MODEL, DEFAULT_AGENT_TOOLS, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -19,7 +14,7 @@ const DEFAULT_FIELD_VALUES = {
   preamble: '',
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
-  tools: [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID],
+  tools: DEFAULT_AGENT_TOOLS,
 };
 /**
  * @description Form to create a new agent.
