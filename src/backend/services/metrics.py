@@ -177,6 +177,9 @@ async def report_metrics(signal: MetricsSignal) -> None:
     if not REPORT_ENDPOINT:
         logging.error("No report endpoint set")
         return
+    
+    signal = attach_secret(signal)
+    log_signal(signal)
     if not isinstance(signal, dict):
         signal = to_dict(signal)
 
@@ -204,11 +207,9 @@ def log_signal(signal: MetricsData) -> MetricsSignal:
 
 
 def run_loop(metrics_data: MetricsData) -> None:
-    signal = attach_secret(metrics_data)
-    log_signal(metrics_data)
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(report_metrics(signal))
+        loop.create_task(report_metrics(metrics_data))
     except RuntimeError:
         asyncio.run(report_metrics(signal))
 
