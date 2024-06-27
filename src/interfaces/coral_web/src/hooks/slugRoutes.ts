@@ -9,15 +9,17 @@ import { getSlugRoutes } from '@/utils/getSlugRoutes';
  * The slug can be in the following formats:
  * - [] - /
  * - [c, :conversationId] - /c/:conversationId
- * - [:agentId] - /:agentId
- * - [:agentId, c, :conversationId] - /:agentId/c/:conversationId
+ * - [a, :agentId] - /a/:agentId
+ * - [a, :agentId, c, :conversationId] - /a/:agentId/c/:conversationId
  */
 
 export const useSlugRoutes = () => {
   const router = useRouter();
 
-  return useMemo(() => {
+  const { agentId, conversationId } = useMemo(() => {
     const slug = (router.query.slug ?? []) as string[];
     return getSlugRoutes(slug);
   }, [router.query.slug]);
+
+  return { agentId, conversationId };
 };

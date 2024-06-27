@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { GoogleDriveFilePicker } from '@/components/Agents/GoogleDriveFilePicker';
+import { GoogleDriveFilePicker } from '@/components/GoogleDriveFilePicker';
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 

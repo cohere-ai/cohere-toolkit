@@ -124,7 +124,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
       leaveFrom="lg:opacity-100"
       leaveTo="opacity-100 lg:opacity-0"
       className={cn(
-        'transition-opacity ease-in-out lg:duration-500',
+        'transition-opacity ease-in-out lg:duration-300',
         'flex h-full w-full flex-grow flex-col',
         className
       )}
