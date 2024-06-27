@@ -2,7 +2,7 @@ from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnec
 
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
-ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
+ENABLED_AUTH_STRATEGIES = []
 
 # Define the mapping from Auth strategy name to class obj - does not need to be manually modified.
 # During runtime, this will create an instance of each enabled strategy class.
