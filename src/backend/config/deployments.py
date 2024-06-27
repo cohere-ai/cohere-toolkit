@@ -30,13 +30,13 @@ use_community_features = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "fal
 
 
 ALL_MODEL_DEPLOYMENTS = {
-#     ModelDeploymentName.CoherePlatform: Deployment(
-#         name=ModelDeploymentName.CoherePlatform,
-#         deployment_class=CohereDeployment,
-#         models=CohereDeployment.list_models(),
-#         is_available=CohereDeployment.is_available(),
-#         env_vars=COHERE_ENV_VARS,
-#     ),
+    ModelDeploymentName.CoherePlatform: Deployment(
+        name=ModelDeploymentName.CoherePlatform,
+        deployment_class=CohereDeployment,
+        models=CohereDeployment.list_models(),
+        is_available=CohereDeployment.is_available(),
+        env_vars=COHERE_ENV_VARS,
+    ),
     ModelDeploymentName.SingleContainer: Deployment(
         name=ModelDeploymentName.SingleContainer,
         deployment_class=SingleContainerDeployment,
