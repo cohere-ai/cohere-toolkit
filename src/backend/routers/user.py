@@ -74,7 +74,7 @@ async def get_user(user_id: str, session: DBSessionDep, request: Request) -> Use
             status_code=404, detail=f"User with ID: {user_id} not found."
         )
 
-    request.state.user = user
+    request.state.user = User
     return user
 
 

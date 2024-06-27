@@ -12,6 +12,12 @@ from backend.services.request_validators import (
     validate_update_agent_request,
     validate_user_header,
 )
+from backend.schemas.metrics import (
+    MetricsAgent,
+    MetricsData,
+    MetricsSignal,
+    MetricsUser,
+)
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -30,10 +36,7 @@ router.name = RouterName.AGENT
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
     # add user data into request state for metrics
     user_id = get_header_user_id(request)
-    if user_id:
-        user = user_crud.get_user(session, user_id)
-        request.state.user = user
-
+    add_user_to_request_state(request, session)
     agent_data = AgentModel(
         name=agent.name,
         description=agent.description,
@@ -133,10 +136,7 @@ async def update_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    if user_id:
-        user = user_crud.get_user(session, user_id)
-        request.state.user = user
+    add_user_to_request_state(request, session)
     agent = agent_crud.get_agent_by_id(session, agent_id)
     if not agent:
         raise HTTPException(
@@ -171,10 +171,7 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    if user_id:
-        user = user_crud.get_user(session, user_id)
-        request.state.user = user
+    add_user_to_request_state(request, session)
     agent = agent_crud.get_agent_by_id(session, agent_id)
 
     if not agent:
@@ -190,3 +187,13 @@ async def delete_agent(
         raise HTTPException(status_code=500, detail=str(e))
 
     return DeleteAgent()
+
+
+def add_user_to_request_state(request: Request, session: DBSessionDep):
+    user_id = get_header_user_id(request)
+    if user_id:
+        user = user_crud.get_user(session, user_id)
+        request.state.user = MetricsUser(
+            id=user.id, email=user.email, fullname=user.fullname
+        )
+        

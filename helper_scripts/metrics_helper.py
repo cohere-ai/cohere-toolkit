@@ -144,7 +144,7 @@ print("Setup user info")
 print(response_json)
 
 
-users()
+# users()
 agent_id = agents()
 cleanup(user_id=user_id, agent_id=agent_id)
 # TODO: these are not working atm
