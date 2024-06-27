@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent import Agent as AgentModel
+from backend.database_models.agent_tool_metadata import AgentToolMetadata as AgentToolMetadataModel
 from backend.database_models.database import DBSessionDep
-from backend.schemas.agent import Agent, CreateAgent, DeleteAgent, UpdateAgent
+from backend.schemas.agent import Agent, CreateAgent, DeleteAgent, UpdateAgent, AgentToolMetadata,UpdateAgentToolMetadata
 from backend.services.auth.utils import get_header_user_id
 from backend.services.request_validators import (
     validate_create_agent_request,
@@ -39,6 +41,14 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         deployment=agent.deployment,
         tools=agent.tools,
     )
+
+    # create agent tool metadata in advance
+    for tool in agent.tools:
+        agent_tool_metadata_data = AgentToolMetadataModel(
+            agent_id=agent_data.id,
+            tool_name=tool.name,
+        )
+        agent_tool_metadata_crud.create_agent_tool_metadata(session, agent_tool_metadata_data)
 
     request.state.agent = agent_data
     try:
@@ -177,3 +187,20 @@ async def delete_agent(
         raise HTTPException(status_code=500, detail=str(e))
 
     return DeleteAgent()
+
+@router.put("/{agent_id}/tool-metadata")
+async def update_agent_tool_metadata(
+    agent_id: str, session: DBSessionDep, agent_tool_metadata: UpdateAgentToolMetadata, request: Request
+) -> AgentToolMetadata:
+    tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_agent_id_and_tool_name(session, agent_id, agent_tool_metadata.tool_name)
+    if not tool_metadata:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Agent tool metadata with tool name {agent_tool_metadata.tool_name} not found.",
+        )
+
+    tool_metadata.artifact_id = agent_tool_metadata.artifact_id
+    session.add(tool_metadata)
+    session.commit()
+
+    return tool_metadata
