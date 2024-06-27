@@ -23,9 +23,10 @@ class GoogleDriveAuth(BaseAuth):
     def get_auth_url(cls, user_id: str) -> str:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID"):
             raise ValueError("GOOGLE_DRIVE_CLIENT_ID not set")
-        redirect_url = (
-            os.getenv("NEXT_PUBLIC_API_HOSTNAME")
-            + "/v1/tool/auth?redirect_url=http://localhost:4000/new?p=t"
+        redirect_url = os.getenv(
+            "NEXT_PUBLIC_API_HOSTNAME"
+        ) + "/v1/tool/auth?redirect_url={}/new?p=t".format(
+            os.getenv("FRONTEND_HOSTNAME")
         )
         base_url = "https://accounts.google.com/o/oauth2/v2/auth?"
         state = {"user_id": user_id, "tool_id": GOOGLE_DRIVE_TOOL_ID}
@@ -104,9 +105,10 @@ class GoogleDriveAuth(BaseAuth):
             logger.error(f"Error in google drive auth: {err}")
             return err
         state = json.loads(request.query_params.get("state"))
-        redirect_url = (
-            os.getenv("NEXT_PUBLIC_API_HOSTNAME")
-            + "/v1/tool/auth?redirect_url=http://localhost:4000/new?p=t"
+        redirect_url = os.getenv(
+            "NEXT_PUBLIC_API_HOSTNAME"
+        ) + "/v1/tool/auth?redirect_url={}/new?p=t".format(
+            os.getenv("FRONTEND_HOSTNAME")
         )
         url = "https://oauth2.googleapis.com/token"
         body = {
