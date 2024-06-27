@@ -39,7 +39,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             {name}
           </Text>
         </div>
-        <Text className="line-clamp-2 flex-grow break-all text-left">{description}</Text>
+        <Text className="line-clamp-2 flex-grow">{description}</Text>
         <Button
           className="ml-auto"
           href={isBaseAgent ? '/agents' : `/agents/${id}`}
