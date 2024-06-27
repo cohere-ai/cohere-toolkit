@@ -7,7 +7,7 @@ import {
   CreateAgentFormFields,
 } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
-import { DEFAULT_AGENT_MODEL, DEPLOYMENT_SINGLE_CONTAINER } from '@/constants';
+import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -27,8 +27,8 @@ export const CreateAgentForm: React.FC = () => {
     name: '',
     description: '',
     preamble: '',
-    deployment: DEPLOYMENT_SINGLE_CONTAINER,
-    model: '',
+    deployment: DEPLOYMENT_COHERE_PLATFORM,
+    model: DEFAULT_AGENT_MODEL,
     tools: [],
   });
 
@@ -81,7 +81,7 @@ export const CreateAgentForm: React.FC = () => {
         name: '',
         description: '',
         preamble: '',
-        deployment: DEPLOYMENT_SINGLE_CONTAINER,
+        deployment: DEPLOYMENT_COHERE_PLATFORM,
         model: DEFAULT_AGENT_MODEL,
         tools: [],
       });
