@@ -67,6 +67,8 @@ def chat(agent_id):
             "tools": [{"name": "web_search"}],
         },
     )
+    
+    print(response.status_code)
 
     conversation_id = None
     for event in response.iter_lines():
@@ -84,30 +86,31 @@ def chat(agent_id):
 
 
 def tools(conversation_id):
+    print("Running tools")
     ## Tools
     # List Tools
-    _ = requests.get(f"{base_url}/tools", headers=headers)
-
+    res = requests.get(f"{base_url}/tools", headers=headers)
+    print(res.status_code)
     # List Tools per Agent
-    _ = requests.get(f"{base_url}/tools?agent_id={agent_id}", headers=headers)
-
+    res = requests.get(f"{base_url}/tools?agent_id={agent_id}", headers=headers)
+    print(res.status_code)
     ## Conversations
     # List Conversations
-    _ = requests.get(f"{base_url}/conversations", headers=headers)
-
+    res = requests.get(f"{base_url}/conversations", headers=headers)
+    print(res.status_code)
     # Get Conversation
-    _ = requests.get(f"{base_url}/conversations/{conversation_id}", headers=headers)
-
+    res = requests.get(f"{base_url}/conversations/{conversation_id}", headers=headers)
+    print(res.status_code)
     # Update Conversation
-    _ = requests.put(
-        f"{base_url}/conversations/{conversation_id}",
+    res = requests.put(
+        f"{base_url}/co print(res.status_code)nversations/{conversation_id}",
         headers=headers,
         json={"title": "new_title"},
     )
 
     # del conversation
-    _ = requests.delete(f"{base_url}/conversations/{conversation_id}", headers=headers)
-
+    res = requests.delete(f"{base_url}/conversations/{conversation_id}", headers=headers)
+    print(res.status_code)
 
 # Delete Everything
 def cleanup(user_id, agent_id):
@@ -144,9 +147,9 @@ print("Setup user info")
 print(response_json)
 
 
-# users()
+users()
 agent_id = agents()
-cleanup(user_id=user_id, agent_id=agent_id)
 # TODO: these are not working atm
-# conversation_id = chat(agent_id=agent_id)
-# tools(conversation_id=conversation_id)
+conversation_id = chat(agent_id=agent_id)
+tools(conversation_id=conversation_id)
+cleanup(user_id=user_id, agent_id=agent_id)
