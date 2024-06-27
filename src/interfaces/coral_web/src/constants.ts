@@ -5,6 +5,7 @@ export const DEFAULT_CONVERSATION_NAME = 'New Conversation';
 export const DEFAULT_TYPING_VELOCITY = 35;
 
 export const DEPLOYMENT_COHERE_PLATFORM = 'Cohere Platform';
+export const DEPLOYMENT_SINGLE_CONTAINER = 'Single Container';
 export const DEFAULT_AGENT_MODEL = 'command-r-plus';
 
 export const ACCEPTED_FILE_TYPES: FileAccept[] = [
