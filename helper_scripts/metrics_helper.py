@@ -133,8 +133,8 @@ def cleanup(user_id, agent_id):
 
 
 agent_id = agents()
-conversation_id = chat(agent_id=agent_id)
+# conversation_id = chat(agent_id=agent_id)
 
-tools(conversation_id=conversation_id)
-users()
-cleanup(user_id=user_id, agent_id=agent_id)
+# tools(conversation_id=conversation_id)
+# users()
+# cleanup(user_id=user_id, agent_id=agent_id)
