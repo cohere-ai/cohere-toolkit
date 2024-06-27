@@ -28,7 +28,7 @@ class MetricsAgent(BaseModel):
     name: str
     temperature: float
     model: str
-    deployment: str
+    deployment: str | None
     preamble: str | None
     description: str | None
 

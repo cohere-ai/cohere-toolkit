@@ -55,7 +55,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             return None
 
         agent = self.get_agent(request)
-        agent_id = agent.id if agent else None  
+        agent_id = agent.id if agent else None
 
         user_id = self.get_user_id(request)
         if not user_id:
@@ -167,18 +167,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
         if not hasattr(request.state, "agent") or not request.state.agent:
             return None
-        dict_agent = {
-            "id": request.state.agent.id,
-            "version": request.state.agent.version,
-            "name": request.state.agent.name,
-            "temperature": request.state.agent.temperature,
-            "model": request.state.agent.model,
-            "deployment": request.state.agent.deployment,
-            "description": request.state.agent.description,
-            "preamble": request.state.agent.preamble,
-            "tools": request.state.agent.tools,
-        }
-        return MetricsAgent(**dict_agent)
+        return request.state.agent
 
 
 async def report_metrics(signal: MetricsSignal) -> None:

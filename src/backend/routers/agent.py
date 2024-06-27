@@ -5,18 +5,13 @@ from backend.crud import agent as agent_crud
 from backend.crud import user as user_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import add_agent_to_request_state, add_user_to_request_state
 from backend.schemas.agent import Agent, CreateAgent, DeleteAgent, UpdateAgent
 from backend.services.auth.utils import get_header_user_id
 from backend.services.request_validators import (
     validate_create_agent_request,
     validate_update_agent_request,
     validate_user_header,
-)
-from backend.schemas.metrics import (
-    MetricsAgent,
-    MetricsData,
-    MetricsSignal,
-    MetricsUser,
 )
 
 router = APIRouter(
@@ -48,9 +43,9 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         tools=agent.tools,
     )
 
-    request.state.agent = agent_data
     try:
         return agent_crud.create_agent(session, agent_data)
+        add_agent_to_request_state(request, agent_data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -94,6 +89,7 @@ async def get_agent_by_id(
     """
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
+        add_agent_to_request_state(request, agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -103,7 +99,6 @@ async def get_agent_by_id(
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
-    request.state.agent = agent
     return agent
 
 
@@ -146,7 +141,7 @@ async def update_agent(
 
     try:
         agent = agent_crud.update_agent(session, agent, new_agent)
-        request.state.agent = agent
+        add_agent_to_request_state(request, agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -180,20 +175,10 @@ async def delete_agent(
             detail=f"Agent with ID {agent_id} not found.",
         )
 
-    request.state.agent = agent
+    add_agent_to_request_state(request, agent)
     try:
         agent_crud.delete_agent(session, agent_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     return DeleteAgent()
-
-
-def add_user_to_request_state(request: Request, session: DBSessionDep):
-    user_id = get_header_user_id(request)
-    if user_id:
-        user = user_crud.get_user(session, user_id)
-        request.state.user = MetricsUser(
-            id=user.id, email=user.email, fullname=user.fullname
-        )
-        

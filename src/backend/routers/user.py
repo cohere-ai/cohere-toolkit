@@ -4,6 +4,7 @@ from backend.config.routers import RouterName
 from backend.crud import user as user_crud
 from backend.database_models import User as UserModel
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import add_agent_to_request_state, add_user_to_request_state
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser
 from backend.schemas.user import User
 from backend.schemas.user import User as UserSchema
@@ -29,7 +30,7 @@ async def create_user(
     db_user = UserModel(**user.model_dump(exclude_none=True))
     db_user = user_crud.create_user(session, db_user)
 
-    request.state.user = UserSchema.model_validate(db_user)
+    add_user_to_request_state(request, session)
     return db_user
 
 
@@ -74,7 +75,7 @@ async def get_user(user_id: str, session: DBSessionDep, request: Request) -> Use
             status_code=404, detail=f"User with ID: {user_id} not found."
         )
 
-    request.state.user = User
+    add_user_to_request_state(request, session)
     return user
 
 
@@ -104,8 +105,7 @@ async def update_user(
         )
 
     user = user_crud.update_user(session, user, new_user)
-    request.state.user = UserSchema.model_validate(user)
-
+    add_user_to_request_state(request, session)
     return user
 
 
@@ -133,7 +133,7 @@ async def delete_user(
             status_code=404, detail=f"User with ID: {user_id} not found."
         )
 
-    request.state.user = UserSchema.model_validate(user)
+    add_user_to_request_state(request, session)
     user_crud.delete_user(session, user_id)
 
     return DeleteUser()

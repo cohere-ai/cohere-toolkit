@@ -82,7 +82,7 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        request.state.agent = Agent.model_validate(agent)
+        add_agent_to_request_state(request, agent)
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
