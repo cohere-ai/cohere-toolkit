@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 3d60aa423ec6
+Revision ID: 2d766d30a3d2
 Revises: 52633db2dae9
-Create Date: 2024-06-27 18:54:23.263846
+Create Date: 2024-06-27 23:54:25.525830
 
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "3d60aa423ec6"
+revision: str = "2d766d30a3d2"
 down_revision: Union[str, None] = "52633db2dae9"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -34,7 +34,11 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["agent_id"], ["agents.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
-            "user_id", "agent_id", "tool_name", name="_user_agent_tool_name_uc"
+            "user_id",
+            "agent_id",
+            "tool_name",
+            "type",
+            name="_user_agent_tool_name_type_uc",
         ),
     )
     # ### end Alembic commands ###
