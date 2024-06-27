@@ -1,8 +1,10 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useQuery } from '@tanstack/react-query';
+import useDrivePicker from 'react-google-drive-picker';
 
 import { ManagedTool, useCohereClient } from '@/cohere-client';
-import { LOCAL_STORAGE_KEYS } from '@/constants';
+import { LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { env } from '@/env.mjs';
 
 export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
@@ -39,4 +41,25 @@ export const useShowUnauthedToolsModal = () => {
     show: !hasDismissed && isToolAuthRequired,
     onDismissed: () => set(true),
   };
+};
+
+export const useOpenGoogleDrivePicker = (callbackFunction: (data: any) => void) => {
+  const [openPicker] = useDrivePicker();
+  const { data: toolsData } = useListTools();
+
+  const googleDriveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
+
+  return () =>
+    openPicker({
+      clientId: env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID,
+      developerKey: env.NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY,
+      token: googleDriveTool?.token || '',
+      setIncludeFolders: true,
+      setSelectFolderEnabled: true,
+      showUploadView: false,
+      showUploadFolders: false,
+      supportDrives: true,
+      multiselect: true,
+      callbackFunction,
+    });
 };

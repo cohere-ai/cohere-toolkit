@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Spinner, Text } from '@/components/Shared';
+import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
+import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { useAgentsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -15,9 +17,9 @@ type Props = {
 
 export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
-
   const { setEditAgentPanelOpen } = useAgentsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
+  const { data: toolsData } = useListTools();
   const { mutateAsync: updateAgent } = useUpdateAgent();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,6 +29,22 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     deployment: '',
     model: '',
     tools: [],
+  });
+  const [googleDriveFiles, setGoogleDriveFiles] = useState<
+    {
+      id: string;
+      name: string;
+      type: string;
+      url: string;
+    }[]
+  >();
+
+  const openFilePicker = useOpenGoogleDrivePicker((data) => {
+    if (data.docs) {
+      setGoogleDriveFiles(
+        data.docs.map((doc) => ({ id: doc.id, name: doc.name, type: doc.type, url: doc.url }))
+      );
+    }
   });
 
   const { userId } = useSession();
@@ -75,12 +93,33 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     });
   };
 
-  const handleToolToggle = (toolName: string, checked: boolean) => {
+  const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
     const enabledTools = fields.tools ?? [];
+    if (toolName === TOOL_GOOGLE_DRIVE_ID) {
+      handleGoogleDriveToggle(checked, authUrl);
+    }
+
     setFields({
       ...fields,
       tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
     });
+  };
+
+  const handleGoogleDriveToggle = (checked: boolean, authUrl?: string) => {
+    const driveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
+    if (checked) {
+      if (driveTool?.is_auth_required && authUrl) {
+        localStorage.setItem(
+          'pending_assistant',
+          JSON.stringify({ ...fields, tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID] })
+        );
+        authUrl && window.open(authUrl, '_self');
+      } else {
+        openFilePicker();
+      }
+    } else {
+      setGoogleDriveFiles(undefined);
+    }
   };
 
   const handleSubmit = async () => {
@@ -133,6 +172,9 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
           onChange={handleChange}
           onToolToggle={handleToolToggle}
           disabled={!isAgentCreator}
+          handleOpenFilePicker={openFilePicker}
+          googleDriveFiles={googleDriveFiles}
+          setGoogleDriveFiles={setGoogleDriveFiles}
         />
       </div>
       {isAgentCreator && (
