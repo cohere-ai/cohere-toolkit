@@ -1,8 +1,8 @@
 import cx from 'classnames';
 
 export const Icons = [
-  'add',
   'add-in-frame',
+  'add',
   'arrow-down',
   'arrow-left',
   'arrow-right',
@@ -26,6 +26,7 @@ export const Icons = [
   'close',
   'code-block',
   'code',
+  'compass',
   'copy',
   'dashboard',
   'download',
@@ -61,7 +62,9 @@ export const Icons = [
   'redo',
   'reorder',
   'search',
+  'selection-slash',
   'settings',
+  'share',
   'show',
   'side-panel',
   'sources',
@@ -76,9 +79,7 @@ export const Icons = [
   'upload',
   'warning',
   'web',
-  'compass',
   'wrench',
-  'share',
 ] as const;
 
 export type IconName = (typeof Icons)[number];
