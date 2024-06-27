@@ -77,11 +77,12 @@ const LoginPage: NextPage<Props> = () => {
     }
   };
 
-  const oidcAuthStart = (strategy: string, authorizationEndpoint: string) => {
+  const oidcAuthStart = (strategy: string, authorizationEndpoint: string, pkceEnabled: boolean) => {
     oidcAuth.start({
       redirect,
       strategy,
       authorizationEndpoint,
+      pkceEnabled,
     });
   };
 
@@ -104,7 +105,7 @@ const LoginPage: NextPage<Props> = () => {
               key={ssoConfig.strategy}
               className="inline-flex w-full flex-auto"
               service={ssoConfig.strategy}
-              onClick={() => oidcAuthStart(ssoConfig.strategy, ssoConfig.authorization_endpoint)}
+              onClick={() => oidcAuthStart(ssoConfig.strategy, ssoConfig.authorization_endpoint, ssoConfig.pkce_enabled)}
             />
           ))}
         </div>

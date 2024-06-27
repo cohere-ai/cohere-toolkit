@@ -33,7 +33,7 @@ class BaseOAuthStrategy:
 
     Attributes:
         NAME (str): The name of the strategy.
-        PKCE_ENABLED (bool): Whether the strategy can use PKCE. 
+        PKCE_ENABLED (bool): Whether the strategy can use PKCE.
             Note: If your auth provider does not support PKCE it could break the auth flow.
     """
 

@@ -3,12 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateAgent = {
-  name?: string | null;
-  version?: number | null;
-  description?: string | null;
-  preamble?: string | null;
-  temperature?: number | null;
-  model?: string | null;
-  deployment?: string | null;
-  tools?: Array<string> | null;
+    name?: (string | null);
+    version?: (number | null);
+    description?: (string | null);
+    preamble?: (string | null);
+    temperature?: (number | null);
+    model?: (string | null);
+    deployment?: (string | null);
+    tools?: (Array<string> | null);
 };
+

@@ -38,7 +38,7 @@ export const useSession = () => {
   });
 
   const isLoggedIn = useMemo(
-    () =>
+    () => 
       (authStrategies && authStrategies.length > 0 && !!authToken) ||
       !authStrategies ||
       authStrategies.length === 0,

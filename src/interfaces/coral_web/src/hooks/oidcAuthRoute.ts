@@ -20,29 +20,31 @@ export const useOidcAuthRoute = () => {
     async start({
       strategy,
       authorizationEndpoint,
+      pkceEnabled,
       redirectToReadMe = false,
       redirect,
       freeCreditCode,
       inviteHash,
       recaptchaToken = '',
-      pkce = true,
     }: {
       strategy: string;
       authorizationEndpoint: string;
+      pkceEnabled: boolean;
       redirectToReadMe?: boolean;
       redirect?: string;
       freeCreditCode?: string;
       inviteHash?: string;
       recaptchaToken?: string;
-      pkce?: boolean;
     }) {
       if (!authConfig.loginStrategies) {
         throw new Error('ssrUseLogin() and useLogin() may only be used in an auth host app.');
       }
 
-      if (pkce) {
-        const codeVerifier = generateCodeVerifier();
-        const codeChallenge = await generateCodeChallenge(codeVerifier);
+      let codeVerifier = '';
+      let codeChallenge = '';
+      if (pkceEnabled) {
+        codeVerifier = generateCodeVerifier();
+        codeChallenge = await generateCodeChallenge(codeVerifier);
         // TODO(AW): Should we put this in local storage instead?
         Cookies.set('code_verifier', codeVerifier, { sameSite: 'strict' });
         Cookies.set('code_challenge', codeChallenge, { sameSite: 'strict' });
@@ -75,7 +77,9 @@ export const useOidcAuthRoute = () => {
         prompt: 'select_account consent',
         state,
         ...(strategyConfig.client_id && { client_id: strategyConfig.client_id }),
+        ...(pkceEnabled && { code_challenge: codeChallenge, code_challenge_method: 'S256' }),
       }).toString()}`;
+      
 
       window.location.assign(url);
     },
