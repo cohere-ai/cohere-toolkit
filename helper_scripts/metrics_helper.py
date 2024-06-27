@@ -41,16 +41,18 @@ def agents():
 ## Users
 # Create User
 def users():
+    print ("running users")
     # # List Users
-    _ = requests.get(f"{base_url}/users", headers=headers)
-
+    res =  requests.get(f"{base_url}/users", headers=headers)
+    print(response.status_code)
     # # Get User
-    _ = requests.get(f"{base_url}/users/{user_id}", headers=headers)
-
+    res =  requests.get(f"{base_url}/users/{user_id}", headers=headers)
+    print(response.status_code)
     # # Update User
-    _ = requests.put(
+    res =  requests.put(
         f"{base_url}/users/{user_id}", headers=headers, json={"fullname": "new name"}
     )
+    print(response.status_code)
 
 
 # Chat
@@ -130,6 +132,7 @@ headers = {
 # TODO: please do not use global variables :,(
 
 # initial setup
+print("setting up")
 response = requests.post(
     f"{base_url}/users", headers=headers, json={"fullname": "qa tester"}
 )
@@ -137,7 +140,7 @@ response_json = response.json()
 user_id = response_json["id"]
 # update user id with correct value going forward
 headers["User-Id"] = user_id
-print("User info")
+print("Setup user info")
 print(response_json)
 
 
