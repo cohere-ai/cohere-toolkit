@@ -7,11 +7,19 @@ import {
   CreateAgentFormFields,
 } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
-import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
+import { DEFAULT_AGENT_MODEL, DEFAULT_AGENT_TOOLS, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 
+const DEFAULT_FIELD_VALUES = {
+  name: '',
+  description: '',
+  preamble: '',
+  deployment: DEPLOYMENT_COHERE_PLATFORM,
+  model: DEFAULT_AGENT_MODEL,
+  tools: DEFAULT_AGENT_TOOLS,
+};
 /**
  * @description Form to create a new agent.
  */
@@ -23,14 +31,7 @@ export const CreateAgentForm: React.FC = () => {
   const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<CreateAgentFormFields>({
-    name: '',
-    description: '',
-    preamble: '',
-    deployment: DEPLOYMENT_COHERE_PLATFORM,
-    model: DEFAULT_AGENT_MODEL,
-    tools: [],
-  });
+  const [fields, setFields] = useState<CreateAgentFormFields>(DEFAULT_FIELD_VALUES);
 
   const fieldErrors = {
     ...(isAgentNameUnique(fields.name) ? {} : { name: 'Assistant name must be unique' }),
@@ -77,14 +78,7 @@ export const CreateAgentForm: React.FC = () => {
       setIsSubmitting(true);
       const agent = await createAgent(fields);
       addRecentAgentId(agent.id);
-      setFields({
-        name: '',
-        description: '',
-        preamble: '',
-        deployment: DEPLOYMENT_COHERE_PLATFORM,
-        model: DEFAULT_AGENT_MODEL,
-        tools: [],
-      });
+      setFields(DEFAULT_FIELD_VALUES);
       close();
       setIsSubmitting(false);
       router.push(`/agents/${agent.id}`, undefined, { shallow: true });
