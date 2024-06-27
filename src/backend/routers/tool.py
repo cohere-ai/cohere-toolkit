@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, HTTPException, Request
 
 from backend.config.routers import RouterName
@@ -45,5 +43,6 @@ def list_tools(
                 session, user_id
             )
             tool.auth_url = tool.auth_implementation.get_auth_url(user_id)
+            tool.token = tool.auth_implementation.get_token(session, user_id)
 
     return all_tools

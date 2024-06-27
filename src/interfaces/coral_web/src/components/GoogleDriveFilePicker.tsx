@@ -3,11 +3,15 @@ import useDrivePicker from 'react-google-drive-picker';
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
 import { env } from '@/env.mjs';
+import { useListTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 
+const GOOGLE_DRIVE_TOOL_NAME = 'google_drive';
+
 export const GoogleDriveFilePicker: React.FC = () => {
   const [openPicker] = useDrivePicker();
+  const { data: toolsData } = useListTools();
   const {
     params: { googleDriveFiles },
     setGoogleDriveFiles,
@@ -15,9 +19,11 @@ export const GoogleDriveFilePicker: React.FC = () => {
   } = useParamsStore();
 
   const handleOpenPicker = () => {
+    const googleDriveTool = toolsData?.find((tool) => tool.name === GOOGLE_DRIVE_TOOL_NAME);
     openPicker({
       clientId: env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID,
       developerKey: env.NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY,
+      token: googleDriveTool?.token || '',
       setIncludeFolders: true,
       setSelectFolderEnabled: true,
       showUploadView: false,
