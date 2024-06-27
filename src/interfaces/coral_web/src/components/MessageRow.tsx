@@ -49,7 +49,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
 
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
-  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(isLast);
+  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
   const {
     citations: { selectedCitation, hoveredGenerationId },
     hoverCitation,
@@ -81,12 +81,6 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
       setTimeout(() => setIsShowing(true), 300);
     }
   }, []);
-
-  useEffect(() => {
-    if (isLast) {
-      setIsStepsExpanded(true);
-    }
-  }, [isLast]);
 
   const [highlightMessage, setHighlightMessage] = useState(false);
   const prevSelectedCitationGenId = usePreviousDistinct(selectedCitation?.generationId);

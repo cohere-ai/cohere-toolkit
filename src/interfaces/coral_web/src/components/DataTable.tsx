@@ -1,4 +1,5 @@
-import { PropsWithChildren, useCallback } from 'react';
+import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
+import { ComponentPropsWithoutRef, useCallback } from 'react';
 
 import { Icon, Text } from '@/components/Shared';
 import { StructuredTable } from '@/components/Shared/Markdown/directives/table-tools';
@@ -9,9 +10,11 @@ import { downloadFile, structuredTableToXSV } from '@/utils/download';
 
 const FALLBACK_FILE_NAME = 'cohere-table';
 
-type Props = PropsWithChildren<{
-  structuredTable: StructuredTable | null;
-}>;
+type ElementProps = {
+  hProperties: {
+    structuredTable: StructuredTable;
+  };
+};
 
 /**
  * A React component that wraps a table generated from Markdown and adds functionality related to the data in the table
@@ -22,15 +25,20 @@ type Props = PropsWithChildren<{
  * How to test: Every Markdown table gets converted to a DataTable. In the chat app, try the following query:
  * "Create a table with 2 columns: (1) Cuisine; (2) One popular dish from that cuisine"
  */
-export const DataTable: React.FC<Props> = (props) => {
-  const { children, structuredTable } = props;
+export const DataTable: Component<ComponentPropsWithoutRef<'table'> & ExtraProps> = ({
+  children,
+  node,
+}) => {
+  const data = node?.data as ElementProps | undefined;
+  const structuredTable = data?.hProperties?.structuredTable;
+
   const {
     conversation: { name: conversationName },
   } = useConversationStore();
   const { error } = useNotify();
 
   const downloadAsCSV = useCallback(() => {
-    const csv = structuredTableToXSV(structuredTable, ',');
+    const csv = structuredTableToXSV(structuredTable!, ',');
     if (csv === null) {
       error('Unable to download table as CSV.');
       return;
