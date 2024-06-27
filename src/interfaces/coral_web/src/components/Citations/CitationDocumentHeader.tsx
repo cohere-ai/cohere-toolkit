@@ -1,12 +1,12 @@
 import { IconButton } from '@/components/IconButton';
 import { DocumentIcon, Icon, IconName, Text } from '@/components/Shared';
-import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_INTERNET_SEARCH_ID } from '@/constants';
+import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';
 import { cn, getSafeUrl, getWebDomain } from '@/utils';
 
 const getWebSourceName = (toolId?: string) => {
   if (!toolId) {
     return '';
-  } else if (toolId === TOOL_INTERNET_SEARCH_ID) {
+  } else if (toolId === TOOL_WEB_SEARCH_ID) {
     return 'from the web';
   }
   return `from ${toolId}`;
