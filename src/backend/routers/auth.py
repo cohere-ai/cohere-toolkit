@@ -89,7 +89,8 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
-        missing_keys = [key for key in strategy_payload if key not in payload.keys()]
+        missing_keys = [
+            key for key in strategy_payload if key not in payload.keys()]
         raise HTTPException(
             status_code=422,
             detail=f"Missing the following keys in the payload: {missing_keys}.",
