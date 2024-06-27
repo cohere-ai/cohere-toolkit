@@ -1,4 +1,4 @@
-import { Citation, File, StreamToolInput } from '@/cohere-client';
+import { Citation, File, StreamToolCallsGeneration, StreamToolInput } from '@/cohere-client';
 
 export enum BotState {
   LOADING = 'loading',
@@ -36,7 +36,7 @@ export type FulfilledMessage = BaseMessage & {
   citations?: Citation[];
   isRAGOn?: boolean;
   originalText: string;
-  toolEvents?: StreamToolInput[];
+  toolEvents?: StreamToolCallsGeneration[];
 };
 
 /**
@@ -45,7 +45,7 @@ export type FulfilledMessage = BaseMessage & {
 export type AbortedMessage = BaseMessage & {
   type: MessageType.BOT;
   state: BotState.ABORTED;
-  toolEvents?: StreamToolInput[];
+  toolEvents?: StreamToolCallsGeneration[];
 };
 
 /**
@@ -67,7 +67,7 @@ export type TypingMessage = BaseMessage & {
   originalText: string;
   citations?: Citation[];
   isRAGOn?: boolean;
-  toolEvents?: StreamToolInput[];
+  toolEvents?: StreamToolCallsGeneration[];
 };
 
 /**
