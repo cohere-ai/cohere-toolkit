@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
+from backend.crud import user as user_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, CreateAgent, DeleteAgent, UpdateAgent
@@ -27,7 +28,10 @@ router.name = RouterName.AGENT
     ],
 )
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
+    # add user data into request state for metrics
     user_id = get_header_user_id(request)
+    user = user_crud.get_user(session, user_id)
+    request.state.user = user
 
     agent_data = AgentModel(
         name=agent.name,
@@ -128,6 +132,10 @@ async def update_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    user_id = get_header_user_id(request)
+    if user_id:
+        user = user_crud.get_user(session, user_id)
+        request.state.user = user
     agent = agent_crud.get_agent_by_id(session, agent_id)
     if not agent:
         raise HTTPException(
@@ -162,6 +170,9 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    if user_id:
+        user = user_crud.get_user(session, user_id)
+        request.state.user = user
     agent = agent_crud.get_agent_by_id(session, agent_id)
 
     if not agent:

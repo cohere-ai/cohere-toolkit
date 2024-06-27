@@ -1,5 +1,6 @@
 import json
 import re
+from uuid import uuid4
 
 import requests
 
@@ -32,12 +33,13 @@ def agents():
         f"{base_url}/agents",
         headers=headers,
         json={
-            "name": "hello-world",
+            "name": str(uuid4()),
             "model": "command-r",
             "deployment": "Cohere Platform",
             "tools": ["web_search"],
         },
     )
+    print(response.json())
     agent_id = response.json()["id"]
     # # List Agents
     _ = requests.get(f"{base_url}/agents", headers=headers)
@@ -132,9 +134,9 @@ def cleanup(user_id, agent_id):
     _ = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
 
 
-agent_id = agents()
-conversation_id = chat(agent_id=agent_id)
-
-tools(conversation_id=conversation_id)
 users()
-cleanup(user_id=user_id, agent_id=agent_id)
+agent_id = agents()
+# conversation_id = chat(agent_id=agent_id)
+
+# tools(conversation_id=conversation_id)
+# cleanup(user_id=user_id, agent_id=agent_id)

@@ -55,7 +55,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             return None
 
         agent = self.get_agent(request)
-        agent_id = agent.get("id", None) if agent else None
+        agent_id = agent.id if agent else None  
 
         user_id = self.get_user_id(request)
         if not user_id:
