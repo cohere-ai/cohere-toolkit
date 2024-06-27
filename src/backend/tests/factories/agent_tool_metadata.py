@@ -27,5 +27,5 @@ class AgentToolMetadataFactory(BaseFactory):
             )
         ]
     )
-    artifact_id = factory.Faker("sentence")
+    artifact_id = factory.List([])
     agent_id = factory.Faker("uuid4")

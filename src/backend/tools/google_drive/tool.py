@@ -4,6 +4,8 @@ from typing import Any, Dict, List
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+from backend.config.tools import ToolName
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import tool_auth as tool_auth_crud
 from backend.services.compass import Compass
 from backend.services.logger import get_logger
@@ -58,7 +60,10 @@ class GoogleDrive(BaseTool):
         else:
             # Condition on folders if exist
             # parameters["folder_ids"] = ["1sftqQpEe9MkdqdskyA3UV7FJ9E8UvXBb"]
-            if folder_ids := parameters.get("folder_ids", None):
+            tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_agent_id_and_tool_name(
+                kwargs.get("session"), kwargs.get("agent_id"), ToolName.Google_Drive
+            )
+            if folder_ids := tool_metadata.artifacts:
                 [
                     conditions.append("'{}' in parents ".format(folder_id))
                     for folder_id in folder_ids

@@ -1,6 +1,7 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Text, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base
@@ -9,12 +10,12 @@ from backend.database_models.base import Base
 class AgentToolMetadata(Base):
     __tablename__ = "agent_tool_metadata"
 
-    user_id: Mapped[str] = mapped_column(String, nullable=False)
+    user_id: Mapped[str] = mapped_column(Text, nullable=False)
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=False
     )
-    tool_name: Mapped[str] = mapped_column(String, nullable=False)
-    artifact_id: Mapped[str] = mapped_column(String, nullable=True)
+    tool_name: Mapped[str] = mapped_column(Text, nullable=False)
+    artifacts: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=True)
 
     __table_args__ = (
         UniqueConstraint(
