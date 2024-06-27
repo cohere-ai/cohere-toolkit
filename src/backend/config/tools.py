@@ -11,6 +11,7 @@ from backend.tools import (
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
+    WebScrapeTool,
 )
 from backend.tools.google_drive import (
     GOOGLE_DRIVE_TOOL_ID,
@@ -37,6 +38,7 @@ class ToolName(StrEnum):
     Python_Interpreter = "toolkit_python_interpreter"
     Calculator = "toolkit_calculator"
     Tavily_Internet_Search = "web_search"
+    Web_Scrape = "web_scrape"
     Google_Drive = GOOGLE_DRIVE_TOOL_ID
 
 
@@ -148,6 +150,28 @@ ALL_TOOLS = {
         error_message="Calculator tool not available.",
         category=Category.Function,
         description="This is a powerful multi-purpose calculator which is capable of a wide array of math calculations.",
+    ),
+    ToolName.Web_Scrape: ManagedTool(
+        name=ToolName.Web_Scrape,
+        display_name="Web Scrape",
+        implementation=WebScrapeTool,
+        parameter_definitions={
+            "url": {
+                "description": "URL to scrape.",
+                "type": "str",
+                "required": True,
+            },
+            "query": {
+                "description": "Query to search the webpage for.",
+                "type": "str",
+                "required": False,
+            },
+        },
+        is_visible=True,
+        is_available=WebScrapeTool.is_available(),
+        error_message="WebScrapeTool not available.",
+        category=Category.DataLoader,
+        description="Scrapes the content of a webpage, chunks and ranks the content by relevance to the query.",
     ),
     ToolName.Google_Drive: ManagedTool(
         name=ToolName.Google_Drive,
