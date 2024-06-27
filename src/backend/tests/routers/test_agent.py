@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
-from backend.config.tools import ALL_TOOLS, ToolName
+from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.tests.factories import get_factory
@@ -46,12 +46,52 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
     assert agent.deployment == request_json["deployment"]
     assert agent.tools == request_json["tools"]
 
-    agent_tool_metadata = (
+
+def test_create_agent_with_tool_metadata(
+    session_client: TestClient, session: Session
+) -> None:
+    request_json = {
+        "name": "test agent",
+        "version": 1,
+        "description": "test description",
+        "preamble": "test preamble",
+        "temperature": 0.5,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [ToolName.Google_Drive],
+        "tools_metadata": [
+            {
+                "tool_name": ToolName.Google_Drive,
+                "artifacts": ["folder1", "folder2"],
+                "type": "folder_ids",
+            },
+            {
+                "tool_name": ToolName.Google_Drive,
+                "artifacts": ["file1", "file2"],
+                "type": "file_ids",
+            },
+        ],
+    }
+
+    response = session_client.post(
+        "/v1/agents", json=request_json, headers={"User-Id": "123"}
+    )
+    print(response.json())
+    assert response.status_code == 200
+    response_agent = response.json()
+
+    tool_metadata = (
         session.query(AgentToolMetadata)
-        .filter(AgentToolMetadata.agent_id == agent.id)
+        .filter(AgentToolMetadata.agent_id == response_agent["id"])
         .all()
     )
-    assert len(agent_tool_metadata) == len(ALL_TOOLS)
+    assert len(tool_metadata) == 2
+    assert tool_metadata[0].tool_name == ToolName.Google_Drive
+    assert tool_metadata[0].artifacts == ["folder1", "folder2"]
+    assert tool_metadata[0].type == "folder_ids"
+    assert tool_metadata[1].tool_name == ToolName.Google_Drive
+    assert tool_metadata[1].artifacts == ["file1", "file2"]
+    assert tool_metadata[1].type == "file_ids"
 
 
 def test_create_agent_missing_name(
@@ -509,3 +549,158 @@ def test_fail_delete_nonexistent_agent(
     response = session_client.delete("/v1/agents/456", headers={"User-Id": "123"})
     assert response.status_code == 400
     assert response.json() == {"detail": "Agent with ID 456 not found."}
+
+
+# Test create agent tool metadata
+def test_create_agent_tool_metadata(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(user_id="123")
+    request_json = {
+        "tool_name": ToolName.Google_Drive,
+        "type": "folder_ids",
+        "artifacts": ["folder1", "folder2"],
+    }
+
+    response = session_client.post(
+        f"/v1/agents/{agent.id}/tool-metadata",
+        json=request_json,
+        headers={"User-Id": "123"},
+    )
+    assert response.status_code == 200
+    response_agent_tool_metadata = response.json()
+
+    assert response_agent_tool_metadata["tool_name"] == request_json["tool_name"]
+    assert response_agent_tool_metadata["type"] == request_json["type"]
+    assert response_agent_tool_metadata["artifacts"] == request_json["artifacts"]
+
+    agent_tool_metadata = session.get(
+        AgentToolMetadata, response_agent_tool_metadata["id"]
+    )
+    assert agent_tool_metadata.tool_name == ToolName.Google_Drive
+    assert agent_tool_metadata.type == "folder_ids"
+    assert agent_tool_metadata.artifacts == ["folder1", "folder2"]
+
+
+def test_update_agent_tool_metadata(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(user_id="123")
+    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+        agent_id=agent.id,
+        tool_name=ToolName.Google_Drive,
+        type="folder_ids",
+        artifacts=["folder1", "folder2"],
+    )
+
+    request_json = {"type": "file_ids", "artifacts": ["file1", "file2"]}
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}/tool-metadata/{agent_tool_metadata.id}",
+        json=request_json,
+        headers={"User-Id": "123"},
+    )
+
+    assert response.status_code == 200
+    response_agent_tool_metadata = response.json()
+    assert response_agent_tool_metadata["id"] == agent_tool_metadata.id
+    assert response_agent_tool_metadata["type"] == "file_ids"
+    assert response_agent_tool_metadata["artifacts"] == ["file1", "file2"]
+
+
+def test_partial_update_agent_tool_metadata(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(user_id="123")
+    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+        agent_id=agent.id,
+        tool_name=ToolName.Google_Drive,
+        type="folder_ids",
+        artifacts=["folder1", "folder2"],
+    )
+
+    request_json = {
+        "artifacts": ["folder4", "folder5"],
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}/tool-metadata/{agent_tool_metadata.id}",
+        json=request_json,
+        headers={"User-Id": "123"},
+    )
+
+    assert response.status_code == 200
+    response_agent_tool_metadata = response.json()
+    assert response_agent_tool_metadata["type"] == "folder_ids"
+    assert response_agent_tool_metadata["artifacts"] == ["folder4", "folder5"]
+
+
+def test_get_agent_tool_metadata(session_client: TestClient, session: Session) -> None:
+    agent = get_factory("Agent", session).create(user_id="123")
+    agent_tool_metadata_1 = get_factory("AgentToolMetadata", session).create(
+        agent_id=agent.id,
+        tool_name=ToolName.Google_Drive,
+        type="folder_ids",
+        artifacts=["folder1", "folder2"],
+    )
+    agent_tool_metadata_2 = get_factory("AgentToolMetadata", session).create(
+        agent_id=agent.id,
+        tool_name=ToolName.Google_Drive,
+        type="file_ids",
+        artifacts=["file1", "file2"],
+    )
+
+    response = session_client.get(
+        f"/v1/agents/{agent.id}/tool-metadata", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+    response_agent_tool_metadata = response.json()
+    assert response_agent_tool_metadata[0]["id"] == agent_tool_metadata_1.id
+    assert (
+        response_agent_tool_metadata[0]["tool_name"] == agent_tool_metadata_1.tool_name
+    )
+    assert response_agent_tool_metadata[0]["type"] == agent_tool_metadata_1.type
+    assert (
+        response_agent_tool_metadata[0]["artifacts"] == agent_tool_metadata_1.artifacts
+    )
+    assert response_agent_tool_metadata[1]["id"] == agent_tool_metadata_2.id
+    assert (
+        response_agent_tool_metadata[1]["tool_name"] == agent_tool_metadata_2.tool_name
+    )
+    assert response_agent_tool_metadata[1]["type"] == agent_tool_metadata_2.type
+    assert (
+        response_agent_tool_metadata[1]["artifacts"] == agent_tool_metadata_2.artifacts
+    )
+
+
+def test_delete_agent_tool_metadata(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(user_id="123")
+    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+        agent_id=agent.id,
+        tool_name=ToolName.Google_Drive,
+        type="folder_ids",
+        artifacts=["folder1", "folder2"],
+    )
+
+    response = session_client.delete(
+        f"/v1/agents/{agent.id}/tool-metadata/{agent_tool_metadata.id}",
+        headers={"User-Id": "123"},
+    )
+    assert response.status_code == 200
+    assert response.json() == {}
+
+    agent_tool_metadata = session.get(AgentToolMetadata, agent_tool_metadata.id)
+    assert agent_tool_metadata is None
+
+
+def test_fail_delete_nonexistent_agent_tool_metadata(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(user_id="123", id="456")
+    response = session_client.delete(
+        "/v1/agents/456/tool-metadata/789", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Agent tool metadata with ID 789 not found."}

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 47b8c4f0a7de
+Revision ID: 3d60aa423ec6
 Revises: 52633db2dae9
-Create Date: 2024-06-27 17:53:01.954846
+Create Date: 2024-06-27 18:54:23.263846
 
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "47b8c4f0a7de"
+revision: str = "3d60aa423ec6"
 down_revision: Union[str, None] = "52633db2dae9"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,10 +26,8 @@ def upgrade() -> None:
         sa.Column("user_id", sa.Text(), nullable=False),
         sa.Column("agent_id", sa.String(), nullable=False),
         sa.Column("tool_name", sa.Text(), nullable=False),
-        sa.Column("google_drive_file_ids", postgresql.ARRAY(sa.Text()), nullable=True),
-        sa.Column(
-            "google_drive_folder_ids", postgresql.ARRAY(sa.Text()), nullable=True
-        ),
+        sa.Column("type", sa.Text(), nullable=False),
+        sa.Column("artifacts", postgresql.ARRAY(sa.Text()), nullable=True),
         sa.Column("id", sa.String(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),

@@ -15,13 +15,15 @@ class AgentToolMetadata(Base):
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=False
     )
     tool_name: Mapped[str] = mapped_column(Text, nullable=False)
-    google_drive_file_ids: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=True)
-    google_drive_folder_ids: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=True
-    )
+    type: Mapped[str] = mapped_column(Text, nullable=False)
+    artifacts: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=True)
 
     __table_args__ = (
         UniqueConstraint(
-            "user_id", "agent_id", "tool_name", name="_user_agent_tool_name_uc"
+            "user_id",
+            "agent_id",
+            "tool_name",
+            "type",
+            name="_user_agent_tool_name_type_uc",
         ),
     )

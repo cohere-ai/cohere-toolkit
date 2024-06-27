@@ -13,7 +13,9 @@ from backend.schemas.agent import (
     Agent,
     AgentToolMetadata,
     CreateAgent,
+    CreateAgentToolMetadata,
     DeleteAgent,
+    DeleteAgentToolMetadata,
     UpdateAgent,
     UpdateAgentToolMetadata,
 )
@@ -39,6 +41,20 @@ router.name = RouterName.AGENT
     ],
 )
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
+    """
+    Create an agent.
+
+    Args:
+        session (DBSessionDep): Database session.
+        agent (CreateAgent): Agent data.
+        request (Request): Request object.
+
+    Returns:
+        Agent: Created agent.
+
+    Raises:
+        HTTPException: If the agent creation fails.
+    """
     user_id = get_header_user_id(request)
 
     agent_data = AgentModel(
@@ -55,16 +71,18 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
     request.state.agent = agent_data
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
-        for tool in ALL_TOOLS:
-            agent_tool_metadata_data = AgentToolMetadataModel(
-                user_id=user_id,
-                agent_id=created_agent.id,
-                tool_name=tool.name,
-            )
-            agent_tool_metadata_crud.create_agent_tool_metadata(
-                session, agent_tool_metadata_data
-            )
-
+        if agent.tools_metadata:
+            for tool_metadata in agent.tools_metadata:
+                agent_tool_metadata_data = AgentToolMetadataModel(
+                    user_id=user_id,
+                    agent_id=created_agent.id,
+                    tool_name=tool_metadata.tool_name,
+                    type=tool_metadata.type,
+                    artifacts=tool_metadata.artifacts,
+                )
+                agent_tool_metadata_crud.create_agent_tool_metadata(
+                    session, agent_tool_metadata_data
+                )
         return created_agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -202,26 +220,164 @@ async def delete_agent(
     return DeleteAgent()
 
 
-@router.put("/{agent_id}/tool-metadata")
-async def update_agent_tool_metadata(
-    agent_id: str,
+# Tool Metadata Endpoints
+
+
+@router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadata])
+async def list_agent_tool_metadata(
+    agent_id: str, session: DBSessionDep, request: Request
+) -> list[AgentToolMetadata]:
+    """
+    List all agent tool metadata by agent ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        session (DBSessionDep): Database session.
+        request (Request): Request object.
+
+    Returns:
+        list[AgentToolMetadata]: List of agent tool metadata.
+
+    Raises:
+        HTTPException: If the agent tool metadata retrieval fails.
+    """
+    try:
+        return agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
+            session, agent_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post(
+    "/{agent_id}/tool-metadata",
+    response_model=AgentToolMetadata,
+)
+def create_agent_tool_metadata(
     session: DBSessionDep,
-    agent_tool_metadata: UpdateAgentToolMetadata,
+    agent_id: str,
+    agent_tool_metadata: CreateAgentToolMetadata,
     request: Request,
 ) -> AgentToolMetadata:
-    tool_metadata = (
-        agent_tool_metadata_crud.get_agent_tool_metadata_by_agent_id_and_tool_name(
-            session, agent_id, agent_tool_metadata.tool_name
-        )
+    """
+    Create an agent tool metadata.
+
+    Args:
+        session (DBSessionDep): Database session.
+        agent_id (str): Agent ID.
+        agent_tool_metadata (CreateAgentToolMetadata): Agent tool metadata data.
+        request (Request): Request object.
+
+    Returns:
+        AgentToolMetadata: Created agent tool metadata.
+
+    Raises:
+        HTTPException: If the agent tool metadata creation fails.
+    """
+    user_id = get_header_user_id(request)
+
+    agent_tool_metadata_data = AgentToolMetadataModel(
+        user_id=user_id,
+        agent_id=agent_id,
+        tool_name=agent_tool_metadata.tool_name,
+        type=agent_tool_metadata.type,
+        artifacts=agent_tool_metadata.artifacts,
     )
-    if not tool_metadata:
+
+    request.state.agent_tool_metadata = agent_tool_metadata_data
+    try:
+        created_agent_tool_metadata = (
+            agent_tool_metadata_crud.create_agent_tool_metadata(
+                session, agent_tool_metadata_data
+            )
+        )
+        request.state.agent_tool_metadata = agent_tool_metadata_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return created_agent_tool_metadata
+
+
+@router.put("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
+async def update_agent_tool_metadata(
+    agent_id: str,
+    agent_tool_metadata_id: str,
+    session: DBSessionDep,
+    new_agent_tool_metadata: UpdateAgentToolMetadata,
+    request: Request,
+) -> AgentToolMetadata:
+    """
+    Update an agent tool metadata by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        agent_tool_metadata_id (str): Agent tool metadata ID.
+        session (DBSessionDep): Database session.
+        new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
+        request (Request): Request object.
+
+    Returns:
+        AgentToolMetadata: Updated agent tool metadata.
+
+    Raises:
+        HTTPException: If the agent tool metadata with the given ID is not found.
+        HTTPException: If the agent tool metadata update fails.
+    """
+    agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
+        session, agent_tool_metadata_id
+    )
+    if not agent_tool_metadata:
         raise HTTPException(
             status_code=400,
-            detail=f"Agent tool metadata with tool name {agent_tool_metadata.tool_name} not found.",
+            detail=f"Agent tool metadata with ID {agent_tool_metadata_id} not found.",
         )
 
-    agent_tool_metadata_crud.update_agent_tool_metadata(
-        session, tool_metadata, agent_tool_metadata
-    )
+    try:
+        agent_tool_metadata_crud.update_agent_tool_metadata(
+            session, agent_tool_metadata, new_agent_tool_metadata
+        )
+        request.state.agent_tool_metadata = agent_tool_metadata
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return tool_metadata
+    return agent_tool_metadata
+
+
+@router.delete("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
+async def delete_agent_tool_metadata(
+    agent_id: str, agent_tool_metadata_id: str, session: DBSessionDep, request: Request
+) -> DeleteAgentToolMetadata:
+    """
+    Delete an agent tool metadata by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        agent_tool_metadata_id (str): Agent tool metadata ID.
+        session (DBSessionDep): Database session.
+        request (Request): Request object.
+
+    Returns:
+        DeleteAgentToolMetadata: Empty response.
+
+    Raises:
+        HTTPException: If the agent tool metadata with the given ID is not found.
+        HTTPException: If the agent tool metadata deletion fails.
+    """
+    agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
+        session, agent_tool_metadata_id
+    )
+    if not agent_tool_metadata:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Agent tool metadata with ID {agent_tool_metadata_id} not found.",
+        )
+
+    request.state.agent_tool_metadata = agent_tool_metadata
+    try:
+        agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
+            session, agent_tool_metadata_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return DeleteAgentToolMetadata()

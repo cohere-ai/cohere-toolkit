@@ -27,6 +27,5 @@ class AgentToolMetadataFactory(BaseFactory):
             )
         ]
     )
-    google_drive_file_ids = factory.List([])
-    google_drive_folder_ids = factory.List([])
+    type = factory.Faker("sentence")
     agent_id = factory.Faker("uuid4")
