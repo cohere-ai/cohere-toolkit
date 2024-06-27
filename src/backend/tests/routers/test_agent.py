@@ -46,7 +46,11 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
     assert agent.deployment == request_json["deployment"]
     assert agent.tools == request_json["tools"]
 
-    agent_tool_metadata = session.query(AgentToolMetadata).filter(AgentToolMetadata.agent_id == agent.id).all()
+    agent_tool_metadata = (
+        session.query(AgentToolMetadata)
+        .filter(AgentToolMetadata.agent_id == agent.id)
+        .all()
+    )
     assert len(agent_tool_metadata) == 3
 
 

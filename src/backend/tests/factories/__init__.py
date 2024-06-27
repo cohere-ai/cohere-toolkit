@@ -1,4 +1,5 @@
 from backend.tests.factories.agent import AgentFactory
+from backend.tests.factories.agent_tool_metadata import AgentToolMetadataFactory
 from backend.tests.factories.blacklist import BlacklistFactory
 from backend.tests.factories.citation import CitationFactory
 from backend.tests.factories.conversation import ConversationFactory
@@ -20,6 +21,7 @@ FACTORY_MAPPING = {
     "Agent": AgentFactory,
     "Organization": OrganizationFactory,
     "ToolCall": ToolCallFactory,
+    "AgentToolMetadata": AgentToolMetadataFactory,
 }
 
 

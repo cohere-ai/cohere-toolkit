@@ -62,10 +62,12 @@ class UpdateAgent(BaseModel):
 class DeleteAgent(BaseModel):
     pass
 
+
 class AgentToolMetadata(BaseModel):
     user_id: str
     tool_name: str
     artifact_id: str
+
 
 class UpdateAgentToolMetadata(BaseModel):
     tool_name: str

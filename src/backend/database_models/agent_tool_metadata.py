@@ -16,4 +16,8 @@ class AgentToolMetadata(Base):
     tool_name: Mapped[str] = mapped_column(String, nullable=False)
     artifact_id: Mapped[str] = mapped_column(String, nullable=True)
 
-    __table_args__ = (UniqueConstraint("user_id", "agent_id", "tool_name", name="_user_agent_tool_name_uc"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id", "agent_id", "tool_name", name="_user_agent_tool_name_uc"
+        ),
+    )
