@@ -52,7 +52,7 @@ class CreateSnapshot(BaseModel):
 
 
 class CreateSnapshotResponse(SnapshotLink):
-    id: str
+    link_id: str
     messages: list[dict]
 
     class Config:

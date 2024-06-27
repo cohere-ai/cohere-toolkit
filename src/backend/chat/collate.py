@@ -140,10 +140,8 @@ def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=
 
 
 def to_dict(obj):
-    def default(o):
-        if isinstance(o, datetime.datetime):
-            return o.isoformat()
-        else:
-            return {k: v for k, v in o.__dict__.items() if not k.startswith("_")}
-
-    return json.loads(json.dumps(obj, default=default))
+    return json.loads(
+        json.dumps(
+            obj, default=lambda o: o.__dict__ if hasattr(o, "__dict__") else str(o)
+        )
+    )

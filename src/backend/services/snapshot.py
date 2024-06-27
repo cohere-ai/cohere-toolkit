@@ -1,5 +1,6 @@
 import logging
-from typing import Any
+from datetime import datetime
+from typing import Any, Iterable
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -11,6 +12,7 @@ from backend.database_models import Snapshot as SnapshotModel
 from backend.database_models import SnapshotAccess as SnapshotAccessModel
 from backend.database_models import SnapshotLink as SnapshotLinkModel
 from backend.database_models.database import DBSessionDep
+from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import (
     CreateSnapshot,
     CreateSnapshotResponse,
@@ -34,16 +36,9 @@ def validate_last_message(last_message_id):
         raise HTTPException(status_code=404, detail="Conversation has no messages")
 
 
-def validate_snapshot_doest_exist(session, last_message_id):
-    snapshot = snapshot_crud.get_snapshot_by_last_message_id(session, last_message_id)
-    if snapshot:
-        raise HTTPException(status_code=409, detail="Snapshot already exists")
-    return snapshot
-
-
-def validate_snapshot_exists(session, snapshot_id):
+def validate_snapshot_exists(session, snapshot_id, raise_exception=True):
     snapshot = snapshot_crud.get_snapshot(session, snapshot_id)
-    if not snapshot:
+    if not snapshot and raise_exception:
         raise HTTPException(status_code=404, detail="Snapshot not found")
     return snapshot
 
@@ -62,10 +57,8 @@ def validate_snapshot_link(session, link_id):
 
 def create_conversation_dict(conversation):
     try:
-        conversation_dict = to_dict(conversation)
-        conversation_dict["messages"] = to_dict(conversation.messages)
-        conversation_dict.pop("text_messages", None)
-        return conversation_dict
+        conversation_schema = Conversation.model_validate(conversation)
+        return to_dict(conversation_schema)
     except Exception as e:
         logging.error(f"Error creating snapshot: {e}")
         raise HTTPException(status_code=500, detail=f"Error creating snapshot - {e}")

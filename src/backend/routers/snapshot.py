@@ -22,7 +22,6 @@ from backend.services.snapshot import (
     remove_private_keys,
     validate_conversation,
     validate_last_message,
-    validate_snapshot_doest_exist,
     validate_snapshot_exists,
     validate_snapshot_link,
     wrap_create_snapshot,
@@ -60,19 +59,21 @@ async def create_snapshot(
     last_message_id = conversation.messages[-1].id if conversation.messages else None
     validate_last_message(last_message_id)
 
-    _ = validate_snapshot_doest_exist(session, last_message_id)
+    snapshot = snapshot_crud.get_snapshot_by_last_message_id(session, last_message_id)
 
     # Remove private keys from snapshot before returning it
     conversation_dict = create_conversation_dict(conversation)
     conversation_dict = remove_private_keys(conversation_dict, PRIVATE_KEYS)
 
-    snapshot = wrap_create_snapshot(
-        session, last_message_id, user_id, conversation_dict
-    )
+    if not snapshot:
+        snapshot = wrap_create_snapshot(
+            session, last_message_id, user_id, conversation_dict
+        )
+
     snapshot_link = wrap_create_snapshot_link(session, snapshot.id, user_id)
 
     return CreateSnapshotResponse(
-        id=snapshot_link.id,
+        link_id=snapshot_link.id,
         snapshot_id=snapshot.id,
         user_id=user_id,
         messages=conversation_dict.get("messages", []),
