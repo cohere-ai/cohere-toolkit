@@ -30,8 +30,9 @@ router.name = RouterName.AGENT
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
     # add user data into request state for metrics
     user_id = get_header_user_id(request)
-    user = user_crud.get_user(session, user_id)
-    request.state.user = user
+    if user_id:
+        user = user_crud.get_user(session, user_id)
+        request.state.user = user
 
     agent_data = AgentModel(
         name=agent.name,
@@ -170,6 +171,7 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    user_id = get_header_user_id(request)
     if user_id:
         user = user_crud.get_user(session, user_id)
         request.state.user = user

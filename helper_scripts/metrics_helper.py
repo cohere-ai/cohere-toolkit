@@ -39,7 +39,7 @@ def agents():
             "tools": ["web_search"],
         },
     )
-    print(response.json())
+    print(response.status_code)
     agent_id = response.json()["id"]
     # # List Agents
     response = requests.get(f"{base_url}/agents", headers=headers)
@@ -125,21 +125,18 @@ def tools(conversation_id):
     _ = requests.delete(f"{base_url}/conversations/{conversation_id}", headers=headers)
 
 
-## Files
-# _ = requests.get(f"{base_url}/files/conversation_id", headers=headers)
-# _ = requests.put(f"{base_url}/files/test-file-id", headers=headers, data={"title": "new_title"})
-# _ = requests.delete(f"{base_url}/files/test-file-id", headers=headers)
-
-
 # Delete Everything
 def cleanup(user_id, agent_id):
-    _ = requests.delete(f"{base_url}/users/{user_id}", headers=headers)
-    _ = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
+    print("cleaning up")
+    response = requests.delete(f"{base_url}/users/{user_id}", headers=headers)
+    print(response.status_code)
+    response = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
+    print(response.status_code)
 
 
 users()
 agent_id = agents()
+cleanup(user_id=user_id, agent_id=agent_id)
+# TODO: these are not working atm
 # conversation_id = chat(agent_id=agent_id)
-
 # tools(conversation_id=conversation_id)
-# cleanup(user_id=user_id, agent_id=agent_id)
