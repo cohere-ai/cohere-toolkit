@@ -2,6 +2,7 @@ import React from 'react';
 
 import { CreateAgent } from '@/cohere-client';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
+import { DEFAULT_AGENT_TOOLS } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
@@ -28,7 +29,8 @@ export const AgentForm: React.FC<Props> = ({
   className,
 }) => {
   const { data: toolsData } = useListTools();
-  const tools = toolsData?.filter((t) => t.is_available) ?? [];
+  const tools =
+    toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name)) ?? [];
 
   return (
     <div className={cn('flex flex-col gap-y-4', className)}>
