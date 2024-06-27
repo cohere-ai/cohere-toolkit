@@ -5,11 +5,11 @@ import { useContext, useEffect } from 'react';
 
 import { CohereClient, Document, ManagedTool } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
-import { ConnectDataModal } from '@/components/Agents/ConnectDataModal';
-import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
+import { ConnectDataModal } from '@/components/ConnectDataModal';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
+import { Layout, LeftSection, MainSection } from '@/components/Layout';
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
@@ -33,13 +33,14 @@ import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
-const AgentsPage: NextPage = () => {
+const Page: NextPage = () => {
   const { agentId, conversationId } = useSlugRoutes();
 
   const { setConversation } = useConversationStore();
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
+
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
 
@@ -49,12 +50,13 @@ const AgentsPage: NextPage = () => {
     setParams,
     resetFileParams,
   } = useParamsStore();
+  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
   const { data: allDeployments } = useListAllDeployments();
   const { data: agent } = useAgent({ agentId });
   const { data: tools } = useListTools();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
+
   const { setMessage } = useContext(BannerContext);
   const { open, close } = useContext(ModalContext);
 
@@ -164,15 +166,15 @@ const AgentsPage: NextPage = () => {
           <Transition
             as="section"
             show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
-            enterFrom="translate-x-full lg:translate-x-0 lg:w-0"
-            enterTo="translate-x-0 lg:w-[300px]"
-            leaveFrom="translate-x-0 lg:w-[300px]"
-            leaveTo="translate-x-full lg:translate-x-0 lg:w-0"
+            enterFrom="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
+            enterTo="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
+            leaveFrom="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
+            leaveTo="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
             className={cn(
               'z-main-section flex lg:min-w-0',
               'absolute h-full w-full lg:static lg:h-auto',
               'border-0 border-marble-400 md:border-r',
-              'transition-[transform, width] duration-500 ease-in-out'
+              'transition-[transform,min-width,max-width] duration-300 ease-in-out'
             )}
           >
             <ConversationListPanel agentId={agentId} />
@@ -212,15 +214,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 
   const { conversationId, agentId } = getSlugRoutes(context.query.slug);
-
-  if (!conversationId && !agentId && context.resolvedUrl !== '/agents') {
-    return {
-      redirect: {
-        destination: '/agents',
-        permanent: false,
-      },
-    };
-  }
 
   await Promise.allSettled([
     deps.queryClient.prefetchQuery({
@@ -266,4 +259,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default AgentsPage;
+export default Page;

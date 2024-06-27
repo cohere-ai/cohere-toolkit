@@ -77,8 +77,8 @@ export const CreateAgentForm: React.FC = () => {
         name: '',
         description: '',
         preamble: '',
-        deployment: '',
-        model: '',
+        deployment: DEPLOYMENT_COHERE_PLATFORM,
+        model: DEFAULT_AGENT_MODEL,
         tools: [],
       });
       close();
