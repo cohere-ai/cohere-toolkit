@@ -37,7 +37,7 @@
     "form-data": "^4.0.0",
     "npm-run-all": "^4.1.5",
     "openapi-typescript-codegen": "^0.29.0",
-    "pdfjs-dist": "^3.7.107",
+    "pdfjs-dist": "^4.2.67",
     "prettier": "^3.2.5",
     "prisma": "^5.14.0",
     "slackify-markdown": "^4.4.0",
