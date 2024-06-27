@@ -17,7 +17,7 @@ export type AgentFormFieldKeys = keyof CreateAgentFormFields | keyof UpdateAgent
 type Props = {
   fields: CreateAgentFormFields | UpdateAgentFormFields;
   onChange: (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => void;
-  onToolToggle: (toolName: string, checked: boolean) => void;
+  onToolToggle: (toolName: string, checked: boolean, authUrl?: string) => void;
   handleOpenFilePicker: VoidFunction;
   setGoogleDriveFiles: (files: { id: string; name: string; type: string; url: string }[]) => void;
   googleDriveFiles?: { id: string; name: string; type: string; url: string }[];
@@ -107,7 +107,7 @@ export const AgentForm: React.FC<Props> = ({
                   tooltipLabel={tool.description}
                   name={tool.name + i}
                   checked={checked}
-                  onChange={(e) => onToolToggle(tool.name, e.target.checked)}
+                  onChange={(e) => onToolToggle(tool.name, e.target.checked, tool.auth_url ?? '')}
                   disabled={disabled}
                 />
                 {isGoogleDrive && checked && (
