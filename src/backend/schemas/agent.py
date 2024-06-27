@@ -66,9 +66,9 @@ class DeleteAgent(BaseModel):
 class AgentToolMetadata(BaseModel):
     user_id: str
     tool_name: str
-    artifact_id: str
+    artifacts: list[str]
 
 
 class UpdateAgentToolMetadata(BaseModel):
     tool_name: str
-    artifact_id: Optional[str] = None
+    artifacts: Optional[list[str]] = None
