@@ -103,7 +103,7 @@ async def list_snapshots(
     for snapshot in snapshots:
         snapshot_links = snapshot_crud.list_snapshot_links(session, snapshot.id)
         snapshot_links = [link.id for link in snapshot_links]
-        snapshot_dict = to_dict(snapshot)
+        snapshot_dict = to_dict(Snapshot.model_validate(snapshot))
         snapshot_with_links = SnapshotWithLinks.model_validate(
             snapshot_dict | {"links": snapshot_links}
         )
