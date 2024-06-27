@@ -3,5 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateDeploymentEnv = {
-  env_vars: Record<string, string>;
+    env_vars: Record<string, string>;
 };
+

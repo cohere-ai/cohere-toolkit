@@ -3,6 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum MessageAgent {
-  USER = 'USER',
-  CHATBOT = 'CHATBOT',
+    USER = 'USER',
+    CHATBOT = 'CHATBOT',
 }

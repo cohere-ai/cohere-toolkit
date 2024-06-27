@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum Category {
-  FILE_LOADER = 'File loader',
-  DATA_LOADER = 'Data loader',
-  FUNCTION = 'Function',
+    FILE_LOADER = 'File loader',
+    DATA_LOADER = 'Data loader',
+    FUNCTION = 'Function',
 }

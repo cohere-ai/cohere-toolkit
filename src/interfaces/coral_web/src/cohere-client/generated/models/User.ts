@@ -3,9 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 export type User = {
-  fullname: string;
-  email?: string | null;
-  id: string;
-  created_at: string;
-  updated_at: string;
+    fullname: string;
+    email?: (string | null);
+    id: string;
+    created_at: string;
+    updated_at: string;
 };
+

@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Tool = {
-  name: string;
-  display_name?: string;
-  description?: string | null;
-  parameter_definitions?: Record<string, any> | null;
+    name: string;
+    display_name?: string;
+    description?: (string | null);
+    parameter_definitions?: (Record<string, any> | null);
 };
+

@@ -6,5 +6,6 @@
  * Stream query generation event.
  */
 export type StreamQueryGeneration = {
-  query: string;
+    query: string;
 };
+

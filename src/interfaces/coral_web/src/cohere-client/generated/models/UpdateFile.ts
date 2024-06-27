@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateFile = {
-  file_name?: string | null;
-  message_id?: string | null;
+    file_name?: (string | null);
+    message_id?: (string | null);
 };
+
