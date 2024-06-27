@@ -89,7 +89,8 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
-        missing_keys = [key for key in strategy_payload if key not in payload.keys()]
+        missing_keys = [
+            key for key in strategy_payload if key not in payload.keys()]
         raise HTTPException(
             status_code=422,
             detail=f"Missing the following keys in the payload: {missing_keys}.",
@@ -195,7 +196,9 @@ async def logout(
 # Tool based auth is experimental and in development
 @router.get("/tool/auth")
 async def login(request: Request, session: DBSessionDep):
-    redirect_url = os.getenv("FRONTEND_HOSTNAME")
+    redirect_url = request.query_params.get(
+        "redirect_url", os.getenv("FRONTEND_HOSTNAME")
+    )
     # TODO: Store user id and tool id in the DB for state key
     state = json.loads(request.query_params.get("state"))
     tool_id = state["tool_id"]
