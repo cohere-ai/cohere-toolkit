@@ -184,6 +184,7 @@ async def authorize(
             detail=f"Could not fetch access token from provider, failed with error: {str(e)}",
         )
 
+    token = JWTService().create_and_encode_jwt(user)
     if not userinfo:
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
@@ -192,15 +193,15 @@ async def authorize(
     # Get or create user, then set session user
     user = get_or_create_user(session, userinfo)
 
-    token = JWTService().create_and_encode_jwt(user)
-
     return {"token": token}
 
 
 # Tool based auth is experimental and in development
 @router.get("/tool/auth")
 async def login(request: Request, session: DBSessionDep):
-    redirect_url = os.getenv("FRONTEND_HOSTNAME")
+    redirect_url = request.query_params.get(
+        "redirect_url", os.getenv("FRONTEND_HOSTNAME")
+    )
     # TODO: Store user id and tool id in the DB for state key
     state = json.loads(request.query_params.get("state"))
     tool_id = state["tool_id"]
