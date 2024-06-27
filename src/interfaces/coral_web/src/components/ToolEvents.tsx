@@ -87,7 +87,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
     case TOOL_CALCULATOR_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Calculating <b className="font-medium">{event?.parameters?.expression}</b>
+          Calculating <b className="font-medium">{event?.parameters?.code}</b>
         </ToolEventWrapper>
       );
     }
@@ -120,7 +120,7 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   return (
     <div className="flex w-full gap-x-2 rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
       <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-secondary-600" />
-      <Text className="text-secondary-800" styleAs="p-sm">
+      <Text className="pt-px text-secondary-800" styleAs="p-sm" as="span">
         {children}
       </Text>
     </div>

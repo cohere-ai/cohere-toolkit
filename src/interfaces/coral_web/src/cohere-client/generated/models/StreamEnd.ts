@@ -5,6 +5,7 @@
 /* tslint:disable */
 
 /* eslint-disable */
+import type { ChatMessage } from './ChatMessage';
 import type { Citation } from './Citation';
 import type { Document } from './Document';
 import type { SearchQuery } from './SearchQuery';
@@ -21,4 +22,6 @@ export type StreamEnd = {
   search_queries?: Array<SearchQuery>;
   tool_calls?: Array<ToolCall>;
   finish_reason?: string | null;
+  chat_history?: Array<ChatMessage> | null;
+  error?: string | null;
 };

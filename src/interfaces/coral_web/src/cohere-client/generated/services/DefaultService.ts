@@ -151,6 +151,17 @@ export class DefaultService {
     });
   }
   /**
+   * Login
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static loginV1ToolAuthGet(): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/tool/auth',
+    });
+  }
+  /**
    * Chat Stream
    * Stream chat endpoint to handle user messages and return chatbot responses.
    *
@@ -260,7 +271,7 @@ export class DefaultService {
   }): CancelablePromise<User> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/v1/users/',
+      url: '/v1/users',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -291,7 +302,7 @@ export class DefaultService {
   }): CancelablePromise<Array<User>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/v1/users/',
+      url: '/v1/users',
       query: {
         offset: offset,
         limit: limit,

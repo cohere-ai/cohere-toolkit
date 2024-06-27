@@ -33,7 +33,7 @@ export const CitationDocument: React.FC<Props> = (props) => {
       <CitationDocumentHeader
         toolId={document.tool_name ?? undefined}
         url={document.url ?? ''}
-        title={document.title ?? undefined}
+        title={document.title && document.title.length > 0 ? document.title : undefined}
         isExpandable={isExpandable}
         isExpanded={isExpanded}
         isSelected={isExpandable}
