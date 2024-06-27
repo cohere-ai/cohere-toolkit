@@ -37,7 +37,13 @@ You can then run the container with the following command:
 ```bash
 docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
 ```
-If you would like to use .env file to pass the parameters, you can mount it to the container using:
+If you need to use community features, you can run the container with the following command:
+```bash
+docker run --name=cohere-toolkit -itd -e INSTALL_COMMUNITY_DEPS='true' -e COHERE_API_KEY='Your Cohere API key here' -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
+```
+
+If you would like to use .env file to pass the parameters, you can mount it to the container using the following command.
+If you need to use community features, please set `INSTALL_COMMUNITY_DEPS=true` in your .env file.
 ```bash
 docker run --name=cohere-toolkit -itd --env-file .env -p 8000:8000 -p 4000:4000 cohere-ai/cohere-toolkit
 ```

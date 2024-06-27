@@ -1,9 +1,9 @@
-{{- $values := .Values.backend}}
-
+{{- $values := .Values.terrarium}}
+{{- if $values.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: toolkit-backend
+  name: terrarium
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
@@ -21,28 +21,28 @@ imagePullSecrets:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: toolkit-backend
+  name: terrarium
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: toolkit-backend
+    app.kubernetes.io/name: terrarium
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
 spec:
   replicas: {{ $values.replicaCounts }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: toolkit-backend
+      app.kubernetes.io/name: terrarium
   template:
     metadata:
-      name: toolkit-backend
+      name: terrarium
       labels:
-        app.kubernetes.io/name: toolkit-backend
+        app.kubernetes.io/name: terrarium
         {{- include "cohere-toolkit.labels" . | nindent 8 }}
       {{- with $values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: toolkit-backend
+      serviceAccountName: terrarium
       {{- with $values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -52,7 +52,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: toolkit-backend
+        - name: terrarium
           image: {{ $values.image.repository }}:{{ $values.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ $values.image.pullPolicy }}
           {{- with $values.securityContext }}
@@ -64,13 +64,9 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:
-            - containerPort: 8000
+            - containerPort: 8080
               protocol: TCP
               name: http
-          envFrom:
-            - secretRef:
-                name: toolkit-backend
-                optional: false
           {{- /* TODO: Add livenessProbe and readinessProbe */}}
           {{- with $values.sidecars }}
           {{- toYaml . | nindent 12 }}
@@ -94,14 +90,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: toolkit-backend
+  name: terrarium
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: toolkit-backend
+    app.kubernetes.io/name: terrarium
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
 spec:
   selector:
-    app.kubernetes.io/name: toolkit-backend
+    app.kubernetes.io/name: terrarium
   ports:
     - protocol: TCP
       port: {{ $values.service.port }}
@@ -114,13 +110,13 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: toolkit-backend
+  name: terrarium
   namespace: {{ .Release.Namespace }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: toolkit-backend
+    name: terrarium
   minReplicas: {{ $values.autoscaling.minReplicas }}
   maxReplicas: {{ $values.autoscaling.maxReplicas }}
   metrics:
@@ -142,24 +138,4 @@ spec:
     {{- end}}
 {{- end}}
 
----
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: toolkit-backend
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: toolkit-backend
-    {{- include "cohere-toolkit.labels" . | nindent 4 }}
-stringData:
-  DATABASE_URL: "{{ template "cohere-toolkit.database-url" $ }}"
-  {{- if .Values.global.cohere.api_key }}
-  COHERE_API_KEY: "{{ .Values.global.cohere.api_key }}"
-  {{- end }}
-  {{- if .Values.terrarium.enabled }}
-  PYTHON_INTERPRETER_URL: "http://terrarium"
-  {{- end }}
-  {{- with $values.config }}
-  {{- toYaml . | nindent 2 }}
-  {{- end }}
+{{- end }}

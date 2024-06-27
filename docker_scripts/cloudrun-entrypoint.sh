@@ -10,7 +10,7 @@ source "${APP_HOME}/functions"
 if [[ -z ${1} ]]; then
   run_frontend
   run_terrarium
-  run_backend
+  run_backend_poetry
 
 else
   exec "$@"
