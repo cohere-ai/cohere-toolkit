@@ -19,7 +19,7 @@ class MetricsDataBase(BaseModel):
 class MetricsUser(BaseModel):
     id: str
     fullname: str
-    email: str
+    email: str | None
 
 
 class MetricsAgent(BaseModel):

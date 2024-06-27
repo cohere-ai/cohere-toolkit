@@ -42,15 +42,18 @@ def agents():
     print(response.json())
     agent_id = response.json()["id"]
     # # List Agents
-    _ = requests.get(f"{base_url}/agents", headers=headers)
+    response = requests.get(f"{base_url}/agents", headers=headers)
+    print(response.status_code)
 
     # # Get Agent
-    _ = requests.get(f"{base_url}/agents/{agent_id}", headers=headers)
+    response = requests.get(f"{base_url}/agents/{agent_id}", headers=headers)
+    print(response.status_code)
 
     # # Update Agent
-    _ = requests.put(
+    response = requests.put(
         f"{base_url}/agents/{agent_id}", headers=headers, json={"name": "new_name"}
     )
+    print(response.status_code)
 
     return agent_id
 
