@@ -16,7 +16,12 @@ from starlette.requests import Request
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData, MetricsSignal
+from backend.schemas.metrics import (
+    MetricsAgent,
+    MetricsData,
+    MetricsSignal,
+    MetricsUser,
+)
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
