@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 
 from backend.config.routers import RouterName
+from backend.config.tools import ALL_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent import Agent as AgentModel
@@ -54,16 +55,15 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
     request.state.agent = agent_data
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
-        if agent.tools:
-            for tool in agent.tools:
-                agent_tool_metadata_data = AgentToolMetadataModel(
-                    user_id=user_id,
-                    agent_id=created_agent.id,
-                    tool_name=tool,
-                )
-                agent_tool_metadata_crud.create_agent_tool_metadata(
-                    session, agent_tool_metadata_data
-                )
+        for tool in ALL_TOOLS:
+            agent_tool_metadata_data = AgentToolMetadataModel(
+                user_id=user_id,
+                agent_id=created_agent.id,
+                tool_name=tool.name,
+            )
+            agent_tool_metadata_crud.create_agent_tool_metadata(
+                session, agent_tool_metadata_data
+            )
 
         return created_agent
     except Exception as e:

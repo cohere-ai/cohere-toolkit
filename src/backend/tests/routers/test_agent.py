@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
-from backend.config.tools import ToolName
+from backend.config.tools import ALL_TOOLS, ToolName
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.tests.factories import get_factory
@@ -51,7 +51,7 @@ def test_create_agent(session_client: TestClient, session: Session) -> None:
         .filter(AgentToolMetadata.agent_id == agent.id)
         .all()
     )
-    assert len(agent_tool_metadata) == 3
+    assert len(agent_tool_metadata) == len(ALL_TOOLS)
 
 
 def test_create_agent_missing_name(
