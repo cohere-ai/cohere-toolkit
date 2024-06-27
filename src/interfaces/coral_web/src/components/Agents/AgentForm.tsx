@@ -2,8 +2,11 @@ import React from 'react';
 
 import { CreateAgent } from '@/cohere-client';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
+import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
+
+import { GoogleDriveFilePicker } from '../GoogleDriveFilePicker';
 
 export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
 export type AgentFormFieldKeys = keyof AgentFormFields;
@@ -15,6 +18,9 @@ type Props = {
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
   disabled?: boolean;
   className?: string;
+  googleDriveFiles: { id: string; name: string; type: string }[];
+  filePickerCallback: (files: { id: string; name: string; type: string }[] | undefined) => void;
+  handleOpenPicker: VoidFunction;
 };
 /**
  * @description Base form for creating/updating an agent.
@@ -26,6 +32,9 @@ export const AgentForm: React.FC<Props> = ({
   errors,
   disabled,
   className,
+  googleDriveFiles,
+  filePickerCallback,
+  handleOpenPicker,
 }) => {
   const { data: toolsData } = useListTools();
   const tools = toolsData?.filter((t) => t.is_available) ?? [];
@@ -75,26 +84,43 @@ export const AgentForm: React.FC<Props> = ({
           disabled={disabled}
         />
       </InputLabel>
-      <InputLabel label="Tools" className="mb-2">
+      <div className="flex flex-col">
+        <Text className="mb-2.5 text-volcanic-900" as="span" styleAs="label">
+          Tools
+        </Text>
         <div className="flex flex-col gap-y-4 px-3">
           {tools.map((tool, i) => {
             const enabledTools = [...(fields.tools ? fields.tools : [])];
             const enabledTool = enabledTools.find((t) => t === tool.name);
             const checked = !!enabledTool;
+            const isGoogleDrive = tool.name === TOOL_GOOGLE_DRIVE_ID;
+
             return (
-              <Checkbox
-                key={tool.name}
-                label={tool.display_name ?? tool.name}
-                tooltipLabel={tool.description}
-                name={tool.name + i}
-                checked={checked}
-                onChange={(e) => onToolToggle(tool.name, e.target.checked)}
-                disabled={disabled}
-              />
+              <>
+                <Checkbox
+                  key={tool.name}
+                  label={tool.display_name ?? tool.name}
+                  tooltipLabel={tool.description}
+                  name={tool.name + i}
+                  checked={checked}
+                  onChange={(e) => onToolToggle(tool.name, e.target.checked)}
+                  disabled={disabled}
+                />
+
+                {isGoogleDrive && checked && (
+                  <div className="pl-10">
+                    <GoogleDriveFilePicker
+                      googleDriveFiles={googleDriveFiles}
+                      filePickerCallback={filePickerCallback}
+                      handleOpenPicker={handleOpenPicker}
+                    />
+                  </div>
+                )}
+              </>
             );
           })}
         </div>
-      </InputLabel>
+      </div>
     </div>
   );
 };
