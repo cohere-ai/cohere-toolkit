@@ -88,7 +88,7 @@ export const AgentForm: React.FC<Props> = ({
             return (
               <Checkbox
                 key={tool.name}
-                label={tool.name}
+                label={tool.display_name ?? tool.name}
                 name={tool.name + i}
                 checked={checked}
                 onChange={(e) => onToolToggle(tool.name, e.target.checked)}
