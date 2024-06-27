@@ -1,12 +1,20 @@
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
+import useDrivePicker from 'react-google-drive-picker';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
-import { DEFAULT_AGENT_MODEL, DEFAULT_AGENT_TOOLS, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
+import {
+  DEFAULT_AGENT_MODEL,
+  DEFAULT_AGENT_TOOLS,
+  DEPLOYMENT_COHERE_PLATFORM,
+  TOOL_GOOGLE_DRIVE_ID,
+} from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
+import { env } from '@/env.mjs';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
+import { useListTools } from '@/hooks/tools';
 
 const DEFAULT_FIELD_VALUES = {
   name: '',
@@ -22,12 +30,22 @@ const DEFAULT_FIELD_VALUES = {
 export const CreateAgentForm: React.FC = () => {
   const router = useRouter();
   const { open, close } = useContext(ModalContext);
+  const [openPicker] = useDrivePicker();
+  const { data: toolsData } = useListTools();
   const { error } = useNotify();
   const { mutateAsync: createAgent } = useCreateAgent();
   const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentFormFields>(DEFAULT_FIELD_VALUES);
+  const [googleDriveFiles, setGoogleDriveFiles] = useState<
+    {
+      id: string;
+      name: string;
+      type: string;
+      url: string;
+    }[]
+  >();
 
   const fieldErrors = {
     ...(isAgentNameUnique(fields.name) ? {} : { name: 'Assistant name must be unique' }),
@@ -48,9 +66,38 @@ export const CreateAgentForm: React.FC = () => {
 
   const handleToolToggle = (toolName: string, checked: boolean) => {
     const enabledTools = [...(fields.tools ? fields.tools : [])];
+    if (toolName === TOOL_GOOGLE_DRIVE_ID) {
+      if (checked) {
+        handleOpenFilePicker();
+      } else {
+        setGoogleDriveFiles(undefined);
+      }
+    }
     setFields({
       ...fields,
       tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
+    });
+  };
+
+  const handleOpenFilePicker = () => {
+    const googleDriveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
+    openPicker({
+      clientId: env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID,
+      developerKey: env.NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY,
+      token: googleDriveTool?.token || '',
+      setIncludeFolders: true,
+      setSelectFolderEnabled: true,
+      showUploadView: false,
+      showUploadFolders: false,
+      supportDrives: true,
+      multiselect: true,
+      callbackFunction: (data) => {
+        if (data.docs) {
+          setGoogleDriveFiles(
+            data.docs.map((doc) => ({ id: doc.id, name: doc.name, type: doc.type, url: doc.url }))
+          );
+        }
+      },
     });
   };
 
@@ -98,6 +145,9 @@ export const CreateAgentForm: React.FC = () => {
             fields={fields}
             onChange={handleChange}
             onToolToggle={handleToolToggle}
+            handleOpenFilePicker={handleOpenFilePicker}
+            googleDriveFiles={googleDriveFiles}
+            setGoogleDriveFiles={setGoogleDriveFiles}
             errors={fieldErrors}
             className="mt-6"
           />
