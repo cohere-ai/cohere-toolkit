@@ -198,14 +198,13 @@ async def report_metrics(signal: MetricsSignal) -> None:
         logging.error(f"Failed to report metrics: {e}")
 
 
-# TODO: remove the logging once metrics are configured correctly
-def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
-    if not data:
-        return None
-
-    # TODD: seems hacky, fix this
+def attach_secret(data: MetricsData) -> MetricsData:
     data.secret = REPORT_SECRET
-    signal = MetricsSignal(signal=data)
+    return data
+
+
+# TODO: remove the logging once metrics are configured correctly
+def log_signal(signal: MetricsData) -> MetricsSignal:
     logging.info(signal)
     json_signal = json.dumps(to_dict(signal))
     # just general curl commands to test the endpoint for now
@@ -216,12 +215,8 @@ def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
 
 
 def run_loop(metrics_data: MetricsData) -> None:
-    signal = wrap_and_log_data(metrics_data)
-
-    # Don't report metrics if no data or endpoint is set
-    if not metrics_data or not REPORT_ENDPOINT:
-        logging.warning("No metrics data or endpoint set")
-        return
+    signal = attach_secret(metrics_data)
+    log_signal(metrics_data)
     try:
         loop = asyncio.get_running_loop()
         loop.create_task(report_metrics(signal))
