@@ -15,7 +15,6 @@ More details: https://docs.cohere.com/docs/connectors
 
 
 class ConnectorRetriever(BaseTool):
-
     def __init__(self, url: str, auth: str):
         self.url = url
         self.auth = auth

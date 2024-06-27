@@ -20,7 +20,11 @@ import {
   isSessionUnavailableError,
   isStreamError,
 } from '@/cohere-client';
-import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
+import {
+  DEPLOYMENT_COHERE_PLATFORM,
+  TOOL_GOOGLE_DRIVE_ID,
+  TOOL_PYTHON_INTERPRETER_ID,
+} from '@/constants';
 import { useRouteChange } from '@/hooks/route';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
@@ -73,7 +77,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { mutateAsync: streamChat } = chatMutation;
 
   const {
-    params: { temperature, tools, model, deployment, deploymentConfig, fileIds },
+    params: { temperature, tools, model, deployment, deploymentConfig, fileIds, googleDriveFiles },
   } = useParamsStore();
   const {
     conversation: { id, messages },
@@ -539,11 +543,24 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const getChatRequest = (message: string, overrides?: ChatRequestOverrides): CohereChatRequest => {
     const { tools: overrideTools, ...restOverrides } = overrides ?? {};
 
-    const requestTools = overrideTools ?? tools ?? undefined;
+    const requestTools = (overrideTools ?? tools ?? undefined)?.map((tool) => {
+      googleDriveFiles;
+      if (tool.name === TOOL_GOOGLE_DRIVE_ID && (googleDriveFiles?.length ?? 0) > 0) {
+        return {
+          name: tool.name,
+          folderIds: googleDriveFiles
+            ?.filter((file) => file.type === 'folder')
+            .map((file) => file.id),
+          fileIds: googleDriveFiles?.filter((file) => file.type === 'file').map((file) => file.id),
+        };
+      }
+      return { name: tool.name };
+    });
+
     return {
       message,
       conversation_id: id,
-      tools: requestTools?.map((tool) => ({ name: tool.name })),
+      tools: requestTools,
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,

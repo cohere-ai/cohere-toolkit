@@ -42,7 +42,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <Text className="line-clamp-2 flex-grow">{description}</Text>
         <Button
           className="ml-auto"
-          href={isBaseAgent ? '/agents' : `/agents/${id}`}
+          href={isBaseAgent ? '/' : `/a/${id}`}
           label={<Text className="text-green-700">Try now</Text>}
           kind="secondary"
           endIcon={<Icon name="arrow-up-right" className="text-green-700" />}

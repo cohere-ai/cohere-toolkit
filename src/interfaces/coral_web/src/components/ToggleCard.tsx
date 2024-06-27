@@ -1,11 +1,14 @@
 import React from 'react';
 
+import { GoogleDriveFilePicker } from '@/components/GoogleDriveFilePicker';
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
+import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 
 type Props = {
   checked: boolean;
   icon: IconName;
   label: string;
+  name: string;
   description: string;
   onToggle: (checked: boolean) => void;
   disabled?: boolean;
@@ -29,6 +32,7 @@ export const ToggleCard: React.FC<Props> = ({
   disabled = false,
   icon,
   label,
+  name,
   description,
   inputOptions,
   errorMessage,
@@ -71,6 +75,7 @@ export const ToggleCard: React.FC<Props> = ({
           disabled={inputOptions.disabled || disabled}
         />
       )}
+      {name === TOOL_GOOGLE_DRIVE_ID && <GoogleDriveFilePicker />}
     </div>
   );
 };

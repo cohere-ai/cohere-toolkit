@@ -118,8 +118,8 @@ export const useConversationActions = () => {
   const router = useRouter();
   const { open, close } = useContextStore();
   const {
-    conversation: { id: conversationId = '' },
     resetConversation,
+    conversation: { id: conversationId },
   } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
@@ -141,7 +141,8 @@ export const useConversationActions = () => {
         resetConversation();
         resetCitations();
         resetFileParams();
-        router.push('/', undefined, { shallow: true }); // go to new chat
+        const newUrl = router.asPath.replace(`/c/${id}`, '');
+        router.push(newUrl, undefined, { shallow: true }); // go to new chat
       }
     };
 

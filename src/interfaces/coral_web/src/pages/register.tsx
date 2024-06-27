@@ -58,7 +58,7 @@ const RegisterPage: NextPage<Props> = () => {
           <Input
             className="w-full"
             label="name"
-            placeholder=""
+            placeholder="Your Name"
             type="text"
             stackPosition="start"
             hasError={!!formState.errors.name}

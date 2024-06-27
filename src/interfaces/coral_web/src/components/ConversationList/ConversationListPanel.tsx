@@ -1,4 +1,4 @@
-import { Transition } from '@headlessui/react';
+import { Transition, TransitionChild } from '@headlessui/react';
 import { useClickOutside } from '@react-hookz/web';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -119,7 +119,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
   }
 
   return (
-    <Transition.Child
+    <TransitionChild
       ref={panelRef}
       as="nav"
       enterFrom="opacity-100 lg:opacity-0"
@@ -127,7 +127,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
       leaveFrom="lg:opacity-100"
       leaveTo="opacity-100 lg:opacity-0"
       className={cn(
-        'transition-opacity ease-in-out lg:duration-500',
+        'transition-opacity ease-in-out lg:duration-300',
         'flex h-full w-full flex-grow flex-col',
         className
       )}
@@ -171,7 +171,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
       >
         {content}
       </section>
-    </Transition.Child>
+    </TransitionChild>
   );
 };
 

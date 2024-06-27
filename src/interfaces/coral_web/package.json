@@ -52,6 +52,7 @@
     "react-aria": "^3.24.0",
     "react-dom": "^18.2.0",
     "react-flip-toolkit": "^7.1.0",
+    "react-google-drive-picker": "^1.2.2",
     "react-hook-form": "^7.51.5",
     "react-hotkeys-hook": "^4.5.0",
     "react-lottie-player": "^1.4.3",

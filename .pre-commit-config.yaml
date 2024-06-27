@@ -11,10 +11,10 @@ repos:
     -   id: isort
         args: [--profile=black, --line-width=88, --force-grid-wrap=0, --use-parentheses, --float-to-top]
 -   repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 24.3.0
     hooks:
     -   id: black
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.94
+    rev: v0.4.10
     hooks:
     -   id: ruff

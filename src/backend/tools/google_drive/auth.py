@@ -2,65 +2,20 @@ import datetime
 import json
 import os
 import urllib.parse
-from typing import Any, Dict, List
 
 import requests
 from fastapi import Request
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
 
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
+from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.logger import get_logger
-from backend.tools.base import BaseAuth, BaseTool
+from backend.tools.base import BaseAuth
 
-GOOGLE_DRIVE_TOOL_ID = "google_drive"
+from .constants import GOOGLE_DRIVE_TOOL_ID, SCOPES
+
 logger = get_logger()
-
-
-class GoogleDrive(BaseTool):
-    """
-    Experimental (In development): Tool that searches Google Drive
-    """
-
-    @classmethod
-    def is_available(cls) -> bool:
-        return False
-
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        # TODO: Improve the getting of files
-        query = parameters.get("query", "")
-        conditions = [
-            "("
-            + " or ".join(
-                [
-                    f"mimeType = '{mime_type}'"
-                    for mime_type in [
-                        "application/vnd.google-apps.document",
-                        "application/vnd.google-apps.spreadsheet",
-                        "application/vnd.google-apps.presentation",
-                    ]
-                ]
-            )
-            + ")",
-            "("
-            + " or ".join([f"fullText contains '{word}'" for word in [query]])
-            + ")",
-        ]
-        q = " and ".join(conditions)
-        auth = tool_auth_crud.get_tool_auth(
-            kwargs.get("session"), GOOGLE_DRIVE_TOOL_ID, kwargs.get("user_id")
-        )
-        creds = Credentials(auth.encrypted_access_token.decode())
-        service = build("drive", "v3", credentials=creds)
-        results = (
-            service.files()
-            .list(pageSize=10, q=q, fields="nextPageToken, files(id, name)")
-            .execute()
-        )
-        items = results.get("files", [])
-        return [dict({"text": item["name"]}) for item in items]
 
 
 class GoogleDriveAuth(BaseAuth):
@@ -74,7 +29,7 @@ class GoogleDriveAuth(BaseAuth):
         params = {
             "response_type": "code",
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
-            "scope": "https://www.googleapis.com/auth/drive",
+            "scope": " ".join(SCOPES),
             "redirect_uri": redirect_url,
             "prompt": "select_account consent",
             "state": json.dumps(state),
@@ -118,13 +73,15 @@ class GoogleDriveAuth(BaseAuth):
             return False
         tool_auth_crud.update_tool_auth(
             session,
-            ToolAuth(
+            tool_auth,
+            UpdateToolAuth(
                 user_id=user_id,
                 tool_id=GOOGLE_DRIVE_TOOL_ID,
                 token_type=res_body["token_type"],
                 encrypted_access_token=str.encode(
                     res_body["access_token"]
                 ),  # TODO: Better storage of token
+                encrypted_refresh_token=tool_auth.encrypted_refresh_token,
                 expires_at=datetime.datetime.now()
                 + datetime.timedelta(seconds=res_body["expires_in"]),
             ),

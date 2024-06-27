@@ -14,7 +14,6 @@ export const AgentsList: React.FC = () => {
     agents: { isAgentsSidePanelOpen },
   } = useAgentsStore();
   const { recentAgents } = useRecentAgents();
-
   return (
     <div className="flex flex-col gap-3">
       <Transition

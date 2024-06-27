@@ -75,6 +75,8 @@ export const useParamsStore = () => {
     (state) => ({
       params: state.params,
       setParams: state.setParams,
+      setGoogleDriveFiles: state.setGoogleDriveFiles,
+      removeGoogleDriveFile: state.removeGoogleDriveFile,
       resetFileParams: state.resetFileParams,
     }),
     shallow

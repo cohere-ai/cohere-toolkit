@@ -44,27 +44,27 @@ ALL_MODEL_DEPLOYMENTS = {
         is_available=SingleContainerDeployment.is_available(),
         env_vars=SC_ENV_VARS,
     ),
-    ModelDeploymentName.SageMaker: Deployment(
-        name=ModelDeploymentName.SageMaker,
-        deployment_class=SageMakerDeployment,
-        models=SageMakerDeployment.list_models(),
-        is_available=SageMakerDeployment.is_available(),
-        env_vars=SAGE_MAKER_ENV_VARS,
-    ),
-    ModelDeploymentName.Azure: Deployment(
-        name=ModelDeploymentName.Azure,
-        deployment_class=AzureDeployment,
-        models=AzureDeployment.list_models(),
-        is_available=AzureDeployment.is_available(),
-        env_vars=AZURE_ENV_VARS,
-    ),
-    ModelDeploymentName.Bedrock: Deployment(
-        name=ModelDeploymentName.Bedrock,
-        deployment_class=BedrockDeployment,
-        models=BedrockDeployment.list_models(),
-        is_available=BedrockDeployment.is_available(),
-        env_vars=BEDROCK_ENV_VARS,
-    ),
+    # ModelDeploymentName.SageMaker: Deployment(
+    #     name=ModelDeploymentName.SageMaker,
+    #     deployment_class=SageMakerDeployment,
+    #     models=SageMakerDeployment.list_models(),
+    #     is_available=SageMakerDeployment.is_available(),
+    #     env_vars=SAGE_MAKER_ENV_VARS,
+    # ),
+    # ModelDeploymentName.Azure: Deployment(
+    #     name=ModelDeploymentName.Azure,
+    #     deployment_class=AzureDeployment,
+    #     models=AzureDeployment.list_models(),
+    #     is_available=AzureDeployment.is_available(),
+    #     env_vars=AZURE_ENV_VARS,
+    # ),
+    # ModelDeploymentName.Bedrock: Deployment(
+    #     name=ModelDeploymentName.Bedrock,
+    #     deployment_class=BedrockDeployment,
+    #     models=BedrockDeployment.list_models(),
+    #     is_available=BedrockDeployment.is_available(),
+    #     env_vars=BEDROCK_ENV_VARS,
+    # ),
 }
 
 

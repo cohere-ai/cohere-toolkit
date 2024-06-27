@@ -155,7 +155,6 @@ async def chat(
 def langchain_chat_stream(
     session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
 ):
-
     use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
     if not use_langchain:
         return {"error": "Langchain is not enabled."}

@@ -13,13 +13,13 @@ class ModelDeploymentName(StrEnum):
 
 
 AVAILABLE_MODEL_DEPLOYMENTS = {
-    ModelDeploymentName.HuggingFace: Deployment(
-        name=ModelDeploymentName.HuggingFace,
-        deployment_class=HuggingFaceDeployment,
-        models=HuggingFaceDeployment.list_models(),
-        is_available=HuggingFaceDeployment.is_available(),
-        env_vars=[],
-    ),
+    # ModelDeploymentName.HuggingFace: Deployment(
+    #     name=ModelDeploymentName.HuggingFace,
+    #     deployment_class=HuggingFaceDeployment,
+    #     models=HuggingFaceDeployment.list_models(),
+    #     is_available=HuggingFaceDeployment.is_available(),
+    #     env_vars=[],
+    # ),
     # Add the below for local model deployments
     # ModelDeploymentName.LocalModel: Deployment(
     #     name=ModelDeploymentName.LocalModel,
