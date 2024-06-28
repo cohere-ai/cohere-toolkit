@@ -313,6 +313,8 @@ def test_get_agent(session_client: TestClient, session: Session) -> None:
     response = session_client.get(f"/v1/agents/{agent.id}", headers={"User-Id": "123"})
     assert response.status_code == 200
     response_agent = response.json()
+    print("DEBUG")
+    print(response_agent)
     assert response_agent["name"] == agent.name
     assert response_agent["tools_metadata"][0]["tool_name"] == ToolName.Google_Drive
     assert (
@@ -562,6 +564,40 @@ def test_update_agent_invalid_tool(
     )
     assert response.status_code == 400
     assert response.json() == {"detail": "Tool not a real tool not found."}
+
+
+def test_update_agent_tool_metadata(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(user_id="123")
+    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+        agent_id=agent.id,
+        tool_name=ToolName.Google_Drive,
+        artifacts=[{"name": "/folder", "ids": "folder1", "type": "folder_id"}],
+    )
+
+    request_json = {
+        "tools_metadata": [
+            {
+                "id": agent_tool_metadata.id,
+                "tool_name": ToolName.Web_Search,
+                "artifacts": [{"name": "google", "ids": "google.com", "type": "url"}],
+            }
+        ],
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["tools_metadata"] == [
+        {
+            "id": agent_tool_metadata.id,
+            "tool_name": ToolName.Web_Search,
+            "artifacts": [{"name": "google", "ids": "google.com", "type": "url"}],
+        }
+    ]
 
 
 def test_delete_agent(session_client: TestClient, session: Session) -> None:
