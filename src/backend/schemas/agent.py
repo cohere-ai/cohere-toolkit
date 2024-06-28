@@ -12,19 +12,16 @@ class AgentBase(BaseModel):
 class AgentToolMetadata(AgentBase):
     id: str
     tool_name: str
-    type: str
-    artifacts: list[str]
+    artifacts: list[dict]
 
 
 class CreateAgentToolMetadata(BaseModel):
     tool_name: str
-    type: str
-    artifacts: list[str]
+    artifacts: list[dict]
 
 
 class UpdateAgentToolMetadata(BaseModel):
-    type: Optional[str] = None
-    artifacts: Optional[list[str]] = None
+    artifacts: Optional[list[dict]] = None
 
 
 class DeleteAgentToolMetadata(BaseModel):

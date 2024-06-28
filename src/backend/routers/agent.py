@@ -77,7 +77,6 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
                     user_id=user_id,
                     agent_id=created_agent.id,
                     tool_name=tool_metadata.tool_name,
-                    type=tool_metadata.type,
                     artifacts=tool_metadata.artifacts,
                 )
                 agent_tool_metadata_crud.create_agent_tool_metadata(
@@ -280,7 +279,6 @@ def create_agent_tool_metadata(
         user_id=user_id,
         agent_id=agent_id,
         tool_name=agent_tool_metadata.tool_name,
-        type=agent_tool_metadata.type,
         artifacts=agent_tool_metadata.artifacts,
     )
 
