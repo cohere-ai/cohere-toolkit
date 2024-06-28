@@ -4,7 +4,11 @@ from backend.config.routers import RouterName
 from backend.crud import user as user_crud
 from backend.database_models import User as UserModel
 from backend.database_models.database import DBSessionDep
-from backend.routers.utils import add_agent_to_request_state, add_session_user_to_request_state
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_session_user_to_request_state,
+    add_user_to_request_state,
+)
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser
 from backend.schemas.user import User
 from backend.schemas.user import User as UserSchema
