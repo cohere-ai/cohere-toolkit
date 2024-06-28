@@ -50,5 +50,5 @@ CMD uvicorn backend.main:app --reload --host 0.0.0.0 --port ${PORT}
 
 # production specific target
 FROM base as prod 
-RUN pip install  gunicorn
+RUN pip install gunicorn==22.0.0
 CMD gunicorn -w 4 -k uvicorn.workers.UvicornWorker backend.main:app --host 0.0.0.0 --port ${PORT}
