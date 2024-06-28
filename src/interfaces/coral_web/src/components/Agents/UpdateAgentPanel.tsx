@@ -29,14 +29,9 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     deployment: '',
     model: '',
     tools: [],
+    tools_metadata: [],
   });
-  const [googleDriveFiles, setGoogleDriveFiles] = useState<
-    {
-      id: string;
-      name: string;
-      type: string;
-    }[]
-  >();
+  const [googleDriveFiles, setGoogleDriveFiles] = useState<Record<string, any>[]>();
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
@@ -77,8 +72,16 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
         model: agent.model,
         tools: agent.tools,
         preamble: agent.preamble,
-        // tools_metadata: agent.tools_metadata,
+        tools_metadata: agent.tools_metadata,
       });
+      const driveArtifacts: Record<string, any>[] = [];
+      agent.tools_metadata
+        ?.filter((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
+        .forEach((metadata) => {
+          driveArtifacts.push(...metadata.artifacts);
+        });
+
+      setGoogleDriveFiles(driveArtifacts);
     }
   }, [agent]);
 
