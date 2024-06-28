@@ -39,7 +39,6 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
       id: string;
       name: string;
       type: string;
-      url: string;
     }[]
   >();
 
@@ -84,6 +83,7 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
         model: agent.model,
         tools: agent.tools,
         preamble: agent.preamble,
+        // tools_metadata: agent.tools_metadata,
       });
     }
   }, [agent]);
