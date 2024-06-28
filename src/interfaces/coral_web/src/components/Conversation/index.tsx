@@ -1,4 +1,4 @@
-import { Transition } from '@headlessui/react';
+import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import { UpdateAgentPanel } from '@/components/Agents/UpdateAgentPanel';
@@ -194,18 +194,27 @@ const Conversation: React.FC<Props> = ({
         as="div"
         className={cn(
           'absolute left-0 top-0 z-configuration-drawer md:relative',
-          'border-l border-marble-400 bg-marble-100',
-          'flex h-full flex-col',
-          'w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl'
+          'border-l border-marble-400 bg-marble-100'
         )}
-        enter="transition-all ease-in-out duration-300"
+        enter="transition-[width] ease-in-out duration-300"
         enterFrom="w-0"
         enterTo="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
-        leave="transition-all ease-in-out duration-0 md:duration-300"
+        leave="transition-[width] ease-in-out duration-0 md:duration-300"
         leaveFrom="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
         leaveTo="w-0"
       >
-        <UpdateAgentPanel agentId={agentId} />
+        <TransitionChild
+          as="div"
+          className={cn('flex h-full flex-col')}
+          enter="transition-[opacity] ease-in-out duration-200 delay-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-[opacity] ease-in-out duration-0 md:duration-50"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <UpdateAgentPanel agentId={agentId} />
+        </TransitionChild>
       </Transition>
     </div>
   );
