@@ -202,7 +202,7 @@ async def delete_agent(
             detail=f"Agent with ID {agent_id} not found.",
         )
 
-    # add_agent_to_request_state(request, agent)
+    add_agent_to_request_state(request, agent)
     try:
         agent_crud.delete_agent(session, agent_id)
     except Exception as e:
