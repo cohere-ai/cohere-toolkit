@@ -1,6 +1,6 @@
 FROM ghcr.io/cohere-ai/terrarium:latest as terrarium
 
-FROM buildpack-deps:buster
+FROM python:3.11-buster
 LABEL authors="Cohere"
 ## set ENV for python
 ENV PYTHON_VERSION=3.11.8
@@ -15,17 +15,6 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Keep the poetry venv name and location predictable
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
-
-# Install python
-RUN cd /usr/src \
-    && wget https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz \
-    && tar -xzf Python-$PYTHON_VERSION.tgz \
-    && cd Python-$PYTHON_VERSION \
-    && ./configure --enable-optimizations \
-    && make install \
-    && ldconfig \
-    && rm -rf /usr/src/Python-$PYTHON_VERSION.tgz /usr/src/Python-$PYTHON_VERSION \
-    && update-alternatives --install /usr/bin/python python /usr/local/bin/python3 1
 
 #install Sqlite3 > 3.35 for Chroma DB
 RUN cd /usr/src \
@@ -43,7 +32,7 @@ RUN pip3 install --no-cache-dir poetry==1.6.1
 WORKDIR /workspace
 
 # Copy dependency files to avoid cache invalidations
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock README.md ./
 
 # Install dependencies
 RUN poetry install
@@ -71,7 +60,7 @@ RUN set -ex \
     && curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && apt-get update -y \
-    && apt-get install -y acl sudo locales \
+    && apt-get install -f -y acl sudo locales \
       postgresql-${PG_VERSION} postgresql-client-${PG_VERSION} postgresql-contrib-${PG_VERSION} \
     && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
     && locale-gen en_US.UTF-8 \
@@ -107,8 +96,7 @@ COPY src/interfaces/coral_web/package.json src/interfaces/coral_web/yarn.lock* s
 COPY src/interfaces/coral_web/.env.development .
 COPY src/interfaces/coral_web/.env.production .
 
-RUN pnpm install \
-    && pnpm next:build
+RUN npm install
 
 # Terrarium
 WORKDIR /usr/src/app

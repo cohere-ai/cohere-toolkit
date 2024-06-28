@@ -1,0 +1,100 @@
+display_information:
+  name: Command Slack Bot
+  description: Slack bot to chat with LLMs using Cohere Toolkit
+  background_color: '#2c2d30'
+  long_description: Use this slack bot to chat with LLMs using the Cohere Toolkit backend. It supports RAG, changing model parameters, and the use of tools.
+features:
+  bot_user:
+    display_name: Command
+    always_online: true
+  shortcuts:
+    - name: Summarize thread
+      type: message
+      callback_id: summarize_thread
+      description: Summarize the current thread
+  slash_commands:
+    - command: /summarize
+      url: https://slack-bot-host/slack/events
+      description: Post a summary of a slack thread given a link
+      usage_hint: '[thread link]'
+      should_escape: false
+    - command: /command-help
+      url: https://slack-bot-host/slack/events
+      description: What can Command do?
+      should_escape: false
+    - command: /set-model
+      url: https://slack-bot-host/slack/events
+      description: Set the channel model
+      usage_hint: '[model-name]'
+      should_escape: false
+    - command: /view-model
+      url: https://slack-bot-host/slack/events
+      description: View the current channel model
+      should_escape: false
+    - command: /set-temperature
+      url: https://slack-bot-host/slack/events
+      description: Sets the temperature for the channel
+      usage_hint: '[0.0 - 5.0]'
+      should_escape: false
+    - command: /view-temperature
+      url: https://slack-bot-host/slack/events
+      description: View the temperature for the channel
+      should_escape: false
+    - command: /set-preamble
+      url: https://slack-bot-host/slack/events
+      description: Sets the preamble for the channel
+      usage_hint: '[preamble]'
+      should_escape: false
+    - command: /view-preamble
+      url: https://slack-bot-host/slack/events
+      description: View the preamble for the channel
+      should_escape: false
+    - command: /setup-command
+      url: https://slack-bot-host/slack/events
+      description: Setup Command for the workspace
+      should_escape: false
+    - command: /view-tools
+      url: https://slack-bot-host/slack/events
+      description: View tools active in the current channel or list all tools available in your workspace
+      usage_hint: '[all]'
+      should_escape: false
+    - command: /set-tools
+      url: https://slack-bot-host/slack/events
+      description: Configure the tools for the channel
+      should_escape: false
+oauth_config:
+  redirect_urls:
+    - https://slack-bot-host/slack/oauth_redirect
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:history
+      - channels:read
+      - chat:write
+      - commands
+      - groups:history
+      - im:history
+      - im:read
+      - im:write
+      - mpim:history
+      - mpim:read
+      - mpim:write
+      - reactions:read
+      - users:read
+      - groups:read
+      - reactions:write
+      - files:read
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - message.channels
+      - message.groups
+      - message.im
+      - message.mpim
+      - reaction_added
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false
