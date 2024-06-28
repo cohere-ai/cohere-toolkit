@@ -1,6 +1,7 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useQuery } from '@tanstack/react-query';
 import useDrivePicker from 'react-google-drive-picker';
+import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
 import { ManagedTool, useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -41,7 +42,7 @@ export const useShowUnauthedToolsModal = () => {
   };
 };
 
-export const useOpenGoogleDrivePicker = (callbackFunction: (data: any) => void) => {
+export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback) => void) => {
   const [openPicker] = useDrivePicker();
   const { data: toolsData } = useListTools();
 
