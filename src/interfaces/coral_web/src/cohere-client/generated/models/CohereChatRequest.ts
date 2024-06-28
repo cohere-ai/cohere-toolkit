@@ -34,4 +34,5 @@ export type CohereChatRequest = {
   prompt_truncation?: CohereChatPromptTruncation;
   tool_results?: null;
   force_single_step?: boolean | null;
+  agent_id?: string | null;
 };
