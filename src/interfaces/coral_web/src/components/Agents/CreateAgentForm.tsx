@@ -37,13 +37,7 @@ export const CreateAgentForm: React.FC = () => {
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentFormFields>(DEFAULT_FIELD_VALUES);
-  const [googleDriveFiles, setGoogleDriveFiles] = useState<
-    {
-      id: string;
-      name: string;
-      type: string;
-    }[]
-  >();
+  const [googleDriveFiles, setGoogleDriveFiles] = useState<Record<string, any>[]>();
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
@@ -129,30 +123,10 @@ export const CreateAgentForm: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      const toolsMetadata: CreateAgent['tools_metadata'] = [];
-
-      const filesMetadata = googleDriveFiles?.filter((file) => file.type === 'file');
-      const foldersMetadata = googleDriveFiles?.filter((file) => file.type === 'folder');
-
-      if (filesMetadata && filesMetadata.length > 0) {
-        toolsMetadata.push({
-          tool_name: TOOL_GOOGLE_DRIVE_ID,
-          type: 'file_ids',
-          artifacts: filesMetadata.map((file) => file.id),
-        });
-      }
-
-      if (foldersMetadata && foldersMetadata.length > 0) {
-        toolsMetadata.push({
-          tool_name: TOOL_GOOGLE_DRIVE_ID,
-          type: 'folder_ids',
-          artifacts: foldersMetadata.map((file) => file.id),
-        });
-      }
 
       const payload: CreateAgent = {
         ...fields,
-        tools_metadata: toolsMetadata,
+        tools_metadata: [{ tool_name: TOOL_GOOGLE_DRIVE_ID, artifacts: googleDriveFiles ?? [] }],
       };
 
       const agent = await createAgent(payload);
