@@ -14,7 +14,7 @@ export type ConversationListItem = {
   conversationId: string;
   updatedAt: string;
   title: string;
-  description?: string;
+  description: string | null;
   weekHeading?: string;
 };
 
@@ -48,7 +48,7 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
         },
       },
     ],
-    []
+    [conversationId]
   );
 
   return menuItems;
