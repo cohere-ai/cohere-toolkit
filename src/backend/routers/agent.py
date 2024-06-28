@@ -90,7 +90,8 @@ async def get_agent_by_id(
     """
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        add_agent_to_request_state(request, agent)
+        if agent:
+            add_agent_to_request_state(request, agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
