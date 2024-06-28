@@ -9,6 +9,7 @@ import type { Citation } from './Citation';
 import type { Document } from './Document';
 import type { File } from './File';
 import type { MessageAgent } from './MessageAgent';
+import type { ToolCall } from './ToolCall';
 
 export type Message = {
   text: string;
@@ -21,5 +22,7 @@ export type Message = {
   documents: Array<Document>;
   citations: Array<Citation>;
   files: Array<File>;
+  tool_calls: Array<ToolCall>;
+  tool_plan: string | null;
   agent: MessageAgent;
 };
