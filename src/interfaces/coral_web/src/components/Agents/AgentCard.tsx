@@ -1,8 +1,10 @@
 import { Transition } from '@headlessui/react';
 import { useRouter } from 'next/router';
 
+import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
@@ -28,6 +30,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const isActive = isBaseAgent ? !agentId : agentId === id;
   const router = useRouter();
 
+  const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();
   const { setEditAgentPanelOpen } = useAgentsStore();
   const { resetConversation } = useConversationStore();
@@ -41,6 +44,15 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
     resetConversation();
     resetCitations();
     resetFileParams();
+  };
+
+  const handleDeleteAssistant = async () => {
+    if (id) {
+      open({
+        title: 'Delete assistant',
+        content: <DeleteAgent name={name} agentId={id} onClose={close} />,
+      });
+    }
   };
 
   const handleHideAssistant = () => {
@@ -107,6 +119,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
                 onClick: handleHideAssistant,
                 iconName: 'hide',
               },
+              { label: 'Delete assistant', onClick: handleDeleteAssistant, iconName: 'trash' },
             ]}
           />
         </Transition>
