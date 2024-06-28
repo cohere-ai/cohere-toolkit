@@ -9,26 +9,6 @@ class AgentBase(BaseModel):
     organization_id: Optional[str] = None
 
 
-class Agent(AgentBase):
-    id: str
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-
-    version: int
-    name: str
-    description: Optional[str]
-    preamble: Optional[str]
-    temperature: float
-    tools: list[str]
-
-    model: str
-    deployment: str
-
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-
-
 class AgentToolMetadata(AgentBase):
     id: str
     tool_name: str
@@ -49,6 +29,27 @@ class UpdateAgentToolMetadata(BaseModel):
 
 class DeleteAgentToolMetadata(BaseModel):
     pass
+
+
+class Agent(AgentBase):
+    id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    version: int
+    name: str
+    description: Optional[str]
+    preamble: Optional[str]
+    temperature: float
+    tools: list[str]
+    tools_metadata: list[AgentToolMetadata]
+
+    model: str
+    deployment: str
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
 
 
 class CreateAgent(BaseModel):
