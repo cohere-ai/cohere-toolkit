@@ -171,6 +171,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
 
 async def report_metrics(signal: MetricsSignal) -> None:
+    log_signal(signal)
     if not REPORT_SECRET:
         logging.error("No report secret set")
         return
@@ -179,7 +180,6 @@ async def report_metrics(signal: MetricsSignal) -> None:
         return
 
     signal = attach_secret(signal)
-    log_signal(signal)
     if not isinstance(signal, dict):
         signal = to_dict(signal)
 
