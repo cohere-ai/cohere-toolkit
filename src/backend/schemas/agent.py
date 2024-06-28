@@ -9,6 +9,25 @@ class AgentBase(BaseModel):
     organization_id: Optional[str] = None
 
 
+class AgentToolMetadata(AgentBase):
+    id: str
+    tool_name: str
+    artifacts: list[dict]
+
+
+class CreateAgentToolMetadata(BaseModel):
+    tool_name: str
+    artifacts: list[dict]
+
+
+class UpdateAgentToolMetadata(BaseModel):
+    artifacts: Optional[list[dict]] = None
+
+
+class DeleteAgentToolMetadata(BaseModel):
+    pass
+
+
 class Agent(AgentBase):
     id: str
     created_at: datetime.datetime
@@ -20,6 +39,7 @@ class Agent(AgentBase):
     preamble: Optional[str]
     temperature: float
     tools: list[str]
+    tools_metadata: list[AgentToolMetadata]
 
     model: str
     deployment: str
@@ -27,28 +47,6 @@ class Agent(AgentBase):
     class Config:
         from_attributes = True
         use_enum_values = True
-
-
-class AgentToolMetadata(AgentBase):
-    id: str
-    tool_name: str
-    type: str
-    artifacts: list[str]
-
-
-class CreateAgentToolMetadata(BaseModel):
-    tool_name: str
-    type: str
-    artifacts: list[str]
-
-
-class UpdateAgentToolMetadata(BaseModel):
-    type: Optional[str] = None
-    artifacts: Optional[list[str]] = None
-
-
-class DeleteAgentToolMetadata(BaseModel):
-    pass
 
 
 class CreateAgent(BaseModel):
