@@ -19,8 +19,8 @@ type Props = {
   onChange: (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean, authUrl?: string) => void;
   handleOpenFilePicker: VoidFunction;
-  setGoogleDriveFiles: (files: { id: string; name: string; type: string; url: string }[]) => void;
-  googleDriveFiles?: { id: string; name: string; type: string; url: string }[];
+  setGoogleDriveFiles: (files: { id: string; name: string; type: string }[]) => void;
+  googleDriveFiles?: { id: string; name: string; type: string }[];
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
   disabled?: boolean;
   className?: string;
