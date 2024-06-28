@@ -50,7 +50,9 @@ class SingleContainerDeployment(BaseDeployment):
     @collect_metrics_chat
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
-            **chat_request.model_dump(exclude={"stream", "file_ids", "model"}),
+            **chat_request.model_dump(
+                exclude={"stream", "file_ids", "model", "agent_id"}
+            ),
             **kwargs,
         )
         yield to_dict(response)
@@ -60,7 +62,9 @@ class SingleContainerDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream", "file_ids", "model"}),
+            **chat_request.model_dump(
+                exclude={"stream", "file_ids", "model", "agent_id"}
+            ),
             **kwargs,
         )
 
