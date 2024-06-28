@@ -10,7 +10,7 @@ from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
 )
 from backend.database_models.database import DBSessionDep
-from backend.routers.utils import add_agent_to_request_state, add_user_to_request_state
+from backend.routers.utils import add_agent_to_request_state, add_session_user_to_request_state
 from backend.schemas.agent import (
     Agent,
     AgentToolMetadata,
@@ -45,7 +45,7 @@ router.name = RouterName.AGENT
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
     # add user data into request state for metrics
     user_id = get_header_user_id(request)
-    add_user_to_request_state(request, session)
+    add_session_user_to_request_state(request, session)
     agent_data = AgentModel(
         name=agent.name,
         description=agent.description,
@@ -159,7 +159,7 @@ async def update_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    add_user_to_request_state(request, session)
+    add_session_user_to_request_state(request, session)
     agent = agent_crud.get_agent_by_id(session, agent_id)
     if not agent:
         raise HTTPException(
