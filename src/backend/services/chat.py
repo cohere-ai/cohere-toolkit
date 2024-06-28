@@ -756,8 +756,7 @@ def handle_stream_tool_calls_generation(
     stream_event = StreamToolCallsGeneration(**event | {"tool_calls": tool_calls})
     stream_end_data["tool_calls"].extend(tool_calls)
 
-    # TODO: remove False condition to enable saving tool calls
-    if should_store and False:
+    if should_store:
         save_tool_calls_message(
             session,
             tool_calls,
