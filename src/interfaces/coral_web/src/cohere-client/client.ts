@@ -2,19 +2,18 @@ import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-s
 
 import {
   Agent,
+  AgentToolMetadata,
   CohereChatRequest,
   Conversation,
   ConversationWithoutMessages,
   CreateAgent,
   DefaultService,
-  DeleteAgent,
   Deployment,
   ERROR_FINISH_REASON_TO_MESSAGE,
   FinishReason,
   ListAuthStrategy,
   ListFile,
   ManagedTool,
-  Tool,
   UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
@@ -379,6 +378,32 @@ export class CohereClient {
     }
 
     return body as ManagedTool[];
+  }
+
+  public async listAgentToolsMetadata({
+    agentId,
+  }: {
+    agentId: string;
+  }): Promise<AgentToolMetadata> {
+    const response = await this.fetch(`${this.getEndpoint('agents')}/${agentId}/tool-metadata`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status === 401) {
+      throw new CohereUnauthorizedError();
+    }
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as AgentToolMetadata;
   }
 
   public async listDeployments(): Promise<Deployment[]> {

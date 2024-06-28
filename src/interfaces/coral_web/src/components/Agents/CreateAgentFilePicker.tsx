@@ -2,8 +2,8 @@ import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
 
 type Props = {
-  googleDriveFiles?: { id: string; name: string; type: string; url: string }[];
-  setGoogleDriveFiles: (files: { id: string; name: string; type: string; url: string }[]) => void;
+  googleDriveFiles?: { id: string; name: string; type: string }[];
+  setGoogleDriveFiles: (files: { id: string; name: string; type: string }[]) => void;
   handleOpenFilePicker: VoidFunction;
 };
 export const CreateAgentFilePicker: React.FC<Props> = ({
