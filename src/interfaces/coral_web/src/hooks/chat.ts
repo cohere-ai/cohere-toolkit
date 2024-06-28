@@ -20,11 +20,7 @@ import {
   isSessionUnavailableError,
   isStreamError,
 } from '@/cohere-client';
-import {
-  DEPLOYMENT_COHERE_PLATFORM,
-  TOOL_GOOGLE_DRIVE_ID,
-  TOOL_PYTHON_INTERPRETER_ID,
-} from '@/constants';
+import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useRouteChange } from '@/hooks/route';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
@@ -548,7 +544,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     return {
       message,
       conversation_id: id,
-      tools: requestTools,
+      tools: requestTools?.map((tool) => ({ name: tool.name })),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
