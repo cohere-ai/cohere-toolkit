@@ -304,6 +304,7 @@ def initialize_sdk_metrics_data(
 ) -> tuple[MetricsData, Any]:
     return (
         MetricsData(
+            id=str(uuid.uuid4()),
             endpoint_name=f"co.{func_name}",
             method="POST",
             trace_id=kwargs.pop("trace_id", None),
