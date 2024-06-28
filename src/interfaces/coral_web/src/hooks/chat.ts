@@ -567,7 +567,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     return {
       message,
       conversation_id: id,
-      tools: requestTools,
+      tools: requestTools?.map((tool) => ({ name: tool.name })),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
