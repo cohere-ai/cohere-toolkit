@@ -41,7 +41,6 @@ jobs:
         with:
           context: .
           tags: ${{ steps.meta.outputs.tags }}
-          target: prod
           file: ./src/backend/Dockerfile
           push: true
 
