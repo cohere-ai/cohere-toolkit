@@ -78,7 +78,7 @@ export const CitationDocumentSnippet: React.FC<
           <CitationDocumentHeader
             toolId={toolId}
             url={document.url ?? ''}
-            title={document.title ?? undefined}
+            title={document.title && document.title.length > 0 ? document.title : undefined}
             isExpandable={false}
             isExpanded={true}
             isSelected={true}

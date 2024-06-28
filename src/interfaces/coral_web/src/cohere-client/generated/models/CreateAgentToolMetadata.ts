@@ -4,6 +4,5 @@
 /* eslint-disable */
 export type CreateAgentToolMetadata = {
   tool_name: string;
-  type: string;
-  artifacts: Array<string>;
+  artifacts: Array<Record<string, any>>;
 };

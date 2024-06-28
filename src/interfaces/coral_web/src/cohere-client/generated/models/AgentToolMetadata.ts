@@ -7,6 +7,5 @@ export type AgentToolMetadata = {
   organization_id?: string | null;
   id: string;
   tool_name: string;
-  type: string;
-  artifacts: Array<string>;
+  artifacts: Array<Record<string, any>>;
 };
