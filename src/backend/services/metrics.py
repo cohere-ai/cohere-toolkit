@@ -170,7 +170,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return request.state.agent
 
 
-async def report_metrics(signal: MetricsSignal) -> None:
+async def report_metrics(data: MetricsData) -> None:
+    data = attach_secret(data)
+    signal = MetricsSignal(signal=data)
     log_signal(signal)
     if not REPORT_SECRET:
         logging.error("No report secret set")
@@ -179,10 +181,8 @@ async def report_metrics(signal: MetricsSignal) -> None:
         logging.error("No report endpoint set")
         return
 
-    signal = attach_secret(signal)
     if not isinstance(signal, dict):
         signal = to_dict(signal)
-
     transport = AsyncHTTPTransport(retries=NUM_RETRIES)
     try:
         async with AsyncClient(transport=transport) as client:
@@ -192,18 +192,22 @@ async def report_metrics(signal: MetricsSignal) -> None:
 
 
 def attach_secret(data: MetricsData) -> MetricsData:
+    if not REPORT_SECRET:
+        return data
     data.secret = REPORT_SECRET
     return data
 
 
 # TODO: remove the logging once metrics are configured correctly
 def log_signal(signal: MetricsData) -> MetricsSignal:
-    json_signal = json.dumps(to_dict(signal))
+
+    s = to_dict(signal)
+    s["secret"] = "'$SECRET'"
+    json_signal = json.dumps(s)
     # just general curl commands to test the endpoint for now
     logging.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
-    return signal
 
 
 def run_loop(metrics_data: MetricsData) -> None:

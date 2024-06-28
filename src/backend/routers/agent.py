@@ -194,7 +194,6 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    add_user_to_request_state(request, session)
     agent = agent_crud.get_agent_by_id(session, agent_id)
 
     if not agent:
