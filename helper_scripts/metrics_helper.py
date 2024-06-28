@@ -31,7 +31,6 @@ def agents():
     response = requests.get(f"{base_url}/agents/{agent_id}", headers=headers)
     print("get agent")
     print(response.status_code)
-    
 
     # # Update Agent
     response = requests.put(
@@ -73,7 +72,7 @@ def chat(agent_id):
             "tools": [{"name": "web_search"}],
         },
     )
-    
+
     print(response.status_code)
 
     conversation_id = None
@@ -115,8 +114,11 @@ def tools(conversation_id):
     )
 
     # del conversation
-    res = requests.delete(f"{base_url}/conversations/{conversation_id}", headers=headers)
+    res = requests.delete(
+        f"{base_url}/conversations/{conversation_id}", headers=headers
+    )
     print(res.status_code)
+
 
 # Delete Everything
 def cleanup(user_id, agent_id):

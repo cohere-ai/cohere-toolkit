@@ -7,7 +7,6 @@ from fastapi.testclient import TestClient
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 
 
-
 def test_list_deployments(
     client: TestClient, mock_available_model_deployments: Mock
 ) -> None:
