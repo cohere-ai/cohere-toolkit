@@ -173,7 +173,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 async def report_metrics(data: MetricsData) -> None:
     data = attach_secret(data)
     signal = MetricsSignal(signal=data)
-    log_signal(signal)
+    log_signal_curl(signal)
     if not REPORT_SECRET:
         logging.error("No report secret set")
         return
@@ -199,10 +199,9 @@ def attach_secret(data: MetricsData) -> MetricsData:
 
 
 # TODO: remove the logging once metrics are configured correctly
-def log_signal(signal: MetricsData) -> MetricsSignal:
-
+def log_signal_curl(signal: MetricsSignal) -> None:
     s = to_dict(signal)
-    s["secret"] = "'$SECRET'"
+    s["signal"]["secret"] = "'$SECRET'"
     json_signal = json.dumps(s)
     # just general curl commands to test the endpoint for now
     logging.info(
