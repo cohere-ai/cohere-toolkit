@@ -19,22 +19,27 @@ def agents():
             "tools": ["web_search"],
         },
     )
+    print("create agent")
     print(response.status_code)
-    print(response.json())
     agent_id = response.json()["id"]
     # # List Agents
     response = requests.get(f"{base_url}/agents", headers=headers)
+    print("list agents")
     print(response.status_code)
 
     # # Get Agent
     response = requests.get(f"{base_url}/agents/{agent_id}", headers=headers)
+    print("get agent")
     print(response.status_code)
+    
 
     # # Update Agent
     response = requests.put(
-        f"{base_url}/agents/{agent_id}", headers=headers, json={"name": "new_name"}
+        f"{base_url}/agents/{agent_id}", headers=headers, json={"name": str(uuid4())}
     )
+    print("update agent")
     print(response.status_code)
+    # print(response.json())
 
     return agent_id
 
@@ -104,7 +109,7 @@ def tools(conversation_id):
     print(res.status_code)
     # Update Conversation
     res = requests.put(
-        f"{base_url}/co print(res.status_code)nversations/{conversation_id}",
+        f"{base_url}/conversations/{conversation_id}",
         headers=headers,
         json={"title": "new_title"},
     )
