@@ -207,7 +207,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     newMessages: ChatMessage[];
     request: CohereChatRequest;
     headers: Record<string, string>;
-    agentId?: string;
     streamConverse: UseMutateAsyncFunction<
       StreamEnd | undefined,
       CohereNetworkError,
@@ -242,7 +241,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       await streamConverse({
         request,
         headers,
-        agentId,
         onRead: (eventData: ChatResponseEvent) => {
           switch (eventData.event) {
             case StreamEvent.STREAM_START: {
@@ -571,6 +569,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
+      agent_id: agentId,
       ...restOverrides,
     };
   };
@@ -608,7 +607,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       newMessages,
       request,
       headers,
-      agentId,
       streamConverse: streamChat,
     });
   };
