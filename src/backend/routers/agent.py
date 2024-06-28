@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from backend.config.routers import RouterName
 from backend.config.tools import ALL_TOOLS
 from backend.crud import agent as agent_crud
-from backend.crud import user as user_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.crud import user as user_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
@@ -59,7 +59,7 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
 
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
-        add_agent_to_request_state(request, new_agent)
+        add_agent_to_request_state(request, created_agent)
         if agent.tools_metadata:
             for tool_metadata in agent.tools_metadata:
                 agent_tool_metadata_data = AgentToolMetadataModel(
