@@ -205,6 +205,7 @@ class CustomChat(BaseChat):
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=kwargs.get("user_id"),
+                agent_id=kwargs.get("agent_id"),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list
