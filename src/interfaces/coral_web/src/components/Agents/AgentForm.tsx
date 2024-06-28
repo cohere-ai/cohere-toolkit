@@ -5,7 +5,10 @@ import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/com
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
-export type CreateAgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
+export type CreateAgentFormFields = Pick<
+  CreateAgent,
+  'name' | 'description' | 'preamble' | 'deployment' | 'model' | 'tools'
+>;
 export type UpdateAgentFormFields = UpdateAgent;
 export type AgentFormFieldKeys = keyof CreateAgentFormFields | keyof UpdateAgentFormFields;
 
