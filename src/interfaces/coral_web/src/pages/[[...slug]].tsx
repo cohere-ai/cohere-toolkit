@@ -215,25 +215,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const { conversationId, agentId } = getSlugRoutes(context.query.slug);
 
-  await Promise.allSettled([
-    deps.queryClient.prefetchQuery({
-      queryKey: ['agent', agentId],
-      queryFn: async () => {
-        if (!agentId) return;
-        return await deps.cohereClient.getAgent(agentId);
-      },
-    }),
-    deps.queryClient.prefetchQuery({
-      queryKey: ['conversation', conversationId],
-      queryFn: async () => {
-        if (!conversationId) return;
-        const conversation = await deps.cohereClient.getConversation({
-          conversationId,
-        });
-        // react-query useInfiniteQuery expected response shape
-        return { conversation };
-      },
-    }),
+  const prefetchQueries = [
     deps.queryClient.prefetchQuery({
       queryKey: ['conversations'],
       queryFn: async () => {
@@ -248,7 +230,35 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       queryKey: ['deployments'],
       queryFn: async () => await deps.cohereClient.listDeployments(),
     }),
-  ]);
+  ];
+
+  if (agentId) {
+    prefetchQueries.push(
+      deps.queryClient.prefetchQuery({
+        queryKey: ['agent', agentId],
+        queryFn: async () => {
+          return await deps.cohereClient.getAgent(agentId);
+        },
+      })
+    );
+  }
+
+  if (conversationId) {
+    prefetchQueries.push(
+      deps.queryClient.prefetchQuery({
+        queryKey: ['conversation', conversationId],
+        queryFn: async () => {
+          const conversation = await deps.cohereClient.getConversation({
+            conversationId,
+          });
+          // react-query useInfiniteQuery expected response shape
+          return { conversation };
+        },
+      })
+    );
+  }
+
+  await Promise.allSettled(prefetchQueries);
 
   return {
     props: {

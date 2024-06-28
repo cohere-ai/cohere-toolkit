@@ -85,7 +85,8 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
-        missing_keys = [key for key in strategy_payload if key not in payload.keys()]
+        missing_keys = [
+            key for key in strategy_payload if key not in payload.keys()]
         raise HTTPException(
             status_code=422,
             detail=f"Missing the following keys in the payload: {missing_keys}.",
@@ -184,7 +185,6 @@ async def authorize(
             detail=f"Could not fetch access token from provider, failed with error: {str(e)}",
         )
 
-    token = JWTService().create_and_encode_jwt(user)
     if not userinfo:
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
@@ -192,6 +192,7 @@ async def authorize(
 
     # Get or create user, then set session user
     user = get_or_create_user(session, userinfo)
+    token = JWTService().create_and_encode_jwt(user)
 
     return {"token": token}
 
