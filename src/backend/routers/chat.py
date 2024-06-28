@@ -95,7 +95,6 @@ async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
-    agent_id: str | None = None,
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
@@ -104,7 +103,6 @@ async def chat(
         chat_request (CohereChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
-        agent_id (str | None): Agent ID.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
@@ -114,6 +112,7 @@ async def chat(
         trace_id = request.state.trace_id
 
     user_id = request.headers.get("User-Id", None)
+    agent_id = chat_request.agent_id
 
     (
         session,
