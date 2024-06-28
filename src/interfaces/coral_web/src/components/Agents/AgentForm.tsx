@@ -100,9 +100,8 @@ export const AgentForm: React.FC<Props> = ({
             const isGoogleDrive = tool.name === TOOL_GOOGLE_DRIVE_ID;
 
             return (
-              <>
+              <div key={i}>
                 <Checkbox
-                  key={tool.name}
                   label={tool.display_name ?? tool.name}
                   tooltipLabel={tool.description}
                   name={tool.name + i}
@@ -119,7 +118,7 @@ export const AgentForm: React.FC<Props> = ({
                     />
                   </div>
                 )}
-              </>
+              </div>
             );
           })}
         </div>
