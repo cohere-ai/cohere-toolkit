@@ -7,6 +7,7 @@ import {
   ConversationWithoutMessages,
   CreateAgent,
   DefaultService,
+  DeleteAgent,
   Deployment,
   ERROR_FINISH_REASON_TO_MESSAGE,
   FinishReason,
@@ -616,6 +617,23 @@ export class CohereClient {
     }
 
     return body as Agent;
+  }
+
+  public async deleteAgent({ agentId }: { agentId: string }) {
+    const endpoint = `${this.getEndpoint('agents')}/${agentId}`;
+    const response = await this.fetch(endpoint, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
   }
 
   public async listAgents(): Promise<Agent[]> {

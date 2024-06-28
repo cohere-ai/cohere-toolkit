@@ -35,7 +35,7 @@ const AgentsNewPage: NextPage<Props> = () => {
     setFilteredAgents(
       agents.filter((agent) => agent.name.toLowerCase().includes(filterText.toLowerCase()))
     );
-  }, [filterText]);
+  }, [filterText, agents]);
 
   return (
     <Layout>
