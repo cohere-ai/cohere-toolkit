@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class MetricsDataBase(BaseModel):
-    id: str = str(uuid.uuid4())
+    id: str
     user_id: str
     trace_id: str
     method: str
