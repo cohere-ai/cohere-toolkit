@@ -9,14 +9,17 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 import type { Agent } from '../models/Agent';
+import type { AgentToolMetadata } from '../models/AgentToolMetadata';
 import type { Body_upload_file_v1_conversations_upload_file_post } from '../models/Body_upload_file_v1_conversations_upload_file_post';
 import type { ChatResponseEvent } from '../models/ChatResponseEvent';
 import type { CohereChatRequest } from '../models/CohereChatRequest';
 import type { Conversation } from '../models/Conversation';
 import type { ConversationWithoutMessages } from '../models/ConversationWithoutMessages';
 import type { CreateAgent } from '../models/CreateAgent';
+import type { CreateAgentToolMetadata } from '../models/CreateAgentToolMetadata';
 import type { CreateUser } from '../models/CreateUser';
 import type { DeleteAgent } from '../models/DeleteAgent';
+import type { DeleteAgentToolMetadata } from '../models/DeleteAgentToolMetadata';
 import type { DeleteConversation } from '../models/DeleteConversation';
 import type { DeleteFile } from '../models/DeleteFile';
 import type { DeleteUser } from '../models/DeleteUser';
@@ -31,6 +34,7 @@ import type { Logout } from '../models/Logout';
 import type { ManagedTool } from '../models/ManagedTool';
 import type { NonStreamedChatResponse } from '../models/NonStreamedChatResponse';
 import type { UpdateAgent } from '../models/UpdateAgent';
+import type { UpdateAgentToolMetadata } from '../models/UpdateAgentToolMetadata';
 import type { UpdateConversation } from '../models/UpdateConversation';
 import type { UpdateDeploymentEnv } from '../models/UpdateDeploymentEnv';
 import type { UpdateFile } from '../models/UpdateFile';
@@ -151,6 +155,17 @@ export class DefaultService {
     });
   }
   /**
+   * Login
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static loginV1ToolAuthGet(): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/tool/auth',
+    });
+  }
+  /**
    * Chat Stream
    * Stream chat endpoint to handle user messages and return chatbot responses.
    *
@@ -260,7 +275,7 @@ export class DefaultService {
   }): CancelablePromise<User> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/v1/users/',
+      url: '/v1/users',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -291,7 +306,7 @@ export class DefaultService {
   }): CancelablePromise<Array<User>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/v1/users/',
+      url: '/v1/users',
       query: {
         offset: offset,
         limit: limit,
@@ -781,6 +796,18 @@ export class DefaultService {
   }
   /**
    * Create Agent
+   * Create an agent.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * agent (CreateAgent): Agent data.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * Agent: Created agent.
+   *
+   * Raises:
+   * HTTPException: If the agent creation fails.
    * @returns Agent Successful Response
    * @throws ApiError
    */
@@ -928,6 +955,158 @@ export class DefaultService {
       url: '/v1/agents/{agent_id}',
       path: {
         agent_id: agentId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * List Agent Tool Metadata
+   * List all agent tool metadata by agent ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * list[AgentToolMetadata]: List of agent tool metadata.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata retrieval fails.
+   * @returns AgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public static listAgentToolMetadataV1AgentsAgentIdToolMetadataGet({
+    agentId,
+  }: {
+    agentId: string;
+  }): CancelablePromise<Array<AgentToolMetadata>> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/agents/{agent_id}/tool-metadata',
+      path: {
+        agent_id: agentId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Create Agent Tool Metadata
+   * Create an agent tool metadata.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * agent_id (str): Agent ID.
+   * agent_tool_metadata (CreateAgentToolMetadata): Agent tool metadata data.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * AgentToolMetadata: Created agent tool metadata.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata creation fails.
+   * @returns AgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public static createAgentToolMetadataV1AgentsAgentIdToolMetadataPost({
+    agentId,
+    requestBody,
+  }: {
+    agentId: string;
+    requestBody: CreateAgentToolMetadata;
+  }): CancelablePromise<AgentToolMetadata> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/v1/agents/{agent_id}/tool-metadata',
+      path: {
+        agent_id: agentId,
+      },
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Update Agent Tool Metadata
+   * Update an agent tool metadata by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * agent_tool_metadata_id (str): Agent tool metadata ID.
+   * session (DBSessionDep): Database session.
+   * new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * AgentToolMetadata: Updated agent tool metadata.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata with the given ID is not found.
+   * HTTPException: If the agent tool metadata update fails.
+   * @returns AgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public static updateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPut({
+    agentId,
+    agentToolMetadataId,
+    requestBody,
+  }: {
+    agentId: string;
+    agentToolMetadataId: string;
+    requestBody: UpdateAgentToolMetadata;
+  }): CancelablePromise<AgentToolMetadata> {
+    return __request(OpenAPI, {
+      method: 'PUT',
+      url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
+      path: {
+        agent_id: agentId,
+        agent_tool_metadata_id: agentToolMetadataId,
+      },
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Delete Agent Tool Metadata
+   * Delete an agent tool metadata by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * agent_tool_metadata_id (str): Agent tool metadata ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * DeleteAgentToolMetadata: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata with the given ID is not found.
+   * HTTPException: If the agent tool metadata deletion fails.
+   * @returns DeleteAgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public static deleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDelete({
+    agentId,
+    agentToolMetadataId,
+  }: {
+    agentId: string;
+    agentToolMetadataId: string;
+  }): CancelablePromise<DeleteAgentToolMetadata> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
+      url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
+      path: {
+        agent_id: agentId,
+        agent_tool_metadata_id: agentToolMetadataId,
       },
       errors: {
         422: `Validation Error`,

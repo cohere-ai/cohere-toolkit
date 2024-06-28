@@ -29,6 +29,28 @@ class Agent(AgentBase):
         use_enum_values = True
 
 
+class AgentToolMetadata(AgentBase):
+    id: str
+    tool_name: str
+    type: str
+    artifacts: list[str]
+
+
+class CreateAgentToolMetadata(BaseModel):
+    tool_name: str
+    type: str
+    artifacts: list[str]
+
+
+class UpdateAgentToolMetadata(BaseModel):
+    type: Optional[str] = None
+    artifacts: Optional[list[str]] = None
+
+
+class DeleteAgentToolMetadata(BaseModel):
+    pass
+
+
 class CreateAgent(BaseModel):
     name: str
     version: Optional[int] = None
@@ -38,6 +60,7 @@ class CreateAgent(BaseModel):
     model: str
     deployment: str
     tools: Optional[list[str]] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadata]] = None
 
     class Config:
         from_attributes = True
