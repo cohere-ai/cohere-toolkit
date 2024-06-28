@@ -20,6 +20,7 @@ def agents():
         },
     )
     print(response.status_code)
+    print(response.json())
     agent_id = response.json()["id"]
     # # List Agents
     response = requests.get(f"{base_url}/agents", headers=headers)

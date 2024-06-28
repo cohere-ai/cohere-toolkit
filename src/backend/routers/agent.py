@@ -44,8 +44,9 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
     )
 
     try:
-        add_agent_to_request_state(request, agent_data)
-        return agent_crud.create_agent(session, agent_data)
+        new_agent = agent_crud.create_agent(session, agent_data)
+        add_agent_to_request_state(request, new_agent)
+        return new_agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
