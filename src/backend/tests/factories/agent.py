@@ -34,6 +34,5 @@ class AgentFactory(BaseFactory):
             )
         ]
     )
-    tools_metadata = factory.List([])
     model = "command-r-plus"
     deployment = ModelDeploymentName.CoherePlatform

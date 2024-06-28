@@ -19,4 +19,5 @@ export type ManagedTool = {
   category?: Category;
   is_auth_required?: boolean;
   auth_url?: string | null;
+  token?: string | null;
 };

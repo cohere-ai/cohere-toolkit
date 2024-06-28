@@ -3,5 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateAgentToolMetadata = {
+  tool_name?: string | null;
   artifacts?: null;
 };

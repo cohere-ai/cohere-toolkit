@@ -174,11 +174,13 @@ async def update_agent(
             status_code=400,
             detail=f"Agent with ID {agent_id} not found.",
         )
-    
+
     if new_agent.tools_metadata:
         for tool_metadata in new_agent.tools_metadata:
-            agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
-                session, tool_metadata.id
+            agent_tool_metadata = (
+                agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
+                    session, tool_metadata.id
+                )
             )
             if not agent_tool_metadata:
                 raise HTTPException(
