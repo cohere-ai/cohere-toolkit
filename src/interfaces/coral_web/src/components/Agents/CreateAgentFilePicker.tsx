@@ -1,6 +1,5 @@
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
-import { cn } from '@/utils';
 
 type Props = {
   googleDriveFiles?: { id: string; name: string; type: string; url: string }[];

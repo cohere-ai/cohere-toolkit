@@ -13,7 +13,6 @@ const INITIAL_STATE: ConfigurableParams = {
   fileIds: [],
   deployment: undefined,
   deploymentConfig: undefined,
-  googleDriveFiles: [],
 };
 
 export type ConfigurableParams = Pick<CohereChatRequest, 'temperature' | 'tools'> & {
@@ -22,18 +21,11 @@ export type ConfigurableParams = Pick<CohereChatRequest, 'temperature' | 'tools'
   model?: string;
   deployment?: string;
   deploymentConfig?: string;
-  googleDriveFiles?: {
-    id: string;
-    name: string;
-    type: string;
-  }[];
 };
 
 type State = ConfigurableParams;
 type Actions = {
   setParams: (params?: Partial<ConfigurableParams> | null) => void;
-  setGoogleDriveFiles: (files: ConfigurableParams['googleDriveFiles']) => void;
-  removeGoogleDriveFile: (id: string) => void;
   resetFileParams: VoidFunction;
 };
 
@@ -53,26 +45,6 @@ export const createParamsSlice: StateCreator<StoreState, [], [], ParamStore> = (
           ...params,
           ...(tools ? { tools } : []),
           ...(fileIds ? { fileIds } : {}),
-        },
-      };
-    });
-  },
-  setGoogleDriveFiles(files) {
-    set((state) => {
-      return {
-        params: {
-          ...state.params,
-          googleDriveFiles: files,
-        },
-      };
-    });
-  },
-  removeGoogleDriveFile(id) {
-    set((state) => {
-      return {
-        params: {
-          ...state.params,
-          googleDriveFiles: state.params?.googleDriveFiles?.filter((f) => f.id !== id),
         },
       };
     });
