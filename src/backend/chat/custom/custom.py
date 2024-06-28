@@ -137,8 +137,6 @@ class CustomChat(BaseChat):
                 kwargs.get("user_id"),
             )
 
-        print(f"Chat history: {chat_request.chat_history}")
-
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
             logger.info(f"Step {step + 1}")
