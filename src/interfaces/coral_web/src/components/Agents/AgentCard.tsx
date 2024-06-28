@@ -27,8 +27,9 @@ type Props = {
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
   const { agentId } = useSlugRoutes();
-  const isActive = isBaseAgent ? !agentId : agentId === id;
   const router = useRouter();
+
+  const isActive = isBaseAgent ? router.asPath === '/' && !agentId : agentId === id;
 
   const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();
