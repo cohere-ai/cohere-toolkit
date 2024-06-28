@@ -131,3 +131,18 @@ export const useRecentAgents = () => {
 
   return { recentAgents, addRecentAgentId, removeRecentAgentId };
 };
+
+export const useListAgentToolsMetadata = (agentId: string) => {
+  const cohereClient = useCohereClient();
+  return useQuery({
+    queryKey: ['listAgentToolsMetadata', agentId],
+    queryFn: async () => {
+      try {
+        return await cohereClient.listAgentToolsMetadata({ agentId });
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+  });
+};
