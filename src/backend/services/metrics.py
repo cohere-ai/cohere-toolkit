@@ -198,12 +198,12 @@ def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
     # TODD: seems hacky, fix this
     data.secret = REPORT_SECRET
     signal = MetricsSignal(signal=data)
-    logging.info(signal)
+    # logging.info(signal)
     json_signal = json.dumps(to_dict(signal))
     # just general curl commands to test the endpoint for now
-    logging.info(
-        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
-    )
+    # logging.info(
+    #     f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
+    # )
     return signal
 
 

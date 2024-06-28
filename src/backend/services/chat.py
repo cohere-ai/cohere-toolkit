@@ -80,6 +80,7 @@ def process_chat(
         model_config = get_deployment_config(request)
 
     if agent_id is not None:
+        print("Agent ID: ", agent_id)
         agent = agent_crud.get_agent_by_id(session, agent_id)
         request.state.agent = Agent.model_validate(agent)
         if agent is None:
@@ -101,6 +102,11 @@ def process_chat(
         # NOTE TEMPORARY: we do not set a the model for now and just use the default model
         chat_request.model = None
         # chat_request.model = agent.model
+        
+        print(f"Chat request: {chat_request}")
+        
+    else:
+        print("Agent ID is None")
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
