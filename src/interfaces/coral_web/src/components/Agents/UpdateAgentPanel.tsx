@@ -130,7 +130,11 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
 
     try {
       setIsSubmitting(true);
-      const newAgent = await updateAgent({ ...fields, agentId });
+      const newAgent = await updateAgent({
+        ...fields,
+        // tools_metadata: [{ tool_name: TOOL_GOOGLE_DRIVE_ID, artifacts: googleDriveFiles ?? [] }],
+        agentId,
+      });
       setIsSubmitting(false);
       success(`Updated ${newAgent?.name}`);
     } catch (e) {
