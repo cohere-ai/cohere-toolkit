@@ -128,14 +128,23 @@ class CustomChat(BaseChat):
             chat_request.tools = managed_tools
             tool_names = [tool.name for tool in managed_tools]
 
-        # Add files to chat history if the tool requires it
-        if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
-            chat_request.chat_history = self.add_files_to_chat_history(
-                chat_request.chat_history,
-                kwargs.get("conversation_id"),
-                kwargs.get("session"),
-                kwargs.get("user_id"),
-            )
+        # Add files to chat history if the tool requires it and files are provided
+        if chat_request.file_ids:
+            if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
+                chat_request.chat_history = self.add_files_to_chat_history(
+                    chat_request.chat_history,
+                    kwargs.get("conversation_id"),
+                    kwargs.get("session"),
+                    kwargs.get("user_id"),
+                )
+        else:
+            # TODO: remove this workaround
+            # For now we're removing the Read_File and Search_File tools if no files are provided
+            chat_request.tools = [
+                tool
+                for tool in chat_request.tools
+                if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
+            ]
 
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
@@ -256,28 +265,6 @@ class CustomChat(BaseChat):
             for tool in chat_request.tools
             if AVAILABLE_TOOLS.get(tool.name)
         ]
-
-    def get_tool_calls(self, tools, chat_history, deployment_model, **kwargs: Any):
-        trace_id = kwargs.get("trace_id", "")
-        user_id = kwargs.get("user_id", "")
-        agent_id = kwargs.get("agent_id", "")
-        # If the chat history contains a read or search file tool, add the files to the chat history
-        tool_names = [tool.name for tool in tools]
-        if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
-            chat_history = self.add_files_to_chat_history(
-                chat_history,
-                kwargs.get("conversation_id"),
-                kwargs.get("session"),
-                kwargs.get("user_id"),
-            )
-            self.chat_request.chat_history = chat_history
-
-        logger.info(f"Available tools: {tools}")
-        stream = deployment_model.invoke_chat_stream(
-            self.chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
-        )
-
-        return stream
 
     def add_files_to_chat_history(
         self,
