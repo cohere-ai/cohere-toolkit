@@ -350,17 +350,6 @@ def collect_compass_metrics(func_name: str, method: str):
     return report_metrics
 
 
-# def initialize_sdk_metrics_data(
-#     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
-# ) -> tuple[MetricsData, Any]:
-#     return _initialize_sdk_metrics_data(
-#         f"co.{func_name}",
-#         "POST",
-#         chat_request.model if chat_request else None,
-#         **kwargs,
-#     )
-
-
 def _initialize_sdk_metrics_data(
     func_name: str, method: str, model: Optional[str], **kwargs: Any
 ) -> tuple[MetricsData, Any]:
