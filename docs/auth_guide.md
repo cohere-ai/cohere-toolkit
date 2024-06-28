@@ -32,6 +32,7 @@ Many OIDC-compliant auth providers also implement PKCE for added protection. Thi
 For more [details click here.](https://oauth.net/2/pkce/)
 
 To enable the additional PKCE auth flow, you will need to first ensure your auth provider is PKCE-compliant, then set the `PKCE_ENABLED` class attribute in your OIDCConnect auth strategy to `True`. 
+
 ## Implementing new Auth strategies
 
 To implement a new strategy, refer to the `backend/services/auth/strategies` folder. Auth strategies will need to inherit from one of two base classes, `BaseAuthenticationStrategy` or `BaseOAuthStrategy`.
