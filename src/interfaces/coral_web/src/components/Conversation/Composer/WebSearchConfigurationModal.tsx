@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Button, Input } from '@/components/Shared';
-import { TOOL_INTERNET_SEARCH_ID } from '@/constants';
 import { useParamsStore } from '@/stores';
 import { hasCommonDelimiters } from '@/utils';
 
