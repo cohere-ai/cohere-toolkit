@@ -1,9 +1,10 @@
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
+import { GoogleDriveToolArtifact } from '@/types/tools';
 
 type Props = {
-  googleDriveFiles?: Record<string, any>[];
-  setGoogleDriveFiles: (files: Record<string, any>[]) => void;
+  googleDriveFiles?: GoogleDriveToolArtifact[];
+  setGoogleDriveFiles: (files: GoogleDriveToolArtifact[]) => void;
   handleOpenFilePicker: VoidFunction;
 };
 export const AgentToolFielPicker: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const AgentToolFielPicker: React.FC<Props> = ({
   const handleRemoveFile = (id: string) => {
     setGoogleDriveFiles(googleDriveFiles?.filter((file) => file.id !== id) ?? []);
   };
+
   return (
     <div className="flex max-w-[300px] flex-col gap-y-2">
       <Button
@@ -29,8 +31,8 @@ export const AgentToolFielPicker: React.FC<Props> = ({
             <div key={id} className="flex flex-shrink-0 items-center gap-x-2 truncate">
               <Icon
                 name={type === 'folder' ? 'folder' : 'file'}
-                kind="outline"
                 className="text-secondary-600"
+                size="sm"
               />
               <Text styleAs="caption" className="truncate">
                 {name}
