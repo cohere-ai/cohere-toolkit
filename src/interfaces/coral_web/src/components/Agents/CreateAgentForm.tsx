@@ -1,3 +1,4 @@
+import { useSessionStorageValue } from '@react-hookz/web';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -32,6 +33,15 @@ const DEFAULT_FIELD_VALUES = {
 export const CreateAgentForm: React.FC = () => {
   const router = useRouter();
   const { open, close } = useContext(ModalContext);
+
+  const {
+    value: pendingAssistant,
+    set: setPendingAssistant,
+    remove: removePendingAssistant,
+  } = useSessionStorageValue<AgentFormFields>('pending_assistant', {
+    defaultValue: DEFAULT_FIELD_VALUES,
+    initializeWithValue: false,
+  });
 
   const { data: toolsData } = useListTools();
   const { error } = useNotify();
@@ -83,10 +93,10 @@ export const CreateAgentForm: React.FC = () => {
     const driveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
     if (checked) {
       if (driveTool?.is_auth_required && authUrl) {
-        localStorage.setItem(
-          'pending_assistant',
-          JSON.stringify({ ...fields, tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID] })
-        );
+        setPendingAssistant({
+          ...fields,
+          tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID],
+        });
         authUrl && window.open(authUrl, '_self');
       } else {
         openFilePicker();
@@ -98,11 +108,11 @@ export const CreateAgentForm: React.FC = () => {
 
   useEffect(() => {
     if (router.query.p) {
-      const pendingAssistant = localStorage.getItem('pending_assistant');
       if (pendingAssistant) {
-        setFields(JSON.parse(pendingAssistant));
-        localStorage.removeItem('pending_assistant');
+        setFields(pendingAssistant);
+        removePendingAssistant();
       }
+
       window.history.replaceState(null, '', router.basePath + router.pathname);
     }
   }, [router.query.p]);
