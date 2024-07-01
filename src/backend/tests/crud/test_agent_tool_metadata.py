@@ -9,9 +9,19 @@ from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.agent import UpdateAgentToolMetadata
 from backend.tests.factories import get_factory
 
+mock_artifact_1 = {
+    "id": "1T",
+    "url": "hellotesturl.com/document1",
+    "name": "document-test1",
+    "type": "document",
+}
+mock_artifact_2 = {
+    "id": "2T",
+    "url": "hellotesturl.com/document2",
+    "name": "document-test2",
+    "type": "document",
+}
 
-mock_artifact_1 = { 'id': '1T', 'url': 'hellotesturl.com/document1', 'name': 'document-test1', 'type': 'document' }
-mock_artifact_2 = { 'id': '2T', 'url': 'hellotesturl.com/document2', 'name': 'document-test2', 'type': 'document' }
 
 def test_create_agent_tool_metadata(session, user):
     agent = get_factory("Agent", session).create(
@@ -31,7 +41,7 @@ def test_create_agent_tool_metadata(session, user):
     assert agent_tool_metadata.agent_id == agent.id
     assert agent_tool_metadata.tool_name == ToolName.Google_Drive
     assert agent_tool_metadata.artifacts == [mock_artifact_1]
-    assert agent_tool_metadata.artifacts[0]['type'] == "document"
+    assert agent_tool_metadata.artifacts[0]["type"] == "document"
 
     agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
         session, agent_tool_metadata.id
@@ -40,7 +50,7 @@ def test_create_agent_tool_metadata(session, user):
     assert agent_tool_metadata.agent_id == agent.id
     assert agent_tool_metadata.tool_name == ToolName.Google_Drive
     assert agent_tool_metadata.artifacts == [mock_artifact_1]
-    assert agent_tool_metadata.artifacts[0]['type'] == "document"
+    assert agent_tool_metadata.artifacts[0]["type"] == "document"
 
 
 def test_create_agent_missing_agent_id(session, user):
@@ -115,7 +125,7 @@ def test_get_agent_tool_metadata_by_id(session, user):
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=[ mock_artifact_1, mock_artifact_2 ], 
+        artifacts=[mock_artifact_1, mock_artifact_2],
     )
     agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
         session, agent_tool_metadata.id
@@ -123,22 +133,21 @@ def test_get_agent_tool_metadata_by_id(session, user):
     assert agent_tool_metadata.user_id == user.id
     assert agent_tool_metadata.agent_id == agent.id
     assert agent_tool_metadata.tool_name == ToolName.Google_Drive
-    assert agent_tool_metadata.artifacts == [ mock_artifact_1, mock_artifact_2 ]
+    assert agent_tool_metadata.artifacts == [mock_artifact_1, mock_artifact_2]
 
 
 def test_get_all_agent_tool_metadata_by_agent_id(session, user):
     agent1 = get_factory("Agent", session).create(user_id=user.id)
     agent2 = get_factory("Agent", session).create(user_id=user.id)
-    
 
     # Add a random entry to test
     _ = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent1.id,
         tool_name=ToolName.Google_Drive,
-        artifacts= [ mock_artifact_1, mock_artifact_2 ],
+        artifacts=[mock_artifact_1, mock_artifact_2],
     )
-    
+
     # Constraint was added preventing multiple entries for the same user + agent + tool so fixing to change the tool used
     i = 0
     for tool in ToolName:
@@ -147,7 +156,7 @@ def test_get_all_agent_tool_metadata_by_agent_id(session, user):
         _ = get_factory("AgentToolMetadata", session).create(
             id=f"{i}",
             tool_name=tool.value,
-            artifacts=[ mock_artifact_1, mock_artifact_2 ],
+            artifacts=[mock_artifact_1, mock_artifact_2],
             user_id=user.id,
             agent_id=agent2.id,
         )
@@ -166,7 +175,7 @@ def test_delete_agent_tool_metadata_by_id(session, user):
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=[ mock_artifact_1, mock_artifact_2 ],
+        artifacts=[mock_artifact_1, mock_artifact_2],
     )
 
     agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
