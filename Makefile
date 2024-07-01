@@ -20,6 +20,8 @@ migration:
 	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate
 migrate:
 	docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
+downgrade-last-migration:
+	docker compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
 reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db

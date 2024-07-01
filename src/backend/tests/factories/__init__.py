@@ -1,11 +1,17 @@
 from backend.tests.factories.agent import AgentFactory
+from backend.tests.factories.agent_deployment_model_association import (
+    AgentDeploymentModelAssociationFactory as AgentDeploymentModelAssociation,
+)
 from backend.tests.factories.agent_tool_metadata import AgentToolMetadataFactory
+from backend.tests.factories.base import BaseFactory
 from backend.tests.factories.blacklist import BlacklistFactory
 from backend.tests.factories.citation import CitationFactory
 from backend.tests.factories.conversation import ConversationFactory
+from backend.tests.factories.deployment import DeploymentFactory
 from backend.tests.factories.document import DocumentFactory
 from backend.tests.factories.file import FileFactory
 from backend.tests.factories.message import MessageFactory
+from backend.tests.factories.model import ModelFactory
 from backend.tests.factories.organization import OrganizationFactory
 from backend.tests.factories.snapshot import (
     SnapshotAccessFactory,
@@ -30,6 +36,9 @@ FACTORY_MAPPING = {
     "SnapshotLink": SnapshotLinkFactory,
     "SnapshotAccess": SnapshotAccessFactory,
     "AgentToolMetadata": AgentToolMetadataFactory,
+    "Model": ModelFactory,
+    "Deployment": DeploymentFactory,
+    "AgentDeploymentModelAssociation": AgentDeploymentModelAssociation,
 }
 
 

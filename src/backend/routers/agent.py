@@ -4,7 +4,6 @@ from backend.config.routers import RouterName
 from backend.config.tools import ALL_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
-from backend.crud import user as user_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
@@ -13,6 +12,7 @@ from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
     add_session_user_to_request_state,
+    get_deployment_model_from_agent,
 )
 from backend.schemas.agent import (
     Agent,
@@ -24,6 +24,7 @@ from backend.schemas.agent import (
     UpdateAgent,
     UpdateAgentToolMetadata,
 )
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.services.auth.utils import get_header_user_id
 from backend.services.request_validators import (
     validate_create_agent_request,
@@ -66,11 +67,10 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         preamble=agent.preamble,
         temperature=agent.temperature,
         user_id=user_id,
-        model=agent.model,
-        deployment=agent.deployment,
+        organization_id=agent.organization_id,
         tools=agent.tools,
     )
-
+    deployment_db, model_db = get_deployment_model_from_agent(agent, session)
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
         add_agent_to_request_state(request, created_agent)
@@ -85,6 +85,20 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
                 agent_tool_metadata_crud.create_agent_tool_metadata(
                     session, agent_tool_metadata_data
                 )
+        if deployment_db and model_db:
+            deployment_config = (
+                agent.deployment_config
+                if agent.deployment_config
+                else deployment_db.default_deployment_config
+            )
+            agent_crud.assign_model_deployment_to_agent(
+                session,
+                agent=created_agent,
+                deployment_id=deployment_db.id,
+                model_id=model_db.id,
+                deployment_config=deployment_config,
+                set_default=True,
+            )
         return created_agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -107,7 +121,108 @@ async def list_agents(
         list[Agent]: List of agents.
     """
     try:
-        return agent_crud.get_agents(session, offset=offset, limit=limit)
+        user_id = get_header_user_id(request)
+        return agent_crud.get_agents(
+            session, offset=offset, limit=limit, user_id=user_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/user/{user_id}", response_model=list[Agent])
+async def list_user_agents(
+    *,
+    user_id: str,
+    offset: int = 0,
+    limit: int = 100,
+    session: DBSessionDep,
+    request: Request,
+) -> list[Agent]:
+    """
+    List all agents.
+
+    Args:
+        user_id (str): User ID.
+        offset (int): Offset to start the list.
+        limit (int): Limit of agents to be listed.
+        session (DBSessionDep): Database session.
+        request (Request): Request object.
+
+    Returns:
+        list[Agent]: List of agents.
+    """
+    try:
+        return agent_crud.get_agents(
+            session, offset=offset, limit=limit, user_id=user_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/organization/{organization_id}", response_model=list[Agent])
+async def list_organization_agents(
+    *,
+    organization_id: str,
+    offset: int = 0,
+    limit: int = 100,
+    session: DBSessionDep,
+    request: Request,
+) -> list[Agent]:
+    """
+    List all agents.
+
+    Args:
+        organization_id (str): Organization ID.
+        offset (int): Offset to start the list.
+        limit (int): Limit of agents to be listed.
+        session (DBSessionDep): Database session.
+        request (Request): Request object.
+
+    Returns:
+        list[Agent]: List of agents.
+    """
+    try:
+        return agent_crud.get_agents(
+            session, offset=offset, limit=limit, organization_id=organization_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get(
+    "/organization/{organization_id}/user/{user_id}", response_model=list[Agent]
+)
+async def list_organization_user_agents(
+    *,
+    organization_id: str,
+    user_id: str,
+    offset: int = 0,
+    limit: int = 100,
+    session: DBSessionDep,
+    request: Request,
+) -> list[Agent]:
+    """
+    List all agents.
+
+    Args:
+        organization_id (str): Organization ID.
+        user_id (str): User ID.
+        offset (int): Offset to start the list.
+        limit (int): Limit of agents to be listed.
+        session (DBSessionDep): Database session.
+        request (Request): Request object.
+
+    Returns:
+        list[Agent]: List of agents.
+    """
+    try:
+        return agent_crud.get_agents(
+            session,
+            offset=offset,
+            limit=limit,
+            organization_id=organization_id,
+            user_id=user_id,
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -141,6 +256,40 @@ async def get_agent_by_id(
         )
 
     return agent
+
+
+@router.get("/{agent_id}/deployments", response_model=list[DeploymentSchema])
+async def get_agent_deployments(
+    agent_id: str, session: DBSessionDep, request: Request
+) -> list[DeploymentSchema]:
+    """
+    Args:
+        agent_id (str): Agent ID.
+        session (DBSessionDep): Database session.
+
+    Returns:
+        Agent: Agent.
+
+    Raises:
+        HTTPException: If the agent with the given ID is not found.
+    """
+    try:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent:
+            add_agent_to_request_state(request, agent)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    if not agent:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Agent with ID: {agent_id} not found.",
+        )
+
+    return [
+        DeploymentSchema.custom_transform(deployment)
+        for deployment in agent.deployments
+    ]
 
 
 @router.put(
@@ -210,7 +359,56 @@ async def update_agent(
         agent = agent_crud.get_agent_by_id(session, agent_id)
 
     try:
-        agent = agent_crud.update_agent(session, agent, new_agent)
+        db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)
+        deployment_config = new_agent.deployment_config
+        is_default_deployment = new_agent.is_default_deployment
+        # remove association fields
+        new_agent_cleaned = new_agent.dict(
+            exclude={
+                "model",
+                "deployment",
+                "deployment_config",
+                "is_default_deployment",
+                "is_default_model",
+            }
+        )
+        if db_deployment and db_model:
+            current_association = agent_crud.get_agent_model_deployment_association(
+                session, agent, db_model.id, db_deployment.id
+            )
+            if current_association:
+                current_config = current_association.deployment_config
+                agent_crud.delete_agent_model_deployment_association(
+                    session, agent, db_model.id, db_deployment.id
+                )
+                if not deployment_config:
+                    deployment_config = (
+                        current_config
+                        if current_config
+                        else current_association.deployment.default_deployment_config
+                    )
+                agent = agent_crud.assign_model_deployment_to_agent(
+                    session,
+                    agent,
+                    db_model.id,
+                    db_deployment.id,
+                    deployment_config,
+                    is_default_deployment,
+                )
+            else:
+                deployment_config = db_deployment.default_deployment_config
+                agent = agent_crud.assign_model_deployment_to_agent(
+                    session,
+                    agent,
+                    db_model.id,
+                    db_deployment.id,
+                    deployment_config,
+                    is_default_deployment,
+                )
+
+        agent = agent_crud.update_agent(
+            session, agent, UpdateAgent(**new_agent_cleaned)
+        )
         add_agent_to_request_state(request, agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -31,8 +31,9 @@ def test_list_tools_error_message_none_if_available(client: TestClient) -> None:
 
 
 def test_list_tools_with_agent(session_client: TestClient, session: Session) -> None:
+    user = get_factory("User", session).create()
     agent = get_factory("Agent", session).create(
-        name="test agent", tools=[ToolName.Wiki_Retriever_LangChain]
+        name="test agent", tools=[ToolName.Wiki_Retriever_LangChain], user=user
     )
 
     response = session_client.get("/v1/tools", params={"agent_id": agent.id})

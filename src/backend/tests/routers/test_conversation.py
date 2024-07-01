@@ -32,16 +32,17 @@ def test_list_conversations(session_client: TestClient, session: Session) -> Non
 def test_list_conversations_with_agent(
     session_client: TestClient, session: Session
 ) -> None:
+    user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id="123"
+        id="agent_id", name="test agent", user=user
     )
     conversation1 = get_factory("Conversation", session).create(
-        agent_id="agent_id", user_id="123"
+        agent_id=agent.id, user_id=user.id
     )
-    _ = get_factory("Conversation", session).create(user_id="123")
+    _ = get_factory("Conversation", session).create(user_id=user.id)
 
     response = session_client.get(
-        "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
+        "/v1/conversations", headers={"User-Id": user.id}, params={"agent_id": agent.id}
     )
     results = response.json()
 
@@ -55,15 +56,16 @@ def test_list_conversations_with_agent(
 def test_list_conversation_with_deleted_agent(
     session_client: TestClient, session: Session
 ) -> None:
+    user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id="123"
+        id="agent_id", name="test agent", user=user
     )
     conversation = get_factory("Conversation", session).create(
-        agent_id="agent_id", user_id="123"
+        agent_id=agent.id, user_id=user.id
     )
 
     response = session_client.get(
-        "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
+        "/v1/conversations", headers={"User-Id": user.id}, params={"agent_id": agent.id}
     )
     results = response.json()
 
@@ -73,12 +75,12 @@ def test_list_conversation_with_deleted_agent(
 
     # Delete agent and check that conversation is also deleted
     response = session_client.delete(
-        f"/v1/agents/{agent.id}", headers={"User-Id": "123"}
+        f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
     )
     assert response.status_code == 200
 
     response = session_client.get(
-        "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
+        "/v1/conversations", headers={"User-Id": user.id}, params={"agent_id": agent.id}
     )
     results = response.json()
 

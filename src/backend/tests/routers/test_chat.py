@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from backend.chat.enums import StreamEvent
 from backend.config.deployments import ModelDeploymentName
+from backend.database_models import Agent
 from backend.database_models.conversation import Conversation
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.user import User
@@ -24,6 +25,33 @@ is_cohere_env_set = (
 @pytest.fixture()
 def user(session_chat: Session) -> User:
     return get_factory("User", session_chat).create()
+
+
+@pytest.fixture()
+def default_agent_copy(session_chat: Session, user: User) -> Agent:
+    agent = session_chat.query(Agent).get("default")
+    # to avoid agent related entities sessions conflicts(conversations created, ...)
+    # during ROLLBACK we need to create a copy of the default db agent
+    # and test the streaming chat with the new agent stored in the DB
+    new_deployment = get_factory("Deployment", session_chat).create(
+        default_deployment_config=agent.deployment.default_deployment_config
+    )
+    new_model = get_factory("Model", session_chat).create(
+        deployment=new_deployment, cohere_name=agent.model.cohere_name
+    )
+    new_agent = get_factory("Agent", session_chat).create(user=user, tools=[])
+    new_agent_association = get_factory(
+        "AgentDeploymentModelAssociation", session_chat
+    ).create(
+        agent=new_agent,
+        deployment=new_deployment,
+        model=new_model,
+        is_default_deployment=True,
+        is_default_model=True,
+        deployment_config=agent.deployment.default_deployment_config,
+    )
+
+    return new_agent
 
 
 # STREAMING CHAT TESTS
@@ -48,46 +76,37 @@ def test_streaming_new_chat(
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat_with_agent(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient, session_chat: Session, default_agent_copy: Agent
 ):
-    agent = get_factory("Agent", session_chat).create(
-        user_id=user.id,
-        tools=[],
-        name="test agent",
-        preamble="you are a smart assistant",
-    )
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
-            "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            "User-Id": default_agent_copy.user.id,
+            "Deployment-Name": default_agent_copy.deployment.name,
         },
-        params={"agent_id": agent.id},
+        params={"agent_id": default_agent_copy.id},
         json={"message": "Hello", "max_tokens": 10},
     )
-
     assert response.status_code == 200
     validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 2
+        response, default_agent_copy.user, session_chat, session_client_chat, 2
     )
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat_with_agent_existing_conversation(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient, session_chat: Session, default_agent_copy: Agent
 ):
-    agent = get_factory("Agent", session_chat).create(
-        user_id=user.id,
-        tools=[],
-        name="test agent",
-        preamble="you are a smart assistant",
-    )
+
+    default_agent_copy.preamble = "you are a smart assistant"
+    session_chat.refresh(default_agent_copy)
+
     conversation = get_factory("Conversation", session_chat).create(
-        user_id=user.id, agent_id=agent.id
+        user_id=default_agent_copy.user.id, agent_id=default_agent_copy.id
     )
     _ = get_factory("Message", session_chat).create(
         conversation_id=conversation.id,
-        user_id=user.id,
+        user_id=default_agent_copy.user.id,
         agent="USER",
         text="Hello",
         position=1,
@@ -96,7 +115,7 @@ def test_streaming_new_chat_with_agent_existing_conversation(
 
     _ = get_factory("Message", session_chat).create(
         conversation_id=conversation.id,
-        user_id=user.id,
+        user_id=default_agent_copy.user.id,
         agent="CHATBOT",
         text="Hi",
         position=2,
@@ -108,16 +127,16 @@ def test_streaming_new_chat_with_agent_existing_conversation(
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
-            "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            "User-Id": default_agent_copy.user.id,
+            "Deployment-Name": default_agent_copy.deployment.name,
         },
-        params={"agent_id": agent.id},
+        params={"agent_id": default_agent_copy.id},
         json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
     )
 
     assert response.status_code == 200
     validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 4
+        response, default_agent_copy.user, session_chat, session_client_chat, 4
     )
 
 
@@ -125,8 +144,8 @@ def test_streaming_new_chat_with_agent_existing_conversation(
 def test_streaming_chat_with_existing_conversation_from_other_agent(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user_id=user.id)
-    _ = get_factory("Agent", session_chat).create(user_id=user.id, id="123")
+    agent = get_factory("Agent", session_chat).create(user=user)
+    _ = get_factory("Agent", session_chat).create(user=user, id="123")
     conversation = get_factory("Conversation", session_chat).create(
         user_id=user.id, agent_id="123"
     )
@@ -168,22 +187,21 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_tools_not_in_agent_tools(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient, session_chat: Session, default_agent_copy: Agent
 ):
-    agent = get_factory("Agent", session_chat).create(user_id=user.id, tools=[])
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
-            "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            "User-Id": default_agent_copy.user.id,
+            "Deployment-Name": default_agent_copy.deployment.name,
         },
-        params={"agent_id": agent.id},
+        params={"agent_id": default_agent_copy.id},
         json={"message": "Hello", "max_tokens": 10, "tools": [{"name": "web_search"}]},
     )
 
     assert response.status_code == 400
     assert response.json() == {
-        "detail": f"Tool web_search not found in agent {agent.id}"
+        "detail": f"Tool web_search not found in agent {default_agent_copy.id}"
     }
 
 
@@ -248,7 +266,7 @@ def test_fail_chat_missing_user_id(
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_default_chat_missing_deployment_name(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient, session_chat: Session
 ):
     response = session_client_chat.post(
         "/v1/chat",
@@ -261,7 +279,7 @@ def test_default_chat_missing_deployment_name(
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_fail_chat_missing_message(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient, session_chat: Session
 ):
     response = session_client_chat.post(
         "/v1/chat-stream",
@@ -412,10 +430,8 @@ def test_streaming_chat_with_search_queries_only(
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_chat_history(
-    session_client_chat: TestClient, session_chat: Session
+    session_client_chat: TestClient, session_chat: Session, user: User
 ) -> None:
-    user = get_factory("User", session_chat).create()
-
     response = session_client_chat.post(
         "/v1/chat-stream",
         json={
@@ -649,9 +665,8 @@ def test_non_streaming_chat_with_search_queries_only(
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_chat_history(
-    session_client_chat: TestClient, session_chat: Session
+    session_client_chat: TestClient, session_chat: Session, user: User
 ) -> None:
-    user = get_factory("User", session_chat).create()
 
     response = session_client_chat.post(
         "/v1/chat",

@@ -33,6 +33,7 @@ class CustomChat(BaseChat):
         Returns:
             Generator[StreamResponse, None, None]: Chat response.
         """
+        # TODO Eugene: Discuss with Scott how to get agent here and use the Agent deployment
         # Choose the deployment model - validation already performed by request validator
         deployment_model = get_deployment(kwargs.get("deployment_name"), **kwargs)
         logger.info(f"Using deployment {deployment_model.__class__.__name__}")

@@ -15,6 +15,7 @@ from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
+from backend.crud import deployment as deployment_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
@@ -77,12 +78,18 @@ def process_chat(
     """
     user_id = get_header_user_id(request)
     deployment_name = request.headers.get("Deployment-Name", "")
-    model_config = {}
+    deployment_config = {}
     # Deployment config is the settings for the model deployment per request
     # It is a string of key value pairs separated by semicolons
     # For example: "azure_key1=value1;azure_key2=value2"
+    # TODO Eugene: Confirm it with Scott - header deployment config has priority over the deployment config in the DB,
+    # but agent deployment config has priority over both if it is set
     if not request.headers.get("Deployment-Config", "") == "":
-        model_config = get_deployment_config(request)
+        deployment_config = get_deployment_config(request)
+    else:
+        deployment = deployment_crud.get_deployment_by_name(session, deployment_name)
+        if deployment is not None and deployment.is_available:
+            deployment_config = deployment.default_deployment_config
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
@@ -91,7 +98,25 @@ def process_chat(
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
+        # TODO Eugene: Confirm it with Scott
+        # Check if the agent is associated with the deployment
+        if agent.deployment and agent.deployment.name != deployment_name:
+            # if agent's default deployment is not the same as the request's deployment
+            # we try to find that deployment in the agent's associated deployments and use it
+            deployment_config = agent_crud.get_association_by_deployment_name(
+                session, agent, deployment_name
+            ).deployment_config
+            if deployment_config is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Agent {agent_id} has deployment {agent.deployment.name} but request is for deployment {deployment_name}.",
+                )
+        else:
+            deployment_config = agent_crud.get_association_by_deployment_name(
+                session, agent, deployment_name
+            ).deployment_config
 
+        # TODO Eugene: refactor this to use the DB Tools when ready
         tool_names = [tool.name for tool in chat_request.tools]
         if chat_request.tools:
             for tool in chat_request.tools:
@@ -105,8 +130,8 @@ def process_chat(
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
         # NOTE TEMPORARY: we do not set a the model for now and just use the default model
-        chat_request.model = None
-        # chat_request.model = agent.model
+        # chat_request.model = None
+        chat_request.model = agent.model.cohere_name
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -171,7 +196,7 @@ def process_chat(
         deployment_name,
         should_store,
         managed_tools,
-        model_config,
+        deployment_config,
         next_message_position,
     )
 

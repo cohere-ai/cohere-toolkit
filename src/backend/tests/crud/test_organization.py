@@ -31,6 +31,8 @@ def test_fail_get_nonexistent_organization(session):
 
 
 def test_list_organizations(session):
+    # Delete default organization
+    session.query(Organization).delete()
     _ = get_factory("Organization", session).create(name="Test Organization")
 
     organizations = organization_crud.get_organizations(session)
@@ -39,11 +41,15 @@ def test_list_organizations(session):
 
 
 def test_list_organizations_empty(session):
+    # Delete default organization
+    session.query(Organization).delete()
     organizations = organization_crud.get_organizations(session)
     assert len(organizations) == 0
 
 
 def test_list_organizations_with_pagination(session):
+    # Delete default organization
+    session.query(Organization).delete()
     for i in range(10):
         _ = get_factory("Organization", session).create(name=f"Test Organization {i}")
 
@@ -72,6 +78,8 @@ def test_list_organizations_by_user_id_empty(session):
 
 
 def test_list_organizations_by_user_id_with_pagination(session):
+    # Delete default organization
+    session.query(Organization).delete()
     user = get_factory("User", session).create()
     for i in range(10):
         organization = get_factory("Organization", session).create(
@@ -210,16 +218,16 @@ def test_user_organization_association_reverse(session):
     assert organization.users[0].fullname == "John Doe"
 
 
-def test_agent_organization_association(session):
+def test_agent_organization_association(session, user):
     organization = get_factory("Organization", session).create(name="Test Organization")
-    agent = get_factory("Agent", session).create(name="Test Agent")
+    agent = get_factory("Agent", session).create(user=user, name="Test Agent")
     agent.organization = organization
     assert agent.organization.name == "Test Organization"
 
 
-def test_agent_organization_association_reverse(session):
+def test_agent_organization_association_reverse(session, user):
     organization = get_factory("Organization", session).create(name="Test Organization")
-    agent = get_factory("Agent", session).create(name="Test Agent")
+    agent = get_factory("Agent", session).create(user=user, name="Test Agent")
     organization.agents.append(agent)
     assert organization.agents[0].name == "Test Agent"
 

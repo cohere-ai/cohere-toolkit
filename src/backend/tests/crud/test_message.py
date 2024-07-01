@@ -71,7 +71,7 @@ def test_list_messages_with_pagination(session, user):
 
     messages = message_crud.get_messages(session, offset=5, limit=5, user_id=user.id)
     assert len(messages) == 5
-
+    messages.sort(key=lambda x: x.text)
     for i, message in enumerate(messages):
         assert message.text == f"Hello, World! {i + 5}"
 
@@ -83,6 +83,7 @@ def test_list_messages_by_conversation_id(session, user):
         )
 
     messages = message_crud.get_messages_by_conversation_id(session, "1", user.id)
+    messages.sort(key=lambda x: x.text)
     assert len(messages) == 10
 
     for i, message in enumerate(messages):
@@ -142,8 +143,8 @@ def test_delete_message_cascade(session, user):
 
     citation = citation_crud.get_citation(session, citation_id)
     assert citation is None
-    assert citation_crud.get_citations(session, user.id) == []
+    assert citation_crud.get_citations(session) == []
 
     document = document_crud.get_document(session, document_id)
     assert document is None
-    assert document_crud.get_documents(session, user.id) == []
+    assert document_crud.get_documents(session) == []

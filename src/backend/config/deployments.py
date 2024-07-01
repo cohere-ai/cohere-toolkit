@@ -78,7 +78,7 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
             model_deployments = ALL_MODEL_DEPLOYMENTS.copy()
             model_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
             return model_deployments
-        except ImportError:
+        except ImportError as e:
             logging.warning(
                 "Community deployments are not available. They can still be set up."
             )

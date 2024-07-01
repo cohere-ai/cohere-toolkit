@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.database_models.agent import Agent
 from backend.database_models.base import Base
 from backend.database_models.conversation import Conversation
-from backend.database_models.user import User, UserOrganizationAssociation
+from backend.database_models.user import User
 
 
 class Organization(Base):

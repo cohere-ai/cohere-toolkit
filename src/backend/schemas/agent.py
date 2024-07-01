@@ -3,6 +3,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from backend.schemas.deployment import DeploymentSimple as DeploymentSchema
+from backend.schemas.deployment import DeploymentWithModels as DeploymentFull
+from backend.schemas.deployment import ModelSimple as ModelSchema
+
 
 class AgentBase(BaseModel):
     user_id: str
@@ -42,9 +46,9 @@ class Agent(AgentBase):
     temperature: float
     tools: list[str]
     tools_metadata: list[AgentToolMetadata]
-
-    model: str
-    deployment: str
+    deployments: list[DeploymentSchema]
+    deployment: Optional[DeploymentSchema]
+    model: Optional[ModelSchema]
 
     class Config:
         from_attributes = True
@@ -57,10 +61,15 @@ class CreateAgent(BaseModel):
     description: Optional[str] = None
     preamble: Optional[str] = None
     temperature: Optional[float] = None
-    model: str
-    deployment: str
     tools: Optional[list[str]] = None
     tools_metadata: Optional[list[CreateAgentToolMetadata]] = None
+    deployment_config: Optional[dict[str, str]] = None
+    is_default_deployment: Optional[bool] = False
+    # model_id or model_name
+    model: str
+    # deployment_id or deployment_name
+    deployment: str
+    organization_id: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -75,6 +84,10 @@ class UpdateAgent(BaseModel):
     temperature: Optional[float] = None
     model: Optional[str] = None
     deployment: Optional[str] = None
+    deployment_config: Optional[dict[str, str]] = None
+    is_default_deployment: Optional[bool] = False
+    is_default_model: Optional[bool] = False
+    organization_id: Optional[str] = None
     tools: Optional[list[str]] = None
     tools_metadata: Optional[list[UpdateAgentToolMetadata]] = None
 

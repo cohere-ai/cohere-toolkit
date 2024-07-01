@@ -6,7 +6,9 @@ from backend.services.auth import BasicAuthentication
 from backend.tests.factories import get_factory
 
 
-def test_list_users_empty(session_client: TestClient) -> None:
+def test_list_users_empty(session_client: TestClient, session: Session) -> None:
+    # Delete the default user
+    session.query(User).delete()
     response = session_client.get("/v1/users")
     results = response.json()
 
@@ -15,6 +17,7 @@ def test_list_users_empty(session_client: TestClient) -> None:
 
 
 def test_list_users(session_client: TestClient, session: Session) -> None:
+    session.query(User).delete()
     _ = get_factory("User", session).create(fullname="John Doe")
 
     response = session_client.get("/v1/users")
