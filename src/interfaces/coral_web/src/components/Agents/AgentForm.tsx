@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { AgentToolFielPicker } from '@/components/Agents/AgentToolFielPicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
+import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 
 export type CreateAgentFormFields = Pick<
@@ -15,12 +16,13 @@ export type UpdateAgentFormFields = UpdateAgent;
 export type AgentFormFieldKeys = keyof CreateAgentFormFields | keyof UpdateAgentFormFields;
 
 type Props = {
-  fields: CreateAgentFormFields | UpdateAgentFormFields;
-  onChange: (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => void;
+  fields: AgentFormFieldKeys;
+  onChange: <K extends keyof AgentFormFieldKeys>(
+    key: AgentFormFieldKeys,
+    value: AgentFormFieldKeys[K]
+  ) => void;
   onToolToggle: (toolName: string, checked: boolean, authUrl?: string) => void;
   handleOpenFilePicker: VoidFunction;
-  setGoogleDriveFiles: (files: Record<string, any>[]) => void;
-  googleDriveFiles?: Record<string, any>[];
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
   disabled?: boolean;
   className?: string;
@@ -33,8 +35,6 @@ export const AgentForm: React.FC<Props> = ({
   onChange,
   onToolToggle,
   handleOpenFilePicker,
-  setGoogleDriveFiles,
-  googleDriveFiles,
   errors,
   disabled,
   className,
@@ -42,6 +42,27 @@ export const AgentForm: React.FC<Props> = ({
   const { data: toolsData } = useListTools();
   const tools =
     toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name)) ?? [];
+
+  const googleDrivefiles: GoogleDriveToolArtifact[] = useMemo(() => {
+    return (fields.tools_metadata?.find((t) => t.tool_name === TOOL_GOOGLE_DRIVE_ID)?.artifacts ??
+      []) as GoogleDriveToolArtifact[];
+  }, [fields]);
+
+  const setGoogleDriveFiles = (files: GoogleDriveToolArtifact[]) => {
+    if (files.length === 0) {
+      onChange('tools_metadata', [
+        ...(fields.tools_metadata ?? []).filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
+      ]);
+      return;
+    }
+    onChange('tools_metadata', [
+      ...(fields.tools_metadata ?? []).filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
+      {
+        tool_name: TOOL_GOOGLE_DRIVE_ID,
+        artifacts: files,
+      },
+    ]);
+  };
 
   return (
     <div className={cn('flex flex-col gap-y-4', className)}>
@@ -112,7 +133,7 @@ export const AgentForm: React.FC<Props> = ({
                 {isGoogleDrive && checked && (
                   <div className="pl-10">
                     <AgentToolFielPicker
-                      googleDriveFiles={googleDriveFiles}
+                      googleDriveFiles={googleDrivefiles}
                       setGoogleDriveFiles={setGoogleDriveFiles}
                       handleOpenFilePicker={handleOpenFilePicker}
                     />
