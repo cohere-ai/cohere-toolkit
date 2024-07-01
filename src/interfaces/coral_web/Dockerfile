@@ -20,8 +20,3 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Start Next.js in development mode based on the preferred package manager
 CMD npm run dev
-
-
-# Production specifc tareget
-FROM base AS prod
-  CMD npm run start
