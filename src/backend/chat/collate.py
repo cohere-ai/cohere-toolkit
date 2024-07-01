@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from backend.model_deployments.base import BaseDeployment
 
-RELEVANCE_THRESHOLD = 0.3
+RELEVANCE_THRESHOLD = 0.1
 
 
 def rerank_and_chunk(
