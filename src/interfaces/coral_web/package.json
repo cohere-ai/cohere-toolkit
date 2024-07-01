@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "engines": {
-    "npm": ">=10",
+    "npm": ">=9",
     "pnpm": "9999",
     "yarn": "9999"
   },
