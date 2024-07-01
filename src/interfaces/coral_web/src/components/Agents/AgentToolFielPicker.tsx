@@ -6,7 +6,7 @@ type Props = {
   setGoogleDriveFiles: (files: Record<string, any>[]) => void;
   handleOpenFilePicker: VoidFunction;
 };
-export const CreateAgentFilePicker: React.FC<Props> = ({
+export const AgentToolFielPicker: React.FC<Props> = ({
   googleDriveFiles,
   setGoogleDriveFiles,
   handleOpenFilePicker,
@@ -15,7 +15,7 @@ export const CreateAgentFilePicker: React.FC<Props> = ({
     setGoogleDriveFiles(googleDriveFiles?.filter((file) => file.id !== id) ?? []);
   };
   return (
-    <div className="flex max-w-[300px] flex-col gap-y-3">
+    <div className="flex max-w-[300px] flex-col gap-y-2">
       <Button
         kind="secondary"
         startIcon={<Icon name="add" kind="outline" className="text-green-700" />}
@@ -24,15 +24,17 @@ export const CreateAgentFilePicker: React.FC<Props> = ({
       />
 
       {googleDriveFiles && googleDriveFiles.length > 0 && (
-        <div className="rounded border border-marble-300 p-2">
+        <div className="flex max-h-[260px] flex-col gap-y-1 overflow-y-auto rounded border border-marble-300 px-3 py-1">
           {googleDriveFiles.map(({ type, id, name }) => (
-            <div key={id} className="flex items-center gap-x-2 truncate pb-1">
+            <div key={id} className="flex flex-shrink-0 items-center gap-x-2 truncate">
               <Icon
                 name={type === 'folder' ? 'folder' : 'file'}
                 kind="outline"
                 className="text-secondary-600"
               />
-              <Text className="truncate">{name}</Text>
+              <Text styleAs="caption" className="truncate">
+                {name}
+              </Text>
               <IconButton
                 onClick={() => handleRemoveFile(id)}
                 iconName="close"
