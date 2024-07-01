@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Button, Input } from '@/components/Shared';
+import { useParamsStore } from '@/stores';
 import { hasCommonDelimiters } from '@/utils';
 
 /**
@@ -11,6 +12,9 @@ export const WebSearchModal: React.FC<{
   onSave: (site: string) => void;
   onCancel: VoidFunction;
 }> = ({ onSave, onCancel }) => {
+  const {
+    params: { tools },
+  } = useParamsStore();
   const [site, setSite] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 

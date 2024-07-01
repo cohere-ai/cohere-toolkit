@@ -8,6 +8,7 @@ from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
+from pydantic import ValidationError
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
@@ -81,7 +82,17 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        request.state.agent = Agent.model_validate(agent)
+
+        # TODO: @Scott Validation error still needs to be fixed here
+        # ROD: error count: <built-in method error_count of pydantic_core._pydantic_core.ValidationError object at 0xffff703f08b0>
+
+        try:
+            request.state.agent = Agent.model_validate(agent, strict=False)
+        except ValidationError as exc:
+            print(f"Validation error count: {exc.error_count()}")
+            for err in exc.errors():
+                print(f"ROD: error: {repr(err)}")
+
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."

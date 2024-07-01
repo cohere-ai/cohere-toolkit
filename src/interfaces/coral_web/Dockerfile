@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18-alpine as base
 
 WORKDIR /app
 
@@ -33,3 +33,13 @@ CMD \
   elif [ -f pnpm-lock.yaml ]; then pnpm dev; \
   else npm run dev; \
   fi
+
+
+# Production specifc tareget
+# FROM base AS prod
+# CMD \
+#   if [ -f yarn.lock ]; then yarn start; \
+#   elif [ -f package-lock.json ]; then npm run start; \
+#   elif [ -f pnpm-lock.yaml ]; then pnpm start; \
+#   else npm run start; \
+#   fi
