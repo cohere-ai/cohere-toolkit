@@ -1,0 +1,18 @@
+name: js-install
+description: Set up Node.js/npm, install dependencies
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: "src/interfaces/coral_web/.nvmrc"
+        cache: "npm"
+        cache-dependency-path: "src/interfaces/coral_web/package-lock.json"
+
+    - name: Install dependencies with npm
+      shell: bash
+      working-directory: src/interfaces/coral_web
+      run: npm ci

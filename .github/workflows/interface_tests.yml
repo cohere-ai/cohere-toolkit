@@ -6,6 +6,7 @@ on:
     paths:
       - src/interfaces/coral_web/**
   pull_request: {}
+  merge_group: {}
 
 jobs:
   interface_tests:
@@ -13,15 +14,14 @@ jobs:
     defaults:
       run:
         working-directory: src/interfaces/coral_web
-
-steps:
-  - name: Checkout repo
-    uses: actions/checkout@v3
-    with:
-      fetch-depth: 2
-  - name: Set up Node.js and install dependencies
-    uses: ./.github/actions/js-install
-  - name: Check coral_web is formatted
-    run: pnpm format
-  - name: Check coral_web can build
-    run: pnpm build
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Set up Node.js and install dependencies
+        uses: ./.github/actions/js-install
+      - name: Check coral_web is formatted
+        run: npm run format
+      - name: Check coral_web can build
+        run: npm run build
