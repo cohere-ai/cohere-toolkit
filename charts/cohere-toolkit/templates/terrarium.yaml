@@ -1,0 +1,141 @@
+{{- $values := .Values.terrarium}}
+{{- if $values.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: terrarium
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cohere-toolkit.labels" . | nindent 4 }}
+  {{- with $values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- with $values.serviceAccount.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: terrarium
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: terrarium
+    {{- include "cohere-toolkit.labels" . | nindent 4 }}
+spec:
+  replicas: {{ $values.replicaCounts }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: terrarium
+  template:
+    metadata:
+      name: terrarium
+      labels:
+        app.kubernetes.io/name: terrarium
+        {{- include "cohere-toolkit.labels" . | nindent 8 }}
+      {{- with $values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: terrarium
+      {{- with $values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: terrarium
+          image: {{ $values.image.repository }}:{{ $values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ $values.image.pullPolicy }}
+          {{- with $values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          {{- /* TODO: Add livenessProbe and readinessProbe */}}
+          {{- with $values.sidecars }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+      restartPolicy: Always
+      {{- with $values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: terrarium
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: terrarium
+    {{- include "cohere-toolkit.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: terrarium
+  ports:
+    - protocol: TCP
+      port: {{ $values.service.port }}
+      targetPort: http
+  type: {{ $values.service.type }}
+
+---
+
+{{- if $values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: terrarium
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: terrarium
+  minReplicas: {{ $values.autoscaling.minReplicas }}
+  maxReplicas: {{ $values.autoscaling.maxReplicas }}
+  metrics:
+    {{- if $values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end}}
+    {{- if $values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end}}
+{{- end}}
+
+{{- end }}

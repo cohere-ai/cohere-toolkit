@@ -108,7 +108,7 @@ def process_chat(
         chat_request
     )
     conversation = get_or_create_conversation(
-        session, chat_request, user_id, should_store, agent_id
+        session, chat_request, user_id, should_store, agent_id, chat_request.message
     )
 
     # Get position to put next message in
@@ -210,6 +210,7 @@ def get_or_create_conversation(
     user_id: str,
     should_store: bool,
     agent_id: str | None = None,
+    user_message: str = "",
 ) -> Conversation:
     """
     Gets or creates a Conversation based on the chat request.
@@ -227,10 +228,15 @@ def get_or_create_conversation(
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if conversation is None:
+        # Get the first 5 words of the user message as the title
+        title = " ".join(user_message.split()[:5])
+        print(f"The title is: {title}")
+
         conversation = Conversation(
             user_id=user_id,
             id=chat_request.conversation_id,
             agent_id=agent_id,
+            title=title,
         )
 
         if should_store:
@@ -750,8 +756,7 @@ def handle_stream_tool_calls_generation(
     stream_event = StreamToolCallsGeneration(**event | {"tool_calls": tool_calls})
     stream_end_data["tool_calls"].extend(tool_calls)
 
-    # TODO: remove False condition to enable saving tool calls
-    if should_store and False:
+    if should_store:
         save_tool_calls_message(
             session,
             tool_calls,

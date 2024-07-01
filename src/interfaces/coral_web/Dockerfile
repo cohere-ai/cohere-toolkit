@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18-alpine AS base
 
 WORKDIR /app
 
@@ -17,4 +17,11 @@ COPY .en[v] .env
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Note: Don't expose ports here, Compose will handle that for us
+
+# Start Next.js in development mode based on the preferred package manager
 CMD npm run dev
+
+
+# Production specifc tareget
+FROM base AS prod
+  CMD npm run start

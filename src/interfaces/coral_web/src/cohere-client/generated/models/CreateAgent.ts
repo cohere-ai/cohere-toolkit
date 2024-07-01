@@ -1,7 +1,12 @@
 /* generated using openapi-typescript-codegen -- do no edit */
+
 /* istanbul ignore file */
+
 /* tslint:disable */
+
 /* eslint-disable */
+import type { CreateAgentToolMetadata } from './CreateAgentToolMetadata';
+
 export type CreateAgent = {
   name: string;
   version?: number | null;
@@ -11,4 +16,5 @@ export type CreateAgent = {
   model: string;
   deployment: string;
   tools?: Array<string> | null;
+  tools_metadata?: Array<CreateAgentToolMetadata> | null;
 };
