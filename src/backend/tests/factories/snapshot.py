@@ -17,7 +17,7 @@ class SnapshotFactory(BaseFactory):
     version = factory.Faker("random_int")
     created_at = factory.Faker("date_time")
     updated_at = factory.Faker("date_time")
-    snapshot = factory.Faker("dict")
+    snapshot = factory.Faker("pydict", value_types=[str, int, bool], nb_elements=10)
 
 
 # SnapshotLink

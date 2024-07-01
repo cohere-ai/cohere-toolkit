@@ -17,6 +17,7 @@ from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
+from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.logger import LoggingMiddleware
@@ -40,6 +41,7 @@ def create_app():
         deployment_router,
         experimental_feature_router,
         agent_router,
+        snapshot_router,
     ]
 
     # Dynamically set router dependencies

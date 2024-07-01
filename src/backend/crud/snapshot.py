@@ -38,6 +38,38 @@ def get_snapshot(db: Session, snapshot_id: str) -> SnapshotSchema | None:
     return db.query(Snapshot).filter(Snapshot.id == snapshot_id).first()
 
 
+def get_snapshot_by_last_message_id(
+    db: Session, last_message_id: str
+) -> SnapshotSchema | None:
+    """
+    Get a snapshot by last message ID.
+
+    Args:
+        db (Session): Database session.
+        last_message_id (str): Last message ID.
+
+    Returns:
+        SnapshotSchema: Snapshot with the given last message ID.
+    """
+    return (
+        db.query(Snapshot).filter(Snapshot.last_message_id == last_message_id).first()
+    )
+
+
+def list_snapshots(db: Session, user_id: str) -> list[SnapshotSchema]:
+    """
+    List all snapshots.
+
+    Args:
+        db (Session): Database session.
+        user_id (str): User ID.
+
+    Returns:
+        list[SnapshotSchema]: List of all snapshots.
+    """
+    return db.query(Snapshot).filter(Snapshot.user_id == user_id).all()
+
+
 def delete_snapshot(db: Session, snapshot_id: str, user_id: str) -> None:
     """
     Delete a snapshot by ID.
@@ -85,6 +117,20 @@ def get_snapshot_link(db: Session, snapshot_link_id: str) -> SnapshotLinkSchema 
         SnapshotLinkSchema: Snapshot link with the given snapshot link ID.
     """
     return db.query(SnapshotLink).filter(SnapshotLink.id == snapshot_link_id).first()
+
+
+def list_snapshot_links(db: Session, snapshot_id: str) -> list[SnapshotLinkSchema]:
+    """
+    List all snapshot links.
+
+    Args:
+        db (Session): Database session.
+        snapshot_id (str): Snapshot ID.
+
+    Returns:
+        list[SnapshotLinkSchema]: List of all snapshot links.
+    """
+    return db.query(SnapshotLink).filter(SnapshotLink.snapshot_id == snapshot_id).all()
 
 
 def delete_snapshot_link(db: Session, snapshot_link_id: str, user_id: str) -> None:
