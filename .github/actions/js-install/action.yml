@@ -10,7 +10,7 @@ runs:
       with:
         node-version-file: "src/interfaces/coral_web/.nvmrc"
         cache: "npm"
-        cache-dependency-path: "src/interfaces/coral_web/package-lock.yaml"
+        cache-dependency-path: "src/interfaces/coral_web/package-lock.json"
 
     - name: Install dependencies with npm
       shell: bash
