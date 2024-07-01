@@ -1,3 +1,4 @@
+import { useSessionStorageValue } from '@react-hookz/web';
 import React, { useEffect, useState } from 'react';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
@@ -32,6 +33,15 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     tools_metadata: [],
   });
   const [googleDriveFiles, setGoogleDriveFiles] = useState<Record<string, any>[]>();
+
+  const {
+    value: pendingAssistant,
+    set: setPendingAssistant,
+    remove: removePendingAssistant,
+  } = useSessionStorageValue<AgentFormFields>('pending_assistant', {
+    defaultValue: fields,
+    initializeWithValue: false,
+  });
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
@@ -112,10 +122,10 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     const driveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
     if (checked) {
       if (driveTool?.is_auth_required && authUrl) {
-        localStorage.setItem(
-          'pending_assistant',
-          JSON.stringify({ ...fields, tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID] })
-        );
+        setPendingAssistant({
+          ...fields,
+          tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID],
+        });
         authUrl && window.open(authUrl, '_self');
       } else {
         openFilePicker();
