@@ -7,6 +7,7 @@ from compass_sdk.compass import CompassClient
 from compass_sdk.parser import CompassParserClient
 
 from backend.tools.base import BaseTool
+from src.backend.services.metrics import collect_compass_metrics
 
 logger = logging.getLogger()
 
@@ -75,7 +76,7 @@ class CompassTool(BaseTool):
                 "No action will be taken. "
                 f"Parameters specified: {parameters}"
             )
-            return
+            return []
         # Check if action is valid
         valid_actions = [
             "list_indexes",
@@ -92,7 +93,7 @@ class CompassTool(BaseTool):
                 "No action will be taken. "
                 f"Parameters specified: {parameters}"
             )
-            return
+            return []
         # Check if index is specified
         if not parameters.get("index", None) and parameters["action"] != "list_indexes":
             logger.error(
@@ -100,7 +101,7 @@ class CompassTool(BaseTool):
                 "No action will be taken. "
                 f"Parameters specified: {parameters}"
             )
-            return
+            return []
         # Index-related actions
         if parameters["action"] == "list_indexes":
             return self.compass_client.list_indexes()
@@ -115,7 +116,7 @@ class CompassTool(BaseTool):
                 "No action will be taken. "
                 f"Parameters specified: {parameters}"
             )
-            return
+            return []
         # Create index if it does not exist
         self.compass_client.create_index(index_name=parameters.get("index"))
         # Perform the file-related action
@@ -127,23 +128,28 @@ class CompassTool(BaseTool):
             self._update(parameters, **kwargs)
         elif parameters["action"] == "delete":
             self._delete(parameters, **kwargs)
+        elif parameters["action"] == "create_index":
+            self._create_index(parameters, **kwargs)
+        elif parameters["action"] == "delete_index":
+            self._delete_index(parameters, **kwargs)
 
     def _parse(self, parameters: dict, **kwargs: Any) -> None:
         """Parse the input file."""
         if "file_path" not in parameters:
             logger.error(
-                "Compass Tool: No file_path specified for "
-                "create/update operation. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
+                f"""Compass Tool: No file_path specified for
+                create/update operation.
+                No action will be taken.
+                Parameters specified: {parameters}"""
             )
-            return None
+            raise ValueError("No file_path specified.")
+
         file_path = parameters["file_path"]
         if not os.path.exists(file_path):
             logger.error(
-                f"Compass Tool: File {file_path} does not exist. "
-                "No action will be taken."
-                f"Parameters specified: {parameters}"
+                f"""Compass Tool: File {file_path} does not exist.
+                No action will be taken.
+                Parameters specified: {parameters}"""
             )
             return None
         parser_config = self.parser_config or parameters.get("parser_config", None)
@@ -170,19 +176,19 @@ class CompassTool(BaseTool):
         )
         if error is not None:
             logger.error(
-                f"Compass Tool: Error inserting/updating document "
-                f"into Compass: {error}"
+                f"""Compass Tool: Error inserting/updating document
+                into Compass: {error}"""
             )
 
-    def _search(self, parameters: dict, **kwargs: Any) -> None:
+    def _search(self, parameters: dict, **kwargs: Any):
         """Run a search query on Compass and return the
         top_k results. By default, k=10."""
         if not parameters.get("query", None):
             logger.error(
-                "Compass Tool: No search query specified. ",
-                "Returning empty list. " "Parameters specified: {parameters}",
+                f"""Compass Tool: No search query specified.
+                Returning empty list. Parameters specified: {parameters}"""
             )
-            return []
+            return
         return self.compass_client.search(
             index_name=parameters["index"],
             query=parameters["query"],
@@ -190,12 +196,22 @@ class CompassTool(BaseTool):
             filters=parameters.get("filters", None),
         )
 
-    def _update(self, parameters: dict, **kwargs: Any) -> None:
+    @collect_compass_metrics("compass.create_index", "PUT")
+    def _create_index(self, parameters: dict, **kwargs: Any):
+        """Create index in Compass"""
+        return self.compass_client.create_index(index_name=parameters["index"])
+
+    @collect_compass_metrics("compass.delete_index", "DELETE")
+    def _delete_index(self, parameters: dict, **kwargs: Any):
+        """Delete index from Compass"""
+        self.compass_client.delete_index(index_name=parameters["index"])
+
+    def _update(self, parameters: dict, **kwargs: Any):
         """Update file in Compass"""
         self._delete(parameters, **kwargs)
         self._create(parameters, **kwargs)
 
-    def _delete(self, parameters: dict, **kwargs: Any) -> None:
+    def _delete(self, parameters: dict, **kwargs: Any):
         """Delete file from Compass"""
         self.compass_client.delete_document(
             index_name=parameters["index"], doc_id=parameters["file_id"]

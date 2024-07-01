@@ -5,13 +5,14 @@ import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from starlette.responses import Response
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
@@ -23,10 +24,6 @@ REPORT_SECRET = os.getenv("REPORT_SECRET", None)
 NUM_RETRIES = 0
 HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
-
-import time
-
-from starlette.responses import Response
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -205,7 +202,9 @@ def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
     json_signal = json.dumps(to_dict(signal))
     # just general curl commands to test the endpoint for now
     logging.info(
-        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
+        f"""
+        curl -X POST -H "Content-Type: application/json" -d '{json_signal}' $ENDPOINT
+        """
     )
     return signal
 
@@ -224,99 +223,144 @@ def run_loop(metrics_data: MetricsData) -> None:
         asyncio.run(report_metrics(signal))
 
 
-# DECORATORS
-def collect_metrics_chat(func: Callable) -> Callable:
-    @wraps(func)
-    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        start_time = time.perf_counter()
-        metrics_data = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
-
-        response_dict = {}
-        try:
-            response = func(self, chat_request, **kwargs)
-            response_dict = to_dict(response)
-        except Exception as e:
-            metrics_data = handle_error(metrics_data, e)
-            raise e
-        finally:
-            metrics_data.input_tokens, metrics_data.output_tokens = (
-                get_input_output_tokens(response_dict)
+def collect_metrics_chat(func_name: str, method: str = "POST") -> Callable:
+    def metrics(func: Callable) -> Callable:
+        @wraps(func)
+        async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+            start_time = time.perf_counter()
+            metrics_data = _initialize_sdk_metrics_data(
+                func_name,
+                method,
+                chat_request.model if chat_request else None,
+                **kwargs,
             )
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
 
-            return response_dict
+            response_dict = {}
+            try:
+                response = func(self, chat_request, **kwargs)
+                response_dict = to_dict(response)
+            except Exception as e:
+                metrics_data = handle_error(metrics_data, e)
+                raise e
+            finally:
+                (
+                    metrics_data.input_tokens,
+                    metrics_data.output_tokens,
+                ) = get_input_output_tokens(response_dict)
+                metrics_data.duration_ms = time.perf_counter() - start_time
+                run_loop(metrics_data)
 
-    return wrapper
+                return response_dict
 
+        return wrapper
 
-def collect_metrics_chat_stream(func: Callable) -> Callable:
-    @wraps(func)
-    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        start_time = time.perf_counter()
-        metrics_data, kwargs = initialize_sdk_metrics_data(
-            "chat", chat_request, **kwargs
-        )
-
-        stream = func(self, chat_request, **kwargs)
-
-        try:
-            for event in stream:
-                event_dict = to_dict(event)
-
-                if is_event_end_with_error(event_dict):
-                    metrics_data.success = False
-                    metrics_data.error = event_dict.get("error")
-
-                if event_dict.get("event_type") == StreamEvent.STREAM_END:
-                    metrics_data.input_nb_tokens, metrics_data.output_nb_tokens = (
-                        get_input_output_tokens(event_dict.get("response"))
-                    )
-
-                yield event_dict
-        except Exception as e:
-            metrics_data = handle_error(metrics_data, e)
-            raise e
-        finally:
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
-
-    return wrapper
+    return metrics
 
 
-def collect_metrics_rerank(func: Callable) -> Callable:
-    @wraps(func)
-    def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
-        start_time = time.perf_counter()
-        metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
+def collect_metrics_chat_stream(func_name: str, method: str = "POST") -> Callable:
+    def metrics(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+            start_time = time.perf_counter()
+            metrics_data, kwargs = _initialize_sdk_metrics_data(
+                func_name,
+                method,
+                chat_request.model if chat_request else None,
+                **kwargs,
+            )
 
-        response_dict = {}
-        try:
-            response = func(self, query, documents, **kwargs)
-            response_dict = to_dict(response)
-            metrics_data.search_units = get_search_units(response_dict)
-        except Exception as e:
-            metrics_data = handle_error(metrics_data, e)
-            raise e
-        finally:
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
-            return response_dict
+            stream = func(self, chat_request, **kwargs)
+            try:
+                for event in stream:
+                    event_dict = to_dict(event)
 
-    return wrapper
+                    if is_event_end_with_error(event_dict):
+                        metrics_data.success = False
+                        metrics_data.error = event_dict.get("error")
+
+                    if event_dict.get("event_type") == StreamEvent.STREAM_END:
+                        (
+                            metrics_data.input_nb_tokens,
+                            metrics_data.output_nb_tokens,
+                        ) = get_input_output_tokens(event_dict.get("response"))
+
+                    yield event_dict
+            except Exception as e:
+                metrics_data = handle_error(metrics_data, e)
+                raise e
+            finally:
+                metrics_data.duration_ms = time.perf_counter() - start_time
+                run_loop(metrics_data)
+
+        return wrapper
+
+    return metrics
 
 
-def initialize_sdk_metrics_data(
-    func_name: str, chat_request: CohereChatRequest, **kwargs: Any
+def collect_metrics_rerank(func_name: str, method: str = "POST") -> Callable:
+    def metrics(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
+            start_time = time.perf_counter()
+            metrics_data, kwargs = _initialize_sdk_metrics_data(
+                func_name, method, None, **kwargs
+            )
+
+            response_dict = {}
+            try:
+                response = func(self, query, documents, **kwargs)
+                response_dict = to_dict(response)
+                metrics_data.search_units = get_search_units(response_dict)
+            except Exception as e:
+                metrics_data = handle_error(metrics_data, e)
+                raise e
+            finally:
+                metrics_data.duration_ms = time.perf_counter() - start_time
+                run_loop(metrics_data)
+                return response_dict
+
+        return wrapper
+
+    return metrics
+
+
+def collect_compass_metrics(func_name: str, method: str):
+    def report_metrics(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(self, parameters: Dict[str, Any], **kwargs: Any) -> Any:
+            start_time = time.perf_counter()
+            metrics_data, kwargs = _initialize_sdk_metrics_data(
+                func_name, method, None, **kwargs
+            )
+
+            response_dict = {}
+            try:
+                response = func(self, parameters, **kwargs)
+                response_dict = to_dict(response)
+            except Exception as e:
+                metrics_data = handle_error(metrics_data, e)
+                raise e
+            finally:
+                metrics_data.duration_ms = time.perf_counter() - start_time
+                run_loop(metrics_data)
+                return response_dict
+
+        return wrapper
+
+    return report_metrics
+
+
+def _initialize_sdk_metrics_data(
+    func_name: str, method: str, model: Optional[str], **kwargs: Any
 ) -> tuple[MetricsData, Any]:
     return (
         MetricsData(
-            endpoint_name=f"co.{func_name}",
-            method="POST",
+            endpoint_name=func_name,
+            method=method,
             trace_id=kwargs.pop("trace_id", None),
             user_id=kwargs.pop("user_id", None),
             assistant_id=kwargs.pop("agent_id", None),
-            model=chat_request.model if chat_request else None,
+            model=model,
             success=True,
         ),
         kwargs,
@@ -348,7 +392,7 @@ def is_event_end_with_error(event_dict: dict) -> bool:
     )
 
 
-def handle_error(metrics_data: MetricsData, e: Exception) -> None:
+def handle_error(metrics_data: MetricsData, e: Exception) -> MetricsData:
     metrics_data.success = False
     metrics_data.error = str(e)
     if isinstance(e, ApiError):

@@ -1,21 +1,15 @@
-import asyncio
 import logging
 import os
-import threading
-import time
 from typing import Any, Dict, Generator, List
 
 import cohere
 import requests
-from cohere.core.api_error import ApiError
 from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData
 from backend.services.metrics import (
     collect_metrics_chat,
     collect_metrics_chat_stream,
@@ -69,7 +63,7 @@ class CohereDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
-    @collect_metrics_chat
+    @collect_metrics_chat("co.chat", "POST")
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids"}),
@@ -77,7 +71,7 @@ class CohereDeployment(BaseDeployment):
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
+    @collect_metrics_chat_stream("co.chat", "POST")
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
@@ -89,7 +83,7 @@ class CohereDeployment(BaseDeployment):
         for event in stream:
             yield to_dict(event)
 
-    @collect_metrics_rerank
+    @collect_metrics_rerank("co.rerank", "POST")
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:

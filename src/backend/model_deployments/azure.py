@@ -1,23 +1,14 @@
-import logging
 import os
-import threading
-import time
 from typing import Any, Dict, Generator, List
 
 import cohere
-from cohere.core.api_error import ApiError
 from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.services.metrics import (
-    collect_metrics_chat,
-    collect_metrics_chat_stream,
-    collect_metrics_rerank,
-)
+from backend.services.metrics import collect_metrics_chat, collect_metrics_chat_stream
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
@@ -62,7 +53,7 @@ class AzureDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
-    @collect_metrics_chat
+    @collect_metrics_chat("co.chat", "POST")
     def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids"}),
@@ -70,7 +61,7 @@ class AzureDeployment(BaseDeployment):
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
+    @collect_metrics_chat_stream("co.chat", "POST")
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
