@@ -1,15 +1,12 @@
 name: js-install
-description: Set up Node.js and pnpm, install dependencies
+description: Set up Node.js/npm, install dependencies
 
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@v2.1.0
-      with:
-        version: "9.0.6"
-
+    - uses: actions/checkout@v4
     - name: Install Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version-file: "src/interfaces/coral_web/.nvmrc"
         cache: "npm"
