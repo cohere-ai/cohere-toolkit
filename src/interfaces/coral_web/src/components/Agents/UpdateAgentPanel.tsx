@@ -38,14 +38,13 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
   });
   const [googleDriveFiles, setGoogleDriveFiles] = useState<Record<string, any>[]>();
 
-  const {
-    value: pendingAssistant,
-    set: setPendingAssistant,
-    remove: removePendingAssistant,
-  } = useSessionStorageValue<AgentFormFields>('pending_assistant', {
-    defaultValue: fields,
-    initializeWithValue: false,
-  });
+  const { set: setPendingAssistant } = useSessionStorageValue<AgentFormFields>(
+    'pending_assistant',
+    {
+      defaultValue: fields,
+      initializeWithValue: false,
+    }
+  );
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
