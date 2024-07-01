@@ -74,6 +74,7 @@ class UpdateAgent(BaseModel):
     model: Optional[str] = None
     deployment: Optional[str] = None
     tools: Optional[list[str]] = None
+    tools_metadata: Optional[list[AgentToolMetadata]] = None
 
     class Config:
         from_attributes = True
