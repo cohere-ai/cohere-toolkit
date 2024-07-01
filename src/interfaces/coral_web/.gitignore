@@ -20,3 +20,7 @@ dist
 
 # typescript
 *.tsbuildinfo
+
+# package manager lock files not supported
+yarn.lock
+pnpm-lock.yaml
