@@ -19,8 +19,7 @@ def test_create_agent_tool_metadata(session, user):
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=["file_id"],
-        type="file",
+        artifacts=[{"file": "file_id"}],
     )
     agent_tool_metadata = agent_tool_metadata_crud.create_agent_tool_metadata(
         session, agent_tool_metadata_data
@@ -28,8 +27,7 @@ def test_create_agent_tool_metadata(session, user):
     assert agent_tool_metadata.user_id == user.id
     assert agent_tool_metadata.agent_id == agent.id
     assert agent_tool_metadata.tool_name == ToolName.Google_Drive
-    assert agent_tool_metadata.artifacts == ["file_id"]
-    assert agent_tool_metadata.type == "file"
+    assert agent_tool_metadata.artifacts == [{"file": "file_id"}]
 
     agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
         session, agent_tool_metadata.id
@@ -37,16 +35,14 @@ def test_create_agent_tool_metadata(session, user):
     assert agent_tool_metadata.user_id == user.id
     assert agent_tool_metadata.agent_id == agent.id
     assert agent_tool_metadata.tool_name == ToolName.Google_Drive
-    assert agent_tool_metadata.artifacts == ["file_id"]
-    assert agent_tool_metadata.type == "file"
+    assert agent_tool_metadata.artifacts == [{"file": "file_id"}]
 
 
 def test_create_agent_missing_agent_id(session, user):
     agent_tool_metadata_data = AgentToolMetadata(
         user_id=user.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=["file_id"],
-        type="file",
+        artifacts=[{"file": "file_id"}],
     )
     with pytest.raises(IntegrityError):
         _ = agent_tool_metadata_crud.create_agent_tool_metadata(
@@ -62,8 +58,7 @@ def test_create_agent_missing_tool_name(session, user):
     agent_tool_metadata_data = AgentToolMetadata(
         user_id=user.id,
         agent_id=agent.id,
-        artifacts=["file_id"],
-        type="file",
+        artifacts=[{"file": "file_id"}],
     )
     with pytest.raises(IntegrityError):
         _ = agent_tool_metadata_crud.create_agent_tool_metadata(
@@ -79,8 +74,7 @@ def test_create_agent_missing_user_id(session, user):
     agent_tool_metadata_data = AgentToolMetadata(
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=["file_id"],
-        type="file",
+        artifacts=[{"file": "file_id"}],
     )
     with pytest.raises(IntegrityError):
         _ = agent_tool_metadata_crud.create_agent_tool_metadata(
@@ -94,13 +88,11 @@ def test_update_agent_tool_metadata(session, user):
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=["file_id"],
-        type="file",
+        artifacts=[{"file": "file_id"}],
     )
 
     new_agent_tool_metadata_data = UpdateAgentToolMetadata(
-        artifacts=["new_file_id"],
-        type="file",
+        artifacts=[{"file": "new_file_id"}],
     )
 
     agent_tool_metadata = agent_tool_metadata_crud.update_agent_tool_metadata(
@@ -110,7 +102,6 @@ def test_update_agent_tool_metadata(session, user):
     assert agent_tool_metadata.agent_id == original_agent_tool_metadata.agent_id
     assert agent_tool_metadata.tool_name == original_agent_tool_metadata.tool_name
     assert agent_tool_metadata.artifacts == new_agent_tool_metadata_data.artifacts
-    assert agent_tool_metadata.type == new_agent_tool_metadata_data.type
 
 
 def test_get_agent_tool_metadata_by_id(session, user):
@@ -119,8 +110,7 @@ def test_get_agent_tool_metadata_by_id(session, user):
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=["file1", "file2"],
-        type="file_ids",
+        artifacts=[{"file_ids": ["file2", "file2"]}],
     )
     agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
         session, agent_tool_metadata.id
@@ -128,8 +118,7 @@ def test_get_agent_tool_metadata_by_id(session, user):
     assert agent_tool_metadata.user_id == user.id
     assert agent_tool_metadata.agent_id == agent.id
     assert agent_tool_metadata.tool_name == ToolName.Google_Drive
-    assert agent_tool_metadata.artifacts == ["file1", "file2"]
-    assert agent_tool_metadata.type == "file_ids"
+    assert agent_tool_metadata.artifacts == [{"file_ids": ["file2", "file2"]}]
 
 
 def test_get_all_agent_tool_metadata_by_agent_id(session, user):
@@ -141,25 +130,29 @@ def test_get_all_agent_tool_metadata_by_agent_id(session, user):
         user_id=user.id,
         agent_id=agent1.id,
         tool_name=ToolName.Google_Drive,
-        type="file_ids",
-        artifacts=["file1", "file2"],
+        artifacts=[{"file_ids": ["file2", "file2"]}],
     )
-    for i in range(10):
-        _ = get_factory("AgentToolMetadata", session).create(
-            id=f"{i}",
-            tool_name=ToolName.Google_Drive,
-            type=f"type{i}",
-            artifacts=["file_id"],
-            user_id=user.id,
-            agent_id=agent2.id,
-        )
+
+    _ = get_factory("AgentToolMetadata", session).create(
+        user_id=user.id,
+        agent_id=agent1.id,
+        tool_name=ToolName.Wiki_Retriever_LangChain,
+        artifacts=[],
+    )
+
+    _ = get_factory("AgentToolMetadata", session).create(
+        user_id=user.id,
+        agent_id=agent2.id,
+        tool_name=ToolName.Google_Drive,
+        artifacts=[{"file_ids": ["file2", "file2"]}],
+    )
 
     all_agent_tool_metadata = (
         agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
-            session, agent_id=agent2.id
+            session, agent_id=agent1.id
         )
     )
-    assert len(all_agent_tool_metadata) == 10
+    assert len(all_agent_tool_metadata) == 2
 
 
 def test_delete_agent_tool_metadata_by_id(session, user):
@@ -168,8 +161,7 @@ def test_delete_agent_tool_metadata_by_id(session, user):
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
-        artifacts=["file1", "file2"],
-        type="file_ids",
+        artifacts=[{"file_ids": ["file2", "file2"]}],
     )
 
     agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
