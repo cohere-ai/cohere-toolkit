@@ -13,7 +13,10 @@ import { cn } from '@/utils';
  * It contains the logo and a button to expand or collapse the panel.
  * It also renders the children components that are passed to it.
  */
-export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children }) => {
+export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+  className = '',
+  children,
+}) => {
   const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
   const {
     agents: { isAgentsSidePanelOpen },
@@ -44,9 +47,15 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     <Transition
       show={isAgentsSidePanelOpen || isDesktop}
       as="div"
-      className={cn('absolute bottom-0 left-0 top-0 z-30 lg:static', {
-        'right-1/4': isAgentsSidePanelOpen,
-      })}
+      className={cn(
+        'absolute bottom-0 left-0 top-0 z-30 lg:static',
+        'h-full bg-marble-100',
+        'rounded-lg border border-marble-400',
+        {
+          'right-1/4': isAgentsSidePanelOpen,
+        },
+        className
+      )}
       enter="transition-all transform ease-in-out duration-500"
       enterFrom="-translate-x-full"
       enterTo="translate-x-0"
@@ -56,13 +65,12 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren> = ({ children })
     >
       <div
         className={cn(
-          'h-full px-4 py-6',
-          'flex flex-grow flex-col gap-y-8 rounded-lg border',
-          'border-marble-400 bg-marble-100',
-          'transition-[min-width,max-width]',
+          'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
+          'md:transition-[min-width,max-width]',
           {
-            'min-w-agents-panel-collapsed max-w-agents-panel-collapsed': !isAgentsSidePanelOpen,
-            'min-w-agents-panel-expanded max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
+            'md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
+              !isAgentsSidePanelOpen,
+            'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
               isAgentsSidePanelOpen,
           }
         )}
