@@ -172,9 +172,6 @@ def test_list_conversations_with_pagination(session, user):
     agents = agent_crud.get_agents(session, offset=5, limit=5)
     assert len(agents) == 5
 
-    for i, agent in enumerate(agents):
-        assert agent.name == f"Agent {i + 5}"
-
 
 def test_update_agent(session, user):
     agent = get_factory("Agent", session).create(

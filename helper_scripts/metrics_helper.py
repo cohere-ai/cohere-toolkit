@@ -1,27 +1,8 @@
 import json
 import re
+from uuid import uuid4
 
 import requests
-
-base_url = "http://localhost:8000/v1"
-
-headers = {
-    "User-Id": "7a7e4a99-10af-4567-955b-8f34ed5e2f1d",
-    "Deployment-Name": "Cohere Platform",
-    "Content-Type": "application/json",
-}
-
-# Notes:
-# web_search implicitly calls rerank
-# - TAVILY_API_KEY required for web search
-# in case of issues, prune docker images and try again
-
-
-## Users
-# Create User
-response = requests.post(f"{base_url}/users", headers=headers, json={"fullname": "me"})
-response_json = response.json()
-user_id = response_json["id"]
 
 
 def agents():
@@ -32,38 +13,51 @@ def agents():
         f"{base_url}/agents",
         headers=headers,
         json={
-            "name": "hello-world",
+            "name": str(uuid4()),
             "model": "command-r",
             "deployment": "Cohere Platform",
             "tools": ["web_search"],
         },
     )
+    print("create agent")
+    print(response.status_code)
     agent_id = response.json()["id"]
     # # List Agents
-    _ = requests.get(f"{base_url}/agents", headers=headers)
+    response = requests.get(f"{base_url}/agents", headers=headers)
+    print("list agents")
+    print(response.status_code)
 
     # # Get Agent
-    _ = requests.get(f"{base_url}/agents/{agent_id}", headers=headers)
+    response = requests.get(f"{base_url}/agents/{agent_id}", headers=headers)
+    print("get agent")
+    print(response.status_code)
 
     # # Update Agent
-    _ = requests.put(
-        f"{base_url}/agents/{agent_id}", headers=headers, json={"name": "new_name"}
+    response = requests.put(
+        f"{base_url}/agents/{agent_id}", headers=headers, json={"name": str(uuid4())}
     )
+    print("update agent")
+    print(response.status_code)
+    # print(response.json())
 
     return agent_id
 
 
+## Users
+# Create User
 def users():
+    print("running users")
     # # List Users
-    _ = requests.get(f"{base_url}/users", headers=headers)
-
+    res = requests.get(f"{base_url}/users", headers=headers)
+    print(response.status_code)
     # # Get User
-    _ = requests.get(f"{base_url}/users/{user_id}", headers=headers)
-
+    res = requests.get(f"{base_url}/users/{user_id}", headers=headers)
+    print(response.status_code)
     # # Update User
-    _ = requests.put(
+    res = requests.put(
         f"{base_url}/users/{user_id}", headers=headers, json={"fullname": "new name"}
     )
+    print(response.status_code)
 
 
 # Chat
@@ -78,6 +72,8 @@ def chat(agent_id):
             "tools": [{"name": "web_search"}],
         },
     )
+
+    print(response.status_code)
 
     conversation_id = None
     for event in response.iter_lines():
@@ -95,46 +91,73 @@ def chat(agent_id):
 
 
 def tools(conversation_id):
+    print("Running tools")
     ## Tools
     # List Tools
-    _ = requests.get(f"{base_url}/tools", headers=headers)
-
+    res = requests.get(f"{base_url}/tools", headers=headers)
+    print(res.status_code)
     # List Tools per Agent
-    _ = requests.get(f"{base_url}/tools?agent_id={agent_id}", headers=headers)
-
+    res = requests.get(f"{base_url}/tools?agent_id={agent_id}", headers=headers)
+    print(res.status_code)
     ## Conversations
     # List Conversations
-    _ = requests.get(f"{base_url}/conversations", headers=headers)
-
+    res = requests.get(f"{base_url}/conversations", headers=headers)
+    print(res.status_code)
     # Get Conversation
-    _ = requests.get(f"{base_url}/conversations/{conversation_id}", headers=headers)
-
+    res = requests.get(f"{base_url}/conversations/{conversation_id}", headers=headers)
+    print(res.status_code)
     # Update Conversation
-    _ = requests.put(
+    res = requests.put(
         f"{base_url}/conversations/{conversation_id}",
         headers=headers,
         json={"title": "new_title"},
     )
 
     # del conversation
-    _ = requests.delete(f"{base_url}/conversations/{conversation_id}", headers=headers)
-
-
-## Files
-# _ = requests.get(f"{base_url}/files/conversation_id", headers=headers)
-# _ = requests.put(f"{base_url}/files/test-file-id", headers=headers, data={"title": "new_title"})
-# _ = requests.delete(f"{base_url}/files/test-file-id", headers=headers)
+    res = requests.delete(
+        f"{base_url}/conversations/{conversation_id}", headers=headers
+    )
+    print(res.status_code)
 
 
 # Delete Everything
 def cleanup(user_id, agent_id):
-    _ = requests.delete(f"{base_url}/users/{user_id}", headers=headers)
-    _ = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
+    print("cleaning up")
+    response = requests.delete(f"{base_url}/users/{user_id}", headers=headers)
+    print(response.status_code)
+    response = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
+    print(response.status_code)
 
 
-agent_id = agents()
-conversation_id = chat(agent_id=agent_id)
+base_url = "http://localhost:8000/v1"
+headers = {
+    "User-Id": "admin",
+    "Deployment-Name": "Cohere Platform",
+    "Content-Type": "application/json",
+}
 
-tools(conversation_id=conversation_id)
+# Notes:
+# web_search implicitly calls rerank
+# - TAVILY_API_KEY required for web search
+# in case of issues, prune docker images and try again
+# TODO: please do not use global variables :,(
+
+# initial setup
+print("setting up")
+response = requests.post(
+    f"{base_url}/users", headers=headers, json={"fullname": "qa tester"}
+)
+response_json = response.json()
+user_id = response_json["id"]
+# update user id with correct value going forward
+headers["User-Id"] = user_id
+print("Setup user info")
+print(response_json)
+
+
 users()
+agent_id = agents()
+# TODO: these are not working atm
+conversation_id = chat(agent_id=agent_id)
+tools(conversation_id=conversation_id)
 cleanup(user_id=user_id, agent_id=agent_id)
