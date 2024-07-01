@@ -3,7 +3,7 @@ import { GetServerSideProps, NextPage } from 'next';
 
 import { CohereClient } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
-import { CreateAgentForm } from '@/components/Agents/CreateAgentForm';
+import { CreateAgent } from '@/components/Agents/CreateAgent';
 import { Layout, LeftSection, MainSection } from '@/components/Layout';
 import { appSSR } from '@/pages/_app';
 
@@ -16,7 +16,7 @@ const AgentsNewPage: NextPage<Props> = () => {
         <AgentsList />
       </LeftSection>
       <MainSection>
-        <CreateAgentForm />
+        <CreateAgent />
       </MainSection>
     </Layout>
   );
