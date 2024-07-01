@@ -509,10 +509,13 @@ def generate_chat_response(
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
+            response_id = response_message.id if response_message else None
+            generation_id = response_message.generation_id if response_message else None
+
             non_streamed_chat_response = NonStreamedChatResponse(
                 text=data.get("text", ""),
-                response_id=response_message.id,
-                generation_id=response_message.generation_id,
+                response_id=response_id,
+                generation_id=generation_id,
                 chat_history=data.get("chat_history", []),
                 finish_reason=data.get("finish_reason", ""),
                 citations=data.get("citations", []),
@@ -553,7 +556,7 @@ def generate_chat_stream(
     """
     stream_end_data = {
         "conversation_id": conversation_id,
-        "response_id": response_message.id,
+        "response_id": response_message.id if response_message else None,
         "text": "",
         "citations": [],
         "documents": [],
@@ -647,7 +650,8 @@ def handle_stream_start(
 ) -> tuple[StreamStart, dict[str, Any], Message, dict[str, Document]]:
     event["conversation_id"] = conversation_id
     stream_event = StreamStart.model_validate(event)
-    response_message.generation_id = event["generation_id"]
+    if response_message:
+        response_message.generation_id = event["generation_id"]
     stream_end_data["generation_id"] = event["generation_id"]
     return stream_event, stream_end_data, response_message, document_ids_to_document
 
@@ -826,8 +830,10 @@ def handle_stream_end(
     document_ids_to_document: dict[str, Document],
     **kwargs: Any,
 ) -> tuple[StreamEnd, dict[str, Any], Message, dict[str, Document]]:
-    response_message.citations = stream_end_data["citations"]
-    response_message.text = stream_end_data["text"]
+    if response_message:
+        response_message.citations = stream_end_data["citations"]
+        response_message.text = stream_end_data["text"]
+
     stream_end_data["chat_history"] = (
         to_dict(event).get("response", {}).get("chat_history", [])
     )
