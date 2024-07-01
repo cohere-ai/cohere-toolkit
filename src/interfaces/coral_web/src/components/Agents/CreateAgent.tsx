@@ -2,11 +2,7 @@ import { useSessionStorageValue } from '@react-hookz/web';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 
-import {
-  AgentForm,
-  AgentFormFieldKeys,
-  CreateAgentFormFields,
-} from '@/components/Agents/AgentForm';
+import { AgentForm, AgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
@@ -18,6 +14,7 @@ import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
+import { GoogleDriveToolArtifact } from '@/types/tools';
 
 const DEFAULT_FIELD_VALUES = {
   name: '',
@@ -30,7 +27,7 @@ const DEFAULT_FIELD_VALUES = {
 /**
  * @description Form to create a new agent.
  */
-export const CreateAgentForm: React.FC = () => {
+export const CreateAgent: React.FC = () => {
   const router = useRouter();
   const { open, close } = useContext(ModalContext);
 
@@ -49,13 +46,30 @@ export const CreateAgentForm: React.FC = () => {
   const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<CreateAgentFormFields>(DEFAULT_FIELD_VALUES);
+  const [fields, setFields] = useState<AgentFormFields>(DEFAULT_FIELD_VALUES);
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
-      setGoogleDriveFiles(
-        data.docs.map((doc) => ({ id: doc.id, name: doc.name, type: doc.type, url: doc.url }))
-      );
+      setFields((prev) => ({
+        ...prev,
+        tools_metadata: [
+          ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ?? []),
+          ...[
+            {
+              tool_name: TOOL_GOOGLE_DRIVE_ID,
+              artifacts: data.docs.map(
+                (doc) =>
+                  ({
+                    id: doc.id,
+                    name: doc.name,
+                    type: doc.type,
+                    url: doc.url,
+                  } as GoogleDriveToolArtifact)
+              ),
+            },
+          ],
+        ],
+      }));
     }
   });
 
@@ -69,11 +83,14 @@ export const CreateAgentForm: React.FC = () => {
     return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
 
-  const handleChange = (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => {
-    setFields({
-      ...fields,
-      [key as string]: value,
-    });
+  const handleChange = <AgentFormFieldKeys extends keyof AgentFormFields>(
+    key: AgentFormFieldKeys,
+    value: AgentFormFields[AgentFormFieldKeys]
+  ) => {
+    setFields((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
@@ -83,10 +100,10 @@ export const CreateAgentForm: React.FC = () => {
       handleGoogleDriveToggle(checked, authUrl);
     }
 
-    setFields({
-      ...fields,
+    setFields((prev) => ({
+      ...prev,
       tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
-    });
+    }));
   };
 
   const handleGoogleDriveToggle = (checked: boolean, authUrl?: string) => {
@@ -102,7 +119,11 @@ export const CreateAgentForm: React.FC = () => {
         openFilePicker();
       }
     } else {
-      setGoogleDriveFiles(undefined);
+      setFields((prev) => ({
+        ...prev,
+        tools: (fields.tools ?? []).filter((t) => t !== TOOL_GOOGLE_DRIVE_ID),
+        tools_metadata: fields.tools_metadata?.filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
+      }));
     }
   };
 
@@ -136,12 +157,7 @@ export const CreateAgentForm: React.FC = () => {
     try {
       setIsSubmitting(true);
 
-      const payload: CreateAgent = {
-        ...fields,
-        tools_metadata: [{ tool_name: TOOL_GOOGLE_DRIVE_ID, artifacts: googleDriveFiles ?? [] }],
-      };
-
-      const agent = await createAgent(payload);
+      const agent = await createAgent(fields);
       addRecentAgentId(agent.id);
       setFields(DEFAULT_FIELD_VALUES);
       close();
@@ -168,8 +184,6 @@ export const CreateAgentForm: React.FC = () => {
             onChange={handleChange}
             onToolToggle={handleToolToggle}
             handleOpenFilePicker={openFilePicker}
-            googleDriveFiles={googleDriveFiles}
-            setGoogleDriveFiles={setGoogleDriveFiles}
             errors={fieldErrors}
             className="mt-6"
           />
