@@ -21,6 +21,7 @@ class CreateAgentToolMetadata(BaseModel):
 
 
 class UpdateAgentToolMetadata(BaseModel):
+    tool_name: Optional[str] = None
     artifacts: Optional[list[dict]] = None
 
 
