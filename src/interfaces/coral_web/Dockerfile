@@ -36,10 +36,5 @@ CMD \
 
 
 # Production specifc tareget
-# FROM base AS prod
-# CMD \
-#   if [ -f yarn.lock ]; then yarn start; \
-#   elif [ -f package-lock.json ]; then npm run start; \
-#   elif [ -f pnpm-lock.yaml ]; then pnpm start; \
-#   else npm run start; \
-#   fi
+FROM base AS prod
+CMD npm run start
