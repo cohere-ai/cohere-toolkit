@@ -144,8 +144,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
     @classmethod
     def process_auth_token(cls, request: Request, session: DBSessionDep) -> str:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID") or not os.getenv(
-            "GOOGLE_DRIVE_CLIENT_SECRET" or not os.getenv(
-                "NEXT_PUBLIC_API_HOSTNAME")
+            "GOOGLE_DRIVE_CLIENT_SECRET" or not os.getenv("NEXT_PUBLIC_API_HOSTNAME")
         ):
             raise ValueError(
                 "GOOGLE_DRIVE_CLIENT_ID or GOOGLE_DRIVE_CLIENT_SECRET not set"
