@@ -111,7 +111,7 @@ export const AgentForm: React.FC<Props> = ({
                 />
                 {isGoogleDrive && checked && (
                   <div className="pl-10">
-                    <CreateAgentFilePicker
+                    <AgentToolFielPicker
                       googleDriveFiles={googleDriveFiles}
                       setGoogleDriveFiles={setGoogleDriveFiles}
                       handleOpenFilePicker={handleOpenFilePicker}
