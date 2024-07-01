@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
+import { AgentToolFielPicker } from '@/components/Agents/AgentToolFielPicker';
 import { CreateAgentFilePicker } from '@/components/Agents/CreateAgentFilePicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -111,7 +112,7 @@ export const AgentForm: React.FC<Props> = ({
                 />
                 {isGoogleDrive && checked && (
                   <div className="pl-10">
-                    <CreateAgentFilePicker
+                    <AgentToolFielPicker
                       googleDriveFiles={googleDriveFiles}
                       setGoogleDriveFiles={setGoogleDriveFiles}
                       handleOpenFilePicker={handleOpenFilePicker}
