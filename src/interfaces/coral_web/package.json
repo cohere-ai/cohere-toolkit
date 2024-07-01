@@ -4,6 +4,7 @@
   "private": true,
   "engines": {
     "npm": ">=9",
+    "node": ">=20.12.2",
     "pnpm": "9999",
     "yarn": "9999"
   },
