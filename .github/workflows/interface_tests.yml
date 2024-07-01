@@ -22,6 +22,6 @@ jobs:
       - name: Set up Node.js and install dependencies
         uses: ./.github/actions/js-install
       - name: Check coral_web is formatted
-        run: npm format
+        run: npm run format
       - name: Check coral_web can build
-        run: npm build
+        run: npm run build
