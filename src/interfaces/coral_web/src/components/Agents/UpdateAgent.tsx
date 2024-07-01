@@ -10,13 +10,14 @@ import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { useAgentsStore } from '@/stores';
+import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 
 type Props = {
   agentId?: string;
 };
 
-export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
+export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
   const { setEditAgentPanelOpen } = useAgentsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
@@ -32,7 +33,6 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     tools: [],
     tools_metadata: [],
   });
-  const [googleDriveFiles, setGoogleDriveFiles] = useState<Record<string, any>[]>();
 
   const { set: setPendingAssistant } = useSessionStorageValue<AgentFormFields>(
     'pending_assistant',
@@ -44,9 +44,26 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
-      setGoogleDriveFiles(
-        data.docs.map((doc) => ({ id: doc.id, name: doc.name, type: doc.type, url: doc.url }))
-      );
+      setFields((prev) => ({
+        ...prev,
+        tools_metadata: [
+          ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ?? []),
+          ...[
+            {
+              tool_name: TOOL_GOOGLE_DRIVE_ID,
+              artifacts: data.docs.map(
+                (doc) =>
+                  ({
+                    id: doc.id,
+                    name: doc.name,
+                    type: doc.type,
+                    url: doc.url,
+                  } as GoogleDriveToolArtifact)
+              ),
+            },
+          ],
+        ],
+      }));
     }
   });
 
@@ -83,14 +100,6 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
         preamble: agent.preamble,
         tools_metadata: agent.tools_metadata,
       });
-      const driveArtifacts: Record<string, any>[] = [];
-      agent.tools_metadata
-        ?.filter((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
-        .forEach((metadata) => {
-          driveArtifacts.push(...metadata.artifacts);
-        });
-
-      setGoogleDriveFiles(driveArtifacts);
     }
   }, [agent]);
 
@@ -98,11 +107,14 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     setEditAgentPanelOpen(false);
   };
 
-  const handleChange = (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => {
-    setFields({
-      ...fields,
-      [key as string]: value,
-    });
+  const handleChange = <AgentFormFieldKeys extends keyof AgentFormFields>(
+    key: AgentFormFieldKeys,
+    value: (typeof fields)[AgentFormFieldKeys]
+  ) => {
+    setFields((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
@@ -111,10 +123,10 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
       handleGoogleDriveToggle(checked, authUrl);
     }
 
-    setFields({
-      ...fields,
+    setFields((prev) => ({
+      ...prev,
       tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
-    });
+    }));
   };
 
   const handleGoogleDriveToggle = (checked: boolean, authUrl?: string) => {
@@ -130,7 +142,11 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
         openFilePicker();
       }
     } else {
-      setGoogleDriveFiles(undefined);
+      setFields((prev) => ({
+        ...prev,
+        tools: prev.tools?.filter((t) => t !== TOOL_GOOGLE_DRIVE_ID),
+        tools_metadata: prev.tools_metadata?.filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
+      }));
     }
   };
 
@@ -189,8 +205,6 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
           onToolToggle={handleToolToggle}
           disabled={!isAgentCreator}
           handleOpenFilePicker={openFilePicker}
-          googleDriveFiles={googleDriveFiles}
-          setGoogleDriveFiles={setGoogleDriveFiles}
         />
       </div>
       {isAgentCreator && (
