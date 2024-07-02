@@ -40,6 +40,8 @@ class GoogleDrive(BaseTool):
         """
         Google Drive logic
         """
+        agent_id = kwargs["agent_id"]
+        index_name = "{}_{}".format(agent_id, GOOGLE_DRIVE_TOOL_ID)
         query = parameters.get("query", "")
         conditions = [
             "("
@@ -103,7 +105,7 @@ class GoogleDrive(BaseTool):
         # idempotent create index
         compass.invoke(
             action=Compass.ValidActions.CREATE_INDEX,
-            parameters={"index": GOOGLE_DRIVE_TOOL_ID},
+            parameters={"index": index_name},
         )
 
         # handle creation/update of each file
@@ -112,7 +114,7 @@ class GoogleDrive(BaseTool):
             try:
                 fetched_doc = compass.invoke(
                     action=Compass.ValidActions.GET_DOCUMENT,
-                    parameters={"index": GOOGLE_DRIVE_TOOL_ID, "file_id": file_id},
+                    parameters={"index": index_name, "file_id": file_id},
                 ).result["doc"]
                 last_updated = fetched_doc["content"].get("last_updated")
                 url = fetched_doc["content"].get("url")
@@ -130,7 +132,7 @@ class GoogleDrive(BaseTool):
                     compass.invoke(
                         action=Compass.ValidActions.UPDATE,
                         parameters={
-                            "index": GOOGLE_DRIVE_TOOL_ID,
+                            "index": index_name,
                             "file_id": file_id,
                             "file_text": id_to_texts[file_id],
                         },
@@ -139,7 +141,7 @@ class GoogleDrive(BaseTool):
                     compass.invoke(
                         action=Compass.ValidActions.ADD_CONTEXT,
                         parameters={
-                            "index": GOOGLE_DRIVE_TOOL_ID,
+                            "index": index_name,
                             "file_id": file_id,
                             "context": {
                                 "url": web_view_links[file_id],
@@ -152,7 +154,7 @@ class GoogleDrive(BaseTool):
                 compass.invoke(
                     action=Compass.ValidActions.CREATE,
                     parameters={
-                        "index": GOOGLE_DRIVE_TOOL_ID,
+                        "index": index_name,
                         "file_id": file_id,
                         "file_text": id_to_texts[file_id],
                     },
@@ -161,7 +163,7 @@ class GoogleDrive(BaseTool):
                 compass.invoke(
                     action=Compass.ValidActions.ADD_CONTEXT,
                     parameters={
-                        "index": GOOGLE_DRIVE_TOOL_ID,
+                        "index": index_name,
                         "file_id": file_id,
                         "context": {
                             "url": web_view_links[file_id],
@@ -174,7 +176,7 @@ class GoogleDrive(BaseTool):
         hits = compass.invoke(
             action=Compass.ValidActions.SEARCH,
             parameters={
-                "index": GOOGLE_DRIVE_TOOL_ID,
+                "index": index_name,
                 "query": query,
                 "top_k": SEARCH_LIMIT,
             },
