@@ -22,7 +22,6 @@ import {
 import {
   DEFAULT_TYPING_VELOCITY,
   DEPLOYMENT_COHERE_PLATFORM,
-  TOOL_GOOGLE_DRIVE_ID,
   TOOL_PYTHON_INTERPRETER_ID,
 } from '@/constants';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
