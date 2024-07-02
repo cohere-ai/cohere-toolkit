@@ -106,7 +106,7 @@ class GoogleDrive(BaseTool):
             parameters={"index": GOOGLE_DRIVE_TOOL_ID},
         )
 
-        # idempotent create index
+        # handle creation/update of each file
         for file_id in id_to_texts:
             fetched_doc = None
             try:
