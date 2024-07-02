@@ -57,8 +57,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
           return {
             ...prev,
             tools_metadata: [
-              ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
-                []),
+              ...(prev.tools_metadata ?? []),
               {
                 tool_name: TOOL_GOOGLE_DRIVE_ID,
                 user_id: userId,
@@ -180,7 +179,6 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
       setIsSubmitting(true);
       const newAgent = await updateAgent({
         ...fields,
-        // tools_metadata: [{ tool_name: TOOL_GOOGLE_DRIVE_ID, artifacts: googleDriveFiles ?? [] }],
         agentId,
       });
       setIsSubmitting(false);
