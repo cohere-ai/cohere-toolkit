@@ -199,6 +199,11 @@ class GoogleDrive(BaseTool):
                         },
                     },
                 )
+                # refresh
+                compass.invoke(
+                    action=Compass.ValidActions.REFRESH,
+                    parameters={"index": index_name},
+                )
 
         # fetch documents from index
         hits = compass.invoke(
