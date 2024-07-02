@@ -2,11 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type AgentToolMetadata = {
+export type CreateSnapshotResponse = {
+    snapshot_id: string;
     user_id: string;
-    organization_id?: (string | null);
-    id: string;
-    tool_name: string;
-    artifacts: Array<Record<string, any>>;
+    link_id: string;
+    messages: Array<Record<string, any>>;
 };
 

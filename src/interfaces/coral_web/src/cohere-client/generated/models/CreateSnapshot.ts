@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type DeleteAgentToolMetadata = {
+export type CreateSnapshot = {
+    conversation_id: string;
 };
 
