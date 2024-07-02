@@ -1,8 +1,8 @@
-import { useSessionStorageValue } from '@react-hookz/web';
+import { useLocalStorageValue } from '@react-hookz/web';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 
-import { AgentForm, AgentFormFields } from '@/components/Agents/AgentForm';
+import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
@@ -35,8 +35,7 @@ export const CreateAgent: React.FC = () => {
     value: pendingAssistant,
     set: setPendingAssistant,
     remove: removePendingAssistant,
-  } = useSessionStorageValue<AgentFormFields>('pending_assistant', {
-    defaultValue: DEFAULT_FIELD_VALUES,
+  } = useLocalStorageValue<CreateAgentFormFields>('pending_assistant', {
     initializeWithValue: false,
   });
 
@@ -46,7 +45,7 @@ export const CreateAgent: React.FC = () => {
   const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<AgentFormFields>(DEFAULT_FIELD_VALUES);
+  const [fields, setFields] = useState<CreateAgentFormFields>(DEFAULT_FIELD_VALUES);
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
@@ -83,16 +82,6 @@ export const CreateAgent: React.FC = () => {
     return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
 
-  const handleChange = <AgentFormFieldKeys extends keyof AgentFormFields>(
-    key: AgentFormFieldKeys,
-    value: AgentFormFields[AgentFormFieldKeys]
-  ) => {
-    setFields((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
   const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
     const enabledTools = [...(fields.tools ? fields.tools : [])];
 
@@ -128,15 +117,12 @@ export const CreateAgent: React.FC = () => {
   };
 
   useEffect(() => {
-    if (router.query.p) {
-      if (pendingAssistant) {
-        setFields(pendingAssistant);
-        removePendingAssistant();
-      }
-
-      window.history.replaceState(null, '', router.basePath + router.pathname);
+    if (pendingAssistant) {
+      console.log(pendingAssistant);
+      setFields(pendingAssistant);
+      removePendingAssistant();
     }
-  }, [router.query.p]);
+  }, [pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
     open({
@@ -179,9 +165,9 @@ export const CreateAgent: React.FC = () => {
           <Text className="text-volcanic-700">
             Create an unique assistant and share with your org
           </Text>
-          <AgentForm
+          <AgentForm<CreateAgentFormFields>
             fields={fields}
-            onChange={handleChange}
+            setFields={setFields}
             onToolToggle={handleToolToggle}
             handleOpenFilePicker={openFilePicker}
             errors={fieldErrors}

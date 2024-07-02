@@ -30,6 +30,7 @@ export type { DeleteUser } from './models/DeleteUser';
 export type { Deployment } from './models/Deployment';
 export type { Document } from './models/Document';
 export type { File } from './models/File';
+export type { GenerateTitle } from './models/GenerateTitle';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { JWTResponse } from './models/JWTResponse';
 export type { LangchainChatRequest } from './models/LangchainChatRequest';

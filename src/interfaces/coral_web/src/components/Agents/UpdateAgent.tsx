@@ -1,7 +1,8 @@
-import { useSessionStorageValue } from '@react-hookz/web';
+import { useLocalStorageValue } from '@react-hookz/web';
 import React, { useEffect, useState } from 'react';
 
-import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
+import { AgentToolMetadata } from '@/cohere-client';
+import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Spinner, Text } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -25,7 +26,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const { mutateAsync: updateAgent } = useUpdateAgent();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<AgentFormFields>({
+  const [fields, setFields] = useState<UpdateAgentFormFields>({
     name: '',
     description: '',
     deployment: '',
@@ -34,7 +35,10 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
     tools_metadata: [],
   });
 
-  const { set: setPendingAssistant } = useSessionStorageValue<AgentFormFields>(
+  const { userId } = useSession();
+  const isAgentCreator = agent && agent.user_id === userId;
+
+  const { set: setPendingAssistant } = useLocalStorageValue<UpdateAgentFormFields>(
     'pending_assistant',
     {
       defaultValue: fields,
@@ -44,41 +48,70 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
-      setFields((prev) => ({
-        ...prev,
-        tools_metadata: [
-          ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ?? []),
-          ...[
-            {
-              tool_name: TOOL_GOOGLE_DRIVE_ID,
-              artifacts: data.docs.map(
-                (doc) =>
-                  ({
-                    id: doc.id,
-                    name: doc.name,
-                    type: doc.type,
-                    url: doc.url,
-                  } as GoogleDriveToolArtifact)
-              ),
-            },
+      setFields((prev) => {
+        const currentGoogleDriveTool = prev.tools_metadata?.find(
+          (tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID
+        );
+        // If the tool is not already enabled, add it to the list of tools
+        if (!currentGoogleDriveTool) {
+          return {
+            ...prev,
+            tools_metadata: [
+              ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
+                []),
+              {
+                tool_name: TOOL_GOOGLE_DRIVE_ID,
+                user_id: userId,
+                artifacts: data.docs.map(
+                  (doc) =>
+                    ({
+                      id: doc.id,
+                      name: doc.name,
+                      type: doc.type,
+                      url: doc.url,
+                    } as GoogleDriveToolArtifact)
+                ),
+              },
+            ],
+          };
+        }
+        // If the tool is already enabled, update the artifacts
+        const updateGoogleDriveTool: AgentToolMetadata = {
+          ...currentGoogleDriveTool,
+          artifacts: data.docs.map(
+            (doc) =>
+              ({
+                id: doc.id,
+                name: doc.name,
+                type: doc.type,
+                url: doc.url,
+              } as GoogleDriveToolArtifact)
+          ),
+        };
+
+        return {
+          ...prev,
+          tools_metadata: [
+            ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
+              []),
+            updateGoogleDriveTool,
           ],
-        ],
-      }));
+        };
+      });
     }
   });
-
-  const { userId } = useSession();
-  const isAgentCreator = agent && agent.user_id === userId;
 
   const isDirty = () => {
     if (!agent) return false;
     return Object.entries(fields).some(
-      ([key, value]) => agent[key as AgentFormFieldKeys] !== value
+      ([key, value]) => agent[key as keyof UpdateAgentFormFields] !== value
     );
   };
 
   const fieldErrors = {
-    ...(isAgentNameUnique(fields.name, agentId) ? {} : { name: 'Assistant name must be unique' }),
+    ...(isAgentNameUnique(fields.name ?? '', agentId)
+      ? {}
+      : { name: 'Assistant name must be unique' }),
   };
 
   const canSubmit = (() => {
@@ -105,16 +138,6 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
 
   const handleClose = () => {
     setEditAgentPanelOpen(false);
-  };
-
-  const handleChange = <AgentFormFieldKeys extends keyof AgentFormFields>(
-    key: AgentFormFieldKeys,
-    value: (typeof fields)[AgentFormFieldKeys]
-  ) => {
-    setFields((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
   };
 
   const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
@@ -198,10 +221,10 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
       </header>
       <div className="flex flex-col gap-y-5 overflow-y-auto px-8 py-8 md:px-14">
         {isAgentCreator && <InfoBanner agentName={agent.name} className="flex md:hidden" />}
-        <AgentForm
+        <AgentForm<UpdateAgentFormFields>
           fields={fields}
           errors={fieldErrors}
-          onChange={handleChange}
+          setFields={setFields}
           onToolToggle={handleToolToggle}
           disabled={!isAgentCreator}
           handleOpenFilePicker={openFilePicker}

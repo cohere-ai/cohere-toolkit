@@ -4,18 +4,14 @@ import { GoogleDriveToolArtifact } from '@/types/tools';
 
 type Props = {
   googleDriveFiles?: GoogleDriveToolArtifact[];
-  setGoogleDriveFiles: (files: GoogleDriveToolArtifact[]) => void;
+  handleRemoveGoogleDriveFiles: (id: string) => void;
   handleOpenFilePicker: VoidFunction;
 };
 export const AgentToolFielPicker: React.FC<Props> = ({
   googleDriveFiles,
-  setGoogleDriveFiles,
+  handleRemoveGoogleDriveFiles,
   handleOpenFilePicker,
 }) => {
-  const handleRemoveFile = (id: string) => {
-    setGoogleDriveFiles(googleDriveFiles?.filter((file) => file.id !== id) ?? []);
-  };
-
   return (
     <div className="flex max-w-[300px] flex-col gap-y-2">
       <Button
@@ -38,7 +34,7 @@ export const AgentToolFielPicker: React.FC<Props> = ({
                 {name}
               </Text>
               <IconButton
-                onClick={() => handleRemoveFile(id)}
+                onClick={() => handleRemoveGoogleDriveFiles(id)}
                 iconName="close"
                 size="sm"
                 className="ml-auto"
