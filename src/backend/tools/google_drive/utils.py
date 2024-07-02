@@ -16,3 +16,15 @@ def extract_links(files: List[Dict[str, str]]) -> Dict[str, str]:
         elif CSV_MIMETYPE in export_links:
             id_to_urls[id] = export_links[CSV_MIMETYPE]
     return id_to_urls
+
+
+def extract_web_view_links(files: List[Dict[str, str]]) -> Dict[str, str]:
+    id_to_urls = dict()
+    for _file in files:
+        web_view_link = _file.pop("webViewLink", "")
+        id = _file.get("id")
+        if id is None:
+            continue
+
+        id_to_urls[id] = web_view_link
+    return id_to_urls
