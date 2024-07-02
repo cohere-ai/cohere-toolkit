@@ -16,7 +16,7 @@ import type { StreamToolCallsGeneration } from './StreamToolCallsGeneration';
 import type { StreamToolInput } from './StreamToolInput';
 import type { StreamToolResult } from './StreamToolResult';
 export type ChatResponseEvent = {
-    event: StreamEvent;
-    data: (StreamStart | StreamTextGeneration | StreamCitationGeneration | StreamQueryGeneration | StreamSearchResults | StreamEnd | StreamToolInput | StreamToolResult | StreamSearchQueriesGeneration | StreamToolCallsGeneration | StreamToolCallsChunk | NonStreamedChatResponse);
+  event: StreamEvent;
+  data: (StreamStart | StreamTextGeneration | StreamCitationGeneration | StreamQueryGeneration | StreamSearchResults | StreamEnd | StreamToolInput | StreamToolResult | StreamSearchQueriesGeneration | StreamToolCallsGeneration | StreamToolCallsChunk | NonStreamedChatResponse);
 };
 

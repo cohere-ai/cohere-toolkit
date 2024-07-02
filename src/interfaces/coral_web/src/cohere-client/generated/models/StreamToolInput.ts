@@ -4,9 +4,9 @@
 /* eslint-disable */
 import type { ToolInputType } from './ToolInputType';
 export type StreamToolInput = {
-    input_type: ToolInputType;
-    tool_name: string;
-    input: string;
-    text: string;
+  input_type: ToolInputType;
+  tool_name: string;
+  input: string;
+  text: string;
 };
 

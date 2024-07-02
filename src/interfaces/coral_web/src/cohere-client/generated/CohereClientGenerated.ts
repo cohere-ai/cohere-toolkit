@@ -8,21 +8,21 @@ import { FetchHttpRequest } from './core/FetchHttpRequest';
 import { DefaultService } from './services/DefaultService';
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 export class CohereClientGenerated {
-    public readonly default: DefaultService;
-    public readonly request: BaseHttpRequest;
-    constructor(config?: Partial<OpenAPIConfig>, HttpRequest: HttpRequestConstructor = FetchHttpRequest) {
-        this.request = new HttpRequest({
-            BASE: config?.BASE ?? '',
-            VERSION: config?.VERSION ?? '0.1.0',
-            WITH_CREDENTIALS: config?.WITH_CREDENTIALS ?? false,
-            CREDENTIALS: config?.CREDENTIALS ?? 'include',
-            TOKEN: config?.TOKEN,
-            USERNAME: config?.USERNAME,
-            PASSWORD: config?.PASSWORD,
-            HEADERS: config?.HEADERS,
-            ENCODE_PATH: config?.ENCODE_PATH,
-        });
-        this.default = new DefaultService(this.request);
-    }
+  public readonly default: DefaultService;
+  public readonly request: BaseHttpRequest;
+  constructor(config?: Partial<OpenAPIConfig>, HttpRequest: HttpRequestConstructor = FetchHttpRequest) {
+    this.request = new HttpRequest({
+      BASE: config?.BASE ?? '',
+      VERSION: config?.VERSION ?? '0.1.0',
+      WITH_CREDENTIALS: config?.WITH_CREDENTIALS ?? false,
+      CREDENTIALS: config?.CREDENTIALS ?? 'include',
+      TOKEN: config?.TOKEN,
+      USERNAME: config?.USERNAME,
+      PASSWORD: config?.PASSWORD,
+      HEADERS: config?.HEADERS,
+      ENCODE_PATH: config?.ENCODE_PATH,
+    });
+    this.default = new DefaultService(this.request);
+  }
 }
 

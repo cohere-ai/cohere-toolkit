@@ -3,11 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Document = {
-    text: string;
-    document_id: string;
-    title: (string | null);
-    url: (string | null);
-    fields: (Record<string, any> | null);
-    tool_name: (string | null);
+  text: string;
+  document_id: string;
+  title: (string | null);
+  url: (string | null);
+  fields: (Record<string, any> | null);
+  tool_name: (string | null);
 };
 

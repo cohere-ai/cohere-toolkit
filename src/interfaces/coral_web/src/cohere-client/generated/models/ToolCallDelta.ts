@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type ToolCallDelta = {
-    name: (string | null);
-    index: (number | null);
-    parameters: (string | null);
+  name: (string | null);
+  index: (number | null);
+  parameters: (string | null);
 };
 

@@ -8,9 +8,9 @@ import type { Tool } from './Tool';
  * Request shape for Langchain Streamed Chat.
  */
 export type LangchainChatRequest = {
-    message: string;
-    chat_history?: (Array<ChatMessage> | null);
-    conversation_id?: string;
-    tools?: (Array<Tool> | null);
+  message: string;
+  chat_history?: (Array<ChatMessage> | null);
+  conversation_id?: string;
+  tools?: (Array<Tool> | null);
 };
 

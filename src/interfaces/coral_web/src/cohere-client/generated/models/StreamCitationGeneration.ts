@@ -7,6 +7,6 @@ import type { Citation } from './Citation';
  * Stream citation generation event.
  */
 export type StreamCitationGeneration = {
-    citations?: Array<Citation>;
+  citations?: Array<Citation>;
 };
 

@@ -7,7 +7,7 @@ import type { ToolCall } from './ToolCall';
  * Stream tool calls generation event.
  */
 export type StreamToolCallsGeneration = {
-    tool_calls?: (Array<ToolCall> | null);
-    text: (string | null);
+  tool_calls?: (Array<ToolCall> | null);
+  text: (string | null);
 };
 

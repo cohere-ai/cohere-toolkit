@@ -7,6 +7,6 @@ import type { SearchQuery } from './SearchQuery';
  * Stream queries generation event.
  */
 export type StreamSearchQueriesGeneration = {
-    search_queries?: Array<SearchQuery>;
+  search_queries?: Array<SearchQuery>;
 };
 
