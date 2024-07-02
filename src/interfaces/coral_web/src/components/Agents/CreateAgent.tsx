@@ -2,7 +2,7 @@ import { useLocalStorageValue } from '@react-hookz/web';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 
-import { AgentForm, AgentFormFields, CreateAgentFormFields } from '@/components/Agents/AgentForm';
+import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
@@ -35,7 +35,7 @@ export const CreateAgent: React.FC = () => {
     value: pendingAssistant,
     set: setPendingAssistant,
     remove: removePendingAssistant,
-  } = useLocalStorageValue<AgentFormFields>('pending_assistant', {
+  } = useLocalStorageValue<CreateAgentFormFields>('pending_assistant', {
     initializeWithValue: false,
     defaultValue: undefined,
   });
@@ -82,16 +82,6 @@ export const CreateAgent: React.FC = () => {
     const requredFields = { name, deployment, model };
     return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
-
-  const handleChange = <AgentFormFieldKeys extends keyof AgentFormFields>(
-    key: AgentFormFieldKeys,
-    value: AgentFormFields[AgentFormFieldKeys]
-  ) => {
-    setFields((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
 
   const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
     const enabledTools = [...(fields.tools ? fields.tools : [])];
@@ -179,9 +169,9 @@ export const CreateAgent: React.FC = () => {
           <Text className="text-volcanic-700">
             Create an unique assistant and share with your org
           </Text>
-          <AgentForm
+          <AgentForm<CreateAgentFormFields>
             fields={fields}
-            onChange={handleChange}
+            setFields={setFields}
             onToolToggle={handleToolToggle}
             handleOpenFilePicker={openFilePicker}
             errors={fieldErrors}
