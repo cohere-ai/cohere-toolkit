@@ -6,6 +6,6 @@
  * Type of input passed to the tool
  */
 export enum ToolInputType {
-  QUERY = 'QUERY',
-  CODE = 'CODE',
+    QUERY = 'QUERY',
+    CODE = 'CODE',
 }

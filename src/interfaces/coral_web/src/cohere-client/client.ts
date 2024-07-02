@@ -1,19 +1,23 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
+  CohereNetworkError,
+  CohereUnauthorizedError,
+  ExperimentalFeatures,
+  Fetch,
+} from '@/cohere-client/generated/types';
+
+import {
   Agent,
   CohereChatRequest,
+  CohereClientGenerated,
   Conversation,
   ConversationWithoutMessages,
   CreateAgent,
-  DefaultService,
   Deployment,
-  ERROR_FINISH_REASON_TO_MESSAGE,
-  FinishReason,
   ListAuthStrategy,
   ListFile,
   ManagedTool,
-  Tool,
   UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
@@ -21,71 +25,33 @@ import {
 } from '.';
 import { mapToChatRequest } from './mappings';
 
-export class CohereNetworkError extends Error {
-  public status: number;
-
-  constructor(message: string, status: number) {
-    super(message);
-    this.status = status;
-  }
-}
-
-export class CohereFinishStreamError extends Error {
-  public reason: FinishReason;
-
-  constructor(reason: keyof typeof ERROR_FINISH_REASON_TO_MESSAGE) {
-    const message = ERROR_FINISH_REASON_TO_MESSAGE[reason];
-    super(message);
-    this.reason = reason;
-  }
-}
-
-export class CohereStreamError extends Error {
-  public code: number;
-
-  constructor(message: string, code: number) {
-    super(message);
-    this.code = code;
-  }
-}
-
-export class CohereUnauthorizedError extends Error {
-  constructor() {
-    super('Unauthorized');
-  }
-}
-
-export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
-
-export type ExperimentalFeatures = {
-  USE_EXPERIMENTAL_LANGCHAIN: boolean;
-  USE_AGENTS_VIEW: boolean;
-};
-
 export class CohereClient {
   private readonly hostname: string;
   private readonly fetch: Fetch;
-  private readonly source: string;
   private authToken?: string;
 
-  public cohereService?: DefaultService;
+  public cohereService?: CohereClientGenerated;
   public request?: any;
 
   constructor({
     hostname,
-    source,
     fetch,
     authToken,
   }: {
     hostname: string;
-    source: string;
     fetch: Fetch;
     authToken?: string;
   }) {
     this.hostname = hostname;
-    this.source = source;
     this.fetch = fetch;
     this.authToken = authToken;
+    this.cohereService = new CohereClientGenerated({
+      BASE: hostname,
+      HEADERS: {
+        Authorization: `Bearer ${authToken}`,
+        'User-Id': 'user-id',
+      },
+    });
   }
 
   public async uploadFile({
@@ -250,31 +216,8 @@ export class CohereClient {
     });
   }
 
-  public async listConversations({
-    signal,
-  }: {
-    signal?: AbortSignal;
-  }): Promise<ConversationWithoutMessages[]> {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-      signal,
-    });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as ConversationWithoutMessages[];
+  public listConversations(params: { offset?: number; limit?: number; agentId?: string }) {
+    return this.cohereService?.default.listConversationsV1ConversationsGet(params);
   }
 
   public async getConversation({

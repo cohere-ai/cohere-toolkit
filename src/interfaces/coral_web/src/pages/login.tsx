@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { CohereClient, CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
+import { CohereClient, ListAuthStrategy } from '@/cohere-client';
+import { CohereUnauthorizedError } from '@/cohere-client/generated/types';
 import { Button, Input, Text } from '@/components/Shared';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';

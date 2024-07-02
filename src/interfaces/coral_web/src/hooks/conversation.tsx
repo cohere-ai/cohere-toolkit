@@ -3,12 +3,13 @@ import { useRouter } from 'next/router';
 import { useRef } from 'react';
 
 import {
-  CohereNetworkError,
+  ApiError,
   Conversation,
   ConversationWithoutMessages,
   UpdateConversation,
   useCohereClient,
 } from '@/cohere-client';
+import { CohereNetworkError } from '@/cohere-client/generated/types';
 import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
@@ -16,28 +17,22 @@ import { useNotify } from '@/hooks/toast';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { isAbortError } from '@/utils';
 
-export const useConversations = () => {
-  const abortControllerRef = useRef<AbortController | null>(null);
+export const useConversations = (params: { offset?: number; limit?: number; agentId?: string }) => {
   const client = useCohereClient();
 
-  return useQuery<ConversationWithoutMessages[], Error>({
+  return useQuery<ConversationWithoutMessages[], ApiError>({
     queryKey: ['conversations'],
     queryFn: async () => {
       try {
-        const conversations = await client.listConversations({
-          signal: abortControllerRef.current?.signal,
-        });
-        return conversations;
-      } catch (e) {
-        if (!isAbortError(e)) {
-          console.error(e);
-          throw e;
-        }
+        const conversations = await client.listConversations(params);
+        return conversations || [];
+      } catch {
         return [];
       }
     },
     retry: 0,
     refetchOnWindowFocus: false,
+    initialData: [],
   });
 };
 

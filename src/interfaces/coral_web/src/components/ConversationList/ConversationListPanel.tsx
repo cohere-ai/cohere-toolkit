@@ -24,13 +24,11 @@ type Props = {
 
 export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) => {
   const panelRef = useRef(null);
-  const { data, isLoading: isConversationsLoading, isError } = useConversations();
-  const conversations: Conversation[] = useMemo(() => {
-    const conversations = data ?? [];
-    if (!agentId) return conversations.filter((d) => !d.agent_id);
-    return conversations.filter((d) => d.agent_id === agentId);
-  }, [data, agentId]);
-
+  const {
+    data: conversations,
+    isLoading: isConversationsLoading,
+    isError,
+  } = useConversations({ agentId });
   const {
     settings: { isConvListPanelOpen },
   } = useSettingsStore();

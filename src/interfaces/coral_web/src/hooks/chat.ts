@@ -5,7 +5,6 @@ import {
   ChatResponseEvent,
   Citation,
   CohereChatRequest,
-  CohereNetworkError,
   Document,
   FinishReason,
   StreamCitationGeneration,
@@ -20,6 +19,7 @@ import {
   isSessionUnavailableError,
   isStreamError,
 } from '@/cohere-client';
+import { CohereNetworkError } from '@/cohere-client/generated/types';
 import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useRouteChange } from '@/hooks/route';
 import { useSlugRoutes } from '@/hooks/slugRoutes';

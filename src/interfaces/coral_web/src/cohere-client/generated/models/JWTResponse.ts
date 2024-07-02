@@ -3,5 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type JWTResponse = {
-  token: string;
+    token: string;
 };
+

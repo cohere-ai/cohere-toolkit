@@ -1,4 +1,9 @@
-import { CohereFinishStreamError, CohereNetworkError, CohereStreamError, FinishReason } from '.';
+import { FinishReason } from '@/cohere-client/constants';
+import {
+  CohereFinishStreamError,
+  CohereNetworkError,
+  CohereStreamError,
+} from '@/cohere-client/generated/types';
 
 export const isCohereNetworkError = (error: any): error is CohereNetworkError => {
   return error instanceof CohereNetworkError;

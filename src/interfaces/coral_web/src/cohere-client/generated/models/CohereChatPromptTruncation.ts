@@ -6,6 +6,6 @@
  * Dictates how the prompt will be constructed. Defaults to "AUTO_PRESERVE_ORDER".
  */
 export enum CohereChatPromptTruncation {
-  OFF = 'OFF',
-  AUTO_PRESERVE_ORDER = 'AUTO_PRESERVE_ORDER',
+    OFF = 'OFF',
+    AUTO_PRESERVE_ORDER = 'AUTO_PRESERVE_ORDER',
 }

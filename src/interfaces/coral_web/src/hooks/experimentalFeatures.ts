@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { ExperimentalFeatures, useCohereClient } from '@/cohere-client';
+import { useCohereClient } from '@/cohere-client';
+import { ExperimentalFeatures } from '@/cohere-client/generated/types';
 
 /**
  * @description Hook to get experimental features on/off status.

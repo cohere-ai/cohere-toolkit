@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { CohereNetworkError, UpdateDeploymentEnv, useCohereClient } from '@/cohere-client';
+import { UpdateDeploymentEnv, useCohereClient } from '@/cohere-client';
+import { CohereNetworkError } from '@/cohere-client/generated/types';
 
 export const useUpdateDeploymentEnvVariables = () => {
   const client = useCohereClient();

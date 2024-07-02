@@ -11,12 +11,8 @@ import fetch from 'cross-fetch';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 
-import {
-  CohereClient,
-  CohereClientProvider,
-  CohereUnauthorizedError,
-  Fetch,
-} from '@/cohere-client';
+import { CohereClient, CohereClientProvider } from '@/cohere-client';
+import { CohereUnauthorizedError, Fetch } from '@/cohere-client/generated/types';
 import { ToastNotification } from '@/components/Shared';
 import { WebManifestHead } from '@/components/Shared';
 import { GlobalHead } from '@/components/Shared/GlobalHead';
@@ -34,7 +30,6 @@ const makeCohereClient = (authToken?: string) => {
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
   return new CohereClient({
     hostname: env.NEXT_PUBLIC_API_HOSTNAME,
-    source: 'coral',
     fetch: apiFetch,
     authToken,
   });

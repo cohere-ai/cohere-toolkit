@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Deployment = {
-  name: string;
-  models: Array<string>;
-  is_available: boolean;
-  env_vars: Array<string>;
+    name: string;
+    models: Array<string>;
+    is_available: boolean;
+    env_vars: Array<string>;
 };
+
