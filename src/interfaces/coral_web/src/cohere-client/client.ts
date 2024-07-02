@@ -1,18 +1,13 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
-  Agent,
   Body_upload_file_v1_conversations_upload_file_post,
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
-  CohereUnauthorizedError,
   CreateAgent,
-  Deployment,
-  ExperimentalFeatures,
+  CreateUser,
   Fetch,
-  ListAuthStrategy,
-  ManagedTool,
   UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
@@ -25,7 +20,7 @@ export class CohereClient {
   private readonly fetch: Fetch;
   private authToken?: string;
 
-  public cohereService?: CohereClientGenerated;
+  public cohereService: CohereClientGenerated;
   public request?: any;
 
   constructor({
@@ -50,20 +45,20 @@ export class CohereClient {
   }
 
   public uploadFile({ file, conversation_id }: Body_upload_file_v1_conversations_upload_file_post) {
-    return this.cohereService?.default.uploadFileV1ConversationsUploadFilePost({
+    return this.cohereService.default.uploadFileV1ConversationsUploadFilePost({
       formData: { conversation_id, file },
     });
   }
 
   public deletefile({ conversationId, fileId }: { conversationId: string; fileId: string }) {
-    return this.cohereService?.default.deleteFileV1ConversationsConversationIdFilesFileIdDelete({
+    return this.cohereService.default.deleteFileV1ConversationsConversationIdFilesFileIdDelete({
       conversationId,
       fileId,
     });
   }
 
   public listFiles({ conversationId }: { conversationId: string }) {
-    return this.cohereService?.default.listFilesV1ConversationsConversationIdFilesGet({
+    return this.cohereService.default.listFilesV1ConversationsConversationIdFilesGet({
       conversationId,
     });
   }
@@ -139,214 +134,68 @@ export class CohereClient {
   }
 
   public listConversations(params: { offset?: number; limit?: number; agentId?: string }) {
-    return this.cohereService?.default.listConversationsV1ConversationsGet(params);
+    return this.cohereService.default.listConversationsV1ConversationsGet(params);
   }
 
   public getConversation({ conversationId }: { conversationId: string }) {
-    return this.cohereService?.default.getConversationV1ConversationsConversationIdGet({
+    return this.cohereService.default.getConversationV1ConversationsConversationIdGet({
       conversationId,
     });
   }
 
   public deleteConversation({ conversationId }: { conversationId: string }) {
-    return this.cohereService?.default.deleteConversationV1ConversationsConversationIdDelete({
+    return this.cohereService.default.deleteConversationV1ConversationsConversationIdDelete({
       conversationId,
     });
   }
 
   public editConversation(request: UpdateConversation, conversationId: string) {
-    return this.cohereService?.default.updateConversationV1ConversationsConversationIdPut({
+    return this.cohereService.default.updateConversationV1ConversationsConversationIdPut({
       conversationId: conversationId,
       requestBody: request,
     });
   }
 
-  public async listTools({ signal }: { signal?: AbortSignal }): Promise<ManagedTool[]> {
-    const response = await this.fetch(`${this.getEndpoint('tools')}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-      signal,
+  public listTools({ agentId }: { agentId?: string | null }) {
+    return this.cohereService.default.listToolsV1ToolsGet({ agentId });
+  }
+
+  public listDeployments({ all }: { all?: boolean }) {
+    return this.cohereService.default.listDeploymentsV1DeploymentsGet({ all });
+  }
+
+  public updateDeploymentEnvVariables(request: UpdateDeploymentEnv, name: string) {
+    return this.cohereService.default.setEnvVarsV1DeploymentsNameSetEnvVarsPost({
+      name: name,
+      requestBody: request,
     });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as ManagedTool[];
   }
 
-  public async listDeployments(): Promise<Deployment[]> {
-    const response = await this.fetch(`${this.getEndpoint('deployments')}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Deployment[];
+  public getExperimentalFeatures() {
+    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet();
   }
 
-  public async listAllDeployments(): Promise<Deployment[]> {
-    const response = await this.fetch(`${this.getEndpoint('deployments')}?all=1`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Deployment[];
-  }
-
-  public async updateDeploymentEnvVariables(request: UpdateDeploymentEnv & { name: string }) {
-    const response = await this.fetch(
-      `${this.getEndpoint('deployments')}/${request.name}/set_env_vars`,
-      {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({ env_vars: request.env_vars }),
-      }
-    );
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError('Something went wrong', response.status);
-    }
-  }
-
-  public async getExperimentalFeatures(): Promise<ExperimentalFeatures> {
-    const response = await this.fetch(`${this.getEndpoint('experimental_features')}/`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as ExperimentalFeatures;
-  }
-
-  public async login({ email, password }: { email: string; password: string }) {
-    const response = await this.fetch(`${this.getEndpoint('login')}`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify({
+  public login({ email, password }: { email: string; password: string }) {
+    return this.cohereService.default.loginV1LoginPost({
+      requestBody: {
         strategy: 'Basic',
         payload: { email, password },
-      }),
+      },
     });
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    const body = await response.json();
-    this.authToken = body.token;
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError('Something went wrong', response.status);
-    }
-
-    return body as { token: string };
   }
 
-  public async logout() {
-    const response = await this.fetch(`${this.getEndpoint('logout')}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    this.authToken = undefined;
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError('Something went wrong', response.status);
-    }
+  public logout() {
+    return this.cohereService.default.logoutV1LogoutGet();
   }
 
-  public async getAuthStrategies() {
-    const response = await this.fetch(`${this.getEndpoint('auth_strategies')}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError('Something went wrong', response.status);
-    }
-
-    return body as ListAuthStrategy[];
+  public getAuthStrategies() {
+    return this.cohereService.default.getStrategiesV1AuthStrategiesGet();
   }
 
-  public async createUser({
-    name,
-    email,
-    password,
-  }: {
-    name: string;
-    email: string;
-    password: string;
-  }) {
-    const response = await this.fetch(`${this.getEndpoint('users')}/`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify({
-        fullname: name,
-        email,
-        password,
-      }),
+  public createUser({ fullname, email, password }: CreateUser) {
+    return this.cohereService.default.createUserV1UsersPost({
+      requestBody: { fullname, email, password },
     });
-
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError('Something went wrong', response.status);
-    }
-
-    return body as {};
   }
 
   public async googleSSOAuth({ code }: { code: string }) {
@@ -363,6 +212,8 @@ export class CohereClient {
     }
 
     return body as { token: string };
+    // FIXME: generated code doesn't have code as query parameter
+    // this.cohereService.default.googleAuthorizeV1GoogleAuthGet();
   }
 
   public async oidcSSOAuth({ code, strategy }: { code: string; strategy: string }) {
@@ -382,102 +233,30 @@ export class CohereClient {
     }
 
     return body as { token: string };
+    // FIXME: generated code doesn't have code as query parameter
+    // this.cohereService.default.oidcAuthorizeV1OidcAuthGet();
   }
 
-  public async getAgent(agentId: string): Promise<Agent> {
-    const response = await this.fetch(`${this.getEndpoint('agents')}/${agentId}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
+  public getAgent(agentId: string) {
+    return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
+  }
+
+  public createAgent(request: CreateAgent) {
+    return this.cohereService.default.createAgentV1AgentsPost({ requestBody: request });
+  }
+
+  public async listAgents({ offset, limit = 100 }: { offset?: number; limit?: number }) {
+    return this.cohereService.default.listAgentsV1AgentsGet({ offset, limit });
+  }
+
+  public updateAgent(request: UpdateAgent, agentId: string) {
+    return this.cohereService.default.updateAgentV1AgentsAgentIdPut({
+      agentId: agentId,
+      requestBody: request,
     });
-
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Agent;
   }
 
-  public async createAgent(request: CreateAgent): Promise<Agent> {
-    const endpoint = this.getEndpoint('agents');
-    const response = await this.fetch(endpoint, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(request),
-    });
-
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Agent;
-  }
-
-  public async listAgents(): Promise<Agent[]> {
-    const response = await this.fetch(this.getEndpoint('agents'), {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Agent[];
-  }
-
-  public async updateAgent(request: UpdateAgent & { agentId: string }): Promise<Agent> {
-    const { agentId, ...requestBody } = request;
-    const endpoint = `${this.getEndpoint('agents')}/${agentId}`;
-    const response = await this.fetch(endpoint, {
-      method: 'PUT',
-      headers: this.getHeaders(),
-      body: JSON.stringify(requestBody),
-    });
-
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Agent;
-  }
-
-  private getEndpoint(
-    endpoint:
-      | 'upload'
-      | 'chat-stream'
-      | 'langchain-chat'
-      | 'conversations'
-      | 'tools'
-      | 'deployments'
-      | 'experimental_features'
-      | 'login'
-      | 'logout'
-      | 'auth_strategies'
-      | 'users'
-      | 'google/auth'
-      | 'oidc/auth'
-      | 'agents'
-  ) {
+  private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
   }
 

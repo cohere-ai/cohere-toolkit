@@ -83,7 +83,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
     }),
     deps.queryClient.prefetchQuery({
       queryKey: ['deployments'],
-      queryFn: async () => await deps.cohereClient.listDeployments(),
+      queryFn: async () => await deps.cohereClient.listDeployments({}),
     }),
   ]);
 

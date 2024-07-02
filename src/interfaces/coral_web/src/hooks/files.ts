@@ -25,7 +25,7 @@ class FileUploadError extends Error {
 
 export const useListFiles = (conversationId?: string, options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
-  return useQuery<ListFile[] | undefined, ApiError>({
+  return useQuery<ListFile[], ApiError>({
     queryKey: ['listFiles', conversationId],
     queryFn: async () => {
       if (!conversationId) throw new Error('Conversation ID not found');
@@ -62,7 +62,7 @@ export const useUploadFile = () => {
   const cohereClient = useCohereClient();
 
   return useMutation({
-    mutationFn: async ({ file, conversationId }: { file: File; conversationId?: string }) =>
+    mutationFn: ({ file, conversationId }: { file: File; conversationId?: string }) =>
       cohereClient.uploadFile({ file, conversation_id: conversationId }),
   });
 };
@@ -71,7 +71,7 @@ export const useDeleteUploadedFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
-  return useMutation<DeleteFile | undefined, ApiError, { conversationId: string; fileId: string }>({
+  return useMutation<DeleteFile, ApiError, { conversationId: string; fileId: string }>({
     mutationFn: async ({ conversationId, fileId }) =>
       cohereClient.deletefile({ conversationId, fileId }),
     onSettled: () => {

@@ -23,14 +23,7 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
 
   return useQuery<ConversationWithoutMessages[], ApiError>({
     queryKey: ['conversations'],
-    queryFn: async () => {
-      try {
-        const conversations = await client.listConversations(params);
-        return conversations || [];
-      } catch {
-        return [];
-      }
-    },
+    queryFn: async () => client.listConversations(params),
     retry: 0,
     refetchOnWindowFocus: false,
     initialData: [],
@@ -71,7 +64,7 @@ export const useEditConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation<
-    Conversation | undefined,
+    Conversation,
     CohereNetworkError,
     { request: UpdateConversation; conversationId: string }
   >({
@@ -86,12 +79,8 @@ export const useEditConversation = () => {
 export const useDeleteConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<
-    DeleteConversation | undefined,
-    CohereNetworkError,
-    { conversationId: string }
-  >({
-    mutationFn: async ({ conversationId }: { conversationId: string }) =>
+  return useMutation<DeleteConversation, CohereNetworkError, { conversationId: string }>({
+    mutationFn: ({ conversationId }: { conversationId: string }) =>
       client.deleteConversation({ conversationId }),
     onSettled: (_, _err, { conversationId }: { conversationId: string }) => {
       queryClient.setQueriesData<Conversation[]>(

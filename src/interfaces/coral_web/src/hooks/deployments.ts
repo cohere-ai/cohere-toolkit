@@ -12,7 +12,7 @@ export const useListAllDeployments = (options?: { enabled?: boolean }) => {
     queryKey: ['allDeployments'],
     queryFn: async () => {
       try {
-        return await cohereClient.listAllDeployments();
+        return await cohereClient.listDeployments({ all: true });
       } catch (e) {
         console.error(e);
         throw e;
