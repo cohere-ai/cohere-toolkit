@@ -12,6 +12,7 @@ export const MainSection: React.FC<React.PropsWithChildren> = ({ children }) => 
 
 type Props = {
   title?: string;
+  showSettingsDrawer?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -19,7 +20,11 @@ type Props = {
   It shows the navigation bar, the left drawer and main content.
   On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
-export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
+export const Layout: React.FC<Props> = ({
+  title = 'Chat',
+  showSettingsDrawer = false,
+  children,
+}) => {
   let leftElement: React.ReactNode = null;
   let mainElement: React.ReactNode = null;
 
@@ -57,7 +62,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
           >
             {mainElement}
           </section>
-          <SettingsDrawer />
+          {showSettingsDrawer && <SettingsDrawer />}
         </div>
       </div>
     </>
