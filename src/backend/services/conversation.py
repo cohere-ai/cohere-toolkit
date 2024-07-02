@@ -11,7 +11,7 @@ Given the following conversation history, write a short title that summarizes th
 
 # TITLE
 """
-
+SEARCH_RELEVANCE_THRESHOLD = 0.3
 
 def extract_details_from_conversation(
     convo: Conversation,
