@@ -29,7 +29,6 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const {
     agents: { isEditAgentPanelOpen },
     setEditAgentPanelOpen,
-    setAgentsSidePanelOpen,
   } = useAgentsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
@@ -57,7 +56,6 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const handleOpenAgentDrawer = () => {
     setEditAgentPanelOpen(!isEditAgentPanelOpen);
     setSettings({ isConvListPanelOpen: false });
-    setAgentsSidePanelOpen(false);
   };
 
   const menuItems: KebabMenuItem[] = [
