@@ -31,6 +31,6 @@ class Conversation(Base):
 
     @property
     def messages(self):
-        return sorted(self.text_messages, key=lambda x: x.position)
+        return sorted(self.text_messages, key=lambda x: x.created_at)
 
     __table_args__ = (Index("conversation_user_agent_index", user_id, agent_id),)
