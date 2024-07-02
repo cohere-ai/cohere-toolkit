@@ -8,7 +8,13 @@ import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
-import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import {
+  useAgentsStore,
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -34,6 +40,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();
   const { setEditAgentPanelOpen } = useAgentsStore();
+  const { setSettings } = useSettingsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
@@ -45,6 +52,14 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
     resetConversation();
     resetCitations();
     resetFileParams();
+  };
+
+  const handleEditAssistant = () => {
+    if (id) {
+      router.push(`/a/${id}`, undefined, { shallow: true });
+      setEditAgentPanelOpen(true);
+      setSettings({ isConvListPanelOpen: false });
+    }
   };
 
   const handleDeleteAssistant = async () => {
@@ -119,6 +134,11 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
                 label: 'Hide assistant',
                 onClick: handleHideAssistant,
                 iconName: 'hide',
+              },
+              {
+                label: 'Edit assistant',
+                onClick: handleEditAssistant,
+                iconName: 'edit',
               },
               { label: 'Delete assistant', onClick: handleDeleteAssistant, iconName: 'trash' },
             ]}
