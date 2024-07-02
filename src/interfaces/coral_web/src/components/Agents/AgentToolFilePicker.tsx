@@ -7,7 +7,7 @@ type Props = {
   handleRemoveGoogleDriveFiles: (id: string) => void;
   handleOpenFilePicker: VoidFunction;
 };
-export const AgentToolFielPicker: React.FC<Props> = ({
+export const AgentToolFilePicker: React.FC<Props> = ({
   googleDriveFiles,
   handleRemoveGoogleDriveFiles,
   handleOpenFilePicker,

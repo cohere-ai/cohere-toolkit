@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
-import { AgentToolFielPicker } from '@/components/Agents/AgentToolFielPicker';
+import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
@@ -123,7 +123,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
                 />
                 {isGoogleDrive && checked && (
                   <div className="pl-10">
-                    <AgentToolFielPicker
+                    <AgentToolFilePicker
                       googleDriveFiles={googleDrivefiles}
                       handleRemoveGoogleDriveFiles={handleRemoveGoogleDriveFiles}
                       handleOpenFilePicker={handleOpenFilePicker}
