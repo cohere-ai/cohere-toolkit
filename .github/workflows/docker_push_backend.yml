@@ -43,5 +43,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           file: ./src/backend/Dockerfile
           push: true
-
-

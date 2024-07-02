@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isNil } from 'lodash';
 import { useMemo } from 'react';
 
-import { Agent, CreateAgent, useCohereClient } from '@/cohere-client';
+import { Agent, CreateAgent, UpdateAgent, useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 
 export const useListAgents = () => {
@@ -68,7 +68,7 @@ export const useUpdateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (request: CreateAgent & { agentId: string }) => {
+    mutationFn: async (request: UpdateAgent & { agentId: string }) => {
       try {
         return await cohereClient.updateAgent(request);
       } catch (e) {

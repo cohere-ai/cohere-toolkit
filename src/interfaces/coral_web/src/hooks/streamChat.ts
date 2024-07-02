@@ -92,14 +92,24 @@ export const useStreamChat = () => {
             try {
               if (!event.data) return;
               const data = JSON.parse(event.data);
-              if (data?.isFinished === true && data?.event === StreamEvent.STREAM_END) {
-                const { chatStreamEndEvent: event } = data;
-                if (event.finish_reason !== FinishReason.FINISH_REASON_COMPLETE) {
-                  throw new CohereFinishStreamError(event?.finish_reason);
+
+              if (data?.event === StreamEvent.STREAM_END) {
+                const streamEndData = data.data as StreamEnd;
+
+                if (streamEndData.finish_reason !== FinishReason.COMPLETE) {
+                  throw new CohereFinishStreamError(streamEndData.finish_reason);
+                }
+
+                if (params.request.conversation_id) {
+                  queryClient.setQueryData<Conversation[]>(
+                    ['conversations'],
+                    getUpdatedConversations(params.request.conversation_id, streamEndData.text)
+                  );
                 }
               }
               onRead(data);
             } catch (e) {
+              console.error(e);
               throw new Error('unable to parse event data');
             }
           },

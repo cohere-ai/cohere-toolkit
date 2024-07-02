@@ -45,3 +45,7 @@ class UpdateConversation(BaseModel):
 
 class DeleteConversation(BaseModel):
     pass
+
+
+class GenerateTitle(BaseModel):
+    title: str

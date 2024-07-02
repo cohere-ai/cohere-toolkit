@@ -7,10 +7,10 @@ import type { ChatRole } from './ChatRole';
  * A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.
  */
 export type ChatMessage = {
-    role: ChatRole;
-    message?: (string | null);
-    tool_plan?: (string | null);
-    tool_results?: null;
-    tool_calls?: null;
+  role: ChatRole;
+  message?: string | null;
+  tool_plan?: string | null;
+  tool_results?: null;
+  tool_calls?: null;
 };
 
