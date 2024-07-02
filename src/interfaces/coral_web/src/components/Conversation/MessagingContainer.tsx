@@ -141,8 +141,9 @@ const Content: React.FC<Props> = (props) => {
       </div>
 
       <div
-        className={cn('hidden h-auto border-l border-marble-400', {
+        className={cn('hidden h-auto border-marble-400', {
           'md:flex': hasCitations || !isEditAgentPanelOpen,
+          'border-l': hasCitations,
         })}
       />
       <CitationPanel

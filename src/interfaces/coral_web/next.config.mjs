@@ -1,11 +1,10 @@
-import { PHASE_PRODUCTION_BUILD, PHASE_PRODUCTION_SERVER } from 'next/constants.js';
-
-import { env } from './src/env.mjs';
-
 /**
  * Next.js config utils
  */
 import pickBy from 'lodash/pickBy.js';
+import { PHASE_PRODUCTION_BUILD, PHASE_PRODUCTION_SERVER } from 'next/constants.js';
+
+import { env } from './src/env.mjs';
 
 /**
  * Get common environment variables used by a Next.js app.

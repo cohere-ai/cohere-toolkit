@@ -2,9 +2,15 @@
   "name": "@cohere-ai/toolkit-frontend",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "npm": ">=9",
+    "node": ">=20.12.2",
+    "pnpm": "9999",
+    "yarn": "9999"
+  },
   "scripts": {
     "dev": "next dev --port 4000",
-    "build": "env-cmd -f ./.env.production next build",
+    "build": "next build",
     "lint": "next lint",
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
@@ -12,10 +18,9 @@
     "start": "next start",
     "start:single-docker": "next start --port 4000",
     "start:single-docker-proxy": "next start --port 8090",
-    "generate:client": "openapi --input http://localhost:8000/openapi.json --output ./src/cohere-client/generated --client axios --useOptions"
+    "generate:client": "openapi --input http://0.0.0.0:8000/openapi.json --output ./src/cohere-client/generated --client axios --useOptions"
   },
   "dependencies": {
-    "@babel/core": "^7.23.3",
     "@floating-ui/react": "^0.26.9",
     "@headlessui/react": "^2.0.4",
     "@microsoft/fetch-event-source": "^2.0.1",
@@ -34,7 +39,6 @@
     "classnames": "^2.5.1",
     "cross-fetch": "^3.1.5",
     "csstype": "^3.0.10",
-    "env-cmd": "^10.1.0",
     "form-data": "^4.0.0",
     "hast-util-to-jsx-runtime": "^2.3.0",
     "js-cookie": "^3.0.5",

@@ -628,3 +628,46 @@ def test_fail_delete_file_missing_user_id(
 
     assert response.status_code == 401
     assert response.json() == {"detail": "User-Id required in request headers."}
+
+
+# MISC
+def test_generate_title(session_client: TestClient, session: Session) -> None:
+    conversation = get_factory("Conversation", session).create()
+    response = session_client.post(
+        f"/v1/conversations/{conversation.id}/generate-title",
+        headers={"User-Id": conversation.user_id},
+    )
+    title = response.json()
+
+    assert response.status_code == 200
+    assert title["title"] is not None
+
+    # Check if the conversation was updated
+    conversation = (
+        session.query(Conversation)
+        .filter_by(id=conversation.id, user_id=conversation.user_id)
+        .first()
+    )
+    assert conversation is not None
+    assert conversation.title == title["title"]
+
+
+def test_fail_generate_title_missing_user_id(
+    session_client: TestClient, session: Session
+) -> None:
+    conversation = get_factory("Conversation", session).create()
+    response = session_client.post(
+        f"/v1/conversations/{conversation.id}/generate-title"
+    )
+    assert response.status_code == 401
+    assert response.json() == {"detail": "User-Id required in request headers."}
+
+
+def test_fail_generate_title_nonexistent_conversation(
+    session_client: TestClient, session: Session
+) -> None:
+    response = session_client.post(
+        "/v1/conversations/123/generate-title", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}

@@ -88,6 +88,32 @@ def test_fail_get_nonexistent_snapshot(session):
     assert snapshot is None
 
 
+def test_get_snapshot_by_last_message_id(session):
+    snapshot = snapshot_crud.get_snapshot_by_last_message_id(session, "1")
+    assert snapshot.last_message_id == "1"
+
+
+def test_fail_get_nonexistent_snapshot_by_last_message_id(session):
+    snapshot = snapshot_crud.get_snapshot_by_last_message_id(session, "123")
+    assert snapshot is None
+
+
+def test_list_snapshots(session):
+    snapshots = snapshot_crud.list_snapshots(session, "1")
+    assert len(snapshots) == 1
+    assert snapshots[0].user_id == "1"
+    assert snapshots[0].organization_id == "1"
+    assert snapshots[0].conversation_id == "1"
+    assert snapshots[0].last_message_id == "1"
+    assert snapshots[0].version == 1
+    assert snapshots[0].snapshot == snapshot_json
+
+
+def test_fail_list_snapshots(session):
+    snapshots = snapshot_crud.list_snapshots(session, "123")
+    assert len(snapshots) == 0
+
+
 def test_delete_snapshot(session):
     snapshot_crud.delete_snapshot(session, "1", "1")
 
@@ -116,6 +142,17 @@ def test_get_snapshot_link(session):
 def test_fail_get_nonexistent_snapshot_link(session):
     snapshot_link = snapshot_crud.get_snapshot_link(session, "123")
     assert snapshot_link is None
+
+
+def test_list_snapshot_links(session):
+    snapshot_links = snapshot_crud.list_snapshot_links(session, "1")
+    assert len(snapshot_links) == 1
+    assert snapshot_links[0].snapshot_id == "1"
+
+
+def test_fail_list_snapshot_links(session):
+    snapshot_links = snapshot_crud.list_snapshot_links(session, "123")
+    assert len(snapshot_links) == 0
 
 
 def test_delete_snapshot_link(session):

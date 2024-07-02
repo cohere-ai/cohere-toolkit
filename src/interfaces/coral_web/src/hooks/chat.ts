@@ -17,10 +17,14 @@ import {
   StreamToolCallsChunk,
   StreamToolCallsGeneration,
   isCohereNetworkError,
-  isSessionUnavailableError,
   isStreamError,
 } from '@/cohere-client';
-import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
+import {
+  DEFAULT_TYPING_VELOCITY,
+  DEPLOYMENT_COHERE_PLATFORM,
+  TOOL_PYTHON_INTERPRETER_ID,
+} from '@/constants';
+import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { useRouteChange } from '@/hooks/route';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
@@ -42,6 +46,7 @@ import {
   isAbortError,
   isGroundingOn,
   replaceTextWithCitations,
+  shouldUpdateConversationTitle,
 } from '@/utils';
 import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
@@ -80,6 +85,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     setConversation,
     setPendingMessage,
   } = useConversationStore();
+  const { mutateAsync: updateConversationTitle } = useUpdateConversationTitle();
   const {
     citations: { outputFiles: savedOutputFiles },
     addSearchResults,
@@ -168,6 +174,26 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       }
       return outputFilesMap;
     }, {});
+  };
+
+  const handleUpdateConversationTitle = async (conversationId: string) => {
+    const title = await updateConversationTitle(conversationId);
+
+    if (!title) return;
+
+    // wait for the side panel to add the new conversation with the animation included
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // iterate each character in the title and add a delay to simulate typing
+    for (let i = 0; i < title.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, DEFAULT_TYPING_VELOCITY));
+      // only update the conversation name if the user is still on the same conversation
+      // usage of window.location instead of router is due of replacing the url through
+      // window.history in ConversationsContext.
+      if (window?.location.pathname.includes(conversationId)) {
+        setConversation({ name: title.slice(0, i + 1) });
+      }
+    }
   };
 
   const handleStreamConverse = async ({
@@ -410,9 +436,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
 
               const outputText =
-                data?.finish_reason === FinishReason.FINISH_REASON_MAX_TOKENS
-                  ? botResponse
-                  : responseText;
+                data?.finish_reason === FinishReason.MAX_TOKENS ? botResponse : responseText;
 
               // Replace HTML code blocks with iframes
               const transformedText = replaceCodeBlockWithIframe(outputText);
@@ -442,6 +466,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 toolEvents,
               });
 
+              if (shouldUpdateConversationTitle(newMessages)) {
+                handleUpdateConversationTitle(conversationId);
+              }
+
               break;
             }
           }
@@ -449,17 +477,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
         onHeaders: () => {},
         onFinish: () => {
           setIsStreaming(false);
-          setConversation({ isSessionAvailable: true });
         },
         onError: (e) => {
           citations = [];
           if (isCohereNetworkError(e)) {
             const networkError = e;
             let errorMessage = USER_ERROR_MESSAGE;
-
-            if (isSessionUnavailableError(e)) {
-              setConversation({ isSessionAvailable: false });
-            }
 
             setConversation({
               messages: newMessages.map((m, i) =>
@@ -516,10 +539,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     } catch (e) {
       if (isCohereNetworkError(e) && e?.status) {
         let errorMessage = USER_ERROR_MESSAGE;
-
-        if (isSessionUnavailableError(e)) {
-          setConversation({ isSessionAvailable: false });
-        }
 
         setConversation({
           messages: newMessages.map((m, i) =>

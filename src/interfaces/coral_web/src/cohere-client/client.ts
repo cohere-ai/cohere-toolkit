@@ -8,16 +8,16 @@ import {
   CreateAgent,
   DefaultService,
   Deployment,
-  ERROR_FINISH_REASON_TO_MESSAGE,
   FinishReason,
+  GenerateTitle,
   ListAuthStrategy,
   ListFile,
   ManagedTool,
-  Tool,
   UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
   UploadFile,
+  getFinishReasonErrorMessage,
 } from '.';
 import { mapToChatRequest } from './mappings';
 
@@ -31,10 +31,10 @@ export class CohereNetworkError extends Error {
 }
 
 export class CohereFinishStreamError extends Error {
-  public reason: FinishReason;
+  public reason: FinishReason | string | null | undefined;
 
-  constructor(reason: keyof typeof ERROR_FINISH_REASON_TO_MESSAGE) {
-    const message = ERROR_FINISH_REASON_TO_MESSAGE[reason];
+  constructor(reason: string | null | undefined, error?: string | null) {
+    const message = getFinishReasonErrorMessage(reason, error);
     super(message);
     this.reason = reason;
   }
@@ -655,6 +655,27 @@ export class CohereClient {
     }
 
     return body as Agent;
+  }
+
+  public async generateTitle({ conversationId }: { conversationId: string }) {
+    const response = await this.fetch(
+      `${this.getEndpoint('conversations')}/${conversationId}/generate-title`,
+      {
+        method: 'POST',
+        headers: this.getHeaders(),
+      }
+    );
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as GenerateTitle;
   }
 
   private getEndpoint(
