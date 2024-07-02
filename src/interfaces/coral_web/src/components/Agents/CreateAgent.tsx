@@ -1,4 +1,4 @@
-import { useSessionStorageValue } from '@react-hookz/web';
+import { useLocalStorageValue } from '@react-hookz/web';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -35,9 +35,9 @@ export const CreateAgent: React.FC = () => {
     value: pendingAssistant,
     set: setPendingAssistant,
     remove: removePendingAssistant,
-  } = useSessionStorageValue<AgentFormFields>('pending_assistant', {
-    defaultValue: DEFAULT_FIELD_VALUES,
+  } = useLocalStorageValue<AgentFormFields>('pending_assistant', {
     initializeWithValue: false,
+    defaultValue: undefined,
   });
 
   const { data: toolsData } = useListTools();
@@ -136,7 +136,7 @@ export const CreateAgent: React.FC = () => {
 
       window.history.replaceState(null, '', router.basePath + router.pathname);
     }
-  }, [router.query.p]);
+  }, [router.query.p, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
     open({

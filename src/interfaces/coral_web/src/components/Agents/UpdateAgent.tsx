@@ -1,4 +1,4 @@
-import { useSessionStorageValue } from '@react-hookz/web';
+import { useLocalStorageValue } from '@react-hookz/web';
 import React, { useEffect, useState } from 'react';
 
 import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
@@ -34,13 +34,10 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
     tools_metadata: [],
   });
 
-  const { set: setPendingAssistant } = useSessionStorageValue<AgentFormFields>(
-    'pending_assistant',
-    {
-      defaultValue: fields,
-      initializeWithValue: false,
-    }
-  );
+  const { set: setPendingAssistant } = useLocalStorageValue<AgentFormFields>('pending_assistant', {
+    defaultValue: fields,
+    initializeWithValue: false,
+  });
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
