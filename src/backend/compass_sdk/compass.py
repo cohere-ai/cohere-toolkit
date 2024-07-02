@@ -101,6 +101,7 @@ class CompassClient:
             "put_documents_batch": self.session.post,
             "search_documents": self.session.post,
             "add_context": self.session.post,
+            "refresh": self.session.post,
         }
         self.function_endpoint = {
             "create_index": "/api/v1/indexes/{index_name}",
@@ -112,6 +113,7 @@ class CompassClient:
             "put_documents_batch": "/api/v1/batch/indexes/{index_name}",
             "search_documents": "/api/v1/indexes/{index_name}/documents/search",
             "add_context": "/api/v1/indexes/{index_name}/documents/add_context/{doc_id}",
+            "refresh": "/api/v1/indexes/{index_name}/refresh",
         }
         logger.setLevel(logger_level.value)
 
@@ -123,6 +125,19 @@ class CompassClient:
         """
         return self._send_request(
             function="create_index",
+            index_name=index_name,
+            max_retries=DEFAULT_MAX_RETRIES,
+            sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
+        )
+
+    def refresh(self, index_name: str):
+        """
+        Refresh index
+        :param index_name: the name of the index
+        :return: the response from the Compass API
+        """
+        return self._send_request(
+            function="refresh",
             index_name=index_name,
             max_retries=DEFAULT_MAX_RETRIES,
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
