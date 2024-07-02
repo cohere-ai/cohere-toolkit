@@ -6,6 +6,7 @@ from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.chat.custom.custom import CustomChat
+from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
@@ -31,7 +32,6 @@ from backend.services.conversation import (
 )
 from backend.services.file.service import FileService
 from backend.tools.files import get_file_content
-from backend.chat.custom.utils import get_deployment
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -171,7 +171,7 @@ async def delete_conversation(
 
 @router.get(":search", response_model=list[ConversationWithoutMessages])
 async def search_conversations(
-    query: str, 
+    query: str,
     session: DBSessionDep,
     request: Request,
     offset: int = 0,
@@ -193,41 +193,42 @@ async def search_conversations(
     deployment_name = request.headers.get("Deployment-Name", "")
     model_deployment = get_deployment(deployment_name)
     trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
-    
+
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
     )
-    
+
     if not conversations:
         return []
-    
+
     if not model_deployment.rerank_enabled:
         return conversations
-    
-    rerank_documents = [
-        f"{conversations.title}\n{extract_details_from_conversation(conversations)}"
-        for conversations in conversations
-    ]
-    
+
+    rerank_documents = []
+    for conversation in conversations:
+        chatlog = extract_details_from_conversation(conversation)
+        document = f"Title: {conversation.title}\n\nChatlog:\n{chatlog}"
+        rerank_documents.append(document)
+
     # Rerank documents
     res = model_deployment.invoke_rerank(
         query=query,
         documents=rerank_documents,
         user_id=user_id,
         agent_id=agent_id,
-        trace_id = trace_id
+        trace_id=trace_id,
     )
-    
+
     # Sort conversations by rerank score
     res["results"].sort(key=lambda x: x["relevance_score"], reverse=True)
-    
+
     # Filter out conversations with low relevance score
     reranked_conversations = [
         conversations[r["index"]]
         for r in res["results"]
         if r["relevance_score"] > SEARCH_RELEVANCE_THRESHOLD
     ]
-    
+
     return reranked_conversations
 
 
