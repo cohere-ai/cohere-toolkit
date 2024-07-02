@@ -12,4 +12,3 @@ export type ListFile = {
   file_path: string;
   file_size?: number;
 };
-

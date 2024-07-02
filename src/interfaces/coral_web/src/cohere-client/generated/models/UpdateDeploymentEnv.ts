@@ -5,4 +5,3 @@
 export type UpdateDeploymentEnv = {
   env_vars: Record<string, string>;
 };
-

@@ -12,4 +12,3 @@ export type UploadFile = {
   file_path: string;
   file_size?: number;
 };
-

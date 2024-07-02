@@ -6,4 +6,3 @@ export type SearchQuery = {
   text: string;
   generation_id: string;
 };
-

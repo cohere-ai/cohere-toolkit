@@ -1,16 +1,23 @@
 /* generated using openapi-typescript-codegen -- do no edit */
+
 /* istanbul ignore file */
+
 /* tslint:disable */
+
 /* eslint-disable */
 import type { BaseHttpRequest } from './core/BaseHttpRequest';
-import type { OpenAPIConfig } from './core/OpenAPI';
 import { FetchHttpRequest } from './core/FetchHttpRequest';
+import type { OpenAPIConfig } from './core/OpenAPI';
 import { DefaultService } from './services/DefaultService';
+
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 export class CohereClientGenerated {
   public readonly default: DefaultService;
   public readonly request: BaseHttpRequest;
-  constructor(config?: Partial<OpenAPIConfig>, HttpRequest: HttpRequestConstructor = FetchHttpRequest) {
+  constructor(
+    config?: Partial<OpenAPIConfig>,
+    HttpRequest: HttpRequestConstructor = FetchHttpRequest
+  ) {
     this.request = new HttpRequest({
       BASE: config?.BASE ?? '',
       VERSION: config?.VERSION ?? '0.1.0',
@@ -25,4 +32,3 @@ export class CohereClientGenerated {
     this.default = new DefaultService(this.request);
   }
 }
-

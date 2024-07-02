@@ -8,4 +8,3 @@
 export type StreamQueryGeneration = {
   query: string;
 };
-

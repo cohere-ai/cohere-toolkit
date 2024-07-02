@@ -5,4 +5,3 @@
 export type UpdateAgentToolMetadata = {
   artifacts?: null;
 };
-

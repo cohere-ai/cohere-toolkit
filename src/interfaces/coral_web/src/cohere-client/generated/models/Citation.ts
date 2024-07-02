@@ -8,4 +8,3 @@ export type Citation = {
   end: number;
   document_ids: Array<string>;
 };
-

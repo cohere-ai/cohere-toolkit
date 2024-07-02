@@ -6,4 +6,3 @@ export type CreateAgentToolMetadata = {
   tool_name: string;
   artifacts: Array<Record<string, any>>;
 };
-

@@ -5,4 +5,3 @@
 export type GenerateTitle = {
   title: string;
 };
-

@@ -6,4 +6,3 @@ export type ToolCall = {
   name: string;
   parameters?: Record<string, any>;
 };
-

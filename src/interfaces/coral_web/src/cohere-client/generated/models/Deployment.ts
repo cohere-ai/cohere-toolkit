@@ -8,4 +8,3 @@ export type Deployment = {
   is_available: boolean;
   env_vars: Array<string>;
 };
-

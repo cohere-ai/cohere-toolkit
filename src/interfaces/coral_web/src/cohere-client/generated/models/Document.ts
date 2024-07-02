@@ -5,9 +5,8 @@
 export type Document = {
   text: string;
   document_id: string;
-  title: (string | null);
-  url: (string | null);
-  fields: (Record<string, any> | null);
-  tool_name: (string | null);
+  title: string | null;
+  url: string | null;
+  fields: Record<string, any> | null;
+  tool_name: string | null;
 };
-

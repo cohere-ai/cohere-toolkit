@@ -4,9 +4,8 @@
 /* eslint-disable */
 export type User = {
   fullname: string;
-  email?: (string | null);
+  email?: string | null;
   id: string;
   created_at: string;
   updated_at: string;
 };
-

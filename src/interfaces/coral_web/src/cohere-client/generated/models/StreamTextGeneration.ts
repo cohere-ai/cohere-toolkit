@@ -8,4 +8,3 @@
 export type StreamTextGeneration = {
   text: string;
 };
-

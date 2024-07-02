@@ -1,7 +1,12 @@
 /* generated using openapi-typescript-codegen -- do no edit */
+
 /* istanbul ignore file */
+
 /* tslint:disable */
+
 /* eslint-disable */
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
+import type { CancelablePromise } from '../core/CancelablePromise';
 import type { Agent } from '../models/Agent';
 import type { AgentToolMetadata } from '../models/AgentToolMetadata';
 import type { Body_upload_file_v1_conversations_upload_file_post } from '../models/Body_upload_file_v1_conversations_upload_file_post';
@@ -36,8 +41,7 @@ import type { UpdateFile } from '../models/UpdateFile';
 import type { UpdateUser } from '../models/UpdateUser';
 import type { UploadFile } from '../models/UploadFile';
 import type { User } from '../models/User';
-import type { CancelablePromise } from '../core/CancelablePromise';
-import type { BaseHttpRequest } from '../core/BaseHttpRequest';
+
 export class DefaultService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
   /**
@@ -77,8 +81,8 @@ export class DefaultService {
   public loginV1LoginPost({
     requestBody,
   }: {
-    requestBody: Login,
-  }): CancelablePromise<(JWTResponse | null)> {
+    requestBody: Login;
+  }): CancelablePromise<JWTResponse | null> {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/login',
@@ -181,14 +185,14 @@ export class DefaultService {
     requestBody,
     agentId,
   }: {
-    requestBody: CohereChatRequest,
-    agentId?: (string | null),
+    requestBody: CohereChatRequest;
+    agentId?: string | null;
   }): CancelablePromise<Array<ChatResponseEvent>> {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat-stream',
       query: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -216,14 +220,14 @@ export class DefaultService {
     requestBody,
     agentId,
   }: {
-    requestBody: CohereChatRequest,
-    agentId?: (string | null),
+    requestBody: CohereChatRequest;
+    agentId?: string | null;
   }): CancelablePromise<NonStreamedChatResponse> {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
       query: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -240,7 +244,7 @@ export class DefaultService {
   public langchainChatStreamV1LangchainChatPost({
     requestBody,
   }: {
-    requestBody: LangchainChatRequest,
+    requestBody: LangchainChatRequest;
   }): CancelablePromise<any> {
     return this.httpRequest.request({
       method: 'POST',
@@ -268,7 +272,7 @@ export class DefaultService {
   public createUserV1UsersPost({
     requestBody,
   }: {
-    requestBody: CreateUser,
+    requestBody: CreateUser;
   }): CancelablePromise<User> {
     return this.httpRequest.request({
       method: 'POST',
@@ -298,15 +302,15 @@ export class DefaultService {
     offset,
     limit = 100,
   }: {
-    offset?: number,
-    limit?: number,
+    offset?: number;
+    limit?: number;
   }): CancelablePromise<Array<User>> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/users',
       query: {
-        'offset': offset,
-        'limit': limit,
+        offset: offset,
+        limit: limit,
       },
       errors: {
         422: `Validation Error`,
@@ -329,16 +333,12 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public getUserV1UsersUserIdGet({
-    userId,
-  }: {
-    userId: string,
-  }): CancelablePromise<User> {
+  public getUserV1UsersUserIdGet({ userId }: { userId: string }): CancelablePromise<User> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/users/{user_id}',
       path: {
-        'user_id': userId,
+        user_id: userId,
       },
       errors: {
         422: `Validation Error`,
@@ -366,14 +366,14 @@ export class DefaultService {
     userId,
     requestBody,
   }: {
-    userId: string,
-    requestBody: UpdateUser,
+    userId: string;
+    requestBody: UpdateUser;
   }): CancelablePromise<User> {
     return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/users/{user_id}',
       path: {
-        'user_id': userId,
+        user_id: userId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -402,13 +402,13 @@ export class DefaultService {
   public deleteUserV1UsersUserIdDelete({
     userId,
   }: {
-    userId: string,
+    userId: string;
   }): CancelablePromise<DeleteUser> {
     return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/users/{user_id}',
       path: {
-        'user_id': userId,
+        user_id: userId,
       },
       errors: {
         422: `Validation Error`,
@@ -436,13 +436,13 @@ export class DefaultService {
   public getConversationV1ConversationsConversationIdGet({
     conversationId,
   }: {
-    conversationId: string,
+    conversationId: string;
   }): CancelablePromise<Conversation> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations/{conversation_id}',
       path: {
-        'conversation_id': conversationId,
+        conversation_id: conversationId,
       },
       errors: {
         422: `Validation Error`,
@@ -471,14 +471,14 @@ export class DefaultService {
     conversationId,
     requestBody,
   }: {
-    conversationId: string,
-    requestBody: UpdateConversation,
+    conversationId: string;
+    requestBody: UpdateConversation;
   }): CancelablePromise<Conversation> {
     return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/conversations/{conversation_id}',
       path: {
-        'conversation_id': conversationId,
+        conversation_id: conversationId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -507,13 +507,13 @@ export class DefaultService {
   public deleteConversationV1ConversationsConversationIdDelete({
     conversationId,
   }: {
-    conversationId: string,
+    conversationId: string;
   }): CancelablePromise<DeleteConversation> {
     return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/conversations/{conversation_id}',
       path: {
-        'conversation_id': conversationId,
+        conversation_id: conversationId,
       },
       errors: {
         422: `Validation Error`,
@@ -541,17 +541,17 @@ export class DefaultService {
     limit = 100,
     agentId,
   }: {
-    offset?: number,
-    limit?: number,
-    agentId?: string,
+    offset?: number;
+    limit?: number;
+    agentId?: string;
   }): CancelablePromise<Array<ConversationWithoutMessages>> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations',
       query: {
-        'offset': offset,
-        'limit': limit,
-        'agent_id': agentId,
+        offset: offset,
+        limit: limit,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,
@@ -580,7 +580,7 @@ export class DefaultService {
   public uploadFileV1ConversationsUploadFilePost({
     formData,
   }: {
-    formData: Body_upload_file_v1_conversations_upload_file_post,
+    formData: Body_upload_file_v1_conversations_upload_file_post;
   }): CancelablePromise<UploadFile> {
     return this.httpRequest.request({
       method: 'POST',
@@ -611,13 +611,13 @@ export class DefaultService {
   public listFilesV1ConversationsConversationIdFilesGet({
     conversationId,
   }: {
-    conversationId: string,
+    conversationId: string;
   }): CancelablePromise<Array<ListFile>> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations/{conversation_id}/files',
       path: {
-        'conversation_id': conversationId,
+        conversation_id: conversationId,
       },
       errors: {
         422: `Validation Error`,
@@ -647,16 +647,16 @@ export class DefaultService {
     fileId,
     requestBody,
   }: {
-    conversationId: string,
-    fileId: string,
-    requestBody: UpdateFile,
+    conversationId: string;
+    fileId: string;
+    requestBody: UpdateFile;
   }): CancelablePromise<File> {
     return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
-        'conversation_id': conversationId,
-        'file_id': fileId,
+        conversation_id: conversationId,
+        file_id: fileId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -686,15 +686,15 @@ export class DefaultService {
     conversationId,
     fileId,
   }: {
-    conversationId: string,
-    fileId: string,
+    conversationId: string;
+    fileId: string;
   }): CancelablePromise<DeleteFile> {
     return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
-        'conversation_id': conversationId,
-        'file_id': fileId,
+        conversation_id: conversationId,
+        file_id: fileId,
       },
       errors: {
         422: `Validation Error`,
@@ -720,13 +720,13 @@ export class DefaultService {
   public generateTitleV1ConversationsConversationIdGenerateTitlePost({
     conversationId,
   }: {
-    conversationId: string,
+    conversationId: string;
   }): CancelablePromise<GenerateTitle> {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/conversations/{conversation_id}/generate-title',
       path: {
-        'conversation_id': conversationId,
+        conversation_id: conversationId,
       },
       errors: {
         422: `Validation Error`,
@@ -745,13 +745,13 @@ export class DefaultService {
   public listToolsV1ToolsGet({
     agentId,
   }: {
-    agentId?: (string | null),
+    agentId?: string | null;
   }): CancelablePromise<Array<ManagedTool>> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tools',
       query: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,
@@ -770,13 +770,13 @@ export class DefaultService {
   public listDeploymentsV1DeploymentsGet({
     all = false,
   }: {
-    all?: boolean,
+    all?: boolean;
   }): CancelablePromise<Array<Deployment>> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/deployments',
       query: {
-        'all': all,
+        all: all,
       },
       errors: {
         422: `Validation Error`,
@@ -796,14 +796,14 @@ export class DefaultService {
     name,
     requestBody,
   }: {
-    name: string,
-    requestBody: UpdateDeploymentEnv,
+    name: string;
+    requestBody: UpdateDeploymentEnv;
   }): CancelablePromise<any> {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/deployments/{name}/set_env_vars',
       path: {
-        'name': name,
+        name: name,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -847,7 +847,7 @@ export class DefaultService {
   public createAgentV1AgentsPost({
     requestBody,
   }: {
-    requestBody: CreateAgent,
+    requestBody: CreateAgent;
   }): CancelablePromise<Agent> {
     return this.httpRequest.request({
       method: 'POST',
@@ -878,15 +878,15 @@ export class DefaultService {
     offset,
     limit = 100,
   }: {
-    offset?: number,
-    limit?: number,
+    offset?: number;
+    limit?: number;
   }): CancelablePromise<Array<Agent>> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents',
       query: {
-        'offset': offset,
-        'limit': limit,
+        offset: offset,
+        limit: limit,
       },
       errors: {
         422: `Validation Error`,
@@ -910,13 +910,13 @@ export class DefaultService {
   public getAgentByIdV1AgentsAgentIdGet({
     agentId,
   }: {
-    agentId: string,
+    agentId: string;
   }): CancelablePromise<Agent> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}',
       path: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,
@@ -945,14 +945,14 @@ export class DefaultService {
     agentId,
     requestBody,
   }: {
-    agentId: string,
-    requestBody: UpdateAgent,
+    agentId: string;
+    requestBody: UpdateAgent;
   }): CancelablePromise<Agent> {
     return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/agents/{agent_id}',
       path: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -981,13 +981,13 @@ export class DefaultService {
   public deleteAgentV1AgentsAgentIdDelete({
     agentId,
   }: {
-    agentId: string,
+    agentId: string;
   }): CancelablePromise<DeleteAgent> {
     return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/agents/{agent_id}',
       path: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,
@@ -1014,13 +1014,13 @@ export class DefaultService {
   public listAgentToolMetadataV1AgentsAgentIdToolMetadataGet({
     agentId,
   }: {
-    agentId: string,
+    agentId: string;
   }): CancelablePromise<Array<AgentToolMetadata>> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}/tool-metadata',
       path: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       errors: {
         422: `Validation Error`,
@@ -1049,14 +1049,14 @@ export class DefaultService {
     agentId,
     requestBody,
   }: {
-    agentId: string,
-    requestBody: CreateAgentToolMetadata,
+    agentId: string;
+    requestBody: CreateAgentToolMetadata;
   }): CancelablePromise<AgentToolMetadata> {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/agents/{agent_id}/tool-metadata',
       path: {
-        'agent_id': agentId,
+        agent_id: agentId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -1090,16 +1090,16 @@ export class DefaultService {
     agentToolMetadataId,
     requestBody,
   }: {
-    agentId: string,
-    agentToolMetadataId: string,
-    requestBody: UpdateAgentToolMetadata,
+    agentId: string;
+    agentToolMetadataId: string;
+    requestBody: UpdateAgentToolMetadata;
   }): CancelablePromise<AgentToolMetadata> {
     return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
       path: {
-        'agent_id': agentId,
-        'agent_tool_metadata_id': agentToolMetadataId,
+        agent_id: agentId,
+        agent_tool_metadata_id: agentToolMetadataId,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -1131,15 +1131,15 @@ export class DefaultService {
     agentId,
     agentToolMetadataId,
   }: {
-    agentId: string,
-    agentToolMetadataId: string,
+    agentId: string;
+    agentToolMetadataId: string;
   }): CancelablePromise<DeleteAgentToolMetadata> {
     return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
       path: {
-        'agent_id': agentId,
-        'agent_tool_metadata_id': agentToolMetadataId,
+        agent_id: agentId,
+        agent_tool_metadata_id: agentToolMetadataId,
       },
       errors: {
         422: `Validation Error`,
