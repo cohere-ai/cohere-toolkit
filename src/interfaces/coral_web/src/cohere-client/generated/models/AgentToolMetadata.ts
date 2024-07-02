@@ -3,10 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type AgentToolMetadata = {
-    user_id: string;
-    organization_id?: (string | null);
-    id: string;
-    tool_name: string;
-    artifacts: Array<Record<string, any>>;
+  user_id: string;
+  organization_id?: string | null;
+  id: string;
+  tool_name: string;
+  artifacts: Array<Record<string, any>>;
 };
-

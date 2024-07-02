@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateConversation = {
-    title?: (string | null);
-    description?: (string | null);
+  title?: string | null;
+  description?: string | null;
 };
-

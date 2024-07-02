@@ -104,7 +104,13 @@ const LoginPage: NextPage<Props> = () => {
               key={ssoConfig.strategy}
               className="inline-flex w-full flex-auto"
               service={ssoConfig.strategy}
-              onClick={() => oidcAuthStart(ssoConfig.strategy, ssoConfig.authorization_endpoint, ssoConfig.pkce_enabled)}
+              onClick={() =>
+                oidcAuthStart(
+                  ssoConfig.strategy,
+                  ssoConfig.authorization_endpoint,
+                  ssoConfig.pkce_enabled
+                )
+              }
             />
           ))}
         </div>

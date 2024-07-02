@@ -561,11 +561,20 @@ export class CohereClient {
     return body as { token: string };
   }
 
-  public async oidcSSOAuth({ code, strategy, codeVerifier }: { code: string; strategy: string; codeVerifier?: string; }) {
+  public async oidcSSOAuth({
+    code,
+    strategy,
+    codeVerifier,
+  }: {
+    code: string;
+    strategy: string;
+    codeVerifier?: string;
+  }) {
     const body: any = {};
 
-    if (codeVerifier) { // Conditionally add codeVerifier to the body
-        body.code_verifier = codeVerifier;
+    if (codeVerifier) {
+      // Conditionally add codeVerifier to the body
+      body.code_verifier = codeVerifier;
     }
 
     const response = await this.fetch(

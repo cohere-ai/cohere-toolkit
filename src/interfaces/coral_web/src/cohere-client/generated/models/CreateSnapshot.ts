@@ -3,6 +3,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateSnapshot = {
-    conversation_id: string;
+  conversation_id: string;
 };
-

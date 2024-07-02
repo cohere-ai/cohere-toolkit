@@ -3,6 +3,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export type GenerateTitle = {
-    title: string;
+  title: string;
 };
-

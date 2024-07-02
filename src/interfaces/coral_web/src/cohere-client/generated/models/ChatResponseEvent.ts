@@ -1,6 +1,9 @@
 /* generated using openapi-typescript-codegen -- do no edit */
+
 /* istanbul ignore file */
+
 /* tslint:disable */
+
 /* eslint-disable */
 import type { NonStreamedChatResponse } from './NonStreamedChatResponse';
 import type { StreamCitationGeneration } from './StreamCitationGeneration';
@@ -15,8 +18,20 @@ import type { StreamToolCallsChunk } from './StreamToolCallsChunk';
 import type { StreamToolCallsGeneration } from './StreamToolCallsGeneration';
 import type { StreamToolInput } from './StreamToolInput';
 import type { StreamToolResult } from './StreamToolResult';
-export type ChatResponseEvent = {
-    event: StreamEvent;
-    data: (StreamStart | StreamTextGeneration | StreamCitationGeneration | StreamQueryGeneration | StreamSearchResults | StreamEnd | StreamToolInput | StreamToolResult | StreamSearchQueriesGeneration | StreamToolCallsGeneration | StreamToolCallsChunk | NonStreamedChatResponse);
-};
 
+export type ChatResponseEvent = {
+  event: StreamEvent;
+  data:
+    | StreamStart
+    | StreamTextGeneration
+    | StreamCitationGeneration
+    | StreamQueryGeneration
+    | StreamSearchResults
+    | StreamEnd
+    | StreamToolInput
+    | StreamToolResult
+    | StreamSearchQueriesGeneration
+    | StreamToolCallsGeneration
+    | StreamToolCallsChunk
+    | NonStreamedChatResponse;
+};

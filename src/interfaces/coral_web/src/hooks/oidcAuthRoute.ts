@@ -79,7 +79,6 @@ export const useOidcAuthRoute = () => {
         ...(strategyConfig.client_id && { client_id: strategyConfig.client_id }),
         ...(pkceEnabled && { code_challenge: codeChallenge, code_challenge_method: 'S256' }),
       }).toString()}`;
-      
 
       window.location.assign(url);
     },
@@ -94,8 +93,8 @@ function generateCodeVerifier(length: number = 128): string {
   const possibleCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   let codeVerifier = '';
   for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * possibleCharacters.length);
-      codeVerifier += possibleCharacters.charAt(randomIndex);
+    const randomIndex = Math.floor(Math.random() * possibleCharacters.length);
+    codeVerifier += possibleCharacters.charAt(randomIndex);
   }
   return codeVerifier;
 }
@@ -113,7 +112,7 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   const len = bytes.byteLength;
   for (let i = 0; i < len; i++) {
-      base64 += String.fromCharCode(bytes[i]);
+    base64 += String.fromCharCode(bytes[i]);
   }
   return btoa(base64).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }

@@ -3,9 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type ListAuthStrategy = {
-    strategy: string;
-    client_id: (string | null);
-    authorization_endpoint: (string | null);
-    pkce_enabled: boolean;
+  strategy: string;
+  client_id: string | null;
+  authorization_endpoint: string | null;
+  pkce_enabled: boolean;
 };
-

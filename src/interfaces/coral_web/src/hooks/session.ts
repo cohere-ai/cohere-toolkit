@@ -38,7 +38,7 @@ export const useSession = () => {
   });
 
   const isLoggedIn = useMemo(
-    () => 
+    () =>
       (authStrategies && authStrategies.length > 0 && !!authToken) ||
       !authStrategies ||
       authStrategies.length === 0,
@@ -89,7 +89,7 @@ export const useSession = () => {
   });
 
   const oidcSSOMutation = useMutation({
-    mutationFn: async (params: { code: string; strategy: string; }) => {
+    mutationFn: async (params: { code: string; strategy: string }) => {
       const codeVerifier = Cookies.get('code_verifier');
       return cohereClient.oidcSSOAuth({
         ...params,
