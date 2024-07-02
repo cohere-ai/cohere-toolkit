@@ -12,7 +12,6 @@ import {
   CohereChatRequest,
   CohereClientGenerated,
   Conversation,
-  ConversationWithoutMessages,
   CreateAgent,
   Deployment,
   ListAuthStrategy,
