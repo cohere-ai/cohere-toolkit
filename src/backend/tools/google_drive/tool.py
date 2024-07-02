@@ -6,6 +6,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 from backend.crud import tool_auth as tool_auth_crud
+from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.services.compass import Compass
 from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
@@ -18,7 +19,7 @@ from .constants import (
     SEARCH_LIMIT,
     SEARCH_MIME_TYPES,
 )
-from .utils import extract_links, extract_web_view_links
+from .utils import extract_links, extract_web_view_links, process_shortcut_files
 
 logger = get_logger()
 
@@ -40,6 +41,7 @@ class GoogleDrive(BaseTool):
         """
         Google Drive logic
         """
+        session = kwargs.get("session")
         agent_id = kwargs["agent_id"]
         index_name = "{}_{}".format(agent_id, GOOGLE_DRIVE_TOOL_ID)
         query = parameters.get("query", "")
@@ -51,27 +53,49 @@ class GoogleDrive(BaseTool):
             + ")",
             "("
             + " or ".join([f"fullText contains '{word}'" for word in [query]])
+            + " or "
+            + " or ".join([f"name contains '{word}'" for word in [query]])
             + ")",
         ]
         auth = tool_auth_crud.get_tool_auth(
-            kwargs.get("session"), GOOGLE_DRIVE_TOOL_ID, kwargs.get("user_id")
+            session, GOOGLE_DRIVE_TOOL_ID, kwargs.get("user_id")
         )
         creds = Credentials(auth.encrypted_access_token.decode())
 
-        files = []
+        # fetch agent tool metadata
+        file_ids = []
+        folder_ids = []
+        agent_metadata = get_all_agent_tool_metadata_by_agent_id(
+            db=session, agent_id=agent_id
+        )
+        for metadata in agent_metadata:
+            if metadata.tool_name == GOOGLE_DRIVE_TOOL_ID:
+                artifacts = metadata.artifacts
+                for artifact in artifacts:
+                    if artifact["type"] == "folder":
+                        folder_ids.append(artifact["id"])
+                    else:
+                        file_ids.append(artifact["id"])
+
         # Condition on files if exist
-        if file_ids := parameters.get("file_ids", None):
+        files = []
+        if file_ids:
             files = parallel_get_files.perform(
                 file_ids=file_ids, access_token=creds.token
             )
         else:
             # Condition on folders if exist
-            # parameters["folder_ids"] = ["1sftqQpEe9MkdqdskyA3UV7FJ9E8UvXBb"]
-            if folder_ids := parameters.get("folder_ids", None):
-                [
-                    conditions.append("'{}' in parents ".format(folder_id))
-                    for folder_id in folder_ids
-                ]
+            if folder_ids:
+                conditions.append(
+                    "("
+                    + " or ".join(
+                        [
+                            "'{}' in parents".format(folder_id)
+                            for folder_id in folder_ids
+                        ]
+                    )
+                    + ")"
+                )
 
             q = " and ".join(conditions)
             fields = f"nextPageToken, files({DOC_FIELDS})"
@@ -92,7 +116,11 @@ class GoogleDrive(BaseTool):
             if not files:
                 logger.debug("No files found.")
 
+        if not files:
+            return [{"text": ""}]
+
         # extract links and download file contents
+        files = process_shortcut_files(service, files)
         id_to_urls = extract_links(files)
         web_view_links = extract_web_view_links(files)
         id_to_texts = async_download.perform(id_to_urls, creds.token)
