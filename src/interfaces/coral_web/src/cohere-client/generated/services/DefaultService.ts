@@ -174,7 +174,6 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
@@ -183,17 +182,12 @@ export class DefaultService {
    */
   public static chatStreamV1ChatStreamPost({
     requestBody,
-    agentId,
   }: {
     requestBody: CohereChatRequest;
-    agentId?: string | null;
   }): CancelablePromise<Array<ChatResponseEvent>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat-stream',
-      query: {
-        agent_id: agentId,
-      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -209,7 +203,6 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
@@ -218,17 +211,12 @@ export class DefaultService {
    */
   public static chatV1ChatPost({
     requestBody,
-    agentId,
   }: {
     requestBody: CohereChatRequest;
-    agentId?: string | null;
   }): CancelablePromise<NonStreamedChatResponse> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat',
-      query: {
-        agent_id: agentId,
-      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
