@@ -192,7 +192,8 @@ def test_get_snapshot(
 ) -> None:
     conversation.text_messages.append(message)
 
-    response = session_client.get("/v1/snapshots/link/1", headers={"User-Id": "1"})
+    response = session_client.get(
+        "/v1/snapshots/link/1", headers={"User-Id": "1"})
 
     assert response.status_code == 200
     result = response.json()
@@ -204,7 +205,8 @@ def test_get_snapshot(
 
 
 def test_get_snapshot_not_found(session_client: TestClient) -> None:
-    response = session_client.get("/v1/snapshots/link/123", headers={"User-Id": "1"})
+    response = session_client.get(
+        "/v1/snapshots/link/123", headers={"User-Id": "1"})
 
     assert response.status_code == 404
     result = response.json()
@@ -222,11 +224,13 @@ def test_delete_snapshot(
 ) -> None:
     conversation.text_messages.append(message)
 
-    response = session_client.delete("/v1/snapshots/1", headers={"User-Id": "1"})
+    response = session_client.delete(
+        "/v1/snapshots/1", headers={"User-Id": "1"})
 
     assert response.status_code == 200
 
-    response = session_client.get("/v1/snapshots/link/1", headers={"User-Id": "1"})
+    response = session_client.get(
+        "/v1/snapshots/link/1", headers={"User-Id": "1"})
 
     assert response.status_code == 404
     result = response.json()
@@ -235,7 +239,8 @@ def test_delete_snapshot(
 
 
 def test_delete_snapshot_not_found(session_client: TestClient) -> None:
-    response = session_client.delete("/v1/snapshots/link123", headers={"User-Id": "1"})
+    response = session_client.delete(
+        "/v1/snapshots/link123", headers={"User-Id": "1"})
 
     assert response.status_code == 404
 
@@ -250,7 +255,8 @@ def test_delete_snapshot_wrong_user(
 ) -> None:
     conversation.text_messages.append(message)
 
-    response = session_client.delete("/v1/snapshots/link/1", headers={"User-Id": "2"})
+    response = session_client.delete(
+        "/v1/snapshots/link/1", headers={"User-Id": "2"})
 
     assert response.status_code == 403
     result = response.json()
