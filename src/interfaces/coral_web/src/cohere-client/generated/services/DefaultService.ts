@@ -17,6 +17,8 @@ import type { Conversation } from '../models/Conversation';
 import type { ConversationWithoutMessages } from '../models/ConversationWithoutMessages';
 import type { CreateAgent } from '../models/CreateAgent';
 import type { CreateAgentToolMetadata } from '../models/CreateAgentToolMetadata';
+import type { CreateSnapshot } from '../models/CreateSnapshot';
+import type { CreateSnapshotResponse } from '../models/CreateSnapshotResponse';
 import type { CreateUser } from '../models/CreateUser';
 import type { DeleteAgent } from '../models/DeleteAgent';
 import type { DeleteAgentToolMetadata } from '../models/DeleteAgentToolMetadata';
@@ -34,6 +36,8 @@ import type { Login } from '../models/Login';
 import type { Logout } from '../models/Logout';
 import type { ManagedTool } from '../models/ManagedTool';
 import type { NonStreamedChatResponse } from '../models/NonStreamedChatResponse';
+import type { Snapshot } from '../models/Snapshot';
+import type { SnapshotWithLinks } from '../models/SnapshotWithLinks';
 import type { UpdateAgent } from '../models/UpdateAgent';
 import type { UpdateAgentToolMetadata } from '../models/UpdateAgentToolMetadata';
 import type { UpdateConversation } from '../models/UpdateConversation';
@@ -1128,6 +1132,144 @@ export class DefaultService {
       path: {
         agent_id: agentId,
         agent_tool_metadata_id: agentToolMetadataId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * List Snapshots
+   * List all snapshots.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * list[Snapshot]: List of all snapshots.
+   * @returns SnapshotWithLinks Successful Response
+   * @throws ApiError
+   */
+  public static listSnapshotsV1SnapshotsGet(): CancelablePromise<Array<SnapshotWithLinks>> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/snapshots',
+    });
+  }
+  /**
+   * Create Snapshot
+   * Create a new snapshot and snapshot link to share the conversation.
+   *
+   * Args:
+   * snapshot_request (CreateSnapshot): Snapshot creation request.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * CreateSnapshotResponse: Snapshot creation response.
+   * @returns CreateSnapshotResponse Successful Response
+   * @throws ApiError
+   */
+  public static createSnapshotV1SnapshotsPost({
+    requestBody,
+  }: {
+    requestBody: CreateSnapshot;
+  }): CancelablePromise<CreateSnapshotResponse> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/v1/snapshots',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Get Snapshot
+   * Get a snapshot by link ID.
+   *
+   * Args:
+   * link_id (str): Snapshot link ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * Snapshot: Snapshot with the given link ID.
+   * @returns Snapshot Successful Response
+   * @throws ApiError
+   */
+  public static getSnapshotV1SnapshotsLinkLinkIdGet({
+    linkId,
+  }: {
+    linkId: string;
+  }): CancelablePromise<Snapshot> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/v1/snapshots/link/{link_id}',
+      path: {
+        link_id: linkId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Delete Snapshot Link
+   * Delete a snapshot link by ID.
+   *
+   * Args:
+   * link_id (str): Snapshot link ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * Any: Empty response.
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({
+    linkId,
+  }: {
+    linkId: string;
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
+      url: '/v1/snapshots/link/{link_id}',
+      path: {
+        link_id: linkId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Delete Snapshot
+   * Delete a snapshot by ID.
+   *
+   * Args:
+   * snapshot_id (str): Snapshot ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * Any: Empty response.
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static deleteSnapshotV1SnapshotsSnapshotIdDelete({
+    snapshotId,
+  }: {
+    snapshotId: string;
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
+      url: '/v1/snapshots/{snapshot_id}',
+      path: {
+        snapshot_id: snapshotId,
       },
       errors: {
         422: `Validation Error`,
