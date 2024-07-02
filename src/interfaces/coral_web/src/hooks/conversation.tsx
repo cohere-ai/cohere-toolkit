@@ -7,6 +7,7 @@ import {
   CohereNetworkError,
   Conversation,
   ConversationWithoutMessages,
+  DeleteConversation,
   UpdateConversation,
   useCohereClient,
 } from '@/cohere-client';
@@ -43,24 +44,22 @@ export const useConversation = ({
   conversationId?: string;
   disabledOnMount?: boolean;
 }) => {
-  const abortControllerRef = useRef<AbortController | null>(null);
   const client = useCohereClient();
 
-  return useQuery<Conversation, Error>({
+  return useQuery<Conversation | undefined, Error>({
     queryKey: ['conversation', conversationId],
     enabled: !!conversationId && !disabledOnMount,
     queryFn: async () => {
       try {
+        if (!conversationId) throw new Error('Conversation ID not found');
         return await client.getConversation({
-          conversationId: conversationId ?? '',
-          signal: abortControllerRef.current?.signal,
+          conversationId: conversationId,
         });
       } catch (e) {
         if (!isAbortError(e)) {
           console.error(e);
           throw e;
         }
-        return {} as Conversation;
       }
     },
     retry: 0,
@@ -72,18 +71,12 @@ export const useEditConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation<
-    Conversation,
+    Conversation | undefined,
     CohereNetworkError,
-    Omit<UpdateConversation, 'user_id'> & { conversationId: string }
+    { request: UpdateConversation; conversationId: string }
   >({
-    mutationFn: async (request) => {
-      try {
-        return await client.editConversation(request);
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
-    },
+    mutationFn: async ({ request, conversationId }) =>
+      client.editConversation(request, conversationId),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
@@ -93,10 +86,13 @@ export const useEditConversation = () => {
 export const useDeleteConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<{}, CohereNetworkError, { conversationId: string }>({
-    mutationFn: async ({ conversationId }: { conversationId: string }) => {
-      return await client.deleteConversation({ conversationId });
-    },
+  return useMutation<
+    DeleteConversation | undefined,
+    CohereNetworkError,
+    { conversationId: string }
+  >({
+    mutationFn: async ({ conversationId }: { conversationId: string }) =>
+      client.deleteConversation({ conversationId }),
     onSettled: (_, _err, { conversationId }: { conversationId: string }) => {
       queryClient.setQueriesData<Conversation[]>(
         { queryKey: ['conversations'] },

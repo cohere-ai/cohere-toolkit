@@ -2,22 +2,20 @@ import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-s
 
 import {
   Agent,
+  Body_upload_file_v1_conversations_upload_file_post,
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
   CohereUnauthorizedError,
-  Conversation,
   CreateAgent,
   Deployment,
   ExperimentalFeatures,
   Fetch,
   ListAuthStrategy,
-  ListFile,
   ManagedTool,
   UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
-  UploadFile,
 } from '@/cohere-client';
 
 import { mapToChatRequest } from './mappings';
@@ -51,96 +49,23 @@ export class CohereClient {
     });
   }
 
-  public async uploadFile({
-    conversationId,
-    file,
-  }: {
-    file: File;
-    conversationId?: string;
-  }): Promise<UploadFile> {
-    const endpoint = `${this.getEndpoint('conversations')}/upload_file`;
-    const formData = new FormData();
-    formData.append('file', file, file.name);
-    if (conversationId) {
-      formData.append('conversation_id', conversationId);
-    } else {
-      /**
-       * In the event a conversation_id doesn't exist yet (ie. first turn of a conversation),
-       * we must upload files using a user_id instead. On successful upload, we will receive a
-       * conversation_id in the response which we can use for future uploads.
-       */
-      formData.append('user_id', 'user_id');
-    }
-
-    const response = await this.fetch(endpoint, {
-      method: 'POST',
-      headers: this.getHeaders(true),
-      body: formData,
+  public uploadFile({ file, conversation_id }: Body_upload_file_v1_conversations_upload_file_post) {
+    return this.cohereService?.default.uploadFileV1ConversationsUploadFilePost({
+      formData: { conversation_id, file },
     });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as UploadFile;
   }
 
-  public async deletefile({ conversationId, fileId }: { conversationId: string; fileId: string }) {
-    const url = `${this.getEndpoint('conversations')}/${conversationId}/files/${fileId}`;
-
-    const response = await this.fetch(url, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
+  public deletefile({ conversationId, fileId }: { conversationId: string; fileId: string }) {
+    return this.cohereService?.default.deleteFileV1ConversationsConversationIdFilesFileIdDelete({
+      conversationId,
+      fileId,
     });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as {};
   }
 
-  public async listFiles({ conversationId }: { conversationId: string }): Promise<ListFile[]> {
-    const response = await this.fetch(
-      `${this.getEndpoint('conversations')}/${conversationId}/files`,
-      {
-        method: 'GET',
-        headers: this.getHeaders(),
-      }
-    );
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as ListFile[];
+  public listFiles({ conversationId }: { conversationId: string }) {
+    return this.cohereService?.default.listFilesV1ConversationsConversationIdFilesGet({
+      conversationId,
+    });
   }
 
   public async chat({
@@ -217,84 +142,23 @@ export class CohereClient {
     return this.cohereService?.default.listConversationsV1ConversationsGet(params);
   }
 
-  public async getConversation({
-    conversationId,
-    signal,
-  }: { conversationId: string } & {
-    signal?: AbortSignal;
-  }): Promise<Conversation> {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}/${conversationId}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-      signal,
+  public getConversation({ conversationId }: { conversationId: string }) {
+    return this.cohereService?.default.getConversationV1ConversationsConversationIdGet({
+      conversationId,
     });
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Conversation;
   }
 
-  public async deleteConversation({ conversationId }: { conversationId: string }) {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}/${conversationId}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
+  public deleteConversation({ conversationId }: { conversationId: string }) {
+    return this.cohereService?.default.deleteConversationV1ConversationsConversationIdDelete({
+      conversationId,
     });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as {};
   }
 
-  public async editConversation(
-    request: UpdateConversation & { conversationId: string }
-  ): Promise<Conversation> {
-    const { conversationId, ...rest } = request;
-    const endpoint = `${this.getEndpoint('conversations')}/${conversationId}`;
-    const requestBody: UpdateConversation = {
-      title: '',
-      ...rest,
-    };
-    const response = await this.fetch(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(requestBody),
-      headers: this.getHeaders(),
+  public editConversation(request: UpdateConversation, conversationId: string) {
+    return this.cohereService?.default.updateConversationV1ConversationsConversationIdPut({
+      conversationId: conversationId,
+      requestBody: request,
     });
-
-    const body = await response.json();
-
-    if (response.status === 401) {
-      throw new CohereUnauthorizedError();
-    }
-
-    if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
-    }
-
-    return body as Conversation;
   }
 
   public async listTools({ signal }: { signal?: AbortSignal }): Promise<ManagedTool[]> {

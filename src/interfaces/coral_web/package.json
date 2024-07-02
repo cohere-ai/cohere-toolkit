@@ -12,6 +12,7 @@
     "dev": "next dev --port 4000",
     "build": "next build",
     "lint": "next lint",
+    "ts-lint": "tsc -noEmit -incremental -watch",
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
     "next:build": "next build",
