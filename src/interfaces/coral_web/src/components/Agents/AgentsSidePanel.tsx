@@ -21,7 +21,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   const {
     agents: { isAgentsSidePanelOpen },
     setAgentsSidePanelOpen,
-    setEditAgentPanelOpen,
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -29,7 +28,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   const handleToggleAgentsSidePanel = () => {
     setIsConvListPanelOpen(false);
     setSettings({ isConfigDrawerOpen: false });
-    setEditAgentPanelOpen(false);
     setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
 
