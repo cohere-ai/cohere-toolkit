@@ -436,9 +436,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
 
               const outputText =
-                data?.finish_reason === FinishReason.FINISH_REASON_MAX_TOKENS
-                  ? botResponse
-                  : responseText;
+                data?.finish_reason === FinishReason.MAX_TOKENS ? botResponse : responseText;
 
               // Replace HTML code blocks with iframes
               const transformedText = replaceCodeBlockWithIframe(outputText);
