@@ -171,16 +171,30 @@ async def update_agent(
     agent = agent_crud.get_agent_by_id(session, agent_id)
     if not agent:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Agent with ID {agent_id} not found.",
         )
 
     try:
-        agent = agent_crud.update_agent(session, agent, new_agent)
-        request.state.agent = agent
+        if new_agent.tools_metadata:
+            for tool_metadata in new_agent.tools_metadata:
+                update_metadata_req = UpdateAgentToolMetadata(
+                    artifacts=tool_metadata.artifacts
+                )
+                await update_agent_tool_metadata(
+                    agent_id,
+                    tool_metadata.id,
+                    session,
+                    update_metadata_req,
+                    request,
+                )
+            agent = agent_crud.get_agent_by_id(session, agent_id)
+        else:
+            agent = agent_crud.update_agent(session, agent, new_agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+    request.state.agent = agent
     return agent
 
 
