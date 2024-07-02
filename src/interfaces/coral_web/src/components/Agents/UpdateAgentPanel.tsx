@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
+import {
+  AgentForm,
+  AgentFormFieldKeys,
+  UpdateAgentFormFields,
+} from '@/components/Agents/AgentForm';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Spinner, Text } from '@/components/Shared';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
@@ -21,7 +25,7 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
   const { mutateAsync: updateAgent } = useUpdateAgent();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<AgentFormFields>({
+  const [fields, setFields] = useState<UpdateAgentFormFields>({
     name: '',
     description: '',
     deployment: '',
@@ -40,7 +44,9 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
   };
 
   const fieldErrors = {
-    ...(isAgentNameUnique(fields.name, agentId) ? {} : { name: 'Assistant name must be unique' }),
+    ...(isAgentNameUnique(fields.name ?? '', agentId)
+      ? {}
+      : { name: 'Assistant name must be unique' }),
   };
 
   const canSubmit = (() => {
