@@ -37,6 +37,7 @@ export const CreateAgent: React.FC = () => {
     remove: removePendingAssistant,
   } = useLocalStorageValue<CreateAgentFormFields>('pending_assistant', {
     initializeWithValue: false,
+    defaultValue: undefined,
   });
 
   const { data: toolsData } = useListTools();
@@ -125,7 +126,7 @@ export const CreateAgent: React.FC = () => {
 
       window.history.replaceState(null, '', router.basePath + router.pathname);
     }
-  }, [router.query.p]);
+  }, [router.query.p, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
     open({
