@@ -201,14 +201,25 @@ async def search_conversations(
     if not conversations:
         return []
 
-    if not model_deployment.rerank_enabled:
-        return conversations
-
     rerank_documents = []
     for conversation in conversations:
         chatlog = extract_details_from_conversation(conversation)
-        document = f"Title: {conversation.title}\n\nChatlog:\n{chatlog}"
+
+        document = f"Title: {conversation.title}\n"
+        if len(chatlog.strip()) != 0:
+            document += "\nChatlog:\n{chatlog}"
+
         rerank_documents.append(document)
+
+    # if rerank is not enabled, filter out conversations that don't contain the query
+    if not model_deployment.rerank_enabled:
+        filtered_conversations = []
+
+        for rerank_document, conversation in zip(rerank_documents, conversations):
+            if query.lower() in rerank_document.lower():
+                filtered_conversations.append(conversation)
+
+        return filtered_conversations
 
     # Rerank documents
     res = model_deployment.invoke_rerank(
