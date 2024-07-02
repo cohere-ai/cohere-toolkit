@@ -11,7 +11,13 @@ from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
 from backend.tools.utils import async_download, parallel_get_files
 
-from .constants import DOC_FIELDS, GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT, SEARCH_MIME_TYPES
+from .constants import (
+    COMPASS_UPDATE_INTERVAL,
+    DOC_FIELDS,
+    GOOGLE_DRIVE_TOOL_ID,
+    SEARCH_LIMIT,
+    SEARCH_MIME_TYPES,
+)
 from .utils import extract_links, extract_web_view_links
 
 logger = get_logger()
@@ -115,7 +121,7 @@ class GoogleDrive(BaseTool):
                 if last_updated is None or url is None:
                     should_update = True
                 else:
-                    if int(time.time()) - last_updated > 86400:
+                    if int(time.time()) - last_updated > COMPASS_UPDATE_INTERVAL:
                         should_update = True
 
                 # doc update if needed
