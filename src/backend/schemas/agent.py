@@ -21,6 +21,8 @@ class CreateAgentToolMetadata(BaseModel):
 
 
 class UpdateAgentToolMetadata(BaseModel):
+    id: Optional[str] = None
+    tool_name: Optional[str] = None
     artifacts: Optional[list[dict]] = None
 
 
@@ -74,7 +76,7 @@ class UpdateAgent(BaseModel):
     model: Optional[str] = None
     deployment: Optional[str] = None
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[AgentToolMetadata]] = None
+    tools_metadata: Optional[list[UpdateAgentToolMetadata]] = None
 
     class Config:
         from_attributes = True

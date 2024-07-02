@@ -16,13 +16,11 @@ const INITIAL_STATE: State = {
   id: undefined,
   name: DEFAULT_CONVERSATION_NAME,
   messages: [],
-  isSessionAvailable: true,
 };
 
 type State = {
   id?: string;
   name?: string;
-  isSessionAvailable: boolean;
   messages: ChatMessage[];
 };
 

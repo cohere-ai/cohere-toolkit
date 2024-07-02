@@ -5,7 +5,7 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import type { AgentToolMetadata } from './AgentToolMetadata';
+import type { UpdateAgentToolMetadata } from './UpdateAgentToolMetadata';
 
 export type UpdateAgent = {
   name?: string | null;
@@ -16,5 +16,5 @@ export type UpdateAgent = {
   model?: string | null;
   deployment?: string | null;
   tools?: Array<string> | null;
-  tools_metadata?: Array<AgentToolMetadata> | null;
+  tools_metadata?: Array<UpdateAgentToolMetadata> | null;
 };
