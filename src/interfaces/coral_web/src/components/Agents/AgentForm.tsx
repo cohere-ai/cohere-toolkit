@@ -1,22 +1,20 @@
 import React, { useMemo } from 'react';
 
-import { CreateAgent } from '@/cohere-client';
-import { AgentToolFielPicker } from '@/components/Agents/AgentToolFielPicker';
+import { CreateAgent, UpdateAgent } from '@/cohere-client';
+import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 
-export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
-export type AgentFormFieldKeys = keyof AgentFormFields;
+export type CreateAgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
+export type UpdateAgentFormFields = Omit<UpdateAgent, 'version' | 'temperature'>;
+export type AgentFormFieldKeys = keyof CreateAgentFormFields | keyof UpdateAgentFormFields;
 
-type Props = {
-  fields: AgentFormFields;
-  onChange: <AgentFormFieldKeys extends keyof AgentFormFields>(
-    key: AgentFormFieldKeys,
-    value: AgentFormFields[AgentFormFieldKeys]
-  ) => void;
+type Props<K extends UpdateAgentFormFields | CreateAgentFormFields> = {
+  fields: K;
+  setFields: React.Dispatch<React.SetStateAction<K>>;
   onToolToggle: (toolName: string, checked: boolean, authUrl?: string) => void;
   handleOpenFilePicker: VoidFunction;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
@@ -26,15 +24,15 @@ type Props = {
 /**
  * @description Base form for creating/updating an agent.
  */
-export const AgentForm: React.FC<Props> = ({
+export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormFields>({
   fields,
-  onChange,
+  setFields,
   onToolToggle,
   handleOpenFilePicker,
   errors,
   disabled,
   className,
-}) => {
+}: Props<K>) {
   const { data: toolsData } = useListTools();
   const tools =
     toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name)) ?? [];
@@ -44,20 +42,17 @@ export const AgentForm: React.FC<Props> = ({
       []) as GoogleDriveToolArtifact[];
   }, [fields]);
 
-  const setGoogleDriveFiles = (files: GoogleDriveToolArtifact[]) => {
-    if (files.length === 0) {
-      onChange('tools_metadata', [
-        ...(fields.tools_metadata ?? []).filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
-      ]);
-      return;
-    }
-    onChange('tools_metadata', [
-      ...(fields.tools_metadata ?? []).filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
-      {
-        tool_name: TOOL_GOOGLE_DRIVE_ID,
-        artifacts: files,
-      },
-    ]);
+  const handleRemoveGoogleDriveFiles = (id: string) => {
+    setFields((prev) => ({
+      ...prev,
+      tools_metadata: [
+        ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ?? []),
+        {
+          ...prev.tools_metadata?.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID),
+          artifacts: googleDrivefiles.filter((file) => file.id !== id),
+        },
+      ],
+    }));
   };
 
   return (
@@ -67,7 +62,7 @@ export const AgentForm: React.FC<Props> = ({
           kind="default"
           value={fields.name ?? ''}
           placeholder="Give your assistant a name"
-          onChange={(e) => onChange('name', e.target.value)}
+          onChange={(e) => setFields((prev) => ({ ...prev, name: e.target.value }))}
           hasError={!!errors?.name}
           errorText={errors?.name}
           disabled={disabled}
@@ -78,7 +73,7 @@ export const AgentForm: React.FC<Props> = ({
           kind="default"
           value={fields.description ?? ''}
           placeholder="What does your assistant do?"
-          onChange={(e) => onChange('description', e.target.value)}
+          onChange={(e) => setFields((prev) => ({ ...prev, description: e.target.value }))}
           disabled={disabled}
         />
       </InputLabel>
@@ -100,7 +95,7 @@ export const AgentForm: React.FC<Props> = ({
             STYLE_LEVEL_TO_CLASSES.p
           )}
           rows={5}
-          onChange={(e) => onChange('preamble', e.target.value)}
+          onChange={(e) => setFields((prev) => ({ ...prev, preamble: e.target.value }))}
           data-testid="input-preamble"
           disabled={disabled}
         />
@@ -128,9 +123,9 @@ export const AgentForm: React.FC<Props> = ({
                 />
                 {isGoogleDrive && checked && (
                   <div className="pl-10">
-                    <AgentToolFielPicker
+                    <AgentToolFilePicker
                       googleDriveFiles={googleDrivefiles}
-                      setGoogleDriveFiles={setGoogleDriveFiles}
+                      handleRemoveGoogleDriveFiles={handleRemoveGoogleDriveFiles}
                       handleOpenFilePicker={handleOpenFilePicker}
                     />
                   </div>
@@ -142,7 +137,7 @@ export const AgentForm: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+}
 
 const RequiredInputLabel: React.FC<{
   label: string;

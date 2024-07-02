@@ -25,6 +25,7 @@ import type { DeleteFile } from '../models/DeleteFile';
 import type { DeleteUser } from '../models/DeleteUser';
 import type { Deployment } from '../models/Deployment';
 import type { File } from '../models/File';
+import type { GenerateTitle } from '../models/GenerateTitle';
 import type { JWTResponse } from '../models/JWTResponse';
 import type { LangchainChatRequest } from '../models/LangchainChatRequest';
 import type { ListAuthStrategy } from '../models/ListAuthStrategy';
@@ -173,7 +174,6 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
@@ -182,17 +182,12 @@ export class DefaultService {
    */
   public static chatStreamV1ChatStreamPost({
     requestBody,
-    agentId,
   }: {
     requestBody: CohereChatRequest;
-    agentId?: string | null;
   }): CancelablePromise<Array<ChatResponseEvent>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat-stream',
-      query: {
-        agent_id: agentId,
-      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -208,7 +203,6 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
@@ -217,17 +211,12 @@ export class DefaultService {
    */
   public static chatV1ChatPost({
     requestBody,
-    agentId,
   }: {
     requestBody: CohereChatRequest;
-    agentId?: string | null;
   }): CancelablePromise<NonStreamedChatResponse> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/v1/chat',
-      query: {
-        agent_id: agentId,
-      },
       body: requestBody,
       mediaType: 'application/json',
       errors: {
@@ -694,6 +683,38 @@ export class DefaultService {
       path: {
         conversation_id: conversationId,
         file_id: fileId,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    });
+  }
+  /**
+   * Generate Title
+   * Generate a title for a conversation and update the conversation with the generated title.
+   *
+   * Args:
+   * conversation_id (str): Conversation ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * str: Generated title for the conversation.
+   *
+   * Raises:
+   * HTTPException: If the conversation with the given ID is not found.
+   * @returns GenerateTitle Successful Response
+   * @throws ApiError
+   */
+  public static generateTitleV1ConversationsConversationIdGenerateTitlePost({
+    conversationId,
+  }: {
+    conversationId: string;
+  }): CancelablePromise<GenerateTitle> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/v1/conversations/{conversation_id}/generate-title',
+      path: {
+        conversation_id: conversationId,
       },
       errors: {
         422: `Validation Error`,
