@@ -1,19 +1,16 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
-  CohereNetworkError,
-  CohereUnauthorizedError,
-  ExperimentalFeatures,
-  Fetch,
-} from '@/cohere-client/generated/types';
-
-import {
   Agent,
   CohereChatRequest,
   CohereClientGenerated,
+  CohereNetworkError,
+  CohereUnauthorizedError,
   Conversation,
   CreateAgent,
   Deployment,
+  ExperimentalFeatures,
+  Fetch,
   ListAuthStrategy,
   ListFile,
   ManagedTool,
@@ -21,7 +18,8 @@ import {
   UpdateConversation,
   UpdateDeploymentEnv,
   UploadFile,
-} from '.';
+} from '@/cohere-client';
+
 import { mapToChatRequest } from './mappings';
 
 export class CohereClient {

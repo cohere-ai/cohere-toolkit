@@ -5,6 +5,8 @@ import { useEffect, useRef } from 'react';
 import {
   ChatResponseEvent as ChatResponse,
   CohereChatRequest,
+  CohereFinishStreamError,
+  CohereNetworkError,
   Conversation,
   FinishReason,
   StreamEnd,
@@ -12,7 +14,6 @@ import {
   isUnauthorizedError,
   useCohereClient,
 } from '@/cohere-client';
-import { CohereFinishStreamError, CohereNetworkError } from '@/cohere-client/generated/types';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 
 interface StreamingParams {

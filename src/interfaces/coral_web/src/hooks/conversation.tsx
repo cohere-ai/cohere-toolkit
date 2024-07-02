@@ -4,12 +4,12 @@ import { useRef } from 'react';
 
 import {
   ApiError,
+  CohereNetworkError,
   Conversation,
   ConversationWithoutMessages,
   UpdateConversation,
   useCohereClient,
 } from '@/cohere-client';
-import { CohereNetworkError } from '@/cohere-client/generated/types';
 import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
