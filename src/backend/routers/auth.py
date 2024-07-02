@@ -108,7 +108,9 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
 
 @router.post("/{strategy}/auth", response_model=JWTResponse)
-async def authorize(strategy: str, request: Request, session: DBSessionDep):
+async def authorize(
+    strategy: str, request: Request, session: DBSessionDep, code: str = None
+):
     """
     Callback authorization endpoint used for OAuth providers after authenticating on the provider's login screen.
 
@@ -123,6 +125,12 @@ async def authorize(strategy: str, request: Request, session: DBSessionDep):
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
     """
+    if not code:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error calling /auth with invalid code query parameter.",
+        )
+
     strategy_name = None
     for enabled_strategy_name in ENABLED_AUTH_STRATEGY_MAPPING.keys():
         if enabled_strategy_name.lower() == strategy.lower():
