@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Any, Dict, List
 
 from google.oauth2.credentials import Credentials
@@ -10,8 +11,14 @@ from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
 from backend.tools.utils import async_download, parallel_get_files
 
-from .constants import DOC_FIELDS, GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT, SEARCH_MIME_TYPES
-from .utils import extract_links
+from .constants import (
+    COMPASS_UPDATE_INTERVAL,
+    DOC_FIELDS,
+    GOOGLE_DRIVE_TOOL_ID,
+    SEARCH_LIMIT,
+    SEARCH_MIME_TYPES,
+)
+from .utils import extract_links, extract_web_view_links
 
 logger = get_logger()
 
@@ -85,6 +92,7 @@ class GoogleDrive(BaseTool):
 
         # extract links and download file contents
         id_to_urls = extract_links(files)
+        web_view_links = extract_web_view_links(files)
         id_to_texts = async_download.perform(id_to_urls, creds.token)
 
         """
@@ -98,16 +106,69 @@ class GoogleDrive(BaseTool):
             parameters={"index": GOOGLE_DRIVE_TOOL_ID},
         )
 
-        # insert documents
+        # handle creation/update of each file
         for file_id in id_to_texts:
-            compass.invoke(
-                action=Compass.ValidActions.CREATE,
-                parameters={
-                    "index": GOOGLE_DRIVE_TOOL_ID,
-                    "file_id": file_id,
-                    "file_text": id_to_texts[file_id],
-                },
-            )
+            fetched_doc = None
+            try:
+                fetched_doc = compass.invoke(
+                    action=Compass.ValidActions.GET_DOCUMENT,
+                    parameters={"index": GOOGLE_DRIVE_TOOL_ID, "file_id": file_id},
+                ).result["doc"]
+                last_updated = fetched_doc["content"].get("last_updated")
+                url = fetched_doc["content"].get("url")
+
+                should_update = False
+                if last_updated is None or url is None:
+                    should_update = True
+                else:
+                    if int(time.time()) - last_updated > COMPASS_UPDATE_INTERVAL:
+                        should_update = True
+
+                # doc update if needed
+                if should_update:
+                    # update
+                    compass.invoke(
+                        action=Compass.ValidActions.UPDATE,
+                        parameters={
+                            "index": GOOGLE_DRIVE_TOOL_ID,
+                            "file_id": file_id,
+                            "file_text": id_to_texts[file_id],
+                        },
+                    )
+                    # add context
+                    compass.invoke(
+                        action=Compass.ValidActions.ADD_CONTEXT,
+                        parameters={
+                            "index": GOOGLE_DRIVE_TOOL_ID,
+                            "file_id": file_id,
+                            "context": {
+                                "url": web_view_links[file_id],
+                                "last_updated": int(time.time()),
+                            },
+                        },
+                    )
+            except Exception:
+                # create
+                compass.invoke(
+                    action=Compass.ValidActions.CREATE,
+                    parameters={
+                        "index": GOOGLE_DRIVE_TOOL_ID,
+                        "file_id": file_id,
+                        "file_text": id_to_texts[file_id],
+                    },
+                )
+                # add context
+                compass.invoke(
+                    action=Compass.ValidActions.ADD_CONTEXT,
+                    parameters={
+                        "index": GOOGLE_DRIVE_TOOL_ID,
+                        "file_id": file_id,
+                        "context": {
+                            "url": web_view_links[file_id],
+                            "last_updated": int(time.time()),
+                        },
+                    },
+                )
 
         # fetch documents from index
         hits = compass.invoke(
@@ -119,9 +180,12 @@ class GoogleDrive(BaseTool):
             },
         ).result["hits"]
         chunks = [
-            {"text": chunk["content"]["text"], "score": chunk["score"]}
+            {
+                "text": chunk["content"]["text"],
+                "url": hit["content"].get("url", ""),
+            }
             for hit in hits
             for chunk in hit["chunks"]
         ]
 
-        return [dict({"text": chunk["text"]}) for chunk in chunks]
+        return chunks
