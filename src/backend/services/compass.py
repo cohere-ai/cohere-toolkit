@@ -28,6 +28,8 @@ class Compass:
         SEARCH = "search"
         UPDATE = "update"
         DELETE = "delete"
+        GET_DOCUMENT = "get_document"
+        ADD_CONTEXT = "add_context"
 
     def __init__(
         self,
@@ -123,6 +125,10 @@ class Compass:
                 self._update(parameters, **kwargs)
             case self.ValidActions.DELETE:
                 self._delete(parameters, **kwargs)
+            case self.ValidActions.GET_DOCUMENT:
+                return self._get_document(parameters, **kwargs)
+            case self.ValidActions.ADD_CONTEXT:
+                self._add_context(parameters, **kwargs)
             case _:
                 raise Exception(
                     f"Compass Tool: Invalid action {parameters['action']}. "
@@ -136,6 +142,10 @@ class Compass:
         if compass_docs is None:
             raise Exception("Parsing failed")
 
+        if doc_metadata := parameters.get("metadata", None):
+            for doc in compass_docs:
+                doc.metadata.meta.append(doc_metadata)
+
         error = self.compass_client.insert_docs(
             index_name=parameters["index"],
             docs=compass_docs,
@@ -143,7 +153,6 @@ class Compass:
         if error is not None:
             message = ("Compass Tool: Error inserting/updating document ",)
             f"into Compass: {error}"
-            logger.error(message)
             raise Exception(message)
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
@@ -152,7 +161,6 @@ class Compass:
         if not parameters.get("query", None):
             message = ("Compass Tool: No search query specified. ",)
             ("Returning empty list. " "Parameters specified: {parameters}",)
-            logger.error(message)
             raise Exception(message)
 
         return self.compass_client.search(
@@ -179,6 +187,41 @@ class Compass:
         self.compass_client.delete_document(
             index_name=parameters["index"],
             doc_id=parameters["file_id"],
+        )
+
+    def _get_document(self, parameters: dict, **kwargs: Any) -> None:
+        """Get document with id from Compass"""
+        # Check if file_id is specified for file-related actions
+        if not parameters.get("file_id", None):
+            raise Exception(
+                "Compass Tool: No uninque identifier file_id specified. "
+                "No action will be taken. "
+                f"Parameters specified: {parameters}"
+            )
+        return self.compass_client.get_document(
+            index_name=parameters["index"],
+            doc_id=parameters["file_id"],
+        )
+
+    def _add_context(self, parameters: dict, **kwargs: Any) -> None:
+        """Adds context to a document with id in Compass"""
+        # Check if file_id is specified for file-related actions
+        if not parameters.get("file_id", None):
+            raise Exception(
+                "Compass Tool: No uninque identifier file_id specified. "
+                "No action will be taken. "
+                f"Parameters specified: {parameters}"
+            )
+        if not parameters.get("context", None):
+            raise Exception(
+                "Compass Tool: Context cannot be empty. "
+                "No action will be taken. "
+                f"Parameters specified: {parameters}"
+            )
+        self.compass_client.add_context(
+            index_name=parameters["index"],
+            doc_id=parameters["file_id"],
+            context=parameters["context"],
         )
 
     def _process_file(self, parameters: dict, **kwargs: Any) -> None:
