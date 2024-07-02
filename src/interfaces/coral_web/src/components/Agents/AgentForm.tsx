@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { CreateAgent, UpdateAgent } from '@/cohere-client';
+import { CreateAgent, CreateAgentToolMetadata, UpdateAgent } from '@/cohere-client';
 import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -38,21 +38,25 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
     toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name)) ?? [];
 
   const googleDrivefiles: GoogleDriveToolArtifact[] = useMemo(() => {
-    return (fields.tools_metadata?.find((t) => t.tool_name === TOOL_GOOGLE_DRIVE_ID)?.artifacts ??
+    const toolsMetadata = (fields.tools_metadata ?? []) as unknown as CreateAgentToolMetadata[];
+    return (toolsMetadata.find((t) => t.tool_name === TOOL_GOOGLE_DRIVE_ID)?.artifacts ??
       []) as GoogleDriveToolArtifact[];
   }, [fields]);
 
   const handleRemoveGoogleDriveFiles = (id: string) => {
-    setFields((prev) => ({
-      ...prev,
-      tools_metadata: [
-        ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ?? []),
-        {
-          ...prev.tools_metadata?.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID),
-          artifacts: googleDrivefiles.filter((file) => file.id !== id),
-        },
-      ],
-    }));
+    setFields((prev) => {
+      const toolsMetadata = (prev.tools_metadata ?? []) as unknown as CreateAgentToolMetadata[];
+      return {
+        ...prev,
+        tools_metadata: [
+          ...toolsMetadata.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID),
+          {
+            ...toolsMetadata.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID),
+            artifacts: googleDrivefiles.filter((file) => file.id !== id),
+          },
+        ],
+      };
+    });
   };
 
   return (
