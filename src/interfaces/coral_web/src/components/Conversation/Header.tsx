@@ -32,7 +32,10 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const { data: agent } = useAgent({ agentId });
   const isAgentCreator = userId === agent?.user_id;
 
-  const { setSettings } = useSettingsStore();
+  const {
+    setSettings,
+    settings: { isConfigDrawerOpen },
+  } = useSettingsStore();
   const {
     agents: { isEditAgentPanelOpen },
     setEditAgentPanelOpen,
@@ -58,8 +61,8 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     });
   };
 
-  const handleOpenSettings = () => {
-    setSettings({ isConfigDrawerOpen: true });
+  const handleToggleConfigSettings = () => {
+    setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
 
     if (welcomeGuideState === WelcomeGuideStep.ONE && router.pathname === '/') {
       progressWelcomeGuideStep();
@@ -86,7 +89,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     {
       label: 'Settings',
       iconName: 'settings',
-      onClick: handleOpenSettings,
+      onClick: handleToggleConfigSettings,
     },
     {
       label: 'Share',
@@ -105,7 +108,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     isAgentCreator,
     handleNewChat,
     handleOpenShareModal,
-    handleOpenSettings,
+    handleToggleConfigSettings,
     handleOpenAgentDrawer,
   };
 };
@@ -121,11 +124,14 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
     conversation: { id, name },
   } = useConversationStore();
   const {
-    settings: { isConvListPanelOpen },
+    settings: { isConvListPanelOpen, isConfigDrawerOpen },
     setSettings,
     setIsConvListPanelOpen,
   } = useSettingsStore();
-  const { setAgentsSidePanelOpen } = useAgentsStore();
+  const {
+    setAgentsSidePanelOpen,
+    agents: { isEditAgentPanelOpen },
+  } = useAgentsStore();
 
   const { welcomeGuideState } = useWelcomeGuideState();
 
@@ -136,7 +142,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
     isAgentCreator,
     handleNewChat,
     handleOpenShareModal,
-    handleOpenSettings,
+    handleToggleConfigSettings,
     handleOpenAgentDrawer,
   } = useHeaderMenu({
     agentId,
@@ -198,8 +204,8 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
           <div className="relative">
             <IconButton
               tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
-              className="hidden md:flex"
-              onClick={handleOpenSettings}
+              className={cn('hidden md:flex', { 'bg-secondary-100': isConfigDrawerOpen })}
+              onClick={handleToggleConfigSettings}
               iconName="settings"
               disabled={isStreaming}
             />
@@ -218,7 +224,10 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             }}
             iconName={isAgentCreator ? 'edit' : 'information'}
             onClick={handleOpenAgentDrawer}
-            className={cn('hidden', { 'md:flex': !!agentId })}
+            className={cn('hidden', {
+              'md:flex': !!agentId,
+              'bg-secondary-100': isEditAgentPanelOpen,
+            })}
           />
         </span>
       </div>
