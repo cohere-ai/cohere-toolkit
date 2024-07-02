@@ -157,7 +157,7 @@ const Page: NextPage = () => {
   }, [isLangchainModeOn]);
 
   return (
-    <Layout>
+    <Layout showSettingsDrawer>
       <LeftSection>
         <AgentsList />
       </LeftSection>
