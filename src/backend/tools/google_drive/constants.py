@@ -10,9 +10,8 @@ SEARCH_MIME_TYPES = [
     "application/vnd.google-apps.document",
     "application/vnd.google-apps.spreadsheet",
     "application/vnd.google-apps.presentation",
+    "application/vnd.google-apps.shortcut",
 ]
-DOC_FIELDS = (
-    "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks"
-)
+DOC_FIELDS = "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails"
 
 GOOGLE_DRIVE_TOOL_ID = "google_drive"
