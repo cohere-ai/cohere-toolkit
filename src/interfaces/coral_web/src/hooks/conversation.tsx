@@ -56,16 +56,10 @@ export const useConversation = ({
     enabled: !!conversationId && !disabledOnMount,
     queryFn: async () => {
       try {
-        const conversation = await client.getConversation({
+        return await client.getConversation({
           conversationId: conversationId ?? '',
           signal: abortControllerRef.current?.signal,
         });
-        return {
-          ...conversation,
-          messages: conversation.messages.sort(
-            (a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)
-          ),
-        };
       } catch (e) {
         if (!isAbortError(e)) {
           console.error(e);
