@@ -117,12 +117,15 @@ export const CreateAgent: React.FC = () => {
   };
 
   useEffect(() => {
-    if (pendingAssistant) {
-      console.log(pendingAssistant);
-      setFields(pendingAssistant);
-      removePendingAssistant();
+    if (router.query.p) {
+      if (pendingAssistant) {
+        setFields(pendingAssistant);
+        removePendingAssistant();
+      }
+
+      window.history.replaceState(null, '', router.basePath + router.pathname);
     }
-  }, [pendingAssistant]);
+  }, [router.query.p]);
 
   const handleOpenSubmitModal = () => {
     open({
