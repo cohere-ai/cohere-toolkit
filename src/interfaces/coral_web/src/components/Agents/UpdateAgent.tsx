@@ -1,7 +1,6 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import React, { useEffect, useState } from 'react';
 
-import { AgentToolMetadata } from '@/cohere-client';
 import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Spinner, Text } from '@/components/Shared';
@@ -56,30 +55,25 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         if (!currentGoogleDriveTool) {
           return {
             ...prev,
+            tools_metadata: [
+              ...(prev.tools_metadata ?? []),
+              {
+                tool_name: TOOL_GOOGLE_DRIVE_ID,
+                artifacts: data.docs.map(
+                  (doc) =>
+                    ({
+                      id: doc.id,
+                      name: doc.name,
+                      type: doc.type,
+                      url: doc.url,
+                    } as GoogleDriveToolArtifact)
+                ),
+              },
+            ] as any, // FIX: (@knajjars) this should be fixed in the backend
           };
-          // FIX(@knajjars): uncomment this once the backend is ready
-          // return {
-          //   ...prev,
-          //   tools_metadata: [
-          //     ...(prev.tools_metadata ?? []),
-          //     {
-          //       tool_name: TOOL_GOOGLE_DRIVE_ID,
-          //       user_id: userId,
-          //       artifacts: data.docs.map(
-          //         (doc) =>
-          //           ({
-          //             id: doc.id,
-          //             name: doc.name,
-          //             type: doc.type,
-          //             url: doc.url,
-          //           } as GoogleDriveToolArtifact)
-          //       ),
-          //     },
-          //   ],
-          // };
         }
         // If the tool is already enabled, update the artifacts
-        const updateGoogleDriveTool: AgentToolMetadata = {
+        const updateGoogleDriveTool = {
           ...currentGoogleDriveTool,
           artifacts: data.docs.map(
             (doc) =>
@@ -134,7 +128,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         model: agent.model,
         tools: agent.tools,
         preamble: agent.preamble,
-        tools_metadata: agent.tools_metadata,
+        tools_metadata: agent.tools_metadata as any, // FIX: (@knajjars) this should be fixed in the backend,
       });
     }
   }, [agent]);

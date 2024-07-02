@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+import psycopg2
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.config.tools import ALL_TOOLS
@@ -227,7 +228,8 @@ async def update_or_create_tool_metadata(agent, new_tool_metadata, session, requ
         create_metadata_req = CreateAgentToolMetadata(
             **new_tool_metadata.model_dump(exclude_none=True)
         )
-        create_agent_tool_metadata(session, agent.id, create_metadata_req, request)
+        create_agent_tool_metadata(
+            session, agent.id, create_metadata_req, request)
 
 
 @router.delete("/{agent_id}")
