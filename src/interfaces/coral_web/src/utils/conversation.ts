@@ -1,7 +1,31 @@
 import { Message, MessageAgent } from '@/cohere-client';
-import { BotState, FulfilledMessage, MessageType, UserMessage } from '@/types/message';
+import { BotState, ChatMessage, FulfilledMessage, MessageType, UserMessage } from '@/types/message';
 import { replaceTextWithCitations } from '@/utils/citations';
 import { replaceCodeBlockWithIframe } from '@/utils/preview';
+
+/**
+ * A utility function that checks if the conversation title should be updated
+ * Based on:
+ *  - It has only two messages, one from the user and one from the bot.
+ *  - If ~5 turns have passed, meaning every 5 messages from the bot.
+ *    - Note: the bot can fail to respond and these turns can become out of sync but 5 bot messages
+ *      implies that there were at least 5 matching user messages (user message === request, bot message === response pairs)
+ * @param messages - The messages array
+ * */
+export const shouldUpdateConversationTitle = (messages: ChatMessage[]) => {
+  const numUserMessages = messages.filter(
+    (message) => message.type === MessageType.USER && !message.error
+  ).length;
+  const numBotMessages = messages.filter(
+    (message) => message.type === MessageType.BOT && message.state === BotState.FULFILLED
+  ).length;
+
+  if (numUserMessages === 1 && numBotMessages === 1) {
+    return true;
+  }
+
+  return numBotMessages % 5 === 0;
+};
 
 type UserOrBotMessage = UserMessage | FulfilledMessage;
 

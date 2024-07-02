@@ -256,6 +256,12 @@ export class CohereClient {
     });
   }
 
+  public generateTitle({ conversationId }: { conversationId: string }) {
+    return this.cohereService.default.generateTitleV1ConversationsConversationIdGenerateTitlePost({
+      conversationId,
+    });
+  }
+
   private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
   }

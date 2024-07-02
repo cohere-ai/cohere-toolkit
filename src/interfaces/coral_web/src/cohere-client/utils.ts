@@ -21,9 +21,6 @@ export const isForbiddenError = (error: unknown): error is CohereNetworkError =>
 export const isNotFoundError = (error: unknown): error is CohereNetworkError =>
   isCohereNetworkError(error) && error.status === 404;
 
-export const isSessionUnavailableError = (error: unknown): error is CohereNetworkError =>
-  isCohereNetworkError(error) && error.status === 503;
-
 export const isFinishedError = (error: unknown): error is CohereFinishStreamError =>
   error instanceof CohereFinishStreamError;
 

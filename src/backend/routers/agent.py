@@ -1,3 +1,4 @@
+import psycopg2
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 
 from backend.config.routers import RouterName
@@ -169,33 +170,60 @@ async def update_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     agent = agent_crud.get_agent_by_id(session, agent_id)
+
     if not agent:
         raise HTTPException(
-            status_code=404,
-            detail=f"Agent with ID {agent_id} not found.",
+            status_code=404, detail=f"Agent with ID {agent_id} not found."
         )
 
+    if new_agent.tools_metadata is not None:
+        # Delete tool metadata that are not in the request
+        for tool_metadata in agent.tools_metadata:
+            if tool_metadata.tool_name not in [
+                metadata.tool_name for metadata in new_agent.tools_metadata
+            ]:
+                agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
+                    session, tool_metadata.id
+                )
+
+        # Create or update tool metadata from the request
+        for tool_metadata in new_agent.tools_metadata:
+            try:
+                await update_or_create_tool_metadata(
+                    agent, tool_metadata, session, request
+                )
+            except Exception as e:
+                if "psycopg2.errors.UniqueViolation" in str(e):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Tool name {tool_metadata.tool_name} already exists for given user and agent.",
+                    )
+
+                raise HTTPException(status_code=500, detail=str(e))
+
+        # Remove tools_metadata from new_agent to avoid updating it in the agent
+        new_agent.tools_metadata = None
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+
     try:
-        if new_agent.tools_metadata:
-            for tool_metadata in new_agent.tools_metadata:
-                update_metadata_req = UpdateAgentToolMetadata(
-                    artifacts=tool_metadata.artifacts
-                )
-                await update_agent_tool_metadata(
-                    agent_id,
-                    tool_metadata.id,
-                    session,
-                    update_metadata_req,
-                    request,
-                )
-            agent = agent_crud.get_agent_by_id(session, agent_id)
-        else:
-            agent = agent_crud.update_agent(session, agent, new_agent)
+        agent = agent_crud.update_agent(session, agent, new_agent)
+        request.state.agent = agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    request.state.agent = agent
     return agent
+
+
+async def update_or_create_tool_metadata(agent, new_tool_metadata, session, request):
+    if new_tool_metadata.id:
+        await update_agent_tool_metadata(
+            agent.id, new_tool_metadata.id, session, new_tool_metadata, request
+        )
+    else:
+        create_metadata_req = CreateAgentToolMetadata(
+            **new_tool_metadata.model_dump(exclude_none=True)
+        )
+        create_agent_tool_metadata(session, agent.id, create_metadata_req, request)
 
 
 @router.delete("/{agent_id}")
@@ -305,6 +333,12 @@ def create_agent_tool_metadata(
         )
         request.state.agent_tool_metadata = agent_tool_metadata_data
     except Exception as e:
+        if "psycopg2.errors.UniqueViolation" in str(e):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Tool name {agent_tool_metadata.tool_name} already exists for given user and agent.",
+            )
+
         raise HTTPException(status_code=500, detail=str(e))
 
     return created_agent_tool_metadata
@@ -350,6 +384,12 @@ async def update_agent_tool_metadata(
         )
         request.state.agent_tool_metadata = agent_tool_metadata
     except Exception as e:
+        if "psycopg2.errors.UniqueViolation" in str(e):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Tool name {agent_tool_metadata.tool_name} already exists for given user and agent.",
+            )
+
         raise HTTPException(status_code=500, detail=str(e))
 
     return agent_tool_metadata
