@@ -94,7 +94,7 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
 
     try {
       setIsSubmitting(true);
-      const newAgent = await updateAgent({ ...fields, agentId });
+      const newAgent = await updateAgent({ request: fields, agentId });
       setIsSubmitting(false);
       success(`Updated ${newAgent?.name}`);
     } catch (e) {

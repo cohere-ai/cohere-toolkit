@@ -5,11 +5,15 @@ from contextlib import asynccontextmanager
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config.auth import get_auth_strategy_endpoints, is_authentication_enabled
+from backend.config.auth import (
+    get_auth_strategy_endpoints,
+    is_authentication_enabled,
+    verify_migrate_token,
+)
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -95,7 +99,7 @@ async def health():
     return {"status": "OK"}
 
 
-@app.post("/migrate")
+@app.post("/migrate", dependencies=[Depends(verify_migrate_token)])
 async def apply_migrations():
     """
     Applies Alembic migrations - useful for serverless applications
@@ -108,4 +112,4 @@ async def apply_migrations():
             status_code=500, detail=f"Error while applying Alembic migrations: {str(e)}"
         )
 
-    return {"status": "Done"}
+    return {"status": "Migration successful"}

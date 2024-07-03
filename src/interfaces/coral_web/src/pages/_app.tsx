@@ -34,7 +34,6 @@ const makeCohereClient = (authToken?: string) => {
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
   return new CohereClient({
     hostname: env.NEXT_PUBLIC_API_HOSTNAME,
-    source: 'coral',
     fetch: apiFetch,
     authToken,
   });

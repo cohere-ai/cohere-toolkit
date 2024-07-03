@@ -87,7 +87,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
     case TOOL_CALCULATOR_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Calculating <b className="font-medium">{event?.parameters?.code}</b>
+          Calculating <b className="font-medium">{event?.parameters?.code as any}</b>
         </ToolEventWrapper>
       );
     }
@@ -95,7 +95,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
     case TOOL_WEB_SEARCH_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Searching <b className="font-medium">{event?.parameters?.query}</b>
+          Searching <b className="font-medium">{event?.parameters?.query as any}</b>
         </ToolEventWrapper>
       );
     }

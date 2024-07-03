@@ -46,6 +46,17 @@ router.name = RouterName.AGENT
     ],
 )
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
+    """
+    Create an agent.
+    Args:
+        session (DBSessionDep): Database session.
+        agent (CreateAgent): Agent data.
+        request (Request): Request object.
+    Returns:
+        Agent: Created agent.
+    Raises:
+        HTTPException: If the agent creation fails.
+    """
     # add user data into request state for metrics
     user_id = get_header_user_id(request)
     add_session_user_to_request_state(request, session)

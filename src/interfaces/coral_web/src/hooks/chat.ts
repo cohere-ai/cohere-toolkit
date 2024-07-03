@@ -177,7 +177,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   };
 
   const handleUpdateConversationTitle = async (conversationId: string) => {
-    const title = await updateConversationTitle(conversationId);
+    const { title } = await updateConversationTitle(conversationId);
 
     if (!title) return;
 
