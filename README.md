@@ -13,6 +13,7 @@ Toolkit is a collection of prebuilt components enabling users to quickly build a
   - [How to add tools](/docs/custom_tool_guides/tool_guide.md)
   - [How to add authentication](/docs/auth_guide.md)
   - [How to deploy toolkit services](/docs/service_deployments.md)
+  - [How to set up Github Actions for automated DB migrations](/docs/github_migrations_action.md)
   - [How to customize the theme](/docs/theming.md)
   - [How to contribute](#contributing)
 - [Try Cohere's Command Showcase](https://coral.cohere.com/)
