@@ -30,6 +30,18 @@ def extract_web_view_links(files: List[Dict[str, str]]) -> Dict[str, str]:
     return id_to_urls
 
 
+def extract_titles(files: List[Dict[str, str]]) -> Dict[str, str]:
+    id_to_names = dict()
+    for _file in files:
+        name = _file.pop("name", "")
+        id = _file.get("id")
+        if id is None:
+            continue
+
+        id_to_names[id] = name
+    return id_to_names
+
+
 def process_shortcut_files(service: Any, files: List[Dict[str, str]]) -> Dict[str, str]:
     processed_files = []
     for file in files:
