@@ -1,10 +1,3 @@
-/* generated using openapi-typescript-codegen -- do no edit */
-
-/* istanbul ignore file */
-
-/* tslint:disable */
-
-/* eslint-disable */
 import type { ApiRequestOptions } from './ApiRequestOptions';
 import { BaseHttpRequest } from './BaseHttpRequest';
 import type { CancelablePromise } from './CancelablePromise';
@@ -22,7 +15,7 @@ export class FetchHttpRequest extends BaseHttpRequest {
    * @returns CancelablePromise<T>
    * @throws ApiError
    */
-  public override request<T>(options: ApiRequestOptions): CancelablePromise<T> {
+  public override request<T>(options: ApiRequestOptions<T>): CancelablePromise<T> {
     return __request(this.config, options);
   }
 }
