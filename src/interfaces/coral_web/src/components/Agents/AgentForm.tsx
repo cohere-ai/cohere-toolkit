@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { CreateAgent, CreateAgentToolMetadata, UpdateAgent } from '@/cohere-client';
+import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -38,14 +38,14 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
     toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name)) ?? [];
 
   const googleDrivefiles: GoogleDriveToolArtifact[] = useMemo(() => {
-    const toolsMetadata = (fields.tools_metadata ?? []) as unknown as CreateAgentToolMetadata[];
+    const toolsMetadata = fields.tools_metadata ?? [];
     return (toolsMetadata.find((t) => t.tool_name === TOOL_GOOGLE_DRIVE_ID)?.artifacts ??
       []) as GoogleDriveToolArtifact[];
   }, [fields]);
 
   const handleRemoveGoogleDriveFiles = (id: string) => {
     setFields((prev) => {
-      const toolsMetadata = (prev.tools_metadata ?? []) as unknown as CreateAgentToolMetadata[];
+      const toolsMetadata = prev.tools_metadata ?? [];
       return {
         ...prev,
         tools_metadata: [
