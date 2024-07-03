@@ -2,11 +2,13 @@ import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-s
 
 import {
   Body_upload_file_v1_conversations_upload_file_post,
+  CancelablePromise,
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
   CreateAgent,
   CreateUser,
+  ExperimentalFeatures,
   Fetch,
   UpdateAgent,
   UpdateConversation,
@@ -169,7 +171,7 @@ export class CohereClient {
   }
 
   public getExperimentalFeatures() {
-    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet();
+    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet() as CancelablePromise<ExperimentalFeatures>;
   }
 
   public login({ email, password }: { email: string; password: string }) {
