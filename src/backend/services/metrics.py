@@ -42,7 +42,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         duration_ms = time.perf_counter() - start_time
 
         data = self.get_event_data(request.scope, response, request, duration_ms)
-        run_loop(data)
+        await run_loop(data)
         return response
 
     def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
@@ -168,6 +168,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
 
 async def report_metrics(data: MetricsData) -> None:
+    if not data:
+        return
+
     data = attach_secret(data)
     signal = MetricsSignal(signal=data)
     log_signal_curl(signal)
@@ -206,11 +209,20 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     )
 
 
-def run_loop(metrics_data: MetricsData) -> None:
+async def run_loop(metrics_data: MetricsData) -> None:
+    async def task_exception_handler(task: asyncio.Task):
+        # Attempt to retrieve the exception and log it if present
+        try:
+            await task
+        except Exception as e:
+            logging.error(f"Failed to execute report_metrics task: {e}")
+
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(report_metrics(metrics_data))
+        task = loop.create_task(report_metrics(metrics_data))
+        task.add_done_callback(task_exception_handler)
     except RuntimeError:
+        # If no running event loop, run synchronously
         asyncio.run(report_metrics(metrics_data))
 
 
@@ -234,7 +246,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
                 metrics_data.output_tokens,
             ) = get_input_output_tokens(response_dict)
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
 
             return response_dict
 
@@ -243,7 +255,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
@@ -271,14 +283,16 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
 
     return wrapper
 
 
 def collect_metrics_rerank(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
+    async def wrapper(
+        self, query: str, documents: Dict[str, Any], **kwargs: Any
+    ) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
 
@@ -292,7 +306,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
             return response_dict
 
     return wrapper
