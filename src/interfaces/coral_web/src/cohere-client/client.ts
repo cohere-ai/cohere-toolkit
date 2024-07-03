@@ -271,6 +271,10 @@ export class CohereClient {
     });
   }
 
+  public deleteAgent({ agentId }: { agentId: string }) {
+    return this.cohereService.default.deleteAgentV1AgentsAgentIdDelete({ agentId });
+  }
+
   public generateTitle({ conversationId }: { conversationId: string }) {
     return this.cohereService.default.generateTitleV1ConversationsConversationIdGenerateTitlePost({
       conversationId,
