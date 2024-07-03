@@ -1,4 +1,4 @@
-import { Transition } from '@headlessui/react';
+import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import { UpdateAgent } from '@/components/Agents/UpdateAgent';
@@ -24,6 +24,7 @@ import {
 } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
+import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -154,7 +155,7 @@ const Conversation: React.FC<Props> = ({
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-full w-full flex-col">
+      <div className="flex h-full w-full min-w-0 flex-col">
         <HotKeysProvider customHotKeys={chatHotKeys} />
         <Header conversationId={conversationId} agentId={agentId} isStreaming={isStreaming} />
 
@@ -191,15 +192,29 @@ const Conversation: React.FC<Props> = ({
       <Transition
         show={!!isEditAgentPanelOpen}
         as="div"
-        className="z-configuration-drawer h-auto border-l border-marble-400"
-        enter="transition-all ease-in-out duration-300"
+        className={cn(
+          'absolute left-0 top-0 z-configuration-drawer md:relative',
+          'border-l border-marble-400 bg-marble-100'
+        )}
+        enter="transition-[width] ease-in-out duration-300"
         enterFrom="w-0"
-        enterTo="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
-        leave="transition-all ease-in-out duration-0 md:duration-300"
-        leaveFrom="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
+        enterTo="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
+        leave="transition-[width] ease-in-out duration-0 md:duration-300"
+        leaveFrom="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
         leaveTo="w-0"
       >
-        <UpdateAgent agentId={agentId} />
+        <TransitionChild
+          as="div"
+          className={cn('flex h-full flex-col')}
+          enter="transition-[opacity] ease-in-out duration-200 delay-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-[opacity] ease-in-out duration-0 md:duration-50"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <UpdateAgent agentId={agentId} />
+        </TransitionChild>
       </Transition>
     </div>
   );

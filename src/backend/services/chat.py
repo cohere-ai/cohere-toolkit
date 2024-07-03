@@ -24,6 +24,10 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.tool_call import ToolCall as ToolCallModel
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_session_user_to_request_state,
+)
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -87,7 +91,7 @@ def process_chat(
         # ROD: error count: <built-in method error_count of pydantic_core._pydantic_core.ValidationError object at 0xffff703f08b0>
 
         try:
-            request.state.agent = Agent.model_validate(agent, strict=False)
+            add_agent_to_request_state(request, agent)
         except ValidationError as exc:
             print(f"Validation error count: {exc.error_count()}")
             for err in exc.errors():
