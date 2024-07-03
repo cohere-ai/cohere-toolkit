@@ -69,7 +69,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
                     } as GoogleDriveToolArtifact)
                 ),
               },
-            ] as any, // FIX: (@knajjars) this should be fixed in the backend
+            ],
           };
         }
         // If the tool is already enabled, update the artifacts
@@ -128,7 +128,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         model: agent.model,
         tools: agent.tools,
         preamble: agent.preamble,
-        tools_metadata: agent.tools_metadata as any, // FIX: (@knajjars) this should be fixed in the backend,
+        tools_metadata: agent.tools_metadata,
       });
     }
   }, [agent]);
