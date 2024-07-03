@@ -162,7 +162,7 @@ export const CreateAgent: React.FC = () => {
   };
 
   return (
-    <div className="relative flex h-full w-full flex-col">
+    <div className="relative flex h-full w-full flex-col overflow-y-auto">
       <div className="flex-grow overflow-y-scroll">
         <div className="flex max-w-[650px] flex-col gap-y-2 p-10">
           <Text styleAs="h4">Create an Assistant</Text>
@@ -179,7 +179,7 @@ export const CreateAgent: React.FC = () => {
           />
         </div>
       </div>
-      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-400 bg-white px-4 py-8">
+      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-400 bg-white px-4 py-4 md:py-8">
         <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
           Create
         </Button>
