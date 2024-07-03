@@ -23,12 +23,15 @@ from backend.schemas.metrics import (
     MetricsSignal,
     MetricsUser,
 )
+from backend.services.auth.utils import get_header_user_id
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
 NUM_RETRIES = 0
 HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
+
+logger = logging.getLogger(__name__)
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -53,15 +56,18 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         agent = self.get_agent(request)
         agent_id = agent.id if agent else None
+        endpoint_name = self.get_endpoint_name(scope, request)
 
-        user_id = self.get_user_id(request)
-        if not user_id:
+        try:
+            user_id = get_header_user_id(request)
+        except:
+            logger.warning(f"Failed to get user id - {endpoint_name}")
             return None
 
         data = MetricsData(
             id=str(uuid.uuid4()),
             method=self.get_method(scope),
-            endpoint_name=self.get_endpoint_name(scope, request),
+            endpoint_name=endpoint_name,
             user_id=user_id,
             user=self.get_user(request),
             success=self.get_success(response),
@@ -81,7 +87,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            logging.warning(f"Failed to get method:  {e}")
+            logger.warning(f"Failed to get method:  {e}")
             return "unknown"
 
     def get_endpoint_name(self, scope: dict, request: Request) -> str:
@@ -96,21 +102,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            logging.warning(f"Failed to get endpoint name: {e}")
+            logger.warning(f"Failed to get endpoint name: {e}")
             return "unknown"
 
     def get_status_code(self, response: Response) -> int:
         try:
             return response.status_code
         except Exception as e:
-            logging.warning(f"Failed to get status code: {e}")
+            logger.warning(f"Failed to get status code: {e}")
             return 500
 
     def get_success(self, response: Response) -> bool:
         try:
             return 200 <= response.status_code < 300
         except Exception as e:
-            logging.warning(f"Failed to get success: {e}")
+            logger.warning(f"Failed to get success: {e}")
             return False
 
     def get_user_id(self, request: Request) -> Union[str, None]:
@@ -130,7 +136,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             return user_id
         except Exception as e:
-            logging.warning(f"Failed to get user id: {e}")
+            logger.warning(f"Failed to get user id: {e}")
             return None
 
     def get_user(self, request: Request) -> Union[MetricsUser, None]:
@@ -144,7 +150,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 email=request.state.user.email,
             )
         except Exception as e:
-            logging.warning(f"Failed to get user: {e}")
+            logger.warning(f"Failed to get user: {e}")
             return None
 
     def get_object_ids(self, request: Request) -> Dict[str, str]:
@@ -158,7 +164,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             return object_ids
         except Exception as e:
-            logging.warning(f"Failed to get object ids: {e}")
+            logger.warning(f"Failed to get object ids: {e}")
             return {}
 
     def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
@@ -169,16 +175,17 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
 async def report_metrics(data: MetricsData) -> None:
     if not data:
+        logger.error("No metrics data to report")
         return
 
     data = attach_secret(data)
     signal = MetricsSignal(signal=data)
     log_signal_curl(signal)
     if not REPORT_SECRET:
-        logging.error("No report secret set")
+        logger.error("No report secret set")
         return
     if not REPORT_ENDPOINT:
-        logging.error("No report endpoint set")
+        logger.error("No report endpoint set")
         return
 
     if not isinstance(signal, dict):
@@ -188,7 +195,7 @@ async def report_metrics(data: MetricsData) -> None:
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
-        logging.error(f"Failed to report metrics: {e}")
+        logger.error(f"Failed to report metrics: {e}")
 
 
 def attach_secret(data: MetricsData) -> MetricsData:
@@ -204,26 +211,30 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     s["signal"]["secret"] = "'$SECRET'"
     json_signal = json.dumps(s)
     # just general curl commands to test the endpoint for now
-    logging.info(
+    logger.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
 
 
 async def run_loop(metrics_data: MetricsData) -> None:
     async def task_exception_handler(task: asyncio.Task):
-        # Attempt to retrieve the exception and log it if present
         try:
             await task
         except Exception as e:
-            logging.error(f"Failed to execute report_metrics task: {e}")
+            logger.error(f"Failed to execute report_metrics task: {e}")
 
     try:
         loop = asyncio.get_running_loop()
-        task = loop.create_task(report_metrics(metrics_data))
-        task.add_done_callback(task_exception_handler)
     except RuntimeError:
-        # If no running event loop, run synchronously
-        asyncio.run(report_metrics(metrics_data))
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    task = loop.create_task(report_metrics(metrics_data))
+
+    async def callback_wrapper():
+        await task_exception_handler(task)
+
+    loop.create_task(callback_wrapper())
 
 
 # DECORATORS
