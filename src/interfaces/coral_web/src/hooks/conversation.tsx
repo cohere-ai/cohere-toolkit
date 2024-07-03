@@ -22,8 +22,16 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
   const client = useCohereClient();
 
   return useQuery<ConversationWithoutMessages[], ApiError>({
-    queryKey: ['conversations'],
-    queryFn: async () => client.listConversations(params),
+    queryKey: ['conversations', params.agentId],
+    queryFn: async () => {
+      const conversations = await client.listConversations(params);
+
+      if (params.agentId) {
+        return conversations;
+      }
+
+      return conversations.filter((c) => c.agent_id === null);
+    },
     retry: 0,
     refetchOnWindowFocus: false,
     initialData: [],
