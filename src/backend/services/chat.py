@@ -62,7 +62,8 @@ def process_chat(
     request: Request,
     agent_id: str | None = None,
 ) -> tuple[
-    DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
+    DBSessionDep, BaseChatRequest, Union[list[str],
+                                         None], Message, str, str, dict
 ]:
     """
     Process a chat request.
@@ -151,7 +152,8 @@ def process_chat(
 
     file_paths = None
     if isinstance(chat_request, CohereChatRequest):
-        file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
+        file_paths = handle_file_retrieval(
+            session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
                 session, user_id, user_message.id, chat_request.file_ids
@@ -238,7 +240,8 @@ def get_or_create_conversation(
         Conversation: Conversation object.
     """
     conversation_id = chat_request.conversation_id or ""
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    conversation = conversation_crud.get_conversation(
+        session, conversation_id, user_id)
 
     if conversation is None:
         # Get the first 5 words of the user message as the title
@@ -374,7 +377,8 @@ def attach_files_to_messages(
         files = file_crud.get_files_by_ids(session, file_ids, user_id)
         for file in files:
             if file.message_id is None:
-                file_crud.update_file(session, file, UpdateFile(message_id=message_id))
+                file_crud.update_file(
+                    session, file, UpdateFile(message_id=message_id))
 
 
 def create_chat_history(
@@ -433,12 +437,14 @@ def update_conversation_after_turn(
     message_crud.create_message(session, response_message)
 
     # Update conversation description with final message
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    conversation = conversation_crud.get_conversation(
+        session, conversation_id, user_id)
     new_conversation = UpdateConversation(
         description=final_message_text,
         user_id=conversation.user_id,
     )
-    conversation_crud.update_conversation(session, conversation, new_conversation)
+    conversation_crud.update_conversation(
+        session, conversation, new_conversation)
 
 
 def save_tool_calls_message(
@@ -773,7 +779,8 @@ def handle_stream_tool_calls_generation(
                 parameters=tool_call.get("parameters"),
             )
         )
-    stream_event = StreamToolCallsGeneration(**event | {"tool_calls": tool_calls})
+    stream_event = StreamToolCallsGeneration(
+        **event | {"tool_calls": tool_calls})
     stream_end_data["tool_calls"].extend(tool_calls)
 
     if should_store:
