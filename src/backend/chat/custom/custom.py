@@ -10,7 +10,7 @@ from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.crud.file import get_files_by_conversation_id
-from backend.schemas.chat import ChatMessage
+from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Tool
 from backend.services.logger import get_logger
@@ -205,6 +205,7 @@ class CustomChat(BaseChat):
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=kwargs.get("user_id"),
+                agent_id=kwargs.get("agent_id"),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list
@@ -304,5 +305,5 @@ class CustomChat(BaseChat):
 
             files_message += f"Filename: {file.file_name}\nWord Count: {word_count} Preview: {preview}\n\n"
 
-        chat_history.append(ChatMessage(message=files_message, role="SYSTEM"))
+        chat_history.append(ChatMessage(message=files_message, role=ChatRole.SYSTEM))
         return chat_history

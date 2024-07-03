@@ -14,13 +14,17 @@ import {
   StreamSearchResults,
   StreamStart,
   StreamTextGeneration,
-  StreamToolInput,
-  StreamToolResult,
+  StreamToolCallsChunk,
+  StreamToolCallsGeneration,
   isCohereNetworkError,
-  isSessionUnavailableError,
   isStreamError,
 } from '@/cohere-client';
-import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
+import {
+  DEFAULT_TYPING_VELOCITY,
+  DEPLOYMENT_COHERE_PLATFORM,
+  TOOL_PYTHON_INTERPRETER_ID,
+} from '@/constants';
+import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { useRouteChange } from '@/hooks/route';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
@@ -42,6 +46,7 @@ import {
   isAbortError,
   isGroundingOn,
   replaceTextWithCitations,
+  shouldUpdateConversationTitle,
 } from '@/utils';
 import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
@@ -81,6 +86,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     setConversation,
     setPendingMessage,
   } = useConversationStore();
+  const { mutateAsync: updateConversationTitle } = useUpdateConversationTitle();
   const {
     citations: { outputFiles: savedOutputFiles },
     addSearchResults,
@@ -171,6 +177,26 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     }, {});
   };
 
+  const handleUpdateConversationTitle = async (conversationId: string) => {
+    const { title } = await updateConversationTitle(conversationId);
+
+    if (!title) return;
+
+    // wait for the side panel to add the new conversation with the animation included
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // iterate each character in the title and add a delay to simulate typing
+    for (let i = 0; i < title.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, DEFAULT_TYPING_VELOCITY));
+      // only update the conversation name if the user is still on the same conversation
+      // usage of window.location instead of router is due of replacing the url through
+      // window.history in ConversationsContext.
+      if (window?.location.pathname.includes(conversationId)) {
+        setConversation({ name: title.slice(0, i + 1) });
+      }
+    }
+  };
+
   const handleStreamConverse = async ({
     newMessages,
     request,
@@ -203,7 +229,11 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     let citations: Citation[] = [];
     let documentsMap: IdToDocument = {};
     let outputFiles: OutputFiles = {};
-    let toolEvents: StreamToolInput[] = [];
+    let toolEvents: StreamToolCallsGeneration[] = [];
+    let currentToolEventIndex = 0;
+
+    // Temporarily store the streaming `parameters` partial JSON string for a tool call
+    let toolCallParamaterStr = '';
 
     try {
       clearComposerFiles();
@@ -249,29 +279,58 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               break;
             }
 
-            case StreamEvent.TOOL_INPUT: {
-              const data = eventData.data as StreamToolInput;
-              toolEvents.push(data);
+            case StreamEvent.TOOL_CALLS_CHUNK: {
+              const data = eventData.data as StreamToolCallsChunk;
 
-              setStreamingMessage({
-                type: MessageType.BOT,
-                state: BotState.TYPING,
-                text: botResponse,
-                isRAGOn,
-                generationId,
-                originalText: botResponse,
-                toolEvents,
-              });
-              break;
-            }
+              // Initiate an empty tool event if one doesn't already exist at the current index
+              const toolEvent: StreamToolCallsGeneration = toolEvents[currentToolEventIndex] ?? {
+                text: '',
+                tool_calls: [],
+              };
+              toolEvent.text += data?.text ?? '';
 
-            // This event only occurs when we're using experimental langchain multihop.
-            case StreamEvent.TOOL_RESULT: {
-              const data = eventData.data as StreamToolResult;
-              if (data.tool_name.toLowerCase() === TOOL_PYTHON_INTERPRETER_ID) {
-                const resultsWithOutputFile = data.result.filter((r: any) => r.output_file);
-                outputFiles = { ...mapOutputFiles(resultsWithOutputFile) };
-                saveOutputFiles(outputFiles);
+              // A tool call needs to be added/updated if a tool call delta is present in the event
+              if (data?.tool_call_delta) {
+                const currentToolCallsIndex = data.tool_call_delta.index ?? 0;
+                let toolCall = toolEvent.tool_calls?.[currentToolCallsIndex];
+                if (!toolCall) {
+                  toolCall = {
+                    name: '',
+                    parameters: {},
+                  };
+                  toolCallParamaterStr = '';
+                }
+
+                if (data?.tool_call_delta?.name) {
+                  toolCall.name = data.tool_call_delta.name;
+                }
+                if (data?.tool_call_delta?.parameters) {
+                  toolCallParamaterStr += data?.tool_call_delta?.parameters;
+
+                  // Attempt to parse the partial parameter string as valid JSON to show that the parameters
+                  // are streaming in. To make the partial JSON string valid JSON after the object key comes in,
+                  // we naively try to add `"}` to the end.
+                  try {
+                    const partialParams = JSON.parse(toolCallParamaterStr + `"}`);
+                    toolCall.parameters = partialParams;
+                  } catch (e) {
+                    // Ignore parsing error
+                  }
+                }
+
+                // Update the tool call list with the new/updated tool call
+                if (toolEvent.tool_calls?.[currentToolCallsIndex]) {
+                  toolEvent.tool_calls[currentToolCallsIndex] = toolCall;
+                } else {
+                  toolEvent.tool_calls?.push(toolCall);
+                }
+              }
+
+              // Update the tool event list with the new/updated tool event
+              if (toolEvents[currentToolEventIndex]) {
+                toolEvents[currentToolEventIndex] = toolEvent;
+              } else {
+                toolEvents.push(toolEvent);
               }
 
               setStreamingMessage({
@@ -283,9 +342,45 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 originalText: botResponse,
                 toolEvents,
               });
-
               break;
             }
+
+            case StreamEvent.TOOL_CALLS_GENERATION: {
+              const data = eventData.data as StreamToolCallsGeneration;
+
+              if (toolEvents[currentToolEventIndex]) {
+                toolEvents[currentToolEventIndex] = data;
+                currentToolEventIndex += 1;
+              } else {
+                toolEvents.push(data);
+                currentToolEventIndex = toolEvents.length; // double check this is right
+              }
+              break;
+            }
+
+            // TODO(@wujessica): temporarily remove support for experimental langchain multihop
+            // as it diverges from the current implementation.
+            // This event only occurs when we're using experimental langchain multihop.
+            // case StreamEvent.TOOL_RESULT: {
+            //   const data = eventData.data as StreamToolResult;
+            //   if (data.tool_name === TOOL_PYTHON_INTERPRETER_ID) {
+            //     const resultsWithOutputFile = data.result.filter((r: any) => r.output_file);
+            //     outputFiles = { ...mapOutputFiles(resultsWithOutputFile) };
+            //     saveOutputFiles(outputFiles);
+            //   }
+
+            //   setStreamingMessage({
+            //     type: MessageType.BOT,
+            //     state: BotState.TYPING,
+            //     text: botResponse,
+            //     isRAGOn,
+            //     generationId,
+            //     originalText: botResponse,
+            //     toolEvents,
+            //   });
+
+            //   break;
+            // }
 
             case StreamEvent.CITATION_GENERATION: {
               const data = eventData.data as StreamCitationGeneration;
@@ -342,9 +437,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
 
               const outputText =
-                data?.finish_reason === FinishReason.FINISH_REASON_MAX_TOKENS
-                  ? botResponse
-                  : responseText;
+                data?.finish_reason === FinishReason.MAX_TOKENS ? botResponse : responseText;
 
               // Replace HTML code blocks with iframes
               const transformedText = replaceCodeBlockWithIframe(outputText);
@@ -374,6 +467,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 toolEvents,
               });
 
+              if (shouldUpdateConversationTitle(newMessages)) {
+                handleUpdateConversationTitle(conversationId);
+              }
+
               break;
             }
           }
@@ -381,17 +478,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
         onHeaders: () => {},
         onFinish: () => {
           setIsStreaming(false);
-          setConversation({ isSessionAvailable: true });
         },
         onError: (e) => {
           citations = [];
           if (isCohereNetworkError(e)) {
             const networkError = e;
             let errorMessage = USER_ERROR_MESSAGE;
-
-            if (isSessionUnavailableError(e)) {
-              setConversation({ isSessionAvailable: false });
-            }
 
             setConversation({
               messages: newMessages.map((m, i) =>
@@ -448,10 +540,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     } catch (e) {
       if (isCohereNetworkError(e) && e?.status) {
         let errorMessage = USER_ERROR_MESSAGE;
-
-        if (isSessionUnavailableError(e)) {
-          setConversation({ isSessionAvailable: false });
-        }
 
         setConversation({
           messages: newMessages.map((m, i) =>

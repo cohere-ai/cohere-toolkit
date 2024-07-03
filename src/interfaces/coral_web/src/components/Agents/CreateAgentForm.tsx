@@ -1,7 +1,11 @@
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
 
-import { AgentForm, AgentFormFieldKeys, AgentFormFields } from '@/components/Agents/AgentForm';
+import {
+  AgentForm,
+  AgentFormFieldKeys,
+  CreateAgentFormFields,
+} from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
@@ -19,7 +23,7 @@ export const CreateAgentForm: React.FC = () => {
   const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<AgentFormFields>({
+  const [fields, setFields] = useState<CreateAgentFormFields>({
     name: '',
     description: '',
     preamble: '',

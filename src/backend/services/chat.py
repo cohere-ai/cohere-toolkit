@@ -24,6 +24,10 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.tool_call import ToolCall as ToolCallModel
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_session_user_to_request_state,
+)
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -82,7 +86,7 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        request.state.agent = Agent.model_validate(agent)
+        add_agent_to_request_state(request, agent)
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
@@ -108,7 +112,7 @@ def process_chat(
         chat_request
     )
     conversation = get_or_create_conversation(
-        session, chat_request, user_id, should_store, agent_id
+        session, chat_request, user_id, should_store, agent_id, chat_request.message
     )
 
     # Get position to put next message in
@@ -210,6 +214,7 @@ def get_or_create_conversation(
     user_id: str,
     should_store: bool,
     agent_id: str | None = None,
+    user_message: str = "",
 ) -> Conversation:
     """
     Gets or creates a Conversation based on the chat request.
@@ -227,10 +232,15 @@ def get_or_create_conversation(
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if conversation is None:
+        # Get the first 5 words of the user message as the title
+        title = " ".join(user_message.split()[:5])
+        print(f"The title is: {title}")
+
         conversation = Conversation(
             user_id=user_id,
             id=chat_request.conversation_id,
             agent_id=agent_id,
+            title=title,
         )
 
         if should_store:
@@ -503,10 +513,13 @@ def generate_chat_response(
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
+            response_id = response_message.id if response_message else None
+            generation_id = response_message.generation_id if response_message else None
+
             non_streamed_chat_response = NonStreamedChatResponse(
                 text=data.get("text", ""),
-                response_id=response_message.id,
-                generation_id=response_message.generation_id,
+                response_id=response_id,
+                generation_id=generation_id,
                 chat_history=data.get("chat_history", []),
                 finish_reason=data.get("finish_reason", ""),
                 citations=data.get("citations", []),
@@ -547,7 +560,7 @@ def generate_chat_stream(
     """
     stream_end_data = {
         "conversation_id": conversation_id,
-        "response_id": response_message.id,
+        "response_id": response_message.id if response_message else None,
         "text": "",
         "citations": [],
         "documents": [],
@@ -641,7 +654,8 @@ def handle_stream_start(
 ) -> tuple[StreamStart, dict[str, Any], Message, dict[str, Document]]:
     event["conversation_id"] = conversation_id
     stream_event = StreamStart.model_validate(event)
-    response_message.generation_id = event["generation_id"]
+    if response_message:
+        response_message.generation_id = event["generation_id"]
     stream_end_data["generation_id"] = event["generation_id"]
     return stream_event, stream_end_data, response_message, document_ids_to_document
 
@@ -750,8 +764,7 @@ def handle_stream_tool_calls_generation(
     stream_event = StreamToolCallsGeneration(**event | {"tool_calls": tool_calls})
     stream_end_data["tool_calls"].extend(tool_calls)
 
-    # TODO: remove False condition to enable saving tool calls
-    if should_store and False:
+    if should_store:
         save_tool_calls_message(
             session,
             tool_calls,
@@ -821,8 +834,10 @@ def handle_stream_end(
     document_ids_to_document: dict[str, Document],
     **kwargs: Any,
 ) -> tuple[StreamEnd, dict[str, Any], Message, dict[str, Document]]:
-    response_message.citations = stream_end_data["citations"]
-    response_message.text = stream_end_data["text"]
+    if response_message:
+        response_message.citations = stream_end_data["citations"]
+        response_message.text = stream_end_data["text"]
+
     stream_end_data["chat_history"] = (
         to_dict(event).get("response", {}).get("chat_history", [])
     )

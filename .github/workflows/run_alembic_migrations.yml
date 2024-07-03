@@ -1,0 +1,64 @@
+name: Automated Migrations
+# This workflow provides a way to run Alembic migrations using SSH or migration API or database URL.
+on:
+  push:
+    branches: [ main ]
+jobs:
+  run-alembic-migrations-ssh:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_HOST: ${{secrets.SSH_HOST}}
+        SSH_PORT: ${{secrets.SSH_PORT}}
+        SSH_USER_NAME: ${{secrets.SSH_USER_NAME}}
+        DATABASE_URL: ${{secrets.MIGRATION_DATABASE_URL}}
+        MIGRATION_API_ENDPOINT: ${{secrets.MIGRATION_API_ENDPOINT}}
+        MIGRATION_API_TOKEN: ${{secrets.MIGRATION_API_TOKEN}}
+        # If migration API params are present, use backend API to run migrations.
+        USE_MIGRATION_API: ${{ (secrets.MIGRATION_API_ENDPOINT != '') && (secrets.MIGRATION_API_TOKEN != '') }}
+        # If database URL is present, run migrations on DB connection.
+        # Please note that the database connection should be open to the IP from where the migrations are being run.
+        # If you are using a private network, you can set up SSH tunnel to run migrations.
+        USE_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL != '' }}
+        # If SSH params are present, use SSH to run migrations.
+        USE_SSH: ${{ (secrets.SSH_PRIVATE_KEY != '') && (secrets.SSH_HOST != '') && (secrets.SSH_USER_NAME != '') && (secrets.SSH_PORT != '')}}
+
+    steps:
+        - name: Run Alembic Migrations SSH
+          if: ${{ (env.USE_SSH == 'true' && env.USE_MIGRATION_API == 'false' && env.USE_DATABASE_URL == 'false') }}
+          run: |
+            echo "Running migrations using SSH"
+            echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+            ssh -o StrictHostKeyChecking=no -i private_key ${SSH_USER_NAME}@${SSH_HOST} -p ${SSH_PORT} '
+                export SSH_PROJECT_DIR=~/cohere-toolkit && # Set the project directory here
+                sh $SSH_PROJECT_DIR/.github/scripts/run_docker_migration.sh && # Delete this command if your toolkit is not in a docker container
+                sh $SSH_PROJECT_DIR/.github/scripts/run_src_migration.sh # Delete this command if your toolkit is in a docker container
+            '
+        - name: Run Alembic Migrations API
+          if: ${{ (env.USE_SSH == 'false' && env.USE_MIGRATION_API == 'true' && env.USE_DATABASE_URL == 'false') }}
+          run: |
+            echo "Running migrations using the migration API"
+            curl -H "Authorization: Bearer $MIGRATION_API_TOKEN" -X POST $MIGRATION_API_ENDPOINT
+        - name: Checkout repository
+          if: ${{(env.USE_SSH == 'false' && env.USE_MIGRATION_API == 'false' && env.USE_DATABASE_URL == 'true')  || (env.USE_SSH == 'true' && env.USE_MIGRATION_API == 'true' && env.USE_DATABASE_URL == 'true') }}
+          uses: actions/checkout@v4
+        - name: Set up Python 3.11
+          if: ${{(env.USE_SSH == 'false' && env.USE_MIGRATION_API == 'false' && env.USE_DATABASE_URL == 'true')  || (env.USE_SSH == 'true' && env.USE_MIGRATION_API == 'true' && env.USE_DATABASE_URL == 'true') }}
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
+        - name: Run Alembic Migrations Database
+          if: ${{(env.USE_SSH == 'false' && env.USE_MIGRATION_API == 'false' && env.USE_DATABASE_URL == 'true')  || (env.USE_SSH == 'true' && env.USE_MIGRATION_API == 'true' && env.USE_DATABASE_URL == 'true') }}
+          run: |
+            echo "Running migrations using the database URL"
+            pip install poetry==1.7.1
+            export POETRY_VIRTUALENVS_IN_PROJECT=true
+            poetry install
+            echo "DATABASE_URL=$DATABASE_URL" > .env
+            source .venv/bin/activate
+            alembic -c src/backend/alembic.ini upgrade head
+        - name: Fail Migration
+          if: ${{ (env.USE_SSH == 'false' && env.USE_MIGRATION_API == 'false' && env.USE_DATABASE_URL == 'false') }}
+          run: |
+            echo "Migration failed. Please provide either SSH, Migration API or Database URL environment variables. See the README for more information."
