@@ -26,17 +26,19 @@ import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useLazyRef } from '@/hooks/lazyRef';
 import '@/styles/main.css';
+import { useCallback } from 'react';
 
 /**
  * Create a CohereAPIClient with the given access token.
  */
-const makeCohereClient = (authToken?: string) => {
+const makeCohereClient = (authToken?: string, onAuthTokenUpdate?: (authToken?: string) => void) => {
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
   return new CohereClient({
     hostname: env.NEXT_PUBLIC_API_HOSTNAME,
     source: 'coral',
     fetch: apiFetch,
     authToken,
+    onAuthTokenUpdate,
   });
 };
 
@@ -56,14 +58,21 @@ export const appSSR = {
 type Props = AppProps<PageAppProps>;
 
 const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
-  const { value: authToken, remove: clearAuthToken } = useLocalStorageValue(
+  const { value: authToken, set: setAuthToken, remove: clearAuthToken } = useLocalStorageValue(
     LOCAL_STORAGE_KEYS.authToken,
     {
       defaultValue: undefined,
     }
   );
+  const onAuthTokenUpdate = useCallback((newAuthToken: string | undefined) => {
+    if (newAuthToken) {
+      setAuthToken(newAuthToken);
+    } else {
+      clearAuthToken();
+    }
+  }, [setAuthToken, clearAuthToken]);
   const router = useRouter();
-  const cohereClient = useLazyRef(() => makeCohereClient(authToken));
+  const cohereClient = useLazyRef(() => makeCohereClient(authToken, onAuthTokenUpdate));
   const queryClient = useLazyRef(
     () =>
       new QueryClient({

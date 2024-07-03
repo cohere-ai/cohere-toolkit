@@ -62,6 +62,7 @@ export class CohereClient {
   private readonly fetch: Fetch;
   private readonly source: string;
   private authToken?: string;
+  private onAuthTokenUpdate?: (authToken?: string) => void;
 
   public cohereService?: DefaultService;
   public request?: any;
@@ -71,16 +72,30 @@ export class CohereClient {
     source,
     fetch,
     authToken,
+    onAuthTokenUpdate,
   }: {
     hostname: string;
     source: string;
     fetch: Fetch;
     authToken?: string;
+    onAuthTokenUpdate?: (authToken?: string) => void;
   }) {
     this.hostname = hostname;
     this.source = source;
     this.fetch = fetch;
     this.authToken = authToken;
+    if (onAuthTokenUpdate) {
+      this.onAuthTokenUpdate = onAuthTokenUpdate;
+    }
+  }
+
+  private handleAuthTokenUpdate(response: Response) {
+    const headers = response.headers;
+    const authToken = headers.get('X-Toolkit-Auth-Update');
+    if (authToken) {
+      this.authToken = authToken;
+    }
+    this.onAuthTokenUpdate?.(this.authToken);
   }
 
   public async uploadFile({
@@ -110,6 +125,7 @@ export class CohereClient {
       body: formData,
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -134,6 +150,7 @@ export class CohereClient {
       headers: this.getHeaders(),
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -159,6 +176,7 @@ export class CohereClient {
       }
     );
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -192,6 +210,10 @@ export class CohereClient {
     onClose?: FetchEventSourceInit['onclose'];
     onError?: FetchEventSourceInit['onerror'];
   }) {
+    const handleAuthUpdateOnOpen = async (response: Response) => {
+      this.handleAuthTokenUpdate(response);
+      onOpen?.(response);
+    }
     const chatRequest = mapToChatRequest(request);
     const requestBody = JSON.stringify({
       ...chatRequest,
@@ -201,7 +223,7 @@ export class CohereClient {
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
       signal,
-      onopen: onOpen,
+      onopen: handleAuthUpdateOnOpen,
       onmessage: onMessage,
       onclose: onClose,
       onerror: onError,
@@ -225,6 +247,10 @@ export class CohereClient {
     onClose?: FetchEventSourceInit['onclose'];
     onError?: FetchEventSourceInit['onerror'];
   }) {
+    const handleAuthUpdateOnOpen = async (response: Response) => {
+      this.handleAuthTokenUpdate(response);
+      onOpen?.(response);
+    }
     const chatRequest = mapToChatRequest(request);
     const requestBody = JSON.stringify({
       ...chatRequest,
@@ -234,7 +260,7 @@ export class CohereClient {
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
       signal,
-      onopen: onOpen,
+      onopen: handleAuthUpdateOnOpen,
       onmessage: onMessage,
       onclose: onClose,
       onerror: onError,
@@ -252,6 +278,7 @@ export class CohereClient {
       signal,
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -279,6 +306,8 @@ export class CohereClient {
       headers: this.getHeaders(),
       signal,
     });
+
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -301,6 +330,7 @@ export class CohereClient {
       headers: this.getHeaders(),
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -332,6 +362,7 @@ export class CohereClient {
       headers: this.getHeaders(),
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -355,6 +386,7 @@ export class CohereClient {
       signal,
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -377,6 +409,7 @@ export class CohereClient {
       headers: this.getHeaders(),
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -399,6 +432,7 @@ export class CohereClient {
       headers: this.getHeaders(),
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -425,6 +459,8 @@ export class CohereClient {
       }
     );
 
+    this.handleAuthTokenUpdate(response);
+
     if (response.status === 401) {
       throw new CohereUnauthorizedError();
     }
@@ -440,6 +476,7 @@ export class CohereClient {
       headers: this.getHeaders(),
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status === 401) {
@@ -499,6 +536,7 @@ export class CohereClient {
       headers: this.getHeaders(),
     });
 
+    this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
     if (response.status !== 200) {
