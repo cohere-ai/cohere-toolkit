@@ -19,7 +19,12 @@ from .constants import (
     SEARCH_LIMIT,
     SEARCH_MIME_TYPES,
 )
-from .utils import extract_links, extract_web_view_links, process_shortcut_files
+from .utils import (
+    extract_links,
+    extract_titles,
+    extract_web_view_links,
+    process_shortcut_files,
+)
 
 logger = get_logger()
 
@@ -123,6 +128,7 @@ class GoogleDrive(BaseTool):
         files = process_shortcut_files(service, files)
         id_to_urls = extract_links(files)
         web_view_links = extract_web_view_links(files)
+        titles = extract_titles(files)
         id_to_texts = async_download.perform(id_to_urls, creds.token)
 
         """
@@ -144,11 +150,12 @@ class GoogleDrive(BaseTool):
                     action=Compass.ValidActions.GET_DOCUMENT,
                     parameters={"index": index_name, "file_id": file_id},
                 ).result["doc"]
-                last_updated = fetched_doc["content"].get("last_updated")
                 url = fetched_doc["content"].get("url")
+                title = fetched_doc["content"].get("title")
+                last_updated = fetched_doc["content"].get("last_updated")
 
                 should_update = False
-                if last_updated is None or url is None:
+                if last_updated is None or url is None or title is None:
                     should_update = True
                 else:
                     if int(time.time()) - last_updated > COMPASS_UPDATE_INTERVAL:
@@ -173,9 +180,15 @@ class GoogleDrive(BaseTool):
                             "file_id": file_id,
                             "context": {
                                 "url": web_view_links[file_id],
+                                "title": titles[file_id],
                                 "last_updated": int(time.time()),
                             },
                         },
+                    )
+                    # refresh
+                    compass.invoke(
+                        action=Compass.ValidActions.REFRESH,
+                        parameters={"index": index_name},
                     )
             except Exception:
                 # create
@@ -195,6 +208,7 @@ class GoogleDrive(BaseTool):
                         "file_id": file_id,
                         "context": {
                             "url": web_view_links[file_id],
+                            "title": titles[file_id],
                             "last_updated": int(time.time()),
                         },
                     },
@@ -218,6 +232,7 @@ class GoogleDrive(BaseTool):
             {
                 "text": chunk["content"]["text"],
                 "url": hit["content"].get("url", ""),
+                "title": hit["content"].get("title", ""),
             }
             for hit in hits
             for chunk in hit["chunks"]
