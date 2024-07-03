@@ -1,11 +1,12 @@
 import { Transition } from '@headlessui/react';
 import { Fragment, PropsWithChildren } from 'react';
 
-import { StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
+import { StreamSearchResults, StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
 import { Icon, IconName, Markdown, Text } from '@/components/Shared';
 import {
   TOOL_CALCULATOR_ID,
   TOOL_FALLBACK_ICON,
+  TOOL_GOOGLE_DRIVE_ID,
   TOOL_ID_TO_DISPLAY_INFO,
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
@@ -34,6 +35,9 @@ export const ToolEvents: React.FC<Props> = ({ show, events }) => {
     >
       {events?.map((toolEvent, i) => (
         <Fragment key={i}>
+          {toolEvent.stream_search_results && (
+            <ToolEvent stream_search_results={toolEvent.stream_search_results} />
+          )}
           {toolEvent.text && <ToolEvent plan={toolEvent.text} />}
           {toolEvent.tool_calls?.map((toolCall, j) => (
             <ToolEvent key={`event-${j}`} event={toolCall} />
@@ -47,17 +51,40 @@ export const ToolEvents: React.FC<Props> = ({ show, events }) => {
 type ToolEventProps = {
   plan?: string;
   event?: ToolCall;
+  stream_search_results?: StreamSearchResults | null;
 };
 
 /**
  * @description Renders a step event depending on the tool's input or output.
  */
-const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
-  if (!event) {
+const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_results }) => {
+  if (plan) {
     return <ToolEventWrapper>{plan}</ToolEventWrapper>;
   }
 
-  const toolName = event.name;
+  if (stream_search_results) {
+    const artifacts =
+      stream_search_results.documents
+        ?.map((doc) => {
+          return { title: truncateString(doc.title || doc.url || ''), url: doc.url };
+        })
+        .filter((value, index, self) => index === self.findIndex((t) => t.title === value.title)) ||
+      [];
+    return (
+      <ToolEventWrapper icon="book-open-text">
+        Found{' '}
+        {artifacts.map((artifact) => (
+          <b className="cursor-pointer pr-1 font-medium underline">
+            <a href={artifact.url || ''} target="_blank">
+              {artifact.title}
+            </a>
+          </b>
+        ))}
+      </ToolEventWrapper>
+    );
+  }
+
+  const toolName = event?.name || '';
   const icon = TOOL_ID_TO_DISPLAY_INFO[toolName]?.icon ?? TOOL_FALLBACK_ICON;
 
   switch (toolName) {
@@ -100,6 +127,14 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
       );
     }
 
+    case TOOL_GOOGLE_DRIVE_ID: {
+      return (
+        <ToolEventWrapper icon={icon}>
+          Searching <b className="font-medium">{event?.parameters?.query as any}</b> in {toolName}
+        </ToolEventWrapper>
+      );
+    }
+
     default: {
       return (
         <ToolEventWrapper icon={icon}>
@@ -125,4 +160,8 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
       </Text>
     </div>
   );
+};
+
+const truncateString = (str: string, max_length: number = 50) => {
+  return str.length < max_length ? str : str.substring(0, max_length) + '...';
 };

@@ -456,6 +456,7 @@ export type StreamToolCallsChunk = {
  * Stream tool calls generation event.
  */
 export type StreamToolCallsGeneration = {
+  stream_search_results?: StreamSearchResults | null;
   tool_calls?: Array<ToolCall> | null;
   text: string | null;
 };
