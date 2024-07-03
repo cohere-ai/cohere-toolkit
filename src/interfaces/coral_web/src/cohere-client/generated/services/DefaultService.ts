@@ -822,15 +822,12 @@ export class DefaultService {
   /**
    * Create Agent
    * Create an agent.
-   *
    * Args:
    * session (DBSessionDep): Database session.
    * agent (CreateAgent): Agent data.
    * request (Request): Request object.
-   *
    * Returns:
    * Agent: Created agent.
-   *
    * Raises:
    * HTTPException: If the agent creation fails.
    * @returns Agent Successful Response

@@ -56,7 +56,9 @@ class Compass:
             )
 
         self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
-        self.compass_parser_url = compass_parser_url or os.getenv("COHERE_COMPASS_PARSER_URL")
+        self.compass_parser_url = compass_parser_url or os.getenv(
+            "COHERE_COMPASS_PARSER_URL"
+        )
         self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
         self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
         self.parser_config = parser_config
@@ -98,7 +100,10 @@ class Compass:
         """
 
         # Check if index is specified
-        if not parameters.get("index", None) and action != self.ValidActions.LIST_INDEXES:
+        if (
+            not parameters.get("index", None)
+            and action != self.ValidActions.LIST_INDEXES
+        ):
             raise Exception(
                 "Compass Tool: No index specified. ",
                 "No action will be taken. ",
@@ -237,7 +242,9 @@ class Compass:
             )
 
         # Check if filename is specified for file-related actions
-        if not parameters.get("filename", None) and not parameters.get("file_text", None):
+        if not parameters.get("filename", None) and not parameters.get(
+            "file_text", None
+        ):
             logger.error(
                 "Compass Tool: No filename or file_text specified for "
                 "create/update operation. "
@@ -259,7 +266,9 @@ class Compass:
             return None
 
         parser_config = self.parser_config or parameters.get("parser_config", None)
-        metadata_config = metadata_config = self.metadata_config or parameters.get("metadata_config", None)
+        metadata_config = metadata_config = self.metadata_config or parameters.get(
+            "metadata_config", None
+        )
 
         if filename:
             return self.parser_client.process_file(
@@ -287,7 +296,9 @@ class Compass:
             metadata_config=self.metadata_config,
             doc_id=file_id,
         )
-        auth = (self.username, self.password) if self.username and self.password else None
+        auth = (
+            (self.username, self.password) if self.username and self.password else None
+        )
         res = self.parser_client.session.post(
             url=f"{self.parser_client.parser_url}/v1/process_file",
             data={"data": json.dumps(params.model_dump())},
