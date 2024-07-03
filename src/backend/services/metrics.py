@@ -32,7 +32,6 @@ HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
