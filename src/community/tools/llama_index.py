@@ -20,6 +20,8 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
     This requires llama_index package to be installed.
     """
 
+    NAME = "file_reader_llamaindex"
+
     def __init__(self, filepath: str):
         self.filepath = filepath
 

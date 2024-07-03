@@ -13,9 +13,8 @@ from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.services.logger import get_logger
-from backend.tools.base import BaseAuth, BaseTool
+from backend.tools.base import BaseTool, BaseToolAuthentication
 
-GOOGLE_DRIVE_TOOL_ID = "google_drive"
 logger = get_logger()
 
 
@@ -24,11 +23,21 @@ class GoogleDrive(BaseTool):
     Experimental (In development): Tool that searches Google Drive
     """
 
+    NAME = "google_drive"
+
     @classmethod
     def is_available(cls) -> bool:
         return False
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+        auth = tool_auth_crud.get_tool_auth(
+            kwargs.get("session"), self.NAME, kwargs.get("user_id")
+        )
+
+        if not auth:
+            # TODO Error
+            pass
+
         # TODO: Improve the getting of files
         query = parameters.get("query", "")
         conditions = [
@@ -49,9 +58,6 @@ class GoogleDrive(BaseTool):
             + ")",
         ]
         q = " and ".join(conditions)
-        auth = tool_auth_crud.get_tool_auth(
-            kwargs.get("session"), GOOGLE_DRIVE_TOOL_ID, kwargs.get("user_id")
-        )
         creds = Credentials(auth.encrypted_access_token.decode())
         service = build("drive", "v3", credentials=creds)
         results = (
@@ -63,7 +69,7 @@ class GoogleDrive(BaseTool):
         return [dict({"text": item["name"]}) for item in items]
 
 
-class GoogleDriveAuth(BaseAuth):
+class GoogleDriveAuth(BaseToolAuthentication):
     @classmethod
     def get_auth_url(cls, user_id: str) -> str:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID"):

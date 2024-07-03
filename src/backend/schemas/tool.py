@@ -15,7 +15,7 @@ class ToolInput(BaseModel):
 
 
 class Tool(BaseModel):
-    name: str
+    name: Optional[str] = ""
     display_name: str = ""
     description: Optional[str] = ""
     parameter_definitions: Optional[dict] = {}
