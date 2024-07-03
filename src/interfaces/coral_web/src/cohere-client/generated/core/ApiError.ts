@@ -1,10 +1,3 @@
-/* generated using openapi-typescript-codegen -- do no edit */
-
-/* istanbul ignore file */
-
-/* tslint:disable */
-
-/* eslint-disable */
 import type { ApiRequestOptions } from './ApiRequestOptions';
 import type { ApiResult } from './ApiResult';
 
@@ -12,7 +5,7 @@ export class ApiError extends Error {
   public readonly url: string;
   public readonly status: number;
   public readonly statusText: string;
-  public readonly body: any;
+  public readonly body: unknown;
   public readonly request: ApiRequestOptions;
 
   constructor(request: ApiRequestOptions, response: ApiResult, message: string) {
