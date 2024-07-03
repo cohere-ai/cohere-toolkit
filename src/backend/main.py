@@ -5,11 +5,15 @@ from contextlib import asynccontextmanager
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config.auth import get_auth_strategy_endpoints, is_authentication_enabled, verify_migrate_token
+from backend.config.auth import (
+    get_auth_strategy_endpoints,
+    is_authentication_enabled,
+    verify_migrate_token,
+)
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
