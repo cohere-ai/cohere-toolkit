@@ -273,6 +273,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 mapDocuments(documents);
               documentsMap = { ...documentsMap, ...newDocumentsMap };
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
+              toolEvents.push({
+                text: '',
+                stream_search_results: data,
+              } as StreamToolCallsGeneration);
               break;
             }
 
