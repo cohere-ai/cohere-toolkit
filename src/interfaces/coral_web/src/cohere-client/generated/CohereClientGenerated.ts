@@ -25,7 +25,12 @@ export class CohereClientGenerated {
       PASSWORD: config?.PASSWORD,
       HEADERS: config?.HEADERS,
       ENCODE_PATH: config?.ENCODE_PATH,
+      interceptors: {
+        request: config?.interceptors?.request ?? new Interceptors(),
+        response: config?.interceptors?.response ?? new Interceptors(),
+      },
     });
+
     this.default = new DefaultService(this.request);
   }
 }
