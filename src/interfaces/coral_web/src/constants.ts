@@ -64,3 +64,5 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_WIKIPEDIA_ID]: { icon: 'web' },
   [TOOL_SEARCH_FILE_ID]: { icon: 'search' },
 };
+
+export const MAX_TIMEOUT_PREFETCH = 5000;

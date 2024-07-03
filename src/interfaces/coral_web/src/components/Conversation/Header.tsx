@@ -1,10 +1,12 @@
 import { Transition } from '@headlessui/react';
 import { useRouter } from 'next/router';
+import { useContext } from 'react';
 
 import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
+import { ModalContext } from '@/context/ModalContext';
 import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -18,8 +20,14 @@ import {
 } from '@/stores';
 import { cn } from '@/utils';
 
+import { ShareModal } from '../ShareModal';
+
 const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
-  const { resetConversation } = useConversationStore();
+  const { open } = useContext(ModalContext);
+  const {
+    conversation: { id: conversationId },
+    resetConversation,
+  } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { userId } = useSession();
   const { data: agent } = useAgent({ agentId });
@@ -46,6 +54,14 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     resetConversation();
     resetCitations();
     resetFileParams();
+  };
+
+  const handleOpenShareModal = () => {
+    if (!conversationId) return;
+    open({
+      title: 'Share link to conversation',
+      content: <ShareModal conversationId={conversationId} />,
+    });
   };
 
   const handleOpenSettings = () => {
@@ -80,13 +96,25 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
       onClick: handleOpenSettings,
     },
     {
+      label: 'Share',
+      iconName: 'share',
+      onClick: handleOpenShareModal,
+    },
+    {
       label: 'New chat',
       iconName: 'new-message',
       onClick: handleNewChat,
     },
   ];
 
-  return { menuItems, isAgentCreator, handleNewChat, handleOpenSettings, handleOpenAgentDrawer };
+  return {
+    menuItems,
+    isAgentCreator,
+    handleNewChat,
+    handleOpenShareModal,
+    handleOpenSettings,
+    handleOpenAgentDrawer,
+  };
 };
 
 type Props = {
@@ -110,10 +138,16 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
 
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-  const { menuItems, isAgentCreator, handleNewChat, handleOpenSettings, handleOpenAgentDrawer } =
-    useHeaderMenu({
-      agentId,
-    });
+  const {
+    menuItems,
+    isAgentCreator,
+    handleNewChat,
+    handleOpenShareModal,
+    handleOpenSettings,
+    handleOpenAgentDrawer,
+  } = useHeaderMenu({
+    agentId,
+  });
 
   return (
     <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-400')}>
@@ -160,6 +194,14 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             iconName="new-message"
             onClick={handleNewChat}
           />
+          {id && (
+            <IconButton
+              tooltip={{ label: 'Share', placement: 'bottom-end', size: 'md' }}
+              className="hidden md:flex"
+              iconName="share"
+              onClick={handleOpenShareModal}
+            />
+          )}
           <div className="relative">
             <IconButton
               tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
