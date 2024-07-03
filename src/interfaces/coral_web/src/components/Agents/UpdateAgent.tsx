@@ -175,10 +175,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
 
     try {
       setIsSubmitting(true);
-      const newAgent = await updateAgent({
-        ...fields,
-        agentId,
-      });
+      const newAgent = await updateAgent({ request: fields, agentId });
       setIsSubmitting(false);
       success(`Updated ${newAgent?.name}`);
     } catch (e) {
@@ -205,17 +202,17 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   }
 
   return (
-    <div
-      className={cn(
-        'flex h-full flex-col bg-marble-100',
-        '2xl:agent-panel-2xl absolute left-0 top-0 w-full md:relative md:w-agent-panel lg:w-agent-panel-lg'
-      )}
-    >
-      <header className="flex h-header flex-shrink-0 items-center justify-between border-b border-marble-400 pl-14 pr-6">
+    <>
+      <header
+        className={cn(
+          'flex h-header flex-shrink-0 items-center justify-between border-b border-marble-400',
+          'pl-4 pr-3 lg:pl-10 lg:pr-8'
+        )}
+      >
         <Text>{isAgentCreator ? `Update ${agent.name}` : `About ${agent.name}`}</Text>
         <IconButton iconName="close" onClick={handleClose} />
       </header>
-      <div className="flex flex-col gap-y-5 overflow-y-auto px-8 py-8 md:px-14">
+      <div className={cn('flex flex-col gap-y-5 overflow-y-auto', 'p-4 lg:p-10')}>
         {isAgentCreator && <InfoBanner agentName={agent.name} className="flex md:hidden" />}
         <AgentForm<UpdateAgentFormFields>
           fields={fields}
@@ -227,7 +224,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         />
       </div>
       {isAgentCreator && (
-        <div className="flex flex-col gap-y-6 px-8 py-4 md:px-14 md:pb-8 md:pt-0">
+        <div className="flex flex-col gap-y-12 px-4 py-4 lg:px-10 lg:pb-8 lg:pt-0">
           <InfoBanner agentName={agent.name} className="hidden md:flex" />
           <Button
             className="self-end"
@@ -238,7 +235,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
           />
         </div>
       )}
-    </div>
+    </>
   );
 };
 

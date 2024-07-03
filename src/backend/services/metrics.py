@@ -17,7 +17,12 @@ from starlette.responses import Response
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData, MetricsSignal
+from backend.schemas.metrics import (
+    MetricsAgent,
+    MetricsData,
+    MetricsSignal,
+    MetricsUser,
+)
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -47,16 +52,17 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             return None
 
         agent = self.get_agent(request)
-        agent_id = agent.get("id", None) if agent else None
+        agent_id = agent.id if agent else None
 
         user_id = self.get_user_id(request)
         if not user_id:
             return None
 
         data = MetricsData(
+            id=str(uuid.uuid4()),
             method=self.get_method(scope),
             endpoint_name=self.get_endpoint_name(scope, request),
-            user_id=self.get_user_id(request),
+            user_id=user_id,
             user=self.get_user(request),
             success=self.get_success(response),
             trace_id=request.state.trace_id,
@@ -127,16 +133,16 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get user id: {e}")
             return None
 
-    def get_user(self, request: Request) -> Union[Dict[str, Any], None]:
+    def get_user(self, request: Request) -> Union[MetricsUser, None]:
         if not hasattr(request.state, "user") or not request.state.user:
             return None
 
         try:
-            return {
-                "id": request.state.user.id,
-                "fullname": request.state.user.fullname,
-                "email": request.state.user.email,
-            }
+            return MetricsUser(
+                id=request.state.user.id,
+                fullname=request.state.user.fullname,
+                email=request.state.user.email,
+            )
         except Exception as e:
             logging.warning(f"Failed to get user: {e}")
             return None
@@ -155,33 +161,25 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logging.warning(f"Failed to get object ids: {e}")
             return {}
 
-    def get_agent(self, request: Request) -> Union[Dict[str, Any], None]:
+    def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
         if not hasattr(request.state, "agent") or not request.state.agent:
             return None
-
-        return {
-            "id": request.state.agent.id,
-            "version": request.state.agent.version,
-            "name": request.state.agent.name,
-            "temperature": request.state.agent.temperature,
-            "model": request.state.agent.model,
-            "deployment": request.state.agent.deployment,
-            "description": request.state.agent.description,
-            "preamble": request.state.agent.preamble,
-            "tools": request.state.agent.tools,
-        }
+        return request.state.agent
 
 
-async def report_metrics(signal: MetricsSignal) -> None:
+async def report_metrics(data: MetricsData) -> None:
+    data = attach_secret(data)
+    signal = MetricsSignal(signal=data)
+    log_signal_curl(signal)
     if not REPORT_SECRET:
         logging.error("No report secret set")
         return
     if not REPORT_ENDPOINT:
         logging.error("No report endpoint set")
         return
+
     if not isinstance(signal, dict):
         signal = to_dict(signal)
-
     transport = AsyncHTTPTransport(retries=NUM_RETRIES)
     try:
         async with AsyncClient(transport=transport) as client:
@@ -190,35 +188,30 @@ async def report_metrics(signal: MetricsSignal) -> None:
         logging.error(f"Failed to report metrics: {e}")
 
 
-# TODO: remove the logging once metrics are configured correctly
-def wrap_and_log_data(data: MetricsData) -> MetricsSignal:
-    if not data:
-        return None
-
-    # TODD: seems hacky, fix this
+def attach_secret(data: MetricsData) -> MetricsData:
+    if not REPORT_SECRET:
+        return data
     data.secret = REPORT_SECRET
-    signal = MetricsSignal(signal=data)
-    logging.info(signal)
-    json_signal = json.dumps(to_dict(signal))
+    return data
+
+
+# TODO: remove the logging once metrics are configured correctly
+def log_signal_curl(signal: MetricsSignal) -> None:
+    s = to_dict(signal)
+    s["signal"]["secret"] = "'$SECRET'"
+    json_signal = json.dumps(s)
     # just general curl commands to test the endpoint for now
     logging.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
-    return signal
 
 
 def run_loop(metrics_data: MetricsData) -> None:
-    signal = wrap_and_log_data(metrics_data)
-
-    # Don't report metrics if no data or endpoint is set
-    if not metrics_data or not REPORT_ENDPOINT:
-        logging.warning("No metrics data or endpoint set")
-        return
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(report_metrics(signal))
+        loop.create_task(report_metrics(metrics_data))
     except RuntimeError:
-        asyncio.run(report_metrics(signal))
+        asyncio.run(report_metrics(metrics_data))
 
 
 # DECORATORS
@@ -310,6 +303,7 @@ def initialize_sdk_metrics_data(
 ) -> tuple[MetricsData, Any]:
     return (
         MetricsData(
+            id=str(uuid.uuid4()),
             endpoint_name=f"co.{func_name}",
             method="POST",
             trace_id=kwargs.pop("trace_id", None),

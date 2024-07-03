@@ -5,10 +5,6 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import axios from 'axios';
-import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import FormData from 'form-data';
-
 import { ApiError } from './ApiError';
 import type { ApiRequestOptions } from './ApiRequestOptions';
 import type { ApiResult } from './ApiResult';
@@ -45,10 +41,6 @@ export const isBlob = (value: any): value is Blob => {
 
 export const isFormData = (value: any): value is FormData => {
   return value instanceof FormData;
-};
-
-export const isSuccess = (status: number): boolean => {
-  return status >= 200 && status < 300;
 };
 
 export const base64 = (str: string): string => {
@@ -154,9 +146,8 @@ export const resolve = async <T>(
 
 export const getHeaders = async (
   config: OpenAPIConfig,
-  options: ApiRequestOptions,
-  formData?: FormData
-): Promise<Record<string, string>> => {
+  options: ApiRequestOptions
+): Promise<Headers> => {
   const [token, username, password, additionalHeaders] = await Promise.all([
     resolve(options, config.TOKEN),
     resolve(options, config.USERNAME),
@@ -164,13 +155,10 @@ export const getHeaders = async (
     resolve(options, config.HEADERS),
   ]);
 
-  const formHeaders = (typeof formData?.getHeaders === 'function' && formData?.getHeaders()) || {};
-
   const headers = Object.entries({
     Accept: 'application/json',
     ...additionalHeaders,
     ...options.headers,
-    ...formHeaders,
   })
     .filter(([_, value]) => isDefined(value))
     .reduce(
@@ -202,56 +190,55 @@ export const getHeaders = async (
     }
   }
 
-  return headers;
+  return new Headers(headers);
 };
 
 export const getRequestBody = (options: ApiRequestOptions): any => {
-  if (options.body) {
-    return options.body;
+  if (options.body !== undefined) {
+    if (options.mediaType?.includes('/json')) {
+      return JSON.stringify(options.body);
+    } else if (isString(options.body) || isBlob(options.body) || isFormData(options.body)) {
+      return options.body;
+    } else {
+      return JSON.stringify(options.body);
+    }
   }
   return undefined;
 };
 
-export const sendRequest = async <T>(
+export const sendRequest = async (
   config: OpenAPIConfig,
   options: ApiRequestOptions,
   url: string,
   body: any,
   formData: FormData | undefined,
-  headers: Record<string, string>,
-  onCancel: OnCancel,
-  axiosClient: AxiosInstance
-): Promise<AxiosResponse<T>> => {
-  const source = axios.CancelToken.source();
+  headers: Headers,
+  onCancel: OnCancel
+): Promise<Response> => {
+  const controller = new AbortController();
 
-  const requestConfig: AxiosRequestConfig = {
-    url,
+  const request: RequestInit = {
     headers,
-    data: body ?? formData,
+    body: body ?? formData,
     method: options.method,
-    withCredentials: config.WITH_CREDENTIALS,
-    cancelToken: source.token,
+    signal: controller.signal,
   };
 
-  onCancel(() => source.cancel('The user aborted a request.'));
-
-  try {
-    return await axiosClient.request(requestConfig);
-  } catch (error) {
-    const axiosError = error as AxiosError<T>;
-    if (axiosError.response) {
-      return axiosError.response;
-    }
-    throw error;
+  if (config.WITH_CREDENTIALS) {
+    request.credentials = config.CREDENTIALS;
   }
+
+  onCancel(() => controller.abort());
+
+  return await fetch(url, request);
 };
 
 export const getResponseHeader = (
-  response: AxiosResponse<any>,
+  response: Response,
   responseHeader?: string
 ): string | undefined => {
   if (responseHeader) {
-    const content = response.headers[responseHeader];
+    const content = response.headers.get(responseHeader);
     if (isString(content)) {
       return content;
     }
@@ -259,9 +246,22 @@ export const getResponseHeader = (
   return undefined;
 };
 
-export const getResponseBody = (response: AxiosResponse<any>): any => {
+export const getResponseBody = async (response: Response): Promise<any> => {
   if (response.status !== 204) {
-    return response.data;
+    try {
+      const contentType = response.headers.get('Content-Type');
+      if (contentType) {
+        const jsonTypes = ['application/json', 'application/problem+json'];
+        const isJSON = jsonTypes.some((type) => contentType.toLowerCase().startsWith(type));
+        if (isJSON) {
+          return await response.json();
+        } else {
+          return await response.text();
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
   return undefined;
 };
@@ -306,39 +306,28 @@ export const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): 
  * Request method
  * @param config The OpenAPI configuration object
  * @param options The request options from the service
- * @param axiosClient The axios client instance to use
  * @returns CancelablePromise<T>
  * @throws ApiError
  */
 export const request = <T>(
   config: OpenAPIConfig,
-  options: ApiRequestOptions,
-  axiosClient: AxiosInstance = axios
+  options: ApiRequestOptions
 ): CancelablePromise<T> => {
   return new CancelablePromise(async (resolve, reject, onCancel) => {
     try {
       const url = getUrl(config, options);
       const formData = getFormData(options);
       const body = getRequestBody(options);
-      const headers = await getHeaders(config, options, formData);
+      const headers = await getHeaders(config, options);
 
       if (!onCancel.isCancelled) {
-        const response = await sendRequest<T>(
-          config,
-          options,
-          url,
-          body,
-          formData,
-          headers,
-          onCancel,
-          axiosClient
-        );
-        const responseBody = getResponseBody(response);
+        const response = await sendRequest(config, options, url, body, formData, headers, onCancel);
+        const responseBody = await getResponseBody(response);
         const responseHeader = getResponseHeader(response, options.responseHeader);
 
         const result: ApiResult = {
           url,
-          ok: isSuccess(response.status),
+          ok: response.ok,
           status: response.status,
           statusText: response.statusText,
           body: responseHeader ?? responseBody,

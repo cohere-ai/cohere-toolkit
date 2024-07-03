@@ -5,11 +5,16 @@ from backend.config.routers import RouterName
 from backend.config.tools import ALL_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.crud import user as user_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
 )
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_session_user_to_request_state,
+)
 from backend.schemas.agent import (
     Agent,
     AgentToolMetadata,
@@ -44,20 +49,18 @@ router.name = RouterName.AGENT
 def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
     """
     Create an agent.
-
     Args:
         session (DBSessionDep): Database session.
         agent (CreateAgent): Agent data.
         request (Request): Request object.
-
     Returns:
         Agent: Created agent.
-
     Raises:
         HTTPException: If the agent creation fails.
     """
+    # add user data into request state for metrics
     user_id = get_header_user_id(request)
-
+    add_session_user_to_request_state(request, session)
     agent_data = AgentModel(
         name=agent.name,
         description=agent.description,
@@ -69,9 +72,9 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         tools=agent.tools,
     )
 
-    request.state.agent = agent_data
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
+        add_agent_to_request_state(request, created_agent)
         if agent.tools_metadata:
             for tool_metadata in agent.tools_metadata:
                 agent_tool_metadata_data = AgentToolMetadataModel(
@@ -127,6 +130,8 @@ async def get_agent_by_id(
     """
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent:
+            add_agent_to_request_state(request, agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -136,7 +141,6 @@ async def get_agent_by_id(
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
-    request.state.agent = agent
     return agent
 
 
@@ -169,6 +173,7 @@ async def update_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    add_session_user_to_request_state(request, session)
     agent = agent_crud.get_agent_by_id(session, agent_id)
 
     if not agent:
@@ -207,7 +212,7 @@ async def update_agent(
 
     try:
         agent = agent_crud.update_agent(session, agent, new_agent)
-        request.state.agent = agent
+        add_agent_to_request_state(request, agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -223,7 +228,8 @@ async def update_or_create_tool_metadata(agent, new_tool_metadata, session, requ
         create_metadata_req = CreateAgentToolMetadata(
             **new_tool_metadata.model_dump(exclude_none=True)
         )
-        create_agent_tool_metadata(session, agent.id, create_metadata_req, request)
+        create_agent_tool_metadata(
+            session, agent.id, create_metadata_req, request)
 
 
 @router.delete("/{agent_id}")
@@ -252,7 +258,7 @@ async def delete_agent(
             detail=f"Agent with ID {agent_id} not found.",
         )
 
-    request.state.agent = agent
+    add_agent_to_request_state(request, agent)
     try:
         agent_crud.delete_agent(session, agent_id)
     except Exception as e:

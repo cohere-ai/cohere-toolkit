@@ -5,9 +5,8 @@
 /* tslint:disable */
 
 /* eslint-disable */
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
 import type { Agent } from '../models/Agent';
 import type { AgentToolMetadata } from '../models/AgentToolMetadata';
 import type { Body_upload_file_v1_conversations_upload_file_post } from '../models/Body_upload_file_v1_conversations_upload_file_post';
@@ -48,6 +47,7 @@ import type { UploadFile } from '../models/UploadFile';
 import type { User } from '../models/User';
 
 export class DefaultService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
   /**
    * Get Strategies
    * Retrieves the currently enabled list of Authentication strategies.
@@ -58,8 +58,8 @@ export class DefaultService {
    * @returns ListAuthStrategy Successful Response
    * @throws ApiError
    */
-  public static getStrategiesV1AuthStrategiesGet(): CancelablePromise<Array<ListAuthStrategy>> {
-    return __request(OpenAPI, {
+  public getStrategiesV1AuthStrategiesGet(): CancelablePromise<Array<ListAuthStrategy>> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/auth_strategies',
     });
@@ -82,12 +82,12 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static loginV1LoginPost({
+  public loginV1LoginPost({
     requestBody,
   }: {
     requestBody: Login;
   }): CancelablePromise<JWTResponse | null> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/login',
       body: requestBody,
@@ -113,8 +113,8 @@ export class DefaultService {
    * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public static googleAuthorizeV1GoogleAuthGet(): CancelablePromise<JWTResponse> {
-    return __request(OpenAPI, {
+  public googleAuthorizeV1GoogleAuthGet(): CancelablePromise<JWTResponse> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/google/auth',
     });
@@ -135,8 +135,8 @@ export class DefaultService {
    * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public static oidcAuthorizeV1OidcAuthGet(): CancelablePromise<JWTResponse> {
-    return __request(OpenAPI, {
+  public oidcAuthorizeV1OidcAuthGet(): CancelablePromise<JWTResponse> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/oidc/auth',
     });
@@ -153,8 +153,8 @@ export class DefaultService {
    * @returns Logout Successful Response
    * @throws ApiError
    */
-  public static logoutV1LogoutGet(): CancelablePromise<Logout> {
-    return __request(OpenAPI, {
+  public logoutV1LogoutGet(): CancelablePromise<Logout> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/logout',
     });
@@ -164,8 +164,8 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static loginV1ToolAuthGet(): CancelablePromise<any> {
-    return __request(OpenAPI, {
+  public loginV1ToolAuthGet(): CancelablePromise<any> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tool/auth',
     });
@@ -184,12 +184,12 @@ export class DefaultService {
    * @returns ChatResponseEvent Successful Response
    * @throws ApiError
    */
-  public static chatStreamV1ChatStreamPost({
+  public chatStreamV1ChatStreamPost({
     requestBody,
   }: {
     requestBody: CohereChatRequest;
   }): CancelablePromise<Array<ChatResponseEvent>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat-stream',
       body: requestBody,
@@ -213,12 +213,12 @@ export class DefaultService {
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
-  public static chatV1ChatPost({
+  public chatV1ChatPost({
     requestBody,
   }: {
     requestBody: CohereChatRequest;
   }): CancelablePromise<NonStreamedChatResponse> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
       body: requestBody,
@@ -233,12 +233,12 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static langchainChatStreamV1LangchainChatPost({
+  public langchainChatStreamV1LangchainChatPost({
     requestBody,
   }: {
     requestBody: LangchainChatRequest;
   }): CancelablePromise<any> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/langchain-chat',
       body: requestBody,
@@ -261,12 +261,12 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static createUserV1UsersPost({
+  public createUserV1UsersPost({
     requestBody,
   }: {
     requestBody: CreateUser;
   }): CancelablePromise<User> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/users',
       body: requestBody,
@@ -290,14 +290,14 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static listUsersV1UsersGet({
+  public listUsersV1UsersGet({
     offset,
     limit = 100,
   }: {
     offset?: number;
     limit?: number;
   }): CancelablePromise<Array<User>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/users',
       query: {
@@ -325,8 +325,8 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static getUserV1UsersUserIdGet({ userId }: { userId: string }): CancelablePromise<User> {
-    return __request(OpenAPI, {
+  public getUserV1UsersUserIdGet({ userId }: { userId: string }): CancelablePromise<User> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/users/{user_id}',
       path: {
@@ -354,14 +354,14 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public static updateUserV1UsersUserIdPut({
+  public updateUserV1UsersUserIdPut({
     userId,
     requestBody,
   }: {
     userId: string;
     requestBody: UpdateUser;
   }): CancelablePromise<User> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/users/{user_id}',
       path: {
@@ -391,12 +391,12 @@ export class DefaultService {
    * @returns DeleteUser Successful Response
    * @throws ApiError
    */
-  public static deleteUserV1UsersUserIdDelete({
+  public deleteUserV1UsersUserIdDelete({
     userId,
   }: {
     userId: string;
   }): CancelablePromise<DeleteUser> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/users/{user_id}',
       path: {
@@ -425,12 +425,12 @@ export class DefaultService {
    * @returns Conversation Successful Response
    * @throws ApiError
    */
-  public static getConversationV1ConversationsConversationIdGet({
+  public getConversationV1ConversationsConversationIdGet({
     conversationId,
   }: {
     conversationId: string;
   }): CancelablePromise<Conversation> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations/{conversation_id}',
       path: {
@@ -459,14 +459,14 @@ export class DefaultService {
    * @returns Conversation Successful Response
    * @throws ApiError
    */
-  public static updateConversationV1ConversationsConversationIdPut({
+  public updateConversationV1ConversationsConversationIdPut({
     conversationId,
     requestBody,
   }: {
     conversationId: string;
     requestBody: UpdateConversation;
   }): CancelablePromise<Conversation> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/conversations/{conversation_id}',
       path: {
@@ -496,12 +496,12 @@ export class DefaultService {
    * @returns DeleteConversation Successful Response
    * @throws ApiError
    */
-  public static deleteConversationV1ConversationsConversationIdDelete({
+  public deleteConversationV1ConversationsConversationIdDelete({
     conversationId,
   }: {
     conversationId: string;
   }): CancelablePromise<DeleteConversation> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/conversations/{conversation_id}',
       path: {
@@ -528,7 +528,7 @@ export class DefaultService {
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
-  public static listConversationsV1ConversationsGet({
+  public listConversationsV1ConversationsGet({
     offset,
     limit = 100,
     agentId,
@@ -537,7 +537,7 @@ export class DefaultService {
     limit?: number;
     agentId?: string;
   }): CancelablePromise<Array<ConversationWithoutMessages>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations',
       query: {
@@ -569,12 +569,12 @@ export class DefaultService {
    * @returns UploadFile Successful Response
    * @throws ApiError
    */
-  public static uploadFileV1ConversationsUploadFilePost({
+  public uploadFileV1ConversationsUploadFilePost({
     formData,
   }: {
     formData: Body_upload_file_v1_conversations_upload_file_post;
   }): CancelablePromise<UploadFile> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/conversations/upload_file',
       formData: formData,
@@ -600,12 +600,12 @@ export class DefaultService {
    * @returns ListFile Successful Response
    * @throws ApiError
    */
-  public static listFilesV1ConversationsConversationIdFilesGet({
+  public listFilesV1ConversationsConversationIdFilesGet({
     conversationId,
   }: {
     conversationId: string;
   }): CancelablePromise<Array<ListFile>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations/{conversation_id}/files',
       path: {
@@ -634,7 +634,7 @@ export class DefaultService {
    * @returns File Successful Response
    * @throws ApiError
    */
-  public static updateFileV1ConversationsConversationIdFilesFileIdPut({
+  public updateFileV1ConversationsConversationIdFilesFileIdPut({
     conversationId,
     fileId,
     requestBody,
@@ -643,7 +643,7 @@ export class DefaultService {
     fileId: string;
     requestBody: UpdateFile;
   }): CancelablePromise<File> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
@@ -674,14 +674,14 @@ export class DefaultService {
    * @returns DeleteFile Successful Response
    * @throws ApiError
    */
-  public static deleteFileV1ConversationsConversationIdFilesFileIdDelete({
+  public deleteFileV1ConversationsConversationIdFilesFileIdDelete({
     conversationId,
     fileId,
   }: {
     conversationId: string;
     fileId: string;
   }): CancelablePromise<DeleteFile> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
@@ -709,12 +709,12 @@ export class DefaultService {
    * @returns GenerateTitle Successful Response
    * @throws ApiError
    */
-  public static generateTitleV1ConversationsConversationIdGenerateTitlePost({
+  public generateTitleV1ConversationsConversationIdGenerateTitlePost({
     conversationId,
   }: {
     conversationId: string;
   }): CancelablePromise<GenerateTitle> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/conversations/{conversation_id}/generate-title',
       path: {
@@ -734,12 +734,12 @@ export class DefaultService {
    * @returns ManagedTool Successful Response
    * @throws ApiError
    */
-  public static listToolsV1ToolsGet({
+  public listToolsV1ToolsGet({
     agentId,
   }: {
     agentId?: string | null;
   }): CancelablePromise<Array<ManagedTool>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tools',
       query: {
@@ -759,12 +759,12 @@ export class DefaultService {
    * @returns Deployment Successful Response
    * @throws ApiError
    */
-  public static listDeploymentsV1DeploymentsGet({
+  public listDeploymentsV1DeploymentsGet({
     all = false,
   }: {
     all?: boolean;
   }): CancelablePromise<Array<Deployment>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/deployments',
       query: {
@@ -784,14 +784,14 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static setEnvVarsV1DeploymentsNameSetEnvVarsPost({
+  public setEnvVarsV1DeploymentsNameSetEnvVarsPost({
     name,
     requestBody,
   }: {
     name: string;
     requestBody: UpdateDeploymentEnv;
   }): CancelablePromise<any> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/deployments/{name}/set_env_vars',
       path: {
@@ -813,8 +813,8 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static listExperimentalFeaturesV1ExperimentalFeaturesGet(): CancelablePromise<any> {
-    return __request(OpenAPI, {
+  public listExperimentalFeaturesV1ExperimentalFeaturesGet(): CancelablePromise<any> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/experimental_features/',
     });
@@ -836,12 +836,12 @@ export class DefaultService {
    * @returns Agent Successful Response
    * @throws ApiError
    */
-  public static createAgentV1AgentsPost({
+  public createAgentV1AgentsPost({
     requestBody,
   }: {
     requestBody: CreateAgent;
   }): CancelablePromise<Agent> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/agents',
       body: requestBody,
@@ -866,14 +866,14 @@ export class DefaultService {
    * @returns Agent Successful Response
    * @throws ApiError
    */
-  public static listAgentsV1AgentsGet({
+  public listAgentsV1AgentsGet({
     offset,
     limit = 100,
   }: {
     offset?: number;
     limit?: number;
   }): CancelablePromise<Array<Agent>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents',
       query: {
@@ -899,12 +899,12 @@ export class DefaultService {
    * @returns Agent Successful Response
    * @throws ApiError
    */
-  public static getAgentByIdV1AgentsAgentIdGet({
+  public getAgentByIdV1AgentsAgentIdGet({
     agentId,
   }: {
     agentId: string;
   }): CancelablePromise<Agent> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}',
       path: {
@@ -933,14 +933,14 @@ export class DefaultService {
    * @returns Agent Successful Response
    * @throws ApiError
    */
-  public static updateAgentV1AgentsAgentIdPut({
+  public updateAgentV1AgentsAgentIdPut({
     agentId,
     requestBody,
   }: {
     agentId: string;
     requestBody: UpdateAgent;
   }): CancelablePromise<Agent> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/agents/{agent_id}',
       path: {
@@ -970,12 +970,12 @@ export class DefaultService {
    * @returns DeleteAgent Successful Response
    * @throws ApiError
    */
-  public static deleteAgentV1AgentsAgentIdDelete({
+  public deleteAgentV1AgentsAgentIdDelete({
     agentId,
   }: {
     agentId: string;
   }): CancelablePromise<DeleteAgent> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/agents/{agent_id}',
       path: {
@@ -1003,12 +1003,12 @@ export class DefaultService {
    * @returns AgentToolMetadata Successful Response
    * @throws ApiError
    */
-  public static listAgentToolMetadataV1AgentsAgentIdToolMetadataGet({
+  public listAgentToolMetadataV1AgentsAgentIdToolMetadataGet({
     agentId,
   }: {
     agentId: string;
   }): CancelablePromise<Array<AgentToolMetadata>> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}/tool-metadata',
       path: {
@@ -1037,14 +1037,14 @@ export class DefaultService {
    * @returns AgentToolMetadata Successful Response
    * @throws ApiError
    */
-  public static createAgentToolMetadataV1AgentsAgentIdToolMetadataPost({
+  public createAgentToolMetadataV1AgentsAgentIdToolMetadataPost({
     agentId,
     requestBody,
   }: {
     agentId: string;
     requestBody: CreateAgentToolMetadata;
   }): CancelablePromise<AgentToolMetadata> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/agents/{agent_id}/tool-metadata',
       path: {
@@ -1077,7 +1077,7 @@ export class DefaultService {
    * @returns AgentToolMetadata Successful Response
    * @throws ApiError
    */
-  public static updateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPut({
+  public updateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPut({
     agentId,
     agentToolMetadataId,
     requestBody,
@@ -1086,7 +1086,7 @@ export class DefaultService {
     agentToolMetadataId: string;
     requestBody: UpdateAgentToolMetadata;
   }): CancelablePromise<AgentToolMetadata> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'PUT',
       url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
       path: {
@@ -1119,14 +1119,14 @@ export class DefaultService {
    * @returns DeleteAgentToolMetadata Successful Response
    * @throws ApiError
    */
-  public static deleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDelete({
+  public deleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDelete({
     agentId,
     agentToolMetadataId,
   }: {
     agentId: string;
     agentToolMetadataId: string;
   }): CancelablePromise<DeleteAgentToolMetadata> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
       path: {
@@ -1151,8 +1151,8 @@ export class DefaultService {
    * @returns SnapshotWithLinks Successful Response
    * @throws ApiError
    */
-  public static listSnapshotsV1SnapshotsGet(): CancelablePromise<Array<SnapshotWithLinks>> {
-    return __request(OpenAPI, {
+  public listSnapshotsV1SnapshotsGet(): CancelablePromise<Array<SnapshotWithLinks>> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/snapshots',
     });
@@ -1171,12 +1171,12 @@ export class DefaultService {
    * @returns CreateSnapshotResponse Successful Response
    * @throws ApiError
    */
-  public static createSnapshotV1SnapshotsPost({
+  public createSnapshotV1SnapshotsPost({
     requestBody,
   }: {
     requestBody: CreateSnapshot;
   }): CancelablePromise<CreateSnapshotResponse> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/v1/snapshots',
       body: requestBody,
@@ -1200,12 +1200,12 @@ export class DefaultService {
    * @returns Snapshot Successful Response
    * @throws ApiError
    */
-  public static getSnapshotV1SnapshotsLinkLinkIdGet({
+  public getSnapshotV1SnapshotsLinkLinkIdGet({
     linkId,
   }: {
     linkId: string;
   }): CancelablePromise<Snapshot> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/v1/snapshots/link/{link_id}',
       path: {
@@ -1230,12 +1230,12 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({
+  public deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({
     linkId,
   }: {
     linkId: string;
   }): CancelablePromise<any> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/snapshots/link/{link_id}',
       path: {
@@ -1260,12 +1260,12 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static deleteSnapshotV1SnapshotsSnapshotIdDelete({
+  public deleteSnapshotV1SnapshotsSnapshotIdDelete({
     snapshotId,
   }: {
     snapshotId: string;
   }): CancelablePromise<any> {
-    return __request(OpenAPI, {
+    return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/snapshots/{snapshot_id}',
       path: {
@@ -1282,8 +1282,8 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static healthHealthGet(): CancelablePromise<any> {
-    return __request(OpenAPI, {
+  public healthHealthGet(): CancelablePromise<any> {
+    return this.httpRequest.request({
       method: 'GET',
       url: '/health',
     });
@@ -1294,8 +1294,8 @@ export class DefaultService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static applyMigrationsMigratePost(): CancelablePromise<any> {
-    return __request(OpenAPI, {
+  public applyMigrationsMigratePost(): CancelablePromise<any> {
+    return this.httpRequest.request({
       method: 'POST',
       url: '/migrate',
     });

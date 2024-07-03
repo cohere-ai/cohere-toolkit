@@ -12,13 +12,14 @@
     "dev": "next dev --port 4000",
     "build": "next build",
     "lint": "next lint",
+    "ts-lint": "tsc -noEmit -incremental -watch",
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
     "next:build": "next build",
     "start": "next build && next start --port 4000",
     "start:single-docker": "next build && next start --port 4000",
     "start:single-docker-proxy": "next build && next start --port 8090",
-    "generate:client": "openapi --input http://0.0.0.0:8000/openapi.json --output ./src/cohere-client/generated --client axios --useOptions"
+    "generate:client": "openapi --input http://0.0.0.0:8000/openapi.json --output ./src/cohere-client/generated --name CohereClientGenerated --useOptions --indent 2"
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.9",
