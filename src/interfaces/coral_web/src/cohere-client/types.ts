@@ -1,4 +1,4 @@
-import { ERROR_FINISH_REASON_TO_MESSAGE, FinishReason } from '@/cohere-client/constants';
+import { FinishReason, getFinishReasonErrorMessage } from '@/cohere-client';
 
 export class CohereNetworkError extends Error {
   public status: number;
@@ -10,10 +10,10 @@ export class CohereNetworkError extends Error {
 }
 
 export class CohereFinishStreamError extends Error {
-  public reason: FinishReason;
+  public reason: FinishReason | string | null | undefined;
 
-  constructor(reason: keyof typeof ERROR_FINISH_REASON_TO_MESSAGE) {
-    const message = ERROR_FINISH_REASON_TO_MESSAGE[reason];
+  constructor(reason: string | null | undefined, error?: string | null) {
+    const message = getFinishReasonErrorMessage(reason, error);
     super(message);
     this.reason = reason;
   }
