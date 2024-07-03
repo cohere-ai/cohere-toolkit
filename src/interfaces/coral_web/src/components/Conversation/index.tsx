@@ -117,17 +117,6 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
     };
   }, [handleClickOutside]);
 
-  useEffect(() => {
-    if (selectedCitation) {
-      const generationId = selectedCitation['generationId']
-      console.log(selectedCitation)
-      const minimapCitations = Object.values(citationReferences[generationId]).flat().filter(citation => citation.tool_name === 'MiniMap')
-      const minimapCitationsUnique = new Set(minimapCitations.map(c => c.url))
-      console.log(minimapCitationsUnique)
-      window.top && window.top.postMessage({ type: 'newCitations', urls: Array.from(minimapCitationsUnique) }, '*')
-    }
-  }, [selectedCitation])
-
   const [isRouteChanging] = useRouteChange();
 
   if (isRouteChanging) {

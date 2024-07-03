@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { flatten, sortBy, uniqBy } from 'lodash';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useMemo, useState } from 'react';
 
 import { Document } from '@/cohere-client';
@@ -81,6 +81,19 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
     'document_id'
   );
 
+  console.log(highlightedDocumentIds)
+
+  useEffect(() => {
+    if (selectedCitation) {
+      const generationId = selectedCitation['generationId']
+      const minimapCitations = Object.values(citationReferences[generationId]).flat().filter(citation =>
+        citation.tool_name === 'MiniMap' && highlightedDocumentIds.includes(citation.document_id)
+      )
+      const minimapCitationsUnique = new Set(minimapCitations.map(c => c.url))
+      window.top && window.top.postMessage({ type: 'newCitations', urls: Array.from(minimapCitationsUnique) }, '*')
+    }
+  }, [highlightedDocumentIds, selectedCitation])
+
   const handleMouseEnter = () => {
     hoverCitation(generationId);
   };
@@ -109,8 +122,8 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
         ...styles,
         ...(translateY !== 0 && isSelected
           ? {
-              '--selectedTranslateY': `${translateY}px`,
-            }
+            '--selectedTranslateY': `${translateY}px`,
+          }
           : {}),
       }}
       className={cn(

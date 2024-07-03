@@ -46,37 +46,8 @@ export const StartModes: React.FC<Props> = ({ show, className = '', onPromptSele
       className={cn('flex flex-col items-center gap-y-6', className)}
     >
       <Text styleAs="h5" className="text-center">
-        Choose an option to get started
+        Ask about news
       </Text>
-
-      <div className={cn('w-full max-w-[820px]', 'rounded-lg border border-marble-400')}>
-        <Tabs
-          tabs={modes.map((m) => m.title)}
-          selectedIndex={selectedMode}
-          onChange={handleTabChange}
-          panelsClassName="lg:pt-5 pt-5 pb-4"
-          fitTabsContent={false}
-          tabClassName="pt-1"
-          tabGroupClassName="px-4"
-        >
-          {modes.map((m) => (
-            <div key={m.title} className="flex flex-col gap-y-5">
-              <Text>{m.description}</Text>
-              <div className="flex flex-col gap-2.5 md:flex-row">
-                {m.promptOptions.map((promptOption) => (
-                  <PromptOptionButton
-                    {...promptOption}
-                    key={promptOption.title}
-                    onClick={() => {
-                      onPromptSelected?.({ prompt: promptOption.prompt, params: m.params });
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </Tabs>
-      </div>
     </Transition>
   );
 };

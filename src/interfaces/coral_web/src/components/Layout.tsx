@@ -60,18 +60,18 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
     <>
       <PageHead title={capitalize(title)} />
       <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
-        <NavigationBar>
+        {/* <NavigationBar>
           <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
             <EditEnvVariablesButton className="py-0" />
           </span>
-        </NavigationBar>
+        </NavigationBar> */}
         {bannerMessage && <Banner size="sm">{bannerMessage}</Banner>}
 
         <div className={cn('relative flex h-full flex-grow flex-nowrap overflow-hidden')}>
           <Transition
             as="div"
-            show={isMobileConvListPanelOpen || (isConvListPanelOpen && isDesktop)}
+            show={false}
             enterFrom={cn(
               '-translate-x-full lg:translate-x-0',
               'lg:mr-0 lg:opacity-0 lg:min-w-0 lg:max-w-0'
@@ -105,7 +105,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
           </Transition>
           <Transition
             as="main"
-            show={!isMobileConvListPanelOpen || isDesktop}
+            show={true}
             enterFrom="translate-x-full lg:translate-x-0"
             enterTo="translate-x-0"
             leaveFrom="translate-x-0"
