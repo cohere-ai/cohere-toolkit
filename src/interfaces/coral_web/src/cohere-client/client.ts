@@ -37,16 +37,13 @@ export class CohereClient {
     this.authToken = authToken;
     this.cohereService = new CohereClientGenerated({
       BASE: hostname,
-      HEADERS: {
-        Authorization: `Bearer ${authToken}`,
-        'User-Id': 'user-id',
-      },
+      HEADERS: this.getHeaders(true),
     });
   }
 
-  public uploadFile({ file, conversation_id }: Body_upload_file_v1_conversations_upload_file_post) {
+  public uploadFile(formData: Body_upload_file_v1_conversations_upload_file_post) {
     return this.cohereService.default.uploadFileV1ConversationsUploadFilePost({
-      formData: { conversation_id, file },
+      formData,
     });
   }
 
@@ -149,10 +146,10 @@ export class CohereClient {
     });
   }
 
-  public editConversation(request: UpdateConversation, conversationId: string) {
+  public editConversation(requestBody: UpdateConversation, conversationId: string) {
     return this.cohereService.default.updateConversationV1ConversationsConversationIdPut({
       conversationId: conversationId,
-      requestBody: request,
+      requestBody,
     });
   }
 
@@ -164,10 +161,10 @@ export class CohereClient {
     return this.cohereService.default.listDeploymentsV1DeploymentsGet({ all });
   }
 
-  public updateDeploymentEnvVariables(request: UpdateDeploymentEnv, name: string) {
+  public updateDeploymentEnvVariables(requestBody: UpdateDeploymentEnv, name: string) {
     return this.cohereService.default.setEnvVarsV1DeploymentsNameSetEnvVarsPost({
       name: name,
-      requestBody: request,
+      requestBody,
     });
   }
 
@@ -192,9 +189,9 @@ export class CohereClient {
     return this.cohereService.default.getStrategiesV1AuthStrategiesGet();
   }
 
-  public createUser({ fullname, email, password }: CreateUser) {
+  public createUser(requestBody: CreateUser) {
     return this.cohereService.default.createUserV1UsersPost({
-      requestBody: { fullname, email, password },
+      requestBody,
     });
   }
 
@@ -212,7 +209,7 @@ export class CohereClient {
     }
 
     return body as { token: string };
-    // FIXME: generated code doesn't have code as query parameter
+    // FIXME(@tomtobac): generated code doesn't have code as query parameter (TLK-765)
     // this.cohereService.default.googleAuthorizeV1GoogleAuthGet();
   }
 
@@ -233,7 +230,7 @@ export class CohereClient {
     }
 
     return body as { token: string };
-    // FIXME: generated code doesn't have code as query parameter
+    // FIXME(@tomtobac): generated code doesn't have code as query parameter (TLK-765)
     // this.cohereService.default.oidcAuthorizeV1OidcAuthGet();
   }
 
@@ -241,18 +238,18 @@ export class CohereClient {
     return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
   }
 
-  public createAgent(request: CreateAgent) {
-    return this.cohereService.default.createAgentV1AgentsPost({ requestBody: request });
+  public createAgent(requestBody: CreateAgent) {
+    return this.cohereService.default.createAgentV1AgentsPost({ requestBody });
   }
 
-  public async listAgents({ offset, limit = 100 }: { offset?: number; limit?: number }) {
+  public listAgents({ offset, limit = 100 }: { offset?: number; limit?: number }) {
     return this.cohereService.default.listAgentsV1AgentsGet({ offset, limit });
   }
 
-  public updateAgent(request: UpdateAgent, agentId: string) {
+  public updateAgent(requestBody: UpdateAgent, agentId: string) {
     return this.cohereService.default.updateAgentV1AgentsAgentIdPut({
       agentId: agentId,
-      requestBody: request,
+      requestBody,
     });
   }
 

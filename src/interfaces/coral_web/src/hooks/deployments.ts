@@ -10,14 +10,7 @@ export const useListAllDeployments = (options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
   return useQuery<Deployment[], Error>({
     queryKey: ['allDeployments'],
-    queryFn: async () => {
-      try {
-        return await cohereClient.listDeployments({ all: true });
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
-    },
+    queryFn: () => cohereClient.listDeployments({ all: true }),
     refetchOnWindowFocus: false,
     ...options,
   });

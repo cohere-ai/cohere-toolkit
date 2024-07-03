@@ -10,7 +10,7 @@ export const useExperimentalFeatures = () => {
 
   return useQuery<ExperimentalFeatures>({
     queryKey: ['experimentalFeatures'],
-    queryFn: async () => cohereClient.getExperimentalFeatures(),
+    queryFn: () => cohereClient.getExperimentalFeatures(),
     refetchOnWindowFocus: false,
   });
 };

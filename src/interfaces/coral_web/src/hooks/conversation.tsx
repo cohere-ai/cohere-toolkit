@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { useRef } from 'react';
 
 import {
   ApiError,
@@ -76,8 +75,7 @@ export const useEditConversation = () => {
     CohereNetworkError,
     { request: UpdateConversation; conversationId: string }
   >({
-    mutationFn: async ({ request, conversationId }) =>
-      client.editConversation(request, conversationId),
+    mutationFn: ({ request, conversationId }) => client.editConversation(request, conversationId),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },

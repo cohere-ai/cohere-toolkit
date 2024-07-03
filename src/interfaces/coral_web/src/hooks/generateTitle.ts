@@ -6,10 +6,8 @@ export const useUpdateConversationTitle = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation<GenerateTitle, Error, string>({
-    mutationFn: async (conversationId) => cohereClient.generateTitle({ conversationId }),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-    },
+    mutationFn: (conversationId) => cohereClient.generateTitle({ conversationId }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['conversations'] }),
     retry: 1,
   });
 };

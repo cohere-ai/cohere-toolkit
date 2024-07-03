@@ -18,7 +18,7 @@ export const useCreateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (request: CreateAgent) => cohereClient.createAgent(request),
+    mutationFn: (request: CreateAgent) => cohereClient.createAgent(request),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['listAgents'] });
     },
