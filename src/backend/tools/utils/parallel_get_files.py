@@ -4,6 +4,7 @@ from typing import List
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+from backend.database_models.tool_auth import ToolAuth
 from backend.tools.google_drive.constants import DOC_FIELDS
 
 
@@ -22,7 +23,7 @@ def perform(file_ids: List[str], access_token: str) -> List[str]:
     return results
 
 
-def _get_file(file_id: str, token: str):
+def _get_file(file_id: str, token: ToolAuth):
     creds = Credentials(token.encrypted_access_token.decode())
     service = build("drive", "v3", credentials=creds)
     return (
