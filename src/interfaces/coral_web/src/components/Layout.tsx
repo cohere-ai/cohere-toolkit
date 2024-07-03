@@ -51,7 +51,7 @@ export const Layout: React.FC<Props> = ({
           )}
         >
           <MobileHeader />
-          <AgentsSidePanel>{leftElement}</AgentsSidePanel>
+          <AgentsSidePanel className="hidden md:flex">{leftElement}</AgentsSidePanel>
           <section
             className={cn(
               'relative flex h-full min-w-0 flex-grow flex-col',
@@ -65,6 +65,9 @@ export const Layout: React.FC<Props> = ({
           {showSettingsDrawer && <SettingsDrawer />}
         </div>
       </div>
+      <AgentsSidePanel className="rounded-bl-none rounded-tl-none md:hidden">
+        {leftElement}
+      </AgentsSidePanel>
     </>
   );
 };
