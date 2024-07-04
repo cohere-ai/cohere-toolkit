@@ -100,6 +100,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isStreamingToolEvents, setIsStreamingToolEvents] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
   const { agentId } = useSlugRoutes();
 
@@ -252,6 +253,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
 
             case StreamEvent.TEXT_GENERATION: {
+              setIsStreamingToolEvents(false);
               const data = eventData.data as StreamTextGeneration;
               botResponse += data?.text ?? '';
               setStreamingMessage({
@@ -279,6 +281,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
 
             case StreamEvent.TOOL_CALLS_CHUNK: {
+              setIsStreamingToolEvents(true);
               const data = eventData.data as StreamToolCallsChunk;
 
               // Initiate an empty tool event if one doesn't already exist at the current index
@@ -631,6 +634,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   return {
     userMessage,
     isStreaming,
+    isStreamingToolEvents,
     handleSend: handleChat,
     handleStop,
     handleRetry,
