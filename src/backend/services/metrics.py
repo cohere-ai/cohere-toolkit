@@ -175,8 +175,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
 async def report_metrics(data: MetricsData) -> None:
     if not data:
-        logger.error("No metrics data to report")
-        return
+        raise ValueError("No metrics data to report")
 
     data = attach_secret(data)
     signal = MetricsSignal(signal=data)
@@ -184,6 +183,7 @@ async def report_metrics(data: MetricsData) -> None:
     if not REPORT_SECRET:
         logger.error("No report secret set")
         return
+    
     if not REPORT_ENDPOINT:
         logger.error("No report endpoint set")
         return
