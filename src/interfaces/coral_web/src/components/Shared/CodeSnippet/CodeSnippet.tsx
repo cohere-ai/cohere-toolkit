@@ -14,6 +14,7 @@ type CopyToClipboardRef = React.ElementRef<typeof CopyToClipboardButton>;
 type Props = {
   lang: 'python' | 'go' | 'curl' | 'cli' | 'bash' | 'shell' | 'js' | 'html';
   codeSnippet: string;
+  customStyle?: React.CSSProperties;
   onCopy?: VoidFunction;
   preview?: boolean;
 };
@@ -46,7 +47,13 @@ const mapLangToSyntaxHighlighterLang = (lang: string): SupportedSyntaxHighlighte
   }
 };
 
-export const CodeSnippet: React.FC<Props> = ({ lang, codeSnippet, onCopy, preview = false }) => {
+export const CodeSnippet: React.FC<Props> = ({
+  lang,
+  codeSnippet,
+  onCopy,
+  preview = false,
+  customStyle,
+}) => {
   const copyBtnRef = useRef<CopyToClipboardRef>(null);
 
   const handleCodeSnippetClick = (e: MouseEvent<HTMLElement>) => {
@@ -72,9 +79,9 @@ export const CodeSnippet: React.FC<Props> = ({ lang, codeSnippet, onCopy, previe
         language={mapLangToSyntaxHighlighterLang(lang)}
         style={natureTheme}
         customStyle={{
-          height: '100%',
           paddingRight: '60px',
           fontSize: `${preview ? '12px' : '16px'}`,
+          ...customStyle,
         }}
       >
         {codeSnippet}

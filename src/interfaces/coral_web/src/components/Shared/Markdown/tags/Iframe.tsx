@@ -59,16 +59,21 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
 
   return (
     <TabGroup>
-      <TabPanels className="min-h-[80px] overflow-y-auto transition-[height]">
+      <TabPanels>
         <TabPanel>
           <iframe
             srcDoc={code}
             ref={iframeRef}
-            className="w-full overflow-y-auto rounded-lg border  border-secondary-200 bg-white"
+            className="max-h-[450px] min-h-[450px] w-full overflow-y-auto rounded-lg border  border-secondary-200 bg-white"
           />
         </TabPanel>
         <TabPanel>
-          <CodeSnippet preview lang="html" codeSnippet={codePreview} />
+          <CodeSnippet
+            customStyle={{ minHeight: '450px', maxHeight: '450px', overflowY: 'auto' }}
+            preview
+            lang="html"
+            codeSnippet={codePreview}
+          />
         </TabPanel>
       </TabPanels>
       <TabList className="ml-auto mt-2 flex w-fit gap-x-2 rounded bg-secondary-100 p-1">
@@ -78,7 +83,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
               className={cn(
                 'w-[60px] rounded p-1 outline-none transition-colors hover:bg-secondary-200',
                 {
-                  'bg-secondary-300 shadow': selected,
+                  'bg-secondary-300 shadow hover:bg-secondary-300': selected,
                 }
               )}
             >
@@ -92,7 +97,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
               className={cn(
                 'w-[60px] rounded p-1 outline-none transition-colors hover:bg-secondary-200',
                 {
-                  'bg-secondary-300 shadow': selected,
+                  'bg-secondary-300 shadow hover:bg-secondary-300': selected,
                 }
               )}
             >
