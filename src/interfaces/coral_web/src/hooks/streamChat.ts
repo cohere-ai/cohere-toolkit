@@ -96,7 +96,8 @@ export const useStreamChat = () => {
                 const streamEndData = data.data as StreamEnd;
 
                 if (streamEndData.finish_reason !== FinishReason.COMPLETE) {
-                  throw new CohereFinishStreamError(streamEndData.finish_reason);
+                  onError(streamEndData.error || 'Stream ended unexpectedly');
+                  return;
                 }
 
                 if (params.request.conversation_id) {
