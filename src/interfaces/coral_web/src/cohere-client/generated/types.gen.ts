@@ -257,6 +257,7 @@ export type ListAuthStrategy = {
   strategy: string;
   client_id: string | null;
   authorization_endpoint: string | null;
+  pkce_enabled: boolean;
 };
 
 export type ListFile = {
@@ -577,9 +578,12 @@ export type LoginV1LoginPostData = {
 
 export type LoginV1LoginPostResponse = JWTResponse | null;
 
-export type GoogleAuthorizeV1GoogleAuthGetResponse = JWTResponse;
+export type AuthorizeV1StrategyAuthPostData = {
+  code?: string;
+  strategy: string;
+};
 
-export type OidcAuthorizeV1OidcAuthGetResponse = JWTResponse;
+export type AuthorizeV1StrategyAuthPostResponse = JWTResponse;
 
 export type LogoutV1LogoutGetResponse = Logout;
 
@@ -836,23 +840,18 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/google/auth': {
-    get: {
+  '/v1/{strategy}/auth': {
+    post: {
+      req: AuthorizeV1StrategyAuthPostData;
       res: {
         /**
          * Successful Response
          */
         200: JWTResponse;
-      };
-    };
-  };
-  '/v1/oidc/auth': {
-    get: {
-      res: {
         /**
-         * Successful Response
+         * Validation Error
          */
-        200: JWTResponse;
+        422: HTTPValidationError;
       };
     };
   };

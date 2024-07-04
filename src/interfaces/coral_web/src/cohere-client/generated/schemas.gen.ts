@@ -1358,9 +1358,13 @@ export const $ListAuthStrategy = {
       ],
       title: 'Authorization Endpoint',
     },
+    pkce_enabled: {
+      type: 'boolean',
+      title: 'Pkce Enabled',
+    },
   },
   type: 'object',
-  required: ['strategy', 'client_id', 'authorization_endpoint'],
+  required: ['strategy', 'client_id', 'authorization_endpoint', 'pkce_enabled'],
   title: 'ListAuthStrategy',
 } as const;
 
