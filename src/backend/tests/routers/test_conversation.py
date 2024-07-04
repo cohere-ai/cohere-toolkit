@@ -458,8 +458,8 @@ def test_upload_file_existing_conversation(
     assert file["conversation_id"] == conversation.id
     assert file["user_id"] == conversation.user_id
 
-    # Clean up - remove the file from the directory
-    os.remove(saved_file_path)
+    # File should not exist in the directory
+    assert not os.path.exists(saved_file_path)
 
 
 def test_upload_file_nonexistent_conversation_creates_new_conversation(
@@ -486,8 +486,8 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
     assert "Mariana_Trench" in file["file_name"]
     assert file["conversation_id"] == created_conversation.id
 
-    # Clean up - remove the file from the directory
-    os.remove(saved_file_path)
+    # File should not exist in the directory
+    assert not os.path.exists(saved_file_path)
 
 
 def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
@@ -628,3 +628,46 @@ def test_fail_delete_file_missing_user_id(
 
     assert response.status_code == 401
     assert response.json() == {"detail": "User-Id required in request headers."}
+
+
+# MISC
+def test_generate_title(session_client: TestClient, session: Session) -> None:
+    conversation = get_factory("Conversation", session).create()
+    response = session_client.post(
+        f"/v1/conversations/{conversation.id}/generate-title",
+        headers={"User-Id": conversation.user_id},
+    )
+    title = response.json()
+
+    assert response.status_code == 200
+    assert title["title"] is not None
+
+    # Check if the conversation was updated
+    conversation = (
+        session.query(Conversation)
+        .filter_by(id=conversation.id, user_id=conversation.user_id)
+        .first()
+    )
+    assert conversation is not None
+    assert conversation.title == title["title"]
+
+
+def test_fail_generate_title_missing_user_id(
+    session_client: TestClient, session: Session
+) -> None:
+    conversation = get_factory("Conversation", session).create()
+    response = session_client.post(
+        f"/v1/conversations/{conversation.id}/generate-title"
+    )
+    assert response.status_code == 401
+    assert response.json() == {"detail": "User-Id required in request headers."}
+
+
+def test_fail_generate_title_nonexistent_conversation(
+    session_client: TestClient, session: Session
+) -> None:
+    response = session_client.post(
+        "/v1/conversations/123/generate-title", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}

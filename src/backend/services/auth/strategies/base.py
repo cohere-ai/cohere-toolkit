@@ -12,17 +12,9 @@ class BaseOAuthStrategy:
 
     Attributes:
         NAME (str): The name of the strategy.
-        TOKEN_ENDPOINT (str): /token endpoint
-        USERINFO_ENDPOINT (str): /userinfo endpoint
-        AUTHORIZATION_ENDPOINT (str): /authorization endpoint
-
-        All endpoints should be fetched from the well-known endpoint
     """
 
-    NAME = None
-    TOKEN_ENDPOINT = None
-    USERINFO_ENDPOINT = None
-    AUTHORIZATION_ENDPOINT = None
+    NAME = "Base"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

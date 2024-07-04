@@ -28,7 +28,7 @@ const RegisterPage: NextPage<Props> = () => {
   const router = useRouter();
   const { registerMutation } = useSession();
 
-  const registerStatus: RegisterStatus = registerMutation.isLoading ? 'pending' : 'idle';
+  const registerStatus: RegisterStatus = registerMutation.isPending ? 'pending' : 'idle';
   const { register, handleSubmit, formState } = useForm<Credentials>();
 
   const onSubmit: SubmitHandler<Credentials> = async (data) => {

@@ -29,7 +29,7 @@ if [[ -z ${1} ]]; then
   run_postgre
   run_frontend
   run_terrarium
-  run_backend
+  run_backend_poetry
 
 else
   exec "$@"

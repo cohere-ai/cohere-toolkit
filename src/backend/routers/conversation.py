@@ -1,22 +1,33 @@
+import logging
+
 from fastapi import APIRouter
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.chat.custom.custom import CustomChat
 from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models import File as FileModel
 from backend.database_models.database import DBSessionDep
+from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import (
     Conversation,
     ConversationWithoutMessages,
     DeleteConversation,
+    GenerateTitle,
     UpdateConversation,
 )
 from backend.schemas.file import DeleteFile, File, ListFile, UpdateFile, UploadFile
 from backend.services.auth.utils import get_header_user_id
+from backend.services.chat import generate_chat_response, get_deployment_config
+from backend.services.conversation import (
+    DEFAULT_TITLE,
+    GENERATE_TITLE_PROMPT,
+    extract_details_from_conversation,
+)
 from backend.services.file.service import FileService
 from backend.tools.files import get_file_content
 
@@ -156,6 +167,7 @@ async def delete_conversation(
     return DeleteConversation()
 
 
+# FILES
 @router.post("/upload_file", response_model=UploadFile)
 async def upload_file(
     session: DBSessionDep,
@@ -211,26 +223,34 @@ async def upload_file(
     # Handle uploading File
     file_path = FileService().upload_file(file)
 
-    # Read file content
-    content = get_file_content(file_path)
-
     # Raise exception if file wasn't uploaded
     if not file_path.exists():
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file {file.filename}."
         )
 
-    # Create File
-    upload_file = FileModel(
-        user_id=conversation.user_id,
-        conversation_id=conversation.id,
-        file_name=file_path.name,
-        file_path=str(file_path),
-        file_size=file_path.stat().st_size,
-        file_content=content,
-    )
+    try:
+        # Read file content
+        content = get_file_content(file_path)
 
-    upload_file = file_crud.create_file(session, upload_file)
+        # Create File
+        upload_file = FileModel(
+            user_id=conversation.user_id,
+            conversation_id=conversation.id,
+            file_name=file_path.name,
+            file_path=str(file_path),
+            file_size=file_path.stat().st_size,
+            file_content=content,
+        )
+
+        upload_file = file_crud.create_file(session, upload_file)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error while uploading file {file.filename}."
+        )
+    finally:
+        # Remove local file
+        FileService().delete_file(file_path)
 
     return upload_file
 
@@ -350,3 +370,76 @@ async def delete_file(
     file_crud.delete_file(session, file_id, user_id)
 
     return DeleteFile()
+
+
+# MISC
+@router.post("/{conversation_id}/generate-title", response_model=GenerateTitle)
+async def generate_title(
+    conversation_id: str, session: DBSessionDep, request: Request
+) -> GenerateTitle:
+    """
+    Generate a title for a conversation and update the conversation with the generated title.
+
+    Args:
+        conversation_id (str): Conversation ID.
+        session (DBSessionDep): Database session.
+
+    Returns:
+        str: Generated title for the conversation.
+
+    Raises:
+        HTTPException: If the conversation with the given ID is not found.
+    """
+    user_id = get_header_user_id(request)
+    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+
+    if not conversation:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation with ID: {conversation_id} not found.",
+        )
+
+    agent_id = conversation.agent_id if conversation.agent_id else None
+    trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
+    deployment_name = request.headers.get("Deployment-Name", "")
+    model_config = (
+        get_deployment_config(request)
+        if request.headers.get("Deployment-Config", "") != ""
+        else {}
+    )
+
+    title = ""
+    try:
+        chatlog = extract_details_from_conversation(conversation)
+        prompt = GENERATE_TITLE_PROMPT % chatlog
+        chat_request = CohereChatRequest(
+            message=prompt,
+        )
+
+        response = generate_chat_response(
+            session,
+            CustomChat().chat(
+                chat_request,
+                stream=False,
+                deployment_name=deployment_name,
+                deployment_config=model_config,
+                trace_id=trace_id,
+                user_id=user_id,
+                agent_id=agent_id,
+            ),
+            response_message=None,
+            conversation_id=None,
+            user_id=user_id,
+            should_store=False,
+        )
+
+        title = response.text
+    except Exception as e:
+        title = DEFAULT_TITLE
+        logging.error(f"Error generating title for conversation {conversation_id}: {e}")
+
+    conversation_crud.update_conversation(
+        session, conversation, UpdateConversation(title=title)
+    )
+
+    return GenerateTitle(title=title)

@@ -1,0 +1,212 @@
+# Default values for cohere-toolkit.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+postgresql:
+  enabled: true
+  fullnameOverride: &database_name "toolkit-db"
+  auth:
+    enablePostgresUser: true
+    postgresPassword: &database_password "postgres"
+  containerPorts:
+    postgresql: &database_port 5432
+
+global:
+  backend_url: "" # required
+  cohere:
+    api_key: "" # Required
+  database:
+    name: "postgres"
+    host: *database_name
+    port: *database_port
+    username: "postgres"
+    password: *database_password
+    connection_string: "" # overrides host, port, username, and password
+
+backend:
+  replicaCounts: 1
+
+  image:
+    repository: ghcr.io/cohere-ai/cohere-toolkit-backend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    # Annotations to add to the service account
+    annotations: {}
+    imagePullSecrets: [ ]
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  initContainers: []
+
+  sidecars: []
+
+  config: {}
+
+frontend:
+  replicaCounts: 1
+
+  image:
+    repository: ghcr.io/cohere-ai/cohere-toolkit-frontend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    # Annotations to add to the service account
+    annotations: {}
+    imagePullSecrets: [ ]
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  initContainers: [ ]
+
+  sidecars: [ ]
+
+  config: {}
+
+terrarium:
+  enabled: true
+
+  replicaCounts: 1
+
+  image:
+    repository: ghcr.io/cohere-ai/terrarium
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    # Annotations to add to the service account
+    annotations: { }
+    imagePullSecrets: [ ]
+
+  podAnnotations: { }
+
+  podSecurityContext: { }
+  # fsGroup: 2000
+
+  securityContext: { }
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  resources: { }
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+  initContainers: [ ]
+
+  sidecars: [ ]

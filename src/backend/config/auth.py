@@ -1,10 +1,17 @@
 from typing import Union
+import os
+
+from dotenv import load_dotenv
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 from backend.services.auth.strategies.base import (
     BaseAuthenticationStrategy,
     BaseOAuthStrategy,
 )
+
+load_dotenv()
 
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
@@ -14,6 +21,20 @@ ENABLED_AUTH_STRATEGIES = []
 # During runtime, this will create an instance of each enabled strategy class.
 # Ex: {"Basic": BasicAuthentication()}
 ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
+
+# Token to authorize migration requests
+MIGRATE_TOKEN = os.environ.get("MIGRATE_TOKEN", None)
+
+security = HTTPBearer()
+
+
+def verify_migrate_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if not MIGRATE_TOKEN or credentials.credentials != MIGRATE_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 def is_authentication_enabled() -> bool:

@@ -3,7 +3,7 @@ import React, { Children, PropsWithChildren } from 'react';
 
 import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
 import { MobileHeader } from '@/components/Agents/MobileHeader';
-import { ConfigurationDrawer } from '@/components/Conversation/ConfigurationDrawer';
+import { SettingsDrawer } from '@/components/Agents/Settings/SettingsDrawer';
 import { PageHead } from '@/components/Shared/PageHead';
 import { cn } from '@/utils/cn';
 
@@ -46,7 +46,7 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
           )}
         >
           <MobileHeader />
-          <AgentsSidePanel>{leftElement}</AgentsSidePanel>
+          <AgentsSidePanel className="hidden md:flex">{leftElement}</AgentsSidePanel>
           <section
             className={cn(
               'relative flex h-full min-w-0 flex-grow flex-col',
@@ -57,9 +57,12 @@ export const Layout: React.FC<Props> = ({ title = 'Chat', children }) => {
           >
             {mainElement}
           </section>
-          <ConfigurationDrawer />
+          <SettingsDrawer />
         </div>
       </div>
+      <AgentsSidePanel className="rounded-bl-none rounded-tl-none md:hidden">
+        {leftElement}
+      </AgentsSidePanel>
     </>
   );
 };

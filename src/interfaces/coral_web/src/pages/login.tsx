@@ -4,8 +4,12 @@ import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
+<<<<<<< HEAD
 import { CohereClient, CohereUnauthorizedError } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
+=======
+import { CohereClient, CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
+>>>>>>> main
 import { Button, Input, Text } from '@/components/Shared';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
@@ -14,6 +18,10 @@ import { useOidcAuthRoute } from '@/hooks/oidcAuthRoute';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
 import { PageAppProps, appSSR } from '@/pages/_app';
+<<<<<<< HEAD
+=======
+import type { NoNullProperties } from '@/types/util';
+>>>>>>> main
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
 interface Credentials {
@@ -31,6 +39,7 @@ type LoginStatus = 'idle' | 'pending';
 const LoginPage: NextPage<Props> = () => {
   const router = useRouter();
   const { loginMutation } = useSession();
+<<<<<<< HEAD
   const { login: authStrategies } = useAuthConfig();
   const { oidcAuth } = useOidcAuthRoute();
 
@@ -43,6 +52,29 @@ const LoginPage: NextPage<Props> = () => {
   const ssoStrategies = useMemo(() => {
     return authStrategies ? authStrategies.filter((strategy) => strategy.strategy !== 'Basic') : [];
   }, [authStrategies]);
+=======
+  const { loginStrategies } = useAuthConfig();
+  const { oidcAuth } = useOidcAuthRoute();
+
+  const notify = useNotify();
+  const loginStatus: LoginStatus = loginMutation.isPending ? 'pending' : 'idle';
+
+  const { register, handleSubmit, formState } = useForm<Credentials>();
+  const redirect = getQueryString(router.query.redirect_uri);
+  const hasBasicAuth = loginStrategies.some((login) => login.strategy.toLowerCase() === 'basic');
+  const ssoStrategies = useMemo(() => {
+    return (
+      loginStrategies
+        ? loginStrategies.filter(
+            (strategy) =>
+              strategy.strategy !== 'Basic' &&
+              strategy.client_id !== null &&
+              strategy.authorization_endpoint !== null
+          )
+        : []
+    ) as NoNullProperties<ListAuthStrategy>[];
+  }, [loginStrategies]);
+>>>>>>> main
   const [errors, setErrors] = useState<string[]>([]);
 
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
@@ -67,16 +99,28 @@ const LoginPage: NextPage<Props> = () => {
     }
   };
 
+<<<<<<< HEAD
   const oidcAuthStart = (strategy: string, authorizationEndpoint: string) => {
+=======
+  const oidcAuthStart = (strategy: string, authorizationEndpoint: string, pkceEnabled: boolean) => {
+>>>>>>> main
     oidcAuth.start({
       redirect,
       strategy,
       authorizationEndpoint,
+<<<<<<< HEAD
+=======
+      pkceEnabled,
+>>>>>>> main
     });
   };
 
   return (
+<<<<<<< HEAD
     <WelcomePage title="Login" navigationAction="register">
+=======
+    <WelcomePage title="Login">
+>>>>>>> main
       <div className="flex flex-col items-center justify-center">
         <Text
           as="h1"
@@ -94,7 +138,17 @@ const LoginPage: NextPage<Props> = () => {
               key={ssoConfig.strategy}
               className="inline-flex w-full flex-auto"
               service={ssoConfig.strategy}
+<<<<<<< HEAD
               onClick={() => oidcAuthStart(ssoConfig.strategy, ssoConfig.authorization_endpoint)}
+=======
+              onClick={() =>
+                oidcAuthStart(
+                  ssoConfig.strategy,
+                  ssoConfig.authorization_endpoint,
+                  ssoConfig.pkce_enabled
+                )
+              }
+>>>>>>> main
             />
           ))}
         </div>
@@ -149,6 +203,7 @@ const LoginPage: NextPage<Props> = () => {
             />
           </form>
         )}
+<<<<<<< HEAD
 
         <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-700">
           New user?
@@ -158,6 +213,8 @@ const LoginPage: NextPage<Props> = () => {
             className="text-green-700 no-underline"
           />
         </Text>
+=======
+>>>>>>> main
       </div>
     </WelcomePage>
   );

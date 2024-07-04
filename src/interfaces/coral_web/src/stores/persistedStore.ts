@@ -17,7 +17,7 @@ const usePersistedStore = create<PersistedStore>()(
       ...createSettingsSlice(...a),
     }),
     {
-      name: 'settings',
+      name: 'persisted-store',
       version: 2,
     }
   )
@@ -48,7 +48,6 @@ export const useSettingsStore = () => {
       settings: state.settings,
       setSettings: state.setSettings,
       setIsConvListPanelOpen: state.setIsConvListPanelOpen,
-      setIsAgentsSidePanelOpen: state.setIsAgentsSidePanelOpen,
     }),
     shallow
   );

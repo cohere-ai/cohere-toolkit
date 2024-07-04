@@ -1,21 +1,21 @@
+import { IconButton } from '@/components/IconButton';
 import { Logo } from '@/components/Shared';
-import { useSettingsStore } from '@/stores';
+import { useAgentsStore } from '@/stores';
 
 export const MobileHeader: React.FC = () => {
   const {
-    settings: { isAgentsSidePanelOpen },
-    setIsAgentsSidePanelOpen,
-  } = useSettingsStore();
+    agents: { isAgentsSidePanelOpen },
+    setAgentsSidePanelOpen,
+  } = useAgentsStore();
 
   const onToggleAgentsSidePanel = () => {
-    setIsAgentsSidePanelOpen(!isAgentsSidePanelOpen);
+    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
 
   return (
-    <header className="flex h-11 items-center justify-start rounded-lg border border-marble-400 bg-marble-200 px-4 lg:hidden">
-      <button onClick={onToggleAgentsSidePanel}>
-        <Logo />
-      </button>
+    <header className="flex h-11 w-full items-center justify-between rounded-lg border border-marble-400 bg-marble-200 pl-5 pr-3 lg:hidden">
+      <Logo />
+      <IconButton iconName="menu" onClick={onToggleAgentsSidePanel} />
     </header>
   );
 };

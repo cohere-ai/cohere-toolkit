@@ -5,9 +5,12 @@ import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
+import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
+import { useSession } from '@/hooks/session';
 import {
+  useAgentsStore,
   useCitationsStore,
   useConversationStore,
   useParamsStore,
@@ -15,20 +18,30 @@ import {
 } from '@/stores';
 import { cn } from '@/utils';
 
-const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
+const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const { userId } = useSession();
+  const { data: agent } = useAgent({ agentId });
+  const isAgentCreator = userId === agent?.user_id;
 
   const { setSettings } = useSettingsStore();
+  const {
+    agents: { isEditAgentPanelOpen },
+    setEditAgentPanelOpen,
+    setAgentsSidePanelOpen,
+  } = useAgentsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
 
   const handleNewChat = () => {
-    const assistantId = router.query.assistantId;
-
-    const url = assistantId ? `/?assistantId=${assistantId}` : '/';
+    const url = agentId
+      ? `/agents/${agentId}`
+      : router.asPath.includes('/agents')
+      ? '/agents'
+      : '/';
     router.push(url, undefined, { shallow: true });
     resetConversation();
     resetCitations();
@@ -45,7 +58,22 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
     }
   };
 
+  const handleOpenAgentDrawer = () => {
+    setEditAgentPanelOpen(!isEditAgentPanelOpen);
+    setSettings({ isConvListPanelOpen: false });
+    setAgentsSidePanelOpen(false);
+  };
+
   const menuItems: KebabMenuItem[] = [
+    ...(!!agent
+      ? [
+          {
+            label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+            iconName: isAgentCreator ? 'edit' : 'information',
+            onClick: handleOpenAgentDrawer,
+          } as KebabMenuItem,
+        ]
+      : []),
     {
       label: 'Settings',
       iconName: 'settings',
@@ -58,15 +86,16 @@ const useHeaderMenu = ({ conversationId }: { conversationId?: string }) => {
     },
   ];
 
-  return { menuItems, handleNewChat, handleOpenSettings };
+  return { menuItems, isAgentCreator, handleNewChat, handleOpenSettings, handleOpenAgentDrawer };
 };
 
 type Props = {
   isStreaming?: boolean;
   conversationId?: string;
+  agentId?: string;
 };
 
-export const Header: React.FC<Props> = ({ isStreaming }) => {
+export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
   const {
     conversation: { id, name },
   } = useConversationStore();
@@ -75,14 +104,16 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
     setSettings,
     setIsConvListPanelOpen,
   } = useSettingsStore();
+  const { setAgentsSidePanelOpen } = useAgentsStore();
 
   const { welcomeGuideState } = useWelcomeGuideState();
 
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-  const { menuItems, handleNewChat, handleOpenSettings } = useHeaderMenu({
-    conversationId: id,
-  });
+  const { menuItems, isAgentCreator, handleNewChat, handleOpenSettings, handleOpenAgentDrawer } =
+    useHeaderMenu({
+      agentId,
+    });
 
   return (
     <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-400')}>
@@ -109,7 +140,8 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
               <IconButton
                 iconName="side-panel"
                 onClick={() => {
-                  setSettings({ isConfigDrawerOpen: false, isAgentsSidePanelOpen: false });
+                  setSettings({ isConfigDrawerOpen: false });
+                  setAgentsSidePanelOpen(false);
                   setIsConvListPanelOpen(true);
                 }}
               />
@@ -127,7 +159,6 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
             className="hidden md:flex"
             iconName="new-message"
             onClick={handleNewChat}
-            disabled={isStreaming}
           />
           <div className="relative">
             <IconButton
@@ -144,6 +175,16 @@ export const Header: React.FC<Props> = ({ isStreaming }) => {
               })}
             />
           </div>
+          <IconButton
+            tooltip={{
+              label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+              placement: 'bottom-end',
+              size: 'md',
+            }}
+            iconName={isAgentCreator ? 'edit' : 'information'}
+            onClick={handleOpenAgentDrawer}
+            className={cn('hidden', { 'md:flex': !!agentId })}
+          />
         </span>
       </div>
     </div>

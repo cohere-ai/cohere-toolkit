@@ -335,6 +335,11 @@
 .icon-wrench:before {
   content: '\e94c';
 }
+
 .icon-share:before {
   content: '\e94d';
+}
+
+.icon-selection-slash:before {
+  content: '\e94e';
 }

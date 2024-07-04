@@ -10,7 +10,7 @@ import { Welcome } from '@/components/Welcome';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
-import { useCitationsStore } from '@/stores';
+import { useAgentsStore, useCitationsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -19,6 +19,7 @@ type Props = {
   startOptionsEnabled: boolean;
   messages: ChatMessage[];
   streamingMessage: StreamingMessage | null;
+  agentId?: string;
   onRetry: VoidFunction;
   composer: ReactNode;
   conversationId?: string;
@@ -60,6 +61,9 @@ export default memo(MessagingContainer);
 const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
   const scrollToBottom = useScrollToBottom();
+  const {
+    agents: { isEditAgentPanelOpen },
+  } = useAgentsStore();
   const {
     citations: { hasCitations },
   } = useCitationsStore();
@@ -137,9 +141,11 @@ const Content: React.FC<Props> = (props) => {
       </div>
 
       <div
-        className={cn('hidden h-auto border-l border-marble-400', { 'md:flex': hasCitations })}
+        className={cn('hidden h-auto border-marble-400', {
+          'md:flex': hasCitations || !isEditAgentPanelOpen,
+          'border-l': hasCitations,
+        })}
       />
-
       <CitationPanel
         citationToStyles={citationToStyles}
         streamingMessage={streamingMessage}
@@ -160,14 +166,15 @@ type MessagesProps = Props;
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { onRetry, messages, streamingMessage },
+  { onRetry, messages, streamingMessage, agentId },
   ref
 ) {
   const isChatEmpty = messages.length === 0;
+
   if (isChatEmpty) {
     return (
       <div className="m-auto p-4">
-        <Welcome show={isChatEmpty} />
+        <Welcome show={isChatEmpty} agentId={agentId} />
       </div>
     );
   }

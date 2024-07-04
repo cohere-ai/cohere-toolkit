@@ -9,6 +9,7 @@ from backend.schemas.message import Message
 
 class ConversationBase(BaseModel):
     user_id: str
+    organization_id: Optional[str] = None
 
 
 class Conversation(ConversationBase):
@@ -44,3 +45,7 @@ class UpdateConversation(BaseModel):
 
 class DeleteConversation(BaseModel):
     pass
+
+
+class GenerateTitle(BaseModel):
+    title: str

@@ -16,6 +16,7 @@ class ToolInput(BaseModel):
 
 class Tool(BaseModel):
     name: str
+    display_name: str = ""
     description: Optional[str] = ""
     parameter_definitions: Optional[dict] = {}
 
@@ -26,7 +27,12 @@ class ManagedTool(Tool):
     is_available: bool = False
     error_message: Optional[str] = ""
     category: Category = Category.DataLoader
+
+    is_auth_required: bool = False  # Per user
+    auth_url: Optional[str] = ""  # Per user
+
     implementation: Any = Field(exclude=True)
+    auth_implementation: Any = Field(default=None, exclude=True)
 
     class Config:
         from_attributes = True

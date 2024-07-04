@@ -2,7 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { File as CohereFile, FILE_TOOL_CATEGORY, ListFile, useCohereClient } from '@/cohere-client';
+import {
+  ApiError,
+  File as CohereFile,
+  DeleteFile,
+  ListFile,
+  useCohereClient,
+} from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { useNotify } from '@/hooks/toast';
 import { useListTools } from '@/hooks/tools';
@@ -19,7 +25,7 @@ class FileUploadError extends Error {
 
 export const useListFiles = (conversationId?: string, options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
-  return useQuery<ListFile[], Error>({
+  return useQuery<ListFile[], ApiError>({
     queryKey: ['listFiles', conversationId],
     queryFn: async () => {
       if (!conversationId) throw new Error('Conversation ID not found');
@@ -56,14 +62,8 @@ export const useUploadFile = () => {
   const cohereClient = useCohereClient();
 
   return useMutation({
-    mutationFn: async ({ file, conversationId }: { file: File; conversationId?: string }) => {
-      try {
-        return await cohereClient.uploadFile({ file, conversationId });
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
-    },
+    mutationFn: ({ file, conversationId }: { file: File; conversationId?: string }) =>
+      cohereClient.uploadFile({ file, conversation_id: conversationId }),
   });
 };
 
@@ -71,15 +71,9 @@ export const useDeleteUploadedFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
-  return useMutation<void, void, { conversationId: string; fileId: string }>({
-    mutationFn: async ({ conversationId, fileId }: { conversationId: string; fileId: string }) => {
-      try {
-        await cohereClient.deletefile({ conversationId, fileId });
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
-    },
+  return useMutation<DeleteFile, ApiError, { conversationId: string; fileId: string }>({
+    mutationFn: async ({ conversationId, fileId }) =>
+      cohereClient.deletefile({ conversationId, fileId }),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['listFiles'] });
     },
@@ -190,16 +184,31 @@ export const useDefaultFileLoaderTool = () => {
 
   const enableDefaultFileLoaderTool = () => {
     if (!defaultFileLoaderTool) return;
-    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
 
+    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
     const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
       params.tools?.some((tool) => tool.name === name)
     );
+
     if (isDefaultFileLoaderToolEnabled) return;
 
     const newTools = uniqBy([...(params.tools ?? []), defaultFileLoaderTool], 'name');
     setParams({ tools: newTools });
   };
 
-  return { defaultFileLoaderTool, enableDefaultFileLoaderTool };
+  const disableDefaultFileLoaderTool = () => {
+    if (!defaultFileLoaderTool) return;
+
+    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
+    const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
+      params.tools?.some((tool) => tool.name === name)
+    );
+
+    if (!isDefaultFileLoaderToolEnabled) return;
+
+    const newTools = (params.tools ?? []).filter((t) => t.name !== defaultFileLoaderTool.name);
+    setParams({ tools: newTools });
+  };
+
+  return { defaultFileLoaderTool, enableDefaultFileLoaderTool, disableDefaultFileLoaderTool };
 };

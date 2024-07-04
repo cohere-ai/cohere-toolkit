@@ -8,11 +8,13 @@ from backend.model_deployments import (
     BedrockDeployment,
     CohereDeployment,
     SageMakerDeployment,
+    SingleContainerDeployment,
 )
 from backend.model_deployments.azure import AZURE_ENV_VARS
 from backend.model_deployments.bedrock import BEDROCK_ENV_VARS
 from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
 from backend.model_deployments.sagemaker import SAGE_MAKER_ENV_VARS
+from backend.model_deployments.single_container import SC_ENV_VARS
 from backend.schemas.deployment import Deployment
 
 
@@ -21,6 +23,7 @@ class ModelDeploymentName(StrEnum):
     SageMaker = "SageMaker"
     Azure = "Azure"
     Bedrock = "Bedrock"
+    SingleContainer = "Single Container"
 
 
 use_community_features = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "false")))
@@ -33,6 +36,13 @@ ALL_MODEL_DEPLOYMENTS = {
         models=CohereDeployment.list_models(),
         is_available=CohereDeployment.is_available(),
         env_vars=COHERE_ENV_VARS,
+    ),
+    ModelDeploymentName.SingleContainer: Deployment(
+        name=ModelDeploymentName.SingleContainer,
+        deployment_class=SingleContainerDeployment,
+        models=SingleContainerDeployment.list_models(),
+        is_available=SingleContainerDeployment.is_available(),
+        env_vars=SC_ENV_VARS,
     ),
     ModelDeploymentName.SageMaker: Deployment(
         name=ModelDeploymentName.SageMaker,

@@ -19,6 +19,7 @@ import { useSession } from '@/hooks/session';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
+import { getQueryString } from '@/utils';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
@@ -39,9 +40,7 @@ const ConversationPage: NextPage<Props> = () => {
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
 
-  const urlConversationId = Array.isArray(router.query.id)
-    ? router.query.id[0]
-    : (router.query.id as string);
+  const urlConversationId = getQueryString(router.query.id);
 
   const {
     data: conversation,
@@ -171,7 +170,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }),
     deps.queryClient.prefetchQuery({
       queryKey: ['deployments'],
-      queryFn: async () => await deps.cohereClient.listDeployments(),
+      queryFn: async () => await deps.cohereClient.listDeployments({}),
     }),
   ]);
 

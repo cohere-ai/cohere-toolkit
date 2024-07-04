@@ -1,33 +1,21 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
+  Body_upload_file_v1_conversations_upload_file_post,
+  CancelablePromise,
   CohereChatRequest,
-  Conversation,
-  ConversationWithoutMessages,
-  DefaultService,
-  Deployment,
-  ERROR_FINISH_REASON_TO_MESSAGE,
-  FinishReason,
-  ListFile,
-  Tool,
+  CohereClientGenerated,
+  CohereNetworkError,
+  CreateAgent,
+  CreateUser,
+  ExperimentalFeatures,
+  Fetch,
+  UpdateAgent,
   UpdateConversation,
   UpdateDeploymentEnv,
-  UploadFile,
-} from '.';
-import { mapToChatRequest } from './mappings';
+} from '@/cohere-client';
 
-export class CohereNetworkError extends Error {
-  public status: number;
-
-  constructor(message: string, status: number) {
-    super(message);
-    this.status = status;
-  }
-}
-
-export class CohereFinishStreamError extends Error {
-  public reason: FinishReason;
-
+<<<<<<< HEAD
   constructor(reason: keyof typeof ERROR_FINISH_REASON_TO_MESSAGE) {
     const message = ERROR_FINISH_REASON_TO_MESSAGE[reason];
     super(message);
@@ -56,19 +44,27 @@ export type ExperimentalFeatures = {
   USE_EXPERIMENTAL_LANGCHAIN: boolean;
   USE_AGENTS_VIEW: boolean;
 };
+=======
+import { mapToChatRequest } from './mappings';
+>>>>>>> main
 
 export class CohereClient {
   private readonly hostname: string;
   private readonly fetch: Fetch;
+<<<<<<< HEAD
   private readonly source: string;
   private authToken?: string;
   private onAuthTokenUpdate?: (authToken?: string) => void;
+=======
+  private authToken?: string;
+>>>>>>> main
 
-  public cohereService?: DefaultService;
+  public cohereService: CohereClientGenerated;
   public request?: any;
 
   constructor({
     hostname,
+<<<<<<< HEAD
     source,
     fetch,
     authToken,
@@ -79,11 +75,19 @@ export class CohereClient {
     fetch: Fetch;
     authToken?: string;
     onAuthTokenUpdate?: (authToken?: string) => void;
+=======
+    fetch,
+    authToken,
+  }: {
+    hostname: string;
+    fetch: Fetch;
+    authToken?: string;
+>>>>>>> main
   }) {
     this.hostname = hostname;
-    this.source = source;
     this.fetch = fetch;
     this.authToken = authToken;
+<<<<<<< HEAD
     if (onAuthTokenUpdate) {
       this.onAuthTokenUpdate = onAuthTokenUpdate;
     }
@@ -96,34 +100,19 @@ export class CohereClient {
       this.authToken = authToken;
     }
     this.onAuthTokenUpdate?.(this.authToken);
+=======
+    this.cohereService = new CohereClientGenerated({
+      BASE: hostname,
+      HEADERS: this.getHeaders(true),
+    });
+>>>>>>> main
   }
 
-  public async uploadFile({
-    conversationId,
-    file,
-  }: {
-    file: File;
-    conversationId?: string;
-  }): Promise<UploadFile> {
-    const endpoint = `${this.getEndpoint('conversations')}/upload_file`;
-    const formData = new FormData();
-    formData.append('file', file, file.name);
-    if (conversationId) {
-      formData.append('conversation_id', conversationId);
-    } else {
-      /**
-       * In the event a conversation_id doesn't exist yet (ie. first turn of a conversation),
-       * we must upload files using a user_id instead. On successful upload, we will receive a
-       * conversation_id in the response which we can use for future uploads.
-       */
-      formData.append('user_id', 'user_id');
-    }
-
-    const response = await this.fetch(endpoint, {
-      method: 'POST',
-      headers: this.getHeaders(true),
-      body: formData,
+  public uploadFile(formData: Body_upload_file_v1_conversations_upload_file_post) {
+    return this.cohereService.default.uploadFileV1ConversationsUploadFilePost({
+      formData,
     });
+<<<<<<< HEAD
 
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
@@ -140,15 +129,16 @@ export class CohereClient {
     }
 
     return body as UploadFile;
+=======
+>>>>>>> main
   }
 
-  public async deletefile({ conversationId, fileId }: { conversationId: string; fileId: string }) {
-    const url = `${this.getEndpoint('conversations')}/${conversationId}/files/${fileId}`;
-
-    const response = await this.fetch(url, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
+  public deletefile({ conversationId, fileId }: { conversationId: string; fileId: string }) {
+    return this.cohereService.default.deleteFileV1ConversationsConversationIdFilesFileIdDelete({
+      conversationId,
+      fileId,
     });
+<<<<<<< HEAD
 
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
@@ -191,11 +181,20 @@ export class CohereClient {
     }
 
     return body as ListFile[];
+=======
+  }
+
+  public listFiles({ conversationId }: { conversationId: string }) {
+    return this.cohereService.default.listFilesV1ConversationsConversationIdFilesGet({
+      conversationId,
+    });
+>>>>>>> main
   }
 
   public async chat({
     request,
     headers,
+    agentId,
     signal,
     onOpen,
     onMessage,
@@ -204,6 +203,7 @@ export class CohereClient {
   }: {
     request: CohereChatRequest;
     headers?: Record<string, string>;
+    agentId?: string;
     signal?: AbortSignal;
     onOpen?: FetchEventSourceInit['onopen'];
     onMessage?: FetchEventSourceInit['onmessage'];
@@ -218,7 +218,9 @@ export class CohereClient {
     const requestBody = JSON.stringify({
       ...chatRequest,
     });
-    return await fetchEventSource(this.getEndpoint('chat-stream'), {
+
+    const endpoint = `${this.getEndpoint('chat-stream')}${agentId ? `?agent_id=${agentId}` : ''}`;
+    return await fetchEventSource(endpoint, {
       method: 'POST',
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
@@ -267,6 +269,7 @@ export class CohereClient {
     });
   }
 
+<<<<<<< HEAD
   public async listConversations({
     signal,
   }: {
@@ -293,19 +296,17 @@ export class CohereClient {
     }
 
     return body as ConversationWithoutMessages[];
+=======
+  public listConversations(params: { offset?: number; limit?: number; agentId?: string }) {
+    return this.cohereService.default.listConversationsV1ConversationsGet(params);
+>>>>>>> main
   }
 
-  public async getConversation({
-    conversationId,
-    signal,
-  }: { conversationId: string } & {
-    signal?: AbortSignal;
-  }): Promise<Conversation> {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}/${conversationId}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-      signal,
+  public getConversation({ conversationId }: { conversationId: string }) {
+    return this.cohereService.default.getConversationV1ConversationsConversationIdGet({
+      conversationId,
     });
+<<<<<<< HEAD
 
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
@@ -322,14 +323,17 @@ export class CohereClient {
     }
 
     return body as Conversation;
+=======
+>>>>>>> main
   }
 
-  public async deleteConversation({ conversationId }: { conversationId: string }) {
-    const response = await this.fetch(`${this.getEndpoint('conversations')}/${conversationId}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
+  public deleteConversation({ conversationId }: { conversationId: string }) {
+    return this.cohereService.default.deleteConversationV1ConversationsConversationIdDelete({
+      conversationId,
     });
+  }
 
+<<<<<<< HEAD
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
@@ -343,25 +347,31 @@ export class CohereClient {
         response.status
       );
     }
-
-    return body as {};
+=======
+  public editConversation(requestBody: UpdateConversation, conversationId: string) {
+    return this.cohereService.default.updateConversationV1ConversationsConversationIdPut({
+      conversationId: conversationId,
+      requestBody,
+    });
   }
 
-  public async editConversation(
-    request: UpdateConversation & { conversationId: string }
-  ): Promise<Conversation> {
-    const { conversationId, ...rest } = request;
-    const endpoint = `${this.getEndpoint('conversations')}/${conversationId}`;
-    const requestBody: UpdateConversation = {
-      title: '',
-      ...rest,
-    };
-    const response = await this.fetch(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(requestBody),
-      headers: this.getHeaders(),
-    });
+  public listTools({ agentId }: { agentId?: string | null }) {
+    return this.cohereService.default.listToolsV1ToolsGet({ agentId });
+  }
+>>>>>>> main
 
+  public listDeployments({ all }: { all?: boolean }) {
+    return this.cohereService.default.listDeploymentsV1DeploymentsGet({ all });
+  }
+
+  public updateDeploymentEnvVariables(requestBody: UpdateDeploymentEnv, name: string) {
+    return this.cohereService.default.setEnvVarsV1DeploymentsNameSetEnvVarsPost({
+      name: name,
+      requestBody,
+    });
+  }
+
+<<<<<<< HEAD
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
@@ -377,15 +387,22 @@ export class CohereClient {
     }
 
     return body as Conversation;
+=======
+  public getExperimentalFeatures() {
+    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet() as CancelablePromise<ExperimentalFeatures>;
+>>>>>>> main
   }
 
-  public async listTools({ signal }: { signal?: AbortSignal }): Promise<Tool[]> {
-    const response = await this.fetch(`${this.getEndpoint('tools')}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-      signal,
+  public login({ email, password }: { email: string; password: string }) {
+    return this.cohereService.default.loginV1LoginPost({
+      requestBody: {
+        strategy: 'Basic',
+        payload: { email, password },
+      },
     });
+  }
 
+<<<<<<< HEAD
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
@@ -399,33 +416,46 @@ export class CohereClient {
         response.status
       );
     }
-
-    return body as Tool[];
+=======
+  public logout() {
+    return this.cohereService.default.logoutV1LogoutGet();
   }
 
-  public async listDeployments(): Promise<Deployment[]> {
-    const response = await this.fetch(`${this.getEndpoint('deployments')}`, {
-      method: 'GET',
+  public getAuthStrategies() {
+    return this.cohereService.default.getStrategiesV1AuthStrategiesGet();
+  }
+>>>>>>> main
+
+  public createUser(requestBody: CreateUser) {
+    return this.cohereService.default.createUserV1UsersPost({
+      requestBody,
+    });
+  }
+
+  public async googleSSOAuth({ code }: { code: string }) {
+    const response = await this.fetch(`${this.getEndpoint('google/auth')}?code=${code}`, {
+      method: 'POST',
       headers: this.getHeaders(),
     });
 
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
+    this.authToken = body.token;
 
     if (response.status === 401) {
       throw new CohereUnauthorizedError();
     }
 
     if (response.status !== 200) {
-      throw new CohereNetworkError(
-        body?.message || body?.error || 'Something went wrong',
-        response.status
-      );
+      throw new CohereNetworkError('Something went wrong', response.status);
     }
 
-    return body as Deployment[];
+    return body as { token: string };
+    // FIXME(@tomtobac): generated code doesn't have code as query parameter (TLK-765)
+    // this.cohereService.default.googleAuthorizeV1GoogleAuthGet();
   }
 
+<<<<<<< HEAD
   public async listAllDeployments(): Promise<Deployment[]> {
     const response = await this.fetch(`${this.getEndpoint('deployments')}?all=1`, {
       method: 'GET',
@@ -444,38 +474,58 @@ export class CohereClient {
         body?.message || body?.error || 'Something went wrong',
         response.status
       );
+=======
+  public async oidcSSOAuth({
+    code,
+    strategy,
+    codeVerifier,
+  }: {
+    code: string;
+    strategy: string;
+    codeVerifier?: string;
+  }) {
+    const body: any = {};
+
+    if (codeVerifier) {
+      // Conditionally add codeVerifier to the body
+      body.code_verifier = codeVerifier;
+>>>>>>> main
     }
 
-    return body as Deployment[];
-  }
-
-  public async updateDeploymentEnvVariables(request: UpdateDeploymentEnv & { name: string }) {
     const response = await this.fetch(
-      `${this.getEndpoint('deployments')}/${request.name}/set_env_vars`,
+      `${this.getEndpoint('oidc/auth')}?code=${code}&strategy=${strategy}`,
       {
         method: 'POST',
         headers: this.getHeaders(),
-        body: JSON.stringify({ env_vars: request.env_vars }),
+        body: JSON.stringify(body),
       }
     );
 
+<<<<<<< HEAD
     this.handleAuthTokenUpdate(response);
 
     if (response.status === 401) {
       throw new CohereUnauthorizedError();
     }
+=======
+    const payload = await response.json();
+    this.authToken = body.token;
+>>>>>>> main
 
     if (response.status !== 200) {
       throw new CohereNetworkError('Something went wrong', response.status);
     }
+
+    return payload as { token: string };
+    // FIXME(@tomtobac): generated code doesn't have code as query parameter (TLK-765)
+    // this.cohereService.default.oidcAuthorizeV1OidcAuthGet();
   }
 
-  public async getExperimentalFeatures(): Promise<ExperimentalFeatures> {
-    const response = await this.fetch(`${this.getEndpoint('experimental_features')}/`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+  public getAgent(agentId: string) {
+    return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
+  }
 
+<<<<<<< HEAD
     this.handleAuthTokenUpdate(response);
     const body = await response.json();
 
@@ -489,10 +539,30 @@ export class CohereClient {
         response.status
       );
     }
-
-    return body as ExperimentalFeatures;
+=======
+  public createAgent(requestBody: CreateAgent) {
+    return this.cohereService.default.createAgentV1AgentsPost({ requestBody });
   }
 
+  public listAgents({ offset, limit = 100 }: { offset?: number; limit?: number }) {
+    return this.cohereService.default.listAgentsV1AgentsGet({ offset, limit });
+  }
+>>>>>>> main
+
+  public updateAgent(requestBody: UpdateAgent, agentId: string) {
+    return this.cohereService.default.updateAgentV1AgentsAgentIdPut({
+      agentId: agentId,
+      requestBody,
+    });
+  }
+
+  public generateTitle({ conversationId }: { conversationId: string }) {
+    return this.cohereService.default.generateTitleV1ConversationsConversationIdGenerateTitlePost({
+      conversationId,
+    });
+  }
+
+<<<<<<< HEAD
   public async login({ email, password }: { email: string; password: string }) {
     const response = await this.fetch(`${this.getEndpoint('login')}`, {
       method: 'POST',
@@ -625,6 +695,9 @@ export class CohereClient {
       | 'google/auth'
       | 'oidc/auth'
   ) {
+=======
+  private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
+>>>>>>> main
     return `${this.hostname}/v1/${endpoint}`;
   }
 

@@ -7,6 +7,7 @@ import { useCohereClient } from '@/cohere-client';
  */
 export const useServerAuthStrategies = (options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
+<<<<<<< HEAD
   return useQuery<{ strategy: string }[], Error>({
     queryKey: ['authStrategies'],
     queryFn: async () => {
@@ -17,6 +18,11 @@ export const useServerAuthStrategies = (options?: { enabled?: boolean }) => {
         throw e;
       }
     },
+=======
+  return useQuery({
+    queryKey: ['authStrategies'],
+    queryFn: () => cohereClient.getAuthStrategies(),
+>>>>>>> main
     refetchOnWindowFocus: false,
     ...options,
   });
