@@ -75,9 +75,12 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
         <Tab as={Fragment}>
           {({ selected }) => (
             <button
-              className={cn('w-[60px] rounded p-1 transition-colors hover:bg-secondary-200', {
-                'bg-secondary-300': selected,
-              })}
+              className={cn(
+                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-secondary-200',
+                {
+                  'bg-secondary-300 shadow': selected,
+                }
+              )}
             >
               <Text styleAs="p-sm">Preview</Text>
             </button>
@@ -86,9 +89,12 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
         <Tab as={Fragment}>
           {({ selected }) => (
             <button
-              className={cn('w-[60px] rounded p-1 transition-colors hover:bg-secondary-200', {
-                'bg-secondary-300': selected,
-              })}
+              className={cn(
+                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-secondary-200',
+                {
+                  'bg-secondary-300 shadow': selected,
+                }
+              )}
             >
               <Text styleAs="p-sm">Code</Text>
             </button>
