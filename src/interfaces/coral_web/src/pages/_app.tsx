@@ -31,20 +31,13 @@ import { useCallback } from 'react';
 /**
  * Create a CohereAPIClient with the given access token.
  */
-<<<<<<< HEAD
 const makeCohereClient = (authToken?: string, onAuthTokenUpdate?: (authToken?: string) => void) => {
-=======
-const makeCohereClient = (authToken?: string) => {
->>>>>>> main
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
   return new CohereClient({
     hostname: env.NEXT_PUBLIC_API_HOSTNAME,
     fetch: apiFetch,
     authToken,
-<<<<<<< HEAD
     onAuthTokenUpdate,
-=======
->>>>>>> main
   });
 };
 
@@ -64,17 +57,12 @@ export const appSSR = {
 type Props = AppProps<PageAppProps>;
 
 const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
-<<<<<<< HEAD
   const { value: authToken, set: setAuthToken, remove: clearAuthToken } = useLocalStorageValue(
-=======
-  const { value: authToken, remove: clearAuthToken } = useLocalStorageValue(
->>>>>>> main
     LOCAL_STORAGE_KEYS.authToken,
     {
       defaultValue: undefined,
     }
   );
-<<<<<<< HEAD
   const onAuthTokenUpdate = useCallback((newAuthToken: string | undefined) => {
     if (newAuthToken) {
       setAuthToken(newAuthToken);
@@ -83,11 +71,7 @@ const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
     }
   }, [setAuthToken, clearAuthToken]);
   const router = useRouter();
-  const cohereClient = useLazyRef(() => makeCohereClient(authToken, onAuthTokenUpdate));
-=======
-  const router = useRouter();
-  const cohereClient = useLazyRef(() => makeCohereClient(authToken || undefined));
->>>>>>> main
+  const cohereClient = useLazyRef(() => makeCohereClient(authToken || undefined, onAuthTokenUpdate));
   const queryClient = useLazyRef(
     () =>
       new QueryClient({
@@ -97,16 +81,6 @@ const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
               clearAuthToken();
               // Extract the current URL without query parameters or host.
               const currentPath = window.location.pathname + window.location.hash;
-<<<<<<< HEAD
-              // !DNC Remove the log line
-              console.log(
-                'Redirecting to login page with redirect_uri:',
-                currentPath,
-                window.location.pathname,
-                window.location.hash
-              );
-=======
->>>>>>> main
               router.push(`/login?redirect_uri=${encodeURIComponent(currentPath)}`);
             }
           },

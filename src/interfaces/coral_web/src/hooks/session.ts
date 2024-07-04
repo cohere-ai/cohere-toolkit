@@ -1,18 +1,11 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation } from '@tanstack/react-query';
-<<<<<<< HEAD
-=======
 import Cookies from 'js-cookie';
->>>>>>> main
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/router';
 import { useCallback, useMemo } from 'react';
 
-<<<<<<< HEAD
-import { useCohereClient } from '@/cohere-client';
-=======
 import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
->>>>>>> main
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
 
@@ -53,17 +46,6 @@ export const useSession = () => {
   );
 
   const cohereClient = useCohereClient();
-<<<<<<< HEAD
-  const session: UserSession = authToken ? jwtDecode(authToken).context : {};
-
-  const loginMutation = useMutation({
-    mutationFn: async (params: LoginParams) => {
-      return cohereClient.login(params);
-    },
-    onSuccess: (data: { token: string }) => {
-      setAuthToken(data.token);
-      return new Promise((resolve) => resolve(data.token));
-=======
   const session = useMemo(
     () => (authToken ? (jwtDecode(authToken) as { context: UserSession }).context : null),
     [authToken]
@@ -74,16 +56,11 @@ export const useSession = () => {
     onSuccess: (data: JWTResponse | null) => {
       setAuthToken(data?.token);
       return new Promise((resolve) => resolve(data?.token));
->>>>>>> main
     },
   });
 
   const logoutMutation = useMutation({
-<<<<<<< HEAD
-    mutationFn: async () => {
-=======
     mutationFn: () => {
->>>>>>> main
       clearAuthToken();
       return cohereClient.logout();
     },
@@ -91,15 +68,11 @@ export const useSession = () => {
 
   const registerMutation = useMutation({
     mutationFn: async (params: RegisterParams) => {
-<<<<<<< HEAD
-      return cohereClient.createUser(params);
-=======
       return cohereClient.createUser({
         fullname: params.name,
         email: params.email,
         password: params.password,
       });
->>>>>>> main
     },
   });
 
@@ -119,35 +92,25 @@ export const useSession = () => {
 
   const oidcSSOMutation = useMutation({
     mutationFn: async (params: { code: string; strategy: string }) => {
-<<<<<<< HEAD
-      return cohereClient.oidcSSOAuth(params);
-=======
       const codeVerifier = Cookies.get('code_verifier');
       return cohereClient.oidcSSOAuth({
         ...params,
         ...(codeVerifier && { codeVerifier }),
       });
->>>>>>> main
     },
     onSuccess: (data: { token: string }) => {
       setAuthToken(data.token);
       return new Promise((resolve) => resolve(data.token));
     },
-<<<<<<< HEAD
-=======
     onSettled: () => {
       Cookies.remove('code_verifier');
       Cookies.remove('code_challenge');
     },
->>>>>>> main
   });
 
   return {
     session,
-<<<<<<< HEAD
-=======
     userId: session && 'id' in session ? session.id : 'user-id',
->>>>>>> main
     authToken,
     isLoggedIn,
     loginMutation,
