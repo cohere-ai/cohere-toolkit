@@ -11,6 +11,7 @@ from backend.tools import (
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
+    YelpReranker
 )
 from backend.tools.google_drive import (
     GOOGLE_DRIVE_TOOL_ID,
@@ -31,6 +32,7 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
+    Yelp_Reranker = "yelp"
     Wiki_Retriever_LangChain = "wikipedia"
     Search_File = "search_file"
     Read_File = "read_document"
@@ -41,6 +43,28 @@ class ToolName(StrEnum):
 
 
 ALL_TOOLS = {
+    ToolName.Yelp_Reranker: ManagedTool(
+        name=ToolName.Yelp_Reranker,
+        display_name="Yelp Reviews",
+        implementation=YelpReranker,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True
+            },
+            "top_k": {
+                "description": "Top k results to be retrieved based on the query",
+                "type": "int",
+                "required": True
+            }
+        },
+        is_visible=True,
+        is_available=YelpReranker.is_available(),
+        error_message="YelpReranker is not available.",
+        category=Category.FileLoader,
+        description="Retrieves documents from Yelp user reviews about businesses and ranks them based on query"
+    ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         name=ToolName.Tavily_Internet_Search,
         display_name="Web Search",
