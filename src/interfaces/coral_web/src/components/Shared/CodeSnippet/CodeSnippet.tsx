@@ -4,6 +4,7 @@ import bash from 'react-syntax-highlighter/dist/cjs/languages/hljs/bash';
 import go from 'react-syntax-highlighter/dist/cjs/languages/hljs/go';
 import javascript from 'react-syntax-highlighter/dist/cjs/languages/hljs/javascript';
 import python from 'react-syntax-highlighter/dist/cjs/languages/hljs/python';
+import xml from 'react-syntax-highlighter/dist/cjs/languages/hljs/xml';
 
 import { CopyToClipboardButton } from '..';
 import natureTheme from './theme';
@@ -11,18 +12,20 @@ import natureTheme from './theme';
 type CopyToClipboardRef = React.ElementRef<typeof CopyToClipboardButton>;
 
 type Props = {
-  lang: 'python' | 'go' | 'curl' | 'cli' | 'bash' | 'shell' | 'js';
+  lang: 'python' | 'go' | 'curl' | 'cli' | 'bash' | 'shell' | 'js' | 'html';
   codeSnippet: string;
+  customStyle?: React.CSSProperties;
   onCopy?: VoidFunction;
   preview?: boolean;
 };
 
-type SupportedSyntaxHighlighterLanguages = 'python' | 'javascript' | 'go' | 'bash';
+type SupportedSyntaxHighlighterLanguages = 'python' | 'javascript' | 'go' | 'bash' | 'html';
 // supported languages are explicitly registered with the syntax highlighter library to reduce the bundle size
 SyntaxHighlighter.registerLanguage('javascript', javascript);
 SyntaxHighlighter.registerLanguage('python', python);
 SyntaxHighlighter.registerLanguage('go', go);
 SyntaxHighlighter.registerLanguage('bash', bash);
+SyntaxHighlighter.registerLanguage('html', xml);
 
 const mapLangToSyntaxHighlighterLang = (lang: string): SupportedSyntaxHighlighterLanguages => {
   switch (lang) {
@@ -34,6 +37,8 @@ const mapLangToSyntaxHighlighterLang = (lang: string): SupportedSyntaxHighlighte
       return 'javascript';
     case 'go':
       return 'go';
+    case 'html':
+      return 'html';
     case 'curl':
     case 'cli':
     case 'shell':
@@ -42,7 +47,13 @@ const mapLangToSyntaxHighlighterLang = (lang: string): SupportedSyntaxHighlighte
   }
 };
 
-export const CodeSnippet: React.FC<Props> = ({ lang, codeSnippet, onCopy, preview = false }) => {
+export const CodeSnippet: React.FC<Props> = ({
+  lang,
+  codeSnippet,
+  onCopy,
+  preview = false,
+  customStyle,
+}) => {
   const copyBtnRef = useRef<CopyToClipboardRef>(null);
 
   const handleCodeSnippetClick = (e: MouseEvent<HTMLElement>) => {
@@ -61,16 +72,16 @@ export const CodeSnippet: React.FC<Props> = ({ lang, codeSnippet, onCopy, previe
         size="md"
         animate={false}
         kind="secondary"
-        className="absolute right-3 top-3 rounded-lg bg-green-200 px-2 py-1 group-hover:bg-green-300"
+        className="absolute right-3 top-3 rounded-lg bg-secondary-200 px-2 py-1 group-hover:bg-secondary-300"
       />
       <SyntaxHighlighter
         showLineNumbers
         language={mapLangToSyntaxHighlighterLang(lang)}
         style={natureTheme}
         customStyle={{
-          height: '100%',
           paddingRight: '60px',
           fontSize: `${preview ? '12px' : '16px'}`,
+          ...customStyle,
         }}
       >
         {codeSnippet}
