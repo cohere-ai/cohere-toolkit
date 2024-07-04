@@ -8,7 +8,10 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { PluggableList } from 'unified';
 
+import { Icon } from '@/components/Shared/Icon';
+import { rehypeLog } from '@/components/Shared/Markdown/directives/log';
 import { removeExtraBlankSpaces } from '@/components/Shared/Markdown/directives/utils';
+import { Antartifact } from '@/components/Shared/Markdown/tags/Antartifact';
 import { Iframe } from '@/components/Shared/Markdown/tags/Iframe';
 import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
@@ -56,6 +59,8 @@ export const getActiveMarkdownPlugins = (options: {
   const rehypePlugins: PluggableList = [
     // renderTableTools is a plugin that detects tables and saves them in a readable structure
     renderTableTools,
+    // rehypeLog is a plugin that logs the tree structure of the markdown
+    rehypeLog,
     // rehypeHighlight is a plugin that adds syntax highlighting to code blocks
     // Version 7.0.0 seems to have a memory leak bug that's why we are using 6.0.0
     // https://github.com/remarkjs/react-markdown/issues/791#issuecomment-2096106784
@@ -102,12 +107,11 @@ export const Markdown = ({
   // @ts-ignore
   const components: Components = useMemo(
     () => ({
-      // @ts-ignore
       pre: (props) => <Pre {...props} />,
       p: P,
       references: References,
-      // @ts-ignore
       iframe: Iframe,
+      antartifact: Antartifact,
       ...customComponents,
     }),
     [customComponents]
