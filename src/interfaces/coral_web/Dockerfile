@@ -36,5 +36,5 @@ CMD \
 
 
 # Production specifc tareget
-FROM base AS prod
-CMD npm run start
+# FROM base AS prod
+# CMD npm run start
