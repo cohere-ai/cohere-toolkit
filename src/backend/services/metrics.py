@@ -183,7 +183,7 @@ async def report_metrics(data: MetricsData) -> None:
     if not REPORT_SECRET:
         logger.error("No report secret set")
         return
-    
+
     if not REPORT_ENDPOINT:
         logger.error("No report endpoint set")
         return
