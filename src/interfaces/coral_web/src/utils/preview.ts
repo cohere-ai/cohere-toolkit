@@ -63,6 +63,14 @@ const getReconstructedHtml = (rawHTML: string) => {
   return html;
 };
 
+// removes all the added code blocks and returns the original html
+export const cleanupCodeBlock = (content: string) => {
+  const imgRegex = / onError="onImageError\(this\)"/g;
+  const cleanContent = content.replace(GET_IMAGE_DEF, '').replace(imgRegex, '');
+
+  return cleanContent;
+};
+
 export const replaceCodeBlockWithIframe = (content: string) => {
   const matchingRegex = /```html([\s\S]+)/;
   const replacingRegex = /```html([\s\S]+?)(```|$)/;
