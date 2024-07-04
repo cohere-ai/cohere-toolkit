@@ -150,6 +150,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             >
               <IconButton
                 iconName="side-panel"
+                tooltip={{ label: 'Toggle chat list', placement: 'bottom-start', size: 'md' }}
                 onClick={() => {
                   setSettings({ isConfigDrawerOpen: false });
                   setAgentsSidePanelOpen(false);
