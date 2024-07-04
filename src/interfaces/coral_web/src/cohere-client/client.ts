@@ -199,7 +199,7 @@ export class CohereClient {
 
   public async googleSSOAuth({ code }: { code: string }) {
     const response = await this.fetch(`${this.getEndpoint('google/auth')}?code=${code}`, {
-      method: 'GET',
+      method: 'POST',
       headers: this.getHeaders(),
     });
 
@@ -215,23 +215,39 @@ export class CohereClient {
     // this.cohereService.default.googleAuthorizeV1GoogleAuthGet();
   }
 
-  public async oidcSSOAuth({ code, strategy }: { code: string; strategy: string }) {
+  public async oidcSSOAuth({
+    code,
+    strategy,
+    codeVerifier,
+  }: {
+    code: string;
+    strategy: string;
+    codeVerifier?: string;
+  }) {
+    const body: any = {};
+
+    if (codeVerifier) {
+      // Conditionally add codeVerifier to the body
+      body.code_verifier = codeVerifier;
+    }
+
     const response = await this.fetch(
       `${this.getEndpoint('oidc/auth')}?code=${code}&strategy=${strategy}`,
       {
-        method: 'GET',
+        method: 'POST',
         headers: this.getHeaders(),
+        body: JSON.stringify(body),
       }
     );
 
-    const body = await response.json();
+    const payload = await response.json();
     this.authToken = body.token;
 
     if (response.status !== 200) {
       throw new CohereNetworkError('Something went wrong', response.status);
     }
 
-    return body as { token: string };
+    return payload as { token: string };
     // FIXME(@tomtobac): generated code doesn't have code as query parameter (TLK-765)
     // this.cohereService.default.oidcAuthorizeV1OidcAuthGet();
   }
