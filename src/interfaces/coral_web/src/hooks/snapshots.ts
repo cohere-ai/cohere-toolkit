@@ -12,6 +12,7 @@ import {
 import { BotState, ChatMessage, MessageType } from '@/types/message';
 
 export type ChatSnapshot = Omit<Snapshot, 'messages'> & { messages?: ChatMessage[] };
+export type ChatSnapshotWithLinks = ChatSnapshot & { links: string[] };
 
 /**
  * @description returns a list of snapshots
@@ -77,7 +78,7 @@ export const useGetSnapshotByLinkId = (linkId: string) => {
  */
 export const useSnapshot = (linkId: string) => {
   const { data, ...rest } = useGetSnapshotByLinkId(linkId);
-  const messages = formatChatMessages(data?.messages);
+  const messages = formatChatMessages(data?.snapshot.messages);
   const snapshot = { ...data, messages };
   return { snapshot, ...rest };
 };
@@ -103,15 +104,17 @@ const formatChatMessages = (messages: CohereChatMessage[] | undefined): ChatMess
 
 export const useSnapshots = () => {
   const client = useCohereClient();
-
   const { data, isLoading: loadingSnapshots } = useListSnapshots();
-  const snapshots = useMemo<ChatSnapshot[]>(() => {
-    if (!data || !data.snapshots) return [];
-    return data.snapshots.map(({ messages, ...s }) => {
-      const formattedMessages = formatChatMessages(messages);
+  const snapshots = useMemo<ChatSnapshotWithLinks[]>(() => {
+    if (!data) return [];
+    return data.map((s) => {
+      const formattedMessages = formatChatMessages(s.snapshot.messages);
       return {
         ...s,
-        messages: formattedMessages,
+        snapshot: {
+          ...s.snapshot,
+          messages: formattedMessages,
+        },
       };
     });
   }, [data]);
@@ -128,7 +131,7 @@ export const useSnapshots = () => {
     if (!snapshot.links) return;
     try {
       await Promise.all(
-        snapshot?.links?.map(async ({ linkId }) => {
+        snapshot?.links?.map(async (linkId) => {
           if (linkId) {
             await client.deleteSnapshotLink({ linkId });
           }
