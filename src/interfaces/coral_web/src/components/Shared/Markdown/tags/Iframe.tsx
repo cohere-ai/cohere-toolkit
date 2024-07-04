@@ -1,13 +1,14 @@
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import type { Component } from 'hast-util-to-jsx-runtime/lib/components';
-import { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
-import SyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/prism-light';
-import theme from 'react-syntax-highlighter/dist/cjs/styles/prism/atom-dark';
 
+import { CodeSnippet } from '@/components/Shared/CodeSnippet';
 import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
+import { cleanupCodeBlock } from '@/utils/preview';
 
 const MIN_HEIGHT = 600;
 
@@ -22,8 +23,8 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
   props
 ) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [option, setOption] = useState<'live' | 'code'>('live');
   const [code, setCode] = useState('');
+  const [codePreview, setCodePreview] = useState('');
   const src = props[`data-src`];
 
   const onload = (e: any) => {
@@ -50,50 +51,50 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
         .then((res) => res.text())
         .then((text) => {
           setCode(text.trim());
+          setCodePreview(cleanupCodeBlock(text).trim());
+          //
         });
     }
   }, [src]);
 
   return (
-    <div>
-      <div className="rounded rounded-b-none border border-b-0 border-marble-500 bg-secondary-50 p-2">
-        <iframe
-          srcDoc={code}
-          ref={iframeRef}
-          className={cn('max-h-[900px] min-h-[150px] w-full resize-y rounded-lg bg-white', {
-            hidden: option !== 'live',
-          })}
-        />
-        <pre
-          className={cn('language-html max-h-[900px]  min-h-[150px] bg-[#1d1f21]', {
-            hidden: option !== 'code',
-          })}
-        >
-          <SyntaxHighlighter style={theme} language="html">
-            {code}
-          </SyntaxHighlighter>
-        </pre>
-      </div>
-      <div className="flex justify-end gap-2 rounded rounded-t-none border border-t-0 border-marble-500 bg-secondary-50 px-4 py-2">
-        <div className="space-x-2 rounded-lg border border-marble-400 bg-white p-[2.5px]">
-          <button
-            className={cn('w-[42px] py-2 transition-colors', {
-              'rounded-lg bg-secondary-300': option === 'live',
-            })}
-            onClick={() => setOption('live')}
-          >
-            <Text styleAs="caption">App</Text>
-          </button>
-          <button
-            className={cn('w-[42px] py-2 transition-colors', {
-              'rounded-lg bg-secondary-300': option === 'code',
-            })}
-            onClick={() => setOption('code')}
-          >
-            <Text styleAs="caption">Code</Text>
-          </button>
-        </div>
-      </div>
-    </div>
+    <TabGroup>
+      <TabPanels className="min-h-[80px] overflow-y-auto transition-[height]">
+        <TabPanel>
+          <iframe
+            srcDoc={code}
+            ref={iframeRef}
+            className="w-full overflow-y-auto rounded-lg border  border-secondary-200 bg-white"
+          />
+        </TabPanel>
+        <TabPanel>
+          <CodeSnippet preview lang="html" codeSnippet={codePreview} />
+        </TabPanel>
+      </TabPanels>
+      <TabList className="ml-auto mt-2 flex w-fit gap-x-2 rounded bg-secondary-100 p-1">
+        <Tab as={Fragment}>
+          {({ selected }) => (
+            <button
+              className={cn('w-[60px] rounded p-1 transition-colors hover:bg-secondary-200', {
+                'bg-secondary-300': selected,
+              })}
+            >
+              <Text styleAs="p-sm">Preview</Text>
+            </button>
+          )}
+        </Tab>
+        <Tab as={Fragment}>
+          {({ selected }) => (
+            <button
+              className={cn('w-[60px] rounded p-1 transition-colors hover:bg-secondary-200', {
+                'bg-secondary-300': selected,
+              })}
+            >
+              <Text styleAs="p-sm">Code</Text>
+            </button>
+          )}
+        </Tab>
+      </TabList>
+    </TabGroup>
   );
 };
