@@ -51,7 +51,7 @@ def validate_snapshot_link(session: DBSessionDep, link_id: str) -> SnapshotLinkM
     return snapshot
 
 
-def create_conversation_dict(conversation: Conversation) -> dict[str, Any]:
+def create_conversation_dict(conversation: ConversationModel) -> dict[str, Any]:
     try:
         conversation_schema = Conversation.model_validate(conversation)
         return to_dict(conversation_schema)

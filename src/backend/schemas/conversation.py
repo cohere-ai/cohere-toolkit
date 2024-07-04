@@ -18,8 +18,9 @@ class Conversation(ConversationBase):
     updated_at: datetime.datetime
 
     title: str
-    messages: List[Message]
-    files: List[File]
+    messages: Optional[List[Message]]
+    text_messages: Optional[List[Message]]
+    files: Optional[List[File]]
     description: Optional[str]
     agent_id: Optional[str]
 
