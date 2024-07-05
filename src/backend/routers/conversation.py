@@ -29,9 +29,8 @@ from backend.services.conversation import (
     GENERATE_TITLE_PROMPT,
     SEARCH_RELEVANCE_THRESHOLD,
     extract_details_from_conversation,
-    validate_file_size,
 )
-from backend.services.file.service import get_file_content
+from backend.services.file import get_file_content, validate_file_size
 
 router = APIRouter(
     prefix="/v1/conversations",
