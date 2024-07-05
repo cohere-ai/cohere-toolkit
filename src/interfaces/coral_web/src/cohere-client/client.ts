@@ -6,6 +6,7 @@ import {
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
+  CohereUnauthorizedError,
   CreateAgent,
   CreateUser,
   ExperimentalFeatures,
@@ -40,6 +41,13 @@ export class CohereClient {
     this.cohereService = new CohereClientGenerated({
       BASE: hostname,
       HEADERS: this.getHeaders(true),
+    });
+
+    this.cohereService.request.config.interceptors.response.use((response) => {
+      if (response.status === 401) {
+        throw new CohereUnauthorizedError();
+      }
+      return response;
     });
   }
 
