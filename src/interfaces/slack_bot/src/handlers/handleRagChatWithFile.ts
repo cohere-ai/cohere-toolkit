@@ -2,7 +2,7 @@ import { WebClient } from '@slack/web-api';
 import { formatRagCitations } from 'src/utils/formatRagCitations';
 
 import { ApiError, OpenAPI, ToolkitClient } from '../cohere-client';
-import { ERRORS } from '../constants';
+import { DEPLOYMENT_COHERE_PLATFORM, ERRORS } from '../constants';
 import { PageText, SlackFile, getFileChunks } from '../utils/files';
 import { getSanitizedMessage } from '../utils/getSanitizedMessage';
 import { GetUsersRealNameArgs, getUsersRealName } from '../utils/getUsersRealName';
@@ -12,6 +12,7 @@ type HandleRagChatWithFile = {
   client: WebClient;
   file: SlackFile | undefined;
   text: string;
+  deployment: string | null;
   model: string | null;
   teamId?: string;
   botUserId?: string;
@@ -30,6 +31,7 @@ export const handleRagChatWithFile = async ({
   client,
   file,
   text,
+  deployment,
   model,
   teamId,
   botUserId,
@@ -82,6 +84,7 @@ export const handleRagChatWithFile = async ({
         temperature: 0.1,
         prompt_truncation: 'AUTO_PRESERVE_ORDER',
       },
+      deploymentName: deployment ? deployment : DEPLOYMENT_COHERE_PLATFORM,
     });
 
     const sanitizedBotReply = await getSanitizedMessage({

@@ -33,6 +33,16 @@ export const ALERTS = {
     }will now be processed with the \`${modelName ? modelName : 'default'}\` model.${
       userId ? ` Set by <@${userId}>.` : ''
     }`,
+  channelDeploymentSet: (channelName: string, modelName: string | null, userId?: string) =>
+    `All messages ${
+      channelName !== 'directmessage' ? `in ${channelName} ` : ''
+    }will now be processed with the \`${modelName ? modelName : 'default'}\` model deployment.${
+      userId ? ` Set by <@${userId}>.` : ''
+    }`,
+  channelDeploymentView: (channelName: string, deploymentName: string | null) =>
+    `All messages ${
+      channelName !== 'directmessage' ? `in ${channelName} ` : ''
+    }are currently being processed with the \`${deploymentName ? deploymentName : DEPLOYMENT_COHERE_PLATFORM}\` deployment.`,
   channelModelView: (channelName: string, modelName: string | null) =>
     `All messages ${
       channelName !== 'directmessage' ? `in ${channelName} ` : ''
@@ -118,6 +128,7 @@ You can chat with me to learn new subjects through open and engaging conversatio
 *:gear: Configuration commands*:
 
 \`/set-model [model name]\` - Set the model used for a specific channel
+\`/set-deployment [deployment name]\` - Set the deployment used for a specific channel
 \`/view-model\` - View the model used for a specific channel
 \`/set-temperature [0.0 - 5.0]\` - Set the temperature used for a specific channel
 \`/view-temperature\` - View the temperature used for a specific channel
@@ -143,3 +154,5 @@ For further support, feel free to reach out to <mailto:support@cohere.com?Subjec
 
 export const ACCEPTABLE_SUMMARIZE_FILE_TYPES = new Set(['pdf', 'doc', 'docx', 'text']);
 export const ACCEPTABLE_RAG_CHAT_FILE_TYPES = new Set(['pdf']);
+
+export const DEPLOYMENT_COHERE_PLATFORM = 'Cohere Platform';

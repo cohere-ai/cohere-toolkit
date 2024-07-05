@@ -1,5 +1,5 @@
 import { ApiError, OpenAPI, ToolkitClient } from '../cohere-client';
-import { ALERTS, ERRORS, PROMPTS } from '../constants';
+import { ALERTS, DEPLOYMENT_COHERE_PLATFORM, ERRORS, PROMPTS } from '../constants';
 import { SlackFile, getFileRawText } from '../utils/files';
 import { getSlackFile } from '../utils/slackAuth';
 
@@ -7,6 +7,8 @@ type HandleSummarizeFileArgs = {
   file?: SlackFile;
   teamId?: string;
   enterpriseId?: string;
+  deployment?: string | null;
+  model?: string | null;
 };
 
 type Reply = {
@@ -19,6 +21,8 @@ export const handleSummarizeFile = async ({
   file,
   teamId,
   enterpriseId,
+  deployment,
+  model,
 }: HandleSummarizeFileArgs): Promise<Reply> => {
   // This should never be triggered, but just in case
   if (!file || !file.url_private) {
@@ -49,7 +53,9 @@ export const handleSummarizeFile = async ({
     const summaryResponse = await toolkitClient.default.chatChatPost({
       requestBody: {
         message: PROMPTS.summarizeFile(fileText),
+        model: model,
       },
+      deploymentName: deployment ? deployment : DEPLOYMENT_COHERE_PLATFORM,
     });
     const currentBotReply = `${ALERTS.FILE_SUMMARY_PREFIX}${
       file.name ? `\n\n*Original File Name:* \`${file.name}\`` : ''

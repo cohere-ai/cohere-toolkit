@@ -390,6 +390,10 @@ export type ChatStreamChatStreamPostData = {
 export type ChatStreamChatStreamPostResponse = Array<ChatResponseEvent>;
 
 export type ChatChatPostData = {
+  /**
+   * Select the deployment to use
+   */
+  deploymentName?: string;
   requestBody: CohereChatRequest;
 };
 
@@ -536,6 +540,10 @@ export type $OpenApiTs = {
   '/chat': {
     post: {
       req: {
+        /**
+         * Select the deployment to use
+         */
+        deploymentName?: string;
         requestBody: CohereChatRequest;
       };
       res: {

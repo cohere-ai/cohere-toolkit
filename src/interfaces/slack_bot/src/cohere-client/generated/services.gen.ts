@@ -92,6 +92,7 @@ export class DefaultService {
    * NonStreamedChatResponse: Chatbot response.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.deploymentName Select the deployment to use
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
@@ -99,6 +100,9 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/chat',
+      headers: {
+        'Deployment-Name': data.deploymentName,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {

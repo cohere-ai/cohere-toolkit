@@ -1,7 +1,7 @@
 import { AllMiddlewareArgs, Context, MessageEvent, RespondFn, SayFn } from '@slack/bolt';
 
 import { ApiError, OpenAPI, ToolkitClient } from '../cohere-client';
-import { ALERTS, ERRORS, PROMPTS } from '../constants';
+import { ALERTS, DEPLOYMENT_COHERE_PLATFORM, ERRORS, PROMPTS } from '../constants';
 import { getEphemeralBlocks } from '../utils/getMessageBlocks';
 import { getSanitizedConversationHistory } from '../utils/getSanitizedConversationHistory';
 import { handleError } from './';
@@ -13,6 +13,8 @@ type HandleSummarizeThreadArgs = Pick<AllMiddlewareArgs, 'client'> & {
   threadTs: string;
   say: SayFn | RespondFn;
   currentChannelId?: string;
+  deployment?: string | null;
+  model?: string | null;
 };
 
 /**
@@ -29,6 +31,8 @@ export const handleSummarizeThread = async ({
   threadTs,
   say,
   currentChannelId,
+  deployment,
+  model,
 }: HandleSummarizeThreadArgs) => {
   /**
    * If a currentChannelId is provided, the reply can be posted in that channel,
@@ -114,7 +118,9 @@ export const handleSummarizeThread = async ({
     const summaryResponse = await toolkitClient.default.chatChatPost({
       requestBody: {
         message: PROMPTS.summarizeThread(sanitizedConversationHistoryString as string),
+        model,
       },
+      deploymentName: deployment ? deployment : DEPLOYMENT_COHERE_PLATFORM,
     });
     /**
      * If we're not posting in the original thread,(currentChannelId is provided)
