@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 import { useAuthConfig } from '@/hooks/authConfig';
 
 /**

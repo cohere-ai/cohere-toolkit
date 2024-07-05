@@ -210,13 +210,11 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
-   * @param data.agentId
    * @returns ChatResponseEvent Successful Response
    * @throws ApiError
    */
@@ -226,9 +224,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat-stream',
-      query: {
-        agent_id: data.agentId,
-      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -245,13 +240,11 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
    * @param data The data for the request.
    * @param data.requestBody
-   * @param data.agentId
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
@@ -259,9 +252,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
-      query: {
-        agent_id: data.agentId,
-      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {

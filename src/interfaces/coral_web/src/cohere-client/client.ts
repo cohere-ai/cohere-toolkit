@@ -264,6 +264,10 @@ export class CohereClient {
     return this.cohereService.default.listAgentsV1AgentsGet({ offset, limit });
   }
 
+  public deleteAgent({ agentId }: { agentId: string }) {
+    return this.cohereService.default.deleteAgentV1AgentsAgentIdDelete({ agentId });
+  }
+
   public updateAgent(requestBody: UpdateAgent, agentId: string) {
     return this.cohereService.default.updateAgentV1AgentsAgentIdPut({
       agentId: agentId,
