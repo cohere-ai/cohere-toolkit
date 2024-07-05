@@ -416,7 +416,7 @@ async def generate_title(
             message=prompt,
         )
 
-        response = generate_chat_response(
+        response = await generate_chat_response(
             session,
             CustomChat().chat(
                 chat_request,

@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Generator, List, Union
+from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
@@ -481,7 +481,7 @@ def save_tool_calls_message(
         tool_call_crud.create_tool_call(session, tool_call)
 
 
-def generate_chat_response(
+async def generate_chat_response(
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
@@ -507,7 +507,7 @@ def generate_chat_response(
     Yields:
         bytes: Byte representation of chat response event.
     """
-    stream = generate_chat_stream(
+    stream = await generate_chat_stream(
         session,
         model_deployment_stream,
         response_message,
@@ -543,7 +543,7 @@ def generate_chat_response(
     return non_streamed_chat_response
 
 
-def generate_chat_stream(
+async def generate_chat_stream(
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
@@ -551,7 +551,7 @@ def generate_chat_stream(
     user_id: str,
     should_store: bool = True,
     **kwargs: Any,
-) -> Generator[bytes, Any, None]:
+) -> AsyncGenerator[Any, Any]:
     """
     Generate chat stream from model deployment stream.
 
@@ -583,7 +583,7 @@ def generate_chat_stream(
     document_ids_to_document = {}
 
     stream_event = None
-    for event in model_deployment_stream:
+    async for event in model_deployment_stream:
         (
             stream_event,
             stream_end_data,
