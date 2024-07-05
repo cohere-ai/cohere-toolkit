@@ -14,6 +14,8 @@ from backend.schemas.snapshot import (
     CreateSnapshotResponse,
     Snapshot,
     SnapshotAccess,
+    SnapshotAgent,
+    SnapshotData,
     SnapshotLink,
     SnapshotWithLinks,
 )
@@ -61,14 +63,8 @@ async def create_snapshot(
 
     snapshot = snapshot_crud.get_snapshot_by_last_message_id(session, last_message_id)
 
-    # Remove private keys from snapshot before returning it
-    conversation_dict = create_conversation_dict(conversation)
-    conversation_dict = remove_private_keys(conversation_dict, PRIVATE_KEYS)
-
     if not snapshot:
-        snapshot = wrap_create_snapshot(
-            session, last_message_id, user_id, conversation_dict
-        )
+        snapshot = wrap_create_snapshot(session, last_message_id, user_id, conversation)
 
     snapshot_link = wrap_create_snapshot_link(session, snapshot.id, user_id)
 
@@ -76,7 +72,7 @@ async def create_snapshot(
         link_id=snapshot_link.id,
         snapshot_id=snapshot.id,
         user_id=user_id,
-        messages=conversation_dict.get("messages", []),
+        messages=snapshot.snapshot.get("messages", []),
     )
 
 
