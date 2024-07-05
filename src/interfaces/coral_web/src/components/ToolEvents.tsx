@@ -84,13 +84,15 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     return (
       <ToolEventWrapper icon="book-open-text">
         Found{' '}
-        {artifacts.map((artifact) => (
-          <b className="cursor-pointer pr-1 font-medium underline">
-            <a href={artifact.url || ''} target="_blank">
-              {artifact.title}
-            </a>
-          </b>
-        ))}
+        <article className="grid grid-cols-2 gap-x-1">
+          {artifacts.map((artifact) => (
+            <b key={artifact.title} className="cursor-pointer truncate font-medium underline">
+              <a href={artifact.url || ''} target="_blank">
+                {artifact.title}
+              </a>
+            </b>
+          ))}
+        </article>
       </ToolEventWrapper>
     );
   }
@@ -164,7 +166,7 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   children,
 }) => {
   return (
-    <div className="flex w-full gap-x-2 rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
+    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
       <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-secondary-600" />
       <Text className="pt-px text-secondary-800" styleAs="p-sm" as="span">
         {children}
