@@ -5,7 +5,6 @@ import { useEffect, useRef } from 'react';
 import {
   ChatResponseEvent as ChatResponse,
   CohereChatRequest,
-  CohereFinishStreamError,
   CohereNetworkError,
   Conversation,
   FinishReason,
@@ -96,8 +95,7 @@ export const useStreamChat = () => {
                 const streamEndData = data.data as StreamEnd;
 
                 if (streamEndData.finish_reason !== FinishReason.COMPLETE) {
-                  onError(streamEndData.error || 'Stream ended unexpectedly');
-                  return;
+                  throw new Error(streamEndData.error || 'Stream ended unexpectedly');
                 }
 
                 if (params.request.conversation_id) {
@@ -109,11 +107,11 @@ export const useStreamChat = () => {
               }
               onRead(data);
             } catch (e) {
-              console.error(e);
-              throw new Error('unable to parse event data');
+              const errMsg = e instanceof Error ? e.message : 'unable to parse event data';
+              throw new Error(errMsg);
             }
           },
-          onError: (err: any) => {
+          onError: (err: unknown) => {
             onError(err);
             // Rethrow to stop the operation
             throw err;
