@@ -12,6 +12,7 @@ from backend.database_models import SnapshotLink as SnapshotLinkModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.conversation import Conversation
+from backend.schemas.snapshot import SnapshotAgent, SnapshotData
 
 SNAPSHOT_VERSION = 1
 
@@ -51,7 +52,7 @@ def validate_snapshot_link(session: DBSessionDep, link_id: str) -> SnapshotLinkM
     return snapshot
 
 
-def create_conversation_dict(conversation: Conversation) -> dict[str, Any]:
+def create_conversation_dict(conversation: ConversationModel) -> dict[str, Any]:
     try:
         conversation_schema = Conversation.model_validate(conversation)
         return to_dict(conversation_schema)
@@ -71,15 +72,34 @@ def wrap_create_snapshot(
     session: DBSessionDep,
     last_message_id: str,
     user_id: str,
-    conversation_dict: dict[str, Any],
+    conversation: Conversation,
 ) -> SnapshotModel:
+    snapshot_agent = None
+    if conversation.agent_id:
+        agent = snapshot_crud.get_agent(session, conversation.agent_id)
+        snapshot_agent = SnapshotAgent(
+            id=agent.id,
+            name=agent.name,
+            description=agent.description,
+            preamble=agent.preamble,
+            tools_metadata=agent.tools_metadata,
+        )
+
+    snapshot_data = SnapshotData(
+        title=conversation.title,
+        description=conversation.description,
+        messages=conversation.messages,
+        agent=snapshot_agent,
+    )
+    snapshot = to_dict(snapshot_data)
+
     snapshot_model = SnapshotModel(
         user_id=user_id,
-        organization_id=conversation_dict.get("organization_id"),
-        conversation_id=conversation_dict.get("id"),
+        organization_id=conversation.organization_id,
+        conversation_id=conversation.id,
         last_message_id=last_message_id,
         version=SNAPSHOT_VERSION,
-        snapshot=conversation_dict,
+        snapshot=snapshot,
     )
     return snapshot_crud.create_snapshot(session, snapshot_model)
 

@@ -43,7 +43,6 @@ import {
 import {
   createStartEndKey,
   fixMarkdownImagesInText,
-  isAbortError,
   isGroundingOn,
   replaceTextWithCitations,
   shouldUpdateConversationTitle,
@@ -504,35 +503,22 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
             setConversation({ messages: [...newMessages, lastMessage] });
           } else {
-            if (isAbortError(e)) {
-              if (abortController.current?.signal.reason === ABORT_REASON_USER) {
-                setConversation({
-                  messages: [
-                    ...newMessages,
-                    createAbortedMessage({
-                      text: botResponse,
-                    }),
-                  ],
-                });
-              }
-            } else {
-              let error =
-                (e as CohereNetworkError)?.message ||
-                'Unable to generate a response since an error was encountered.';
+            let error =
+              (e as CohereNetworkError)?.message ||
+              'Unable to generate a response since an error was encountered.';
 
-              if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
-                error += ' (Ensure a COHERE_API_KEY is configured correctly)';
-              }
-              setConversation({
-                messages: [
-                  ...newMessages,
-                  createErrorMessage({
-                    text: botResponse,
-                    error,
-                  }),
-                ],
-              });
+            if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
+              error += ' (Ensure a COHERE_API_KEY is configured correctly)';
             }
+            setConversation({
+              messages: [
+                ...newMessages,
+                createErrorMessage({
+                  text: botResponse,
+                  error,
+                }),
+              ],
+            });
           }
           setIsStreaming(false);
           setStreamingMessage(null);
@@ -629,6 +615,16 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
   const handleStop = () => {
     abortController.current?.abort(ABORT_REASON_USER);
+    setIsStreaming(false);
+    setConversation({
+      messages: [
+        ...messages,
+        createAbortedMessage({
+          text: streamingMessage?.text ?? '',
+        }),
+      ],
+    });
+    setStreamingMessage(null);
   };
 
   return {

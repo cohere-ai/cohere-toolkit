@@ -18,6 +18,7 @@ Given the following conversation history, write a short title that summarizes th
 """
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
+SEARCH_RELEVANCE_THRESHOLD = 0.3
 
 
 def extract_details_from_conversation(
