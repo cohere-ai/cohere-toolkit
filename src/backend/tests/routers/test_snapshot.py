@@ -30,6 +30,30 @@ def snapshot(session):
         last_message_id="1",
         version=1,
         organization_id="1",
+        snapshot={
+            "title": "Title",
+            "description": "Description",
+            "agent": None,
+            "messages": [
+                {
+                    "id": "1",
+                    "conversation_id": "1",
+                    "user_id": "1",
+                    "text": "hey",
+                    "agent": "USER",
+                    "created_at": "2021-01-01T00:00:00",
+                    "updated_at": "2021-01-01T00:00:00",
+                    "generation_id": "1",
+                    "position": 0,
+                    "is_active": True,
+                    "documents": [],
+                    "citations": [],
+                    "files": [],
+                    "tool_calls": [],
+                    "tool_plan": None,
+                }
+            ],
+        },
     )
 
 
