@@ -5,7 +5,7 @@ import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, Generator, Union
 
 from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
@@ -240,7 +240,7 @@ async def run_loop(metrics_data: MetricsData) -> None:
 # DECORATORS
 def collect_metrics_chat(func: Callable) -> Callable:
     @wraps(func)
-    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
 
@@ -257,7 +257,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
                 metrics_data.output_tokens,
             ) = get_input_output_tokens(response_dict)
             metrics_data.duration_ms = time.perf_counter() - start_time
-            await run_loop(metrics_data)
+            asyncio.run(run_loop(metrics_data))
 
             return response_dict
 
@@ -266,7 +266,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
-    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
@@ -294,16 +294,14 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            await run_loop(metrics_data)
+            asyncio.run(run_loop(metrics_data))
 
     return wrapper
 
 
 def collect_metrics_rerank(func: Callable) -> Callable:
     @wraps(func)
-    async def wrapper(
-        self, query: str, documents: Dict[str, Any], **kwargs: Any
-    ) -> Any:
+    def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
 
@@ -317,7 +315,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            await run_loop(metrics_data)
+            asyncio.run(run_loop(metrics_data))
             return response_dict
 
     return wrapper
