@@ -6,6 +6,7 @@ from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.chat.custom.custom import CustomChat
+from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
@@ -26,6 +27,7 @@ from backend.services.chat import generate_chat_response, get_deployment_config
 from backend.services.conversation import (
     DEFAULT_TITLE,
     GENERATE_TITLE_PROMPT,
+    SEARCH_RELEVANCE_THRESHOLD,
     extract_details_from_conversation,
 )
 from backend.services.file.service import FileService
@@ -165,6 +167,80 @@ async def delete_conversation(
     conversation_crud.delete_conversation(session, conversation_id, user_id)
 
     return DeleteConversation()
+
+
+@router.get(":search", response_model=list[ConversationWithoutMessages])
+async def search_conversations(
+    query: str,
+    session: DBSessionDep,
+    request: Request,
+    offset: int = 0,
+    limit: int = 100,
+    agent_id: str = None,
+) -> list[ConversationWithoutMessages]:
+    """
+    Search conversations by title.
+
+    Args:
+        query (str): Query string to search for in conversation titles.
+        session (DBSessionDep): Database session.
+        request (Request): Request object.
+
+    Returns:
+        list[ConversationWithoutMessages]: List of conversations that match the query.
+    """
+    user_id = get_header_user_id(request)
+    deployment_name = request.headers.get("Deployment-Name", "")
+    model_deployment = get_deployment(deployment_name)
+    trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
+
+    conversations = conversation_crud.get_conversations(
+        session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
+    )
+
+    if not conversations:
+        return []
+
+    rerank_documents = []
+    for conversation in conversations:
+        chatlog = extract_details_from_conversation(conversation)
+
+        document = f"Title: {conversation.title}\n"
+        if len(chatlog.strip()) != 0:
+            document += "\nChatlog:\n{chatlog}"
+
+        rerank_documents.append(document)
+
+    # if rerank is not enabled, filter out conversations that don't contain the query
+    if not model_deployment.rerank_enabled:
+        filtered_conversations = []
+
+        for rerank_document, conversation in zip(rerank_documents, conversations):
+            if query.lower() in rerank_document.lower():
+                filtered_conversations.append(conversation)
+
+        return filtered_conversations
+
+    # Rerank documents
+    res = model_deployment.invoke_rerank(
+        query=query,
+        documents=rerank_documents,
+        user_id=user_id,
+        agent_id=agent_id,
+        trace_id=trace_id,
+    )
+
+    # Sort conversations by rerank score
+    res["results"].sort(key=lambda x: x["relevance_score"], reverse=True)
+
+    # Filter out conversations with low relevance score
+    reranked_conversations = [
+        conversations[r["index"]]
+        for r in res["results"]
+        if r["relevance_score"] > SEARCH_RELEVANCE_THRESHOLD
+    ]
+
+    return reranked_conversations
 
 
 # FILES
