@@ -27,6 +27,7 @@ from backend.services.conversation import (
     DEFAULT_TITLE,
     GENERATE_TITLE_PROMPT,
     extract_details_from_conversation,
+    validate_file_size,
 )
 from backend.services.file.service import get_file_content
 
@@ -192,6 +193,8 @@ async def upload_file(
     """
 
     user_id = get_header_user_id(request)
+
+    validate_file_size(session, user_id, file)
 
     # Create new conversation
     if not conversation_id:

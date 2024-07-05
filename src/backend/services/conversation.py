@@ -1,4 +1,9 @@
+from fastapi import HTTPException
+from fastapi import UploadFile as FastAPIUploadFile
+
+import backend.crud.file as file_crud
 from backend.database_models.conversation import Conversation
+from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatRole
 
 DEFAULT_TITLE = "New Conversation"
@@ -11,6 +16,8 @@ Given the following conversation history, write a short title that summarizes th
 
 # TITLE
 """
+MAX_FILE_SIZE = 20_000_000  # 20MB
+MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
 
 
 def extract_details_from_conversation(
@@ -52,3 +59,31 @@ def extract_details_from_conversation(
 
     chatlog = "\n".join(turns)
     return chatlog
+
+
+def validate_file_size(
+    session: DBSessionDep, user_id: str, file: FastAPIUploadFile
+) -> None:
+    """Validates the file size
+
+    Args:
+        user_id (str): The user ID
+        file (UploadFile): The file to validate
+
+    Raises:
+        HTTPException: If the file size is too large
+    """
+    if file.size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File size exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
+        )
+
+    existing_files = file_crud.get_files_by_user_id(session, user_id)
+    total_file_size = sum([f.size for f in existing_files]) + file.size
+
+    if total_file_size > MAX_TOTAL_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
+        )

@@ -3,7 +3,7 @@ from typing import Any
 
 import pandas as pd
 from fastapi import UploadFile as FastAPIUploadFile
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 PDF_EXTENTION = "pdf"
 TEXT_EXTENTION = "txt"
