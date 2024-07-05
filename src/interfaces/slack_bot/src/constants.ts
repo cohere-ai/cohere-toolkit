@@ -129,6 +129,7 @@ You can chat with me to learn new subjects through open and engaging conversatio
 
 \`/set-model [model name]\` - Set the model used for a specific channel
 \`/set-deployment [deployment name]\` - Set the deployment used for a specific channel
+\`/view-deployment\` - View the deployment used for a specific channel
 \`/view-model\` - View the model used for a specific channel
 \`/set-temperature [0.0 - 5.0]\` - Set the temperature used for a specific channel
 \`/view-temperature\` - View the temperature used for a specific channel
