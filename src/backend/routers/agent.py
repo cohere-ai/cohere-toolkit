@@ -1,5 +1,4 @@
-import psycopg2
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.config.tools import ALL_TOOLS

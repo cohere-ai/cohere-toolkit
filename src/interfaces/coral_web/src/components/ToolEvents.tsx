@@ -14,13 +14,14 @@ import { cn } from '@/utils';
 
 type Props = {
   show: boolean;
+  isStreaming: boolean;
   events: StreamToolCallsGeneration[] | undefined;
 };
 
 /**
  * @description Renders a list of events depending on the model's plan and tool inputs.
  */
-export const ToolEvents: React.FC<Props> = ({ show, events }) => {
+export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
   return (
     <Transition
       show={show}
@@ -40,6 +41,16 @@ export const ToolEvents: React.FC<Props> = ({ show, events }) => {
           ))}
         </Fragment>
       ))}
+      {isStreaming && (
+        <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
+          Working on it
+          <span className="w-max">
+            <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
+              ...
+            </div>
+          </span>
+        </Text>
+      )}
     </Transition>
   );
 };

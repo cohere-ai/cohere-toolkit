@@ -72,6 +72,7 @@ const Conversation: React.FC<Props> = ({
   const {
     userMessage,
     isStreaming,
+    isStreamingToolEvents,
     streamingMessage,
     setUserMessage,
     handleSend: send,
@@ -164,6 +165,7 @@ const Conversation: React.FC<Props> = ({
             conversationId={conversationId}
             startOptionsEnabled={startOptionsEnabled}
             isStreaming={isStreaming}
+            isStreamingToolEvents={isStreamingToolEvents}
             onRetry={handleRetry}
             messages={messages}
             streamingMessage={streamingMessage}
