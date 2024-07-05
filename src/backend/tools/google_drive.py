@@ -76,7 +76,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
             raise ValueError("GOOGLE_DRIVE_CLIENT_ID not set")
         redirect_url = os.getenv("NEXT_PUBLIC_API_HOSTNAME") + "/v1/tool/auth"
         base_url = "https://accounts.google.com/o/oauth2/v2/auth?"
-        state = {"user_id": user_id, "tool_id": GOOGLE_DRIVE_TOOL_ID}
+        state = {"user_id": user_id, "tool_id": GoogleDrive.NAME}
         params = {
             "response_type": "code",
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
@@ -91,13 +91,13 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
     @classmethod
     def is_auth_required(cls, session: DBSessionDep, user_id: str) -> bool:
-        auth = tool_auth_crud.get_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
+        auth = tool_auth_crud.get_tool_auth(session, GoogleDrive.NAME, user_id)
         if auth is None:
             return True
         if auth.expires_at < datetime.datetime.now():
             if cls.try_refresh_token(session, user_id, auth):
                 return False  # Refreshed token successfully
-            tool_auth_crud.delete_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
+            tool_auth_crud.delete_tool_auth(session, GoogleDrive.NAME, user_id)
             return True
         return False
 
@@ -126,7 +126,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
             session,
             ToolAuth(
                 user_id=user_id,
-                tool_id=GOOGLE_DRIVE_TOOL_ID,
+                tool_id=GoogleDrive.NAME,
                 token_type=res_body["token_type"],
                 encrypted_access_token=str.encode(
                     res_body["access_token"]
@@ -168,7 +168,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
             session,
             ToolAuth(
                 user_id=state["user_id"],
-                tool_id=GOOGLE_DRIVE_TOOL_ID,
+                tool_id=GoogleDrive.NAME,
                 token_type=res_body["token_type"],
                 encrypted_access_token=str.encode(
                     res_body["access_token"]
