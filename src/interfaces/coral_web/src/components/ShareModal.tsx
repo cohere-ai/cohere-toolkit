@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { Button, Icon, Input, Spinner, Text } from '@/components/Shared';
+import { env } from '@/env.mjs';
 import { useCreateSnapshotLinkId, useSnapshots } from '@/hooks/snapshots';
 
 type ShareModalProps = {
@@ -20,13 +21,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
     : undefined;
 
   const latestSnapshotLink = snapshotLinks[snapshotLinks.length - 1];
-  const [linkId, setLinkId] = useState(latestSnapshotLink?.linkId ?? '');
+  const [linkId, setLinkId] = useState(latestSnapshotLink ?? '');
 
   useEffect(() => {
     if (loadingSnapshots) return;
 
-    if (latestSnapshotLink && latestSnapshotLink.linkId) {
-      setLinkId(latestSnapshotLink.linkId);
+    if (latestSnapshotLink && latestSnapshotLink) {
+      setLinkId(latestSnapshotLink);
       setStatus(undefined);
     } else {
       const generateNewSnapshotLink = async () => {
@@ -100,7 +101,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
           truncate
           readOnly
           label="Share link"
-          value={`/share/${linkId}`}
+          value={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
           actionType="copy"
           disabled={status === 'update-url-loading'}
         />
@@ -108,7 +109,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
           <Button
             kind="secondary"
             label="See preview"
-            href={`/share/${linkId}`}
+            href={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
             target="_blank"
             endIcon="arrow-up-right"
             disabled={status === 'update-url-loading'}

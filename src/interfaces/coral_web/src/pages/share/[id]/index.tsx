@@ -57,7 +57,7 @@ const ShareConversationPage: NextPage = () => {
   } else {
     content = (
       <ReadOnlyConversation
-        title={snapshot?.snapshot.title ?? DEFAULT_CONVERSATION_NAME}
+        title={snapshot?.snapshot?.title ?? DEFAULT_CONVERSATION_NAME}
         messages={snapshot?.messages ?? []}
       />
     );

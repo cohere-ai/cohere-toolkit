@@ -2,16 +2,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import {
-  ChatRole,
-  ChatMessage as CohereChatMessage,
+  Message as CohereChatMessage,
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
   ListSnapshotsV1SnapshotsGetResponse,
+  MessageAgent,
   Snapshot,
+  SnapshotData,
   useCohereClient,
 } from '@/cohere-client';
 import { BotState, ChatMessage, MessageType } from '@/types/message';
 
-export type ChatSnapshot = Omit<Snapshot, 'messages'> & { messages?: ChatMessage[] };
+type FormattedSnapshotData = Omit<SnapshotData, 'messages'> & { messages?: ChatMessage[] };
+export type ChatSnapshot = Omit<Snapshot, 'snapshot'> & { snapshot: FormattedSnapshotData };
 export type ChatSnapshotWithLinks = ChatSnapshot & { links: string[] };
 
 /**
@@ -86,19 +88,19 @@ export const useSnapshot = (linkId: string) => {
 const formatChatMessages = (messages: CohereChatMessage[] | undefined): ChatMessage[] =>
   !messages
     ? []
-    : messages.map(({ role, message }) =>
-        role === ChatRole.CHATBOT
+    : messages.map(({ agent, text }) =>
+        agent === MessageAgent.CHATBOT
           ? {
               type: MessageType.BOT,
               state: BotState.FULFILLED,
-              text: message || '',
+              text,
               responseId: '',
               generationId: '',
               originalText: '',
             }
           : {
               type: MessageType.USER,
-              text: message || '',
+              text,
             }
       );
 
