@@ -11,6 +11,7 @@ class ReadFileTool(BaseTool):
     This class reads a file from the file system.
     """
 
+    NAME = "read_document"
     MAX_NUM_CHUNKS = 10
 
     def __init__(self):
@@ -48,6 +49,7 @@ class SearchFileTool(BaseTool):
     This class searches for a query in a file.
     """
 
+    NAME = "search_file"
     MAX_NUM_CHUNKS = 10
 
     def __init__(self):

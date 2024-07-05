@@ -6,6 +6,8 @@ from community.tools import BaseTool
 
 
 class PubMedRetriever(BaseTool):
+    NAME = "pub_med"
+
     def __init__(self):
         self.client = PubmedQueryRun()
 

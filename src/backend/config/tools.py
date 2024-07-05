@@ -6,16 +6,13 @@ from enum import StrEnum
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools import (
     Calculator,
+    GoogleDrive,
+    GoogleDriveAuth,
     LangChainWikiRetriever,
     PythonInterpreter,
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
-)
-from backend.tools.google_drive import (
-    GOOGLE_DRIVE_TOOL_ID,
-    GoogleDrive,
-    GoogleDriveAuth,
 )
 
 """
@@ -31,18 +28,17 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
-    Wiki_Retriever_LangChain = "wikipedia"
-    Search_File = "search_file"
-    Read_File = "read_document"
-    Python_Interpreter = "toolkit_python_interpreter"
-    Calculator = "toolkit_calculator"
-    Tavily_Internet_Search = "web_search"
-    Google_Drive = GOOGLE_DRIVE_TOOL_ID
+    Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
+    Search_File = SearchFileTool.NAME
+    Read_File = ReadFileTool.NAME
+    Python_Interpreter = PythonInterpreter.NAME
+    Calculator = Calculator.NAME
+    Tavily_Internet_Search = TavilyInternetSearch.NAME
+    Google_Drive = GoogleDrive.NAME
 
 
 ALL_TOOLS = {
     ToolName.Tavily_Internet_Search: ManagedTool(
-        name=ToolName.Tavily_Internet_Search,
         display_name="Web Search",
         implementation=TavilyInternetSearch,
         parameter_definitions={
@@ -59,7 +55,6 @@ ALL_TOOLS = {
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
     ),
     ToolName.Search_File: ManagedTool(
-        name=ToolName.Search_File,
         display_name="Search File",
         implementation=SearchFileTool,
         parameter_definitions={
@@ -81,7 +76,6 @@ ALL_TOOLS = {
         description="Performs a search over a list of one or more of the attached files for a textual search query",
     ),
     ToolName.Read_File: ManagedTool(
-        name=ToolName.Read_File,
         display_name="Read Document",
         implementation=ReadFileTool,
         parameter_definitions={
@@ -98,7 +92,6 @@ ALL_TOOLS = {
         description="Returns the textual contents of an uploaded file, broken up in text chunks.",
     ),
     ToolName.Python_Interpreter: ManagedTool(
-        name=ToolName.Python_Interpreter,
         display_name="Python Interpreter",
         implementation=PythonInterpreter,
         parameter_definitions={
@@ -115,7 +108,6 @@ ALL_TOOLS = {
         description="Runs python code in a sandbox.",
     ),
     ToolName.Wiki_Retriever_LangChain: ManagedTool(
-        name=ToolName.Wiki_Retriever_LangChain,
         display_name="Wikipedia",
         implementation=LangChainWikiRetriever,
         parameter_definitions={
@@ -133,7 +125,6 @@ ALL_TOOLS = {
         description="Retrieves documents from Wikipedia using LangChain.",
     ),
     ToolName.Calculator: ManagedTool(
-        name=ToolName.Calculator,
         display_name="Calculator",
         implementation=Calculator,
         parameter_definitions={
@@ -150,7 +141,6 @@ ALL_TOOLS = {
         description="This is a powerful multi-purpose calculator which is capable of a wide array of math calculations.",
     ),
     ToolName.Google_Drive: ManagedTool(
-        name=ToolName.Google_Drive,
         display_name="Google Drive",
         implementation=GoogleDrive,
         parameter_definitions={
@@ -193,7 +183,10 @@ def get_available_tools() -> dict[ToolName, dict]:
             logging.warning("Community tools are not available. Skipping.")
 
     for tool in tools.values():
+        # Conditionally set error message
         tool.error_message = tool.error_message if not tool.is_available else None
+        # Retrieve name
+        tool.name = tool.implementation.NAME
 
     return tools
 
