@@ -60,7 +60,9 @@ class CustomChat(BaseChat):
                 if result:
                     yield result
 
-                if event["event_type"] == StreamEvent.STREAM_END and self.is_final_event(
+                if event[
+                    "event_type"
+                ] == StreamEvent.STREAM_END and self.is_final_event(
                     event, chat_request
                 ):
                     send_log_message(
