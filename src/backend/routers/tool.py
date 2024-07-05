@@ -39,11 +39,13 @@ def list_tools(
         all_tools = agent_tools
 
     user_id = get_header_user_id(request)
+
     for tool in all_tools:
         if tool.is_available and tool.auth_implementation is not None:
-            tool.is_auth_required = tool.auth_implementation.is_auth_required(
+            tool_auth_service = tool.auth_implementation()
+            tool.is_auth_required = tool_auth_service.is_auth_required(
                 session, user_id
             )
-            tool.auth_url = tool.auth_implementation.get_auth_url(user_id)
+            tool.auth_url = tool_auth_service.get_auth_url(user_id)
 
     return all_tools

@@ -2,11 +2,10 @@ import json
 import os
 from typing import Union
 
-from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
-
+from urllib.parse import quote
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
@@ -224,23 +223,30 @@ async def login(request: Request, session: DBSessionDep):
 
     if tool_id in AVAILABLE_TOOLS:
         tool = AVAILABLE_TOOLS.get(tool_id)
+        err = None
 
         # Tool not found
         if not tool:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tool {tool_id} does not exist or is not available.",
-            )
-        # Tool does not have Auth implemented
-        if not hasattr(tool, "auth_implementation"):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tool {tool.name} does not have an auth_implementation required for Tool Auth.",
-            )
+            err = f"Tool {tool_id} does not exist or is not available."
+            redirect_err = f"{redirect_uri}?error={quote(err)}"
+            return RedirectResponse(redirect_err)
 
-        err = tool.auth_implementation.process_auth_token(request, session)
+        # Tool does not have Auth implemented
+        if tool.auth_implementation is None:
+            err = f"Tool {tool.name} does not have an auth_implementation required for Tool Auth."
+            redirect_err = f"{redirect_uri}?error={quote(err)}"
+            return RedirectResponse(redirect_err)
+
+        try:
+            tool_auth_service = tool.auth_implementation() 
+            err = tool_auth_service.process_auth_token(request, session)
+        except Exception as e:
+            redirect_err = f"{redirect_uri}?error={quote(str(e))}"
+            return RedirectResponse(redirect_err)
+
         if err:
-            return RedirectResponse(redirect_uri + "?error=" + err)
+            redirect_err = f"{redirect_uri}?error={quote(err)}"
+            return RedirectResponse(redirect_err)
 
     response = RedirectResponse(redirect_uri)
     return response

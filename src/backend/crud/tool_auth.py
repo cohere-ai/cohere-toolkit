@@ -7,7 +7,7 @@ def create_tool_auth(db: Session, tool_auth: ToolAuth) -> ToolAuth:
     """
     Create a new tool auth link.
 
-    Tool Auth stores the access tokens for tool's that need auth
+    ToolAuth stores the access tokens + refrehs tokens for tools that require authentication.
 
     Args:
       db (Session): Database session.
@@ -24,7 +24,7 @@ def create_tool_auth(db: Session, tool_auth: ToolAuth) -> ToolAuth:
 
 def get_tool_auth(db: Session, tool_id: str, user_id: str) -> ToolAuth:
     """
-    Get an tool auth by user and tool ID.
+    Get an tool auth by user ID and tool ID.
 
     Args:
       db (Session): Database session.
@@ -45,7 +45,7 @@ def update_tool_auth(
     db: Session, tool_auth: ToolAuth, new_tool_auth: ToolAuth
 ) -> ToolAuth:
     """
-    Update a tool auth by user id and tool id.
+    Update a tool auth by user ID and tool ID.
 
     Args:
         db (Session): Database session.
@@ -57,6 +57,7 @@ def update_tool_auth(
     """
     for attr, value in new_tool_auth.model_dump().items():
         setattr(tool_auth, attr, value)
+
     db.commit()
     db.refresh(tool_auth)
     return tool_auth
@@ -64,7 +65,7 @@ def update_tool_auth(
 
 def delete_tool_auth(db: Session, user_id: str, tool_id: str) -> None:
     """
-    Delete an tool_auth by user and tool ID.
+    Delete a ToolAuth link by user ID and tool ID.
 
     Args:
         db (Session): Database session.
