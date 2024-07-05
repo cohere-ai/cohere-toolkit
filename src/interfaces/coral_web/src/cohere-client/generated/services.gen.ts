@@ -3,6 +3,8 @@ import type { BaseHttpRequest } from './core/BaseHttpRequest';
 import type { CancelablePromise } from './core/CancelablePromise';
 import type {
   ApplyMigrationsMigratePostResponse,
+  AuthorizeV1StrategyAuthPostData,
+  AuthorizeV1StrategyAuthPostResponse,
   ChatStreamV1ChatStreamPostData,
   ChatStreamV1ChatStreamPostResponse,
   ChatV1ChatPostData,
@@ -40,7 +42,6 @@ import type {
   GetStrategiesV1AuthStrategiesGetResponse,
   GetUserV1UsersUserIdGetData,
   GetUserV1UsersUserIdGetResponse,
-  GoogleAuthorizeV1GoogleAuthGetResponse,
   HealthHealthGetResponse,
   LangchainChatStreamV1LangchainChatPostData,
   LangchainChatStreamV1LangchainChatPostResponse,
@@ -64,7 +65,6 @@ import type {
   LoginV1LoginPostResponse,
   LoginV1ToolAuthGetResponse,
   LogoutV1LogoutGetResponse,
-  OidcAuthorizeV1OidcAuthGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
@@ -134,48 +134,40 @@ export class DefaultService {
   }
 
   /**
-   * Google Authorize
-   * Callback authentication endpoint used for Google OAuth after redirecting to
-   * the service's login screen.
+   * Authorize
+   * Callback authorization endpoint used for OAuth providers after authenticating on the provider's login screen.
    *
    * Args:
-   * request (Request): current Request object.
+   * strategy (str): Current strategy name.
+   * request (Request): Current Request object.
+   * session (Session): DB session.
    *
    * Returns:
-   * RedirectResponse: On success.
+   * dict: Containing "token" key, on success.
    *
    * Raises:
    * HTTPException: If authentication fails, or strategy is invalid.
+   * @param data The data for the request.
+   * @param data.strategy
+   * @param data.code
    * @returns JWTResponse Successful Response
    * @throws ApiError
    */
-  public googleAuthorizeV1GoogleAuthGet(): CancelablePromise<GoogleAuthorizeV1GoogleAuthGetResponse> {
+  public authorizeV1StrategyAuthPost(
+    data: AuthorizeV1StrategyAuthPostData
+  ): CancelablePromise<AuthorizeV1StrategyAuthPostResponse> {
     return this.httpRequest.request({
-      method: 'GET',
-      url: '/v1/google/auth',
-    });
-  }
-
-  /**
-   * Oidc Authorize
-   * Callback authentication endpoint used for OIDC after redirecting to
-   * the service's login screen.
-   *
-   * Args:
-   * request (Request): current Request object.
-   *
-   * Returns:
-   * RedirectResponse: On success.
-   *
-   * Raises:
-   * HTTPException: If authentication fails, or strategy is invalid.
-   * @returns JWTResponse Successful Response
-   * @throws ApiError
-   */
-  public oidcAuthorizeV1OidcAuthGet(): CancelablePromise<OidcAuthorizeV1OidcAuthGetResponse> {
-    return this.httpRequest.request({
-      method: 'GET',
-      url: '/v1/oidc/auth',
+      method: 'POST',
+      url: '/v1/{strategy}/auth',
+      path: {
+        strategy: data.strategy,
+      },
+      query: {
+        code: data.code,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 

@@ -14,7 +14,6 @@ from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
-from backend.services.auth import GoogleOAuth, OpenIDConnect
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
 from backend.services.auth.utils import (
@@ -49,6 +48,11 @@ def get_strategies() -> list[ListAuthStrategy]:
                     strategy_instance.get_authorization_endpoint()
                     if hasattr(strategy_instance, "get_authorization_endpoint")
                     else None
+                ),
+                "pkce_enabled": (
+                    strategy_instance.get_pkce_enabled()
+                    if hasattr(strategy_instance, "get_pkce_enabled")
+                    else False
                 ),
             }
         )
@@ -103,45 +107,67 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     return {"token": token}
 
 
-@router.get("/google/auth", response_model=JWTResponse)
-async def google_authorize(request: Request, session: DBSessionDep):
+@router.post("/{strategy}/auth", response_model=JWTResponse)
+async def authorize(
+    strategy: str, request: Request, session: DBSessionDep, code: str = None
+):
     """
-    Callback authentication endpoint used for Google OAuth after redirecting to
-    the service's login screen.
+    Callback authorization endpoint used for OAuth providers after authenticating on the provider's login screen.
 
     Args:
-        request (Request): current Request object.
+        strategy (str): Current strategy name.
+        request (Request): Current Request object.
+        session (Session): DB session.
 
     Returns:
-        RedirectResponse: On success.
+        dict: Containing "token" key, on success.
 
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
     """
-    strategy_name = GoogleOAuth.NAME
+    if not code:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error calling /auth with invalid code query parameter.",
+        )
 
-    return await authorize(request, session, strategy_name)
+    strategy_name = None
+    for enabled_strategy_name in ENABLED_AUTH_STRATEGY_MAPPING.keys():
+        if enabled_strategy_name.lower() == strategy.lower():
+            strategy_name = enabled_strategy_name
 
+    if not strategy_name:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error calling /auth with invalid strategy name: {strategy_name}.",
+        )
 
-@router.get("/oidc/auth", response_model=JWTResponse)
-async def oidc_authorize(request: Request, session: DBSessionDep):
-    """
-    Callback authentication endpoint used for OIDC after redirecting to
-    the service's login screen.
+    if not is_enabled_authentication_strategy(strategy_name):
+        raise HTTPException(
+            status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
+        )
 
-    Args:
-        request (Request): current Request object.
+    strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
 
-    Returns:
-        RedirectResponse: On success.
+    try:
+        userinfo = await strategy.authorize(request)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Could not fetch access token from provider, failed with error: {str(e)}",
+        )
 
-    Raises:
-        HTTPException: If authentication fails, or strategy is invalid.
-    """
-    strategy_name = OpenIDConnect.NAME
+    if not userinfo:
+        raise HTTPException(
+            status_code=401, detail=f"Could not get user from auth token: {token}."
+        )
 
-    # TODO: Merge authorize endpoints into single one
-    return await authorize(request, session, strategy_name)
+    # Get or create user, then set session user
+    user = get_or_create_user(session, userinfo)
+
+    token = JWTService().create_and_encode_jwt(user)
+
+    return {"token": token}
 
 
 @router.get("/logout", response_model=Logout)
@@ -164,37 +190,6 @@ async def logout(
         blacklist_crud.create_blacklist(session, db_blacklist)
 
     return {}
-
-
-async def authorize(
-    request: Request, session: DBSessionDep, strategy_name: str
-) -> JWTResponse:
-    if not is_enabled_authentication_strategy(strategy_name):
-        raise HTTPException(
-            status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
-        )
-
-    strategy = ENABLED_AUTH_STRATEGY_MAPPING[strategy_name]
-
-    try:
-        userinfo = await strategy.authorize(request)
-    except OAuthError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Could not fetch access token from provider, failed with error: {str(e)}",
-        )
-
-    if not userinfo:
-        raise HTTPException(
-            status_code=401, detail=f"Could not get user from auth token: {token}."
-        )
-
-    # Get or create user, then set session user
-    user = get_or_create_user(session, userinfo)
-
-    token = JWTService().create_and_encode_jwt(user)
-
-    return {"token": token}
 
 
 # Tool based auth is experimental and in development
