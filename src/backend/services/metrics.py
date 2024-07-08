@@ -27,6 +27,7 @@ from backend.services.auth.utils import get_header_user_id
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
+METRICS_LOGS_CURLS = os.getenv("METRICS_LOGS_CURLS", None)
 NUM_RETRIES = 0
 HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
@@ -179,7 +180,9 @@ async def report_metrics(data: MetricsData) -> None:
 
     data = attach_secret(data)
     signal = MetricsSignal(signal=data)
-    log_signal_curl(signal)
+    if METRICS_LOGS_CURLS == "true":
+        log_signal_curl(signal)
+    
     if not REPORT_SECRET:
         logger.error("No report secret set")
         return
