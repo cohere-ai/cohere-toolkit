@@ -2223,6 +2223,18 @@ export const $StreamToolCallsChunk = {
 
 export const $StreamToolCallsGeneration = {
     properties: {
+        stream_search_results: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/StreamSearchResults'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'List of search results used to generate grounded response with citations',
+            default: []
+        },
         tool_calls: {
             anyOf: [
                 {
