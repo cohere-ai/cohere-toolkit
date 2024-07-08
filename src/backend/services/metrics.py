@@ -20,9 +20,9 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
     MetricsData,
+    MetricsMessageType,
     MetricsSignal,
     MetricsUser,
-    MetricsMessageType,
 )
 from backend.services.auth.utils import get_header_user_id
 
