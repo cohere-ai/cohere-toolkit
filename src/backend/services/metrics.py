@@ -91,11 +91,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         agent = self.get_agent(request)
         agent_id = agent.id if agent else None
-
         method = self.get_method(scope)
         endpoint_name = self.get_endpoint_name(scope, request)
         is_success = self.get_success(response)
-        status_code = self.get_status_code(response)
         message_type = event_name_of(method, endpoint_name, is_success)
 
         if message_type == MetricsMessageType.UNKNOWN_SIGNAL:
@@ -116,7 +114,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             user=self.get_user(request),
             message_type=message_type,
             trace_id=request.state.trace_id,
-            status_code=self.get_status_code(response),
             object_ids=self.get_object_ids(request),
             assistant=agent,
             assistant_id=agent_id,
@@ -148,13 +145,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             logger.warning(f"Failed to get endpoint name: {e}")
             return "unknown"
-
-    def get_status_code(self, response: Response) -> int:
-        try:
-            return response.status_code
-        except Exception as e:
-            logger.warning(f"Failed to get status code: {e}")
-            return 500
 
     def get_success(self, response: Response) -> bool:
         try:
