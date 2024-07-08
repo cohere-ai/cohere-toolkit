@@ -50,7 +50,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         'h-full bg-marble-100',
         'rounded-lg border border-marble-400',
         {
-          'right-1/4': isAgentsSidePanelOpen,
+          'right-1/4 md:right-auto': isAgentsSidePanelOpen,
         },
         className
       )}
