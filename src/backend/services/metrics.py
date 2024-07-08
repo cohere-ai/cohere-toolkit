@@ -85,12 +85,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
         data = {}
-
         if scope["type"] != "http":
             return None
-
-        agent = self.get_agent(request)
-        agent_id = agent.id if agent else None
         method = self.get_method(scope)
         endpoint_name = self.get_endpoint_name(scope, request)
         is_success = self.get_success(response)
@@ -108,19 +104,23 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Failed to get user id - {endpoint_name}")
             return None
 
-        data = MetricsData(
-            id=str(uuid.uuid4()),
+        agent = self.get_agent(request)
+        agent_id = agent.id if agent else None
+        user = self.get_user(request)
+        object_ids = self.get_object_ids(request)
+        event_id = str(uuid.uuid4())
+
+        return MetricsData(
+            id=event_id,
             user_id=user_id,
-            user=self.get_user(request),
+            user=user,
             message_type=message_type,
             trace_id=request.state.trace_id,
-            object_ids=self.get_object_ids(request),
+            object_ids=object_ids,
             assistant=agent,
             assistant_id=agent_id,
             duration_ms=duration_ms,
         )
-
-        return data
 
     def get_method(self, scope: dict) -> str:
         try:
@@ -207,7 +207,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return request.state.agent
 
 
-async def report_metrics(data: MetricsData) -> None:
+async def report_metrics(data: MetricsData | None) -> None:
     if not data:
         raise ValueError("No metrics data to report")
 
