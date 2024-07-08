@@ -1,6 +1,6 @@
 import logging
 from itertools import tee
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, List
 
 from fastapi import HTTPException
 
