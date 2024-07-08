@@ -2,6 +2,7 @@ import os
 import time
 from typing import Any, Dict, List
 
+from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
@@ -44,11 +45,24 @@ class GoogleDrive(BaseTool):
         ]
         return all(os.getenv(var) is not None for var in vars)
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
+        message = "Google Drive Error: {}".format(str(error))
+        if isinstance(error, RefreshError):
+            session = kwargs["session"]
+            user_id = kwargs["user_id"]
+            tool_auth_crud.delete_tool_auth(
+                db=session, user_id=user_id, tool_id=GOOGLE_DRIVE_TOOL_ID
+            )
+            message = "Google Drive Error: Something is wrong with your Google auth token. Please refresh the page and re-authenticate."
+        logger.error(message)
+        raise Exception(message)
+
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         """
         Google Drive logic
         """
         session = kwargs.get("session")
+        user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
         index_name = "{}_{}".format(agent_id, GOOGLE_DRIVE_TOOL_ID)
         query = parameters.get("query", "")
@@ -65,7 +79,7 @@ class GoogleDrive(BaseTool):
             + ")",
         ]
         auth = tool_auth_crud.get_tool_auth(
-            session, GOOGLE_DRIVE_TOOL_ID, kwargs.get("user_id")
+            db=session, tool_id=GOOGLE_DRIVE_TOOL_ID, user_id=user_id
         )
         creds = Credentials(auth.encrypted_access_token.decode())
 
@@ -116,8 +130,9 @@ class GoogleDrive(BaseTool):
                     .execute()
                 )
             except Exception as e:
-                logger.error(str(e))
-                raise e
+                self._handle_tool_specific_errors(
+                    error=e, **{"session": session, "user_id": user_id}
+                )
 
             files = search_results.get("files", [])
             if not files:
@@ -131,7 +146,7 @@ class GoogleDrive(BaseTool):
         id_to_urls = extract_links(files)
         web_view_links = extract_web_view_links(files)
         titles = extract_titles(files)
-        id_to_texts = async_download.perform(id_to_urls, creds.token)
+        id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
 
         """
         Compass logic
