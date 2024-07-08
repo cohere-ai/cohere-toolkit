@@ -1,3 +1,4 @@
+import os
 from abc import abstractmethod
 from typing import Any, Dict, List
 
@@ -41,14 +42,24 @@ class BaseToolAuthentication:
     Abstract base class for Tool Authentication.
     """
 
-    @classmethod
-    @abstractmethod
-    def get_auth_url(user_id: str) -> str: ...
+    BACKEND_HOST = os.getenv("NEXT_PUBLIC_API_HOSTNAME")
+    AUTH_SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 
-    @classmethod
-    @abstractmethod
-    def is_auth_required(session: DBSessionDep, user_id: str) -> bool: ...
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._post_init_check()
 
-    @classmethod
+    def _post_init_check(self):
+        if any([self.BACKEND_HOST is None, self.AUTH_SECRET_KEY is None]):
+            raise ValueError(
+                f"{self.__name__} requires NEXT_PUBLIC_API_HOSTNAME and AUTH_SECRET_KEY environment variables."
+            )
+
     @abstractmethod
-    def process_auth_token(request: Request, session: DBSessionDep) -> str: ...
+    def get_auth_url(self, user_id: str) -> str: ...
+
+    @abstractmethod
+    def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool: ...
+
+    @abstractmethod
+    def retrieve_auth_token(self, request: Request, session: DBSessionDep) -> str: ...

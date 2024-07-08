@@ -1,11 +1,12 @@
 import json
 import os
 from typing import Union
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
-from urllib.parse import quote
+
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
@@ -195,16 +196,18 @@ async def logout(
 @router.get("/tool/auth")
 async def login(request: Request, session: DBSessionDep):
     """
-    Logs user in, performing basic email/password auth.
-    Verifies their credentials, retrieves the user and returns a JWT token.
+    Endpoint for Tool Authentication. Note: The flow is different from
+    the regular login OAuth flow, the backend initiates it and redirects to the frontend
+    after completion.
+
+    If completed, a ToolAuth is stored in the DB containing the access token for the tool.
 
     Args:
         request (Request): current Request object.
-        login (Login): Login payload.
         session (DBSessionDep): Database session.
 
     Returns:
-        dict: JWT token on Basic auth success
+       RedirectResponse: A redirect pointing to the frontend.
 
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
@@ -238,8 +241,8 @@ async def login(request: Request, session: DBSessionDep):
             return RedirectResponse(redirect_err)
 
         try:
-            tool_auth_service = tool.auth_implementation() 
-            err = tool_auth_service.process_auth_token(request, session)
+            tool_auth_service = tool.auth_implementation()
+            err = tool_auth_service.retrieve_auth_token(request, session)
         except Exception as e:
             redirect_err = f"{redirect_uri}?error={quote(str(e))}"
             return RedirectResponse(redirect_err)

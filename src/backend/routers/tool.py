@@ -43,9 +43,7 @@ def list_tools(
     for tool in all_tools:
         if tool.is_available and tool.auth_implementation is not None:
             tool_auth_service = tool.auth_implementation()
-            tool.is_auth_required = tool_auth_service.is_auth_required(
-                session, user_id
-            )
+            tool.is_auth_required = tool_auth_service.is_auth_required(session, user_id)
             tool.auth_url = tool_auth_service.get_auth_url(user_id)
 
     return all_tools
