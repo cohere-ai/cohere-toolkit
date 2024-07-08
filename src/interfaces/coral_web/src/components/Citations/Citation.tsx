@@ -76,6 +76,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
   const highlightedDocumentIds = documents
     .slice(0, DEFAULT_NUM_VISIBLE_DOCS)
     .map((doc) => doc.document_id);
+
   const uniqueDocuments = sortBy(
     uniqBy(flatten(Object.values(startEndKeyToDocs)), 'document_id'),
     'document_id'
@@ -147,7 +148,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
 
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
           <Text as="span" styleAs="caption" className="text-volcanic-800">
-            {uniqueDocuments.length} {pluralize('reference', uniqueDocuments.length)} from
+            {uniqueDocumentsUrls.length} {pluralize('reference', uniqueDocumentsUrls.length)}
           </Text>
           {uniqueDocumentsUrls.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
