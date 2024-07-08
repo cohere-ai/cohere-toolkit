@@ -18,7 +18,7 @@ class TavilyInternetSearch(BaseTool):
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
         content = self.client.search(query=query, search_depth="advanced")
 
