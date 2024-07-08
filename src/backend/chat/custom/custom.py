@@ -1,6 +1,5 @@
-import logging
 from itertools import tee
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, List
 
 from fastapi import HTTPException
 
@@ -225,7 +224,7 @@ class CustomChat(BaseChat):
 
     async def call_tools(self, chat_history, deployment_model, **kwargs: Any):
         tool_results = []
-        if not "tool_calls" in chat_history[-1]:
+        if "tool_calls" not in chat_history[-1]:
             return tool_results
 
         tool_calls = chat_history[-1]["tool_calls"]
@@ -251,7 +250,7 @@ class CustomChat(BaseChat):
             if not tool:
                 continue
 
-            outputs = tool.implementation().call(
+            outputs = await tool.implementation().call(
                 parameters=tool_call.get("parameters"),
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
