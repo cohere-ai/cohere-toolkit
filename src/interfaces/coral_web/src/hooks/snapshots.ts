@@ -11,6 +11,7 @@ import {
   useCohereClient,
 } from '@/cohere-client';
 import { BotState, ChatMessage, MessageType } from '@/types/message';
+import { mapHistoryToMessages } from '@/utils';
 
 type FormattedSnapshotData = Omit<SnapshotData, 'messages'> & { messages?: ChatMessage[] };
 export type ChatSnapshot = Omit<Snapshot, 'snapshot'> & { snapshot: FormattedSnapshotData };
@@ -80,7 +81,8 @@ export const useGetSnapshotByLinkId = (linkId: string) => {
  */
 export const useSnapshot = (linkId: string) => {
   const { data, ...rest } = useGetSnapshotByLinkId(linkId);
-  const messages = formatChatMessages(data?.snapshot.messages);
+  // const messages = formatChatMessages(data?.snapshot.messages);
+  const messages = mapHistoryToMessages(data?.snapshot.messages);
   const snapshot = { ...data, messages };
   return { snapshot, ...rest };
 };
@@ -88,19 +90,19 @@ export const useSnapshot = (linkId: string) => {
 const formatChatMessages = (messages: CohereChatMessage[] | undefined): ChatMessage[] =>
   !messages
     ? []
-    : messages.map(({ agent, text }) =>
-        agent === MessageAgent.CHATBOT
+    : messages.map((m) =>
+        m.agent === MessageAgent.CHATBOT
           ? {
               type: MessageType.BOT,
               state: BotState.FULFILLED,
-              text,
+              text: m.text,
               responseId: '',
-              generationId: '',
-              originalText: '',
+              generationId: m.generation_id ?? '',
+              originalText: m.text,
             }
           : {
               type: MessageType.USER,
-              text,
+              text: m.text,
             }
       );
 

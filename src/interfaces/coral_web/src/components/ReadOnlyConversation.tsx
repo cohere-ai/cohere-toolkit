@@ -1,5 +1,5 @@
-import { Avatar } from '@/components/Avatar';
-import { Button, Markdown, Text } from '@/components/Shared';
+import MessageRow from '@/components/MessageRow';
+import { Button, Text } from '@/components/Shared';
 import { PageHead } from '@/components/Shared/PageHead';
 import { ChatMessage } from '@/types/message';
 
@@ -24,12 +24,12 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
 
         <div className="flex flex-col  gap-y-4 px-4 py-6 md:gap-y-6">
           {messages.map((m, i) => (
-            <div key={i} className="flex w-full gap-x-2">
-              <Avatar message={m} />
-              <div className="flex w-full flex-col justify-center gap-y-1 whitespace-pre-wrap py-1 [overflow-wrap:anywhere] md:max-w-4xl">
-                <Markdown text={m.text || ''} />
-              </div>
-            </div>
+            <MessageRow
+              key={i}
+              message={m}
+              isLast={messages.length - 1 === i}
+              isStreamingToolEvents={false}
+            />
           ))}
         </div>
       </div>
