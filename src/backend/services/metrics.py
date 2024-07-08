@@ -182,7 +182,7 @@ async def report_metrics(data: MetricsData) -> None:
     signal = MetricsSignal(signal=data)
     if METRICS_LOGS_CURLS == "true":
         log_signal_curl(signal)
-    
+
     if not REPORT_SECRET:
         logger.error("No report secret set")
         return
