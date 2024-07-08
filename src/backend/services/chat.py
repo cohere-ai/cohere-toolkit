@@ -507,7 +507,7 @@ async def generate_chat_response(
     Yields:
         bytes: Byte representation of chat response event.
     """
-    stream = await generate_chat_stream(
+    stream = generate_chat_stream(
         session,
         model_deployment_stream,
         response_message,
@@ -518,7 +518,7 @@ async def generate_chat_response(
     )
 
     non_streamed_chat_response = None
-    for event in stream:
+    async for event in stream:
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
