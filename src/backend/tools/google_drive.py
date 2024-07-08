@@ -27,7 +27,7 @@ class GoogleDrive(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        return False
+        return True
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         auth = tool_auth_crud.get_tool_auth(
@@ -74,11 +74,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
     def get_auth_url(cls, user_id: str) -> str:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID"):
             raise ValueError("GOOGLE_DRIVE_CLIENT_ID not set")
-        redirect_url = os.getenv(
-            "NEXT_PUBLIC_API_HOSTNAME"
-        ) + "/v1/tool/auth?redirect_url={}/new?p=t".format(
-            os.getenv("FRONTEND_HOSTNAME")
-        )
+        redirect_url = os.getenv("NEXT_PUBLIC_API_HOSTNAME") + "/v1/tool/auth"
         base_url = "https://accounts.google.com/o/oauth2/v2/auth?"
         state = {"user_id": user_id, "tool_id": GoogleDrive.NAME}
         params = {
@@ -154,11 +150,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
             logger.error(f"Error in google drive auth: {err}")
             return err
         state = json.loads(request.query_params.get("state"))
-        redirect_url = os.getenv(
-            "NEXT_PUBLIC_API_HOSTNAME"
-        ) + "/v1/tool/auth?redirect_url={}/new?p=t".format(
-            os.getenv("FRONTEND_HOSTNAME")
-        )
+        redirect_url = os.getenv("NEXT_PUBLIC_API_HOSTNAME") + "/v1/tool/auth"
         url = "https://oauth2.googleapis.com/token"
         body = {
             "code": request.query_params.get("code"),
@@ -191,5 +183,5 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
     @classmethod
     def get_token(cls, session: DBSessionDep, user_id: str) -> str:
-        tool_auth = tool_auth_crud.get_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
+        tool_auth = tool_auth_crud.get_tool_auth(session, GoogleDrive.NAME, user_id)
         return tool_auth.encrypted_access_token.decode() if tool_auth else None

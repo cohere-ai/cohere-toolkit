@@ -21,9 +21,10 @@ import {
 } from '@/cohere-client';
 import {
   DEFAULT_TYPING_VELOCITY,
-  TOOL_GOOGLE_DRIVE_ID,
+  DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
 } from '@/constants';
+import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { useRouteChange } from '@/hooks/route';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';

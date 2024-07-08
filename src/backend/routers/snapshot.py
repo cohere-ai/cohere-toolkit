@@ -61,12 +61,10 @@ async def create_snapshot(
     last_message_id = conversation.messages[-1].id if conversation.messages else None
     validate_last_message(last_message_id)
 
-    snapshot = snapshot_crud.get_snapshot_by_last_message_id(
-        session, last_message_id)
+    snapshot = snapshot_crud.get_snapshot_by_last_message_id(session, last_message_id)
 
     if not snapshot:
-        snapshot = wrap_create_snapshot(
-            session, last_message_id, user_id, conversation)
+        snapshot = wrap_create_snapshot(session, last_message_id, user_id, conversation)
 
     snapshot_link = wrap_create_snapshot_link(session, snapshot.id, user_id)
 
@@ -99,8 +97,7 @@ async def list_snapshots(
     # Get snapshot links for each snapshot
     response = []
     for snapshot in snapshots:
-        snapshot_links = snapshot_crud.list_snapshot_links(
-            session, snapshot.id)
+        snapshot_links = snapshot_crud.list_snapshot_links(session, snapshot.id)
         snapshot_links = [link.id for link in snapshot_links]
         snapshot_dict = to_dict(Snapshot.model_validate(snapshot))
         snapshot_with_links = SnapshotWithLinks.model_validate(
