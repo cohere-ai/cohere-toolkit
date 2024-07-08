@@ -16,6 +16,7 @@ import { cn } from '@/utils';
 
 type Props = {
   isStreaming: boolean;
+  isStreamingToolEvents: boolean;
   startOptionsEnabled: boolean;
   messages: ChatMessage[];
   streamingMessage: StreamingMessage | null;
@@ -166,7 +167,7 @@ type MessagesProps = Props;
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { onRetry, messages, streamingMessage, agentId },
+  { onRetry, messages, streamingMessage, agentId, isStreamingToolEvents },
   ref
 ) {
   const isChatEmpty = messages.length === 0;
@@ -189,6 +190,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
               key={i}
               message={m}
               isLast={isLastInList && !streamingMessage}
+              isStreamingToolEvents={isStreamingToolEvents}
               className={cn({
                 // Hide the last message if it is the same as the separate streamed message
                 // to avoid a flash of duplicate messages.
@@ -205,7 +207,14 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
         })}
       </div>
 
-      {streamingMessage && <MessageRow isLast message={streamingMessage} onRetry={onRetry} />}
+      {streamingMessage && (
+        <MessageRow
+          isLast
+          isStreamingToolEvents={isStreamingToolEvents}
+          message={streamingMessage}
+          onRetry={onRetry}
+        />
+      )}
     </div>
   );
 });

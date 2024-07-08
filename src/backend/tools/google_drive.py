@@ -141,7 +141,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         return False
 
     def try_refresh_token(
-        session: DBSessionDep, user_id: str, tool_auth: ToolAuth
+        self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
     ) -> bool:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID") or not os.getenv(
             "GOOGLE_DRIVE_CLIENT_SECRET"
@@ -176,7 +176,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         )
         return True
 
-    def process_auth_token(cls, request: Request, session: DBSessionDep) -> str:
+    def process_auth_token(self, request: Request, session: DBSessionDep) -> str:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID") or not os.getenv(
             "GOOGLE_DRIVE_CLIENT_SECRET" or not os.getenv("NEXT_PUBLIC_API_HOSTNAME")
         ):

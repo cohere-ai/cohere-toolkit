@@ -221,7 +221,6 @@ export const Composer: React.FC<Props> = ({
             )}
             type="button"
             onClick={() => (canSend ? onSend(value) : onStop())}
-            disabled={!canSend}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>

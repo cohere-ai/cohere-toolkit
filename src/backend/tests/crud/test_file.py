@@ -97,6 +97,25 @@ def test_list_files_by_conversation_id_empty(session, user):
     assert len(files) == 0
 
 
+def test_list_files_by_user_id(session, user):
+    for i in range(10):
+        _ = get_factory("File", session).create(
+            file_name=f"test.txt {i}", conversation_id="1", user_id=user.id
+        )
+
+    files = file_crud.get_files_by_user_id(session, user.id)
+    assert len(files) == 10
+
+    for i, file in enumerate(files):
+        assert file.file_name == f"test.txt {i}"
+        assert file.user_id == user.id
+
+
+def test_list_files_by_user_id_empty(session, user):
+    files = file_crud.get_files_by_user_id(session, user.id)
+    assert len(files) == 0
+
+
 def test_update_file(session, user):
     file = get_factory("File", session).create(
         file_name="test.txt", conversation_id="1", user_id=user.id

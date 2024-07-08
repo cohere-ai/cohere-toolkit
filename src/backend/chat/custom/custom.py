@@ -1,6 +1,6 @@
 import logging
 from itertools import tee
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, List
 
 from fastapi import HTTPException
 
@@ -215,6 +215,7 @@ class CustomChat(BaseChat):
                 tool_results.append({"call": tool_call, "outputs": [output]})
 
         tool_results = rerank_and_chunk(tool_results, deployment_model, **kwargs)
+        logger.info(f"Tool results: {tool_results}")
         return tool_results
 
     def handle_tool_calls_stream(self, tool_results_stream):

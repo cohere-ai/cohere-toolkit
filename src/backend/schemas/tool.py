@@ -42,8 +42,14 @@ class ToolCall(BaseModel):
     name: str
     parameters: dict = {}
 
+    class Config:
+        from_attributes = True
+
 
 class ToolCallDelta(BaseModel):
     name: str | None
     index: int | None
     parameters: str | None
+
+    class Config:
+        from_attributes = True
