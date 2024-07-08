@@ -11,7 +11,9 @@ load_dotenv()
 
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
-ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
+ENABLED_AUTH_STRATEGIES = []
+if "pytest" not in sys.modules:
+    ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
 
 # Define the mapping from Auth strategy name to class obj - does not need to be manually modified.
 # During runtime, this will create an instance of each enabled strategy class.
@@ -40,8 +42,6 @@ def is_authentication_enabled() -> bool:
     Returns:
         bool: Whether authentication is enabled.
     """
-    if "pytest" in sys.modules:
-        return False
     if ENABLED_AUTH_STRATEGIES:
         return True
 
