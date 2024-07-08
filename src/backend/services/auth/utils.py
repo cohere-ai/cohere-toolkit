@@ -1,7 +1,7 @@
 from fastapi import Request
 from sqlalchemy.orm import Session
 
-from backend.config.auth import is_authentication_enabled
+from backend.config.auth import is_authentication_enabled, ENABLED_AUTH_STRATEGY_MAPPING
 from backend.crud import user as user_crud
 from backend.database_models import User
 from backend.services.auth.jwt import JWTService

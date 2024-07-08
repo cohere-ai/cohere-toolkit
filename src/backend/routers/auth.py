@@ -166,7 +166,7 @@ async def authorize(
     # Get or create user, then set session user
     user = get_or_create_user(session, userinfo)
 
-    token = JWTService().create_and_encode_jwt(user)
+    token = JWTService().create_and_encode_jwt(user, strategy_name)
 
     return {"token": token}
 

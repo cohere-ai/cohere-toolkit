@@ -20,7 +20,7 @@ const CompleteOauthPage: NextPage<Props> = () => {
   const router = useRouter();
   const { oidcSSOMutation, googleSSOMutation } = useSession();
   const redirect = getQueryString(router.query.redirect_uri);
-  const { login: ssoLogins } = useAuthConfig();
+  const { loginStrategies: ssoLogins } = useAuthConfig();
 
   const loginType = ssoLogins.find(
     (login) => encodeURIComponent(login.strategy.toLowerCase()) == router.query.strategy

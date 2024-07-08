@@ -46,7 +46,7 @@ export class CohereClient {
 
     this.cohereService = new CohereClientGenerated({
       BASE: hostname,
-      HEADERS: this.getHeaders(true),
+      HEADERS: async () => this.getHeaders(true),
     });
   }
 
