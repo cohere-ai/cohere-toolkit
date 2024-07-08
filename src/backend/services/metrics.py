@@ -66,7 +66,7 @@ def event_name_of(
     key = key.lower()
     if key in ROUTE_MAPPING:
         return ROUTE_MAPPING[key]
-    return MetricsMessageType
+    return MetricsMessageType.UNKNOWN_SIGNAL
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):

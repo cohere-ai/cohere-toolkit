@@ -10,7 +10,9 @@ load_dotenv()
 
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
-ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
+# ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
+# TODO: FIX BEFORE MERGE
+ENABLED_AUTH_STRATEGIES = []
 
 # Define the mapping from Auth strategy name to class obj - does not need to be manually modified.
 # During runtime, this will create an instance of each enabled strategy class.
@@ -51,6 +53,4 @@ async def get_auth_strategy_endpoints() -> None:
     """
     for strategy in ENABLED_AUTH_STRATEGY_MAPPING.values():
         if hasattr(strategy, "get_endpoints"):
-            # TODO: fix before MERGE!!!!!!!!
-            pass
-            # await strategy.get_endpoints()
+            await strategy.get_endpoints()
