@@ -85,7 +85,6 @@ def process_chat(
         model_config = get_deployment_config(request)
 
     if agent_id is not None:
-        print("debug here")
         agent = agent_crud.get_agent_by_id(session, agent_id)
 
         # TODO: @Scott Validation error still needs to be fixed here
