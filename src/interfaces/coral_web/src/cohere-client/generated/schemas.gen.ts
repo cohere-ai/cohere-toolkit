@@ -641,6 +641,17 @@ export const $CohereChatRequest = {
       title:
         'If set to true, the model will generate a single response in a single step. This is useful for generating a response to a single message.',
     },
+    agent_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'The agent ID to use for the chat.',
+    },
   },
   type: 'object',
   required: ['message'],
@@ -1455,8 +1466,16 @@ export const $Logout = {
 export const $ManagedTool = {
   properties: {
     name: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Name',
+      default: '',
     },
     display_name: {
       type: 'string',
@@ -1539,9 +1558,20 @@ export const $ManagedTool = {
       title: 'Auth Url',
       default: '',
     },
+    token: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Token',
+      default: '',
+    },
   },
   type: 'object',
-  required: ['name'],
   title: 'ManagedTool',
 } as const;
 
@@ -2399,8 +2429,16 @@ export const $StreamToolResult = {
 export const $Tool = {
   properties: {
     name: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Name',
+      default: '',
     },
     display_name: {
       type: 'string',
@@ -2433,7 +2471,6 @@ export const $Tool = {
     },
   },
   type: 'object',
-  required: ['name'],
   title: 'Tool',
 } as const;
 

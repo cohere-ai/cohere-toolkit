@@ -50,10 +50,10 @@ export const useDataSourceTags = ({ requiredTools }: { requiredTools?: string[] 
     const allTools = [];
     for (const t of onlyRequiredTools) {
       allTools.push({
-        id: t.name,
-        name: t.display_name ?? t.name,
+        id: t.name ?? '',
+        name: t.display_name ?? t.name ?? '',
         description: t.description ?? '',
-        icon: TOOL_ID_TO_DISPLAY_INFO[t.name]?.icon ?? TOOL_FALLBACK_ICON,
+        icon: TOOL_ID_TO_DISPLAY_INFO[t.name ?? '']?.icon ?? TOOL_FALLBACK_ICON,
         getValue: () => t,
       });
     }

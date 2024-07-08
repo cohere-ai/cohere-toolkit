@@ -35,7 +35,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
 }: Props<K>) {
   const { data: toolsData } = useListTools();
   const tools =
-    toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name)) ?? [];
+    toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name ?? '')) ?? [];
 
   const googleDrivefiles: GoogleDriveToolArtifact[] = useMemo(() => {
     const toolsMetadata = fields.tools_metadata ?? [];
@@ -118,11 +118,13 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
             return (
               <div key={i}>
                 <Checkbox
-                  label={tool.display_name ?? tool.name}
+                  label={tool.display_name ?? tool.name ?? ''}
                   tooltipLabel={tool.description}
-                  name={tool.name + i}
+                  name={tool.name ?? '' + i}
                   checked={checked}
-                  onChange={(e) => onToolToggle(tool.name, e.target.checked, tool.auth_url ?? '')}
+                  onChange={(e) =>
+                    onToolToggle(tool.name ?? '', e.target.checked, tool.auth_url ?? '')
+                  }
                   disabled={disabled}
                 />
                 {isGoogleDrive && checked && (

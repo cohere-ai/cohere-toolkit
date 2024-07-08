@@ -36,9 +36,9 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
     >
       {events?.map((toolEvent, i) => (
         <Fragment key={i}>
-          {toolEvent.stream_search_results && (
+          {/* {toolEvent.stream_search_results && (
             <ToolEvent stream_search_results={toolEvent.stream_search_results} />
-          )}
+          )} */}
           {toolEvent.text && <ToolEvent plan={toolEvent.text} />}
           {toolEvent.tool_calls?.map((toolCall, j) => (
             <ToolEvent key={`event-${j}`} event={toolCall} />

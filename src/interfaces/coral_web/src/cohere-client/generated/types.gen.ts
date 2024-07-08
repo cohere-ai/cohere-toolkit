@@ -124,6 +124,7 @@ export type CohereChatRequest = {
     [key: string]: unknown;
   }> | null;
   force_single_step?: boolean | null;
+  agent_id?: string | null;
 };
 
 export type Conversation = {
@@ -279,7 +280,7 @@ export type Login = {
 export type Logout = unknown;
 
 export type ManagedTool = {
-  name: string;
+  name?: string | null;
   display_name?: string;
   description?: string | null;
   parameter_definitions?: {
@@ -294,6 +295,7 @@ export type ManagedTool = {
   category?: Category;
   is_auth_required?: boolean;
   auth_url?: string | null;
+  token?: string | null;
 };
 
 export type Message = {
@@ -464,7 +466,6 @@ export type StreamToolCallsChunk = {
  * Stream tool calls generation event.
  */
 export type StreamToolCallsGeneration = {
-  stream_search_results?: StreamSearchResults | null;
   tool_calls?: Array<ToolCall> | null;
   text: string | null;
 };
@@ -483,7 +484,7 @@ export type StreamToolResult = {
 };
 
 export type Tool = {
-  name: string;
+  name?: string | null;
   display_name?: string;
   description?: string | null;
   parameter_definitions?: {
@@ -600,14 +601,12 @@ export type LogoutV1LogoutGetResponse = Logout;
 export type LoginV1ToolAuthGetResponse = unknown;
 
 export type ChatStreamV1ChatStreamPostData = {
-  agentId?: string | null;
   requestBody: CohereChatRequest;
 };
 
 export type ChatStreamV1ChatStreamPostResponse = Array<ChatResponseEvent>;
 
 export type ChatV1ChatPostData = {
-  agentId?: string | null;
   requestBody: CohereChatRequest;
 };
 
