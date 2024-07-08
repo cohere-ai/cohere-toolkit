@@ -148,6 +148,7 @@ async def chat(
     )
     return response
 
+
 @router.post("/langchain-chat")
 def langchain_chat_stream(
     session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
