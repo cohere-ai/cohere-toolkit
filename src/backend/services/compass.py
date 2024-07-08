@@ -111,33 +111,42 @@ class Compass:
             )
 
         # Index-related actions
-        match action:
-            case self.ValidActions.LIST_INDEXES:
-                return self.compass_client.list_indexes()
-            case self.ValidActions.CREATE_INDEX:
-                return self.compass_client.create_index(index_name=parameters["index"])
-            case self.ValidActions.CREATE_INDEX:
-                return self.compass_client.delete_index(index_name=parameters["index"])
-            case self.ValidActions.CREATE:
-                self._create(parameters, **kwargs)
-            case self.ValidActions.SEARCH:
-                return self._search(parameters, **kwargs)
-            case self.ValidActions.UPDATE:
-                self._update(parameters, **kwargs)
-            case self.ValidActions.DELETE:
-                self._delete(parameters, **kwargs)
-            case self.ValidActions.GET_DOCUMENT:
-                return self._get_document(parameters, **kwargs)
-            case self.ValidActions.ADD_CONTEXT:
-                self._add_context(parameters, **kwargs)
-            case self.ValidActions.REFRESH:
-                self._refresh(parameters, **kwargs)
-            case _:
-                raise Exception(
-                    f"Compass Tool: Invalid action {parameters['action']}. "
-                    "No action will be taken. "
-                    f"Parameters specified: {parameters}"
-                )
+        try:
+            match action:
+                case self.ValidActions.LIST_INDEXES:
+                    return self.compass_client.list_indexes()
+                case self.ValidActions.CREATE_INDEX:
+                    return self.compass_client.create_index(
+                        index_name=parameters["index"]
+                    )
+                case self.ValidActions.CREATE_INDEX:
+                    return self.compass_client.delete_index(
+                        index_name=parameters["index"]
+                    )
+                case self.ValidActions.CREATE:
+                    self._create(parameters, **kwargs)
+                case self.ValidActions.SEARCH:
+                    return self._search(parameters, **kwargs)
+                case self.ValidActions.UPDATE:
+                    self._update(parameters, **kwargs)
+                case self.ValidActions.DELETE:
+                    self._delete(parameters, **kwargs)
+                case self.ValidActions.GET_DOCUMENT:
+                    return self._get_document(parameters, **kwargs)
+                case self.ValidActions.ADD_CONTEXT:
+                    self._add_context(parameters, **kwargs)
+                case self.ValidActions.REFRESH:
+                    self._refresh(parameters, **kwargs)
+                case _:
+                    raise Exception(
+                        f"Compass Tool: Invalid action {parameters['action']}. "
+                        "No action will be taken. "
+                        f"Parameters specified: {parameters}"
+                    )
+        except Exception as e:
+            message = "Compass Error: {}".format(str(e))
+            logger.error(message)
+            raise Exception(message)
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
         """Insert the document into Compass"""
