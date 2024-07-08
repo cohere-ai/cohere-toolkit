@@ -177,8 +177,7 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
             "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
-        params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "tools": [{"name": "web_search"}]},
+        json={"message": "Hello", "max_tokens": 10, "tools": [{"name": "web_search"}], "agent_id": agent.id},
     )
 
     assert response.status_code == 400

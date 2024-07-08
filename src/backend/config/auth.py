@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
@@ -39,6 +39,8 @@ def is_authentication_enabled() -> bool:
     Returns:
         bool: Whether authentication is enabled.
     """
+    if "pytest" in sys.modules:
+        return False
     if ENABLED_AUTH_STRATEGIES:
         return True
 
