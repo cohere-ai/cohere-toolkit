@@ -21,7 +21,7 @@ class ReadFileTool(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         file_name = parameters.get("filename", "")
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
@@ -59,10 +59,9 @@ class SearchFileTool(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("search_query")
         file_names = parameters.get("filenames")
-        model_deployment = kwargs.get("model_deployment")
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
 

@@ -29,7 +29,7 @@ class GoogleDrive(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         auth = tool_auth_crud.get_tool_auth(
             kwargs.get("session"), self.NAME, kwargs.get("user_id")
         )
