@@ -116,9 +116,13 @@ class Compass:
                 case self.ValidActions.LIST_INDEXES:
                     return self.compass_client.list_indexes()
                 case self.ValidActions.CREATE_INDEX:
-                    return self.compass_client.create_index(index_name=parameters["index"])
+                    return self.compass_client.create_index(
+                        index_name=parameters["index"]
+                    )
                 case self.ValidActions.CREATE_INDEX:
-                    return self.compass_client.delete_index(index_name=parameters["index"])
+                    return self.compass_client.delete_index(
+                        index_name=parameters["index"]
+                    )
                 case self.ValidActions.CREATE:
                     self._create(parameters, **kwargs)
                 case self.ValidActions.SEARCH:
@@ -143,7 +147,6 @@ class Compass:
             message = "Compass Error: {}".format(str(e))
             logger.error(message)
             raise Exception(message)
-
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
         """Insert the document into Compass"""
