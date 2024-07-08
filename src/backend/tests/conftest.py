@@ -71,11 +71,6 @@ def session_client(session: Session) -> Generator[TestClient, None, None]:
 
     app = create_app()
 
-    # Define test endpoint for testing Exception handling
-    @app.get("/error")
-    def test_error():
-        raise Exception("Test exception")
-
     app.dependency_overrides[get_session] = override_get_session
 
     print("Session at fixture " + str(session))
