@@ -36,9 +36,9 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
     >
       {events?.map((toolEvent, i) => (
         <Fragment key={i}>
-          {/* {toolEvent.stream_search_results && (
+          {toolEvent.stream_search_results && toolEvent.stream_search_results.search_results && (
             <ToolEvent stream_search_results={toolEvent.stream_search_results} />
-          )} */}
+          )}
           {toolEvent.text && <ToolEvent plan={toolEvent.text} />}
           {toolEvent.tool_calls?.map((toolCall, j) => (
             <ToolEvent key={`event-${j}`} event={toolCall} />
@@ -83,8 +83,8 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
       [];
     return (
       <ToolEventWrapper icon="book-open-text">
-        Found{' '}
-        <article className="grid grid-cols-2 gap-x-1">
+        Found the following resources:
+        <article className="grid grid-cols-2 gap-x-2">
           {artifacts.map((artifact) => (
             <b key={artifact.title} className="cursor-pointer truncate font-medium underline">
               <a href={artifact.url || ''} target="_blank">
