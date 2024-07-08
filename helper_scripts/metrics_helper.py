@@ -156,8 +156,7 @@ print(response_json)
 
 
 users()
-agent_id = agents()
-# TODO: these are not working atm
-conversation_id = chat(agent_id=agent_id)
-tools(conversation_id=conversation_id)
-cleanup(user_id=user_id, agent_id=agent_id)
+# agent_id = agents()
+# conversation_id = chat(agent_id=agent_id)
+# tools(conversation_id=conversation_id)
+# cleanup(user_id=user_id, agent_id=agent_id)

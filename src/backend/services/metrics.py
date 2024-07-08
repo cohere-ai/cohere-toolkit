@@ -22,6 +22,7 @@ from backend.schemas.metrics import (
     MetricsData,
     MetricsSignal,
     MetricsUser,
+    MetricsMessageType,
 )
 from backend.services.auth.utils import get_header_user_id
 
@@ -33,6 +34,39 @@ HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
 
 logger = logging.getLogger(__name__)
+
+
+# TODO: update middleware to not have to do this mapping at all
+# signals can simply specify event type
+ROUTE_MAPPING: Dict[str, MetricsMessageType] = {
+    # users
+    "post /v1/users true": MetricsMessageType.USER_CREATED,
+    "put /v1/users/:user_id true": MetricsMessageType.USER_UPDATED,
+    "delete /v1/users/:user_id true": MetricsMessageType.USER_DELETED,
+    # Chat
+    "post /v1/chat-stream true": MetricsMessageType.CHAT_API_SUCCESS,
+    "post /v1/chat-stream false": MetricsMessageType.CHAT_API_FAIL,
+    "post co.chat true": MetricsMessageType.CHAT_API_SUCCESS,
+    "post co.chat false": MetricsMessageType.CHAT_API_FAIL,
+    # Rerank
+    "post co.rerank true": MetricsMessageType.RERANK_API_SUCCESS,
+    "post co.rerank false": MetricsMessageType.RERANK_API_FAIL,
+    # agents
+    "post /v1/agents true": MetricsMessageType.ASSISTANT_CREATED,
+    "delete /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_DELETED,
+    "put /v1Multiplier: agents/:agent_id true": MetricsMessageType.ASSISTANT_UPDATED,
+    "get /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_ACCESSED,
+}
+
+
+def event_name_of(
+    method: str, endpoint_name: str, is_success: bool
+) -> MetricsMessageType:
+    key = f"{method} {endpoint_name} {is_success}"
+    key = key.lower()
+    if key in ROUTE_MAPPING:
+        return ROUTE_MAPPING[key]
+    return MetricsMessageType
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -57,7 +91,18 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         agent = self.get_agent(request)
         agent_id = agent.id if agent else None
+
+        method = self.get_method(scope)
         endpoint_name = self.get_endpoint_name(scope, request)
+        is_success = self.get_success(response)
+        status_code = self.get_status_code(response)
+        message_type = event_name_of(method, endpoint_name, is_success)
+
+        if message_type == MetricsMessageType.UNKNOWN_SIGNAL:
+            logger.warning(
+                f"cannot determine message type: {endpoint_name} | {method} | {is_success}"
+            )
+            return None
 
         try:
             user_id = get_header_user_id(request)
@@ -67,11 +112,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         data = MetricsData(
             id=str(uuid.uuid4()),
-            method=self.get_method(scope),
-            endpoint_name=endpoint_name,
             user_id=user_id,
             user=self.get_user(request),
-            success=self.get_success(response),
+            message_type=message_type,
             trace_id=request.state.trace_id,
             status_code=self.get_status_code(response),
             object_ids=self.get_object_ids(request),
