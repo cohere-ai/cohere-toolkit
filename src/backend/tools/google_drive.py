@@ -13,9 +13,8 @@ from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.services.logger import get_logger
-from backend.tools.base import BaseAuth, BaseTool
+from backend.tools.base import BaseTool, BaseToolAuthentication
 
-GOOGLE_DRIVE_TOOL_ID = "google_drive"
 logger = get_logger()
 
 
@@ -24,11 +23,21 @@ class GoogleDrive(BaseTool):
     Experimental (In development): Tool that searches Google Drive
     """
 
+    NAME = "google_drive"
+
     @classmethod
     def is_available(cls) -> bool:
         return False
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+        auth = tool_auth_crud.get_tool_auth(
+            kwargs.get("session"), self.NAME, kwargs.get("user_id")
+        )
+
+        if not auth:
+            # TODO Error
+            pass
+
         # TODO: Improve the getting of files
         query = parameters.get("query", "")
         conditions = [
@@ -49,9 +58,6 @@ class GoogleDrive(BaseTool):
             + ")",
         ]
         q = " and ".join(conditions)
-        auth = tool_auth_crud.get_tool_auth(
-            kwargs.get("session"), GOOGLE_DRIVE_TOOL_ID, kwargs.get("user_id")
-        )
         creds = Credentials(auth.encrypted_access_token.decode())
         service = build("drive", "v3", credentials=creds)
         results = (
@@ -63,14 +69,14 @@ class GoogleDrive(BaseTool):
         return [dict({"text": item["name"]}) for item in items]
 
 
-class GoogleDriveAuth(BaseAuth):
+class GoogleDriveAuth(BaseToolAuthentication):
     @classmethod
     def get_auth_url(cls, user_id: str) -> str:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID"):
             raise ValueError("GOOGLE_DRIVE_CLIENT_ID not set")
         redirect_url = os.getenv("NEXT_PUBLIC_API_HOSTNAME") + "/v1/tool/auth"
         base_url = "https://accounts.google.com/o/oauth2/v2/auth?"
-        state = {"user_id": user_id, "tool_id": GOOGLE_DRIVE_TOOL_ID}
+        state = {"user_id": user_id, "tool_id": GoogleDrive.NAME}
         params = {
             "response_type": "code",
             "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
@@ -85,13 +91,13 @@ class GoogleDriveAuth(BaseAuth):
 
     @classmethod
     def is_auth_required(cls, session: DBSessionDep, user_id: str) -> bool:
-        auth = tool_auth_crud.get_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
+        auth = tool_auth_crud.get_tool_auth(session, GoogleDrive.NAME, user_id)
         if auth is None:
             return True
         if auth.expires_at < datetime.datetime.now():
             if cls.try_refresh_token(session, user_id, auth):
                 return False  # Refreshed token successfully
-            tool_auth_crud.delete_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
+            tool_auth_crud.delete_tool_auth(session, GoogleDrive.NAME, user_id)
             return True
         return False
 
@@ -120,7 +126,7 @@ class GoogleDriveAuth(BaseAuth):
             session,
             ToolAuth(
                 user_id=user_id,
-                tool_id=GOOGLE_DRIVE_TOOL_ID,
+                tool_id=GoogleDrive.NAME,
                 token_type=res_body["token_type"],
                 encrypted_access_token=str.encode(
                     res_body["access_token"]
@@ -162,7 +168,7 @@ class GoogleDriveAuth(BaseAuth):
             session,
             ToolAuth(
                 user_id=state["user_id"],
-                tool_id=GOOGLE_DRIVE_TOOL_ID,
+                tool_id=GoogleDrive.NAME,
                 token_type=res_body["token_type"],
                 encrypted_access_token=str.encode(
                     res_body["access_token"]

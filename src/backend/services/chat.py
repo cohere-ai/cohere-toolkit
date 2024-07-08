@@ -234,7 +234,6 @@ def get_or_create_conversation(
     if conversation is None:
         # Get the first 5 words of the user message as the title
         title = " ".join(user_message.split()[:5])
-        print(f"The title is: {title}")
 
         conversation = Conversation(
             user_id=user_id,

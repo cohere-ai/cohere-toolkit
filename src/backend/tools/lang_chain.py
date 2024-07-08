@@ -23,6 +23,8 @@ class LangChainWikiRetriever(BaseTool):
     This requires wikipedia package to be installed.
     """
 
+    NAME = "wikipedia"
+
     def __init__(self, chunk_size: int = 300, chunk_overlap: int = 0):
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
@@ -55,17 +57,18 @@ class LangChainVectorDBRetriever(BaseTool):
     This class retrieves documents from a vector database using the langchain package.
     """
 
-    cohere_api_key = os.environ.get("COHERE_API_KEY")
+    NAME = "vector_retriever"
+    COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 
     def __init__(self, filepath: str):
         self.filepath = filepath
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.cohere_api_key is not None
+        return cls.COHERE_API_KEY is not None
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        cohere_embeddings = CohereEmbeddings(cohere_api_key=self.cohere_api_key)
+        cohere_embeddings = CohereEmbeddings(cohere_api_key=self.COHERE_API_KEY)
 
         # Load text files and split into chunks
         loader = PyPDFLoader(self.filepath)

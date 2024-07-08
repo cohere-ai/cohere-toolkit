@@ -9,7 +9,7 @@ from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
-from backend.config.tools import ALL_TOOLS
+from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
@@ -192,18 +192,55 @@ async def logout(
     return {}
 
 
-# Tool based auth is experimental and in development
+# NOTE: Tool Auth is experimental and in development
 @router.get("/tool/auth")
 async def login(request: Request, session: DBSessionDep):
-    redirect_url = os.getenv("FRONTEND_HOSTNAME")
+    """
+    Logs user in, performing basic email/password auth.
+    Verifies their credentials, retrieves the user and returns a JWT token.
+
+    Args:
+        request (Request): current Request object.
+        login (Login): Login payload.
+        session (DBSessionDep): Database session.
+
+    Returns:
+        dict: JWT token on Basic auth success
+
+    Raises:
+        HTTPException: If the strategy or payload are invalid, or if the login fails.
+    """
+    redirect_uri = os.getenv("FRONTEND_HOSTNAME")
+
+    if not redirect_uri:
+        raise HTTPException(
+            status_code=400,
+            detail=f"FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
+        )
+
     # TODO: Store user id and tool id in the DB for state key
     state = json.loads(request.query_params.get("state"))
     tool_id = state["tool_id"]
-    if tool_id in ALL_TOOLS:
-        tool = ALL_TOOLS.get(tool_id)
-        if tool.auth_implementation is not None:
-            err = tool.auth_implementation.process_auth_token(request, session)
-            if err:
-                return RedirectResponse(redirect_url + "?error=" + err)
-    response = RedirectResponse(redirect_url)
+
+    if tool_id in AVAILABLE_TOOLS:
+        tool = AVAILABLE_TOOLS.get(tool_id)
+
+        # Tool not found
+        if not tool:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Tool {tool_id} does not exist or is not available.",
+            )
+        # Tool does not have Auth implemented
+        if not hasattr(tool, "auth_implementation"):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Tool {tool.name} does not have an auth_implementation required for Tool Auth.",
+            )
+
+        err = tool.auth_implementation.process_auth_token(request, session)
+        if err:
+            return RedirectResponse(redirect_uri + "?error=" + err)
+
+    response = RedirectResponse(redirect_uri)
     return response
