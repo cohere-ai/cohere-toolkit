@@ -44,15 +44,13 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
     @classmethod
     def is_auth_required(cls, session: DBSessionDep, user_id: str) -> bool:
-        auth = tool_auth_crud.get_tool_auth(
-            session, GOOGLE_DRIVE_TOOL_ID, user_id)
+        auth = tool_auth_crud.get_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
         if auth is None:
             return True
         if auth.expires_at < datetime.datetime.now():
             if cls.try_refresh_token(session, user_id, auth):
                 return False  # Refreshed token successfully
-            tool_auth_crud.delete_tool_auth(
-                session, GOOGLE_DRIVE_TOOL_ID, user_id)
+            tool_auth_crud.delete_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
             return True
         return False
 
@@ -97,8 +95,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
     @classmethod
     def process_auth_token(cls, request: Request, session: DBSessionDep) -> str:
         if not os.getenv("GOOGLE_DRIVE_CLIENT_ID") or not os.getenv(
-            "GOOGLE_DRIVE_CLIENT_SECRET" or not os.getenv(
-                "NEXT_PUBLIC_API_HOSTNAME")
+            "GOOGLE_DRIVE_CLIENT_SECRET" or not os.getenv("NEXT_PUBLIC_API_HOSTNAME")
         ):
             raise ValueError(
                 "GOOGLE_DRIVE_CLIENT_ID or GOOGLE_DRIVE_CLIENT_SECRET not set"
@@ -145,6 +142,5 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
     @classmethod
     def get_token(cls, session: DBSessionDep, user_id: str) -> str:
-        tool_auth = tool_auth_crud.get_tool_auth(
-            session, GOOGLE_DRIVE_TOOL_ID, user_id)
+        tool_auth = tool_auth_crud.get_tool_auth(session, GOOGLE_DRIVE_TOOL_ID, user_id)
         return tool_auth.encrypted_access_token.decode() if tool_auth else None
