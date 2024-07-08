@@ -54,6 +54,4 @@ async def get_auth_strategy_endpoints() -> None:
     """
     for strategy in ENABLED_AUTH_STRATEGY_MAPPING.values():
         if hasattr(strategy, "get_endpoints"):
-            # TODO: fix before MERGE!!!!!!!!
-            pass
-            # await strategy.get_endpoints()
+            await strategy.get_endpoints()
