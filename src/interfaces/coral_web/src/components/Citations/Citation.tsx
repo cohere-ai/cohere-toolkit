@@ -69,7 +69,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
     citationRef: containerRef,
   });
 
-  if (!startEndKeyToDocs || documents.length === 0) {
+  if (!startEndKeyToDocs || documents.length === 0 || (!isSelected && !!selectedCitation)) {
     return null;
   }
 
@@ -80,6 +80,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
     uniqBy(flatten(Object.values(startEndKeyToDocs)), 'document_id'),
     'document_id'
   );
+  const uniqueDocumentsUrls = uniqBy(uniqueDocuments, 'url');
 
   const handleMouseEnter = () => {
     hoverCitation(generationId);
@@ -146,9 +147,9 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
 
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
           <Text as="span" styleAs="caption" className="text-volcanic-800">
-            {uniqueDocuments.length} {pluralize('reference', uniqueDocuments.length)}
+            {uniqueDocuments.length} {pluralize('reference', uniqueDocuments.length)} from
           </Text>
-          {uniqueDocuments.length > DEFAULT_NUM_VISIBLE_DOCS && (
+          {uniqueDocumentsUrls.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
                 'h-4 w-4 text-volcanic-800 transition delay-75 duration-200 ease-in-out',
@@ -163,25 +164,39 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
         </div>
 
         <div className="flex w-full flex-col gap-y-4">
-          {uniqueDocuments.map((doc, index) => {
-            const isVisible =
-              (!isSelected && isAllDocsVisible) ||
-              (!isSelected && index < DEFAULT_NUM_VISIBLE_DOCS) ||
-              (isSelected && highlightedDocumentIds.includes(doc.document_id));
+          {isSelected
+            ? uniqueDocuments.map((doc) => {
+                const isVisible = highlightedDocumentIds.includes(doc.document_id);
 
-            if (!isVisible) {
-              return null;
-            }
+                if (!isVisible) {
+                  return null;
+                }
 
-            return (
-              <CitationDocument
-                key={doc.document_id}
-                isExpandable={isSelected}
-                document={doc}
-                keyword={keyword}
-              />
-            );
-          })}
+                return (
+                  <CitationDocument
+                    key={doc.document_id}
+                    isExpandable={isSelected}
+                    document={doc}
+                    keyword={keyword}
+                  />
+                );
+              })
+            : uniqueDocumentsUrls.map((doc, index) => {
+                const isVisible = isAllDocsVisible || index < DEFAULT_NUM_VISIBLE_DOCS;
+
+                if (!isVisible) {
+                  return null;
+                }
+
+                return (
+                  <CitationDocument
+                    key={doc.url}
+                    isExpandable={isSelected}
+                    document={doc}
+                    keyword={keyword}
+                  />
+                );
+              })}
         </div>
       </div>
     </Transition>
