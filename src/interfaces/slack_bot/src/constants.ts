@@ -33,10 +33,10 @@ export const ALERTS = {
     }will now be processed with the \`${modelName ? modelName : 'default'}\` model.${
       userId ? ` Set by <@${userId}>.` : ''
     }`,
-  channelDeploymentSet: (channelName: string, modelName: string | null, userId?: string) =>
+  channelDeploymentSet: (channelName: string, deploymentName: string | null, userId?: string) =>
     `All messages ${
       channelName !== 'directmessage' ? `in ${channelName} ` : ''
-    }will now be processed with the \`${modelName ? modelName : 'default'}\` model deployment.${
+    }will now be processed with the \`${deploymentName ? deploymentName : DEPLOYMENT_COHERE_PLATFORM}\` model deployment.${
       userId ? ` Set by <@${userId}>.` : ''
     }`,
   channelDeploymentView: (channelName: string, deploymentName: string | null) =>
