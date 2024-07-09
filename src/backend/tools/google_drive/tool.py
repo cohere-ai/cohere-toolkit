@@ -156,7 +156,20 @@ class GoogleDrive(BaseTool):
         """
         Compass logic
         """
-        compass = Compass()
+        compass = None
+        try:
+            compass = Compass()
+        except Exception as e:
+            # Compass is not available. Using without Compass
+            logger.info(str(e))
+            return [
+                {
+                    "text": id_to_texts[idd],
+                    "url": id_to_urls.get(idd, ""),
+                    "title": titles.get(idd, ""),
+                }
+                for idd in id_to_texts
+            ]
 
         # idempotent create index
         compass.invoke(
