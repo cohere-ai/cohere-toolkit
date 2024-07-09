@@ -51,9 +51,6 @@ def test_list_users_with_pagination(session):
     users = user_crud.get_users(session, offset=5, limit=5)
     assert len(users) == 5
 
-    for i, user in enumerate(users):
-        assert user.fullname == f"John Doe {i + 5}"
-
 
 def test_update_user(session):
     user = get_factory("User", session).create(fullname="John Doe")

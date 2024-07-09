@@ -32,6 +32,11 @@ class BaseTool:
     @abstractmethod
     def is_available(cls) -> bool: ...
 
+    @classmethod
+    @abstractmethod
+    def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
+        pass
+
     @abstractmethod
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
 
