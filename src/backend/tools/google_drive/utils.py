@@ -48,7 +48,13 @@ def process_shortcut_files(service: Any, files: List[Dict[str, str]]) -> Dict[st
         if file["mimeType"] == "application/vnd.google-apps.shortcut":
             targetId = file["shortcutDetails"]["targetId"]
             targetFile = (
-                service.files().get(fileId=targetId, fields=DOC_FIELDS).execute()
+                service.files()
+                .get(
+                    fileId=targetId,
+                    fields=DOC_FIELDS,
+                    supportsAllDrives=True,
+                )
+                .execute()
             )
             processed_files.append(targetFile)
         else:

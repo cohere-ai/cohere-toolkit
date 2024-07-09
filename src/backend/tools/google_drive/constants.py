@@ -11,6 +11,7 @@ SEARCH_MIME_TYPES = [
     "application/vnd.google-apps.spreadsheet",
     "application/vnd.google-apps.presentation",
     "application/vnd.google-apps.shortcut",
+    # "application/pdf",
 ]
 DOC_FIELDS = "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails"
 
