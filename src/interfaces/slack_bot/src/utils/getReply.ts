@@ -68,7 +68,7 @@ export const getReply = async ({
 
   try {
     const toolkitClient = new ToolkitClient(OpenAPI);
-    const chatResponse = await toolkitClient.default.chatChatPost({
+    const chatResponse = await toolkitClient.default.chatV1ChatPost({
       requestBody: params,
       deploymentName: deployment ? deployment : DEPLOYMENT_COHERE_PLATFORM,
     });

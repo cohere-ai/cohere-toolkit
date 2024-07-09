@@ -75,7 +75,7 @@ export const handleRagChatWithFile = async ({
       };
     });
     const toolkitClient = new ToolkitClient(OpenAPI);
-    const chatResponse = await toolkitClient.default.chatChatPost({
+    const chatResponse = await toolkitClient.default.chatV1ChatPost({
       requestBody: {
         message,
         model,

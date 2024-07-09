@@ -115,7 +115,7 @@ export const handleSummarizeThread = async ({
   }
   try {
     const toolkitClient = new ToolkitClient(OpenAPI);
-    const summaryResponse = await toolkitClient.default.chatChatPost({
+    const summaryResponse = await toolkitClient.default.chatV1ChatPost({
       requestBody: {
         message: PROMPTS.summarizeThread(sanitizedConversationHistoryString as string),
         model,
