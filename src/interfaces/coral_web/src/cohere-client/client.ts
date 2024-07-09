@@ -101,6 +101,7 @@ export class CohereClient {
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
       signal,
+      openWhenHidden: true, // When false, the requests will be paused when the tab is hidden and resume/retry when the tab is visible again
       onopen: onOpen,
       onmessage: onMessage,
       onclose: onClose,
