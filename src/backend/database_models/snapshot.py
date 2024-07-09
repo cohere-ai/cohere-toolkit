@@ -49,8 +49,7 @@ class SnapshotLink(Base):
         ForeignKey("snapshots.id", ondelete="CASCADE")
     )
 
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 
     __table_args__ = (Index("snapshot_link_snapshot_id", snapshot_id),)
 
@@ -58,8 +57,7 @@ class SnapshotLink(Base):
 class SnapshotAccess(Base):
     __tablename__ = "snapshot_access"
 
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     snapshot_id: Mapped[str] = mapped_column(
         ForeignKey("snapshots.id", ondelete="CASCADE")
     )

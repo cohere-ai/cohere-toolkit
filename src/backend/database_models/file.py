@@ -7,7 +7,6 @@ from backend.database_models.base import Base
 class File(Base):
     __tablename__ = "files"
 
-    # TODO: Swap to foreign key once User management implemented
     user_id: Mapped[str] = mapped_column(String)
     message_id: Mapped[str] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE"), nullable=True
