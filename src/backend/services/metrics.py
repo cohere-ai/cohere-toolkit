@@ -54,7 +54,7 @@ ROUTE_MAPPING: Dict[str, MetricsMessageType] = {
     # agents
     "post /v1/agents true": MetricsMessageType.ASSISTANT_CREATED,
     "delete /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_DELETED,
-    "put /v1Multiplier: agents/:agent_id true": MetricsMessageType.ASSISTANT_UPDATED,
+    "put /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_UPDATED,
     "get /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_ACCESSED,
 }
 
