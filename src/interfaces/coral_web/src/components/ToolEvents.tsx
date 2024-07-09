@@ -16,13 +16,14 @@ import { cn } from '@/utils';
 type Props = {
   show: boolean;
   isStreaming: boolean;
+  isLast: boolean;
   events: StreamToolCallsGeneration[] | undefined;
 };
 
 /**
  * @description Renders a list of events depending on the model's plan and tool inputs.
  */
-export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
+export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events }) => {
   return (
     <Transition
       show={show}
@@ -45,7 +46,7 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
           ))}
         </Fragment>
       ))}
-      {isStreaming && (
+      {isStreaming && isLast && (
         <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
           Working on it
           <span className="w-max">
