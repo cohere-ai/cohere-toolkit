@@ -1,12 +1,12 @@
 from typing import List, Optional
+from uuid import uuid4
 
-from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String
+from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 from backend.database_models.file import File
 from backend.database_models.message import Message
-from uuid import uuid4
 
 
 class Conversation(Base):
@@ -35,6 +35,8 @@ class Conversation(Base):
         return sorted(self.text_messages, key=lambda x: x.created_at)
 
     __table_args__ = (
-        PrimaryKeyConstraint('id', 'user_id', name='conversation_pk'),
+        UniqueConstraint("id", "user_id", name="conversation_id_user_id"),
+        PrimaryKeyConstraint("id", "user_id", name="conversation_pkey"),
         Index("conversation_user_agent_index", "user_id", "agent_id"),
+        Index("conversation_user_id_index", "id", "user_id", unique=True),
     )
