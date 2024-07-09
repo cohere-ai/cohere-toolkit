@@ -8,7 +8,7 @@ class File(Base):
     __tablename__ = "files"
 
     # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     message_id: Mapped[str] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE"), nullable=True
     )

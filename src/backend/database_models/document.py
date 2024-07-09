@@ -8,8 +8,7 @@ class Document(Base):
     __tablename__ = "documents"
 
     text: Mapped[str]
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(String, nullable=True)
     url: Mapped[str] = mapped_column(String, nullable=True)
     fields: Mapped[dict] = mapped_column(JSON, nullable=True)

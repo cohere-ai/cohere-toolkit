@@ -10,8 +10,7 @@ from backend.database_models.base import Base
 class Snapshot(Base):
     __tablename__ = "snapshots"
 
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     organization_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey(
             "organizations.id",
