@@ -18,7 +18,7 @@ type Props<K extends UpdateAgentFormFields | CreateAgentFormFields> = {
   onToolToggle: (toolName: string, checked: boolean, authUrl?: string) => void;
   handleOpenFilePicker: VoidFunction;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
-  disabled?: boolean;
+  isAgentCreator?: boolean;
   className?: string;
 };
 /**
@@ -30,7 +30,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
   onToolToggle,
   handleOpenFilePicker,
   errors,
-  disabled,
+  isAgentCreator,
   className,
 }: Props<K>) {
   const { data: toolsData } = useListTools();
@@ -69,7 +69,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
           onChange={(e) => setFields((prev) => ({ ...prev, name: e.target.value }))}
           hasError={!!errors?.name}
           errorText={errors?.name}
-          disabled={disabled}
+          disabled={!isAgentCreator}
         />
       </RequiredInputLabel>
       <InputLabel label="description" className="pb-2">
@@ -78,7 +78,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
           value={fields.description ?? ''}
           placeholder="What does your assistant do?"
           onChange={(e) => setFields((prev) => ({ ...prev, description: e.target.value }))}
-          disabled={disabled}
+          disabled={!isAgentCreator}
         />
       </InputLabel>
       <InputLabel label="Preamble">
@@ -94,14 +94,14 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
             'disabled:text-volcanic-700',
             {
-              'border-marble-500 bg-marble-300': disabled,
+              'border-marble-500 bg-marble-300': !isAgentCreator,
             },
             STYLE_LEVEL_TO_CLASSES.p
           )}
           rows={5}
           onChange={(e) => setFields((prev) => ({ ...prev, preamble: e.target.value }))}
           data-testid="input-preamble"
-          disabled={disabled}
+          disabled={!isAgentCreator}
         />
       </InputLabel>
       <div className="flex flex-col space-y-2">
@@ -125,14 +125,15 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
                   onChange={(e) =>
                     onToolToggle(tool.name ?? '', e.target.checked, tool.auth_url ?? '')
                   }
-                  disabled={disabled}
+                  disabled={!isAgentCreator}
                 />
                 {isGoogleDrive && checked && (
-                  <div className="pl-10">
+                  <div className="mt-2 pl-10">
                     <AgentToolFilePicker
                       googleDriveFiles={googleDrivefiles}
                       handleRemoveGoogleDriveFiles={handleRemoveGoogleDriveFiles}
                       handleOpenFilePicker={handleOpenFilePicker}
+                      disabled={!isAgentCreator}
                     />
                   </div>
                 )}
