@@ -4,22 +4,34 @@ import { GoogleDriveToolArtifact } from '@/types/tools';
 
 type Props = {
   googleDriveFiles?: GoogleDriveToolArtifact[];
+  disabled?: boolean;
   handleRemoveGoogleDriveFiles: (id: string) => void;
   handleOpenFilePicker: VoidFunction;
 };
+
+/**
+ * @description Component to display the selected files/folders from Google Drive
+ * @param {GoogleDriveToolArtifact[]} googleDriveFiles - List of selected files/folders from Google Drive
+ * @param {boolean} disabled - Flag to disable the file picker
+ * @param {Function} handleRemoveGoogleDriveFiles - Function to remove a file/folder from the selected list
+ * @param {Function} handleOpenFilePicker - Function to open the file picker
+ */
 export const AgentToolFilePicker: React.FC<Props> = ({
   googleDriveFiles,
+  disabled,
   handleRemoveGoogleDriveFiles,
   handleOpenFilePicker,
 }) => {
   return (
     <div className="flex max-w-[300px] flex-col gap-y-2">
-      <Button
-        kind="secondary"
-        startIcon={<Icon name="add" kind="outline" className="text-green-700" />}
-        label="Select files/folders"
-        onClick={handleOpenFilePicker}
-      />
+      {!disabled && (
+        <Button
+          kind="secondary"
+          startIcon={<Icon name="add" kind="outline" className="text-green-700" />}
+          label="Select files/folders"
+          onClick={handleOpenFilePicker}
+        />
+      )}
 
       {googleDriveFiles && googleDriveFiles.length > 0 && (
         <div className="flex max-h-[262px] flex-col gap-y-1 overflow-y-auto rounded border border-marble-300 px-3 py-1">
@@ -33,12 +45,14 @@ export const AgentToolFilePicker: React.FC<Props> = ({
               <Text styleAs="caption" className="truncate">
                 {name}
               </Text>
-              <IconButton
-                onClick={() => handleRemoveGoogleDriveFiles(id)}
-                iconName="close"
-                size="sm"
-                className="ml-auto"
-              />
+              {!disabled && (
+                <IconButton
+                  onClick={() => handleRemoveGoogleDriveFiles(id)}
+                  iconName="close"
+                  size="sm"
+                  className="ml-auto"
+                />
+              )}
             </div>
           ))}
         </div>
