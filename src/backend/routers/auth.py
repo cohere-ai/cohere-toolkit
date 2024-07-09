@@ -220,7 +220,7 @@ async def login(request: Request, session: DBSessionDep):
             detail=f"FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
         )
 
-    # TODO: Store user id and tool id in the DB for state key
+    # TODO: Store user id and tool id in Redis for state key
     state = json.loads(request.query_params.get("state"))
     tool_id = state["tool_id"]
 
