@@ -4,6 +4,7 @@ import { useContext } from 'react';
 
 import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
+import { ShareModal } from '@/components/ShareModal';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ModalContext } from '@/context/ModalContext';
@@ -19,8 +20,6 @@ import {
   useSettingsStore,
 } from '@/stores';
 import { cn } from '@/utils';
-
-import { ShareModal } from '../ShareModal';
 
 const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const { open } = useContext(ModalContext);

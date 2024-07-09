@@ -1,17 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
 
 import {
-  Message as CohereChatMessage,
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
   ListSnapshotsV1SnapshotsGetResponse,
-  MessageAgent,
   Snapshot,
   SnapshotData,
   useCohereClient,
 } from '@/cohere-client';
-import { BotState, ChatMessage, MessageType } from '@/types/message';
-import { mapHistoryToMessages } from '@/utils';
+import { ChatMessage } from '@/types/message';
 
 type FormattedSnapshotData = Omit<SnapshotData, 'messages'> & { messages?: ChatMessage[] };
 export type ChatSnapshot = Omit<Snapshot, 'snapshot'> & { snapshot: FormattedSnapshotData };
@@ -58,6 +54,9 @@ export const useCreateSnapshotLinkId = () => {
   });
 };
 
+/**
+ * @description Returns a snapshot by link id
+ */
 export const useGetSnapshotByLinkId = (linkId: string) => {
   const client = useCohereClient();
   return useQuery<GetSnapshotV1SnapshotsLinkLinkIdGetResponse, Error>({
@@ -73,55 +72,10 @@ export const useGetSnapshotByLinkId = (linkId: string) => {
   });
 };
 
-/**
- * @description returns a conversations's snapshot information if it exists
- * and formats the messages else, returns undefined
- *
- * Expired links will still return a snapshot since the owner can still view it
- */
-export const useSnapshot = (linkId: string) => {
-  const { data, ...rest } = useGetSnapshotByLinkId(linkId);
-  // const messages = formatChatMessages(data?.snapshot.messages);
-  const messages = mapHistoryToMessages(data?.snapshot.messages);
-  const snapshot = { ...data, messages };
-  return { snapshot, ...rest };
-};
-
-const formatChatMessages = (messages: CohereChatMessage[] | undefined): ChatMessage[] =>
-  !messages
-    ? []
-    : messages.map((m) =>
-        m.agent === MessageAgent.CHATBOT
-          ? {
-              type: MessageType.BOT,
-              state: BotState.FULFILLED,
-              text: m.text,
-              responseId: '',
-              generationId: m.generation_id ?? '',
-              originalText: m.text,
-            }
-          : {
-              type: MessageType.USER,
-              text: m.text,
-            }
-      );
-
 export const useSnapshots = () => {
   const client = useCohereClient();
   const { data, isLoading: loadingSnapshots } = useListSnapshots();
-  const snapshots = useMemo<ChatSnapshotWithLinks[]>(() => {
-    if (!data) return [];
-    return data.map((s) => {
-      const formattedMessages = formatChatMessages(s.snapshot.messages);
-      return {
-        ...s,
-        snapshot: {
-          ...s.snapshot,
-          messages: formattedMessages,
-        },
-      };
-    });
-  }, [data]);
+  const snapshots = data ?? [];
 
   const getSnapshotLinksByConversationId = (conversationId: string) =>
     snapshots

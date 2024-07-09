@@ -2,19 +2,47 @@ import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
-import { CohereClient } from '@/cohere-client';
+import { CohereClient, Document } from '@/cohere-client';
 import { ReadOnlyConversation } from '@/components/ReadOnlyConversation';
 import { Icon, Spinner, Text } from '@/components/Shared';
 import { DEFAULT_CONVERSATION_NAME, MAX_TIMEOUT_PREFETCH } from '@/constants';
-import { useSnapshot } from '@/hooks/snapshots';
+import { useGetSnapshotByLinkId } from '@/hooks/snapshots';
 import { appSSR } from '@/pages/_app';
-import { isShareLinkExpiredError } from '@/utils';
+import { useCitationsStore } from '@/stores';
+import {
+  UserOrBotMessage,
+  createStartEndKey,
+  isShareLinkExpiredError,
+  mapHistoryToMessages,
+} from '@/utils';
 
 const ShareConversationPage: NextPage = () => {
   const router = useRouter();
   const linkId = router.query.id as string;
-  const { isLoading, isError, snapshot, error } = useSnapshot(linkId);
+  const { isLoading, isError, data, error } = useGetSnapshotByLinkId(linkId);
+  const { addCitation } = useCitationsStore();
+  const [messages, setMessages] = useState<UserOrBotMessage[]>([]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    setMessages(mapHistoryToMessages(data.snapshot.messages));
+
+    let documentsMap: { [documentId: string]: Document } = {};
+    (data.snapshot.messages ?? []).forEach((message) => {
+      message.documents?.forEach((doc) => {
+        const docId = doc.document_id ?? '';
+        documentsMap[docId] = doc;
+      });
+      message.citations?.forEach((citation) => {
+        const startEndKey = createStartEndKey(citation.start ?? 0, citation.end ?? 0);
+        const documents = citation.document_ids?.map((id) => documentsMap[id]) ?? [];
+        addCitation(message.generation_id ?? '', startEndKey, documents);
+      });
+    });
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -57,8 +85,8 @@ const ShareConversationPage: NextPage = () => {
   } else {
     content = (
       <ReadOnlyConversation
-        title={snapshot?.snapshot?.title ?? DEFAULT_CONVERSATION_NAME}
-        messages={snapshot?.messages ?? []}
+        title={data?.snapshot?.title ?? DEFAULT_CONVERSATION_NAME}
+        messages={messages}
       />
     );
   }
@@ -99,7 +127,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), MAX_TIMEOUT_PREFETCH);
         try {
-          const signal = controller.signal;
           await deps.cohereClient.getSnapshot({ linkId });
         } catch (e) {
           console.error(e);
