@@ -224,7 +224,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         />
       </div>
       {isAgentCreator && (
-        <div className="flex flex-col gap-y-12 px-4 py-4 lg:px-10 lg:pb-8 lg:pt-0">
+        <div className="flex flex-col gap-y-6 px-4 py-4 lg:px-10 lg:pb-8 lg:pt-0">
           <InfoBanner agentName={agent.name} className="hidden md:flex" />
           <Button
             className="self-end"
