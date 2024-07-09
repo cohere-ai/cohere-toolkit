@@ -51,8 +51,7 @@ class Compass:
         ]
         if not all(os.getenv(var) is not None for var in vars):
             raise Exception(
-                "Compass cannot be configured. ",
-                "Environment variables missing.",
+                "Compass cannot be configured. Environment variables missing.",
             )
 
         self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
