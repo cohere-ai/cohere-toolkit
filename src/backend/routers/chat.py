@@ -97,7 +97,7 @@ async def chat(
     chat_request: CohereChatRequest,
     request: Request,
     agent_id: str | None = None,
-    deployment_name: str | None = Header(default=None)
+    deployment_name: str | None = Header(default=None),
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
