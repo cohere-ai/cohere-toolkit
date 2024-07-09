@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -5,7 +8,34 @@ from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
+from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
+
+
+@pytest.mark.asyncio
+async def test_create_agent_mertic(
+    session_client: TestClient, session: Session
+) -> None:
+    request_json = {
+        "name": "test agent",
+        "version": 1,
+        "description": "test description",
+        "preamble": "test preamble",
+        "temperature": 0.5,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
+    }
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.post(
+            "/v1/agents", json=request_json, headers={"User-Id": "123"}
+        )
+        assert response.status_code == 200
+        assert mock_metrics.assert_any_await
 
 
 def test_create_agent(session_client: TestClient, session: Session) -> None:
