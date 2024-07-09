@@ -13,17 +13,16 @@ from community.tools import (
 
 
 class CommunityToolName(StrEnum):
-    Arxiv = "arxiv"
-    Connector = "example_connector"
-    Pub_Med = "pub_med"
-    File_Upload_LlamaIndex = "file_reader_llamaindex"
-    Wolfram_Alpha = "wolfram_alpha"
-    ClinicalTrials = "clinical_trials"
+    Arxiv = ArxivRetriever.NAME
+    Connector = ConnectorRetriever.NAME
+    Pub_Med = PubMedRetriever.NAME
+    File_Upload_LlamaIndex = LlamaIndexUploadPDFRetriever.NAME
+    Wolfram_Alpha = WolframAlpha.NAME
+    ClinicalTrials = ClinicalTrials.NAME
 
 
 COMMUNITY_TOOLS = {
     CommunityToolName.Arxiv: ManagedTool(
-        name=CommunityToolName.Arxiv,
         display_name="Arxiv",
         implementation=ArxivRetriever,
         parameter_definitions={
@@ -40,7 +39,6 @@ COMMUNITY_TOOLS = {
         description="Retrieves documents from Arxiv.",
     ),
     CommunityToolName.Connector: ManagedTool(
-        name=CommunityToolName.Connector,
         display_name="Example Connector",
         implementation=ConnectorRetriever,
         is_visible=True,
@@ -50,7 +48,6 @@ COMMUNITY_TOOLS = {
         description="Connects to a data source.",
     ),
     CommunityToolName.Pub_Med: ManagedTool(
-        name=CommunityToolName.Pub_Med,
         display_name="PubMed",
         implementation=PubMedRetriever,
         parameter_definitions={
@@ -67,7 +64,6 @@ COMMUNITY_TOOLS = {
         description="Retrieves documents from Pub Med.",
     ),
     CommunityToolName.File_Upload_LlamaIndex: ManagedTool(
-        name=CommunityToolName.File_Upload_LlamaIndex,
         display_name="File Reader",
         implementation=LlamaIndexUploadPDFRetriever,
         is_visible=True,
@@ -77,7 +73,6 @@ COMMUNITY_TOOLS = {
         description="Retrieves documents from a file using LlamaIndex.",
     ),
     CommunityToolName.Wolfram_Alpha: ManagedTool(
-        name=CommunityToolName.Wolfram_Alpha,
         display_name="Wolfram Alpha",
         implementation=WolframAlpha,
         is_visible=False,
@@ -87,7 +82,6 @@ COMMUNITY_TOOLS = {
         description="Evaluate arithmetic expressions.",
     ),
     CommunityToolName.ClinicalTrials: ManagedTool(
-        name=CommunityToolName.ClinicalTrials,
         display_name="Clinical Trials",
         implementation=ClinicalTrials,
         is_visible=True,

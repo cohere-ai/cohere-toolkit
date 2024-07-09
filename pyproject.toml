@@ -45,6 +45,7 @@ beautifulsoup4 = "^4.12.3"
 google_auth_oauthlib ="^1.2.0"
 google-auth-httplib2="^0.2.0"
 google-api-python-client="^2.133.0"
+openpyxl = "^3.1.5"
 
 [tool.poetry.group.dev]
 optional = true
@@ -83,7 +84,6 @@ optional = true
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
 torch = "^2.3.0"
-llama-index = "^0.10.11"
 
 [tool.poetry.group.local-model]
 optional = true

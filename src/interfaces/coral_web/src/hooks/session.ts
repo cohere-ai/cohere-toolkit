@@ -1,10 +1,11 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation } from '@tanstack/react-query';
+import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/router';
 import { useCallback, useMemo } from 'react';
 
-import { useCohereClient } from '@/cohere-client';
+import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
 
@@ -50,18 +51,16 @@ export const useSession = () => {
     [authToken]
   );
 
-  const loginMutation = useMutation({
-    mutationFn: async (params: LoginParams) => {
-      return cohereClient.login(params);
-    },
-    onSuccess: (data: { token: string }) => {
-      setAuthToken(data.token);
-      return new Promise((resolve) => resolve(data.token));
+  const loginMutation = useMutation<JWTResponse | null, ApiError, LoginParams>({
+    mutationFn: (params) => cohereClient.login(params),
+    onSuccess: (data: JWTResponse | null) => {
+      setAuthToken(data?.token);
+      return new Promise((resolve) => resolve(data?.token));
     },
   });
 
   const logoutMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: () => {
       clearAuthToken();
       return cohereClient.logout();
     },
@@ -69,7 +68,11 @@ export const useSession = () => {
 
   const registerMutation = useMutation({
     mutationFn: async (params: RegisterParams) => {
-      return cohereClient.createUser(params);
+      return cohereClient.createUser({
+        fullname: params.name,
+        email: params.email,
+        password: params.password,
+      });
     },
   });
 
@@ -89,11 +92,19 @@ export const useSession = () => {
 
   const oidcSSOMutation = useMutation({
     mutationFn: async (params: { code: string; strategy: string }) => {
-      return cohereClient.oidcSSOAuth(params);
+      const codeVerifier = Cookies.get('code_verifier');
+      return cohereClient.oidcSSOAuth({
+        ...params,
+        ...(codeVerifier && { codeVerifier }),
+      });
     },
     onSuccess: (data: { token: string }) => {
       setAuthToken(data.token);
       return new Promise((resolve) => resolve(data.token));
+    },
+    onSettled: () => {
+      Cookies.remove('code_verifier');
+      Cookies.remove('code_challenge');
     },
   });
 

@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { CohereClient, CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
-import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
@@ -77,16 +76,17 @@ const LoginPage: NextPage<Props> = () => {
     }
   };
 
-  const oidcAuthStart = (strategy: string, authorizationEndpoint: string) => {
+  const oidcAuthStart = (strategy: string, authorizationEndpoint: string, pkceEnabled: boolean) => {
     oidcAuth.start({
       redirect,
       strategy,
       authorizationEndpoint,
+      pkceEnabled,
     });
   };
 
   return (
-    <WelcomePage title="Login" navigationAction="register">
+    <WelcomePage title="Login">
       <div className="flex flex-col items-center justify-center">
         <Text
           as="h1"
@@ -104,7 +104,13 @@ const LoginPage: NextPage<Props> = () => {
               key={ssoConfig.strategy}
               className="inline-flex w-full flex-auto"
               service={ssoConfig.strategy}
-              onClick={() => oidcAuthStart(ssoConfig.strategy, ssoConfig.authorization_endpoint)}
+              onClick={() =>
+                oidcAuthStart(
+                  ssoConfig.strategy,
+                  ssoConfig.authorization_endpoint,
+                  ssoConfig.pkce_enabled
+                )
+              }
             />
           ))}
         </div>
@@ -159,15 +165,6 @@ const LoginPage: NextPage<Props> = () => {
             />
           </form>
         )}
-
-        <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-700">
-          New user?
-          <AuthLink
-            redirect={redirect !== '/' ? redirect : undefined}
-            action="register"
-            className="text-green-700 no-underline"
-          />
-        </Text>
       </div>
     </WelcomePage>
   );

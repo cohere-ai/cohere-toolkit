@@ -2,6 +2,7 @@ import logging
 
 import requests
 from authlib.integrations.requests_client import OAuth2Session
+from fastapi import HTTPException
 from starlette.requests import Request
 
 from backend.services.auth.strategies.base import BaseOAuthStrategy
@@ -21,12 +22,14 @@ class OpenIDConnect(BaseOAuthStrategy):
     """
 
     NAME = "OIDC"
+    PKCE_ENABLED = True
 
     def __init__(self):
         try:
             self.settings = OIDCSettings()
-            # TODO: switch out to proper oidc strategy name
-            self.REDIRECT_URI = f"{self.settings.frontend_hostname}/auth/oidc"
+            self.REDIRECT_URI = (
+                f"{self.settings.frontend_hostname}/auth/{self.NAME.lower()}"
+            )
             self.WELL_KNOWN_ENDPOINT = self.settings.oidc_well_known_endpoint
             self.client = OAuth2Session(
                 client_id=self.settings.oidc_client_id,
@@ -43,6 +46,11 @@ class OpenIDConnect(BaseOAuthStrategy):
         if hasattr(self, "AUTHORIZATION_ENDPOINT"):
             return self.AUTHORIZATION_ENDPOINT
         return None
+
+    def get_pkce_enabled(self):
+        if hasattr(self, "PKCE_ENABLED"):
+            return self.PKCE_ENABLED
+        return False
 
     async def get_endpoints(self):
         response = requests.get(self.WELL_KNOWN_ENDPOINT)
@@ -67,11 +75,26 @@ class OpenIDConnect(BaseOAuthStrategy):
         Returns:
             Access token.
         """
-        token = self.client.fetch_token(
-            url=self.TOKEN_ENDPOINT,
-            authorization_response=str(request.url),
-            redirect_uri=self.REDIRECT_URI,
-        )
+        params = {
+            "url": self.TOKEN_ENDPOINT,
+            "authorization_response": str(request.url),
+            "redirect_uri": self.REDIRECT_URI,
+        }
+
+        if self.PKCE_ENABLED:
+            body = await request.json()
+            code_verifier = body.get("code_verifier")
+
+            if not code_verifier:
+                raise HTTPException(
+                    status_code=400,
+                    detail="code_verifier not available in request body during PKCE flow.",
+                )
+
+            params["code_verifier"] = code_verifier
+
+        token = self.client.fetch_token(**params)
+
         user_info = self.client.get(self.USERINFO_ENDPOINT)
 
         return user_info.json()

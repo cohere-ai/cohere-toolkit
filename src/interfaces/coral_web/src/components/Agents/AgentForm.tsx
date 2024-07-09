@@ -1,15 +1,19 @@
 import React from 'react';
 
-import { CreateAgent } from '@/cohere-client';
+import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
-export type AgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
-export type AgentFormFieldKeys = keyof AgentFormFields;
+export type CreateAgentFormFields = Pick<
+  CreateAgent,
+  'name' | 'description' | 'preamble' | 'deployment' | 'model' | 'tools'
+>;
+export type UpdateAgentFormFields = UpdateAgent;
+export type AgentFormFieldKeys = keyof CreateAgentFormFields | keyof UpdateAgentFormFields;
 
 type Props = {
-  fields: AgentFormFields;
+  fields: CreateAgentFormFields | UpdateAgentFormFields;
   onChange: (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => void;
   onToolToggle: (toolName: string, checked: boolean) => void;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;

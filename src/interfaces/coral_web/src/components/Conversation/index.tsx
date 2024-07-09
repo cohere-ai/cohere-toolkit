@@ -1,4 +1,4 @@
-import { Transition } from '@headlessui/react';
+import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import { UpdateAgentPanel } from '@/components/Agents/UpdateAgentPanel';
@@ -10,7 +10,7 @@ import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
-import { useRecentAgents } from '@/hooks/agents';
+import { useAgent, useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -24,6 +24,7 @@ import {
 } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
+import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -66,9 +67,12 @@ const Conversation: React.FC<Props> = ({
   const { addRecentAgentId } = useRecentAgents();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
+  const { data: agent } = useAgent({ agentId });
+
   const {
     userMessage,
     isStreaming,
+    isStreamingToolEvents,
     streamingMessage,
     setUserMessage,
     handleSend: send,
@@ -152,7 +156,7 @@ const Conversation: React.FC<Props> = ({
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-full w-full flex-col">
+      <div className="flex h-full w-full min-w-0 flex-col">
         <HotKeysProvider customHotKeys={chatHotKeys} />
         <Header conversationId={conversationId} agentId={agentId} isStreaming={isStreaming} />
 
@@ -161,6 +165,7 @@ const Conversation: React.FC<Props> = ({
             conversationId={conversationId}
             startOptionsEnabled={startOptionsEnabled}
             isStreaming={isStreaming}
+            isStreamingToolEvents={isStreamingToolEvents}
             onRetry={handleRetry}
             messages={messages}
             streamingMessage={streamingMessage}
@@ -170,11 +175,11 @@ const Conversation: React.FC<Props> = ({
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
                 <Composer
                   isStreaming={isStreaming}
-                  canDisableDataSources={!agentId}
                   value={userMessage}
                   isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}
                   chatWindowRef={chatWindowRef}
+                  requiredTools={agent?.tools}
                   onChange={(message) => setUserMessage(message)}
                   onSend={handleSend}
                   onStop={handleStop}
@@ -189,15 +194,29 @@ const Conversation: React.FC<Props> = ({
       <Transition
         show={!!isEditAgentPanelOpen}
         as="div"
-        className="z-configuration-drawer h-auto border-l border-marble-400"
-        enter="transition-all ease-in-out duration-300"
+        className={cn(
+          'absolute left-0 top-0 z-configuration-drawer md:relative',
+          'border-l border-marble-400 bg-marble-100'
+        )}
+        enter="transition-[width] ease-in-out duration-300"
         enterFrom="w-0"
-        enterTo="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
-        leave="transition-all ease-in-out duration-0 md:duration-300"
-        leaveFrom="2xl:agent-panel-2xl md:w-agent-panel lg:w-agent-panel-lg w-full"
+        enterTo="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
+        leave="transition-[width] ease-in-out duration-0 md:duration-300"
+        leaveFrom="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
         leaveTo="w-0"
       >
-        <UpdateAgentPanel agentId={agentId} />
+        <TransitionChild
+          as="div"
+          className={cn('flex h-full flex-col')}
+          enter="transition-[opacity] ease-in-out duration-200 delay-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-[opacity] ease-in-out duration-0 md:duration-50"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <UpdateAgentPanel agentId={agentId} />
+        </TransitionChild>
       </Transition>
     </div>
   );

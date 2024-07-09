@@ -24,7 +24,7 @@ export const EditConversationTitle: React.FC<Props> = ({
   const onConfirm = async () => {
     try {
       setErrorMessage('');
-      await editConversation({ conversationId, title });
+      await editConversation({ request: { title }, conversationId });
 
       if (window?.location.pathname.includes(conversationId)) {
         setConversation({ name: title });

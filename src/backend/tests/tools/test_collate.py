@@ -56,7 +56,7 @@ def test_rerank() -> None:
                 "parameters": {"query": "what is the highest mountain in the world?"},
                 "name": "retriever",
             },
-            "outputs": [outputs[0]],
+            "outputs": [outputs[0], outputs[1], outputs[2]],
         },
         {
             "call": {

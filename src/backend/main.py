@@ -1,15 +1,18 @@
-import asyncio
 import os
-from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config.auth import get_auth_strategy_endpoints, is_authentication_enabled
+from backend.config.auth import (
+    get_auth_strategy_endpoints,
+    is_authentication_enabled,
+    verify_migrate_token,
+)
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -17,10 +20,13 @@ from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
+from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.services.logger import LoggingMiddleware
+from backend.services.logger import LoggingMiddleware, get_logger
 from backend.services.metrics import MetricsMiddleware
+
+logger = get_logger()
 
 load_dotenv()
 
@@ -40,6 +46,7 @@ def create_app():
         deployment_router,
         experimental_feature_router,
         agent_router,
+        snapshot_router,
     ]
 
     # Dynamically set router dependencies
@@ -76,6 +83,23 @@ def create_app():
 app = create_app()
 
 
+@app.exception_handler(Exception)
+async def validation_exception_handler(request: Request, exc: Exception):
+    logger.info(
+        f"Error occurred: {exc!r} during request: {request.method}, {request.url}"
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "message": (
+                f"Failed method {request.method} at URL {request.url}."
+                f" Exception message is {exc!r}."
+            )
+        },
+    )
+
+
 @app.on_event("startup")
 async def startup_event():
     """
@@ -93,7 +117,7 @@ async def health():
     return {"status": "OK"}
 
 
-@app.post("/migrate")
+@app.post("/migrate", dependencies=[Depends(verify_migrate_token)])
 async def apply_migrations():
     """
     Applies Alembic migrations - useful for serverless applications
@@ -106,4 +130,4 @@ async def apply_migrations():
             status_code=500, detail=f"Error while applying Alembic migrations: {str(e)}"
         )
 
-    return {"status": "Done"}
+    return {"status": "Migration successful"}

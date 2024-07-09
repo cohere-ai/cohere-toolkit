@@ -1,4 +1,4 @@
-import { Transition } from '@headlessui/react';
+import { Transition, TransitionChild } from '@headlessui/react';
 import { useClickOutside } from '@react-hookz/web';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -7,7 +7,6 @@ import { ConversationListHeader } from '@/components/ConversationList/Conversati
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
 import { Icon, Input, Text } from '@/components/Shared';
-import { getIsTouchDevice } from '@/hooks/breakpoint';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 import { useSettingsStore } from '@/stores';
@@ -24,13 +23,11 @@ type Props = {
 
 export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) => {
   const panelRef = useRef(null);
-  const { data, isLoading: isConversationsLoading, isError } = useConversations();
-  const conversations: Conversation[] = useMemo(() => {
-    const conversations = data ?? [];
-    if (!agentId) return conversations.filter((d) => !d.agent_id);
-    return conversations.filter((d) => d.agent_id === agentId);
-  }, [data, agentId]);
-
+  const {
+    data: conversations,
+    isLoading: isConversationsLoading,
+    isError,
+  } = useConversations({ agentId });
   const {
     settings: { isConvListPanelOpen },
   } = useSettingsStore();
@@ -119,7 +116,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
   }
 
   return (
-    <Transition.Child
+    <TransitionChild
       ref={panelRef}
       as="nav"
       enterFrom="opacity-100 lg:opacity-0"
@@ -165,13 +162,12 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
       <section
         className={cn(
           'relative flex h-0 flex-grow flex-col overflow-y-auto',
-          'px-3 pb-4 pt-3 md:pb-8',
-          { 'pr-0.5': !getIsTouchDevice() }
+          'px-3 pb-4 pt-3 md:pb-8'
         )}
       >
         {content}
       </section>
-    </Transition.Child>
+    </TransitionChild>
   );
 };
 

@@ -9,6 +9,7 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
+import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -18,13 +19,13 @@ import { cn } from '@/utils';
 type Props = {
   isFirstTurn: boolean;
   isStreaming: boolean;
-  canDisableDataSources: boolean;
   value: string;
   streamingMessage: ChatMessage | null;
   onStop: VoidFunction;
   onSend: (message?: string, overrides?: Partial<ConfigurableParams>) => void;
   onChange: (message: string) => void;
   onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  requiredTools?: string[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
 };
 
@@ -32,7 +33,7 @@ export const Composer: React.FC<Props> = ({
   isFirstTurn,
   value,
   isStreaming,
-  canDisableDataSources,
+  requiredTools,
   onSend,
   onChange,
   onStop,
@@ -47,10 +48,14 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
+  const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
+    requiredTools,
+  });
 
   const [isComposing, setIsComposing] = useState(false);
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
+  const [showDataSourceMenu, setShowDataSourceMenu] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
   const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isToolAuthRequired;
@@ -71,15 +76,40 @@ export const Composer: React.FC<Props> = ({
       e.preventDefault();
       if (canSend) {
         onSend(value);
+        setTagQuery('');
+        setShowDataSourceMenu(false);
+        onChange('');
       }
     }
   };
 
-  const handleComposerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (isToolAuthRequired) {
       return;
     }
+
     onChange(e.target.value);
+    if (textareaRef.current) {
+      const newTagQuery = getTagQuery(e.target.value, textareaRef.current.selectionStart);
+      setTagQuery(newTagQuery);
+
+      if (newTagQuery.length === 1 && !showDataSourceMenu) {
+        setShowDataSourceMenu(true);
+      } else if (newTagQuery.length === 0 && showDataSourceMenu) {
+        setShowDataSourceMenu(false);
+      }
+    }
+  };
+
+  const handleTagSelect = () => {
+    if (!textareaRef.current) return;
+    onChange(value.slice(0, value.length - tagQuery.length));
+    setTagQuery('');
+    setShowDataSourceMenu(false);
+  };
+
+  const handleDataSourceMenuClick = () => {
+    setShowDataSourceMenu((prevShow) => !prevShow);
   };
 
   useEffect(() => {
@@ -178,7 +208,7 @@ export const Composer: React.FC<Props> = ({
             }}
             rows={1}
             onKeyDown={handleKeyDown}
-            onChange={handleComposerChange}
+            onChange={handleChange}
             disabled={isToolAuthRequired}
           />
           <button
@@ -191,15 +221,25 @@ export const Composer: React.FC<Props> = ({
             )}
             type="button"
             onClick={() => (canSend ? onSend(value) : onStop())}
-            disabled={!canSend}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>
         </div>
         <ComposerFiles />
         <ComposerToolbar
-          canDisableDataSources={canDisableDataSources}
+          isStreaming={isStreaming}
           onUploadFile={onUploadFile}
+          onDataSourceMenuToggle={handleDataSourceMenuClick}
+          menuProps={{
+            show: showDataSourceMenu,
+            tagQuery: tagQuery,
+            tags: suggestedTags,
+            totalTags: totalTags,
+            onChange: handleTagSelect,
+            onHide: () => setShowDataSourceMenu(false),
+            onToggle: handleDataSourceMenuClick,
+            onSeeAll: () => textareaRef.current?.focus(),
+          }}
         />
       </div>
       <ComposerError className="pt-2" />

@@ -7,6 +7,8 @@ from backend.tools.base import BaseTool
 
 
 class WebScrapeTool(BaseTool):
+    NAME = "web_scrape"
+
     @classmethod
     def is_available(cls) -> bool:
         return True

@@ -57,8 +57,8 @@ COPY src/interfaces/coral_web/.env.development .
 COPY src/interfaces/coral_web/.env.production .
 
 ENV NEXT_PUBLIC_API_HOSTNAME='/api'
-RUN pnpm install \
-    && pnpm next:build
+RUN npm install \
+    && npm run next:build
 
 # Terrarium
 WORKDIR /usr/src/app

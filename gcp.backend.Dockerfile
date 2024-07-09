@@ -19,6 +19,10 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
+# set USE_COMMUNITY_FEATURES from arguments
+ARG INSTALL_COMMUNITY_DEPS
+ENV INSTALL_COMMUNITY_DEPS=${INSTALL_COMMUNITY_DEPS}
+
 WORKDIR /workspace
 
 ARG port=8000
@@ -27,11 +31,16 @@ ARG port=8000
 ENV PORT=${port}
 
 # Copy dependency files to avoid cache invalidations
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock README.md ./
 
 # Install poetry and run poetry install
-RUN pip install --no-cache-dir poetry==1.6.1 && \
-  poetry install
+RUN pip install --no-cache-dir poetry==1.6.1 \
+RUN if [ "${INSTALL_COMMUNITY_DEPS,,}" == "true" ]; then \
+        poetry install --with community \
+    else \
+        poetry install; \
+    fi
+
 
 COPY src/backend/ src/backend/
 

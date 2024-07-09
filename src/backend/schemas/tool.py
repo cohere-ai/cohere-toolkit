@@ -15,7 +15,7 @@ class ToolInput(BaseModel):
 
 
 class Tool(BaseModel):
-    name: str
+    name: Optional[str] = ""
     display_name: str = ""
     description: Optional[str] = ""
     parameter_definitions: Optional[dict] = {}
@@ -42,8 +42,14 @@ class ToolCall(BaseModel):
     name: str
     parameters: dict = {}
 
+    class Config:
+        from_attributes = True
+
 
 class ToolCallDelta(BaseModel):
     name: str | None
     index: int | None
     parameters: str | None
+
+    class Config:
+        from_attributes = True
