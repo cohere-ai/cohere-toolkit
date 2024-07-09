@@ -106,6 +106,9 @@ class GoogleDrive(BaseTool):
         else:
             # Condition on folders if exist
             if folder_ids:
+                # Explanation: https://stackoverflow.com/questions/78063848/google-drive-api-full-text-search-doesnt-work-when-using-in-parents-option#comment138803743_78063848
+                if len(folder_ids) == 1:
+                    folder_ids += folder_ids
                 conditions.append(
                     "("
                     + " or ".join(
