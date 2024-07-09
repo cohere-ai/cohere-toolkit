@@ -100,6 +100,7 @@ class GoogleDrive(BaseTool):
 
         # Condition on files if exist
         files = []
+        service = build("drive", "v3", credentials=creds)
         if file_ids:
             files = parallel_get_files.perform(file_ids=file_ids, creds=creds)
         else:
@@ -121,7 +122,6 @@ class GoogleDrive(BaseTool):
 
             search_results = []
             try:
-                service = build("drive", "v3", credentials=creds)
                 search_results = (
                     service.files()
                     .list(
