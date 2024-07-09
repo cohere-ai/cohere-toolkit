@@ -65,7 +65,7 @@ class GoogleDrive(BaseTool):
         user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
         index_name = "{}_{}".format(agent_id, GOOGLE_DRIVE_TOOL_ID)
-        query = parameters.get("query", "")
+        query = parameters.get("query", "").replace("'", "\\'")
         conditions = [
             "("
             + " or ".join(
