@@ -10,12 +10,17 @@ from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
+from backend.schemas.metrics import (
+    MetricsData,
+    MetricsMessageType,
+)
 
 
 @pytest.mark.asyncio
 async def test_create_agent_mertic(
     session_client: TestClient, session: Session
 ) -> None:
+    user = get_factory("User", session).create(fullname="John Doe")
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -32,10 +37,14 @@ async def test_create_agent_mertic(
         return_value=None,
     ) as mock_metrics:
         response = session_client.post(
-            "/v1/agents", json=request_json, headers={"User-Id": "123"}
+            "/v1/agents", json=request_json, headers={"User-Id": user.id}
         )
         assert response.status_code == 200
-        assert mock_metrics.assert_any_await
+        m_args: MetricsData = mock_metrics.await_args.args[0]
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
+        assert m_args.assistant is not None
+        assert m_args.user.fullname == user.fullname
 
 
 def test_create_agent(session_client: TestClient, session: Session) -> None:
@@ -242,6 +251,9 @@ def test_create_agent_invalid_deployment(
         "model": "command-r-plus",
         "deployment": "not a real deployment",
     }
+    
+    agent = get_factory("User", session).create(fullname="test agent")
+    
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
