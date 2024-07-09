@@ -8,12 +8,9 @@ from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
+from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
-from backend.schemas.metrics import (
-    MetricsData,
-    MetricsMessageType,
-)
 
 
 @pytest.mark.asyncio
@@ -330,9 +327,7 @@ def test_list_agents_with_pagination(
 
 
 @pytest.mark.asyncio
-async def test_get_agent_mertic(
-    session_client: TestClient, session: Session
-) -> None:
+async def test_get_agent_mertic(session_client: TestClient, session: Session) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
     agent = get_factory("Agent", session).create(name="test agent")
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
@@ -356,12 +351,15 @@ async def test_get_agent_mertic(
         "backend.services.metrics.report_metrics",
         return_value=None,
     ) as mock_metrics:
-        response = session_client.get(f"/v1/agents/{agent.id}", headers={"User-Id": user.id})
+        response = session_client.get(
+            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+        )
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0]
         assert m_args.user_id == user.id
         assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
         assert m_args.assistant.name == agent.name
+
 
 def test_get_agent(session_client: TestClient, session: Session) -> None:
     agent = get_factory("Agent", session).create(name="test agent")
@@ -421,8 +419,7 @@ def test_update_agent_metric(session_client: TestClient, session: Session) -> No
         "model": "command-r",
         "deployment": ModelDeploymentName.CoherePlatform,
     }
-    
-    
+
     with patch(
         "backend.services.metrics.report_metrics",
         return_value=None,
@@ -439,9 +436,6 @@ def test_update_agent_metric(session_client: TestClient, session: Session) -> No
         assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
         assert m_args.assistant.name == request_json["name"]
         assert m_args.user.fullname == user.fullname
-
-
-
 
 
 def test_update_agent(session_client: TestClient, session: Session) -> None:
@@ -877,13 +871,14 @@ def test_delete_agent_metric(session_client: TestClient, session: Session) -> No
         return_value=None,
     ) as mock_metrics:
         response = session_client.delete(
-        f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
-    )
+            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+        )
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0]
         assert m_args.user_id == user.id
         assert m_args.message_type == MetricsMessageType.ASSISTANT_DELETED
         assert m_args.assistant_id == agent.id
+
 
 def test_delete_agent(session_client: TestClient, session: Session) -> None:
     agent = get_factory("Agent", session).create(user_id="123")

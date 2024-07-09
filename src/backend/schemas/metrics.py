@@ -7,19 +7,22 @@ from pydantic import BaseModel
 
 
 class MetricsMessageType(str, Enum):
-    # implemented
+    # users: implemented, has tests
     USER_CREATED = "user_created"
     USER_UPDATED = "user_updated"
     USER_DELETED = "user_deleted"
+    # agents: implemented, has tests
     ASSISTANT_CREATED = "assistant_created"
     ASSISTANT_UPDATED = "assistant_updated"
     ASSISTANT_DELETED = "assistant_deleted"
     ASSISTANT_ACCESSED = "assistant_accessed"
+    # chat: implemented
     CHAT_API_SUCCESS = "chat_api_call_success"
     CHAT_API_FAIL = "chat_api_call_failure"
+    # rerank: implemented
     RERANK_API_SUCCESS = "rerank_api_call_success"
     RERANK_API_FAIL = "rerank_api_call_failure"
-    # pending
+    # pending implementation
     ENV_LIVENESS = "env_liveness"
     COMPASS_NEW_INDEX = "compass_new_index"
     COMPASS_REMOVE_INDEX = "compass_remove_index"
