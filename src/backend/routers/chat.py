@@ -2,7 +2,7 @@ import os
 from distutils.util import strtobool
 from typing import Any, Generator
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Header, Request
 from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
@@ -97,6 +97,7 @@ async def chat(
     chat_request: CohereChatRequest,
     request: Request,
     agent_id: str | None = None,
+    deployment_name: str | None = Header(default=None)
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
@@ -106,6 +107,7 @@ async def chat(
         session (DBSessionDep): Database session.
         request (Request): Request object.
         agent_id (str | None): Agent ID.
+        deployment_name: Deployment name header.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
