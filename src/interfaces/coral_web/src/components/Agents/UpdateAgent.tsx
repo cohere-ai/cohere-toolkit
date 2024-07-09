@@ -219,7 +219,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
           errors={fieldErrors}
           setFields={setFields}
           onToolToggle={handleToolToggle}
-          disabled={!isAgentCreator}
+          isAgentCreator={isAgentCreator}
           handleOpenFilePicker={openFilePicker}
         />
       </div>
