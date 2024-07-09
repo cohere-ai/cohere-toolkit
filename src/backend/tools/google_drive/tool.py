@@ -101,9 +101,7 @@ class GoogleDrive(BaseTool):
         # Condition on files if exist
         files = []
         if file_ids:
-            files = parallel_get_files.perform(
-                file_ids=file_ids, access_token=creds.token
-            )
+            files = parallel_get_files.perform(file_ids=file_ids, creds=creds)
         else:
             # Condition on folders if exist
             if folder_ids:
@@ -126,7 +124,13 @@ class GoogleDrive(BaseTool):
                 service = build("drive", "v3", credentials=creds)
                 search_results = (
                     service.files()
-                    .list(pageSize=SEARCH_LIMIT, q=q, fields=fields)
+                    .list(
+                        pageSize=SEARCH_LIMIT,
+                        q=q,
+                        includeItemsFromAllDrives=True,
+                        supportsAllDrives=True,
+                        fields=fields,
+                    )
                     .execute()
                 )
             except Exception as e:
@@ -137,7 +141,6 @@ class GoogleDrive(BaseTool):
             files = search_results.get("files", [])
             if not files:
                 logger.debug("No files found.")
-
         if not files:
             return [{"text": ""}]
 
@@ -146,6 +149,8 @@ class GoogleDrive(BaseTool):
         id_to_urls = extract_links(files)
         web_view_links = extract_web_view_links(files)
         titles = extract_titles(files)
+        if not id_to_urls:
+            return [{"text": ""}]
         id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
 
         """
