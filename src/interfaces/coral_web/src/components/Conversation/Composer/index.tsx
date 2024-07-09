@@ -9,6 +9,7 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
@@ -48,6 +49,7 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
+  const { agentId } = useSlugRoutes();
   const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });
@@ -159,7 +161,7 @@ export const Composer: React.FC<Props> = ({
 
   return (
     <div className="flex w-full flex-col">
-      <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />
+      {!agentId && <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />}
       <div
         className={cn(
           'relative flex w-full flex-col',
