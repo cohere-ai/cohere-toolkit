@@ -176,6 +176,7 @@ export const CreateAgent: React.FC = () => {
             handleOpenFilePicker={openFilePicker}
             errors={fieldErrors}
             className="mt-6"
+            isAgentCreator
           />
         </div>
       </div>

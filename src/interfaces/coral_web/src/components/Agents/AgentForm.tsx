@@ -17,8 +17,8 @@ type Props<K extends UpdateAgentFormFields | CreateAgentFormFields> = {
   setFields: React.Dispatch<React.SetStateAction<K>>;
   onToolToggle: (toolName: string, checked: boolean, authUrl?: string) => void;
   handleOpenFilePicker: VoidFunction;
+  isAgentCreator: boolean;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
-  isAgentCreator?: boolean;
   className?: string;
 };
 /**
