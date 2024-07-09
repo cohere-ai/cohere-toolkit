@@ -251,9 +251,6 @@ def test_create_agent_invalid_deployment(
         "model": "command-r-plus",
         "deployment": "not a real deployment",
     }
-    
-    agent = get_factory("User", session).create(fullname="test agent")
-    
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": "123"}
