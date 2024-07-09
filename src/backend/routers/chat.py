@@ -49,7 +49,6 @@ async def chat_stream(
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
-
     (
         session,
         chat_request,
@@ -128,7 +127,7 @@ async def chat(
         next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
-    return generate_chat_response(
+    response = await generate_chat_response(
         session,
         CustomChat().chat(
             chat_request,
@@ -147,6 +146,7 @@ async def chat(
         should_store=should_store,
         next_message_position=next_message_position,
     )
+    return response
 
 
 @router.post("/langchain-chat")

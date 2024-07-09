@@ -16,13 +16,14 @@ import { cn } from '@/utils';
 type Props = {
   show: boolean;
   isStreaming: boolean;
+  isLast: boolean;
   events: StreamToolCallsGeneration[] | undefined;
 };
 
 /**
  * @description Renders a list of events depending on the model's plan and tool inputs.
  */
-export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
+export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events }) => {
   return (
     <Transition
       show={show}
@@ -36,16 +37,16 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
     >
       {events?.map((toolEvent, i) => (
         <Fragment key={i}>
-          {/* {toolEvent.stream_search_results && (
+          {toolEvent.stream_search_results && toolEvent.stream_search_results.search_results && (
             <ToolEvent stream_search_results={toolEvent.stream_search_results} />
-          )} */}
+          )}
           {toolEvent.text && <ToolEvent plan={toolEvent.text} />}
           {toolEvent.tool_calls?.map((toolCall, j) => (
             <ToolEvent key={`event-${j}`} event={toolCall} />
           ))}
         </Fragment>
       ))}
-      {isStreaming && (
+      {isStreaming && isLast && (
         <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
           Working on it
           <span className="w-max">
@@ -79,20 +80,27 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
         ?.map((doc) => {
           return { title: truncateString(doc.title || doc.url || ''), url: doc.url };
         })
+        .filter((entry) => !!entry.title)
         .filter((value, index, self) => index === self.findIndex((t) => t.title === value.title)) ||
       [];
     return (
       <ToolEventWrapper icon="book-open-text">
-        Found{' '}
-        <article className="grid grid-cols-2 gap-x-1">
-          {artifacts.map((artifact) => (
-            <b key={artifact.title} className="cursor-pointer truncate font-medium underline">
-              <a href={artifact.url || ''} target="_blank">
-                {artifact.title}
-              </a>
-            </b>
-          ))}
-        </article>
+        {artifacts.length > 0 ? (
+          <>
+            Found the following resources:
+            <article className="grid grid-cols-2 gap-x-2">
+              {artifacts.map((artifact) => (
+                <b key={artifact.title} className="cursor-pointer truncate font-medium underline">
+                  <a href={artifact.url || ''} target="_blank">
+                    {artifact.title}
+                  </a>
+                </b>
+              ))}
+            </article>
+          </>
+        ) : (
+          <>No resources found.</>
+        )}
       </ToolEventWrapper>
     );
   }
@@ -110,7 +118,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
         return (
           <>
             <ToolEventWrapper icon={icon}>
-              Using <b className="font-medium">{toolName}</b>
+              Using <b className="font-medium">{toolName}.</b>
             </ToolEventWrapper>
             <Markdown text={codeString} className="w-full" />
           </>
@@ -118,7 +126,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
       } else {
         return (
           <ToolEventWrapper icon={icon}>
-            Using <b className="font-medium">{toolName}</b>
+            Using <b className="font-medium">{toolName}.</b>
           </ToolEventWrapper>
         );
       }
@@ -127,7 +135,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     case TOOL_CALCULATOR_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Calculating <b className="font-medium">{event?.parameters?.code as any}</b>
+          Calculating <b className="font-medium">{event?.parameters?.code as any}.</b>
         </ToolEventWrapper>
       );
     }
@@ -135,7 +143,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     case TOOL_WEB_SEARCH_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Searching <b className="font-medium">{event?.parameters?.query as any}</b>
+          Searching <b className="font-medium">{event?.parameters?.query as any}.</b>
         </ToolEventWrapper>
       );
     }
@@ -143,7 +151,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     case TOOL_GOOGLE_DRIVE_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Searching <b className="font-medium">{event?.parameters?.query as any}</b> in {toolName}
+          Searching <b className="font-medium">{event?.parameters?.query as any}</b> in {toolName}.
         </ToolEventWrapper>
       );
     }
@@ -151,7 +159,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     default: {
       return (
         <ToolEventWrapper icon={icon}>
-          Using <b className="font-medium">{toolName}</b>
+          Using <b className="font-medium">{toolName}.</b>
         </ToolEventWrapper>
       );
     }
