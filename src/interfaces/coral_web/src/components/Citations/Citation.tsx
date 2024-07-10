@@ -81,19 +81,6 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
     'document_id'
   );
 
-  console.log(highlightedDocumentIds)
-
-  useEffect(() => {
-    if (selectedCitation) {
-      const generationId = selectedCitation['generationId']
-      const minimapCitations = Object.values(citationReferences[generationId]).flat().filter(citation =>
-        citation.tool_name === 'MiniMap' && highlightedDocumentIds.includes(citation.document_id)
-      )
-      const minimapCitationsUnique = new Set(minimapCitations.map(c => c.url))
-      window.top && window.top.postMessage({ type: 'newCitations', urls: Array.from(minimapCitationsUnique) }, '*')
-    }
-  }, [highlightedDocumentIds, selectedCitation])
-
   const handleMouseEnter = () => {
     hoverCitation(generationId);
   };

@@ -11,7 +11,7 @@ import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { useCitationsStore } from '@/stores';
-import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
+import { ChatMessage, FulfilledMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
 type Props = {
@@ -58,7 +58,7 @@ const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage, onPromptSelected } = props;
   const scrollToBottom = useScrollToBottom();
   const {
-    citations: { hasCitations },
+    citations: { hasCitations, citationReferences },
   } = useCitationsStore();
 
   useFixCopyBug();
@@ -93,6 +93,17 @@ const Content: React.FC<Props> = (props) => {
       scrollToBottom({ behavior: 'smooth' });
     }
   }, [messages.length, scrollToBottom]);
+
+  useEffect(() => {
+    if (streamingMessage && streamingMessage.state === 'fulfilled') {
+      const generationId = (streamingMessage as FulfilledMessage).generationId
+      const minimapCitations = Object.values(citationReferences[generationId]).flat().filter(citation =>
+        citation.tool_name === 'MiniMap'
+      )
+      const minimapCitationsUnique = new Set(minimapCitations.map(c => c.url))
+      window.top && window.top.postMessage({ type: 'newCitations', urls: Array.from(minimapCitationsUnique) }, '*')
+    }
+  }, [streamingMessage])
 
   const { citationToStyles, messageContainerDivRef, composerContainerDivRef } =
     useCalculateCitationStyles(messages, streamingMessage);
