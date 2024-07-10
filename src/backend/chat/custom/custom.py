@@ -59,19 +59,19 @@ class CustomChat(BaseChat):
                 if result:
                     yield result
 
-                if event[
-                    "event_type"
-                ] == StreamEvent.STREAM_END and self.is_final_event(
-                    event, chat_request
-                ):
-                    send_log_message(
-                        logger,
-                        f"Final event: {event}",
-                        level="info",
-                        conversation_id=kwargs.get("conversation_id"),
-                        user_id=kwargs.get("user_id"),
+                    if event[
+                        "event_type"
+                    ] == StreamEvent.STREAM_END and self.is_final_event(
+                        event, chat_request
+                    ):
+                        send_log_message(
+                            logger,
+                            f"Final event: {event}",
+                            level="info",
+                            conversation_id=kwargs.get("conversation_id"),
+                            user_id=kwargs.get("user_id"),
                     )
-                    break
+                        break
         except Exception as e:
             yield {
                 "event_type": StreamEvent.STREAM_END,
@@ -255,6 +255,7 @@ class CustomChat(BaseChat):
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=kwargs.get("user_id"),
+                trace_id=kwargs.get("trace_id"),
                 agent_id=kwargs.get("agent_id"),
             )
 

@@ -51,7 +51,7 @@ class TavilyInternetSearch(BaseTool):
                         expanded.append(new_result)
 
         reranked_results = self.rerank_page_snippets(
-            query, expanded, model=kwargs.get("model_deployment")
+            query, expanded, model=kwargs.get("model_deployment"), **kwargs
         )
 
         return [
@@ -60,7 +60,7 @@ class TavilyInternetSearch(BaseTool):
         ]
 
     def rerank_page_snippets(
-        self, query: str, snippets: List[Dict[str, Any]], model: BaseDeployment
+        self, query: str, snippets: List[Dict[str, Any]], model: BaseDeployment, **kwargs: Any
     ) -> List[Dict[str, Any]]:
         if len(snippets) == 0:
             return []
@@ -75,8 +75,10 @@ class TavilyInternetSearch(BaseTool):
                     f"{snippet['title']} {snippet['content']}"
                     for snippet in snippet_batch
                 ],
+                **kwargs
             )
-            for b in batch_output.results:
+            print("debug tavily rerank", batch_output)
+            for b in batch_output.get("results", []):
                 relevance_scores[batch_start + b.index] = b.relevance_score
 
         reranked, seen_urls = [], []
