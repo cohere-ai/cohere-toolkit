@@ -271,6 +271,8 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
+        print("debug wrapper")
+        print(kwargs)
         metrics_data, kwargs = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
         )
@@ -329,6 +331,8 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
 ) -> tuple[MetricsData, Any]:
+    print("debug initialize_sdk_metrics_data")
+    print(kwargs)
     return (
         MetricsData(
             id=str(uuid.uuid4()),
