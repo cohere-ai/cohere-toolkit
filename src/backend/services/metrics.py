@@ -362,12 +362,12 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
 ) -> tuple[MetricsData, Any]:
-    
+
     method = "POST"
     endpoint_name = f"co.{func_name}"
     is_success = True
     message_type = event_name_of(method, endpoint_name, is_success)
-    
+
     return (
         MetricsData(
             id=str(uuid.uuid4()),
