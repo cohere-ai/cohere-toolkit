@@ -14,6 +14,7 @@ __all__ = [
     "TavilyInternetSearch",
     "ReadFileTool",
     "SearchFileTool",
+    "WebScrapeTool",
     "GoogleDrive",
     "GoogleDriveAuth",
     "WebScrapeTool"

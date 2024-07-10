@@ -17,7 +17,6 @@ class TavilyInternetSearch(BaseTool):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
         self.num_results = 6
 
-
     @classmethod
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
