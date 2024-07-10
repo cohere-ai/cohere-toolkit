@@ -6,13 +6,16 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.metadata.readonly",
     "https://www.googleapis.com/auth/drive.readonly",
 ]
-SEARCH_MIME_TYPES = [
+NATIVE_SEARCH_MIME_TYPES = [
     "application/vnd.google-apps.document",
     "application/vnd.google-apps.spreadsheet",
     "application/vnd.google-apps.presentation",
-    "application/vnd.google-apps.shortcut",
-    # "application/pdf",
 ]
+NON_NATIVE_SEARCH_MIME_TYPES = [
+    "application/vnd.google-apps.shortcut",
+    "application/pdf",
+]
+SEARCH_MIME_TYPES = NATIVE_SEARCH_MIME_TYPES + NON_NATIVE_SEARCH_MIME_TYPES
 DOC_FIELDS = "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails"
 
 GOOGLE_DRIVE_TOOL_ID = "google_drive"
