@@ -24,7 +24,7 @@ from .utils import (
     extract_links,
     extract_titles,
     extract_web_view_links,
-    process_shortcut_files,
+    process_non_native_files,
 )
 
 logger = get_logger()
@@ -148,10 +148,10 @@ class GoogleDrive(BaseTool):
             return [{"text": ""}]
 
         # extract links and download file contents
-        files = process_shortcut_files(service, files)
-        id_to_urls = extract_links(files)
-        web_view_links = extract_web_view_links(files)
-        titles = extract_titles(files)
+        processed_files = process_non_native_files(service, files)
+        id_to_urls = extract_links(processed_files)
+        web_view_links = extract_web_view_links(processed_files)
+        titles = extract_titles(processed_files)
         if not id_to_urls:
             return [{"text": ""}]
         id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
