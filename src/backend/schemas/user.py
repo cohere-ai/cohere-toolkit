@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from backend.services.auth import BasicAuthentication
 
-DEFAULT_USER_ID = "user_id"
+DEFAULT_USER_ID = "user-id"
 DEFAULT_USER_NAME = "Default User"
 
 
