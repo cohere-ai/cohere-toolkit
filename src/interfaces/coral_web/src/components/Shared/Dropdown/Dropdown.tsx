@@ -1,3 +1,5 @@
+'use client';
+
 import { Listbox } from '@headlessui/react';
 import { Fragment, useMemo, useState } from 'react';
 

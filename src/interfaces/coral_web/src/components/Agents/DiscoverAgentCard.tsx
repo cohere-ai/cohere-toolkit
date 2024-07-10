@@ -1,3 +1,5 @@
+'use client';
+
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
 import { Button, CoralLogo, Icon, Text } from '@/components/Shared';

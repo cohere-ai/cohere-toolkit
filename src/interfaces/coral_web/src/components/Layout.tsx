@@ -1,5 +1,7 @@
+'use client';
+
 import { capitalize } from 'lodash';
-import React, { Children, PropsWithChildren } from 'react';
+import React from 'react';
 
 import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
 import { MobileHeader } from '@/components/MobileHeader';
@@ -7,13 +9,12 @@ import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
 import { PageHead } from '@/components/Shared/PageHead';
 import { cn } from '@/utils/cn';
 
-export const LeftSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
-export const MainSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
-
 type Props = {
   title?: string;
   showSettingsDrawer?: boolean;
-} & PropsWithChildren;
+  leftElement?: React.ReactNode;
+  mainElement?: React.ReactNode;
+};
 
 /**
  * @description This component is in charge of layout out the entire page.
@@ -23,24 +24,9 @@ type Props = {
 export const Layout: React.FC<Props> = ({
   title = 'Chat',
   showSettingsDrawer = false,
-  children,
+  leftElement,
+  mainElement,
 }) => {
-  let leftElement: React.ReactNode = null;
-  let mainElement: React.ReactNode = null;
-
-  Children.toArray(children).forEach((child: React.ReactNode) => {
-    const element = child as React.ReactElement;
-
-    if (element.type === LeftSection) {
-      leftElement = child;
-      return;
-    }
-    if (element.type === MainSection) {
-      mainElement = child;
-      return;
-    }
-  });
-
   return (
     <>
       <PageHead title={capitalize(title)} />

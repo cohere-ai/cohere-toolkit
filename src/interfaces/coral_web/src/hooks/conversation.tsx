@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 import {
   ApiError,
@@ -128,7 +128,7 @@ export const useConversationActions = () => {
         resetCitations();
         resetFileParams();
         const newUrl = router.asPath.replace(`/c/${id}`, '');
-        router.push(newUrl, undefined, { shallow: true }); // go to new chat
+        router.push(newUrl); // go to new chat
       }
     };
 

@@ -1,3 +1,5 @@
+'use client';
+
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
 import { GoogleDriveToolArtifact } from '@/types/tools';

@@ -1,5 +1,7 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
@@ -35,12 +37,13 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   } = useAgentsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
+  const pathname = usePathname();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
 
   const handleNewChat = () => {
-    const url = agentId ? `/a/${agentId}` : router.asPath.includes('/a') ? '/a' : '/';
-    router.push(url, undefined, { shallow: true });
+    const url = agentId ? `/a/${agentId}` : pathname.includes('/a') ? '/a' : '/';
+    router.push(url);
     resetConversation();
     resetCitations();
     resetFileParams();
@@ -49,7 +52,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const handleToggleConfigSettings = () => {
     setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
 
-    if (welcomeGuideState === WelcomeGuideStep.ONE && router.pathname === '/') {
+    if (welcomeGuideState === WelcomeGuideStep.ONE && pathname === '/') {
       progressWelcomeGuideStep();
     } else if (welcomeGuideState !== WelcomeGuideStep.DONE) {
       finishWelcomeGuide();

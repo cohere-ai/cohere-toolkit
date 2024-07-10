@@ -1,3 +1,5 @@
+'use client';
+
 import { useClickOutside } from '@react-hookz/web';
 import { uniq, uniqBy } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';

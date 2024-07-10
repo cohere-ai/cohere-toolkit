@@ -1,3 +1,5 @@
+'use client';
+
 import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -9,7 +11,7 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
@@ -49,7 +51,7 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });

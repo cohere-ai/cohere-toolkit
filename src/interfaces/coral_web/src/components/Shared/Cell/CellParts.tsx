@@ -1,3 +1,5 @@
+'use client';
+
 import cx from 'classnames';
 
 import type { CellSize, CellTheme } from './cellTheming';

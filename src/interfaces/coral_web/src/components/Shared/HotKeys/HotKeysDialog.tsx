@@ -1,6 +1,8 @@
+'use client';
+
 import { Combobox, Dialog, Transition } from '@headlessui/react';
 import cx from 'classnames';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Fragment, useMemo, useState } from 'react';
 
 import { Icon, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';

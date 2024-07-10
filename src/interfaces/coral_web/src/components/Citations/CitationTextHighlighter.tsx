@@ -1,3 +1,5 @@
+'use client';
+
 import { PropsWithChildren, useMemo, useRef } from 'react';
 
 import { Citation } from '@/components/Citations/Citation';

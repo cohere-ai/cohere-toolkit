@@ -1,11 +1,13 @@
+'use client';
+
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -52,8 +54,8 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId, description } = conversation;
-  const router = useRouter();
-  const { agentId } = useSlugRoutes();
+  const pathname = usePathname();
+  const { agentId } = useChatRoutes();
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
@@ -95,7 +97,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
 
   const conversationUrl = agentId
     ? `/a/${agentId}/c/${conversationId}`
-    : router.asPath.includes('/a')
+    : pathname.includes('/a')
     ? `/a/c/${conversationId}`
     : `/c/${conversationId}`;
 

@@ -1,3 +1,5 @@
+'use client';
+
 import cx from 'classnames';
 
 interface LogoProps {

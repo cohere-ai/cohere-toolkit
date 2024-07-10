@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Options, useHotkeys } from 'react-hotkeys-hook';
 

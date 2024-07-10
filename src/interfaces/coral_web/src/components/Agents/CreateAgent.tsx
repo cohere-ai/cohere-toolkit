@@ -1,5 +1,7 @@
+'use client';
+
 import { useLocalStorageValue } from '@react-hookz/web';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
@@ -117,16 +119,16 @@ export const CreateAgent: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (router.query.p) {
-      if (pendingAssistant) {
-        setFields(pendingAssistant);
-        removePendingAssistant();
-      }
+  // useEffect(() => {
+  //   if (router.query.p) {
+  //     if (pendingAssistant) {
+  //       setFields(pendingAssistant);
+  //       removePendingAssistant();
+  //     }
 
-      window.history.replaceState(null, '', router.basePath + router.pathname);
-    }
-  }, [router.query.p, pendingAssistant]);
+  //     window.history.replaceState(null, '', router.basePath + router.pathname);
+  //   }
+  // }, [router.query.p, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
     open({
@@ -152,7 +154,7 @@ export const CreateAgent: React.FC = () => {
       setFields(DEFAULT_FIELD_VALUES);
       close();
       setIsSubmitting(false);
-      router.push(`/a/${agent.id}`, undefined, { shallow: true });
+      router.push(`/a/${agent.id}`);
     } catch (e) {
       setIsSubmitting(false);
       close();

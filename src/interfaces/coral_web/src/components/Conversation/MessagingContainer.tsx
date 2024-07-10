@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import { usePrevious, useTimeoutEffect } from '@react-hookz/web';
 import React, { ReactNode, forwardRef, memo, useEffect, useMemo, useState } from 'react';

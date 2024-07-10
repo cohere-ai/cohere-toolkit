@@ -1,3 +1,5 @@
+'use client';
+
 import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
 import { ComponentPropsWithoutRef } from 'react';
 

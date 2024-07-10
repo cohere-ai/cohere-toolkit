@@ -1,3 +1,5 @@
+'use client';
+
 import { Tab } from '@headlessui/react';
 import { ReactNode, isValidElement, useEffect, useRef } from 'react';
 

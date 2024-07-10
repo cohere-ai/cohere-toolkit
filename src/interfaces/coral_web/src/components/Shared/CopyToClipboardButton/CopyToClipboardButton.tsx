@@ -1,3 +1,5 @@
+'use client';
+
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
 import { Button, Icon, IconName, Tooltip } from '@/components/Shared';

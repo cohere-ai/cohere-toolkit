@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 
 import { Button, Text } from '@/components/Shared';

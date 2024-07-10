@@ -1,3 +1,5 @@
+'use client';
+
 import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
 import { useSettingsStore } from '@/stores';

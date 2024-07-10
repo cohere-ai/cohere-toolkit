@@ -1,3 +1,5 @@
+'use client';
+
 import { useLocalStorageValue } from '@react-hookz/web';
 import React, { useEffect, useState } from 'react';
 

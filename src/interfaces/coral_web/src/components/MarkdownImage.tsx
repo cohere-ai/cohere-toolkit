@@ -1,3 +1,5 @@
+'use client';
+
 import { Text } from '@/components/Shared';
 import { useCitationsStore } from '@/stores';
 

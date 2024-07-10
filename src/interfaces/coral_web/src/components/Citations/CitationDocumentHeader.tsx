@@ -1,3 +1,5 @@
+'use client';
+
 import { IconButton } from '@/components/IconButton';
 import { DocumentIcon, Icon, IconName, Text } from '@/components/Shared';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';

@@ -1,3 +1,5 @@
+'use client';
+
 import { Text, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 

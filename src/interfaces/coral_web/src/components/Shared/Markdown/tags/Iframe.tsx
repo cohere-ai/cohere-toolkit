@@ -1,3 +1,5 @@
+'use client';
+
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import type { Component } from 'hast-util-to-jsx-runtime/lib/components';
 import { Fragment, useEffect } from 'react';
