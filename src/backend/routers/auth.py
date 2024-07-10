@@ -20,6 +20,9 @@ from backend.services.auth.utils import (
     get_or_create_user,
     is_enabled_authentication_strategy,
 )
+from backend.services.logger import get_logger
+
+logger = get_logger()
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -231,12 +234,14 @@ async def login(request: Request, session: DBSessionDep):
         # Tool not found
         if not tool:
             err = f"Tool {tool_id} does not exist or is not available."
+            logger.error(err)
             redirect_err = f"{redirect_uri}?error={quote(err)}"
             return RedirectResponse(redirect_err)
 
         # Tool does not have Auth implemented
         if tool.auth_implementation is None:
             err = f"Tool {tool.name} does not have an auth_implementation required for Tool Auth."
+            logger.error(err)
             redirect_err = f"{redirect_uri}?error={quote(err)}"
             return RedirectResponse(redirect_err)
 
@@ -245,10 +250,12 @@ async def login(request: Request, session: DBSessionDep):
             err = tool_auth_service.retrieve_auth_token(request, session)
         except Exception as e:
             redirect_err = f"{redirect_uri}?error={quote(str(e))}"
+            logger.error(e)
             return RedirectResponse(redirect_err)
 
         if err:
             redirect_err = f"{redirect_uri}?error={quote(err)}"
+            logger.error(err)
             return RedirectResponse(redirect_err)
 
     response = RedirectResponse(redirect_uri)

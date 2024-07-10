@@ -28,7 +28,7 @@ class GoogleDrive(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        return False
+        return True
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         auth = tool_auth_crud.get_tool_auth(
@@ -198,11 +198,14 @@ class GoogleDriveAuth(BaseToolAuthentication):
             )
             return response
 
+        import pdb
+
+        pdb.set_trace()
         tool_auth_crud.create_tool_auth(
             session,
             ToolAuth(
                 user_id=state["user_id"],
-                tool_id=self.NAME,
+                tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
                 encrypted_refresh_token=encrypt(response_body["refresh_token"]),

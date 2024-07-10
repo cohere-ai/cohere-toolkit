@@ -150,10 +150,10 @@ ALL_TOOLS = {
                 "required": True,
             }
         },
-        is_visible=False,
+        is_visible=True,
         is_available=GoogleDrive.is_available(),
         auth_implementation=GoogleDriveAuth,
-        error_message="Google Drive not available",
+        error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
     ),
