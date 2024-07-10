@@ -67,7 +67,9 @@ class GoogleDrive(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
-        index_name = "{}_{}".format(agent_id, GOOGLE_DRIVE_TOOL_ID)
+        index_name = "{}_{}".format(
+            agent_id if agent_id is not None else user_id, GOOGLE_DRIVE_TOOL_ID
+        )
         query = parameters.get("query", "").replace("'", "\\'")
         conditions = [
             "("
@@ -89,17 +91,18 @@ class GoogleDrive(BaseTool):
         # fetch agent tool metadata
         file_ids = []
         folder_ids = []
-        agent_metadata = get_all_agent_tool_metadata_by_agent_id(
-            db=session, agent_id=agent_id
-        )
-        for metadata in agent_metadata:
-            if metadata.tool_name == GOOGLE_DRIVE_TOOL_ID:
-                artifacts = metadata.artifacts
-                for artifact in artifacts:
-                    if artifact["type"] == "folder":
-                        folder_ids.append(artifact["id"])
-                    else:
-                        file_ids.append(artifact["id"])
+        if agent_id:
+            agent_metadata = get_all_agent_tool_metadata_by_agent_id(
+                db=session, agent_id=agent_id
+            )
+            for metadata in agent_metadata:
+                if metadata.tool_name == GOOGLE_DRIVE_TOOL_ID:
+                    artifacts = metadata.artifacts
+                    for artifact in artifacts:
+                        if artifact["type"] == "folder":
+                            folder_ids.append(artifact["id"])
+                        else:
+                            file_ids.append(artifact["id"])
 
         # Condition on files if exist
         files = []
@@ -192,6 +195,8 @@ class GoogleDrive(BaseTool):
             **id_to_texts,
             **non_native_results,
         }
+        print("id_to_texts")
+        print(id_to_texts)
 
         if not id_to_texts:
             return [{"text": ""}]
