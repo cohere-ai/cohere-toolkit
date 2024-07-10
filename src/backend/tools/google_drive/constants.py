@@ -13,6 +13,7 @@ NATIVE_SEARCH_MIME_TYPES = [
 ]
 NON_NATIVE_SEARCH_MIME_TYPES = [
     "application/vnd.google-apps.shortcut",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/pdf",
 ]
 SEARCH_MIME_TYPES = NATIVE_SEARCH_MIME_TYPES + NON_NATIVE_SEARCH_MIME_TYPES
