@@ -1,7 +1,5 @@
 from typing import Any, Dict, List
 
-from pypdf import PdfReader
-
 import backend.crud.file as file_crud
 from backend.tools.base import BaseTool
 
@@ -68,6 +66,11 @@ class SearchFileTool(BaseTool):
         if not query or not file_names:
             return []
 
+        file_names = [
+            file_name.encode("ascii", "ignore").decode("utf-8")
+            for file_name in file_names
+        ]
+
         files = file_crud.get_files_by_file_names(session, file_names, user_id)
 
         if not files:
@@ -84,13 +87,3 @@ class SearchFileTool(BaseTool):
             )
 
         return results
-
-
-def get_file_content(file_path):
-    # Currently only supports PDF files
-    loader = PdfReader(file_path)
-    text = ""
-    for page in loader.pages:
-        text += page.extract_text() + "\n"
-
-    return text
