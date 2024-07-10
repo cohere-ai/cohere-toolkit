@@ -59,7 +59,11 @@ class TavilyInternetSearch(BaseTool):
         ]
 
     async def rerank_page_snippets(
-        self, query: str, snippets: List[Dict[str, Any]], model: BaseDeployment, **kwargs: Any
+        self,
+        query: str,
+        snippets: List[Dict[str, Any]],
+        model: BaseDeployment,
+        **kwargs: Any,
     ) -> List[Dict[str, Any]]:
         if len(snippets) == 0:
             return []
@@ -74,7 +78,7 @@ class TavilyInternetSearch(BaseTool):
                     f"{snippet['title']} {snippet['content']}"
                     for snippet in snippet_batch
                 ],
-                **kwargs
+                **kwargs,
             )
             print("debug tavily rerank", batch_output)
             for b in batch_output.get("results", []):
