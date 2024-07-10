@@ -17,6 +17,8 @@ from .constants import (
     COMPASS_UPDATE_INTERVAL,
     DOC_FIELDS,
     GOOGLE_DRIVE_TOOL_ID,
+    NATIVE_SEARCH_MIME_TYPES,
+    NON_NATIVE_SEARCH_MIME_TYPES,
     SEARCH_LIMIT,
     SEARCH_MIME_TYPES,
 )
@@ -24,7 +26,8 @@ from .utils import (
     extract_links,
     extract_titles,
     extract_web_view_links,
-    process_non_native_files,
+    non_native_files_perform,
+    process_shortcut_files,
 )
 
 logger = get_logger()
@@ -32,7 +35,7 @@ logger = get_logger()
 
 class GoogleDrive(BaseTool):
     """
-    Experimental (In development): Tool that searches Google Drive
+    Tool that searches Google Drive
     """
 
     NAME = GOOGLE_DRIVE_TOOL_ID
@@ -147,24 +150,28 @@ class GoogleDrive(BaseTool):
         if not files:
             return [{"text": ""}]
 
-        # extract links and download file contents
-        processed_files = process_non_native_files(service, files)
-        id_to_urls = extract_links(processed_files)
+        # post process files
+        processed_files = process_shortcut_files(service, files)
         web_view_links = extract_web_view_links(processed_files)
         titles = extract_titles(processed_files)
-        if not id_to_urls:
-            return [{"text": ""}]
-        id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
 
-        """
-        Compass logic
-        """
+        id_to_texts = {}
+
+        # native files
+        native_files = [
+            x for x in processed_files if x["mimeType"] in NATIVE_SEARCH_MIME_TYPES
+        ]
+        id_to_urls = extract_links(native_files)
+        if id_to_urls:
+            id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
+
+        # initialize Compass
         compass = None
         try:
             compass = Compass()
         except Exception as e:
             # Compass is not available. Using without Compass
-            logger.info(str(e))
+            logger.info("Compass Error: {}".format(str(e)))
             return [
                 {
                     "text": id_to_texts[idd],
@@ -174,6 +181,24 @@ class GoogleDrive(BaseTool):
                 for idd in id_to_texts
             ]
 
+        # non-native files
+        non_native_files = [
+            x for x in processed_files if x["mimeType"] in NON_NATIVE_SEARCH_MIME_TYPES
+        ]
+        non_native_results = await non_native_files_perform(
+            service=service, compass=compass, files=non_native_files
+        )
+        id_to_texts = {
+            **id_to_texts,
+            **non_native_results,
+        }
+
+        if not id_to_texts:
+            return [{"text": ""}]
+
+        """
+        Compass logic
+        """
         # idempotent create index
         compass.invoke(
             action=Compass.ValidActions.CREATE_INDEX,
