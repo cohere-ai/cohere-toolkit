@@ -195,8 +195,6 @@ class GoogleDrive(BaseTool):
             **id_to_texts,
             **non_native_results,
         }
-        print("id_to_texts")
-        print(id_to_texts)
 
         if not id_to_texts:
             return [{"text": ""}]
