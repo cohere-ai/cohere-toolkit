@@ -36,6 +36,7 @@ class ToolName(StrEnum):
     Calculator = Calculator.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
+    Web_Scrape = WebScrapeTool.NAME
 
 
 ALL_TOOLS = {

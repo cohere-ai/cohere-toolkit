@@ -94,7 +94,7 @@ class CohereDeployment(BaseDeployment):
     ) -> Any:
         print("debug invoke rerank", query, documents, kwargs)
         res = self.client.rerank(
-            query=query, documents=documents, model=DEFAULT_RERANK_MODEL, **kwargs
+            query=query, documents=documents, model=DEFAULT_RERANK_MODEL
         )
         print("debug rerank response", res)
         return res

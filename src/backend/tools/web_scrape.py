@@ -7,11 +7,13 @@ from backend.tools.base import BaseTool
 
 
 class WebScrapeTool(BaseTool):
+    NAME = "web_scrape"
+
     @classmethod
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         url = parameters.get("url")
 
         response = get(url)
