@@ -3,10 +3,13 @@ import os
 from typing import Any, Dict, Mapping
 
 import requests
+from dotenv import load_dotenv
 from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
 from backend.tools.base import BaseTool
+
+load_dotenv()
 
 
 class LangchainPythonInterpreterToolInput(BaseModel):
@@ -19,18 +22,19 @@ class PythonInterpreter(BaseTool):
     It requires a URL at which the interpreter lives
     """
 
-    interpreter_url = os.environ.get("PYTHON_INTERPRETER_URL")
+    NAME = "toolkit_python_interpreter"
+    INTERPRETER_URL = os.environ.get("PYTHON_INTERPRETER_URL")
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.interpreter_url is not None
+        return cls.INTERPRETER_URL is not None
 
     def call(self, parameters: dict, **kwargs: Any):
-        if not self.interpreter_url:
+        if not self.INTERPRETER_URL:
             raise Exception("Python Interpreter tool called while URL not set")
 
         code = parameters.get("code", "")
-        res = requests.post(self.interpreter_url, json={"code": code})
+        res = requests.post(self.INTERPRETER_URL, json={"code": code})
         clean_res = self._clean_response(res.json())
 
         return clean_res

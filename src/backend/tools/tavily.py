@@ -8,14 +8,15 @@ from backend.tools.base import BaseTool
 
 
 class TavilyInternetSearch(BaseTool):
-    tavily_api_key = os.environ.get("TAVILY_API_KEY")
+    NAME = "web_search"
+    TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
 
     def __init__(self):
-        self.client = TavilyClient(api_key=self.tavily_api_key)
+        self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.tavily_api_key is not None
+        return cls.TAVILY_API_KEY is not None
 
     def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")

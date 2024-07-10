@@ -1,6 +1,9 @@
 import io
 import json
+import logging
 import os
+import threading
+import time
 from typing import Any, Dict, Generator, List
 
 import boto3
@@ -9,6 +12,11 @@ from cohere.types import StreamedChatResponse
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.services.metrics import (
+    collect_metrics_chat,
+    collect_metrics_chat_stream,
+    collect_metrics_rerank,
+)
 
 SAGE_MAKER_ACCESS_KEY_ENV_VAR = "SAGE_MAKER_ACCESS_KEY"
 SAGE_MAKER_SECRET_KEY_ENV_VAR = "SAGE_MAKER_SECRET_KEY"
@@ -70,6 +78,7 @@ class SageMakerDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
+    @collect_metrics_chat_stream
     def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
@@ -91,37 +100,9 @@ class SageMakerDeployment(BaseDeployment):
             stream_event["index"] = index
             yield stream_event
 
-    def invoke_search_queries(
-        self,
-        message: str,
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> list[str]:
-        # Create the payload for the request
-        json_params = {
-            "search_queries_only": True,
-            "message": message,
-            "chat_history": chat_history,
-        }
-        self.params["Body"] = json.dumps(json_params)
-
-        # Invoke the model and print the response
-        result = self.client.invoke_endpoint(**self.params)
-        response = json.loads(result["Body"].read().decode())
-        return [s["text"] for s in response["search_queries"]]
-
     def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        return None
-
-    def invoke_tools(
-        self,
-        message: str,
-        tools: List[Any],
-        chat_history: List[Dict[str, str]] | None = None,
-        **kwargs: Any,
-    ) -> Generator[StreamedChatResponse, None, None]:
         return None
 
     # This class iterates through each line of Sagemaker's response

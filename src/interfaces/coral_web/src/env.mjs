@@ -7,10 +7,12 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_API_HOSTNAME: z.string(),
+    NEXT_PUBLIC_FRONTEND_HOSTNAME: z.string().optional().default('http://localhost:4000'),
     NEXT_PUBLIC_HAS_CUSTOM_LOGO: z.string().optional().default('false'),
   },
   runtimeEnv: {
     NEXT_PUBLIC_API_HOSTNAME: process.env.NEXT_PUBLIC_API_HOSTNAME,
+    NEXT_PUBLIC_FRONTEND_HOSTNAME: process.env.NEXT_PUBLIC_FRONTEND_HOSTNAME,
     NEXT_PUBLIC_HAS_CUSTOM_LOGO: process.env.NEXT_PUBLIC_HAS_CUSTOM_LOGO,
   },
   emptyStringAsUndefined: true,

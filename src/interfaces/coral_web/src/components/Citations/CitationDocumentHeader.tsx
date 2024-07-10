@@ -1,12 +1,12 @@
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { DocumentIcon, Icon, IconName, Text } from '@/components/Shared';
-import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_INTERNET_SEARCH_ID } from '@/constants';
+import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';
 import { cn, getSafeUrl, getWebDomain } from '@/utils';
 
 const getWebSourceName = (toolId?: string) => {
   if (!toolId) {
     return '';
-  } else if (toolId === TOOL_INTERNET_SEARCH_ID) {
+  } else if (toolId === TOOL_WEB_SEARCH_ID) {
     return 'from the web';
   }
   return `from ${toolId}`;
@@ -44,11 +44,11 @@ export const CitationDocumentHeader: React.FC<Props> = ({
   const hasUrl = url !== '';
   const safeUrl = hasUrl ? getSafeUrl(url) : undefined;
 
-  const isFile = !toolId && !hasUrl && title;
+  const isFile = !toolId && !hasUrl && title && title.length > 0;
   const isTool = !!toolId && !hasUrl && !!TOOL_ID_TO_DISPLAY_INFO[toolId];
   const toolDisplayInfo = toolId ? TOOL_ID_TO_DISPLAY_INFO[toolId] : undefined;
   // The title field is provided for web search documents and files, but not for tools.
-  const displayTitle = (title || toolDisplayInfo?.name) ?? toolId;
+  const displayTitle = title ?? toolId;
   const icon: IconName | undefined = hasUrl
     ? undefined
     : isFile

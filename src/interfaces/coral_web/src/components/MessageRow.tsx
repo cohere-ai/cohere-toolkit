@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useState } from 'react';
 import { useLongPress } from 'react-aria';
 
 import { Avatar } from '@/components/Avatar';
-import IconButton from '@/components/IconButton';
+import { IconButton } from '@/components/IconButton';
 import { LongPressMenu } from '@/components/LongPressMenu';
 import { MessageContent } from '@/components/MessageContent';
 import {
@@ -16,6 +16,7 @@ import {
 import { ToolEvents } from '@/components/ToolEvents';
 import { ReservedClasses } from '@/constants';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
+import { useChat } from '@/hooks/chat';
 import { getMessageRowId } from '@/hooks/citations';
 import { useCitationsStore } from '@/stores';
 import {
@@ -32,6 +33,7 @@ import { cn } from '@/utils';
 type Props = {
   isLast: boolean;
   message: ChatMessage;
+  isStreamingToolEvents: boolean;
   delay?: boolean;
   className?: string;
   onCopy?: VoidFunction;
@@ -42,14 +44,14 @@ type Props = {
  * Renders a single message row from the user or from our models.
  */
 const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal(
-  { message, delay = false, isLast, className = '', onCopy, onRetry },
+  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry },
   ref
 ) {
   const breakpoint = useBreakpoint();
 
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
-  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(isLast);
+  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
   const {
     citations: { selectedCitation, hoveredGenerationId },
     hoverCitation,
@@ -81,12 +83,6 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
       setTimeout(() => setIsShowing(true), 300);
     }
   }, []);
-
-  useEffect(() => {
-    if (isLast) {
-      setIsStepsExpanded(true);
-    }
-  }, [isLast]);
 
   const [highlightMessage, setHighlightMessage] = useState(false);
   const prevSelectedCitationGenId = usePreviousDistinct(selectedCitation?.generationId);
@@ -180,7 +176,13 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
           <Avatar message={message} />
           <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-3 md:flex-row">
             <div className="w-full">
-              {hasSteps && <ToolEvents show={isStepsExpanded} events={message.toolEvents} />}
+              {hasSteps && (
+                <ToolEvents
+                  show={isStepsExpanded}
+                  events={message.toolEvents}
+                  isStreaming={isStreamingToolEvents}
+                />
+              )}
 
               <MessageContent isLast={isLast} message={message} onRetry={onRetry} />
             </div>

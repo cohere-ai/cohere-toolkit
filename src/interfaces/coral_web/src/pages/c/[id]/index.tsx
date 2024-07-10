@@ -17,6 +17,7 @@ import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
+import { getQueryString } from '@/utils';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
@@ -29,6 +30,7 @@ const ConversationPage: NextPage<Props> = () => {
   const {
     params: { deployment },
     setParams,
+    resetFileParams,
   } = useParamsStore();
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
@@ -36,9 +38,7 @@ const ConversationPage: NextPage<Props> = () => {
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
 
-  const urlConversationId = Array.isArray(router.query.id)
-    ? router.query.id[0]
-    : (router.query.id as string);
+  const urlConversationId = getQueryString(router.query.id);
 
   const {
     data: conversation,
@@ -66,6 +66,8 @@ const ConversationPage: NextPage<Props> = () => {
 
   useEffect(() => {
     resetCitations();
+    resetFileParams();
+    setParams({ tools: [] });
 
     if (urlConversationId) {
       setConversation({ id: urlConversationId });
@@ -166,7 +168,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }),
     deps.queryClient.prefetchQuery({
       queryKey: ['deployments'],
-      queryFn: async () => await deps.cohereClient.listDeployments(),
+      queryFn: async () => await deps.cohereClient.listDeployments({}),
     }),
   ]);
 

@@ -1,5 +1,4 @@
 FROM python:3.11
-
 # Keeps Python from generating .pyc files in the container
 # Turns off buffering for easier container logging
 # Force UTF8 encoding for funky character handling

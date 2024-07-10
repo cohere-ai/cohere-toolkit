@@ -1,8 +1,10 @@
 import os
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from backend.config.deployments import ModelDeploymentName
 from backend.database_models import Citation, Conversation, Document, File, Message
 from backend.tests.factories import get_factory
 
@@ -25,6 +27,63 @@ def test_list_conversations(session_client: TestClient, session: Session) -> Non
 
     assert response.status_code == 200
     assert len(results) == 1
+
+
+def test_list_conversations_with_agent(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        id="agent_id", name="test agent", user_id="123"
+    )
+    conversation1 = get_factory("Conversation", session).create(
+        agent_id="agent_id", user_id="123"
+    )
+    _ = get_factory("Conversation", session).create(user_id="123")
+
+    response = session_client.get(
+        "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
+    )
+    results = response.json()
+
+    assert response.status_code == 200
+    assert len(results) == 1
+
+    conversation = results[0]
+    assert conversation["id"] == conversation1.id
+
+
+def test_list_conversation_with_deleted_agent(
+    session_client: TestClient, session: Session
+) -> None:
+    agent = get_factory("Agent", session).create(
+        id="agent_id", name="test agent", user_id="123"
+    )
+    conversation = get_factory("Conversation", session).create(
+        agent_id="agent_id", user_id="123"
+    )
+
+    response = session_client.get(
+        "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
+    )
+    results = response.json()
+
+    assert response.status_code == 200
+    assert len(results) == 1
+    assert results[0]["id"] == conversation.id
+
+    # Delete agent and check that conversation is also deleted
+    response = session_client.delete(
+        f"/v1/agents/{agent.id}", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 200
+
+    response = session_client.get(
+        "/v1/conversations", headers={"User-Id": "123"}, params={"agent_id": "agent_id"}
+    )
+    results = response.json()
+
+    assert response.status_code == 200
+    assert len(results) == 0
 
 
 def test_list_conversations_missing_user_id(
@@ -336,7 +395,73 @@ def test_delete_conversation_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
-# # FILES
+def test_search_conversations(session_client: TestClient, session: Session) -> None:
+    conversation = get_factory("Conversation", session).create(title="test title")
+    response = session_client.get(
+        "/v1/conversations:search",
+        headers={"User-Id": conversation.user_id},
+        params={"query": "test"},
+    )
+    results = response.json()
+
+    assert response.status_code == 200
+    assert len(results) == 1
+    assert results[0]["id"] == conversation.id
+
+
+@pytest.mark.skipif(
+    os.environ.get("COHERE_API_KEY") is None,
+    reason="Cohere API key not set, skipping test",
+)
+def test_search_conversations_with_reranking(
+    session_client: TestClient, session: Session
+) -> None:
+    conversation1 = get_factory("Conversation", session).create(
+        title="Roses are red, violets are blue", text_messages=[]
+    )
+    conversation2 = get_factory("Conversation", session).create(
+        title="There are are seven colors in the rainbow",
+        text_messages=[],
+        user_id=conversation1.user_id,
+    )
+    response = session_client.get(
+        "/v1/conversations:search",
+        headers={
+            "User-Id": conversation1.user_id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        params={"query": "color"},
+    )
+    results = response.json()
+
+    assert response.status_code == 200
+    assert len(results) == 2
+
+
+def test_search_conversations_missing_user_id(
+    session_client: TestClient, session: Session
+) -> None:
+    conversation = get_factory("Conversation", session).create(title="test title")
+    response = session_client.get("/v1/conversations:search", params={"query": "test"})
+    results = response.json()
+
+    assert response.status_code == 401
+    assert results == {"detail": "User-Id required in request headers."}
+
+
+def test_search_conversations_no_conversations(
+    session_client: TestClient, session: Session
+) -> None:
+    _ = get_factory("Conversation", session).create(title="test title", user_id="1")
+    response = session_client.get(
+        "/v1/conversations:search", headers={"User-Id": "123"}, params={"query": "test"}
+    )
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+# FILES
 def test_list_files(session_client: TestClient, session: Session) -> None:
     conversation = get_factory("Conversation", session).create()
     file = get_factory("File", session).create(
@@ -401,8 +526,8 @@ def test_upload_file_existing_conversation(
     assert file["conversation_id"] == conversation.id
     assert file["user_id"] == conversation.user_id
 
-    # Clean up - remove the file from the directory
-    os.remove(saved_file_path)
+    # File should not exist in the directory
+    assert not os.path.exists(saved_file_path)
 
 
 def test_upload_file_nonexistent_conversation_creates_new_conversation(
@@ -429,8 +554,8 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
     assert "Mariana_Trench" in file["file_name"]
     assert file["conversation_id"] == created_conversation.id
 
-    # Clean up - remove the file from the directory
-    os.remove(saved_file_path)
+    # File should not exist in the directory
+    assert not os.path.exists(saved_file_path)
 
 
 def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
@@ -571,3 +696,46 @@ def test_fail_delete_file_missing_user_id(
 
     assert response.status_code == 401
     assert response.json() == {"detail": "User-Id required in request headers."}
+
+
+# MISC
+def test_generate_title(session_client: TestClient, session: Session) -> None:
+    conversation = get_factory("Conversation", session).create()
+    response = session_client.post(
+        f"/v1/conversations/{conversation.id}/generate-title",
+        headers={"User-Id": conversation.user_id},
+    )
+    title = response.json()
+
+    assert response.status_code == 200
+    assert title["title"] is not None
+
+    # Check if the conversation was updated
+    conversation = (
+        session.query(Conversation)
+        .filter_by(id=conversation.id, user_id=conversation.user_id)
+        .first()
+    )
+    assert conversation is not None
+    assert conversation.title == title["title"]
+
+
+def test_fail_generate_title_missing_user_id(
+    session_client: TestClient, session: Session
+) -> None:
+    conversation = get_factory("Conversation", session).create()
+    response = session_client.post(
+        f"/v1/conversations/{conversation.id}/generate-title"
+    )
+    assert response.status_code == 401
+    assert response.json() == {"detail": "User-Id required in request headers."}
+
+
+def test_fail_generate_title_nonexistent_conversation(
+    session_client: TestClient, session: Session
+) -> None:
+    response = session_client.post(
+        "/v1/conversations/123/generate-title", headers={"User-Id": "123"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}

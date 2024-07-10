@@ -1,8 +1,12 @@
 import { Transition } from '@headlessui/react';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useRecentAgents } from '@/hooks/agents';
+import { getIsTouchDevice } from '@/hooks/breakpoint';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -19,12 +23,40 @@ type Props = {
  * If the agent is a base agent, it shows the Coral logo instead.
  */
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
+  const isTouchDevice = getIsTouchDevice();
+  const { agentId } = useSlugRoutes();
+  const isActive = isBaseAgent ? !agentId : agentId === id;
+  const router = useRouter();
+
+  const { removeRecentAgentId } = useRecentAgents();
+  const { setEditAgentPanelOpen } = useAgentsStore();
+  const { resetConversation } = useConversationStore();
+  const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
+
+  const handleNewChat = () => {
+    const url = id ? `/agents/${id}` : '/agents';
+    router.push(url, undefined, { shallow: true });
+    setEditAgentPanelOpen(false);
+    resetConversation();
+    resetCitations();
+    resetFileParams();
+  };
+
+  const handleHideAssistant = () => {
+    if (id) removeRecentAgentId(id);
+  };
+
   return (
     <Tooltip label={name} placement="right" hover={!isExpanded}>
-      <Link
-        href={isBaseAgent ? '/agents' : `/agents?id=${id}`}
-        className="flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:bg-marble-300"
-        shallow
+      <div
+        onClick={handleNewChat}
+        className={cn(
+          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-marble-300',
+          {
+            'bg-marble-300': isActive,
+          }
+        )}
       >
         <div
           className={cn(
@@ -61,21 +93,24 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
         >
           <KebabMenu
             anchor="right start"
+            className={cn('flex', {
+              'hidden group-hover:flex': !isTouchDevice,
+            })}
             items={[
               {
                 label: 'New chat',
-                href: `/agents?id=${id}`,
+                onClick: handleNewChat,
                 iconName: 'new-message',
               },
               {
                 label: 'Hide assistant',
-                onClick: () => {},
+                onClick: handleHideAssistant,
                 iconName: 'hide',
               },
             ]}
           />
         </Transition>
-      </Link>
+      </div>
     </Tooltip>
   );
 };

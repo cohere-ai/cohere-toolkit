@@ -13,6 +13,8 @@ class WolframAlpha(BaseTool):
     See: https://python.langchain.com/docs/integrations/tools/wolfram_alpha/
     """
 
+    NAME = "wolfram_alpha"
+
     wolfram_app_id = os.environ.get("WOLFRAM_APP_ID")
 
     def __init__(self):

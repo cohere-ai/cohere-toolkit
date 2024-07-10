@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { useRef } from 'react';
 
 import {
+  ApiError,
   CohereNetworkError,
   Conversation,
   ConversationWithoutMessages,
+  DeleteConversation,
   UpdateConversation,
   useCohereClient,
 } from '@/cohere-client';
@@ -13,31 +14,26 @@ import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
 import { useNotify } from '@/hooks/toast';
-import { useCitationsStore, useConversationStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { isAbortError } from '@/utils';
 
-export const useConversations = () => {
-  const abortControllerRef = useRef<AbortController | null>(null);
+export const useConversations = (params: { offset?: number; limit?: number; agentId?: string }) => {
   const client = useCohereClient();
 
-  return useQuery<ConversationWithoutMessages[], Error>({
-    queryKey: ['conversations'],
+  return useQuery<ConversationWithoutMessages[], ApiError>({
+    queryKey: ['conversations', params.agentId],
     queryFn: async () => {
-      try {
-        const conversations = await client.listConversations({
-          signal: abortControllerRef.current?.signal,
-        });
+      const conversations = await client.listConversations(params);
+
+      if (params.agentId) {
         return conversations;
-      } catch (e) {
-        if (!isAbortError(e)) {
-          console.error(e);
-          throw e;
-        }
-        return [];
       }
+
+      return conversations.filter((c) => c.agent_id === null);
     },
     retry: 0,
     refetchOnWindowFocus: false,
+    initialData: [],
   });
 };
 
@@ -48,24 +44,22 @@ export const useConversation = ({
   conversationId?: string;
   disabledOnMount?: boolean;
 }) => {
-  const abortControllerRef = useRef<AbortController | null>(null);
   const client = useCohereClient();
 
-  return useQuery<Conversation, Error>({
+  return useQuery<Conversation | undefined, Error>({
     queryKey: ['conversation', conversationId],
     enabled: !!conversationId && !disabledOnMount,
     queryFn: async () => {
       try {
+        if (!conversationId) throw new Error('Conversation ID not found');
         return await client.getConversation({
-          conversationId: conversationId ?? '',
-          signal: abortControllerRef.current?.signal,
+          conversationId: conversationId,
         });
       } catch (e) {
         if (!isAbortError(e)) {
           console.error(e);
           throw e;
         }
-        return {} as Conversation;
       }
     },
     retry: 0,
@@ -79,16 +73,9 @@ export const useEditConversation = () => {
   return useMutation<
     Conversation,
     CohereNetworkError,
-    Omit<UpdateConversation, 'user_id'> & { conversationId: string }
+    { request: UpdateConversation; conversationId: string }
   >({
-    mutationFn: async (request) => {
-      try {
-        return await client.editConversation(request);
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
-    },
+    mutationFn: ({ request, conversationId }) => client.editConversation(request, conversationId),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
@@ -98,10 +85,9 @@ export const useEditConversation = () => {
 export const useDeleteConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<{}, CohereNetworkError, { conversationId: string }>({
-    mutationFn: async ({ conversationId }: { conversationId: string }) => {
-      return await client.deleteConversation({ conversationId });
-    },
+  return useMutation<DeleteConversation, CohereNetworkError, { conversationId: string }>({
+    mutationFn: ({ conversationId }: { conversationId: string }) =>
+      client.deleteConversation({ conversationId }),
     onSettled: (_, _err, { conversationId }: { conversationId: string }) => {
       queryClient.setQueriesData<Conversation[]>(
         { queryKey: ['conversations'] },
@@ -122,6 +108,7 @@ export const useConversationActions = () => {
     resetConversation,
   } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
   const notify = useNotify();
   const { mutateAsync: deleteConversation, isPending } = useDeleteConversation();
 
@@ -139,6 +126,7 @@ export const useConversationActions = () => {
       if (id === conversationId) {
         resetConversation();
         resetCitations();
+        resetFileParams();
         router.push('/', undefined, { shallow: true }); // go to new chat
       }
     };

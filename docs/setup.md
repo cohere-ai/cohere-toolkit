@@ -5,9 +5,13 @@
 Try the default Toolkit application yourself by deploying it in a container locally. You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed.
 
 ```bash
-
 docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
+```
 
+If you need to use community features, you can run the container with the following command:
+
+```bash
+docker run -e INSTALL_COMMUNITY_DEPS='true' -e COHERE_API='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
 ```
 
 Go to localhost:4000 in your browser and start chatting with the model. This will use the model hosted on Cohere's platform. If you want to add your own tools or use another model, follow the instructions below to fork the repository.
@@ -123,6 +127,7 @@ And then retry `poetry --version`
 - `COHERE_API_KEY`: If your application will interface with Cohere's API, you will need to supply an API key. Not required if using AWS Sagemaker or Azure.
   Sign up at https://dashboard.cohere.com/ to create an API key.
 - `NEXT_PUBLIC_API_HOSTNAME`: The backend URL which the frontend will communicate with. Defaults to http://backend:8000 for use with `docker compose`
+- `FRONTEND_HOSTNAME`: The URL for the frontend client. Defaults to http://localhost:4000
 - `DATABASE_URL`: Your PostgreSQL database connection string for SQLAlchemy, should follow the format `postgresql+psycopg2://USER:PASSWORD@HOST:PORT`.
 
 ### AWS Sagemaker
@@ -214,6 +219,11 @@ Install your dependencies:
 
 ```bash
 poetry install
+```
+
+if you need to install the community features, run:
+```bash
+poetry install --with community
 ```
 
 Run linters:

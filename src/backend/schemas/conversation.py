@@ -9,6 +9,7 @@ from backend.schemas.message import Message
 
 class ConversationBase(BaseModel):
     user_id: str
+    organization_id: Optional[str] = None
 
 
 class Conversation(ConversationBase):
@@ -20,6 +21,7 @@ class Conversation(ConversationBase):
     messages: List[Message]
     files: List[File]
     description: Optional[str]
+    agent_id: Optional[str]
 
     @computed_field(return_type=int)
     def total_file_size(self):
@@ -43,3 +45,7 @@ class UpdateConversation(BaseModel):
 
 class DeleteConversation(BaseModel):
     pass
+
+
+class GenerateTitle(BaseModel):
+    title: str

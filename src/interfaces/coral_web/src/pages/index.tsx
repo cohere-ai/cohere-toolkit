@@ -25,6 +25,7 @@ const ChatPage: NextPage<Props> = () => {
   const {
     params: { deployment },
     setParams,
+    resetFileParams,
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
   const { data: experimentalFeatures } = useExperimentalFeatures();
@@ -34,6 +35,7 @@ const ChatPage: NextPage<Props> = () => {
   useEffect(() => {
     resetConversation();
     resetCitations();
+    resetFileParams();
   }, []);
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
     }),
     deps.queryClient.prefetchQuery({
       queryKey: ['deployments'],
-      queryFn: async () => await deps.cohereClient.listDeployments(),
+      queryFn: async () => await deps.cohereClient.listDeployments({}),
     }),
   ]);
 

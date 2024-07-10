@@ -47,6 +47,147 @@ def test_streaming_new_chat(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_new_chat_with_agent(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(
+        user_id=user.id,
+        tools=[],
+        name="test agent",
+        preamble="you are a smart assistant",
+    )
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Hello", "max_tokens": 10},
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_response(
+        response, user, session_chat, session_client_chat, 2
+    )
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_new_chat_with_agent_existing_conversation(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(
+        user_id=user.id,
+        tools=[],
+        name="test agent",
+        preamble="you are a smart assistant",
+    )
+    conversation = get_factory("Conversation", session_chat).create(
+        user_id=user.id, agent_id=agent.id
+    )
+    _ = get_factory("Message", session_chat).create(
+        conversation_id=conversation.id,
+        user_id=user.id,
+        agent="USER",
+        text="Hello",
+        position=1,
+        is_active=True,
+    )
+
+    _ = get_factory("Message", session_chat).create(
+        conversation_id=conversation.id,
+        user_id=user.id,
+        agent="CHATBOT",
+        text="Hi",
+        position=2,
+        is_active=True,
+    )
+
+    session_chat.refresh(conversation)
+
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_response(
+        response, user, session_chat, session_client_chat, 4
+    )
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_with_existing_conversation_from_other_agent(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(user_id=user.id)
+    _ = get_factory("Agent", session_chat).create(user_id=user.id, id="123")
+    conversation = get_factory("Conversation", session_chat).create(
+        user_id=user.id, agent_id="123"
+    )
+    _ = get_factory("Message", session_chat).create(
+        conversation_id=conversation.id,
+        user_id=user.id,
+        agent="USER",
+        text="Hello",
+        position=1,
+        is_active=True,
+    )
+
+    _ = get_factory("Message", session_chat).create(
+        conversation_id=conversation.id,
+        user_id=user.id,
+        agent="CHATBOT",
+        text="Hi",
+        position=2,
+        is_active=True,
+    )
+
+    session_chat.refresh(conversation)
+
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": f"Conversation ID {conversation.id} not found for specified agent."
+    }
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_with_tools_not_in_agent_tools(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(user_id=user.id, tools=[])
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Hello", "max_tokens": 10, "tools": [{"name": "web_search"}]},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": f"Tool web_search not found in agent {agent.id}"
+    }
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):

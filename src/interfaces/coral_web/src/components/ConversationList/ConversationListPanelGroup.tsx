@@ -58,7 +58,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
         updatedAt: c.updated_at,
         conversationId: c.id,
         title: c.title,
-        // description: c.,
+        description: c.description,
       });
     });
 
