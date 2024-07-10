@@ -1,6 +1,6 @@
 from backend.crud import user as user_crud
 from backend.database_models.user import User
-from backend.schemas.user import UpdateUser
+from backend.schemas.user import DEFAULT_USER_NAME, UpdateUser
 from backend.tests.factories import get_factory
 
 
@@ -35,13 +35,11 @@ def test_list_users(session):
     _ = get_factory("User", session).create(fullname="John Doe")
 
     users = user_crud.get_users(session)
-    assert len(users) == 1
-    assert users[0].fullname == "John Doe"
+    assert len(users) == 2
 
-
-def test_list_users_empty(session):
-    users = user_crud.get_users(session)
-    assert len(users) == 0
+    user_names = [user.fullname for user in users]
+    assert "John Doe" in user_names
+    assert DEFAULT_USER_NAME in user_names
 
 
 def test_list_users_with_pagination(session):
