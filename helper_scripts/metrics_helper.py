@@ -14,9 +14,13 @@ def agents():
         headers=headers,
         json={
             "name": str(uuid4()),
-            "model": "command-r",
+            "version": 1,
+            "description": "test description",
+            "preamble": "test preamble",
+            "temperature": 0.5,
+            "model": "command-r-plus",
             "deployment": "Cohere Platform",
-            "tools": ["web_search"],
+            "tools": ["toolkit_calculator"],
         },
     )
     print("create agent")
@@ -159,7 +163,7 @@ print(response_json)
 # TODO: make these into tests
 users()
 agent_id = None
-# agent_id = agents()
-# conversation_id = chat(agent_id=agent_id)
-# tools(conversation_id=conversation_id)
+agent_id = agents()
+conversation_id = chat(agent_id=agent_id)
+tools(conversation_id=conversation_id)
 cleanup(user_id=user_id, agent_id=agent_id)
