@@ -260,10 +260,11 @@ def test_delete_snapshot_wrong_user(
     snapshot_link,
     user,
 ) -> None:
+    user2 = get_factory("User", session).create(id=f"new_{user.id}")
     conversation.text_messages.append(message)
 
     response = session_client.delete(
-        "/v1/snapshots/link/1", headers={"User-Id": f"new_{user.id}"}
+        "/v1/snapshots/link/1", headers={"User-Id": user2.id}
     )
 
     assert response.status_code == 403
