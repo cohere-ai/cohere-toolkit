@@ -14,9 +14,13 @@ def agents():
         headers=headers,
         json={
             "name": str(uuid4()),
-            "model": "command-r",
+            "version": 1,
+            "description": "test description",
+            "preamble": "test preamble",
+            "temperature": 0.5,
+            "model": "command-r-plus",
             "deployment": "Cohere Platform",
-            "tools": ["web_search"],
+            "tools": ["toolkit_calculator"],
         },
     )
     print("create agent")
@@ -125,8 +129,9 @@ def cleanup(user_id, agent_id):
     print("cleaning up")
     response = requests.delete(f"{base_url}/users/{user_id}", headers=headers)
     print(response.status_code)
-    response = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
-    print(response.status_code)
+    if agent_id:
+        response = requests.delete(f"{base_url}/agents/{agent_id}", headers=headers)
+        print(response.status_code)
 
 
 base_url = "http://localhost:8000/v1"
@@ -155,9 +160,10 @@ print("Setup user info")
 print(response_json)
 
 
+# TODO: make these into tests
 users()
+agent_id = None
 agent_id = agents()
-# TODO: these are not working atm
 conversation_id = chat(agent_id=agent_id)
 tools(conversation_id=conversation_id)
 cleanup(user_id=user_id, agent_id=agent_id)

@@ -20,6 +20,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
     MetricsData,
+    MetricsMessageType,
     MetricsSignal,
     MetricsUser,
 )
@@ -33,6 +34,39 @@ HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
 
 logger = logging.getLogger(__name__)
+
+
+# TODO: update middleware to not have to do this mapping at all
+# signals can simply specify event type
+ROUTE_MAPPING: Dict[str, MetricsMessageType] = {
+    # users
+    "post /v1/users true": MetricsMessageType.USER_CREATED,
+    "put /v1/users/:user_id true": MetricsMessageType.USER_UPDATED,
+    "delete /v1/users/:user_id true": MetricsMessageType.USER_DELETED,
+    # Chat
+    "post /v1/chat-stream true": MetricsMessageType.CHAT_API_SUCCESS,
+    "post /v1/chat-stream false": MetricsMessageType.CHAT_API_FAIL,
+    "post co.chat true": MetricsMessageType.CHAT_API_SUCCESS,
+    "post co.chat false": MetricsMessageType.CHAT_API_FAIL,
+    # Rerank
+    "post co.rerank true": MetricsMessageType.RERANK_API_SUCCESS,
+    "post co.rerank false": MetricsMessageType.RERANK_API_FAIL,
+    # agents
+    "post /v1/agents true": MetricsMessageType.ASSISTANT_CREATED,
+    "delete /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_DELETED,
+    "put /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_UPDATED,
+    "get /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_ACCESSED,
+}
+
+
+def event_name_of(
+    method: str, endpoint_name: str, is_success: bool
+) -> MetricsMessageType:
+    key = f"{method} {endpoint_name} {is_success}"
+    key = key.lower()
+    if key in ROUTE_MAPPING:
+        return ROUTE_MAPPING[key]
+    return MetricsMessageType.UNKNOWN_SIGNAL
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -51,13 +85,18 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
         data = {}
-
         if scope["type"] != "http":
             return None
-
-        agent = self.get_agent(request)
-        agent_id = agent.id if agent else None
+        method = self.get_method(scope)
         endpoint_name = self.get_endpoint_name(scope, request)
+        is_success = self.get_success(response)
+        message_type = event_name_of(method, endpoint_name, is_success)
+
+        if message_type == MetricsMessageType.UNKNOWN_SIGNAL:
+            logger.warning(
+                f"cannot determine message type: {endpoint_name} | {method} | {is_success}"
+            )
+            return None
 
         try:
             user_id = get_header_user_id(request)
@@ -65,22 +104,23 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Failed to get user id - {endpoint_name}")
             return None
 
-        data = MetricsData(
-            id=str(uuid.uuid4()),
-            method=self.get_method(scope),
-            endpoint_name=endpoint_name,
+        agent = self.get_agent(request)
+        agent_id = agent.id if agent else None
+        user = self.get_user(request)
+        object_ids = self.get_object_ids(request)
+        event_id = str(uuid.uuid4())
+
+        return MetricsData(
+            id=event_id,
             user_id=user_id,
-            user=self.get_user(request),
-            success=self.get_success(response),
+            user=user,
+            message_type=message_type,
             trace_id=request.state.trace_id,
-            status_code=self.get_status_code(response),
-            object_ids=self.get_object_ids(request),
+            object_ids=object_ids,
             assistant=agent,
             assistant_id=agent_id,
             duration_ms=duration_ms,
         )
-
-        return data
 
     def get_method(self, scope: dict) -> str:
         try:
@@ -105,13 +145,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             logger.warning(f"Failed to get endpoint name: {e}")
             return "unknown"
-
-    def get_status_code(self, response: Response) -> int:
-        try:
-            return response.status_code
-        except Exception as e:
-            logger.warning(f"Failed to get status code: {e}")
-            return 500
 
     def get_success(self, response: Response) -> bool:
         try:
@@ -174,7 +207,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return request.state.agent
 
 
-async def report_metrics(data: MetricsData) -> None:
+async def report_metrics(data: MetricsData | None) -> None:
     if not data:
         raise ValueError("No metrics data to report")
 
@@ -331,18 +364,20 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
 ) -> tuple[MetricsData, Any]:
-    print("debug initialize_sdk_metrics_data")
-    print(kwargs)
+
+    method = "POST"
+    endpoint_name = f"co.{func_name}"
+    is_success = True
+    message_type = event_name_of(method, endpoint_name, is_success)
+
     return (
         MetricsData(
             id=str(uuid.uuid4()),
-            endpoint_name=f"co.{func_name}",
-            method="POST",
+            message_type=message_type,
             trace_id=kwargs.get("trace_id", None),
             user_id=kwargs.get("user_id", None),
             assistant_id=kwargs.get("agent_id", None),
             model=chat_request.model if chat_request else None,
-            success=True,
         ),
         kwargs,
     )
