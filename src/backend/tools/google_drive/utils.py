@@ -1,6 +1,14 @@
+import io
 from typing import Any, Dict, List
 
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaIoBaseDownload
+
+from backend.services.logger import get_logger
+
 from .constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
+
+logger = get_logger()
 
 
 def extract_links(files: List[Dict[str, str]]) -> Dict[str, str]:
@@ -42,7 +50,9 @@ def extract_titles(files: List[Dict[str, str]]) -> Dict[str, str]:
     return id_to_names
 
 
-def process_shortcut_files(service: Any, files: List[Dict[str, str]]) -> Dict[str, str]:
+def process_non_native_files(
+    service: Any, files: List[Dict[str, str]]
+) -> Dict[str, str]:
     processed_files = []
     for file in files:
         if file["mimeType"] == "application/vnd.google-apps.shortcut":
@@ -57,6 +67,30 @@ def process_shortcut_files(service: Any, files: List[Dict[str, str]]) -> Dict[st
                 .execute()
             )
             processed_files.append(targetFile)
+        elif (
+            file["mimeType"]
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ):
+            # do something. for now not supported.
+            return _download_pdf(service=service, file_id=file["id"])
         else:
             processed_files.append(file)
+
     return processed_files
+
+
+def _download_pdf(service: Any, file_id: str):
+    try:
+        request = service.files().get_media(fileId=file_id)
+        file = io.BytesIO()
+        downloader = MediaIoBaseDownload(file, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            print(f"Download {int(status.progress() * 100)}.")
+
+    except HttpError as error:
+        logger.error("An error occurred: {}".format(error))
+        file = None
+
+    return file.getvalue() if file else None

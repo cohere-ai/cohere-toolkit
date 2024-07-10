@@ -35,7 +35,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   });
 
   const { userId } = useSession();
-  const isAgentCreator = agent && agent.user_id === userId;
+  const isAgentCreator = !!agent && agent.user_id === userId;
 
   const { set: setPendingAssistant } = useLocalStorageValue<UpdateAgentFormFields>(
     'pending_assistant',
