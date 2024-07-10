@@ -116,9 +116,13 @@ class Compass:
                 case self.ValidActions.LIST_INDEXES.value:
                     return self.compass_client.list_indexes()
                 case self.ValidActions.CREATE_INDEX.value:
-                    return self.compass_client.create_index(index_name=parameters["index"])
+                    return self.compass_client.create_index(
+                        index_name=parameters["index"]
+                    )
                 case self.ValidActions.CREATE_INDEX.value:
-                    return self.compass_client.delete_index(index_name=parameters["index"])
+                    return self.compass_client.delete_index(
+                        index_name=parameters["index"]
+                    )
                 case self.ValidActions.CREATE.value:
                     self._create(parameters, **kwargs)
                 case self.ValidActions.SEARCH.value:
