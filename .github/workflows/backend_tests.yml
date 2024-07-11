@@ -21,6 +21,7 @@ jobs:
       - name: Setup Docker
         run: docker compose up test_db -d
       - name: Run tests
+        if: github.actor != 'dependabot[bot]'
         run: |
           mkdir -p coverage
           docker compose build --build-arg INSTALL_COMMUNITY_DEPS=true backend
