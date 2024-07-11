@@ -14,6 +14,9 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
+    networks:
+      - proxynet
+
   test_db:
     image: postgres:14.1-alpine
     restart: unless-stopped
@@ -22,6 +25,9 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5433:5432"
+    networks:
+      - proxynet
+
   backend:
     build:
       context: .
@@ -56,6 +62,8 @@ services:
       # Mount data folder to sync uploaded files
       - ./src/backend/data:/workspace/src/backend/data
     # network_mode: host
+    networks:
+      - proxynet
 
   frontend:
     build:
@@ -69,6 +77,8 @@ services:
       NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}
       NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: ${NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY}
     restart: always
+    networks:
+      - proxynet
     ports:
       - 4000:4000
     develop:
@@ -85,8 +95,14 @@ services:
       - "8080:8080"
     expose:
       - "8080"
+    networks:
+      - proxynet
 
 volumes:
   db:
     name: cohere_toolkit_db
     driver: local
+
+networks:
+  proxynet:
+    name: custom_network
