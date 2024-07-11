@@ -196,7 +196,7 @@ export const Composer: React.FC<Props> = ({
               'rounded',
               'bg-marble-100',
               'transition ease-in-out',
-              'focus:outline-none',
+              'placeholder:text-volcanic-500 focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
               'leading-[150%]',
               {
