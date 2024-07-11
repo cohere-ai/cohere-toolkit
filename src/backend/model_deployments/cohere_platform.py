@@ -69,14 +69,14 @@ class CohereDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
 
-    @collect_metrics_chat
+    # @collect_metrics_chat
     async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
+    # @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> AsyncGenerator[Any, Any]:
@@ -87,10 +87,12 @@ class CohereDeployment(BaseDeployment):
         for event in stream:
             yield to_dict(event)
 
-    @collect_metrics_rerank
+    # @collect_metrics_rerank
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        return self.client.rerank(
+        response = self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL
         )
+
+        return to_dict(response)
