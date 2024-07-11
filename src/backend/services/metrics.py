@@ -94,7 +94,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
         if message_type == MetricsMessageType.UNKNOWN_SIGNAL:
             logger.warning(
-                f"cannot determine message type: {endpoint_name} | {method} | {is_success}"
+                f"cannot determine message type: {method} | {endpoint_name} | {is_success}"
             )
             return None
 
