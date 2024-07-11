@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
-from backend.schemas.agent import UpdateAgent
+from backend.schemas.agent import UpdateAgentRequest
 
 
 def create_agent(db: Session, agent: Agent) -> Agent:
@@ -17,9 +17,14 @@ def create_agent(db: Session, agent: Agent) -> Agent:
     Returns:
       Agent: Created agent.
     """
-    db.add(agent)
-    db.commit()
-    db.refresh(agent)
+    try:
+        db.add(agent)
+        db.commit()
+        db.refresh(agent)
+    except Exception as e:
+        db.rollback()
+        raise e
+
     return agent
 
 
@@ -34,7 +39,15 @@ def get_agent_by_id(db: Session, agent_id: str) -> Agent:
     Returns:
       Agent: Agent with the given ID.
     """
-    return db.query(Agent).filter(Agent.id == agent_id).first()
+    agent = None
+
+    try:
+        agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    except Exception as e:
+        db.rollback()
+        raise e
+
+    return agent
 
 
 def get_agent_by_name(db: Session, agent_name: str) -> Agent:
@@ -48,7 +61,15 @@ def get_agent_by_name(db: Session, agent_name: str) -> Agent:
     Returns:
       Agent: Agent with the given name.
     """
-    return db.query(Agent).filter(Agent.name == agent_name).first()
+    agent = None
+
+    try:
+        agent = db.query(Agent).filter(Agent.name == agent_name).first()
+    except Exception as e:
+        db.rollback()
+        raise e
+
+    return agent
 
 
 def get_agents(
@@ -69,14 +90,22 @@ def get_agents(
     Returns:
       list[Agent]: List of agents.
     """
-    query = db.query(Agent)
-    if organization_id is not None:
-        query = query.filter(Agent.organization_id == organization_id)
-    query = query.offset(offset).limit(limit)
-    return query.all()
+    agents = None
+
+    try:
+        query = db.query(Agent)
+        if organization_id is not None:
+            query = query.filter(Agent.organization_id == organization_id)
+        query = query.offset(offset).limit(limit)
+        agents = query.all()
+    except Exception as e:
+        db.rollback()
+        raise e
+
+    return agents
 
 
-def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
+def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Agent:
     """
     Update an agent.
 
@@ -88,10 +117,15 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
     Returns:
       Agent: Updated agent.
     """
-    for attr, value in new_agent.model_dump(exclude_none=True).items():
-        setattr(agent, attr, value)
-    db.commit()
-    db.refresh(agent)
+    try:
+        for attr, value in new_agent.model_dump(exclude_none=True).items():
+            setattr(agent, attr, value)
+        db.commit()
+        db.refresh(agent)
+    except Exception as e:
+        db.rollback()
+        raise e
+
     return agent
 
 
@@ -103,6 +137,10 @@ def delete_agent(db: Session, agent_id: str) -> None:
         db (Session): Database session.
         agent_id (str): Agent ID.
     """
-    agent = db.query(Agent).filter(Agent.id == agent_id)
-    agent.delete()
-    db.commit()
+    try:
+        agent = db.query(Agent).filter(Agent.id == agent_id)
+        agent.delete()
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise e
