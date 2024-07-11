@@ -149,7 +149,7 @@ type AgentsLayoutProps = {
 } & PropsWithChildren;
 
 /**
- * @description This component is in charge of layout out the entire page.
+ * @description This component is in charge of layout out the entire page when agents are available.
   It shows the navigation bar, the left drawer and main content.
   On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
