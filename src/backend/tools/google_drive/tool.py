@@ -154,11 +154,8 @@ class GoogleDrive(BaseTool):
             return [{"text": ""}]
 
         # post process files
-        print("processed_files")
         processed_files = process_shortcut_files(service, files)
-        print("web_view_links")
         web_view_links = extract_web_view_links(processed_files)
-        print("titles")
         titles = extract_titles(processed_files)
 
         id_to_texts = {}
@@ -168,7 +165,6 @@ class GoogleDrive(BaseTool):
             x for x in processed_files if x["mimeType"] in NATIVE_SEARCH_MIME_TYPES
         ]
         id_to_urls = extract_links(native_files)
-        print("async_download.async_perform")
         if id_to_urls:
             id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
 
