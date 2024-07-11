@@ -27,6 +27,7 @@ COPY .en[v] .env
 # Note: Don't expose ports here, Compose will handle that for us
 
 # Start Next.js in development mode based on the preferred package manager
+FROM base as dev
 CMD \
   if [ -f yarn.lock ]; then yarn dev; \
   elif [ -f package-lock.json ]; then npm run dev; \
@@ -36,5 +37,10 @@ CMD \
 
 
 # Production specifc tareget
-# FROM base AS prod
-# CMD npm run start
+FROM base AS prod
+CMD \
+  if [ -f yarn.lock ]; then yarn start; \
+  elif [ -f package-lock.json ]; then npm run start; \
+  elif [ -f pnpm-lock.yaml ]; then pnpm start; \
+  else npm run dev; \
+  fi
