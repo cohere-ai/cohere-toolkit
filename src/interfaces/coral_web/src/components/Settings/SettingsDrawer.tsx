@@ -48,12 +48,12 @@ export const SettingsDrawer: React.FC = () => {
     }
     return files.length > 0 && conversationId
       ? [
-          { name: 'Tools', component: <ToolsTab requiredTools={[]} /> },
+          { name: 'Tools', component: <ToolsTab /> },
           { name: 'Files', component: <FilesTab /> },
           { name: 'Settings', component: <SettingsTab /> },
         ]
       : [
-          { name: 'Tools', component: <ToolsTab requiredTools={[]} /> },
+          { name: 'Tools', component: <ToolsTab /> },
           { name: 'Settings', component: <SettingsTab /> },
         ];
   }, [files.length, conversationId, agent?.tools]);

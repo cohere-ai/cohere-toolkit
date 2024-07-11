@@ -215,6 +215,7 @@ const Page: NextPage = () => {
       </ProtectedPage>
     );
   }
+
   return (
     <Layout>
       <LeftSection>
