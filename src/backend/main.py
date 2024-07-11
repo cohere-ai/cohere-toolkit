@@ -74,7 +74,7 @@ def create_app():
         allow_headers=["*"],
     )
     app.add_middleware(LoggingMiddleware)
-    app.add_middleware(MetricsMiddleware)
+    # app.add_middleware(MetricsMiddleware)
 
     return app
 
