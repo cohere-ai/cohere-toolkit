@@ -41,6 +41,5 @@ def add_user_to_request_state(request: Request, user: User):
 
 
 def add_model_to_request_state(request: Request, chat_request: CohereChatRequest):
-    pdb.set_trace()
     if chat_request.model:
         request.state.model = chat_request.model[:]

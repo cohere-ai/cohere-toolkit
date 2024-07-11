@@ -51,9 +51,7 @@ async def chat_stream(
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
-    pdb.set_trace()
     add_model_to_request_state(request, chat_request)
-    pdb.set_trace()
 
     (
         session,
@@ -68,7 +66,6 @@ async def chat_stream(
         deployment_config,
         next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
-    pdb.set_trace()
 
     return EventSourceResponse(
         generate_chat_stream(

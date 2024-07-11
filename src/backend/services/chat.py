@@ -94,7 +94,6 @@ def process_chat(
 
         try:
             add_agent_to_request_state(request, agent)
-            pdb.set_trace()
         except ValidationError as exc:
             print(f"Validation error count: {exc.error_count()}")
             for err in exc.errors():

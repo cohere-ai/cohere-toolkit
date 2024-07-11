@@ -108,14 +108,16 @@ def test_streaming_new_chat_with_agent_reports_metrics(
         )
 
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        pdb.set_trace()
-        assert m_args.user_id == user.id
-        assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
-        assert m_args.input_nb_tokens > 0
-        assert m_args.output_nb_tokens > 0
-        assert m_args.assistant_id == agent.id
-        assert m_args.model == "command-r"
+        m_args_list: MetricsData = mock_metrics.await_args_list
+        for ma in m_args_list:
+            m_args = ma[0][0]
+            pdb.set_trace()
+            assert m_args.user_id == user.id
+            assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
+            assert m_args.input_nb_tokens is not None and m_args.input_nb_tokens > 0
+            assert m_args.output_nb_tokens is not None and m_args.output_nb_tokens > 0
+            assert m_args.assistant_id == agent.id
+            assert m_args.model == "command-r"
 
 
 """
