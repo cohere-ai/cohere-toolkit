@@ -199,9 +199,6 @@ class GoogleDrive(BaseTool):
         if not id_to_texts:
             return [{"text": ""}]
 
-        print("id_to_texts")
-        print(id_to_texts)
-
         """
         Compass logic
         """
@@ -211,7 +208,6 @@ class GoogleDrive(BaseTool):
             parameters={"index": index_name},
         )
 
-        print("heyyyyy")
         # handle creation/update of each file
         for file_id in id_to_texts:
             fetched_doc = None
@@ -289,7 +285,6 @@ class GoogleDrive(BaseTool):
                     parameters={"index": index_name},
                 )
 
-        print("hereeeeee")
         # fetch documents from index
         hits = compass.invoke(
             action=Compass.ValidActions.SEARCH,
@@ -299,7 +294,6 @@ class GoogleDrive(BaseTool):
                 "top_k": SEARCH_LIMIT,
             },
         ).result["hits"]
-        print("post_search")
         chunks = [
             {
                 "text": chunk["content"]["text"],
@@ -309,7 +303,5 @@ class GoogleDrive(BaseTool):
             for hit in hits
             for chunk in hit["chunks"]
         ]
-        print("chunks")
-        print(chunks)
 
         return chunks
