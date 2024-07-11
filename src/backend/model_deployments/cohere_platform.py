@@ -73,7 +73,6 @@ class CohereDeployment(BaseDeployment):
     async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-            **kwargs,
         )
         yield to_dict(response)
 
@@ -83,7 +82,6 @@ class CohereDeployment(BaseDeployment):
     ) -> AsyncGenerator[Any, Any]:
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-            **kwargs,
         )
 
         for event in stream:
@@ -94,5 +92,5 @@ class CohereDeployment(BaseDeployment):
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return self.client.rerank(
-            query=query, documents=documents, model=DEFAULT_RERANK_MODEL, **kwargs
+            query=query, documents=documents, model=DEFAULT_RERANK_MODEL
         )

@@ -255,6 +255,7 @@ class CustomChat(BaseChat):
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=kwargs.get("user_id"),
+                trace_id=kwargs.get("trace_id"),
                 agent_id=kwargs.get("agent_id"),
             )
 

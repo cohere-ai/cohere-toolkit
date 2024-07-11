@@ -372,9 +372,9 @@ def initialize_sdk_metrics_data(
         MetricsData(
             id=str(uuid.uuid4()),
             message_type=message_type,
-            trace_id=kwargs.pop("trace_id", None),
-            user_id=kwargs.pop("user_id", None),
-            assistant_id=kwargs.pop("agent_id", None),
+            trace_id=kwargs.get("trace_id", None),
+            user_id=kwargs.get("user_id", None),
+            assistant_id=kwargs.get("agent_id", None),
             model=chat_request.model if chat_request else None,
         ),
         kwargs,
