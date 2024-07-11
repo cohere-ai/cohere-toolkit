@@ -258,6 +258,8 @@ class CustomChat(BaseChat):
                 trace_id=kwargs.get("trace_id"),
                 agent_id=kwargs.get("agent_id"),
             )
+            print("outputs")
+            print(outputs)
 
             # If the tool returns a list of outputs, append each output to the tool_results list
             # Otherwise, append the single output to the tool_results list
