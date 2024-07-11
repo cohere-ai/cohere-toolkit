@@ -6,6 +6,7 @@ import {
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
+  CohereUnauthorizedError,
   CreateAgent,
   CreateUser,
   ExperimentalFeatures,
@@ -40,6 +41,13 @@ export class CohereClient {
     this.cohereService = new CohereClientGenerated({
       BASE: hostname,
       HEADERS: this.getHeaders(true),
+    });
+
+    this.cohereService.request.config.interceptors.response.use((response) => {
+      if (response.status === 401) {
+        throw new CohereUnauthorizedError();
+      }
+      return response;
     });
   }
 
@@ -92,6 +100,7 @@ export class CohereClient {
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
       signal,
+      openWhenHidden: true, // When false, the requests will be paused when the tab is hidden and resume/retry when the tab is visible again
       onopen: onOpen,
       onmessage: onMessage,
       onclose: onClose,
@@ -269,6 +278,10 @@ export class CohereClient {
       agentId: agentId,
       requestBody,
     });
+  }
+
+  public deleteAgent(request: { agentId: string }) {
+    return this.cohereService.default.deleteAgentV1AgentsAgentIdDelete(request);
   }
 
   public generateTitle({ conversationId }: { conversationId: string }) {

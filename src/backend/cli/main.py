@@ -29,6 +29,11 @@ class DeploymentName(StrEnum):
     BEDROCK = "Bedrock"
 
 
+class BuildTarget(StrEnum):
+    DEV = "dev"
+    PROD = "prod"
+
+
 class ToolName(StrEnum):
     PythonInterpreter = "Python Interpreter"
     TavilyInternetSearch = "Tavily Internet Search"
@@ -121,6 +126,15 @@ def tool_prompt(secrets, name, configs):
     for key, default_value in configs["secrets"].items():
         value = inquirer.text(f"Enter the value for {key}", default=default_value)
         secrets[key] = value
+
+
+def build_target_prompt():
+    build_target = inquirer.list_input(
+        "Select the build target",
+        choices=[BuildTarget.DEV, BuildTarget.PROD],
+        default=BuildTarget.DEV,
+    )
+    return build_target
 
 
 def review_variables_prompt(secrets):
@@ -265,6 +279,10 @@ def start():
     # SET UP ENVIRONMENT
     for _, implementation in IMPLEMENTATIONS.items():
         implementation(secrets)
+
+    # SET UP BUILD TARGET
+    build_target = build_target_prompt()
+    secrets["BUILD_TARGET"] = build_target
 
     # SET UP TOOLS
     use_community_features = args.use_community and community_tools_prompt(secrets)

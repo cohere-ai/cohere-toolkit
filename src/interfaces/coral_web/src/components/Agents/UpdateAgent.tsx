@@ -1,27 +1,27 @@
+import { useLocalStorageValue } from '@react-hookz/web';
 import React, { useEffect, useState } from 'react';
 
-import {
-  AgentForm,
-  AgentFormFieldKeys,
-  UpdateAgentFormFields,
-} from '@/components/Agents/AgentForm';
+import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Spinner, Text } from '@/components/Shared';
+import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
+import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { useAgentsStore } from '@/stores';
+import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 
 type Props = {
   agentId?: string;
 };
 
-export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
+export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
-
   const { setEditAgentPanelOpen } = useAgentsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
+  const { data: toolsData } = useListTools();
   const { mutateAsync: updateAgent } = useUpdateAgent();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,15 +31,77 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     deployment: '',
     model: '',
     tools: [],
+    tools_metadata: [],
   });
 
   const { userId } = useSession();
-  const isAgentCreator = agent && agent.user_id === userId;
+  const isAgentCreator = !!agent && agent.user_id === userId;
+
+  const { set: setPendingAssistant } = useLocalStorageValue<UpdateAgentFormFields>(
+    'pending_assistant',
+    {
+      defaultValue: fields,
+      initializeWithValue: false,
+    }
+  );
+
+  const openFilePicker = useOpenGoogleDrivePicker((data) => {
+    if (data.docs) {
+      setFields((prev) => {
+        const currentGoogleDriveTool = prev.tools_metadata?.find(
+          (tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID
+        );
+        // If the tool is not already enabled, add it to the list of tools
+        if (!currentGoogleDriveTool) {
+          return {
+            ...prev,
+            tools_metadata: [
+              ...(prev.tools_metadata ?? []),
+              {
+                tool_name: TOOL_GOOGLE_DRIVE_ID,
+                artifacts: data.docs.map(
+                  (doc) =>
+                    ({
+                      id: doc.id,
+                      name: doc.name,
+                      type: doc.type,
+                      url: doc.url,
+                    } as GoogleDriveToolArtifact)
+                ),
+              },
+            ],
+          };
+        }
+        // If the tool is already enabled, update the artifacts
+        const updateGoogleDriveTool = {
+          ...currentGoogleDriveTool,
+          artifacts: data.docs.map(
+            (doc) =>
+              ({
+                id: doc.id,
+                name: doc.name,
+                type: doc.type,
+                url: doc.url,
+              } as GoogleDriveToolArtifact)
+          ),
+        };
+
+        return {
+          ...prev,
+          tools_metadata: [
+            ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
+              []),
+            updateGoogleDriveTool,
+          ],
+        };
+      });
+    }
+  });
 
   const isDirty = () => {
     if (!agent) return false;
     return Object.entries(fields).some(
-      ([key, value]) => agent[key as AgentFormFieldKeys] !== value
+      ([key, value]) => agent[key as keyof UpdateAgentFormFields] !== value
     );
   };
 
@@ -66,6 +128,7 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
         model: agent.model,
         tools: agent.tools,
         preamble: agent.preamble,
+        tools_metadata: agent.tools_metadata,
       });
     }
   }, [agent]);
@@ -74,19 +137,37 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
     setEditAgentPanelOpen(false);
   };
 
-  const handleChange = (key: Omit<AgentFormFieldKeys, 'tools'>, value: string) => {
-    setFields({
-      ...fields,
-      [key as string]: value,
-    });
+  const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
+    const enabledTools = fields.tools ?? [];
+    if (toolName === TOOL_GOOGLE_DRIVE_ID) {
+      handleGoogleDriveToggle(checked, authUrl);
+    }
+
+    setFields((prev) => ({
+      ...prev,
+      tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
+    }));
   };
 
-  const handleToolToggle = (toolName: string, checked: boolean) => {
-    const enabledTools = fields.tools ?? [];
-    setFields({
-      ...fields,
-      tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
-    });
+  const handleGoogleDriveToggle = (checked: boolean, authUrl?: string) => {
+    const driveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
+    if (checked) {
+      if (driveTool?.is_auth_required && authUrl) {
+        setPendingAssistant({
+          ...fields,
+          tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID],
+        });
+        authUrl && window.open(authUrl, '_self');
+      } else {
+        openFilePicker();
+      }
+    } else {
+      setFields((prev) => ({
+        ...prev,
+        tools: prev.tools?.filter((t) => t !== TOOL_GOOGLE_DRIVE_ID),
+        tools_metadata: prev.tools_metadata?.filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
+      }));
+    }
   };
 
   const handleSubmit = async () => {
@@ -133,16 +214,17 @@ export const UpdateAgentPanel: React.FC<Props> = ({ agentId }) => {
       </header>
       <div className={cn('flex flex-col gap-y-5 overflow-y-auto', 'p-4 lg:p-10')}>
         {isAgentCreator && <InfoBanner agentName={agent.name} className="flex md:hidden" />}
-        <AgentForm
+        <AgentForm<UpdateAgentFormFields>
           fields={fields}
           errors={fieldErrors}
-          onChange={handleChange}
+          setFields={setFields}
           onToolToggle={handleToolToggle}
-          disabled={!isAgentCreator}
+          isAgentCreator={isAgentCreator}
+          handleOpenFilePicker={openFilePicker}
         />
       </div>
       {isAgentCreator && (
-        <div className="flex flex-col gap-y-12 px-4 py-4 lg:px-10 lg:pb-8 lg:pt-0">
+        <div className="flex flex-col gap-y-6 px-4 py-4 lg:px-10 lg:pb-8 lg:pt-0">
           <InfoBanner agentName={agent.name} className="hidden md:flex" />
           <Button
             className="self-end"

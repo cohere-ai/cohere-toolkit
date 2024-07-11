@@ -21,7 +21,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   const {
     agents: { isAgentsSidePanelOpen },
     setAgentsSidePanelOpen,
-    setEditAgentPanelOpen,
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -29,7 +28,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   const handleToggleAgentsSidePanel = () => {
     setIsConvListPanelOpen(false);
     setSettings({ isConfigDrawerOpen: false });
-    setEditAgentPanelOpen(false);
     setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
 
@@ -39,8 +37,8 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
     href?: string;
     onClick?: () => void;
   }[] = [
-    { label: 'Create Assistant ', icon: 'add', href: '/agents/new' },
-    { label: 'Discover', icon: 'compass', href: '/agents/discover' },
+    { label: 'Create Assistant ', icon: 'add', href: '/new' },
+    { label: 'Discover', icon: 'compass', href: '/discover' },
   ];
 
   return (
@@ -52,7 +50,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         'h-full bg-marble-100',
         'rounded-lg border border-marble-400',
         {
-          'right-1/4': isAgentsSidePanelOpen,
+          'right-1/4 md:right-auto': isAgentsSidePanelOpen,
         },
         className
       )}

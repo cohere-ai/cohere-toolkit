@@ -3,6 +3,7 @@ import { CohereChatRequest } from './generated';
 
 export const mapToChatRequest = (request: CohereChatRequest): CohereChatRequest => {
   return {
+    agent_id: request.agent_id,
     message: request.message,
     model: request.model,
     temperature: request.temperature ?? DEFAULT_CHAT_TEMPERATURE,

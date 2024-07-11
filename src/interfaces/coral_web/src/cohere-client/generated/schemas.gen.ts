@@ -641,6 +641,17 @@ export const $CohereChatRequest = {
       title:
         'If set to true, the model will generate a single response in a single step. This is useful for generating a response to a single message.',
     },
+    agent_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'The agent ID to use for the chat.',
+    },
   },
   type: 'object',
   required: ['message'],
@@ -966,7 +977,7 @@ export const $CreateSnapshotResponse = {
     },
     messages: {
       items: {
-        type: 'object',
+        $ref: '#/components/schemas/Message',
       },
       type: 'array',
       title: 'Messages',
@@ -1455,8 +1466,16 @@ export const $Logout = {
 export const $ManagedTool = {
   properties: {
     name: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Name',
+      default: '',
     },
     display_name: {
       type: 'string',
@@ -1539,9 +1558,20 @@ export const $ManagedTool = {
       title: 'Auth Url',
       default: '',
     },
+    token: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Token',
+      default: '',
+    },
   },
   type: 'object',
-  required: ['name'],
   title: 'ManagedTool',
 } as const;
 
@@ -1859,15 +1889,7 @@ export const $Snapshot = {
       title: 'Updated At',
     },
     snapshot: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Snapshot',
+      $ref: '#/components/schemas/SnapshotData',
     },
   },
   type: 'object',
@@ -1883,6 +1905,91 @@ export const $Snapshot = {
     'snapshot',
   ],
   title: 'Snapshot',
+} as const;
+
+export const $SnapshotAgent = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    preamble: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Preamble',
+    },
+    tools_metadata: {
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadata',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tools Metadata',
+    },
+  },
+  type: 'object',
+  required: ['id', 'name', 'description', 'preamble', 'tools_metadata'],
+  title: 'SnapshotAgent',
+} as const;
+
+export const $SnapshotData = {
+  properties: {
+    title: {
+      type: 'string',
+      title: 'Title',
+    },
+    description: {
+      type: 'string',
+      title: 'Description',
+    },
+    messages: {
+      items: {
+        $ref: '#/components/schemas/Message',
+      },
+      type: 'array',
+      title: 'Messages',
+    },
+    agent: {
+      anyOf: [
+        {
+          $ref: '#/components/schemas/SnapshotAgent',
+        },
+        {
+          type: 'null',
+        },
+      ],
+    },
+  },
+  type: 'object',
+  required: ['title', 'description', 'messages', 'agent'],
+  title: 'SnapshotData',
 } as const;
 
 export const $SnapshotWithLinks = {
@@ -1929,15 +2036,7 @@ export const $SnapshotWithLinks = {
       title: 'Updated At',
     },
     snapshot: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Snapshot',
+      $ref: '#/components/schemas/SnapshotData',
     },
     links: {
       items: {
@@ -2248,6 +2347,18 @@ export const $StreamToolCallsChunk = {
 
 export const $StreamToolCallsGeneration = {
   properties: {
+    stream_search_results: {
+      anyOf: [
+        {
+          $ref: '#/components/schemas/StreamSearchResults',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'List of search results used to generate grounded response with citations',
+      default: [],
+    },
     tool_calls: {
       anyOf: [
         {
@@ -2330,8 +2441,16 @@ export const $StreamToolResult = {
 export const $Tool = {
   properties: {
     name: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Name',
+      default: '',
     },
     display_name: {
       type: 'string',
@@ -2364,7 +2483,6 @@ export const $Tool = {
     },
   },
   type: 'object',
-  required: ['name'],
   title: 'Tool',
 } as const;
 

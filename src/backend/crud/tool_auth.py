@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.tool_auth import ToolAuth
+from backend.schemas.tool_auth import UpdateToolAuth
 
 
 def create_tool_auth(db: Session, tool_auth: ToolAuth) -> ToolAuth:
@@ -42,7 +43,7 @@ def get_tool_auth(db: Session, tool_id: str, user_id: str) -> ToolAuth:
 
 
 def update_tool_auth(
-    db: Session, tool_auth: ToolAuth, new_tool_auth: ToolAuth
+    db: Session, tool_auth: ToolAuth, new_tool_auth: UpdateToolAuth
 ) -> ToolAuth:
     """
     Update a tool auth by user ID and tool ID.

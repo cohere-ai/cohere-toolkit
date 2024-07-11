@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 import urllib.parse
-from typing import Any, Dict, List
 
 import requests
 from fastapi import HTTPException, Request
@@ -12,72 +11,15 @@ from googleapiclient.discovery import build
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
+from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger import get_logger
-from backend.tools.base import BaseTool, BaseToolAuthentication
+from backend.tools.base import BaseToolAuthentication
+from backend.tools.google_drive.tool import GoogleDrive
+
+from .constants import SCOPES
 
 logger = get_logger()
-
-
-class GoogleDrive(BaseTool):
-    """
-    Experimental (In development): Tool that searches Google Drive
-    """
-
-    NAME = "google_drive"
-
-    @classmethod
-    def is_available(cls) -> bool:
-        return True
-
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        auth = tool_auth_crud.get_tool_auth(
-            kwargs.get("session"), self.NAME, kwargs.get("user_id")
-        )
-
-        if not auth:
-            error_message = f"Could not find ToolAuth with tool_id: {self.NAME} and user_id: {kwargs.get('user_id')}"
-            logger.error(error_message)
-            raise HTTPException(status_code=401, detail=error_message)
-
-        # TODO: Improve the getting of files
-        query = parameters.get("query", "")
-        conditions = [
-            "("
-            + " or ".join(
-                [
-                    f"mimeType = '{mime_type}'"
-                    for mime_type in [
-                        "application/vnd.google-apps.document",
-                        "application/vnd.google-apps.spreadsheet",
-                        "application/vnd.google-apps.presentation",
-                    ]
-                ]
-            )
-            + ")",
-            "("
-            + " or ".join([f"fullText contains '{word}'" for word in [query]])
-            + ")",
-        ]
-        q = " and ".join(conditions)
-
-        try:
-            creds = Credentials(auth.access_token)
-            service = build("drive", "v3", credentials=creds)
-            results = (
-                service.files()
-                .list(pageSize=10, q=q, fields="nextPageToken, files(id, name)")
-                .execute()
-            )
-            items = results.get("files", [])
-
-            return [dict({"text": item["name"]}) for item in items]
-        except Exception as e:
-            error_message = (
-                f"Could not query GoogleDrive tool with q: {q} and auth: {str(auth)}."
-            )
-            logger.error(error_message)
-            raise HTTPException(status_code=401, detail=error_message)
 
 
 class GoogleDriveAuth(BaseToolAuthentication):
@@ -99,17 +41,15 @@ class GoogleDriveAuth(BaseToolAuthentication):
                 "GOOGLE_DRIVE_CLIENT_ID, GOOGLE_DRIVE_CLIENT_SECRET and NEXT_PUBLIC_API_HOSTNAME must be set to use Google Drive Tool Auth."
             )
 
+        self.redirect_url = f"{self.BACKEND_HOST}/v1/tool/auth?redirect_url={self.FRONTEND_HOST}/new?p=t"
+
     def get_auth_url(self, user_id: str) -> str:
-        redirect_uri = f"{self.BACKEND_HOST}/v1/tool/auth"
-
         state = {"user_id": user_id, "tool_id": self.TOOL_ID}
-
-        # Query parameters
         params = {
             "response_type": "code",
-            "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
-            "scope": "https://www.googleapis.com/auth/drive",
-            "redirect_uri": redirect_uri,
+            "client_id": os.getenv("GOOGLE_DRIVE_CLIENT_ID"),
+            "scope": " ".join(SCOPES),
+            "redirect_uri": self.redirect_url,
             "prompt": "select_account consent",
             "state": json.dumps(state),
             "access_type": "offline",
@@ -161,7 +101,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         tool_auth_crud.update_tool_auth(
             session,
             existing_tool_auth,
-            ToolAuth(
+            UpdateToolAuth(
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
                 expires_at=datetime.datetime.now()
@@ -180,12 +120,12 @@ class GoogleDriveAuth(BaseToolAuthentication):
             return error
 
         state = json.loads(request.query_params.get("state"))
-        redirect_url = f"{self.BACKEND_HOST}/v1/tool/auth"
+
         body = {
             "code": request.query_params.get("code"),
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
             "client_secret": self.GOOGLE_DRIVE_CLIENT_SECRET,
-            "redirect_uri": redirect_url,
+            "redirect_uri": self.redirect_url,
             "grant_type": "authorization_code",
         }
 
@@ -198,9 +138,6 @@ class GoogleDriveAuth(BaseToolAuthentication):
             )
             return response
 
-        import pdb
-
-        pdb.set_trace()
         tool_auth_crud.create_tool_auth(
             session,
             ToolAuth(
@@ -213,3 +150,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
                 + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
         )
+
+    def get_token(self, session: DBSessionDep, user_id: str) -> str:
+        tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
+        return tool_auth.encrypted_access_token.decode() if tool_auth else None

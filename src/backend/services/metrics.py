@@ -5,13 +5,14 @@ import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, Generator, Union
 
 from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from starlette.responses import Response
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
@@ -19,19 +20,53 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
     MetricsData,
+    MetricsMessageType,
     MetricsSignal,
     MetricsUser,
 )
+from backend.services.auth.utils import get_header_user_id
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
+METRICS_LOGS_CURLS = os.getenv("METRICS_LOGS_CURLS", None)
 NUM_RETRIES = 0
 HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
 
-import time
+logger = logging.getLogger(__name__)
 
-from starlette.responses import Response
+
+# TODO: update middleware to not have to do this mapping at all
+# signals can simply specify event type
+ROUTE_MAPPING: Dict[str, MetricsMessageType] = {
+    # users
+    "post /v1/users true": MetricsMessageType.USER_CREATED,
+    "put /v1/users/:user_id true": MetricsMessageType.USER_UPDATED,
+    "delete /v1/users/:user_id true": MetricsMessageType.USER_DELETED,
+    # Chat
+    "post /v1/chat-stream true": MetricsMessageType.CHAT_API_SUCCESS,
+    "post /v1/chat-stream false": MetricsMessageType.CHAT_API_FAIL,
+    "post co.chat true": MetricsMessageType.CHAT_API_SUCCESS,
+    "post co.chat false": MetricsMessageType.CHAT_API_FAIL,
+    # Rerank
+    "post co.rerank true": MetricsMessageType.RERANK_API_SUCCESS,
+    "post co.rerank false": MetricsMessageType.RERANK_API_FAIL,
+    # agents
+    "post /v1/agents true": MetricsMessageType.ASSISTANT_CREATED,
+    "delete /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_DELETED,
+    "put /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_UPDATED,
+    "get /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_ACCESSED,
+}
+
+
+def event_name_of(
+    method: str, endpoint_name: str, is_success: bool
+) -> MetricsMessageType:
+    key = f"{method} {endpoint_name} {is_success}"
+    key = key.lower()
+    if key in ROUTE_MAPPING:
+        return ROUTE_MAPPING[key]
+    return MetricsMessageType.UNKNOWN_SIGNAL
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -45,38 +80,47 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         duration_ms = time.perf_counter() - start_time
 
         data = self.get_event_data(request.scope, response, request, duration_ms)
-        run_loop(data)
+        await run_loop(data)
         return response
 
     def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
         data = {}
-
         if scope["type"] != "http":
+            return None
+        method = self.get_method(scope)
+        endpoint_name = self.get_endpoint_name(scope, request)
+        is_success = self.get_success(response)
+        message_type = event_name_of(method, endpoint_name, is_success)
+
+        if message_type == MetricsMessageType.UNKNOWN_SIGNAL:
+            logger.warning(
+                f"cannot determine message type: {endpoint_name} | {method} | {is_success}"
+            )
+            return None
+
+        try:
+            user_id = get_header_user_id(request)
+        except:
+            logger.warning(f"Failed to get user id - {endpoint_name}")
             return None
 
         agent = self.get_agent(request)
         agent_id = agent.id if agent else None
+        user = self.get_user(request)
+        object_ids = self.get_object_ids(request)
+        event_id = str(uuid.uuid4())
 
-        user_id = self.get_user_id(request)
-        if not user_id:
-            return None
-
-        data = MetricsData(
-            id=str(uuid.uuid4()),
-            method=self.get_method(scope),
-            endpoint_name=self.get_endpoint_name(scope, request),
+        return MetricsData(
+            id=event_id,
             user_id=user_id,
-            user=self.get_user(request),
-            success=self.get_success(response),
+            user=user,
+            message_type=message_type,
             trace_id=request.state.trace_id,
-            status_code=self.get_status_code(response),
-            object_ids=self.get_object_ids(request),
+            object_ids=object_ids,
             assistant=agent,
             assistant_id=agent_id,
             duration_ms=duration_ms,
         )
-
-        return data
 
     def get_method(self, scope: dict) -> str:
         try:
@@ -84,7 +128,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            logging.warning(f"Failed to get method:  {e}")
+            logger.warning(f"Failed to get method:  {e}")
             return "unknown"
 
     def get_endpoint_name(self, scope: dict, request: Request) -> str:
@@ -99,21 +143,14 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except KeyError:
             return "unknown"
         except Exception as e:
-            logging.warning(f"Failed to get endpoint name: {e}")
+            logger.warning(f"Failed to get endpoint name: {e}")
             return "unknown"
-
-    def get_status_code(self, response: Response) -> int:
-        try:
-            return response.status_code
-        except Exception as e:
-            logging.warning(f"Failed to get status code: {e}")
-            return 500
 
     def get_success(self, response: Response) -> bool:
         try:
             return 200 <= response.status_code < 300
         except Exception as e:
-            logging.warning(f"Failed to get success: {e}")
+            logger.warning(f"Failed to get success: {e}")
             return False
 
     def get_user_id(self, request: Request) -> Union[str, None]:
@@ -133,7 +170,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             return user_id
         except Exception as e:
-            logging.warning(f"Failed to get user id: {e}")
+            logger.warning(f"Failed to get user id: {e}")
             return None
 
     def get_user(self, request: Request) -> Union[MetricsUser, None]:
@@ -147,7 +184,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 email=request.state.user.email,
             )
         except Exception as e:
-            logging.warning(f"Failed to get user: {e}")
+            logger.warning(f"Failed to get user: {e}")
             return None
 
     def get_object_ids(self, request: Request) -> Dict[str, str]:
@@ -161,7 +198,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             return object_ids
         except Exception as e:
-            logging.warning(f"Failed to get object ids: {e}")
+            logger.warning(f"Failed to get object ids: {e}")
             return {}
 
     def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
@@ -170,15 +207,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return request.state.agent
 
 
-async def report_metrics(data: MetricsData) -> None:
+async def report_metrics(data: MetricsData | None) -> None:
+    if not data:
+        raise ValueError("No metrics data to report")
+
     data = attach_secret(data)
     signal = MetricsSignal(signal=data)
-    log_signal_curl(signal)
+    if METRICS_LOGS_CURLS == "true":
+        log_signal_curl(signal)
+
     if not REPORT_SECRET:
-        logging.error("No report secret set")
+        logger.error("No report secret set")
         return
+
     if not REPORT_ENDPOINT:
-        logging.error("No report endpoint set")
+        logger.error("No report endpoint set")
         return
 
     if not isinstance(signal, dict):
@@ -188,7 +231,7 @@ async def report_metrics(data: MetricsData) -> None:
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
-        logging.error(f"Failed to report metrics: {e}")
+        logger.error(f"Failed to report metrics: {e}")
 
 
 def attach_secret(data: MetricsData) -> MetricsData:
@@ -204,17 +247,30 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     s["signal"]["secret"] = "'$SECRET'"
     json_signal = json.dumps(s)
     # just general curl commands to test the endpoint for now
-    logging.info(
+    logger.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
 
 
-def run_loop(metrics_data: MetricsData) -> None:
+async def run_loop(metrics_data: MetricsData) -> None:
+    async def task_exception_handler(task: asyncio.Task):
+        try:
+            await task
+        except Exception as e:
+            logger.error(f"Failed to execute report_metrics task: {e}")
+
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(report_metrics(metrics_data))
     except RuntimeError:
-        asyncio.run(report_metrics(metrics_data))
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    task = loop.create_task(report_metrics(metrics_data))
+
+    async def callback_wrapper():
+        await task_exception_handler(task)
+
+    loop.create_task(callback_wrapper())
 
 
 # DECORATORS
@@ -232,11 +288,12 @@ def collect_metrics_chat(func: Callable) -> Callable:
             metrics_data = handle_error(metrics_data, e)
             raise e
         finally:
-            metrics_data.input_tokens, metrics_data.output_tokens = (
-                get_input_output_tokens(response_dict)
-            )
+            (
+                metrics_data.input_tokens,
+                metrics_data.output_tokens,
+            ) = get_input_output_tokens(response_dict)
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
 
             return response_dict
 
@@ -245,7 +302,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
@@ -254,7 +311,7 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
         stream = func(self, chat_request, **kwargs)
 
         try:
-            for event in stream:
+            async for event in stream:
                 event_dict = to_dict(event)
 
                 if is_event_end_with_error(event_dict):
@@ -262,9 +319,10 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
                     metrics_data.error = event_dict.get("error")
 
                 if event_dict.get("event_type") == StreamEvent.STREAM_END:
-                    metrics_data.input_nb_tokens, metrics_data.output_nb_tokens = (
-                        get_input_output_tokens(event_dict.get("response"))
-                    )
+                    (
+                        metrics_data.input_nb_tokens,
+                        metrics_data.output_nb_tokens,
+                    ) = get_input_output_tokens(event_dict.get("response"))
 
                 yield event_dict
         except Exception as e:
@@ -272,20 +330,22 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
 
     return wrapper
 
 
 def collect_metrics_rerank(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
+    async def wrapper(
+        self, query: str, documents: Dict[str, Any], **kwargs: Any
+    ) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
 
         response_dict = {}
         try:
-            response = func(self, query, documents, **kwargs)
+            response = await func(self, query, documents, **kwargs)
             response_dict = to_dict(response)
             metrics_data.search_units = get_search_units(response_dict)
         except Exception as e:
@@ -293,7 +353,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
             return response_dict
 
     return wrapper
@@ -302,16 +362,20 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
 ) -> tuple[MetricsData, Any]:
+
+    method = "POST"
+    endpoint_name = f"co.{func_name}"
+    is_success = True
+    message_type = event_name_of(method, endpoint_name, is_success)
+
     return (
         MetricsData(
             id=str(uuid.uuid4()),
-            endpoint_name=f"co.{func_name}",
-            method="POST",
+            message_type=message_type,
             trace_id=kwargs.pop("trace_id", None),
             user_id=kwargs.pop("user_id", None),
             assistant_id=kwargs.pop("agent_id", None),
             model=chat_request.model if chat_request else None,
-            success=True,
         ),
         kwargs,
     )

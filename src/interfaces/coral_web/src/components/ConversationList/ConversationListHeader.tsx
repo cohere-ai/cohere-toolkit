@@ -1,14 +1,6 @@
-import { useRouter } from 'next/router';
-
 import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
-import {
-  useCitationsStore,
-  useConversationStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
@@ -26,18 +18,7 @@ export const ConversationListHeader: React.FC<Props> = ({
   onBulkDeleteClick,
   onSearchClick,
 }) => {
-  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
-  const { resetConversation } = useConversationStore();
-  const { resetCitations } = useCitationsStore();
-  const { resetFileParams } = useParamsStore();
-  const router = useRouter();
-  const { agentId } = useSlugRoutes();
-
-  const newChatUrl = agentId
-    ? `/agents/${agentId}`
-    : router.asPath.includes('/agents')
-    ? '/agents'
-    : '/';
+  const { setIsConvListPanelOpen } = useSettingsStore();
 
   return (
     <header
@@ -70,6 +51,7 @@ export const ConversationListHeader: React.FC<Props> = ({
             <IconButton
               iconName="side-panel"
               className="hidden lg:flex"
+              tooltip={{ label: 'Toggle chat list', placement: 'bottom-start', size: 'md' }}
               onClick={() => setIsConvListPanelOpen(false)}
             />
             <span className="flex items-center gap-x-1">
@@ -82,17 +64,11 @@ export const ConversationListHeader: React.FC<Props> = ({
             </span>
           </div>
           <div className="flex items-center gap-x-3">
-            <IconButton iconName="search" isDefaultOnHover={false} onClick={onSearchClick} />
             <IconButton
-              href={newChatUrl}
-              shallow
-              iconName="new-message"
-              onClick={() => {
-                resetConversation();
-                resetCitations();
-                setSettings({ isMobileConvListPanelOpen: false });
-                resetFileParams();
-              }}
+              iconName="search"
+              isDefaultOnHover={false}
+              onClick={onSearchClick}
+              tooltip={{ label: 'Search', placement: 'bottom-start', size: 'md' }}
             />
           </div>
         </>

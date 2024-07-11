@@ -1,7 +1,7 @@
 import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
-import { UpdateAgentPanel } from '@/components/Agents/UpdateAgentPanel';
+import { UpdateAgent } from '@/components/Agents/UpdateAgent';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
@@ -215,7 +215,7 @@ const Conversation: React.FC<Props> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <UpdateAgentPanel agentId={agentId} />
+          <UpdateAgent agentId={agentId} />
         </TransitionChild>
       </Transition>
     </div>

@@ -3,22 +3,25 @@ import { GetServerSideProps, NextPage } from 'next';
 
 import { CohereClient } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
-import { CreateAgentForm } from '@/components/Agents/CreateAgentForm';
-import { Layout, LeftSection, MainSection } from '@/components/Agents/Layout';
+import { CreateAgent } from '@/components/Agents/CreateAgent';
+import { Layout, LeftSection, MainSection } from '@/components/Layout';
+import { ProtectedPage } from '@/components/ProtectedPage';
 import { appSSR } from '@/pages/_app';
 
 type Props = {};
 
 const AgentsNewPage: NextPage<Props> = () => {
   return (
-    <Layout>
-      <LeftSection>
-        <AgentsList />
-      </LeftSection>
-      <MainSection>
-        <CreateAgentForm />
-      </MainSection>
-    </Layout>
+    <ProtectedPage>
+      <Layout>
+        <LeftSection>
+          <AgentsList />
+        </LeftSection>
+        <MainSection>
+          <CreateAgent />
+        </MainSection>
+      </Layout>
+    </ProtectedPage>
   );
 };
 
