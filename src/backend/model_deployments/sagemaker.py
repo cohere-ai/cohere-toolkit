@@ -80,7 +80,7 @@ class SageMakerDeployment(BaseDeployment):
 
     @collect_metrics_chat_stream
     async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
+        self, chat_request: CohereChatRequest
     ) -> AsyncGenerator[Any, Any]:
         # Create the payload for the request
         json_params = {
@@ -100,9 +100,7 @@ class SageMakerDeployment(BaseDeployment):
             stream_event["index"] = index
             yield stream_event
 
-    async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
-    ) -> Any:
+    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None
 
     # This class iterates through each line of Sagemaker's response
