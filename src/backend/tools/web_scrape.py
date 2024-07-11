@@ -18,10 +18,11 @@ class WebScrapeTool(BaseTool):
 
         response = get(url)
         if not response.ok:
+            error_message = f"HTTP {response.status_code} {response.reason}"
             return [
                 (
                     {
-                        "text": f"Cannot open and scrape URL {url}",
+                        "text": f"Cannot open and scrape URL {url}, Error: {error_message}",
                         "url": url,
                     }
                 )
