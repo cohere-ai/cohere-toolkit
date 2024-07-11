@@ -24,6 +24,21 @@ services:
       - POSTGRES_DB=test_toolkit
     ports:
       - '5433:5432'
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports: 
+      - '6379:6379'
+    command: redis-server --save 60 1 --loglevel warning --requirepass redis
+    volumes:
+      - ./data:/data
+
   backend:
     build:
       context: .
@@ -52,6 +67,7 @@ services:
       - '8000:8000'
     depends_on:
       - db
+      - redis
     volumes:
       # Mount alembic folder to sync migrations
       - ./src/backend/alembic:/workspace/src/backend/alembic
