@@ -1,5 +1,6 @@
 import json
 import logging
+import pdb
 from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
@@ -56,6 +57,7 @@ from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 
 
+# TODO: @scott why is model being set to None below?
 def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,
@@ -92,6 +94,7 @@ def process_chat(
 
         try:
             add_agent_to_request_state(request, agent)
+            pdb.set_trace()
         except ValidationError as exc:
             print(f"Validation error count: {exc.error_count()}")
             for err in exc.errors():

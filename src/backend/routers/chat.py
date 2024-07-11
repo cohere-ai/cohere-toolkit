@@ -9,6 +9,7 @@ from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import add_model_to_request_state
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.langchain_chat import LangchainChatRequest
@@ -19,6 +20,7 @@ from backend.services.chat import (
     process_chat,
 )
 from backend.services.request_validators import validate_deployment_header
+import pdb
 
 router = APIRouter(
     prefix="/v1",
@@ -49,6 +51,10 @@ async def chat_stream(
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
+    pdb.set_trace()
+    add_model_to_request_state(request, chat_request)
+    pdb.set_trace()
+
     (
         session,
         chat_request,
@@ -62,6 +68,7 @@ async def chat_stream(
         deployment_config,
         next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
+    pdb.set_trace()
 
     return EventSourceResponse(
         generate_chat_stream(
@@ -112,7 +119,7 @@ async def chat(
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
-
+    add_model_to_request_state(request, chat_request)
     (
         session,
         chat_request,

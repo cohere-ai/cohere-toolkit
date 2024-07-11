@@ -25,6 +25,7 @@ from backend.schemas.metrics import (
     MetricsUser,
 )
 from backend.services.auth.utils import get_header_user_id
+import pdb
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -74,12 +75,14 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.user = None
+        request.state.model = None
 
         start_time = time.perf_counter()
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
 
         data = self.get_event_data(request.scope, response, request, duration_ms)
+        pdb.set_trace()
         await run_loop(data)
         return response
 
@@ -109,6 +112,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         user = self.get_user(request)
         object_ids = self.get_object_ids(request)
         event_id = str(uuid.uuid4())
+        pdb.set_trace()
 
         return MetricsData(
             id=event_id,
@@ -118,6 +122,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             trace_id=request.state.trace_id,
             object_ids=object_ids,
             assistant=agent,
+            model=request.state.model,
             assistant_id=agent_id,
             duration_ms=duration_ms,
         )
@@ -208,6 +213,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
 
 async def report_metrics(data: MetricsData | None) -> None:
+    pdb.set_trace()
     if not data:
         raise ValueError("No metrics data to report")
 
@@ -265,6 +271,7 @@ async def run_loop(metrics_data: MetricsData) -> None:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
+    pdb.set_trace()
     task = loop.create_task(report_metrics(metrics_data))
 
     async def callback_wrapper():
