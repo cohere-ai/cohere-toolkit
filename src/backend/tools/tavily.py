@@ -39,15 +39,15 @@ class TavilyInternetSearch(BaseTool):
             snippets = result["raw_content"].split("\n")
             for snippet in snippets:
                 if result["content"] != snippet:
-                    if (
-                        len(snippet.split()) > 10
-                    ):  # Skip snippets with less than 10 words
-                        new_result = {
-                            "url": result["url"],
-                            "title": result["title"],
-                            "content": snippet.strip(),
-                        }
-                        expanded.append(new_result)
+                    if len(snippet.split()) <= 10:
+                        continue  # Skip snippets with less than 10 words
+
+                    new_result = {
+                        "url": result["url"],
+                        "title": result["title"],
+                        "content": snippet.strip(),
+                    }
+                    expanded.append(new_result)
 
         reranked_results = await self.rerank_page_snippets(
             query, expanded, model=kwargs.get("model_deployment"), **kwargs
@@ -80,7 +80,6 @@ class TavilyInternetSearch(BaseTool):
                 ],
                 **kwargs,
             )
-            print("debug tavily rerank", batch_output)
             for b in batch_output.get("results", []):
                 index = b.get("index", None)
                 relevance_score = b.get("relevance_score", None)

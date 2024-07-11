@@ -18,7 +18,14 @@ class WebScrapeTool(BaseTool):
 
         response = get(url)
         if not response.ok:
-            return Exception(f"Cannot open and scrape URL {url}")
+            return [
+                (
+                    {
+                        "text": f"Cannot open and scrape URL {url}",
+                        "url": url,
+                    }
+                )
+            ]
 
         soup = BeautifulSoup(response.text, "html.parser")
         text = soup.get_text(separator="\n")
