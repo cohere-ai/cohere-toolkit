@@ -165,12 +165,12 @@ ALL_TOOLS = {
         implementation=WebScrapeTool,
         parameter_definitions={
             "url": {
-                "description": "URL to scrape.",
+                "description": "The url to scrape.",
                 "type": "str",
                 "required": True,
             },
             "query": {
-                "description": "Query to search the webpage for.",
+                "description": "The query to use to select the most relevant passages to return. Using an empty string will return the passages in the order they appear on the webpage",
                 "type": "str",
                 "required": False,
             },
@@ -179,7 +179,7 @@ ALL_TOOLS = {
         is_available=WebScrapeTool.is_available(),
         error_message="WebScrapeTool not available.",
         category=Category.DataLoader,
-        description="Scrapes the content of a webpage, chunks and ranks the content by relevance to the query.",
+        description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
     ),
 }
 
