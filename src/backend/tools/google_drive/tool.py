@@ -294,14 +294,19 @@ class GoogleDrive(BaseTool):
                 "top_k": SEARCH_LIMIT,
             },
         ).result["hits"]
-        chunks = [
-            {
-                "text": chunk["content"]["text"],
-                "url": hit["content"].get("url", ""),
-                "title": hit["content"].get("title", ""),
-            }
-            for hit in hits
-            for chunk in hit["chunks"]
-        ]
+        chunks = sorted(
+            [
+                {
+                    "text": chunk["content"]["text"],
+                    "score": chunk["score"],
+                    "url": hit["content"].get("url", ""),
+                    "title": hit["content"].get("title", ""),
+                }
+                for hit in hits
+                for chunk in hit["chunks"]
+            ],
+            key=lambda x: x["score"],
+            reverse=True,
+        )[:SEARCH_LIMIT]
 
         return chunks
