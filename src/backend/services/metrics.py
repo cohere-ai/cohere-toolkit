@@ -253,24 +253,16 @@ def log_signal_curl(signal: MetricsSignal) -> None:
 
 
 async def run_loop(metrics_data: MetricsData) -> None:
-    async def task_exception_handler(task: asyncio.Task):
+    def task_exception_handler(task: asyncio.Task):
         try:
-            await task
+            task.result()  # This will re-raise any exception caught by the task.
         except Exception as e:
             logger.error(f"Failed to execute report_metrics task: {e}")
 
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    loop = asyncio.get_running_loop()
 
     task = loop.create_task(report_metrics(metrics_data))
-
-    async def callback_wrapper():
-        await task_exception_handler(task)
-
-    loop.create_task(callback_wrapper())
+    task.add_done_callback(task_exception_handler)
 
 
 # DECORATORS
