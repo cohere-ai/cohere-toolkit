@@ -3,7 +3,7 @@ FROM node:20-alpine AS base
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY src ./src
