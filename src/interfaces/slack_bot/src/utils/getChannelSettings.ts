@@ -10,6 +10,7 @@ type GetChannelSettingsArgs = {
 };
 
 type ChannelSettings = {
+  deployment: string | null;
   model: string | null;
   temperature: number | null;
   preambleOverride: string | null;
@@ -39,6 +40,7 @@ export const getChannelSettings = async ({
   channelId,
 }: GetChannelSettingsArgs): Promise<ChannelSettings> => {
   const defaultSettings: ChannelSettings = {
+    deployment: null, // Leave to API default,
     model: null, // Leave to API default
     temperature: null, // Leave to API default
     preambleOverride: null, // Leave to API default
@@ -58,6 +60,7 @@ export const getChannelSettings = async ({
   const formattedTools = channelSettings?.tools && channelSettings?.tools.map((t) => ({ name: t }));
 
   return {
+    deployment: channelSettings.deployment || defaultSettings.deployment,
     model: channelSettings.modelName || defaultSettings.model,
     temperature: channelSettings.temperature || defaultSettings.temperature,
     preambleOverride: channelSettings.preamble || defaultSettings.preambleOverride,
