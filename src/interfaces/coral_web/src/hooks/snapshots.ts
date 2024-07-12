@@ -25,6 +25,7 @@ const useListSnapshots = () => {
       try {
         return await client.listSnapshots();
       } catch (e) {
+        console.error(e);
         throw e;
       }
     },
@@ -46,6 +47,7 @@ export const useCreateSnapshotLinkId = () => {
         return newSnapshot.link_id;
       } catch (e) {
         console.error(e);
+        throw e;
       }
     },
     onSettled: () => {
@@ -85,11 +87,10 @@ export const useSnapshots = () => {
 
   const deleteAllSnapshotLinks = async (conversationId: string): Promise<void> => {
     const snapshot = snapshots.find((s) => s.conversation_id === conversationId);
-    if (!snapshot) return;
-    if (!snapshot.links) return;
+    if (!snapshot || !snapshot.links) return;
     try {
       await Promise.all(
-        snapshot?.links?.map(async (linkId) => {
+        snapshot.links.map(async (linkId) => {
           if (linkId) {
             await client.deleteSnapshotLink({ linkId });
           }

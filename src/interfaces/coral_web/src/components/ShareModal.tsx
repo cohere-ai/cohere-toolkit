@@ -34,12 +34,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
         setStatus('modal-loading');
         try {
           const linkId = await createSnapshotLinkId({ conversationId });
-          if (linkId) {
-            setLinkId(linkId);
-            setStatus(undefined);
-          } else {
-            setStatus('modal-error');
-          }
+          setLinkId(linkId);
+          setStatus(undefined);
         } catch (e) {
           setStatus('modal-error');
         }

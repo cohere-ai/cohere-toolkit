@@ -72,7 +72,7 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
             <div key={i} className="flex items-start gap-x-3">
               <MessageRow
                 message={m}
-                isLast={messages.length - 1 === i}
+                isLast={i === messages.length - 1}
                 isStreamingToolEvents={false}
                 className={cn('max-w-full md:max-w-[80%]', { 'md:max-w-full': !hasCitations })}
               />
@@ -96,7 +96,9 @@ type ReadOnlyConversationCitationProps = {
 };
 
 /**
- * @description Citation for read only view of a shared conversation with simplified positioning
+ * @description Simplified version of Citation.tsx for read only view of a shared conversation:
+ * - Aligns with the top of the message row
+ * - Does not jump next to the selected highlighted text in the message
  */
 const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> = ({
   generationId,
