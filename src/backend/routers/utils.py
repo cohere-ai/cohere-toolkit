@@ -37,6 +37,8 @@ def add_user_to_request_state(request: Request, user: User):
         request.state.user = MetricsUser(
             id=user.id, email=user.email, fullname=user.fullname
         )
+
+
 def add_model_to_request_state(request: Request, chat_request: CohereChatRequest):
     if chat_request.model:
         request.state.model = chat_request.model[:]

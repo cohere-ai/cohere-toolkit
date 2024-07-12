@@ -58,7 +58,6 @@ class MetricsAgent(BaseModel):
 
 
 class MetricsData(MetricsDataBase):
-    success: bool = False
     input_nb_tokens: int | None = None
     output_nb_tokens: int | None = None
     search_units: int | None = None
@@ -71,11 +70,13 @@ class MetricsData(MetricsDataBase):
     assistant: MetricsAgent | None = None
     user: MetricsUser | None = None
 
+
 # strict def for events with models
 class MetricsModel(BaseModel):
     user_id: str
     assistant_id: str
     model: str
-    
+
+
 class MetricsSignal(BaseModel):
     signal: MetricsData

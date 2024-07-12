@@ -20,8 +20,8 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
     MetricsData,
-    MetricsModel,
     MetricsMessageType,
+    MetricsModel,
     MetricsSignal,
     MetricsUser,
 )
@@ -289,7 +289,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
             response_dict = to_dict(response)
         except Exception as e:
             metrics_data = handle_error(metrics_data, e)
-            logger.warning(f"error logging metrics during stream: {e}")
+            raise e
         finally:
             (
                 metrics_data.input_tokens,
@@ -327,9 +327,7 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
                     event_dict = to_dict(event)
 
                     if is_event_end_with_error(event_dict):
-                        metrics_data.success = False
                         metrics_data.error = event_dict.get("error")
-
                     if event_dict.get("event_type") == StreamEvent.STREAM_END:
                         (
                             metrics_data.input_nb_tokens,
@@ -339,7 +337,7 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
                     yield event_dict
         except Exception as e:
             metrics_data = handle_error(metrics_data, e)
-            logger.warning(f"error logging metrics during stream: {e}")
+            raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
             try:
@@ -373,7 +371,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             metrics_data.search_units = get_search_units(response_dict)
         except Exception as e:
             metrics_data = handle_error(metrics_data, e)
-            logger.warning(f"error logging metrics during stream: {e}")
+            raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
             await run_loop(metrics_data)
@@ -455,9 +453,6 @@ def is_event_end_with_error(event_dict: dict) -> bool:
     )
 
 
-def handle_error(metrics_data: MetricsData, e: Exception) -> None:
-    metrics_data.success = False
+def handle_error(metrics_data: MetricsData, e: Exception) -> MetricsData:
     metrics_data.error = str(e)
-    if isinstance(e, ApiError):
-        metrics_data.status_code = e.status_code
     return metrics_data

@@ -97,6 +97,7 @@ def test_streaming_new_chat_with_agent_reports_metrics(
         assert input_nb_tokens_sum > 0
         assert output_nb_tokens_sum > 0
 
+
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat_with_agent(
     session_client_chat: TestClient, session_chat: Session, user: User
@@ -312,6 +313,43 @@ def test_default_chat_missing_deployment_name(
     )
 
     assert response.status_code == 200
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_missing_message_metrics(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(
+        user_id=user.id,
+        tools=[],
+        name="test agent with metrics",
+        preamble="you are a smart assistant that reports metrics",
+    )
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": "123",
+                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            },
+            json={
+                "agent_id": agent.id,
+                "model": "command-r",
+            },
+        )
+
+        assert response.status_code == 422
+        m_args_list: MetricsData = mock_metrics.args_list
+        for ma in m_args_list:
+            m_args = ma[0][0]
+            pdb.set_trace()
+            assert m_args.user_id == user.id
+            assert m_args.message_type == MetricsMessageType.CHAT_API_FAIL
+            assert m_args.assistant_id == agent.id
+            assert m_args.model == "command-r"
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -581,7 +619,7 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
         response, user, session_chat, session_client_chat, 3
     )
 
-import pdb
+
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_metrics(
     session_client_chat: TestClient, session_chat: Session, user: User
@@ -613,8 +651,38 @@ def test_non_streaming_chat_with_metrics(
                 output_nb_tokens_sum += m_args.output_nb_tokens
             assert m_args.assistant_id == agent.id
             assert m_args.model == "command-r"
+        # TODO: the following assertions are failing
+        # but do we care? Are we using this endpoint?
+
         # assert input_nb_tokens_sum > 0
         # assert output_nb_tokens_sum > 0
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_non_streaming_chat_fail_with_metrics(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client_chat.post(
+            "/v1/chat",
+            json={"max_tokens": 10},
+            headers={
+                "User-Id": user.id,
+                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            },
+        )
+        assert response.status_code == 422
+        m_args_list: MetricsData = mock_metrics.args_list
+        for ma in m_args_list:
+            m_args = ma[0][0]
+            assert m_args.user_id == user.id
+            assert m_args.message_type == MetricsMessageType.CHAT_API_FAIL
+            assert m_args.assistant_id == agent.id
+            assert m_args.model == "command-r"
+
 
 # NON-STREAMING CHAT TESTS
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
