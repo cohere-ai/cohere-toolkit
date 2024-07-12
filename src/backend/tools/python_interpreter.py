@@ -29,7 +29,7 @@ class PythonInterpreter(BaseTool):
     def is_available(cls) -> bool:
         return cls.INTERPRETER_URL is not None
 
-    def call(self, parameters: dict, **kwargs: Any):
+    async def call(self, parameters: dict, **kwargs: Any):
         if not self.INTERPRETER_URL:
             raise Exception("Python Interpreter tool called while URL not set")
 
