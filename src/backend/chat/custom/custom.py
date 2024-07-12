@@ -1,5 +1,6 @@
+import asyncio
 from itertools import tee
-from typing import Any, Dict, List
+from typing import Any, Dict, Generator, List
 
 from fastapi import HTTPException
 
@@ -22,7 +23,7 @@ MAX_STEPS = 15
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
 
-    def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Generator[Any, Any, Any]:
         """
         Chat flow for custom models.
 

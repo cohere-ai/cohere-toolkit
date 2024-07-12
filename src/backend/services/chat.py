@@ -543,15 +543,15 @@ async def generate_chat_response(
     return non_streamed_chat_response
 
 
-async def generate_chat_stream(
+def generate_chat_stream(
     session: DBSessionDep,
-    model_deployment_stream: AsyncGenerator[Any, Any],
+    model_deployment_stream: Generator[Any, Any, Any],
     response_message: Message,
     conversation_id: str,
     user_id: str,
     should_store: bool = True,
     **kwargs: Any,
-) -> AsyncGenerator[Any, Any]:
+) -> Generator[Any, Any, Any]:
     """
     Generate chat stream from model deployment stream.
 
