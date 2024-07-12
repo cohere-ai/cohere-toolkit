@@ -1,4 +1,3 @@
-import asyncio
 import os
 import time
 from typing import Any, Dict, List
@@ -61,10 +60,7 @@ class GoogleDrive(BaseTool):
         logger.error(message)
         raise Exception(message)
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        return asyncio.run(self.call_async(parameters, **kwargs))
-
-    async def call_async(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         """
         Google Drive logic
         """
