@@ -5,7 +5,6 @@ import threading
 import time
 from typing import Any, AsyncGenerator, Dict, List
 
-from backend.services.logger import get_logger, send_log_message
 import cohere
 import requests
 from cohere.core.api_error import ApiError
@@ -17,6 +16,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import MetricsData
+from backend.services.logger import get_logger, send_log_message
 from backend.services.metrics import (
     collect_metrics_chat,
     collect_metrics_chat_stream,
@@ -29,6 +29,7 @@ DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 
 
 logger = get_logger()
+
 
 class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
