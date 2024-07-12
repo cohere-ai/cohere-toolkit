@@ -81,7 +81,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         duration_ms = time.perf_counter() - start_time
 
         data = self.get_event_data(request.scope, response, request, duration_ms)
-        run_loop(data)
+        await run_loop(data)
         return response
 
     def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
@@ -253,7 +253,7 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     )
 
 
-def run_loop(metrics_data: MetricsData) -> None:
+async def run_loop(metrics_data: MetricsData) -> None:
     async def task_exception_handler(task: asyncio.Task):
         try:
             await task
@@ -277,7 +277,7 @@ def run_loop(metrics_data: MetricsData) -> None:
 # DECORATORS
 def collect_metrics_chat(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
 
@@ -294,7 +294,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
                 metrics_data.output_tokens,
             ) = get_input_output_tokens(response_dict)
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
 
             return response_dict
 
@@ -303,7 +303,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
@@ -312,39 +312,42 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
         stream = func(self, chat_request, **kwargs)
 
         try:
-            for event in stream:
-                event_dict = to_dict(event)
+            async with AsyncGeneratorContextManager(stream) as stream:
+                async for event in stream:
+                    event_dict = to_dict(event)
 
-                if is_event_end_with_error(event_dict):
-                    metrics_data.success = False
-                    metrics_data.error = event_dict.get("error")
+                    if is_event_end_with_error(event_dict):
+                        metrics_data.success = False
+                        metrics_data.error = event_dict.get("error")
 
-                if event_dict.get("event_type") == StreamEvent.STREAM_END:
-                    (
-                        metrics_data.input_nb_tokens,
-                        metrics_data.output_nb_tokens,
-                    ) = get_input_output_tokens(event_dict.get("response"))
+                    if event_dict.get("event_type") == StreamEvent.STREAM_END:
+                        (
+                            metrics_data.input_nb_tokens,
+                            metrics_data.output_nb_tokens,
+                        ) = get_input_output_tokens(event_dict.get("response"))
 
-                yield event_dict
+                    yield event_dict
         except Exception as e:
             metrics_data = handle_error(metrics_data, e)
             logger.warning(f"error logging metrics during stream: {e}")
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
 
     return wrapper
 
 
 def collect_metrics_rerank(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, query: str, documents: Dict[str, Any], **kwargs: Any) -> Any:
+    async def wrapper(
+        self, query: str, documents: Dict[str, Any], **kwargs: Any
+    ) -> Any:
         start_time = time.perf_counter()
         metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
 
         response_dict = {}
         try:
-            response = func(self, query, documents, **kwargs)
+            response = await func(self, query, documents, **kwargs)
             response_dict = to_dict(response)
             metrics_data.search_units = get_search_units(response_dict)
         except Exception as e:
@@ -352,7 +355,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             logger.warning(f"error logging metrics during stream: {e}")
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            run_loop(metrics_data)
+            await run_loop(metrics_data)
             return response_dict
 
     return wrapper

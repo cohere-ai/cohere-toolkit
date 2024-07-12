@@ -51,40 +51,42 @@ class CustomChat(BaseChat):
         self.chat_request = chat_request
         self.is_first_start = True
 
-        # try:
-        stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
+        try:
+            stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
-        for event in stream:
-            send_log_message(
-                logger,
-                f"Stream event: {event}",
-                level="info",
-                conversation_id=kwargs.get("conversation_id"),
-                user_id=kwargs.get("user_id"),
-            )
-            result = self.handle_event(event, chat_request)
-
-            if result:
-                yield result
-
-            if event["event_type"] == StreamEvent.STREAM_END and self.is_final_event(
-                event, chat_request
-            ):
+            for event in stream:
                 send_log_message(
                     logger,
-                    f"Final event: {event}",
+                    f"Stream event: {event}",
                     level="info",
                     conversation_id=kwargs.get("conversation_id"),
                     user_id=kwargs.get("user_id"),
                 )
-                break
-        # except Exception as e:
-        #     yield {
-        #         "event_type": StreamEvent.STREAM_END,
-        #         "finish_reason": "ERROR",
-        #         "error": str(e),
-        #         "status_code": 500,
-        #     }
+                result = self.handle_event(event, chat_request)
+
+                if result:
+                    yield result
+
+                if event[
+                    "event_type"
+                ] == StreamEvent.STREAM_END and self.is_final_event(
+                    event, chat_request
+                ):
+                    send_log_message(
+                        logger,
+                        f"Final event: {event}",
+                        level="info",
+                        conversation_id=kwargs.get("conversation_id"),
+                        user_id=kwargs.get("user_id"),
+                    )
+                    break
+        except Exception as e:
+            yield {
+                "event_type": StreamEvent.STREAM_END,
+                "finish_reason": "ERROR",
+                "error": str(e),
+                "status_code": 500,
+            }
 
     def is_final_event(
         self, event: Dict[str, Any], chat_request: CohereChatRequest
