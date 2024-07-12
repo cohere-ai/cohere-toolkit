@@ -86,6 +86,9 @@ def chat_stream(
             next_message_position=next_message_position,
         ),
         media_type="text/event-stream",
+        headers={"Connection": "keep-alive"},
+        send_timeout=300,
+        ping=5,
     )
 
 
