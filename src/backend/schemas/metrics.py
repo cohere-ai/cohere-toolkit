@@ -71,6 +71,11 @@ class MetricsData(MetricsDataBase):
     assistant: MetricsAgent | None = None
     user: MetricsUser | None = None
 
-
+# strict def for events with models
+class MetricsModel(BaseModel):
+    user_id: str
+    assistant_id: str
+    model: str
+    
 class MetricsSignal(BaseModel):
     signal: MetricsData

@@ -20,6 +20,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
     MetricsData,
+    MetricsModel,
     MetricsMessageType,
     MetricsSignal,
     MetricsUser,
@@ -282,7 +283,6 @@ def collect_metrics_chat(func: Callable) -> Callable:
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         start_time = time.perf_counter()
         metrics_data = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
-
         response_dict = {}
         try:
             response = func(self, chat_request, **kwargs)
@@ -296,8 +296,16 @@ def collect_metrics_chat(func: Callable) -> Callable:
                 metrics_data.output_tokens,
             ) = get_input_output_tokens(response_dict)
             metrics_data.duration_ms = time.perf_counter() - start_time
-            await run_loop(metrics_data)
-
+            try:
+                # ensure schema for model signals
+                MetricsModel(
+                    user_id=metrics.user_id,
+                    assistant_id=metrics.assistant_id,
+                    model=metrics.model,
+                )
+                await run_loop(metrics_data)
+            except ValidationError as e:
+                logger.warning(f"cannot log in {func_name}, schema errors: {e}")
             return response_dict
 
     return wrapper
@@ -334,7 +342,16 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             logger.warning(f"error logging metrics during stream: {e}")
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            await run_loop(metrics_data)
+            try:
+                # ensure schema for model signals
+                MetricsModel(
+                    user_id=metrics_data.user_id,
+                    assistant_id=metrics_data.assistant_id,
+                    model=metrics_data.model,
+                )
+                await run_loop(metrics_data)
+            except ValidationError as e:
+                logger.warning(f"cannot log in {func_name}, schema errors: {e}")
 
     return wrapper
 
@@ -345,7 +362,9 @@ def collect_metrics_rerank(func: Callable) -> Callable:
         self, query: str, documents: Dict[str, Any], **kwargs: Any
     ) -> Any:
         start_time = time.perf_counter()
-        metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
+        metrics_data, kwargs = initialize_rerank_sdk_metrics_data(
+            "rerank", None, **kwargs
+        )
 
         response_dict = {}
         try:
@@ -363,14 +382,13 @@ def collect_metrics_rerank(func: Callable) -> Callable:
     return wrapper
 
 
-def initialize_sdk_metrics_data(
+def initialize_rerank_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
 ) -> tuple[MetricsData, Any]:
 
     method = "POST"
     endpoint_name = f"co.{func_name}"
     is_success = True
-    model = kwargs.get("model", None)
     message_type = event_name_of(method, endpoint_name, is_success)
 
     return (
@@ -380,6 +398,32 @@ def initialize_sdk_metrics_data(
             trace_id=kwargs.get("trace_id", None),
             user_id=kwargs.get("user_id", None),
             assistant_id=kwargs.get("agent_id", None),
+            model=chat_request.model if chat_request else None,
+        ),
+        kwargs,
+    )
+
+
+def initialize_sdk_metrics_data(
+    func_name: str, chat_request: CohereChatRequest, **kwargs: Any
+) -> tuple[MetricsData, Any]:
+
+    user_id = kwargs.get("user_id", None)
+    model = kwargs.get("model", None)
+    trace_id = kwargs.get("trace_id", None)
+    assistant_id = kwargs.get("agent_id", None)
+    method = "POST"
+    endpoint_name = f"co.{func_name}"
+    is_success = True
+    message_type = event_name_of(method, endpoint_name, is_success)
+
+    return (
+        MetricsData(
+            id=str(uuid.uuid4()),
+            message_type=message_type,
+            trace_id=trace_id,
+            user_id=user_id,
+            assistant_id=assistant_id,
             model=model,
         ),
         kwargs,
