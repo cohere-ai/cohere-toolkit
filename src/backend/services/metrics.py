@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import pdb
 import time
 import uuid
 from functools import wraps
@@ -21,11 +22,11 @@ from backend.schemas.metrics import (
     MetricsAgent,
     MetricsData,
     MetricsMessageType,
+    MetricsModel,
     MetricsSignal,
     MetricsUser,
 )
 from backend.services.auth.utils import get_header_user_id
-import pdb
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -275,7 +276,9 @@ async def run_loop(metrics_data: MetricsData) -> None:
 def collect_metrics_chat(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+        will_log = True
         start_time = time.perf_counter()
+
         metrics_data = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
 
         response_dict = {}
@@ -297,7 +300,10 @@ def collect_metrics_chat(func: Callable) -> Callable:
 
     return wrapper
 
+
 import pdb
+
+
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
@@ -309,13 +315,9 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
 
         try:
             async for event in stream:
-                pdb.set_trace()
                 event_dict = to_dict(event)
-
                 if is_event_end_with_error(event_dict):
-                    metrics_data.success = False
-                    metrics_data.error = event_dict.get("error")
-
+                    handle_error(metrics_data, Exception("event ended unexpectedly"))
                 if event_dict.get("event_type") == StreamEvent.STREAM_END:
                     (
                         metrics_data.input_nb_tokens,
@@ -328,6 +330,7 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
+            pdb.set_trace()
             await run_loop(metrics_data)
 
     return wrapper
@@ -359,16 +362,22 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 
 def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
-) -> tuple[MetricsData, Any]:
+) -> tuple[MetricsData, Any, bool]:
 
+    user_id = kwargs.get("user_id", None)
     model = kwargs.get("model", None)
     trace_id = kwargs.get("trace_id", None)
-    user_id = kwargs.get("user_id", None)
     assistant_id = kwargs.get("agent_id", None)
     method = "POST"
     endpoint_name = f"co.{func_name}"
     is_success = True
     message_type = event_name_of(method, endpoint_name, is_success)
+
+    # ensure schema for model signals
+    try:
+        MetricsModel(user_id=user_id, assistant_id=assistant_id, model=model)
+    except ValidationError as e:
+        return None, kwargs, False
 
     return (
         MetricsData(
@@ -380,6 +389,7 @@ def initialize_sdk_metrics_data(
             model=model,
         ),
         kwargs,
+        True,
     )
 
 
