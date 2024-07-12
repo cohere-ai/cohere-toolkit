@@ -97,11 +97,13 @@ const Content: React.FC<Props> = (props) => {
   useEffect(() => {
     if (streamingMessage && streamingMessage.state === 'fulfilled') {
       const generationId = (streamingMessage as FulfilledMessage).generationId
-      const minimapCitations = Object.values(citationReferences[generationId]).flat().filter(citation =>
-        citation.tool_name === 'MiniMap'
-      )
-      const minimapCitationsUnique = new Set(minimapCitations.map(c => c.url))
-      window.top && window.top.postMessage({ type: 'newCitations', urls: Array.from(minimapCitationsUnique) }, '*')
+      if (citationReferences[generationId]) {
+        const minimapCitations = Object.values(citationReferences[generationId]).flat().filter(citation =>
+          citation.tool_name === 'Minimap'
+        )
+        const minimapCitationsUnique = new Set(minimapCitations.map(c => c.url))
+        window.top && window.top.postMessage({ type: 'newCitations', urls: Array.from(minimapCitationsUnique) }, '*')
+      }
     }
   }, [streamingMessage])
 
