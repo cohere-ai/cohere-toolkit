@@ -43,7 +43,7 @@ class CohereDeployment(BaseDeployment):
 
     @property
     def rerank_enabled(self) -> bool:
-        return False
+        return True
 
     @classmethod
     def list_models(cls) -> List[str]:
