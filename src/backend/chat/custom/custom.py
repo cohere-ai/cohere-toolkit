@@ -54,6 +54,13 @@ class CustomChat(BaseChat):
             stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
             async for event in stream:
+                send_log_message(
+                        logger,
+                        f"Stream event: {event}",
+                        level="info",
+                        conversation_id=kwargs.get("conversation_id"),
+                        user_id=kwargs.get("user_id"),
+                    )
                 result = self.handle_event(event, chat_request)
 
                 if result:
