@@ -2,8 +2,12 @@ name: Pytest
 
 on:
   push:
-    branches: [main]
-  pull_request: {}
+    branches: 
+      - main
+      - ads/risk-2647-security-dependabot-prs-are-failing-due-to-workflow
+  pull_request:
+    branches: 
+      - ads/risk-2647-security-dependabot-prs-are-failing-due-to-workflow
 
 jobs:
   pytest:
