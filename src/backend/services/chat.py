@@ -518,30 +518,27 @@ async def generate_chat_response(
     )
 
     non_streamed_chat_response = None
-    async with AsyncGeneratorContextManager(stream) as chat_stream:
-        async for event in chat_stream:
-            event = json.loads(event)
-            if event["event"] == StreamEvent.STREAM_END:
-                data = event["data"]
-                response_id = response_message.id if response_message else None
-                generation_id = (
-                    response_message.generation_id if response_message else None
-                )
+    for event in stream:
+        event = json.loads(event)
+        if event["event"] == StreamEvent.STREAM_END:
+            data = event["data"]
+            response_id = response_message.id if response_message else None
+            generation_id = response_message.generation_id if response_message else None
 
-                non_streamed_chat_response = NonStreamedChatResponse(
-                    text=data.get("text", ""),
-                    response_id=response_id,
-                    generation_id=generation_id,
-                    chat_history=data.get("chat_history", []),
-                    finish_reason=data.get("finish_reason", ""),
-                    citations=data.get("citations", []),
-                    search_queries=data.get("search_queries", []),
-                    documents=data.get("documents", []),
-                    search_results=data.get("search_results", []),
-                    event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
-                    conversation_id=conversation_id,
-                    tool_calls=data.get("tool_calls", []),
-                )
+            non_streamed_chat_response = NonStreamedChatResponse(
+                text=data.get("text", ""),
+                response_id=response_id,
+                generation_id=generation_id,
+                chat_history=data.get("chat_history", []),
+                finish_reason=data.get("finish_reason", ""),
+                citations=data.get("citations", []),
+                search_queries=data.get("search_queries", []),
+                documents=data.get("documents", []),
+                search_results=data.get("search_results", []),
+                event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
+                conversation_id=conversation_id,
+                tool_calls=data.get("tool_calls", []),
+            )
 
     return non_streamed_chat_response
 
@@ -586,35 +583,32 @@ async def generate_chat_stream(
     document_ids_to_document = {}
 
     stream_event = None
-    async with AsyncGeneratorContextManager(
-        model_deployment_stream
-    ) as model_deployment_stream_tmp:
-        async for event in model_deployment_stream_tmp:
-            (
-                stream_event,
-                stream_end_data,
-                response_message,
-                document_ids_to_document,
-            ) = handle_stream_event(
-                event,
-                conversation_id,
-                stream_end_data,
-                response_message,
-                document_ids_to_document,
-                session=session,
-                should_store=should_store,
-                user_id=user_id,
-                next_message_position=kwargs.get("next_message_position", 0),
-            )
+    for event in model_deployment_stream:
+        (
+            stream_event,
+            stream_end_data,
+            response_message,
+            document_ids_to_document,
+        ) = handle_stream_event(
+            event,
+            conversation_id,
+            stream_end_data,
+            response_message,
+            document_ids_to_document,
+            session=session,
+            should_store=should_store,
+            user_id=user_id,
+            next_message_position=kwargs.get("next_message_position", 0),
+        )
 
-            yield json.dumps(
-                jsonable_encoder(
-                    ChatResponseEvent(
-                        event=stream_event.event_type.value,
-                        data=stream_event,
-                    )
+        yield json.dumps(
+            jsonable_encoder(
+                ChatResponseEvent(
+                    event=stream_event.event_type.value,
+                    data=stream_event,
                 )
             )
+        )
 
     if should_store:
         update_conversation_after_turn(
