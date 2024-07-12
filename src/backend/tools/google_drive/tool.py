@@ -61,7 +61,7 @@ class GoogleDrive(BaseTool):
         logger.error(message)
         raise Exception(message)
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         return asyncio.run(self.call_async(parameters, **kwargs))
 
     async def call_async(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
