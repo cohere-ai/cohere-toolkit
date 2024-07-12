@@ -30,7 +30,7 @@ from backend.services.conversation import (
     SEARCH_RELEVANCE_THRESHOLD,
     extract_details_from_conversation,
 )
-from backend.services.file import get_file_content, validate_file_size
+from backend.services.file import get_file_content, validate_file_size, validate_batch_file_size
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -243,6 +243,7 @@ async def search_conversations(
 
 
 # FILES
+# TODO: Deprecate singular file upload once client uses batch upload endpoint
 @router.post("/upload_file", response_model=UploadFile)
 async def upload_file(
     session: DBSessionDep,
@@ -323,6 +324,89 @@ async def upload_file(
 
     return upload_file
 
+
+@router.post("/batch_upload_file", response_model=list[UploadFile])
+async def batch_upload_file(
+    session: DBSessionDep,
+    request: Request,
+    conversation_id: str = Form(None),
+    files: list[FastAPIUploadFile] = RequestFile(...),
+) -> UploadFile:
+    """
+    Uploads and creates a batch of File object.
+    If no conversation_id is provided, a new Conversation is created as well.
+
+    Args:
+        session (DBSessionDep): Database session.
+        file (list[FastAPIUploadFile]): List of files to be uploaded.
+        conversation_id (Optional[str]): Conversation ID passed from request query parameter.
+
+    Returns:
+        list[UploadFile]: List of uploaded files.
+
+    Raises:
+        HTTPException: If the conversation with the given ID is not found. Status code 404.
+        HTTPException: If the file wasn't uploaded correctly. Status code 500.
+    """
+
+    user_id = get_header_user_id(request)
+
+    validate_batch_file_size(session, user_id, files)
+
+    # Create new conversation
+    if not conversation_id:
+        conversation = conversation_crud.create_conversation(
+            session,
+            ConversationModel(user_id=user_id),
+        )
+    # Check for existing conversation
+    else:
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
+        )
+
+        # Fail if user_id is not provided when conversation DNE
+        if not conversation:
+            if not user_id:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"user_id is required if no valid conversation is provided.",
+                )
+
+            # Create new conversation
+            conversation = conversation_crud.create_conversation(
+                session,
+                ConversationModel(user_id=user_id),
+            )
+
+    # TODO: check if file already exists in DB once we have files per agents
+
+    # Handle uploading File
+    uploaded_files = []
+    try:
+        for file in files:
+            content = await get_file_content(file)
+            cleaned_content = content.replace("\x00", "")
+            filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+
+            # Create File
+            upload_file = FileModel(
+                user_id=conversation.user_id,
+                conversation_id=conversation.id,
+                file_name=filename,
+                file_path=filename,
+                file_size=file.size,
+                file_content=cleaned_content,
+            )
+
+            upload_file = file_crud.create_file(session, upload_file)
+            uploaded_files.append(upload_file)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error while uploading file {file.filename}."
+        )
+
+    return uploaded_files
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
 async def list_files(
