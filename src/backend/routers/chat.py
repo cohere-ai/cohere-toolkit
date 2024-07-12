@@ -27,7 +27,7 @@ router.name = RouterName.CHAT
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
-def chat_stream(
+async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
@@ -90,7 +90,7 @@ def chat_stream(
 
 
 @router.post("/chat", dependencies=[Depends(validate_deployment_header)])
-async def chat(
+def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
@@ -127,7 +127,7 @@ async def chat(
         next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
-    response = await generate_chat_response(
+    response = generate_chat_response(
         session,
         CustomChat().chat(
             chat_request,
