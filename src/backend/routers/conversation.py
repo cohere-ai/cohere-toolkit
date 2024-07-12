@@ -221,7 +221,7 @@ async def search_conversations(
         return filtered_conversations
 
     # Rerank documents
-    res = model_deployment.invoke_rerank(
+    res = await model_deployment.invoke_rerank(
         query=query,
         documents=rerank_documents,
         user_id=user_id,
@@ -484,7 +484,7 @@ async def generate_title(
             message=prompt,
         )
 
-        response = generate_chat_response(
+        response = await generate_chat_response(
             session,
             CustomChat().chat(
                 chat_request,
