@@ -297,7 +297,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
 
     return wrapper
 
-
+import pdb
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
@@ -305,11 +305,11 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
         metrics_data, kwargs = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
         )
-
         stream = func(self, chat_request, **kwargs)
 
         try:
             async for event in stream:
+                pdb.set_trace()
                 event_dict = to_dict(event)
 
                 if is_event_end_with_error(event_dict):
@@ -361,6 +361,10 @@ def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
 ) -> tuple[MetricsData, Any]:
 
+    model = kwargs.get("model", None)
+    trace_id = kwargs.get("trace_id", None)
+    user_id = kwargs.get("user_id", None)
+    assistant_id = kwargs.get("agent_id", None)
     method = "POST"
     endpoint_name = f"co.{func_name}"
     is_success = True
@@ -370,10 +374,10 @@ def initialize_sdk_metrics_data(
         MetricsData(
             id=str(uuid.uuid4()),
             message_type=message_type,
-            trace_id=kwargs.get("trace_id", None),
-            user_id=kwargs.get("user_id", None),
-            assistant_id=kwargs.get("agent_id", None),
-            model=chat_request.model if chat_request else None,
+            trace_id=trace_id,
+            user_id=user_id,
+            assistant_id=assistant_id,
+            model=model,
         ),
         kwargs,
     )

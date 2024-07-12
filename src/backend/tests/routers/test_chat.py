@@ -114,7 +114,7 @@ def test_streaming_new_chat_with_agent_reports_metrics(
         
         for ma in m_args_list:
             m_args = ma[0][0]
-            pdb.set_trace()
+            # pdb.set_trace()
             assert m_args.user_id == user.id
             assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
             if m_args.input_nb_tokens:
@@ -122,7 +122,7 @@ def test_streaming_new_chat_with_agent_reports_metrics(
             if m_args.output_nb_tokens:
                 output_nb_tokens_sum += m_args.output_nb_tokens
             assert m_args.assistant_id == agent.id
-            # assert m_args.model == "command-r"
+            assert m_args.model == "command-r"
         assert input_nb_tokens_sum > 0
         assert output_nb_tokens_sum > 0
 
