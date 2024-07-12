@@ -48,7 +48,7 @@ class SingleContainerDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in SC_ENV_VARS])
 
     @collect_metrics_chat
-    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
+    def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(
                 exclude={"stream", "file_ids", "model", "agent_id"}
@@ -57,9 +57,7 @@ class SingleContainerDeployment(BaseDeployment):
         yield to_dict(response)
 
     @collect_metrics_chat_stream
-    async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest
-    ) -> AsyncGenerator[Any, Any]:
+    def invoke_chat_stream(self, chat_request: CohereChatRequest) -> Any:
         stream = self.client.chat_stream(
             **chat_request.model_dump(
                 exclude={"stream", "file_ids", "model", "agent_id"}
@@ -70,7 +68,7 @@ class SingleContainerDeployment(BaseDeployment):
             yield to_dict(event)
 
     @collect_metrics_rerank
-    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
+    def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL
         )

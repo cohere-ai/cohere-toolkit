@@ -27,16 +27,14 @@ class BaseDeployment:
     def is_available() -> bool: ...
 
     @abstractmethod
-    async def invoke_chat(
-        self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> Any: ...
+    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any: ...
 
     @abstractmethod
-    async def invoke_chat_stream(
+    def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> AsyncGenerator[Any, Any]: ...
 
     @abstractmethod
-    async def invoke_rerank(
+    def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any: ...

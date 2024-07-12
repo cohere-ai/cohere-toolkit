@@ -284,41 +284,6 @@ class CustomChat(BaseChat):
 
         return tool_results
 
-    async def handle_tool_calls_stream(self, tool_results_stream):
-        # Process the stream and return the chat history, and a copy of the stream and a flag indicating if the response is a direct answer
-        stream, stream_copy = tee(tool_results_stream)
-        is_direct_answer = True
-
-        chat_history = []
-        for event in stream:
-            if event["event_type"] == StreamEvent.STREAM_END:
-                stream_chat_history = []
-                if "response" in event:
-                    stream_chat_history = event["response"].get("chat_history", [])
-                elif "chat_history" in event:
-                    stream_chat_history = event["chat_history"]
-
-                for message in stream_chat_history:
-                    if not isinstance(message, dict):
-                        message = to_dict(message)
-
-                    chat_history.append(
-                        ChatMessage(
-                            role=message.get("role"),
-                            message=message.get("message", ""),
-                            tool_results=message.get("tool_results", None),
-                            tool_calls=message.get("tool_calls", None),
-                        )
-                    )
-
-            elif (
-                event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION
-                and "tool_calls" in event
-            ):
-                is_direct_answer = False
-
-        return is_direct_answer, chat_history, stream_copy
-
     def get_managed_tools(self, chat_request: CohereChatRequest):
         return [
             Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump())
