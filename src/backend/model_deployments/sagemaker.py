@@ -79,7 +79,9 @@ class SageMakerDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
     @collect_metrics_chat_stream
-    def invoke_chat_stream(self, chat_request: CohereChatRequest) -> Any:
+    def invoke_chat_stream(
+        self, chat_request: CohereChatRequest
+    ) -> AsyncGenerator[Any, Any]:
         # Create the payload for the request
         json_params = {
             "prompt_truncation": "AUTO_PRESERVE_ORDER",
