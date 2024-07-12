@@ -180,9 +180,7 @@ export type CreateSnapshotResponse = {
   snapshot_id: string;
   user_id: string;
   link_id: string;
-  messages: Array<{
-    [key: string]: unknown;
-  }>;
+  messages: Array<Message>;
 };
 
 export type CreateUser = {
@@ -349,9 +347,22 @@ export type Snapshot = {
   version: number;
   created_at: string;
   updated_at: string;
-  snapshot: {
-    [key: string]: unknown;
-  } | null;
+  snapshot: SnapshotData;
+};
+
+export type SnapshotAgent = {
+  id: string;
+  name: string;
+  description: string | null;
+  preamble: string | null;
+  tools_metadata: Array<AgentToolMetadata> | null;
+};
+
+export type SnapshotData = {
+  title: string;
+  description: string;
+  messages: Array<Message>;
+  agent: SnapshotAgent | null;
 };
 
 export type SnapshotWithLinks = {
@@ -363,9 +374,7 @@ export type SnapshotWithLinks = {
   version: number;
   created_at: string;
   updated_at: string;
-  snapshot: {
-    [key: string]: unknown;
-  } | null;
+  snapshot: SnapshotData;
   links: Array<string>;
 };
 
@@ -667,6 +676,16 @@ export type ListConversationsV1ConversationsGetData = {
 };
 
 export type ListConversationsV1ConversationsGetResponse = Array<ConversationWithoutMessages>;
+
+export type SearchConversationsV1ConversationsSearchGetData = {
+  agentId?: string;
+  limit?: number;
+  offset?: number;
+  query: string;
+};
+
+export type SearchConversationsV1ConversationsSearchGetResponse =
+  Array<ConversationWithoutMessages>;
 
 export type UploadFileV1ConversationsUploadFilePostData = {
   formData: Body_upload_file_v1_conversations_upload_file_post;
@@ -1033,6 +1052,21 @@ export type $OpenApiTs = {
   '/v1/conversations': {
     get: {
       req: ListConversationsV1ConversationsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<ConversationWithoutMessages>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/conversations:search': {
+    get: {
+      req: SearchConversationsV1ConversationsSearchGetData;
       res: {
         /**
          * Successful Response

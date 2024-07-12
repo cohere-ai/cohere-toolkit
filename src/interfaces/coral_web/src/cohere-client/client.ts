@@ -7,6 +7,7 @@ import {
   CohereClientGenerated,
   CohereNetworkError,
   CreateAgent,
+  CreateSnapshot,
   CreateUser,
   ExperimentalFeatures,
   Fetch,
@@ -275,6 +276,26 @@ export class CohereClient {
     return this.cohereService.default.generateTitleV1ConversationsConversationIdGenerateTitlePost({
       conversationId,
     });
+  }
+
+  public listSnapshots() {
+    return this.cohereService.default.listSnapshotsV1SnapshotsGet();
+  }
+
+  public createSnapshot(requestBody: CreateSnapshot) {
+    return this.cohereService.default.createSnapshotV1SnapshotsPost({ requestBody });
+  }
+
+  public getSnapshot({ linkId }: { linkId: string }) {
+    return this.cohereService.default.getSnapshotV1SnapshotsLinkLinkIdGet({ linkId });
+  }
+
+  public deleteSnapshotLink({ linkId }: { linkId: string }) {
+    return this.cohereService.default.deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({ linkId });
+  }
+
+  public deleteSnapshot({ snapshotId }: { snapshotId: string }) {
+    return this.cohereService.default.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
   }
 
   private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {

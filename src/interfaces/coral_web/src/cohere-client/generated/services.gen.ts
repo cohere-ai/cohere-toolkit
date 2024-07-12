@@ -65,6 +65,8 @@ import type {
   LoginV1LoginPostResponse,
   LoginV1ToolAuthGetResponse,
   LogoutV1LogoutGetResponse,
+  SearchConversationsV1ConversationsSearchGetData,
+  SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
@@ -591,6 +593,43 @@ export class DefaultService {
       method: 'GET',
       url: '/v1/conversations',
       query: {
+        offset: data.offset,
+        limit: data.limit,
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Search Conversations
+   * Search conversations by title.
+   *
+   * Args:
+   * query (str): Query string to search for in conversation titles.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * list[ConversationWithoutMessages]: List of conversations that match the query.
+   * @param data The data for the request.
+   * @param data.query
+   * @param data.offset
+   * @param data.limit
+   * @param data.agentId
+   * @returns ConversationWithoutMessages Successful Response
+   * @throws ApiError
+   */
+  public searchConversationsV1ConversationsSearchGet(
+    data: SearchConversationsV1ConversationsSearchGetData
+  ): CancelablePromise<SearchConversationsV1ConversationsSearchGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/conversations:search',
+      query: {
+        query: data.query,
         offset: data.offset,
         limit: data.limit,
         agent_id: data.agentId,

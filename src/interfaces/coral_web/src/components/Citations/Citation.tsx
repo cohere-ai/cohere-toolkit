@@ -20,7 +20,7 @@ type Props = {
   className?: string;
 };
 
-const DEFAULT_NUM_VISIBLE_DOCS = 3;
+export const DEFAULT_NUM_VISIBLE_DOCS = 3;
 
 /**
  * Placeholder component for a citation.

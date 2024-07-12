@@ -966,7 +966,7 @@ export const $CreateSnapshotResponse = {
     },
     messages: {
       items: {
-        type: 'object',
+        $ref: '#/components/schemas/Message',
       },
       type: 'array',
       title: 'Messages',
@@ -1859,15 +1859,7 @@ export const $Snapshot = {
       title: 'Updated At',
     },
     snapshot: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Snapshot',
+      $ref: '#/components/schemas/SnapshotData',
     },
   },
   type: 'object',
@@ -1883,6 +1875,91 @@ export const $Snapshot = {
     'snapshot',
   ],
   title: 'Snapshot',
+} as const;
+
+export const $SnapshotAgent = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    preamble: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Preamble',
+    },
+    tools_metadata: {
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadata',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tools Metadata',
+    },
+  },
+  type: 'object',
+  required: ['id', 'name', 'description', 'preamble', 'tools_metadata'],
+  title: 'SnapshotAgent',
+} as const;
+
+export const $SnapshotData = {
+  properties: {
+    title: {
+      type: 'string',
+      title: 'Title',
+    },
+    description: {
+      type: 'string',
+      title: 'Description',
+    },
+    messages: {
+      items: {
+        $ref: '#/components/schemas/Message',
+      },
+      type: 'array',
+      title: 'Messages',
+    },
+    agent: {
+      anyOf: [
+        {
+          $ref: '#/components/schemas/SnapshotAgent',
+        },
+        {
+          type: 'null',
+        },
+      ],
+    },
+  },
+  type: 'object',
+  required: ['title', 'description', 'messages', 'agent'],
+  title: 'SnapshotData',
 } as const;
 
 export const $SnapshotWithLinks = {
@@ -1929,15 +2006,7 @@ export const $SnapshotWithLinks = {
       title: 'Updated At',
     },
     snapshot: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Snapshot',
+      $ref: '#/components/schemas/SnapshotData',
     },
     links: {
       items: {
