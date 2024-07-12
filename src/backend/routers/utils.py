@@ -4,6 +4,7 @@ from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.user import User
 from backend.schemas.agent import Agent
+from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import MetricsAgent, MetricsUser
 from backend.services.auth.utils import get_header_user_id
 
@@ -36,3 +37,6 @@ def add_user_to_request_state(request: Request, user: User):
         request.state.user = MetricsUser(
             id=user.id, email=user.email, fullname=user.fullname
         )
+def add_model_to_request_state(request: Request, chat_request: CohereChatRequest):
+    if chat_request.model:
+        request.state.model = chat_request.model[:]

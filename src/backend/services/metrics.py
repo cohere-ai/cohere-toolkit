@@ -75,6 +75,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.user = None
+        request.state.model = None
 
         start_time = time.perf_counter()
         response = await call_next(request)
@@ -121,6 +122,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             assistant=agent,
             assistant_id=agent_id,
             duration_ms=duration_ms,
+            model=request.state.model,
         )
 
     def get_method(self, scope: dict) -> str:
@@ -368,6 +370,7 @@ def initialize_sdk_metrics_data(
     method = "POST"
     endpoint_name = f"co.{func_name}"
     is_success = True
+    model = kwargs.get("model", None)
     message_type = event_name_of(method, endpoint_name, is_success)
 
     return (
@@ -377,7 +380,7 @@ def initialize_sdk_metrics_data(
             trace_id=kwargs.get("trace_id", None),
             user_id=kwargs.get("user_id", None),
             assistant_id=kwargs.get("agent_id", None),
-            model=chat_request.model if chat_request else None,
+            model=model,
         ),
         kwargs,
     )

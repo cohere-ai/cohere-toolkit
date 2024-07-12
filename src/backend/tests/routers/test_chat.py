@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,7 +13,9 @@ from backend.config.deployments import ModelDeploymentName
 from backend.database_models.conversation import Conversation
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.user import User
+from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.tool import Category
+from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
 
 is_cohere_env_set = (
@@ -45,6 +48,55 @@ def test_streaming_new_chat(
         response, user, session_chat, session_client_chat, 2
     )
 
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+@pytest.mark.asyncio
+def test_streaming_new_chat_with_agent_reports_metrics(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(
+        user_id=user.id,
+        tools=[],
+        name="test agent with metrics",
+        preamble="you are a smart assistant that reports metrics",
+    )
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": user.id,
+                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            },
+            params={},
+            json={
+                "message": "Hello",
+                "max_tokens": 10,
+                "agent_id": agent.id,
+                "model": "command-r",
+            },
+        )
+
+        assert response.status_code == 200
+        m_args_list: MetricsData = mock_metrics.await_args_list
+        input_nb_tokens_sum = 0
+        output_nb_tokens_sum = 0
+
+        for ma in m_args_list:
+            m_args = ma[0][0]
+            # pdb.set_trace()
+            assert m_args.user_id == user.id
+            assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
+            if m_args.input_nb_tokens:
+                input_nb_tokens_sum += m_args.input_nb_tokens
+            if m_args.output_nb_tokens:
+                output_nb_tokens_sum += m_args.output_nb_tokens
+            assert m_args.assistant_id == agent.id
+            assert m_args.model == "command-r"
+        assert input_nb_tokens_sum > 0
+        assert output_nb_tokens_sum > 0
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat_with_agent(

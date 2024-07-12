@@ -9,6 +9,7 @@ from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import add_model_to_request_state
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.langchain_chat import LangchainChatRequest
@@ -50,6 +51,9 @@ async def chat_stream(
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
+    add_model_to_request_state(request, chat_request)
+    req_model = chat_request.model[:]
+
     (
         session,
         chat_request,
@@ -79,6 +83,7 @@ async def chat_stream(
                 user_id=user_id,
                 trace_id=trace_id,
                 agent_id=agent_id,
+                model=req_model,
             ),
             response_message,
             conversation_id,
@@ -116,7 +121,9 @@ async def chat(
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
-
+    # warning: process_chat currently mutates chat_request.model
+    req_model = chat_request.model[:]
+    add_model_to_request_state(request, chat_request)
     (
         session,
         chat_request,
@@ -143,6 +150,7 @@ async def chat(
             trace_id=trace_id,
             user_id=user_id,
             agent_id=agent_id,
+            model=req_model,
         ),
         response_message,
         conversation_id,

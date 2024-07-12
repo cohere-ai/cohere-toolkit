@@ -143,6 +143,7 @@ class CustomChat(BaseChat):
         trace_id = kwargs.get("trace_id", "")
         user_id = kwargs.get("user_id", "")
         agent_id = kwargs.get("agent_id", "")
+        model = kwargs.get("model", [])
         managed_tools = self.get_managed_tools(chat_request)
 
         tool_names = []
@@ -188,7 +189,11 @@ class CustomChat(BaseChat):
             # Invoke chat stream
             has_tool_calls = False
             async for event in deployment_model.invoke_chat_stream(
-                chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
+                chat_request,
+                trace_id=trace_id,
+                user_id=user_id,
+                agent_id=agent_id,
+                model=model,
             ):
                 if event["event_type"] == StreamEvent.STREAM_END:
                     chat_request.chat_history = event["response"].get(
