@@ -12,6 +12,7 @@ export const NavigationBar: React.FC<PropsWithChildren<{ className?: string }>> 
   className = '',
   children,
 }) => {
+  console.log(env.NEXT_PUBLIC_HAS_CUSTOM_LOGO)
   return (
     <nav
       className={cx(

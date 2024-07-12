@@ -53,8 +53,8 @@ ALL_TOOLS = {
                 "type": "str",
                 "required": True
             },
-            "top_k": {
-                "description": "Top k results to be retrieved based on the query",
+            "top_n": {
+                "description": "Top n results to be retrieved based on the query",
                 "type": "int",
                 "required": True
             }

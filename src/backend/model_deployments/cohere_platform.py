@@ -85,7 +85,8 @@ class CohereDeployment(BaseDeployment):
             **chat_request.model_dump(exclude={"stream", "file_ids"}),
             **kwargs,
         )
-
+        
+        # print(stream)
         for event in stream:
             yield to_dict(event)
 

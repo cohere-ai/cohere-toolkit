@@ -320,6 +320,7 @@ def initialize_sdk_metrics_data(
 def get_input_output_tokens(response_dict: dict) -> tuple[int, int]:
     if response_dict is None:
         return None, None
+    # print(response_dict)
 
     input_tokens = (
         response_dict.get("meta", {}).get("billed_units", {}).get("input_tokens")
