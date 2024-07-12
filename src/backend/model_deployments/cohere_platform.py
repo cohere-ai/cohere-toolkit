@@ -5,6 +5,7 @@ import threading
 import time
 from typing import Any, AsyncGenerator, Dict, List
 
+from backend.services.logger import get_logger, send_log_message
 import cohere
 import requests
 from cohere.core.api_error import ApiError
@@ -26,6 +27,8 @@ COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 
+
+logger = get_logger()
 
 class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
@@ -85,6 +88,13 @@ class CohereDeployment(BaseDeployment):
         )
 
         for event in stream:
+            send_log_message(
+                logger,
+                f"Chat event: {to_dict(event)}",
+                level="info",
+                conversation_id=kwargs.get("conversation_id"),
+                user_id=kwargs.get("user_id"),
+            )
             yield to_dict(event)
 
     @collect_metrics_rerank
