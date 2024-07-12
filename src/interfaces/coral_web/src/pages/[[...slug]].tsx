@@ -217,14 +217,16 @@ const Page: NextPage = () => {
   }
 
   return (
-    <Layout>
-      <LeftSection>
-        <ConversationListPanel />
-      </LeftSection>
-      <MainSection>
-        <Conversation conversationId={conversation?.id} startOptionsEnabled />
-      </MainSection>
-    </Layout>
+    <ProtectedPage>
+      <Layout>
+        <LeftSection>
+          <ConversationListPanel />
+        </LeftSection>
+        <MainSection>
+          <Conversation conversationId={conversation?.id} startOptionsEnabled />
+        </MainSection>
+      </Layout>
+    </ProtectedPage>
   );
 };
 
