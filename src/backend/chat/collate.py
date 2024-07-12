@@ -7,7 +7,7 @@ from backend.model_deployments.base import BaseDeployment
 RELEVANCE_THRESHOLD = 0.1
 
 
-async def rerank_and_chunk(
+def rerank_and_chunk(
     tool_results: List[Dict[str, Any]], model: BaseDeployment, **kwargs: Any
 ) -> List[Dict[str, Any]]:
     """
@@ -74,7 +74,7 @@ async def rerank_and_chunk(
         if not chunked_outputs:
             continue
 
-        res = await model.invoke_rerank(
+        res = model.invoke_rerank(
             query=query,
             documents=chunked_outputs,
             trace_id=trace_id,

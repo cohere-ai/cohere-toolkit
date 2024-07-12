@@ -54,6 +54,7 @@ from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
+from backend.services.generators import AsyncGeneratorContextManager
 
 
 def process_chat(
@@ -517,7 +518,7 @@ async def generate_chat_response(
     )
 
     non_streamed_chat_response = None
-    async for event in stream:
+    for event in stream:
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
@@ -542,15 +543,15 @@ async def generate_chat_response(
     return non_streamed_chat_response
 
 
-async def generate_chat_stream(
+def generate_chat_stream(
     session: DBSessionDep,
-    model_deployment_stream: Generator[StreamedChatResponse, None, None],
+    model_deployment_stream: Generator[Any, Any, Any],
     response_message: Message,
     conversation_id: str,
     user_id: str,
     should_store: bool = True,
     **kwargs: Any,
-) -> AsyncGenerator[Any, Any]:
+) -> Generator[Any, Any, Any]:
     """
     Generate chat stream from model deployment stream.
 
@@ -582,7 +583,7 @@ async def generate_chat_stream(
     document_ids_to_document = {}
 
     stream_event = None
-    async for event in model_deployment_stream:
+    for event in model_deployment_stream:
         (
             stream_event,
             stream_end_data,

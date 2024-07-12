@@ -60,7 +60,7 @@ class GoogleDrive(BaseTool):
         logger.error(message)
         raise Exception(message)
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         """
         Google Drive logic
         """
@@ -166,7 +166,7 @@ class GoogleDrive(BaseTool):
         ]
         id_to_urls = extract_links(native_files)
         if id_to_urls:
-            id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
+            id_to_texts = async_download.sync_perform(id_to_urls, creds.token)
 
         # initialize Compass
         compass = None
@@ -188,7 +188,7 @@ class GoogleDrive(BaseTool):
         non_native_files = [
             x for x in processed_files if x["mimeType"] in NON_NATIVE_SEARCH_MIME_TYPES
         ]
-        non_native_results = await non_native_files_perform(
+        non_native_results = non_native_files_perform(
             service=service, compass=compass, files=non_native_files
         )
         id_to_texts = {
@@ -294,14 +294,19 @@ class GoogleDrive(BaseTool):
                 "top_k": SEARCH_LIMIT,
             },
         ).result["hits"]
-        chunks = [
-            {
-                "text": chunk["content"]["text"],
-                "url": hit["content"].get("url", ""),
-                "title": hit["content"].get("title", ""),
-            }
-            for hit in hits
-            for chunk in hit["chunks"]
-        ]
+        chunks = sorted(
+            [
+                {
+                    "text": chunk["content"]["text"],
+                    "score": chunk["score"],
+                    "url": hit["content"].get("url", ""),
+                    "title": hit["content"].get("title", ""),
+                }
+                for hit in hits
+                for chunk in hit["chunks"]
+            ],
+            key=lambda x: x["score"],
+            reverse=True,
+        )[:SEARCH_LIMIT]
 
         return chunks

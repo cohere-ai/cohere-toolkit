@@ -27,7 +27,7 @@ router.name = RouterName.CHAT
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
-async def chat_stream(
+def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
@@ -86,6 +86,9 @@ async def chat_stream(
             next_message_position=next_message_position,
         ),
         media_type="text/event-stream",
+        headers={"Connection": "keep-alive"},
+        send_timeout=300,
+        ping=5,
     )
 
 

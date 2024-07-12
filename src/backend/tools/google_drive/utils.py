@@ -56,27 +56,30 @@ def process_shortcut_files(service: Any, files: List[Dict[str, str]]) -> Dict[st
     processed_files = []
     for file in files:
         if file["mimeType"] == "application/vnd.google-apps.shortcut":
-            targetId = file["shortcutDetails"]["targetId"]
-            targetFile = (
-                service.files()
-                .get(
-                    fileId=targetId,
-                    fields=DOC_FIELDS,
-                    supportsAllDrives=True,
+            try:
+                targetId = file["shortcutDetails"]["targetId"]
+                targetFile = (
+                    service.files()
+                    .get(
+                        fileId=targetId,
+                        fields=DOC_FIELDS,
+                        supportsAllDrives=True,
+                    )
+                    .execute()
                 )
-                .execute()
-            )
-            processed_files.append(targetFile)
+                processed_files.append(targetFile)
+            except Exception as _e:
+                continue
         else:
             processed_files.append(file)
 
     return processed_files
 
 
-async def non_native_files_perform(
+def non_native_files_perform(
     service: Any, compass: Compass, files: List[Dict[str, str]]
 ) -> dict[str, str]:
-    return await _download_non_native_files(service, compass, files)
+    return asyncio.run(_download_non_native_files(service, compass, files))
 
 
 async def _download_non_native_files(
