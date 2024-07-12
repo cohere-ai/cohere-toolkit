@@ -18,6 +18,13 @@ export const getWeeksAgo = (date: string | Date): { weeksAgo: number; weeksAgoSt
 };
 
 /**
+ * Converts a file size in megabytes to bytes
+ */
+export const fileSizeToBytes = (size: number): number => {
+  return size * 1024 * 1024;
+};
+
+/**
  * Converts a file size in bytes to megabytes
  * */
 export const fileSizeToMB = (size: number): number => {
