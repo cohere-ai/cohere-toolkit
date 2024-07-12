@@ -274,10 +274,19 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 mapDocuments(documents);
               documentsMap = { ...documentsMap, ...newDocumentsMap };
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
-              toolEvents.push({
-                text: '',
-                stream_search_results: data,
-              } as StreamToolCallsGeneration);
+              // we are only interested in web_search results
+              // ignore search results of pyhton interpreter tool
+              if (
+                toolEvents[currentToolEventIndex - 1]?.tool_calls?.[0]?.name !==
+                TOOL_PYTHON_INTERPRETER_ID
+              ) {
+                toolEvents.push({
+                  text: '',
+                  stream_search_results: data,
+                  tool_calls: [],
+                } as StreamToolCallsGeneration);
+                currentToolEventIndex += 1;
+              }
               break;
             }
 
