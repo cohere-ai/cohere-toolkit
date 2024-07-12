@@ -25,6 +25,7 @@ from backend.schemas.metrics import (
     MetricsUser,
 )
 from backend.services.auth.utils import get_header_user_id
+from backend.services.generators import AsyncGeneratorContextManager
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -286,7 +287,7 @@ def collect_metrics_chat(func: Callable) -> Callable:
             response_dict = to_dict(response)
         except Exception as e:
             metrics_data = handle_error(metrics_data, e)
-            raise e
+            logger.warning(f"error logging metrics during stream: {e}")
         finally:
             (
                 metrics_data.input_tokens,
@@ -311,23 +312,24 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
         stream = func(self, chat_request, **kwargs)
 
         try:
-            async for event in stream:
-                event_dict = to_dict(event)
+            async with AsyncGeneratorContextManager(stream) as stream:
+                async for event in stream:
+                    event_dict = to_dict(event)
 
-                if is_event_end_with_error(event_dict):
-                    metrics_data.success = False
-                    metrics_data.error = event_dict.get("error")
+                    if is_event_end_with_error(event_dict):
+                        metrics_data.success = False
+                        metrics_data.error = event_dict.get("error")
 
-                if event_dict.get("event_type") == StreamEvent.STREAM_END:
-                    (
-                        metrics_data.input_nb_tokens,
-                        metrics_data.output_nb_tokens,
-                    ) = get_input_output_tokens(event_dict.get("response"))
+                    if event_dict.get("event_type") == StreamEvent.STREAM_END:
+                        (
+                            metrics_data.input_nb_tokens,
+                            metrics_data.output_nb_tokens,
+                        ) = get_input_output_tokens(event_dict.get("response"))
 
-                yield event_dict
+                    yield event_dict
         except Exception as e:
             metrics_data = handle_error(metrics_data, e)
-            raise e
+            logger.warning(f"error logging metrics during stream: {e}")
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
             await run_loop(metrics_data)
@@ -350,7 +352,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             metrics_data.search_units = get_search_units(response_dict)
         except Exception as e:
             metrics_data = handle_error(metrics_data, e)
-            raise e
+            logger.warning(f"error logging metrics during stream: {e}")
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
             await run_loop(metrics_data)
@@ -372,9 +374,9 @@ def initialize_sdk_metrics_data(
         MetricsData(
             id=str(uuid.uuid4()),
             message_type=message_type,
-            trace_id=kwargs.pop("trace_id", None),
-            user_id=kwargs.pop("user_id", None),
-            assistant_id=kwargs.pop("agent_id", None),
+            trace_id=kwargs.get("trace_id", None),
+            user_id=kwargs.get("user_id", None),
+            assistant_id=kwargs.get("agent_id", None),
             model=chat_request.model if chat_request else None,
         ),
         kwargs,
