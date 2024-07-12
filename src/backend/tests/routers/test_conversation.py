@@ -568,7 +568,7 @@ def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
 
     assert response.status_code == 401
     assert response.json() == {"detail": "User-Id required in request headers."}
-    
+
 
 def test_batch_upload_file_existing_conversation(
     session_client: TestClient, session: Session
@@ -604,7 +604,9 @@ def test_batch_upload_file_existing_conversation(
     assert response.status_code == 200
     assert len(files) == len(file_paths)
     uploaded_file_names = [file["file_name"] for file in files]
-    assert all(file_name in uploaded_file_names for file_name in file_names) == True
+    assert (
+        all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
+    )
     for file in files:
         assert file["conversation_id"] == conversation.id
         assert file["user_id"] == conversation.user_id
@@ -635,7 +637,9 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
     ]
 
     response = session_client.post(
-        "/v1/conversations/upload_file", files=files, headers={"User-Id": "testuser"}
+        "/v1/conversations/batch_upload_file",
+        files=files,
+        headers={"User-Id": "testuser"},
     )
 
     files = response.json()
@@ -647,25 +651,46 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
     assert response.status_code == 200
     assert created_conversation is not None
     assert len(files) == len(file_paths)
-    assert created_conversation.user_id == "testuser"
-    assert file["conversation_id"] == created_conversation.id
-    assert "Mariana_Trench" in file["file_name"]
+    uploaded_file_names = [file["file_name"] for file in files]
+    assert (
+        all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
+    )
+    for file in files:
+        assert file["conversation_id"] == created_conversation.id
+        assert file["user_id"] == created_conversation.user_id
+
     assert file["conversation_id"] == created_conversation.id
 
     # File should not exist in the directory
-    assert not os.path.exists(saved_file_path)
+    for saved_file_path in saved_file_paths:
+        assert not os.path.exists(saved_file_path)
 
 
-def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
+def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
     session_client: TestClient, session: Session
 ) -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
-    file_doc = {"file": open(file_path, "rb")}
+    file_paths = {
+        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
+        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+    }
+    saved_file_paths = [
+        "src/backend/data/Mariana_Trench.pdf",
+        "src/backend/data/Cardistry.pdf",
+        "src/backend/data/Tapas.pdf",
+        "src/backend/data/Mount_Everest.pdf",
+    ]
+    files = [
+        ("files", (file_name, open(file_path, "rb")))
+        for file_name, file_path in file_paths.items()
+    ]
 
-    response = session_client.post("/v1/conversations/upload_file", files=file_doc)
+    response = session_client.post("/v1/conversations/upload_file", files=files)
 
     assert response.status_code == 401
     assert response.json() == {"detail": "User-Id required in request headers."}
+
 
 def test_update_file_name(session_client: TestClient, session: Session) -> None:
     conversation = get_factory("Conversation", session).create()
@@ -691,7 +716,6 @@ def test_update_file_name(session_client: TestClient, session: Session) -> None:
     )
     assert file is not None
     assert file.file_name == "new name"
-
 
 
 def test_fail_update_nonexistent_file(

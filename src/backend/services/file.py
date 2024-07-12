@@ -90,6 +90,7 @@ def validate_file_size(
             detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
         )
 
+
 def validate_batch_file_size(
     session: DBSessionDep, user_id: str, files: list[FastAPIUploadFile]
 ) -> None:

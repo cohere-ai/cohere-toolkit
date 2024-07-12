@@ -30,7 +30,11 @@ from backend.services.conversation import (
     SEARCH_RELEVANCE_THRESHOLD,
     extract_details_from_conversation,
 )
-from backend.services.file import get_file_content, validate_file_size, validate_batch_file_size
+from backend.services.file import (
+    get_file_content,
+    validate_batch_file_size,
+    validate_file_size,
+)
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -382,31 +386,31 @@ async def batch_upload_file(
     # TODO: check if file already exists in DB once we have files per agents
 
     # Handle uploading File
-    uploaded_files = []
+    files_to_upload = []
+    for file in files:
+        content = await get_file_content(file)
+        cleaned_content = content.replace("\x00", "")
+        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+
+        # Create File
+        upload_file = FileModel(
+            user_id=conversation.user_id,
+            conversation_id=conversation.id,
+            file_name=filename,
+            file_path=filename,
+            file_size=file.size,
+            file_content=cleaned_content,
+        )
+        files_to_upload.append(upload_file)
     try:
-        for file in files:
-            content = await get_file_content(file)
-            cleaned_content = content.replace("\x00", "")
-            filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-
-            # Create File
-            upload_file = FileModel(
-                user_id=conversation.user_id,
-                conversation_id=conversation.id,
-                file_name=filename,
-                file_path=filename,
-                file_size=file.size,
-                file_content=cleaned_content,
-            )
-
-            upload_file = file_crud.create_file(session, upload_file)
-            uploaded_files.append(upload_file)
+        uploaded_files = file_crud.batch_create_files(session, files_to_upload)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error while uploading file {file.filename}."
+            status_code=500, detail=f"Error while uploading file(s): {e}."
         )
 
     return uploaded_files
+
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
 async def list_files(
