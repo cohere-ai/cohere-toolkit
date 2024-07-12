@@ -23,7 +23,9 @@ MAX_STEPS = 15
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
 
-    def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Generator[Any, Any, Any]:
+    def chat(
+        self, chat_request: CohereChatRequest, **kwargs: Any
+    ) -> Generator[Any, Any, Any]:
         """
         Chat flow for custom models.
 
