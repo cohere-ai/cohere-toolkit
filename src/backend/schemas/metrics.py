@@ -58,6 +58,7 @@ class MetricsAgent(BaseModel):
 
 
 class MetricsData(MetricsDataBase):
+    success: bool = False
     input_nb_tokens: int | None = None
     output_nb_tokens: int | None = None
     search_units: int | None = None

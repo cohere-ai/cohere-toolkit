@@ -31,6 +31,7 @@ class Compass:
         GET_DOCUMENT = "get_document"
         ADD_CONTEXT = "add_context"
         REFRESH = "refresh"
+        PROCESS_FILE = "process_file"
 
     def __init__(
         self,
@@ -99,10 +100,10 @@ class Compass:
         """
 
         # Check if index is specified
-        if (
-            not parameters.get("index", None)
-            and action != self.ValidActions.LIST_INDEXES
-        ):
+        if not parameters.get("index", None) and action.value not in [
+            self.ValidActions.LIST_INDEXES.value,
+            self.ValidActions.PROCESS_FILE.value,
+        ]:
             raise Exception(
                 "Compass Tool: No index specified. ",
                 "No action will be taken. ",
@@ -111,31 +112,33 @@ class Compass:
 
         # Index-related actions
         try:
-            match action:
-                case self.ValidActions.LIST_INDEXES:
+            match action.value:
+                case self.ValidActions.LIST_INDEXES.value:
                     return self.compass_client.list_indexes()
-                case self.ValidActions.CREATE_INDEX:
+                case self.ValidActions.CREATE_INDEX.value:
                     return self.compass_client.create_index(
                         index_name=parameters["index"]
                     )
-                case self.ValidActions.CREATE_INDEX:
+                case self.ValidActions.CREATE_INDEX.value:
                     return self.compass_client.delete_index(
                         index_name=parameters["index"]
                     )
-                case self.ValidActions.CREATE:
+                case self.ValidActions.CREATE.value:
                     self._create(parameters, **kwargs)
-                case self.ValidActions.SEARCH:
+                case self.ValidActions.SEARCH.value:
                     return self._search(parameters, **kwargs)
-                case self.ValidActions.UPDATE:
+                case self.ValidActions.UPDATE.value:
                     self._update(parameters, **kwargs)
-                case self.ValidActions.DELETE:
+                case self.ValidActions.DELETE.value:
                     self._delete(parameters, **kwargs)
-                case self.ValidActions.GET_DOCUMENT:
+                case self.ValidActions.GET_DOCUMENT.value:
                     return self._get_document(parameters, **kwargs)
-                case self.ValidActions.ADD_CONTEXT:
+                case self.ValidActions.ADD_CONTEXT.value:
                     self._add_context(parameters, **kwargs)
-                case self.ValidActions.REFRESH:
+                case self.ValidActions.REFRESH.value:
                     self._refresh(parameters, **kwargs)
+                case self.ValidActions.PROCESS_FILE.value:
+                    return self._process_file(parameters, **kwargs)
                 case _:
                     raise Exception(
                         f"Compass Tool: Invalid action {parameters['action']}. "
@@ -288,10 +291,14 @@ class Compass:
                 custom_context=parameters.get("custom_context", None),
             )
         else:
-            return self._raw_parsing(text=file_text, file_id=file_id)
+            return self._raw_parsing(
+                text=file_text,
+                file_id=file_id,
+                bytes_content=isinstance(file_text, bytes),
+            )
 
-    def _raw_parsing(self, text: str, file_id: str):
-        text_bytes = str.encode(text)
+    def _raw_parsing(self, text: str, file_id: str, bytes_content: bool):
+        text_bytes = str.encode(text) if not bytes_content else text
         if len(text_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
                 f"File too large, supported file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "

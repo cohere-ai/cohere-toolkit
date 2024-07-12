@@ -299,6 +299,7 @@ export class CohereClient {
       ...(omitContentType ? {} : { 'Content-Type': 'application/json' }),
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
+      Connection: 'keep-alive',
     };
     return headers;
   }

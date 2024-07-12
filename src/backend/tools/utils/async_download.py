@@ -4,7 +4,7 @@ import logging
 
 import aiohttp
 
-TIMEOUT = aiohttp.ClientTimeout(total=15)
+TIMEOUT = aiohttp.ClientTimeout(total=120)
 logger = logging.getLogger(__name__)
 
 

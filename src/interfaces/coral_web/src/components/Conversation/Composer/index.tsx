@@ -196,7 +196,7 @@ export const Composer: React.FC<Props> = ({
               'rounded',
               'bg-marble-100',
               'transition ease-in-out',
-              'focus:outline-none',
+              'placeholder:text-volcanic-500 focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
               'leading-[150%]',
               {
@@ -219,9 +219,11 @@ export const Composer: React.FC<Props> = ({
               'my-2 ml-1 md:my-4',
               'flex flex-shrink-0 items-center justify-center rounded',
               'transition ease-in-out',
-              'text-secondary-800 hover:bg-secondary-100'
+              'text-secondary-800 hover:bg-secondary-100',
+              { 'text-secondary-500': !canSend }
             )}
             type="button"
+            disabled={!canSend}
             onClick={() => (canSend ? onSend(value) : onStop())}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
