@@ -481,7 +481,7 @@ def save_tool_calls_message(
         tool_call_crud.create_tool_call(session, tool_call)
 
 
-def generate_chat_response(
+async def generate_chat_response(
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
@@ -543,15 +543,15 @@ def generate_chat_response(
     return non_streamed_chat_response
 
 
-def generate_chat_stream(
+async def generate_chat_stream(
     session: DBSessionDep,
-    model_deployment_stream: Any,
+    model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
     conversation_id: str,
     user_id: str,
     should_store: bool = True,
     **kwargs: Any,
-) -> Any:
+) -> AsyncGenerator[Any, Any]:
     """
     Generate chat stream from model deployment stream.
 

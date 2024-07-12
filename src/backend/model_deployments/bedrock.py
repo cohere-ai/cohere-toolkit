@@ -64,7 +64,7 @@ class BedrockDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in BEDROCK_ENV_VARS])
 
     @collect_metrics_chat
-    def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         # bedrock accepts a subset of the chat request fields
         bedrock_chat_req = chat_request.model_dump(
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
@@ -76,7 +76,9 @@ class BedrockDeployment(BaseDeployment):
         yield to_dict(response)
 
     @collect_metrics_chat_stream
-    def invoke_chat_stream(self, chat_request: CohereChatRequest) -> Any:
+    async def invoke_chat_stream(
+        self, chat_request: CohereChatRequest
+    ) -> AsyncGenerator[Any, Any]:
         # bedrock accepts a subset of the chat request fields
         bedrock_chat_req = chat_request.model_dump(
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
@@ -88,5 +90,5 @@ class BedrockDeployment(BaseDeployment):
         for event in stream:
             yield to_dict(event)
 
-    def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
+    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None

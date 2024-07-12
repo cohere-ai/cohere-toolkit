@@ -63,14 +63,16 @@ class AzureDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
     @collect_metrics_chat
-    def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
         yield to_dict(response)
 
     @collect_metrics_chat_stream
-    def invoke_chat_stream(self, chat_request: CohereChatRequest) -> Any:
+    async def invoke_chat_stream(
+        self, chat_request: CohereChatRequest
+    ) -> AsyncGenerator[Any, Any]:
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
@@ -78,5 +80,5 @@ class AzureDeployment(BaseDeployment):
         for event in stream:
             yield to_dict(event)
 
-    def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
+    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None

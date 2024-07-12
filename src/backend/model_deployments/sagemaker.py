@@ -79,7 +79,7 @@ class SageMakerDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
     @collect_metrics_chat_stream
-    def invoke_chat_stream(
+    async def invoke_chat_stream(
         self, chat_request: CohereChatRequest
     ) -> AsyncGenerator[Any, Any]:
         # Create the payload for the request
@@ -100,7 +100,7 @@ class SageMakerDeployment(BaseDeployment):
             stream_event["index"] = index
             yield stream_event
 
-    def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
+    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None
 
     # This class iterates through each line of Sagemaker's response
