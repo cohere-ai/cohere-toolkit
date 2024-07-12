@@ -30,7 +30,8 @@ def user(session_chat: Session) -> User:
 
 
 # STREAMING CHAT TESTS
-"""
+
+
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
@@ -74,7 +75,6 @@ def test_streaming_new_chat_with_agent(
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 2
     )
-"""
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -111,7 +111,7 @@ def test_streaming_new_chat_with_agent_reports_metrics(
         m_args_list: MetricsData = mock_metrics.await_args_list
         input_nb_tokens_sum = 0
         output_nb_tokens_sum = 0
-        
+
         for ma in m_args_list:
             m_args = ma[0][0]
             # pdb.set_trace()
@@ -126,7 +126,7 @@ def test_streaming_new_chat_with_agent_reports_metrics(
         assert input_nb_tokens_sum > 0
         assert output_nb_tokens_sum > 0
 
-"""
+
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat_with_agent_existing_conversation(
     session_client_chat: TestClient, session_chat: Session, user: User
@@ -810,8 +810,6 @@ def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
     # Files link not changed
     assert file1.message_id == existing_message.id
     assert file2.message_id == existing_message.id
-
-"""
 
 
 def validate_chat_streaming_response(

@@ -276,26 +276,25 @@ async def run_loop(metrics_data: MetricsData) -> None:
 def collect_metrics_chat(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
-        will_log = True
         start_time = time.perf_counter()
 
-        metrics_data = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
-
+        metrics_data, kwargs, will_log = initialize_sdk_metrics_data("chat", chat_request, **kwargs)
         response_dict = {}
         try:
             response = func(self, chat_request, **kwargs)
             response_dict = to_dict(response)
         except Exception as e:
-            metrics_data = handle_error(metrics_data, e)
+            if will_log:
+                metrics_data = handle_error(metrics_data, e)
             raise e
         finally:
-            (
-                metrics_data.input_tokens,
-                metrics_data.output_tokens,
-            ) = get_input_output_tokens(response_dict)
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            await run_loop(metrics_data)
-
+            if will_log:
+                (
+                    metrics_data.input_tokens,
+                    metrics_data.output_tokens,
+                ) = get_input_output_tokens(response_dict)
+                metrics_data.duration_ms = time.perf_counter() - start_time
+                await run_loop(metrics_data)
             return response_dict
 
     return wrapper
@@ -308,12 +307,11 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> None:
         start_time = time.perf_counter()
-        metrics_data, kwargs, log_init_err_msg = initialize_sdk_metrics_data(
+        metrics_data, kwargs, will_log = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
         )
         stream = func(self, chat_request, **kwargs)
-        if log_init_err_msg is not None:
-            logger.warning(log_init_err_msg)
+        if not will_log:
             return
             
 
@@ -334,7 +332,6 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             raise e
         finally:
             metrics_data.duration_ms = time.perf_counter() - start_time
-            pdb.set_trace()
             await run_loop(metrics_data)
 
     return wrapper
@@ -346,27 +343,30 @@ def collect_metrics_rerank(func: Callable) -> Callable:
         self, query: str, documents: Dict[str, Any], **kwargs: Any
     ) -> Any:
         start_time = time.perf_counter()
-        metrics_data, kwargs = initialize_sdk_metrics_data("rerank", None, **kwargs)
+        metrics_data, kwargs, will_log = initialize_sdk_metrics_data("rerank", None, **kwargs)
 
         response_dict = {}
         try:
             response = await func(self, query, documents, **kwargs)
             response_dict = to_dict(response)
-            metrics_data.search_units = get_search_units(response_dict)
+            if will_log:
+                metrics_data.search_units = get_search_units(response_dict)
         except Exception as e:
-            metrics_data = handle_error(metrics_data, e)
+            if will_log:
+                metrics_data = handle_error(metrics_data, e)
             raise e
         finally:
-            metrics_data.duration_ms = time.perf_counter() - start_time
-            await run_loop(metrics_data)
-            return response_dict
+            if will_log:
+                metrics_data.duration_ms = time.perf_counter() - start_time
+                await run_loop(metrics_data)
+                return response_dict
 
     return wrapper
 
 
 def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
-) -> tuple[MetricsData, Any, str | None]:
+) -> tuple[MetricsData, Any, bool]:
 
     user_id = kwargs.get("user_id", None)
     model = kwargs.get("model", None)
@@ -381,7 +381,8 @@ def initialize_sdk_metrics_data(
     try:
         MetricsModel(user_id=user_id, assistant_id=assistant_id, model=model)
     except ValidationError as e:
-        return None, kwargs, f"cannot log in {func_name}, schema errors: {e}"
+        logger.warning(f"cannot log in {func_name}, schema errors: {e}")
+        return None, kwargs, False
 
     return (
         MetricsData(
@@ -393,7 +394,7 @@ def initialize_sdk_metrics_data(
             model=model,
         ),
         kwargs,
-        None,
+        False,
     )
 
 
