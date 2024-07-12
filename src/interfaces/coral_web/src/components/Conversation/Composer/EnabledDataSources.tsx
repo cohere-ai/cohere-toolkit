@@ -3,7 +3,6 @@ import React from 'react';
 import { Icon, IconName, Text } from '@/components/Shared';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useDefaultFileLoaderTool, useListFiles } from '@/hooks/files';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
@@ -15,7 +14,6 @@ type Props = {
  * @description Renders the enabled data sources in the composer toolbar.
  */
 export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
-  const { agentId } = useSlugRoutes();
   const {
     conversation: { id },
   } = useConversationStore();
@@ -70,7 +68,7 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
           key={`tool-${i}`}
           iconName={TOOL_ID_TO_DISPLAY_INFO[t.name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
           label={t.display_name ?? t.name ?? ''}
-          onDelete={agentId ? undefined : handleDeleteTool(t.name ?? '')} // Disable removing tools for assistants
+          onDelete={handleDeleteTool(t.name ?? '')}
         />
       ))}
     </div>
@@ -80,7 +78,7 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
 const DataSourceChip: React.FC<{
   iconName: IconName;
   label: string;
-  onDelete?: React.MouseEventHandler;
+  onDelete: React.MouseEventHandler;
   disabled?: boolean;
   hasEditableConfiguration?: boolean;
   onEditConfiguration?: VoidFunction;
@@ -96,11 +94,9 @@ const DataSourceChip: React.FC<{
           <Icon name="kebab" size="sm" />
         </button>
       )}
-      {onDelete && (
-        <button className="flex" onClick={onDelete} disabled={disabled}>
-          <Icon name="close" size="sm" />
-        </button>
-      )}
+      <button className="flex" onClick={onDelete} disabled={disabled}>
+        <Icon name="close" size="sm" />
+      </button>
     </div>
   );
 };
