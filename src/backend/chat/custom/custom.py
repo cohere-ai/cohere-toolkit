@@ -259,14 +259,14 @@ class CustomChat(BaseChat):
             if not tool:
                 continue
 
-            outputs = asyncio.run(tool.implementation().call(
+            outputs = tool.implementation().call(
                 parameters=tool_call.get("parameters"),
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=kwargs.get("user_id"),
                 trace_id=kwargs.get("trace_id"),
                 agent_id=kwargs.get("agent_id"),
-            ))
+            )
 
             # If the tool returns a list of outputs, append each output to the tool_results list
             # Otherwise, append the single output to the tool_results list
