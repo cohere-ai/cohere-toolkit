@@ -306,12 +306,16 @@ import pdb
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
-    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def wrapper(self, chat_request: CohereChatRequest, **kwargs: Any) -> None:
         start_time = time.perf_counter()
-        metrics_data, kwargs = initialize_sdk_metrics_data(
+        metrics_data, kwargs, log_init_err_msg = initialize_sdk_metrics_data(
             "chat", chat_request, **kwargs
         )
         stream = func(self, chat_request, **kwargs)
+        if log_init_err_msg is not None:
+            logger.warning(log_init_err_msg)
+            return
+            
 
         try:
             async for event in stream:
@@ -362,7 +366,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 
 def initialize_sdk_metrics_data(
     func_name: str, chat_request: CohereChatRequest, **kwargs: Any
-) -> tuple[MetricsData, Any, bool]:
+) -> tuple[MetricsData, Any, str | None]:
 
     user_id = kwargs.get("user_id", None)
     model = kwargs.get("model", None)
@@ -377,7 +381,7 @@ def initialize_sdk_metrics_data(
     try:
         MetricsModel(user_id=user_id, assistant_id=assistant_id, model=model)
     except ValidationError as e:
-        return None, kwargs, False
+        return None, kwargs, f"cannot log in {func_name}, schema errors: {e}"
 
     return (
         MetricsData(
@@ -389,7 +393,7 @@ def initialize_sdk_metrics_data(
             model=model,
         ),
         kwargs,
-        True,
+        None,
     )
 
 
