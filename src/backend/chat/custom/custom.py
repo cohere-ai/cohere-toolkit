@@ -22,7 +22,7 @@ MAX_STEPS = 15
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
 
-    async def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         """
         Chat flow for custom models.
 
@@ -54,33 +54,32 @@ class CustomChat(BaseChat):
         try:
             stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
-            async with AsyncGeneratorContextManager(stream) as stream:
-                async for event in stream:
+            for event in stream:
+                send_log_message(
+                    logger,
+                    f"Stream event: {event}",
+                    level="info",
+                    conversation_id=kwargs.get("conversation_id"),
+                    user_id=kwargs.get("user_id"),
+                )
+                result = self.handle_event(event, chat_request)
+
+                if result:
+                    yield result
+
+                if event[
+                    "event_type"
+                ] == StreamEvent.STREAM_END and self.is_final_event(
+                    event, chat_request
+                ):
                     send_log_message(
                         logger,
-                        f"Stream event: {event}",
+                        f"Final event: {event}",
                         level="info",
                         conversation_id=kwargs.get("conversation_id"),
                         user_id=kwargs.get("user_id"),
                     )
-                    result = self.handle_event(event, chat_request)
-
-                    if result:
-                        yield result
-
-                    if event[
-                        "event_type"
-                    ] == StreamEvent.STREAM_END and self.is_final_event(
-                        event, chat_request
-                    ):
-                        send_log_message(
-                            logger,
-                            f"Final event: {event}",
-                            level="info",
-                            conversation_id=kwargs.get("conversation_id"),
-                            user_id=kwargs.get("user_id"),
-                        )
-                        break
+                    break
         except Exception as e:
             yield {
                 "event_type": StreamEvent.STREAM_END,
@@ -138,7 +137,7 @@ class CustomChat(BaseChat):
             and "tool_calls" in event
         )
 
-    async def call_chat(self, chat_request, deployment_model, **kwargs: Any):
+    def call_chat(self, chat_request, deployment_model, **kwargs: Any):
         trace_id = kwargs.get("trace_id", "")
         user_id = kwargs.get("user_id", "")
         agent_id = kwargs.get("agent_id", "")
@@ -186,20 +185,17 @@ class CustomChat(BaseChat):
 
             # Invoke chat stream
             has_tool_calls = False
-            async with AsyncGeneratorContextManager(
-                deployment_model.invoke_chat_stream(
-                    chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
-                )
-            ) as chat_stream:
-                async for event in chat_stream:
-                    if event["event_type"] == StreamEvent.STREAM_END:
-                        chat_request.chat_history = event["response"].get(
-                            "chat_history", []
-                        )
-                    elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
-                        has_tool_calls = True
+            for event in deployment_model.invoke_chat_stream(
+                chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
+            ):
+                if event["event_type"] == StreamEvent.STREAM_END:
+                    chat_request.chat_history = event["response"].get(
+                        "chat_history", []
+                    )
+                elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
+                    has_tool_calls = True
 
-                    yield event
+                yield event
 
             send_log_message(
                 logger,
@@ -212,7 +208,7 @@ class CustomChat(BaseChat):
             # Check for new tool calls in the chat history
             if has_tool_calls:
                 # Handle tool calls
-                tool_results = await self.call_tools(
+                tool_results = self.call_tools(
                     chat_request.chat_history, deployment_model, **kwargs
                 )
 
@@ -234,7 +230,7 @@ class CustomChat(BaseChat):
 
         chat_request.chat_history.extend(tool_results)
 
-    async def call_tools(self, chat_history, deployment_model, **kwargs: Any):
+    def call_tools(self, chat_history, deployment_model, **kwargs: Any):
         tool_results = []
         if "tool_calls" not in chat_history[-1]:
             return tool_results
@@ -262,7 +258,7 @@ class CustomChat(BaseChat):
             if not tool:
                 continue
 
-            outputs = await tool.implementation().call(
+            outputs = tool.implementation().call(
                 parameters=tool_call.get("parameters"),
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
@@ -277,7 +273,7 @@ class CustomChat(BaseChat):
             for output in outputs:
                 tool_results.append({"call": tool_call, "outputs": [output]})
 
-        tool_results = await rerank_and_chunk(tool_results, deployment_model, **kwargs)
+        tool_results = rerank_and_chunk(tool_results, deployment_model, **kwargs)
         send_log_message(
             logger,
             f"Tool results: {tool_results}",
@@ -294,33 +290,32 @@ class CustomChat(BaseChat):
         is_direct_answer = True
 
         chat_history = []
-        async with AsyncGeneratorContextManager(stream) as chat_stream:
-            async for event in chat_stream:
-                if event["event_type"] == StreamEvent.STREAM_END:
-                    stream_chat_history = []
-                    if "response" in event:
-                        stream_chat_history = event["response"].get("chat_history", [])
-                    elif "chat_history" in event:
-                        stream_chat_history = event["chat_history"]
+        for event in stream:
+            if event["event_type"] == StreamEvent.STREAM_END:
+                stream_chat_history = []
+                if "response" in event:
+                    stream_chat_history = event["response"].get("chat_history", [])
+                elif "chat_history" in event:
+                    stream_chat_history = event["chat_history"]
 
-                    for message in stream_chat_history:
-                        if not isinstance(message, dict):
-                            message = to_dict(message)
+                for message in stream_chat_history:
+                    if not isinstance(message, dict):
+                        message = to_dict(message)
 
-                        chat_history.append(
-                            ChatMessage(
-                                role=message.get("role"),
-                                message=message.get("message", ""),
-                                tool_results=message.get("tool_results", None),
-                                tool_calls=message.get("tool_calls", None),
-                            )
+                    chat_history.append(
+                        ChatMessage(
+                            role=message.get("role"),
+                            message=message.get("message", ""),
+                            tool_results=message.get("tool_results", None),
+                            tool_calls=message.get("tool_calls", None),
                         )
+                    )
 
-                elif (
-                    event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION
-                    and "tool_calls" in event
-                ):
-                    is_direct_answer = False
+            elif (
+                event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION
+                and "tool_calls" in event
+            ):
+                is_direct_answer = False
 
         return is_direct_answer, chat_history, stream_copy
 
