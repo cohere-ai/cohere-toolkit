@@ -50,7 +50,6 @@ def test_streaming_new_chat(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-@pytest.mark.asyncio
 def test_streaming_new_chat_with_agent_reports_metrics(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
@@ -582,6 +581,40 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
         response, user, session_chat, session_client_chat, 3
     )
 
+import pdb
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_non_streaming_chat_with_metrics(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client_chat.post(
+            "/v1/chat",
+            json={"message": "Hello", "max_tokens": 10},
+            headers={
+                "User-Id": user.id,
+                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            },
+        )
+        assert response.status_code == 200
+        m_args_list: MetricsData = mock_metrics.args_list
+        input_nb_tokens_sum = 0
+        output_nb_tokens_sum = 0
+        for ma in m_args_list:
+            m_args = ma[0][0]
+            pdb.set_trace()
+            assert m_args.user_id == user.id
+            assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
+            if m_args.input_nb_tokens:
+                input_nb_tokens_sum += m_args.input_nb_tokens
+            if m_args.output_nb_tokens:
+                output_nb_tokens_sum += m_args.output_nb_tokens
+            assert m_args.assistant_id == agent.id
+            assert m_args.model == "command-r"
+        # assert input_nb_tokens_sum > 0
+        # assert output_nb_tokens_sum > 0
 
 # NON-STREAMING CHAT TESTS
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
