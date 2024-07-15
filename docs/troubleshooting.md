@@ -7,6 +7,27 @@ Ensure you are working off the [latest release](https://github.com/cohere-ai/coh
 
 Make sure you add `USE_COMMUNITY_FEATURES=True` to your .env file.
 
+##  Debugging locally
+
+To debug any of the backend logic while the Docker containers are running, you can run:
+
+```bash
+make dev
+```
+
+This will run the Docker containers with reloading enabled, then in a separate shell window, run:
+
+```bash
+make attach
+```
+
+This will attach an interactive shell to the backend running, now when your backend code hits any
+
+```python
+import pdb; pdb.set_trace()
+```
+
+it will allow you to debug.
 
 ##  Multiple errors after running make dev for the first time
 
@@ -58,29 +79,6 @@ Add `platform: linux/amd64` to docker_compose.yml for example:
     expose:
       - '8080'
 ```
-
-##  Debugging locally
-
-To debug any of the backend logic while the Docker containers are running, you can run:
-
-```bash
-make dev
-```
-
-This will run the Docker containers with reloading enabled, then in a separate shell window, run:
-
-```bash
-make attach
-```
-
-This will attach an interactive shell to the backend running, now when your backend code hits any
-
-```python
-import pdb; pdb.set_trace()
-```
-
-it will allow you to debug.
-
 
 ## Alembic migrations out of sync error:
 
