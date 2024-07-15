@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { IconButton } from '@/components/IconButton';
 import { AgentsToolsTab } from '@/components/Settings/AgentsToolsTab';
 import { FilesTab } from '@/components/Settings/FilesTab';
+import { SettingsTab } from '@/components/Settings/SettingsTab';
 import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
@@ -47,8 +48,9 @@ export const SettingsDrawer: React.FC = () => {
     }
     return files.length > 0 && conversationId
       ? [
-          { name: 'Tools', component: <ToolsTab requiredTools={agent?.tools} /> },
+          { name: 'Tools', component: <ToolsTab /> },
           { name: 'Files', component: <FilesTab /> },
+          { name: 'Settings', component: <SettingsTab /> },
         ]
       : [
           { name: 'Tools', component: <ToolsTab /> },
