@@ -14,9 +14,10 @@ async def test_gdrive(session, user) -> None:
     agent = create_test_gdrive_agent(session, user)
     sa_info = construct_service_account_info()
 
+    QUERY = "toolkit"
     gdrive = GoogleDrive()
     result = await gdrive.call(
-        {"query": "toolkit"},
+        {"query": QUERY},
         **{
             "agent_id": agent.id,
             "service_account_info": sa_info,
