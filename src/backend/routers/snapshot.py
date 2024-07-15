@@ -19,10 +19,10 @@ from backend.schemas.snapshot import (
     SnapshotLink,
     SnapshotWithLinks,
 )
+from backend.services.conversation import validate_conversation
 from backend.services.snapshot import (
     create_conversation_dict,
     remove_private_keys,
-    validate_conversation,
     validate_last_message,
     validate_snapshot_exists,
     validate_snapshot_link,
