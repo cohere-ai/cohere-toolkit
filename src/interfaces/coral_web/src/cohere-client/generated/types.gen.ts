@@ -12,7 +12,23 @@ export type Agent = {
   preamble: string | null;
   temperature: number;
   tools: Array<string>;
-  tools_metadata: Array<AgentToolMetadata>;
+  tools_metadata?: Array<AgentToolMetadataPublic> | null;
+  model: string;
+  deployment: string;
+};
+
+export type AgentPublic = {
+  user_id: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+  version: number;
+  name: string;
+  description: string | null;
+  preamble: string | null;
+  temperature: number;
+  tools: Array<string>;
+  tools_metadata?: Array<AgentToolMetadataPublic> | null;
   model: string;
   deployment: string;
 };
@@ -25,6 +41,20 @@ export type AgentToolMetadata = {
   artifacts: Array<{
     [key: string]: unknown;
   }>;
+};
+
+export type AgentToolMetadataPublic = {
+  organization_id?: string | null;
+  id: string;
+  tool_name: string;
+  artifacts: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
+  conversation_id?: string;
+  files: Array<Blob | File>;
 };
 
 export type Body_upload_file_v1_conversations_upload_file_post = {
@@ -124,6 +154,7 @@ export type CohereChatRequest = {
     [key: string]: unknown;
   }> | null;
   force_single_step?: boolean | null;
+  agent_id?: string | null;
 };
 
 export type Conversation = {
@@ -166,6 +197,7 @@ export type CreateAgent = {
 };
 
 export type CreateAgentToolMetadata = {
+  id?: string | null;
   tool_name: string;
   artifacts: Array<{
     [key: string]: unknown;
@@ -180,9 +212,7 @@ export type CreateSnapshotResponse = {
   snapshot_id: string;
   user_id: string;
   link_id: string;
-  messages: Array<{
-    [key: string]: unknown;
-  }>;
+  messages: Array<Message>;
 };
 
 export type CreateUser = {
@@ -281,7 +311,7 @@ export type Login = {
 export type Logout = unknown;
 
 export type ManagedTool = {
-  name: string;
+  name?: string | null;
   display_name?: string;
   description?: string | null;
   parameter_definitions?: {
@@ -296,6 +326,7 @@ export type ManagedTool = {
   category?: Category;
   is_auth_required?: boolean;
   auth_url?: string | null;
+  token?: string | null;
 };
 
 export type Message = {
@@ -349,9 +380,22 @@ export type Snapshot = {
   version: number;
   created_at: string;
   updated_at: string;
-  snapshot: {
-    [key: string]: unknown;
-  } | null;
+  snapshot: SnapshotData;
+};
+
+export type SnapshotAgent = {
+  id: string;
+  name: string;
+  description: string | null;
+  preamble: string | null;
+  tools_metadata: Array<AgentToolMetadata> | null;
+};
+
+export type SnapshotData = {
+  title: string;
+  description: string;
+  messages: Array<Message>;
+  agent: SnapshotAgent | null;
 };
 
 export type SnapshotWithLinks = {
@@ -363,9 +407,7 @@ export type SnapshotWithLinks = {
   version: number;
   created_at: string;
   updated_at: string;
-  snapshot: {
-    [key: string]: unknown;
-  } | null;
+  snapshot: SnapshotData;
   links: Array<string>;
 };
 
@@ -455,6 +497,7 @@ export type StreamToolCallsChunk = {
  * Stream tool calls generation event.
  */
 export type StreamToolCallsGeneration = {
+  stream_search_results?: StreamSearchResults | null;
   tool_calls?: Array<ToolCall> | null;
   text: string | null;
 };
@@ -473,7 +516,7 @@ export type StreamToolResult = {
 };
 
 export type Tool = {
-  name: string;
+  name?: string | null;
   display_name?: string;
   description?: string | null;
   parameter_definitions?: {
@@ -511,7 +554,7 @@ export type UpdateAgent = {
   model?: string | null;
   deployment?: string | null;
   tools?: Array<string> | null;
-  tools_metadata?: Array<UpdateAgentToolMetadata> | null;
+  tools_metadata?: Array<CreateAgentToolMetadata> | null;
 };
 
 export type UpdateAgentToolMetadata = {
@@ -590,14 +633,12 @@ export type LogoutV1LogoutGetResponse = Logout;
 export type LoginV1ToolAuthGetResponse = unknown;
 
 export type ChatStreamV1ChatStreamPostData = {
-  agentId?: string | null;
   requestBody: CohereChatRequest;
 };
 
 export type ChatStreamV1ChatStreamPostResponse = Array<ChatResponseEvent>;
 
 export type ChatV1ChatPostData = {
-  agentId?: string | null;
   requestBody: CohereChatRequest;
 };
 
@@ -668,11 +709,27 @@ export type ListConversationsV1ConversationsGetData = {
 
 export type ListConversationsV1ConversationsGetResponse = Array<ConversationWithoutMessages>;
 
+export type SearchConversationsV1ConversationsSearchGetData = {
+  agentId?: string;
+  limit?: number;
+  offset?: number;
+  query: string;
+};
+
+export type SearchConversationsV1ConversationsSearchGetResponse =
+  Array<ConversationWithoutMessages>;
+
 export type UploadFileV1ConversationsUploadFilePostData = {
   formData: Body_upload_file_v1_conversations_upload_file_post;
 };
 
 export type UploadFileV1ConversationsUploadFilePostResponse = UploadFile;
+
+export type BatchUploadFileV1ConversationsBatchUploadFilePostData = {
+  formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post;
+};
+
+export type BatchUploadFileV1ConversationsBatchUploadFilePostResponse = Array<UploadFile>;
 
 export type ListFilesV1ConversationsConversationIdFilesGetData = {
   conversationId: string;
@@ -726,14 +783,14 @@ export type CreateAgentV1AgentsPostData = {
   requestBody: CreateAgent;
 };
 
-export type CreateAgentV1AgentsPostResponse = Agent;
+export type CreateAgentV1AgentsPostResponse = AgentPublic;
 
 export type ListAgentsV1AgentsGetData = {
   limit?: number;
   offset?: number;
 };
 
-export type ListAgentsV1AgentsGetResponse = Array<Agent>;
+export type ListAgentsV1AgentsGetResponse = Array<AgentPublic>;
 
 export type GetAgentByIdV1AgentsAgentIdGetData = {
   agentId: string;
@@ -746,7 +803,7 @@ export type UpdateAgentV1AgentsAgentIdPutData = {
   requestBody: UpdateAgent;
 };
 
-export type UpdateAgentV1AgentsAgentIdPutResponse = Agent;
+export type UpdateAgentV1AgentsAgentIdPutResponse = AgentPublic;
 
 export type DeleteAgentV1AgentsAgentIdDeleteData = {
   agentId: string;
@@ -758,14 +815,16 @@ export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   agentId: string;
 };
 
-export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse = Array<AgentToolMetadata>;
+export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse =
+  Array<AgentToolMetadataPublic>;
 
 export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostData = {
   agentId: string;
   requestBody: CreateAgentToolMetadata;
 };
 
-export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse = AgentToolMetadata;
+export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse =
+  AgentToolMetadataPublic;
 
 export type UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData = {
   agentId: string;
@@ -1045,6 +1104,21 @@ export type $OpenApiTs = {
       };
     };
   };
+  '/v1/conversations:search': {
+    get: {
+      req: SearchConversationsV1ConversationsSearchGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<ConversationWithoutMessages>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
   '/v1/conversations/upload_file': {
     post: {
       req: UploadFileV1ConversationsUploadFilePostData;
@@ -1053,6 +1127,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: UploadFile;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/conversations/batch_upload_file': {
+    post: {
+      req: BatchUploadFileV1ConversationsBatchUploadFilePostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<UploadFile>;
         /**
          * Validation Error
          */
@@ -1180,7 +1269,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Agent;
+        200: AgentPublic;
         /**
          * Validation Error
          */
@@ -1193,7 +1282,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<Agent>;
+        200: Array<AgentPublic>;
         /**
          * Validation Error
          */
@@ -1221,7 +1310,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Agent;
+        200: AgentPublic;
         /**
          * Validation Error
          */
@@ -1249,7 +1338,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<AgentToolMetadata>;
+        200: Array<AgentToolMetadataPublic>;
         /**
          * Validation Error
          */
@@ -1262,7 +1351,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: AgentToolMetadata;
+        200: AgentToolMetadataPublic;
         /**
          * Validation Error
          */

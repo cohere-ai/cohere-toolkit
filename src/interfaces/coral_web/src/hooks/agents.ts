@@ -25,6 +25,24 @@ export const useCreateAgent = () => {
   });
 };
 
+export const useDeleteAgent = () => {
+  const cohereClient = useCohereClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (request: { agentId: string }) => {
+      try {
+        return await cohereClient.deleteAgent(request);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['listAgents'] });
+    },
+  });
+};
+
 export const useAgent = ({ agentId }: { agentId?: string }) => {
   const cohereClient = useCohereClient();
   return useQuery({

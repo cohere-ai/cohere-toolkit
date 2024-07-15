@@ -232,19 +232,19 @@ def test_agent_organization_association_reverse(session, user):
     assert organization.agents[0].name == "Test Agent"
 
 
-def test_conversation_organization_association(session):
+def test_conversation_organization_association(session, user):
     organization = get_factory("Organization", session).create(name="Test Organization")
     conversation = get_factory("Conversation", session).create(
-        title="Test Conversation"
+        title="Test Conversation", user_id=user.id
     )
     conversation.organization = organization
     assert conversation.organization.name == "Test Organization"
 
 
-def test_conversation_organization_association_reverse(session):
+def test_conversation_organization_association_reverse(session, user):
     organization = get_factory("Organization", session).create(name="Test Organization")
     conversation = get_factory("Conversation", session).create(
-        title="Test Conversation"
+        title="Test Conversation", user_id=user.id
     )
     organization.conversations.append(conversation)
     assert organization.conversations[0].title == "Test Conversation"

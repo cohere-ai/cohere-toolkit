@@ -10,7 +10,7 @@ from backend.database_models.base import Base
 class AgentToolMetadata(Base):
     __tablename__ = "agent_tool_metadata"
 
-    user_id: Mapped[str] = mapped_column(Text, nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=False
     )

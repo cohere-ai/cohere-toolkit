@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.schemas.deployment import DeploymentSimple as DeploymentSchema
 from backend.schemas.deployment import DeploymentWithModels as DeploymentFull
@@ -13,13 +13,22 @@ class AgentBase(BaseModel):
     organization_id: Optional[str] = None
 
 
+# Agent Tool Metadata
 class AgentToolMetadata(AgentBase):
     id: str
     tool_name: str
     artifacts: list[dict]
 
 
+class AgentToolMetadataPublic(AgentToolMetadata):
+    user_id: Optional[str] = Field(exclude=True)
+
+    class Config:
+        from_attributes = True
+
+
 class CreateAgentToolMetadata(BaseModel):
+    id: Optional[str] = None
     tool_name: str
     artifacts: list[dict]
 
@@ -34,6 +43,7 @@ class DeleteAgentToolMetadata(BaseModel):
     pass
 
 
+# Agent
 class Agent(AgentBase):
     id: str
     created_at: datetime.datetime
@@ -55,6 +65,11 @@ class Agent(AgentBase):
         use_enum_values = True
 
 
+class AgentPublic(Agent):
+    organization_id: Optional[str] = Field(exclude=True)
+    tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
+
+
 class CreateAgent(BaseModel):
     name: str
     version: Optional[int] = None
@@ -74,6 +89,10 @@ class CreateAgent(BaseModel):
     class Config:
         from_attributes = True
         use_enum_values = True
+
+
+class ListAgentsResponse(BaseModel):
+    agents: list[Agent]
 
 
 class UpdateAgent(BaseModel):

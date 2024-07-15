@@ -10,6 +10,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import fetch from 'cross-fetch';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 
 import {
   CohereClient,
@@ -55,20 +56,25 @@ export const appSSR = {
 type Props = AppProps<PageAppProps>;
 
 const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
-  const { value: authToken, remove: clearAuthToken } = useLocalStorageValue(
+  const { value: authToken, remove: clearAuthToken } = useLocalStorageValue<string>(
     LOCAL_STORAGE_KEYS.authToken,
     {
       defaultValue: undefined,
     }
   );
   const router = useRouter();
-  const cohereClient = useLazyRef(() => makeCohereClient(authToken || undefined));
+  const cohereClient = useMemo(() => makeCohereClient(authToken), [authToken]);
   const queryClient = useLazyRef(
     () =>
       new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
         queryCache: new QueryCache({
           onError: (error) => {
-            if (error instanceof CohereUnauthorizedError) {
+            if (error instanceof Error && error.message === 'Unauthorized') {
               clearAuthToken();
               // Extract the current URL without query parameters or host.
               const currentPath = window.location.pathname + window.location.hash;
@@ -80,7 +86,7 @@ const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
   );
 
   const reactQueryState = pageProps.appProps?.reactQueryState;
-  if (!reactQueryState && !['/404', '/500', '/_error', '/_ping'].includes(props.router.route)) {
+  if (!reactQueryState && !['/404', '/500', '/_error'].includes(props.router.route)) {
     // Ensure every page calls `appSSR.getAppProps`, except for 404, 500, _ping and _error pages which cannot
     // use `getServerSideProps`.
     throw new Error('reactQueryState is undefined.');

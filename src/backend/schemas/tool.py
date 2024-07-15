@@ -30,6 +30,7 @@ class ManagedTool(Tool):
 
     is_auth_required: bool = False  # Per user
     auth_url: Optional[str] = ""  # Per user
+    token: Optional[str] = ""  # Per user
 
     implementation: Any = Field(exclude=True)
     auth_implementation: Any = Field(default=None, exclude=True)

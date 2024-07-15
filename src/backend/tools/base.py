@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import Request
 
@@ -32,8 +32,13 @@ class BaseTool:
     @abstractmethod
     def is_available(cls) -> bool: ...
 
+    @classmethod
     @abstractmethod
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
+    def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
+        pass
+
+    @abstractmethod
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
 
 
 class BaseToolAuthentication:
@@ -52,3 +57,8 @@ class BaseToolAuthentication:
     @classmethod
     @abstractmethod
     def process_auth_token(request: Request, session: DBSessionDep) -> str: ...
+
+    @classmethod
+    @abstractmethod
+    def get_token(user_id: str, session: DBSessionDep) -> Optional[str]:
+        return None

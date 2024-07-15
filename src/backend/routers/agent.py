@@ -4,6 +4,7 @@ from backend.config.routers import RouterName
 from backend.config.tools import ALL_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.crud import user as user_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
@@ -11,12 +12,16 @@ from backend.database_models.agent_tool_metadata import (
 from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
+    add_agent_tool_metadata_to_request_state,
+    add_event_type_to_request_state,
     add_session_user_to_request_state,
     get_deployment_model_from_agent,
 )
 from backend.schemas.agent import (
     Agent,
+    AgentPublic,
     AgentToolMetadata,
+    AgentToolMetadataPublic,
     CreateAgent,
     CreateAgentToolMetadata,
     DeleteAgent,
@@ -25,6 +30,12 @@ from backend.schemas.agent import (
     UpdateAgentToolMetadata,
 )
 from backend.schemas.deployment import Deployment as DeploymentSchema
+from backend.schemas.metrics import MetricsMessageType
+from backend.services.agent import (
+    raise_db_error,
+    validate_agent_exists,
+    validate_agent_tool_metadata_exists,
+)
 from backend.services.auth.utils import get_header_user_id
 from backend.services.request_validators import (
     validate_create_agent_request,
@@ -40,13 +51,15 @@ router.name = RouterName.AGENT
 
 @router.post(
     "",
-    response_model=Agent,
+    response_model=AgentPublic,
     dependencies=[
         Depends(validate_user_header),
         Depends(validate_create_agent_request),
     ],
 )
-def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) -> Agent:
+async def create_agent(
+    session: DBSessionDep, agent: CreateAgent, request: Request
+) -> AgentPublic:
     """
     Create an agent.
     Args:
@@ -54,13 +67,15 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         agent (CreateAgent): Agent data.
         request (Request): Request object.
     Returns:
-        Agent: Created agent.
+        AgentPublic: Created agent with no user ID or organization ID.
     Raises:
         HTTPException: If the agent creation fails.
     """
     # add user data into request state for metrics
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_CREATED)
     user_id = get_header_user_id(request)
     add_session_user_to_request_state(request, session)
+
     agent_data = AgentModel(
         name=agent.name,
         description=agent.description,
@@ -104,10 +119,10 @@ def create_agent(session: DBSessionDep, agent: CreateAgent, request: Request) ->
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("", response_model=list[Agent])
+@router.get("", response_model=list[AgentPublic])
 async def list_agents(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep, request: Request
-) -> list[Agent]:
+) -> list[AgentPublic]:
     """
     List all agents.
 
@@ -118,13 +133,10 @@ async def list_agents(
         request (Request): Request object.
 
     Returns:
-        list[Agent]: List of agents.
+        list[AgentPublic]: List of agents with no user ID or organization ID.
     """
     try:
-        user_id = get_header_user_id(request)
-        return agent_crud.get_agents(
-            session, offset=offset, limit=limit, user_id=user_id
-        )
+        return agent_crud.get_agents(session, offset=offset, limit=limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -242,6 +254,7 @@ async def get_agent_by_id(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_ACCESSED)
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
         if agent:
@@ -294,7 +307,7 @@ async def get_agent_deployments(
 
 @router.put(
     "/{agent_id}",
-    response_model=Agent,
+    response_model=AgentPublic,
     dependencies=[
         Depends(validate_user_header),
         Depends(validate_update_agent_request),
@@ -305,7 +318,7 @@ async def update_agent(
     new_agent: UpdateAgent,
     session: DBSessionDep,
     request: Request,
-) -> Agent:
+) -> AgentPublic:
     """
     Update an agent by ID.
 
@@ -316,43 +329,46 @@ async def update_agent(
         request (Request): Request object.
 
     Returns:
-        Agent: Updated agent.
+        AgentPublic: Updated agent with no user ID or organization ID.
 
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
     add_session_user_to_request_state(request, session)
-    agent = agent_crud.get_agent_by_id(session, agent_id)
-
-    if not agent:
-        raise HTTPException(
-            status_code=404, detail=f"Agent with ID {agent_id} not found."
-        )
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_UPDATED)
+    agent = validate_agent_exists(session, agent_id)
 
     if new_agent.tools_metadata is not None:
-        # Delete tool metadata that are not in the request
-        for tool_metadata in agent.tools_metadata:
-            if tool_metadata.tool_name not in [
-                metadata.tool_name for metadata in new_agent.tools_metadata
-            ]:
-                agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
-                    session, tool_metadata.id
-                )
+        print("New agent", new_agent)
+        agent = await handle_tool_metadata_update(agent, new_agent, session, request)
 
-        # Create or update tool metadata from the request
-        for tool_metadata in new_agent.tools_metadata:
-            try:
-                await update_or_create_tool_metadata(
-                    agent, tool_metadata, session, request
-                )
-            except Exception as e:
-                if "psycopg2.errors.UniqueViolation" in str(e):
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Tool name {tool_metadata.tool_name} already exists for given user and agent.",
-                    )
+    try:
+        agent = agent_crud.update_agent(session, agent, new_agent)
+        add_agent_to_request_state(request, agent)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-                raise HTTPException(status_code=500, detail=str(e))
+    return agent
+
+
+async def handle_tool_metadata_update(
+    agent: Agent, new_agent: Agent, session: DBSessionDep, request: Request
+) -> Agent:
+    # Delete tool metadata that are not in the request
+    new_tools_names = [metadata.tool_name for metadata in new_agent.tools_metadata]
+    for tool_metadata in agent.tools_metadata:
+        if tool_metadata.tool_name not in new_tools_names:
+            agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
+                session, tool_metadata.id
+            )
+
+    # Create or update tool metadata from the request
+    for tool_metadata in new_agent.tools_metadata:
+        print("Tool metadata", tool_metadata)
+        try:
+            await update_or_create_tool_metadata(agent, tool_metadata, session, request)
+        except Exception as e:
+            raise_db_error(e, "Tool name", tool_metadata.tool_name)
 
         # Remove tools_metadata from new_agent to avoid updating it in the agent
         new_agent.tools_metadata = None
@@ -416,8 +432,14 @@ async def update_agent(
     return agent
 
 
-async def update_or_create_tool_metadata(agent, new_tool_metadata, session, request):
-    if new_tool_metadata.id:
+async def update_or_create_tool_metadata(
+    agent: Agent,
+    new_tool_metadata: AgentToolMetadata,
+    session: DBSessionDep,
+    request: Request,
+) -> None:
+    existing_tools_names = [metadata.tool_name for metadata in agent.tools_metadata]
+    if new_tool_metadata.tool_name in existing_tools_names or new_tool_metadata.id:
         await update_agent_tool_metadata(
             agent.id, new_tool_metadata.id, session, new_tool_metadata, request
         )
@@ -428,7 +450,7 @@ async def update_or_create_tool_metadata(agent, new_tool_metadata, session, requ
         create_agent_tool_metadata(session, agent.id, create_metadata_req, request)
 
 
-@router.delete("/{agent_id}")
+@router.delete("/{agent_id}", response_model=DeleteAgent)
 async def delete_agent(
     agent_id: str, session: DBSessionDep, request: Request
 ) -> DeleteAgent:
@@ -446,14 +468,8 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    agent = agent_crud.get_agent_by_id(session, agent_id)
-
-    if not agent:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Agent with ID {agent_id} not found.",
-        )
-
+    agent = validate_agent_exists(session, agent_id)
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_DELETED)
     add_agent_to_request_state(request, agent)
     try:
         agent_crud.delete_agent(session, agent_id)
@@ -466,10 +482,10 @@ async def delete_agent(
 # Tool Metadata Endpoints
 
 
-@router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadata])
+@router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadataPublic])
 async def list_agent_tool_metadata(
     agent_id: str, session: DBSessionDep, request: Request
-) -> list[AgentToolMetadata]:
+) -> list[AgentToolMetadataPublic]:
     """
     List all agent tool metadata by agent ID.
 
@@ -479,7 +495,7 @@ async def list_agent_tool_metadata(
         request (Request): Request object.
 
     Returns:
-        list[AgentToolMetadata]: List of agent tool metadata.
+        list[AgentToolMetadataPublic]: List of agent tool metadata with no user ID or organization ID.
 
     Raises:
         HTTPException: If the agent tool metadata retrieval fails.
@@ -494,14 +510,14 @@ async def list_agent_tool_metadata(
 
 @router.post(
     "/{agent_id}/tool-metadata",
-    response_model=AgentToolMetadata,
+    response_model=AgentToolMetadataPublic,
 )
 def create_agent_tool_metadata(
     session: DBSessionDep,
     agent_id: str,
     agent_tool_metadata: CreateAgentToolMetadata,
     request: Request,
-) -> AgentToolMetadata:
+) -> AgentToolMetadataPublic:
     """
     Create an agent tool metadata.
 
@@ -518,6 +534,8 @@ def create_agent_tool_metadata(
         HTTPException: If the agent tool metadata creation fails.
     """
     user_id = get_header_user_id(request)
+    agent = validate_agent_exists(session, agent_id)
+    add_agent_to_request_state(request, agent)
 
     agent_tool_metadata_data = AgentToolMetadataModel(
         user_id=user_id,
@@ -526,22 +544,15 @@ def create_agent_tool_metadata(
         artifacts=agent_tool_metadata.artifacts,
     )
 
-    request.state.agent_tool_metadata = agent_tool_metadata_data
     try:
         created_agent_tool_metadata = (
             agent_tool_metadata_crud.create_agent_tool_metadata(
                 session, agent_tool_metadata_data
             )
         )
-        request.state.agent_tool_metadata = agent_tool_metadata_data
+        add_agent_tool_metadata_to_request_state(request, created_agent_tool_metadata)
     except Exception as e:
-        if "psycopg2.errors.UniqueViolation" in str(e):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tool name {agent_tool_metadata.tool_name} already exists for given user and agent.",
-            )
-
-        raise HTTPException(status_code=500, detail=str(e))
+        raise_db_error(e, "Tool name", agent_tool_metadata.tool_name)
 
     return created_agent_tool_metadata
 
@@ -571,28 +582,17 @@ async def update_agent_tool_metadata(
         HTTPException: If the agent tool metadata with the given ID is not found.
         HTTPException: If the agent tool metadata update fails.
     """
-    agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
+    agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id
     )
-    if not agent_tool_metadata:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Agent tool metadata with ID {agent_tool_metadata_id} not found.",
-        )
 
     try:
         agent_tool_metadata_crud.update_agent_tool_metadata(
             session, agent_tool_metadata, new_agent_tool_metadata
         )
-        request.state.agent_tool_metadata = agent_tool_metadata
+        add_agent_tool_metadata_to_request_state(request, agent_tool_metadata)
     except Exception as e:
-        if "psycopg2.errors.UniqueViolation" in str(e):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tool name {agent_tool_metadata.tool_name} already exists for given user and agent.",
-            )
-
-        raise HTTPException(status_code=500, detail=str(e))
+        raise_db_error(e, "Tool name", agent_tool_metadata.tool_name)
 
     return agent_tool_metadata
 
@@ -617,16 +617,11 @@ async def delete_agent_tool_metadata(
         HTTPException: If the agent tool metadata with the given ID is not found.
         HTTPException: If the agent tool metadata deletion fails.
     """
-    agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
+    agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id
     )
-    if not agent_tool_metadata:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Agent tool metadata with ID {agent_tool_metadata_id} not found.",
-        )
 
-    request.state.agent_tool_metadata = agent_tool_metadata
+    add_agent_tool_metadata_to_request_state(request, agent_tool_metadata)
     try:
         agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
             session, agent_tool_metadata_id

@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Dict, List
 
 # To use local models install poetry with: poetry install --with setup,community,local-model --verbose
@@ -25,7 +26,9 @@ class LocalModelDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return True
 
-    def invoke_chat_stream(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat_stream(
+        self, chat_request: CohereChatRequest, **kwargs: Any
+    ) -> Any:
         model = self._get_model()
 
         if chat_request.max_tokens is None:
@@ -63,7 +66,7 @@ class LocalModelDeployment(BaseDeployment):
             "finish_reason": "COMPLETE",
         }
 
-    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         model = self._get_model()
 
         if chat_request.max_tokens is None:
@@ -86,7 +89,7 @@ class LocalModelDeployment(BaseDeployment):
 
         return model
 
-    def invoke_rerank(
+    async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None
@@ -236,11 +239,11 @@ Finally, Write 'Grounded answer:' followed by a response to the user's last inpu
         return chat_hist_str
 
 
-if __name__ == "__main__":
+async def main():
     model = LocalModelDeployment(model_path="path/to/model")
 
     print("--- Chat Stream ---")
-    response = model.invoke_chat_stream(
+    response = await model.invoke_chat_stream(
         CohereChatRequest(message="hello world", temperature=0.3)
     )
     for item in response:
@@ -251,3 +254,7 @@ if __name__ == "__main__":
         CohereChatRequest(message="hello world", temperature=0.3)
     )
     print(response)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

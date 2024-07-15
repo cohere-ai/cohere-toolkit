@@ -9,6 +9,8 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
@@ -48,9 +50,11 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
+  const { agentId } = useSlugRoutes();
   const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });
+  const { data: experimentalFeatures } = useExperimentalFeatures();
 
   const [isComposing, setIsComposing] = useState(false);
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
@@ -58,7 +62,9 @@ export const Composer: React.FC<Props> = ({
   const [showDataSourceMenu, setShowDataSourceMenu] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
-  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isToolAuthRequired;
+  const isAgentsModeOn = !!experimentalFeatures?.USE_AGENTS_VIEW;
+  const isComposerDisabled = isToolAuthRequired && isAgentsModeOn;
+  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isComposerDisabled;
 
   const handleCompositionStart = () => {
     setIsComposing(true);
@@ -84,7 +90,7 @@ export const Composer: React.FC<Props> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (isToolAuthRequired) {
+    if (isComposerDisabled) {
       return;
     }
 
@@ -159,7 +165,7 @@ export const Composer: React.FC<Props> = ({
 
   return (
     <div className="flex w-full flex-col">
-      <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />
+      {!agentId && <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />}
       <div
         className={cn(
           'relative flex w-full flex-col',
@@ -167,7 +173,7 @@ export const Composer: React.FC<Props> = ({
           'rounded border bg-marble-100',
           'border-marble-500 focus-within:border-secondary-700',
           {
-            'border-marble-500 bg-marble-300': isToolAuthRequired,
+            'border-marble-500 bg-marble-300': isComposerDisabled,
           }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
@@ -194,11 +200,11 @@ export const Composer: React.FC<Props> = ({
               'rounded',
               'bg-marble-100',
               'transition ease-in-out',
-              'focus:outline-none',
+              'placeholder:text-volcanic-500 focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
               'leading-[150%]',
               {
-                'bg-marble-300': isToolAuthRequired,
+                'bg-marble-300': isComposerDisabled,
               }
             )}
             style={{
@@ -209,7 +215,7 @@ export const Composer: React.FC<Props> = ({
             rows={1}
             onKeyDown={handleKeyDown}
             onChange={handleChange}
-            disabled={isToolAuthRequired}
+            disabled={isComposerDisabled}
           />
           <button
             className={cn(
@@ -217,9 +223,11 @@ export const Composer: React.FC<Props> = ({
               'my-2 ml-1 md:my-4',
               'flex flex-shrink-0 items-center justify-center rounded',
               'transition ease-in-out',
-              'text-secondary-800 hover:bg-secondary-100'
+              'text-secondary-800 hover:bg-secondary-100',
+              { 'text-secondary-500': !canSend }
             )}
             type="button"
+            disabled={!canSend}
             onClick={() => (canSend ? onSend(value) : onStop())}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}

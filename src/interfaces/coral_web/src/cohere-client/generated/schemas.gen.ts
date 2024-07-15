@@ -73,10 +73,17 @@ export const $Agent = {
       title: 'Tools',
     },
     tools_metadata: {
-      items: {
-        $ref: '#/components/schemas/AgentToolMetadata',
-      },
-      type: 'array',
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadataPublic',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Tools Metadata',
     },
     model: {
@@ -100,11 +107,112 @@ export const $Agent = {
     'preamble',
     'temperature',
     'tools',
-    'tools_metadata',
     'model',
     'deployment',
   ],
   title: 'Agent',
+} as const;
+
+export const $AgentPublic = {
+  properties: {
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    version: {
+      type: 'integer',
+      title: 'Version',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    preamble: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Preamble',
+    },
+    temperature: {
+      type: 'number',
+      title: 'Temperature',
+    },
+    tools: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Tools',
+    },
+    tools_metadata: {
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadataPublic',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tools Metadata',
+    },
+    model: {
+      type: 'string',
+      title: 'Model',
+    },
+    deployment: {
+      type: 'string',
+      title: 'Deployment',
+    },
+  },
+  type: 'object',
+  required: [
+    'user_id',
+    'id',
+    'created_at',
+    'updated_at',
+    'version',
+    'name',
+    'description',
+    'preamble',
+    'temperature',
+    'tools',
+    'model',
+    'deployment',
+  ],
+  title: 'AgentPublic',
 } as const;
 
 export const $AgentToolMetadata = {
@@ -143,6 +251,60 @@ export const $AgentToolMetadata = {
   type: 'object',
   required: ['user_id', 'id', 'tool_name', 'artifacts'],
   title: 'AgentToolMetadata',
+} as const;
+
+export const $AgentToolMetadataPublic = {
+  properties: {
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    tool_name: {
+      type: 'string',
+      title: 'Tool Name',
+    },
+    artifacts: {
+      items: {
+        type: 'object',
+      },
+      type: 'array',
+      title: 'Artifacts',
+    },
+  },
+  type: 'object',
+  required: ['id', 'tool_name', 'artifacts'],
+  title: 'AgentToolMetadataPublic',
+} as const;
+
+export const $Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
+  properties: {
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation Id',
+    },
+    files: {
+      items: {
+        type: 'string',
+        format: 'binary',
+      },
+      type: 'array',
+      title: 'Files',
+    },
+  },
+  type: 'object',
+  required: ['files'],
+  title: 'Body_batch_upload_file_v1_conversations_batch_upload_file_post',
 } as const;
 
 export const $Body_upload_file_v1_conversations_upload_file_post = {
@@ -641,6 +803,17 @@ export const $CohereChatRequest = {
       title:
         'If set to true, the model will generate a single response in a single step. This is useful for generating a response to a single message.',
     },
+    agent_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'The agent ID to use for the chat.',
+    },
   },
   type: 'object',
   required: ['message'],
@@ -921,6 +1094,17 @@ export const $CreateAgent = {
 
 export const $CreateAgentToolMetadata = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Id',
+    },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
@@ -966,7 +1150,7 @@ export const $CreateSnapshotResponse = {
     },
     messages: {
       items: {
-        type: 'object',
+        $ref: '#/components/schemas/Message',
       },
       type: 'array',
       title: 'Messages',
@@ -1455,8 +1639,16 @@ export const $Logout = {
 export const $ManagedTool = {
   properties: {
     name: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Name',
+      default: '',
     },
     display_name: {
       type: 'string',
@@ -1539,9 +1731,20 @@ export const $ManagedTool = {
       title: 'Auth Url',
       default: '',
     },
+    token: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Token',
+      default: '',
+    },
   },
   type: 'object',
-  required: ['name'],
   title: 'ManagedTool',
 } as const;
 
@@ -1859,15 +2062,7 @@ export const $Snapshot = {
       title: 'Updated At',
     },
     snapshot: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Snapshot',
+      $ref: '#/components/schemas/SnapshotData',
     },
   },
   type: 'object',
@@ -1883,6 +2078,91 @@ export const $Snapshot = {
     'snapshot',
   ],
   title: 'Snapshot',
+} as const;
+
+export const $SnapshotAgent = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    preamble: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Preamble',
+    },
+    tools_metadata: {
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadata',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tools Metadata',
+    },
+  },
+  type: 'object',
+  required: ['id', 'name', 'description', 'preamble', 'tools_metadata'],
+  title: 'SnapshotAgent',
+} as const;
+
+export const $SnapshotData = {
+  properties: {
+    title: {
+      type: 'string',
+      title: 'Title',
+    },
+    description: {
+      type: 'string',
+      title: 'Description',
+    },
+    messages: {
+      items: {
+        $ref: '#/components/schemas/Message',
+      },
+      type: 'array',
+      title: 'Messages',
+    },
+    agent: {
+      anyOf: [
+        {
+          $ref: '#/components/schemas/SnapshotAgent',
+        },
+        {
+          type: 'null',
+        },
+      ],
+    },
+  },
+  type: 'object',
+  required: ['title', 'description', 'messages', 'agent'],
+  title: 'SnapshotData',
 } as const;
 
 export const $SnapshotWithLinks = {
@@ -1929,15 +2209,7 @@ export const $SnapshotWithLinks = {
       title: 'Updated At',
     },
     snapshot: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Snapshot',
+      $ref: '#/components/schemas/SnapshotData',
     },
     links: {
       items: {
@@ -2248,6 +2520,18 @@ export const $StreamToolCallsChunk = {
 
 export const $StreamToolCallsGeneration = {
   properties: {
+    stream_search_results: {
+      anyOf: [
+        {
+          $ref: '#/components/schemas/StreamSearchResults',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'List of search results used to generate grounded response with citations',
+      default: [],
+    },
     tool_calls: {
       anyOf: [
         {
@@ -2330,8 +2614,16 @@ export const $StreamToolResult = {
 export const $Tool = {
   properties: {
     name: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Name',
+      default: '',
     },
     display_name: {
       type: 'string',
@@ -2364,7 +2656,6 @@ export const $Tool = {
     },
   },
   type: 'object',
-  required: ['name'],
   title: 'Tool',
 } as const;
 
@@ -2530,7 +2821,7 @@ export const $UpdateAgent = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/UpdateAgentToolMetadata',
+            $ref: '#/components/schemas/CreateAgentToolMetadata',
           },
           type: 'array',
         },

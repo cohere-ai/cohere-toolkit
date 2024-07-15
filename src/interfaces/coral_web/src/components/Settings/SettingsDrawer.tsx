@@ -2,12 +2,16 @@ import { Transition } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
+import { AgentsToolsTab } from '@/components/Settings/AgentsToolsTab';
 import { FilesTab } from '@/components/Settings/FilesTab';
 import { SettingsTab } from '@/components/Settings/SettingsTab';
 import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
+import { useAgent } from '@/hooks/agents';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useFilesInConversation } from '@/hooks/files';
+import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -28,8 +32,20 @@ export const SettingsDrawer: React.FC = () => {
     citations: { hasCitations },
   } = useCitationsStore();
   const { files } = useFilesInConversation();
+  const { agentId } = useSlugRoutes();
+  const { data: agent } = useAgent({ agentId });
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const isAgentsModeOn = experimentalFeatures?.USE_AGENTS_VIEW;
 
   const tabs = useMemo(() => {
+    if (isAgentsModeOn) {
+      return files.length > 0 && conversationId
+        ? [
+            { name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> },
+            { name: 'Files', component: <FilesTab /> },
+          ]
+        : [{ name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> }];
+    }
     return files.length > 0 && conversationId
       ? [
           { name: 'Tools', component: <ToolsTab /> },
@@ -40,7 +56,7 @@ export const SettingsDrawer: React.FC = () => {
           { name: 'Tools', component: <ToolsTab /> },
           { name: 'Settings', component: <SettingsTab /> },
         ];
-  }, [files.length, conversationId]);
+  }, [files.length, conversationId, agent?.tools]);
 
   return (
     <Transition
@@ -76,21 +92,25 @@ export const SettingsDrawer: React.FC = () => {
       </header>
 
       <section id={SETTINGS_DRAWER_ID} className="h-full w-full overflow-y-auto rounded-b-lg">
-        <Tabs
-          tabs={tabs.map((t) => t.name)}
-          selectedIndex={selectedTabIndex}
-          onChange={setSelectedTabIndex}
-          tabGroupClassName="h-full"
-          tabClassName="pt-2.5"
-          panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
-          fitTabsContent={true}
-        >
-          {tabs.map((t) => (
-            <div key={t.name} className="h-full w-full">
-              {t.component}
-            </div>
-          ))}
-        </Tabs>
+        {tabs.length === 1 ? (
+          <div className="pt-5">{tabs[0].component}</div>
+        ) : (
+          <Tabs
+            tabs={tabs.map((t) => t.name)}
+            selectedIndex={selectedTabIndex}
+            onChange={setSelectedTabIndex}
+            tabGroupClassName="h-full"
+            tabClassName="pt-2.5"
+            panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
+            fitTabsContent={true}
+          >
+            {tabs.map((t) => (
+              <div key={t.name} className="h-full w-full">
+                {t.component}
+              </div>
+            ))}
+          </Tabs>
+        )}
       </section>
     </Transition>
   );

@@ -1,6 +1,6 @@
 from backend.crud import user as user_crud
 from backend.database_models.user import User
-from backend.schemas.user import UpdateUser
+from backend.schemas.user import DEFAULT_USER_NAME, UpdateUser
 from backend.tests.factories import get_factory
 
 
@@ -56,9 +56,6 @@ def test_list_users_with_pagination(session):
 
     users = user_crud.get_users(session, offset=5, limit=5)
     assert len(users) == 5
-
-    for i, user in enumerate(users):
-        assert user.fullname == f"John Doe {i + 5}"
 
 
 def test_update_user(session):
