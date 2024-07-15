@@ -194,7 +194,7 @@ async def logout(
 
 # NOTE: Tool Auth is experimental and in development
 @router.get("/tool/auth")
-async def login(request: Request, session: DBSessionDep):
+async def login(request: Request, session: DBSessionDep, state: any = None):
     """
     Logs user in, performing basic email/password auth.
     Verifies their credentials, retrieves the user and returns a JWT token.
@@ -218,7 +218,14 @@ async def login(request: Request, session: DBSessionDep):
             detail=f"FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
         )
 
+    if not state:
+        # TODO add error
+        pass
+
+    # token = state.get("token")
+
     # TODO: Store user id and tool id in the DB for state key
+    # Get state token name and retrieve user_id/tool_id from Redis
     state = json.loads(request.query_params.get("state"))
     tool_id = state["tool_id"]
 

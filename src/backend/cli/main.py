@@ -48,6 +48,7 @@ WELCOME_MESSAGE = r"""
  ╚════╝  ╚════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝    ╚═╝    ╚════╝  ╚════╝ ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   
 """
 DATABASE_URL_DEFAULT = "postgresql+psycopg2://postgres:postgres@db:5432"
+REDIS_URL_DEFAULT="redis://:redis@redis:6379"
 PYTHON_INTERPRETER_URL_DEFAULT = "http://terrarium:8080"
 NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://localhost:8000"
 FRONTEND_HOSTNAME_DEFAULT = "http://localhost:4000"
@@ -75,26 +76,33 @@ def cohere_api_key_prompt(secrets):
     secrets["COHERE_API_KEY"] = cohere_api_key
 
 
-def database_url_prompt(secrets):
+def core_env_var_prompt(secrets):
     print_styled("💾 We need to set up your database URL.")
     database_url = inquirer.text(
         "Enter your database URL or press enter for default [recommended]",
         default=DATABASE_URL_DEFAULT,
     )
 
-    print_styled("💾 Now, let's set up your public API Hostname")
+    print_styled("💾 Now, let's set up need to set up your Redis URL.")
+    redis_url = inquirer.text(
+        "Enter your Redis URL or press enter for default [recommended]",
+        default=REDIS_URL_DEFAULT,
+    )
+
+    print_styled("💾 Now, let's set up your public backend API hostname.")
     next_public_api_hostname = inquirer.text(
         "Enter your public API Hostname or press enter for default [recommended]",
         default=NEXT_PUBLIC_API_HOSTNAME_DEFAULT,
     )
 
-    print_styled("💾 And now the hostname for the frontend client")
+    print_styled("💾 Finally, the frontend client hostname.")
     frontend_hostname = inquirer.text(
         "Enter your public API Hostname or press enter for default [recommended]",
         default=FRONTEND_HOSTNAME_DEFAULT,
     )
 
     secrets["DATABASE_URL"] = database_url
+    secrets["REDIS_URL"] = redis_url
     secrets["NEXT_PUBLIC_API_HOSTNAME"] = next_public_api_hostname
     secrets["FRONTEND_HOSTNAME"] = frontend_hostname
 
@@ -247,7 +255,7 @@ def show_examples():
 
 
 IMPLEMENTATIONS = {
-    "database_url": database_url_prompt,
+    "core": core_env_var_prompt,
 }
 
 

@@ -45,10 +45,11 @@ google_auth_oauthlib ="^1.2.0"
 google-auth-httplib2="^0.2.0"
 google-api-python-client="^2.133.0"
 openpyxl = "^3.1.5"
+redis = {extras = ["hiredis"], version = "^5.0.7"}
 
+[tool.poetry.group.compass]
 # compass dependencies. to be removed
 # once compass is OSS
-[tool.poetry.group.compass]
 optional = false
 
 [tool.poetry.group.compass.dependencies]

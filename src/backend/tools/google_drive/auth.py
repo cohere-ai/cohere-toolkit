@@ -30,6 +30,8 @@ class GoogleDriveAuth(BaseToolAuthentication):
             os.getenv("FRONTEND_HOSTNAME")
         )
         base_url = "https://accounts.google.com/o/oauth2/v2/auth?"
+
+        # TODO:Create token and insert to redis
         state = {"user_id": user_id, "tool_id": GoogleDrive.NAME}
         params = {
             "response_type": "code",
