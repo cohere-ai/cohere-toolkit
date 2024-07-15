@@ -155,7 +155,7 @@ module.exports = {
         'evolved-green': {
           500: '#0DF293',
           700: '#6EF7BE',
-          800: '#CFFCE9',
+          900: '#CFFCE9',
         },
         // Synthetic Quartz
         quartz: {
