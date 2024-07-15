@@ -1,7 +1,9 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   presets: [require('./src/themes/cohereTheme')],
   content: ['src/**/*.{js,jsx,ts,tsx}'],
   plugins: [require('@tailwindcss/typography')],
+  darkMode: 'selector',
   theme: {
     extend: {
       screens: {
