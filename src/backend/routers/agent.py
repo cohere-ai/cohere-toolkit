@@ -19,12 +19,12 @@ from backend.schemas.agent import (
     AgentPublic,
     AgentToolMetadata,
     AgentToolMetadataPublic,
-    CreateAgentRequest,
-    CreateAgentToolMetadataRequest,
+    CreateAgent,
+    CreateAgentToolMetadata,
     DeleteAgent,
     DeleteAgentToolMetadata,
-    UpdateAgentRequest,
-    UpdateAgentToolMetadataRequest,
+    UpdateAgent,
+    UpdateAgentToolMetadata,
 )
 from backend.schemas.metrics import MetricsMessageType
 from backend.services.agent import (
@@ -54,13 +54,13 @@ router.name = RouterName.AGENT
     ],
 )
 async def create_agent(
-    session: DBSessionDep, agent: CreateAgentRequest, request: Request
+    session: DBSessionDep, agent: CreateAgent, request: Request
 ) -> AgentPublic:
     """
     Create an agent.
     Args:
         session (DBSessionDep): Database session.
-        agent (CreateAgentRequest): Agent data.
+        agent (CreateAgent): Agent data.
         request (Request): Request object.
     Returns:
         AgentPublic: Created agent with no user ID or organization ID.
@@ -101,7 +101,7 @@ async def create_agent(
 @router.get("", response_model=list[AgentPublic])
 async def list_agents(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep, request: Request
-) -> list[Agent]:
+) -> list[AgentPublic]:
     """
     List all agents.
 
@@ -162,7 +162,7 @@ async def get_agent_by_id(
 )
 async def update_agent(
     agent_id: str,
-    new_agent: UpdateAgentRequest,
+    new_agent: UpdateAgent,
     session: DBSessionDep,
     request: Request,
 ) -> AgentPublic:
@@ -171,7 +171,7 @@ async def update_agent(
 
     Args:
         agent_id (str): Agent ID.
-        new_agent (UpdateAgentRequest): New agent data.
+        new_agent (UpdateAgent): New agent data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
 
@@ -235,7 +235,7 @@ async def update_or_create_tool_metadata(
             agent.id, new_tool_metadata.id, session, new_tool_metadata, request
         )
     else:
-        create_metadata_req = CreateAgentToolMetadataRequest(
+        create_metadata_req = CreateAgentToolMetadata(
             **new_tool_metadata.model_dump(exclude_none=True)
         )
         create_agent_tool_metadata(session, agent.id, create_metadata_req, request)
@@ -306,7 +306,7 @@ async def list_agent_tool_metadata(
 def create_agent_tool_metadata(
     session: DBSessionDep,
     agent_id: str,
-    agent_tool_metadata: CreateAgentToolMetadataRequest,
+    agent_tool_metadata: CreateAgentToolMetadata,
     request: Request,
 ) -> AgentToolMetadataPublic:
     """
@@ -315,7 +315,7 @@ def create_agent_tool_metadata(
     Args:
         session (DBSessionDep): Database session.
         agent_id (str): Agent ID.
-        agent_tool_metadata (CreateAgentToolMetadataRequest): Agent tool metadata data.
+        agent_tool_metadata (CreateAgentToolMetadata): Agent tool metadata data.
         request (Request): Request object.
 
     Returns:
@@ -353,7 +353,7 @@ async def update_agent_tool_metadata(
     agent_id: str,
     agent_tool_metadata_id: str,
     session: DBSessionDep,
-    new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
+    new_agent_tool_metadata: UpdateAgentToolMetadata,
     request: Request,
 ) -> AgentToolMetadata:
     """
@@ -363,7 +363,7 @@ async def update_agent_tool_metadata(
         agent_id (str): Agent ID.
         agent_tool_metadata_id (str): Agent tool metadata ID.
         session (DBSessionDep): Database session.
-        new_agent_tool_metadata (UpdateAgentToolMetadataRequest): New agent tool metadata data.
+        new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
         request (Request): Request object.
 
     Returns:

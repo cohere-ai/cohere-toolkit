@@ -27,6 +27,16 @@ features:
       description: Set the channel model
       usage_hint: '[model-name]'
       should_escape: false
+    - command: /set-deployment
+      url: https://slack-bot-host/slack/events
+      description: Set the channel model deployment
+      usage_hint: '[deployment-name]'
+      should_escape: false
+    - command: /view-deployment
+      url: https://slack-bot-host/slack/events
+      description: View the channel model deployment
+      usage_hint: '[deployment-name]'
+      should_escape: false
     - command: /view-model
       url: https://slack-bot-host/slack/events
       description: View the current channel model

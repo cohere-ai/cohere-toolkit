@@ -23,13 +23,13 @@ class AgentToolMetadataPublic(AgentToolMetadata):
         from_attributes = True
 
 
-class CreateAgentToolMetadataRequest(BaseModel):
+class CreateAgentToolMetadata(BaseModel):
     id: Optional[str] = None
     tool_name: str
     artifacts: list[dict]
 
 
-class UpdateAgentToolMetadataRequest(BaseModel):
+class UpdateAgentToolMetadata(BaseModel):
     id: Optional[str] = None
     tool_name: Optional[str] = None
     artifacts: Optional[list[dict]] = None
@@ -51,7 +51,7 @@ class Agent(AgentBase):
     preamble: Optional[str]
     temperature: float
     tools: list[str]
-    tools_metadata: list[AgentToolMetadata]
+    tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 
     model: str
     deployment: str
@@ -62,12 +62,11 @@ class Agent(AgentBase):
 
 
 class AgentPublic(Agent):
-    user_id: Optional[str] = Field(exclude=True)
     organization_id: Optional[str] = Field(exclude=True)
     tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 
 
-class CreateAgentRequest(BaseModel):
+class CreateAgent(BaseModel):
     name: str
     version: Optional[int] = None
     description: Optional[str] = None
@@ -76,7 +75,7 @@ class CreateAgentRequest(BaseModel):
     model: str
     deployment: str
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadata]] = None
 
     class Config:
         from_attributes = True
@@ -87,7 +86,7 @@ class ListAgentsResponse(BaseModel):
     agents: list[Agent]
 
 
-class UpdateAgentRequest(BaseModel):
+class UpdateAgent(BaseModel):
     name: Optional[str] = None
     version: Optional[int] = None
     description: Optional[str] = None
@@ -96,7 +95,7 @@ class UpdateAgentRequest(BaseModel):
     model: Optional[str] = None
     deployment: Optional[str] = None
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadata]] = None
 
     class Config:
         from_attributes = True

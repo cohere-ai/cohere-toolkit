@@ -2,7 +2,7 @@ import os
 from distutils.util import strtobool
 from typing import Any, Generator
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Header, Request
 from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat

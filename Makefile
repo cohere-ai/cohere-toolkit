@@ -1,5 +1,9 @@
 dev:
-	@docker compose watch
+	make -j 2 watch up
+watch:
+	@docker compose watch --no-up
+up:
+	@docker compose up
 down:
 	@docker compose down
 run-tests:
