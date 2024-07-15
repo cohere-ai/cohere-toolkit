@@ -194,6 +194,19 @@ export class DefaultService {
 
   /**
    * Login
+   * Logs user in, performing basic email/password auth.
+   * Verifies their credentials, retrieves the user and returns a JWT token.
+   *
+   * Args:
+   * request (Request): current Request object.
+   * login (Login): Login payload.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * dict: JWT token on Basic auth success
+   *
+   * Raises:
+   * HTTPException: If the strategy or payload are invalid, or if the login fails.
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -212,13 +225,11 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
-   * @param data.agentId
    * @returns ChatResponseEvent Successful Response
    * @throws ApiError
    */
@@ -228,9 +239,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat-stream',
-      query: {
-        agent_id: data.agentId,
-      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -247,13 +255,11 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
    * @param data The data for the request.
    * @param data.requestBody
-   * @param data.agentId
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
@@ -261,9 +267,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
-      query: {
-        agent_id: data.agentId,
-      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {

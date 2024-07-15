@@ -52,7 +52,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   } else if (isUser) {
     content = (
       <>
-        <Markdown text={message.text} />
+        <Markdown text={message.text} renderRawHtml={false} />
         {message.files && message.files.length > 0 && (
           <div className="flex flex-wrap gap-2 py-2">
             {message.files.map((file) => (

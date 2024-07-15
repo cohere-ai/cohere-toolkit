@@ -11,6 +11,11 @@ body {
   font-weight: 400;
 }
 
+/* Google File Picker styles */
+.picker-dialog {
+  @apply rounded-lg border !border-marble-500 drop-shadow-2xl;
+}
+
 @layer utilities {
   .font-cuts-0 {
     font-variation-settings: 'cuts' 0, 'move' 0;

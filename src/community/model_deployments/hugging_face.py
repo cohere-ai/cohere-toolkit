@@ -38,7 +38,7 @@ class HuggingFaceDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return True
 
-    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         model_id = chat_request.model
         if model_id == "command-r":
             model_id = self.DEFAULT_MODELS[0]
@@ -65,7 +65,9 @@ class HuggingFaceDeployment(BaseDeployment):
 
         return {"text": gen_text}
 
-    def invoke_chat_stream(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat_stream(
+        self, chat_request: CohereChatRequest, **kwargs: Any
+    ) -> Any:
         """
         Built in streamming is not supported, so this function wraps the invoke_chat function to return a single response.
         """
@@ -74,7 +76,7 @@ class HuggingFaceDeployment(BaseDeployment):
             "generation_id": "",
         }
 
-        gen_text = self.invoke_chat(chat_request)
+        gen_text = await self.invoke_chat(chat_request)
 
         yield {
             "event-type": "text-generation",
@@ -86,7 +88,7 @@ class HuggingFaceDeployment(BaseDeployment):
             "finish_reason": "COMPLETE",
         }
 
-    def invoke_rerank(
+    async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None

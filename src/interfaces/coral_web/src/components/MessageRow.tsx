@@ -180,6 +180,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                   show={isStepsExpanded}
                   events={message.toolEvents}
                   isStreaming={isStreamingToolEvents}
+                  isLast={isLast}
                 />
               )}
 

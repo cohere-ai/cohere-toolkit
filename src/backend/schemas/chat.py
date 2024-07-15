@@ -157,6 +157,11 @@ class StreamToolCallsGeneration(ChatResponse):
 
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_GENERATION
 
+    stream_search_results: StreamSearchResults | None = Field(
+        title="List of search results used to generate grounded response with citations",
+        default=[],
+    )
+
     tool_calls: List[ToolCall] | None = Field(
         title="List of tool calls generated for custom tools",
         default=[],
@@ -290,7 +295,6 @@ class ChatResponseEvent(BaseModel):
 
 
 class BaseChatRequest(BaseModel):
-
     # user_id: str = Field(
     #     title="A user id to store to store the conversation under.", exclude=True
     # )

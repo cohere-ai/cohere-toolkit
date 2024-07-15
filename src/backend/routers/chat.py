@@ -31,7 +31,6 @@ async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
-    agent_id: str | None = None,
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
@@ -40,7 +39,6 @@ async def chat_stream(
         session (DBSessionDep): Database session.
         chat_request (CohereChatRequest): Chat request data.
         request (Request): Request object.
-        agent_id (str | None): Agent ID.
 
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
@@ -48,9 +46,10 @@ async def chat_stream(
     trace_id = None
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
+    print("trace_id", trace_id)
 
     user_id = request.headers.get("User-Id", None)
-
+    agent_id = chat_request.agent_id
     (
         session,
         chat_request,
@@ -88,6 +87,9 @@ async def chat_stream(
             next_message_position=next_message_position,
         ),
         media_type="text/event-stream",
+        headers={"Connection": "keep-alive"},
+        send_timeout=300,
+        ping=5,
     )
 
 
@@ -96,7 +98,6 @@ async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
-    agent_id: str | None = None,
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
@@ -105,7 +106,6 @@ async def chat(
         chat_request (CohereChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
-        agent_id (str | None): Agent ID.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
@@ -115,6 +115,7 @@ async def chat(
         trace_id = request.state.trace_id
 
     user_id = request.headers.get("User-Id", None)
+    agent_id = chat_request.agent_id
 
     (
         session,
@@ -130,7 +131,7 @@ async def chat(
         next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
-    return generate_chat_response(
+    response = await generate_chat_response(
         session,
         CustomChat().chat(
             chat_request,
@@ -149,13 +150,13 @@ async def chat(
         should_store=should_store,
         next_message_position=next_message_position,
     )
+    return response
 
 
 @router.post("/langchain-chat")
 def langchain_chat_stream(
     session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
 ):
-
     use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
     if not use_langchain:
         return {"error": "Langchain is not enabled."}

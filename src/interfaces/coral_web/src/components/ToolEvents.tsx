@@ -1,11 +1,12 @@
 import { Transition } from '@headlessui/react';
 import { Fragment, PropsWithChildren } from 'react';
 
-import { StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
+import { StreamSearchResults, StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
 import { Icon, IconName, Markdown, Text } from '@/components/Shared';
 import {
   TOOL_CALCULATOR_ID,
   TOOL_FALLBACK_ICON,
+  TOOL_GOOGLE_DRIVE_ID,
   TOOL_ID_TO_DISPLAY_INFO,
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
@@ -15,13 +16,14 @@ import { cn } from '@/utils';
 type Props = {
   show: boolean;
   isStreaming: boolean;
+  isLast: boolean;
   events: StreamToolCallsGeneration[] | undefined;
 };
 
 /**
  * @description Renders a list of events depending on the model's plan and tool inputs.
  */
-export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
+export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events }) => {
   return (
     <Transition
       show={show}
@@ -35,13 +37,16 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
     >
       {events?.map((toolEvent, i) => (
         <Fragment key={i}>
+          {toolEvent.stream_search_results && toolEvent.stream_search_results.search_results && (
+            <ToolEvent stream_search_results={toolEvent.stream_search_results} />
+          )}
           {toolEvent.text && <ToolEvent plan={toolEvent.text} />}
           {toolEvent.tool_calls?.map((toolCall, j) => (
             <ToolEvent key={`event-${j}`} event={toolCall} />
           ))}
         </Fragment>
       ))}
-      {isStreaming && (
+      {isStreaming && isLast && (
         <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
           Working on it
           <span className="w-max">
@@ -58,17 +63,49 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, events }) => {
 type ToolEventProps = {
   plan?: string;
   event?: ToolCall;
+  stream_search_results?: StreamSearchResults | null;
 };
 
 /**
  * @description Renders a step event depending on the tool's input or output.
  */
-const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
-  if (!event) {
+const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_results }) => {
+  if (plan) {
     return <ToolEventWrapper>{plan}</ToolEventWrapper>;
   }
 
-  const toolName = event.name;
+  if (stream_search_results) {
+    const artifacts =
+      stream_search_results.documents
+        ?.map((doc) => {
+          return { title: truncateString(doc.title || doc.url || ''), url: doc.url };
+        })
+        .filter((entry) => !!entry.title)
+        .filter((value, index, self) => index === self.findIndex((t) => t.title === value.title)) ||
+      [];
+    return (
+      <ToolEventWrapper icon="book-open-text">
+        {artifacts.length > 0 ? (
+          <>
+            Found the following resources:
+            <article className="grid grid-cols-2 gap-x-2">
+              {artifacts.map((artifact) => (
+                <b key={artifact.title} className="cursor-pointer truncate font-medium underline">
+                  <a href={artifact.url || ''} target="_blank">
+                    {artifact.title}
+                  </a>
+                </b>
+              ))}
+            </article>
+          </>
+        ) : (
+          <>No resources found.</>
+        )}
+      </ToolEventWrapper>
+    );
+  }
+
+  const toolName = event?.name || '';
   const icon = TOOL_ID_TO_DISPLAY_INFO[toolName]?.icon ?? TOOL_FALLBACK_ICON;
 
   switch (toolName) {
@@ -81,7 +118,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
         return (
           <>
             <ToolEventWrapper icon={icon}>
-              Using <b className="font-medium">{toolName}</b>
+              Using <b className="font-medium">{toolName}.</b>
             </ToolEventWrapper>
             <Markdown text={codeString} className="w-full" />
           </>
@@ -89,7 +126,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
       } else {
         return (
           <ToolEventWrapper icon={icon}>
-            Using <b className="font-medium">{toolName}</b>
+            Using <b className="font-medium">{toolName}.</b>
           </ToolEventWrapper>
         );
       }
@@ -98,7 +135,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
     case TOOL_CALCULATOR_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Calculating <b className="font-medium">{event?.parameters?.code as any}</b>
+          Calculating <b className="font-medium">{event?.parameters?.code as any}.</b>
         </ToolEventWrapper>
       );
     }
@@ -106,7 +143,15 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
     case TOOL_WEB_SEARCH_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Searching <b className="font-medium">{event?.parameters?.query as any}</b>
+          Searching <b className="font-medium">{event?.parameters?.query as any}.</b>
+        </ToolEventWrapper>
+      );
+    }
+
+    case TOOL_GOOGLE_DRIVE_ID: {
+      return (
+        <ToolEventWrapper icon={icon}>
+          Searching <b className="font-medium">{event?.parameters?.query as any}</b> in {toolName}.
         </ToolEventWrapper>
       );
     }
@@ -114,7 +159,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event }) => {
     default: {
       return (
         <ToolEventWrapper icon={icon}>
-          Using <b className="font-medium">{toolName}</b>
+          Using <b className="font-medium">{toolName}.</b>
         </ToolEventWrapper>
       );
     }
@@ -129,11 +174,15 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   children,
 }) => {
   return (
-    <div className="flex w-full gap-x-2 rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
+    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
       <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-secondary-600" />
       <Text className="pt-px text-secondary-800" styleAs="p-sm" as="span">
         {children}
       </Text>
     </div>
   );
+};
+
+const truncateString = (str: string, max_length: number = 50) => {
+  return str.length < max_length ? str : str.substring(0, max_length) + '...';
 };

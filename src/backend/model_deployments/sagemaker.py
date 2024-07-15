@@ -4,7 +4,7 @@ import logging
 import os
 import threading
 import time
-from typing import Any, Dict, Generator, List
+from typing import Any, AsyncGenerator, Dict, List
 
 import boto3
 from cohere.types import StreamedChatResponse
@@ -79,9 +79,9 @@ class SageMakerDeployment(BaseDeployment):
         return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
 
     @collect_metrics_chat_stream
-    def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> Generator[StreamedChatResponse, None, None]:
+    async def invoke_chat_stream(
+        self, chat_request: CohereChatRequest
+    ) -> AsyncGenerator[Any, Any]:
         # Create the payload for the request
         json_params = {
             "prompt_truncation": "AUTO_PRESERVE_ORDER",
@@ -100,9 +100,7 @@ class SageMakerDeployment(BaseDeployment):
             stream_event["index"] = index
             yield stream_event
 
-    def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
-    ) -> Any:
+    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None
 
     # This class iterates through each line of Sagemaker's response

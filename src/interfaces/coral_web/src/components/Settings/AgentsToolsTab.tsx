@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
-import { ToolsInfoBox } from '@/components/Agents/Settings/ToolsInfoBox';
+import { ToolsInfoBox } from '@/components/Settings/ToolsInfoBox';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
@@ -17,10 +17,10 @@ import { cn } from '@/utils';
 /**
  * @description Tools tab content that shows a list of available tools and files
  */
-export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className?: string }> = ({
-  requiredTools,
-  className = '',
-}) => {
+export const AgentsToolsTab: React.FC<{
+  requiredTools: string[] | undefined;
+  className?: string;
+}> = ({ requiredTools, className = '' }) => {
   const { agentId } = useSlugRoutes();
   const { data: agent } = useAgent({ agentId });
   const { params, setParams } = useParamsStore();

@@ -30,8 +30,7 @@ from backend.services.conversation import (
     SEARCH_RELEVANCE_THRESHOLD,
     extract_details_from_conversation,
 )
-from backend.services.file.service import FileService
-from backend.tools.files import get_file_content
+from backend.services.file import get_file_content, validate_file_size
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -222,7 +221,7 @@ async def search_conversations(
         return filtered_conversations
 
     # Rerank documents
-    res = model_deployment.invoke_rerank(
+    res = await model_deployment.invoke_rerank(
         query=query,
         documents=rerank_documents,
         user_id=user_id,
@@ -270,6 +269,8 @@ async def upload_file(
 
     user_id = get_header_user_id(request)
 
+    validate_file_size(session, user_id, file)
+
     # Create new conversation
     if not conversation_id:
         conversation = conversation_crud.create_conversation(
@@ -296,27 +297,22 @@ async def upload_file(
                 ConversationModel(user_id=user_id),
             )
 
+    # TODO: check if file already exists in DB once we have files per agents
+
     # Handle uploading File
-    file_path = FileService().upload_file(file)
-
-    # Raise exception if file wasn't uploaded
-    if not file_path.exists():
-        raise HTTPException(
-            status_code=500, detail=f"Error while uploading file {file.filename}."
-        )
-
     try:
-        # Read file content
-        content = get_file_content(file_path)
+        content = await get_file_content(file)
+        cleaned_content = content.replace("\x00", "")
+        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
 
         # Create File
         upload_file = FileModel(
             user_id=conversation.user_id,
             conversation_id=conversation.id,
-            file_name=file_path.name,
-            file_path=str(file_path),
-            file_size=file_path.stat().st_size,
-            file_content=content,
+            file_name=filename,
+            file_path=filename,
+            file_size=file.size,
+            file_content=cleaned_content,
         )
 
         upload_file = file_crud.create_file(session, upload_file)
@@ -324,9 +320,6 @@ async def upload_file(
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file {file.filename}."
         )
-    finally:
-        # Remove local file
-        FileService().delete_file(file_path)
 
     return upload_file
 
@@ -441,8 +434,7 @@ async def delete_file(
             detail=f"File with ID: {file_id} not found.",
         )
 
-    # Delete File from local volume, and also the File DB object
-    FileService().delete_file(file.file_path)
+    # Delete the File DB object
     file_crud.delete_file(session, file_id, user_id)
 
     return DeleteFile()
@@ -492,7 +484,7 @@ async def generate_title(
             message=prompt,
         )
 
-        response = generate_chat_response(
+        response = await generate_chat_response(
             session,
             CustomChat().chat(
                 chat_request,

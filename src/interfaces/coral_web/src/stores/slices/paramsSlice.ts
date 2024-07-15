@@ -5,7 +5,7 @@ import { isDefaultFileLoaderTool } from '@/utils';
 
 import { StoreState } from '..';
 
-const INITIAL_STATE = {
+const INITIAL_STATE: ConfigurableParams = {
   model: undefined,
   temperature: DEFAULT_CHAT_TEMPERATURE,
   preamble: '',

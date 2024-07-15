@@ -1,4 +1,5 @@
 FROM python:3.11
+
 # Keeps Python from generating .pyc files in the container
 # Turns off buffering for easier container logging
 # Force UTF8 encoding for funky character handling
@@ -45,4 +46,4 @@ COPY .en[v] .env
 
 EXPOSE ${PORT}
 
-CMD uvicorn backend.main:app --reload --host 0.0.0.0 --port ${PORT}
+CMD uvicorn backend.main:app --reload --host 0.0.0.0 --port ${PORT} --timeout-keep-alive 300

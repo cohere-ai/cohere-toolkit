@@ -1,12 +1,20 @@
 import { Transition } from '@headlessui/react';
 import { useRouter } from 'next/router';
 
+import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
-import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import {
+  useAgentsStore,
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -25,22 +33,42 @@ type Props = {
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
   const { agentId } = useSlugRoutes();
-  const isActive = isBaseAgent ? !agentId : agentId === id;
   const router = useRouter();
 
+  const isActive = isBaseAgent ? router.asPath === '/' && !agentId : agentId === id;
+
+  const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();
   const { setEditAgentPanelOpen } = useAgentsStore();
+  const { setSettings } = useSettingsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
 
   const handleNewChat = () => {
-    const url = id ? `/agents/${id}` : '/agents';
+    const url = isBaseAgent ? '/' : id ? `/a/${id}` : '/a';
     router.push(url, undefined, { shallow: true });
     setEditAgentPanelOpen(false);
     resetConversation();
     resetCitations();
     resetFileParams();
+  };
+
+  const handleEditAssistant = () => {
+    if (id) {
+      router.push(`/a/${id}`, undefined, { shallow: true });
+      setEditAgentPanelOpen(true);
+      setSettings({ isConvListPanelOpen: false });
+    }
+  };
+
+  const handleDeleteAssistant = async () => {
+    if (id) {
+      open({
+        title: 'Delete assistant',
+        content: <DeleteAgent name={name} agentId={id} onClose={close} />,
+      });
+    }
   };
 
   const handleHideAssistant = () => {
@@ -107,6 +135,12 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
                 onClick: handleHideAssistant,
                 iconName: 'hide',
               },
+              {
+                label: 'Edit assistant',
+                onClick: handleEditAssistant,
+                iconName: 'edit',
+              },
+              { label: 'Delete assistant', onClick: handleDeleteAssistant, iconName: 'trash' },
             ]}
           />
         </Transition>
