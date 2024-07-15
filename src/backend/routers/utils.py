@@ -15,7 +15,7 @@ DEFAULT_METRICS_AGENT = MetricsAgent(
     model="command-r-plus",
     deployment="Cohere",
     preamble="",
-    description="hardcoded default agent for logging purposes",
+    description="default",
 )
 
 
