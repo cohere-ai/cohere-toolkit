@@ -13,38 +13,6 @@ from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
 
 
-@pytest.mark.asyncio
-async def test_create_agent_mertic(
-    session_client: TestClient, session: Session, user
-) -> None:
-    user = get_factory("User", session).create(fullname="John Doe", user_id=user.id)
-    request_json = {
-        "name": "test agent",
-        "version": 1,
-        "description": "test description",
-        "preamble": "test preamble",
-        "temperature": 0.5,
-        "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.post(
-            "/v1/agents", json=request_json, headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        assert m_args.user_id == user.id
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
-
-
-@pytest.mark.asyncio
 async def test_create_agent_mertic(
     session_client: TestClient, session: Session
 ) -> None:
