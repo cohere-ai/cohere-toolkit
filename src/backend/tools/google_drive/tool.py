@@ -3,7 +3,8 @@ import time
 from typing import Any, Dict, List
 
 from google.auth.exceptions import RefreshError
-from google.oauth2.credentials import Credentials
+from google.oauth2 import service_account
+from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
 from backend.crud import tool_auth as tool_auth_crud
@@ -19,6 +20,7 @@ from .constants import (
     GOOGLE_DRIVE_TOOL_ID,
     NATIVE_SEARCH_MIME_TYPES,
     NON_NATIVE_SEARCH_MIME_TYPES,
+    SCOPES,
     SEARCH_LIMIT,
     SEARCH_MIME_TYPES,
 )
@@ -67,6 +69,7 @@ class GoogleDrive(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
+        service_account_info = kwargs.get("service_account_info", None)
         index_name = "{}_{}".format(
             agent_id if agent_id is not None else user_id, GOOGLE_DRIVE_TOOL_ID
         )
@@ -83,10 +86,16 @@ class GoogleDrive(BaseTool):
             + " or ".join([f"name contains '{word}'" for word in [query]])
             + ")",
         ]
-        auth = tool_auth_crud.get_tool_auth(
-            db=session, tool_id=GOOGLE_DRIVE_TOOL_ID, user_id=user_id
-        )
-        creds = Credentials(auth.encrypted_access_token.decode())
+        creds = None
+        if service_account_info:
+            creds = service_account.Credentials.from_service_account_info(
+                service_account_info, scopes=SCOPES
+            )
+        else:
+            auth = tool_auth_crud.get_tool_auth(
+                db=session, tool_id=GOOGLE_DRIVE_TOOL_ID, user_id=user_id
+            )
+            creds = Credentials(auth.encrypted_access_token.decode())
 
         # fetch agent tool metadata
         file_ids = []
