@@ -17,15 +17,6 @@ from backend.schemas.snapshot import SnapshotAgent, SnapshotData
 SNAPSHOT_VERSION = 1
 
 
-def validate_conversation(
-    session: DBSessionDep, conversation_id: str, user_id: str
-) -> ConversationModel:
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-    if not conversation:
-        raise HTTPException(status_code=404, detail="Conversation not found")
-    return conversation
-
-
 def validate_last_message(last_message_id: str) -> None:
     if not last_message_id:
         raise HTTPException(status_code=404, detail="Conversation has no messages")
