@@ -168,8 +168,6 @@ class CustomChat(BaseChat):
                 if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
             ]
 
-        print("chathistory")
-        print(chat_request.chat_history)
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
             send_log_message(
@@ -277,8 +275,14 @@ class CustomChat(BaseChat):
             for output in outputs:
                 tool_results.append({"call": tool_call, "outputs": [output]})
 
-        print("chunk and rerank results")
         tool_results = await rerank_and_chunk(tool_results, deployment_model, **kwargs)
+        send_log_message(
+            logger,
+            f"Tool results: {tool_results}",
+            level="info",
+            conversation_id=kwargs.get("conversation_id"),
+            user_id=kwargs.get("user_id"),
+        )
 
         return tool_results
 
