@@ -27,7 +27,7 @@ from backend.schemas.agent import (
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
 )
-from backend.schemas.metrics import MetricsMessageType, GenericResponseMessage
+from backend.schemas.metrics import GenericResponseMessage, MetricsMessageType
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
