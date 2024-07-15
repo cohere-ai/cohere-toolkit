@@ -139,7 +139,7 @@ export const Dropdown: React.FC<Props> = ({
             <Listbox.Button
               className={cn(
                 'relative flex w-full items-center justify-between disabled:cursor-not-allowed',
-                'rounded-lg focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+                'rounded-lg focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
                 {
                   'px-3 py-4': kind === 'default' || !label,
                   'px-3 pb-2.5 pt-7': kind === 'cell' && label,

@@ -48,7 +48,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, customActions = 
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-volcanic-800/20 backdrop-blur-sm transition-opacity" />
+          <div className="fixed inset-0 bg-volcanic-300/20 backdrop-blur-sm transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 flex items-start justify-center overflow-y-auto p-4">

@@ -51,14 +51,14 @@ interface CellThemes {
 export const THEME_CLASSES: CellThemes = {
   volcanic: {
     default: {
-      bg: 'bg-volcanic-900',
-      fill: 'fill-volcanic-900',
+      bg: 'bg-volcanic-100',
+      fill: 'fill-volcanic-100',
       text: 'text-white',
     },
     outline: {
-      text: 'text-volcanic-900',
-      stroke: 'stroke-volcanic-900',
-      outlineFill: 'fill-volcanic-900',
+      text: 'text-volcanic-100',
+      stroke: 'stroke-volcanic-100',
+      outlineFill: 'fill-volcanic-100',
       fill: 'fill-marble-1000',
       bg: 'bg-marble-1000',
     },
@@ -67,13 +67,13 @@ export const THEME_CLASSES: CellThemes = {
     default: {
       bg: 'bg-marble-1000',
       fill: 'fill-marble-1000',
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
     },
     outline: {
-      text: 'bg-volcanic-900',
+      text: 'bg-volcanic-100',
       stroke: 'stroke-marble-1000',
       outlineFill: 'fill-marble-1000',
-      fill: 'fill-volcanic-900',
+      fill: 'fill-volcanic-100',
       bg: 'text-white',
     },
   },
@@ -84,7 +84,7 @@ export const THEME_CLASSES: CellThemes = {
       text: 'text-white',
     },
     outline: {
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
       stroke: 'stroke-coral-300',
       outlineFill: 'fill-coral-300',
       fill: 'fill-coral-100',
@@ -98,7 +98,7 @@ export const THEME_CLASSES: CellThemes = {
       text: 'text-white',
     },
     outline: {
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
       stroke: 'stroke-coral-300',
       outlineFill: 'fill-coral-300',
       fill: 'fill-coral-100',
@@ -165,26 +165,26 @@ export const THEME_CLASSES: CellThemes = {
     default: {
       bg: 'bg-marble-950',
       fill: 'fill-marble-950',
-      text: 'text-volcanic-700',
+      text: 'text-volcanic-400',
     },
     outline: {
-      text: 'text-volcanic-600',
-      stroke: 'stroke-volcanic-600',
-      outlineFill: 'fill-volcanic-600',
+      text: 'text-volcanic-500',
+      stroke: 'stroke-volcanic-500',
+      outlineFill: 'fill-volcanic-500',
       fill: 'fill-marble-950',
       bg: 'bg-marble-950',
     },
   },
   grayDark: {
     default: {
-      bg: 'bg-volcanic-600',
-      fill: 'fill-volcanic-600',
-      text: 'text-volcanic-900',
+      bg: 'bg-volcanic-500',
+      fill: 'fill-volcanic-500',
+      text: 'text-volcanic-100',
     },
     outline: {
-      text: 'text-volcanic-600',
-      stroke: 'stroke-volcanic-600',
-      outlineFill: 'fill-volcanic-600',
+      text: 'text-volcanic-500',
+      stroke: 'stroke-volcanic-500',
+      outlineFill: 'fill-volcanic-500',
       fill: 'fill-marble-950',
       bg: 'bg-marble-950',
     },
@@ -193,10 +193,10 @@ export const THEME_CLASSES: CellThemes = {
     default: {
       bg: 'bg-marble-950',
       fill: 'fill-marble-950',
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
     },
     outline: {
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
       stroke: 'stroke-marble-950',
       outlineFill: 'fill-marble-950',
       fill: 'fill-marble-1000',
@@ -207,10 +207,10 @@ export const THEME_CLASSES: CellThemes = {
     default: {
       bg: 'bg-marble-950',
       fill: 'fill-marble-950',
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
     },
     outline: {
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
       stroke: 'stroke-marble-950',
       outlineFill: 'fill-marble-950',
       fill: 'fill-marble-980',
@@ -221,10 +221,10 @@ export const THEME_CLASSES: CellThemes = {
     default: {
       bg: 'bg-mushroom-50',
       fill: 'fill-mushroom-50',
-      text: 'text-volcanic-800',
+      text: 'text-volcanic-300',
     },
     outline: {
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
       stroke: 'stroke-mushroom-500',
       outlineFill: 'fill-mushroom-500',
       fill: 'fill-mushroom-50',
@@ -235,10 +235,10 @@ export const THEME_CLASSES: CellThemes = {
     default: {
       bg: 'bg-mushroom-100',
       fill: 'fill-mushroom-100',
-      text: 'text-volcanic-800',
+      text: 'text-volcanic-300',
     },
     outline: {
-      text: 'text-volcanic-800',
+      text: 'text-volcanic-300',
       stroke: 'stroke-mushroom-300',
       outlineFill: 'fill-mushroom-300',
       fill: 'fill-mushroom-100',
@@ -289,14 +289,14 @@ export const THEME_CLASSES: CellThemes = {
   },
   volcanicLight: {
     default: {
-      bg: 'bg-volcanic-800/50',
-      fill: 'fill-volcanic-800/50',
+      bg: 'bg-volcanic-300/50',
+      fill: 'fill-volcanic-300/50',
       text: 'text-white',
     },
     outline: {
-      text: 'text-volcanic-800',
-      stroke: 'stroke-volcanic-800',
-      outlineFill: 'fill-volcanic-800',
+      text: 'text-volcanic-300',
+      stroke: 'stroke-volcanic-300',
+      outlineFill: 'fill-volcanic-300',
       fill: 'fill-marble-1000',
       bg: 'bg-marble-1000',
     },
@@ -336,7 +336,7 @@ export const THEME_CLASSES: CellThemes = {
       text: 'text-white',
     },
     outline: {
-      text: 'text-volcanic-900',
+      text: 'text-volcanic-100',
       stroke: 'stroke-quartz-700',
       outlineFill: 'fill-quartz-700',
       fill: 'fill-quartz-50',

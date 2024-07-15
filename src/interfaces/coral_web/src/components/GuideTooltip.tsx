@@ -57,7 +57,7 @@ export const GuideTooltip: React.FC<Props> = ({
           className={cn(
             'flex h-4 w-4 items-center rounded',
             'text-coral-800 transition-colors ease-in-out hover:text-coral-700',
-            'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-1 focus-visible:outline-volcanic-900'
+            'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-1 focus-visible:outline-volcanic-100'
           )}
           onClick={onClose}
         >
@@ -66,14 +66,14 @@ export const GuideTooltip: React.FC<Props> = ({
       </div>
 
       <div className="flex items-center justify-between px-4">
-        <Text styleAs="p-xs" className="text-volcanic-800">
+        <Text styleAs="p-xs" className="text-volcanic-300">
           {currentStep} of {totalSteps}
         </Text>
         <button
           className={cn(
             'rounded px-2.5 py-0.5 text-coral-50 ',
             'bg-coral-800 transition-colors ease-in-out hover:bg-coral-700',
-            'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
+            'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100'
           )}
           onClick={onNext}
         >

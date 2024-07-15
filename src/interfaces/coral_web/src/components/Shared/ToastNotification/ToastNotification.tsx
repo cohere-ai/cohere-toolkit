@@ -31,8 +31,8 @@ export const ToastNotification: React.FC<Props> = ({ position = 'bottom-right' }
           padding: '0',
         },
         classNames: {
-          cancelButton: '!text-volcanic-900 !text-p !ml-auto',
-          loading: 'border-quartz-700 border bg-quartz-50 text-volcanic-900',
+          cancelButton: '!text-volcanic-100 !text-p !ml-auto',
+          loading: 'border-quartz-700 border bg-quartz-50 text-volcanic-100',
           success: 'border-success-200 border bg-success-950 text-success-200',
           error: '<border-danger-5></border-danger-5>00 border bg-danger-950 text-danger-500',
           info: 'border-mushroom-200 border bg-mushroom-50 text-mushroom-900',

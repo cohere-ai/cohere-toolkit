@@ -313,7 +313,7 @@ const ToolOptions: React.FC<{
             onSelect={() => onOptionSelect({ type: TagType.TOOL, tag })}
             metadata={
               selected ? (
-                <Text as="span" className="text-volcanic-600">
+                <Text as="span" className="text-volcanic-500">
                   Selected
                 </Text>
               ) : undefined
@@ -352,14 +352,14 @@ const FileOptions: React.FC<{
             icon="clip"
             name={tag.name}
             metadata={
-              <Text as="span" className="flex-shrink-0 whitespace-nowrap text-volcanic-600">
+              <Text as="span" className="flex-shrink-0 whitespace-nowrap text-volcanic-500">
                 {selectedTagIds.some((t) => t === tag.id) ? 'Selected' : tag.metadata}
               </Text>
             }
           />
         ))
       ) : (
-        <Text as="span" className="p-1.5 text-volcanic-700">
+        <Text as="span" className="p-1.5 text-volcanic-400">
           You don&apos;t have any files, upload one to use with the assistant.
         </Text>
       )}

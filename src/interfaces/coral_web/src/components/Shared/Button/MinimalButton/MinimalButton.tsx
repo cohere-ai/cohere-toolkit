@@ -59,12 +59,12 @@ export const MinimalButton: React.FC<MinimalButtonProps> = ({
   const themeClasses: { [key in MinimalButtonTheme]: string } = {
     volcanic: cx({
       'visited:text-coral-700': href,
-      'text-volcanic-700': disabled,
-      'text-volcanic-900': !disabled,
+      'text-volcanic-400': disabled,
+      'text-volcanic-100': !disabled,
     }),
     secondary: cx({
       'visited:text-coral-700': href,
-      'text-volcanic-50': disabled,
+      'text-volcanic-60': disabled,
       'text-mushroom-50': !disabled,
     }),
   };

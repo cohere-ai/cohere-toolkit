@@ -35,7 +35,7 @@ export const Avatar: React.FC<Props> = ({ message }) => {
         'flex flex-shrink-0 items-center justify-center rounded text-white',
         'h-7 w-7 md:h-9 md:w-9',
         {
-          'bg-volcanic-500': isErroredOrAborted,
+          'bg-volcanic-600': isErroredOrAborted,
           'bg-quartz-700': isUser,
         },
         isGroundingOn

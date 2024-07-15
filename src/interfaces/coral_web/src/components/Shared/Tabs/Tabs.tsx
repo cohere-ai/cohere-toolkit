@@ -98,9 +98,9 @@ export const Tabs: React.FC<TabsProps> = ({
                     <Text
                       as="span"
                       styleAs="label"
-                      className={cn('whitespace-nowrap group-hover:text-volcanic-900', {
-                        'font-medium text-volcanic-900': selected,
-                        'text-volcanic-700': !selected,
+                      className={cn('whitespace-nowrap group-hover:text-volcanic-100', {
+                        'font-medium text-volcanic-100': selected,
+                        'text-volcanic-400': !selected,
                         'my-3': !isReactNodeElement,
                       })}
                     >
@@ -110,7 +110,7 @@ export const Tabs: React.FC<TabsProps> = ({
                       <Text
                         as="span"
                         styleAs="overline"
-                        className="whitespace-nowrap text-volcanic-700"
+                        className="whitespace-nowrap text-volcanic-400"
                       >
                         {subLabels[i]}
                       </Text>

@@ -22,7 +22,7 @@ export const LongPressMenu: React.FC<Props> = ({ isOpen, close, children, classN
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-volcanic-900/30" />
+          <div className="fixed inset-0 bg-volcanic-100/30" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">

@@ -28,7 +28,7 @@ export const Switch: React.FC<Props> = ({
 }) => {
   return (
     <div className="group flex items-center">
-      {displayChecked && <Text className="w-8 text-volcanic-700">{checked ? 'On' : 'Off'}</Text>}
+      {displayChecked && <Text className="w-8 text-volcanic-400">{checked ? 'On' : 'Off'}</Text>}
       <Field>
         <div
           className={cn(
@@ -49,7 +49,7 @@ export const Switch: React.FC<Props> = ({
             className={cn(
               'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded border-2 border-transparent',
               'transition-colors duration-200 ease-in-out',
-              'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+              'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
               'bg-mushroom-500 group-hover:bg-mushroom-400',
               {
                 'bg-mushroom-100 group-hover:bg-mushroom-200': !checked,

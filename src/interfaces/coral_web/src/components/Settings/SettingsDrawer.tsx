@@ -86,7 +86,7 @@ export const SettingsDrawer: React.FC = () => {
           onClick={() => setSettings({ isConfigDrawerOpen: false })}
         />
         <span className="flex items-center gap-2">
-          <Icon name="settings" className="text-volcanic-700" kind="outline" />
+          <Icon name="settings" className="text-volcanic-400" kind="outline" />
           <Text styleAs="p-lg">Settings</Text>
         </span>
       </header>

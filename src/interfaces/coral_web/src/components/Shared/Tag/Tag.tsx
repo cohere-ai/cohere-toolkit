@@ -18,12 +18,12 @@ export type TagProps = {
 
 const TAG_THEME_CLASSES = {
   primary: {
-    primary: 'text-volcanic-900 bg-coral-100',
-    secondary: 'text-volcanic-900 bg-coral-50',
+    primary: 'text-volcanic-100 bg-coral-100',
+    secondary: 'text-volcanic-100 bg-coral-50',
   },
   secondary: {
-    primary: 'text-volcanic-900 bg-mushroom-100',
-    secondary: 'text-volcanic-900 bg-mushroom-50',
+    primary: 'text-volcanic-100 bg-mushroom-100',
+    secondary: 'text-volcanic-100 bg-mushroom-50',
   },
   success: {
     primary: 'text-success-200 bg-success-950',
@@ -38,8 +38,8 @@ const TAG_THEME_CLASSES = {
     secondary: 'text-blue-500 bg-blue-950',
   },
   disabled: {
-    primary: 'text-volcanic-700 bg-marble-950',
-    secondary: 'text-volcanic-700 bg-marble-950',
+    primary: 'text-volcanic-400 bg-marble-950',
+    secondary: 'text-volcanic-400 bg-marble-950',
   },
 };
 

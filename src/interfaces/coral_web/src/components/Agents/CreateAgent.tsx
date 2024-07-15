@@ -166,7 +166,7 @@ export const CreateAgent: React.FC = () => {
       <div className="flex-grow overflow-y-scroll">
         <div className="flex max-w-[650px] flex-col gap-y-2 p-10">
           <Text styleAs="h4">Create an Assistant</Text>
-          <Text className="text-volcanic-700">
+          <Text className="text-volcanic-400">
             Create an unique assistant and share with your org
           </Text>
           <AgentForm<CreateAgentFormFields>

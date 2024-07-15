@@ -14,14 +14,14 @@ const THEME_CLASSES = {
   marble: {
     border: 'border-marble-800',
     background: 'bg-marble-1000',
-    label: 'text-volcanic-900',
+    label: 'text-volcanic-100',
     icon: '',
   },
   secondary: {
     border: 'border-mushroom-300',
     background: 'bg-mushroom-50',
-    label: 'text-volcanic-700',
-    icon: 'text-mushroom-700',
+    label: 'text-volcanic-400',
+    icon: 'text-mushroom-400',
   },
 };
 
@@ -227,7 +227,7 @@ const InnerInput = React.forwardRef<
   return (
     <>
       <span className="relative">
-        {prefix && <Text className="absolute left-3 top-0 text-volcanic-900">{prefix}</Text>}
+        {prefix && <Text className="absolute left-3 top-0 text-volcanic-100">{prefix}</Text>}
         <input
           id={name}
           ref={ref}
@@ -250,7 +250,7 @@ const InnerInput = React.forwardRef<
           spellCheck={false}
           autoComplete="off"
           className={cn(
-            'placeholder:text-volcanic-500 disabled:text-volcanic-700',
+            'placeholder:text-volcanic-600 disabled:text-volcanic-400',
             // remove spinners on number inputs
             '[-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none',
             { '!pr-8': !!icons, 'w-full truncate': truncate, '!pl-8': !!prefix },
@@ -326,7 +326,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
 
   const inputClasses = cn(backgroundClasses, borderClasses, 'w-full px-3', {
     'focus-visible:outline-none': stackPosition,
-    'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900':
+    'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100':
       !stackPosition,
     [STYLE_LEVEL_TO_CLASSES.code]: isMonospace,
     [STYLE_LEVEL_TO_CLASSES.p]: !isMonospace,
@@ -388,7 +388,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           as="div"
           styleAs="caption"
           className={cn('py-2', {
-            'text-volcanic-700': !hasError && description,
+            'text-volcanic-400': !hasError && description,
             'text-danger-300': errorText && hasError,
           })}
         >

@@ -113,7 +113,7 @@ const RegisterPage: NextPage<Props> = () => {
           />
         </form>
 
-        <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-700">
+        <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-400">
           Already have an account?
           <AuthLink
             redirect={redirect !== '/' ? redirect : undefined}

@@ -61,7 +61,7 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
           'max-w-share-content-with-citations': hasCitations,
         })}
       >
-        <Text styleAs="h3" className="text-center text-volcanic-800">
+        <Text styleAs="h3" className="text-center text-volcanic-300">
           {title}
         </Text>
 
@@ -165,13 +165,13 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
         )}
       >
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
-          <Text as="span" styleAs="caption" className="text-volcanic-800">
+          <Text as="span" styleAs="caption" className="text-volcanic-300">
             {uniqueDocuments.length} {pluralize('reference', uniqueDocuments.length)}
           </Text>
           {uniqueDocuments.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
-                'h-4 w-4 text-volcanic-800 transition delay-75 duration-200 ease-in-out',
+                'h-4 w-4 text-volcanic-300 transition delay-75 duration-200 ease-in-out',
                 {
                   'rotate-180': isAllDocsVisible,
                 }

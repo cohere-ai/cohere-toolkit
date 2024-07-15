@@ -58,17 +58,17 @@ export const MessageFile: React.FC<Props> = ({
         </Text>
         <div className="flex items-center gap-x-2 uppercase">
           {type && (
-            <Text styleAs="caption" className="text-volcanic-600">
+            <Text styleAs="caption" className="text-volcanic-500">
               {type} •
             </Text>
           )}
 
           {progress ? (
-            <Text styleAs="caption" className="text-volcanic-800">
+            <Text styleAs="caption" className="text-volcanic-300">
               {progress}%
             </Text>
           ) : fileSize ? (
-            <Text styleAs="caption" className="text-volcanic-600">
+            <Text styleAs="caption" className="text-volcanic-500">
               {fileSize}
             </Text>
           ) : (

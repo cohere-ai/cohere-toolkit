@@ -91,7 +91,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
           className={cx(
             'flex h-full items-center',
             {
-              'focus:rounded focus:outline focus:outline-1 focus:outline-offset-2 focus:outline-volcanic-700':
+              'focus:rounded focus:outline focus:outline-1 focus:outline-offset-2 focus:outline-volcanic-400':
                 showOutline,
             },
             buttonClassName
@@ -114,7 +114,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             <Icon
               name="information"
               kind="outline"
-              className={cx(iconClassName || 'text-volcanic-800', {
+              className={cx(iconClassName || 'text-volcanic-300', {
                 'hover:!font-iconDefault': hoverEnabled,
               })}
             />

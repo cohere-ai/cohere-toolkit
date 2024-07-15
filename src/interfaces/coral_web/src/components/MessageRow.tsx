@@ -199,7 +199,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                     iconName="list"
                     className="rounded hover:bg-mushroom-100"
                     iconClassName={cn(
-                      'text-volcanic-800 group-hover/icon-button:text-mushroom-800',
+                      'text-volcanic-300 group-hover/icon-button:text-mushroom-800',
                       {
                         'hidden md:invisible md:flex': !isFulfilledMessage(message),
                       }

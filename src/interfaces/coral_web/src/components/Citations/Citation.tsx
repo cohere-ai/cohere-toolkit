@@ -147,13 +147,13 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
         <Text className="text-coral-800 md:hidden">{keyword}</Text>
 
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
-          <Text as="span" styleAs="caption" className="text-volcanic-800">
+          <Text as="span" styleAs="caption" className="text-volcanic-300">
             {uniqueDocumentsUrls.length} {pluralize('reference', uniqueDocumentsUrls.length)}
           </Text>
           {uniqueDocumentsUrls.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
-                'h-4 w-4 text-volcanic-800 transition delay-75 duration-200 ease-in-out',
+                'h-4 w-4 text-volcanic-300 transition delay-75 duration-200 ease-in-out',
                 {
                   'rotate-180': isAllDocsVisible,
                 }

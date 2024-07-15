@@ -33,7 +33,7 @@ export const Logo: React.FC<LogoProps> = ({
           className={cx({
             'fill-green-700': style === 'default',
             'fill-coral-200': style === 'coral',
-            'fill-volcanic-500': style === 'grayscale',
+            'fill-volcanic-600': style === 'grayscale',
             'dark:fill-marble-1000': darkModeEnabled,
           })}
         />

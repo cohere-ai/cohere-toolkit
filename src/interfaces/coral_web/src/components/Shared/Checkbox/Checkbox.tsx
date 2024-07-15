@@ -51,7 +51,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
       tabIndex={0}
       onKeyDown={handleKeyPress}
       className={cn(
-        'group relative rounded focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+        'group relative rounded focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
         'flex items-center',
         { 'min-h-[16px] min-w-[16px]': !label && size === 'md' },
         { 'min-h-[14px] min-w-[14px]': !label && size === 'sm' },

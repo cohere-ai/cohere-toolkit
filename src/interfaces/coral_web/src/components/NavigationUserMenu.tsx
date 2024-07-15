@@ -17,10 +17,10 @@ export const NavigationUserMenu: React.FC<{
   return (
     <PopoverMenu email={showEmail && userEmail ? userEmail : undefined}>
       <div className="py-3">
-        <Icon name="profile" className="mb-3 px-4 text-volcanic-700" />
+        <Icon name="profile" className="mb-3 px-4 text-volcanic-400" />
         {userEmail ? (
           <>
-            <Text className="truncate px-4 pb-3 text-left text-volcanic-700">{userEmail}</Text>
+            <Text className="truncate px-4 pb-3 text-left text-volcanic-400">{userEmail}</Text>
             <div className="flex justify-end border-t border-marble-950 px-4 pt-3">
               <AuthLink action="logout" styleAs="button" kind="secondary" />
             </div>
@@ -50,7 +50,7 @@ const PopoverMenu: React.FC<{
       <Popover.Button
         className={cn(
           'flex items-center gap-x-2 px-1 focus:rounded focus:outline focus:outline-1 focus:outline-offset-4',
-          'focus:outline-volcanic-700',
+          'focus:outline-volcanic-400',
           { 'dark:focus:outline-marble-800': darkModeEnabled }
         )}
       >

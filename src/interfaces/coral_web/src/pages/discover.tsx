@@ -54,7 +54,7 @@ const AgentsNewPage: NextPage<Props> = () => {
                 'px-4 py-6 md:px-9 md:py-10 lg:px-10'
               )}
             >
-              <Text styleAs="h4" className="text-volcanic-700">
+              <Text styleAs="h4" className="text-volcanic-400">
                 Discover Assistants
               </Text>
               <Text>

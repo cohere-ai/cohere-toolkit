@@ -61,7 +61,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
         {!isAgent ? 'Need help? Your wish is my command.' : agent.name}
       </Text>
       {isAgent && (
-        <Text className="!text-p-md text-center text-volcanic-900 md:!text-p-lg">
+        <Text className="!text-p-md text-center text-volcanic-100 md:!text-p-lg">
           {agent.description}
         </Text>
       )}

@@ -36,7 +36,7 @@ export const SettingsTab: React.FC = () => {
   if (isLangchainModeOn) {
     return (
       <div className="flex items-center justify-center px-5">
-        <Text styleAs="p-lg" className="select-none text-center text-volcanic-900">
+        <Text styleAs="p-lg" className="select-none text-center text-volcanic-100">
           Currently settings are disabled with experimental Langchain multihop
         </Text>
       </div>
@@ -73,8 +73,8 @@ export const SettingsTab: React.FC = () => {
             'transition ease-in-out',
             'rounded-lg border',
             'bg-marble-1000',
-            'border-marble-800 placeholder:text-volcanic-700 focus:border-mushroom-700',
-            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+            'border-marble-800 placeholder:text-volcanic-400 focus:border-mushroom-700',
+            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
             STYLE_LEVEL_TO_CLASSES.p
           )}
           rows={5}
@@ -87,7 +87,7 @@ export const SettingsTab: React.FC = () => {
         <button type="button" onClick={reset}>
           <Text
             as="span"
-            className="text-mushroom-800 transition ease-in-out hover:text-volcanic-900"
+            className="text-mushroom-800 transition ease-in-out hover:text-volcanic-100"
           >
             Reset
           </Text>
