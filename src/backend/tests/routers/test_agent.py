@@ -1043,7 +1043,7 @@ def test_fail_delete_nonexistent_agent(
     assert response.json() == {"detail": "Agent with ID 456 not found."}
 
 
-# # Test create agent tool metadata
+# Test create agent tool metadata
 def test_create_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
