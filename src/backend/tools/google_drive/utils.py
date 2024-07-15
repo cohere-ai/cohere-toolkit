@@ -76,10 +76,10 @@ def process_shortcut_files(service: Any, files: List[Dict[str, str]]) -> Dict[st
     return processed_files
 
 
-async def non_native_files_perform(
+def non_native_files_perform(
     service: Any, compass: Compass, files: List[Dict[str, str]]
 ) -> dict[str, str]:
-    return await _download_non_native_files(service, compass, files)
+    return asyncio.run(_download_non_native_files(service, compass, files))
 
 
 async def _download_non_native_files(
