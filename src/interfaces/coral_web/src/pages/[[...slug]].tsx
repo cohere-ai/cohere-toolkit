@@ -169,6 +169,7 @@ const Page: NextPage = () => {
             <div className="flex h-full">
               <Transition
                 as="section"
+                appear
                 show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
                 enterFrom="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
                 enterTo="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
