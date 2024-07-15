@@ -12,12 +12,13 @@ export type Agent = {
   preamble: string | null;
   temperature: number;
   tools: Array<string>;
-  tools_metadata: Array<AgentToolMetadata>;
+  tools_metadata?: Array<AgentToolMetadataPublic> | null;
   model: string;
   deployment: string;
 };
 
 export type AgentPublic = {
+  user_id: string;
   id: string;
   created_at: string;
   updated_at: string;

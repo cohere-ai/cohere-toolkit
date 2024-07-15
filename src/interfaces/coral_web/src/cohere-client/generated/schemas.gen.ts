@@ -73,10 +73,17 @@ export const $Agent = {
       title: 'Tools',
     },
     tools_metadata: {
-      items: {
-        $ref: '#/components/schemas/AgentToolMetadata',
-      },
-      type: 'array',
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadataPublic',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Tools Metadata',
     },
     model: {
@@ -100,7 +107,6 @@ export const $Agent = {
     'preamble',
     'temperature',
     'tools',
-    'tools_metadata',
     'model',
     'deployment',
   ],
@@ -109,6 +115,10 @@ export const $Agent = {
 
 export const $AgentPublic = {
   properties: {
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     id: {
       type: 'string',
       title: 'Id',
@@ -189,6 +199,7 @@ export const $AgentPublic = {
   },
   type: 'object',
   required: [
+    'user_id',
     'id',
     'created_at',
     'updated_at',

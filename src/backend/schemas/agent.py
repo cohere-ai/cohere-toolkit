@@ -51,7 +51,7 @@ class Agent(AgentBase):
     preamble: Optional[str]
     temperature: float
     tools: list[str]
-    tools_metadata: list[AgentToolMetadata]
+    tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 
     model: str
     deployment: str
@@ -62,7 +62,6 @@ class Agent(AgentBase):
 
 
 class AgentPublic(Agent):
-    user_id: Optional[str] = Field(exclude=True)
     organization_id: Optional[str] = Field(exclude=True)
     tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 
