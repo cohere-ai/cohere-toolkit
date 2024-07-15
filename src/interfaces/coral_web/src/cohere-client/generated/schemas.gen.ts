@@ -107,6 +107,103 @@ export const $Agent = {
   title: 'Agent',
 } as const;
 
+export const $AgentPublic = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    version: {
+      type: 'integer',
+      title: 'Version',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    preamble: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Preamble',
+    },
+    temperature: {
+      type: 'number',
+      title: 'Temperature',
+    },
+    tools: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Tools',
+    },
+    tools_metadata: {
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadataPublic',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tools Metadata',
+    },
+    model: {
+      type: 'string',
+      title: 'Model',
+    },
+    deployment: {
+      type: 'string',
+      title: 'Deployment',
+    },
+  },
+  type: 'object',
+  required: [
+    'id',
+    'created_at',
+    'updated_at',
+    'version',
+    'name',
+    'description',
+    'preamble',
+    'temperature',
+    'tools',
+    'model',
+    'deployment',
+  ],
+  title: 'AgentPublic',
+} as const;
+
 export const $AgentToolMetadata = {
   properties: {
     user_id: {
@@ -143,6 +240,60 @@ export const $AgentToolMetadata = {
   type: 'object',
   required: ['user_id', 'id', 'tool_name', 'artifacts'],
   title: 'AgentToolMetadata',
+} as const;
+
+export const $AgentToolMetadataPublic = {
+  properties: {
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    tool_name: {
+      type: 'string',
+      title: 'Tool Name',
+    },
+    artifacts: {
+      items: {
+        type: 'object',
+      },
+      type: 'array',
+      title: 'Artifacts',
+    },
+  },
+  type: 'object',
+  required: ['id', 'tool_name', 'artifacts'],
+  title: 'AgentToolMetadataPublic',
+} as const;
+
+export const $Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
+  properties: {
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation Id',
+    },
+    files: {
+      items: {
+        type: 'string',
+        format: 'binary',
+      },
+      type: 'array',
+      title: 'Files',
+    },
+  },
+  type: 'object',
+  required: ['files'],
+  title: 'Body_batch_upload_file_v1_conversations_batch_upload_file_post',
 } as const;
 
 export const $Body_upload_file_v1_conversations_upload_file_post = {
@@ -838,7 +989,7 @@ export const $ConversationWithoutMessages = {
   title: 'ConversationWithoutMessages',
 } as const;
 
-export const $CreateAgent = {
+export const $CreateAgentRequest = {
   properties: {
     name: {
       type: 'string',
@@ -914,7 +1065,7 @@ export const $CreateAgent = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/CreateAgentToolMetadata',
+            $ref: '#/components/schemas/CreateAgentToolMetadataRequest',
           },
           type: 'array',
         },
@@ -927,11 +1078,22 @@ export const $CreateAgent = {
   },
   type: 'object',
   required: ['name', 'model', 'deployment'],
-  title: 'CreateAgent',
+  title: 'CreateAgentRequest',
 } as const;
 
-export const $CreateAgentToolMetadata = {
+export const $CreateAgentToolMetadataRequest = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Id',
+    },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
@@ -946,7 +1108,7 @@ export const $CreateAgentToolMetadata = {
   },
   type: 'object',
   required: ['tool_name', 'artifacts'],
-  title: 'CreateAgentToolMetadata',
+  title: 'CreateAgentToolMetadataRequest',
 } as const;
 
 export const $CreateSnapshot = {
@@ -2551,7 +2713,7 @@ export const $ToolInputType = {
   description: 'Type of input passed to the tool',
 } as const;
 
-export const $UpdateAgent = {
+export const $UpdateAgentRequest = {
   properties: {
     name: {
       anyOf: [
@@ -2648,7 +2810,7 @@ export const $UpdateAgent = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/UpdateAgentToolMetadata',
+            $ref: '#/components/schemas/CreateAgentToolMetadataRequest',
           },
           type: 'array',
         },
@@ -2660,10 +2822,10 @@ export const $UpdateAgent = {
     },
   },
   type: 'object',
-  title: 'UpdateAgent',
+  title: 'UpdateAgentRequest',
 } as const;
 
-export const $UpdateAgentToolMetadata = {
+export const $UpdateAgentToolMetadataRequest = {
   properties: {
     id: {
       anyOf: [
@@ -2703,7 +2865,7 @@ export const $UpdateAgentToolMetadata = {
     },
   },
   type: 'object',
-  title: 'UpdateAgentToolMetadata',
+  title: 'UpdateAgentToolMetadataRequest',
 } as const;
 
 export const $UpdateConversation = {
