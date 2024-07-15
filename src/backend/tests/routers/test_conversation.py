@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
 from backend.database_models import Citation, Conversation, Document, File, Message
+from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE
 from backend.tests.factories import get_factory
 
 
@@ -615,6 +616,71 @@ def test_batch_upload_file_existing_conversation(
     # File should not exist in the directory
     for saved_file_path in saved_file_paths:
         assert not os.path.exists(saved_file_path)
+
+
+def test_batch_upload_total_files_exceeds_limit(
+    session_client: TestClient, session: Session
+) -> None:
+    _ = get_factory("Conversation", session).create()
+    file_paths = {
+        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
+        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+    }
+    files = [
+        ("files", (file_name, open(file_path, "rb")))
+        for file_name, file_path in file_paths.items()
+    ]
+
+    conversation = get_factory("Conversation", session).create()
+    _ = get_factory("File", session).create(
+        file_name="test_file.txt",
+        conversation_id=conversation.id,
+        user_id=conversation.user_id,
+        file_size=1000000000,
+    )
+
+    response = session_client.post(
+        "/v1/conversations/batch_upload_file",
+        files=files,
+        headers={"User-Id": conversation.user_id},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes."
+    }
+
+
+def test_batch_upload_single_file_exceeds_limit(
+    session_client: TestClient, session: Session
+) -> None:
+    _ = get_factory("Conversation", session).create()
+    file_paths = {
+        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
+        "26mb.pdf": "src/backend/tests/test_data/26mb.pdf",
+        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+    }
+    files = [
+        ("files", (file_name, open(file_path, "rb")))
+        for file_name, file_path in file_paths.items()
+    ]
+
+    conversation = get_factory("Conversation", session).create()
+
+    response = session_client.post(
+        "/v1/conversations/batch_upload_file",
+        files=files,
+        headers={"User-Id": conversation.user_id},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": f"26mb.pdf exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes."
+    }
 
 
 def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(

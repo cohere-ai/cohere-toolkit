@@ -108,7 +108,7 @@ def validate_batch_file_size(
         if file.size > MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=400,
-                detail=f"File size exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
+                detail=f"{file.filename} exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
             )
         total_batch_size += file.size
 
