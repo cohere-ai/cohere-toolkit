@@ -365,6 +365,7 @@ async def test_get_agent_mertic(
 ) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+        user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
         artifacts=[
