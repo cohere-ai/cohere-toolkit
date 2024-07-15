@@ -17,14 +17,9 @@ def create_agent_tool_metadata(
     Returns:
         AgentToolMetadata: Created agent tool metadata.
     """
-    try:
-        db.add(agent_tool_metadata)
-        db.commit()
-        db.refresh(agent_tool_metadata)
-    except Exception as e:
-        db.rollback()
-        raise e
-
+    db.add(agent_tool_metadata)
+    db.commit()
+    db.refresh(agent_tool_metadata)
     return agent_tool_metadata
 
 
@@ -41,19 +36,11 @@ def get_agent_tool_metadata_by_id(
     Returns:
         AgentToolMetadata: Agent tool metadata with the given ID.
     """
-    agent = None
-
-    try:
-        agent = (
-            db.query(AgentToolMetadata)
-            .filter(AgentToolMetadata.id == agent_tool_metadata_id)
-            .first()
-        )
-    except Exception as e:
-        db.rollback()
-        raise e
-
-    return agent
+    return (
+        db.query(AgentToolMetadata)
+        .filter(AgentToolMetadata.id == agent_tool_metadata_id)
+        .first()
+    )
 
 
 def get_all_agent_tool_metadata_by_agent_id(
@@ -69,19 +56,9 @@ def get_all_agent_tool_metadata_by_agent_id(
     Returns:
         list[AgentToolMetadata]: List of agent tool metadata with the given agent ID.
     """
-    agents = None
-
-    try:
-        agents = (
-            db.query(AgentToolMetadata)
-            .filter(AgentToolMetadata.agent_id == agent_id)
-            .all()
-        )
-    except Exception as e:
-        db.rollback()
-        raise e
-
-    return agents
+    return (
+        db.query(AgentToolMetadata).filter(AgentToolMetadata.agent_id == agent_id).all()
+    )
 
 
 def update_agent_tool_metadata(
@@ -100,16 +77,10 @@ def update_agent_tool_metadata(
     Returns:
         AgentToolMetadata: Updated agent tool metadata.
     """
-    try:
-        for attr, value in new_agent_tool_metadata.model_dump(
-            exclude_none=True
-        ).items():
-            setattr(agent_tool_metadata, attr, value)
-        db.commit()
-        db.refresh(agent_tool_metadata)
-    except Exception as e:
-        db.rollback()
-        raise e
+    for attr, value in new_agent_tool_metadata.model_dump(exclude_none=True).items():
+        setattr(agent_tool_metadata, attr, value)
+    db.commit()
+    db.refresh(agent_tool_metadata)
 
     return agent_tool_metadata
 
@@ -125,14 +96,10 @@ def delete_agent_tool_metadata_by_id(db: Session, agent_tool_metadata_id: str) -
     Returns:
         None
     """
-    try:
-        agent_tool_metadata = (
-            db.query(AgentToolMetadata)
-            .filter(AgentToolMetadata.id == agent_tool_metadata_id)
-            .first()
-        )
-        db.delete(agent_tool_metadata)
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        raise e
+    agent_tool_metadata = (
+        db.query(AgentToolMetadata)
+        .filter(AgentToolMetadata.id == agent_tool_metadata_id)
+        .first()
+    )
+    db.delete(agent_tool_metadata)
+    db.commit()
