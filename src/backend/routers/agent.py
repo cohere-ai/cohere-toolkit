@@ -27,7 +27,7 @@ from backend.schemas.agent import (
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
 )
-from backend.schemas.metrics import MetricsMessageType
+from backend.schemas.metrics import MetricsMessageType, GenericResponseMessage
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -128,7 +128,7 @@ default_agent_router = APIRouter(
 default_agent_router.name = RouterName.DEFAULT_AGENT
 
 
-@default_agent_router.get("/")
+@default_agent_router.get("/", response_model=ResponseMessage)
 async def get_default_agent(session: DBSessionDep, request: Request):
     add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_ACCESSED)
     add_default_agent_to_request_state(request)
