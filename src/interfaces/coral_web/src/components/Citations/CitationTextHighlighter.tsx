@@ -76,7 +76,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       open({
         content: (
           <Citation
-            className="bg-primary-75"
+            className="bg-coral-75"
             generationId={generationId}
             // Used to find the keyword to bold but since we don't have it yet here when the message is
             // still streaming in we can just ignore it for now instead of not showing the popup at all
@@ -114,10 +114,10 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       ref={ref}
       onClick={handleClick}
       className={cn(
-        'bg-secondary-500/[0.15] text-secondary-900',
+        'bg-mushroom-500/[0.15] text-mushroom-900',
         {
-          'bg-primary-75 text-primary-800': isHighlighted,
-          'hover:bg-secondary-500/[0.24]': !isHighlighted,
+          'bg-coral-75 text-coral-800': isHighlighted,
+          'hover:bg-mushroom-500/[0.24]': !isHighlighted,
         },
         'cursor-pointer rounded'
       )}

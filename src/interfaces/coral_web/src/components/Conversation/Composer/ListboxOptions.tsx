@@ -72,9 +72,9 @@ export const ListboxOption: React.FC<ListboxOptionProps> = ({
         disabled={disabled}
         tabIndex={-1}
         className={cn(
-          'flex w-full items-start justify-between gap-x-2 rounded p-1.5 hover:bg-secondary-50 active:bg-secondary-50',
+          'flex w-full items-start justify-between gap-x-2 rounded p-1.5 hover:bg-mushroom-50 active:bg-mushroom-50',
           'focus:outline focus:outline-volcanic-800',
-          { 'bg-secondary-50': focus, 'cursor-not-allowed': disabled }
+          { 'bg-mushroom-50': focus, 'cursor-not-allowed': disabled }
         )}
         onClick={onSelect}
       >

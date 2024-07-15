@@ -1,19 +1,19 @@
 const BG_COLOR_LIST = [
   'bg-quartz-500',
   'bg-green-400',
-  'bg-primary-400',
+  'bg-coral-400',
   'bg-quartz-700',
   'bg-green-700',
-  'bg-primary-500',
+  'bg-coral-500',
 ];
 
 const TEXT_COLOR_LIST = [
   'text-quartz-500',
   'text-green-400',
-  'text-primary-400',
+  'text-coral-400',
   'text-quartz-700',
   'text-green-700',
-  'text-primary-500',
+  'text-coral-500',
 ];
 
 /**

@@ -58,14 +58,14 @@ export const MinimalButton: React.FC<MinimalButtonProps> = ({
 }) => {
   const themeClasses: { [key in MinimalButtonTheme]: string } = {
     volcanic: cx({
-      'visited:text-primary-700': href,
+      'visited:text-coral-700': href,
       'text-volcanic-700': disabled,
       'text-volcanic-900': !disabled,
     }),
     secondary: cx({
-      'visited:text-primary-700': href,
+      'visited:text-coral-700': href,
       'text-volcanic-50': disabled,
-      'text-secondary-50': !disabled,
+      'text-mushroom-50': !disabled,
     }),
   };
 
@@ -106,7 +106,7 @@ export const MinimalButton: React.FC<MinimalButtonProps> = ({
     'group inline-block max-w-full',
     'disabled:cursor-not-allowed',
     {
-      'focus-visible:outline-1 focus-visible:outline focus-visible:outline-primary-500 rounded-sm':
+      'focus-visible:outline-1 focus-visible:outline focus-visible:outline-coral-500 rounded-sm':
         !hideFocusStyles,
     },
     className

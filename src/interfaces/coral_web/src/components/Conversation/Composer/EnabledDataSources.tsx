@@ -86,7 +86,7 @@ const DataSourceChip: React.FC<{
   onEditConfiguration?: VoidFunction;
 }> = ({ iconName, label, onDelete, disabled, hasEditableConfiguration, onEditConfiguration }) => {
   return (
-    <div className="flex items-center justify-between gap-x-2 rounded border border-dashed border-secondary-200 bg-secondary-50 px-2 py-0.5">
+    <div className="flex items-center justify-between gap-x-2 rounded border border-dashed border-mushroom-200 bg-mushroom-50 px-2 py-0.5">
       <div className="flex items-center gap-x-1">
         <Icon name={iconName} kind="outline" />
         <Text className="max-w-[100px] truncate md:max-w-[200px]">{label}</Text>

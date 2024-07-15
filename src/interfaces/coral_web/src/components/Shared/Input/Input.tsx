@@ -18,10 +18,10 @@ const THEME_CLASSES = {
     icon: '',
   },
   secondary: {
-    border: 'border-secondary-300',
-    background: 'bg-secondary-50',
+    border: 'border-mushroom-300',
+    background: 'bg-mushroom-50',
     label: 'text-volcanic-700',
-    icon: 'text-secondary-700',
+    icon: 'text-mushroom-700',
   },
 };
 

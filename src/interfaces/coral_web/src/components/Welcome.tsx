@@ -38,7 +38,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
           isAgent && getCohereColor(agent.id),
           {
-            'bg-secondary-400': !isAgent,
+            'bg-mushrrom-400': !isAgent,
           }
         )}
       >
@@ -54,7 +54,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
       <Text
         styleAs="p-lg"
         className={cn(
-          'text-center text-secondary-800 md:!text-h4',
+          'text-center text-mushroom-800 md:!text-h4',
           isAgent && getCohereColor(agent.id, { background: false })
         )}
       >

@@ -44,7 +44,7 @@ export const InlineLink: React.FC<Props> = ({
           'text-volcanic-900': theme === 'volcanic',
           'text-blue-500 visited:text-blue-700 hover:text-blue-900': theme === 'blue',
           'text-quartz-700 visited:text-quartz-900 hover:text-quartz-900': theme === 'quartz',
-          'text-primary-700 visited:text-primary-900 hover:text-primary-900': theme === 'coral',
+          'text-coral-700 visited:text-coral-900 hover:text-coral-900': theme === 'coral',
           'text-danger-500': theme === 'danger',
           'cursor-not-allowed !text-volcanic-700 visited:!text-volcanic-700': disabled,
         },

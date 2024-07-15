@@ -11,7 +11,7 @@
   html {
     height: 100%;
     width: 100%;
-    @apply selection:bg-secondary-300 dark:selection:bg-marble-400;
+    @apply selection:bg-marble-300 dark:selection:bg-marble-400;
 
     /* Firefox */
     scrollbar-color: theme('colors.marble.500') transparent;

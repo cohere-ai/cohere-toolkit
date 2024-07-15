@@ -159,14 +159,14 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         className={cn(
           'group flex h-fit w-full flex-col gap-2 rounded-md p-2 text-left md:flex-row',
           'transition-colors ease-in-out',
-          'hover:bg-secondary-50',
+          'hover:bg-mushroom-50',
 
           {
-            'bg-secondary-50':
+            'bg-mushroom-950':
               isFulfilledOrTypingMessage(message) &&
               message.generationId &&
               hoveredGenerationId === message.generationId,
-            'bg-primary-50 hover:bg-primary-50': highlightMessage,
+            'bg-coral-50 hover:bg-coral-50': highlightMessage,
           }
         )}
         {...(enableLongPress && longPressProps)}
@@ -197,9 +197,9 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
                   <IconButton
                     iconName="list"
-                    className="rounded hover:bg-secondary-100"
+                    className="rounded hover:bg-mushroom-100"
                     iconClassName={cn(
-                      'text-volcanic-800 group-hover/icon-button:text-secondary-800',
+                      'text-volcanic-800 group-hover/icon-button:text-mushroom-800',
                       {
                         'hidden md:invisible md:flex': !isFulfilledMessage(message),
                       }

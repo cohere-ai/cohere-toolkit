@@ -97,7 +97,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             iconName="close-drawer"
             onClick={handleToggleAgentsSidePanel}
             className={cn('transition delay-100 duration-200 ease-in-out', {
-              'rotate-180 transform text-secondary-700': isAgentsSidePanelOpen || isMobile,
+              'rotate-180 transform text-mushroom-700': isAgentsSidePanelOpen || isMobile,
             })}
           />
         </div>
@@ -108,8 +108,8 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               <Button
                 key={label}
                 kind="secondary"
-                className="truncate text-secondary-900"
-                startIcon={<Icon name={icon} kind="outline" className="text-secondary-900" />}
+                className="truncate text-mushroom-900"
+                startIcon={<Icon name={icon} kind="outline" className="text-mushroom-900" />}
                 label={label}
                 href={href}
                 shallow
@@ -123,11 +123,11 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               <Tooltip key={label} label={label} hover placement="right">
                 <IconButton
                   iconName={icon}
-                  iconClassName="text-secondary-900"
+                  iconClassName="text-mushroom-900"
                   shallow
                   onClick={onClick}
                   href={href}
-                  className="w-full text-secondary-900"
+                  className="w-full text-mushroom-900"
                 />
               </Tooltip>
             ))}

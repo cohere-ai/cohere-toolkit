@@ -64,7 +64,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
           <iframe
             srcDoc={code}
             ref={iframeRef}
-            className="max-h-[450px] min-h-[450px] w-full overflow-y-auto rounded-lg border  border-secondary-200 bg-white"
+            className="max-h-[450px] min-h-[450px] w-full overflow-y-auto rounded-lg border border-mushroom-200 bg-white"
           />
         </TabPanel>
         <TabPanel>
@@ -76,14 +76,14 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
           />
         </TabPanel>
       </TabPanels>
-      <TabList className="ml-auto mt-2 flex w-fit gap-x-2 rounded bg-secondary-100 p-1">
+      <TabList className="ml-auto mt-2 flex w-fit gap-x-2 rounded bg-mushroom-100 p-1">
         <Tab as={Fragment}>
           {({ selected }) => (
             <button
               className={cn(
-                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-secondary-200',
+                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-mushroom-200',
                 {
-                  'bg-secondary-300 shadow hover:bg-secondary-300': selected,
+                  'bg-mushroom-300 shadow hover:bg-mushroom-300': selected,
                 }
               )}
             >
@@ -95,9 +95,9 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
           {({ selected }) => (
             <button
               className={cn(
-                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-secondary-200',
+                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-mushroom-200',
                 {
-                  'bg-secondary-300 shadow hover:bg-secondary-300': selected,
+                  'bg-mushroom-300 shadow hover:bg-mushroom-300': selected,
                 }
               )}
             >

@@ -57,7 +57,7 @@ export const ConversationListHeader: React.FC<Props> = ({
             <span className="flex items-center gap-x-1">
               <Icon
                 name="side-panel"
-                className="flex h-8 w-8 items-center justify-center text-primary-500 lg:hidden"
+                className="flex h-8 w-8 items-center justify-center text-coral-500 lg:hidden"
                 kind="outline"
               />
               <Text styleAs="p-lg">Chats</Text>

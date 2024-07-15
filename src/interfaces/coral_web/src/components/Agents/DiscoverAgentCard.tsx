@@ -36,7 +36,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               'truncate',
               id && getCohereColor(id),
               {
-                'bg-secondary-400': isBaseAgent,
+                'bg-mushroom-400': isBaseAgent,
               }
             )}
           >

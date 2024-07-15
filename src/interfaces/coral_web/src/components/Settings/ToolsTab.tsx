@@ -67,7 +67,7 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
     <section className={cn('relative flex flex-col gap-y-5 px-5 pb-10', className)}>
       <ToolsInfoBox />
       <article className={cn('flex flex-col gap-y-5 pb-10')}>
-        <Text styleAs="p-sm" className="text-secondary-800">
+        <Text styleAs="p-sm" className="text-mushroom-800">
           Tools are data sources the assistant can search such as databases or the internet.
         </Text>
 

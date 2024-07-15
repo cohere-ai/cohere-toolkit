@@ -132,7 +132,7 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
             className={cn(
               'flex rounded p-2',
               'transition ease-in-out',
-              'text-volcanic-800 hover:bg-secondary-100 hover:text-secondary-800',
+              'text-volcanic-800 hover:bg-mushroom-100 hover:text-mushroom-800',
               iconClassName
             )}
             name={iconName}

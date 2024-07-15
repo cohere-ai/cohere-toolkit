@@ -73,7 +73,7 @@ export const SettingsTab: React.FC = () => {
             'transition ease-in-out',
             'rounded-lg border',
             'bg-marble-100',
-            'border-marble-500 placeholder:text-volcanic-700 focus:border-secondary-700',
+            'border-marble-500 placeholder:text-volcanic-700 focus:border-mushroom-700',
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
             STYLE_LEVEL_TO_CLASSES.p
           )}
@@ -87,7 +87,7 @@ export const SettingsTab: React.FC = () => {
         <button type="button" onClick={reset}>
           <Text
             as="span"
-            className="text-secondary-800 transition ease-in-out hover:text-volcanic-900"
+            className="text-mushroom-800 transition ease-in-out hover:text-volcanic-900"
           >
             Reset
           </Text>

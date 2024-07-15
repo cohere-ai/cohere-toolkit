@@ -205,7 +205,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
           <div className="relative">
             <IconButton
               tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
-              className={cn('hidden md:flex', { 'bg-secondary-100': isConfigDrawerOpen })}
+              className={cn('hidden md:flex', { 'bg-mushroom-100': isConfigDrawerOpen })}
               onClick={handleToggleConfigSettings}
               iconName="settings"
               disabled={isStreaming}
@@ -227,7 +227,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             onClick={handleOpenAgentDrawer}
             className={cn('hidden', {
               'md:flex': !!agentId,
-              'bg-secondary-100': isEditAgentPanelOpen,
+              'bg-mushroom-100': isEditAgentPanelOpen,
             })}
           />
         </span>

@@ -135,8 +135,8 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
           {
             'opacity-60': !isSelected && !isHovered && (!isLastStreamed || isSomeSelected),
             'opacity-90': !isSelected && isHovered,
-            'bg-secondary-700/[0.08]': !isSelected,
-            'bg-primary-500/[0.08]': isSelected,
+            'bg-mushroom-700/[0.08]': !isSelected,
+            'bg-coral-500/[0.08]': isSelected,
             'flex flex-col gap-y-4 lg:gap-y-6': isSelected,
           },
           className
@@ -144,7 +144,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <Text className="text-primary-800 md:hidden">{keyword}</Text>
+        <Text className="text-coral-800 md:hidden">{keyword}</Text>
 
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
           <Text as="span" styleAs="caption" className="text-volcanic-800">

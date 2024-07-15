@@ -80,7 +80,7 @@ export const Tabs: React.FC<TabsProps> = ({
             <Tab
               key={i}
               className={cn('flex w-full flex-1 flex-col focus:outline-none md:flex-initial', {
-                [`border-b-4 border-primary-500`]: i === selectedIndex,
+                [`border-b-4 border-coral-500`]: i === selectedIndex,
                 'border-b border-marble-400': i !== selectedIndex,
                 hidden: hiddenIndexes.includes(i),
               })}

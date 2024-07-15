@@ -45,14 +45,14 @@ export const IconButton: React.FC<Props> = ({
       className={cn(
         'group/icon-button h-8 w-8 p-0',
         { 'h-8 w-8': size === 'md', 'h-7 w-7': size === 'sm' },
-        'rounded hover:bg-secondary-100',
+        'rounded hover:bg-mushroom-100',
         className
       )}
       startIcon={
         <Icon
           name={iconName}
           className={cn(
-            'text-secondary-700',
+            'text-mushroom-700',
             'transition-colors ease-in-out',
             {
               'group-hover/icon-button:!font-iconDefault': isDefaultOnHover,

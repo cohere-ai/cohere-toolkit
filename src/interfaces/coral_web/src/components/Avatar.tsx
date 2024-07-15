@@ -40,12 +40,12 @@ export const Avatar: React.FC<Props> = ({ message }) => {
         },
         isGroundingOn
           ? {
-              'bg-primary-900': isFulfilled,
-              'bg-primary-400': isTypingOrLoading,
+              'bg-coral-900': isFulfilled,
+              'bg-coral-400': isTypingOrLoading,
             }
           : {
-              'bg-secondary-400': isFulfilled,
-              'bg-secondary-200': isTypingOrLoading,
+              'bg-mushroom-400': isFulfilled,
+              'bg-mushroom-200': isTypingOrLoading,
             }
       )}
     >

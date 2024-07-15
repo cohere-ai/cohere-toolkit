@@ -67,7 +67,7 @@ export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
   return (
     <>
       <PageHead title={capitalize(title)} />
-      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
+      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3">
         <NavigationBar>
           <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
@@ -177,7 +177,7 @@ export const AgentsLayout: React.FC<AgentsLayoutProps> = ({
   return (
     <>
       <PageHead title={capitalize(title)} />
-      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3 dark:bg-vb-60">
+      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3 dark:bg-vb-60">
         <div
           className={cn(
             'relative flex h-full flex-grow flex-col flex-nowrap gap-3 overflow-hidden lg:flex-row'
