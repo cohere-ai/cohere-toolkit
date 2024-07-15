@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { IconButton } from '@/components/IconButton';
 import { AgentsToolsTab } from '@/components/Settings/AgentsToolsTab';
 import { FilesTab } from '@/components/Settings/FilesTab';
+import { SettingsTab } from '@/components/Settings/SettingsTab';
 import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
@@ -40,20 +41,21 @@ export const SettingsDrawer: React.FC = () => {
     if (isAgentsModeOn) {
       return files.length > 0 && conversationId
         ? [
-          { name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> },
-          { name: 'Files', component: <FilesTab /> },
-        ]
+            { name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> },
+            { name: 'Files', component: <FilesTab /> },
+          ]
         : [{ name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> }];
     }
     return files.length > 0 && conversationId
       ? [
-        { name: 'Tools', component: <ToolsTab requiredTools={agent?.tools} /> },
-        { name: 'Files', component: <FilesTab /> },
-      ]
+          { name: 'Tools', component: <ToolsTab /> },
+          { name: 'Files', component: <FilesTab /> },
+          { name: 'Settings', component: <SettingsTab /> },
+        ]
       : [
-        { name: 'Tools', component: <ToolsTab /> },
-        { name: 'Settings', component: <SettingsTab /> },
-      ];
+          { name: 'Tools', component: <ToolsTab /> },
+          { name: 'Settings', component: <SettingsTab /> },
+        ];
   }, [files.length, conversationId, agent?.tools]);
 
   return (

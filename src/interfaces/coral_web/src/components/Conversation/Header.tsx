@@ -79,12 +79,12 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const menuItems: KebabMenuItem[] = [
     ...(!!agent
       ? [
-        {
-          label: isAgentCreator ? 'Edit assistant' : 'About assistant',
-          iconName: isAgentCreator ? 'edit' : 'information',
-          onClick: handleOpenAgentDrawer,
-        } as KebabMenuItem,
-      ]
+          {
+            label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+            iconName: isAgentCreator ? 'edit' : 'information',
+            onClick: handleOpenAgentDrawer,
+          } as KebabMenuItem,
+        ]
       : []),
     {
       label: 'Settings',

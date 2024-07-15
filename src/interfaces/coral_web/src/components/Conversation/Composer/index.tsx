@@ -208,8 +208,9 @@ export const Composer: React.FC<Props> = ({
               }
             )}
             style={{
-              maxHeight: `${chatWindowHeight * (isSmallBreakpoint || breakpoint === 'md' ? 0.6 : 0.75)
-                }px`,
+              maxHeight: `${
+                chatWindowHeight * (isSmallBreakpoint || breakpoint === 'md' ? 0.6 : 0.75)
+              }px`,
             }}
             rows={1}
             onKeyDown={handleKeyDown}

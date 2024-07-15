@@ -75,11 +75,7 @@ async def test_create_agent_mertic(
         assert m_args.user.fullname == user.fullname
 
 
-<<<<<<< HEAD
 def test_create_agent(session_client: TestClient, session: Session, user) -> None:
-=======
-def test_create_agent(session_client: TestClient, session: Session) -> None:
->>>>>>> main
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -990,7 +986,9 @@ def test_update_agent_invalid_tool(
     assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
-def test_delete_agent_metric(session_client: TestClient, session: Session, user) -> None:
+def test_delete_agent_metric(
+    session_client: TestClient, session: Session, user
+) -> None:
     agent = get_factory("Agent", session).create(user_id=user.id)
     with patch(
         "backend.services.metrics.report_metrics",
@@ -1006,7 +1004,9 @@ def test_delete_agent_metric(session_client: TestClient, session: Session, user)
         assert m_args.assistant_id == agent.id
 
 
-def test_delete_agent_metric(session_client: TestClient, session: Session, user) -> None:
+def test_delete_agent_metric(
+    session_client: TestClient, session: Session, user
+) -> None:
     agent = get_factory("Agent", session).create(user_id=user.id)
     with patch(
         "backend.services.metrics.report_metrics",

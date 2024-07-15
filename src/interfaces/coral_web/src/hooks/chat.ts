@@ -456,13 +456,13 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
               const finalText = isRAGOn
                 ? replaceTextWithCitations(
-                  // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
-                  // because the final response doesn't give us the full text yet. Note - this means that
-                  // citations will only appear for the first 'block' of text generated.
-                  transformedText,
-                  citations,
-                  generationId
-                )
+                    // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
+                    // because the final response doesn't give us the full text yet. Note - this means that
+                    // citations will only appear for the first 'block' of text generated.
+                    transformedText,
+                    citations,
+                    generationId
+                  )
                 : botResponse;
 
               setStreamingMessage({
@@ -487,7 +487,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
           }
         },
-        onHeaders: () => { },
+        onHeaders: () => {},
         onFinish: () => {
           setIsStreaming(false);
         },
