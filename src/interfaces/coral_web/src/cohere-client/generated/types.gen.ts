@@ -183,7 +183,7 @@ export type ConversationWithoutMessages = {
   readonly total_file_size: number;
 };
 
-export type CreateAgentRequest = {
+export type CreateAgent = {
   name: string;
   version?: number | null;
   description?: string | null;
@@ -192,10 +192,10 @@ export type CreateAgentRequest = {
   model: string;
   deployment: string;
   tools?: Array<string> | null;
-  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
+  tools_metadata?: Array<CreateAgentToolMetadata> | null;
 };
 
-export type CreateAgentToolMetadataRequest = {
+export type CreateAgentToolMetadata = {
   id?: string | null;
   tool_name: string;
   artifacts: Array<{
@@ -544,7 +544,7 @@ export enum ToolInputType {
   CODE = 'CODE',
 }
 
-export type UpdateAgentRequest = {
+export type UpdateAgent = {
   name?: string | null;
   version?: number | null;
   description?: string | null;
@@ -553,10 +553,10 @@ export type UpdateAgentRequest = {
   model?: string | null;
   deployment?: string | null;
   tools?: Array<string> | null;
-  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
+  tools_metadata?: Array<CreateAgentToolMetadata> | null;
 };
 
-export type UpdateAgentToolMetadataRequest = {
+export type UpdateAgentToolMetadata = {
   id?: string | null;
   tool_name?: string | null;
   artifacts?: Array<{
@@ -779,7 +779,7 @@ export type SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse = unknown;
 export type ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse = unknown;
 
 export type CreateAgentV1AgentsPostData = {
-  requestBody: CreateAgentRequest;
+  requestBody: CreateAgent;
 };
 
 export type CreateAgentV1AgentsPostResponse = AgentPublic;
@@ -799,7 +799,7 @@ export type GetAgentByIdV1AgentsAgentIdGetResponse = Agent;
 
 export type UpdateAgentV1AgentsAgentIdPutData = {
   agentId: string;
-  requestBody: UpdateAgentRequest;
+  requestBody: UpdateAgent;
 };
 
 export type UpdateAgentV1AgentsAgentIdPutResponse = AgentPublic;
@@ -819,7 +819,7 @@ export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse =
 
 export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostData = {
   agentId: string;
-  requestBody: CreateAgentToolMetadataRequest;
+  requestBody: CreateAgentToolMetadata;
 };
 
 export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse =
@@ -828,7 +828,7 @@ export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse =
 export type UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData = {
   agentId: string;
   agentToolMetadataId: string;
-  requestBody: UpdateAgentToolMetadataRequest;
+  requestBody: UpdateAgentToolMetadata;
 };
 
 export type UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse =

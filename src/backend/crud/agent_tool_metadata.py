@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
-from backend.schemas.agent import UpdateAgentToolMetadataRequest
+from backend.schemas.agent import UpdateAgentToolMetadata
 
 
 def create_agent_tool_metadata(
@@ -64,7 +64,7 @@ def get_all_agent_tool_metadata_by_agent_id(
 def update_agent_tool_metadata(
     db: Session,
     agent_tool_metadata: AgentToolMetadata,
-    new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
+    new_agent_tool_metadata: UpdateAgentToolMetadata,
 ) -> AgentToolMetadata:
     """
     Update a agent tool metadata.
@@ -72,7 +72,7 @@ def update_agent_tool_metadata(
     Args:
         db (Session): Database session.
         agent_tool_metadata (AgentToolMetadata): Agent tool metadata to be updated.
-        new_agent_tool_metadata (UpdateAgentToolMetadataRequest): New agent tool metadata data.
+        new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
 
     Returns:
         AgentToolMetadata: Updated agent tool metadata.

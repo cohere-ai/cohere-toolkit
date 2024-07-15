@@ -959,7 +959,7 @@ export class DefaultService {
    * Create an agent.
    * Args:
    * session (DBSessionDep): Database session.
-   * agent (CreateAgentRequest): Agent data.
+   * agent (CreateAgent): Agent data.
    * request (Request): Request object.
    * Returns:
    * AgentPublic: Created agent with no user ID or organization ID.
@@ -1055,7 +1055,7 @@ export class DefaultService {
    *
    * Args:
    * agent_id (str): Agent ID.
-   * new_agent (UpdateAgentRequest): New agent data.
+   * new_agent (UpdateAgent): New agent data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
    *
@@ -1162,7 +1162,7 @@ export class DefaultService {
    * Args:
    * session (DBSessionDep): Database session.
    * agent_id (str): Agent ID.
-   * agent_tool_metadata (CreateAgentToolMetadataRequest): Agent tool metadata data.
+   * agent_tool_metadata (CreateAgentToolMetadata): Agent tool metadata data.
    * request (Request): Request object.
    *
    * Returns:
@@ -1201,7 +1201,7 @@ export class DefaultService {
    * agent_id (str): Agent ID.
    * agent_tool_metadata_id (str): Agent tool metadata ID.
    * session (DBSessionDep): Database session.
-   * new_agent_tool_metadata (UpdateAgentToolMetadataRequest): New agent tool metadata data.
+   * new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
    * request (Request): Request object.
    *
    * Returns:

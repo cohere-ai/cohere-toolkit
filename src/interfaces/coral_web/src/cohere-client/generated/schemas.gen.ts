@@ -989,7 +989,7 @@ export const $ConversationWithoutMessages = {
   title: 'ConversationWithoutMessages',
 } as const;
 
-export const $CreateAgentRequest = {
+export const $CreateAgent = {
   properties: {
     name: {
       type: 'string',
@@ -1065,7 +1065,7 @@ export const $CreateAgentRequest = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/CreateAgentToolMetadataRequest',
+            $ref: '#/components/schemas/CreateAgentToolMetadata',
           },
           type: 'array',
         },
@@ -1078,10 +1078,10 @@ export const $CreateAgentRequest = {
   },
   type: 'object',
   required: ['name', 'model', 'deployment'],
-  title: 'CreateAgentRequest',
+  title: 'CreateAgent',
 } as const;
 
-export const $CreateAgentToolMetadataRequest = {
+export const $CreateAgentToolMetadata = {
   properties: {
     id: {
       anyOf: [
@@ -1108,7 +1108,7 @@ export const $CreateAgentToolMetadataRequest = {
   },
   type: 'object',
   required: ['tool_name', 'artifacts'],
-  title: 'CreateAgentToolMetadataRequest',
+  title: 'CreateAgentToolMetadata',
 } as const;
 
 export const $CreateSnapshot = {
@@ -2713,7 +2713,7 @@ export const $ToolInputType = {
   description: 'Type of input passed to the tool',
 } as const;
 
-export const $UpdateAgentRequest = {
+export const $UpdateAgent = {
   properties: {
     name: {
       anyOf: [
@@ -2810,7 +2810,7 @@ export const $UpdateAgentRequest = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/CreateAgentToolMetadataRequest',
+            $ref: '#/components/schemas/CreateAgentToolMetadata',
           },
           type: 'array',
         },
@@ -2822,10 +2822,10 @@ export const $UpdateAgentRequest = {
     },
   },
   type: 'object',
-  title: 'UpdateAgentRequest',
+  title: 'UpdateAgent',
 } as const;
 
-export const $UpdateAgentToolMetadataRequest = {
+export const $UpdateAgentToolMetadata = {
   properties: {
     id: {
       anyOf: [
@@ -2865,7 +2865,7 @@ export const $UpdateAgentToolMetadataRequest = {
     },
   },
   type: 'object',
-  title: 'UpdateAgentToolMetadataRequest',
+  title: 'UpdateAgentToolMetadata',
 } as const;
 
 export const $UpdateConversation = {
