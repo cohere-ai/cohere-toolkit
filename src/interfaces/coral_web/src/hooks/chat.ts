@@ -205,7 +205,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     newMessages: ChatMessage[];
     request: CohereChatRequest;
     headers: Record<string, string>;
-    agentId?: string;
     streamConverse: UseMutateAsyncFunction<
       StreamEnd | undefined,
       CohereNetworkError,
@@ -240,7 +239,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       await streamConverse({
         request,
         headers,
-        agentId,
         onRead: (eventData: ChatResponseEvent) => {
           switch (eventData.event) {
             case StreamEvent.STREAM_START: {
@@ -276,6 +274,19 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 mapDocuments(documents);
               documentsMap = { ...documentsMap, ...newDocumentsMap };
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
+              // we are only interested in web_search results
+              // ignore search results of pyhton interpreter tool
+              if (
+                toolEvents[currentToolEventIndex - 1]?.tool_calls?.[0]?.name !==
+                TOOL_PYTHON_INTERPRETER_ID
+              ) {
+                toolEvents.push({
+                  text: '',
+                  stream_search_results: data,
+                  tool_calls: [],
+                } as StreamToolCallsGeneration);
+                currentToolEventIndex += 1;
+              }
               break;
             }
 
@@ -548,6 +559,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     const { tools: overrideTools, ...restOverrides } = overrides ?? {};
 
     const requestTools = overrideTools ?? tools ?? undefined;
+
     return {
       message,
       conversation_id: id,
@@ -555,6 +567,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
+      agent_id: agentId,
       ...restOverrides,
     };
   };
@@ -592,7 +605,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       newMessages,
       request,
       headers,
-      agentId,
       streamConverse: streamChat,
     });
   };

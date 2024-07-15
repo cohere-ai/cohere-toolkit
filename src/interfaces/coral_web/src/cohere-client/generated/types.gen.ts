@@ -124,6 +124,7 @@ export type CohereChatRequest = {
     [key: string]: unknown;
   }> | null;
   force_single_step?: boolean | null;
+  agent_id?: string | null;
 };
 
 export type Conversation = {
@@ -180,9 +181,7 @@ export type CreateSnapshotResponse = {
   snapshot_id: string;
   user_id: string;
   link_id: string;
-  messages: Array<{
-    [key: string]: unknown;
-  }>;
+  messages: Array<Message>;
 };
 
 export type CreateUser = {
@@ -281,7 +280,7 @@ export type Login = {
 export type Logout = unknown;
 
 export type ManagedTool = {
-  name: string;
+  name?: string | null;
   display_name?: string;
   description?: string | null;
   parameter_definitions?: {
@@ -296,6 +295,7 @@ export type ManagedTool = {
   category?: Category;
   is_auth_required?: boolean;
   auth_url?: string | null;
+  token?: string | null;
 };
 
 export type Message = {
@@ -349,9 +349,22 @@ export type Snapshot = {
   version: number;
   created_at: string;
   updated_at: string;
-  snapshot: {
-    [key: string]: unknown;
-  } | null;
+  snapshot: SnapshotData;
+};
+
+export type SnapshotAgent = {
+  id: string;
+  name: string;
+  description: string | null;
+  preamble: string | null;
+  tools_metadata: Array<AgentToolMetadata> | null;
+};
+
+export type SnapshotData = {
+  title: string;
+  description: string;
+  messages: Array<Message>;
+  agent: SnapshotAgent | null;
 };
 
 export type SnapshotWithLinks = {
@@ -363,9 +376,7 @@ export type SnapshotWithLinks = {
   version: number;
   created_at: string;
   updated_at: string;
-  snapshot: {
-    [key: string]: unknown;
-  } | null;
+  snapshot: SnapshotData;
   links: Array<string>;
 };
 
@@ -455,6 +466,7 @@ export type StreamToolCallsChunk = {
  * Stream tool calls generation event.
  */
 export type StreamToolCallsGeneration = {
+  stream_search_results?: StreamSearchResults | null;
   tool_calls?: Array<ToolCall> | null;
   text: string | null;
 };
@@ -473,7 +485,7 @@ export type StreamToolResult = {
 };
 
 export type Tool = {
-  name: string;
+  name?: string | null;
   display_name?: string;
   description?: string | null;
   parameter_definitions?: {
@@ -590,14 +602,12 @@ export type LogoutV1LogoutGetResponse = Logout;
 export type LoginV1ToolAuthGetResponse = unknown;
 
 export type ChatStreamV1ChatStreamPostData = {
-  agentId?: string | null;
   requestBody: CohereChatRequest;
 };
 
 export type ChatStreamV1ChatStreamPostResponse = Array<ChatResponseEvent>;
 
 export type ChatV1ChatPostData = {
-  agentId?: string | null;
   requestBody: CohereChatRequest;
 };
 
@@ -667,6 +677,16 @@ export type ListConversationsV1ConversationsGetData = {
 };
 
 export type ListConversationsV1ConversationsGetResponse = Array<ConversationWithoutMessages>;
+
+export type SearchConversationsV1ConversationsSearchGetData = {
+  agentId?: string;
+  limit?: number;
+  offset?: number;
+  query: string;
+};
+
+export type SearchConversationsV1ConversationsSearchGetResponse =
+  Array<ConversationWithoutMessages>;
 
 export type UploadFileV1ConversationsUploadFilePostData = {
   formData: Body_upload_file_v1_conversations_upload_file_post;
@@ -1033,6 +1053,21 @@ export type $OpenApiTs = {
   '/v1/conversations': {
     get: {
       req: ListConversationsV1ConversationsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<ConversationWithoutMessages>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/conversations:search': {
+    get: {
+      req: SearchConversationsV1ConversationsSearchGetData;
       res: {
         /**
          * Successful Response

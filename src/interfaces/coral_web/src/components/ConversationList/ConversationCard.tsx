@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMemo } from 'react';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
@@ -31,25 +30,22 @@ type Props = {
 const useMenuItems = ({ conversationId, name }: { conversationId: string; name: string }) => {
   const { deleteConversation, editConversationTitle } = useConversationActions();
 
-  const menuItems: KebabMenuItem[] = useMemo(
-    () => [
-      {
-        label: 'Edit title',
-        iconName: 'edit',
-        onClick: () => {
-          editConversationTitle({ id: conversationId, title: name });
-        },
+  const menuItems: KebabMenuItem[] = [
+    {
+      label: 'Edit title',
+      iconName: 'edit',
+      onClick: () => {
+        editConversationTitle({ id: conversationId, title: name });
       },
-      {
-        label: 'Delete chat',
-        iconName: 'trash',
-        onClick: () => {
-          deleteConversation({ id: conversationId });
-        },
+    },
+    {
+      label: 'Delete chat',
+      iconName: 'trash',
+      onClick: () => {
+        deleteConversation({ id: conversationId });
       },
-    ],
-    [conversationId]
-  );
+    },
+  ];
 
   return menuItems;
 };
@@ -98,9 +94,9 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   );
 
   const conversationUrl = agentId
-    ? `/agents/${agentId}/c/${conversationId}`
-    : router.asPath.includes('/agents')
-    ? `/agents/c/${conversationId}`
+    ? `/a/${agentId}/c/${conversationId}`
+    : router.asPath.includes('/a')
+    ? `/a/c/${conversationId}`
     : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');

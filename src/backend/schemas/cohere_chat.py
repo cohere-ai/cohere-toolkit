@@ -109,3 +109,7 @@ class CohereChatRequest(BaseChatRequest):
         default=None,
         title="If set to true, the model will generate a single response in a single step. This is useful for generating a response to a single message.",
     )
+    agent_id: str | None = Field(
+        default=None,
+        title="The agent ID to use for the chat.",
+    )

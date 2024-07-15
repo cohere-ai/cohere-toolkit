@@ -58,7 +58,7 @@ const LoginPage: NextPage<Props> = () => {
   const onSubmit: SubmitHandler<Credentials> = async (data) => {
     const { email, password } = data;
     try {
-      await loginMutation.mutate(
+      await loginMutation.mutateAsync(
         { email, password },
         {
           onSuccess: () => {

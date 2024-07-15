@@ -10,8 +10,8 @@ const isUUID = (value: string) => {
  * The slug can be in the following formats:
  * - [] - /
  * - [c, :conversationId] - /c/:conversationId
- * - [:agentId] - /:agentId
- * - [:agentId, c, :conversationId] - /:agentId/c/:conversationId
+ * - [a, :agentId] - /a/:agentId
+ * - [a, :agentId, c, :conversationId] - /a/:agentId/c/:conversationId
  */
 export const getSlugRoutes = (
   slugParams?: string | string[]
@@ -24,29 +24,29 @@ export const getSlugRoutes = (
   }
 
   // Possible values are:
-  // firstQuery = :agentId | c | undefined
-  // secondQuery = c | :conversationId | undefined
-  // thirdQuery = :conversationId | undefined
-  const [firstQuery, secondQuery, thirdQuery] = slugParams;
+  // firstQuery = [:agentId, c, a, undefined]
+  // secondQuery = [c, :conversationId, undefined]
+  // thirdQuery = [c, undefined]
+  // fourthQuery = [:conversationId, undefined]
+  const [firstQuery, secondQuery, thirdQuery, fourthQuery] = slugParams;
 
-  // []
+  // [/]
   if (!firstQuery) {
     return { agentId: undefined, conversationId: undefined };
   }
 
-  // [c, :conversationId]
+  // [/c/:conversationId]
   if (firstQuery === 'c' && isUUID(secondQuery)) {
     return { agentId: undefined, conversationId: secondQuery };
   }
 
-  // [:agentId]
-  if (!secondQuery && isUUID(firstQuery)) {
-    return { agentId: firstQuery, conversationId: undefined };
+  // [/a/:agentId]
+  if (firstQuery === 'a' && isUUID(secondQuery) && !thirdQuery) {
+    return { agentId: secondQuery, conversationId: undefined };
   }
-
-  // [:agentId, c, :conversationId]
-  if (secondQuery === 'c' && isUUID(firstQuery) && isUUID(thirdQuery)) {
-    return { agentId: firstQuery, conversationId: thirdQuery };
+  // [/a/:agentId/c/:conversationId]
+  if (firstQuery === 'a' && isUUID(secondQuery) && thirdQuery === 'c' && isUUID(fourthQuery)) {
+    return { agentId: secondQuery, conversationId: fourthQuery };
   }
 
   return { agentId: undefined, conversationId: undefined };

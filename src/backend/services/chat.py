@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Generator, List, Union
+from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
@@ -8,7 +8,7 @@ from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
-from starlette.exceptions import HTTPException
+from pydantic import ValidationError
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
@@ -54,6 +54,7 @@ from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
+from backend.services.generators import AsyncGeneratorContextManager
 
 
 def process_chat(
@@ -86,13 +87,22 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        add_agent_to_request_state(request, agent)
+
+        # TODO: @Scott Validation error still needs to be fixed here
+        # ROD: error count: <built-in method error_count of pydantic_core._pydantic_core.ValidationError object at 0xffff703f08b0>
+
+        try:
+            add_agent_to_request_state(request, agent)
+        except ValidationError as exc:
+            print(f"Validation error count: {exc.error_count()}")
+            for err in exc.errors():
+                print(f"ROD: error: {repr(err)}")
+
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
-        tool_names = [tool.name for tool in chat_request.tools]
         if chat_request.tools:
             for tool in chat_request.tools:
                 if tool.name not in agent.tools:
@@ -471,7 +481,7 @@ def save_tool_calls_message(
         tool_call_crud.create_tool_call(session, tool_call)
 
 
-def generate_chat_response(
+async def generate_chat_response(
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
@@ -508,7 +518,7 @@ def generate_chat_response(
     )
 
     non_streamed_chat_response = None
-    for event in stream:
+    async for event in stream:
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
@@ -533,21 +543,21 @@ def generate_chat_response(
     return non_streamed_chat_response
 
 
-def generate_chat_stream(
+async def generate_chat_stream(
     session: DBSessionDep,
-    model_deployment_stream: Generator[StreamedChatResponse, None, None],
+    model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
     conversation_id: str,
     user_id: str,
     should_store: bool = True,
     **kwargs: Any,
-) -> Generator[bytes, Any, None]:
+) -> AsyncGenerator[Any, Any]:
     """
     Generate chat stream from model deployment stream.
 
     Args:
         session (DBSessionDep): Database session.
-        model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
+        model_deployment_stream (AsyncGenerator[Any, Any]): Model deployment stream.
         response_message (Message): Response message object.
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
@@ -573,19 +583,22 @@ def generate_chat_stream(
     document_ids_to_document = {}
 
     stream_event = None
-    for event in model_deployment_stream:
-        stream_event, stream_end_data, response_message, document_ids_to_document = (
-            handle_stream_event(
-                event,
-                conversation_id,
-                stream_end_data,
-                response_message,
-                document_ids_to_document,
-                session=session,
-                should_store=should_store,
-                user_id=user_id,
-                next_message_position=kwargs.get("next_message_position", 0),
-            )
+    async for event in model_deployment_stream:
+        (
+            stream_event,
+            stream_end_data,
+            response_message,
+            document_ids_to_document,
+        ) = handle_stream_event(
+            event,
+            conversation_id,
+            stream_end_data,
+            response_message,
+            document_ids_to_document,
+            session=session,
+            should_store=should_store,
+            user_id=user_id,
+            next_message_position=kwargs.get("next_message_position", 0),
         )
 
         yield json.dumps(

@@ -65,6 +65,8 @@ import type {
   LoginV1LoginPostResponse,
   LoginV1ToolAuthGetResponse,
   LogoutV1LogoutGetResponse,
+  SearchConversationsV1ConversationsSearchGetData,
+  SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
@@ -192,6 +194,19 @@ export class DefaultService {
 
   /**
    * Login
+   * Logs user in, performing basic email/password auth.
+   * Verifies their credentials, retrieves the user and returns a JWT token.
+   *
+   * Args:
+   * request (Request): current Request object.
+   * login (Login): Login payload.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * dict: JWT token on Basic auth success
+   *
+   * Raises:
+   * HTTPException: If the strategy or payload are invalid, or if the login fails.
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -210,13 +225,11 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
-   * @param data.agentId
    * @returns ChatResponseEvent Successful Response
    * @throws ApiError
    */
@@ -226,9 +239,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat-stream',
-      query: {
-        agent_id: data.agentId,
-      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -245,13 +255,11 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
-   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
    * @param data The data for the request.
    * @param data.requestBody
-   * @param data.agentId
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
@@ -259,9 +267,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
-      query: {
-        agent_id: data.agentId,
-      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -591,6 +596,43 @@ export class DefaultService {
       method: 'GET',
       url: '/v1/conversations',
       query: {
+        offset: data.offset,
+        limit: data.limit,
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Search Conversations
+   * Search conversations by title.
+   *
+   * Args:
+   * query (str): Query string to search for in conversation titles.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * list[ConversationWithoutMessages]: List of conversations that match the query.
+   * @param data The data for the request.
+   * @param data.query
+   * @param data.offset
+   * @param data.limit
+   * @param data.agentId
+   * @returns ConversationWithoutMessages Successful Response
+   * @throws ApiError
+   */
+  public searchConversationsV1ConversationsSearchGet(
+    data: SearchConversationsV1ConversationsSearchGetData
+  ): CancelablePromise<SearchConversationsV1ConversationsSearchGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/conversations:search',
+      query: {
+        query: data.query,
         offset: data.offset,
         limit: data.limit,
         agent_id: data.agentId,

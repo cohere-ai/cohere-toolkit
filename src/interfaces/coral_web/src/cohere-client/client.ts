@@ -6,7 +6,9 @@ import {
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
+  CohereUnauthorizedError,
   CreateAgent,
+  CreateSnapshot,
   CreateUser,
   ExperimentalFeatures,
   Fetch,
@@ -40,6 +42,13 @@ export class CohereClient {
     this.cohereService = new CohereClientGenerated({
       BASE: hostname,
       HEADERS: async () => this.getHeaders(true),
+    });
+
+    this.cohereService.request.config.interceptors.response.use((response) => {
+      if (response.status === 401) {
+        throw new CohereUnauthorizedError();
+      }
+      return response;
     });
   }
 
@@ -92,6 +101,7 @@ export class CohereClient {
       headers: { ...this.getHeaders(), ...headers },
       body: requestBody,
       signal,
+      openWhenHidden: true, // When false, the requests will be paused when the tab is hidden and resume/retry when the tab is visible again
       onopen: onOpen,
       onmessage: onMessage,
       onclose: onClose,
@@ -271,10 +281,34 @@ export class CohereClient {
     });
   }
 
+  public deleteAgent(request: { agentId: string }) {
+    return this.cohereService.default.deleteAgentV1AgentsAgentIdDelete(request);
+  }
+
   public generateTitle({ conversationId }: { conversationId: string }) {
     return this.cohereService.default.generateTitleV1ConversationsConversationIdGenerateTitlePost({
       conversationId,
     });
+  }
+
+  public listSnapshots() {
+    return this.cohereService.default.listSnapshotsV1SnapshotsGet();
+  }
+
+  public createSnapshot(requestBody: CreateSnapshot) {
+    return this.cohereService.default.createSnapshotV1SnapshotsPost({ requestBody });
+  }
+
+  public getSnapshot({ linkId }: { linkId: string }) {
+    return this.cohereService.default.getSnapshotV1SnapshotsLinkLinkIdGet({ linkId });
+  }
+
+  public deleteSnapshotLink({ linkId }: { linkId: string }) {
+    return this.cohereService.default.deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({ linkId });
+  }
+
+  public deleteSnapshot({ snapshotId }: { snapshotId: string }) {
+    return this.cohereService.default.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
   }
 
   private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
@@ -286,6 +320,7 @@ export class CohereClient {
       ...(omitContentType ? {} : { 'Content-Type': 'application/json' }),
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
+      Connection: 'keep-alive',
     };
     return headers;
   }

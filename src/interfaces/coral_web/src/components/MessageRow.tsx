@@ -16,7 +16,6 @@ import {
 import { ToolEvents } from '@/components/ToolEvents';
 import { ReservedClasses } from '@/constants';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
-import { useChat } from '@/hooks/chat';
 import { getMessageRowId } from '@/hooks/citations';
 import { useCitationsStore } from '@/stores';
 import {
@@ -181,6 +180,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                   show={isStepsExpanded}
                   events={message.toolEvents}
                   isStreaming={isStreamingToolEvents}
+                  isLast={isLast}
                 />
               )}
 

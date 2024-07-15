@@ -7,7 +7,7 @@ from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
-from backend.schemas.agent import UpdateAgent
+from backend.schemas.agent import UpdateAgentRequest
 from backend.tests.factories import get_factory
 
 
@@ -133,14 +133,14 @@ def test_create_agent_duplicate_name_version(session, user):
 
 
 def test_get_agent_by_id(session, user):
-    _ = get_factory("Agent", session).create(id="1", name="test_agent")
+    _ = get_factory("Agent", session).create(id="1", name="test_agent", user_id=user.id)
     agent = agent_crud.get_agent_by_id(session, "1")
     assert agent.id == "1"
     assert agent.name == "test_agent"
 
 
 def test_get_agent_by_name(session, user):
-    _ = get_factory("Agent", session).create(id="1", name="test_agent")
+    _ = get_factory("Agent", session).create(id="1", name="test_agent", user_id=user.id)
     agent = agent_crud.get_agent_by_name(session, "test_agent")
     assert agent.id == "1"
     assert agent.name == "test_agent"
@@ -154,7 +154,9 @@ def test_fail_get_nonexistant_agent(session, user):
 def test_list_agents(session, user):
     length = 3
     for i in range(length):
-        _ = get_factory("Agent", session).create(id=i, name=f"test_agent_{i}")
+        _ = get_factory("Agent", session).create(
+            id=i, name=f"test_agent_{i}", user_id=user.id
+        )
 
     agents = agent_crud.get_agents(session)
     assert len(agents) == length
@@ -184,7 +186,7 @@ def test_update_agent(session, user):
         tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
     )
 
-    new_agent_data = UpdateAgent(
+    new_agent_data = UpdateAgentRequest(
         name="new_test_agent",
         description="This is a new test agent",
         version=2,
