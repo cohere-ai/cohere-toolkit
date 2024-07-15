@@ -7,9 +7,24 @@ from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.schemas.metrics import MetricsAgent, MetricsMessageType, MetricsUser
 from backend.services.auth.utils import get_header_user_id
 
+DEFAULT_METRICS_AGENT = MetricsAgent(
+    id="9c300cfd-1506-408b-829d-a6464137a7c1",
+    version="1",
+    name="Default Agent",
+    temperature=0.3,
+    model="command-r-plus",
+    deployment="Cohere",
+    preamble="",
+    description="hardcoded default agent for logging purposes",
+)
+
 
 def add_event_type_to_request_state(request: Request, event_type: MetricsMessageType):
     request.state.event_type = event_type
+
+
+def add_default_agent_to_request_state(request: Request):
+    request.state.agent = DEFAULT_METRICS_AGENT
 
 
 def add_agent_to_request_state(request: Request, agent: Agent):
