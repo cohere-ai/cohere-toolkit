@@ -43,7 +43,10 @@ def validate_conversation(
     """
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
     if not conversation:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation with ID: {conversation_id} not found.",
+        )
     return conversation
 
 

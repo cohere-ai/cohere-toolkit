@@ -152,7 +152,7 @@ def test_share_conversation_not_found(
     assert response.status_code == 404
     response_json = response.json()
 
-    assert response_json["detail"] == "Conversation not found"
+    assert response_json["detail"] == "Conversation with ID: 1 not found"
 
 
 def test_list_snapshots(

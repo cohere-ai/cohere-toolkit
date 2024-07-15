@@ -395,7 +395,7 @@ async def generate_title(
     deployment_name = request.headers.get("Deployment-Name", "")
     model_config = get_deployment_config(request)
 
-    title = generate_conversation_title(
+    title = await generate_conversation_title(
         session,
         conversation,
         deployment_name,
