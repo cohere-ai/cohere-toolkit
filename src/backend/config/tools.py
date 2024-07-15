@@ -13,6 +13,7 @@ from backend.tools import (
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
+    WebScrapeTool,
 )
 
 """
@@ -35,6 +36,7 @@ class ToolName(StrEnum):
     Calculator = Calculator.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
+    Web_Scrape = WebScrapeTool.NAME
 
 
 ALL_TOOLS = {
@@ -156,6 +158,28 @@ ALL_TOOLS = {
         error_message="Google Drive not available",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
+    ),
+    ToolName.Web_Scrape: ManagedTool(
+        name=ToolName.Web_Scrape,
+        display_name="Web Scrape",
+        implementation=WebScrapeTool,
+        parameter_definitions={
+            "url": {
+                "description": "The url to scrape.",
+                "type": "str",
+                "required": True,
+            },
+            "query": {
+                "description": "The query to use to select the most relevant passages to return. Using an empty string will return the passages in the order they appear on the webpage",
+                "type": "str",
+                "required": False,
+            },
+        },
+        is_visible=True,
+        is_available=WebScrapeTool.is_available(),
+        error_message="WebScrapeTool not available.",
+        category=Category.DataLoader,
+        description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
     ),
 }
 

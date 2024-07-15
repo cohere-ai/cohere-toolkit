@@ -1,5 +1,7 @@
+import asyncio
+import logging
 from itertools import tee
-from typing import Any, Dict, List
+from typing import Any, AsyncGenerator, Dict, List
 
 from fastapi import HTTPException
 
@@ -21,7 +23,9 @@ MAX_STEPS = 15
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
 
-    async def chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def chat(
+        self, chat_request: CohereChatRequest, **kwargs: Any
+    ) -> AsyncGenerator[Any, Any]:
         """
         Chat flow for custom models.
 
@@ -255,6 +259,7 @@ class CustomChat(BaseChat):
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=kwargs.get("user_id"),
+                trace_id=kwargs.get("trace_id"),
                 agent_id=kwargs.get("agent_id"),
             )
 

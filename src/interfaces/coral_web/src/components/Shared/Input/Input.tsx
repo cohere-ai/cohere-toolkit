@@ -250,7 +250,7 @@ const InnerInput = React.forwardRef<
           spellCheck={false}
           autoComplete="off"
           className={cn(
-            'disabled:text-volcanic-700',
+            'placeholder:text-volcanic-500 disabled:text-volcanic-700',
             // remove spinners on number inputs
             '[-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none',
             { '!pr-8': !!icons, 'w-full truncate': truncate, '!pl-8': !!prefix },

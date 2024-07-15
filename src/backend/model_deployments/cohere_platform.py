@@ -16,6 +16,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import MetricsData
+from backend.services.logger import get_logger, send_log_message
 from backend.services.metrics import (
     collect_metrics_chat,
     collect_metrics_chat_stream,
@@ -25,6 +26,9 @@ from backend.services.metrics import (
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
+
+
+logger = get_logger()
 
 
 class CohereDeployment(BaseDeployment):
@@ -39,7 +43,7 @@ class CohereDeployment(BaseDeployment):
 
     @property
     def rerank_enabled(self) -> bool:
-        return True
+        return False
 
     @classmethod
     def list_models(cls) -> List[str]:
@@ -73,26 +77,33 @@ class CohereDeployment(BaseDeployment):
     async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-            **kwargs,
         )
         yield to_dict(response)
 
     @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> AsyncGenerator[Any, Any]:
+    ) -> Any:
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-            **kwargs,
         )
 
         for event in stream:
+            send_log_message(
+                logger,
+                f"Chat event: {to_dict(event)}",
+                level="info",
+                conversation_id=kwargs.get("conversation_id"),
+                user_id=kwargs.get("user_id"),
+            )
             yield to_dict(event)
 
     @collect_metrics_rerank
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        return self.client.rerank(
-            query=query, documents=documents, model=DEFAULT_RERANK_MODEL, **kwargs
+        response = self.client.rerank(
+            query=query, documents=documents, model=DEFAULT_RERANK_MODEL
         )
+
+        return to_dict(response)

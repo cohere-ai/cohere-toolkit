@@ -54,6 +54,7 @@ from backend.schemas.file import UpdateFile
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
+from backend.services.generators import AsyncGeneratorContextManager
 
 
 def process_chat(
@@ -544,7 +545,7 @@ async def generate_chat_response(
 
 async def generate_chat_stream(
     session: DBSessionDep,
-    model_deployment_stream: Generator[StreamedChatResponse, None, None],
+    model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
     conversation_id: str,
     user_id: str,
@@ -556,7 +557,7 @@ async def generate_chat_stream(
 
     Args:
         session (DBSessionDep): Database session.
-        model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
+        model_deployment_stream (AsyncGenerator[Any, Any]): Model deployment stream.
         response_message (Message): Response message object.
         conversation_id (str): Conversation ID.
         user_id (str): User ID.

@@ -466,7 +466,7 @@ def test_search_conversations_with_reranking(
     user: User,
 ) -> None:
     conversation1 = get_factory("Conversation", session).create(
-        title="Roses are red, violets are blue", text_messages=[], user_id=user.id
+        title="Hello, how are you?", text_messages=[], user_id=user.id
     )
     conversation2 = get_factory("Conversation", session).create(
         title="There are are seven colors in the rainbow",
@@ -484,7 +484,8 @@ def test_search_conversations_with_reranking(
     results = response.json()
 
     assert response.status_code == 200
-    assert len(results) == 2
+    assert len(results) == 1
+    assert results[0]["id"] == conversation2.id
 
 
 def test_search_conversations_missing_user_id(

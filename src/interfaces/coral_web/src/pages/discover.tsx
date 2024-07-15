@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { CohereClient } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
-import { Layout, LeftSection, MainSection } from '@/components/Layout';
+import { AgentsLayout, LeftSection, MainSection } from '@/components/Layout';
 import { ProtectedPage } from '@/components/ProtectedPage';
 import { Input, Text } from '@/components/Shared';
 import { useListAgents } from '@/hooks/agents';
@@ -40,7 +40,7 @@ const AgentsNewPage: NextPage<Props> = () => {
 
   return (
     <ProtectedPage>
-      <Layout>
+      <AgentsLayout>
         <LeftSection>
           <AgentsList />
         </LeftSection>
@@ -95,7 +95,7 @@ const AgentsNewPage: NextPage<Props> = () => {
             </div>
           </div>
         </MainSection>
-      </Layout>
+      </AgentsLayout>
     </ProtectedPage>
   );
 };

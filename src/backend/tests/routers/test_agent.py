@@ -15,6 +15,37 @@ from backend.tests.factories import get_factory
 
 @pytest.mark.asyncio
 async def test_create_agent_mertic(
+    session_client: TestClient, session: Session, user
+) -> None:
+    user = get_factory("User", session).create(fullname="John Doe", user_id=user.id)
+    request_json = {
+        "name": "test agent",
+        "version": 1,
+        "description": "test description",
+        "preamble": "test preamble",
+        "temperature": 0.5,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
+    }
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.post(
+            "/v1/agents", json=request_json, headers={"User-Id": user.id}
+        )
+        assert response.status_code == 200
+        m_args: MetricsData = mock_metrics.await_args.args[0]
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
+        assert m_args.assistant.name == request_json["name"]
+        assert m_args.user.fullname == user.fullname
+
+
+@pytest.mark.asyncio
+async def test_create_agent_mertic(
     session_client: TestClient, session: Session
 ) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
@@ -44,7 +75,11 @@ async def test_create_agent_mertic(
         assert m_args.user.fullname == user.fullname
 
 
+<<<<<<< HEAD
 def test_create_agent(session_client: TestClient, session: Session, user) -> None:
+=======
+def test_create_agent(session_client: TestClient, session: Session) -> None:
+>>>>>>> main
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -334,6 +369,39 @@ async def test_get_agent_mertic(
 ) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+        agent_id=agent.id,
+        tool_name=ToolName.Google_Drive,
+        artifacts=[
+            {
+                "name": "/folder1",
+                "ids": "folder1",
+                "type": "folder_id",
+            },
+            {
+                "name": "file1.txt",
+                "ids": "file1",
+                "type": "file_id",
+            },
+        ],
+    )
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.get(
+            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+        )
+        assert response.status_code == 200
+        m_args: MetricsData = mock_metrics.await_args.args[0]
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
+        assert m_args.assistant.name == agent.name
+
+
+def test_get_agent(session_client: TestClient, session: Session, user) -> None:
+    agent = get_factory("Agent", session).create(name="test agent")
+    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
@@ -408,6 +476,46 @@ def test_get_nonexistent_agent(
 
 def test_update_agent_metric(session_client: TestClient, session: Session) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+        user_id=user.id,
+    )
+
+    request_json = {
+        "name": "updated name",
+        "version": 2,
+        "description": "updated description",
+        "preamble": "updated preamble",
+        "temperature": 0.7,
+        "model": "command-r",
+        "deployment": ModelDeploymentName.CoherePlatform,
+    }
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.put(
+            f"/v1/agents/{agent.id}",
+            json=request_json,
+            headers={"User-Id": user.id},
+        )
+
+        assert response.status_code == 200
+        m_args: MetricsData = mock_metrics.await_args.args[0]
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
+        assert m_args.assistant.name == request_json["name"]
+        assert m_args.user.fullname == user.fullname
+
+
+def test_update_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
@@ -882,8 +990,23 @@ def test_update_agent_invalid_tool(
     assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
-def test_delete_agent_metric(session_client: TestClient, session: Session) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
+def test_delete_agent_metric(session_client: TestClient, session: Session, user) -> None:
+    agent = get_factory("Agent", session).create(user_id=user.id)
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.delete(
+            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+        )
+        assert response.status_code == 200
+        m_args: MetricsData = mock_metrics.await_args.args[0]
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_DELETED
+        assert m_args.assistant_id == agent.id
+
+
+def test_delete_agent_metric(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(user_id=user.id)
     with patch(
         "backend.services.metrics.report_metrics",

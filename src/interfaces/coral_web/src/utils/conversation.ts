@@ -27,7 +27,7 @@ export const shouldUpdateConversationTitle = (messages: ChatMessage[]) => {
   return numBotMessages % 5 === 0;
 };
 
-type UserOrBotMessage = UserMessage | FulfilledMessage;
+export type UserOrBotMessage = UserMessage | FulfilledMessage;
 
 /**
  * @description Maps chat history given by the API to a list of messages that can be displayed in the chat.

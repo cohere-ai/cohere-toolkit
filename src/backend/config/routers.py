@@ -75,8 +75,11 @@ ROUTER_DEPENDENCIES = {
         ],
     },
     RouterName.TOOL: {
-        "default": [],
+        "default": [
+            Depends(get_session),
+        ],
         "auth": [
+            Depends(get_session),
             Depends(validate_authorization),
         ],
     },

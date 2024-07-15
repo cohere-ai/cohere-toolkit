@@ -17,10 +17,10 @@ import { cn } from '@/utils';
 /**
  * @description Tools tab content that shows a list of available tools and files
  */
-export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className?: string }> = ({
-  requiredTools,
-  className = '',
-}) => {
+export const AgentsToolsTab: React.FC<{
+  requiredTools: string[] | undefined;
+  className?: string;
+}> = ({ requiredTools, className = '' }) => {
   const { agentId } = useSlugRoutes();
   const { data: agent } = useAgent({ agentId });
   const { params, setParams } = useParamsStore();
@@ -67,25 +67,11 @@ export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className
 
         {unauthedTools.length > 0 && (
           <>
-            <Text as="span" styleAs="label" className="font-medium">
-              Action Required
-            </Text>
-
-            <div className="flex flex-col gap-y-5">
-              {unavailableTools.map(({ name, display_name, description, error_message }) => {
-                return (
-                  <ToggleCard
-                    key={name}
-                    disabled
-                    errorMessage={error_message}
-                    checked={false}
-                    label={display_name ?? name ?? ''}
-                    icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
-                    description={description ?? ''}
-                    onToggle={(checked) => handleToggle(name ?? '', checked)}
-                  />
-                );
-              })}
+            <div className="flex items-center justify-between">
+              <Text as="span" styleAs="label" className="font-medium">
+                Action Required
+              </Text>
+              <Icon name="warning" kind="outline" />
             </div>
             <ConnectDataBox tools={unauthedTools} />
           </>

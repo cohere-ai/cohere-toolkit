@@ -8,6 +8,7 @@ import {
   CohereNetworkError,
   CohereUnauthorizedError,
   CreateAgent,
+  CreateSnapshot,
   CreateUser,
   ExperimentalFeatures,
   Fetch,
@@ -290,6 +291,26 @@ export class CohereClient {
     });
   }
 
+  public listSnapshots() {
+    return this.cohereService.default.listSnapshotsV1SnapshotsGet();
+  }
+
+  public createSnapshot(requestBody: CreateSnapshot) {
+    return this.cohereService.default.createSnapshotV1SnapshotsPost({ requestBody });
+  }
+
+  public getSnapshot({ linkId }: { linkId: string }) {
+    return this.cohereService.default.getSnapshotV1SnapshotsLinkLinkIdGet({ linkId });
+  }
+
+  public deleteSnapshotLink({ linkId }: { linkId: string }) {
+    return this.cohereService.default.deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({ linkId });
+  }
+
+  public deleteSnapshot({ snapshotId }: { snapshotId: string }) {
+    return this.cohereService.default.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
+  }
+
   private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
   }
@@ -299,6 +320,7 @@ export class CohereClient {
       ...(omitContentType ? {} : { 'Content-Type': 'application/json' }),
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
+      Connection: 'keep-alive',
     };
     return headers;
   }
