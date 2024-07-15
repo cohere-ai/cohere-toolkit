@@ -98,7 +98,7 @@ async def create_agent(
 @router.get("", response_model=list[AgentPublic])
 async def list_agents(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep, request: Request
-) -> list[Agent]:
+) -> list[AgentPublic]:
     """
     List all agents.
 
