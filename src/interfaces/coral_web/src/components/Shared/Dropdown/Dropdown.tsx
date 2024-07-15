@@ -129,7 +129,7 @@ export const Dropdown: React.FC<Props> = ({
             className={cn(
               roundedClasses,
               borderClasses,
-              'border-marble-500 bg-marble-100 hover:bg-marble-200',
+              'border-marble-800 bg-marble-1000 hover:bg-marble-980',
               {
                 'rounded-b-lg': !open,
                 'rounded-bl-none rounded-br-none': open,
@@ -174,14 +174,14 @@ export const Dropdown: React.FC<Props> = ({
             <Listbox.Options
               className={cn(
                 'absolute left-0',
-                'max-h-80 w-full overflow-y-auto bg-marble-100',
-                'rounded-b-lg border border-marble-500',
+                'max-h-80 w-full overflow-y-auto bg-marble-1000',
+                'rounded-b-lg border border-marble-800',
                 'z-dropdown',
                 'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
               )}
             >
               {searchable && (
-                <div className="sticky top-0 border-b border-marble-500 bg-white">
+                <div className="sticky top-0 border-b border-marble-800 bg-white">
                   <section className="p-3">
                     <Input
                       placeholder="filter model"
@@ -194,7 +194,7 @@ export const Dropdown: React.FC<Props> = ({
 
                   {options.length === 0 && searchTerm !== '' && (
                     <>
-                      <hr className="border-marble-500" />
+                      <hr className="border-marble-800" />
                       <Text className="p-4">No results found</Text>
                     </>
                   )}
@@ -208,7 +208,7 @@ export const Dropdown: React.FC<Props> = ({
                       key={group.title}
                       styleAs="overline"
                       className={cn('mx-3 py-3 font-medium', {
-                        'border-b border-marble-500':
+                        'border-b border-marble-800':
                           i !== optionGroups.length - 1 || group.options.length > 0,
                       })}
                     >
@@ -243,7 +243,7 @@ export const Dropdown: React.FC<Props> = ({
                             as="div"
                             className={cn('break-words py-3 text-volcanic-800', {
                               'font-medium': selected,
-                              'border-b border-marble-500':
+                              'border-b border-marble-800':
                                 i !== optionGroups.length - 1 || j !== group.options.length - 1,
                             })}
                           >

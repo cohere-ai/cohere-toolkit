@@ -89,12 +89,12 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
             'mt-2 w-full flex-1 resize-none p-3',
             'transition ease-in-out',
             'rounded-lg border',
-            'bg-marble-100',
-            'border-marble-500 placeholder:text-volcanic-500 focus:border-mushroom-700',
+            'bg-marble-1000',
+            'border-marble-800 placeholder:text-volcanic-500 focus:border-mushroom-700',
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
             'disabled:text-volcanic-700',
             {
-              'border-marble-500 bg-marble-300': !isAgentCreator,
+              'border-marble-800 bg-marble-950': !isAgentCreator,
             },
             STYLE_LEVEL_TO_CLASSES.p
           )}

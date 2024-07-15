@@ -16,8 +16,8 @@ const THEME_CLASSES: { [key in BannerTheme]: string } = {
   secondary: 'border-mushroom-200 bg-mushroom-50 text-volcanic-900',
   success: 'border-success-200 bg-success-50 text-success-500',
   error: 'border-danger-200 bg-danger-50 text-danger-500',
-  neutral: 'border-marble-400 bg-marble-300 text-volcanic-900',
-  dark: 'border-volcanic-600 bg-volcanic-700 text-marble-100',
+  neutral: 'border-marble-950 bg-marble-950 text-volcanic-900',
+  dark: 'border-volcanic-600 bg-volcanic-700 text-marble-1000',
 };
 
 export const Banner: React.FC<Props> = ({

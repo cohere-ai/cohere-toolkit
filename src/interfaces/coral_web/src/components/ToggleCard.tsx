@@ -35,7 +35,7 @@ export const ToggleCard: React.FC<Props> = ({
   onToggle,
 }) => {
   return (
-    <div className="flex flex-col gap-y-2 rounded-md border border-marble-400 bg-marble-200 p-3">
+    <div className="flex flex-col gap-y-2 rounded-md border border-marble-950 bg-marble-980 p-3">
       <div className="flex items-start gap-x-6">
         <div className="flex flex-grow flex-col gap-y-2">
           <div className="flex h-[26px] w-[26px] items-center justify-center rounded bg-mushroom-500/25">

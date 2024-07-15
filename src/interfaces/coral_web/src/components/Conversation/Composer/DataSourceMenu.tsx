@@ -228,7 +228,7 @@ export const DataSourceMenu: React.FC<Props> = ({
           aria-multiselectable="true"
           className={cn(
             'absolute bottom-[85%] left-[1%] z-tag-suggestions max-h-[200px] md:w-[468px]',
-            'w-full overflow-y-scroll rounded bg-marble-100 p-2 shadow-menu focus:outline-none'
+            'w-full overflow-y-scroll rounded bg-marble-1000 p-2 shadow-menu focus:outline-none'
           )}
         >
           {menuMode === MenuMode.TOOLS && (

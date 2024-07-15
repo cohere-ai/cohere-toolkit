@@ -149,7 +149,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
   });
 
   return (
-    <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-400')}>
+    <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-950')}>
       <div
         className={cn('flex w-full flex-1 items-center justify-between px-5', { truncate: !!id })}
       >

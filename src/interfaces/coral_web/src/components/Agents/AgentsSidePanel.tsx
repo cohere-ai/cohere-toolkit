@@ -47,8 +47,8 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
       as="div"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
-        'h-full bg-marble-100',
-        'rounded-lg border border-marble-400',
+        'h-full bg-marble-1000',
+        'rounded-lg border border-marble-950',
         {
           'right-1/4 md:right-auto': isAgentsSidePanelOpen,
         },

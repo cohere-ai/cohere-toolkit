@@ -78,8 +78,8 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
             'h-3.5 w-3.5': size === 'sm',
             'bg-coral-500 group-hover:bg-coral-400': checked && theme === 'primary',
             'bg-mushroom-600 group-hover:bg-mushroom-500': checked && theme === 'secondary',
-            'cursor-not-allowed bg-marble-300': disabled,
-            'border border-marble-500 bg-white group-hover:bg-marble-300': !checked && !disabled,
+            'cursor-not-allowed bg-marble-950': disabled,
+            'border border-marble-800 bg-white group-hover:bg-marble-950': !checked && !disabled,
           }
         )}
         role="checkbox"
@@ -88,7 +88,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
         {checked ? (
           <Icon name="check-mark" className="text-white" size={size} />
         ) : indeterminate ? (
-          <span className="h-[1.5px] w-2 bg-marble-500" />
+          <span className="h-[1.5px] w-2 bg-marble-800" />
         ) : null}
       </span>
       {label && (

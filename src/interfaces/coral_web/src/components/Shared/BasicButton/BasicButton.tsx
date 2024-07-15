@@ -43,7 +43,7 @@ const getThemeStyles = (theme: Theme, kind: Kind, hasBorders: boolean) => {
           'border-green-200 bg-green-50 text-green-700',
           'hover:bg-green-100',
           'active:bg-green-200',
-          'disabled:bg-marble-300 disabled:border-marble-300 disabled:text-volcanic-700',
+          'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-700',
           focusStyles
         );
       } else {
@@ -59,7 +59,7 @@ const getThemeStyles = (theme: Theme, kind: Kind, hasBorders: boolean) => {
           'border-coral-500 bg-coral-500 text-volcanic-900',
           'hover:bg-coral-50',
           'active:bg-coral-100',
-          'disabled:bg-marble-300 disabled:border-marble-300 disabled:text-volcanic-700',
+          'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-700',
           focusStyles
         );
       } else if (kind === 'secondary') {
@@ -68,7 +68,7 @@ const getThemeStyles = (theme: Theme, kind: Kind, hasBorders: boolean) => {
           'border-coral-500 bg-coral-50 text-volcanic-900',
           'hover:bg-coral-500',
           'active:bg-coral-50',
-          'disabled:bg-marble-300 disabled:border-marble-300 disabled:text-volcanic-700',
+          'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-700',
           focusStyles
         );
       }
@@ -77,28 +77,28 @@ const getThemeStyles = (theme: Theme, kind: Kind, hasBorders: boolean) => {
       if (kind === 'primary') {
         return cn(
           { 'border rounded-lg': hasBorders },
-          'border-volcanic-900 bg-volcanic-900 text-marble-100',
+          'border-volcanic-900 bg-volcanic-900 text-marble-1000',
           'hover:bg-volcanic-800 hover:border-volcanic-800',
-          'active:border-volcanic-900 active:bg-volcanic-900 active:text-marble-100',
-          'disabled:bg-marble-300 disabled:border-marble-300 disabled:text-volcanic-700',
+          'active:border-volcanic-900 active:bg-volcanic-900 active:text-marble-1000',
+          'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-700',
           focusStyles
         );
       } else if (kind === 'secondary') {
         return cn(
           { 'border rounded-lg': hasBorders },
-          'border-marble-500 bg-marble-100 text-volcanic-900',
-          'hover:bg-marble-200 hover:border-volcanic-600 hover:text-volcanic-900',
-          'active:border-volcanic-900 active:bg-marble-100 active:text-volcanic-900',
-          'disabled:bg-marble-300 disabled:border-marble-300 disabled:text-volcanic-700',
+          'border-marble-800 bg-marble-1000 text-volcanic-900',
+          'hover:bg-marble-980 hover:border-volcanic-600 hover:text-volcanic-900',
+          'active:border-volcanic-900 active:bg-marble-1000 active:text-volcanic-900',
+          'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-700',
           focusStyles
         );
       } else if (kind === 'tertiary') {
         return cn(
           { 'border rounded-lg': hasBorders },
-          'border-marble-500 bg-marble-200 text-volcanic-900',
-          'hover:bg-marble-300 hover:text-volcanic-900',
-          'active:border-volcanic-900 active:bg-marble-200 active:text-volcanic-900',
-          'disabled:bg-marble-300 disabled:border-marble-300 disabled:text-volcanic-700',
+          'border-marble-800 bg-marble-980 text-volcanic-900',
+          'hover:bg-marble-950 hover:text-volcanic-900',
+          'active:border-volcanic-900 active:bg-marble-980 active:text-volcanic-900',
+          'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-700',
           focusStyles
         );
       } else if (kind === 'minimal') {

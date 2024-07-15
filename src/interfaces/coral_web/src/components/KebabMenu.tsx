@@ -50,7 +50,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
             enterFrom="opacity-0"
             enterTo="opacity-100"
             className={cn(
-              'z-menu divide-y divide-marble-400 rounded-md bg-marble-100 p-2',
+              'z-menu divide-y divide-marble-950 rounded-md bg-marble-1000 p-2',
               'min-w-menu shadow-menu',
               'transition-opacity ease-in-out',
               { hidden: !open }

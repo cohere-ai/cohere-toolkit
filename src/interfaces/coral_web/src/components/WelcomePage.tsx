@@ -40,7 +40,7 @@ export const WelcomePage: React.FC<Props> = ({
         </Navigation>
 
         <div className="my-auto w-full px-6 pb-6 md:mx-auto md:w-fit md:px-0 md:py-4">
-          <div className="flex w-full flex-col rounded-lg border border-marble-400 bg-white p-6 md:w-modal md:p-10">
+          <div className="flex w-full flex-col rounded-lg border border-marble-950 bg-white p-6 md:w-modal md:p-10">
             {children}
           </div>
         </div>

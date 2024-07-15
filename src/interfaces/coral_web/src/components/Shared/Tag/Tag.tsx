@@ -38,8 +38,8 @@ const TAG_THEME_CLASSES = {
     secondary: 'text-blue-700 bg-blue-50',
   },
   disabled: {
-    primary: 'text-volcanic-700 bg-marble-300',
-    secondary: 'text-volcanic-700 bg-marble-300',
+    primary: 'text-volcanic-700 bg-marble-950',
+    secondary: 'text-volcanic-700 bg-marble-950',
   },
 };
 

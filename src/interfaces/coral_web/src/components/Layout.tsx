@@ -107,7 +107,7 @@ export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
               'lg:transition-[min-width,max-width,margin,opacity,border-width] lg:duration-300',
               'w-full',
               'flex flex-grow flex-col rounded-lg border',
-              'border-marble-400 bg-marble-100'
+              'border-marble-950 bg-marble-1000'
             )}
           >
             {leftDrawerElement}
@@ -129,7 +129,7 @@ export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
               className={cn(
                 'relative flex h-full min-w-0 flex-grow flex-col',
                 'rounded-lg border',
-                'border-marble-400 bg-marble-100',
+                'border-marble-950 bg-marble-1000',
                 'overflow-hidden'
               )}
             >
@@ -189,7 +189,7 @@ export const AgentsLayout: React.FC<AgentsLayoutProps> = ({
             className={cn(
               'relative flex h-full min-w-0 flex-grow flex-col',
               'rounded-lg border',
-              'border-marble-400 bg-marble-100',
+              'border-marble-950 bg-marble-1000',
               'overflow-hidden'
             )}
           >

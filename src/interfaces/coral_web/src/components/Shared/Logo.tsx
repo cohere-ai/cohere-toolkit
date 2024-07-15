@@ -34,7 +34,7 @@ export const Logo: React.FC<LogoProps> = ({
             'fill-green-700': style === 'default',
             'fill-coral-200': style === 'coral',
             'fill-volcanic-500': style === 'grayscale',
-            'dark:fill-marble-100': darkModeEnabled,
+            'dark:fill-marble-1000': darkModeEnabled,
           })}
         />
       )}
@@ -45,8 +45,8 @@ export const Logo: React.FC<LogoProps> = ({
         className={cx({
           'fill-green-700': style === 'default',
           'fill-coral-200': style === 'coral',
-          'fill-marble-400': style === 'grayscale',
-          'dark:fill-marble-100': darkModeEnabled,
+          'fill-marble-950': style === 'grayscale',
+          'dark:fill-marble-1000': darkModeEnabled,
         })}
       />
       <path
@@ -56,8 +56,8 @@ export const Logo: React.FC<LogoProps> = ({
         className={cx({
           'fill-quartz-500': style === 'default',
           'fill-coral-200': style === 'coral',
-          'fill-marble-400': style === 'grayscale',
-          'dark:fill-marble-100': darkModeEnabled,
+          'fill-marble-950': style === 'grayscale',
+          'dark:fill-marble-1000': darkModeEnabled,
         })}
       />
       <path
@@ -65,8 +65,8 @@ export const Logo: React.FC<LogoProps> = ({
         className={cx({
           'fill-coral-500': style === 'default',
           'fill-coral-200': style === 'coral',
-          'fill-marble-400': style === 'grayscale',
-          'dark:fill-marble-100': darkModeEnabled,
+          'fill-marble-950': style === 'grayscale',
+          'dark:fill-marble-1000': darkModeEnabled,
         })}
       />
     </svg>

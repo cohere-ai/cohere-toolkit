@@ -38,7 +38,7 @@ const panelStyle = cva(['relative', 'flex', 'w-full', 'flex-col', 'rounded-lg'],
       default: [
         'max-w-modal',
         'gap-6',
-        'bg-marble-100',
+        'bg-marble-1000',
         'py-10',
         'px-6',
         'md:gap-8',

@@ -67,8 +67,8 @@ export const SettingsDrawer: React.FC = () => {
         'flex h-full flex-col',
         'w-full md:max-w-drawer lg:max-w-drawer-lg',
         'rounded-lg md:rounded-l-none',
-        'bg-marble-100 md:shadow-drawer',
-        'border border-marble-400',
+        'bg-marble-1000 md:shadow-drawer',
+        'border border-marble-950',
         { 'xl:border-l-0': hasCitations }
       )}
       enter="transition-transform ease-in-out duration-200"
@@ -78,7 +78,7 @@ export const SettingsDrawer: React.FC = () => {
       leaveFrom="translate-x-0"
       leaveTo="translate-x-full"
     >
-      <header className="flex h-header items-center gap-2 border-b border-marble-400 p-5">
+      <header className="flex h-header items-center gap-2 border-b border-marble-950 p-5">
         <IconButton
           iconName="close-drawer"
           tooltip={{ label: 'Close drawer', size: 'md' }}
@@ -101,7 +101,7 @@ export const SettingsDrawer: React.FC = () => {
             onChange={setSelectedTabIndex}
             tabGroupClassName="h-full"
             tabClassName="pt-2.5"
-            panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-100 md:rounded-b-none"
+            panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-1000 md:rounded-b-none"
             fitTabsContent={true}
           >
             {tabs.map((t) => (

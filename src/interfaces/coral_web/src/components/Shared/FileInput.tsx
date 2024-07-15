@@ -81,12 +81,12 @@ export const FileInput: React.FC<FileInputProps> = ({
     <div
       className={cn(
         'flex flex-col',
-        'rounded-lg border border-marble-500 bg-white',
+        'rounded-lg border border-marble-800 bg-white',
         {
           'outline outline-1 outline-offset-4 outline-volcanic-700': focused,
           'text-volcanic-700': (placeholder && !file) || isLoading,
           'border-volcanic-900 text-volcanic-900': file && !isLoading,
-          'cursor-not-allowed border-marble-500 bg-marble-300 text-volcanic-700': disabled,
+          'cursor-not-allowed border-marble-800 bg-marble-950 text-volcanic-700': disabled,
         },
         className
       )}

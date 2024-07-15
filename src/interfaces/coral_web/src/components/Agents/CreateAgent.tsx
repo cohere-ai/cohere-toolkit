@@ -180,7 +180,7 @@ export const CreateAgent: React.FC = () => {
           />
         </div>
       </div>
-      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-400 bg-white px-4 py-4 md:py-8">
+      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-950 bg-white px-4 py-4 md:py-8">
         <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
           Create
         </Button>

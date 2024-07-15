@@ -97,7 +97,7 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
         )}
 
         {unavailableTools.length > 0 && availableTools.length > 0 && (
-          <hr className="border-t border-marble-400" />
+          <hr className="border-t border-marble-950" />
         )}
 
         {availableTools.length > 0 && (

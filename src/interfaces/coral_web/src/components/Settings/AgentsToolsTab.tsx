@@ -78,7 +78,7 @@ export const AgentsToolsTab: React.FC<{
         )}
 
         {unauthedTools.length > 0 && availableTools.length > 0 && (
-          <hr className="border-t border-marble-400" />
+          <hr className="border-t border-marble-950" />
         )}
 
         {availableTools.length > 0 && (

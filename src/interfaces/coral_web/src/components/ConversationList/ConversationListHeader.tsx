@@ -24,7 +24,7 @@ export const ConversationListHeader: React.FC<Props> = ({
     <header
       className={cn(
         'flex h-header w-full items-center justify-between border-b px-3 py-5',
-        'border-marble-400',
+        'border-marble-950',
         'overflow-hidden'
       )}
     >

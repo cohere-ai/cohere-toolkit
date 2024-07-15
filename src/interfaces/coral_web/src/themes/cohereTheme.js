@@ -45,13 +45,6 @@ module.exports = {
 
         // Marble White
         marble: {
-          500: '#BDBDBD',
-          400: '#E0E0E0',
-          300: '#EEEEEE',
-          200: '#F5F5F5',
-          100: '#FAFAFA',
-
-          // updated
           1000: '#FFFFFF',
           980: '#F9F9FB',
           950: '#EFEFF5',

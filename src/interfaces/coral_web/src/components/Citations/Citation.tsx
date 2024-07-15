@@ -117,7 +117,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
       }}
       className={cn(
         'rounded md:w-citation-md lg:w-citation-lg xl:w-citation-xl',
-        'bg-marble-100 transition-[transform,top] duration-300 ease-in-out',
+        'bg-marble-1000 transition-[transform,top] duration-300 ease-in-out',
         'md:absolute md:left-2.5 lg:left-[18px]',
         {
           'md:-translate-x-1 lg:-translate-x-2': isHovered,

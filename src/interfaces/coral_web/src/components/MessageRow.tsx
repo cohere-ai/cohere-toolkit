@@ -132,7 +132,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         close={() => setIsLongPressMenuOpen(false)}
         className="md:hidden"
       >
-        <div className={cn('flex flex-col divide-y', 'divide-marble-300')}>
+        <div className={cn('flex flex-col divide-y', 'divide-marble-950')}>
           <div className="flex flex-col gap-y-4 pt-4">
             <CopyToClipboardButton
               value={getMessageText()}

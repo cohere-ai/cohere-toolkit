@@ -205,7 +205,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
     <>
       <header
         className={cn(
-          'flex h-header flex-shrink-0 items-center justify-between border-b border-marble-400',
+          'flex h-header flex-shrink-0 items-center justify-between border-b border-marble-950',
           'pl-4 pr-3 lg:pl-10 lg:pr-8'
         )}
       >

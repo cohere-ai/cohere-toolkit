@@ -128,7 +128,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
               'z-tooltip',
               {
                 'max-w-[400px] rounded-sm border-none bg-mushroom-900 px-1 py-0.5': size === 'sm',
-                'max-w-[300px] rounded border border-marble-400 bg-marble-200 px-4 py-2.5':
+                'max-w-[300px] rounded border border-marble-950 bg-marble-980 px-4 py-2.5':
                   size === 'md',
               },
               className
@@ -142,7 +142,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             {...getFloatingProps()}
           >
             {size === 'sm' ? (
-              <Text as="span" styleAs="p-sm" className="flex text-marble-300">
+              <Text as="span" styleAs="p-sm" className="flex text-marble-950">
                 {label}
               </Text>
             ) : (

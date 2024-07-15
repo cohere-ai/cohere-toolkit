@@ -14,7 +14,7 @@ export const CoralLogo: React.FC<{
       {
         'fill-coral-200': style === 'primary',
         'dark:fill-blue-200': style === 'primary' && isDarkModeEnabled,
-        'fill-marble-400': style === 'grayscale',
+        'fill-marble-950': style === 'grayscale',
         'fill-mushroom-800': style === 'secondary',
       },
       className

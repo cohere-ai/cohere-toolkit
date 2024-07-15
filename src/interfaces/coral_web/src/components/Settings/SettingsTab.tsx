@@ -72,8 +72,8 @@ export const SettingsTab: React.FC = () => {
             'mt-2 w-full flex-1 resize-none p-3',
             'transition ease-in-out',
             'rounded-lg border',
-            'bg-marble-100',
-            'border-marble-500 placeholder:text-volcanic-700 focus:border-mushroom-700',
+            'bg-marble-1000',
+            'border-marble-800 placeholder:text-volcanic-700 focus:border-mushroom-700',
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
             STYLE_LEVEL_TO_CLASSES.p
           )}

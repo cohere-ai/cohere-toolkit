@@ -12,8 +12,8 @@ import { cn } from '@/utils';
 
 const THEME_CLASSES = {
   marble: {
-    border: 'border-marble-500',
-    background: 'bg-marble-100',
+    border: 'border-marble-800',
+    background: 'bg-marble-1000',
     label: 'text-volcanic-900',
     icon: '',
   },
@@ -334,7 +334,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     'py-3': kind === 'default' && size === 'sm',
     'py-4': kind === 'default' && size === 'md',
     'pt-7 pb-2.5': kind === 'cell',
-    'border-marble-500 bg-marble-300': disabled,
+    'border-marble-800 bg-marble-950': disabled,
   });
 
   return (

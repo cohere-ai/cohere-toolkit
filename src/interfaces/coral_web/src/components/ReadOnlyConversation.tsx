@@ -65,7 +65,7 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
           {title}
         </Text>
 
-        <div className={cn('my-6 w-full border-b border-marble-500')} />
+        <div className={cn('my-6 w-full border-b border-marble-800')} />
 
         <div className="flex flex-col gap-y-4 py-6 md:gap-y-6">
           {messages.map((m, i) => (
@@ -150,7 +150,7 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
       <div
         className={cn(
           'absolute right-0 top-0',
-          'flex w-full flex-col bg-marble-100 p-3',
+          'flex w-full flex-col bg-marble-1000 p-3',
           'w-full rounded',
           'transition-[colors,opacity] duration-300 ease-in-out',
           'opacity-60',

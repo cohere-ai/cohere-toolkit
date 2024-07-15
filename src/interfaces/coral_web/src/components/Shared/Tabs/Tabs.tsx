@@ -81,7 +81,7 @@ export const Tabs: React.FC<TabsProps> = ({
               key={i}
               className={cn('flex w-full flex-1 flex-col focus:outline-none md:flex-initial', {
                 [`border-b-4 border-coral-500`]: i === selectedIndex,
-                'border-b border-marble-400': i !== selectedIndex,
+                'border-b border-marble-950': i !== selectedIndex,
                 hidden: hiddenIndexes.includes(i),
               })}
             >
@@ -121,7 +121,7 @@ export const Tabs: React.FC<TabsProps> = ({
             </Tab>
           ))}
         </Tab.List>
-        <div className="hidden flex-1 border-b border-marble-400 md:block" />
+        <div className="hidden flex-1 border-b border-marble-950 md:block" />
       </div>
       {children && (
         <Tab.Panels className={cn('w-full pt-10 lg:pt-14', panelsClassName)}>

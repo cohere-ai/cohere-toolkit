@@ -170,10 +170,10 @@ export const Composer: React.FC<Props> = ({
         className={cn(
           'relative flex w-full flex-col',
           'transition ease-in-out',
-          'rounded border bg-marble-100',
-          'border-marble-500 focus-within:border-mushroom-700',
+          'rounded border bg-marble-1000',
+          'border-marble-800 focus-within:border-mushroom-700',
           {
-            'border-marble-500 bg-marble-300': isComposerDisabled,
+            'border-marble-800 bg-marble-950': isComposerDisabled,
           }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
@@ -198,13 +198,13 @@ export const Composer: React.FC<Props> = ({
               'self-center',
               'px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-4',
               'rounded',
-              'bg-marble-100',
+              'bg-marble-1000',
               'transition ease-in-out',
               'placeholder:text-volcanic-500 focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
               'leading-[150%]',
               {
-                'bg-marble-300': isComposerDisabled,
+                'bg-marble-950': isComposerDisabled,
               }
             )}
             style={{

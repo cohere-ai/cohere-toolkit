@@ -34,7 +34,7 @@ export const AgentToolFilePicker: React.FC<Props> = ({
       )}
 
       {googleDriveFiles && googleDriveFiles.length > 0 && (
-        <div className="flex max-h-[262px] flex-col gap-y-1 overflow-y-auto rounded border border-marble-300 px-3 py-1">
+        <div className="flex max-h-[262px] flex-col gap-y-1 overflow-y-auto rounded border border-marble-950 px-3 py-1">
           {googleDriveFiles.map(({ type, id, name }) => (
             <div key={id} className="flex flex-shrink-0 items-center gap-x-2 truncate">
               <Icon

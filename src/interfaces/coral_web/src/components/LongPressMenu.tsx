@@ -39,7 +39,7 @@ export const LongPressMenu: React.FC<Props> = ({ isOpen, close, children, classN
               <Dialog.Panel
                 className={cn(
                   'w-full transform select-none overflow-hidden rounded-t-xl p-6 transition-all',
-                  'bg-marble-100'
+                  'bg-marble-1000'
                 )}
               >
                 {children}
