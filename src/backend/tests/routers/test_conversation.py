@@ -648,7 +648,7 @@ def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
 
 
 def test_batch_upload_file_existing_conversation(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
@@ -667,7 +667,7 @@ def test_batch_upload_file_existing_conversation(
         for file_name, file_path in file_paths.items()
     ]
 
-    conversation = get_factory("Conversation", session).create()
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
 
     response = session_client.post(
         "/v1/conversations/batch_upload_file",
@@ -694,9 +694,9 @@ def test_batch_upload_file_existing_conversation(
 
 
 def test_batch_upload_total_files_exceeds_limit(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session, user
 ) -> None:
-    _ = get_factory("Conversation", session).create()
+    _ = get_factory("Conversation", session).create(user_id=user.id)
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
         "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
@@ -708,7 +708,7 @@ def test_batch_upload_total_files_exceeds_limit(
         for file_name, file_path in file_paths.items()
     ]
 
-    conversation = get_factory("Conversation", session).create()
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
     _ = get_factory("File", session).create(
         file_name="test_file.txt",
         conversation_id=conversation.id,
@@ -729,9 +729,9 @@ def test_batch_upload_total_files_exceeds_limit(
 
 
 def test_batch_upload_single_file_exceeds_limit(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session, user
 ) -> None:
-    _ = get_factory("Conversation", session).create()
+    _ = get_factory("Conversation", session).create(user_id=user.id)
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
         "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
@@ -744,7 +744,7 @@ def test_batch_upload_single_file_exceeds_limit(
         for file_name, file_path in file_paths.items()
     ]
 
-    conversation = get_factory("Conversation", session).create()
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
 
     response = session_client.post(
         "/v1/conversations/batch_upload_file",
@@ -759,7 +759,7 @@ def test_batch_upload_single_file_exceeds_limit(
 
 
 def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
@@ -781,7 +781,7 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
     response = session_client.post(
         "/v1/conversations/batch_upload_file",
         files=files,
-        headers={"User-Id": "testuser"},
+        headers={"User-Id": user.id},
     )
 
     files = response.json()
@@ -809,194 +809,7 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
 
 
 def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
-    session_client: TestClient, session: Session
-) -> None:
-    file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
-    }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
-    files = [
-        ("files", (file_name, open(file_path, "rb")))
-        for file_name, file_path in file_paths.items()
-    ]
-
-    response = session_client.post("/v1/conversations/upload_file", files=files)
-
-    assert response.status_code == 401
-    assert response.json() == {"detail": "User-Id required in request headers."}
-
-
-def test_batch_upload_file_existing_conversation(
-    session_client: TestClient, session: Session
-) -> None:
-    file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
-    }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
-    files = [
-        ("files", (file_name, open(file_path, "rb")))
-        for file_name, file_path in file_paths.items()
-    ]
-
-    conversation = get_factory("Conversation", session).create()
-
-    response = session_client.post(
-        "/v1/conversations/batch_upload_file",
-        headers={"User-Id": conversation.user_id},
-        files=files,
-        data={"conversation_id": conversation.id},
-    )
-
-    files = response.json()
-
-    assert response.status_code == 200
-    assert len(files) == len(file_paths)
-    uploaded_file_names = [file["file_name"] for file in files]
-    assert (
-        all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
-    )
-    for file in files:
-        assert file["conversation_id"] == conversation.id
-        assert file["user_id"] == conversation.user_id
-
-    # File should not exist in the directory
-    for saved_file_path in saved_file_paths:
-        assert not os.path.exists(saved_file_path)
-
-
-def test_batch_upload_total_files_exceeds_limit(
-    session_client: TestClient, session: Session
-) -> None:
-    _ = get_factory("Conversation", session).create()
-    file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
-    }
-    files = [
-        ("files", (file_name, open(file_path, "rb")))
-        for file_name, file_path in file_paths.items()
-    ]
-
-    conversation = get_factory("Conversation", session).create()
-    _ = get_factory("File", session).create(
-        file_name="test_file.txt",
-        conversation_id=conversation.id,
-        user_id=conversation.user_id,
-        file_size=1000000000,
-    )
-
-    response = session_client.post(
-        "/v1/conversations/batch_upload_file",
-        files=files,
-        headers={"User-Id": conversation.user_id},
-    )
-
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes."
-    }
-
-
-def test_batch_upload_single_file_exceeds_limit(
-    session_client: TestClient, session: Session
-) -> None:
-    _ = get_factory("Conversation", session).create()
-    file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "26mb.pdf": "src/backend/tests/test_data/26mb.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
-    }
-    files = [
-        ("files", (file_name, open(file_path, "rb")))
-        for file_name, file_path in file_paths.items()
-    ]
-
-    conversation = get_factory("Conversation", session).create()
-
-    response = session_client.post(
-        "/v1/conversations/batch_upload_file",
-        files=files,
-        headers={"User-Id": conversation.user_id},
-    )
-
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": f"26mb.pdf exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes."
-    }
-
-
-def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
-    session_client: TestClient, session: Session
-) -> None:
-    file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
-    }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
-    files = [
-        ("files", (file_name, open(file_path, "rb")))
-        for file_name, file_path in file_paths.items()
-    ]
-
-    response = session_client.post(
-        "/v1/conversations/batch_upload_file",
-        files=files,
-        headers={"User-Id": "testuser"},
-    )
-
-    files = response.json()
-
-    created_conversation = (
-        session.query(Conversation).filter_by(id=files[0]["conversation_id"]).first()
-    )
-
-    assert response.status_code == 200
-    assert created_conversation is not None
-    assert len(files) == len(file_paths)
-    uploaded_file_names = [file["file_name"] for file in files]
-    assert (
-        all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
-    )
-    for file in files:
-        assert file["conversation_id"] == created_conversation.id
-        assert file["user_id"] == created_conversation.user_id
-
-    assert file["conversation_id"] == created_conversation.id
-
-    # File should not exist in the directory
-    for saved_file_path in saved_file_paths:
-        assert not os.path.exists(saved_file_path)
-
-
-def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
