@@ -11,10 +11,9 @@ from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
     add_agent_tool_metadata_to_request_state,
-    add_session_user_to_request_state,
     add_event_type_to_request_state,
+    add_session_user_to_request_state,
 )
-from backend.schemas.metrics import MetricsMessageType
 from backend.schemas.agent import (
     Agent,
     AgentPublic,
@@ -27,6 +26,7 @@ from backend.schemas.agent import (
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
 )
+from backend.schemas.metrics import MetricsMessageType
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,

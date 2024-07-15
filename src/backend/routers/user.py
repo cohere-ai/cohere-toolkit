@@ -6,14 +6,14 @@ from backend.database_models import User as UserModel
 from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
+    add_event_type_to_request_state,
     add_session_user_to_request_state,
     add_user_to_request_state,
-    add_event_type_to_request_state,
 )
+from backend.schemas.metrics import MetricsMessageType
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser
 from backend.schemas.user import User
 from backend.schemas.user import User as UserSchema
-from backend.schemas.metrics import MetricsMessageType
 
 router = APIRouter(prefix="/v1/users")
 router.name = RouterName.USER
