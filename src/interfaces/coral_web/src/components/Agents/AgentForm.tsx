@@ -157,7 +157,7 @@ const RequiredInputLabel: React.FC<{
         <Text as="span" styleAs="label" className="text-volcanic-900">
           {label}
         </Text>
-        <Text as="span" styleAs="label" className="text-danger-500">
+        <Text as="span" styleAs="label" className="text-danger-300">
           *required
         </Text>
       </div>

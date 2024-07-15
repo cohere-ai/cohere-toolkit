@@ -77,7 +77,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
   if (status === 'modal-error') {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-danger-500">
+        <Text className="text-danger-300">
           Unable to generate share link. Please try again later.
         </Text>
       </div>
@@ -124,7 +124,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
         </div>
       </div>
       {status === 'update-url-error' && (
-        <Text className="text-danger-500">
+        <Text className="text-danger-300">
           Unable to generate a new share link. Please try again later.
         </Text>
       )}

@@ -31,11 +31,11 @@ export const ComposerError: React.FC<Props> = ({ className = '' }) => {
 
   if (!!unauthedTool && isAgentsModeOn) {
     return (
-      <Text className="mt-2 text-danger-500">
+      <Text className="mt-2 text-danger-300">
         You need to connect {unauthedTool.display_name} before you can use this assistant.
         Authenticate{' '}
         <Button kind="secondary" onClick={handleOpenSettingsDrawer}>
-          <Text className="text-danger-500 underline">here</Text>
+          <Text className="text-danger-300 underline">here</Text>
         </Button>
         .
       </Text>
