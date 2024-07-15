@@ -45,11 +45,6 @@ ROUTE_MAPPING: Dict[str, MetricsMessageType] = {
     "post /v1/users true": MetricsMessageType.USER_CREATED,
     "put /v1/users/:user_id true": MetricsMessageType.USER_UPDATED,
     "delete /v1/users/:user_id true": MetricsMessageType.USER_DELETED,
-    # agents
-    "post /v1/agents true": MetricsMessageType.ASSISTANT_CREATED,
-    "delete /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_DELETED,
-    "put /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_UPDATED,
-    "get /v1/agents/:agent_id true": MetricsMessageType.ASSISTANT_ACCESSED,
 }
 
 
@@ -97,21 +92,15 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             response.background = BackgroundTask(report_metrics, signal)
         return response
 
-    def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
+    def get_event_data(
+        self, scope, response, request, duration_ms
+    ) -> MetricsData | None:
         data = {}
         if scope["type"] != "http":
             return None
-        method = self.get_method(scope)
-        endpoint_name = self.get_endpoint_name(scope, request)
-        is_success = self.get_success(response)
-        message_type = event_name_of(method, endpoint_name, is_success)
-
-        if message_type == MetricsMessageType.UNKNOWN_SIGNAL:
-            logger.warning(
-                f"cannot determine message type: {endpoint_name} | {method} | {is_success}"
-            )
+        message_type = request.state.event_type
+        if not message_type:
             return None
-
         try:
             user_id = get_header_user_id(request)
         except:

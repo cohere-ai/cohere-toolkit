@@ -260,7 +260,7 @@ async def delete_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     agent = validate_agent_exists(session, agent_id)
-    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_ACCESSED)
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_DELETED)
     add_agent_to_request_state(request, agent)
     try:
         agent_crud.delete_agent(session, agent_id)
