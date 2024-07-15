@@ -164,7 +164,7 @@ const InnerInput = React.forwardRef<
       },
       {
         isVisible: actionType === 'success',
-        icon: <Icon name="check-mark" className="text-success-500" size="md" />,
+        icon: <Icon name="check-mark" className="text-success-200" size="md" />,
       },
       {
         isVisible: actionType === 'search',
