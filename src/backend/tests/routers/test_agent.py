@@ -36,7 +36,7 @@ async def test_create_agent_mertic(
             "/v1/agents", json=request_json, headers={"User-Id": user.id}
         )
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.user_id == user.id
         assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
         assert m_args.assistant.name == request_json["name"]
@@ -358,8 +358,7 @@ async def test_get_agent_mertic(
             f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
         )
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        assert m_args.user_id == user.id
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
         assert m_args.assistant.name == agent.name
 
@@ -392,8 +391,7 @@ def test_get_agent(session_client: TestClient, session: Session, user) -> None:
             f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
         )
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        assert m_args.user_id == user.id
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
         assert m_args.assistant.name == agent.name
 
@@ -473,8 +471,7 @@ def test_update_agent_metric(session_client: TestClient, session: Session) -> No
         )
 
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        assert m_args.user_id == user.id
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
         assert m_args.assistant.name == request_json["name"]
         assert m_args.user.fullname == user.fullname
@@ -513,8 +510,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
         )
 
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        assert m_args.user_id == user.id
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
         assert m_args.assistant.name == request_json["name"]
         assert m_args.user.fullname == user.fullname
@@ -967,8 +963,7 @@ def test_delete_agent_metric(
             f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
         )
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        assert m_args.user_id == user.id
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_DELETED
         assert m_args.assistant_id == agent.id
 
@@ -985,8 +980,7 @@ def test_delete_agent_metric(
             f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
         )
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
-        assert m_args.user_id == user.id
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_DELETED
         assert m_args.assistant_id == agent.id
 

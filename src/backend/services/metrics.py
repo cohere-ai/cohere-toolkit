@@ -6,6 +6,7 @@ import time
 import uuid
 from functools import wraps
 from typing import Any, Callable, Dict, Generator, Union
+from fastapi import BackgroundTasks
 
 from cohere.core.api_error import ApiError
 from httpx import AsyncHTTPTransport
@@ -26,6 +27,7 @@ from backend.schemas.metrics import (
 )
 from backend.services.auth.utils import get_header_user_id
 from backend.services.generators import AsyncGeneratorContextManager
+from starlette.background import BackgroundTask
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -61,18 +63,38 @@ def event_name_of(
     return MetricsMessageType.UNKNOWN_SIGNAL
 
 
+def preprocess_event_data(data: MetricsData | None) -> MetricsSignal | None:
+    if not data:
+        return None
+    data_with_secret = attach_secret(data)
+    try:
+        signal = MetricsSignal(signal=data)
+        return signal
+    except Exception as e:
+        logger.warning(f"Failed to preprocess event data: {e}")
+        return None
+
+
 class MetricsMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable):
+        if not REPORT_SECRET:
+            logger.warning("No report secret set")
+        if not REPORT_ENDPOINT:
+            logger.warning("No report endpoint set")
+
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.user = None
+        request.state.event_type = None
 
         start_time = time.perf_counter()
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
-
         data = self.get_event_data(request.scope, response, request, duration_ms)
-        await run_loop(data)
+        signal = preprocess_event_data(data)
+        should_send_event = request.state.event_type and data and signal
+        if should_send_event:
+            response.background = BackgroundTask(report_metrics, signal)
         return response
 
     def get_event_data(self, scope, response, request, duration_ms) -> MetricsData:
@@ -102,17 +124,22 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         object_ids = self.get_object_ids(request)
         event_id = str(uuid.uuid4())
 
-        return MetricsData(
-            id=event_id,
-            user_id=user_id,
-            user=user,
-            message_type=message_type,
-            trace_id=request.state.trace_id,
-            object_ids=object_ids,
-            assistant=agent,
-            assistant_id=agent_id,
-            duration_ms=duration_ms,
-        )
+        try:
+            data = MetricsData(
+                id=event_id,
+                user_id=user_id,
+                user=user,
+                message_type=message_type,
+                trace_id=request.state.trace_id,
+                object_ids=object_ids,
+                assistant=agent,
+                assistant_id=agent_id,
+                duration_ms=duration_ms,
+            )
+            return data
+        except Exception as e:
+            logger.warning(f"Failed to process event data: {e}")
+            return None
 
     def get_method(self, scope: dict) -> str:
         try:
@@ -199,15 +226,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return request.state.agent
 
 
-async def report_metrics(data: MetricsData | None) -> None:
-    if not data:
-        raise ValueError("No metrics data to report")
-
-    data = attach_secret(data)
-    signal = MetricsSignal(signal=data)
-    if METRICS_LOGS_CURLS == "true":
-        log_signal_curl(signal)
-
+async def report_metrics(signal: MetricsSignal) -> None:
     if not REPORT_SECRET:
         logger.error("No report secret set")
         return
@@ -215,7 +234,8 @@ async def report_metrics(data: MetricsData | None) -> None:
     if not REPORT_ENDPOINT:
         logger.error("No report endpoint set")
         return
-
+    if METRICS_LOGS_CURLS == "true":
+        log_signal_curl(signal)
     if not isinstance(signal, dict):
         signal = to_dict(signal)
     transport = AsyncHTTPTransport(retries=NUM_RETRIES)
@@ -242,24 +262,3 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     logger.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
-
-
-async def run_loop(metrics_data: MetricsData) -> None:
-    async def task_exception_handler(task: asyncio.Task):
-        try:
-            await task
-        except Exception as e:
-            logger.error(f"Failed to execute report_metrics task: {e}")
-
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-    task = loop.create_task(report_metrics(metrics_data))
-
-    async def callback_wrapper():
-        await task_exception_handler(task)
-
-    loop.create_task(callback_wrapper())

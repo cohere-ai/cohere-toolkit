@@ -4,9 +4,12 @@ from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.user import User
 from backend.schemas.agent import Agent, AgentToolMetadata
-from backend.schemas.metrics import MetricsAgent, MetricsUser
+from backend.schemas.metrics import MetricsAgent, MetricsUser, MetricsMessageType
 from backend.services.auth.utils import get_header_user_id
 
+
+def add_event_type_to_request_state(request: Request, event_type: MetricsMessageType):
+    request.state.event_type = event_type
 
 def add_agent_to_request_state(request: Request, agent: Agent):
     request.state.agent = MetricsAgent(
