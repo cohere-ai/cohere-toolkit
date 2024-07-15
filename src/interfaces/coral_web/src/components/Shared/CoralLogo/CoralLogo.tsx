@@ -13,7 +13,7 @@ export const CoralLogo: React.FC<{
       'h-5 w-5',
       {
         'fill-coral-200': style === 'primary',
-        'dark:fill-blue-200': style === 'primary' && isDarkModeEnabled,
+        'dark:fill-blue-900': style === 'primary' && isDarkModeEnabled,
         'fill-marble-950': style === 'grayscale',
         'fill-mushroom-800': style === 'secondary',
       },

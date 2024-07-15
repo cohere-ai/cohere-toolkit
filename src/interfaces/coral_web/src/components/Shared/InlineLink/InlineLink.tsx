@@ -42,7 +42,7 @@ export const InlineLink: React.FC<Props> = ({
           'hover:no-underline': !disabled,
           'text-green-700 visited:text-green-800 hover:text-green-900': theme === 'green',
           'text-volcanic-900': theme === 'volcanic',
-          'text-blue-500 visited:text-blue-700 hover:text-blue-900': theme === 'blue',
+          'text-blue-600 visited:text-blue-500 hover:text-blue-300': theme === 'blue',
           'text-quartz-700 visited:text-quartz-900 hover:text-quartz-900': theme === 'quartz',
           'text-coral-700 visited:text-coral-900 hover:text-coral-900': theme === 'coral',
           'text-danger-500': theme === 'danger',

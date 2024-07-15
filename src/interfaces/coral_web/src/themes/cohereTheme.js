@@ -54,6 +54,12 @@ module.exports = {
         },
         // Volcanic Black
         volcanic: {
+          // 900: '#212121',
+          // 800: '#424242',
+          // 700: '#616161',
+          // 600: '#757575',
+          // 500: '#9E9E9E',
+
           950: '#F2F2F2',
           900: '#E6E6E6',
           800: '#CBCBCB',
@@ -131,15 +137,6 @@ module.exports = {
         },
         // Acrylic Blue
         blue: {
-          900: '#121E4A',
-          700: '#2D4CB9',
-          500: '#4C6EE6',
-          300: '#A9B9F3',
-          200: '#C0CAEF',
-          100: '#DBE0F2',
-          50: '#F0F2FB',
-
-          // updated
           950: '#E9EDFC',
           900: '#D2DBF9',
           800: '#A4B5F2',

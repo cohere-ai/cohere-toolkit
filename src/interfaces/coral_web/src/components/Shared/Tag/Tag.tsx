@@ -34,8 +34,8 @@ const TAG_THEME_CLASSES = {
     secondary: 'text-danger-500 bg-danger-50',
   },
   warning: {
-    primary: 'text-blue-700 bg-blue-50',
-    secondary: 'text-blue-700 bg-blue-50',
+    primary: 'text-blue-500 bg-blue-950',
+    secondary: 'text-blue-500 bg-blue-950',
   },
   disabled: {
     primary: 'text-volcanic-700 bg-marble-950',
