@@ -15,10 +15,7 @@ from backend.database_models.user import User
 from backend.schemas.tool import Category
 from backend.tests.factories import get_factory
 
-is_cohere_env_set = (
-    os.environ.get("COHERE_API_KEY") is not None
-    and os.environ.get("COHERE_API_KEY") != ""
-)
+is_cohere_env_set = os.environ.get("COHERE_API_KEY") is not None and os.environ.get("COHERE_API_KEY") != ""
 
 
 @pytest.fixture()
@@ -28,9 +25,7 @@ def user(session_chat: Session) -> User:
 
 # STREAMING CHAT TESTS
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_new_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_streaming_new_chat(session_client_chat: TestClient, session_chat: Session, user: User):
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -41,15 +36,11 @@ def test_streaming_new_chat(
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 2
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 2)
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_new_chat_with_agent(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_streaming_new_chat_with_agent(session_client_chat: TestClient, session_chat: Session, user: User):
     agent = get_factory("Agent", session_chat).create(
         user_id=user.id,
         tools=[],
@@ -67,9 +58,7 @@ def test_streaming_new_chat_with_agent(
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 2
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 2)
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -82,9 +71,7 @@ def test_streaming_new_chat_with_agent_existing_conversation(
         name="test agent",
         preamble="you are a smart assistant",
     )
-    conversation = get_factory("Conversation", session_chat).create(
-        user_id=user.id, agent_id=agent.id
-    )
+    conversation = get_factory("Conversation", session_chat).create(user_id=user.id, agent_id=agent.id)
     _ = get_factory("Message", session_chat).create(
         conversation_id=conversation.id,
         user_id=user.id,
@@ -116,9 +103,7 @@ def test_streaming_new_chat_with_agent_existing_conversation(
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 4
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 4)
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -127,9 +112,7 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
 ):
     agent = get_factory("Agent", session_chat).create(user_id=user.id)
     _ = get_factory("Agent", session_chat).create(user_id=user.id, id="123")
-    conversation = get_factory("Conversation", session_chat).create(
-        user_id=user.id, agent_id="123"
-    )
+    conversation = get_factory("Conversation", session_chat).create(user_id=user.id, agent_id="123")
     _ = get_factory("Message", session_chat).create(
         conversation_id=conversation.id,
         user_id=user.id,
@@ -161,9 +144,7 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
     )
 
     assert response.status_code == 400
-    assert response.json() == {
-        "detail": f"Conversation ID {conversation.id} not found for specified agent."
-    }
+    assert response.json() == {"detail": f"Conversation ID {conversation.id} not found for specified agent."}
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -186,15 +167,11 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
     )
 
     assert response.status_code == 400
-    assert response.json() == {
-        "detail": f"Tool web_search not found in agent {agent.id}"
-    }
+    assert response.json() == {"detail": f"Tool web_search not found in agent {agent.id}"}
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_existing_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_streaming_existing_chat(session_client_chat: TestClient, session_chat: Session, user: User):
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
 
     _ = get_factory("Message", session_chat).create(
@@ -231,15 +208,11 @@ def test_streaming_existing_chat(
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 4
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 4)
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_fail_chat_missing_user_id(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_fail_chat_missing_user_id(session_client_chat: TestClient, session_chat: Session, user: User):
     response = session_client_chat.post(
         "/v1/chat",
         json={"message": "Hello"},
@@ -251,9 +224,7 @@ def test_fail_chat_missing_user_id(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_default_chat_missing_deployment_name(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_default_chat_missing_deployment_name(session_client_chat: TestClient, session_chat: Session, user: User):
     response = session_client_chat.post(
         "/v1/chat",
         json={"message": "Hello"},
@@ -264,9 +235,7 @@ def test_default_chat_missing_deployment_name(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_fail_chat_missing_message(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_streaming_fail_chat_missing_message(session_client_chat: TestClient, session_chat: Session, user: User):
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -310,18 +279,14 @@ def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, use
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 0, is_custom_tools=True
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 0, is_custom_tools=True)
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
-        0
-    ].get("name")
+    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][0].get("name")
 
     response = session_client_chat.post(
         "/v1/chat-stream",
@@ -333,15 +298,11 @@ def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, us
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 2
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 2)
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_chat_with_invalid_tool(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_streaming_chat_with_invalid_tool(session_client_chat: TestClient, session_chat: Session, user: User):
     response = session_client_chat.post(
         "/v1/chat-stream",
         json={"message": "Hello", "tools": [{"name": "invalid_tool"}]},
@@ -356,14 +317,10 @@ def test_streaming_chat_with_invalid_tool(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_chat_with_managed_and_custom_tools(
-    session_client_chat, session_chat, user
-):
+def test_streaming_chat_with_managed_and_custom_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
-        0
-    ].get("name")
+    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][0].get("name")
 
     response = session_client_chat.post(
         "/v1/chat-stream",
@@ -388,9 +345,7 @@ def test_streaming_chat_with_managed_and_custom_tools(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_chat_with_search_queries_only(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_streaming_chat_with_search_queries_only(session_client_chat: TestClient, session_chat: Session, user: User):
     response = session_client_chat.post(
         "/v1/chat-stream",
         json={
@@ -415,9 +370,7 @@ def test_streaming_chat_with_search_queries_only(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_chat_with_chat_history(
-    session_client_chat: TestClient, session_chat: Session
-) -> None:
+def test_streaming_chat_with_chat_history(session_client_chat: TestClient, session_chat: Session) -> None:
     user = get_factory("User", session_chat).create()
 
     response = session_client_chat.post(
@@ -451,12 +404,8 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
-    file1 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
-    )
-    file2 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
-    )
+    file1 = get_factory("File", session_chat).create(conversation_id=conversation.id, user_id=user.id)
+    file2 = get_factory("File", session_chat).create(conversation_id=conversation.id, user_id=user.id)
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
@@ -484,9 +433,7 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     message = session_chat.get(Message, file1.message_id)
     assert message is not None
     assert message.agent == MessageAgent.USER
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 2
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 2)
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -526,16 +473,12 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
     # Files link not changed
     assert file1.message_id == existing_message.id
     assert file2.message_id == existing_message.id
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 3
-    )
+    validate_chat_streaming_response(response, user, session_chat, session_client_chat, 3)
 
 
 # NON-STREAMING CHAT TESTS
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_non_streaming_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+def test_non_streaming_chat(session_client_chat: TestClient, session_chat: Session, user: User):
     response = session_client_chat.post(
         "/v1/chat",
         json={"message": "Hello", "max_tokens": 10},
@@ -555,9 +498,7 @@ def test_non_streaming_chat(
 def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
-        0
-    ].get("name")
+    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][0].get("name")
 
     response = session_client_chat.post(
         "/v1/chat",
@@ -575,14 +516,10 @@ def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_non_streaming_chat_with_managed_and_custom_tools(
-    session_client_chat, session_chat, user
-):
+def test_non_streaming_chat_with_managed_and_custom_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
-        0
-    ].get("name")
+    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][0].get("name")
 
     response = session_client_chat.post(
         "/v1/chat",
@@ -652,9 +589,7 @@ def test_non_streaming_chat_with_search_queries_only(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_non_streaming_chat_with_chat_history(
-    session_client_chat: TestClient, session_chat: Session
-) -> None:
+def test_non_streaming_chat_with_chat_history(session_client_chat: TestClient, session_chat: Session) -> None:
     user = get_factory("User", session_chat).create()
 
     response = session_client_chat.post(
@@ -683,12 +618,8 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
-    file1 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
-    )
-    file2 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
-    )
+    file1 = get_factory("File", session_chat).create(conversation_id=conversation.id, user_id=user.id)
+    file2 = get_factory("File", session_chat).create(conversation_id=conversation.id, user_id=user.id)
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
@@ -727,7 +658,9 @@ def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
         conversation_id=conversation.id, user_id=user.id, position=0, is_active=True
     )
     file1 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id, message_id=existing_message.id
+        conversation_id=conversation.id,
+        user_id=user.id,
+        message_id=existing_message.id,
     )
     file2 = get_factory("File", session_chat).create(
         conversation_id=conversation.id, user_id=user.id, message_id=existing_message.id
@@ -781,9 +714,7 @@ def validate_chat_streaming_response(
 
         event_types.add(response_json["event"])
         if response_json["event"] == StreamEvent.STREAM_END:
-            conversation_id = validate_stream_end_event(
-                response_json, is_search_queries_only, is_custom_tools
-            )
+            conversation_id = validate_stream_end_event(response_json, is_search_queries_only, is_custom_tools)
 
     if has_citations:
         assert StreamEvent.CITATION_GENERATION in event_types
@@ -798,9 +729,7 @@ def validate_chat_streaming_response(
     validate_conversation(session, user, conversation_id, expected_num_messages)
 
 
-def validate_conversation(
-    session: Session, user: User, conversation_id: str, expected_num_messages: int
-) -> None:
+def validate_conversation(session: Session, user: User, conversation_id: str, expected_num_messages: int) -> None:
     conversation = session.query(Conversation).filter_by(id=conversation_id).first()
     messages = session.query(Message).filter_by(conversation_id=conversation_id).all()
 
@@ -819,9 +748,7 @@ def validate_conversation(
     assert len(conversation.messages) == expected_num_messages
 
 
-def validate_stream_end_event(
-    response_json: dict, is_search_queries_only: bool, is_custom_tools: bool
-) -> str:
+def validate_stream_end_event(response_json: dict, is_search_queries_only: bool, is_custom_tools: bool) -> str:
     data = response_json["data"]
     if is_search_queries_only:
         assert len(data["search_queries"]) > 0
