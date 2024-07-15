@@ -67,32 +67,24 @@ def validate_authorization(
     if blacklist is not None:
         raise HTTPException(status_code=401, detail="Bearer token is blacklisted.")
 
-    # 5. Check if token is expired - if so then try refresh logic
+    # 5. Check if token is expired
     expiry_datetime = datetime.datetime.fromtimestamp(decoded_token["exp"])
-    strategy_name = decoded_token["strategy"]
     now = datetime.datetime.utcnow()
 
     if now > expiry_datetime:
-        strategy = get_auth_strategy(strategy_name)
+        raise HTTPException(status_code=401, detail="Auth token has expired.")
 
-        if not strategy:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tried refreshing token, but Auth strategy {strategy_name} is disabled or does not exist.",
-            )
-
-        if not hasattr(strategy, "refresh"):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tried refreshing token, but Auth strategy {strategy_name} does not have a refresh method implemented.",
-            )
-
+    # 6. Check if token is within refresh availability window
+    if now > (expiry_datetime - datetime.timedelta(hours=JWTService.REFRESH_AVAILABILITY_HOURS)):
         try:
-            userinfo = strategy.refresh(request)
-            user = get_or_create_user(session, userinfo)
-            token = JWTService().create_and_encode_jwt(user, strategy_name)
+            token = JWTService().refresh_jwt(token)
 
-            # Set new token in response
+            if not token:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Could not refresh token, please re-authenticate.",
+                )
+
             response.headers[UPDATE_TOKEN_HEADER] = token
 
             return token

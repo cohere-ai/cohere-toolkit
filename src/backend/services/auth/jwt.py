@@ -13,6 +13,7 @@ logger = get_logger()
 class JWTService:
     ISSUER = "cohere-toolkit"
     EXPIRY_HOURS = 12
+    REFRESH_AVAILABILITY_HOURS = 1
     ALGORITHM = "HS256"
 
     def __init__(self):
@@ -48,6 +49,24 @@ class JWTService:
         token = jwt.encode(payload, self.secret_key, self.ALGORITHM)
 
         return token
+
+    def refresh_jwt(self, token: str) -> str:
+        """
+        Refreshes a given JWT token. Callers should check if the token is expired before calling this method.
+
+        Args:
+            token (str): JWT token.
+
+        Returns:
+            str: New JWT token.
+        """
+        decoded_payload = self.decode_jwt(token)
+
+        if not decoded_payload:
+            return None
+
+        # Create new token with same payload
+        return self.create_and_encode_jwt(decoded_payload["context"], decoded_payload["strategy"])
 
     def decode_jwt(self, token: str) -> dict:
         """

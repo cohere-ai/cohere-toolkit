@@ -17,6 +17,8 @@ import {
 
 import { mapToChatRequest } from './mappings';
 
+import { OpenAPI } from './generated/core/OpenAPI';
+
 export class CohereClient {
   private readonly hostname: string;
   private readonly fetch: Fetch;
@@ -43,6 +45,12 @@ export class CohereClient {
     if (onAuthTokenUpdate) {
       this.onAuthTokenUpdate = onAuthTokenUpdate;
     }
+
+    OpenAPI.interceptors.response.use((response) => {
+      this.handleAuthTokenUpdate(response);
+      console.log(`response was intercepted`);
+      return response;
+    });
 
     this.cohereService = new CohereClientGenerated({
       BASE: hostname,
