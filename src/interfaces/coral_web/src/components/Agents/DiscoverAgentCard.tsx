@@ -70,9 +70,9 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <Button
           className="ml-auto"
           href={isBaseAgent ? '/' : `/a/${id}`}
-          label={<Text className="text-green-700">Try now</Text>}
+          label={<Text className="text-green-250">Try now</Text>}
           kind="secondary"
-          endIcon={<Icon name="arrow-up-right" className="text-green-700" />}
+          endIcon={<Icon name="arrow-up-right" className="text-green-250" />}
         />
       </div>
     </article>

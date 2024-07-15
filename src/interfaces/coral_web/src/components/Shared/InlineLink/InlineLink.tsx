@@ -37,10 +37,10 @@ export const InlineLink: React.FC<Props> = ({
       target={target}
       className={cn(
         'group inline-block cursor-pointer whitespace-nowrap underline',
-        'border-y border-y-transparent focus:border-b-green-900 focus:no-underline focus:outline-none',
+        'border-y border-y-transparent focus:border-b-green-150 focus:no-underline focus:outline-none',
         {
           'hover:no-underline': !disabled,
-          'text-green-700 visited:text-green-800 hover:text-green-900': theme === 'green',
+          'text-green-250 visited:text-green-200 hover:text-green-150': theme === 'green',
           'text-volcanic-100': theme === 'volcanic',
           'text-blue-600 visited:text-blue-500 hover:text-blue-300': theme === 'blue',
           'text-quartz-700 visited:text-quartz-900 hover:text-quartz-900': theme === 'quartz',

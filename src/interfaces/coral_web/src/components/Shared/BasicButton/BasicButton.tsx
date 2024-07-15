@@ -40,9 +40,9 @@ const getThemeStyles = (theme: Theme, kind: Kind, hasBorders: boolean) => {
       if (kind === 'secondary') {
         return cn(
           { 'border rounded-lg': hasBorders },
-          'border-green-200 bg-green-50 text-green-700',
-          'hover:bg-green-100',
-          'active:bg-green-200',
+          'border-green-800 bg-green-950 text-green-250',
+          'hover:bg-green-900',
+          'active:bg-green-800',
           'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-400',
           focusStyles
         );

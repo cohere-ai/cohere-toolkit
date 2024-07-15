@@ -24,7 +24,7 @@ export const WelcomePage: React.FC<Props> = ({
   showEmailInHeader,
 }) => {
   return (
-    <div className="relative flex h-full min-h-screen w-full bg-green-50">
+    <div className="relative flex h-full min-h-screen w-full bg-green-950">
       <PageHead title={title} />
 
       <CellBackground step={videoStep} />

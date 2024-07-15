@@ -231,7 +231,7 @@ export const Dropdown: React.FC<Props> = ({
                         value={option.value}
                         className={({ active }) =>
                           cn('cursor-pointer px-3', {
-                            'bg-green-50': active,
+                            'bg-green-950': active,
                             'rounded-b-lg':
                               i === optionGroups.length - 1 && j === group.options.length - 1,
                           })

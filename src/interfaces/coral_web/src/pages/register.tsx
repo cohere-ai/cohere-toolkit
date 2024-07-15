@@ -118,7 +118,7 @@ const RegisterPage: NextPage<Props> = () => {
           <AuthLink
             redirect={redirect !== '/' ? redirect : undefined}
             action="login"
-            className="text-green-700 no-underline"
+            className="text-green-250 no-underline"
           />
         </Text>
       </div>
