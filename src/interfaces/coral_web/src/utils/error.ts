@@ -1,6 +1,13 @@
+import { CohereNetworkError } from '@/cohere-client';
+
 export const isAbortError = (error: unknown) => {
   return error instanceof DOMException && error.name === 'AbortError';
 };
+
+export const isShareLinkExpiredError = (error: unknown): error is CohereNetworkError =>
+  error instanceof CohereNetworkError &&
+  error.status === 404 &&
+  error.message === 'snapshot link has expired';
 
 /**
  * Wraps a promise and always returns an array with the first element being the data and the second element the error.

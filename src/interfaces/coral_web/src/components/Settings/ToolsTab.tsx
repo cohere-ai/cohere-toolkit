@@ -67,11 +67,25 @@ export const ToolsTab: React.FC<{ requiredTools: string[] | undefined; className
 
         {unauthedTools.length > 0 && (
           <>
-            <div className="flex items-center justify-between">
-              <Text as="span" styleAs="label" className="font-medium">
-                Action Required
-              </Text>
-              <Icon name="warning" kind="outline" />
+            <Text as="span" styleAs="label" className="font-medium">
+              Action Required
+            </Text>
+
+            <div className="flex flex-col gap-y-5">
+              {unavailableTools.map(({ name, display_name, description, error_message }) => {
+                return (
+                  <ToggleCard
+                    key={name}
+                    disabled
+                    errorMessage={error_message}
+                    checked={false}
+                    label={display_name ?? name ?? ''}
+                    icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
+                    description={description ?? ''}
+                    onToggle={(checked) => handleToggle(name ?? '', checked)}
+                  />
+                );
+              })}
             </div>
             <ConnectDataBox tools={unauthedTools} />
           </>

@@ -46,6 +46,7 @@ def chat_stream(
     trace_id = None
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
+    print("trace_id", trace_id)
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id

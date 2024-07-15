@@ -2,11 +2,13 @@ import { Transition } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
+import { AgentsToolsTab } from '@/components/Settings/AgentsToolsTab';
 import { FilesTab } from '@/components/Settings/FilesTab';
 import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useFilesInConversation } from '@/hooks/files';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
@@ -31,14 +33,27 @@ export const SettingsDrawer: React.FC = () => {
   const { files } = useFilesInConversation();
   const { agentId } = useSlugRoutes();
   const { data: agent } = useAgent({ agentId });
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const isAgentsModeOn = experimentalFeatures?.USE_AGENTS_VIEW;
 
   const tabs = useMemo(() => {
+    if (isAgentsModeOn) {
+      return files.length > 0 && conversationId
+        ? [
+            { name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> },
+            { name: 'Files', component: <FilesTab /> },
+          ]
+        : [{ name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> }];
+    }
     return files.length > 0 && conversationId
       ? [
           { name: 'Tools', component: <ToolsTab requiredTools={agent?.tools} /> },
           { name: 'Files', component: <FilesTab /> },
         ]
-      : [{ name: 'Tools', component: <ToolsTab requiredTools={agent?.tools} /> }];
+      : [
+          { name: 'Tools', component: <ToolsTab /> },
+          { name: 'Settings', component: <SettingsTab /> },
+        ];
   }, [files.length, conversationId, agent?.tools]);
 
   return (

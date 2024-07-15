@@ -518,7 +518,7 @@ async def generate_chat_response(
     )
 
     non_streamed_chat_response = None
-    for event in stream:
+    async for event in stream:
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
@@ -543,21 +543,21 @@ async def generate_chat_response(
     return non_streamed_chat_response
 
 
-def generate_chat_stream(
+async def generate_chat_stream(
     session: DBSessionDep,
-    model_deployment_stream: Generator[Any, Any, Any],
+    model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
     conversation_id: str,
     user_id: str,
     should_store: bool = True,
     **kwargs: Any,
-) -> Generator[Any, Any, Any]:
+) -> AsyncGenerator[Any, Any]:
     """
     Generate chat stream from model deployment stream.
 
     Args:
         session (DBSessionDep): Database session.
-        model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
+        model_deployment_stream (AsyncGenerator[Any, Any]): Model deployment stream.
         response_message (Message): Response message object.
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
@@ -583,7 +583,7 @@ def generate_chat_stream(
     document_ids_to_document = {}
 
     stream_event = None
-    for event in model_deployment_stream:
+    async for event in model_deployment_stream:
         (
             stream_event,
             stream_end_data,
