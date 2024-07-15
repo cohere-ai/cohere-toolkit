@@ -5,7 +5,7 @@ import { cn } from '@/utils';
 
 export default function Document() {
   return (
-    <Html lang="en" className={cn({ dark: env.NEXT_PUBLIC_DARK_MODE == 'true' })}>
+    <Html lang="en" className={cn({ dark: env.NEXT_PUBLIC_DARK_MODE })}>
       <Head />
       <body>
         <Main />
