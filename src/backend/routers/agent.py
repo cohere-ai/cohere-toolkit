@@ -128,7 +128,7 @@ default_agent_router = APIRouter(
 default_agent_router.name = RouterName.DEFAULT_AGENT
 
 
-@default_agent_router.get("/", response_model=ResponseMessage)
+@default_agent_router.get("/", response_model=GenericResponseMessage)
 async def get_default_agent(session: DBSessionDep, request: Request):
     add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_ACCESSED)
     add_default_agent_to_request_state(request)
