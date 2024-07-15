@@ -370,7 +370,7 @@ async def delete_file(
 
 
 # MISC
-@router.post("/{conversation_id}/generate-title", response_model=GenerateTitle)
+@router.post("/{conversation_id}/generate-title", response_model=GenerateTitleResponse)
 async def generate_title(
     conversation_id: str, session: DBSessionDep, request: Request
 ) -> GenerateTitleResponse:
