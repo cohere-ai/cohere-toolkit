@@ -6,11 +6,12 @@ import time
 import uuid
 from functools import wraps
 from typing import Any, Callable, Dict, Generator, Union
-from fastapi import BackgroundTasks
 
 from cohere.core.api_error import ApiError
+from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
+from starlette.background import BackgroundTask
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -27,7 +28,6 @@ from backend.schemas.metrics import (
 )
 from backend.services.auth.utils import get_header_user_id
 from backend.services.generators import AsyncGeneratorContextManager
-from starlette.background import BackgroundTask
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -129,37 +129,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             logger.warning(f"Failed to process event data: {e}")
             return None
-
-    def get_method(self, scope: dict) -> str:
-        try:
-            return scope["method"].lower()
-        except KeyError:
-            return "unknown"
-        except Exception as e:
-            logger.warning(f"Failed to get method:  {e}")
-            return "unknown"
-
-    def get_endpoint_name(self, scope: dict, request: Request) -> str:
-        try:
-            path = scope["path"]
-            # Replace path parameters with their names
-            for key, value in request.path_params.items():
-                path = path.replace(value, f":{key}")
-
-            path = path[:-1] if path.endswith("/") else path
-            return path.lower()
-        except KeyError:
-            return "unknown"
-        except Exception as e:
-            logger.warning(f"Failed to get endpoint name: {e}")
-            return "unknown"
-
-    def get_success(self, response: Response) -> bool:
-        try:
-            return 200 <= response.status_code < 300
-        except Exception as e:
-            logger.warning(f"Failed to get success: {e}")
-            return False
 
     def get_user_id(self, request: Request) -> Union[str, None]:
         try:
