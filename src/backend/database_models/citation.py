@@ -19,8 +19,7 @@ class Citation(Base):
     __tablename__ = "citations"
 
     text: Mapped[str]
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     start: Mapped[int]
     end: Mapped[int]
 

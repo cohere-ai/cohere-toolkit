@@ -8,14 +8,14 @@ from backend.tests.factories import get_factory
 
 
 @pytest.fixture(autouse=True)
-def conversation(session):
-    return get_factory("Conversation", session).create(id="1")
+def conversation(session, user):
+    return get_factory("Conversation", session).create(id="1", user_id=user.id)
 
 
 @pytest.fixture(autouse=True)
-def message(session, conversation):
+def message(session, conversation, user):
     return get_factory("Message", session).create(
-        id="1", text="Hello, World!", conversation_id="1"
+        id="1", text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
 
 
@@ -46,9 +46,13 @@ def test_create_document(session):
     assert document.message_id == document_data.message_id
 
 
-def test_get_document(session):
+def test_get_document(session, conversation, message, user):
     _ = get_factory("Document", session).create(
-        id="1", text="Hello, World!", conversation_id="1", message_id="1"
+        id="1",
+        text="Hello, World!",
+        conversation_id=conversation.id,
+        message_id=message.id,
+        user_id=user.id,
     )
 
     document = document_crud.get_document(session, "1")
@@ -61,9 +65,12 @@ def test_fail_get_nonexistent_document(session):
     assert document is None
 
 
-def test_list_documents(session):
+def test_list_documents(session, conversation, message, user):
     _ = get_factory("Document", session).create(
-        text="Hello, World!", conversation_id="1", message_id="1"
+        text="Hello, World!",
+        conversation_id=conversation.id,
+        message_id=message.id,
+        user_id=user.id,
     )
 
     documents = document_crud.get_documents(session)
@@ -76,10 +83,13 @@ def test_list_documents_empty(session):
     assert len(documents) == 0
 
 
-def test_list_documents_with_pagination(session):
+def test_list_documents_with_pagination(session, conversation, message, user):
     for i in range(10):
         _ = get_factory("Document", session).create(
-            text=f"Hello, World! {i}", conversation_id="1", message_id="1"
+            text=f"Hello, World! {i}",
+            conversation_id=conversation.id,
+            message_id=message.id,
+            user_id=user.id,
         )
 
     documents = document_crud.get_documents(session, offset=5, limit=5)
@@ -88,9 +98,12 @@ def test_list_documents_with_pagination(session):
         assert document.text == f"Hello, World! {i + 5}"
 
 
-def test_delete_document(session):
+def test_delete_document(session, conversation, message, user):
     document = get_factory("Document", session).create(
-        text="Hello, World!", conversation_id="1", message_id="1"
+        text="Hello, World!",
+        conversation_id=conversation.id,
+        message_id=message.id,
+        user_id=user.id,
     )
 
     document_crud.delete_document(session, document.id)

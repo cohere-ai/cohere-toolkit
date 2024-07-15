@@ -11,14 +11,6 @@ from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
 
 
-def test_list_users_empty(session_client: TestClient) -> None:
-    response = session_client.get("/v1/users")
-    results = response.json()
-
-    assert response.status_code == 200
-    assert len(results) == 0
-
-
 def test_list_users(session_client: TestClient, session: Session) -> None:
     _ = get_factory("User", session).create(fullname="John Doe")
 
@@ -26,7 +18,7 @@ def test_list_users(session_client: TestClient, session: Session) -> None:
     results = response.json()
 
     assert response.status_code == 200
-    assert len(results) == 1
+    assert len(results) == 2  # Default user is also included
 
 
 def test_get_user(session_client: TestClient, session: Session) -> None:

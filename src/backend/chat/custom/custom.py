@@ -1,6 +1,7 @@
 import asyncio
+import logging
 from itertools import tee
-from typing import Any, AsyncGenerator, Dict, Generator, List
+from typing import Any, AsyncGenerator, Dict, List
 
 from fastapi import HTTPException
 
@@ -57,13 +58,6 @@ class CustomChat(BaseChat):
             stream = self.call_chat(self.chat_request, deployment_model, **kwargs)
 
             async for event in stream:
-                send_log_message(
-                    logger,
-                    f"Stream event: {event}",
-                    level="info",
-                    conversation_id=kwargs.get("conversation_id"),
-                    user_id=kwargs.get("user_id"),
-                )
                 result = self.handle_event(event, chat_request)
 
                 if result:
@@ -292,7 +286,7 @@ class CustomChat(BaseChat):
         is_direct_answer = True
 
         chat_history = []
-        for event in stream:
+        async for event in stream:
             if event["event_type"] == StreamEvent.STREAM_END:
                 stream_chat_history = []
                 if "response" in event:
