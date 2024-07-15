@@ -8,10 +8,12 @@ from backend.routers.utils import (
     add_agent_to_request_state,
     add_session_user_to_request_state,
     add_user_to_request_state,
+    add_event_type_to_request_state,
 )
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser
 from backend.schemas.user import User
 from backend.schemas.user import User as UserSchema
+from backend.schemas.metrics import MetricsMessageType
 
 router = APIRouter(prefix="/v1/users")
 router.name = RouterName.USER
@@ -34,6 +36,7 @@ async def create_user(
     db_user = UserModel(**user.model_dump(exclude_none=True))
     db_user = user_crud.create_user(session, db_user)
     add_user_to_request_state(request, db_user)
+    add_event_type_to_request_state(request, MetricsMessageType.USER_CREATED)
     return db_user
 
 
@@ -72,7 +75,6 @@ async def get_user(user_id: str, session: DBSessionDep, request: Request) -> Use
     """
 
     user = user_crud.get_user(session, user_id)
-
     if not user:
         raise HTTPException(
             status_code=404, detail=f"User with ID: {user_id} not found."
@@ -101,6 +103,7 @@ async def update_user(
         HTTPException: If the user with the given ID is not found.
     """
     user = user_crud.get_user(session, user_id)
+    add_event_type_to_request_state(request, MetricsMessageType.USER_UPDATED)
 
     if not user:
         raise HTTPException(
@@ -136,6 +139,7 @@ async def delete_user(
             status_code=404, detail=f"User with ID: {user_id} not found."
         )
 
+    add_event_type_to_request_state(request, MetricsMessageType.USER_DELETED)
     add_session_user_to_request_state(request, session)
     user_crud.delete_user(session, user_id)
 

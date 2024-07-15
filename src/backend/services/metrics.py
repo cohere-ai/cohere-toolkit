@@ -39,38 +39,9 @@ HEALTH_ENDPOINT_USER_ID = "health"
 logger = logging.getLogger(__name__)
 
 
-# TODO: update middleware to not have to do this mapping at all
-# signals can simply specify event type
-ROUTE_MAPPING: Dict[str, MetricsMessageType] = {
-    "post /v1/users true": MetricsMessageType.USER_CREATED,
-    "put /v1/users/:user_id true": MetricsMessageType.USER_UPDATED,
-    "delete /v1/users/:user_id true": MetricsMessageType.USER_DELETED,
-}
-
-
-def event_name_of(
-    method: str, endpoint_name: str, is_success: bool
-) -> MetricsMessageType:
-    key = f"{method} {endpoint_name} {is_success}"
-    key = key.lower()
-    if key in ROUTE_MAPPING:
-        return ROUTE_MAPPING[key]
-    return MetricsMessageType.UNKNOWN_SIGNAL
-
-
-def preprocess_event_data(data: MetricsData | None) -> MetricsSignal | None:
-    if not data:
-        return None
-    data_with_secret = attach_secret(data)
-    try:
-        signal = MetricsSignal(signal=data)
-        return signal
-    except Exception as e:
-        logger.warning(f"Failed to preprocess event data: {e}")
-        return None
-
-
 class MetricsMiddleware(BaseHTTPMiddleware):
+    # TODO: tie should_send_event to REPORT_SECRET and REPORT_ENDPOINT
+    # currently tests are not setup correctly for it
     async def dispatch(self, request: Request, call_next: Callable):
         if not REPORT_SECRET:
             logger.warning("No report secret set")
@@ -185,19 +156,16 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
 
 async def report_metrics(signal: MetricsSignal) -> None:
-    if not REPORT_SECRET:
-        logger.error("No report secret set")
-        return
-
-    if not REPORT_ENDPOINT:
-        logger.error("No report endpoint set")
-        return
     if METRICS_LOGS_CURLS == "true":
         log_signal_curl(signal)
-    if not isinstance(signal, dict):
-        signal = to_dict(signal)
-    transport = AsyncHTTPTransport(retries=NUM_RETRIES)
+    if not REPORT_SECRET:
+        return
+    if not REPORT_ENDPOINT:
+        return
+
     try:
+        signal = to_dict(signal)
+        transport = AsyncHTTPTransport(retries=NUM_RETRIES)
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
@@ -220,3 +188,15 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     logger.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
+
+
+def preprocess_event_data(data: MetricsData | None) -> MetricsSignal | None:
+    if not data:
+        return None
+    data_with_secret = attach_secret(data)
+    try:
+        signal = MetricsSignal(signal=data)
+        return signal
+    except Exception as e:
+        logger.warning(f"Failed to preprocess event data: {e}")
+        return None
