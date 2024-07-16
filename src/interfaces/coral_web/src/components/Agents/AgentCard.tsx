@@ -80,9 +80,9 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
       <div
         onClick={handleNewChat}
         className={cn(
-          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-marble-950',
+          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-mushroom-900/80',
           {
-            'bg-marble-950': isActive,
+            'bg-mushroom-900/80': isActive,
           }
         )}
       >
