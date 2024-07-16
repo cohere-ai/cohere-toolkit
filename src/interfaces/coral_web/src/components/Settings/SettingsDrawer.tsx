@@ -102,7 +102,7 @@ export const SettingsDrawer: React.FC = () => {
             tabGroupClassName="h-full"
             tabClassName="pt-2.5"
             panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-1000 md:rounded-b-none"
-            fitTabsContent={true}
+            fitTabsContent
           >
             {tabs.map((t) => (
               <div key={t.name} className="h-full w-full">
