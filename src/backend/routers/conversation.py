@@ -253,6 +253,7 @@ async def upload_file(
     session: DBSessionDep,
     request: Request,
     conversation_id: str = Form(None),
+    is_agent_file: bool = Form(False),
     file: FastAPIUploadFile = RequestFile(...),
 ) -> UploadFile:
     """
@@ -277,30 +278,32 @@ async def upload_file(
     validate_file_size(session, user_id, file)
 
     # Create new conversation
-    if not conversation_id:
-        conversation = conversation_crud.create_conversation(
-            session,
-            ConversationModel(user_id=user_id),
-        )
-    # Check for existing conversation
-    else:
-        conversation = conversation_crud.get_conversation(
-            session, conversation_id, user_id
-        )
-
-        # Fail if user_id is not provided when conversation DNE
-        if not conversation:
-            if not user_id:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
-                )
-
-            # Create new conversation
+    # Files stored associate with agents do not need to be associated with a conversation
+    if not is_agent_file:
+        if not conversation_id:
             conversation = conversation_crud.create_conversation(
                 session,
                 ConversationModel(user_id=user_id),
             )
+        # Check for existing conversation
+        else:
+            conversation = conversation_crud.get_conversation(
+                session, conversation_id, user_id
+            )
+
+            # Fail if user_id is not provided when conversation DNE
+            if not conversation:
+                if not user_id:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"user_id is required if no valid conversation is provided.",
+                    )
+
+                # Create new conversation
+                conversation = conversation_crud.create_conversation(
+                    session,
+                    ConversationModel(user_id=user_id),
+                )
 
     # TODO: check if file already exists in DB once we have files per agents
 
@@ -312,13 +315,14 @@ async def upload_file(
 
         # Create File
         upload_file = FileModel(
-            user_id=conversation.user_id,
-            conversation_id=conversation.id,
+            user_id=user_id,
             file_name=filename,
             file_path=filename,
             file_size=file.size,
             file_content=cleaned_content,
         )
+        if not is_agent_file:
+            upload_file.conversation_id = conversation.id
 
         upload_file = file_crud.create_file(session, upload_file)
     except Exception as e:
@@ -334,6 +338,7 @@ async def batch_upload_file(
     session: DBSessionDep,
     request: Request,
     conversation_id: str = Form(None),
+    is_agent_file: bool = Form(False),
     files: list[FastAPIUploadFile] = RequestFile(...),
 ) -> UploadFile:
     """
@@ -358,30 +363,32 @@ async def batch_upload_file(
     validate_batch_file_size(session, user_id, files)
 
     # Create new conversation
-    if not conversation_id:
-        conversation = conversation_crud.create_conversation(
-            session,
-            ConversationModel(user_id=user_id),
-        )
-    # Check for existing conversation
-    else:
-        conversation = conversation_crud.get_conversation(
-            session, conversation_id, user_id
-        )
-
-        # Fail if user_id is not provided when conversation DNE
-        if not conversation:
-            if not user_id:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
-                )
-
-            # Create new conversation
+    # Files stored associate with agents do not need to be associated with a conversation
+    if not is_agent_file:
+        if not conversation_id:
             conversation = conversation_crud.create_conversation(
                 session,
                 ConversationModel(user_id=user_id),
             )
+        # Check for existing conversation
+        else:
+            conversation = conversation_crud.get_conversation(
+                session, conversation_id, user_id
+            )
+
+            # Fail if user_id is not provided when conversation DNE
+            if not conversation:
+                if not user_id:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"user_id is required if no valid conversation is provided.",
+                    )
+
+                # Create new conversation
+                conversation = conversation_crud.create_conversation(
+                    session,
+                    ConversationModel(user_id=user_id),
+                )
 
     # TODO: check if file already exists in DB once we have files per agents
 
@@ -394,13 +401,15 @@ async def batch_upload_file(
 
         # Create File
         upload_file = FileModel(
-            user_id=conversation.user_id,
-            conversation_id=conversation.id,
+            user_id=user_id,
             file_name=filename,
             file_path=filename,
             file_size=file.size,
             file_content=cleaned_content,
         )
+        if not is_agent_file:
+            upload_file.conversation_id=conversation.id
+
         files_to_upload.append(upload_file)
     try:
         uploaded_files = file_crud.batch_create_files(session, files_to_upload)

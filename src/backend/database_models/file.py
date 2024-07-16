@@ -12,6 +12,7 @@ class File(Base):
         ForeignKey("messages.id", ondelete="CASCADE"), nullable=True
     )
     conversation_id: Mapped[str] = mapped_column(String)
+    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"), nullable=True)
 
     file_name: Mapped[str]
     file_path: Mapped[str]
