@@ -122,7 +122,7 @@ const ConnectDataBox: React.FC<{
   tools: ManagedTool[];
 }> = ({ tools }) => {
   return (
-    <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-400 bg-coral-200 p-4">
+    <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-800 bg-coral-800 p-4">
       <div className="flex flex-col gap-y-3">
         <Text styleAs="h5">Connect your data</Text>
         <Text>

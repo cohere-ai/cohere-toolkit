@@ -56,18 +56,18 @@ const getThemeStyles = (theme: Theme, kind: Kind, hasBorders: boolean) => {
       if (kind === 'primary') {
         return cn(
           { 'border rounded-lg': hasBorders },
-          'border-coral-500 bg-coral-500 text-volcanic-100',
-          'hover:bg-coral-50',
-          'active:bg-coral-100',
+          'border-coral-700 bg-coral-700 text-volcanic-100',
+          'hover:bg-coral-950',
+          'active:bg-coral-900',
           'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-400',
           focusStyles
         );
       } else if (kind === 'secondary') {
         return cn(
           { 'border rounded-lg': hasBorders },
-          'border-coral-500 bg-coral-50 text-volcanic-100',
-          'hover:bg-coral-500',
-          'active:bg-coral-50',
+          'border-coral-700 bg-coral-950 text-volcanic-100',
+          'hover:bg-coral-700',
+          'active:bg-coral-950',
           'disabled:bg-marble-950 disabled:border-marble-950 disabled:text-volcanic-400',
           focusStyles
         );

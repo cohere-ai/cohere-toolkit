@@ -12,7 +12,7 @@ export const CoralLogo: React.FC<{
     className={cn(
       'h-5 w-5',
       {
-        'fill-coral-200': style === 'primary',
+        'fill-coral-800': style === 'primary',
         'dark:fill-blue-900': style === 'primary' && isDarkModeEnabled,
         'fill-marble-950': style === 'grayscale',
         'fill-mushroom-800': style === 'secondary',

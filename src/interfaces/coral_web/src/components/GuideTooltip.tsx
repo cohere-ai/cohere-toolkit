@@ -38,7 +38,7 @@ export const GuideTooltip: React.FC<Props> = ({
       className={cn(
         'absolute z-guide-tooltip',
         'h-fit w-[260px] sm:w-[305px]',
-        'rounded border border-coral-200 bg-coral-100',
+        'rounded border border-coral-800 bg-coral-900',
         'transition-opacity duration-300 ease-out',
         'flex flex-col gap-y-3 py-2.5',
         className
@@ -56,7 +56,7 @@ export const GuideTooltip: React.FC<Props> = ({
         <button
           className={cn(
             'flex h-4 w-4 items-center rounded',
-            'text-coral-800 transition-colors ease-in-out hover:text-coral-700',
+            'text-coral-300 transition-colors ease-in-out hover:text-coral-400',
             'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-1 focus-visible:outline-volcanic-100'
           )}
           onClick={onClose}
@@ -71,8 +71,8 @@ export const GuideTooltip: React.FC<Props> = ({
         </Text>
         <button
           className={cn(
-            'rounded px-2.5 py-0.5 text-coral-50 ',
-            'bg-coral-800 transition-colors ease-in-out hover:bg-coral-700',
+            'rounded px-2.5 py-0.5 text-coral-950 ',
+            'bg-coral-300 transition-colors ease-in-out hover:bg-coral-400',
             'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100'
           )}
           onClick={onNext}

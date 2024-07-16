@@ -72,7 +72,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
           icon={icon}
           iconKind={isSelected ? 'default' : 'outline'}
           className={cn(
-            'bg-coral-500/[0.16] text-coral-800/80 transition-colors duration-200 ease-in-out',
+            'bg-coral-700/[0.16] text-coral-300/80 transition-colors duration-200 ease-in-out',
             {
               'bg-mushroom-700/20 text-mushroom-800': !isSelected,
             }
@@ -87,7 +87,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                 className={cn(
                   'truncate',
                   'transition-colors duration-200 ease-in-out',
-                  'text-coral-800',
+                  'text-coral-300',
                   {
                     'text-mushroom-700': !isSelected,
                   }
@@ -98,7 +98,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               <Text
                 as="span"
                 styleAs="label-sm"
-                className={cn('text-coral-800/80', 'hidden', {
+                className={cn('text-coral-300/80', 'hidden', {
                   flex: isSelected,
                 })}
               >
@@ -112,7 +112,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               className={cn(
                 'font-medium',
                 'transition-colors duration-200 ease-in-out',
-                'text-coral-800',
+                'text-coral-300',
                 {
                   'text-mushroom-700': !isSelected,
                 }
@@ -122,7 +122,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
             </Text>
           )}
 
-          <div className={cn('flex text-coral-900', { 'group-hover:text-coral-600': safeUrl })}>
+          <div className={cn('flex text-coral-200', { 'group-hover:text-coral-600': safeUrl })}>
             <Text
               as="span"
               styleAs="label"
@@ -146,7 +146,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
         <IconButton
           iconName="chevron-down"
           iconClassName={cn(
-            'text-coral-800 transition duration-200 delay-75 ease-in-out group-hover:text-coral-900',
+            'text-coral-300 transition duration-200 delay-75 ease-in-out group-hover:text-coral-200',
             'hidden lg:flex',
             {
               'rotate-180': isExpanded,

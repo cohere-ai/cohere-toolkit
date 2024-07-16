@@ -12,7 +12,7 @@ type Props = {
 };
 
 const THEME_CLASSES: { [key in BannerTheme]: string } = {
-  primary: 'border-coral-200 bg-coral-50 text-volcanic-100',
+  primary: 'border-coral-800 bg-coral-950 text-volcanic-100',
   secondary: 'border-mushroom-200 bg-mushroom-50 text-volcanic-100',
   success: 'border-success-200 bg-success-950 text-success-200',
   error: 'border-danger-350 bg-danger-950 text-danger-350',

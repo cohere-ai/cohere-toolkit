@@ -1,6 +1,6 @@
 import Lottie from 'react-lottie-player';
 
-import logoTyping from '@/assets/lotties/icon-loop-coral-50.json';
+import logoTyping from '@/assets/lotties/icon-loop-coral-950.json';
 import logoTypingMushroom from '@/assets/lotties/icon-loop-coral-mushroom.json';
 import { CoralLogo } from '@/components/Shared/CoralLogo';
 import { Icon } from '@/components/Shared/Icon';
@@ -40,8 +40,8 @@ export const Avatar: React.FC<Props> = ({ message }) => {
         },
         isGroundingOn
           ? {
-              'bg-coral-900': isFulfilled,
-              'bg-coral-400': isTypingOrLoading,
+              'bg-coral-200': isFulfilled,
+              'bg-coral-800': isTypingOrLoading,
             }
           : {
               'bg-mushroom-400': isFulfilled,

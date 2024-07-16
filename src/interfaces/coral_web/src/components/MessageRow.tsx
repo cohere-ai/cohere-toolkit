@@ -166,7 +166,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               isFulfilledOrTypingMessage(message) &&
               message.generationId &&
               hoveredGenerationId === message.generationId,
-            'bg-coral-50 hover:bg-coral-50': highlightMessage,
+            'bg-coral-950 hover:bg-coral-950': highlightMessage,
           }
         )}
         {...(enableLongPress && longPressProps)}
@@ -197,7 +197,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
                   <IconButton
                     iconName="list"
-                    className="rounded hover:bg-mushroom-100"
+                    className="hover:bg-mushroom-100 rounded"
                     iconClassName={cn(
                       'text-volcanic-300 group-hover/icon-button:text-mushroom-800',
                       {

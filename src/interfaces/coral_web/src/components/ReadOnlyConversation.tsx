@@ -156,7 +156,7 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
           'opacity-60',
           {
             'bg-mushroom-700/[0.08]': !isSelected,
-            'bg-coral-500/[0.08]': isSelected,
+            'bg-coral-700/[0.08]': isSelected,
             'md:-translate-x-1 lg:-translate-x-2': isHovered,
             'md:z-selected-citation': isSelected || isAllDocsVisible || isHovered,
             'opacity-100': isSelected || isHovered,
