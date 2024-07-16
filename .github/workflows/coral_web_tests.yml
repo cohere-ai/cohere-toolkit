@@ -1,4 +1,4 @@
-name: Interface Tests
+name: Coral Web Tests
 
 on:
   push:

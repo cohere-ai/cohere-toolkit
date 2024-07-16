@@ -41,7 +41,7 @@ export class CohereClient {
     this.authToken = authToken;
     this.cohereService = new CohereClientGenerated({
       BASE: hostname,
-      HEADERS: this.getHeaders(true),
+      HEADERS: async () => this.getHeaders(true),
     });
 
     this.cohereService.request.config.interceptors.response.use((response) => {

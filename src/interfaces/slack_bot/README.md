@@ -185,6 +185,8 @@ To see the full list of commands available, type `/command-help` in your workspa
 
 The configuration commands available include:
 
+- `/set-deployment [deployment name]` - Set the deployment used for a specific channel
+- `/view-deployment` - View the deployment used for a specific channel
 - `/set-model [model name]` - Set the model used for a specific channel
 - `/view-model` - View the model used for a specific channel
 - `/set-temperature [0.0 - 5.0]` - Set the temperature used for a specific channel

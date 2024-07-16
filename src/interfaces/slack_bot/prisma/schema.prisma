@@ -44,19 +44,20 @@ model WorkspaceSettings {
 }
 
 model ChannelSettings {
-  id Int @id @default(autoincrement())
+  id              Int @id @default(autoincrement())
 
   // Channel IDs are unique within a workspace, but not across workspaces.
   // Therefore we need to use the combination of channelId and
   // workplaceId to uniquely identify a channel.
-  channelId   String
-  workspace   WorkspaceSettings @relation(fields: [workspaceId], references: [id])
-  workspaceId Int
+  channelId       String
+  workspace       WorkspaceSettings @relation(fields: [workspaceId], references: [id])
+  workspaceId     Int
 
-  modelName   String?
-  temperature Float?
-  preamble    String?
-  tools  String[] @default([])
+  modelName       String?
+  deployment      String?
+  temperature     Float?
+  preamble        String?
+  tools           String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

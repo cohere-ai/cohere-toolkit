@@ -1,7 +1,7 @@
 import { AllMiddlewareArgs, AppMentionEvent, MessageEvent } from '@slack/bolt';
 
 import { ApiError, CohereChatRequest, OpenAPI, Tool, ToolkitClient } from '../cohere-client';
-import { ERRORS } from '../constants';
+import { DEPLOYMENT_COHERE_PLATFORM, ERRORS } from '../constants';
 import { formatRagCitations } from './formatRagCitations';
 import { getSanitizedMessage } from './getSanitizedMessage';
 import { GetUsersRealNameArgs, getUsersRealName } from './getUsersRealName';
@@ -9,6 +9,7 @@ import { GetUsersRealNameArgs, getUsersRealName } from './getUsersRealName';
 type GetReplyArgs = Pick<AllMiddlewareArgs, 'client'> & {
   event: MessageEvent | AppMentionEvent;
   tools?: Tool[];
+  deployment?: string | null;
   model?: string | null;
   temperature?: number | null;
   preambleOverride?: string | null;
@@ -30,6 +31,7 @@ type Reply = {
 
 export const getReply = async ({
   event,
+  deployment,
   model,
   client,
   conversationId,
@@ -66,8 +68,9 @@ export const getReply = async ({
 
   try {
     const toolkitClient = new ToolkitClient(OpenAPI);
-    const chatResponse = await toolkitClient.default.chatChatPost({
+    const chatResponse = await toolkitClient.default.chatV1ChatPost({
       requestBody: params,
+      deploymentName: deployment ? deployment : DEPLOYMENT_COHERE_PLATFORM,
     });
     const sanitizedBotReply = await getSanitizedMessage({
       message: chatResponse.text,

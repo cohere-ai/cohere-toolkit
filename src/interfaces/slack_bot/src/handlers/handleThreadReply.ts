@@ -65,7 +65,7 @@ export const handleThreadReply = async ({
   const teamId = context.teamId;
   const enterpriseId = context.enterpriseId;
 
-  const { model, temperature, preambleOverride } = await getChannelSettings({
+  const { deployment, model, temperature, preambleOverride } = await getChannelSettings({
     teamId,
     enterpriseId,
     channelId: threadChannelId,
@@ -139,6 +139,7 @@ export const handleThreadReply = async ({
         client,
         text: event.text || '',
         file: action.file,
+        deployment,
         model,
         teamId,
         botUserId: context.botUserId,
@@ -152,6 +153,7 @@ export const handleThreadReply = async ({
         event: action.event,
         tools: action.tools,
         client,
+        deployment,
         model,
         conversationId,
         temperature,
@@ -173,6 +175,7 @@ export const handleThreadReply = async ({
       ({ responseID, currentBotReply, errorMessage } = await getReply({
         event: action.event,
         client,
+        deployment,
         model,
         conversationId,
         temperature,
