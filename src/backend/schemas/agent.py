@@ -23,6 +23,13 @@ class AgentToolMetadataPublic(AgentToolMetadata):
         from_attributes = True
 
 
+class AgentToolMetadataPublic(AgentToolMetadata):
+    user_id: Optional[str] = Field(exclude=True)
+
+    class Config:
+        from_attributes = True
+
+
 class CreateAgentToolMetadataRequest(BaseModel):
     id: Optional[str] = None
     tool_name: str
@@ -51,7 +58,7 @@ class Agent(AgentBase):
     preamble: Optional[str]
     temperature: float
     tools: list[str]
-    tools_metadata: list[AgentToolMetadata]
+    tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 
     model: str
     deployment: str

@@ -7,13 +7,15 @@ from backend.tests.factories import get_factory
 
 
 @pytest.fixture(autouse=True)
-def conversation(session):
-    return get_factory("Conversation", session).create(id="1", user_id="1")
+def conversation(session, user):
+    return get_factory("Conversation", session).create(id="1", user_id=user.id)
 
 
 @pytest.fixture(autouse=True)
-def message(session):
-    return get_factory("Message", session).create(id="1", conversation_id="1")
+def message(session, conversation, user):
+    return get_factory("Message", session).create(
+        id="1", conversation_id=conversation.id, user_id=user.id
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -22,14 +24,14 @@ def organization(session):
 
 
 @pytest.fixture
-def snapshot(session):
+def snapshot(session, conversation, organization, user):
     return get_factory("Snapshot", session).create(
         id="1",
-        user_id="1",
-        conversation_id="1",
+        user_id=user.id,
+        conversation_id=conversation.id,
         last_message_id="1",
         version=1,
-        organization_id="1",
+        organization_id=organization.id,
         snapshot={
             "title": "Title",
             "description": "Description",
@@ -58,12 +60,14 @@ def snapshot(session):
 
 
 @pytest.fixture
-def snapshot_link(session):
-    return get_factory("SnapshotLink", session).create(id="1", snapshot_id="1")
+def snapshot_link(session, snapshot, user):
+    return get_factory("SnapshotLink", session).create(
+        id="1", snapshot_id=snapshot.id, user_id=user.id
+    )
 
 
 def test_share_conversation(
-    session_client: TestClient, session: Session, conversation, message
+    session_client: TestClient, session: Session, conversation, message, user
 ) -> None:
     conversation.text_messages.append(message)
 
@@ -72,7 +76,7 @@ def test_share_conversation(
     }
 
     response = session_client.post(
-        "/v1/snapshots", json=request_json, headers={"User-Id": "1"}
+        "/v1/snapshots", json=request_json, headers={"User-Id": user.id}
     )
 
     assert response.status_code == 200
@@ -85,7 +89,7 @@ def test_share_conversation(
 
 
 def test_share_conversation_twice(
-    session_client: TestClient, session: Session, conversation, message
+    session_client: TestClient, session: Session, conversation, message, user
 ) -> None:
     conversation.text_messages.append(message)
 
@@ -94,7 +98,7 @@ def test_share_conversation_twice(
     }
 
     response = session_client.post(
-        "/v1/snapshots", json=request_json, headers={"User-Id": "1"}
+        "/v1/snapshots", json=request_json, headers={"User-Id": user.id}
     )
 
     assert response.status_code == 200
@@ -109,7 +113,7 @@ def test_share_conversation_twice(
     first_link_id = response_json["link_id"]
 
     response = session_client.post(
-        "/v1/snapshots", json=request_json, headers={"User-Id": "1"}
+        "/v1/snapshots", json=request_json, headers={"User-Id": user.id}
     )
 
     assert response.status_code == 200
@@ -123,13 +127,13 @@ def test_share_conversation_twice(
     assert first_link_id != response_json["link_id"]
 
 
-def test_share_conversation_no_messages(session_client: TestClient) -> None:
+def test_share_conversation_no_messages(session_client: TestClient, user) -> None:
     request_json = {
         "conversation_id": "1",
     }
 
     response = session_client.post(
-        "/v1/snapshots", json=request_json, headers={"User-Id": "1"}
+        "/v1/snapshots", json=request_json, headers={"User-Id": user.id}
     )
 
     assert response.status_code == 404
@@ -139,14 +143,14 @@ def test_share_conversation_no_messages(session_client: TestClient) -> None:
 
 
 def test_share_conversation_not_found(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session, user
 ) -> None:
     request_json = {
         "conversation_id": "123",
     }
 
     response = session_client.post(
-        "/v1/snapshots", json=request_json, headers={"User-Id": "1"}
+        "/v1/snapshots", json=request_json, headers={"User-Id": user.id}
     )
 
     assert response.status_code == 404
@@ -162,10 +166,11 @@ def test_list_snapshots(
     message,
     snapshot,
     snapshot_link,
+    user,
 ) -> None:
     conversation.text_messages.append(message)
 
-    response = session_client.get("/v1/snapshots", headers={"User-Id": "1"})
+    response = session_client.get("/v1/snapshots", headers={"User-Id": user.id})
 
     assert response.status_code == 200
     results = response.json()
@@ -173,8 +178,8 @@ def test_list_snapshots(
     assert len(results) == 1
 
 
-def test_list_snapshots_no_snapshots(session_client: TestClient) -> None:
-    response = session_client.get("/v1/snapshots", headers={"User-Id": "123"})
+def test_list_snapshots_no_snapshots(session_client: TestClient, user) -> None:
+    response = session_client.get("/v1/snapshots", headers={"User-Id": user.id})
 
     assert response.status_code == 200
     results = response.json()
@@ -189,10 +194,11 @@ def test_get_snapshot(
     message,
     snapshot,
     snapshot_link,
+    user,
 ) -> None:
     conversation.text_messages.append(message)
 
-    response = session_client.get("/v1/snapshots/link/1", headers={"User-Id": "1"})
+    response = session_client.get("/v1/snapshots/link/1", headers={"User-Id": user.id})
 
     assert response.status_code == 200
     result = response.json()
@@ -203,8 +209,10 @@ def test_get_snapshot(
     assert isinstance(result["snapshot"], dict)
 
 
-def test_get_snapshot_not_found(session_client: TestClient) -> None:
-    response = session_client.get("/v1/snapshots/link/123", headers={"User-Id": "1"})
+def test_get_snapshot_not_found(session_client: TestClient, user) -> None:
+    response = session_client.get(
+        "/v1/snapshots/link/123", headers={"User-Id": user.id}
+    )
 
     assert response.status_code == 404
     result = response.json()
@@ -219,14 +227,15 @@ def test_delete_snapshot(
     message,
     snapshot,
     snapshot_link,
+    user,
 ) -> None:
     conversation.text_messages.append(message)
 
-    response = session_client.delete("/v1/snapshots/1", headers={"User-Id": "1"})
+    response = session_client.delete("/v1/snapshots/1", headers={"User-Id": user.id})
 
     assert response.status_code == 200
 
-    response = session_client.get("/v1/snapshots/link/1", headers={"User-Id": "1"})
+    response = session_client.get("/v1/snapshots/link/1", headers={"User-Id": user.id})
 
     assert response.status_code == 404
     result = response.json()
@@ -234,8 +243,10 @@ def test_delete_snapshot(
     assert result["detail"] == "Snapshot link not found"
 
 
-def test_delete_snapshot_not_found(session_client: TestClient) -> None:
-    response = session_client.delete("/v1/snapshots/link123", headers={"User-Id": "1"})
+def test_delete_snapshot_not_found(session_client: TestClient, user) -> None:
+    response = session_client.delete(
+        "/v1/snapshots/link123", headers={"User-Id": user.id}
+    )
 
     assert response.status_code == 404
 
@@ -247,10 +258,14 @@ def test_delete_snapshot_wrong_user(
     message,
     snapshot,
     snapshot_link,
+    user,
 ) -> None:
+    user2 = get_factory("User", session).create(id=f"new_{user.id}")
     conversation.text_messages.append(message)
 
-    response = session_client.delete("/v1/snapshots/link/1", headers={"User-Id": "2"})
+    response = session_client.delete(
+        "/v1/snapshots/link/1", headers={"User-Id": user2.id}
+    )
 
     assert response.status_code == 403
     result = response.json()

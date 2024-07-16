@@ -13,11 +13,11 @@ def conversation(session, user):
     return get_factory("Conversation", session).create(id="1", user_id=user.id)
 
 
-def test_create_message(session, user):
+def test_create_message(session, conversation, user):
     message_data = Message(
         text="Hello, World!",
         user_id=user.id,
-        conversation_id="1",
+        conversation_id=conversation.id,
         position=1,
         agent="USER",
     )
@@ -33,9 +33,9 @@ def test_create_message(session, user):
     assert message.conversation_id == message_data.conversation_id
 
 
-def test_get_message(session, user):
+def test_get_message(session, conversation, user):
     _ = get_factory("Message", session).create(
-        id="1", text="Hello, World!", conversation_id="1", user_id=user.id
+        id="1", text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
 
     message = message_crud.get_message(session, "1", user.id)
@@ -48,9 +48,9 @@ def test_fail_get_nonexistent_message(session, user):
     assert message is None
 
 
-def test_list_messages(session, user):
+def test_list_messages(session, conversation, user):
     _ = get_factory("Message", session).create(
-        text="Hello, World!", conversation_id="1", user_id=user.id
+        text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
 
     messages = message_crud.get_messages(session, user.id)
@@ -63,10 +63,10 @@ def test_list_messages_empty(session, user):
     assert len(messages) == 0
 
 
-def test_list_messages_with_pagination(session, user):
+def test_list_messages_with_pagination(session, conversation, user):
     for i in range(10):
         _ = get_factory("Message", session).create(
-            text=f"Hello, World! {i}", conversation_id="1", user_id=user.id
+            text=f"Hello, World! {i}", conversation_id=conversation.id, user_id=user.id
         )
 
     messages = message_crud.get_messages(session, offset=5, limit=5, user_id=user.id)
@@ -76,10 +76,10 @@ def test_list_messages_with_pagination(session, user):
         assert message.text == f"Hello, World! {i + 5}"
 
 
-def test_list_messages_by_conversation_id(session, user):
+def test_list_messages_by_conversation_id(session, conversation, user):
     for i in range(10):
         _ = get_factory("Message", session).create(
-            text=f"Hello, World! {i}", conversation_id="1", user_id=user.id
+            text=f"Hello, World! {i}", conversation_id=conversation.id, user_id=user.id
         )
 
     messages = message_crud.get_messages_by_conversation_id(session, "1", user.id)
@@ -90,14 +90,14 @@ def test_list_messages_by_conversation_id(session, user):
         assert message.conversation_id == "1"
 
 
-def test_list_messages_by_conversation_id_empty(session, user):
+def test_list_messages_by_conversation_id_empty(session, conversation, user):
     messages = message_crud.get_messages_by_conversation_id(session, "1", user.id)
     assert len(messages) == 0
 
 
-def test_update_message(session, user):
+def test_update_message(session, conversation, user):
     message = get_factory("Message", session).create(
-        text="Hello, World!", conversation_id="1", user_id=user.id
+        text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
 
     new_message_data = UpdateMessage(
@@ -111,9 +111,9 @@ def test_update_message(session, user):
     assert updated_message.agent == message.agent
 
 
-def test_delete_message(session, user):
+def test_delete_message(session, conversation, user):
     message = get_factory("Message", session).create(
-        text="Hello, World!", conversation_id="1"
+        text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
 
     message_crud.delete_message(session, message.id, user.id)
@@ -122,14 +122,16 @@ def test_delete_message(session, user):
     assert message is None
 
 
-def test_delete_message_cascade(session, user):
+def test_delete_message_cascade(session, conversation, user):
     message = get_factory("Message", session).create(
-        text="Hello, World!", conversation_id="1", user_id=user.id
+        text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
-    citation = get_factory("Citation", session).create(message_id=message.id)
+    citation = get_factory("Citation", session).create(
+        message_id=message.id, user_id=user.id
+    )
     citation_id = citation.id
     document = get_factory("Document", session).create(
-        message_id=message.id, conversation_id="1"
+        message_id=message.id, conversation_id=conversation.id, user_id=user.id
     )
     document_id = document.id
 

@@ -74,7 +74,7 @@ const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
         },
         queryCache: new QueryCache({
           onError: (error) => {
-            if (error instanceof CohereUnauthorizedError) {
+            if (error instanceof Error && error.message === 'Unauthorized') {
               clearAuthToken();
               // Extract the current URL without query parameters or host.
               const currentPath = window.location.pathname + window.location.hash;

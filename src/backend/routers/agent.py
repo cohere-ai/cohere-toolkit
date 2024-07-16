@@ -11,6 +11,7 @@ from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
     add_agent_tool_metadata_to_request_state,
+    add_event_type_to_request_state,
     add_session_user_to_request_state,
 )
 from backend.schemas.agent import (
@@ -25,6 +26,7 @@ from backend.schemas.agent import (
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
 )
+from backend.schemas.metrics import MetricsMessageType
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -66,6 +68,7 @@ async def create_agent(
         HTTPException: If the agent creation fails.
     """
     # add user data into request state for metrics
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_CREATED)
     user_id = get_header_user_id(request)
     add_session_user_to_request_state(request, session)
 
@@ -98,7 +101,7 @@ async def create_agent(
 @router.get("", response_model=list[AgentPublic])
 async def list_agents(
     *, offset: int = 0, limit: int = 100, session: DBSessionDep, request: Request
-) -> list[Agent]:
+) -> list[AgentPublic]:
     """
     List all agents.
 
@@ -132,6 +135,7 @@ async def get_agent_by_id(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_ACCESSED)
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
         if agent:
@@ -178,10 +182,10 @@ async def update_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     add_session_user_to_request_state(request, session)
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_UPDATED)
     agent = validate_agent_exists(session, agent_id)
 
     if new_agent.tools_metadata is not None:
-        print("New agent", new_agent)
         agent = await handle_tool_metadata_update(agent, new_agent, session, request)
 
     try:
@@ -255,7 +259,7 @@ async def delete_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     agent = validate_agent_exists(session, agent_id)
-
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_DELETED)
     add_agent_to_request_state(request, agent)
     try:
         agent_crud.delete_agent(session, agent_id)

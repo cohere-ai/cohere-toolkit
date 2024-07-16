@@ -68,10 +68,18 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
     callbackFunction(data);
   };
 
+  const googleDriveClientId = env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID;
+  const googleDriveDeveloperKey = env.NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY;
+  if (!googleDriveClientId || !googleDriveDeveloperKey) {
+    return () => {
+      info('Google Drive is not available at the moment.');
+    };
+  }
+
   return () =>
     openPicker({
-      clientId: env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID,
-      developerKey: env.NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY,
+      clientId: googleDriveClientId,
+      developerKey: googleDriveDeveloperKey,
       token: googleDriveTool?.token || '',
       setIncludeFolders: true,
       setSelectFolderEnabled: true,

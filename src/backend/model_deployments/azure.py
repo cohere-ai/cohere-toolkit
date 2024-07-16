@@ -13,11 +13,6 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.services.metrics import (
-    collect_metrics_chat,
-    collect_metrics_chat_stream,
-    collect_metrics_rerank,
-)
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
@@ -62,14 +57,12 @@ class AzureDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
-    @collect_metrics_chat
     async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest
     ) -> AsyncGenerator[Any, Any]:

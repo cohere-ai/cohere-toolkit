@@ -11,14 +11,6 @@ from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
 
 
-def test_list_users_empty(session_client: TestClient) -> None:
-    response = session_client.get("/v1/users")
-    results = response.json()
-
-    assert response.status_code == 200
-    assert len(results) == 0
-
-
 def test_list_users(session_client: TestClient, session: Session) -> None:
     _ = get_factory("User", session).create(fullname="John Doe")
 
@@ -26,7 +18,7 @@ def test_list_users(session_client: TestClient, session: Session) -> None:
     results = response.json()
 
     assert response.status_code == 200
-    assert len(results) == 1
+    assert len(results) == 2  # Default user is also included
 
 
 def test_get_user(session_client: TestClient, session: Session) -> None:
@@ -62,7 +54,7 @@ def test_create_user_metric(session_client: TestClient, session: Session) -> Non
         response = session_client.post("/v1/users", json=user_data_req)
         assert response.status_code == 200
         response_user = response.json()
-        m_args: MetricsData = mock_metrics.await_args.args[0]
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.USER_CREATED
         assert m_args.user.fullname == user_data_req["fullname"]
 
@@ -142,7 +134,7 @@ def test_update_user_metric(session_client: TestClient, session: Session) -> Non
         )
         response_user = response.json()
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.USER_UPDATED
         assert m_args.user_id == user.id
         assert m_args.user.fullname == "new name"
@@ -194,7 +186,7 @@ def test_delete_user_metric(session_client: TestClient, session: Session) -> Non
             f"/v1/users/{user.id}", headers={"User-Id": user.id}
         )
         assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0]
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.USER_DELETED
         assert m_args.user_id == user.id
 

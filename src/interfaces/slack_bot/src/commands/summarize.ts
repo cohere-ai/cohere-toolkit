@@ -2,6 +2,7 @@ import { Middleware, SlackCommandMiddlewareArgs } from '@slack/bolt';
 
 import { ALERTS } from '../constants';
 import { handleError, handleSummarizeThread } from '../handlers';
+import { getChannelSettings } from '../utils/getChannelSettings';
 
 /**
  * This slash command can be used in dms, groups and channels to
@@ -26,7 +27,9 @@ export const summarize: Middleware<SlackCommandMiddlewareArgs> = async ({
   // Thread TS always has 6 numbers after the decimal; The number of numbers before the decimal varies
   const threadTs = unformattedTs?.replace(/(\d+)(\d{6})/g, '$1.$2');
   const userId = command.user_id;
-  const currentChannelId = command.channel_id;
+  const channelId = command.channel_id;
+  const teamId = context.teamId;
+  const enterpriseId = context.enterpriseId;
 
   // Not an valid slack thread link
   if (!threadChannelId || !threadTs) {
@@ -34,11 +37,16 @@ export const summarize: Middleware<SlackCommandMiddlewareArgs> = async ({
       client,
       customErrorMsg: ALERTS.NOT_SLACK_THREAD_LINK,
       userId,
-      replyChannelId: currentChannelId,
+      replyChannelId: channelId,
       includeUserIdInMsg: false,
     });
     return;
   }
+  const { deployment, model, temperature, preambleOverride } = await getChannelSettings({
+    teamId,
+    enterpriseId,
+    channelId,
+  });
 
   await handleSummarizeThread({
     context,
@@ -47,6 +55,8 @@ export const summarize: Middleware<SlackCommandMiddlewareArgs> = async ({
     userId,
     threadTs,
     say: respond,
-    currentChannelId,
+    currentChannelId: channelId,
+    deployment,
+    model,
   });
 };
