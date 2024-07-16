@@ -136,6 +136,20 @@ def get_files_by_user_id(db: Session, user_id: str) -> list[File]:
     return db.query(File).filter(File.user_id == user_id).all()
 
 
+def get_files_by_agent_id(db: Session, agent_id: str, user_id: str) -> list[File]:
+    """
+    List all files by agent ID.
+
+    Args:
+        db (Session): Database session.
+        agent_id (str): Agent ID.
+
+    Returns:
+        list[File]: List of files by agent ID.
+    """
+    return db.query(File).filter(File.agent_id == agent_id).all()
+
+
 def update_file(db: Session, file: File, new_file: UpdateFile) -> File:
     """
     Update a file by ID.

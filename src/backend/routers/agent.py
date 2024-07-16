@@ -40,6 +40,8 @@ from backend.services.request_validators import (
     validate_update_agent_request,
     validate_user_header,
 )
+from backend.schemas.file import ListFile
+
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -156,6 +158,19 @@ async def get_agent_by_id(
         )
 
     return agent
+
+
+@router.get("/{agent_id}/files", response_model=list[ListFile])
+async def list_agent_files(
+    agent_id: str, session: DBSessionDep, request: Request
+) -> list[ListFile]:
+    user_id = get_header_user_id(request)
+    agent = validate_agent_exists(session, agent_id)
+
+    try:
+        return file_crud.get_files_by_agent_id(session, agent.id, user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.put(
