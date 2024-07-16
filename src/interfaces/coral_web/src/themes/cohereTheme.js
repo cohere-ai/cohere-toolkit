@@ -5,8 +5,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        transparent: 'transparent',
-        pureWhite: '#FFFFFF',
         black: '#212121',
         white: '#FAFAFA',
         // Simulated Coral
@@ -35,14 +33,12 @@ module.exports = {
           200: '#3A352C',
           150: '#2C2821',
         },
-
         // Evolved Mushroom Grey
-        'evolved-mushrrom': {
+        'evolved-mushroom': {
           500: '#FFAA00',
           600: '#FFBB33',
           800: '#FFDC97',
         },
-
         // Marble White
         marble: {
           1000: '#FFFFFF',
@@ -88,17 +84,6 @@ module.exports = {
         },
         // Synthetic Quartz
         quartz: {
-          900: '#3E2644',
-          800: '#754880',
-          700: '#9B60AA',
-          600: '#B576C5',
-          500: '#D18EE2',
-          300: '#E8C3F0',
-          200: '#EAD0F0',
-          100: '#F0DFF3',
-          50: '#F8F1F9',
-
-          // updated
           950: '#F7EBFA',
           900: '#EFD6F5',
           800: '#DDACEA',
@@ -129,12 +114,10 @@ module.exports = {
           200: '#0D1D59',
           150: '#0A1643',
         },
-
         // Evolved Acrylic Blue
         'evolved-blue': {
           500: '#0039FF',
         },
-
         // Safety Green
         success: {
           950: '#E7FEE9',

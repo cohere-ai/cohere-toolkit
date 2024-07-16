@@ -54,7 +54,7 @@ export const Logo: React.FC<LogoProps> = ({
         clipRule="evenodd"
         d="M6.48047 12.8071C6.48047 11.5176 7.25678 10.3549 8.44779 9.86059L10.8644 8.85769C13.3087 7.84323 15.9991 9.63954 15.9991 12.2861C15.9991 14.3365 14.3366 15.9985 12.2862 15.998L9.6698 15.9973C7.90823 15.9968 6.48047 14.5686 6.48047 12.8071Z"
         className={cx({
-          'fill-quartz-500': style === 'default',
+          'fill-quartz-700': style === 'default',
           'fill-coral-200': style === 'coral',
           'fill-marble-950': style === 'grayscale',
           'dark:fill-marble-1000': darkModeEnabled,
