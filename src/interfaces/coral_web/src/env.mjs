@@ -12,10 +12,10 @@ export const env = createEnv({
     NEXT_PUBLIC_HAS_CUSTOM_LOGO: z.string().optional().default('false'),
     NEXT_PUBLIC_DARK_MODE: z
       .string()
-      .refine((s) => s === 'true' || s === 'false')
-      .transform((s) => s === 'true')
       .optional()
-      .default(false),
+      .default('false')
+      .refine((s) => s === 'true' || s === 'false')
+      .transform((s) => s === 'true'),
   },
   runtimeEnv: {
     NEXT_PUBLIC_API_HOSTNAME: process.env.NEXT_PUBLIC_API_HOSTNAME,
