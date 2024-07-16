@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-
+import copy
 from backend.config.routers import RouterName
+from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
+from backend.crud import file as file_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
@@ -92,6 +94,10 @@ async def create_agent(
             await update_or_create_tool_metadata(
                 created_agent, tool_metadata, session, request
             )
+            if tool_metadata.tool_name == ToolName.Search_File or tool_metadata.tool_name == ToolName.Read_File:
+                await update_agent_files(
+                    create_agent, tool_metadata, session, user_id
+                )
     # except Exception as e:
     # raise HTTPException(status_code=500, detail=str(e))
 
@@ -221,6 +227,30 @@ async def handle_tool_metadata_update(
     new_agent.tools_metadata = None
     agent = agent_crud.get_agent_by_id(session, agent.id)
     return agent
+
+
+async def update_agent_files(
+    agent: Agent,
+    new_tool_metadata: AgentToolMetadata,
+    session: DBSessionDep,
+    user_id: str
+) -> None:
+    # check that the file exists and is not already assinged to an agent
+    for artifact in new_tool_metadata.artifacts:
+        file_id = artifact.get("id", None)
+        if artifact.get("type", "") == "file_id" and file_id:
+            file = file_crud.get_file(session, file_id, user_id)
+            if not file:
+                raise HTTPException(status_code=400, detail=f"File with ID {file_id} not found.")
+            if file.agent_id and file.agent_id != agent.id:
+                raise HTTPException(status_code=400, detail=f"File with ID {file_id} already assigned to an another agent.")
+
+            new_file = copy.deepcopy(file)
+            new_file.agent_id = agent.id
+            try:
+                file_crud.update_file(session, file, new_file)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Error while updating file: {e}")
 
 
 async def update_or_create_tool_metadata(
