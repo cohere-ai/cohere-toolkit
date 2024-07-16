@@ -32,6 +32,7 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
       <input
         ref={fileInputRef}
         type="file"
+        multiple
         accept={ACCEPTED_FILE_TYPES.join(',')}
         className="hidden"
         onChange={onUploadFile}

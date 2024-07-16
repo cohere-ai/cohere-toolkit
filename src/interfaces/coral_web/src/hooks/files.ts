@@ -72,6 +72,15 @@ export const useUploadFile = () => {
   });
 };
 
+export const useBatchUploadFile = () => {
+  const cohereClient = useCohereClient();
+
+  return useMutation({
+    mutationFn: ({ files, conversationId }: { files: File[]; conversationId?: string }) =>
+      cohereClient.batchUploadFile({ files, conversation_id: conversationId }),
+  });
+};
+
 export const useDeleteUploadedFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
@@ -99,63 +108,67 @@ export const useFileActions = () => {
     params: { fileIds },
     setParams,
   } = useParamsStore();
-  const { mutateAsync: uploadFile } = useUploadFile();
+  const { mutateAsync: uploadFiles } = useBatchUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
   const { setConversation } = useConversationStore();
 
-  const handleUploadFile = async (file?: File, conversationId?: string) => {
+  const handleUploadFiles = async (files?: File[], conversationId?: string) => {
     // cleanup uploadingFiles with errors
     const uploadingFilesWithErrors = uploadingFiles.filter((file) => file.error);
     uploadingFilesWithErrors.forEach((file) => deleteUploadingFile(file.id));
 
-    if (!file) return;
-
-    const uploadingFileId = new Date().valueOf().toString();
-    const newUploadingFile: UploadingFile = {
-      id: uploadingFileId,
-      file,
-      error: '',
-      progress: 0,
-    };
+    if (!files?.length) return;
 
     const MAX_FILE_SIZE = fileSizeToBytes(20);
-    const fileExtension = getFileExtension(file.name);
 
-    const isAcceptedExtension = ACCEPTED_FILE_TYPES.some(
-      (acceptedFile) => file.type === acceptedFile
-    );
-    const isFileSizeValid = file.size <= MAX_FILE_SIZE;
-    if (!isAcceptedExtension) {
-      newUploadingFile.error = `File type not supported (${fileExtension?.toUpperCase()})`;
-    } else if (!isFileSizeValid) {
-      newUploadingFile.error = `File size cannot exceed ${formatFileSize(MAX_FILE_SIZE)}`;
-    }
-
-    addUploadingFile(newUploadingFile);
-    if (newUploadingFile.error) {
-      return;
-    }
-
-    try {
-      const uploadedFile = await uploadFile({ file: newUploadingFile.file, conversationId });
-
-      if (!uploadedFile?.id) {
-        throw new FileUploadError('File ID not found');
+    const uploadingFileIds: string[] = [];
+    files.forEach((file) => {
+      const uploadingFileId = new Date().valueOf().toString();
+      const newUploadingFile: UploadingFile = {
+        id: uploadingFileId,
+        file,
+        error: '',
+        progress: 0,
+      };
+      const fileExtension = getFileExtension(file.name);
+      const isAcceptedExtension = ACCEPTED_FILE_TYPES.some(
+        (acceptedFile) => file.type === acceptedFile
+      );
+      const isFileSizeValid = file.size <= MAX_FILE_SIZE;
+      if (!isAcceptedExtension) {
+        newUploadingFile.error = `File type not supported (${fileExtension?.toUpperCase()})`;
+      } else if (!isFileSizeValid) {
+        newUploadingFile.error = `File size cannot exceed ${formatFileSize(MAX_FILE_SIZE)}`;
       }
 
-      deleteUploadingFile(uploadingFileId);
-      const uploadedFileId = uploadedFile.id;
-      const newFileIds = [...(fileIds ?? []), uploadedFileId];
-      setParams({ fileIds: newFileIds });
-      addComposerFile(uploadedFile);
+      addUploadingFile(newUploadingFile);
+      uploadingFileIds.push(uploadingFileId);
+      if (newUploadingFile.error) {
+        return;
+      }
+    });
+
+    console.debug(uploadingFiles);
+    try {
+      const uploadedFiles = await uploadFiles({ files, conversationId });
+
+      uploadingFileIds.forEach((fileId) => deleteUploadingFile(fileId));
+
+      const newFileIds: string[] = fileIds ?? [];
+      uploadedFiles.forEach((uploadedFile) => {
+        newFileIds.push(uploadedFile.id);
+        setParams({ fileIds: newFileIds });
+        addComposerFile(uploadedFile);
+      });
+
       if (!conversationId) {
-        setConversation({ id: uploadedFile.conversation_id });
+        setConversation({ id: uploadedFiles[0].conversation_id });
       }
 
       return newFileIds;
     } catch (e: any) {
-      updateUploadingFileError(newUploadingFile, e.message);
+      uploadingFiles.forEach((file) => updateUploadingFileError(file, e.message));
     }
   };
 
@@ -176,7 +189,7 @@ export const useFileActions = () => {
   return {
     uploadingFiles,
     composerFiles,
-    uploadFile: handleUploadFile,
+    uploadFiles: handleUploadFiles,
     deleteFile: deleteUploadedFile,
     deleteUploadingFile,
     deleteComposerFile,

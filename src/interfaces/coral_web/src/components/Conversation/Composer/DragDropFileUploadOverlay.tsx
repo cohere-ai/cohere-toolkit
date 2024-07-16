@@ -29,7 +29,7 @@ export const DragDropFileUploadOverlay: React.FC<{
       label="Drop to upload"
       subLabel=""
       onChange={handleUploadFile}
-      multiple={false}
+      multiple
       accept={ACCEPTED_FILE_TYPES}
       dragActiveDefault={true}
       className={cn(
