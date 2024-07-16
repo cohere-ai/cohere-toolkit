@@ -29,7 +29,7 @@ class Agent(Base):
         nullable=False,
     )
 
-    user_id: Mapped[str] = mapped_column(Text, nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     organization_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey(
             "organizations.id", name="agents_organization_id_fkey", ondelete="CASCADE"

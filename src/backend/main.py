@@ -1,12 +1,11 @@
-import asyncio
 import os
-from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 from backend.config.auth import (
@@ -23,8 +22,10 @@ from backend.routers.experimental_features import router as experimental_feature
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.services.logger import LoggingMiddleware
+from backend.services.logger import LoggingMiddleware, get_logger
 from backend.services.metrics import MetricsMiddleware
+
+logger = get_logger()
 
 load_dotenv()
 
@@ -79,6 +80,23 @@ def create_app():
 
 
 app = create_app()
+
+
+@app.exception_handler(Exception)
+async def validation_exception_handler(request: Request, exc: Exception):
+    logger.info(
+        f"Error occurred: {exc!r} during request: {request.method}, {request.url}"
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "message": (
+                f"Failed method {request.method} at URL {request.url}."
+                f" Exception message is {exc!r}."
+            )
+        },
+    )
 
 
 @app.on_event("startup")

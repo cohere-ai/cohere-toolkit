@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, Text, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base
@@ -7,7 +7,7 @@ from backend.database_models.base import Base
 class ToolAuth(Base):
     __tablename__ = "tool_auth"
 
-    user_id: Mapped[str] = mapped_column(Text, nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     tool_id: Mapped[str] = mapped_column(Text, nullable=False)
     token_type: Mapped[str] = mapped_column(Text, nullable=False)
     encrypted_access_token: Mapped[bytes] = mapped_column()

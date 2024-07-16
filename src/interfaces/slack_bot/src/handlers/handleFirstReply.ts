@@ -40,7 +40,7 @@ export const handleFirstReply = async ({ context, action, client, say }: HandleF
 
   const { conversationId } = getConversationId({ threadTs: eventTs, channelId });
 
-  const { model, temperature, preambleOverride } = await getChannelSettings({
+  const { deployment, model, temperature, preambleOverride } = await getChannelSettings({
     teamId,
     enterpriseId,
     channelId,
@@ -77,6 +77,8 @@ export const handleFirstReply = async ({ context, action, client, say }: HandleF
         file: action.file,
         teamId,
         enterpriseId,
+        deployment,
+        model,
       }));
       break;
     case 'file-rag':
@@ -84,6 +86,7 @@ export const handleFirstReply = async ({ context, action, client, say }: HandleF
         client,
         text: event.text || '',
         file: action.file,
+        deployment,
         model,
         teamId,
         botUserId: context.botUserId,
@@ -97,6 +100,7 @@ export const handleFirstReply = async ({ context, action, client, say }: HandleF
         event: action.event,
         tools: action.tools,
         client,
+        deployment,
         model,
         conversationId,
         temperature,
@@ -118,6 +122,7 @@ export const handleFirstReply = async ({ context, action, client, say }: HandleF
       ({ responseID, currentBotReply, errorMessage } = await getReply({
         event: action.event,
         client,
+        deployment,
         model,
         conversationId,
         temperature,

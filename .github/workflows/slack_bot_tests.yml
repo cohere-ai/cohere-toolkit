@@ -1,0 +1,44 @@
+name: Slack Bot Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/interfaces/slack_bot/**
+  pull_request: {}
+  merge_group: {}
+
+jobs:
+  interface_tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/interfaces/slack_bot
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "src/interfaces/slack_bot/.nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: "src/interfaces/slack_bot/pnpm-lock.yaml"
+      - name: Install dependencies with npm
+        shell: bash
+        working-directory: src/interfaces/slack_bot
+        run: pnpm install --frozen-lockfile
+      - name: Check slack_bot is formatted
+        run: pnpm run format
+      - name: Check slack_bot types
+        run: pnpm run tsc:check
+      - name: Run slack_bot tests
+        run: pnpm run test
+      - name: Check slack_bot can build
+        run: pnpm run build

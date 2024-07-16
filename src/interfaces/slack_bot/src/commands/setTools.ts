@@ -32,7 +32,7 @@ export const setTools: Middleware<SlackCommandMiddlewareArgs> = async ({
   const getToolsListFromAPI = async () => {
     try {
       const toolkitClient = new ToolkitClient(OpenAPI);
-      const tools = await toolkitClient.default.listToolsToolsGet();
+      const tools = await toolkitClient.default.listToolsV1ToolsGet();
 
       return tools.filter((t) => t.is_available).map((tool) => tool.name);
     } catch (error: any) {
@@ -61,7 +61,7 @@ export const setTools: Middleware<SlackCommandMiddlewareArgs> = async ({
 
   const preEnabledToolsSet = new Set(preEnabledToolsList.map((t) => t.name));
   const formattedPreEnabledToolsList = apiToolsList.reduce<MrkdwnOption[]>((acc, tool) => {
-    if (preEnabledToolsSet.has(tool)) {
+    if (tool && preEnabledToolsSet.has(tool)) {
       acc.push({
         text: { type: 'mrkdwn', text: tool },
         value: tool,
@@ -73,7 +73,7 @@ export const setTools: Middleware<SlackCommandMiddlewareArgs> = async ({
   // Remove pre-enabled tools from the list of available tools so we can
   // Display those in a diff checkbox list
   const formattedAndSanitizedApiToolsList = apiToolsList.reduce<MrkdwnOption[]>((acc, tool) => {
-    if (!preEnabledToolsSet.has(tool)) {
+    if (tool && !preEnabledToolsSet.has(tool)) {
       acc.push({
         text: { type: 'mrkdwn', text: tool },
         value: tool,
