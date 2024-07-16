@@ -61,11 +61,11 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
           'max-w-share-content-with-citations': hasCitations,
         })}
       >
-        <Text styleAs="h3" className="text-center text-volcanic-800">
+        <Text styleAs="h3" className="text-center text-volcanic-300">
           {title}
         </Text>
 
-        <div className={cn('my-6 w-full border-b border-marble-500')} />
+        <div className={cn('my-6 w-full border-b border-marble-800')} />
 
         <div className="flex flex-col gap-y-4 py-6 md:gap-y-6">
           {messages.map((m, i) => (
@@ -150,13 +150,13 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
       <div
         className={cn(
           'absolute right-0 top-0',
-          'flex w-full flex-col bg-marble-100 p-3',
+          'flex w-full flex-col bg-marble-1000 p-3',
           'w-full rounded',
           'transition-[colors,opacity] duration-300 ease-in-out',
           'opacity-60',
           {
-            'bg-secondary-700/[0.08]': !isSelected,
-            'bg-primary-500/[0.08]': isSelected,
+            'bg-mushroom-400/[0.08]': !isSelected,
+            'bg-coral-700/[0.08]': isSelected,
             'md:-translate-x-1 lg:-translate-x-2': isHovered,
             'md:z-selected-citation': isSelected || isAllDocsVisible || isHovered,
             'opacity-100': isSelected || isHovered,
@@ -165,13 +165,13 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
         )}
       >
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
-          <Text as="span" styleAs="caption" className="text-volcanic-800">
+          <Text as="span" styleAs="caption" className="text-volcanic-300">
             {uniqueDocuments.length} {pluralize('reference', uniqueDocuments.length)}
           </Text>
           {uniqueDocuments.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
-                'h-4 w-4 text-volcanic-800 transition delay-75 duration-200 ease-in-out',
+                'h-4 w-4 text-volcanic-300 transition delay-75 duration-200 ease-in-out',
                 {
                   'rotate-180': isAllDocsVisible,
                 }

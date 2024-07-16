@@ -149,7 +149,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
   });
 
   return (
-    <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-400')}>
+    <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-950')}>
       <div
         className={cn('flex w-full flex-1 items-center justify-between px-5', { truncate: !!id })}
       >
@@ -205,7 +205,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
           <div className="relative">
             <IconButton
               tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
-              className={cn('hidden md:flex', { 'bg-secondary-100': isConfigDrawerOpen })}
+              className={cn('hidden md:flex', { 'bg-mushroom-900': isConfigDrawerOpen })}
               onClick={handleToggleConfigSettings}
               iconName="settings"
               disabled={isStreaming}
@@ -227,7 +227,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             onClick={handleOpenAgentDrawer}
             className={cn('hidden', {
               'md:flex': !!agentId,
-              'bg-secondary-100': isEditAgentPanelOpen,
+              'bg-mushroom-900': isEditAgentPanelOpen,
             })}
           />
         </span>

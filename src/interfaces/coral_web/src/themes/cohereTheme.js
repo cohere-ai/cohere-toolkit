@@ -5,36 +5,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        transparent: 'transparent',
-        pureWhite: '#FFFFFF',
         black: '#212121',
         white: '#FAFAFA',
-        // Simulated Coral
-        primary: {
-          900: '#511D12',
-          800: '#903420',
-          700: '#CA492D',
-          600: '#E25D41',
-          500: '#FF7759',
-          400: '#FF967E',
-          300: '#FFAD9B',
-          200: '#F8C8BC',
-          100: '#F6DDD5',
-          75: '#FBE0DA',
-          50: '#FDF2F0',
-
-          // updated
-          950: '#FFEAE5',
-          900: '#FFD5CC',
-          800: '#FFAC99',
-          700: '#FF8266',
-          600: '#FF5833',
-          500: '#FF2F00',
-          400: '#CC2500',
-          300: '#991C00',
-          200: '#661300',
-          150: '#330900',
-        },
         // Simulated Coral
         coral: {
           950: '#FFEAE5',
@@ -49,31 +21,6 @@ module.exports = {
           150: '#330900',
         },
         // Mushroom Grey
-        secondary: {
-          900: '#39352E',
-          800: '#676054',
-          700: '#8E8572',
-          600: '#9D9482',
-          500: '#AFA694',
-          400: '#C5BCAC',
-          300: '#D7CFC1',
-          200: '#E4DED2',
-          100: '#E9E6DE',
-          50: '#F5F4F2',
-
-          // updated
-          950: '#F4F3F0',
-          900: '#E9E7E2',
-          800: '#D2CDC4',
-          700: '#BDB6A8',
-          600: '#A79E8B',
-          500: '#91856E',
-          400: '#70695C',
-          300: '#575042',
-          200: '#3A352C',
-          150: '#2C2821',
-        },
-        // Mushroom Grey
         mushroom: {
           950: '#F4F3F0',
           900: '#E9E7E2',
@@ -86,23 +33,14 @@ module.exports = {
           200: '#3A352C',
           150: '#2C2821',
         },
-
         // Evolved Mushroom Grey
-        'evolved-mushrrom': {
+        'evolved-mushroom': {
           500: '#FFAA00',
           600: '#FFBB33',
           800: '#FFDC97',
         },
-
         // Marble White
         marble: {
-          500: '#BDBDBD',
-          400: '#E0E0E0',
-          300: '#EEEEEE',
-          200: '#F5F5F5',
-          100: '#FAFAFA',
-
-          // updated
           1000: '#FFFFFF',
           980: '#F9F9FB',
           950: '#EFEFF5',
@@ -127,17 +65,6 @@ module.exports = {
         },
         // Coniferous Green
         green: {
-          900: '#16211C',
-          800: '#2B4239',
-          700: '#39594D',
-          500: '#71867E',
-          400: '#869790',
-          300: '#9DAAA4',
-          200: '#B2BBB6',
-          100: '#D4D9D4',
-          50: '#EEF0EF',
-
-          // updated
           950: '#F0F5F3',
           900: '#E0EBE7',
           800: '#C0D6CD',
@@ -148,8 +75,6 @@ module.exports = {
           250: '#324D42',
           200: '#283E35',
           150: '#141F1B',
-
-          
         },
         // Evolved Coniferous Green
         'evolved-green': {
@@ -159,17 +84,6 @@ module.exports = {
         },
         // Synthetic Quartz
         quartz: {
-          900: '#3E2644',
-          800: '#754880',
-          700: '#9B60AA',
-          600: '#B576C5',
-          500: '#D18EE2',
-          300: '#E8C3F0',
-          200: '#EAD0F0',
-          100: '#F0DFF3',
-          50: '#F8F1F9',
-
-          // updated
           950: '#F7EBFA',
           900: '#EFD6F5',
           800: '#DDACEA',
@@ -189,15 +103,6 @@ module.exports = {
         },
         // Acrylic Blue
         blue: {
-          900: '#121E4A',
-          700: '#2D4CB9',
-          500: '#4C6EE6',
-          300: '#A9B9F3',
-          200: '#C0CAEF',
-          100: '#DBE0F2',
-          50: '#F0F2FB',
-
-          // updated
           950: '#E9EDFC',
           900: '#D2DBF9',
           800: '#A4B5F2',
@@ -209,30 +114,22 @@ module.exports = {
           200: '#0D1D59',
           150: '#0A1643',
         },
-
         // Evolved Acrylic Blue
         'evolved-blue': {
           500: '#0039FF',
         },
-
         // Safety Green
         success: {
           950: '#E7FEE9',
           300: '#089113',
           200: '#05610C',
           150: '#044909',
-          
-          500: '#05690D',
-          50: '#EFF5EA',
         },
         // Safety Red
         danger: {
-          900: '#FFE5E5',
+          950: '#FFE5E5',
           500: '#FF0000',
           350: '#B30000',
-
-          200: '#F0CCCC',
-          50: '#FFF1F1',
         },
       },
       fontSize: {

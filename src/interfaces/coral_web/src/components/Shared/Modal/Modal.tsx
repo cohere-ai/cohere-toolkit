@@ -38,7 +38,7 @@ const panelStyle = cva(['relative', 'flex', 'w-full', 'flex-col', 'rounded-lg'],
       default: [
         'max-w-modal',
         'gap-6',
-        'bg-marble-100',
+        'bg-marble-1000',
         'py-10',
         'px-6',
         'md:gap-8',
@@ -46,8 +46,8 @@ const panelStyle = cva(['relative', 'flex', 'w-full', 'flex-col', 'rounded-lg'],
         'md:py-14',
         'lg:gap-10',
       ],
-      'coral-mobile-only': ['max-w-modal', 'gap-2', 'bg-primary-75', 'p-3'],
-      coral: ['max-w-modal', 'gap-2', 'bg-primary-75', 'p-3'],
+      'coral-mobile-only': ['max-w-modal', 'gap-2', 'bg-coral-900', 'p-3'],
+      coral: ['max-w-modal', 'gap-2', 'bg-coral-900', 'p-3'],
     },
   },
 });
@@ -56,7 +56,7 @@ const closeButtonStyle = cva([], {
   variants: {
     kind: {
       default: ['absolute', 'top-6', 'right-6'],
-      'coral-mobile-only': ['absolute', 'top-1', 'right-2', 'text-volcanic-700'],
+      'coral-mobile-only': ['absolute', 'top-1', 'right-2', 'text-volcanic-400'],
       coral: ['absolute', 'top-1', 'right-2', 'text-volcanic-700'],
     },
   },
@@ -66,8 +66,8 @@ const titleStyle = cva([], {
   variants: {
     kind: {
       default: ['px-8', 'text-center'],
-      'coral-mobile-only': ['text-volcanic-700'],
-      coral: ['text-volcanic-700'],
+      'coral-mobile-only': ['text-volcanic-400'],
+      coral: ['text-volcanic-400'],
     },
   },
 });
@@ -109,7 +109,7 @@ export const Modal: React.FC<ModalProps> = ({
           leaveTo="opacity-0"
         >
           <div
-            className="fixed inset-0 bg-volcanic-800/20 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-volcanic-300/20 backdrop-blur-sm transition-opacity"
             aria-hidden="true"
           />
         </Transition.Child>

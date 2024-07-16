@@ -47,7 +47,7 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events 
         </Fragment>
       ))}
       {isStreaming && isLast && (
-        <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
+        <Text className={cn('flex min-w-0 text-volcanic-400')} as="span">
           Working on it
           <span className="w-max">
             <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
@@ -174,9 +174,9 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   children,
 }) => {
   return (
-    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
-      <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-secondary-600" />
-      <Text className="pt-px text-secondary-800" styleAs="p-sm" as="span">
+    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900">
+      <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-mushroom-500" />
+      <Text className="pt-px text-mushroom-300" styleAs="p-sm" as="span">
         {children}
       </Text>
     </div>
