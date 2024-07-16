@@ -24,6 +24,18 @@ def create_file(db: Session, file: File) -> File:
 
 
 @validate_transaction
+def batch_create_files(db: Session, files: list[File]) -> list[File]:
+    """
+    Batch create files.
+    """
+    db.add_all(files)
+    db.commit()
+    for file in files:
+        db.refresh(file)
+    return files
+
+
+@validate_transaction
 def get_file(db: Session, file_id: str, user_id: str) -> File:
     """
     Get a file by ID.
