@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { CohereClient, CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
+import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
 import { WelcomePage } from '@/components/WelcomePage';
@@ -85,8 +86,13 @@ const LoginPage: NextPage<Props> = () => {
     });
   };
 
+  const welcomePageProps: { title: string; navigationAction?: 'register' | 'login' } = {
+    title: 'Login',
+    navigationAction: hasBasicAuth ? 'register' : undefined,
+  };
+
   return (
-    <WelcomePage title="Login">
+    <WelcomePage {...welcomePageProps}>
       <div className="flex flex-col items-center justify-center">
         <Text
           as="h1"
@@ -116,36 +122,37 @@ const LoginPage: NextPage<Props> = () => {
         </div>
 
         {hasBasicAuth && (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            onChange={() => setErrors([])}
-            className="mt-10 flex w-full flex-col"
-          >
-            <Input
-              className="w-full"
-              label="Email"
-              placeholder="yourname@email.com"
-              type="email"
-              stackPosition="start"
-              hasError={!!formState.errors.email}
-              errorText="Please enter a valid email address"
-              {...register('email', {
-                required: true,
-                validate: (value) => simpleEmailValidation(value),
-              })}
-            />
+          <>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              onChange={() => setErrors([])}
+              className="mt-10 flex w-full flex-col"
+            >
+              <Input
+                className="w-full"
+                label="Email"
+                placeholder="yourname@email.com"
+                type="email"
+                stackPosition="start"
+                hasError={!!formState.errors.email}
+                errorText="Please enter a valid email address"
+                {...register('email', {
+                  required: true,
+                  validate: (value) => simpleEmailValidation(value),
+                })}
+              />
 
-            <Input
-              className="mb-2 w-full"
-              label="Password"
-              placeholder="••••••••••••"
-              type="password"
-              actionType="revealable"
-              stackPosition="end"
-              hasError={!!formState.errors.password}
-              errorText="Please enter a valid password"
-              {...register('password', { required: true })}
-            />
+              <Input
+                className="mb-2 w-full"
+                label="Password"
+                placeholder="••••••••••••"
+                type="password"
+                actionType="revealable"
+                stackPosition="end"
+                hasError={!!formState.errors.password}
+                errorText="Please enter a valid password"
+                {...register('password', { required: true })}
+              />
 
             {errors.map(
               (error) =>
@@ -156,14 +163,27 @@ const LoginPage: NextPage<Props> = () => {
                 )
             )}
 
-            <Button
-              disabled={loginStatus === 'pending' || !formState.isValid}
-              label={loginStatus === 'pending' ? 'Logging in...' : 'Log in'}
-              type="submit"
-              className="mt-10 w-full self-center md:w-fit"
-              splitIcon="arrow-right"
-            />
-          </form>
+              <Button
+                disabled={loginStatus === 'pending' || !formState.isValid}
+                label={loginStatus === 'pending' ? 'Logging in...' : 'Log in'}
+                type="submit"
+                className="mt-10 w-full self-center md:w-fit"
+                splitIcon="arrow-right"
+              />
+            </form>
+
+            <Text
+              as="div"
+              className="mt-10 flex w-full items-center justify-between text-volcanic-700"
+            >
+              New user?
+              <AuthLink
+                redirect={redirect !== '/' ? redirect : undefined}
+                action="register"
+                className="text-green-700 no-underline"
+              />
+            </Text>
+          </>
         )}
       </div>
     </WelcomePage>

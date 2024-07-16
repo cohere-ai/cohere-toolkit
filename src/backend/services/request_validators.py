@@ -2,6 +2,7 @@ from urllib.parse import unquote_plus
 
 from fastapi import HTTPException, Request
 
+import backend.crud.user as user_crud
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
@@ -10,7 +11,7 @@ from backend.database_models.database import DBSessionDep
 from backend.services.auth.utils import get_header_user_id
 
 
-def validate_user_header(request: Request):
+def validate_user_header(session: DBSessionDep, request: Request):
     """
     Validate that the request has the `User-Id` header, used for requests
     that require a User.
@@ -28,6 +29,10 @@ def validate_user_header(request: Request):
         raise HTTPException(
             status_code=401, detail="User-Id required in request headers."
         )
+
+    user = user_crud.get_user(session, user_id)
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found.")
 
 
 def validate_deployment_header(request: Request):

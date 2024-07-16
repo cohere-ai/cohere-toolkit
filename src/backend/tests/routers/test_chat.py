@@ -257,7 +257,7 @@ def test_default_chat_missing_deployment_name(
     response = session_client_chat.post(
         "/v1/chat",
         json={"message": "Hello"},
-        headers={"User-Id": "test"},
+        headers={"User-Id": user.id},
     )
 
     assert response.status_code == 200
@@ -270,7 +270,7 @@ def test_streaming_fail_chat_missing_message(
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
-            "User-Id": "123",
+            "User-Id": user.id,
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         json={},
@@ -473,7 +473,7 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
         },
     )
 
-    conversation = session_chat.get(Conversation, conversation.id)
+    conversation = session_chat.get(Conversation, (conversation.id, user.id))
 
     assert response.status_code == 200
     assert conversation is not None
@@ -519,7 +519,7 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
         },
     )
 
-    conversation = session_chat.get(Conversation, conversation.id)
+    conversation = session_chat.get(Conversation, (conversation.id, user.id))
 
     assert response.status_code == 200
     assert conversation is not None
@@ -705,7 +705,7 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
         },
     )
 
-    conversation = session_chat.get(Conversation, conversation.id)
+    conversation = session_chat.get(Conversation, (conversation.id, user.id))
 
     assert response.status_code == 200
     assert conversation is not None
@@ -748,7 +748,7 @@ def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
         },
     )
 
-    conversation = session_chat.get(Conversation, conversation.id)
+    conversation = session_chat.get(Conversation, (conversation.id, user.id))
 
     assert response.status_code == 200
     assert conversation is not None
@@ -813,7 +813,7 @@ def validate_conversation(
     assert conversation.user_id == user.id
     assert len(conversation.messages) == expected_num_messages
     # Also test DB object
-    conversation = session.get(Conversation, conversation_id)
+    conversation = session.get(Conversation, (conversation_id, user.id))
     assert conversation is not None
     assert conversation.user_id == user.id
     assert len(conversation.messages) == expected_num_messages

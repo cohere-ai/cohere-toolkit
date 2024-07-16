@@ -46,8 +46,7 @@ google-auth-httplib2="^0.2.0"
 google-api-python-client="^2.133.0"
 openpyxl = "^3.1.5"
 
-# compass dependencies. to be removed
-# once compass is OSS
+# Compass dependencies - To be removed once Compass is OSS
 [tool.poetry.group.compass]
 optional = false
 

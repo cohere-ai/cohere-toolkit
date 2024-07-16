@@ -7,12 +7,14 @@ import * as dotenv from 'dotenv';
 import { OpenAPI } from './cohere-client/';
 import {
   commandHelp,
+  setDeployment,
   setModel,
   setPreamble,
   setTemperature,
   setTools,
   setupCommand,
   summarize,
+  viewDeployment,
   viewModel,
   viewPreamble,
   viewTemperature,
@@ -343,11 +345,13 @@ app.shortcut('summarize_thread', summarizeThread);
 app.command(`/command-help${COMMAND_SUFFIX}`, commandHelp);
 app.command(`/set-tools${COMMAND_SUFFIX}`, setTools);
 app.command(`/set-model${COMMAND_SUFFIX}`, setModel);
+app.command(`/set-deployment${COMMAND_SUFFIX}`, setDeployment);
 app.command(`/set-preamble${COMMAND_SUFFIX}`, setPreamble);
 app.command(`/set-temperature${COMMAND_SUFFIX}`, setTemperature);
 app.command(`/setup-command${COMMAND_SUFFIX}`, setupCommand);
 app.command(`/summarize${COMMAND_SUFFIX}`, summarize);
 app.command(`/view-tools${COMMAND_SUFFIX}`, viewTools);
+app.command(`/view-deployment${COMMAND_SUFFIX}`, viewDeployment);
 app.command(`/view-model${COMMAND_SUFFIX}`, viewModel);
 app.command(`/view-preamble${COMMAND_SUFFIX}`, viewPreamble);
 app.command(`/view-temperature${COMMAND_SUFFIX}`, viewTemperature);

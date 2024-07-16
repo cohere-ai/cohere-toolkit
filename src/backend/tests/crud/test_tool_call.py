@@ -6,13 +6,15 @@ from backend.tests.factories import get_factory
 
 
 @pytest.fixture(autouse=True)
-def conversation(session):
-    return get_factory("Conversation", session).create(id="1")
+def conversation(session, user):
+    return get_factory("Conversation", session).create(id="1", user_id=user.id)
 
 
 @pytest.fixture(autouse=True)
-def message(session, conversation):
-    return get_factory("Message", session).create(id="1", conversation_id="1")
+def message(session, conversation, user):
+    return get_factory("Message", session).create(
+        id="1", conversation_id=conversation.id, user_id=user.id
+    )
 
 
 def test_create_tool_call(session):

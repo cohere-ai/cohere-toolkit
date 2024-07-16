@@ -3,51 +3,219 @@ import type { BaseHttpRequest } from './core/BaseHttpRequest';
 import type { CancelablePromise } from './core/CancelablePromise';
 import type {
   ApplyMigrationsMigratePostResponse,
-  ChatChatPostData,
-  ChatChatPostResponse,
-  ChatStreamChatStreamPostData,
-  ChatStreamChatStreamPostResponse,
-  CreateUserUsersPostData,
-  CreateUserUsersPostResponse,
-  DeleteConversationConversationsConversationIdDeleteData,
-  DeleteConversationConversationsConversationIdDeleteResponse,
-  DeleteFileConversationsConversationIdFilesFileIdDeleteData,
-  DeleteFileConversationsConversationIdFilesFileIdDeleteResponse,
-  DeleteUserUsersUserIdDeleteData,
-  DeleteUserUsersUserIdDeleteResponse,
-  GetConversationConversationsConversationIdGetData,
-  GetConversationConversationsConversationIdGetResponse,
-  GetUserUsersUserIdGetData,
-  GetUserUsersUserIdGetResponse,
+  AuthorizeV1StrategyAuthPostData,
+  AuthorizeV1StrategyAuthPostResponse,
+  ChatStreamV1ChatStreamPostData,
+  ChatStreamV1ChatStreamPostResponse,
+  ChatV1ChatPostData,
+  ChatV1ChatPostResponse,
+  CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostData,
+  CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse,
+  CreateAgentV1AgentsPostData,
+  CreateAgentV1AgentsPostResponse,
+  CreateSnapshotV1SnapshotsPostData,
+  CreateSnapshotV1SnapshotsPostResponse,
+  CreateUserV1UsersPostData,
+  CreateUserV1UsersPostResponse,
+  DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteData,
+  DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteResponse,
+  DeleteAgentV1AgentsAgentIdDeleteData,
+  DeleteAgentV1AgentsAgentIdDeleteResponse,
+  DeleteConversationV1ConversationsConversationIdDeleteData,
+  DeleteConversationV1ConversationsConversationIdDeleteResponse,
+  DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData,
+  DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse,
+  DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteData,
+  DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse,
+  DeleteSnapshotV1SnapshotsSnapshotIdDeleteData,
+  DeleteSnapshotV1SnapshotsSnapshotIdDeleteResponse,
+  DeleteUserV1UsersUserIdDeleteData,
+  DeleteUserV1UsersUserIdDeleteResponse,
+  GenerateTitleV1ConversationsConversationIdGenerateTitlePostData,
+  GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse,
+  GetAgentByIdV1AgentsAgentIdGetData,
+  GetAgentByIdV1AgentsAgentIdGetResponse,
+  GetConversationV1ConversationsConversationIdGetData,
+  GetConversationV1ConversationsConversationIdGetResponse,
+  GetSnapshotV1SnapshotsLinkLinkIdGetData,
+  GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
+  GetStrategiesV1AuthStrategiesGetResponse,
+  GetUserV1UsersUserIdGetData,
+  GetUserV1UsersUserIdGetResponse,
   HealthHealthGetResponse,
-  LangchainChatStreamLangchainChatPostData,
-  LangchainChatStreamLangchainChatPostResponse,
-  ListConversationsConversationsGetData,
-  ListConversationsConversationsGetResponse,
-  ListDeploymentsDeploymentsGetData,
-  ListDeploymentsDeploymentsGetResponse,
-  ListExperimentalFeaturesExperimentalFeaturesGetResponse,
-  ListFilesConversationsConversationIdFilesGetData,
-  ListFilesConversationsConversationIdFilesGetResponse,
-  ListToolsToolsGetResponse,
-  ListUsersUsersGetData,
-  ListUsersUsersGetResponse,
-  SetEnvVarsDeploymentsNameSetEnvVarsPostData,
-  SetEnvVarsDeploymentsNameSetEnvVarsPostResponse,
-  UpdateConversationConversationsConversationIdPutData,
-  UpdateConversationConversationsConversationIdPutResponse,
-  UpdateFileConversationsConversationIdFilesFileIdPutData,
-  UpdateFileConversationsConversationIdFilesFileIdPutResponse,
-  UpdateUserUsersUserIdPutData,
-  UpdateUserUsersUserIdPutResponse,
-  UploadFileConversationsUploadFilePostData,
-  UploadFileConversationsUploadFilePostResponse,
-  UploadFileWithConversationConversationsConversationIdUploadFilePostData,
-  UploadFileWithConversationConversationsConversationIdUploadFilePostResponse,
+  LangchainChatStreamV1LangchainChatPostData,
+  LangchainChatStreamV1LangchainChatPostResponse,
+  ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData,
+  ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse,
+  ListAgentsV1AgentsGetData,
+  ListAgentsV1AgentsGetResponse,
+  ListConversationsV1ConversationsGetData,
+  ListConversationsV1ConversationsGetResponse,
+  ListDeploymentsV1DeploymentsGetData,
+  ListDeploymentsV1DeploymentsGetResponse,
+  ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse,
+  ListFilesV1ConversationsConversationIdFilesGetData,
+  ListFilesV1ConversationsConversationIdFilesGetResponse,
+  ListSnapshotsV1SnapshotsGetResponse,
+  ListToolsV1ToolsGetData,
+  ListToolsV1ToolsGetResponse,
+  ListUsersV1UsersGetData,
+  ListUsersV1UsersGetResponse,
+  LoginV1LoginPostData,
+  LoginV1LoginPostResponse,
+  LoginV1ToolAuthGetResponse,
+  LogoutV1LogoutGetResponse,
+  SearchConversationsV1ConversationsSearchGetData,
+  SearchConversationsV1ConversationsSearchGetResponse,
+  SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
+  SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
+  UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
+  UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
+  UpdateAgentV1AgentsAgentIdPutData,
+  UpdateAgentV1AgentsAgentIdPutResponse,
+  UpdateConversationV1ConversationsConversationIdPutData,
+  UpdateConversationV1ConversationsConversationIdPutResponse,
+  UpdateFileV1ConversationsConversationIdFilesFileIdPutData,
+  UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse,
+  UpdateUserV1UsersUserIdPutData,
+  UpdateUserV1UsersUserIdPutResponse,
+  UploadFileV1ConversationsUploadFilePostData,
+  UploadFileV1ConversationsUploadFilePostResponse,
 } from './types.gen';
 
 export class DefaultService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
+
+  /**
+   * Get Strategies
+   * Retrieves the currently enabled list of Authentication strategies.
+   *
+   *
+   * Returns:
+   * List[dict]: List of dictionaries containing the enabled auth strategy names.
+   * @returns ListAuthStrategy Successful Response
+   * @throws ApiError
+   */
+  public getStrategiesV1AuthStrategiesGet(): CancelablePromise<GetStrategiesV1AuthStrategiesGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/auth_strategies',
+    });
+  }
+
+  /**
+   * Login
+   * Logs user in, performing basic email/password auth.
+   * Verifies their credentials, retrieves the user and returns a JWT token.
+   *
+   * Args:
+   * request (Request): current Request object.
+   * login (Login): Login payload.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * dict: JWT token on Basic auth success
+   *
+   * Raises:
+   * HTTPException: If the strategy or payload are invalid, or if the login fails.
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public loginV1LoginPost(data: LoginV1LoginPostData): CancelablePromise<LoginV1LoginPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/login',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Authorize
+   * Callback authorization endpoint used for OAuth providers after authenticating on the provider's login screen.
+   *
+   * Args:
+   * strategy (str): Current strategy name.
+   * request (Request): Current Request object.
+   * session (Session): DB session.
+   *
+   * Returns:
+   * dict: Containing "token" key, on success.
+   *
+   * Raises:
+   * HTTPException: If authentication fails, or strategy is invalid.
+   * @param data The data for the request.
+   * @param data.strategy
+   * @param data.code
+   * @returns JWTResponse Successful Response
+   * @throws ApiError
+   */
+  public authorizeV1StrategyAuthPost(
+    data: AuthorizeV1StrategyAuthPostData,
+  ): CancelablePromise<AuthorizeV1StrategyAuthPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/{strategy}/auth',
+      path: {
+        strategy: data.strategy,
+      },
+      query: {
+        code: data.code,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Logout
+   * Logs out the current user, adding the given JWT token to the blacklist.
+   *
+   * Args:
+   * request (Request): current Request object.
+   *
+   * Returns:
+   * dict: Empty on success
+   * @returns Logout Successful Response
+   * @throws ApiError
+   */
+  public logoutV1LogoutGet(): CancelablePromise<LogoutV1LogoutGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/logout',
+    });
+  }
+
+  /**
+   * Login
+   * Logs user in, performing basic email/password auth.
+   * Verifies their credentials, retrieves the user and returns a JWT token.
+   *
+   * Args:
+   * request (Request): current Request object.
+   * login (Login): Login payload.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * dict: JWT token on Basic auth success
+   *
+   * Raises:
+   * HTTPException: If the strategy or payload are invalid, or if the login fails.
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public loginV1ToolAuthGet(): CancelablePromise<LoginV1ToolAuthGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/tool/auth',
+    });
+  }
 
   /**
    * Chat Stream
@@ -57,20 +225,25 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
+   * agent_id (str | None): Agent ID.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.agentId
    * @returns ChatResponseEvent Successful Response
    * @throws ApiError
    */
-  public chatStreamChatStreamPost(
-    data: ChatStreamChatStreamPostData,
-  ): CancelablePromise<ChatStreamChatStreamPostResponse> {
+  public chatStreamV1ChatStreamPost(
+    data: ChatStreamV1ChatStreamPostData,
+  ): CancelablePromise<ChatStreamV1ChatStreamPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/chat-stream',
+      url: '/v1/chat-stream',
+      query: {
+        agent_id: data.agentId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -87,18 +260,28 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
+   * agent_id (str | None): Agent ID.
+   * deployment_name: Deployment name header.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.agentId
+   * @param data.deploymentName
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
-  public chatChatPost(data: ChatChatPostData): CancelablePromise<ChatChatPostResponse> {
+  public chatV1ChatPost(data: ChatV1ChatPostData): CancelablePromise<ChatV1ChatPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/chat',
+      url: '/v1/chat',
+      headers: {
+        'deployment-name': data.deploymentName,
+      },
+      query: {
+        agent_id: data.agentId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -114,12 +297,12 @@ export class DefaultService {
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public langchainChatStreamLangchainChatPost(
-    data: LangchainChatStreamLangchainChatPostData,
-  ): CancelablePromise<LangchainChatStreamLangchainChatPostResponse> {
+  public langchainChatStreamV1LangchainChatPost(
+    data: LangchainChatStreamV1LangchainChatPostData,
+  ): CancelablePromise<LangchainChatStreamV1LangchainChatPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/langchain-chat',
+      url: '/v1/langchain-chat',
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -143,12 +326,12 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public createUserUsersPost(
-    data: CreateUserUsersPostData,
-  ): CancelablePromise<CreateUserUsersPostResponse> {
+  public createUserV1UsersPost(
+    data: CreateUserV1UsersPostData,
+  ): CancelablePromise<CreateUserV1UsersPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/users/',
+      url: '/v1/users',
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -174,12 +357,12 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public listUsersUsersGet(
-    data: ListUsersUsersGetData = {},
-  ): CancelablePromise<ListUsersUsersGetResponse> {
+  public listUsersV1UsersGet(
+    data: ListUsersV1UsersGetData = {},
+  ): CancelablePromise<ListUsersV1UsersGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/users/',
+      url: '/v1/users',
       query: {
         offset: data.offset,
         limit: data.limit,
@@ -208,12 +391,12 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public getUserUsersUserIdGet(
-    data: GetUserUsersUserIdGetData,
-  ): CancelablePromise<GetUserUsersUserIdGetResponse> {
+  public getUserV1UsersUserIdGet(
+    data: GetUserV1UsersUserIdGetData,
+  ): CancelablePromise<GetUserV1UsersUserIdGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/users/{user_id}',
+      url: '/v1/users/{user_id}',
       path: {
         user_id: data.userId,
       },
@@ -243,12 +426,12 @@ export class DefaultService {
    * @returns User Successful Response
    * @throws ApiError
    */
-  public updateUserUsersUserIdPut(
-    data: UpdateUserUsersUserIdPutData,
-  ): CancelablePromise<UpdateUserUsersUserIdPutResponse> {
+  public updateUserV1UsersUserIdPut(
+    data: UpdateUserV1UsersUserIdPutData,
+  ): CancelablePromise<UpdateUserV1UsersUserIdPutResponse> {
     return this.httpRequest.request({
       method: 'PUT',
-      url: '/users/{user_id}',
+      url: '/v1/users/{user_id}',
       path: {
         user_id: data.userId,
       },
@@ -279,12 +462,12 @@ export class DefaultService {
    * @returns DeleteUser Successful Response
    * @throws ApiError
    */
-  public deleteUserUsersUserIdDelete(
-    data: DeleteUserUsersUserIdDeleteData,
-  ): CancelablePromise<DeleteUserUsersUserIdDeleteResponse> {
+  public deleteUserV1UsersUserIdDelete(
+    data: DeleteUserV1UsersUserIdDeleteData,
+  ): CancelablePromise<DeleteUserV1UsersUserIdDeleteResponse> {
     return this.httpRequest.request({
       method: 'DELETE',
-      url: '/users/{user_id}',
+      url: '/v1/users/{user_id}',
       path: {
         user_id: data.userId,
       },
@@ -314,12 +497,12 @@ export class DefaultService {
    * @returns Conversation Successful Response
    * @throws ApiError
    */
-  public getConversationConversationsConversationIdGet(
-    data: GetConversationConversationsConversationIdGetData,
-  ): CancelablePromise<GetConversationConversationsConversationIdGetResponse> {
+  public getConversationV1ConversationsConversationIdGet(
+    data: GetConversationV1ConversationsConversationIdGetData,
+  ): CancelablePromise<GetConversationV1ConversationsConversationIdGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/conversations/{conversation_id}',
+      url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: data.conversationId,
       },
@@ -350,12 +533,12 @@ export class DefaultService {
    * @returns Conversation Successful Response
    * @throws ApiError
    */
-  public updateConversationConversationsConversationIdPut(
-    data: UpdateConversationConversationsConversationIdPutData,
-  ): CancelablePromise<UpdateConversationConversationsConversationIdPutResponse> {
+  public updateConversationV1ConversationsConversationIdPut(
+    data: UpdateConversationV1ConversationsConversationIdPutData,
+  ): CancelablePromise<UpdateConversationV1ConversationsConversationIdPutResponse> {
     return this.httpRequest.request({
       method: 'PUT',
-      url: '/conversations/{conversation_id}',
+      url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: data.conversationId,
       },
@@ -386,12 +569,12 @@ export class DefaultService {
    * @returns DeleteConversation Successful Response
    * @throws ApiError
    */
-  public deleteConversationConversationsConversationIdDelete(
-    data: DeleteConversationConversationsConversationIdDeleteData,
-  ): CancelablePromise<DeleteConversationConversationsConversationIdDeleteResponse> {
+  public deleteConversationV1ConversationsConversationIdDelete(
+    data: DeleteConversationV1ConversationsConversationIdDeleteData,
+  ): CancelablePromise<DeleteConversationV1ConversationsConversationIdDeleteResponse> {
     return this.httpRequest.request({
       method: 'DELETE',
-      url: '/conversations/{conversation_id}',
+      url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: data.conversationId,
       },
@@ -408,6 +591,7 @@ export class DefaultService {
    * Args:
    * offset (int): Offset to start the list.
    * limit (int): Limit of conversations to be listed.
+   * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
    *
@@ -416,18 +600,20 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.offset
    * @param data.limit
+   * @param data.agentId
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
-  public listConversationsConversationsGet(
-    data: ListConversationsConversationsGetData = {},
-  ): CancelablePromise<ListConversationsConversationsGetResponse> {
+  public listConversationsV1ConversationsGet(
+    data: ListConversationsV1ConversationsGetData = {},
+  ): CancelablePromise<ListConversationsV1ConversationsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/conversations/',
+      url: '/v1/conversations',
       query: {
         offset: data.offset,
         limit: data.limit,
+        agent_id: data.agentId,
       },
       errors: {
         422: 'Validation Error',
@@ -436,40 +622,36 @@ export class DefaultService {
   }
 
   /**
-   * Upload File With Conversation
-   * (TO BE DEPRECATED)
-   *
-   *
-   * Uploads a file to a conversation.
+   * Search Conversations
+   * Search conversations by title.
    *
    * Args:
-   * conversation_id (str): Conversation ID.
+   * query (str): Query string to search for in conversation titles.
    * session (DBSessionDep): Database session.
-   * file (FastAPIUploadFile): File to be uploaded.
+   * request (Request): Request object.
    *
    * Returns:
-   * UploadFile: Uploaded file.
-   *
-   * Raises:
-   * HTTPException: If the conversation with the given ID is not found. Status code 404.
-   * HTTPException: If the file wasn't uploaded correctly. Status code 500.
+   * list[ConversationWithoutMessages]: List of conversations that match the query.
    * @param data The data for the request.
-   * @param data.conversationId
-   * @param data.formData
-   * @returns UploadFile Successful Response
+   * @param data.query
+   * @param data.offset
+   * @param data.limit
+   * @param data.agentId
+   * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
-  public uploadFileWithConversationConversationsConversationIdUploadFilePost(
-    data: UploadFileWithConversationConversationsConversationIdUploadFilePostData,
-  ): CancelablePromise<UploadFileWithConversationConversationsConversationIdUploadFilePostResponse> {
+  public searchConversationsV1ConversationsSearchGet(
+    data: SearchConversationsV1ConversationsSearchGetData,
+  ): CancelablePromise<SearchConversationsV1ConversationsSearchGetResponse> {
     return this.httpRequest.request({
-      method: 'POST',
-      url: '/conversations/{conversation_id}/upload_file',
-      path: {
-        conversation_id: data.conversationId,
+      method: 'GET',
+      url: '/v1/conversations:search',
+      query: {
+        query: data.query,
+        offset: data.offset,
+        limit: data.limit,
+        agent_id: data.agentId,
       },
-      formData: data.formData,
-      mediaType: 'multipart/form-data',
       errors: {
         422: 'Validation Error',
       },
@@ -497,12 +679,12 @@ export class DefaultService {
    * @returns UploadFile Successful Response
    * @throws ApiError
    */
-  public uploadFileConversationsUploadFilePost(
-    data: UploadFileConversationsUploadFilePostData,
-  ): CancelablePromise<UploadFileConversationsUploadFilePostResponse> {
+  public uploadFileV1ConversationsUploadFilePost(
+    data: UploadFileV1ConversationsUploadFilePostData,
+  ): CancelablePromise<UploadFileV1ConversationsUploadFilePostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/conversations/upload_file',
+      url: '/v1/conversations/upload_file',
       formData: data.formData,
       mediaType: 'multipart/form-data',
       errors: {
@@ -529,12 +711,12 @@ export class DefaultService {
    * @returns ListFile Successful Response
    * @throws ApiError
    */
-  public listFilesConversationsConversationIdFilesGet(
-    data: ListFilesConversationsConversationIdFilesGetData,
-  ): CancelablePromise<ListFilesConversationsConversationIdFilesGetResponse> {
+  public listFilesV1ConversationsConversationIdFilesGet(
+    data: ListFilesV1ConversationsConversationIdFilesGetData,
+  ): CancelablePromise<ListFilesV1ConversationsConversationIdFilesGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/conversations/{conversation_id}/files',
+      url: '/v1/conversations/{conversation_id}/files',
       path: {
         conversation_id: data.conversationId,
       },
@@ -566,12 +748,12 @@ export class DefaultService {
    * @returns File Successful Response
    * @throws ApiError
    */
-  public updateFileConversationsConversationIdFilesFileIdPut(
-    data: UpdateFileConversationsConversationIdFilesFileIdPutData,
-  ): CancelablePromise<UpdateFileConversationsConversationIdFilesFileIdPutResponse> {
+  public updateFileV1ConversationsConversationIdFilesFileIdPut(
+    data: UpdateFileV1ConversationsConversationIdFilesFileIdPutData,
+  ): CancelablePromise<UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse> {
     return this.httpRequest.request({
       method: 'PUT',
-      url: '/conversations/{conversation_id}/files/{file_id}',
+      url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
         conversation_id: data.conversationId,
         file_id: data.fileId,
@@ -604,15 +786,48 @@ export class DefaultService {
    * @returns DeleteFile Successful Response
    * @throws ApiError
    */
-  public deleteFileConversationsConversationIdFilesFileIdDelete(
-    data: DeleteFileConversationsConversationIdFilesFileIdDeleteData,
-  ): CancelablePromise<DeleteFileConversationsConversationIdFilesFileIdDeleteResponse> {
+  public deleteFileV1ConversationsConversationIdFilesFileIdDelete(
+    data: DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData,
+  ): CancelablePromise<DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse> {
     return this.httpRequest.request({
       method: 'DELETE',
-      url: '/conversations/{conversation_id}/files/{file_id}',
+      url: '/v1/conversations/{conversation_id}/files/{file_id}',
       path: {
         conversation_id: data.conversationId,
         file_id: data.fileId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Generate Title
+   * Generate a title for a conversation and update the conversation with the generated title.
+   *
+   * Args:
+   * conversation_id (str): Conversation ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * str: Generated title for the conversation.
+   *
+   * Raises:
+   * HTTPException: If the conversation with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.conversationId
+   * @returns GenerateTitle Successful Response
+   * @throws ApiError
+   */
+  public generateTitleV1ConversationsConversationIdGenerateTitlePost(
+    data: GenerateTitleV1ConversationsConversationIdGenerateTitlePostData,
+  ): CancelablePromise<GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/conversations/{conversation_id}/generate-title',
+      path: {
+        conversation_id: data.conversationId,
       },
       errors: {
         422: 'Validation Error',
@@ -626,13 +841,23 @@ export class DefaultService {
    *
    * Returns:
    * list[ManagedTool]: List of available tools.
+   * @param data The data for the request.
+   * @param data.agentId
    * @returns ManagedTool Successful Response
    * @throws ApiError
    */
-  public listToolsToolsGet(): CancelablePromise<ListToolsToolsGetResponse> {
+  public listToolsV1ToolsGet(
+    data: ListToolsV1ToolsGetData = {},
+  ): CancelablePromise<ListToolsV1ToolsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/tools/',
+      url: '/v1/tools',
+      query: {
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 
@@ -647,12 +872,12 @@ export class DefaultService {
    * @returns Deployment Successful Response
    * @throws ApiError
    */
-  public listDeploymentsDeploymentsGet(
-    data: ListDeploymentsDeploymentsGetData = {},
-  ): CancelablePromise<ListDeploymentsDeploymentsGetResponse> {
+  public listDeploymentsV1DeploymentsGet(
+    data: ListDeploymentsV1DeploymentsGetData = {},
+  ): CancelablePromise<ListDeploymentsV1DeploymentsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/deployments/',
+      url: '/v1/deployments',
       query: {
         all: data.all,
       },
@@ -674,12 +899,12 @@ export class DefaultService {
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public setEnvVarsDeploymentsNameSetEnvVarsPost(
-    data: SetEnvVarsDeploymentsNameSetEnvVarsPostData,
-  ): CancelablePromise<SetEnvVarsDeploymentsNameSetEnvVarsPostResponse> {
+  public setEnvVarsV1DeploymentsNameSetEnvVarsPost(
+    data: SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
+  ): CancelablePromise<SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/deployments/{name}/set_env_vars',
+      url: '/v1/deployments/{name}/set_env_vars',
       path: {
         name: data.name,
       },
@@ -700,10 +925,472 @@ export class DefaultService {
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public listExperimentalFeaturesExperimentalFeaturesGet(): CancelablePromise<ListExperimentalFeaturesExperimentalFeaturesGetResponse> {
+  public listExperimentalFeaturesV1ExperimentalFeaturesGet(): CancelablePromise<ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/experimental_features/',
+      url: '/v1/experimental_features/',
+    });
+  }
+
+  /**
+   * Create Agent
+   * Create an agent.
+   * Args:
+   * session (DBSessionDep): Database session.
+   * agent (CreateAgent): Agent data.
+   * request (Request): Request object.
+   * Returns:
+   * Agent: Created agent.
+   * Raises:
+   * HTTPException: If the agent creation fails.
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public createAgentV1AgentsPost(
+    data: CreateAgentV1AgentsPostData,
+  ): CancelablePromise<CreateAgentV1AgentsPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/agents',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * List Agents
+   * List all agents.
+   *
+   * Args:
+   * offset (int): Offset to start the list.
+   * limit (int): Limit of agents to be listed.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * list[Agent]: List of agents.
+   * @param data The data for the request.
+   * @param data.offset
+   * @param data.limit
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public listAgentsV1AgentsGet(
+    data: ListAgentsV1AgentsGetData = {},
+  ): CancelablePromise<ListAgentsV1AgentsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/agents',
+      query: {
+        offset: data.offset,
+        limit: data.limit,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Agent By Id
+   * Args:
+   * agent_id (str): Agent ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * Agent: Agent.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public getAgentByIdV1AgentsAgentIdGet(
+    data: GetAgentByIdV1AgentsAgentIdGetData,
+  ): CancelablePromise<GetAgentByIdV1AgentsAgentIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/agents/{agent_id}',
+      path: {
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Update Agent
+   * Update an agent by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * new_agent (UpdateAgent): New agent data.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * Agent: Updated agent.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @param data.requestBody
+   * @returns Agent Successful Response
+   * @throws ApiError
+   */
+  public updateAgentV1AgentsAgentIdPut(
+    data: UpdateAgentV1AgentsAgentIdPutData,
+  ): CancelablePromise<UpdateAgentV1AgentsAgentIdPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v1/agents/{agent_id}',
+      path: {
+        agent_id: data.agentId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Agent
+   * Delete an agent by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * DeleteAgent: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @returns DeleteAgent Successful Response
+   * @throws ApiError
+   */
+  public deleteAgentV1AgentsAgentIdDelete(
+    data: DeleteAgentV1AgentsAgentIdDeleteData,
+  ): CancelablePromise<DeleteAgentV1AgentsAgentIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/agents/{agent_id}',
+      path: {
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * List Agent Tool Metadata
+   * List all agent tool metadata by agent ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * list[AgentToolMetadata]: List of agent tool metadata.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata retrieval fails.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @returns AgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public listAgentToolMetadataV1AgentsAgentIdToolMetadataGet(
+    data: ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData,
+  ): CancelablePromise<ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/agents/{agent_id}/tool-metadata',
+      path: {
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Create Agent Tool Metadata
+   * Create an agent tool metadata.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * agent_id (str): Agent ID.
+   * agent_tool_metadata (CreateAgentToolMetadata): Agent tool metadata data.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * AgentToolMetadata: Created agent tool metadata.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata creation fails.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @param data.requestBody
+   * @returns AgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public createAgentToolMetadataV1AgentsAgentIdToolMetadataPost(
+    data: CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostData,
+  ): CancelablePromise<CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/agents/{agent_id}/tool-metadata',
+      path: {
+        agent_id: data.agentId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Update Agent Tool Metadata
+   * Update an agent tool metadata by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * agent_tool_metadata_id (str): Agent tool metadata ID.
+   * session (DBSessionDep): Database session.
+   * new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * AgentToolMetadata: Updated agent tool metadata.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata with the given ID is not found.
+   * HTTPException: If the agent tool metadata update fails.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @param data.agentToolMetadataId
+   * @param data.requestBody
+   * @returns AgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public updateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPut(
+    data: UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
+  ): CancelablePromise<UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
+      path: {
+        agent_id: data.agentId,
+        agent_tool_metadata_id: data.agentToolMetadataId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Agent Tool Metadata
+   * Delete an agent tool metadata by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * agent_tool_metadata_id (str): Agent tool metadata ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * DeleteAgentToolMetadata: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the agent tool metadata with the given ID is not found.
+   * HTTPException: If the agent tool metadata deletion fails.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @param data.agentToolMetadataId
+   * @returns DeleteAgentToolMetadata Successful Response
+   * @throws ApiError
+   */
+  public deleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDelete(
+    data: DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteData,
+  ): CancelablePromise<DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/agents/{agent_id}/tool-metadata/{agent_tool_metadata_id}',
+      path: {
+        agent_id: data.agentId,
+        agent_tool_metadata_id: data.agentToolMetadataId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * List Snapshots
+   * List all snapshots.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * list[Snapshot]: List of all snapshots.
+   * @returns SnapshotWithLinks Successful Response
+   * @throws ApiError
+   */
+  public listSnapshotsV1SnapshotsGet(): CancelablePromise<ListSnapshotsV1SnapshotsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/snapshots',
+    });
+  }
+
+  /**
+   * Create Snapshot
+   * Create a new snapshot and snapshot link to share the conversation.
+   *
+   * Args:
+   * snapshot_request (CreateSnapshot): Snapshot creation request.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * CreateSnapshotResponse: Snapshot creation response.
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns CreateSnapshotResponse Successful Response
+   * @throws ApiError
+   */
+  public createSnapshotV1SnapshotsPost(
+    data: CreateSnapshotV1SnapshotsPostData,
+  ): CancelablePromise<CreateSnapshotV1SnapshotsPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/snapshots',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Snapshot
+   * Get a snapshot by link ID.
+   *
+   * Args:
+   * link_id (str): Snapshot link ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * Snapshot: Snapshot with the given link ID.
+   * @param data The data for the request.
+   * @param data.linkId
+   * @returns Snapshot Successful Response
+   * @throws ApiError
+   */
+  public getSnapshotV1SnapshotsLinkLinkIdGet(
+    data: GetSnapshotV1SnapshotsLinkLinkIdGetData,
+  ): CancelablePromise<GetSnapshotV1SnapshotsLinkLinkIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/snapshots/link/{link_id}',
+      path: {
+        link_id: data.linkId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Snapshot Link
+   * Delete a snapshot link by ID.
+   *
+   * Args:
+   * link_id (str): Snapshot link ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * Any: Empty response.
+   * @param data The data for the request.
+   * @param data.linkId
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete(
+    data: DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteData,
+  ): CancelablePromise<DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/snapshots/link/{link_id}',
+      path: {
+        link_id: data.linkId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Snapshot
+   * Delete a snapshot by ID.
+   *
+   * Args:
+   * snapshot_id (str): Snapshot ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): HTTP request object.
+   *
+   * Returns:
+   * Any: Empty response.
+   * @param data The data for the request.
+   * @param data.snapshotId
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public deleteSnapshotV1SnapshotsSnapshotIdDelete(
+    data: DeleteSnapshotV1SnapshotsSnapshotIdDeleteData,
+  ): CancelablePromise<DeleteSnapshotV1SnapshotsSnapshotIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/snapshots/{snapshot_id}',
+      path: {
+        snapshot_id: data.snapshotId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 

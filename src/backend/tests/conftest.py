@@ -12,7 +12,6 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import get_session
 from backend.main import app, create_app
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.deployment import Deployment
 from backend.schemas.user import User
 from backend.tests.factories import get_factory
@@ -71,6 +70,7 @@ def session_client(session: Session) -> Generator[TestClient, None, None]:
         yield session
 
     app = create_app()
+
     app.dependency_overrides[get_session] = override_get_session
 
     print("Session at fixture " + str(session))

@@ -73,10 +73,17 @@ export const $Agent = {
       title: 'Tools',
     },
     tools_metadata: {
-      items: {
-        $ref: '#/components/schemas/AgentToolMetadata',
-      },
-      type: 'array',
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadataPublic',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Tools Metadata',
     },
     model: {
@@ -100,11 +107,112 @@ export const $Agent = {
     'preamble',
     'temperature',
     'tools',
-    'tools_metadata',
     'model',
     'deployment',
   ],
   title: 'Agent',
+} as const;
+
+export const $AgentPublic = {
+  properties: {
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    version: {
+      type: 'integer',
+      title: 'Version',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    preamble: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Preamble',
+    },
+    temperature: {
+      type: 'number',
+      title: 'Temperature',
+    },
+    tools: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Tools',
+    },
+    tools_metadata: {
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/AgentToolMetadataPublic',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tools Metadata',
+    },
+    model: {
+      type: 'string',
+      title: 'Model',
+    },
+    deployment: {
+      type: 'string',
+      title: 'Deployment',
+    },
+  },
+  type: 'object',
+  required: [
+    'user_id',
+    'id',
+    'created_at',
+    'updated_at',
+    'version',
+    'name',
+    'description',
+    'preamble',
+    'temperature',
+    'tools',
+    'model',
+    'deployment',
+  ],
+  title: 'AgentPublic',
 } as const;
 
 export const $AgentToolMetadata = {
@@ -143,6 +251,60 @@ export const $AgentToolMetadata = {
   type: 'object',
   required: ['user_id', 'id', 'tool_name', 'artifacts'],
   title: 'AgentToolMetadata',
+} as const;
+
+export const $AgentToolMetadataPublic = {
+  properties: {
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    tool_name: {
+      type: 'string',
+      title: 'Tool Name',
+    },
+    artifacts: {
+      items: {
+        type: 'object',
+      },
+      type: 'array',
+      title: 'Artifacts',
+    },
+  },
+  type: 'object',
+  required: ['id', 'tool_name', 'artifacts'],
+  title: 'AgentToolMetadataPublic',
+} as const;
+
+export const $Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
+  properties: {
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation Id',
+    },
+    files: {
+      items: {
+        type: 'string',
+        format: 'binary',
+      },
+      type: 'array',
+      title: 'Files',
+    },
+  },
+  type: 'object',
+  required: ['files'],
+  title: 'Body_batch_upload_file_v1_conversations_batch_upload_file_post',
 } as const;
 
 export const $Body_upload_file_v1_conversations_upload_file_post = {
@@ -932,6 +1094,17 @@ export const $CreateAgent = {
 
 export const $CreateAgentToolMetadata = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Id',
+    },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
@@ -2648,7 +2821,7 @@ export const $UpdateAgent = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/UpdateAgentToolMetadata',
+            $ref: '#/components/schemas/CreateAgentToolMetadata',
           },
           type: 'array',
         },

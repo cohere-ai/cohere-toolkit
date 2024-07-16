@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -133,14 +131,14 @@ def test_create_agent_duplicate_name_version(session, user):
 
 
 def test_get_agent_by_id(session, user):
-    _ = get_factory("Agent", session).create(id="1", name="test_agent")
+    _ = get_factory("Agent", session).create(id="1", name="test_agent", user_id=user.id)
     agent = agent_crud.get_agent_by_id(session, "1")
     assert agent.id == "1"
     assert agent.name == "test_agent"
 
 
 def test_get_agent_by_name(session, user):
-    _ = get_factory("Agent", session).create(id="1", name="test_agent")
+    _ = get_factory("Agent", session).create(id="1", name="test_agent", user_id=user.id)
     agent = agent_crud.get_agent_by_name(session, "test_agent")
     assert agent.id == "1"
     assert agent.name == "test_agent"
@@ -154,7 +152,9 @@ def test_fail_get_nonexistant_agent(session, user):
 def test_list_agents(session, user):
     length = 3
     for i in range(length):
-        _ = get_factory("Agent", session).create(id=i, name=f"test_agent_{i}")
+        _ = get_factory("Agent", session).create(
+            id=i, name=f"test_agent_{i}", user_id=user.id
+        )
 
     agents = agent_crud.get_agents(session)
     assert len(agents) == length
