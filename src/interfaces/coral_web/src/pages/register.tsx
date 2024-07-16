@@ -98,7 +98,7 @@ const RegisterPage: NextPage<Props> = () => {
           {errors.map(
             (error) =>
               error && (
-                <Text key={error} className="mt-4 text-danger-300 first-letter:uppercase">
+                <Text key={error} className="mt-4 text-danger-350 first-letter:uppercase">
                   {error}
                 </Text>
               )

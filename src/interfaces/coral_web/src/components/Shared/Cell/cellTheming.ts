@@ -247,28 +247,28 @@ export const THEME_CLASSES: CellThemes = {
   },
   danger: {
     default: {
-      bg: 'bg-danger-300',
-      fill: 'fill-danger-300',
+      bg: 'bg-danger-350',
+      fill: 'fill-danger-350',
       text: 'text-marble-1000',
     },
     outline: {
-      text: 'text-danger-300',
-      stroke: 'stroke-danger-300',
-      outlineFill: 'fill-danger-300',
+      text: 'text-danger-350',
+      stroke: 'stroke-danger-350',
+      outlineFill: 'fill-danger-350',
       fill: 'fill-danger-950',
       bg: 'bg-danger-950',
     },
   },
   dangerDark: {
     default: {
-      bg: 'bg-danger-300',
-      fill: 'fill-danger-300',
+      bg: 'bg-danger-350',
+      fill: 'fill-danger-350',
       text: 'text-marble-1000',
     },
     outline: {
-      text: 'text-danger-300',
-      stroke: 'stroke-danger-300',
-      outlineFill: 'fill-danger-300',
+      text: 'text-danger-350',
+      stroke: 'stroke-danger-350',
+      outlineFill: 'fill-danger-350',
       fill: 'fill-danger-950',
       bg: 'bg-danger-950',
     },

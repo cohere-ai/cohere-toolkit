@@ -30,8 +30,8 @@ const TAG_THEME_CLASSES = {
     secondary: 'text-success-200 bg-success-950',
   },
   error: {
-    primary: 'text-danger-300 bg-danger-950',
-    secondary: 'text-danger-300 bg-danger-950',
+    primary: 'text-danger-350 bg-danger-950',
+    secondary: 'text-danger-350 bg-danger-950',
   },
   warning: {
     primary: 'text-blue-500 bg-blue-950',

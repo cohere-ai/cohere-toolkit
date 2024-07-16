@@ -196,7 +196,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   if (!agent) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-danger-300">Unable to load assistant information</Text>
+        <Text className="text-danger-350">Unable to load assistant information</Text>
       </div>
     );
   }

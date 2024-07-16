@@ -207,7 +207,7 @@ const InnerInput = React.forwardRef<
     return visibleIcon ? (
       <div
         className={cn('absolute right-3 flex items-center gap-x-2', {
-          'text-danger-300': hasError && type !== 'password',
+          'text-danger-350': hasError && type !== 'password',
           'bottom-0 h-full justify-center': kind !== 'cell',
           'bottom-3.5 justify-end': kind === 'cell',
         })}
@@ -305,7 +305,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   });
   const borderClasses = cn(roundedClasses, {
     [THEME_CLASSES[theme].border]: !hasError,
-    'border-danger-300 border-b': hasError,
+    'border-danger-350 border-b': hasError,
     border: !stackPosition || stackPosition === 'end',
     'border-x border-t': stackPosition === 'center' || stackPosition === 'start',
     'border-l border-t border-b': stackPosition === 'left',
@@ -318,7 +318,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   });
 
   const labelClasses = cn({
-    'text-danger-300': hasError,
+    'text-danger-350': hasError,
     [THEME_CLASSES[theme].label]: !hasError,
     'pl-3 pt-2.5': kind === 'cell',
     'mb-2': kind === 'default',
@@ -330,7 +330,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       !stackPosition,
     [STYLE_LEVEL_TO_CLASSES.code]: isMonospace,
     [STYLE_LEVEL_TO_CLASSES.p]: !isMonospace,
-    'text-danger-300': hasError,
+    'text-danger-350': hasError,
     'py-3': kind === 'default' && size === 'sm',
     'py-4': kind === 'default' && size === 'md',
     'pt-7 pb-2.5': kind === 'cell',
@@ -389,7 +389,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           styleAs="caption"
           className={cn('py-2', {
             'text-volcanic-400': !hasError && description,
-            'text-danger-300': errorText && hasError,
+            'text-danger-350': errorText && hasError,
           })}
         >
           {hasError && errorText}

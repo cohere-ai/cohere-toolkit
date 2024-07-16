@@ -112,7 +112,7 @@ export const FileInput: React.FC<FileInputProps> = ({
             <Spinner className="my-0.5" />
           ) : file ? (
             <button
-              className="z-10 ml-4 text-volcanic-100 transition ease-in-out hover:text-danger-300"
+              className="z-10 ml-4 text-volcanic-100 transition ease-in-out hover:text-danger-350"
               type="button"
               onClick={handleRemoveFile}
             >

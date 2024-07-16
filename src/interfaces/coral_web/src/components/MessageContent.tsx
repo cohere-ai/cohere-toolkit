@@ -148,7 +148,7 @@ const MessageInfo = ({
   <div
     className={cn('flex items-start gap-1', {
       'text-volcanic-400': type === 'default',
-      'text-danger-300': type === 'error',
+      'text-danger-350': type === 'error',
     })}
   >
     <Icon name="warning" size="md" className="flex items-center text-p" />

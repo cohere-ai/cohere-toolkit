@@ -46,7 +46,7 @@ export const ToggleCard: React.FC<Props> = ({
           </Text>
           <Text styleAs="p-sm">{description}</Text>
           {errorMessage && (
-            <Text styleAs="p-sm" className="text-danger-300">
+            <Text styleAs="p-sm" className="text-danger-350">
               Error: {errorMessage}
             </Text>
           )}
