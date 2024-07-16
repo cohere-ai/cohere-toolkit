@@ -48,7 +48,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, customActions = 
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-volcanic-800/20 backdrop-blur-sm transition-opacity" />
+          <div className="fixed inset-0 bg-volcanic-300/20 backdrop-blur-sm transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 flex items-start justify-center overflow-y-auto p-4">
@@ -61,7 +61,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, customActions = 
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <Dialog.Panel className="relative flex w-full max-w-modal-xs flex-col rounded-lg bg-marble-100 md:max-w-modal xl:max-w-modal-lg">
+            <Dialog.Panel className="relative flex w-full max-w-modal-xs flex-col rounded-lg bg-marble-1000 md:max-w-modal xl:max-w-modal-lg">
               <div className="p-6">
                 <Combobox as="div" onChange={(item: ComboboxItem) => handleGoTo(item.url)}>
                   <QuickActions isOpen={isOpen} onGoTo={handleGoTo} customActions={customActions} />

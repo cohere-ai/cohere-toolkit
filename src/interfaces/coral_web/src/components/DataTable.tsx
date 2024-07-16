@@ -56,7 +56,7 @@ export const DataTable: Component<ComponentPropsWithoutRef<'table'> & ExtraProps
           data-testid="button-md-table-download-csv"
           className={cn(
             'mt-2 flex items-center gap-x-1 rounded p-1',
-            'text-secondary-700 transition ease-in-out hover:bg-secondary-100 hover:text-secondary-800'
+            'text-mushroom-400 transition ease-in-out hover:bg-mushroom-900 hover:text-mushroom-300'
           )}
           onClick={downloadAsCSV}
         >

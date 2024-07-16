@@ -72,9 +72,9 @@ export const ListboxOption: React.FC<ListboxOptionProps> = ({
         disabled={disabled}
         tabIndex={-1}
         className={cn(
-          'flex w-full items-start justify-between gap-x-2 rounded p-1.5 hover:bg-secondary-50 active:bg-secondary-50',
-          'focus:outline focus:outline-volcanic-800',
-          { 'bg-secondary-50': focus, 'cursor-not-allowed': disabled }
+          'flex w-full items-start justify-between gap-x-2 rounded p-1.5 hover:bg-mushroom-950 active:bg-mushroom-950',
+          'focus:outline focus:outline-volcanic-300',
+          { 'bg-mushroom-950': focus, 'cursor-not-allowed': disabled }
         )}
         onClick={onSelect}
       >
@@ -83,19 +83,19 @@ export const ListboxOption: React.FC<ListboxOptionProps> = ({
             name={icon}
             size="sm"
             kind="outline"
-            className="flex h-[21px] items-center text-volcanic-500"
+            className="flex h-[21px] items-center text-volcanic-600"
           />
           <div className="flex flex-col text-left">
             <Text
               as="span"
               className={cn({
-                'text-volcanic-700': disabled,
+                'text-volcanic-400': disabled,
               })}
             >
               {name}
             </Text>
             {description && (
-              <Text as="span" className="text-volcanic-700">
+              <Text as="span" className="text-volcanic-400">
                 {description}
               </Text>
             )}

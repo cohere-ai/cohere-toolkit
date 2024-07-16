@@ -63,7 +63,7 @@ export const CodeSnippet: React.FC<Props> = ({
 
   return (
     <div
-      className="group relative h-full w-full cursor-pointer rounded-lg"
+      className="group relative h-full w-full cursor-pointer rounded-lg bg-mushroom-900"
       onClick={handleCodeSnippetClick}
     >
       <CopyToClipboardButton
@@ -72,7 +72,7 @@ export const CodeSnippet: React.FC<Props> = ({
         size="md"
         animate={false}
         kind="secondary"
-        className="absolute right-3 top-3 rounded-lg bg-secondary-200 px-2 py-1 group-hover:bg-secondary-300"
+        className="absolute right-3 top-3 rounded-lg bg-mushroom-800 px-2 py-1 group-hover:bg-mushroom-800"
       />
       <SyntaxHighlighter
         showLineNumbers

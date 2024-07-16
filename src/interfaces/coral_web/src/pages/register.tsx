@@ -98,7 +98,7 @@ const RegisterPage: NextPage<Props> = () => {
           {errors.map(
             (error) =>
               error && (
-                <Text key={error} className="mt-4 text-danger-500 first-letter:uppercase">
+                <Text key={error} className="mt-4 text-danger-350 first-letter:uppercase">
                   {error}
                 </Text>
               )
@@ -113,12 +113,12 @@ const RegisterPage: NextPage<Props> = () => {
           />
         </form>
 
-        <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-700">
+        <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-400">
           Already have an account?
           <AuthLink
             redirect={redirect !== '/' ? redirect : undefined}
             action="login"
-            className="text-green-700 no-underline"
+            className="text-green-250 no-underline"
           />
         </Text>
       </div>

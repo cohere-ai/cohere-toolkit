@@ -89,12 +89,12 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
             'mt-2 w-full flex-1 resize-none p-3',
             'transition ease-in-out',
             'rounded-lg border',
-            'bg-marble-100',
-            'border-marble-500 placeholder:text-volcanic-500 focus:border-secondary-700',
+            'bg-marble-1000',
+            'border-marble-800 placeholder:text-volcanic-600 focus:border-mushroom-400',
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
             'disabled:text-volcanic-700',
             {
-              'border-marble-500 bg-marble-300': !isAgentCreator,
+              'border-marble-800 bg-marble-950': !isAgentCreator,
             },
             STYLE_LEVEL_TO_CLASSES.p
           )}
@@ -105,7 +105,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         />
       </InputLabel>
       <div className="flex flex-col space-y-2">
-        <Text className="text-volcanic-900" as="span" styleAs="label">
+        <Text className="text-volcanic-100" as="span" styleAs="label">
           Tools
         </Text>
         <div className="flex flex-col gap-y-4 px-3">
@@ -154,10 +154,10 @@ const RequiredInputLabel: React.FC<{
   <InputLabel
     label={
       <div className="flex items-center gap-x-2">
-        <Text as="span" styleAs="label" className="text-volcanic-900">
+        <Text as="span" styleAs="label" className="text-volcanic-100">
           {label}
         </Text>
-        <Text as="span" styleAs="label" className="text-danger-500">
+        <Text as="span" styleAs="label" className="text-danger-350">
           *required
         </Text>
       </div>

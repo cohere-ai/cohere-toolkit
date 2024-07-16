@@ -28,7 +28,7 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
   };
 
   return (
-    <div className={cn('flex items-center gap-x-2', 'border-t border-marble-400', 'mx-2 py-2')}>
+    <div className={cn('flex items-center gap-x-2', 'border-t border-marble-950', 'mx-2 py-2')}>
       <input
         ref={fileInputRef}
         type="file"
@@ -43,7 +43,7 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
         onClick={handleOpenFileExplorer}
       />
       <DataSourceMenu {...menuProps} />
-      <div className="h-7 w-px bg-marble-300" />
+      <div className="h-7 w-px bg-marble-950" />
       <EnabledDataSources isStreaming={isStreaming} />
     </div>
   );

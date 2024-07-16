@@ -178,7 +178,7 @@ const Page: NextPage = () => {
                 className={cn(
                   'z-main-section flex lg:min-w-0',
                   'absolute h-full w-full lg:static lg:h-auto',
-                  'border-0 border-marble-400 md:border-r',
+                  'border-0 border-marble-950 md:border-r',
                   'transition-[transform,min-width,max-width] duration-300 ease-in-out'
                 )}
               >
