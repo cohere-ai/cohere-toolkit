@@ -40,7 +40,7 @@ class MetricsDataBase(BaseModel):
     user_id: str
     trace_id: str
     message_type: MetricsMessageType
-    timestamp: float = time.time()
+    timestamp: float
     secret: str = ""
 
 

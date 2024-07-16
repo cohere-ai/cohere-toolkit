@@ -83,11 +83,13 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         user = self.get_user(request)
         object_ids = self.get_object_ids(request)
         event_id = str(uuid.uuid4())
+        now_unix_seconds = time.time()
 
         try:
             data = MetricsData(
                 id=event_id,
                 user_id=user_id,
+                timestamp=now_unix_seconds,
                 user=user,
                 message_type=message_type,
                 trace_id=request.state.trace_id,
