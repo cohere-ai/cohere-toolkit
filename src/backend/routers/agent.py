@@ -343,38 +343,6 @@ async def update_agent(
         agent = await handle_tool_metadata_update(agent, new_agent, session, request)
 
     try:
-        agent = agent_crud.update_agent(session, agent, new_agent)
-        add_agent_to_request_state(request, agent)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    return agent
-
-
-async def handle_tool_metadata_update(
-    agent: Agent, new_agent: Agent, session: DBSessionDep, request: Request
-) -> Agent:
-    # Delete tool metadata that are not in the request
-    new_tools_names = [metadata.tool_name for metadata in new_agent.tools_metadata]
-    for tool_metadata in agent.tools_metadata:
-        if tool_metadata.tool_name not in new_tools_names:
-            agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
-                session, tool_metadata.id
-            )
-
-    # Create or update tool metadata from the request
-    for tool_metadata in new_agent.tools_metadata:
-        print("Tool metadata", tool_metadata)
-        try:
-            await update_or_create_tool_metadata(agent, tool_metadata, session, request)
-        except Exception as e:
-            raise_db_error(e, "Tool name", tool_metadata.tool_name)
-
-        # Remove tools_metadata from new_agent to avoid updating it in the agent
-        new_agent.tools_metadata = None
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-
-    try:
         db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)
         deployment_config = new_agent.deployment_config
         is_default_deployment = new_agent.is_default_deployment
@@ -429,6 +397,32 @@ async def handle_tool_metadata_update(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+    return agent
+
+
+
+async def handle_tool_metadata_update(
+    agent: Agent, new_agent: Agent, session: DBSessionDep, request: Request
+) -> Agent:
+    # Delete tool metadata that are not in the request
+    new_tools_names = [metadata.tool_name for metadata in new_agent.tools_metadata]
+    for tool_metadata in agent.tools_metadata:
+        if tool_metadata.tool_name not in new_tools_names:
+            agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
+                session, tool_metadata.id
+            )
+
+    # Create or update tool metadata from the request
+    for tool_metadata in new_agent.tools_metadata:
+        print("Tool metadata", tool_metadata)
+        try:
+            await update_or_create_tool_metadata(agent, tool_metadata, session, request)
+        except Exception as e:
+            raise_db_error(e, "Tool name", tool_metadata.tool_name)
+
+    # Remove tools_metadata from new_agent to avoid updating it in the agent
+    new_agent.tools_metadata = None
+    agent = agent_crud.get_agent_by_id(session, agent.id)
     return agent
 
 

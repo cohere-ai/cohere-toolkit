@@ -82,7 +82,7 @@ def test_share_conversation(
     assert response.status_code == 200
     response_json = response.json()
 
-    assert response_json["user_id"] == "1"
+    assert response_json["user_id"] == user.id
     assert "snapshot_id" in response_json
     assert "link_id" in response_json
     assert len(response_json["messages"]) == 1
@@ -104,7 +104,7 @@ def test_share_conversation_twice(
     assert response.status_code == 200
     response_json = response.json()
 
-    assert response_json["user_id"] == "1"
+    assert response_json["user_id"] == user.id
     assert "snapshot_id" in response_json
     assert "link_id" in response_json
     assert len(response_json["messages"]) == 1
@@ -119,7 +119,7 @@ def test_share_conversation_twice(
     assert response.status_code == 200
     response_json = response.json()
 
-    assert response_json["user_id"] == "1"
+    assert response_json["user_id"] == user.id
     assert "snapshot_id" in response_json
     assert "link_id" in response_json
     assert len(response_json["messages"]) == 1
@@ -203,7 +203,7 @@ def test_get_snapshot(
     assert response.status_code == 200
     result = response.json()
 
-    assert result["user_id"] == "1"
+    assert result["user_id"] == user.id
     assert result["last_message_id"] == "1"
     assert result["conversation_id"] == "1"
     assert isinstance(result["snapshot"], dict)

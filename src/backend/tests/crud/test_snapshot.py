@@ -28,10 +28,10 @@ def organization(session):
 
 
 @pytest.fixture(autouse=True)
-def snapshot(session, conversation, organization):
+def snapshot(session, conversation, organization, user):
     return get_factory("Snapshot", session).create(
         id="1",
-        user_id="1",
+        user_id=user.id,
         organization_id="1",
         conversation_id="1",
         last_message_id="1",
@@ -41,16 +41,16 @@ def snapshot(session, conversation, organization):
 
 
 @pytest.fixture(autouse=True)
-def snapshot_link(session):
+def snapshot_link(session,  user):
     return get_factory("SnapshotLink", session).create(
-        id="1", snapshot_id="1", user_id="1"
+        id="1", snapshot_id="1", user_id=user.id
     )
 
 
 # Snapshot
-def test_create_snapshot(session):
+def test_create_snapshot(session, user):
     snapshot_data = Snapshot(
-        user_id="1",
+        user_id=user.id,
         organization_id="1",
         conversation_id="1",
         last_message_id="1",
@@ -75,9 +75,9 @@ def test_create_snapshot(session):
     assert snapshot.snapshot == snapshot_data.snapshot
 
 
-def test_get_snapshot(session):
+def test_get_snapshot(session, user):
     snapshot = snapshot_crud.get_snapshot(session, "1")
-    assert snapshot.user_id == "1"
+    assert snapshot.user_id == user.id
     assert snapshot.organization_id == "1"
     assert snapshot.conversation_id == "1"
     assert snapshot.last_message_id == "1"
@@ -100,10 +100,10 @@ def test_fail_get_nonexistent_snapshot_by_last_message_id(session):
     assert snapshot is None
 
 
-def test_list_snapshots(session):
-    snapshots = snapshot_crud.list_snapshots(session, "1")
+def test_list_snapshots(session, user):
+    snapshots = snapshot_crud.list_snapshots(session,  user.id)
     assert len(snapshots) == 1
-    assert snapshots[0].user_id == "1"
+    assert snapshots[0].user_id == user.id
     assert snapshots[0].organization_id == "1"
     assert snapshots[0].conversation_id == "1"
     assert snapshots[0].last_message_id == "1"
@@ -116,17 +116,17 @@ def test_fail_list_snapshots(session):
     assert len(snapshots) == 0
 
 
-def test_delete_snapshot(session):
-    snapshot_crud.delete_snapshot(session, "1", "1")
+def test_delete_snapshot(session, user):
+    snapshot_crud.delete_snapshot(session, "1", user.id)
 
     assert snapshot_crud.get_snapshot(session, "1") is None
 
 
 # SnapshotLink
-def test_create_snapshot_link(session):
+def test_create_snapshot_link(session, user):
     snapshot_link_data = SnapshotLink(
         snapshot_id="1",
-        user_id="1",
+        user_id=user.id,
     )
 
     snapshot_link = snapshot_crud.create_snapshot_link(session, snapshot_link_data)
@@ -157,16 +157,16 @@ def test_fail_list_snapshot_links(session):
     assert len(snapshot_links) == 0
 
 
-def test_delete_snapshot_link(session):
-    snapshot_crud.delete_snapshot_link(session, "1", "1")
+def test_delete_snapshot_link(session, user):
+    snapshot_crud.delete_snapshot_link(session, "1", user.id)
 
     assert snapshot_crud.get_snapshot_link(session, "1") is None
 
 
 # # SnapshotAccess
-def test_create_snapshot_access(session):
+def test_create_snapshot_access(session, user):
     snapshot_access_data = SnapshotAccess(
-        user_id="1",
+        user_id=user.id,
         snapshot_id="1",
         link_id="1",
     )
@@ -184,13 +184,13 @@ def test_create_snapshot_access(session):
     assert snapshot_access.link_id == snapshot_access_data.link_id
 
 
-def test_get_snapshot_access(session):
+def test_get_snapshot_access(session, user):
     _ = get_factory("SnapshotAccess", session).create(
-        id="1", user_id="1", snapshot_id="1", link_id="1"
+        id="1", user_id=user.id, snapshot_id="1", link_id="1"
     )
 
     snapshot_access = snapshot_crud.get_snapshot_access(session, "1")
-    assert snapshot_access.user_id == "1"
+    assert snapshot_access.user_id == user.id
     assert snapshot_access.snapshot_id == "1"
     assert snapshot_access.link_id == "1"
 

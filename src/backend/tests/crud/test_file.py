@@ -41,14 +41,14 @@ def test_batch_create_files(session, user):
         file_path="/tmp/test.txt",
         file_size=100,
         conversation_id="1",
-        user_id="1",
+        user_id=user.id,
     )
     file_data2 = File(
         file_name="test2.txt",
         file_path="/tmp/test2.txt",
         file_size=100,
         conversation_id="1",
-        user_id="1",
+        user_id=user.id,
     )
 
     files = file_crud.batch_create_files(session, [file_data, file_data2])
@@ -59,8 +59,8 @@ def test_batch_create_files(session, user):
     assert all(file.file_name in ["test.txt", "test2.txt"] for file in files) == True
     assert files[0].conversation_id == "1"
     assert files[1].conversation_id == "1"
-    assert files[0].user_id == "1"
-    assert files[1].user_id == "1"
+    assert files[0].user_id == user.id
+    assert files[1].user_id == user.id
 
 
 def test_get_file(session, user):

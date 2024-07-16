@@ -131,7 +131,7 @@ def process_chat(
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-        # NOTE TEMPORARY: we do not set a the model for now and just use the default model
+        # NOTE TEMPORARY: we do not set the model for now and just use the default model
         # chat_request.model = None
         chat_request.model = agent.model.cohere_name
 

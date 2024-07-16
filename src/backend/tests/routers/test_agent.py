@@ -14,7 +14,10 @@ from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
 
 
-def test_create_agent(session_client: TestClient, session: Session, user) -> None:
+async def test_create_agent_mertic(
+    session_client: TestClient, session: Session
+) -> None:
+    user = get_factory("User", session).create(fullname="John Doe")
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -297,6 +300,7 @@ def test_list_agents_empty(session_client: TestClient, session: Session) -> None
 
 
 def test_list_agents(session_client: TestClient, session: Session, user) -> None:
+    session.query(Agent).delete()
     for _ in range(3):
         _ = get_factory("Agent", session).create(user=user)
 
@@ -361,7 +365,7 @@ def test_list_agents_with_pagination(
     )
     assert response.status_code == 200
     response_agents = response.json()
-    assert len(response_agents) == 1
+    assert len(response_agents) == 2
 
 
 @pytest.mark.asyncio
@@ -474,31 +478,32 @@ def test_get_nonexistent_agent(
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
-def test_update_agent(session_client: TestClient, session: Session, user) -> None:
-    agent = get_factory("Agent", session).create(name="test agent", user=user)
+async def test_create_agent_mertic(
+    session_client: TestClient, session: Session
+) -> None:
+    user = get_factory("User", session).create(fullname="John Doe")
     request_json = {
-        "name": "updated name",
-        "version": 2,
-        "description": "updated description",
-        "preamble": "updated preamble",
-        "temperature": 0.7,
-        "model": "command-r",
+        "name": "test agent",
+        "version": 1,
+        "description": "test description",
+        "preamble": "test preamble",
+        "temperature": 0.5,
+        "model": "command-r-plus",
         "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
     }
 
     with patch(
         "backend.services.metrics.report_metrics",
         return_value=None,
     ) as mock_metrics:
-        response = session_client.put(
-            f"/v1/agents/{agent.id}",
-            json=request_json,
-            headers={"User-Id": user.id},
+        response = session_client.post(
+            "/v1/agents", json=request_json, headers={"User-Id": user.id}
         )
-
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
         assert m_args.assistant.name == request_json["name"]
         assert m_args.user.fullname == user.fullname
 
@@ -510,9 +515,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -779,13 +782,13 @@ def test_update_nonexistent_agent(
 def test_update_agent_wrong_user(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     request_json = {
         "name": "updated name",
     }
 
     response = session_client.put(
-        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "456"}
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "user-id"}
     )
     assert response.status_code == 401
     assert response.json() == {
@@ -873,7 +876,7 @@ def test_update_agent_invalid_tool(
 def test_delete_agent_metric(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     with patch(
         "backend.services.metrics.report_metrics",
         return_value=None,
@@ -885,7 +888,6 @@ def test_delete_agent_metric(
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_DELETED
         assert m_args.assistant_id == agent.id
-
 
 
 
@@ -1023,7 +1025,7 @@ def test_update_agent_tool_metadata(
 def test_get_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata_1 = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
@@ -1057,7 +1059,7 @@ def test_get_agent_tool_metadata(
 def test_delete_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,

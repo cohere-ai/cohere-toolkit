@@ -103,16 +103,16 @@ MODELS_NAME_MAPPING = {
             "is_default": True,
         },
     },
-    CommunityModelDeploymentsName.HuggingFace: {
-        "CohereForAI/c4ai-command-r-v01": {
-            "cohere_name": "command-r",
-            "is_default": False,
-        },
-        "CohereForAI/c4ai-command-r-plus": {
-            "cohere_name": "command-r-plus",
-            "is_default": True,
-        },
-    },
+    # CommunityModelDeploymentsName.HuggingFace: {
+    #     "CohereForAI/c4ai-command-r-v01": {
+    #         "cohere_name": "command-r",
+    #         "is_default": False,
+    #     },
+    #     "CohereForAI/c4ai-command-r-plus": {
+    #         "cohere_name": "command-r-plus",
+    #         "is_default": True,
+    #     },
+    # },
 }
 
 
@@ -122,14 +122,15 @@ def seed_default_models(op):
     """
     session = Session(op.get_bind())
 
-    default_user = User(
-        fullname="Default Toolkit User",
-        email="default@example.com",
-        id="user-id",
-    )
-    session.add(default_user)
-    session.commit()
-
+    # default_user = User(
+    #     fullname="Default Toolkit User",
+    #     email="default@example.com",
+    #     id="user-id",
+    # )
+    # session.add(default_user)
+    # session.commit()
+    #
+    default_user = session.query(User).filter_by(id="user-id").first()
     default_organization = Organization(
         name="Default Organization",
         id="default",
