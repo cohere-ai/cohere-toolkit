@@ -9,7 +9,9 @@ from backend.schemas.model import ModelSimple
 class DeploymentSimple(BaseModel):
     id: str
     name: str
-    deployment_class_name: str
+    deployment_class_name: Optional[str] = Field(exclude=True, default="")
+    env_vars: Optional[List[str]]
+    is_available: bool
     is_community: bool
 
     class Config:
@@ -91,12 +93,3 @@ class DeleteDeployment(BaseModel):
 class UpdateDeploymentEnv(BaseModel):
     env_vars: dict[str, str]
 
-
-class DeploymentSimple(BaseModel):
-    id: str
-    name: str
-    deployment_class_name: str
-    is_community: bool
-
-    class Config:
-        from_attributes = True
