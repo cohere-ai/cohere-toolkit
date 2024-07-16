@@ -65,7 +65,7 @@ export const MinimalButton: React.FC<MinimalButtonProps> = ({
     secondary: cx({
       'visited:text-coral-400': href,
       'text-volcanic-60': disabled,
-      'text-mushroom-50': !disabled,
+      'text-mushroom-950': !disabled,
     }),
   };
 

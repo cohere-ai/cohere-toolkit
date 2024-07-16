@@ -22,8 +22,8 @@ const TAG_THEME_CLASSES = {
     secondary: 'text-volcanic-100 bg-coral-950',
   },
   secondary: {
-    primary: 'text-volcanic-100 bg-mushroom-100',
-    secondary: 'text-volcanic-100 bg-mushroom-50',
+    primary: 'text-volcanic-100 bg-mushroom-900',
+    secondary: 'text-volcanic-100 bg-mushroom-950',
   },
   success: {
     primary: 'text-success-200 bg-success-950',

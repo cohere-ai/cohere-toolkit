@@ -159,7 +159,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         className={cn(
           'group flex h-fit w-full flex-col gap-2 rounded-md p-2 text-left md:flex-row',
           'transition-colors ease-in-out',
-          'hover:bg-mushroom-50',
+          'hover:bg-mushroom-950',
 
           {
             'bg-mushroom-950':
@@ -197,9 +197,9 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
                   <IconButton
                     iconName="list"
-                    className="hover:bg-mushroom-100 rounded"
+                    className="rounded hover:bg-mushroom-900"
                     iconClassName={cn(
-                      'text-volcanic-300 group-hover/icon-button:text-mushroom-800',
+                      'text-volcanic-300 group-hover/icon-button:text-mushroom-300',
                       {
                         'hidden md:invisible md:flex': !isFulfilledMessage(message),
                       }

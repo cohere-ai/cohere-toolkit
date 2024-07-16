@@ -90,7 +90,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
             'transition ease-in-out',
             'rounded-lg border',
             'bg-marble-1000',
-            'border-marble-800 placeholder:text-volcanic-600 focus:border-mushroom-700',
+            'border-marble-800 placeholder:text-volcanic-600 focus:border-mushroom-400',
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
             'disabled:text-volcanic-700',
             {

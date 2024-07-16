@@ -219,30 +219,30 @@ export const THEME_CLASSES: CellThemes = {
   },
   secondary: {
     default: {
-      bg: 'bg-mushroom-50',
-      fill: 'fill-mushroom-50',
+      bg: 'bg-mushroom-950',
+      fill: 'fill-mushroom-950',
       text: 'text-volcanic-300',
     },
     outline: {
       text: 'text-volcanic-100',
-      stroke: 'stroke-mushroom-500',
-      outlineFill: 'fill-mushroom-500',
-      fill: 'fill-mushroom-50',
-      bg: 'bg-mushroom-50',
+      stroke: 'stroke-mushroom-600',
+      outlineFill: 'fill-mushroom-600',
+      fill: 'fill-mushroom-950',
+      bg: 'bg-mushroom-950',
     },
   },
   secondaryDark: {
     default: {
-      bg: 'bg-mushroom-100',
-      fill: 'fill-mushroom-100',
+      bg: 'bg-mushroom-900',
+      fill: 'fill-mushroom-900',
       text: 'text-volcanic-300',
     },
     outline: {
       text: 'text-volcanic-300',
-      stroke: 'stroke-mushroom-300',
-      outlineFill: 'fill-mushroom-300',
-      fill: 'fill-mushroom-100',
-      bg: 'bg-mushroom-100',
+      stroke: 'stroke-mushroom-800',
+      outlineFill: 'fill-mushroom-800',
+      fill: 'fill-mushroom-900',
+      bg: 'bg-mushroom-900',
     },
   },
   danger: {

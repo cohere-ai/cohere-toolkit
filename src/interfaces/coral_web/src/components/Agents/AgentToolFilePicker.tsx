@@ -39,7 +39,7 @@ export const AgentToolFilePicker: React.FC<Props> = ({
             <div key={id} className="flex flex-shrink-0 items-center gap-x-2 truncate">
               <Icon
                 name={type === 'folder' ? 'folder' : 'file'}
-                className="text-mushroom-600"
+                className="text-mushroom-500"
                 size="sm"
               />
               <Text styleAs="caption" className="truncate">

@@ -135,7 +135,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
           {
             'opacity-60': !isSelected && !isHovered && (!isLastStreamed || isSomeSelected),
             'opacity-90': !isSelected && isHovered,
-            'bg-mushroom-700/[0.08]': !isSelected,
+            'bg-mushroom-400/[0.08]': !isSelected,
             'bg-coral-700/[0.08]': isSelected,
             'flex flex-col gap-y-4 lg:gap-y-6': isSelected,
           },

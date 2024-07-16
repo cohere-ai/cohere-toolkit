@@ -177,7 +177,7 @@ export const AgentsLayout: React.FC<AgentsLayoutProps> = ({
   return (
     <>
       <PageHead title={capitalize(title)} />
-      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3 dark:bg-vb-60">
+      <div className="dark:bg-vb-60 flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3">
         <div
           className={cn(
             'relative flex h-full flex-grow flex-col flex-nowrap gap-3 overflow-hidden lg:flex-row'

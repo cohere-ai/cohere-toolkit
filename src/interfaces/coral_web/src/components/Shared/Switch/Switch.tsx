@@ -50,9 +50,9 @@ export const Switch: React.FC<Props> = ({
               'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded border-2 border-transparent',
               'transition-colors duration-200 ease-in-out',
               'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
-              'bg-mushroom-500 group-hover:bg-mushroom-400',
+              'bg-mushroom-600 group-hover:bg-mushroom-700',
               {
-                'bg-mushroom-100 group-hover:bg-mushroom-200': !checked,
+                'bg-mushroom-900 group-hover:bg-mushroom-800': !checked,
               }
             )}
             data-testid={dataTestId}

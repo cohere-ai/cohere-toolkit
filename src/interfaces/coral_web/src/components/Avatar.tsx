@@ -44,8 +44,8 @@ export const Avatar: React.FC<Props> = ({ message }) => {
               'bg-coral-800': isTypingOrLoading,
             }
           : {
-              'bg-mushroom-400': isFulfilled,
-              'bg-mushroom-200': isTypingOrLoading,
+              'bg-mushroom-700': isFulfilled,
+              'bg-mushroom-800': isTypingOrLoading,
             }
       )}
     >

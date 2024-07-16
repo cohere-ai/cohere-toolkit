@@ -106,7 +106,7 @@ module.exports = {
       typography: (theme) => ({
         DEFAULT: {
           css: {
-            color: theme('colors.volcanic.900'),
+            color: theme('colors.volcanic.100'),
           },
         },
       }),

@@ -171,7 +171,7 @@ export const Composer: React.FC<Props> = ({
           'relative flex w-full flex-col',
           'transition ease-in-out',
           'rounded border bg-marble-1000',
-          'border-marble-800 focus-within:border-mushroom-700',
+          'border-marble-800 focus-within:border-mushroom-400',
           {
             'border-marble-800 bg-marble-950': isComposerDisabled,
           }
@@ -223,8 +223,8 @@ export const Composer: React.FC<Props> = ({
               'my-2 ml-1 md:my-4',
               'flex flex-shrink-0 items-center justify-center rounded',
               'transition ease-in-out',
-              'text-mushroom-800 hover:bg-mushroom-100',
-              { 'text-mushroom-500': !canSend }
+              'text-mushroom-300 hover:bg-mushroom-900',
+              { 'text-mushroom-600': !canSend }
             )}
             type="button"
             disabled={!canSend}

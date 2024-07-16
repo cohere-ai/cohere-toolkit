@@ -33,7 +33,7 @@ export const DragDropFileUploadOverlay: React.FC<{
       accept={ACCEPTED_FILE_TYPES}
       dragActiveDefault={true}
       className={cn(
-        'absolute inset-0 z-drag-drop-input-overlay hidden h-full w-full rounded border-none bg-mushroom-200',
+        'absolute inset-0 z-drag-drop-input-overlay hidden h-full w-full rounded border-none bg-mushroom-800',
         {
           flex: active,
         }

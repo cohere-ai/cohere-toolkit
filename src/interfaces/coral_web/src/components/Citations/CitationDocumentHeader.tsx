@@ -74,7 +74,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
           className={cn(
             'bg-coral-700/[0.16] text-coral-300/80 transition-colors duration-200 ease-in-out',
             {
-              'bg-mushroom-700/20 text-mushroom-800': !isSelected,
+              'bg-mushroom-400/20 text-mushroom-300': !isSelected,
             }
           )}
         />
@@ -89,7 +89,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                   'transition-colors duration-200 ease-in-out',
                   'text-coral-300',
                   {
-                    'text-mushroom-700': !isSelected,
+                    'text-mushroom-400': !isSelected,
                   }
                 )}
               >
@@ -114,7 +114,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                 'transition-colors duration-200 ease-in-out',
                 'text-coral-300',
                 {
-                  'text-mushroom-700': !isSelected,
+                  'text-mushroom-400': !isSelected,
                 }
               )}
             >
@@ -127,7 +127,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               as="span"
               styleAs="label"
               className={cn('truncate font-medium transition-colors duration-200 ease-in-out', {
-                'text-mushroom-800': !isSelected,
+                'text-mushroom-300': !isSelected,
               })}
             >
               {displayTitle}
@@ -135,7 +135,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
             <Icon
               name="arrow-up-right"
               className={cn('ml-1 hidden', 'transition-colors duration-200 ease-in-out', {
-                'text-mushroom-800': !isSelected,
+                'text-mushroom-300': !isSelected,
                 'group-hover:block': safeUrl,
               })}
             />
