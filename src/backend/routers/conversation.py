@@ -423,7 +423,7 @@ async def batch_upload_file(
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
 async def list_files(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, session: DBSessionDep, request: Request   
 ) -> list[ListFile]:
     """
     List all files from a conversation. Important - no pagination support yet.
