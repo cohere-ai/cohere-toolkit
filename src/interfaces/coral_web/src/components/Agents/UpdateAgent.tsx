@@ -60,7 +60,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
               {
                 tool_name: TOOL_GOOGLE_DRIVE_ID,
                 artifacts: data.docs.map(
-                  (doc) =>
+                  (doc: any) =>
                     ({
                       id: doc.id,
                       name: doc.name,
@@ -76,7 +76,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         const updateGoogleDriveTool = {
           ...currentGoogleDriveTool,
           artifacts: data.docs.map(
-            (doc) =>
+            (doc: any) =>
               ({
                 id: doc.id,
                 name: doc.name,

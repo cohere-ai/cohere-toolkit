@@ -154,14 +154,14 @@ const LoginPage: NextPage<Props> = () => {
                 {...register('password', { required: true })}
               />
 
-            {errors.map(
-              (error) =>
-                error && (
-                  <Text key={error} className="mt-4 text-danger-350 first-letter:uppercase">
-                    {error}
-                  </Text>
-                )
-            )}
+              {errors.map(
+                (error) =>
+                  error && (
+                    <Text key={error} className="mt-4 text-danger-350 first-letter:uppercase">
+                      {error}
+                    </Text>
+                  )
+              )}
 
               <Button
                 disabled={loginStatus === 'pending' || !formState.isValid}

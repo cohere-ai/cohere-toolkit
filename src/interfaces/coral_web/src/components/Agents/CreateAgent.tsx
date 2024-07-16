@@ -58,7 +58,7 @@ export const CreateAgent: React.FC = () => {
             {
               tool_name: TOOL_GOOGLE_DRIVE_ID,
               artifacts: data.docs.map(
-                (doc) =>
+                (doc: any) =>
                   ({
                     id: doc.id,
                     name: doc.name,
