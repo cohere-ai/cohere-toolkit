@@ -53,7 +53,11 @@ def test_create_citation(session, user):
 
 def test_get_citation(session, user):
     _ = get_factory("Citation", session).create(
-        id="1", text="Hello, World!", user_id=user.id, message_id="1", document_ids=["1"]
+        id="1",
+        text="Hello, World!",
+        user_id=user.id,
+        message_id="1",
+        document_ids=["1"],
     )
 
     citation = citation_crud.get_citation(session, "1")
@@ -114,7 +118,11 @@ def test_list_citations_by_message_id_empty(session):
 
 def test_delete_citation(session, user):
     citation = get_factory("Citation", session).create(
-        id="1", text="Hello, World!", user_id=user.id, message_id="1", document_ids=["1"]
+        id="1",
+        text="Hello, World!",
+        user_id=user.id,
+        message_id="1",
+        document_ids=["1"],
     )
 
     citation_crud.delete_citation(session, "1")

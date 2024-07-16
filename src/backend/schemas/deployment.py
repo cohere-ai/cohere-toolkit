@@ -92,4 +92,3 @@ class DeleteDeployment(BaseModel):
 
 class UpdateDeploymentEnv(BaseModel):
     env_vars: dict[str, str]
-

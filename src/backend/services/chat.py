@@ -8,8 +8,8 @@ from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
-from starlette.exceptions import HTTPException
 from pydantic import ValidationError
+from starlette.exceptions import HTTPException
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent

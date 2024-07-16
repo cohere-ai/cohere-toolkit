@@ -890,7 +890,6 @@ def test_delete_agent_metric(
         assert m_args.assistant_id == agent.id
 
 
-
 def test_delete_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(user=user)
     response = session_client.delete(

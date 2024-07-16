@@ -400,7 +400,6 @@ async def update_agent(
     return agent
 
 
-
 async def handle_tool_metadata_update(
     agent: Agent, new_agent: Agent, session: DBSessionDep, request: Request
 ) -> Agent:

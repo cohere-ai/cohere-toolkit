@@ -41,7 +41,7 @@ def snapshot(session, conversation, organization, user):
 
 
 @pytest.fixture(autouse=True)
-def snapshot_link(session,  user):
+def snapshot_link(session, user):
     return get_factory("SnapshotLink", session).create(
         id="1", snapshot_id="1", user_id=user.id
     )
@@ -101,7 +101,7 @@ def test_fail_get_nonexistent_snapshot_by_last_message_id(session):
 
 
 def test_list_snapshots(session, user):
-    snapshots = snapshot_crud.list_snapshots(session,  user.id)
+    snapshots = snapshot_crud.list_snapshots(session, user.id)
     assert len(snapshots) == 1
     assert snapshots[0].user_id == user.id
     assert snapshots[0].organization_id == "1"

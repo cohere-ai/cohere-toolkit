@@ -13,11 +13,11 @@ from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploym
 from backend.database_models import get_session
 from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
-from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.database_models.model import Model
 from backend.database_models.organization import Organization
 from backend.database_models.user import User
 from backend.main import app, create_app
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.tests.factories import get_factory
 
 DATABASE_URL = os.environ["DATABASE_URL"]
