@@ -1,7 +1,7 @@
 const BG_COLOR_LIST = [
   'bg-quartz-700',
   'bg-green-600',
-  'bg-coral-900',
+  'bg-coral-500',
   'bg-quartz-700',
   'bg-green-250',
   'bg-coral-700',
@@ -10,7 +10,7 @@ const BG_COLOR_LIST = [
 const TEXT_COLOR_LIST = [
   'text-quartz-700',
   'text-green-600',
-  'text-coral-900',
+  'text-coral-500',
   'text-quartz-700',
   'text-green-250',
   'text-coral-700',
