@@ -27,37 +27,73 @@ def upgrade() -> None:
         type_=sa.String(),
         nullable=True,
     )
-    op.create_foreign_key(
-        None, "agent_tool_metadata", "users", ["user_id"], ["id"], ondelete="CASCADE"
+    op.alter_column(
+        "agents",
+        "user_id",
+        existing_type=sa.TEXT(),
+        type_=sa.String(),
+        nullable=True,
     )
     op.alter_column(
-        "agents", "user_id", existing_type=sa.TEXT(), type_=sa.String(), nullable=True
-    )
-    op.create_foreign_key(
-        None, "agents", "users", ["user_id"], ["id"], ondelete="CASCADE"
+        "tool_auth",
+        "user_id",
+        existing_type=sa.TEXT(),
+        type_=sa.String(),
+        nullable=True,
     )
     op.alter_column("citations", "user_id", existing_type=sa.VARCHAR(), nullable=True)
-    op.create_foreign_key(
-        None, "citations", "users", ["user_id"], ["id"], ondelete="CASCADE"
-    )
     op.alter_column(
         "conversations", "user_id", existing_type=sa.VARCHAR(), nullable=True
-    )
-    op.create_unique_constraint(
-        "conversation_id_user_id", "conversations", ["id", "user_id"]
-    )
-    op.create_index(
-        "conversation_user_id_index", "conversations", ["id", "user_id"], unique=True
-    )
-    op.create_foreign_key(
-        None, "conversations", "users", ["user_id"], ["id"], ondelete="CASCADE"
     )
     op.alter_column("documents", "user_id", existing_type=sa.VARCHAR(), nullable=True)
     op.alter_column(
         "documents", "conversation_id", existing_type=sa.VARCHAR(), nullable=True
     )
+    op.alter_column("files", "user_id", existing_type=sa.VARCHAR(), nullable=True)
+    op.alter_column(
+        "files", "conversation_id", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column("messages", "user_id", existing_type=sa.VARCHAR(), nullable=True)
+    op.alter_column(
+        "messages", "conversation_id", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column(
+        "snapshot_access", "user_id", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column(
+        "snapshot_links", "user_id", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column("snapshots", "user_id", existing_type=sa.VARCHAR(), nullable=True)
+
     op.drop_constraint(
         "documents_conversation_id_fkey", "documents", type_="foreignkey"
+    )
+    op.drop_constraint("files_conversation_id_fkey", "files", type_="foreignkey")
+    op.drop_constraint("messages_conversation_id_fkey", "messages", type_="foreignkey")
+    op.drop_constraint(
+        "snapshots_conversation_id_fkey", "snapshots", type_="foreignkey"
+    )
+    op.drop_constraint("conversations_pkey", "conversations", type_="primary")
+
+    op.create_unique_constraint(
+        "conversation_id_user_id", "conversations", ["id", "user_id"]
+    )
+    op.create_primary_key("conversations_pkey", "conversations", ["id", "user_id"])
+    op.create_index(
+        "conversation_user_id_index", "conversations", ["id", "user_id"], unique=True
+    )
+
+    op.create_foreign_key(
+        None, "agent_tool_metadata", "users", ["user_id"], ["id"], ondelete="CASCADE"
+    )
+    op.create_foreign_key(
+        None, "agents", "users", ["user_id"], ["id"], ondelete="CASCADE"
+    )
+    op.create_foreign_key(
+        None, "citations", "users", ["user_id"], ["id"], ondelete="CASCADE"
+    )
+    op.create_foreign_key(
+        None, "conversations", "users", ["user_id"], ["id"], ondelete="CASCADE"
     )
     op.create_foreign_key(
         "document_conversation_id_user_id_fkey",
@@ -67,11 +103,6 @@ def upgrade() -> None:
         ["id", "user_id"],
         ondelete="CASCADE",
     )
-    op.alter_column("files", "user_id", existing_type=sa.VARCHAR(), nullable=True)
-    op.alter_column(
-        "files", "conversation_id", existing_type=sa.VARCHAR(), nullable=True
-    )
-    op.drop_constraint("files_conversation_id_fkey", "files", type_="foreignkey")
     op.create_foreign_key(
         "file_conversation_id_user_id_fkey",
         "files",
@@ -80,11 +111,6 @@ def upgrade() -> None:
         ["id", "user_id"],
         ondelete="CASCADE",
     )
-    op.alter_column("messages", "user_id", existing_type=sa.VARCHAR(), nullable=True)
-    op.alter_column(
-        "messages", "conversation_id", existing_type=sa.VARCHAR(), nullable=True
-    )
-    op.drop_constraint("messages_conversation_id_fkey", "messages", type_="foreignkey")
     op.create_foreign_key(
         "message_conversation_id_user_id_fkey",
         "messages",
@@ -93,21 +119,11 @@ def upgrade() -> None:
         ["id", "user_id"],
         ondelete="CASCADE",
     )
-    op.alter_column(
-        "snapshot_access", "user_id", existing_type=sa.VARCHAR(), nullable=True
-    )
     op.create_foreign_key(
         None, "snapshot_access", "users", ["user_id"], ["id"], ondelete="CASCADE"
     )
-    op.alter_column(
-        "snapshot_links", "user_id", existing_type=sa.VARCHAR(), nullable=True
-    )
     op.create_foreign_key(
         None, "snapshot_links", "users", ["user_id"], ["id"], ondelete="CASCADE"
-    )
-    op.alter_column("snapshots", "user_id", existing_type=sa.VARCHAR(), nullable=True)
-    op.drop_constraint(
-        "snapshots_conversation_id_fkey", "snapshots", type_="foreignkey"
     )
     op.create_foreign_key(
         "snapshot_conversation_id_user_id_fkey",
@@ -117,13 +133,6 @@ def upgrade() -> None:
         ["id", "user_id"],
         ondelete="CASCADE",
     )
-    op.alter_column(
-        "tool_auth",
-        "user_id",
-        existing_type=sa.TEXT(),
-        type_=sa.String(),
-        nullable=True,
-    )
     op.create_foreign_key(
         None, "tool_auth", "users", ["user_id"], ["id"], ondelete="CASCADE"
     )
@@ -132,17 +141,24 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_constraint(None, "tool_auth", type_="foreignkey")
-    op.alter_column(
-        "tool_auth",
-        "user_id",
-        existing_type=sa.String(),
-        type_=sa.TEXT(),
-        nullable=False,
+    op.drop_constraint("tool_auth_user_id_fkey", "tool_auth", type_="foreignkey")
+    op.drop_constraint(
+        "snapshot_links_user_id_fkey", "snapshot_links", type_="foreignkey"
     )
     op.drop_constraint(
-        "snapshot_conversation_id_user_id_fkey", "snapshots", type_="foreignkey"
+        "snapshot_access_user_id_fkey", "snapshot_access", type_="foreignkey"
     )
+    op.drop_constraint(
+        "message_conversation_id_user_id_fkey", "messages", type_="foreignkey"
+    )
+    op.drop_constraint("file_conversation_id_user_id_fkey", "files", type_="foreignkey")
+    op.drop_constraint(
+        "document_conversation_id_user_id_fkey", "documents", type_="foreignkey"
+    )
+    op.drop_constraint("conversation_user_id_index", "conversations", type_="index")
+    op.drop_constraint("conversations_pkey", "conversations", type_="primary")
+    op.drop_constraint("conversation_id_user_id", "conversations", type_="unique")
+    op.create_primary_key("conversations_pkey", "conversations", ["id"])
     op.create_foreign_key(
         "snapshots_conversation_id_fkey",
         "snapshots",
@@ -150,18 +166,6 @@ def downgrade() -> None:
         ["conversation_id"],
         ["id"],
         ondelete="CASCADE",
-    )
-    op.alter_column("snapshots", "user_id", existing_type=sa.VARCHAR(), nullable=False)
-    op.drop_constraint(None, "snapshot_links", type_="foreignkey")
-    op.alter_column(
-        "snapshot_links", "user_id", existing_type=sa.VARCHAR(), nullable=False
-    )
-    op.drop_constraint(None, "snapshot_access", type_="foreignkey")
-    op.alter_column(
-        "snapshot_access", "user_id", existing_type=sa.VARCHAR(), nullable=False
-    )
-    op.drop_constraint(
-        "message_conversation_id_user_id_fkey", "messages", type_="foreignkey"
     )
     op.create_foreign_key(
         "messages_conversation_id_fkey",
@@ -171,11 +175,6 @@ def downgrade() -> None:
         ["id"],
         ondelete="CASCADE",
     )
-    op.alter_column(
-        "messages", "conversation_id", existing_type=sa.VARCHAR(), nullable=False
-    )
-    op.alter_column("messages", "user_id", existing_type=sa.VARCHAR(), nullable=False)
-    op.drop_constraint("file_conversation_id_user_id_fkey", "files", type_="foreignkey")
     op.create_foreign_key(
         "files_conversation_id_fkey",
         "files",
@@ -183,13 +182,6 @@ def downgrade() -> None:
         ["conversation_id"],
         ["id"],
         ondelete="CASCADE",
-    )
-    op.alter_column(
-        "files", "conversation_id", existing_type=sa.VARCHAR(), nullable=False
-    )
-    op.alter_column("files", "user_id", existing_type=sa.VARCHAR(), nullable=False)
-    op.drop_constraint(
-        "document_conversation_id_user_id_fkey", "documents", type_="foreignkey"
     )
     op.create_foreign_key(
         "documents_conversation_id_fkey",
@@ -200,27 +192,101 @@ def downgrade() -> None:
         ondelete="CASCADE",
     )
     op.alter_column(
-        "documents", "conversation_id", existing_type=sa.VARCHAR(), nullable=False
+        "snapshots",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
     )
-    op.alter_column("documents", "user_id", existing_type=sa.VARCHAR(), nullable=False)
-    op.drop_constraint(None, "conversations", type_="foreignkey")
-    op.drop_index("conversation_user_id_index", table_name="conversations")
-    op.drop_constraint("conversation_id_user_id", "conversations", type_="unique")
     op.alter_column(
-        "conversations", "user_id", existing_type=sa.VARCHAR(), nullable=False
+        "snapshot_links",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
     )
-    op.drop_constraint(None, "citations", type_="foreignkey")
-    op.alter_column("citations", "user_id", existing_type=sa.VARCHAR(), nullable=False)
-    op.drop_constraint(None, "agents", type_="foreignkey")
     op.alter_column(
-        "agents", "user_id", existing_type=sa.String(), type_=sa.TEXT(), nullable=False
+        "snapshot_access",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
     )
-    op.drop_constraint(None, "agent_tool_metadata", type_="foreignkey")
+    op.alter_column(
+        "messages",
+        "conversation_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "messages",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "files",
+        "conversation_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "files",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "documents",
+        "conversation_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "documents",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "conversations",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "citations",
+        "user_id",
+        existing_type=sa.VARCHAR(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "tool_auth",
+        "user_id",
+        existing_type=sa.TEXT(),
+        type_=sa.String(),
+        nullable=False,
+    )
+    op.alter_column(
+        "agents",
+        "user_id",
+        existing_type=sa.TEXT(),
+        type_=sa.String(),
+        nullable=False,
+    )
     op.alter_column(
         "agent_tool_metadata",
         "user_id",
-        existing_type=sa.String(),
-        type_=sa.TEXT(),
+        existing_type=sa.TEXT(),
+        type_=sa.String(),
         nullable=False,
     )
     # ### end Alembic commands ###
