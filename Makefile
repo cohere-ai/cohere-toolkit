@@ -7,7 +7,7 @@ up:
 down:
 	@docker compose down
 run-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
+	docker compose run --build backend poetry run pytest src/backend/tests/services
 run-agent-router-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_agent.py
 run-user-router-tests:

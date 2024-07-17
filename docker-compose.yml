@@ -32,12 +32,14 @@ services:
     image: redis:7.2-alpine
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     ports: 
       - '6379:6379'
+    networks:
+      - proxynet
     command: redis-server --save 60 1 --loglevel warning --requirepass redis
     volumes:
       - ./data:/data
