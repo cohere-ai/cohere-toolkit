@@ -12,23 +12,7 @@ export type Agent = {
   preamble: string | null;
   temperature: number;
   tools: Array<string>;
-  tools_metadata?: Array<AgentToolMetadataPublic> | null;
-  model: string;
-  deployment: string;
-};
-
-export type AgentPublic = {
-  user_id: string;
-  id: string;
-  created_at: string;
-  updated_at: string;
-  version: number;
-  name: string;
-  description: string | null;
-  preamble: string | null;
-  temperature: number;
-  tools: Array<string>;
-  tools_metadata?: Array<AgentToolMetadataPublic> | null;
+  tools_metadata: Array<AgentToolMetadata>;
   model: string;
   deployment: string;
 };
@@ -41,20 +25,6 @@ export type AgentToolMetadata = {
   artifacts: Array<{
     [key: string]: unknown;
   }>;
-};
-
-export type AgentToolMetadataPublic = {
-  organization_id?: string | null;
-  id: string;
-  tool_name: string;
-  artifacts: Array<{
-    [key: string]: unknown;
-  }>;
-};
-
-export type Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
-  conversation_id?: string;
-  files: Array<Blob | File>;
 };
 
 export type Body_upload_file_v1_conversations_upload_file_post = {
@@ -197,7 +167,6 @@ export type CreateAgent = {
 };
 
 export type CreateAgentToolMetadata = {
-  id?: string | null;
   tool_name: string;
   artifacts: Array<{
     [key: string]: unknown;
@@ -263,10 +232,6 @@ export type File = {
 
 export type GenerateTitle = {
   title: string;
-};
-
-export type GenericResponseMessage = {
-  message: string;
 };
 
 export type HTTPValidationError = {
@@ -558,7 +523,7 @@ export type UpdateAgent = {
   model?: string | null;
   deployment?: string | null;
   tools?: Array<string> | null;
-  tools_metadata?: Array<CreateAgentToolMetadata> | null;
+  tools_metadata?: Array<UpdateAgentToolMetadata> | null;
 };
 
 export type UpdateAgentToolMetadata = {
@@ -729,12 +694,6 @@ export type UploadFileV1ConversationsUploadFilePostData = {
 
 export type UploadFileV1ConversationsUploadFilePostResponse = UploadFile;
 
-export type BatchUploadFileV1ConversationsBatchUploadFilePostData = {
-  formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post;
-};
-
-export type BatchUploadFileV1ConversationsBatchUploadFilePostResponse = Array<UploadFile>;
-
 export type ListFilesV1ConversationsConversationIdFilesGetData = {
   conversationId: string;
 };
@@ -787,14 +746,14 @@ export type CreateAgentV1AgentsPostData = {
   requestBody: CreateAgent;
 };
 
-export type CreateAgentV1AgentsPostResponse = AgentPublic;
+export type CreateAgentV1AgentsPostResponse = Agent;
 
 export type ListAgentsV1AgentsGetData = {
   limit?: number;
   offset?: number;
 };
 
-export type ListAgentsV1AgentsGetResponse = Array<AgentPublic>;
+export type ListAgentsV1AgentsGetResponse = Array<Agent>;
 
 export type GetAgentByIdV1AgentsAgentIdGetData = {
   agentId: string;
@@ -807,7 +766,7 @@ export type UpdateAgentV1AgentsAgentIdPutData = {
   requestBody: UpdateAgent;
 };
 
-export type UpdateAgentV1AgentsAgentIdPutResponse = AgentPublic;
+export type UpdateAgentV1AgentsAgentIdPutResponse = Agent;
 
 export type DeleteAgentV1AgentsAgentIdDeleteData = {
   agentId: string;
@@ -819,16 +778,14 @@ export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   agentId: string;
 };
 
-export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse =
-  Array<AgentToolMetadataPublic>;
+export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse = Array<AgentToolMetadata>;
 
 export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostData = {
   agentId: string;
   requestBody: CreateAgentToolMetadata;
 };
 
-export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse =
-  AgentToolMetadataPublic;
+export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse = AgentToolMetadata;
 
 export type UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData = {
   agentId: string;
@@ -846,8 +803,6 @@ export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataI
 
 export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteResponse =
   DeleteAgentToolMetadata;
-
-export type GetDefaultAgentV1DefaultAgentGetResponse = GenericResponseMessage;
 
 export type ListSnapshotsV1SnapshotsGetResponse = Array<SnapshotWithLinks>;
 
@@ -1140,21 +1095,6 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/conversations/batch_upload_file': {
-    post: {
-      req: BatchUploadFileV1ConversationsBatchUploadFilePostData;
-      res: {
-        /**
-         * Successful Response
-         */
-        200: Array<UploadFile>;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
-  };
   '/v1/conversations/{conversation_id}/files': {
     get: {
       req: ListFilesV1ConversationsConversationIdFilesGetData;
@@ -1275,7 +1215,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: AgentPublic;
+        200: Agent;
         /**
          * Validation Error
          */
@@ -1288,7 +1228,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<AgentPublic>;
+        200: Array<Agent>;
         /**
          * Validation Error
          */
@@ -1316,7 +1256,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: AgentPublic;
+        200: Agent;
         /**
          * Validation Error
          */
@@ -1344,7 +1284,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<AgentToolMetadataPublic>;
+        200: Array<AgentToolMetadata>;
         /**
          * Validation Error
          */
@@ -1357,7 +1297,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: AgentToolMetadataPublic;
+        200: AgentToolMetadata;
         /**
          * Validation Error
          */
@@ -1390,16 +1330,6 @@ export type $OpenApiTs = {
          * Validation Error
          */
         422: HTTPValidationError;
-      };
-    };
-  };
-  '/v1/default_agent/': {
-    get: {
-      res: {
-        /**
-         * Successful Response
-         */
-        200: GenericResponseMessage;
       };
     };
   };

@@ -47,26 +47,16 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
   const cohereClient = useCohereClient();
   return useQuery({
     queryKey: ['agent', agentId],
-    enabled: !!agentId,
     queryFn: async () => {
       try {
-        if (!agentId) throw new Error('Agent ID not found');
+        if (!agentId) {
+          return (await cohereClient.getDefaultAgent()) as unknown as Promise<Agent>;
+        }
         return await cohereClient.getAgent(agentId);
       } catch (e) {
         console.error(e);
         throw e;
       }
-    },
-  });
-};
-
-export const useDefaultAgent = (enabled?: boolean) => {
-  const cohereClient = useCohereClient();
-  return useQuery({
-    queryKey: ['defaultAgent'],
-    enabled: enabled,
-    queryFn: async () => {
-      return await cohereClient.getDefaultAgent();
     },
   });
 };

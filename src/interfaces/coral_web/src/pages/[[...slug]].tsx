@@ -15,7 +15,7 @@ import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
 import { ModalContext } from '@/context/ModalContext';
-import { useAgent, useDefaultAgent } from '@/hooks/agents';
+import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
@@ -36,6 +36,7 @@ import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const Page: NextPage = () => {
   const { agentId, conversationId } = useSlugRoutes();
+  console.log({ agentId });
 
   const { setConversation } = useConversationStore();
   const {
@@ -54,7 +55,6 @@ const Page: NextPage = () => {
   const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
   const { data: allDeployments } = useListAllDeployments();
   const { data: agent } = useAgent({ agentId });
-  useDefaultAgent(!agentId);
   const { data: tools } = useListTools();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
