@@ -50,7 +50,7 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
     queryFn: async () => {
       try {
         if (!agentId) {
-          return (await cohereClient.getDefaultAgent()) as unknown as Promise<Agent>;
+          return await cohereClient.getDefaultAgent();
         }
         return await cohereClient.getAgent(agentId);
       } catch (e) {

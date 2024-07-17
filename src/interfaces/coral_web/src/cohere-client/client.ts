@@ -1,6 +1,7 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
+  Agent,
   Body_upload_file_v1_conversations_upload_file_post,
   CancelablePromise,
   CohereChatRequest,
@@ -266,7 +267,8 @@ export class CohereClient {
     return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
   }
 
-  public getDefaultAgent() {
+  public getDefaultAgent(): Promise<Agent> {
+    // @TODO(@tomtobac): remove this when the generated code is fixed
     return this.cohereService.default.getDefaultAgentV1DefaultAgentGet();
   }
 

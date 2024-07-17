@@ -257,25 +257,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }),
   ];
 
-  if (agentId) {
-    prefetchQueries.push(
-      deps.queryClient.prefetchQuery({
-        queryKey: ['agent', agentId],
-        queryFn: async () => {
-          return await deps.cohereClient.getAgent(agentId);
-        },
-      })
-    );
-  } else {
-    prefetchQueries.push(
-      deps.queryClient.prefetchQuery({
-        queryKey: ['defaultAgent'],
-        queryFn: async () => {
+  prefetchQueries.push(
+    deps.queryClient.prefetchQuery({
+      queryKey: ['agent', agentId],
+      queryFn: async () => {
+        if (!agentId) {
           return await deps.cohereClient.getDefaultAgent();
-        },
-      })
-    );
-  }
+        }
+        return await deps.cohereClient.getAgent(agentId);
+      },
+    })
+  );
 
   if (conversationId) {
     prefetchQueries.push(
