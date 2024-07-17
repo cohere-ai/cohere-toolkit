@@ -117,7 +117,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
       }}
       className={cn(
         'rounded md:w-citation-md lg:w-citation-lg xl:w-citation-xl',
-        'bg-marble-100 transition-[transform,top] duration-300 ease-in-out',
+        'bg-marble-1000 transition-[transform,top] duration-300 ease-in-out',
         'md:absolute md:left-2.5 lg:left-[18px]',
         {
           'md:-translate-x-1 lg:-translate-x-2': isHovered,
@@ -135,8 +135,8 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
           {
             'opacity-60': !isSelected && !isHovered && (!isLastStreamed || isSomeSelected),
             'opacity-90': !isSelected && isHovered,
-            'bg-secondary-700/[0.08]': !isSelected,
-            'bg-primary-500/[0.08]': isSelected,
+            'bg-mushroom-400/[0.08]': !isSelected,
+            'bg-coral-700/[0.08]': isSelected,
             'flex flex-col gap-y-4 lg:gap-y-6': isSelected,
           },
           className
@@ -144,16 +144,16 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <Text className="text-primary-800 md:hidden">{keyword}</Text>
+        <Text className="text-coral-300 md:hidden">{keyword}</Text>
 
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
-          <Text as="span" styleAs="caption" className="text-volcanic-800">
+          <Text as="span" styleAs="caption" className="text-volcanic-300">
             {uniqueDocumentsUrls.length} {pluralize('reference', uniqueDocumentsUrls.length)}
           </Text>
           {uniqueDocumentsUrls.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
-                'h-4 w-4 text-volcanic-800 transition delay-75 duration-200 ease-in-out',
+                'h-4 w-4 text-volcanic-300 transition delay-75 duration-200 ease-in-out',
                 {
                   'rotate-180': isAllDocsVisible,
                 }

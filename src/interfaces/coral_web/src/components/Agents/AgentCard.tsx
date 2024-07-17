@@ -32,10 +32,17 @@ type Props = {
  */
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
-  const { agentId } = useSlugRoutes();
+  const { conversationId } = useSlugRoutes();
   const router = useRouter();
 
-  const isActive = isBaseAgent ? router.asPath === '/' && !agentId : agentId === id;
+  const route = router.asPath;
+  const isActive = isBaseAgent
+    ? conversationId
+      ? route === `/c/${conversationId}`
+      : route === '/'
+    : conversationId
+    ? route === `/a/${id}/c/${conversationId}`
+    : route === `/a/${id}`;
 
   const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();
@@ -80,9 +87,9 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
       <div
         onClick={handleNewChat}
         className={cn(
-          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-marble-300',
+          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-mushroom-900/80',
           {
-            'bg-marble-300': isActive,
+            'bg-mushroom-900/80': isActive,
           }
         )}
       >
@@ -91,7 +98,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
             'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
             id && getCohereColor(id),
             {
-              'bg-secondary-400': isBaseAgent,
+              'bg-mushroom-700': isBaseAgent,
             }
           )}
         >

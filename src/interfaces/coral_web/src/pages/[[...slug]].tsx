@@ -15,7 +15,7 @@ import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { BannerContext } from '@/context/BannerContext';
 import { ModalContext } from '@/context/ModalContext';
-import { useAgent } from '@/hooks/agents';
+import { useAgent, useDefaultAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
@@ -54,6 +54,7 @@ const Page: NextPage = () => {
   const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
   const { data: allDeployments } = useListAllDeployments();
   const { data: agent } = useAgent({ agentId });
+  useDefaultAgent(!agentId);
   const { data: tools } = useListTools();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
@@ -178,7 +179,7 @@ const Page: NextPage = () => {
                 className={cn(
                   'z-main-section flex lg:min-w-0',
                   'absolute h-full w-full lg:static lg:h-auto',
-                  'border-0 border-marble-400 md:border-r',
+                  'border-0 border-marble-950 md:border-r',
                   'transition-[transform,min-width,max-width] duration-300 ease-in-out'
                 )}
               >
@@ -262,6 +263,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         queryKey: ['agent', agentId],
         queryFn: async () => {
           return await deps.cohereClient.getAgent(agentId);
+        },
+      })
+    );
+  } else {
+    prefetchQueries.push(
+      deps.queryClient.prefetchQuery({
+        queryKey: ['defaultAgent'],
+        queryFn: async () => {
+          return await deps.cohereClient.getDefaultAgent();
         },
       })
     );

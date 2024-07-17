@@ -75,7 +75,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         try:
             user_id = get_header_user_id(request)
         except:
-            logger.warning(f"Failed to get user id - {endpoint_name}")
+            logger.warning(f"Failed to get user id from headers")
             return None
 
         agent = self.get_agent(request)

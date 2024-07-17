@@ -139,7 +139,7 @@ const Conversation: React.FC<Props> = ({
   }
 
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFileIds = await uploadFile(e.target.files?.[0], conversationId);
+    const newFileIds = await uploadFile(e.target.files?.[0]);
     if (!newFileIds) return;
     enableDefaultFileLoaderTool();
   };
@@ -196,7 +196,7 @@ const Conversation: React.FC<Props> = ({
         as="div"
         className={cn(
           'absolute left-0 top-0 z-configuration-drawer md:relative',
-          'border-l border-marble-400 bg-marble-100'
+          'border-l border-marble-950 bg-marble-1000'
         )}
         enter="transition-[width] ease-in-out duration-300"
         enterFrom="w-0"
