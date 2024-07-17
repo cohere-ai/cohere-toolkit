@@ -31,7 +31,7 @@ export const getWebDomain = (url?: string) => {
  * * e.g. alert('hi') -> not ok, return undefined
  * * e.g. https://www.google.com?q=<script>alert(1)</script> -> ok, return encoded url
  */
-export const getSafeUrl = (url?: string | null) => {
+export const getSafeUrl = (url?: string) => {
   if (!url) return undefined;
 
   try {
