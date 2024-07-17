@@ -1,5 +1,5 @@
 import { findLast } from 'lodash';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 import { CustomHotKey } from '@/components/Shared/HotKeys';
 import {
@@ -89,7 +89,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
       name: 'Start a new conversation',
       commands: ['ctrl+shift+o', 'meta+shift+o'],
       action: async () => {
-        router.push('/', undefined, { shallow: true });
+        router.push('/', undefined);
         resetConversation();
         resetCitations();
         resetFileParams();

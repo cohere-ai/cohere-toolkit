@@ -1,3 +1,5 @@
+'use client';
+
 import { ChangeEvent, MouseEvent, useRef, useState } from 'react';
 
 import { InputLabel, Spinner, Text } from '@/components/Shared';

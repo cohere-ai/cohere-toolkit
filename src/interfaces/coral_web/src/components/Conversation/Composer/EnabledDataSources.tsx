@@ -1,9 +1,11 @@
+'use client';
+
 import React from 'react';
 
 import { Icon, IconName, Text } from '@/components/Shared';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useDefaultFileLoaderTool, useListFiles } from '@/hooks/files';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
@@ -15,7 +17,7 @@ type Props = {
  * @description Renders the enabled data sources in the composer toolbar.
  */
 export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const {
     conversation: { id },
   } = useConversationStore();

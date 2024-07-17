@@ -1,3 +1,5 @@
+'use client';
+
 import { Fragment, useContext, useMemo } from 'react';
 
 import { Document } from '@/cohere-client';

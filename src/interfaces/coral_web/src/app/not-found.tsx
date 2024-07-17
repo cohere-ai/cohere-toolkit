@@ -1,7 +1,7 @@
+'use client';
+
 import { PageNotFound } from '@/components/Shared';
 
-const Page = () => {
+export default function NotFound() {
   return <PageNotFound />;
-};
-
-export default Page;
+}

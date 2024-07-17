@@ -1,3 +1,5 @@
+'use client';
+
 import React, { PropsWithChildren } from 'react';
 
 import { IconButton } from '@/components/IconButton';
