@@ -81,7 +81,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
           disabled={!isAgentCreator}
         />
       </InputLabel>
-      <InputLabel label="Preamble">
+      <InputLabel label="Instructions">
         <textarea
           value={fields.preamble ?? ''}
           placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
