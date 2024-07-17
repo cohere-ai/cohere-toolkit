@@ -16,6 +16,8 @@ export const DragDropFileUploadOverlay: React.FC<{
   } = useSettingsStore();
 
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // @ts-ignore
+    console.debug('[handleUploadFile]', e, e.target, e.dataTransfer);
     if (!isConfigDrawerOpen) {
       queueFocusFileInput();
     } else {

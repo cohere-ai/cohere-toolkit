@@ -87,17 +87,67 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
         className="absolute left-0 top-0 h-full w-full opacity-0"
         type="file"
         multiple={multiple}
+        // @ts-ignore
+        webkitdirectory
+        mozdirectory
+        msdirectory
+        odirectory
+        directory
         accept={accept.toString()}
         name={name}
         required={required}
         placeholder={placeholder}
         disabled={disabled}
         readOnly={readOnly}
-        onChange={onChange}
+        // onChange={onChange}
         onDragEnter={() => setDragActive(true)}
         onDragOver={() => setDragActive(true)}
         onDragLeave={() => setDragActive(false)}
-        onDrop={() => setDragActive(false)}
+        // onDrop={() => setDragActive(false)}
+        onDrop={async (e) => {
+          const droppedFolder = e.dataTransfer.items[0].webkitGetAsEntry();
+          if (!droppedFolder) return;
+          const filesList: File[] = [];
+
+          const traverseFolder = async (fileSystem: FileSystemDirectoryEntry): Promise<void> => {
+            if (fileSystem.isDirectory) {
+              const directoryReader = fileSystem.createReader();
+              return new Promise((resolve) => {
+                directoryReader.readEntries(async function (entries) {
+                  for (let i = 0; i < entries.length; i++) {
+                    const entry = entries[i];
+
+                    if (entry.isDirectory) {
+                      console.debug('Directory:', entry);
+                      await traverseFolder(entry as FileSystemDirectoryEntry);
+                      console.debug('did i wait?.......................');
+                    } else if (entry.isFile) {
+                      const fileEntry = entry as FileSystemFileEntry;
+                      const readFile = () =>
+                        new Promise((fileReadResolve) => {
+                          fileEntry.file((f) => {
+                            filesList.push(f);
+                            fileReadResolve(f);
+                          });
+                        });
+                      const file = await readFile();
+                      console.debug('after file entry read', file, filesList);
+                    }
+                    if (i === entries.length - 1) {
+                      console.debug('resolving...', filesList);
+                      resolve();
+                    }
+                  }
+                });
+              });
+            }
+          };
+
+          await traverseFolder(droppedFolder.filesystem.root);
+          console.debug('traverse folder finish', filesList);
+
+          setDragActive(false);
+        }}
       />
     </div>
   );
