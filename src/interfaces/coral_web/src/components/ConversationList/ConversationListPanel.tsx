@@ -100,7 +100,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) =
     );
   } else if (!hasConversations) {
     content = (
-      <span className="flex h-full w-full items-center justify-center text-volcanic-600">
+      <span className="flex h-full w-full items-center justify-center text-volcanic-500">
         <Text>It&apos;s quiet here... for now</Text>
       </span>
     );

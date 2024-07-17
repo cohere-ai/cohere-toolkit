@@ -115,7 +115,7 @@ const Content: React.FC<Props> = (props) => {
         <Messages {...props} ref={messageContainerDivRef} />
         {/* Composer container */}
         <div
-          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-100')}
+          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000')}
           ref={composerContainerDivRef}
         >
           <Transition
@@ -142,7 +142,7 @@ const Content: React.FC<Props> = (props) => {
       </div>
 
       <div
-        className={cn('hidden h-auto border-marble-400', {
+        className={cn('hidden h-auto border-marble-950', {
           'md:flex': hasCitations || !isEditAgentPanelOpen,
           'border-l': hasCitations,
         })}

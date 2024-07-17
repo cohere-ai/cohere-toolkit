@@ -19,26 +19,21 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          version: 9
-          run_install: false
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: "src/interfaces/slack_bot/.nvmrc"
-          cache: "pnpm"
-          cache-dependency-path: "src/interfaces/slack_bot/pnpm-lock.yaml"
+          cache: "npm"
+          cache-dependency-path: "src/interfaces/slack_bot/package-lock.json"
       - name: Install dependencies with npm
         shell: bash
         working-directory: src/interfaces/slack_bot
-        run: pnpm install --frozen-lockfile
+        run: npm ci
       - name: Check slack_bot is formatted
-        run: pnpm run format
+        run: npm run format
       - name: Check slack_bot types
-        run: pnpm run tsc:check
+        run: npm run tsc:check
       - name: Run slack_bot tests
-        run: pnpm run test
+        run: npm run test
       - name: Check slack_bot can build
-        run: pnpm run build
+        run: npm run build

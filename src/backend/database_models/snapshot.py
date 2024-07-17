@@ -10,7 +10,7 @@ from backend.database_models.base import Base
 class Snapshot(Base):
     __tablename__ = "snapshots"
 
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(String, nullable=True)
     organization_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey(
             "organizations.id",
@@ -49,7 +49,9 @@ class SnapshotLink(Base):
         ForeignKey("snapshots.id", ondelete="CASCADE")
     )
 
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
 
     __table_args__ = (Index("snapshot_link_snapshot_id", snapshot_id),)
 
@@ -57,7 +59,9 @@ class SnapshotLink(Base):
 class SnapshotAccess(Base):
     __tablename__ = "snapshot_access"
 
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
     snapshot_id: Mapped[str] = mapped_column(
         ForeignKey("snapshots.id", ondelete="CASCADE")
     )

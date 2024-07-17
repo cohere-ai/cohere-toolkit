@@ -11,7 +11,7 @@ import {
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
 } from '@/constants';
-import { cn } from '@/utils';
+import { cn, getValidURL } from '@/utils';
 
 type Props = {
   show: boolean;
@@ -47,7 +47,7 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events 
         </Fragment>
       ))}
       {isStreaming && isLast && (
-        <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
+        <Text className={cn('flex min-w-0 text-volcanic-400')} as="span">
           Working on it
           <span className="w-max">
             <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
@@ -78,22 +78,27 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     const artifacts =
       stream_search_results.documents
         ?.map((doc) => {
-          return { title: truncateString(doc.title || doc.url || ''), url: doc.url };
+          return { title: truncateString(doc.title || doc.url || ''), url: getValidURL(doc.url) };
         })
         .filter((entry) => !!entry.title)
         .filter((value, index, self) => index === self.findIndex((t) => t.title === value.title)) ||
       [];
+
     return (
       <ToolEventWrapper icon="book-open-text">
         {artifacts.length > 0 ? (
           <>
-            Found the following resources:
+            Referenced the following resources:
             <article className="grid grid-cols-2 gap-x-2">
               {artifacts.map((artifact) => (
-                <b key={artifact.title} className="cursor-pointer truncate font-medium underline">
-                  <a href={artifact.url || ''} target="_blank">
-                    {artifact.title}
-                  </a>
+                <b key={artifact.title} className="truncate font-medium">
+                  {artifact.url ? (
+                    <a href={artifact.url} target="_blank" className="underline">
+                      {artifact.title}
+                    </a>
+                  ) : (
+                    <p>{artifact.title}</p>
+                  )}
                 </b>
               ))}
             </article>
@@ -174,9 +179,9 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   children,
 }) => {
   return (
-    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-secondary-50 px-3 py-2 transition-colors ease-in-out group-hover:bg-secondary-100">
-      <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-secondary-600" />
-      <Text className="pt-px text-secondary-800" styleAs="p-sm" as="span">
+    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900">
+      <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-mushroom-500" />
+      <Text className="pt-px text-mushroom-300" styleAs="p-sm" as="span">
         {children}
       </Text>
     </div>

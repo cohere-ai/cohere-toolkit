@@ -76,7 +76,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         <span className="flex items-center gap-x-1 truncate">
           <Text
             as="span"
-            className={cn('h-[21px] truncate text-volcanic-800', {
+            className={cn('h-[21px] truncate text-volcanic-300', {
               'font-medium': isActive,
             })}
           >
@@ -87,7 +87,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         {/* Placeholder for the kebab menu */}
         <div className="flex h-4 w-4 flex-shrink-0" />
       </div>
-      <Text styleAs="p-sm" className={cn('h-[18px] w-full truncate text-volcanic-600')}>
+      <Text styleAs="p-sm" className={cn('h-[18px] w-full truncate text-volcanic-500')}>
         {description}
       </Text>
     </div>
@@ -122,8 +122,8 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     <div
       {...flippedProps}
       className={cn('group relative flex w-full rounded-lg', 'flex items-start gap-x-1', {
-        'bg-marble-100 transition-colors ease-in-out hover:bg-secondary-100/20': !isActive,
-        'bg-secondary-100/40': isActive,
+        'bg-marble-1000 transition-colors ease-in-out hover:bg-mushroom-900/20': !isActive,
+        'bg-mushroom-900/40': isActive,
       })}
     >
       {conversationLink}

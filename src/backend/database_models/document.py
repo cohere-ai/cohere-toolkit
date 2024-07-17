@@ -8,13 +8,13 @@ class Document(Base):
     __tablename__ = "documents"
 
     text: Mapped[str]
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(String, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
     url: Mapped[str] = mapped_column(String, nullable=True)
     fields: Mapped[dict] = mapped_column(JSON, nullable=True)
     tool_name: Mapped[str] = mapped_column(String, nullable=True)
 
-    conversation_id: Mapped[str] = mapped_column(String)
+    conversation_id: Mapped[str] = mapped_column(String, nullable=True)
     message_id: Mapped[str] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE")
     )
