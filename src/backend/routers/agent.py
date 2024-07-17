@@ -83,17 +83,17 @@ async def create_agent(
         tools=agent.tools,
     )
 
-    # try:
-    created_agent = agent_crud.create_agent(session, agent_data)
-    add_agent_to_request_state(request, created_agent)
+    try:
+        created_agent = agent_crud.create_agent(session, agent_data)
+        add_agent_to_request_state(request, created_agent)
 
-    if agent.tools_metadata:
-        for tool_metadata in agent.tools_metadata:
-            await update_or_create_tool_metadata(
-                created_agent, tool_metadata, session, request
-            )
-    # except Exception as e:
-    # raise HTTPException(status_code=500, detail=str(e))
+        if agent.tools_metadata:
+            for tool_metadata in agent.tools_metadata:
+                await update_or_create_tool_metadata(
+                    created_agent, tool_metadata, session, request
+                )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return created_agent
 
