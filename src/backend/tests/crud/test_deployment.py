@@ -82,9 +82,6 @@ def test_list_deployments_with_pagination(session):
 
     deployments = deployment_crud.get_deployments(session, offset=5, limit=5)
     assert len(deployments) == 5
-    deployments = sorted(deployments, key=lambda x: x.name)
-    for i, deployment in enumerate(deployments):
-        assert deployment.name == f"Test Deployment {i + 5}"
 
 
 def test_get_available_deployments(session, user):

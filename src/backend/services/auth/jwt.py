@@ -39,7 +39,7 @@ class JWTService:
         payload = {
             "iss": self.ISSUER,
             "iat": now,
-            "exp": now + datetime.timedelta(months=self.EXPIRY_MONTHS),
+            "exp": now + datetime.timedelta(days=self.EXPIRY_MONTHS * 30),
             "jti": str(uuid.uuid4()),
             "context": user,
         }
