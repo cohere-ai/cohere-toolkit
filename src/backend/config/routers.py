@@ -21,6 +21,7 @@ class RouterName(StrEnum):
     TOOL = "tool"
     USER = "user"
     AGENT = "agent"
+    DEFAULT_AGENT = "default_agent"
     SNAPSHOT = "snapshot"
     MODEL = "model"
 
@@ -94,6 +95,16 @@ ROUTER_DEPENDENCIES = {
         ],
     },
     RouterName.AGENT: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
+            # TODO: Add if the router's have to have authorization
+            # Depends(validate_authorization),
+        ],
+    },
+    RouterName.DEFAULT_AGENT: {
         "default": [
             Depends(get_session),
         ],

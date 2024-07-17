@@ -5,7 +5,7 @@
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: theme('colors.marble.100');
+  background-color: theme('colors.marble.1000');
   font-family: theme('fontFamily.body');
   font-size: 16px;
   font-weight: 400;
@@ -13,7 +13,7 @@ body {
 
 /* Google File Picker styles */
 .picker-dialog {
-  @apply rounded-lg border !border-marble-500 drop-shadow-2xl;
+  @apply rounded-lg border !border-marble-800 drop-shadow-2xl;
 }
 
 @layer utilities {

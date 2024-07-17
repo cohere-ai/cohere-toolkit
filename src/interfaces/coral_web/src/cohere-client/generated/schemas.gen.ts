@@ -1391,6 +1391,18 @@ export const $GenerateTitle = {
   title: 'GenerateTitle',
 } as const;
 
+export const $GenericResponseMessage = {
+  properties: {
+    message: {
+      type: 'string',
+      title: 'Message',
+    },
+  },
+  type: 'object',
+  required: ['message'],
+  title: 'GenericResponseMessage',
+} as const;
+
 export const $HTTPValidationError = {
   properties: {
     detail: {

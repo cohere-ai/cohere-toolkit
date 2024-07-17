@@ -6,6 +6,10 @@ from typing import Any
 from pydantic import BaseModel
 
 
+class GenericResponseMessage(BaseModel):
+    message: str
+
+
 class MetricsMessageType(str, Enum):
     # users: implemented, has tests
     USER_CREATED = "user_created"

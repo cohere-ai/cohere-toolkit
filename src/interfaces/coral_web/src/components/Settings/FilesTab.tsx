@@ -103,7 +103,7 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
                 (title) =>
                   dateGroupedUploadedFiles[title].length > 0 && (
                     <Fragment key={title}>
-                      <Text styleAs="label" className="text-volcanic-100">
+                      <Text styleAs="label" className="text-volcanic-900">
                         {title}
                       </Text>
                       {dateGroupedUploadedFiles[title].map(
@@ -124,7 +124,7 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
                                 />
                               </div>
                               <div className="flex h-5 w-32 grow items-center justify-end gap-x-1">
-                                <Text styleAs="caption" className="text-volcanic-700">
+                                <Text styleAs="caption" className="text-volcanic-400">
                                   {formatFileSize(size ?? 0)}
                                 </Text>
                               </div>

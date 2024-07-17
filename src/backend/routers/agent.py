@@ -13,6 +13,7 @@ from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
     add_agent_tool_metadata_to_request_state,
+    add_default_agent_to_request_state,
     add_event_type_to_request_state,
     add_session_user_to_request_state,
     get_deployment_model_from_agent,
@@ -30,7 +31,7 @@ from backend.schemas.agent import (
     UpdateAgentToolMetadata,
 )
 from backend.schemas.deployment import Deployment as DeploymentSchema
-from backend.schemas.metrics import MetricsMessageType
+from backend.schemas.metrics import GenericResponseMessage, MetricsMessageType
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -237,6 +238,20 @@ async def list_organization_user_agents(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# simply for logging purposes
+default_agent_router = APIRouter(
+    prefix="/v1/default_agent",
+)
+default_agent_router.name = RouterName.DEFAULT_AGENT
+
+
+@default_agent_router.get("/", response_model=GenericResponseMessage)
+async def get_default_agent(session: DBSessionDep, request: Request):
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_ACCESSED)
+    add_default_agent_to_request_state(request)
+    return {"message": "OK"}
 
 
 @router.get("/{agent_id}", response_model=Agent)

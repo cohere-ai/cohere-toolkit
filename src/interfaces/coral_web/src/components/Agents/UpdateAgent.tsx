@@ -60,7 +60,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
               {
                 tool_name: TOOL_GOOGLE_DRIVE_ID,
                 artifacts: data.docs.map(
-                  (doc) =>
+                  (doc: any) =>
                     ({
                       id: doc.id,
                       name: doc.name,
@@ -76,7 +76,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         const updateGoogleDriveTool = {
           ...currentGoogleDriveTool,
           artifacts: data.docs.map(
-            (doc) =>
+            (doc: any) =>
               ({
                 id: doc.id,
                 name: doc.name,
@@ -196,7 +196,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   if (!agent) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-danger-500">Unable to load assistant information</Text>
+        <Text className="text-danger-350">Unable to load assistant information</Text>
       </div>
     );
   }
@@ -205,7 +205,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
     <>
       <header
         className={cn(
-          'flex h-header flex-shrink-0 items-center justify-between border-b border-marble-400',
+          'flex h-header flex-shrink-0 items-center justify-between border-b border-marble-950',
           'pl-4 pr-3 lg:pl-10 lg:pr-8'
         )}
       >

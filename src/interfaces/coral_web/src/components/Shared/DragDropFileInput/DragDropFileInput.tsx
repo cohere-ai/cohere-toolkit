@@ -63,21 +63,21 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
   return (
     <div
       className={cn(
-        'relative flex h-28 w-full flex-col items-center justify-center rounded-md border border-secondary-200 px-3 py-6',
+        'relative flex h-28 w-full flex-col items-center justify-center rounded-md border border-mushroom-800 px-3 py-6',
         'transition duration-200',
-        'border-dashed bg-secondary-50',
+        'border-dashed bg-mushroom-950',
         {
-          'border-solid bg-secondary-200': dragActive,
+          'border-solid bg-mushroom-800': dragActive,
         },
         className
       )}
     >
       {dragActive ? (
-        <Text className="max-w-[170px] text-center text-secondary-800">{dragActiveLabel}</Text>
+        <Text className="max-w-[170px] text-center text-mushroom-300">{dragActiveLabel}</Text>
       ) : (
         <>
-          <Text className="max-w-[210px] text-center text-secondary-800">{label}</Text>
-          <Text className="text-center text-secondary-700" styleAs="caption">
+          <Text className="max-w-[210px] text-center text-mushroom-300">{label}</Text>
+          <Text className="text-center text-mushroom-400" styleAs="caption">
             {subLabel}
           </Text>
         </>
