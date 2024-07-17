@@ -31,7 +31,7 @@ export const getWebDomain = (url?: string) => {
  * * e.g. alert('hi') -> not ok, return undefined
  * * e.g. https://www.google.com?q=<script>alert(1)</script> -> ok, return encoded url
  */
-export const getSafeUrl = (url?: string) => {
+export const getSafeUrl = (url?: string | null) => {
   if (!url) return undefined;
 
   try {
@@ -55,6 +55,24 @@ export const getSafeUrl = (url?: string) => {
     }
 
     return undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * Returns the url if it is valid.
+ * * e.g. https://www.google.com -> ok
+ * * e.g. alert('hi') -> not ok, return undefined
+ *
+ * @param url The url to validate.
+ * @returns The url if it is valid, otherwise undefined.
+ */
+export const getValidURL = (url?: string | null) => {
+  if (!url) return undefined;
+  try {
+    new URL(url);
+    return url;
   } catch {
     return undefined;
   }
