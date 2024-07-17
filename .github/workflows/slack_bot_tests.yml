@@ -24,7 +24,7 @@ jobs:
         with:
           node-version-file: "src/interfaces/slack_bot/.nvmrc"
           cache: "npm"
-          cache-dependency-path: "src/interfaces/slack_bot/package-lock.yaml"
+          cache-dependency-path: "src/interfaces/slack_bot/package-lock.json"
       - name: Install dependencies with npm
         shell: bash
         working-directory: src/interfaces/slack_bot
