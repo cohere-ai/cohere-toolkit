@@ -53,6 +53,6 @@ def list_tools(
                 tool.auth_url = tool_auth_service.get_auth_url(user_id)
                 tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:
-                logger.error(f"Error while fetching Tool Auth: {str(e)}.")
+                logger.error(f"[Tools] Error fetching Tool Auth: {str(e)}")
 
     return all_tools

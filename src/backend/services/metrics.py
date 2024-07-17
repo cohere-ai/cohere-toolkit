@@ -44,9 +44,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     # currently tests are not setup correctly for it
     async def dispatch(self, request: Request, call_next: Callable):
         if not REPORT_SECRET:
-            logger.warning("No report secret set")
+            logger.warning("[Metrics] No report secret set.")
         if not REPORT_ENDPOINT:
-            logger.warning("No report endpoint set")
+            logger.warning("[Metrics] No report endpoint set.")
 
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
@@ -75,7 +75,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         try:
             user_id = get_header_user_id(request)
         except:
-            logger.warning(f"Failed to get user id from headers")
+            logger.warning(f"[Metrics] No user id in request")
             return None
 
         agent = self.get_agent(request)
@@ -100,7 +100,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             )
             return data
         except Exception as e:
-            logger.warning(f"Failed to process event data: {e}")
+            logger.warning(f"[Metrics] Error processing event data: {e}")
             return None
 
     def get_user_id(self, request: Request) -> Union[str, None]:
@@ -120,7 +120,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             return user_id
         except Exception as e:
-            logger.warning(f"Failed to get user id: {e}")
+            logger.warning(f"[Metrics] No user id in request: {e}")
             return None
 
     def get_user(self, request: Request) -> Union[MetricsUser, None]:
@@ -134,7 +134,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 email=request.state.user.email,
             )
         except Exception as e:
-            logger.warning(f"Failed to get user: {e}")
+            logger.warning(f"[Metrics] Error getting user: {e}")
             return None
 
     def get_object_ids(self, request: Request) -> Dict[str, str]:
@@ -148,7 +148,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             return object_ids
         except Exception as e:
-            logger.warning(f"Failed to get object ids: {e}")
+            logger.warning(f"[Metrics] Error requesting object IDs: {e}")
             return {}
 
     def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
@@ -171,7 +171,7 @@ async def report_metrics(signal: MetricsSignal) -> None:
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
-        logger.error(f"Failed to report metrics: {e}")
+        logger.error(f"[Metrics] Error posting report: {e}")
 
 
 def attach_secret(data: MetricsData) -> MetricsData:
@@ -200,5 +200,5 @@ def preprocess_event_data(data: MetricsData | None) -> MetricsSignal | None:
         signal = MetricsSignal(signal=data)
         return signal
     except Exception as e:
-        logger.warning(f"Failed to preprocess event data: {e}")
+        logger.warning(f"[Metrics] Error preprocessing event data: {e}")
         return None
