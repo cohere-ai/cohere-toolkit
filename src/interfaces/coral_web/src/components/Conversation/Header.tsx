@@ -1,7 +1,7 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useContext } from 'react';
 
 import { IconButton } from '@/components/IconButton';
@@ -44,12 +44,13 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   } = useAgentsStore();
   const { resetFileParams } = useParamsStore();
   const router = useRouter();
+  const pathname = usePathname();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
 
   const handleNewChat = () => {
-    const url = agentId ? `/a/${agentId}` : router.asPath.includes('/a') ? '/a' : '/';
-    router.push(url, undefined, { shallow: true });
+    const url = agentId ? `/a/${agentId}` : pathname.includes('/a') ? '/a' : '/';
+    router.push(url, undefined);
     resetConversation();
     resetCitations();
     resetFileParams();
@@ -66,7 +67,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const handleToggleConfigSettings = () => {
     setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
 
-    if (welcomeGuideState === WelcomeGuideStep.ONE && router.pathname === '/') {
+    if (welcomeGuideState === WelcomeGuideStep.ONE && pathname === '/') {
       progressWelcomeGuideStep();
     } else if (welcomeGuideState !== WelcomeGuideStep.DONE) {
       finishWelcomeGuide();

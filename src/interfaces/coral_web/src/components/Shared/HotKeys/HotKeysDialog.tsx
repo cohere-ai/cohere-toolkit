@@ -1,11 +1,8 @@
 'use client';
 
 import { Combobox, Dialog, Transition } from '@headlessui/react';
-import cx from 'classnames';
-import { useRouter } from 'next/navigation';
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment } from 'react';
 
-import { Icon, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import DialogNavigationKeys from '@/components/Shared/HotKeys/DialogNavigationKeys';
 import QuickActions, { QuickAction } from '@/components/Shared/HotKeys/QuickActions';
 
@@ -22,9 +19,6 @@ type Props = {
 };
 
 export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, customActions = [] }) => {
-  const [query, setQuery] = useState('');
-  const router = useRouter();
-
   const handleGoTo = (url: string) => {
     close();
     if (!url) return;
@@ -32,14 +26,12 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, customActions = 
       window.open(url, '_blank');
       return;
     }
-    // to mimic next/link behavior of emitting routeChangeStart
-    // this is needed to show the loading bar at the top of the page
-    router.events.emit('routeChangeStart', url, { shallow: false });
+
     window.location.href = url;
   };
 
   return (
-    <Transition.Root show={isOpen} as={Fragment} afterLeave={() => setQuery('')} appear>
+    <Transition.Root show={isOpen} as={Fragment} appear>
       <Dialog as="div" className="relative z-modal" onClose={close}>
         <Transition.Child
           as={Fragment}

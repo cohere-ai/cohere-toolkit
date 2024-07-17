@@ -19,7 +19,8 @@ if "pytest" in sys.modules or SKIP_AUTH == "true":
 # Define the mapping from Auth strategy name to class obj - does not need to be manually modified.
 # During runtime, this will create an instance of each enabled strategy class.
 # Ex: {"Basic": BasicAuthentication()}
-ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
+ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls()
+                                 for cls in ENABLED_AUTH_STRATEGIES}
 
 # Token to authorize migration requests
 MIGRATE_TOKEN = os.environ.get("MIGRATE_TOKEN", None)

@@ -24,7 +24,7 @@ export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
     await deleteAgent({ agentId });
     onClose();
     if (agentId === currentAgentId) {
-      router.push('/', undefined, { shallow: true });
+      router.push('/', undefined);
     }
   };
 

@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
@@ -54,7 +53,6 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId, description } = conversation;
-  const router = useRouter();
   const { agentId } = useChatRoutes();
   const { setSettings } = useSettingsStore();
   const {
@@ -95,11 +93,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     </div>
   );
 
-  const conversationUrl = agentId
-    ? `/a/${agentId}/c/${conversationId}`
-    : router.asPath.includes('/a')
-    ? `/a/c/${conversationId}`
-    : `/c/${conversationId}`;
+  const conversationUrl = agentId ? `/a/${agentId}/c/${conversationId}` : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =

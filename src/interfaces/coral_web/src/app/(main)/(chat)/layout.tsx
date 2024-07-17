@@ -1,11 +1,12 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
+import { useEffect } from 'react';
 
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useSettingsStore } from '@/stores';
+import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -14,9 +15,16 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
+  const { resetConversation } = useConversationStore();
 
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
+
+  useEffect(() => {
+    return () => {
+      resetConversation();
+    };
+  }, []);
 
   if (isAgentsModeOn) {
     return (

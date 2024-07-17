@@ -70,7 +70,7 @@ const Page: NextPage = () => {
       conversation?.messages?.sort((a, b) => a.position - b.position)
     );
 
-    setConversation({ name: conversation.title, messages });
+    setConversation({ name: conversation.title, messages, id: conversation.id });
 
     let documentsMap: { [documentId: string]: Document } = {};
     let outputFilesMap: OutputFiles = {};
