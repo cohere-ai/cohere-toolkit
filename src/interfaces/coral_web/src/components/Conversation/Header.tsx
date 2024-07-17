@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useContext } from 'react';
 
 import { IconButton } from '@/components/IconButton';

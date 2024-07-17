@@ -1,5 +1,5 @@
 import { findLast } from 'lodash';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 import { CustomHotKey } from '@/components/Shared/HotKeys';
 import {

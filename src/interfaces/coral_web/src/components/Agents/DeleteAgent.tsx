@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 import { Button, Text } from '@/components/Shared';
 import { useDeleteAgent } from '@/hooks/agents';

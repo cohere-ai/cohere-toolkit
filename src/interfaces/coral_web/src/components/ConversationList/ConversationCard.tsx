@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
