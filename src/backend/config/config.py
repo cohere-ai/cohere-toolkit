@@ -56,20 +56,6 @@ class Configuration(BaseSettings):
                 )
             )
 
-    # BROKER
-    REDIS_HOST: str = Optional[Field(min_length=1)]
-    REDIS_DB: int = Field(default=0, ge=0, le=15)
-    REDIS_USER: str = ""
-    REDIS_PASSWORD: str = ""
-    REDIS_USE_SSL: bool = False
-    SYNC_EXECUTOR_CONCURRENCY: int = Field(default=100, ge=1, le=500)
-
-    @computed_field
-    @cached_property
-    def REDIS_CONNECTION_STRING(self) -> str:
-        protocol = "rediss" if self.REDIS_USE_SSL else "redis"
-        return f"{protocol}://{self.REDIS_USER}:{self.REDIS_PASSWORD}@{self.REDIS_HOST}/{self.REDIS_DB}"
-
     # DB
     DB_DATABASE: str = Field(min_length=1)
     DB_USERNAME: str = Field(min_length=1)
