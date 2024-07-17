@@ -2,45 +2,36 @@ import logging
 
 import requests
 from authlib.integrations.requests_client import OAuth2Session
-from fastapi import HTTPException
 from starlette.requests import Request
 
 from backend.services.auth.strategies.base import BaseOAuthStrategy
-from backend.services.auth.strategies.settings import Settings
+from backend.services.auth.strategies.google_auth.env import GoogleAuthEnvironment
 
 
-class OIDCSettings(Settings):
-    oidc_client_id: str
-    oidc_client_secret: str
-    oidc_well_known_endpoint: str
-    frontend_hostname: str
-
-
-class OpenIDConnect(BaseOAuthStrategy):
+class GoogleOAuth(BaseOAuthStrategy):
     """
-    OpenID Connect strategy.
+    Google OAuth2.0 strategy.
     """
 
-    NAME = "OIDC"
-    PKCE_ENABLED = True
+    NAME = "Google"
+    WELL_KNOWN_ENDPOINT = "https://accounts.google.com/.well-known/openid-configuration"
 
-    def __init__(self):
+    def __init__(self, env: GoogleAuthEnvironment):
         try:
-            self.settings = OIDCSettings()
+            self._env = env
             self.REDIRECT_URI = (
-                f"{self.settings.frontend_hostname}/auth/{self.NAME.lower()}"
+                f"{self._env.frontend_hostname}/auth/{self.NAME.lower()}"
             )
-            self.WELL_KNOWN_ENDPOINT = self.settings.oidc_well_known_endpoint
             self.client = OAuth2Session(
-                client_id=self.settings.oidc_client_id,
-                client_secret=self.settings.oidc_client_secret,
+                client_id=self._env.google_client_id,
+                client_secret=self._env.google_client_secret,
             )
         except Exception as e:
-            logging.error(f"Error during initializing of OpenIDConnect class: {str(e)}")
+            logging.error(f"Error during initializing of GoogleOAuth class: {str(e)}")
             raise
 
     def get_client_id(self):
-        return self.settings.oidc_client_id
+        return self._env.google_client_id
 
     def get_authorization_endpoint(self):
         if hasattr(self, "AUTHORIZATION_ENDPOINT"):
@@ -67,7 +58,7 @@ class OpenIDConnect(BaseOAuthStrategy):
 
     async def authorize(self, request: Request) -> dict | None:
         """
-        Authenticates the current user using their OIDC account.
+        Authenticates the current user using their Google account.
 
         Args:
             request (Request): Current request.
@@ -75,26 +66,11 @@ class OpenIDConnect(BaseOAuthStrategy):
         Returns:
             Access token.
         """
-        params = {
-            "url": self.TOKEN_ENDPOINT,
-            "authorization_response": str(request.url),
-            "redirect_uri": self.REDIRECT_URI,
-        }
-
-        if self.PKCE_ENABLED:
-            body = await request.json()
-            code_verifier = body.get("code_verifier")
-
-            if not code_verifier:
-                raise HTTPException(
-                    status_code=400,
-                    detail="code_verifier not available in request body during PKCE flow.",
-                )
-
-            params["code_verifier"] = code_verifier
-
-        token = self.client.fetch_token(**params)
-
+        token = self.client.fetch_token(
+            url=self.TOKEN_ENDPOINT,
+            authorization_response=str(request.url),
+            redirect_uri=self.REDIRECT_URI,
+        )
         user_info = self.client.get(self.USERINFO_ENDPOINT)
 
         return user_info.json()

@@ -28,7 +28,7 @@ async def create_user(
 
     Args:
         user (CreateUser): User data to be created.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         User: Created user.
@@ -50,7 +50,7 @@ async def list_users(
     Args:
         offset (int): Offset to start the list.
         limit (int): Limit of users to be listed.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         list[User]: List of users.
@@ -65,7 +65,7 @@ async def get_user(user_id: str, session: DBSessionDep, request: Request) -> Use
 
     Args:
         user_id (str): User ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
         Returns:
         User: User with the given ID.
@@ -94,7 +94,7 @@ async def update_user(
     Args:
         user_id (str): User ID.
         new_user (UpdateUser): New user data.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         User: Updated user.
@@ -124,7 +124,7 @@ async def delete_user(
 
     Args:
         user_id (str): User ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         DeleteUser: Empty response.

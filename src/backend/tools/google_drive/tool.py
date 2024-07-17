@@ -8,10 +8,10 @@ from googleapiclient.discovery import build
 
 from backend.crud import tool_auth as tool_auth_crud
 from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
-from backend.services.compass import Compass
 from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
 from backend.tools.utils import async_download, parallel_get_files
+from src.backend.services.compass import Compass
 
 from .constants import (
     COMPASS_UPDATE_INTERVAL,

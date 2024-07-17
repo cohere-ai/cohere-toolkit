@@ -7,6 +7,7 @@ from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
+from backend.config import ConfigDep
 from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
@@ -45,14 +46,14 @@ router.name = RouterName.CONVERSATION
 # CONVERSATIONS
 @router.get("/{conversation_id}", response_model=Conversation)
 async def get_conversation(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, config: ConfigDep, request: Request
 ) -> Conversation:
     """ "
     Get a conversation by ID.
 
     Args:
         conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): Request object.
 
     Returns:
@@ -61,16 +62,19 @@ async def get_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
-    if not conversation:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
         )
 
-    return conversation
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
+
+        return conversation
 
 
 @router.get("", response_model=list[ConversationWithoutMessages])
@@ -79,7 +83,7 @@ async def list_conversations(
     offset: int = 0,
     limit: int = 100,
     agent_id: str = None,
-    session: DBSessionDep,
+    config: ConfigDep,
     request: Request,
 ) -> list[ConversationWithoutMessages]:
     """
@@ -89,24 +93,25 @@ async def list_conversations(
         offset (int): Offset to start the list.
         limit (int): Limit of conversations to be listed.
         agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): Request object.
 
     Returns:
         list[ConversationWithoutMessages]: List of conversations.
     """
-    user_id = get_header_user_id(request)
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
 
-    return conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
-    )
+        return conversation_crud.get_conversations(
+            session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
+        )
 
 
 @router.put("/{conversation_id}", response_model=Conversation)
 async def update_conversation(
     conversation_id: str,
     new_conversation: UpdateConversation,
-    session: DBSessionDep,
+    config: ConfigDep,
     request: Request,
 ) -> Conversation:
     """
@@ -115,7 +120,7 @@ async def update_conversation(
     Args:
         conversation_id (str): Conversation ID.
         new_conversation (UpdateConversation): New conversation data.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): Request object.
 
     Returns:
@@ -124,32 +129,35 @@ async def update_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
-    if not conversation:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
         )
 
-    conversation = conversation_crud.update_conversation(
-        session, conversation, new_conversation
-    )
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
 
-    return conversation
+        conversation = conversation_crud.update_conversation(
+            session, conversation, new_conversation
+        )
+
+        return conversation
 
 
 @router.delete("/{conversation_id}")
 async def delete_conversation(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, config: ConfigDep, request: Request
 ) -> DeleteConversation:
     """
     Delete a conversation by ID.
 
     Args:
         conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): Request object.
 
     Returns:
@@ -158,24 +166,27 @@ async def delete_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
-    if not conversation:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
         )
 
-    conversation_crud.delete_conversation(session, conversation_id, user_id)
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
 
-    return DeleteConversation()
+        conversation_crud.delete_conversation(session, conversation_id, user_id)
+
+        return DeleteConversation()
 
 
 @router.get(":search", response_model=list[ConversationWithoutMessages])
 async def search_conversations(
     query: str,
-    session: DBSessionDep,
+    config: ConfigDep,
     request: Request,
     offset: int = 0,
     limit: int = 100,
@@ -186,71 +197,74 @@ async def search_conversations(
 
     Args:
         query (str): Query string to search for in conversation titles.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): Request object.
 
     Returns:
         list[ConversationWithoutMessages]: List of conversations that match the query.
     """
-    user_id = get_header_user_id(request)
-    deployment_name = request.headers.get("Deployment-Name", "")
-    model_deployment = get_deployment(deployment_name)
-    trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        deployment_name = request.headers.get("Deployment-Name", "")
+        model_deployment = get_deployment(deployment_name)
+        trace_id = (
+            request.state.trace_id if hasattr(request.state, "trace_id") else None
+        )
 
-    conversations = conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
-    )
+        conversations = conversation_crud.get_conversations(
+            session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
+        )
 
-    if not conversations:
-        return []
+        if not conversations:
+            return []
 
-    rerank_documents = []
-    for conversation in conversations:
-        chatlog = extract_details_from_conversation(conversation)
+        rerank_documents = []
+        for conversation in conversations:
+            chatlog = extract_details_from_conversation(conversation)
 
-        document = f"Title: {conversation.title}\n"
-        if len(chatlog.strip()) != 0:
-            document += "\nChatlog:\n{chatlog}"
+            document = f"Title: {conversation.title}\n"
+            if len(chatlog.strip()) != 0:
+                document += "\nChatlog:\n{chatlog}"
 
-        rerank_documents.append(document)
+            rerank_documents.append(document)
 
-    # if rerank is not enabled, filter out conversations that don't contain the query
-    if not model_deployment.rerank_enabled:
-        filtered_conversations = []
+        # if rerank is not enabled, filter out conversations that don't contain the query
+        if not model_deployment.rerank_enabled:
+            filtered_conversations = []
 
-        for rerank_document, conversation in zip(rerank_documents, conversations):
-            if query.lower() in rerank_document.lower():
-                filtered_conversations.append(conversation)
+            for rerank_document, conversation in zip(rerank_documents, conversations):
+                if query.lower() in rerank_document.lower():
+                    filtered_conversations.append(conversation)
 
-        return filtered_conversations
+            return filtered_conversations
 
-    # Rerank documents
-    res = await model_deployment.invoke_rerank(
-        query=query,
-        documents=rerank_documents,
-        user_id=user_id,
-        agent_id=agent_id,
-        trace_id=trace_id,
-    )
+        # Rerank documents
+        res = await model_deployment.invoke_rerank(
+            query=query,
+            documents=rerank_documents,
+            user_id=user_id,
+            agent_id=agent_id,
+            trace_id=trace_id,
+        )
 
-    # Sort conversations by rerank score
-    res["results"].sort(key=lambda x: x["relevance_score"], reverse=True)
+        # Sort conversations by rerank score
+        res["results"].sort(key=lambda x: x["relevance_score"], reverse=True)
 
-    # Filter out conversations with low relevance score
-    reranked_conversations = [
-        conversations[r["index"]]
-        for r in res["results"]
-        if r["relevance_score"] > SEARCH_RELEVANCE_THRESHOLD
-    ]
+        # Filter out conversations with low relevance score
+        reranked_conversations = [
+            conversations[r["index"]]
+            for r in res["results"]
+            if r["relevance_score"] > SEARCH_RELEVANCE_THRESHOLD
+        ]
 
-    return reranked_conversations
+        return reranked_conversations
 
 
 # FILES
 # TODO: Deprecate singular file upload once client uses batch upload endpoint
 @router.post("/upload_file", response_model=UploadFile)
 async def upload_file(
-    session: DBSessionDep,
+    config: ConfigDep,
     request: Request,
     conversation_id: str = Form(None),
     file: FastAPIUploadFile = RequestFile(...),
@@ -260,7 +274,7 @@ async def upload_file(
     If no conversation_id is provided, a new Conversation is created as well.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         file (FastAPIUploadFile): File to be uploaded.
         conversation_id (Optional[str]): Conversation ID passed from request query parameter.
 
@@ -271,67 +285,67 @@ async def upload_file(
         HTTPException: If the conversation with the given ID is not found. Status code 404.
         HTTPException: If the file wasn't uploaded correctly. Status code 500.
     """
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
 
-    user_id = get_header_user_id(request)
+        validate_file_size(session, user_id, file)
 
-    validate_file_size(session, user_id, file)
-
-    # Create new conversation
-    if not conversation_id:
-        conversation = conversation_crud.create_conversation(
-            session,
-            ConversationModel(user_id=user_id),
-        )
-    # Check for existing conversation
-    else:
-        conversation = conversation_crud.get_conversation(
-            session, conversation_id, user_id
-        )
-
-        # Fail if user_id is not provided when conversation DNE
-        if not conversation:
-            if not user_id:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
-                )
-
-            # Create new conversation
+        # Create new conversation
+        if not conversation_id:
             conversation = conversation_crud.create_conversation(
                 session,
                 ConversationModel(user_id=user_id),
             )
+        # Check for existing conversation
+        else:
+            conversation = conversation_crud.get_conversation(
+                session, conversation_id, user_id
+            )
 
-    # TODO: check if file already exists in DB once we have files per agents
+            # Fail if user_id is not provided when conversation DNE
+            if not conversation:
+                if not user_id:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"user_id is required if no valid conversation is provided.",
+                    )
 
-    # Handle uploading File
-    try:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+                # Create new conversation
+                conversation = conversation_crud.create_conversation(
+                    session,
+                    ConversationModel(user_id=user_id),
+                )
 
-        # Create File
-        upload_file = FileModel(
-            user_id=conversation.user_id,
-            conversation_id=conversation.id,
-            file_name=filename,
-            file_path=filename,
-            file_size=file.size,
-            file_content=cleaned_content,
-        )
+        # TODO: check if file already exists in DB once we have files per agents
 
-        upload_file = file_crud.create_file(session, upload_file)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error while uploading file {file.filename}."
-        )
+        # Handle uploading File
+        try:
+            content = await get_file_content(file)
+            cleaned_content = content.replace("\x00", "")
+            filename = file.filename.encode("ascii", "ignore").decode("utf-8")
 
-    return upload_file
+            # Create File
+            upload_file = FileModel(
+                user_id=conversation.user_id,
+                conversation_id=conversation.id,
+                file_name=filename,
+                file_path=filename,
+                file_size=file.size,
+                file_content=cleaned_content,
+            )
+
+            upload_file = file_crud.create_file(session, upload_file)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error while uploading file {file.filename}."
+            )
+
+        return upload_file
 
 
 @router.post("/batch_upload_file", response_model=list[UploadFile])
 async def batch_upload_file(
-    session: DBSessionDep,
+    config: ConfigDep,
     request: Request,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
@@ -341,7 +355,7 @@ async def batch_upload_file(
     If no conversation_id is provided, a new Conversation is created as well.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         file (list[FastAPIUploadFile]): List of files to be uploaded.
         conversation_id (Optional[str]): Conversation ID passed from request query parameter.
 
@@ -352,76 +366,76 @@ async def batch_upload_file(
         HTTPException: If the conversation with the given ID is not found. Status code 404.
         HTTPException: If the file wasn't uploaded correctly. Status code 500.
     """
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
 
-    user_id = get_header_user_id(request)
+        validate_batch_file_size(session, user_id, files)
 
-    validate_batch_file_size(session, user_id, files)
-
-    # Create new conversation
-    if not conversation_id:
-        conversation = conversation_crud.create_conversation(
-            session,
-            ConversationModel(user_id=user_id),
-        )
-    # Check for existing conversation
-    else:
-        conversation = conversation_crud.get_conversation(
-            session, conversation_id, user_id
-        )
-
-        # Fail if user_id is not provided when conversation DNE
-        if not conversation:
-            if not user_id:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
-                )
-
-            # Create new conversation
+        # Create new conversation
+        if not conversation_id:
             conversation = conversation_crud.create_conversation(
                 session,
                 ConversationModel(user_id=user_id),
             )
+        # Check for existing conversation
+        else:
+            conversation = conversation_crud.get_conversation(
+                session, conversation_id, user_id
+            )
 
-    # TODO: check if file already exists in DB once we have files per agents
+            # Fail if user_id is not provided when conversation DNE
+            if not conversation:
+                if not user_id:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"user_id is required if no valid conversation is provided.",
+                    )
 
-    # Handle uploading File
-    files_to_upload = []
-    for file in files:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+                # Create new conversation
+                conversation = conversation_crud.create_conversation(
+                    session,
+                    ConversationModel(user_id=user_id),
+                )
 
-        # Create File
-        upload_file = FileModel(
-            user_id=conversation.user_id,
-            conversation_id=conversation.id,
-            file_name=filename,
-            file_path=filename,
-            file_size=file.size,
-            file_content=cleaned_content,
-        )
-        files_to_upload.append(upload_file)
-    try:
-        uploaded_files = file_crud.batch_create_files(session, files_to_upload)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error while uploading file(s): {e}."
-        )
+        # TODO: check if file already exists in DB once we have files per agents
 
-    return uploaded_files
+        # Handle uploading File
+        files_to_upload = []
+        for file in files:
+            content = await get_file_content(file)
+            cleaned_content = content.replace("\x00", "")
+            filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+
+            # Create File
+            upload_file = FileModel(
+                user_id=conversation.user_id,
+                conversation_id=conversation.id,
+                file_name=filename,
+                file_path=filename,
+                file_size=file.size,
+                file_content=cleaned_content,
+            )
+            files_to_upload.append(upload_file)
+        try:
+            uploaded_files = file_crud.batch_create_files(session, files_to_upload)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error while uploading file(s): {e}."
+            )
+
+        return uploaded_files
 
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
 async def list_files(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, config: ConfigDep, request: Request
 ) -> list[ListFile]:
     """
     List all files from a conversation. Important - no pagination support yet.
 
     Args:
         conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         list[ListFile]: List of files from the conversation.
@@ -429,17 +443,22 @@ async def list_files(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
-    if not conversation:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
         )
 
-    files = file_crud.get_files_by_conversation_id(session, conversation_id, user_id)
-    return files
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
+
+        files = file_crud.get_files_by_conversation_id(
+            session, conversation_id, user_id
+        )
+        return files
 
 
 @router.put("/{conversation_id}/files/{file_id}", response_model=File)
@@ -447,7 +466,7 @@ async def update_file(
     conversation_id: str,
     file_id: str,
     new_file: UpdateFile,
-    session: DBSessionDep,
+    config: ConfigDep,
     request: Request,
 ) -> File:
     """
@@ -457,7 +476,7 @@ async def update_file(
         conversation_id (str): Conversation ID.
         file_id (str): File ID.
         new_file (UpdateFile): New file data.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         File: Updated file.
@@ -465,31 +484,34 @@ async def update_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
-    if not conversation:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
         )
 
-    file = file_crud.get_file(session, file_id, user_id)
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
 
-    if not file:
-        raise HTTPException(
-            status_code=404,
-            detail=f"File with ID: {file_id} not found.",
-        )
+        file = file_crud.get_file(session, file_id, user_id)
 
-    file = file_crud.update_file(session, file, new_file)
+        if not file:
+            raise HTTPException(
+                status_code=404,
+                detail=f"File with ID: {file_id} not found.",
+            )
 
-    return file
+        file = file_crud.update_file(session, file, new_file)
+
+        return file
 
 
 @router.delete("/{conversation_id}/files/{file_id}")
 async def delete_file(
-    conversation_id: str, file_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, file_id: str, config: ConfigDep, request: Request
 ) -> DeleteFile:
     """
     Delete a file by ID.
@@ -497,7 +519,7 @@ async def delete_file(
     Args:
         conversation_id (str): Conversation ID.
         file_id (str): File ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         DeleteFile: Empty response.
@@ -505,40 +527,43 @@ async def delete_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
-    if not conversation:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
         )
 
-    file = file_crud.get_file(session, file_id, user_id)
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
 
-    if not file:
-        raise HTTPException(
-            status_code=404,
-            detail=f"File with ID: {file_id} not found.",
-        )
+        file = file_crud.get_file(session, file_id, user_id)
 
-    # Delete the File DB object
-    file_crud.delete_file(session, file_id, user_id)
+        if not file:
+            raise HTTPException(
+                status_code=404,
+                detail=f"File with ID: {file_id} not found.",
+            )
 
-    return DeleteFile()
+        # Delete the File DB object
+        file_crud.delete_file(session, file_id, user_id)
+
+        return DeleteFile()
 
 
 # MISC
 @router.post("/{conversation_id}/generate-title", response_model=GenerateTitle)
 async def generate_title(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, config: ConfigDep, request: Request
 ) -> GenerateTitle:
     """
     Generate a title for a conversation and update the conversation with the generated title.
 
     Args:
         conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
 
     Returns:
         str: Generated title for the conversation.
@@ -546,56 +571,63 @@ async def generate_title(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
-    if not conversation:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+    with config.db.session() as session, session.begin():
+        user_id = get_header_user_id(request)
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
         )
 
-    agent_id = conversation.agent_id if conversation.agent_id else None
-    trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
-    deployment_name = request.headers.get("Deployment-Name", "")
-    model_config = (
-        get_deployment_config(request)
-        if request.headers.get("Deployment-Config", "") != ""
-        else {}
-    )
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
 
-    title = ""
-    try:
-        chatlog = extract_details_from_conversation(conversation)
-        prompt = GENERATE_TITLE_PROMPT % chatlog
-        chat_request = CohereChatRequest(
-            message=prompt,
+        agent_id = conversation.agent_id if conversation.agent_id else None
+        trace_id = (
+            request.state.trace_id if hasattr(request.state, "trace_id") else None
+        )
+        deployment_name = request.headers.get("Deployment-Name", "")
+        model_config = (
+            get_deployment_config(request)
+            if request.headers.get("Deployment-Config", "") != ""
+            else {}
         )
 
-        response = await generate_chat_response(
-            session,
-            CustomChat().chat(
-                chat_request,
-                stream=False,
-                deployment_name=deployment_name,
-                deployment_config=model_config,
-                trace_id=trace_id,
+        title = ""
+        try:
+            chatlog = extract_details_from_conversation(conversation)
+            prompt = GENERATE_TITLE_PROMPT % chatlog
+            chat_request = CohereChatRequest(
+                message=prompt,
+            )
+
+            response = await generate_chat_response(
+                session,
+                CustomChat().chat(
+                    chat_request,
+                    stream=False,
+                    deployment_name=deployment_name,
+                    deployment_config=model_config,
+                    trace_id=trace_id,
+                    user_id=user_id,
+                    agent_id=agent_id,
+                ),
+                response_message=None,
+                conversation_id=None,
                 user_id=user_id,
-                agent_id=agent_id,
-            ),
-            response_message=None,
-            conversation_id=None,
-            user_id=user_id,
-            should_store=False,
+                should_store=False,
+            )
+
+            title = response.text
+        except Exception as e:
+            title = DEFAULT_TITLE
+            logging.error(
+                f"Error generating title for conversation {conversation_id}: {e}"
+            )
+
+        conversation_crud.update_conversation(
+            session, conversation, UpdateConversation(title=title)
         )
 
-        title = response.text
-    except Exception as e:
-        title = DEFAULT_TITLE
-        logging.error(f"Error generating title for conversation {conversation_id}: {e}")
-
-    conversation_crud.update_conversation(
-        session, conversation, UpdateConversation(title=title)
-    )
-
-    return GenerateTitle(title=title)
+        return GenerateTitle(title=title)

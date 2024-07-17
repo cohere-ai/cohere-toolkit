@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from fastapi import Depends
 
-from backend.database_models import get_session
+from backend.config import env
 from backend.services.auth.request_validators import validate_authorization
 from backend.services.request_validators import (
     validate_chat_request,
@@ -28,87 +28,87 @@ class RouterName(StrEnum):
 ROUTER_DEPENDENCIES = {
     RouterName.AUTH: {
         "default": [
-            Depends(get_session),
+            Depends(env),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
         ],
     },
     RouterName.CHAT: {
         "default": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_user_header),
             Depends(validate_chat_request),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_chat_request),
             Depends(validate_authorization),
         ],
     },
     RouterName.CONVERSATION: {
         "default": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_user_header),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_authorization),
         ],
     },
     RouterName.DEPLOYMENT: {
         "default": [
-            Depends(get_session),
+            Depends(env),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_authorization),
         ],
     },
     RouterName.EXPERIMENTAL_FEATURES: {
         "default": [
-            Depends(get_session),
+            Depends(env),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_authorization),
         ],
     },
     RouterName.TOOL: {
         "default": [
-            Depends(get_session),
+            Depends(env),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_authorization),
         ],
     },
     RouterName.USER: {
         "default": [
-            Depends(get_session),
+            Depends(env),
         ],
         "auth": [
             # TODO: Remove auth only for create user endpoint
-            Depends(get_session),
+            Depends(env),
         ],
     },
     RouterName.AGENT: {
         "default": [
-            Depends(get_session),
+            Depends(env),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
             # TODO: Add if the router's have to have authorization
             # Depends(validate_authorization),
         ],
     },
     RouterName.SNAPSHOT: {
         "default": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_user_header),
         ],
         "auth": [
-            Depends(get_session),
+            Depends(env),
             Depends(validate_authorization),
         ],
     },

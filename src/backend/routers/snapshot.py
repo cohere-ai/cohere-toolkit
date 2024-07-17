@@ -46,7 +46,7 @@ async def create_snapshot(
 
     Args:
         snapshot_request (CreateSnapshot): Snapshot creation request.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): HTTP request object.
 
     Returns:
@@ -84,7 +84,7 @@ async def list_snapshots(
     List all snapshots.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): HTTP request object.
 
     Returns:
@@ -117,7 +117,7 @@ async def get_snapshot(
 
     Args:
         link_id (str): Snapshot link ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): HTTP request object.
 
     Returns:
@@ -141,7 +141,7 @@ async def delete_snapshot_link(
 
     Args:
         link_id (str): Snapshot link ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): HTTP request object.
 
     Returns:
@@ -172,7 +172,7 @@ async def delete_snapshot(
 
     Args:
         snapshot_id (str): Snapshot ID.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): HTTP request object.
 
     Returns:

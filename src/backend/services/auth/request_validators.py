@@ -1,12 +1,13 @@
 from fastapi import Depends, HTTPException, Request
-from sqlalchemy.orm import Session
 
-from backend.database_models import Blacklist, get_session
+from backend.config import env
+from backend.config.config import Configuration
+from backend.database_models import Blacklist
 from backend.services.auth.jwt import JWTService
 
 
 def validate_authorization(
-    request: Request, session: Session = Depends(get_session)
+    request: Request, config: Configuration = Depends(env)
 ) -> dict:
     """
     Validate that the request has the `Authorization` header, used for requests
@@ -43,12 +44,15 @@ def validate_authorization(
             status_code=401, detail="Bearer token is invalid or expired."
         )
 
-    blacklist = (
-        session.query(Blacklist).filter(Blacklist.token_id == decoded["jti"]).first()
-    )
+    with config.db.session() as session, session.begin():
+        blacklist = (
+            session.query(Blacklist)
+            .filter(Blacklist.token_id == decoded["jti"])
+            .first()
+        )
 
-    # Token was blacklisted
-    if blacklist is not None:
-        raise HTTPException(status_code=401, detail="Bearer token is blacklisted.")
+        # Token was blacklisted
+        if blacklist is not None:
+            raise HTTPException(status_code=401, detail="Bearer token is blacklisted.")
 
     return decoded

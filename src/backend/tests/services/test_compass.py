@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from backend.services.compass import Compass
+from src.backend.services.compass import Compass
 
 is_compass_env_set = all(
     os.getenv(var) is not None

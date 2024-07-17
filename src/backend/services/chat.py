@@ -70,7 +70,7 @@ def process_chat(
 
     Args:
         chat_request (BaseChatRequest): Chat request data.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): Request object.
 
     Returns:
@@ -230,7 +230,7 @@ def get_or_create_conversation(
     Gets or creates a Conversation based on the chat request.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         chat_request (BaseChatRequest): Chat request data.
         user_id (str): User ID.
         should_store (bool): Whether to store the conversation in the database.
@@ -297,7 +297,7 @@ def create_message(
     Create a message object and store it in the database.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         chat_request (BaseChatRequest): Chat request data.
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
@@ -336,7 +336,7 @@ def handle_file_retrieval(
     Retrieve file paths from the database.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         user_id (str): User ID.
         file_ids (List): List of File IDs.
 
@@ -362,7 +362,7 @@ def attach_files_to_messages(
     Attach Files to Message if the File does not have a message_id foreign key.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         user_id (str): User ID.
         message_id (str): Message ID to attach to if needed.
         file_ids (List): List of File IDs.
@@ -425,7 +425,7 @@ def update_conversation_after_turn(
     After the last message in a conversation, updates the conversation description with that message's text
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         response_message (Message): Response message object.
         conversation_id (str): Conversation ID.
         final_message_text (str): Final message text.
@@ -453,7 +453,7 @@ def save_tool_calls_message(
     Save tool calls to the database.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         tool_calls (List[ToolCall]): List of ToolCall objects.
         message (str): Message text.
         position (int): Message position.
@@ -496,7 +496,7 @@ async def generate_chat_response(
     return only the final step as a non-streamed response.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
         response_message (Message): Response message object.
         conversation_id (str): Conversation ID.
@@ -556,7 +556,7 @@ async def generate_chat_stream(
     Generate chat stream from model deployment stream.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         model_deployment_stream (AsyncGenerator[Any, Any]): Model deployment stream.
         response_message (Message): Response message object.
         conversation_id (str): Conversation ID.

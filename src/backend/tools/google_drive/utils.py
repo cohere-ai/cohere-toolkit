@@ -5,8 +5,8 @@ from typing import Any, Dict, List
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
-from backend.services.compass import Compass
 from backend.services.logger import get_logger
+from src.backend.services.compass import Compass
 
 from .constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
 

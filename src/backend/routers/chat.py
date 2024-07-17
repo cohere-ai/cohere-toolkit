@@ -7,8 +7,8 @@ from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
+from backend.config import ConfigDep
 from backend.config.routers import RouterName
-from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.langchain_chat import LangchainChatRequest
@@ -28,7 +28,7 @@ router.name = RouterName.CHAT
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
 async def chat_stream(
-    session: DBSessionDep,
+    config: ConfigDep,
     chat_request: CohereChatRequest,
     request: Request,
 ) -> Generator[ChatResponseEvent, Any, None]:
@@ -36,66 +36,67 @@ async def chat_stream(
     Stream chat endpoint to handle user messages and return chatbot responses.
 
     Args:
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         chat_request (CohereChatRequest): Chat request data.
         request (Request): Request object.
 
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
-    trace_id = None
-    if hasattr(request.state, "trace_id"):
-        trace_id = request.state.trace_id
-    print("trace_id", trace_id)
+    with config.db.session() as session, session.begin():
+        trace_id = None
+        if hasattr(request.state, "trace_id"):
+            trace_id = request.state.trace_id
+        print("trace_id", trace_id)
 
-    user_id = request.headers.get("User-Id", None)
-    agent_id = chat_request.agent_id
-    (
-        session,
-        chat_request,
-        file_paths,
-        response_message,
-        conversation_id,
-        user_id,
-        deployment_name,
-        should_store,
-        managed_tools,
-        deployment_config,
-        next_message_position,
-    ) = process_chat(session, chat_request, request, agent_id)
-
-    return EventSourceResponse(
-        generate_chat_stream(
+        user_id = request.headers.get("User-Id", None)
+        agent_id = chat_request.agent_id
+        (
             session,
-            CustomChat().chat(
-                chat_request,
-                stream=True,
-                deployment_name=deployment_name,
-                deployment_config=deployment_config,
-                file_paths=file_paths,
-                managed_tools=managed_tools,
-                session=session,
-                conversation_id=conversation_id,
-                user_id=user_id,
-                trace_id=trace_id,
-                agent_id=agent_id,
-            ),
+            chat_request,
+            file_paths,
             response_message,
             conversation_id,
             user_id,
-            should_store=should_store,
-            next_message_position=next_message_position,
-        ),
-        media_type="text/event-stream",
-        headers={"Connection": "keep-alive"},
-        send_timeout=300,
-        ping=5,
-    )
+            deployment_name,
+            should_store,
+            managed_tools,
+            deployment_config,
+            next_message_position,
+        ) = process_chat(session, chat_request, request, agent_id)
+
+        return EventSourceResponse(
+            generate_chat_stream(
+                session,
+                CustomChat().chat(
+                    chat_request,
+                    stream=True,
+                    deployment_name=deployment_name,
+                    deployment_config=deployment_config,
+                    file_paths=file_paths,
+                    managed_tools=managed_tools,
+                    session=session,
+                    conversation_id=conversation_id,
+                    user_id=user_id,
+                    trace_id=trace_id,
+                    agent_id=agent_id,
+                ),
+                response_message,
+                conversation_id,
+                user_id,
+                should_store=should_store,
+                next_message_position=next_message_position,
+            ),
+            media_type="text/event-stream",
+            headers={"Connection": "keep-alive"},
+            send_timeout=300,
+            ping=5,
+        )
 
 
 @router.post("/chat", dependencies=[Depends(validate_deployment_header)])
 async def chat(
-    session: DBSessionDep,
+    config: ConfigDep,
     chat_request: CohereChatRequest,
     request: Request,
 ) -> NonStreamedChatResponse:
@@ -104,85 +105,89 @@ async def chat(
 
     Args:
         chat_request (CohereChatRequest): Chat request data.
-        session (DBSessionDep): Database session.
+        config (ConfigDep): Toolkit configuration.
         request (Request): Request object.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
-    trace_id = None
-    if hasattr(request.state, "trace_id"):
-        trace_id = request.state.trace_id
+    with config.db.session() as session, session.begin():
+        trace_id = None
+        if hasattr(request.state, "trace_id"):
+            trace_id = request.state.trace_id
 
-    user_id = request.headers.get("User-Id", None)
-    agent_id = chat_request.agent_id
+        user_id = request.headers.get("User-Id", None)
+        agent_id = chat_request.agent_id
 
-    (
-        session,
-        chat_request,
-        file_paths,
-        response_message,
-        conversation_id,
-        user_id,
-        deployment_name,
-        should_store,
-        managed_tools,
-        deployment_config,
-        next_message_position,
-    ) = process_chat(session, chat_request, request, agent_id)
-
-    response = await generate_chat_response(
-        session,
-        CustomChat().chat(
+        (
+            session,
             chat_request,
-            stream=False,
-            deployment_name=deployment_name,
-            deployment_config=deployment_config,
-            file_paths=file_paths,
-            managed_tools=managed_tools,
-            trace_id=trace_id,
-            user_id=user_id,
-            agent_id=agent_id,
-        ),
-        response_message,
-        conversation_id,
-        user_id,
-        should_store=should_store,
-        next_message_position=next_message_position,
-    )
-    return response
+            file_paths,
+            response_message,
+            conversation_id,
+            user_id,
+            deployment_name,
+            should_store,
+            managed_tools,
+            deployment_config,
+            next_message_position,
+        ) = process_chat(session, chat_request, request, agent_id)
+
+        response = await generate_chat_response(
+            session,
+            CustomChat().chat(
+                chat_request,
+                stream=False,
+                deployment_name=deployment_name,
+                deployment_config=deployment_config,
+                file_paths=file_paths,
+                managed_tools=managed_tools,
+                trace_id=trace_id,
+                user_id=user_id,
+                agent_id=agent_id,
+            ),
+            response_message,
+            conversation_id,
+            user_id,
+            should_store=should_store,
+            next_message_position=next_message_position,
+        )
+        return response
 
 
 @router.post("/langchain-chat")
 def langchain_chat_stream(
-    session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
+    config: ConfigDep, chat_request: LangchainChatRequest, request: Request
 ):
-    use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
-    if not use_langchain:
-        return {"error": "Langchain is not enabled."}
+    with config.db.session() as session, session.begin():
+        use_langchain = bool(
+            strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false"))
+        )
+        if not use_langchain:
+            return {"error": "Langchain is not enabled."}
 
-    (
-        session,
-        chat_request,
-        _,
-        response_message,
-        conversation_id,
-        user_id,
-        _,
-        should_store,
-        managed_tools,
-        _,
-        _,
-    ) = process_chat(session, chat_request, request)
-
-    return EventSourceResponse(
-        generate_langchain_chat_stream(
+        (
             session,
-            LangChainChat().chat(chat_request, managed_tools=managed_tools),
+            chat_request,
+            _,
             response_message,
             conversation_id,
             user_id,
+            _,
             should_store,
-        ),
-        media_type="text/event-stream",
-    )
+            managed_tools,
+            _,
+            _,
+        ) = process_chat(session, chat_request, request)
+
+        return EventSourceResponse(
+            generate_langchain_chat_stream(
+                session,
+                LangChainChat().chat(chat_request, managed_tools=managed_tools),
+                response_message,
+                conversation_id,
+                user_id,
+                should_store,
+            ),
+            media_type="text/event-stream",
+        )
