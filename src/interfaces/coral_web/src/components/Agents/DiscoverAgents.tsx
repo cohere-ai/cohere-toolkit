@@ -1,5 +1,4 @@
 'use client';
-'use client';
 
 import { useDebouncedState } from '@react-hookz/web';
 import { useEffect, useState } from 'react';
