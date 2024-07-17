@@ -1,8 +1,10 @@
-import { useRouter } from 'next/router';
+'use client';
+
+import { useRouter } from 'next/navigation';
 
 import { Button, Text } from '@/components/Shared';
 import { useDeleteAgent } from '@/hooks/agents';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 
 type Props = {
   name: string;
@@ -15,14 +17,14 @@ type Props = {
  */
 export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
   const { mutateAsync: deleteAgent, isPending } = useDeleteAgent();
-  const { agentId: currentAgentId } = useSlugRoutes();
+  const { agentId: currentAgentId } = useChatRoutes();
   const router = useRouter();
 
   const handleDeleteAgent = async () => {
     await deleteAgent({ agentId });
     onClose();
     if (agentId === currentAgentId) {
-      router.push('/', undefined, { shallow: true });
+      router.push('/', undefined);
     }
   };
 

@@ -1,5 +1,8 @@
+'use client';
+
 import { Transition, TransitionChild } from '@headlessui/react';
 import { useClickOutside } from '@react-hookz/web';
+import { useParams } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
@@ -10,7 +13,7 @@ import { Icon, Input, Text } from '@/components/Shared';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 import { useSettingsStore } from '@/stores';
-import { cn } from '@/utils';
+import { cn, getQueryString } from '@/utils';
 
 const sortByDate = (a: Conversation, b: Conversation) => {
   return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');
@@ -18,16 +21,16 @@ const sortByDate = (a: Conversation, b: Conversation) => {
 
 type Props = {
   className?: string;
-  agentId?: string;
 };
 
-export const ConversationListPanel: React.FC<Props> = ({ className, agentId }) => {
+export const ConversationListPanel: React.FC<Props> = ({ className }) => {
   const panelRef = useRef(null);
+  const params = useParams();
   const {
     data: conversations,
     isLoading: isConversationsLoading,
     isError,
-  } = useConversations({ agentId });
+  } = useConversations({ agentId: getQueryString(params.agentId) });
   const {
     settings: { isConvListPanelOpen },
   } = useSettingsStore();

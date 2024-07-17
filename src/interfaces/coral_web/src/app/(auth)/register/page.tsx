@@ -1,14 +1,13 @@
-import { QueryClient, dehydrate } from '@tanstack/react-query';
-import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
+'use client';
+
+import { NextPage } from 'next';
+import { useParams, useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { CohereClient } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
 import { WelcomePage } from '@/components/WelcomePage';
 import { useSession } from '@/hooks/session';
-import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
 interface Credentials {
@@ -17,15 +16,15 @@ interface Credentials {
   password: string;
 }
 
-type Props = PageAppProps & {};
-
 type RegisterStatus = 'idle' | 'pending';
 
 /**
  * @description The register page supports creating an account with an email and password.
  */
-const RegisterPage: NextPage<Props> = () => {
+const RegisterPage = () => {
   const router = useRouter();
+  const params = useParams();
+
   const { registerMutation } = useSession();
 
   const registerStatus: RegisterStatus = registerMutation.isPending ? 'pending' : 'idle';
@@ -43,7 +42,7 @@ const RegisterPage: NextPage<Props> = () => {
     }
   };
 
-  const redirect = getQueryString(router.query.redirect_uri);
+  const redirect = getQueryString(params.redirect_uri);
 
   const errors: string[] = [];
 
@@ -124,21 +123,6 @@ const RegisterPage: NextPage<Props> = () => {
       </div>
     </WelcomePage>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
 };
 
 export default RegisterPage;

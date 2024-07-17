@@ -1,15 +1,15 @@
-import { QueryClient, dehydrate } from '@tanstack/react-query';
-import { GetServerSideProps, NextPage } from 'next';
+'use client';
+
+import { NextPage } from 'next';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { CohereClient, Document } from '@/cohere-client';
+import { Document } from '@/cohere-client';
 import { ReadOnlyConversation } from '@/components/ReadOnlyConversation';
 import { Icon, Spinner, Text } from '@/components/Shared';
-import { DEFAULT_CONVERSATION_NAME, MAX_TIMEOUT_PREFETCH } from '@/constants';
+import { DEFAULT_CONVERSATION_NAME } from '@/constants';
 import { useGetSnapshotByLinkId } from '@/hooks/snapshots';
-import { appSSR } from '@/pages/_app';
 import { useCitationsStore } from '@/stores';
 import {
   UserOrBotMessage,
@@ -19,8 +19,8 @@ import {
 } from '@/utils';
 
 const ShareConversationPage: NextPage = () => {
-  const router = useRouter();
-  const linkId = router.query.id as string;
+  const params = useParams();
+  const linkId = params.id as string;
   const { isLoading, isError, data, error } = useGetSnapshotByLinkId(linkId);
   const { addCitation } = useCitationsStore();
   const [messages, setMessages] = useState<UserOrBotMessage[]>([]);
@@ -96,54 +96,6 @@ const ShareConversationPage: NextPage = () => {
       {content}
     </div>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  const linkId = context.params?.id as string;
-
-  await Promise.allSettled([
-    deps.queryClient.prefetchQuery({
-      queryKey: ['listSnapshots'],
-      queryFn: async () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), MAX_TIMEOUT_PREFETCH);
-        try {
-          await deps.cohereClient.listSnapshots();
-        } catch (e) {
-          console.error(e);
-        } finally {
-          clearTimeout(timeoutId);
-        }
-      },
-    }),
-    deps.queryClient.prefetchQuery({
-      queryKey: ['snapshot', linkId],
-      queryFn: async () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), MAX_TIMEOUT_PREFETCH);
-        try {
-          await deps.cohereClient.getSnapshot({ linkId });
-        } catch (e) {
-          console.error(e);
-        } finally {
-          clearTimeout(timeoutId);
-        }
-      },
-    }),
-  ]);
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
 };
 
 export default ShareConversationPage;

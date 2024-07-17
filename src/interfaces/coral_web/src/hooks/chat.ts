@@ -1,5 +1,5 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   ChatResponseEvent,
@@ -24,9 +24,8 @@ import {
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
 } from '@/constants';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
-import { useRouteChange } from '@/hooks/route';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
@@ -102,14 +101,14 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isStreamingToolEvents, setIsStreamingToolEvents] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
 
-  useRouteChange({
-    onRouteChangeStart: () => {
+  useEffect(() => {
+    return () => {
       abortController.current?.abort();
       setStreamingMessage(null);
-    },
-  });
+    };
+  }, []);
 
   const saveCitations = (
     generationId: string,
@@ -431,7 +430,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                   window.location.pathname === '/'
                     ? `c/${conversationId}`
                     : window.location.pathname + `/c/${conversationId}`;
-                window?.history?.replaceState('', '', newUrl);
+                window?.history?.replaceState(null, '', newUrl);
                 queryClient.invalidateQueries({ queryKey: ['conversations'] });
               }
 

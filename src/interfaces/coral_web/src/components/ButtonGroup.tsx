@@ -1,3 +1,5 @@
+'use client';
+
 import { MouseEventHandler } from 'react';
 
 import { CellButton } from '@/components/Shared/Button/CellButton';

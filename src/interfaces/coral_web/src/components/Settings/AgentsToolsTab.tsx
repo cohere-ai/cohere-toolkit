@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
@@ -7,8 +9,8 @@ import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useAgent } from '@/hooks/agents';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useListTools, useUnauthedTools } from '@/hooks/tools';
 import { useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -21,7 +23,7 @@ export const AgentsToolsTab: React.FC<{
   requiredTools: string[] | undefined;
   className?: string;
 }> = ({ requiredTools, className = '' }) => {
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
   const { params, setParams } = useParamsStore();
   const { data } = useListTools();

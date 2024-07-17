@@ -1,3 +1,5 @@
+'use client';
+
 import { GuideTooltip } from '@/components/GuideTooltip';
 import { useFocusComposer } from '@/hooks/actions';
 import { useShowWelcomeGuide, useWelcomeGuideState } from '@/hooks/ftux';

@@ -1,3 +1,5 @@
+'use client';
+
 import { Text } from '@/components/Shared';
 
 export const PageNotFound: React.FC = () => {
