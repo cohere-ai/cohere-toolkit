@@ -1,4 +1,4 @@
-import { Tab } from '@headlessui/react';
+import { Tab, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import { ReactNode, isValidElement, useEffect, useRef } from 'react';
 
 import { Text } from '@/components/Shared';
@@ -66,11 +66,11 @@ export const Tabs: React.FC<TabsProps> = ({
       onChange={handleTabChange}
     >
       <div className="flex w-full items-end">
-        <Tab.List
+        <TabList
           className={cn(
             'flex',
             'w-full justify-between overflow-x-auto md:justify-start',
-            'border-none bg-white',
+            'border-none',
             { 'md:w-fit': fitTabsContent },
             className
           )}
@@ -80,8 +80,8 @@ export const Tabs: React.FC<TabsProps> = ({
             <Tab
               key={i}
               className={cn('flex w-full flex-1 flex-col focus:outline-none md:flex-initial', {
-                [`border-b-4 border-primary-500`]: i === selectedIndex,
-                'border-b border-marble-400': i !== selectedIndex,
+                [`border-b-4 border-coral-700`]: i === selectedIndex,
+                'border-b border-marble-950': i !== selectedIndex,
                 hidden: hiddenIndexes.includes(i),
               })}
             >
@@ -98,9 +98,9 @@ export const Tabs: React.FC<TabsProps> = ({
                     <Text
                       as="span"
                       styleAs="label"
-                      className={cn('whitespace-nowrap group-hover:text-volcanic-900', {
-                        'font-medium text-volcanic-900': selected,
-                        'text-volcanic-700': !selected,
+                      className={cn('whitespace-nowrap group-hover:text-volcanic-100', {
+                        'font-medium text-volcanic-100': selected,
+                        'text-volcanic-400': !selected,
                         'my-3': !isReactNodeElement,
                       })}
                     >
@@ -110,7 +110,7 @@ export const Tabs: React.FC<TabsProps> = ({
                       <Text
                         as="span"
                         styleAs="overline"
-                        className="whitespace-nowrap text-volcanic-700"
+                        className="whitespace-nowrap text-volcanic-400"
                       >
                         {subLabels[i]}
                       </Text>
@@ -120,17 +120,17 @@ export const Tabs: React.FC<TabsProps> = ({
               }}
             </Tab>
           ))}
-        </Tab.List>
-        <div className="hidden flex-1 border-b border-marble-400 md:block" />
+        </TabList>
+        <div className="hidden flex-1 border-b border-marble-950 md:block" />
       </div>
       {children && (
-        <Tab.Panels className={cn('w-full pt-10 lg:pt-14', panelsClassName)}>
+        <TabPanels className={cn('w-full pt-10 lg:pt-14', panelsClassName)}>
           {children.filter(Boolean).map((child, i) => (
-            <Tab.Panel key={i} className={tabPanelClassName}>
+            <TabPanel key={i} className={tabPanelClassName}>
               {child}
-            </Tab.Panel>
+            </TabPanel>
           ))}
-        </Tab.Panels>
+        </TabPanels>
       )}
     </Tab.Group>
   );

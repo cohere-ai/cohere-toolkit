@@ -12,16 +12,16 @@ import { cn } from '@/utils';
 
 const THEME_CLASSES = {
   marble: {
-    border: 'border-marble-500',
-    background: 'bg-marble-100',
-    label: 'text-volcanic-900',
+    border: 'border-marble-800',
+    background: 'bg-marble-1000',
+    label: 'text-volcanic-100',
     icon: '',
   },
   secondary: {
-    border: 'border-secondary-300',
-    background: 'bg-secondary-50',
-    label: 'text-volcanic-700',
-    icon: 'text-secondary-700',
+    border: 'border-mushroom-800',
+    background: 'bg-mushroom-950',
+    label: 'text-volcanic-400',
+    icon: 'text-mushroom-700',
   },
 };
 
@@ -164,7 +164,7 @@ const InnerInput = React.forwardRef<
       },
       {
         isVisible: actionType === 'success',
-        icon: <Icon name="check-mark" className="text-success-500" size="md" />,
+        icon: <Icon name="check-mark" className="text-success-200" size="md" />,
       },
       {
         isVisible: actionType === 'search',
@@ -207,7 +207,7 @@ const InnerInput = React.forwardRef<
     return visibleIcon ? (
       <div
         className={cn('absolute right-3 flex items-center gap-x-2', {
-          'text-danger-500': hasError && type !== 'password',
+          'text-danger-350': hasError && type !== 'password',
           'bottom-0 h-full justify-center': kind !== 'cell',
           'bottom-3.5 justify-end': kind === 'cell',
         })}
@@ -227,7 +227,7 @@ const InnerInput = React.forwardRef<
   return (
     <>
       <span className="relative">
-        {prefix && <Text className="absolute left-3 top-0 text-volcanic-900">{prefix}</Text>}
+        {prefix && <Text className="absolute left-3 top-0 text-volcanic-100">{prefix}</Text>}
         <input
           id={name}
           ref={ref}
@@ -250,7 +250,7 @@ const InnerInput = React.forwardRef<
           spellCheck={false}
           autoComplete="off"
           className={cn(
-            'placeholder:text-volcanic-500 disabled:text-volcanic-700',
+            'placeholder:text-volcanic-600 disabled:text-volcanic-400',
             // remove spinners on number inputs
             '[-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none',
             { '!pr-8': !!icons, 'w-full truncate': truncate, '!pl-8': !!prefix },
@@ -305,7 +305,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   });
   const borderClasses = cn(roundedClasses, {
     [THEME_CLASSES[theme].border]: !hasError,
-    'border-danger-500 border-b': hasError,
+    'border-danger-350 border-b': hasError,
     border: !stackPosition || stackPosition === 'end',
     'border-x border-t': stackPosition === 'center' || stackPosition === 'start',
     'border-l border-t border-b': stackPosition === 'left',
@@ -314,11 +314,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
 
   const backgroundClasses = cn({
     [THEME_CLASSES[theme].background]: !hasError,
-    'bg-danger-50': hasError,
+    'bg-danger-950': hasError,
   });
 
   const labelClasses = cn({
-    'text-danger-500': hasError,
+    'text-danger-350': hasError,
     [THEME_CLASSES[theme].label]: !hasError,
     'pl-3 pt-2.5': kind === 'cell',
     'mb-2': kind === 'default',
@@ -326,15 +326,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
 
   const inputClasses = cn(backgroundClasses, borderClasses, 'w-full px-3', {
     'focus-visible:outline-none': stackPosition,
-    'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900':
+    'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100':
       !stackPosition,
     [STYLE_LEVEL_TO_CLASSES.code]: isMonospace,
     [STYLE_LEVEL_TO_CLASSES.p]: !isMonospace,
-    'text-danger-500': hasError,
+    'text-danger-350': hasError,
     'py-3': kind === 'default' && size === 'sm',
     'py-4': kind === 'default' && size === 'md',
     'pt-7 pb-2.5': kind === 'cell',
-    'border-marble-500 bg-marble-300': disabled,
+    'border-marble-800 bg-marble-950': disabled,
   });
 
   return (
@@ -388,8 +388,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           as="div"
           styleAs="caption"
           className={cn('py-2', {
-            'text-volcanic-700': !hasError && description,
-            'text-danger-500': errorText && hasError,
+            'text-volcanic-400': !hasError && description,
+            'text-danger-350': errorText && hasError,
           })}
         >
           {hasError && errorText}

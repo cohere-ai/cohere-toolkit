@@ -45,16 +45,16 @@ const AgentsNewPage: NextPage<Props> = () => {
           <AgentsList />
         </LeftSection>
         <MainSection>
-          <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-400 bg-marble-100 md:ml-0">
+          <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-1000 md:ml-0">
             <div
               className={cn(
-                'border-b border-marble-400 bg-cover',
+                'border-b border-marble-950 bg-cover',
                 'flex flex-shrink-0 flex-col gap-y-2',
                 'bg-[url(/images/cellBackground.svg)]',
                 'px-4 py-6 md:px-9 md:py-10 lg:px-10'
               )}
             >
-              <Text styleAs="h4" className="text-volcanic-700">
+              <Text styleAs="h4" className="text-volcanic-400">
                 Discover Assistants
               </Text>
               <Text>

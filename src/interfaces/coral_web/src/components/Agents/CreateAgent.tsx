@@ -58,7 +58,7 @@ export const CreateAgent: React.FC = () => {
             {
               tool_name: TOOL_GOOGLE_DRIVE_ID,
               artifacts: data.docs.map(
-                (doc) =>
+                (doc: any) =>
                   ({
                     id: doc.id,
                     name: doc.name,
@@ -166,7 +166,7 @@ export const CreateAgent: React.FC = () => {
       <div className="flex-grow overflow-y-scroll">
         <div className="flex max-w-[650px] flex-col gap-y-2 p-10">
           <Text styleAs="h4">Create an Assistant</Text>
-          <Text className="text-volcanic-700">
+          <Text className="text-volcanic-400">
             Create an unique assistant and share with your org
           </Text>
           <AgentForm<CreateAgentFormFields>
@@ -180,7 +180,7 @@ export const CreateAgent: React.FC = () => {
           />
         </div>
       </div>
-      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-400 bg-white px-4 py-4 md:py-8">
+      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-950 bg-white px-4 py-4 md:py-8">
         <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
           Create
         </Button>

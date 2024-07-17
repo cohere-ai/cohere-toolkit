@@ -27,7 +27,7 @@ const navigationKeys: NavigationKey[] = [
 const DialogNavigationKeys = () => {
   return (
     <Text
-      className="flex flex-col items-start gap-5 bg-marble-300 px-3 py-2 md:flex-row md:items-center"
+      className="flex flex-col items-start gap-5 bg-marble-950 px-3 py-2 md:flex-row md:items-center"
       as="div"
       styleAs="caption"
     >

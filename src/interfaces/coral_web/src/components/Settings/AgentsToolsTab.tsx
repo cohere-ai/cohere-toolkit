@@ -59,7 +59,7 @@ export const AgentsToolsTab: React.FC<{
     <section className={cn('relative flex flex-col gap-y-5 px-5 pb-10', className)}>
       <ToolsInfoBox />
       <article className={cn('flex flex-col gap-y-5 pb-10')}>
-        <Text styleAs="p-sm" className="text-secondary-800">
+        <Text styleAs="p-sm" className="text-mushroom-300">
           {availableTools.length === 0
             ? `${agent?.name} does not use any tools.`
             : 'Tools are data sources the assistant can search such as databases or the internet.'}
@@ -78,7 +78,7 @@ export const AgentsToolsTab: React.FC<{
         )}
 
         {unauthedTools.length > 0 && availableTools.length > 0 && (
-          <hr className="border-t border-marble-400" />
+          <hr className="border-t border-marble-950" />
         )}
 
         {availableTools.length > 0 && (
@@ -122,7 +122,7 @@ const ConnectDataBox: React.FC<{
   tools: ManagedTool[];
 }> = ({ tools }) => {
   return (
-    <div className="flex flex-col gap-y-4 rounded border border-dashed border-primary-400 bg-primary-200 p-4">
+    <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-800 bg-coral-800 p-4">
       <div className="flex flex-col gap-y-3">
         <Text styleAs="h5">Connect your data</Text>
         <Text>
