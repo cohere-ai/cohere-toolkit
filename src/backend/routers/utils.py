@@ -1,7 +1,7 @@
 from fastapi import Request
 
-from backend.crud import user as user_crud
 from backend.crud import agent as agent_crud
+from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.user import User
 from backend.schemas.agent import Agent, AgentToolMetadata
@@ -25,7 +25,7 @@ def add_event_type_to_request_state(request: Request, event_type: MetricsMessage
 
 
 def add_default_agent_to_request_state(request: Request):
-    default_agent = agent_crud.get_agent_by_id('default')
+    default_agent = agent_crud.get_agent_by_id("default")
     if default_agent:
         add_agent_to_request_state(request, default_agent)
     else:
