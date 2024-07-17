@@ -38,6 +38,7 @@ class ConversationWithoutMessages(Conversation):
 class UpdateConversation(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    file_ids: Optional[list[str]] = None
 
     class Config:
         from_attributes = True

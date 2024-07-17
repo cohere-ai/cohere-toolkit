@@ -91,7 +91,6 @@ def update_conversation(
     for attr, value in new_conversation.model_dump().items():
         if value is not None:
             setattr(conversation, attr, value)
-
     db.commit()
     db.refresh(conversation)
     return conversation

@@ -3,9 +3,9 @@ from uuid import uuid4
 
 from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from backend.database_models.base import Base
-from backend.database_models.file import File
 from backend.database_models.message import Message
 
 
@@ -18,7 +18,7 @@ class Conversation(Base):
     description: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
     text_messages: Mapped[List["Message"]] = relationship()
-    files: Mapped[List["File"]] = relationship()
+    file_ids: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=True
     )

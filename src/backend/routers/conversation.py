@@ -5,6 +5,7 @@ from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.services.file import FileService
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
@@ -40,6 +41,8 @@ router = APIRouter(
     prefix="/v1/conversations",
 )
 router.name = RouterName.CONVERSATION
+
+file_service = FileService(session=DBSessionDep)
 
 
 # CONVERSATIONS
@@ -306,24 +309,10 @@ async def upload_file(
 
     # Handle uploading File
     try:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-
-        # Create File
-        upload_file = FileModel(
-            user_id=conversation.user_id,
-            conversation_id=conversation.id,
-            file_name=filename,
-            file_path=filename,
-            file_size=file.size,
-            file_content=cleaned_content,
-        )
-
-        upload_file = file_crud.create_file(session, upload_file)
+        upload_file = await file_service.create_conversation_file(session, file, user_id, conversation.id)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error while uploading file {file.filename}."
+            status_code=500, detail=f"Error while uploading file {file.filename}: {e}."
         )
 
     return upload_file

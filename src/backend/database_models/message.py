@@ -3,11 +3,11 @@ from typing import List
 
 from sqlalchemy import Boolean, Enum, ForeignKey, ForeignKeyConstraint, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from backend.database_models.base import Base
 from backend.database_models.citation import Citation
 from backend.database_models.document import Document
-from backend.database_models.file import File
 from backend.database_models.tool_call import ToolCall
 
 
@@ -34,7 +34,7 @@ class Message(Base):
 
     documents: Mapped[List["Document"]] = relationship()
     citations: Mapped[List["Citation"]] = relationship()
-    files: Mapped[List["File"]] = relationship()
+    file_ids: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     tool_calls: Mapped[List["ToolCall"]] = relationship()
 
     agent: Mapped[MessageAgent] = mapped_column(
