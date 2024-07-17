@@ -1,3 +1,5 @@
+'use client';
+
 import React, { Fragment, useEffect, useMemo } from 'react';
 
 import { ListFile } from '@/cohere-client';

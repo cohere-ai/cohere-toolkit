@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition, TransitionChild } from '@headlessui/react';
 import { useClickOutside } from '@react-hookz/web';
 import { useParams } from 'next/navigation';

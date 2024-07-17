@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 

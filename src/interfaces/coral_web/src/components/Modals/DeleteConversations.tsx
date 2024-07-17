@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Text } from '@/components/Shared';
 import { pluralize } from '@/utils';
 

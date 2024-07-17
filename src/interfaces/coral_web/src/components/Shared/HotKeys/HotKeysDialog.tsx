@@ -1,3 +1,5 @@
+'use client';
+
 import { Combobox, Dialog, Transition } from '@headlessui/react';
 import cx from 'classnames';
 import { useRouter } from 'next/navigation';

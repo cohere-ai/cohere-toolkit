@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import { flatten, sortBy, uniqBy } from 'lodash';
 import React, { useRef } from 'react';

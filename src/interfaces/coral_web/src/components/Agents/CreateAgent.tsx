@@ -1,3 +1,5 @@
+'use client';
+
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';

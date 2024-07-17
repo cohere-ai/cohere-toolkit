@@ -1,3 +1,5 @@
+'use client';
+
 import { Dialog, Transition } from '@headlessui/react';
 import { cva } from 'class-variance-authority';
 import React, { Fragment } from 'react';

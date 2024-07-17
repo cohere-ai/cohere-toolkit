@@ -1,3 +1,5 @@
+'use client';
+
 import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 

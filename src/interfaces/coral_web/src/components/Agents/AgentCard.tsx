@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import { useRouter } from 'next/navigation';
 
