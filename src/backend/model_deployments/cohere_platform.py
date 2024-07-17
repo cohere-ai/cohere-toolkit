@@ -5,6 +5,7 @@ import threading
 import time
 from typing import Any, AsyncGenerator, Dict, List
 
+from backend.config.config import Deployments
 import cohere
 import requests
 from cohere.core.api_error import ApiError
@@ -18,8 +19,6 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import MetricsData
 from backend.services.logger import get_logger, send_log_message
 
-COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
-COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 
 
@@ -30,7 +29,7 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR)
+    api_key = Deployments.cohere_platform_config['cohere_api_key']
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
@@ -66,7 +65,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
+        return Deployments.cohere_api_key is not None
 
     async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
