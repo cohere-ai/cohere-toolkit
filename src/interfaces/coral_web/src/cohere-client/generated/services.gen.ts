@@ -5,6 +5,8 @@ import type {
   ApplyMigrationsMigratePostResponse,
   AuthorizeV1StrategyAuthPostData,
   AuthorizeV1StrategyAuthPostResponse,
+  BatchUploadFileV1ConversationsBatchUploadFilePostData,
+  BatchUploadFileV1ConversationsBatchUploadFilePostResponse,
   ChatStreamV1ChatStreamPostData,
   ChatStreamV1ChatStreamPostResponse,
   ChatV1ChatPostData,
@@ -37,6 +39,7 @@ import type {
   GetAgentByIdV1AgentsAgentIdGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
   GetConversationV1ConversationsConversationIdGetResponse,
+  GetDefaultAgentV1DefaultAgentGetResponse,
   GetSnapshotV1SnapshotsLinkLinkIdGetData,
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
   GetStrategiesV1AuthStrategiesGetResponse,
@@ -679,6 +682,41 @@ export class DefaultService {
   }
 
   /**
+   * Batch Upload File
+   * Uploads and creates a batch of File object.
+   * If no conversation_id is provided, a new Conversation is created as well.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * file (list[FastAPIUploadFile]): List of files to be uploaded.
+   * conversation_id (Optional[str]): Conversation ID passed from request query parameter.
+   *
+   * Returns:
+   * list[UploadFile]: List of uploaded files.
+   *
+   * Raises:
+   * HTTPException: If the conversation with the given ID is not found. Status code 404.
+   * HTTPException: If the file wasn't uploaded correctly. Status code 500.
+   * @param data The data for the request.
+   * @param data.formData
+   * @returns UploadFile Successful Response
+   * @throws ApiError
+   */
+  public batchUploadFileV1ConversationsBatchUploadFilePost(
+    data: BatchUploadFileV1ConversationsBatchUploadFilePostData
+  ): CancelablePromise<BatchUploadFileV1ConversationsBatchUploadFilePostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/conversations/batch_upload_file',
+      formData: data.formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
    * List Files
    * List all files from a conversation. Important - no pagination support yet.
    *
@@ -925,12 +963,12 @@ export class DefaultService {
    * agent (CreateAgent): Agent data.
    * request (Request): Request object.
    * Returns:
-   * Agent: Created agent.
+   * AgentPublic: Created agent with no user ID or organization ID.
    * Raises:
    * HTTPException: If the agent creation fails.
    * @param data The data for the request.
    * @param data.requestBody
-   * @returns Agent Successful Response
+   * @returns AgentPublic Successful Response
    * @throws ApiError
    */
   public createAgentV1AgentsPost(
@@ -958,11 +996,11 @@ export class DefaultService {
    * request (Request): Request object.
    *
    * Returns:
-   * list[Agent]: List of agents.
+   * list[AgentPublic]: List of agents with no user ID or organization ID.
    * @param data The data for the request.
    * @param data.offset
    * @param data.limit
-   * @returns Agent Successful Response
+   * @returns AgentPublic Successful Response
    * @throws ApiError
    */
   public listAgentsV1AgentsGet(
@@ -1023,14 +1061,14 @@ export class DefaultService {
    * request (Request): Request object.
    *
    * Returns:
-   * Agent: Updated agent.
+   * AgentPublic: Updated agent with no user ID or organization ID.
    *
    * Raises:
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId
    * @param data.requestBody
-   * @returns Agent Successful Response
+   * @returns AgentPublic Successful Response
    * @throws ApiError
    */
   public updateAgentV1AgentsAgentIdPut(
@@ -1094,13 +1132,13 @@ export class DefaultService {
    * request (Request): Request object.
    *
    * Returns:
-   * list[AgentToolMetadata]: List of agent tool metadata.
+   * list[AgentToolMetadataPublic]: List of agent tool metadata with no user ID or organization ID.
    *
    * Raises:
    * HTTPException: If the agent tool metadata retrieval fails.
    * @param data The data for the request.
    * @param data.agentId
-   * @returns AgentToolMetadata Successful Response
+   * @returns AgentToolMetadataPublic Successful Response
    * @throws ApiError
    */
   public listAgentToolMetadataV1AgentsAgentIdToolMetadataGet(
@@ -1136,7 +1174,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.agentId
    * @param data.requestBody
-   * @returns AgentToolMetadata Successful Response
+   * @returns AgentToolMetadataPublic Successful Response
    * @throws ApiError
    */
   public createAgentToolMetadataV1AgentsAgentIdToolMetadataPost(
@@ -1233,6 +1271,18 @@ export class DefaultService {
       errors: {
         422: 'Validation Error',
       },
+    });
+  }
+
+  /**
+   * Get Default Agent
+   * @returns GenericResponseMessage Successful Response
+   * @throws ApiError
+   */
+  public getDefaultAgentV1DefaultAgentGet(): CancelablePromise<GetDefaultAgentV1DefaultAgentGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/default_agent/',
     });
   }
 
