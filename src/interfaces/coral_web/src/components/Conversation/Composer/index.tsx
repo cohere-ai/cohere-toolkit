@@ -227,8 +227,13 @@ export const Composer: React.FC<Props> = ({
               { 'text-mushroom-600': !canSend }
             )}
             type="button"
-            disabled={!canSend}
-            onClick={() => (canSend ? onSend(value) : onStop())}
+            onClick={() => {
+              if (canSend) {
+                onSend(value);
+              } else {
+                onStop();
+              }
+            }}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>
