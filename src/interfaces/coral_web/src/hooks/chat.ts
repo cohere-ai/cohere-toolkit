@@ -24,9 +24,9 @@ import {
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
 } from '@/constants';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { useRouteChange } from '@/hooks/route';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
@@ -102,7 +102,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isStreamingToolEvents, setIsStreamingToolEvents] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
 
   useRouteChange({
     onRouteChangeStart: () => {

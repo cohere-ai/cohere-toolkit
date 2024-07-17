@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import { capitalize } from 'lodash';
 import React, { Children, PropsWithChildren, useContext, useEffect, useState } from 'react';

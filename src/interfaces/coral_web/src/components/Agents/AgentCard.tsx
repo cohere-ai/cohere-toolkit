@@ -7,7 +7,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import {
   useAgentsStore,
   useCitationsStore,
@@ -32,7 +32,7 @@ type Props = {
  */
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
-  const { conversationId } = useSlugRoutes();
+  const { conversationId } = useChatRoutes();
   const router = useRouter();
 
   const route = router.asPath;

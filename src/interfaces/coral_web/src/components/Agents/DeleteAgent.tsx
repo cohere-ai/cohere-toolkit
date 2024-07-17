@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 
 import { Button, Text } from '@/components/Shared';
 import { useDeleteAgent } from '@/hooks/agents';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 
 type Props = {
   name: string;
@@ -15,7 +15,7 @@ type Props = {
  */
 export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
   const { mutateAsync: deleteAgent, isPending } = useDeleteAgent();
-  const { agentId: currentAgentId } = useSlugRoutes();
+  const { agentId: currentAgentId } = useChatRoutes();
   const router = useRouter();
 
   const handleDeleteAgent = async () => {

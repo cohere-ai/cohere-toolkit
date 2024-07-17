@@ -17,10 +17,10 @@ import { BannerContext } from '@/context/BannerContext';
 import { ModalContext } from '@/context/ModalContext';
 import { useAgent, useDefaultAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversation } from '@/hooks/conversation';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
 import { appSSR } from '@/pages/_app';
 import {
@@ -35,7 +35,7 @@ import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const Page: NextPage = () => {
-  const { agentId, conversationId } = useSlugRoutes();
+  const { agentId, conversationId } = useChatRoutes();
 
   const { setConversation } = useConversationStore();
   const {
