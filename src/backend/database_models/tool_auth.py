@@ -7,7 +7,9 @@ from backend.database_models.base import Base
 class ToolAuth(Base):
     __tablename__ = "tool_auth"
 
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
     tool_id: Mapped[str] = mapped_column(Text, nullable=False)
     token_type: Mapped[str] = mapped_column(Text, nullable=False)
     encrypted_access_token: Mapped[bytes] = mapped_column()

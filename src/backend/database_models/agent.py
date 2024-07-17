@@ -46,8 +46,6 @@ class Agent(Base):
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
-    # enum place holders
-    # This is not used for now, just default it to Cohere Platform
     user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", name="agents_user_id_fkey", ondelete="CASCADE")
     )

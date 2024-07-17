@@ -25,8 +25,8 @@ class Message(Base):
 
     text: Mapped[str]
 
-    user_id: Mapped[str] = mapped_column(String)
-    conversation_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(String, nullable=True)
+    conversation_id: Mapped[str] = mapped_column(String, nullable=True)
     position: Mapped[int]
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     generation_id: Mapped[str] = mapped_column(String, nullable=True)
