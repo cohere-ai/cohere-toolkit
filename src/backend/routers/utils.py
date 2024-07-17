@@ -25,11 +25,11 @@ def add_event_type_to_request_state(request: Request, event_type: MetricsMessage
 
 
 def add_default_agent_to_request_state(request: Request):
-    default_agent = agent_crud.get_agent_by_id("default")
-    if default_agent:
-        add_agent_to_request_state(request, default_agent)
-    else:
-        request.state.agent = DEFAULT_METRICS_AGENT
+    # default_agent = agent_crud.get_agent_by_id("default")
+    # if default_agent:
+    #     add_agent_to_request_state(request, default_agent)
+    # else:
+    request.state.agent = DEFAULT_METRICS_AGENT
 
 
 def add_agent_to_request_state(request: Request, agent: Agent):
