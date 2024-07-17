@@ -8,6 +8,9 @@ from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.tool import ManagedTool
 from backend.services.auth.utils import get_header_user_id
+from backend.services.logger import get_logger
+
+logger = get_logger()
 
 router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL
@@ -41,9 +44,15 @@ def list_tools(
     user_id = get_header_user_id(request)
     for tool in all_tools:
         if tool.is_available and tool.auth_implementation is not None:
-            tool_auth_service = tool.auth_implementation()
-            tool.is_auth_required = tool_auth_service.is_auth_required(session, user_id)
-            tool.auth_url = tool_auth_service.get_auth_url(user_id)
-            tool.token = tool_auth_service.get_token(session, user_id)
+            try:
+                tool_auth_service = tool.auth_implementation()
+
+                tool.is_auth_required = tool_auth_service.is_auth_required(
+                    session, user_id
+                )
+                tool.auth_url = tool_auth_service.get_auth_url(user_id)
+                tool.token = tool_auth_service.get_token(session, user_id)
+            except Exception as e:
+                logger.error(f"Error while fetching Tool Auth: {str(e)}.")
 
     return all_tools
