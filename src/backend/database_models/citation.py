@@ -19,7 +19,9 @@ class Citation(Base):
     __tablename__ = "citations"
 
     text: Mapped[str]
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
     start: Mapped[int]
     end: Mapped[int]
 
