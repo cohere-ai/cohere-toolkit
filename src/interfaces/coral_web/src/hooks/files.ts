@@ -102,9 +102,9 @@ export const useFileActions = () => {
   const { mutateAsync: uploadFile } = useUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
-  const { setConversation } = useConversationStore();
+  const { setConversation, conversation } = useConversationStore();
 
-  const handleUploadFile = async (file?: File, conversationId?: string) => {
+  const handleUploadFile = async (file?: File) => {
     // cleanup uploadingFiles with errors
     const uploadingFilesWithErrors = uploadingFiles.filter((file) => file.error);
     uploadingFilesWithErrors.forEach((file) => deleteUploadingFile(file.id));
@@ -138,7 +138,10 @@ export const useFileActions = () => {
     }
 
     try {
-      const uploadedFile = await uploadFile({ file: newUploadingFile.file, conversationId });
+      const uploadedFile = await uploadFile({
+        file: newUploadingFile.file,
+        conversationId: conversation.id,
+      });
 
       if (!uploadedFile?.id) {
         throw new FileUploadError('File ID not found');
@@ -149,7 +152,7 @@ export const useFileActions = () => {
       const newFileIds = [...(fileIds ?? []), uploadedFileId];
       setParams({ fileIds: newFileIds });
       addComposerFile(uploadedFile);
-      if (!conversationId) {
+      if (!conversation.id) {
         setConversation({ id: uploadedFile.conversation_id });
       }
 
