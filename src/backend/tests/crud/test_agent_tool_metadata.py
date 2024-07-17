@@ -90,6 +90,7 @@ def test_create_agent_missing_user_id(session, user):
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
         artifacts=[mock_artifact_1],
+        user_id="123",
     )
     with pytest.raises(IntegrityError):
         _ = agent_tool_metadata_crud.create_agent_tool_metadata(
