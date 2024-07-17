@@ -47,10 +47,13 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
   const cohereClient = useCohereClient();
   return useQuery({
     queryKey: ['agent', agentId],
+    enabled: !!agentId, // TODO(@tomtobac): remove this when the generated code is fixed
     queryFn: async () => {
       try {
         if (!agentId) {
-          return await cohereClient.getDefaultAgent();
+          // TODO(@tomtobac): uncomment this when the generated code is fixed
+          // return await cohereClient.getDefaultAgent();
+          throw new Error('Agent ID not found');
         }
         return await cohereClient.getAgent(agentId);
       } catch (e) {

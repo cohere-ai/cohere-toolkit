@@ -36,8 +36,6 @@ import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const Page: NextPage = () => {
   const { agentId, conversationId } = useSlugRoutes();
-  console.log({ agentId });
-
   const { setConversation } = useConversationStore();
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
