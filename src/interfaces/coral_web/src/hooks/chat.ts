@@ -94,6 +94,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const {
     files: { composerFiles },
     clearComposerFiles,
+    clearUploadingErrors,
   } = useFilesStore();
   const queryClient = useQueryClient();
 
@@ -235,6 +236,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
     try {
       clearComposerFiles();
+      clearUploadingErrors();
 
       await streamConverse({
         request,
