@@ -69,12 +69,12 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     def send_signal(
         self, request: Request, response: Response, duration_ms: float
     ) -> None:
-        signal = self.get_event_data(request, response, duration_ms)
+        signal = self.get_event_signal(request, response, duration_ms)
         should_send_event = request.state.event_type and signal
         if should_send_event:
             response.background = BackgroundTask(report_metrics, signal)
 
-    def get_event_data(
+    def get_event_signal(
         self, request: Request, response: Response, duration_ms: float
     ) -> MetricsSignal | None:
 
@@ -89,7 +89,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             if not user_id:
                 raise ValueError("user_id empty")
         except:
-            logger.warning(f"Failed to get user id from headers")
+            logger.warning(f"Failed to get user id: {e}")
             return None
 
         agent = self.get_agent(request)
