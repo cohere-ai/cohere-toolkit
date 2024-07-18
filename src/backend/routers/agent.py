@@ -11,6 +11,7 @@ from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
     add_agent_tool_metadata_to_request_state,
+    add_default_agent_to_request_state,
     add_event_type_to_request_state,
     add_session_user_to_request_state,
 )
@@ -19,14 +20,14 @@ from backend.schemas.agent import (
     AgentPublic,
     AgentToolMetadata,
     AgentToolMetadataPublic,
-    CreateAgent,
-    CreateAgentToolMetadata,
+    CreateAgentRequest,
+    CreateAgentToolMetadataRequest,
     DeleteAgent,
     DeleteAgentToolMetadata,
-    UpdateAgent,
-    UpdateAgentToolMetadata,
+    UpdateAgentRequest,
+    UpdateAgentToolMetadataRequest,
 )
-from backend.schemas.metrics import MetricsMessageType
+from backend.schemas.metrics import GenericResponseMessage, MetricsMessageType
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -54,13 +55,13 @@ router.name = RouterName.AGENT
     ],
 )
 async def create_agent(
-    session: DBSessionDep, agent: CreateAgent, request: Request
+    session: DBSessionDep, agent: CreateAgentRequest, request: Request
 ) -> AgentPublic:
     """
     Create an agent.
     Args:
         session (DBSessionDep): Database session.
-        agent (CreateAgent): Agent data.
+        agent (CreateAgentRequest): Agent data.
         request (Request): Request object.
     Returns:
         AgentPublic: Created agent with no user ID or organization ID.
@@ -83,17 +84,17 @@ async def create_agent(
         tools=agent.tools,
     )
 
-    # try:
-    created_agent = agent_crud.create_agent(session, agent_data)
-    add_agent_to_request_state(request, created_agent)
+    try:
+        created_agent = agent_crud.create_agent(session, agent_data)
+        add_agent_to_request_state(request, created_agent)
 
-    if agent.tools_metadata:
-        for tool_metadata in agent.tools_metadata:
-            await update_or_create_tool_metadata(
-                created_agent, tool_metadata, session, request
-            )
-    # except Exception as e:
-    # raise HTTPException(status_code=500, detail=str(e))
+        if agent.tools_metadata:
+            for tool_metadata in agent.tools_metadata:
+                await update_or_create_tool_metadata(
+                    created_agent, tool_metadata, session, request
+                )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return created_agent
 
@@ -118,6 +119,20 @@ async def list_agents(
         return agent_crud.get_agents(session, offset=offset, limit=limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# simply for logging purposes
+default_agent_router = APIRouter(
+    prefix="/v1/default_agent",
+)
+default_agent_router.name = RouterName.DEFAULT_AGENT
+
+
+@default_agent_router.get("/", response_model=GenericResponseMessage)
+async def get_default_agent(session: DBSessionDep, request: Request):
+    add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_ACCESSED)
+    add_default_agent_to_request_state(request)
+    return {"message": "OK"}
 
 
 @router.get("/{agent_id}", response_model=Agent)
@@ -162,7 +177,7 @@ async def get_agent_by_id(
 )
 async def update_agent(
     agent_id: str,
-    new_agent: UpdateAgent,
+    new_agent: UpdateAgentRequest,
     session: DBSessionDep,
     request: Request,
 ) -> AgentPublic:
@@ -171,7 +186,7 @@ async def update_agent(
 
     Args:
         agent_id (str): Agent ID.
-        new_agent (UpdateAgent): New agent data.
+        new_agent (UpdateAgentRequest): New agent data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
 
@@ -186,7 +201,6 @@ async def update_agent(
     agent = validate_agent_exists(session, agent_id)
 
     if new_agent.tools_metadata is not None:
-        print("New agent", new_agent)
         agent = await handle_tool_metadata_update(agent, new_agent, session, request)
 
     try:
@@ -235,7 +249,7 @@ async def update_or_create_tool_metadata(
             agent.id, new_tool_metadata.id, session, new_tool_metadata, request
         )
     else:
-        create_metadata_req = CreateAgentToolMetadata(
+        create_metadata_req = CreateAgentToolMetadataRequest(
             **new_tool_metadata.model_dump(exclude_none=True)
         )
         create_agent_tool_metadata(session, agent.id, create_metadata_req, request)
@@ -306,7 +320,7 @@ async def list_agent_tool_metadata(
 def create_agent_tool_metadata(
     session: DBSessionDep,
     agent_id: str,
-    agent_tool_metadata: CreateAgentToolMetadata,
+    agent_tool_metadata: CreateAgentToolMetadataRequest,
     request: Request,
 ) -> AgentToolMetadataPublic:
     """
@@ -315,7 +329,7 @@ def create_agent_tool_metadata(
     Args:
         session (DBSessionDep): Database session.
         agent_id (str): Agent ID.
-        agent_tool_metadata (CreateAgentToolMetadata): Agent tool metadata data.
+        agent_tool_metadata (CreateAgentToolMetadataRequest): Agent tool metadata data.
         request (Request): Request object.
 
     Returns:
@@ -353,7 +367,7 @@ async def update_agent_tool_metadata(
     agent_id: str,
     agent_tool_metadata_id: str,
     session: DBSessionDep,
-    new_agent_tool_metadata: UpdateAgentToolMetadata,
+    new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
     request: Request,
 ) -> AgentToolMetadata:
     """
@@ -363,7 +377,7 @@ async def update_agent_tool_metadata(
         agent_id (str): Agent ID.
         agent_tool_metadata_id (str): Agent tool metadata ID.
         session (DBSessionDep): Database session.
-        new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
+        new_agent_tool_metadata (UpdateAgentToolMetadataRequest): New agent tool metadata data.
         request (Request): Request object.
 
     Returns:

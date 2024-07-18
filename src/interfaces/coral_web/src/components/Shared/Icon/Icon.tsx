@@ -1,3 +1,5 @@
+'use client';
+
 import cx from 'classnames';
 
 export const Icons = [

@@ -265,6 +265,10 @@ export type GenerateTitle = {
   title: string;
 };
 
+export type GenericResponseMessage = {
+  message: string;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
@@ -843,6 +847,8 @@ export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataI
 export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteResponse =
   DeleteAgentToolMetadata;
 
+export type GetDefaultAgentV1DefaultAgentGetResponse = GenericResponseMessage;
+
 export type ListSnapshotsV1SnapshotsGetResponse = Array<SnapshotWithLinks>;
 
 export type CreateSnapshotV1SnapshotsPostData = {
@@ -1384,6 +1390,16 @@ export type $OpenApiTs = {
          * Validation Error
          */
         422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/default_agent/': {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: GenericResponseMessage;
       };
     };
   };

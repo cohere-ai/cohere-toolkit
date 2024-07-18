@@ -1,3 +1,5 @@
+'use client';
+
 import { Spinner } from '@/components/Shared';
 import { useSession } from '@/hooks/session';
 

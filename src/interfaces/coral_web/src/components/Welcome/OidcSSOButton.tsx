@@ -1,3 +1,5 @@
+'use client';
+
 import { BasicButton } from '@/components/Shared';
 import { cn } from '@/utils';
 

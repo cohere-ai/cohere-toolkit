@@ -1,8 +1,9 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 
 import { Citation } from '@/components/Citations/Citation';
 import { CitationToStyles } from '@/hooks/citations';
-import { useRouteChange } from '@/hooks/route';
 import { useCitationsStore, useConversationStore } from '@/stores';
 import { ChatMessage, isFulfilledOrTypingMessage } from '@/types/message';
 import { cn } from '@/utils';
@@ -18,7 +19,6 @@ export const CitationPanel: React.FC<Props> = ({
   citationToStyles,
   className = '',
 }) => {
-  const [isRouteChanging] = useRouteChange();
   const {
     citations: { hasCitations },
   } = useCitationsStore();
@@ -37,39 +37,37 @@ export const CitationPanel: React.FC<Props> = ({
       className={cn('h-auto flex-col gap-y-2 md:items-end lg:items-center', className)}
     >
       <div className="relative flex h-full w-full flex-col gap-y-2 overflow-hidden pb-12 pt-1">
-        {isRouteChanging ? null : (
-          <>
-            {messages.map((message) => {
-              if (
-                isFulfilledOrTypingMessage(message) &&
-                message.citations &&
-                message.citations.length > 0
-              ) {
-                const generationId = message.generationId;
-                return (
-                  <Citation
-                    key={generationId}
-                    generationId={generationId}
-                    message={message.originalText}
-                    styles={citationToStyles?.[generationId]}
-                  />
-                );
-              }
-              return null;
-            })}
-            {streamingMessage &&
-              isFulfilledOrTypingMessage(streamingMessage) &&
-              citationToStyles?.[streamingMessage.generationId] && (
+        <>
+          {messages.map((message) => {
+            if (
+              isFulfilledOrTypingMessage(message) &&
+              message.citations &&
+              message.citations.length > 0
+            ) {
+              const generationId = message.generationId;
+              return (
                 <Citation
-                  key={streamingMessage.generationId}
-                  generationId={streamingMessage.generationId}
-                  isLastStreamed={true}
-                  message={streamingMessage.originalText}
-                  styles={citationToStyles?.[streamingMessage.generationId]}
+                  key={generationId}
+                  generationId={generationId}
+                  message={message.originalText}
+                  styles={citationToStyles?.[generationId]}
                 />
-              )}
-          </>
-        )}
+              );
+            }
+            return null;
+          })}
+          {streamingMessage &&
+            isFulfilledOrTypingMessage(streamingMessage) &&
+            citationToStyles?.[streamingMessage.generationId] && (
+              <Citation
+                key={streamingMessage.generationId}
+                generationId={streamingMessage.generationId}
+                isLastStreamed={true}
+                message={streamingMessage.originalText}
+                styles={citationToStyles?.[streamingMessage.generationId]}
+              />
+            )}
+        </>
       </div>
     </Transition>
   );

@@ -23,13 +23,20 @@ class AgentToolMetadataPublic(AgentToolMetadata):
         from_attributes = True
 
 
-class CreateAgentToolMetadata(BaseModel):
+class AgentToolMetadataPublic(AgentToolMetadata):
+    user_id: Optional[str] = Field(exclude=True)
+
+    class Config:
+        from_attributes = True
+
+
+class CreateAgentToolMetadataRequest(BaseModel):
     id: Optional[str] = None
     tool_name: str
     artifacts: list[dict]
 
 
-class UpdateAgentToolMetadata(BaseModel):
+class UpdateAgentToolMetadataRequest(BaseModel):
     id: Optional[str] = None
     tool_name: Optional[str] = None
     artifacts: Optional[list[dict]] = None
@@ -62,11 +69,12 @@ class Agent(AgentBase):
 
 
 class AgentPublic(Agent):
+    user_id: Optional[str] = Field(exclude=True)
     organization_id: Optional[str] = Field(exclude=True)
     tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 
 
-class CreateAgent(BaseModel):
+class CreateAgentRequest(BaseModel):
     name: str
     version: Optional[int] = None
     description: Optional[str] = None
@@ -75,7 +83,7 @@ class CreateAgent(BaseModel):
     model: str
     deployment: str
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[CreateAgentToolMetadata]] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
 
     class Config:
         from_attributes = True
@@ -86,7 +94,7 @@ class ListAgentsResponse(BaseModel):
     agents: list[Agent]
 
 
-class UpdateAgent(BaseModel):
+class UpdateAgentRequest(BaseModel):
     name: Optional[str] = None
     version: Optional[int] = None
     description: Optional[str] = None
@@ -95,7 +103,7 @@ class UpdateAgent(BaseModel):
     model: Optional[str] = None
     deployment: Optional[str] = None
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[CreateAgentToolMetadata]] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
 
     class Config:
         from_attributes = True

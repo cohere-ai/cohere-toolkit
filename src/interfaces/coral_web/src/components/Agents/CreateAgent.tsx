@@ -1,5 +1,7 @@
+'use client';
+
 import { useLocalStorageValue } from '@react-hookz/web';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
@@ -29,6 +31,8 @@ const DEFAULT_FIELD_VALUES = {
  */
 export const CreateAgent: React.FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { open, close } = useContext(ModalContext);
 
   const {
@@ -117,16 +121,17 @@ export const CreateAgent: React.FC = () => {
     }
   };
 
+  const queryString = searchParams.get('p');
   useEffect(() => {
-    if (router.query.p) {
+    if (queryString) {
       if (pendingAssistant) {
         setFields(pendingAssistant);
         removePendingAssistant();
       }
 
-      window.history.replaceState(null, '', router.basePath + router.pathname);
+      window.history.replaceState(null, '', pathname);
     }
-  }, [router.query.p, pendingAssistant]);
+  }, [queryString, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
     open({
@@ -152,7 +157,7 @@ export const CreateAgent: React.FC = () => {
       setFields(DEFAULT_FIELD_VALUES);
       close();
       setIsSubmitting(false);
-      router.push(`/a/${agent.id}`, undefined, { shallow: true });
+      router.push(`/a/${agent.id}`);
     } catch (e) {
       setIsSubmitting(false);
       close();

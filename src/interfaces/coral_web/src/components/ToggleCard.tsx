@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';

@@ -1,5 +1,5 @@
 import { useLocalStorageValue } from '@react-hookz/web';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 
@@ -46,10 +46,10 @@ export const useWelcomeGuideState = () => {
  * should not show on pages outside of the new chat page.
  */
 export const useShowWelcomeGuide = () => {
-  const router = useRouter();
+  const pathname = usePathname();
   const { welcomeGuideState } = useWelcomeGuideState();
 
-  return router.pathname === '/' && welcomeGuideState !== WelcomeGuideStep.DONE;
+  return pathname === '/' && welcomeGuideState !== WelcomeGuideStep.DONE;
 };
 
 /**

@@ -1,3 +1,5 @@
+'use client';
+
 import { IconButton } from '@/components/IconButton';
 import { Logo } from '@/components/Shared';
 import { useAgentsStore } from '@/stores';

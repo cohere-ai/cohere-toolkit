@@ -1,3 +1,5 @@
+'use client';
+
 import cx from 'classnames';
 import Link from 'next/link';
 import { MouseEventHandler, ReactElement, ReactNode } from 'react';

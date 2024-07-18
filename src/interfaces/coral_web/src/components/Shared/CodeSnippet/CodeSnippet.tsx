@@ -1,3 +1,5 @@
+'use client';
+
 import React, { MouseEvent, useRef } from 'react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import bash from 'react-syntax-highlighter/dist/cjs/languages/hljs/bash';

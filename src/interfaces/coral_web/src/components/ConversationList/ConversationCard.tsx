@@ -1,11 +1,12 @@
+'use client';
+
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -52,8 +53,7 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId, description } = conversation;
-  const router = useRouter();
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
@@ -93,11 +93,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     </div>
   );
 
-  const conversationUrl = agentId
-    ? `/a/${agentId}/c/${conversationId}`
-    : router.asPath.includes('/a')
-    ? `/a/c/${conversationId}`
-    : `/c/${conversationId}`;
+  const conversationUrl = agentId ? `/a/${agentId}/c/${conversationId}` : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
