@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { first, uniqBy } from 'lodash';
+import { uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
 import {
@@ -9,7 +9,7 @@ import {
   ListFile,
   useCohereClient,
 } from '@/cohere-client';
-import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
 import { useNotify } from '@/hooks/toast';
 import { useListTools } from '@/hooks/tools';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
@@ -119,6 +119,17 @@ export const useFileActions = () => {
     uploadingFilesWithErrors.forEach((file) => deleteUploadingFile(file.id));
 
     if (!files?.length) return;
+    if (files.length > MAX_NUM_FILES_PER_UPLOAD_BATCH) {
+      addUploadingFiles([
+        {
+          id: 'error',
+          error: `You can upload a maximum of ${MAX_NUM_FILES_PER_UPLOAD_BATCH} files at a time.`,
+          file: new File([], ''),
+          progress: 0,
+        },
+      ]);
+      return;
+    }
 
     const MAX_FILE_SIZE = fileSizeToBytes(20);
 
