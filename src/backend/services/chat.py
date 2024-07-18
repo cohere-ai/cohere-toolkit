@@ -49,8 +49,8 @@ from backend.schemas.chat import (
     ToolInputType,
 )
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.conversation import UpdateConversation
-from backend.schemas.file import UpdateFile
+from backend.schemas.conversation import UpdateConversationRequest
+from backend.schemas.file import UpdateFileRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
@@ -374,7 +374,9 @@ def attach_files_to_messages(
         files = file_crud.get_files_by_ids(session, file_ids, user_id)
         for file in files:
             if file.message_id is None:
-                file_crud.update_file(session, file, UpdateFile(message_id=message_id))
+                file_crud.update_file(
+                    session, file, UpdateFileRequest(message_id=message_id)
+                )
 
 
 def create_chat_history(
@@ -434,7 +436,7 @@ def update_conversation_after_turn(
 
     # Update conversation description with final message
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-    new_conversation = UpdateConversation(
+    new_conversation = UpdateConversationRequest(
         description=final_message_text,
         user_id=conversation.user_id,
     )
