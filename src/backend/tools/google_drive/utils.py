@@ -1,5 +1,6 @@
 import asyncio
 import io
+import time
 from typing import Any, Dict, List
 
 from googleapiclient.errors import HttpError
@@ -11,6 +12,10 @@ from backend.services.logger import get_logger
 from .constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
 
 logger = get_logger()
+
+
+def get_current_timestamp_in_ms(positive_offset: int = 0, negative_offset: int = 0):
+    return int((time.time() + positive_offset - negative_offset) * 1000)
 
 
 def extract_links(files: List[Dict[str, str]]) -> Dict[str, str]:

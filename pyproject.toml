@@ -45,8 +45,10 @@ google_auth_oauthlib ="^1.2.0"
 google-auth-httplib2="^0.2.0"
 google-api-python-client="^2.133.0"
 openpyxl = "^3.1.5"
+celery = {version = "^5.4.0", extras = ["gevent"]}
 
 # Compass dependencies - To be removed once Compass is OSS
+redis = "^5.0.7"
 [tool.poetry.group.compass]
 optional = false
 
