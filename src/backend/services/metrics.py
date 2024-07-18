@@ -25,10 +25,10 @@ from backend.schemas.metrics import (
     MetricsMessageType,
     MetricsSignal,
     MetricsUser,
+    MetricsChat,
 )
 from backend.services.auth.utils import get_header_user_id
 from backend.services.generators import AsyncGeneratorContextManager
-import queue
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -41,8 +41,6 @@ logger = logging.getLogger(__name__)
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
-    # TODO: tie should_send_event to REPORT_SECRET and REPORT_ENDPOINT
-    # currently tests are not setup correctly for it
     async def dispatch(self, request: Request, call_next: Callable):
 
         self.confirm_env()
@@ -61,7 +59,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.agent = None
         request.state.user = None
         request.state.event_type = None
-        request.state.signal_queue = queue.Queue()
+        request.state.signal_queue = []
         
     def process_signal_queue(self, request: Request, response: Response) -> None:
         pass
@@ -179,14 +177,14 @@ def log_signal_curl(signal: MetricsSignal) -> None:
 
 def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) -> None:
     queue = kwargs.get("signal_queue", None)
-    if not queue:
+    if queue is None:
         logger.error(f"request state event queue not found")
         return
 
-    trace_id = kwargs.get("trace_id", "")
-    user_id = kwargs.get("user_id", "")
-    agent_id = kwargs.get("agent_id", "")
-    event_dict = to_dict(event)
+    trace_id = kwargs.get("trace_id", None)
+    user_id = kwargs.get("user_id", None)
+    agent_id = kwargs.get("agent_id", None)
+    event_dict = to_dict(event).get("response", {})
     input_tokens = (
         event_dict.get("meta", {}).get("billed_units", {}).get("input_tokens", 0)
     )
@@ -196,6 +194,7 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
     search_units = (
         event_dict.get("meta", {}).get("billed_units", {}).get("search_units", 0)
     )
+    search_units = search_units if search_units else 0
     is_error = (
         event_dict.get("event_type") == StreamEvent.STREAM_END
         and event_dict.get("finish_reason") != "COMPLETE"
@@ -208,7 +207,7 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
             output_nb_tokens=output_tokens,
             search_units=search_units,
             model=chat_request.model,
-            assistant_id=chat_request.assistant_id,
+            assistant_id=agent_id,
         )
         metrics = MetricsData(
             id=str(uuid.uuid4()),
@@ -227,8 +226,9 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
             assistant_id=chat_request.assistant_id,
             error=event_dict.get("finish_reason") if is_error else None,
         )
-        queue.put(MetricsSignal(signal=metrics))
+        queue.append(MetricsSignal(signal=metrics))
     except Exception as e:
+        import pdb; pdb.set_trace()
         logger.error(f"Failed to push chat success event to signal queue: {e}")
 
 
@@ -236,14 +236,14 @@ def push_interrupted_chat_event_to_signal_queue(
     event, chat_request, err_str, **kwargs: Any
 ) -> None:
     queue = kwargs.get("signal_queue", None)
-    if not queue:
+    if queue is None:
         logger.error(f"request state event queue not found")
         return
 
-    trace_id = kwargs.get("trace_id", "")
-    user_id = kwargs.get("user_id", "")
-    agent_id = kwargs.get("agent_id", "")
-    event_dict = to_dict(event)
+    trace_id = kwargs.get("trace_id", None)
+    user_id = kwargs.get("user_id", None)
+    agent_id = kwargs.get("agent_id", None)
+    
     try:
         metrics = MetricsData(
             id=str(uuid.uuid4()),
@@ -252,9 +252,10 @@ def push_interrupted_chat_event_to_signal_queue(
             message_type=MetricsMessageType.CHAT_API_FAIL,
             timestamp=time.time(),
             model=chat_request.model,
-            assistant_id=chat_request.assistant_id,
+            assistant_id=agent_id,
             error=err_str,
         )
-        queue.put(MetricsSignal(signal=metrics))
+        queue.append(MetricsSignal(signal=metrics))
     except Exception as e:
+        import pdb; pdb.set_trace()
         logger.error(f"Failed to push chat success event to signal queue: {e}")
