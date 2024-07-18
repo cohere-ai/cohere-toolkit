@@ -17,6 +17,7 @@ jobs:
       OIDC_CLIENT_ID: ${{ secrets.OIDC_CLIENT_ID }}
       OIDC_CLIENT_SECRET: ${{ secrets.OIDC_CLIENT_SECRET }}
       OIDC_WELL_KNOWN_ENDPOINT: ${{ secrets.OIDC_WELL_KNOWN_ENDPOINT }}
+      FRONTEND_HOSTNAME: ${{ secrets.FRONTEND_HOSTNAME }}
 
     steps:
       - name: Checkout repo
