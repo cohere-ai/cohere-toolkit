@@ -2,6 +2,7 @@ import os
 import time
 from typing import Any, Dict, List
 
+from fastapi import HTTPException
 from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -50,6 +51,7 @@ class GoogleDrive(BaseTool):
 
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
         message = "Google Drive Error: {}".format(str(error))
+
         if isinstance(error, RefreshError):
             session = kwargs["session"]
             user_id = kwargs["user_id"]
@@ -57,13 +59,11 @@ class GoogleDrive(BaseTool):
                 db=session, user_id=user_id, tool_id=GOOGLE_DRIVE_TOOL_ID
             )
             message = "Google Drive Error: Something is wrong with your Google auth token. Please refresh the page and re-authenticate."
+
         logger.error(message)
         raise Exception(message)
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        """
-        Google Drive logic
-        """
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
@@ -83,10 +83,17 @@ class GoogleDrive(BaseTool):
             + " or ".join([f"name contains '{word}'" for word in [query]])
             + ")",
         ]
-        auth = tool_auth_crud.get_tool_auth(
+
+        tool_auth = tool_auth_crud.get_tool_auth(
             db=session, tool_id=GOOGLE_DRIVE_TOOL_ID, user_id=user_id
         )
-        creds = Credentials(auth.encrypted_access_token.decode())
+
+        if not tool_auth:
+            error_message = f"Could not find ToolAuth with tool_id: {self.NAME} and user_id: {kwargs.get('user_id')}"
+            logger.error(error_message)
+            raise HTTPException(status_code=401, detail=error_message)
+
+        creds = Credentials(tool_auth.access_token)
 
         # fetch agent tool metadata
         file_ids = []
