@@ -2,8 +2,10 @@ from sqlalchemy.orm import Session
 
 from backend.database_models.message import Message
 from backend.schemas.message import UpdateMessage
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_message(db: Session, message: Message) -> Message:
     """
     Create a new message.
@@ -21,6 +23,7 @@ def create_message(db: Session, message: Message) -> Message:
     return message
 
 
+@validate_transaction
 def get_message(db: Session, message_id: str, user_id: str) -> Message:
     """
     Get a message by ID.
@@ -40,6 +43,7 @@ def get_message(db: Session, message_id: str, user_id: str) -> Message:
     )
 
 
+@validate_transaction
 def get_messages(
     db: Session, user_id: str, offset: int = 0, limit: int = 100
 ) -> list[Message]:
@@ -64,6 +68,7 @@ def get_messages(
     )
 
 
+@validate_transaction
 def get_messages_by_conversation_id(
     db: Session, conversation_id: str, user_id: str
 ) -> list[Message]:
@@ -85,6 +90,7 @@ def get_messages_by_conversation_id(
     )
 
 
+@validate_transaction
 def update_message(
     db: Session, message: Message, new_message: UpdateMessage
 ) -> Message:
@@ -106,6 +112,7 @@ def update_message(
     return message
 
 
+@validate_transaction
 def delete_message(db: Session, message_id: str, user_id: str) -> None:
     """
     Delete a message by ID.

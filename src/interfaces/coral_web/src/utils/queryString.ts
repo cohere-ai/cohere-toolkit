@@ -5,7 +5,7 @@
  *    : router.query.[param];
  */
 
-export const getQueryString = (param?: string | string[]) => {
+export const getQueryString = (param?: string | string[] | null) => {
   if (!param) return;
   if (Array.isArray(param)) {
     return param[0] as string;

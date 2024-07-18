@@ -1,3 +1,5 @@
+'use client';
+
 import { ComponentPropsWithoutRef, useMemo } from 'react';
 import ReactMarkdown, { Components, UrlTransform } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';

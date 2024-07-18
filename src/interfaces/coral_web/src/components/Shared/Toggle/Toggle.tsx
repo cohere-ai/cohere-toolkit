@@ -1,3 +1,5 @@
+'use client';
+
 import { Cell } from '@/components/Shared/Cell/Cell';
 import { cn } from '@/utils';
 

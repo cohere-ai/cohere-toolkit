@@ -32,6 +32,7 @@ type Actions = {
   updateUploadingFileError: (file: UploadingFile, error: string) => void;
   deleteUploadingFile: (id: string) => void;
   deleteComposerFile: (id: string) => void;
+  clearUploadingErrors: () => void;
   clearComposerFiles: () => void;
 };
 
@@ -112,6 +113,19 @@ export const createFilesSlice: StateCreator<StoreState, [], [], FilesStore> = (s
         composerFiles: state.files.composerFiles.filter((f) => f.id !== id),
       },
     }));
+  },
+  clearUploadingErrors() {
+    set((state) => {
+      const newUploadingFiles = state.files.uploadingFiles.filter(
+        (f) => typeof f.error === 'undefined'
+      );
+      return {
+        files: {
+          ...state.files,
+          uploadingFiles: newUploadingFiles,
+        },
+      };
+    });
   },
   clearComposerFiles() {
     set((state) => ({

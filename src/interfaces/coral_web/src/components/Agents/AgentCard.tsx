@@ -1,5 +1,7 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
@@ -7,7 +9,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import {
   useAgentsStore,
   useCitationsStore,
@@ -32,17 +34,17 @@ type Props = {
  */
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
-  const { conversationId } = useSlugRoutes();
+  const { conversationId } = useChatRoutes();
   const router = useRouter();
+  const pathname = usePathname();
 
-  const route = router.asPath;
   const isActive = isBaseAgent
     ? conversationId
-      ? route === `/c/${conversationId}`
-      : route === '/'
+      ? pathname === `/c/${conversationId}`
+      : pathname === '/'
     : conversationId
-    ? route === `/a/${id}/c/${conversationId}`
-    : route === `/a/${id}`;
+    ? pathname === `/a/${id}/c/${conversationId}`
+    : pathname === `/a/${id}`;
 
   const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();
@@ -54,7 +56,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
 
   const handleNewChat = () => {
     const url = isBaseAgent ? '/' : id ? `/a/${id}` : '/a';
-    router.push(url, undefined, { shallow: true });
+    router.push(url, undefined);
     setEditAgentPanelOpen(false);
     resetConversation();
     resetCitations();
@@ -63,7 +65,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
 
   const handleEditAssistant = () => {
     if (id) {
-      router.push(`/a/${id}`, undefined, { shallow: true });
+      router.push(`/a/${id}`, undefined);
       setEditAgentPanelOpen(true);
       setSettings({ isConvListPanelOpen: false });
     }

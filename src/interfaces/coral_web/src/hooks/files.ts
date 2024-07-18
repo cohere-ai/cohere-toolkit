@@ -111,7 +111,7 @@ export const useFileActions = () => {
   const { mutateAsync: uploadFiles } = useBatchUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
-  const { setConversation } = useConversationStore();
+  const { setConversation, conversation } = useConversationStore();
 
   const handleUploadFiles = async (files?: File[], conversationId?: string) => {
     // cleanup uploadingFiles with errors

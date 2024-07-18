@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.document import Document
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_document(db: Session, document: Document) -> Document:
     """
     Create a new document.
@@ -20,6 +22,7 @@ def create_document(db: Session, document: Document) -> Document:
     return document
 
 
+@validate_transaction
 def get_document(db: Session, document_id: str) -> Document:
     """
     Get a document by ID.
@@ -34,6 +37,7 @@ def get_document(db: Session, document_id: str) -> Document:
     return db.query(Document).filter(Document.id == document_id).first()
 
 
+@validate_transaction
 def get_documents(db: Session, offset: int = 0, limit: int = 100) -> list[Document]:
     """
     List all documents.

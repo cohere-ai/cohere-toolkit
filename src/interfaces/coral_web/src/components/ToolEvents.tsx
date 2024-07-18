@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import { Fragment, PropsWithChildren } from 'react';
 
@@ -11,7 +13,7 @@ import {
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
 } from '@/constants';
-import { cn } from '@/utils';
+import { cn, getValidURL } from '@/utils';
 
 type Props = {
   show: boolean;
@@ -78,22 +80,27 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     const artifacts =
       stream_search_results.documents
         ?.map((doc) => {
-          return { title: truncateString(doc.title || doc.url || ''), url: doc.url };
+          return { title: truncateString(doc.title || doc.url || ''), url: getValidURL(doc.url) };
         })
         .filter((entry) => !!entry.title)
         .filter((value, index, self) => index === self.findIndex((t) => t.title === value.title)) ||
       [];
+
     return (
       <ToolEventWrapper icon="book-open-text">
         {artifacts.length > 0 ? (
           <>
-            Found the following resources:
+            Referenced the following resources:
             <article className="grid grid-cols-2 gap-x-2">
               {artifacts.map((artifact) => (
-                <b key={artifact.title} className="cursor-pointer truncate font-medium underline">
-                  <a href={artifact.url || ''} target="_blank">
-                    {artifact.title}
-                  </a>
+                <b key={artifact.title} className="truncate font-medium">
+                  {artifact.url ? (
+                    <a href={artifact.url} target="_blank" className="underline">
+                      {artifact.title}
+                    </a>
+                  ) : (
+                    <p>{artifact.title}</p>
+                  )}
                 </b>
               ))}
             </article>

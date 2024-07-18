@@ -31,11 +31,16 @@ class Conversation(ConversationBase):
         from_attributes = True
 
 
-class ConversationWithoutMessages(Conversation):
+class ConversationPublic(Conversation):
+    user_id: Optional[str] = Field(exclude=True)
+    organization_id: Optional[str] = Field(exclude=True)
+
+
+class ConversationWithoutMessages(ConversationPublic):
     messages: List[Message] = Field(exclude=True)
 
 
-class UpdateConversation(BaseModel):
+class UpdateConversationRequest(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
 
@@ -43,9 +48,9 @@ class UpdateConversation(BaseModel):
         from_attributes = True
 
 
-class DeleteConversation(BaseModel):
+class DeleteConversationResponse(BaseModel):
     pass
 
 
-class GenerateTitle(BaseModel):
+class GenerateTitleResponse(BaseModel):
     title: str

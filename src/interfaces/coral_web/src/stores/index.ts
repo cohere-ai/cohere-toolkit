@@ -65,6 +65,7 @@ export const useFilesStore = () => {
       addComposerFile: state.addComposerFile,
       deleteComposerFile: state.deleteComposerFile,
       clearComposerFiles: state.clearComposerFiles,
+      clearUploadingErrors: state.clearUploadingErrors,
       updateUploadingFileError: state.updateUploadingFileError,
     }),
     shallow

@@ -1,3 +1,5 @@
+'use client';
+
 import { flatten, sortBy, uniqBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -7,7 +9,6 @@ import { CitationDocument } from '@/components/Citations/CitationDocument';
 import { IconButton } from '@/components/IconButton';
 import MessageRow from '@/components/MessageRow';
 import { Button, Text } from '@/components/Shared';
-import { PageHead } from '@/components/Shared/PageHead';
 import { ReservedClasses } from '@/constants';
 import { useCitationsStore } from '@/stores';
 import { ChatMessage, isFulfilledMessage } from '@/types/message';
@@ -54,7 +55,6 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
 
   return (
     <>
-      <PageHead title={title} />
       <div
         className={cn('flex w-full flex-col gap-2 pb-28 pt-12 md:px-5', {
           'max-w-share-content': !hasCitations,

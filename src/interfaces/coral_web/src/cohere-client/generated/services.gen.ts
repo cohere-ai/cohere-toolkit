@@ -39,6 +39,7 @@ import type {
   GetAgentByIdV1AgentsAgentIdGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
   GetConversationV1ConversationsConversationIdGetResponse,
+  GetDefaultAgentV1DefaultAgentGetResponse,
   GetSnapshotV1SnapshotsLinkLinkIdGetData,
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
   GetStrategiesV1AuthStrategiesGetResponse,
@@ -1270,6 +1271,18 @@ export class DefaultService {
       errors: {
         422: 'Validation Error',
       },
+    });
+  }
+
+  /**
+   * Get Default Agent
+   * @returns GenericResponseMessage Successful Response
+   * @throws ApiError
+   */
+  public getDefaultAgentV1DefaultAgentGet(): CancelablePromise<GetDefaultAgentV1DefaultAgentGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/default_agent/',
     });
   }
 
