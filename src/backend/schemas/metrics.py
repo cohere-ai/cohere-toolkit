@@ -20,13 +20,11 @@ class MetricsMessageType(str, Enum):
     ASSISTANT_UPDATED = "assistant_updated"
     ASSISTANT_DELETED = "assistant_deleted"
     ASSISTANT_ACCESSED = "assistant_accessed"
-    # chat: implemented
+    # pending implementation
     CHAT_API_SUCCESS = "chat_api_call_success"
     CHAT_API_FAIL = "chat_api_call_failure"
-    # rerank: implemented
     RERANK_API_SUCCESS = "rerank_api_call_success"
     RERANK_API_FAIL = "rerank_api_call_failure"
-    # pending implementation
     ENV_LIVENESS = "env_liveness"
     COMPASS_NEW_INDEX = "compass_new_index"
     COMPASS_REMOVE_INDEX = "compass_remove_index"
