@@ -38,12 +38,10 @@ win-setup:
 	poetry run python src/backend/cli/main.py
 lint:
 	poetry run black .
-	poetry run isort .
-first-run:
-	make setup
-	make migrate
-	make dev
+	poetry run isort .	
 win-first-run:
 	make win-setup
 	make migrate
 	make dev
+start-sync:
+	watchmedo auto-restart --directory=src/backend --recursive -- celery -A src.backend.services.sync worker -P gevent --loglevel=INFO

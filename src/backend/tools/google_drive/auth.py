@@ -156,3 +156,8 @@ class GoogleDriveAuth(BaseToolAuthentication):
     def get_token(cls, session: DBSessionDep, user_id: str) -> str:
         tool_auth = tool_auth_crud.get_tool_auth(session, GoogleDrive.NAME, user_id)
         return tool_auth.encrypted_access_token.decode() if tool_auth else None
+
+    @classmethod
+    def get_tool_auth(cls, session: DBSessionDep, user_id: str) -> ToolAuth:
+        tool_auth = tool_auth_crud.get_tool_auth(session, GoogleDrive.NAME, user_id)
+        return tool_auth

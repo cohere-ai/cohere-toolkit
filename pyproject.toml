@@ -46,13 +46,13 @@ google-auth-httplib2="^0.2.0"
 google-api-python-client="^2.133.0"
 openpyxl = "^3.1.5"
 celery = {version = "^5.4.0", extras = ["gevent"]}
-
-# Compass dependencies - To be removed once Compass is OSS
 redis = "^5.0.7"
+watchdog = "^4.0.1"
 [tool.poetry.group.compass]
 optional = false
 
 [tool.poetry.group.compass.dependencies]
+# Compass dependencies - To be removed once Compass is OSS
 fsspec = "2024.2.0"
 joblib = "*"
 pydantic = ">=2.6.3"

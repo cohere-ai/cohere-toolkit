@@ -52,7 +52,10 @@ worker_prefetch_multiplier = 1
 CELERY_enable_utc = True
 
 # modules to include
-include = ["src.backend.services.sync.agent"]
+include = [
+    "src.backend.services.sync.agent",
+    "src.backend.tools.google_drive.activity",
+]
 
 # Send task events for Prometheus metrics
 worker_send_task_events = True

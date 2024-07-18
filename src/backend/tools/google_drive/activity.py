@@ -6,6 +6,7 @@ from googleapiclient.discovery import build
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
+from backend.services.sync import app
 
 from .auth import GoogleDriveAuth
 from .constants import ACTIVITY_TRACKING_WINDOW, GoogleDriveActions
@@ -16,10 +17,15 @@ def query_google_drive_activity(
     session: Session, agent: Agent, agent_artifacts: List[Dict[str, str]]
 ):
     user_id = agent.user_id
-    g_auth = GoogleDriveAuth()
-    agent_creator_auth_token = g_auth.get_token(session=session, user_id=user_id)
+    gdrive_auth = GoogleDriveAuth()
+    agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
     if agent_creator_auth_token is None:
         raise Exception("Sync GDrive Error: No agent creator credentials found")
+
+    if gdrive_auth.is_auth_required(session, user_id=user_id):
+        raise Exception(
+            "Sync GDrive Error: Agent creator credentials need to re-authenticate"
+        )
 
     creds = Credentials(agent_creator_auth_token)
     service = build("driveactivity", "v2", credentials=creds)
@@ -57,7 +63,10 @@ def _get_activity(
         service.activity()
         .query(
             body={
-                "filter": "time >= {}".format(activity_ts_filter),
+                "filter": "time >= {} AND detail.action_detail_case:({})".format(
+                    activity_ts_filter,
+                    " ".join([e.value.upper() for e in GoogleDriveActions]),
+                ),
                 **(
                     {"ancestorName": "items/{}".format(artifact_id)}
                     if artifact_type == "folder"
@@ -90,21 +99,22 @@ def _get_activity(
     return response["activities"] if response else []
 
 
-def handle_google_drive_activity_event(event: GoogleDriveActions):
-    match event.value:
+@app.task
+def handle_google_drive_activity_event(event_type: str, **kwargs):
+    match event_type:
         case GoogleDriveActions.CREATE.value:
-            pass
-        case GoogleDriveActions.EDIT:
-            pass
+            print("create")
+        case GoogleDriveActions.EDIT.value:
+            print("edit")
         case GoogleDriveActions.MOVE.value:
-            pass
+            print("move")
         case GoogleDriveActions.RENAME.value:
-            pass
+            print("rename")
         case GoogleDriveActions.DELETE.value:
-            pass
+            print("delete")
         case GoogleDriveActions.RESTORE.value:
-            pass
+            print("restore")
         case GoogleDriveActions.PERMISSION_CHANGE.value:
-            pass
+            print("permission_change")
         case _:
-            raise Exception("This action is not tracked in Google Drive")
+            raise Exception("This action is not tracked for Google Drive")

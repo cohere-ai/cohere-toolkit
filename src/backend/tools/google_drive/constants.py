@@ -35,4 +35,4 @@ class GoogleDriveActions(Enum):
     RENAME = "rename"
     DELETE = "delete"
     RESTORE = "restore"
-    PERMISSION_CHANGE = "permissionChange"
+    PERMISSION_CHANGE = "permission_change"
