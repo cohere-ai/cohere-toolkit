@@ -16,7 +16,6 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import (
     ConversationPublic,
-    ConversationPublic,
     ConversationWithoutMessages,
     DeleteConversationResponse,
     GenerateTitleResponse,
