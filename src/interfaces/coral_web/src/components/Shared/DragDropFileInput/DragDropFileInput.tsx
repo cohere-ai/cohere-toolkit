@@ -111,7 +111,6 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
                 directoryReader.readEntries(async function (entries) {
                   for (let i = 0; i < entries.length; i++) {
                     const entry = entries[i];
-                    console.debug(entry);
 
                     if (IGNORED_FILES.includes(entry.name)) {
                       continue;

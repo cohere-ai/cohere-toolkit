@@ -28,8 +28,7 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return [];
-    onUploadFile([...e.target.files]);
+    onUploadFile([...(e.target.files ?? [])]);
   };
 
   return (
