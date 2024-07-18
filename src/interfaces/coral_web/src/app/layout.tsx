@@ -1,7 +1,16 @@
+import { Metadata } from 'next';
+
 import { LayoutProviders } from '@/app/_providers';
 import { env } from '@/env.mjs';
 import '@/styles/main.css';
 import { cn } from '@/utils';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Cohere',
+    default: 'Chat | Cohere',
+  },
+};
 
 const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
