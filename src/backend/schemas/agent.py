@@ -66,6 +66,7 @@ class Agent(AgentBase):
 
 
 class AgentPublic(Agent):
+    user_id: Optional[str] = Field(exclude=True)
     organization_id: Optional[str] = Field(exclude=True)
     tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 

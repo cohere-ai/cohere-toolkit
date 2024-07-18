@@ -352,7 +352,6 @@ async def update_agent(
     agent = validate_agent_exists(session, agent_id)
 
     if new_agent.tools_metadata is not None:
-        print("New agent", new_agent)
         agent = await handle_tool_metadata_update(agent, new_agent, session, request)
 
     try:
