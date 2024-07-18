@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Union
+from typing import List, Union, Optional
 
 from pydantic import BaseModel
 
@@ -26,7 +26,7 @@ class Message(MessageBase):
 
     documents: List[Document]
     citations: List[Citation]
-    file_ids: List[str]
+    files: List[File]
     tool_calls: List[ToolCall]
     tool_plan: Union[str, None]
 
@@ -36,5 +36,9 @@ class Message(MessageBase):
         from_attributes = True
 
 
-class UpdateMessage(MessageBase):
-    pass
+class UpdateMessage(BaseModel):
+    title: Optional[str] = None
+    file_ids: Optional[list[str]] = None
+
+    class Config:
+        from_attributes = True

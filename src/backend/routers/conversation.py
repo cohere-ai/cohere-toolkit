@@ -13,7 +13,9 @@ from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models import File as FileModel
+from backend.database_models import Message as MessageModel
 from backend.database_models.database import DBSessionDep
+from backend.schemas.message import Message
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import (
     Conversation,
@@ -74,16 +76,44 @@ async def get_conversation(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
+    messages = getMessagesWithFiles(session, user_id, conversation.messages)
     return Conversation(
         id=conversation.id,
+        user_id=user_id,
         created_at=conversation.created_at,
         updated_at=conversation.updated_at,
         title=conversation.title,
-        messages=conversation.messages,
+        messages=messages,
         files=files,
         description=conversation.description,
         agent_id=conversation.agent_id
     )
+
+# need to convert each message to have the right files..
+def getMessagesWithFiles(session: DBSessionDep, user_id: str, messages: list[MessageModel]) -> list[Message]:
+    messages_with_file = []
+    
+    for message in messages:
+        files = file_service.get_message_files(session, message.id, user_id)
+        messages_with_file.append(
+            Message(
+                id=message.id,
+                text=message.text,
+                created_at=message.created_at,
+                updated_at=message.updated_at,
+                generation_id=message.generation_id,
+                position=message.position,
+                is_active=message.is_active,
+                files=files,
+                documents=message.documents,
+                citations=message.citations,
+                tool_calls=message.tool_calls,
+                tool_plan=message.tool_plan,
+                agent=message.agent
+            )
+        )
+
+    return messages_with_file
 
 
 @router.get("", response_model=list[ConversationWithoutMessages])

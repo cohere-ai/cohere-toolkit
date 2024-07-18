@@ -10,6 +10,7 @@ import backend.crud.conversation as conversation_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
 from backend.schemas.file import UpdateFile
+from backend.crud import message as message_crud
 from copy import deepcopy
 from backend.schemas.conversation import UpdateConversation
 
@@ -79,7 +80,11 @@ class FileService:
     def get_files_by_conversation_id(self, session: DBSessionDep, user_id: str, conversation_id: str) -> list[File]:
         conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
         file_ids = conversation.file_ids
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
+
+        files = []
+        if file_ids is not None:
+            files = file_crud.get_files_by_ids(session, file_ids, user_id)
+        
         return files
 
 
@@ -91,16 +96,21 @@ class FileService:
         return
 
 
-    def get_files_by_id(self, session: DBSessionDep, conversation_id: str, user_id: str) -> list[File]:
+    def get_files_by_ids(self, session: DBSessionDep, file_ids: list[str], user_id: str) -> list[File]:
         # currently DB only, implement and fetch from compass after
-        files = file_crud.get_files_by_ids(session, user_id, conversation_id)
+        files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
     
-    def get_message_files():
-        pass
-    
-    def update_file(self, file: File, new_file: UpdateFile) -> File:
-        # need to update the message to have the new file IDs
+
+    def get_message_files(self, session: DBSessionDep, message_id: str, user_id: str) -> list[File]:
+        message = message_crud.get_message(session, message_id, user_id)
+        files = []
+        if message.file_ids is not None:
+            files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
+        return files
+
+    # def update_file(self, file: File, new_file: UpdateFile) -> File:
+    #     # need to update the message to have the new file IDs
 
 
     # def list_file(self) -> bool:

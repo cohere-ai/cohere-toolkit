@@ -350,7 +350,7 @@ def handle_file_retrieval(
     file_paths = None
     # Use file_ids if provided
     if file_ids is not None:
-        files = fileService.get_files_by_id(session, file_ids, user_id)
+        files = fileService.get_files_by_ids(session, file_ids, user_id)
         file_paths = [file.file_path for file in files]
 
     return file_paths
@@ -375,13 +375,10 @@ def attach_files_to_messages(
         None
     """
     if file_ids is not None:
-        files = fileService.get_files_by_ids(session, file_ids, user_id)
-        for file in files:
-            if file.message_id is None:
-                message = message_crud.get_message(session, message_id, user_id)
-                update_message = UpdateMessage(file_ids=file_ids)
-                message_crud.update_message(session, message, update_message)
-                # file_crud.update_file(session, file, UpdateFile(message_id=message_id))
+        message = message_crud.get_message(session, message_id, user_id)
+        update_message = UpdateMessage(file_ids=file_ids)
+        message_crud.update_message(session, message, update_message)
+        # file_crud.update_file(session, file, UpdateFile(message_id=message_id))
 
 
 def create_chat_history(
