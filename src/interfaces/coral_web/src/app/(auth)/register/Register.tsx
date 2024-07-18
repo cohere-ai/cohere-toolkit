@@ -19,7 +19,7 @@ type RegisterStatus = 'idle' | 'pending';
 /**
  * @description The register page supports creating an account with an email and password.
  */
-const Register = () => {
+const Register: React.FC = () => {
   const router = useRouter();
   const search = useSearchParams();
 
