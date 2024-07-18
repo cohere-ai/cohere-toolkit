@@ -1,13 +1,15 @@
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 
+import { getQueryString } from '@/utils';
+
 export const useChatRoutes = () => {
   const params = useParams();
 
   const { agentId, conversationId } = useMemo(() => {
     return {
-      agentId: params.agentId as string | undefined,
-      conversationId: params.conversationId as string | undefined,
+      agentId: getQueryString(params.agentId),
+      conversationId: getQueryString(params.conversationId),
     };
   }, [params]);
 

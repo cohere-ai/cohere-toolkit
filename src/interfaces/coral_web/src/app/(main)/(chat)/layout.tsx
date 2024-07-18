@@ -1,12 +1,14 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
+import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
+import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useConversationStore, useSettingsStore } from '@/stores';
+import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -16,15 +18,38 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
   const { resetConversation } = useConversationStore();
+  const {
+    params: { deployment },
+    setParams,
+  } = useParamsStore();
+  const { data: allDeployments } = useListAllDeployments();
+
+  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
+  const { setMessage } = useContext(BannerContext);
 
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
 
+  // Reset conversation when unmounting
   useEffect(() => {
     return () => {
       resetConversation();
     };
   }, []);
+
+  useEffect(() => {
+    if (!deployment && allDeployments) {
+      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
+      if (firstAvailableDeployment) {
+        setParams({ deployment: firstAvailableDeployment.name });
+      }
+    }
+  }, [deployment, allDeployments]);
+
+  useEffect(() => {
+    if (!isLangchainModeOn) return;
+    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
+  }, [isLangchainModeOn]);
 
   if (isAgentsModeOn) {
     return (
