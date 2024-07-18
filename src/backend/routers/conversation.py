@@ -5,17 +5,15 @@ from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
-from backend.services.file import FileService
+from backend.services.file import FileService, get_file_content
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
-from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models import File as FileModel
 from backend.database_models import Message as MessageModel
 from backend.database_models.database import DBSessionDep
-from backend.schemas.message import Message
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import (
     Conversation,
@@ -32,6 +30,7 @@ from backend.services.conversation import (
     GENERATE_TITLE_PROMPT,
     SEARCH_RELEVANCE_THRESHOLD,
     extract_details_from_conversation,
+    getMessagesWithFiles
 )
 from backend.services.file import (
     get_file_content,
@@ -89,32 +88,6 @@ async def get_conversation(
         agent_id=conversation.agent_id
     )
 
-# need to convert each message to have the right files..
-def getMessagesWithFiles(session: DBSessionDep, user_id: str, messages: list[MessageModel]) -> list[Message]:
-    messages_with_file = []
-    
-    for message in messages:
-        files = file_service.get_message_files(session, message.id, user_id)
-        messages_with_file.append(
-            Message(
-                id=message.id,
-                text=message.text,
-                created_at=message.created_at,
-                updated_at=message.updated_at,
-                generation_id=message.generation_id,
-                position=message.position,
-                is_active=message.is_active,
-                files=files,
-                documents=message.documents,
-                citations=message.citations,
-                tool_calls=message.tool_calls,
-                tool_plan=message.tool_plan,
-                agent=message.agent
-            )
-        )
-
-    return messages_with_file
-
 
 @router.get("", response_model=list[ConversationWithoutMessages])
 async def list_conversations(
@@ -140,9 +113,28 @@ async def list_conversations(
     """
     user_id = get_header_user_id(request)
 
-    return conversation_crud.get_conversations(
+    conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
     )
+
+    results = []
+    for conversation in conversations:
+        files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
+        results.append(
+            ConversationWithoutMessages(
+                id=conversation.id,
+                user_id=user_id,
+                created_at=conversation.created_at,
+                updated_at=conversation.updated_at,
+                title=conversation.title,
+                files=files,
+                description=conversation.description,
+                agent_id=conversation.agent_id,
+                messages=[]
+            )
+        )
+    
+    return results
 
 
 @router.put("/{conversation_id}", response_model=Conversation)
@@ -349,7 +341,7 @@ async def upload_file(
 
     # Handle uploading File
     try:
-        upload_file = await file_service.create_conversation_file(session, file, user_id, conversation.id)
+        upload_file = await file_service.create_conversation_files(session, [file], user_id, conversation.id)
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file {file.filename}: {e}."
@@ -424,15 +416,15 @@ async def batch_upload_file(
         # Create File
         upload_file = FileModel(
             user_id=conversation.user_id,
-            conversation_id=conversation.id,
             file_name=filename,
             file_path=filename,
             file_size=file.size,
             file_content=cleaned_content,
         )
         files_to_upload.append(upload_file)
+
     try:
-        uploaded_files = file_crud.batch_create_files(session, files_to_upload)
+        uploaded_files = file_service.create_conversation_files(session, [files], user_id, conversation.id)
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file(s): {e}."
@@ -467,7 +459,7 @@ async def list_files(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
-    files = file_crud.get_files_by_conversation_id(session, conversation_id, user_id)
+    files = file_service.get_files_by_conversation_id(session, user_id, conversation_id)
     return files
 
 
@@ -503,7 +495,7 @@ async def update_file(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
-    file = file_crud.get_file(session, file_id, user_id)
+    file = file_service.get_file_by_id(session, file_id, user_id)
 
     if not file:
         raise HTTPException(
@@ -511,7 +503,7 @@ async def update_file(
             detail=f"File with ID: {file_id} not found.",
         )
 
-    file = file_crud.update_file(session, file, new_file)
+    file = file_service.update_file(session, file, new_file)
 
     return file
 
@@ -543,7 +535,7 @@ async def delete_file(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
-    file = file_crud.get_file(session, file_id, user_id)
+    file = file_service.get_file_by_id(session, file_id, user_id)
 
     if not file:
         raise HTTPException(
@@ -552,7 +544,7 @@ async def delete_file(
         )
 
     # Delete the File DB object
-    file_crud.delete_file(session, file_id, user_id)
+    file_service.delete_file(session, file_id, user_id)
 
     return DeleteFile()
 

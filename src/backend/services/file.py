@@ -10,6 +10,9 @@ import backend.crud.conversation as conversation_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
 from backend.schemas.file import UpdateFile
+from backend.database_models import Message as MessageModel
+from backend.schemas.message import Message
+from backend.database_models import File as FileModel
 from backend.crud import message as message_crud
 from copy import deepcopy
 from backend.schemas.conversation import UpdateConversation
@@ -36,43 +39,45 @@ class FileService:
         # todo: add compass env variable anc check here
         return False
     
-    # Files in converations
-    async def create_conversation_file(
+    # All these functions will eventually support file operations on Compass
+    async def create_conversation_files(
             self,
             session: DBSessionDep,
-            file: FastAPIUploadFile,
+            files: list[FastAPIUploadFile],
             user_id: str,
             conversation_id: str, 
     ) -> File:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-        conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-        if not conversation:
-            raise HTTPException(
-            status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
-        )
-
-        file = file_crud.create_file(
-            session, 
-            File(
-                file_name=filename, 
-                file_size=file.size,
-                file_path=filename,
-                file_content=cleaned_content,
-                user_id=conversation.user_id)
+        # Todo @scott-cohere: need to refactor this file singular and multiple files
+        for file in files:
+            content = await get_file_content(file)
+            cleaned_content = content.replace("\x00", "")
+            filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+            conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+            if not conversation:
+                raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
             )
-        
-        update_conversation = UpdateConversation()
-        if conversation.file_ids:
-            file_ids = deepcopy(conversation.file_ids)
-            file_ids.append(file.id)
-            update_conversation.file_ids = file_ids
-        else:
-            update_conversation.file_ids = [file.id]
-        
-        conversation_crud.update_conversation(session, conversation, update_conversation)
+
+            file = file_crud.create_file(
+                session, 
+                File(
+                    file_name=filename, 
+                    file_size=file.size,
+                    file_path=filename,
+                    file_content=cleaned_content,
+                    user_id=conversation.user_id)
+                )
+            
+            update_conversation = UpdateConversation()
+            if conversation.file_ids:
+                file_ids = deepcopy(conversation.file_ids)
+                file_ids.append(file.id)
+                update_conversation.file_ids = file_ids
+            else:
+                update_conversation.file_ids = [file.id]
+            
+            conversation_crud.update_conversation(session, conversation, update_conversation)
 
         return file
 
@@ -95,6 +100,11 @@ class FileService:
         file_crud.delete_file(self.session, file_id)
         return
 
+    def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
+        # currently DB only, implement and fetch from compass after
+        file = file_crud.get_file(session, file_id, user_id)
+        return file
+    
 
     def get_files_by_ids(self, session: DBSessionDep, file_ids: list[str], user_id: str) -> list[File]:
         # currently DB only, implement and fetch from compass after
@@ -102,25 +112,21 @@ class FileService:
         return files
     
 
+    def update_file(self, session: DBSessionDep, file: File, new_file: UpdateFile) -> File:
+        updated_file = file_crud.update_file(session, file, new_file)
+        return updated_file
+
+
+    def delete_file(self, session: DBSessionDep, file_id: str, user_id: str) -> None:
+        file_crud.delete_file(session, file_id, user_id)
+
+
     def get_message_files(self, session: DBSessionDep, message_id: str, user_id: str) -> list[File]:
         message = message_crud.get_message(session, message_id, user_id)
         files = []
         if message.file_ids is not None:
             files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
-
-    # def update_file(self, file: File, new_file: UpdateFile) -> File:
-    #     # need to update the message to have the new file IDs
-
-
-    # def list_file(self) -> bool:
-    #     pass
-
-    # def delete_file(self) -> bool:
-    #     pass
-
-    # def update_file(self) -> bool:
-    #     pass
 
 
 def get_file_extension(file_name: str) -> str:

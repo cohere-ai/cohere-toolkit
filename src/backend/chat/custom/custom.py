@@ -8,7 +8,8 @@ from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
-from backend.crud.file import get_files_by_conversation_id
+from backend.database_models.database import DBSessionDep
+from backend.services.file import FileService
 from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Tool
@@ -16,6 +17,8 @@ from backend.services.logger import get_logger, send_log_message
 
 logger = get_logger()
 MAX_STEPS = 15
+
+file_service = FileService(session=DBSessionDep)
 
 
 class CustomChat(BaseChat):
@@ -330,8 +333,8 @@ class CustomChat(BaseChat):
         if session is None or conversation_id is None or len(conversation_id) == 0:
             return chat_history
 
-        available_files = get_files_by_conversation_id(
-            session, conversation_id, user_id
+        available_files = file_service.get_files_by_conversation_id(
+            session, user_id, conversation_id
         )
         files_message = "The user uploaded the following attachments:\n"
 
