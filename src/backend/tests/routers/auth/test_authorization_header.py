@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import freezegun
 import pytest
@@ -13,10 +13,12 @@ from backend.tests.factories import get_factory
 # Weird issue with freezegun, see: https://stackoverflow.com/questions/73007409/freezeguns-freeze-time-throws-odd-transformers-error-when-used
 freezegun.configure(extend_ignore_list=["transformers"])
 
+
 @pytest.fixture
 def mock_get_auth_strategy():
     with patch("backend.services.auth.request_validators.get_auth_strategy") as mock:
         yield mock
+
 
 def test_validate_authorization_valid_token(
     session_client: TestClient,

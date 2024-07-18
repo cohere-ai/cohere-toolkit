@@ -16,7 +16,10 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
-from backend.services.auth.utils import get_or_create_user, is_enabled_authentication_strategy
+from backend.services.auth.utils import (
+    get_or_create_user,
+    is_enabled_authentication_strategy,
+)
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -49,7 +52,7 @@ def get_strategies() -> list[ListAuthStrategy]:
                 "refresh_token_params": (
                     strategy_instance.get_refresh_token_params()
                     if hasattr(strategy_instance, "get_refresh_token_params")
-                    else None 
+                    else None
                 ),
                 "pkce_enabled": (
                     strategy_instance.get_pkce_enabled()
