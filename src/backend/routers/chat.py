@@ -80,7 +80,7 @@ async def chat_stream(
                 trace_id=trace_id,
                 agent_id=agent_id,
                 # for logging metrics
-                signal_queue=request.state.signal_queue,
+                state=request.state,
             ),
             response_message,
             conversation_id,

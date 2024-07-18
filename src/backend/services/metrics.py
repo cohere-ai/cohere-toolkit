@@ -62,9 +62,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.signal_queue = []
 
     def process_signal_queue(self, request: Request, response: Response) -> None:
-        print("Processing signal queue")
+        logger.info(f"Processing signal queue of size: {len(request.state.signal_queue)}")
         for signal in request.state.signal_queue:
-            import pdb; pdb.set_trace()
             response.background = BackgroundTask(report_metrics, signal)
 
     def confirm_env(self):
@@ -179,14 +178,16 @@ def log_signal_curl(signal: MetricsSignal) -> None:
 
 
 def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) -> None:
-    queue = kwargs.get("signal_queue", None)
-    if queue is None:
+    state = kwargs.get("state", None)
+    if state is None or state.signal_queue is None:
         logger.error(f"request state event queue not found")
         return
 
     trace_id = kwargs.get("trace_id", None)
     user_id = kwargs.get("user_id", None)
-    agent_id = kwargs.get("agent_id", None)
+    # agent_id = kwargs.get("agent_id", "TODO")
+    agent_id = "TODO"
+    
     event_dict = to_dict(event).get("response", {})
     input_tokens = (
         event_dict.get("meta", {}).get("billed_units", {}).get("input_tokens", 0)
@@ -226,10 +227,13 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
             output_nb_tokens=output_tokens,
             search_units=search_units,
             model=chat_request.model,
-            assistant_id=chat_request.assistant_id,
+            assistant_id=agent_id,
             error=event_dict.get("finish_reason") if is_error else None,
         )
-        queue.append(MetricsSignal(signal=metrics))
+        signal = MetricsSignal(signal=metrics)
+        log_signal_curl(signal)
+        
+        state.signal_queue.append(MetricsSignal(signal=metrics))
 
     except Exception as e:
         logger.error(f"Failed to push chat success event to signal queue: {e}")
@@ -238,14 +242,16 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
 def push_interrupted_chat_event_to_signal_queue(
     event, chat_request, err_str, **kwargs: Any
 ) -> None:
-    queue = kwargs.get("signal_queue", None)
-    if queue is None:
+    state = kwargs.get("state", None)
+    if state is None or state.signal_queue is None:
         logger.error(f"request state event queue not found")
         return
 
     trace_id = kwargs.get("trace_id", None)
     user_id = kwargs.get("user_id", None)
-    agent_id = kwargs.get("agent_id", None)
+    # agent_id = kwargs.get("agent_id", "TODO")
+    agent_id = "TODO"
+
 
     try:
         metrics = MetricsData(
@@ -258,6 +264,8 @@ def push_interrupted_chat_event_to_signal_queue(
             assistant_id=agent_id,
             error=err_str,
         )
-        queue.append(MetricsSignal(signal=metrics))
+        signal = MetricsSignal(signal=metrics)
+        log_signal_curl(signal)
+        request.state.signal_queue.append(signal)
     except Exception as e:
-        logger.error(f"Failed to push chat success event to signal queue: {e}")
+        logger.error(f"Failed to push chat interrupted event to signal queue: {e}")

@@ -13,7 +13,10 @@ from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Tool
 from backend.services.logger import get_logger, send_log_message
-from backend.services.metrics import push_final_chat_event_to_signal_queue, push_interrupted_chat_event_to_signal_queue
+from backend.services.metrics import (
+    push_final_chat_event_to_signal_queue,
+    push_interrupted_chat_event_to_signal_queue,
+)
 
 logger = get_logger()
 MAX_STEPS = 15
@@ -74,9 +77,7 @@ class CustomChat(BaseChat):
                         conversation_id=kwargs.get("conversation_id"),
                         user_id=kwargs.get("user_id"),
                     )
-                    push_final_chat_event_to_signal_queue(
-                        event, chat_request, **kwargs
-                    )
+                    push_final_chat_event_to_signal_queue(event, chat_request, **kwargs)
                     break
         except Exception as e:
             push_interrupted_chat_event_to_signal_queue(
@@ -353,6 +354,3 @@ class CustomChat(BaseChat):
 
         chat_history.append(ChatMessage(message=files_message, role=ChatRole.SYSTEM))
         return chat_history
-
-
-

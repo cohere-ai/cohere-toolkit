@@ -74,7 +74,6 @@ def chat(agent_id):
         json={
             "message": "who is bo burnham?",
             "tools": [{"name": "web_search"}],
-            "agent_id": agent_id,
         },
     )
 
@@ -166,5 +165,5 @@ users()
 agent_id = None
 agent_id = agents()
 conversation_id = chat(agent_id=agent_id)
-tools(conversation_id=conversation_id)
+# tools(conversation_id=conversation_id)
 cleanup(user_id=user_id, agent_id=agent_id)
