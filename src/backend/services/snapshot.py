@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import HTTPException
 
 from backend.chat.collate import to_dict
+from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models import Snapshot as SnapshotModel
@@ -11,19 +12,11 @@ from backend.database_models import SnapshotAccess as SnapshotAccessModel
 from backend.database_models import SnapshotLink as SnapshotLinkModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
+from backend.schemas.agent import AgentToolMetadata
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
 
 SNAPSHOT_VERSION = 1
-
-
-def validate_conversation(
-    session: DBSessionDep, conversation_id: str, user_id: str
-) -> ConversationModel:
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-    if not conversation:
-        raise HTTPException(status_code=404, detail="Conversation not found")
-    return conversation
 
 
 def validate_last_message(last_message_id: str) -> None:
@@ -76,13 +69,15 @@ def wrap_create_snapshot(
 ) -> SnapshotModel:
     snapshot_agent = None
     if conversation.agent_id:
-        agent = snapshot_crud.get_agent(session, conversation.agent_id)
+        agent = agent_crud.get_agent_by_id(session, conversation.agent_id)
+        tools_metadata = [to_dict(metadata) for metadata in agent.tools_metadata]
+
         snapshot_agent = SnapshotAgent(
             id=agent.id,
             name=agent.name,
             description=agent.description,
             preamble=agent.preamble,
-            tools_metadata=agent.tools_metadata,
+            tools_metadata=tools_metadata,
         )
 
     snapshot_data = SnapshotData(
