@@ -1,3 +1,5 @@
+'use client';
+
 import { Toaster } from 'sonner';
 
 import { cn } from '@/utils';

@@ -1,29 +1,26 @@
-import { QueryClient, dehydrate } from '@tanstack/react-query';
-import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
+'use client';
+
+import { NextPage } from 'next';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { CohereClient } from '@/cohere-client';
 import { Text } from '@/components/Shared';
-import { WelcomePage } from '@/components/WelcomePage';
 import { useAuthConfig } from '@/hooks/authConfig';
 import { useSession } from '@/hooks/session';
-import { PageAppProps, appSSR } from '@/pages/_app';
 import { getQueryString } from '@/utils';
-
-type Props = PageAppProps & {};
 
 /**
  * @description This page handles callbacks from OAuth providers and forwards the request to the backend.
  */
-const CompleteOauthPage: NextPage<Props> = () => {
+const CompleteOauthPage: NextPage = () => {
   const router = useRouter();
+  const params = useParams();
   const { oidcSSOMutation, googleSSOMutation } = useSession();
-  const redirect = getQueryString(router.query.redirect_uri);
+  const redirect = getQueryString(params.redirect_uri);
   const { loginStrategies: ssoLogins } = useAuthConfig();
 
   const loginType = ssoLogins.find(
-    (login) => encodeURIComponent(login.strategy.toLowerCase()) == router.query.strategy
+    (login) => encodeURIComponent(login.strategy.toLowerCase()) == params.strategy
   );
 
   useEffect(() => {
@@ -34,7 +31,7 @@ const CompleteOauthPage: NextPage<Props> = () => {
     if (loginType.strategy.toLowerCase() === 'google') {
       googleSSOMutation.mutate(
         {
-          code: router.query.code as string,
+          code: params.code as string,
         },
         {
           onSuccess: () => {
@@ -50,7 +47,7 @@ const CompleteOauthPage: NextPage<Props> = () => {
 
     oidcSSOMutation.mutate(
       {
-        code: router.query.code as string,
+        code: params.code as string,
         strategy: loginType.strategy,
       },
       {
@@ -65,29 +62,12 @@ const CompleteOauthPage: NextPage<Props> = () => {
   }, [loginType]);
 
   return (
-    <WelcomePage title="Login">
-      <div className="flex flex-col items-center justify-center">
-        <Text as="h1" styleAs="h3">
-          Logging in
-        </Text>
-      </div>
-    </WelcomePage>
+    <div className="flex flex-col items-center justify-center">
+      <Text as="h1" styleAs="h3">
+        Logging in
+      </Text>
+    </div>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
 };
 
 export default CompleteOauthPage;

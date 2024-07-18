@@ -6,7 +6,7 @@ from backend.schemas.tool_auth import UpdateToolAuth
 
 def create_tool_auth(db: Session, tool_auth: ToolAuth) -> ToolAuth:
     """
-    Create a new tool auth link.
+    Create a new tool auth.
 
     Tool Auth stores the access tokens for tool's that need auth
 
@@ -25,7 +25,7 @@ def create_tool_auth(db: Session, tool_auth: ToolAuth) -> ToolAuth:
 
 def get_tool_auth(db: Session, tool_id: str, user_id: str) -> ToolAuth:
     """
-    Get an tool auth by user and tool ID.
+    Get an tool auth by user ID and tool ID.
 
     Args:
       db (Session): Database session.
@@ -46,7 +46,7 @@ def update_tool_auth(
     db: Session, tool_auth: ToolAuth, new_tool_auth: UpdateToolAuth
 ) -> ToolAuth:
     """
-    Update a tool auth by user id and tool id.
+    Update a tool auth by user ID and tool ID.
 
     Args:
         db (Session): Database session.
@@ -65,7 +65,7 @@ def update_tool_auth(
 
 def delete_tool_auth(db: Session, user_id: str, tool_id: str) -> None:
     """
-    Delete an tool_auth by user and tool ID.
+    Delete a tool auth by user ID and tool ID.
 
     Args:
         db (Session): Database session.

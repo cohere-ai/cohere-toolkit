@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.citation import Citation
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_citation(db: Session, citation: Citation) -> Citation:
     """
     Create a new citation.
@@ -20,6 +22,7 @@ def create_citation(db: Session, citation: Citation) -> Citation:
     return citation
 
 
+@validate_transaction
 def get_citation(db: Session, citation_id: str) -> Citation:
     """
     Get a citation by ID.
@@ -34,6 +37,7 @@ def get_citation(db: Session, citation_id: str) -> Citation:
     return db.query(Citation).filter(Citation.id == citation_id).first()
 
 
+@validate_transaction
 def get_citations(db: Session, offset: int = 0, limit: int = 100) -> list[Citation]:
     """
     List all citations.
@@ -49,6 +53,7 @@ def get_citations(db: Session, offset: int = 0, limit: int = 100) -> list[Citati
     return db.query(Citation).offset(offset).limit(limit).all()
 
 
+@validate_transaction
 def get_citations_by_message_id(db: Session, message_id: str) -> list[Citation]:
     """
     List all citations from a message.
@@ -63,6 +68,7 @@ def get_citations_by_message_id(db: Session, message_id: str) -> list[Citation]:
     return db.query(Citation).filter(Citation.message_id == message_id).all()
 
 
+@validate_transaction
 def delete_citation(db: Session, citation_id: str) -> None:
     """
     Delete a citation by ID.

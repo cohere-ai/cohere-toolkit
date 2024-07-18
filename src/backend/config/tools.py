@@ -147,7 +147,7 @@ ALL_TOOLS = {
         implementation=GoogleDrive,
         parameter_definitions={
             "query": {
-                "description": "Query to search google drive documents with.",
+                "description": "Query to search Google Drive documents with.",
                 "type": "str",
                 "required": True,
             }
@@ -155,7 +155,7 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=GoogleDrive.is_available(),
         auth_implementation=GoogleDriveAuth,
-        error_message="Google Drive not available",
+        error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
     ),

@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 
@@ -9,9 +11,9 @@ import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useFilesInConversation } from '@/hooks/files';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -32,7 +34,7 @@ export const SettingsDrawer: React.FC = () => {
     citations: { hasCitations },
   } = useCitationsStore();
   const { files } = useFilesInConversation();
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isAgentsModeOn = experimentalFeatures?.USE_AGENTS_VIEW;

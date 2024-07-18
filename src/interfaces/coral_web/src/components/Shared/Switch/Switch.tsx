@@ -1,3 +1,5 @@
+'use client';
+
 import { Field, Switch as HUSwitch, Label } from '@headlessui/react';
 
 import { Text } from '@/components/Shared';

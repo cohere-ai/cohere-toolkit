@@ -1,15 +1,15 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
 import { PropsWithChildren } from 'react';
 
 import { AuthLink } from '@/components/AuthLink';
 import { NavigationUserMenu } from '@/components/NavigationUserMenu';
-import { PageHead } from '@/components/Shared';
 import { Text } from '@/components/Shared';
 import { CellBackground } from '@/components/Welcome/CellBackground';
 import { Navigation } from '@/components/Welcome/Navigation';
 
 type Props = PropsWithChildren<{
-  title: string;
-  navigationAction?: 'login' | 'register';
   userEmail?: string;
   videoStep?: number;
   showEmailInHeader?: boolean;
@@ -18,15 +18,17 @@ type Props = PropsWithChildren<{
 export const WelcomePage: React.FC<Props> = ({
   children,
   userEmail,
-  title,
-  navigationAction,
   videoStep = 0,
   showEmailInHeader,
 }) => {
+  const pathname = usePathname();
+  const navigationAction = pathname.includes('/login')
+    ? 'register'
+    : pathname.includes('/register')
+    ? 'login'
+    : undefined;
   return (
     <div className="relative flex h-full min-h-screen w-full bg-green-950">
-      <PageHead title={title} />
-
       <CellBackground step={videoStep} />
 
       <div className="max-w-page relative mx-auto flex h-full min-h-screen w-full flex-col overflow-y-auto">

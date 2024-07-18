@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.conversation import Conversation
-from backend.schemas.conversation import UpdateConversation
+from backend.schemas.conversation import UpdateConversationRequest
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_conversation(db: Session, conversation: Conversation) -> Conversation:
     """
     Create a new conversation.
@@ -21,6 +23,7 @@ def create_conversation(db: Session, conversation: Conversation) -> Conversation
     return conversation
 
 
+@validate_transaction
 def get_conversation(
     db: Session, conversation_id: str, user_id: str
 ) -> Conversation | None:
@@ -42,6 +45,7 @@ def get_conversation(
     )
 
 
+@validate_transaction
 def get_conversations(
     db: Session,
     user_id: str,
@@ -74,8 +78,9 @@ def get_conversations(
     return query.all()
 
 
+@validate_transaction
 def update_conversation(
-    db: Session, conversation: Conversation, new_conversation: UpdateConversation
+    db: Session, conversation: Conversation, new_conversation: UpdateConversationRequest
 ) -> Conversation:
     """
     Update a conversation by ID.
@@ -83,7 +88,7 @@ def update_conversation(
     Args:
         db (Session): Database session.
         conversation (Conversation): Conversation to be updated.
-        new_conversation (Conversation): New conversation data.
+        new_conversation (UpdateConversationRequest): New conversation data.
 
     Returns:
         Conversation: Updated conversation.
@@ -97,6 +102,7 @@ def update_conversation(
     return conversation
 
 
+@validate_transaction
 def delete_conversation(db: Session, conversation_id: str, user_id: str) -> None:
     """
     Delete a conversation by ID.
