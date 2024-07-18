@@ -10,6 +10,7 @@ import { ConversationListHeader } from '@/components/ConversationList/Conversati
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
 import { Icon, Input, Text } from '@/components/Shared';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 import { useSettingsStore } from '@/stores';
@@ -25,12 +26,12 @@ type Props = {
 
 export const ConversationListPanel: React.FC<Props> = ({ className }) => {
   const panelRef = useRef(null);
-  const params = useParams();
+  const { agentId } = useChatRoutes();
   const {
     data: conversations,
     isLoading: isConversationsLoading,
     isError,
-  } = useConversations({ agentId: getQueryString(params.agentId) });
+  } = useConversations({ agentId: agentId });
   const {
     settings: { isConvListPanelOpen },
   } = useSettingsStore();

@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { Text } from '@/components/Shared';
-import { WelcomePage } from '@/components/WelcomePage';
 import { useAuthConfig } from '@/hooks/authConfig';
 import { useSession } from '@/hooks/session';
 import { getQueryString } from '@/utils';
@@ -63,13 +62,11 @@ const CompleteOauthPage: NextPage = () => {
   }, [loginType]);
 
   return (
-    <WelcomePage title="Login">
-      <div className="flex flex-col items-center justify-center">
-        <Text as="h1" styleAs="h3">
-          Logging in
-        </Text>
-      </div>
-    </WelcomePage>
+    <div className="flex flex-col items-center justify-center">
+      <Text as="h1" styleAs="h3">
+        Logging in
+      </Text>
+    </div>
   );
 };
 
