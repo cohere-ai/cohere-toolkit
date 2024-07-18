@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
+from copy import deepcopy
 
 from cohere.types import StreamedChatResponse
 from fastapi import HTTPException, Request
@@ -55,7 +56,10 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 from backend.services.generators import AsyncGeneratorContextManager
+from backend.services.file import FileService
+from backend.schemas.message import UpdateMessage
 
+fileService = FileService(session=DBSessionDep)
 
 def process_chat(
     session: DBSessionDep,
@@ -346,7 +350,7 @@ def handle_file_retrieval(
     file_paths = None
     # Use file_ids if provided
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
+        files = fileService.get_files_by_id(session, file_ids, user_id)
         file_paths = [file.file_path for file in files]
 
     return file_paths
@@ -371,10 +375,13 @@ def attach_files_to_messages(
         None
     """
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
+        files = fileService.get_files_by_ids(session, file_ids, user_id)
         for file in files:
             if file.message_id is None:
-                file_crud.update_file(session, file, UpdateFile(message_id=message_id))
+                message = message_crud.get_message(session, message_id, user_id)
+                update_message = UpdateMessage(file_ids=file_ids)
+                message_crud.update_message(session, message, update_message)
+                # file_crud.update_file(session, file, UpdateFile(message_id=message_id))
 
 
 def create_chat_history(

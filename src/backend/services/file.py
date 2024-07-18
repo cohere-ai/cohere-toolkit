@@ -9,6 +9,7 @@ import backend.crud.file as file_crud
 import backend.crud.conversation as conversation_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
+from backend.schemas.file import UpdateFile
 from copy import deepcopy
 from backend.schemas.conversation import UpdateConversation
 
@@ -90,8 +91,17 @@ class FileService:
         return
 
 
-    # def get_file(self) -> bool:
-    #     pass
+    def get_files_by_id(self, session: DBSessionDep, conversation_id: str, user_id: str) -> list[File]:
+        # currently DB only, implement and fetch from compass after
+        files = file_crud.get_files_by_ids(session, user_id, conversation_id)
+        return files
+    
+    def get_message_files():
+        pass
+    
+    def update_file(self, file: File, new_file: UpdateFile) -> File:
+        # need to update the message to have the new file IDs
+
 
     # def list_file(self) -> bool:
     #     pass

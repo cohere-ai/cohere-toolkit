@@ -26,7 +26,7 @@ class Message(MessageBase):
 
     documents: List[Document]
     citations: List[Citation]
-    files: List[File]
+    file_ids: List[str]
     tool_calls: List[ToolCall]
     tool_plan: Union[str, None]
 
