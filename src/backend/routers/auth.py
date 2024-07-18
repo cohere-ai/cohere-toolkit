@@ -233,17 +233,17 @@ async def login(request: Request, session: DBSessionDep):
     # Get key from state and retrieve cache
     state = json.loads(request.query_params.get("state"))
     cache_key = state["key"]
-    values = cache_get_dict(cache_key)
+    tool_auth_cache = cache_get_dict(cache_key)
 
-    user_id = values.get("user_id")
-    tool_id = values.get("tool_id")
+    user_id = tool_auth_cache.get("user_id")
+    tool_id = tool_auth_cache.get("tool_id")
 
-    if not values:
+    if not tool_auth_cache:
         err = f"Error retrieving cache for Tool Auth with key: {cache_key}"
         log_and_redirect_err(err)
 
     if user_id is None or tool_id is None:
-        err = f"Error retrieving cache for Tool Auth with key: {cache_key}"
+        err = f"Tool Auth cache {tool_auth_cache} does not contain user_id or tool_id."
         log_and_redirect_err(err)
 
     if tool_id in AVAILABLE_TOOLS:

@@ -65,7 +65,7 @@ class BaseToolAuthentication:
             ]
         ):
             raise ValueError(
-                f"{self.__name__} requires NEXT_PUBLIC_API_HOSTNAME, FRONTEND_HOSTNAME, and AUTH_SECRET_KEY environment variables."
+                f"Tool Authentication requires NEXT_PUBLIC_API_HOSTNAME, FRONTEND_HOSTNAME, and AUTH_SECRET_KEY environment variables."
             )
 
     @abstractmethod
