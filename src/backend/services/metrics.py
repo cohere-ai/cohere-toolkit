@@ -21,11 +21,11 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
+    MetricsChat,
     MetricsData,
     MetricsMessageType,
     MetricsSignal,
     MetricsUser,
-    MetricsChat,
 )
 from backend.services.auth.utils import get_header_user_id
 from backend.services.generators import AsyncGeneratorContextManager
@@ -60,9 +60,12 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.user = None
         request.state.event_type = None
         request.state.signal_queue = []
-        
+
     def process_signal_queue(self, request: Request, response: Response) -> None:
-        pass
+        print("Processing signal queue")
+        for signal in request.state.signal_queue:
+            import pdb; pdb.set_trace()
+            response.background = BackgroundTask(report_metrics, signal)
 
     def confirm_env(self):
         if not REPORT_SECRET:
@@ -227,8 +230,8 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
             error=event_dict.get("finish_reason") if is_error else None,
         )
         queue.append(MetricsSignal(signal=metrics))
+
     except Exception as e:
-        import pdb; pdb.set_trace()
         logger.error(f"Failed to push chat success event to signal queue: {e}")
 
 
@@ -243,7 +246,7 @@ def push_interrupted_chat_event_to_signal_queue(
     trace_id = kwargs.get("trace_id", None)
     user_id = kwargs.get("user_id", None)
     agent_id = kwargs.get("agent_id", None)
-    
+
     try:
         metrics = MetricsData(
             id=str(uuid.uuid4()),
@@ -257,5 +260,4 @@ def push_interrupted_chat_event_to_signal_queue(
         )
         queue.append(MetricsSignal(signal=metrics))
     except Exception as e:
-        import pdb; pdb.set_trace()
         logger.error(f"Failed to push chat success event to signal queue: {e}")

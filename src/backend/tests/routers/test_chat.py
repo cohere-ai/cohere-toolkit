@@ -63,7 +63,7 @@ def test_streaming_new_chat_with_agent(
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10},
+        json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
     )
 
     assert response.status_code == 200
@@ -112,7 +112,7 @@ def test_streaming_new_chat_with_agent_existing_conversation(
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
+        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
     )
 
     assert response.status_code == 200
@@ -157,7 +157,7 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
+        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
     )
 
     assert response.status_code == 400

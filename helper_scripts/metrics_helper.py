@@ -74,6 +74,7 @@ def chat(agent_id):
         json={
             "message": "who is bo burnham?",
             "tools": [{"name": "web_search"}],
+            "agent_id": agent_id,
         },
     )
 
