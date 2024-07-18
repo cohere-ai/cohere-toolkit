@@ -10,7 +10,6 @@ import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { ModalContext } from '@/context/ModalContext';
 import { useAgent } from '@/hooks/agents';
-import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversation } from '@/hooks/conversation';
 import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
@@ -113,7 +112,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     });
 
     saveOutputFiles(outputFilesMap);
-  }, [conversation?.id, setConversation]);
+  }, [conversation?.id, conversation?.messages.length, setConversation]);
 
   return isLoading ? (
     <div className="flex h-full flex-grow flex-col items-center justify-center">
