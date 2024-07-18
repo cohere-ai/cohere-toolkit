@@ -27,7 +27,7 @@ class ListFile(FilePublic):
     pass
 
 
-class UploadFile(File):
+class UploadFileResponse(FilePublic):
     pass
 
 

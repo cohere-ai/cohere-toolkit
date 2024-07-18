@@ -26,7 +26,7 @@ from backend.schemas.file import (
     FilePublic,
     ListFile,
     UpdateFileRequest,
-    UploadFile,
+    UploadFileResponse,
 )
 from backend.services.auth.utils import get_header_user_id
 from backend.services.chat import generate_chat_response, get_deployment_config
@@ -211,13 +211,13 @@ async def search_conversations(
 
 # FILES
 # TODO: Deprecate singular file upload once client uses batch upload endpoint
-@router.post("/upload_file", response_model=UploadFile)
+@router.post("/upload_file", response_model=UploadFileResponse)
 async def upload_file(
     session: DBSessionDep,
     request: Request,
     conversation_id: str = Form(None),
     file: FastAPIUploadFile = RequestFile(...),
-) -> UploadFile:
+) -> UploadFileResponse:
     """
     Uploads and creates a File object.
     If no conversation_id is provided, a new Conversation is created as well.
@@ -228,7 +228,7 @@ async def upload_file(
         conversation_id (Optional[str]): Conversation ID passed from request query parameter.
 
     Returns:
-        UploadFile: Uploaded file.
+        UploadFileResponse: Uploaded file.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found. Status code 404.
@@ -292,13 +292,13 @@ async def upload_file(
     return upload_file
 
 
-@router.post("/batch_upload_file", response_model=list[UploadFile])
+@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
 async def batch_upload_file(
     session: DBSessionDep,
     request: Request,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
-) -> UploadFile:
+) -> UploadFileResponse:
     """
     Uploads and creates a batch of File object.
     If no conversation_id is provided, a new Conversation is created as well.
@@ -309,7 +309,7 @@ async def batch_upload_file(
         conversation_id (Optional[str]): Conversation ID passed from request query parameter.
 
     Returns:
-        list[UploadFile]: List of uploaded files.
+        list[UploadFileResponse]: List of uploaded files.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found. Status code 404.
