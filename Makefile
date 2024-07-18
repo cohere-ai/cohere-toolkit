@@ -38,7 +38,11 @@ win-setup:
 	poetry run python src/backend/cli/main.py
 lint:
 	poetry run black .
-	poetry run isort .	
+	poetry run isort .
+first-run:
+	make setup
+	make migrate
+	make dev
 win-first-run:
 	make win-setup
 	make migrate
