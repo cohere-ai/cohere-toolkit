@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 
 import { CreateAgent } from '@/components/Agents/CreateAgent';
 
@@ -7,7 +8,11 @@ export const metadata: Metadata = {
 };
 
 const NewAssistantPage: React.FC = () => {
-  return <CreateAgent />;
+  return (
+    <Suspense>
+      <CreateAgent />
+    </Suspense>
+  );
 };
 
 export default NewAssistantPage;

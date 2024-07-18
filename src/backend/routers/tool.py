@@ -55,7 +55,9 @@ def list_tools(
             except Exception as e:
                 logger.error(f"Error while fetching Tool Auth: {str(e)}")
 
-                tool.is_available = False 
-                tool.error_message = f"Error while calling Tool Auth implementation {str(e)}"
+                tool.is_available = False
+                tool.error_message = (
+                    f"Error while calling Tool Auth implementation {str(e)}"
+                )
 
     return all_tools
