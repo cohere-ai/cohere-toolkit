@@ -24,7 +24,7 @@ def get_client() -> Redis:
 def cache_put(key: str, value: Any) -> None:
     client = get_client()
 
-    if isinstance(value, dict): 
+    if isinstance(value, dict):
         client.hmset(key, value)
     else:
         client.set(key, value)

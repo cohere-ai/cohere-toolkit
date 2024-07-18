@@ -41,11 +41,10 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
                 "GOOGLE_DRIVE_CLIENT_ID and GOOGLE_DRIVE_CLIENT_SECRET must be set to use Google Drive Tool Auth."
             )
 
-
     def get_auth_url(self, user_id: str) -> str:
         key = self.insert_tool_auth_cache(user_id, self.TOOL_ID)
         state = {"key": key}
-        
+
         params = {
             "response_type": "code",
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
@@ -112,15 +111,15 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         return True
 
-    def retrieve_auth_token(self, request: Request, session: DBSessionDep) -> str:
+    def retrieve_auth_token(
+        self, request: Request, session: DBSessionDep, user_id: str
+    ) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
             logger.error(
                 f"Error from Google OAuth provider while retrieving Google Auth token: {error}."
             )
             return error
-
-        state = json.loads(request.query_params.get("state"))
 
         body = {
             "code": request.query_params.get("code"),
@@ -142,7 +141,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         tool_auth_crud.create_tool_auth(
             session,
             ToolAuth(
-                user_id=state["user_id"],
+                user_id=user_id,
                 tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
