@@ -9,13 +9,10 @@ import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { BannerContext } from '@/context/BannerContext';
 import { ModalContext } from '@/context/ModalContext';
 import { useAgent } from '@/hooks/agents';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversation } from '@/hooks/conversation';
-import { useListAllDeployments } from '@/hooks/deployments';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
@@ -27,19 +24,11 @@ const Page: NextPage = () => {
   const { setConversation } = useConversationStore();
 
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
-  const {
-    params: { deployment },
-    setParams,
-    resetFileParams,
-  } = useParamsStore();
+  const { setParams, resetFileParams } = useParamsStore();
   const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
-  const { data: allDeployments } = useListAllDeployments();
   const { data: agent } = useAgent({ agentId });
   const { data: tools } = useListTools();
-  const { data: experimentalFeatures } = useExperimentalFeatures();
-  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
 
-  const { setMessage } = useContext(BannerContext);
   const { open, close } = useContext(ModalContext);
 
   const {
@@ -123,20 +112,6 @@ const Page: NextPage = () => {
 
     saveOutputFiles(outputFilesMap);
   }, [conversation?.id, setConversation]);
-
-  useEffect(() => {
-    if (!deployment && allDeployments) {
-      const firstAvailableDeployment = allDeployments.find((d) => d.is_available);
-      if (firstAvailableDeployment) {
-        setParams({ deployment: firstAvailableDeployment.name });
-      }
-    }
-  }, [deployment, allDeployments]);
-
-  useEffect(() => {
-    if (!isLangchainModeOn) return;
-    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isLangchainModeOn]);
 
   return isLoading ? (
     <div className="flex h-full flex-grow flex-col items-center justify-center">
