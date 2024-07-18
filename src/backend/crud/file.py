@@ -21,6 +21,17 @@ def create_file(db: Session, file: File) -> File:
     return file
 
 
+def batch_create_files(db: Session, files: list[File]) -> list[File]:
+    """
+    Batch create files.
+    """
+    db.add_all(files)
+    db.commit()
+    for file in files:
+        db.refresh(file)
+    return files
+
+
 def get_file(db: Session, file_id: str, user_id: str) -> File:
     """
     Get a file by ID.
@@ -109,6 +120,20 @@ def get_files_by_file_names(
         .filter(File.file_name.in_(file_names), File.user_id == user_id)
         .all()
     )
+
+
+def get_files_by_user_id(db: Session, user_id: str) -> list[File]:
+    """
+    List all files by user ID.
+
+    Args:
+        db (Session): Database session.
+        user_id (str): User ID.
+
+    Returns:
+        list[File]: List of files by user ID.
+    """
+    return db.query(File).filter(File.user_id == user_id).all()
 
 
 def update_file(db: Session, file: File, new_file: UpdateFile) -> File:

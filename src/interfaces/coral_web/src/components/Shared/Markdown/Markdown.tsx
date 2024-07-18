@@ -1,3 +1,5 @@
+'use client';
+
 import { ComponentPropsWithoutRef, useMemo } from 'react';
 import ReactMarkdown, { Components, UrlTransform } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -27,6 +29,7 @@ type MarkdownTextProps = {
   className?: string;
   customComponents?: Components;
   renderLaTex?: boolean;
+  renderRawHtml?: boolean;
   customRemarkPlugins?: PluggableList;
   customRehypePlugins?: PluggableList;
   allowedElements?: Array<string>;
@@ -34,9 +37,10 @@ type MarkdownTextProps = {
   urlTransform?: UrlTransform | null;
 } & ComponentPropsWithoutRef<'div'>;
 
-export const getActiveMarkdownPlugins = (
-  renderLaTex?: boolean
-): { remarkPlugins: PluggableList; rehypePlugins: PluggableList } => {
+export const getActiveMarkdownPlugins = (options: {
+  renderRawHtml?: boolean;
+  renderLaTex?: boolean;
+}): { remarkPlugins: PluggableList; rehypePlugins: PluggableList } => {
   const remarkPlugins: PluggableList = [
     // remarkGFm is a plugin that adds support for GitHub Flavored Markdown
     remarkGfm,
@@ -52,10 +56,6 @@ export const getActiveMarkdownPlugins = (
   ];
 
   const rehypePlugins: PluggableList = [
-    // remarkRaw is a plugin that allows raw HTML in markdown
-    rehypeRaw,
-    // removeExtraBlankSpaces is a plugin that removes extra blank spaces from the text elements
-    removeExtraBlankSpaces,
     // renderTableTools is a plugin that detects tables and saves them in a readable structure
     renderTableTools,
     // rehypeHighlight is a plugin that adds syntax highlighting to code blocks
@@ -65,7 +65,14 @@ export const getActiveMarkdownPlugins = (
     [rehypeHighlight, { detect: true, ignoreMissing: true }],
   ];
 
-  if (renderLaTex) {
+  if (options.renderRawHtml) {
+    // rehypeRaw is a plugin that adds support for raw HTML
+    rehypePlugins.push(rehypeRaw);
+    // removeExtraBlankSpaces is a plugin that removes extra blank spaces from the text elements
+    rehypePlugins.push(removeExtraBlankSpaces);
+  }
+
+  if (options.renderLaTex) {
     // remarkMath is a plugin that adds support for math
     remarkPlugins.push([remarkMath, { singleDollarTextMath: false }]);
     // options: https://katex.org/docs/options.html
@@ -85,12 +92,13 @@ export const Markdown = ({
   customRemarkPlugins = [],
   customRehypePlugins = [],
   renderLaTex = true,
+  renderRawHtml = true,
   allowedElements,
   unwrapDisallowed,
   urlTransform,
   ...rest
 }: MarkdownTextProps) => {
-  const { remarkPlugins, rehypePlugins } = getActiveMarkdownPlugins(renderLaTex);
+  const { remarkPlugins, rehypePlugins } = getActiveMarkdownPlugins({ renderLaTex, renderRawHtml });
 
   // Memoize to avoid re-rendering that occurs with Pre due to lambda function
   // @ts-ignore
@@ -123,7 +131,7 @@ export const Markdown = ({
         'prose-headings:my-0',
         'prose-h1:font-medium prose-h2:font-medium prose-h3:font-medium prose-h4:font-medium prose-h5:font-medium prose-h6:font-medium prose-strong:font-medium',
         'prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-h4:text-base prose-h5:text-base prose-h6:text-base',
-        'prose-pre:border prose-pre:border-secondary-100 prose-pre:bg-secondary-50 prose-pre:text-volcanic-900',
+        'prose-pre:border prose-pre:border-mushroom-800 prose-pre:bg-mushroom-900 prose-pre:text-volcanic-100',
         className
       )}
       {...rest}

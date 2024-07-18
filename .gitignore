@@ -142,3 +142,6 @@ secrets.toml
 
 # Local file storage
 /src/backend/data
+
+# Redis volume
+/data

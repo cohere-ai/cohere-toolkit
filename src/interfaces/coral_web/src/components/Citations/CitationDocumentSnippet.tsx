@@ -1,3 +1,5 @@
+'use client';
+
 import { Fragment, useContext, useMemo } from 'react';
 
 import { Document } from '@/cohere-client';
@@ -125,7 +127,7 @@ export const CitationDocumentSnippet: React.FC<
       />
 
       <button
-        className="self-end p-0 text-primary-900 transition-colors ease-in-out hover:text-primary-700"
+        className="self-end p-0 text-coral-200 transition-colors ease-in-out hover:text-coral-400"
         onClick={openFullSnippetModal}
         data-testid="button-see-full-snippet"
       >
@@ -147,7 +149,7 @@ const Snippet: React.FC<{
   if (!snippetSections) return null;
 
   return (
-    <Text className={cn('content text-primary-900', lineLimitClass)}>
+    <Text className={cn('content text-coral-200', lineLimitClass)}>
       {snippetSections.map(({ beforeKeyword, snippetKeyword }, i) => {
         return (
           <Fragment key={i}>
@@ -168,7 +170,7 @@ const Snippet: React.FC<{
 const ConsoleOutput: React.FC<{ type: string; message: string }> = ({ type, message }) => {
   return (
     <>
-      <Text as="span" styleAs="code-sm" className="text-primary-900">
+      <Text as="span" styleAs="code-sm" className="text-coral-200">
         {type}
       </Text>
       <Markdown text={'```python\n' + message + '\n```'} />
@@ -178,7 +180,7 @@ const ConsoleOutput: React.FC<{ type: string; message: string }> = ({ type, mess
 
 const CodeExecutionTime: React.FC<{ runtime: string }> = ({ runtime }) => {
   return (
-    <Text as="span" styleAs="code-sm" className="mt-2 text-primary-900">
+    <Text as="span" styleAs="code-sm" className="mt-2 text-coral-200">
       Execution time: {runtime}ms
     </Text>
   );

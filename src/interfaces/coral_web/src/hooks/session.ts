@@ -2,7 +2,7 @@ import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
 import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
@@ -28,7 +28,7 @@ interface UserSession {
 
 export const useSession = () => {
   const router = useRouter();
-  const { data: authStrategies } = useServerAuthStrategies();
+  const { data: authStrategies, isLoading: isLoadingStrategies } = useServerAuthStrategies();
   const {
     value: authToken,
     set: setAuthToken,
@@ -36,6 +36,8 @@ export const useSession = () => {
   } = useLocalStorageValue<string | undefined>(LOCAL_STORAGE_KEYS.authToken, {
     defaultValue: undefined,
   });
+
+  const isLoading = isLoadingStrategies || authToken === null;
 
   const isLoggedIn = useMemo(
     () =>
@@ -112,6 +114,7 @@ export const useSession = () => {
     session,
     userId: session && 'id' in session ? session.id : 'user-id',
     authToken,
+    isLoading,
     isLoggedIn,
     loginMutation,
     logoutMutation,

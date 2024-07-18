@@ -51,7 +51,7 @@ export const viewTools: Middleware<SlackCommandMiddlewareArgs> = async ({
 
   try {
     const toolkitClient = new ToolkitClient(OpenAPI);
-    const tools = await toolkitClient.default.listToolsToolsGet();
+    const tools = await toolkitClient.default.listToolsV1ToolsGet();
     // only show active tools that do not use oauth
     const toolList = tools
       .filter((tool) => tool.is_available)

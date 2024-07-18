@@ -1,13 +1,21 @@
 dev:
-	@docker compose watch
+	make -j 2 watch up
+watch:
+	@docker compose watch --no-up
+up:
+	@docker compose up
 down:
 	@docker compose down
 run-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
+run-agent-router-tests:
+	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_agent.py
+run-user-router-tests:
+	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_user.py
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
 attach: 
-	@docker attach cohere-toolkit-backend-1
+	@docker compose logs -f backend
 exec-backend:
 	docker exec -ti cohere-toolkit-backend-1 bash 
 exec-db:

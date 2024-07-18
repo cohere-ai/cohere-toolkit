@@ -1,3 +1,5 @@
+'use client';
+
 import { usePreviousDistinct } from '@react-hookz/web';
 import { forwardRef, useEffect, useState } from 'react';
 import { useLongPress } from 'react-aria';
@@ -32,6 +34,7 @@ import { cn } from '@/utils';
 type Props = {
   isLast: boolean;
   message: ChatMessage;
+  isStreamingToolEvents: boolean;
   delay?: boolean;
   className?: string;
   onCopy?: VoidFunction;
@@ -42,7 +45,7 @@ type Props = {
  * Renders a single message row from the user or from our models.
  */
 const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal(
-  { message, delay = false, isLast, className = '', onCopy, onRetry },
+  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry },
   ref
 ) {
   const breakpoint = useBreakpoint();
@@ -131,7 +134,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         close={() => setIsLongPressMenuOpen(false)}
         className="md:hidden"
       >
-        <div className={cn('flex flex-col divide-y', 'divide-marble-300')}>
+        <div className={cn('flex flex-col divide-y', 'divide-marble-950')}>
           <div className="flex flex-col gap-y-4 pt-4">
             <CopyToClipboardButton
               value={getMessageText()}
@@ -158,14 +161,14 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         className={cn(
           'group flex h-fit w-full flex-col gap-2 rounded-md p-2 text-left md:flex-row',
           'transition-colors ease-in-out',
-          'hover:bg-secondary-50',
+          'hover:bg-mushroom-950',
 
           {
-            'bg-secondary-50':
+            'bg-mushroom-950':
               isFulfilledOrTypingMessage(message) &&
               message.generationId &&
               hoveredGenerationId === message.generationId,
-            'bg-primary-50 hover:bg-primary-50': highlightMessage,
+            'bg-coral-950 hover:bg-coral-950': highlightMessage,
           }
         )}
         {...(enableLongPress && longPressProps)}
@@ -174,7 +177,14 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
           <Avatar message={message} />
           <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-3 md:flex-row">
             <div className="w-full">
-              {hasSteps && <ToolEvents show={isStepsExpanded} events={message.toolEvents} />}
+              {hasSteps && (
+                <ToolEvents
+                  show={isStepsExpanded}
+                  events={message.toolEvents}
+                  isStreaming={isStreamingToolEvents}
+                  isLast={isLast}
+                />
+              )}
 
               <MessageContent isLast={isLast} message={message} onRetry={onRetry} />
             </div>
@@ -189,9 +199,9 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
                   <IconButton
                     iconName="list"
-                    className="rounded hover:bg-secondary-100"
+                    className="rounded hover:bg-mushroom-900"
                     iconClassName={cn(
-                      'text-volcanic-800 group-hover/icon-button:text-secondary-800',
+                      'text-volcanic-300 group-hover/icon-button:text-mushroom-300',
                       {
                         'hidden md:invisible md:flex': !isFulfilledMessage(message),
                       }

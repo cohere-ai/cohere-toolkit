@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 
 import { Button, Input, Spinner, Text } from '@/components/Shared';
@@ -44,7 +46,7 @@ export const EditConversationTitle: React.FC<Props> = ({
         disabled={isPending}
       />
 
-      <Text className="mt-2 text-danger-500 first-letter:uppercase">{errorMessage}</Text>
+      <Text className="mt-2 text-danger-350 first-letter:uppercase">{errorMessage}</Text>
 
       <div className="mt-6 flex items-center justify-between">
         <Button kind="secondary" onClick={onClose}>

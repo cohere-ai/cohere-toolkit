@@ -1,3 +1,5 @@
+'use client';
+
 import React, { ReactElement } from 'react';
 
 import { Button, ButtonKind, IconName, InlineLink } from '@/components/Shared';

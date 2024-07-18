@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 
 import {
   ApiError,
@@ -102,10 +102,11 @@ export const useDeleteConversation = () => {
 
 export const useConversationActions = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { open, close } = useContextStore();
   const {
-    conversation: { id: conversationId = '' },
     resetConversation,
+    conversation: { id: conversationId },
   } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
@@ -127,7 +128,8 @@ export const useConversationActions = () => {
         resetConversation();
         resetCitations();
         resetFileParams();
-        router.push('/', undefined, { shallow: true }); // go to new chat
+        const newUrl = pathname.replace(`/c/${id}`, '');
+        router.push(newUrl, undefined); // go to new chat
       }
     };
 

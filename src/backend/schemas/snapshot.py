@@ -1,7 +1,31 @@
 import datetime
-from typing import Union
+from typing import Optional, Union
 
 from pydantic import BaseModel
+
+from backend.schemas.agent import AgentToolMetadata
+from backend.schemas.message import Message
+
+
+class SnapshotAgent(BaseModel):
+    id: str
+    name: str
+    description: Optional[str]
+    preamble: Optional[str]
+    tools_metadata: Optional[list[AgentToolMetadata]]
+
+    class Config:
+        from_attributes = True
+
+
+class SnapshotData(BaseModel):
+    title: str
+    description: str
+    messages: list[Message]
+    agent: Optional[SnapshotAgent]
+
+    class Config:
+        from_attributes = True
 
 
 class Snapshot(BaseModel):
@@ -14,7 +38,7 @@ class Snapshot(BaseModel):
     version: int
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    snapshot: Union[dict, None]
+    snapshot: SnapshotData
 
     class Config:
         from_attributes = True
@@ -53,7 +77,7 @@ class CreateSnapshot(BaseModel):
 
 class CreateSnapshotResponse(SnapshotLink):
     link_id: str
-    messages: list[dict]
+    messages: list[Message]
 
     class Config:
         from_attributes = True

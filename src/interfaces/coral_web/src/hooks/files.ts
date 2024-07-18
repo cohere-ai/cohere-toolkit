@@ -15,7 +15,12 @@ import { useListTools } from '@/hooks/tools';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
 import { MessageType } from '@/types/message';
-import { getFileExtension, isDefaultFileLoaderTool } from '@/utils';
+import {
+  fileSizeToBytes,
+  formatFileSize,
+  getFileExtension,
+  isDefaultFileLoaderTool,
+} from '@/utils';
 
 class FileUploadError extends Error {
   constructor(message: string) {
@@ -97,9 +102,13 @@ export const useFileActions = () => {
   const { mutateAsync: uploadFile } = useUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
-  const { setConversation } = useConversationStore();
+  const { setConversation, conversation } = useConversationStore();
 
-  const handleUploadFile = async (file?: File, conversationId?: string) => {
+  const handleUploadFile = async (file?: File) => {
+    // cleanup uploadingFiles with errors
+    const uploadingFilesWithErrors = uploadingFiles.filter((file) => file.error);
+    uploadingFilesWithErrors.forEach((file) => deleteUploadingFile(file.id));
+
     if (!file) return;
 
     const uploadingFileId = new Date().valueOf().toString();
@@ -110,20 +119,29 @@ export const useFileActions = () => {
       progress: 0,
     };
 
+    const MAX_FILE_SIZE = fileSizeToBytes(20);
     const fileExtension = getFileExtension(file.name);
+
     const isAcceptedExtension = ACCEPTED_FILE_TYPES.some(
       (acceptedFile) => file.type === acceptedFile
     );
+    const isFileSizeValid = file.size <= MAX_FILE_SIZE;
     if (!isAcceptedExtension) {
       newUploadingFile.error = `File type not supported (${fileExtension?.toUpperCase()})`;
-      addUploadingFile(newUploadingFile);
-      return;
+    } else if (!isFileSizeValid) {
+      newUploadingFile.error = `File size cannot exceed ${formatFileSize(MAX_FILE_SIZE)}`;
     }
 
     addUploadingFile(newUploadingFile);
+    if (newUploadingFile.error) {
+      return;
+    }
 
     try {
-      const uploadedFile = await uploadFile({ file: newUploadingFile.file, conversationId });
+      const uploadedFile = await uploadFile({
+        file: newUploadingFile.file,
+        conversationId: conversation.id,
+      });
 
       if (!uploadedFile?.id) {
         throw new FileUploadError('File ID not found');
@@ -134,7 +152,7 @@ export const useFileActions = () => {
       const newFileIds = [...(fileIds ?? []), uploadedFileId];
       setParams({ fileIds: newFileIds });
       addComposerFile(uploadedFile);
-      if (!conversationId) {
+      if (!conversation.id) {
         setConversation({ id: uploadedFile.conversation_id });
       }
 

@@ -2,8 +2,10 @@ from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
 from backend.schemas.agent import UpdateAgent
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_agent(db: Session, agent: Agent) -> Agent:
     """
     Create a new agent.
@@ -23,6 +25,7 @@ def create_agent(db: Session, agent: Agent) -> Agent:
     return agent
 
 
+@validate_transaction
 def get_agent_by_id(db: Session, agent_id: str) -> Agent:
     """
     Get an agent by its ID.
@@ -70,8 +73,10 @@ def get_agents(
       list[Agent]: List of agents.
     """
     query = db.query(Agent)
+
     if organization_id is not None:
         query = query.filter(Agent.organization_id == organization_id)
+
     query = query.offset(offset).limit(limit)
     return query.all()
 
@@ -90,6 +95,7 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
     """
     for attr, value in new_agent.model_dump(exclude_none=True).items():
         setattr(agent, attr, value)
+
     db.commit()
     db.refresh(agent)
     return agent
@@ -106,3 +112,4 @@ def delete_agent(db: Session, agent_id: str) -> None:
     agent = db.query(Agent).filter(Agent.id == agent_id)
     agent.delete()
     db.commit()
+    return None

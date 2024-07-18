@@ -1,3 +1,5 @@
+'use client';
+
 import cx from 'classnames';
 import { ReactElement } from 'react';
 
@@ -18,28 +20,28 @@ export type TagProps = {
 
 const TAG_THEME_CLASSES = {
   primary: {
-    primary: 'text-volcanic-900 bg-primary-100',
-    secondary: 'text-volcanic-900 bg-primary-50',
+    primary: 'text-volcanic-100 bg-coral-900',
+    secondary: 'text-volcanic-100 bg-coral-950',
   },
   secondary: {
-    primary: 'text-volcanic-900 bg-secondary-100',
-    secondary: 'text-volcanic-900 bg-secondary-50',
+    primary: 'text-volcanic-100 bg-mushroom-900',
+    secondary: 'text-volcanic-100 bg-mushroom-950',
   },
   success: {
-    primary: 'text-success-500 bg-success-50',
-    secondary: 'text-success-500 bg-success-50',
+    primary: 'text-success-200 bg-success-950',
+    secondary: 'text-success-200 bg-success-950',
   },
   error: {
-    primary: 'text-danger-500 bg-danger-50',
-    secondary: 'text-danger-500 bg-danger-50',
+    primary: 'text-danger-350 bg-danger-950',
+    secondary: 'text-danger-350 bg-danger-950',
   },
   warning: {
-    primary: 'text-blue-700 bg-blue-50',
-    secondary: 'text-blue-700 bg-blue-50',
+    primary: 'text-blue-500 bg-blue-950',
+    secondary: 'text-blue-500 bg-blue-950',
   },
   disabled: {
-    primary: 'text-volcanic-700 bg-marble-300',
-    secondary: 'text-volcanic-700 bg-marble-300',
+    primary: 'text-volcanic-400 bg-marble-950',
+    secondary: 'text-volcanic-400 bg-marble-950',
   },
 };
 

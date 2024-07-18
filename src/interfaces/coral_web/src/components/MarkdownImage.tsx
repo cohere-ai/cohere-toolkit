@@ -1,3 +1,5 @@
+'use client';
+
 import { Text } from '@/components/Shared';
 import { useCitationsStore } from '@/stores';
 
@@ -30,7 +32,7 @@ export const MarkdownImage: React.FC<Props> = ({ node }) => {
       <>
         <img className="w-full" src={fileName} alt={caption} />
         {caption && (
-          <Text as="span" styleAs="caption" className="mb-2 text-secondary-800">
+          <Text as="span" styleAs="caption" className="mb-2 text-mushroom-300">
             {caption}
           </Text>
         )}
@@ -44,7 +46,7 @@ export const B64Image: React.FC<{ data: string; caption?: string }> = ({ data, c
     <>
       <img className="w-full" src={`data:image/png;base64,${data}`} alt={caption} />
       {caption && (
-        <Text as="span" styleAs="caption" className="mb-2 text-secondary-800">
+        <Text as="span" styleAs="caption" className="mb-2 text-mushroom-300">
           {caption}
         </Text>
       )}

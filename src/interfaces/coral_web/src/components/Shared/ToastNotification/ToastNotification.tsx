@@ -1,3 +1,5 @@
+'use client';
+
 import { Toaster } from 'sonner';
 
 import { cn } from '@/utils';
@@ -31,11 +33,11 @@ export const ToastNotification: React.FC<Props> = ({ position = 'bottom-right' }
           padding: '0',
         },
         classNames: {
-          cancelButton: '!text-volcanic-900 !text-p !ml-auto',
-          loading: 'border-quartz-700 border bg-quartz-50 text-volcanic-900',
-          success: 'border-success-200 border bg-success-50 text-success-500',
-          error: 'border-danger-200 border bg-danger-50 text-danger-500',
-          info: 'border-secondary-200 border bg-secondary-50 text-secondary-900',
+          cancelButton: '!text-volcanic-100 !text-p !ml-auto',
+          loading: 'border-quartz-700 border bg-quartz-950 text-volcanic-100',
+          success: 'border-success-200 border bg-success-950 text-success-200',
+          error: '<border-danger-5></border-danger-5>00 border bg-danger-950 text-danger-500',
+          info: 'border-mushroom-800 border bg-mushroom-950 text-mushroom-150',
         },
       }}
       pauseWhenPageIsHidden

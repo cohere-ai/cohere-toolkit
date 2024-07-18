@@ -1,3 +1,5 @@
+'use client';
+
 import { IconButton } from '@/components/IconButton';
 import { DocumentIcon, Icon, IconName, Text } from '@/components/Shared';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';
@@ -72,9 +74,9 @@ export const CitationDocumentHeader: React.FC<Props> = ({
           icon={icon}
           iconKind={isSelected ? 'default' : 'outline'}
           className={cn(
-            'bg-primary-500/[0.16] text-primary-800/80 transition-colors duration-200 ease-in-out',
+            'bg-coral-700/[0.16] text-coral-300/80 transition-colors duration-200 ease-in-out',
             {
-              'bg-secondary-700/20 text-secondary-800': !isSelected,
+              'bg-mushroom-400/20 text-mushroom-300': !isSelected,
             }
           )}
         />
@@ -87,9 +89,9 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                 className={cn(
                   'truncate',
                   'transition-colors duration-200 ease-in-out',
-                  'text-primary-800',
+                  'text-coral-300',
                   {
-                    'text-secondary-700': !isSelected,
+                    'text-mushroom-400': !isSelected,
                   }
                 )}
               >
@@ -98,7 +100,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               <Text
                 as="span"
                 styleAs="label-sm"
-                className={cn('text-primary-800/80', 'hidden', {
+                className={cn('text-coral-300/80', 'hidden', {
                   flex: isSelected,
                 })}
               >
@@ -112,9 +114,9 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               className={cn(
                 'font-medium',
                 'transition-colors duration-200 ease-in-out',
-                'text-primary-800',
+                'text-coral-300',
                 {
-                  'text-secondary-700': !isSelected,
+                  'text-mushroom-400': !isSelected,
                 }
               )}
             >
@@ -122,12 +124,12 @@ export const CitationDocumentHeader: React.FC<Props> = ({
             </Text>
           )}
 
-          <div className={cn('flex text-primary-900', { 'group-hover:text-primary-600': safeUrl })}>
+          <div className={cn('flex text-coral-200', { 'group-hover:text-coral-600': safeUrl })}>
             <Text
               as="span"
               styleAs="label"
               className={cn('truncate font-medium transition-colors duration-200 ease-in-out', {
-                'text-secondary-800': !isSelected,
+                'text-mushroom-300': !isSelected,
               })}
             >
               {displayTitle}
@@ -135,7 +137,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
             <Icon
               name="arrow-up-right"
               className={cn('ml-1 hidden', 'transition-colors duration-200 ease-in-out', {
-                'text-secondary-800': !isSelected,
+                'text-mushroom-300': !isSelected,
                 'group-hover:block': safeUrl,
               })}
             />
@@ -146,7 +148,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
         <IconButton
           iconName="chevron-down"
           iconClassName={cn(
-            'text-primary-800 transition duration-200 delay-75 ease-in-out group-hover:text-primary-900',
+            'text-coral-300 transition duration-200 delay-75 ease-in-out group-hover:text-coral-200',
             'hidden lg:flex',
             {
               'rotate-180': isExpanded,

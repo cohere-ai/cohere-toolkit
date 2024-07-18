@@ -1,9 +1,11 @@
+'use client';
+
 import { cn } from '@/utils';
 
 export const Spinner: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
     <svg
-      className={cn('h-5 w-5 animate-spin text-primary-500', className)}
+      className={cn('h-5 w-5 animate-spin text-coral-700', className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

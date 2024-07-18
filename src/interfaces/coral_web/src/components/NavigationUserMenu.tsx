@@ -1,3 +1,5 @@
+'use client';
+
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 
@@ -17,16 +19,16 @@ export const NavigationUserMenu: React.FC<{
   return (
     <PopoverMenu email={showEmail && userEmail ? userEmail : undefined}>
       <div className="py-3">
-        <Icon name="profile" className="mb-3 px-4 text-volcanic-700" />
+        <Icon name="profile" className="mb-3 px-4 text-volcanic-400" />
         {userEmail ? (
           <>
-            <Text className="truncate px-4 pb-3 text-left text-volcanic-700">{userEmail}</Text>
-            <div className="flex justify-end border-t border-marble-400 px-4 pt-3">
+            <Text className="truncate px-4 pb-3 text-left text-volcanic-400">{userEmail}</Text>
+            <div className="flex justify-end border-t border-marble-950 px-4 pt-3">
               <AuthLink action="logout" styleAs="button" kind="secondary" />
             </div>
           </>
         ) : (
-          <div className="mt-3 flex justify-end border-t border-marble-400 px-4 pt-3">
+          <div className="mt-3 flex justify-end border-t border-marble-950 px-4 pt-3">
             <AuthLink action="login" styleAs="button" kind="secondary" />
           </div>
         )}
@@ -50,8 +52,8 @@ const PopoverMenu: React.FC<{
       <Popover.Button
         className={cn(
           'flex items-center gap-x-2 px-1 focus:rounded focus:outline focus:outline-1 focus:outline-offset-4',
-          'focus:outline-volcanic-700',
-          { 'dark:focus:outline-marble-500': darkModeEnabled }
+          'focus:outline-volcanic-400',
+          { 'dark:focus:outline-marble-800': darkModeEnabled }
         )}
       >
         <Icon name="profile" size="md" />
@@ -69,7 +71,7 @@ const PopoverMenu: React.FC<{
         <Popover.Panel
           className={cn(
             'absolute right-0 top-11 z-navigation w-60 rounded-lg border',
-            'border-marble-400 bg-marble-100',
+            'border-marble-950 bg-marble-1000',
             { 'dark:border-dark-border dark:bg-dark-white-2-solid': darkModeEnabled }
           )}
         >

@@ -1,3 +1,5 @@
+'use client';
+
 import { type ReactElement } from 'react';
 
 import { IconName, Text } from '@/components/Shared';

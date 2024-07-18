@@ -1,3 +1,5 @@
+'use client';
+
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, PropsWithChildren } from 'react';
 
@@ -22,7 +24,7 @@ export const LongPressMenu: React.FC<Props> = ({ isOpen, close, children, classN
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-volcanic-900/30" />
+          <div className="fixed inset-0 bg-volcanic-100/30" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -39,7 +41,7 @@ export const LongPressMenu: React.FC<Props> = ({ isOpen, close, children, classN
               <Dialog.Panel
                 className={cn(
                   'w-full transform select-none overflow-hidden rounded-t-xl p-6 transition-all',
-                  'bg-marble-100'
+                  'bg-marble-1000'
                 )}
               >
                 {children}

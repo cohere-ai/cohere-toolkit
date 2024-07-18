@@ -26,9 +26,7 @@ class BaseOAuthStrategy:
                 self.NAME is None,
             ]
         ):
-            raise ValueError(
-                f"{self.__class__.__name__} must have NAME parameter(s) defined."
-            )
+            raise ValueError(f"{self.__name__} must have NAME attribute defined.")
 
     @abstractmethod
     def get_client_id(self, **kwargs: Any):

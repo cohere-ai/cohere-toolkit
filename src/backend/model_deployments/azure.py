@@ -2,7 +2,7 @@ import logging
 import os
 import threading
 import time
-from typing import Any, Dict, Generator, List
+from typing import Any, AsyncGenerator, Dict, List
 
 import cohere
 from cohere.core.api_error import ApiError
@@ -13,11 +13,6 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.services.metrics import (
-    collect_metrics_chat,
-    collect_metrics_chat_stream,
-    collect_metrics_rerank,
-)
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
@@ -62,27 +57,21 @@ class AzureDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
 
-    @collect_metrics_chat
-    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         response = self.client.chat(
-            **chat_request.model_dump(exclude={"stream", "file_ids"}),
-            **kwargs,
+            **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
-    def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> Generator[StreamedChatResponse, None, None]:
+    async def invoke_chat_stream(
+        self, chat_request: CohereChatRequest
+    ) -> AsyncGenerator[Any, Any]:
         stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream", "file_ids"}),
-            **kwargs,
+            **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
 
         for event in stream:
             yield to_dict(event)
 
-    def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
-    ) -> Any:
+    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None

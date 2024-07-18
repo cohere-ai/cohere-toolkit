@@ -2,7 +2,7 @@ import logging
 import os
 import threading
 import time
-from typing import Any, Dict, Generator, List
+from typing import Any, AsyncGenerator, Dict, List
 
 import cohere
 from cohere.core.api_error import ApiError
@@ -13,11 +13,6 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.services.metrics import (
-    collect_metrics_chat,
-    collect_metrics_chat_stream,
-    collect_metrics_rerank,
-)
 
 BEDROCK_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
 BEDROCK_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"
@@ -63,8 +58,7 @@ class BedrockDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return all([os.environ.get(var) is not None for var in BEDROCK_ENV_VARS])
 
-    @collect_metrics_chat
-    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         # bedrock accepts a subset of the chat request fields
         bedrock_chat_req = chat_request.model_dump(
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
@@ -72,14 +66,12 @@ class BedrockDeployment(BaseDeployment):
 
         response = self.client.chat(
             **bedrock_chat_req,
-            **kwargs,
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
-    def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
-    ) -> Generator[StreamedChatResponse, None, None]:
+    async def invoke_chat_stream(
+        self, chat_request: CohereChatRequest
+    ) -> AsyncGenerator[Any, Any]:
         # bedrock accepts a subset of the chat request fields
         bedrock_chat_req = chat_request.model_dump(
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
@@ -87,12 +79,9 @@ class BedrockDeployment(BaseDeployment):
 
         stream = self.client.chat_stream(
             **bedrock_chat_req,
-            **kwargs,
         )
         for event in stream:
             yield to_dict(event)
 
-    def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
-    ) -> Any:
+    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None

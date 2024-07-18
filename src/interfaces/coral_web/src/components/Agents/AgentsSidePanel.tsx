@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 
@@ -21,7 +23,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   const {
     agents: { isAgentsSidePanelOpen },
     setAgentsSidePanelOpen,
-    setEditAgentPanelOpen,
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -29,7 +30,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   const handleToggleAgentsSidePanel = () => {
     setIsConvListPanelOpen(false);
     setSettings({ isConfigDrawerOpen: false });
-    setEditAgentPanelOpen(false);
     setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
 
@@ -39,8 +39,8 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
     href?: string;
     onClick?: () => void;
   }[] = [
-    { label: 'Create Assistant ', icon: 'add', href: '/agents/new' },
-    { label: 'Discover', icon: 'compass', href: '/agents/discover' },
+    { label: 'Create Assistant ', icon: 'add', href: '/new' },
+    { label: 'Discover', icon: 'compass', href: '/discover' },
   ];
 
   return (
@@ -49,10 +49,10 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
       as="div"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
-        'h-full bg-marble-100',
-        'rounded-lg border border-marble-400',
+        'h-full bg-marble-1000',
+        'rounded-lg border border-marble-950',
         {
-          'right-1/4': isAgentsSidePanelOpen,
+          'right-1/4 md:right-auto': isAgentsSidePanelOpen,
         },
         className
       )}
@@ -99,7 +99,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             iconName="close-drawer"
             onClick={handleToggleAgentsSidePanel}
             className={cn('transition delay-100 duration-200 ease-in-out', {
-              'rotate-180 transform text-secondary-700': isAgentsSidePanelOpen || isMobile,
+              'rotate-180 transform text-mushroom-400': isAgentsSidePanelOpen || isMobile,
             })}
           />
         </div>
@@ -110,8 +110,8 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               <Button
                 key={label}
                 kind="secondary"
-                className="truncate text-secondary-900"
-                startIcon={<Icon name={icon} kind="outline" className="text-secondary-900" />}
+                className="truncate text-mushroom-150"
+                startIcon={<Icon name={icon} kind="outline" className="text-mushroom-150" />}
                 label={label}
                 href={href}
                 shallow
@@ -125,11 +125,11 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               <Tooltip key={label} label={label} hover placement="right">
                 <IconButton
                   iconName={icon}
-                  iconClassName="text-secondary-900"
+                  iconClassName="text-mushroom-150"
                   shallow
                   onClick={onClick}
                   href={href}
-                  className="w-full text-secondary-900"
+                  className="w-full text-mushroom-150"
                 />
               </Tooltip>
             ))}

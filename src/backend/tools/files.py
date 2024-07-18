@@ -1,7 +1,5 @@
 from typing import Any, Dict, List
 
-from pypdf import PdfReader
-
 import backend.crud.file as file_crud
 from backend.tools.base import BaseTool
 
@@ -11,6 +9,7 @@ class ReadFileTool(BaseTool):
     This class reads a file from the file system.
     """
 
+    NAME = "read_document"
     MAX_NUM_CHUNKS = 10
 
     def __init__(self):
@@ -20,7 +19,7 @@ class ReadFileTool(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         file_name = parameters.get("filename", "")
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
@@ -48,6 +47,7 @@ class SearchFileTool(BaseTool):
     This class searches for a query in a file.
     """
 
+    NAME = "search_file"
     MAX_NUM_CHUNKS = 10
 
     def __init__(self):
@@ -57,15 +57,19 @@ class SearchFileTool(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("search_query")
         file_names = parameters.get("filenames")
-        model_deployment = kwargs.get("model_deployment")
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
 
         if not query or not file_names:
             return []
+
+        file_names = [
+            file_name.encode("ascii", "ignore").decode("utf-8")
+            for file_name in file_names
+        ]
 
         files = file_crud.get_files_by_file_names(session, file_names, user_id)
 
@@ -83,13 +87,3 @@ class SearchFileTool(BaseTool):
             )
 
         return results
-
-
-def get_file_content(file_path):
-    # Currently only supports PDF files
-    loader = PdfReader(file_path)
-    text = ""
-    for page in loader.pages:
-        text += page.extract_text() + "\n"
-
-    return text

@@ -12,8 +12,8 @@ logger = get_logger()
 
 class JWTService:
     ISSUER = "cohere-toolkit"
-    EXPIRY_HOURS = 12
-    REFRESH_AVAILABILITY_HOURS = 1
+    EXPIRY_HOURS = 48
+    REFRESH_AVAILABILITY_HOURS = 24
     ALGORITHM = "HS256"
 
     def __init__(self):
@@ -40,7 +40,7 @@ class JWTService:
         payload = {
             "iss": self.ISSUER,
             "iat": now,
-            "exp": now + datetime.timedelta(hours=self.EXPIRY_HOURS),
+            "exp": now + datetime.timedelta(days=self.EXPIRY_DAYS),
             "jti": str(uuid.uuid4()),
             "strategy": strategy_name,
             "context": user,

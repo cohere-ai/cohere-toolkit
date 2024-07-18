@@ -20,6 +20,8 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
     This requires llama_index package to be installed.
     """
 
+    NAME = "file_reader_llamaindex"
+
     def __init__(self, filepath: str):
         self.filepath = filepath
 
@@ -27,6 +29,6 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         docs = SimpleDirectoryReader(input_files=[self.filepath]).load_data()
         return [dict({"text": doc.text}) for doc in docs]

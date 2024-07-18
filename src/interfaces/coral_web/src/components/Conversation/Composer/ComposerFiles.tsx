@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 
 import { MessageFile } from '@/components/MessageFile';
-import { useFilesStore } from '@/stores';
+import { useFilesStore, useParamsStore } from '@/stores';
 
 /**
  * @description Displays files that have been prepared to be uploaded along with the next chat request
@@ -12,6 +14,19 @@ export const ComposerFiles = () => {
     deleteUploadingFile,
     deleteComposerFile,
   } = useFilesStore();
+
+  const {
+    params: { fileIds },
+    setParams,
+  } = useParamsStore();
+
+  const handleComposerFileDelete = (fileId: string) => {
+    deleteComposerFile(fileId);
+
+    if (fileIds?.some((d) => d === fileId)) {
+      setParams({ fileIds: fileIds.filter((d) => d !== fileId) });
+    }
+  };
 
   const noErrorUploadingFiles = uploadingFiles.filter((document) => !document.error);
 
@@ -26,7 +41,7 @@ export const ComposerFiles = () => {
           name={file.file_name ?? ''}
           size={file.file_size ?? 0}
           className="w-48 md:w-60"
-          onDelete={() => deleteComposerFile(file.id ?? '')}
+          onDelete={() => handleComposerFileDelete(file.id ?? '')}
         />
       ))}
       {noErrorUploadingFiles.map((document, index) => (

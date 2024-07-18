@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import { Icon, Skeleton, Text } from '@/components/Shared';
@@ -34,10 +36,10 @@ export const MessageFile: React.FC<Props> = ({
   return (
     <div
       className={cn(
-        'group flex w-60 gap-x-2 rounded bg-secondary-500/10 p-3',
+        'group flex w-60 gap-x-2 rounded bg-mushroom-600/10 p-3',
         'transition-colors ease-in-out',
         {
-          'hover:bg-secondary-500/20': hoverAnimation,
+          'hover:bg-mushroom-600/20': hoverAnimation,
         },
         className
       )}
@@ -46,8 +48,8 @@ export const MessageFile: React.FC<Props> = ({
         className={cn(
           'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded',
           'transition-colors ease-in-out',
-          'bg-secondary-500/20 text-secondary-800',
-          { 'text-secondary-600': progress !== undefined }
+          'bg-mushroom-600/20 text-mushroom-300',
+          { 'text-mushroom-500': progress !== undefined }
         )}
       >
         <Icon name="file" kind="outline" size="md" />
@@ -58,21 +60,21 @@ export const MessageFile: React.FC<Props> = ({
         </Text>
         <div className="flex items-center gap-x-2 uppercase">
           {type && (
-            <Text styleAs="caption" className="text-volcanic-600">
+            <Text styleAs="caption" className="text-volcanic-500">
               {type} •
             </Text>
           )}
 
           {progress ? (
-            <Text styleAs="caption" className="text-volcanic-800">
+            <Text styleAs="caption" className="text-volcanic-300">
               {progress}%
             </Text>
           ) : fileSize ? (
-            <Text styleAs="caption" className="text-volcanic-600">
+            <Text styleAs="caption" className="text-volcanic-500">
               {fileSize}
             </Text>
           ) : (
-            <Skeleton className="h-5 w-10 bg-secondary-500/20" />
+            <Skeleton className="h-5 w-10 bg-mushroom-600/20" />
           )}
         </div>
       </div>
@@ -80,7 +82,7 @@ export const MessageFile: React.FC<Props> = ({
         <button
           type="button"
           onClick={onDelete}
-          className="flex h-4 w-4 flex-shrink-0 text-secondary-800 md:invisible md:group-hover:visible"
+          className="flex h-4 w-4 flex-shrink-0 text-mushroom-300 md:invisible md:group-hover:visible"
         >
           <Icon name="close" />
         </button>

@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 
@@ -52,7 +54,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   } else if (isUser) {
     content = (
       <>
-        <Markdown text={message.text} />
+        <Markdown text={message.text} renderRawHtml={false} />
         {message.files && message.files.length > 0 && (
           <div className="flex flex-wrap gap-2 py-2">
             {message.files.map((file) => (
@@ -65,7 +67,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   } else if (isLoading) {
     const hasLoadingMessage = message.text.length > 0;
     content = (
-      <Text className={cn('flex min-w-0 text-volcanic-700')} as="span">
+      <Text className={cn('flex min-w-0 text-volcanic-400')} as="span">
         {hasLoadingMessage && (
           <Transition
             as="div"
@@ -93,7 +95,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         {message.text.length > 0 ? (
           <Markdown text={message.text} />
         ) : (
-          <Text className={cn('text-volcanic-700')}>{BOT_ERROR_MESSAGE}</Text>
+          <Text className={cn('text-volcanic-400')}>{BOT_ERROR_MESSAGE}</Text>
         )}
         <MessageInfo type="error">{message.error}</MessageInfo>
       </>
@@ -105,7 +107,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
       <>
         <Markdown
           className={cn({
-            'text-volcanic-700': isAborted,
+            'text-volcanic-400': isAborted,
           })}
           text={message.text}
           customComponents={{
@@ -147,8 +149,8 @@ const MessageInfo = ({
 }: PropsWithChildren & { type?: 'default' | 'error' }) => (
   <div
     className={cn('flex items-start gap-1', {
-      'text-volcanic-700': type === 'default',
-      'text-danger-500': type === 'error',
+      'text-volcanic-400': type === 'default',
+      'text-danger-350': type === 'error',
     })}
   >
     <Icon name="warning" size="md" className="flex items-center text-p" />

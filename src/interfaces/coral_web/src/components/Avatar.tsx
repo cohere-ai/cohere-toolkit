@@ -1,6 +1,8 @@
+'use client';
+
 import Lottie from 'react-lottie-player';
 
-import logoTyping from '@/assets/lotties/icon-loop-coral-50.json';
+import logoTyping from '@/assets/lotties/icon-loop-coral-950.json';
 import logoTypingMushroom from '@/assets/lotties/icon-loop-coral-mushroom.json';
 import { CoralLogo } from '@/components/Shared/CoralLogo';
 import { Icon } from '@/components/Shared/Icon';
@@ -35,17 +37,17 @@ export const Avatar: React.FC<Props> = ({ message }) => {
         'flex flex-shrink-0 items-center justify-center rounded text-white',
         'h-7 w-7 md:h-9 md:w-9',
         {
-          'bg-volcanic-500': isErroredOrAborted,
+          'bg-volcanic-600': isErroredOrAborted,
           'bg-quartz-700': isUser,
         },
         isGroundingOn
           ? {
-              'bg-primary-900': isFulfilled,
-              'bg-primary-400': isTypingOrLoading,
+              'bg-coral-200': isFulfilled,
+              'bg-coral-800': isTypingOrLoading,
             }
           : {
-              'bg-secondary-400': isFulfilled,
-              'bg-secondary-200': isTypingOrLoading,
+              'bg-mushroom-700': isFulfilled,
+              'bg-mushroom-800': isTypingOrLoading,
             }
       )}
     >

@@ -1,3 +1,5 @@
+'use client';
+
 import { ChangeEvent, MouseEvent, useRef, useState } from 'react';
 
 import { InputLabel, Spinner, Text } from '@/components/Shared';
@@ -81,12 +83,12 @@ export const FileInput: React.FC<FileInputProps> = ({
     <div
       className={cn(
         'flex flex-col',
-        'rounded-lg border border-marble-500 bg-white',
+        'rounded-lg border border-marble-800 bg-white',
         {
-          'outline outline-1 outline-offset-4 outline-volcanic-700': focused,
-          'text-volcanic-700': (placeholder && !file) || isLoading,
-          'border-volcanic-900 text-volcanic-900': file && !isLoading,
-          'cursor-not-allowed border-marble-500 bg-marble-300 text-volcanic-700': disabled,
+          'outline outline-1 outline-offset-4 outline-volcanic-400': focused,
+          'text-volcanic-400': (placeholder && !file) || isLoading,
+          'border-volcanic-100 text-volcanic-100': file && !isLoading,
+          'cursor-not-allowed border-marble-800 bg-marble-950 text-volcanic-400': disabled,
         },
         className
       )}
@@ -94,8 +96,8 @@ export const FileInput: React.FC<FileInputProps> = ({
       <InputLabel
         label={label || children || ''}
         className={cn('px-3 pt-2.5', {
-          'cursor-not-allowed text-volcanic-700': disabled,
-          'cursor-pointer text-volcanic-900': !disabled,
+          'cursor-not-allowed text-volcanic-400': disabled,
+          'cursor-pointer text-volcanic-100': !disabled,
         })}
         name="fileInput"
         onClick={(e) => {
@@ -112,14 +114,14 @@ export const FileInput: React.FC<FileInputProps> = ({
             <Spinner className="my-0.5" />
           ) : file ? (
             <button
-              className="z-10 ml-4 text-volcanic-900 transition ease-in-out hover:text-danger-500"
+              className="z-10 ml-4 text-volcanic-100 transition ease-in-out hover:text-danger-350"
               type="button"
               onClick={handleRemoveFile}
             >
               <Icon name="trash" size="md" kind="outline" />
             </button>
           ) : (
-            <span className="ml-4 h-[21px] text-volcanic-900">
+            <span className="ml-4 h-[21px] text-volcanic-100">
               <Icon name="upload" size="md" />
             </span>
           )}

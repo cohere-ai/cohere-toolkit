@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 import { usePrevious, useTimeoutEffect } from '@react-hookz/web';
 import React, { ReactNode, forwardRef, memo, useEffect, useMemo, useState } from 'react';
@@ -16,6 +18,7 @@ import { cn } from '@/utils';
 
 type Props = {
   isStreaming: boolean;
+  isStreamingToolEvents: boolean;
   startOptionsEnabled: boolean;
   messages: ChatMessage[];
   streamingMessage: StreamingMessage | null;
@@ -114,7 +117,7 @@ const Content: React.FC<Props> = (props) => {
         <Messages {...props} ref={messageContainerDivRef} />
         {/* Composer container */}
         <div
-          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-100')}
+          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000')}
           ref={composerContainerDivRef}
         >
           <Transition
@@ -141,7 +144,7 @@ const Content: React.FC<Props> = (props) => {
       </div>
 
       <div
-        className={cn('hidden h-auto border-marble-400', {
+        className={cn('hidden h-auto border-marble-950', {
           'md:flex': hasCitations || !isEditAgentPanelOpen,
           'border-l': hasCitations,
         })}
@@ -166,7 +169,7 @@ type MessagesProps = Props;
  * This component is in charge of rendering the messages.
  */
 const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { onRetry, messages, streamingMessage, agentId },
+  { onRetry, messages, streamingMessage, agentId, isStreamingToolEvents },
   ref
 ) {
   const isChatEmpty = messages.length === 0;
@@ -189,6 +192,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
               key={i}
               message={m}
               isLast={isLastInList && !streamingMessage}
+              isStreamingToolEvents={isStreamingToolEvents}
               className={cn({
                 // Hide the last message if it is the same as the separate streamed message
                 // to avoid a flash of duplicate messages.
@@ -205,7 +209,14 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
         })}
       </div>
 
-      {streamingMessage && <MessageRow isLast message={streamingMessage} onRetry={onRetry} />}
+      {streamingMessage && (
+        <MessageRow
+          isLast
+          isStreamingToolEvents={isStreamingToolEvents}
+          message={streamingMessage}
+          onRetry={onRetry}
+        />
+      )}
     </div>
   );
 });

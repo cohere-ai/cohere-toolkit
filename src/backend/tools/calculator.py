@@ -11,11 +11,13 @@ class Calculator(BaseTool):
     Function Tool that evaluates mathematical expressions.
     """
 
+    NAME = "toolkit_calculator"
+
     @classmethod
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         math_parser = Parser()
         expression = parameters.get("code", "")
 
@@ -31,6 +33,6 @@ class Calculator(BaseTool):
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
             logging.error(f"Error parsing expression: {e}")
-            result = {"text": f"Parsing error - syntax not allowed."}
+            result = {"text": "Parsing error - syntax not allowed."}
 
         return result

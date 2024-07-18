@@ -1,12 +1,12 @@
+'use client';
+
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useMemo } from 'react';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -31,33 +31,29 @@ type Props = {
 const useMenuItems = ({ conversationId, name }: { conversationId: string; name: string }) => {
   const { deleteConversation, editConversationTitle } = useConversationActions();
 
-  const menuItems: KebabMenuItem[] = useMemo(
-    () => [
-      {
-        label: 'Edit title',
-        iconName: 'edit',
-        onClick: () => {
-          editConversationTitle({ id: conversationId, title: name });
-        },
+  const menuItems: KebabMenuItem[] = [
+    {
+      label: 'Edit title',
+      iconName: 'edit',
+      onClick: () => {
+        editConversationTitle({ id: conversationId, title: name });
       },
-      {
-        label: 'Delete chat',
-        iconName: 'trash',
-        onClick: () => {
-          deleteConversation({ id: conversationId });
-        },
+    },
+    {
+      label: 'Delete chat',
+      iconName: 'trash',
+      onClick: () => {
+        deleteConversation({ id: conversationId });
       },
-    ],
-    [conversationId]
-  );
+    },
+  ];
 
   return menuItems;
 };
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId, description } = conversation;
-  const router = useRouter();
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
@@ -80,7 +76,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         <span className="flex items-center gap-x-1 truncate">
           <Text
             as="span"
-            className={cn('h-[21px] truncate text-volcanic-800', {
+            className={cn('h-[21px] truncate text-volcanic-300', {
               'font-medium': isActive,
             })}
           >
@@ -91,17 +87,13 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         {/* Placeholder for the kebab menu */}
         <div className="flex h-4 w-4 flex-shrink-0" />
       </div>
-      <Text styleAs="p-sm" className={cn('h-[18px] w-full truncate text-volcanic-600')}>
+      <Text styleAs="p-sm" className={cn('h-[18px] w-full truncate text-volcanic-500')}>
         {description}
       </Text>
     </div>
   );
 
-  const conversationUrl = agentId
-    ? `/agents/${agentId}/c/${conversationId}`
-    : router.asPath.includes('/agents')
-    ? `/agents/c/${conversationId}`
-    : `/c/${conversationId}`;
+  const conversationUrl = agentId ? `/a/${agentId}/c/${conversationId}` : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
@@ -126,8 +118,8 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     <div
       {...flippedProps}
       className={cn('group relative flex w-full rounded-lg', 'flex items-start gap-x-1', {
-        'bg-marble-100 transition-colors ease-in-out hover:bg-secondary-100/20': !isActive,
-        'bg-secondary-100/40': isActive,
+        'bg-marble-1000 transition-colors ease-in-out hover:bg-mushroom-900/20': !isActive,
+        'bg-mushroom-900/40': isActive,
       })}
     >
       {conversationLink}

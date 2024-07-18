@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition } from '@headlessui/react';
 
 import { Button, Text } from '@/components/Shared';
@@ -16,7 +18,7 @@ export const ToolsInfoBox: React.FC = () => {
       appear
       as="article"
       role="note"
-      className="flex flex-col gap-y-3 rounded bg-primary-50 px-3.5 py-3"
+      className="flex flex-col gap-y-3 rounded bg-coral-950 px-3.5 py-3"
       leave="transition-opacity ease-in-out"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
@@ -30,7 +32,7 @@ export const ToolsInfoBox: React.FC = () => {
       </Text>
       <Button
         label={
-          <Text styleAs="label" className="font-medium text-primary-800">
+          <Text styleAs="label" className="font-medium text-coral-300">
             Got it
           </Text>
         }

@@ -13,6 +13,8 @@ class WolframAlpha(BaseTool):
     See: https://python.langchain.com/docs/integrations/tools/wolfram_alpha/
     """
 
+    NAME = "wolfram_alpha"
+
     wolfram_app_id = os.environ.get("WOLFRAM_APP_ID")
 
     def __init__(self):
@@ -23,7 +25,7 @@ class WolframAlpha(BaseTool):
     def is_available(cls) -> bool:
         return cls.wolfram_app_id is not None
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         to_evaluate = parameters.get("expression", "")
         result = self.tool.run(to_evaluate)
         return {"result": result, "text": result}

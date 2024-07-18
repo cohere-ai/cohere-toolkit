@@ -1,9 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 
 import { isNotFoundError } from '@/cohere-client';
 import { Header } from '@/components/Conversation/Header';
 import { Icon } from '@/components/Shared/Icon';
 import { Text } from '@/components/Shared/Text';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { cn } from '@/utils';
 
 type Props = {
@@ -11,6 +14,10 @@ type Props = {
 };
 
 export const ConversationError: React.FC<Props> = ({ error }) => {
+  const { agentId } = useChatRoutes();
+
+  const url = agentId ? `/a/${agentId}` : '/';
+
   return (
     <>
       <Header />
@@ -21,7 +28,7 @@ export const ConversationError: React.FC<Props> = ({ error }) => {
           {isNotFoundError(error) ? (
             <>
               This conversation does not exist, <br /> why not create a{' '}
-              <Link href="/" className="underline">
+              <Link href={url} className="underline">
                 new one
               </Link>
               ?

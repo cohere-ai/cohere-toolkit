@@ -1,3 +1,5 @@
+'use client';
+
 import { Cell } from '@/components/Shared/Cell/Cell';
 import { cn } from '@/utils';
 
@@ -25,7 +27,7 @@ export const Toggle: React.FC<Props> = ({
   const selectedOption = selectedValue ?? options[0].value;
   return (
     <div
-      className={cn('flex w-fit rounded-lg border border-green-200 bg-green-50 p-0.5', className)}
+      className={cn('flex w-fit rounded-lg border border-green-800 bg-green-950 p-0.5', className)}
     >
       {options.map((option, i) => {
         const isFirst = i === 0;
@@ -38,14 +40,14 @@ export const Toggle: React.FC<Props> = ({
             key={i}
             type="button"
             onClick={() => onSelect?.(option.value)}
-            className={cn('focus:outline-none', { '-ml-1': !isFirst, 'text-green-700': !selected })}
+            className={cn('focus:outline-none', { '-ml-1': !isFirst, 'text-green-250': !selected })}
           >
             <Cell
               size="md"
               theme={selected ? 'green' : 'transparent'}
               leftCell={isFirst ? false : isEvenOption ? 'flip' : true}
               rightCell={isLastOption ? false : isEvenOption ? true : 'flip'}
-              className={cn({ 'text-green-700': !selected })}
+              className={cn({ 'text-green-250': !selected })}
             >
               {option.icon}
             </Cell>

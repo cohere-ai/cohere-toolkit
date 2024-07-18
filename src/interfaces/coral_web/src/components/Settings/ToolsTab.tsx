@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
@@ -67,7 +69,7 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
     <section className={cn('relative flex flex-col gap-y-5 px-5 pb-10', className)}>
       <ToolsInfoBox />
       <article className={cn('flex flex-col gap-y-5 pb-10')}>
-        <Text styleAs="p-sm" className="text-secondary-800">
+        <Text styleAs="p-sm" className="text-mushroom-300">
           Tools are data sources the assistant can search such as databases or the internet.
         </Text>
 
@@ -85,10 +87,10 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
                     disabled
                     errorMessage={error_message}
                     checked={false}
-                    label={display_name ?? name}
-                    icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
+                    label={display_name ?? name ?? ''}
+                    icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
                     description={description ?? ''}
-                    onToggle={(checked) => handleToggle(name, checked)}
+                    onToggle={(checked) => handleToggle(name ?? '', checked)}
                   />
                 );
               })}
@@ -97,7 +99,7 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
         )}
 
         {unavailableTools.length > 0 && availableTools.length > 0 && (
-          <hr className="border-t border-marble-400" />
+          <hr className="border-t border-marble-950" />
         )}
 
         {availableTools.length > 0 && (
@@ -116,10 +118,10 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
                     key={name}
                     errorMessage={error_message}
                     checked={checked}
-                    label={display_name ?? name}
-                    icon={TOOL_ID_TO_DISPLAY_INFO[name]?.icon ?? TOOL_FALLBACK_ICON}
+                    label={display_name ?? name ?? ''}
+                    icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
                     description={description ?? ''}
-                    onToggle={(checked) => handleToggle(name, checked)}
+                    onToggle={(checked) => handleToggle(name ?? '', checked)}
                   />
                 );
               })}

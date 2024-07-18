@@ -6,6 +6,8 @@ from community.tools import BaseTool
 
 
 class PubMedRetriever(BaseTool):
+    NAME = "pub_med"
+
     def __init__(self):
         self.client = PubmedQueryRun()
 
@@ -13,7 +15,7 @@ class PubMedRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
         result = self.client.invoke(query)
         return [{"text": result}]

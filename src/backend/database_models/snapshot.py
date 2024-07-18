@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 
-from sqlalchemy import JSON, ForeignKey, Index, String
+from sqlalchemy import JSON, ForeignKey, ForeignKeyConstraint, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from backend.database_models.base import Base
@@ -10,8 +10,7 @@ from backend.database_models.base import Base
 class Snapshot(Base):
     __tablename__ = "snapshots"
 
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(String, nullable=True)
     organization_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey(
             "organizations.id",
@@ -19,9 +18,7 @@ class Snapshot(Base):
             ondelete="CASCADE",
         )
     )
-    conversation_id: Mapped[str] = mapped_column(
-        ForeignKey("conversations.id", ondelete="CASCADE")
-    )
+    conversation_id: Mapped[str] = mapped_column(String)
 
     last_message_id: Mapped[str] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE")
@@ -32,6 +29,12 @@ class Snapshot(Base):
     snapshot: Mapped[str] = mapped_column(JSON)
 
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["conversation_id", "user_id"],
+            ["conversations.id", "conversations.user_id"],
+            name="snapshot_conversation_id_user_id_fkey",
+            ondelete="CASCADE",
+        ),
         Index("snapshot_user_id", user_id),
         Index("snapshot_last_message_id", last_message_id),
         Index("snapshot_conversation_id", conversation_id),
@@ -46,8 +49,9 @@ class SnapshotLink(Base):
         ForeignKey("snapshots.id", ondelete="CASCADE")
     )
 
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
 
     __table_args__ = (Index("snapshot_link_snapshot_id", snapshot_id),)
 
@@ -55,8 +59,9 @@ class SnapshotLink(Base):
 class SnapshotAccess(Base):
     __tablename__ = "snapshot_access"
 
-    # TODO: Swap to foreign key once User management implemented
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
     snapshot_id: Mapped[str] = mapped_column(
         ForeignKey("snapshots.id", ondelete="CASCADE")
     )

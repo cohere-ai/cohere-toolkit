@@ -1,3 +1,5 @@
+'use client';
+
 import { Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
@@ -12,12 +14,12 @@ type Props = {
 };
 
 const THEME_CLASSES: { [key in BannerTheme]: string } = {
-  primary: 'border-primary-200 bg-primary-50 text-volcanic-900',
-  secondary: 'border-secondary-200 bg-secondary-50 text-volcanic-900',
-  success: 'border-success-200 bg-success-50 text-success-500',
-  error: 'border-danger-200 bg-danger-50 text-danger-500',
-  neutral: 'border-marble-400 bg-marble-300 text-volcanic-900',
-  dark: 'border-volcanic-600 bg-volcanic-700 text-marble-100',
+  primary: 'border-coral-800 bg-coral-950 text-volcanic-100',
+  secondary: 'border-mushroom-800 bg-mushroom-950 text-volcanic-100',
+  success: 'border-success-200 bg-success-950 text-success-200',
+  error: 'border-danger-350 bg-danger-950 text-danger-350',
+  neutral: 'border-marble-950 bg-marble-950 text-volcanic-100',
+  dark: 'border-volcanic-500 bg-volcanic-400 text-marble-1000',
 };
 
 export const Banner: React.FC<Props> = ({

@@ -1,3 +1,5 @@
+'use client';
+
 import { PropsWithChildren } from 'react';
 
 import { AuthLink } from '@/components/AuthLink';
@@ -24,7 +26,7 @@ export const WelcomePage: React.FC<Props> = ({
   showEmailInHeader,
 }) => {
   return (
-    <div className="relative flex h-full min-h-screen w-full bg-green-50">
+    <div className="relative flex h-full min-h-screen w-full bg-green-950">
       <PageHead title={title} />
 
       <CellBackground step={videoStep} />
@@ -40,7 +42,7 @@ export const WelcomePage: React.FC<Props> = ({
         </Navigation>
 
         <div className="my-auto w-full px-6 pb-6 md:mx-auto md:w-fit md:px-0 md:py-4">
-          <div className="flex w-full flex-col rounded-lg border border-marble-400 bg-white p-6 md:w-modal md:p-10">
+          <div className="flex w-full flex-col rounded-lg border border-marble-950 bg-white p-6 md:w-modal md:p-10">
             {children}
           </div>
         </div>

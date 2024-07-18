@@ -1,3 +1,5 @@
+'use client';
+
 import { Combobox } from '@headlessui/react';
 import cx from 'classnames';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -67,7 +69,7 @@ const QuickAction: React.FC<QuickActionProps> = ({ name, commands, action, isOpe
       key={name}
       value={action}
       className={({ active }) =>
-        cx('flex select-none items-center rounded-lg py-2', active && 'bg-green-500 text-white')
+        cx('flex select-none items-center rounded-lg py-2', active && 'bg-green-600 text-white')
       }
     >
       {({ active }) => (

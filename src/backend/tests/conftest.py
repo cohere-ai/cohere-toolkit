@@ -73,6 +73,8 @@ def session_client(session: Session) -> Generator[TestClient, None, None]:
 
     app = create_app()
 
+    app.dependency_overrides[get_session] = override_get_session
+
     # Define test endpoint for testing Authorization Bearer validation
     @app.get("/test-auth")
     def test_validate_authorization(token=Depends(validate_authorization)):

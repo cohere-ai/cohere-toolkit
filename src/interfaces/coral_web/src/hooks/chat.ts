@@ -1,5 +1,5 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   ChatResponseEvent,
@@ -24,9 +24,8 @@ import {
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
 } from '@/constants';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
-import { useRouteChange } from '@/hooks/route';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
@@ -43,7 +42,6 @@ import {
 import {
   createStartEndKey,
   fixMarkdownImagesInText,
-  isAbortError,
   isGroundingOn,
   replaceTextWithCitations,
   shouldUpdateConversationTitle,
@@ -95,20 +93,22 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const {
     files: { composerFiles },
     clearComposerFiles,
+    clearUploadingErrors,
   } = useFilesStore();
   const queryClient = useQueryClient();
 
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isStreamingToolEvents, setIsStreamingToolEvents] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
 
-  useRouteChange({
-    onRouteChangeStart: () => {
+  useEffect(() => {
+    return () => {
       abortController.current?.abort();
       setStreamingMessage(null);
-    },
-  });
+    };
+  }, []);
 
   const saveCitations = (
     generationId: string,
@@ -205,7 +205,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     newMessages: ChatMessage[];
     request: CohereChatRequest;
     headers: Record<string, string>;
-    agentId?: string;
     streamConverse: UseMutateAsyncFunction<
       StreamEnd | undefined,
       CohereNetworkError,
@@ -236,11 +235,11 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
     try {
       clearComposerFiles();
+      clearUploadingErrors();
 
       await streamConverse({
         request,
         headers,
-        agentId,
         onRead: (eventData: ChatResponseEvent) => {
           switch (eventData.event) {
             case StreamEvent.STREAM_START: {
@@ -252,6 +251,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
 
             case StreamEvent.TEXT_GENERATION: {
+              setIsStreamingToolEvents(false);
               const data = eventData.data as StreamTextGeneration;
               botResponse += data?.text ?? '';
               setStreamingMessage({
@@ -275,10 +275,24 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 mapDocuments(documents);
               documentsMap = { ...documentsMap, ...newDocumentsMap };
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
+              // we are only interested in web_search results
+              // ignore search results of pyhton interpreter tool
+              if (
+                toolEvents[currentToolEventIndex - 1]?.tool_calls?.[0]?.name !==
+                TOOL_PYTHON_INTERPRETER_ID
+              ) {
+                toolEvents.push({
+                  text: '',
+                  stream_search_results: data,
+                  tool_calls: [],
+                } as StreamToolCallsGeneration);
+                currentToolEventIndex += 1;
+              }
               break;
             }
 
             case StreamEvent.TOOL_CALLS_CHUNK: {
+              setIsStreamingToolEvents(true);
               const data = eventData.data as StreamToolCallsChunk;
 
               // Initiate an empty tool event if one doesn't already exist at the current index
@@ -416,7 +430,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                   window.location.pathname === '/'
                     ? `c/${conversationId}`
                     : window.location.pathname + `/c/${conversationId}`;
-                window?.history?.replaceState('', '', newUrl);
+                window?.history?.replaceState(null, '', newUrl);
                 queryClient.invalidateQueries({ queryKey: ['conversations'] });
               }
 
@@ -501,35 +515,22 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
             setConversation({ messages: [...newMessages, lastMessage] });
           } else {
-            if (isAbortError(e)) {
-              if (abortController.current?.signal.reason === ABORT_REASON_USER) {
-                setConversation({
-                  messages: [
-                    ...newMessages,
-                    createAbortedMessage({
-                      text: botResponse,
-                    }),
-                  ],
-                });
-              }
-            } else {
-              let error =
-                (e as CohereNetworkError)?.message ||
-                'Unable to generate a response since an error was encountered.';
+            let error =
+              (e as CohereNetworkError)?.message ||
+              'Unable to generate a response since an error was encountered.';
 
-              if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
-                error += ' (Ensure a COHERE_API_KEY is configured correctly)';
-              }
-              setConversation({
-                messages: [
-                  ...newMessages,
-                  createErrorMessage({
-                    text: botResponse,
-                    error,
-                  }),
-                ],
-              });
+            if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
+              error += ' (Ensure a COHERE_API_KEY is configured correctly)';
             }
+            setConversation({
+              messages: [
+                ...newMessages,
+                createErrorMessage({
+                  text: botResponse,
+                  error,
+                }),
+              ],
+            });
           }
           setIsStreaming(false);
           setStreamingMessage(null);
@@ -559,6 +560,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     const { tools: overrideTools, ...restOverrides } = overrides ?? {};
 
     const requestTools = overrideTools ?? tools ?? undefined;
+
     return {
       message,
       conversation_id: id,
@@ -566,6 +568,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
+      agent_id: agentId,
       ...restOverrides,
     };
   };
@@ -603,7 +606,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       newMessages,
       request,
       headers,
-      agentId,
       streamConverse: streamChat,
     });
   };
@@ -626,11 +628,22 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
   const handleStop = () => {
     abortController.current?.abort(ABORT_REASON_USER);
+    setIsStreaming(false);
+    setConversation({
+      messages: [
+        ...messages,
+        createAbortedMessage({
+          text: streamingMessage?.text ?? '',
+        }),
+      ],
+    });
+    setStreamingMessage(null);
   };
 
   return {
     userMessage,
     isStreaming,
+    isStreamingToolEvents,
     handleSend: handleChat,
     handleStop,
     handleRetry,

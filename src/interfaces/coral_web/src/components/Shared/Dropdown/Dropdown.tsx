@@ -1,4 +1,6 @@
-import { Listbox } from '@headlessui/react';
+'use client';
+
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { Fragment, useMemo, useState } from 'react';
 
 import { Icon, Input, InputLabel, Text } from '@/components/Shared';
@@ -129,17 +131,17 @@ export const Dropdown: React.FC<Props> = ({
             className={cn(
               roundedClasses,
               borderClasses,
-              'border-marble-500 bg-marble-100 hover:bg-marble-200',
+              'border-marble-800 bg-marble-1000 hover:bg-marble-980',
               {
                 'rounded-b-lg': !open,
                 'rounded-bl-none rounded-br-none': open,
               }
             )}
           >
-            <Listbox.Button
+            <ListboxButton
               className={cn(
                 'relative flex w-full items-center justify-between disabled:cursor-not-allowed',
-                'rounded-lg focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+                'rounded-lg focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
                 {
                   'px-3 py-4': kind === 'default' || !label,
                   'px-3 pb-2.5 pt-7': kind === 'cell' && label,
@@ -158,30 +160,30 @@ export const Dropdown: React.FC<Props> = ({
               <Text
                 as="div"
                 className={cn('mr-2 w-full truncate text-left', {
-                  'text-volcanic-800': value === undefined,
+                  'text-volcanic-100': value === undefined,
                 })}
               >
                 {valueLabel ?? placeholder}{' '}
                 {valueDescription && (
-                  <Text as="span" className="text-volcanic-600">
+                  <Text as="span" className="text-volcanic-400">
                     ({valueDescription})
                   </Text>
                 )}
               </Text>
               <Icon name="chevron-down" />
-            </Listbox.Button>
+            </ListboxButton>
 
-            <Listbox.Options
+            <ListboxOptions
               className={cn(
                 'absolute left-0',
-                'max-h-80 w-full overflow-y-auto bg-marble-100',
-                'rounded-b-lg border border-marble-500',
+                'max-h-80 w-full overflow-y-auto bg-marble-1000',
+                'rounded-b-lg border border-marble-800',
                 'z-dropdown',
                 'focus:outline-none focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900'
               )}
             >
               {searchable && (
-                <div className="sticky top-0 border-b border-marble-500 bg-white">
+                <div className="sticky top-0 border-b border-marble-800 bg-white">
                   <section className="p-3">
                     <Input
                       placeholder="filter model"
@@ -194,7 +196,7 @@ export const Dropdown: React.FC<Props> = ({
 
                   {options.length === 0 && searchTerm !== '' && (
                     <>
-                      <hr className="border-marble-500" />
+                      <hr className="border-marble-800" />
                       <Text className="p-4">No results found</Text>
                     </>
                   )}
@@ -208,7 +210,7 @@ export const Dropdown: React.FC<Props> = ({
                       key={group.title}
                       styleAs="overline"
                       className={cn('mx-3 py-3 font-medium', {
-                        'border-b border-marble-500':
+                        'border-b border-marble-800':
                           i !== optionGroups.length - 1 || group.options.length > 0,
                       })}
                     >
@@ -226,12 +228,12 @@ export const Dropdown: React.FC<Props> = ({
                       );
                     })
                     .map((option, j) => (
-                      <Listbox.Option
+                      <ListboxOption
                         key={option.value}
                         value={option.value}
                         className={({ active }) =>
                           cn('cursor-pointer px-3', {
-                            'bg-green-50': active,
+                            'bg-marble-980': active,
                             'rounded-b-lg':
                               i === optionGroups.length - 1 && j === group.options.length - 1,
                           })
@@ -241,30 +243,30 @@ export const Dropdown: React.FC<Props> = ({
                         {({ selected }) => (
                           <Text
                             as="div"
-                            className={cn('break-words py-3 text-volcanic-800', {
+                            className={cn('break-words py-3 text-volcanic-100', {
                               'font-medium': selected,
-                              'border-b border-marble-500':
+                              'border-b border-marble-800':
                                 i !== optionGroups.length - 1 || j !== group.options.length - 1,
                             })}
                           >
                             {option.label ?? option.value}{' '}
                             {option.description && (
-                              <Text as="span" className="text-volcanic-600">
+                              <Text as="span" className="text-volcanic-400">
                                 ({option.description})
                               </Text>
                             )}
                           </Text>
                         )}
-                      </Listbox.Option>
+                      </ListboxOption>
                     ))}
                 </Fragment>
               ))}
-            </Listbox.Options>
+            </ListboxOptions>
           </div>
         )}
       </Listbox>
       {description && (
-        <Text as="span" styleAs="caption" className="mt-2 text-volcanic-700">
+        <Text as="span" styleAs="caption" className="mt-2 text-volcanic-400">
           {description}
         </Text>
       )}

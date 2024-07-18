@@ -64,8 +64,10 @@ def test_validate_authorization_expired_token_strategy_dne(
     session_client: TestClient,
 ):
     user = {"user_id": "test"}
-    with freezegun.freeze_time("2024-01-01 00:00:00"):
-        token = JWTService().create_and_encode_jwt(user, "")
+    with freezegun.freeze_time("2023-01-01 00:00:00"):
+        token = JWTService().create_and_encode_jwt(user)
+
+    request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
 
     # Call endpoint a month later
     with freezegun.freeze_time("2024-02-01 00:00:00"):

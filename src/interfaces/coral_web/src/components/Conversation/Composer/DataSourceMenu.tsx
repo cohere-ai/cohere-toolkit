@@ -1,3 +1,5 @@
+'use client';
+
 import { useClickOutside } from '@react-hookz/web';
 import { uniq, uniqBy } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -228,7 +230,7 @@ export const DataSourceMenu: React.FC<Props> = ({
           aria-multiselectable="true"
           className={cn(
             'absolute bottom-[85%] left-[1%] z-tag-suggestions max-h-[200px] md:w-[468px]',
-            'w-full overflow-y-scroll rounded bg-marble-100 p-2 shadow-menu focus:outline-none'
+            'w-full overflow-y-scroll rounded bg-marble-1000 p-2 shadow-menu focus:outline-none'
           )}
         >
           {menuMode === MenuMode.TOOLS && (
@@ -313,7 +315,7 @@ const ToolOptions: React.FC<{
             onSelect={() => onOptionSelect({ type: TagType.TOOL, tag })}
             metadata={
               selected ? (
-                <Text as="span" className="text-volcanic-600">
+                <Text as="span" className="text-volcanic-500">
                   Selected
                 </Text>
               ) : undefined
@@ -352,14 +354,14 @@ const FileOptions: React.FC<{
             icon="clip"
             name={tag.name}
             metadata={
-              <Text as="span" className="flex-shrink-0 whitespace-nowrap text-volcanic-600">
+              <Text as="span" className="flex-shrink-0 whitespace-nowrap text-volcanic-500">
                 {selectedTagIds.some((t) => t === tag.id) ? 'Selected' : tag.metadata}
               </Text>
             }
           />
         ))
       ) : (
-        <Text as="span" className="p-1.5 text-volcanic-700">
+        <Text as="span" className="p-1.5 text-volcanic-400">
           You don&apos;t have any files, upload one to use with the assistant.
         </Text>
       )}

@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
@@ -11,22 +13,16 @@ type Props = {
   iconKind?: IconProps['kind'];
 };
 
-// Returns the primary domain name of a url,
-// e.g. https://www.google.com -> google.com
-// e.g. https://www.google.co.uk -> google.co.uk
-// e.g. https://www.en.wikipedia.co.uk/search?q=hello -> wikipedia.co.uk
+// Returns the domain name of a url,
+// e.g. https://www.google.com -> www.google.com
+// e.g. https://www.google.co.uk -> www.google.co.uk
+// e.g. https://en.wikipedia.co.uk/search?q=hello -> en.wikipedia.co.uk
 // e.g. not-a-valid-url --> ''
-const getPrimaryDomain = (url: string) => {
+const getHostname = (url: string) => {
   if (!url) return '';
   try {
     const urlObj = new URL(url);
-    const hostname = urlObj.hostname.split('.');
-    if (hostname.length <= 2) {
-      return hostname.join('.');
-    }
-    // Remove subdomain
-    hostname.shift();
-    return hostname.join('.');
+    return urlObj.hostname;
   } catch {
     return '';
   }
@@ -42,7 +38,7 @@ export const DocumentIcon: React.FC<Props> = ({
   iconKind = 'outline',
 }) => {
   const [error, setError] = useState<boolean | null>(null);
-  const domain = getPrimaryDomain(url);
+  const domain = getHostname(url);
 
   useEffect(() => {
     setError(null);

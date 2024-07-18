@@ -1,7 +1,9 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   presets: [require('./src/themes/cohereTheme')],
   content: ['src/**/*.{js,jsx,ts,tsx}'],
   plugins: [require('@tailwindcss/typography')],
+  darkMode: 'selector',
   theme: {
     extend: {
       screens: {
@@ -56,6 +58,7 @@ module.exports = {
         'left-panel-2xl': '300px',
         'left-panel-3xl': '360px',
         'share-content': '700px',
+        'share-content-with-citations': '1500px',
       },
       height: {
         'ep-icon-sm': '12px',
@@ -90,6 +93,7 @@ module.exports = {
         'drag-drop-input-overlay': '10',
         'configuration-drawer': '20',
         'selected-citation': '20',
+        'read-only-conversation-footer': '30',
         menu: '90',
         'guide-tooltip': '30',
         tooltip: '50',
@@ -102,7 +106,7 @@ module.exports = {
       typography: (theme) => ({
         DEFAULT: {
           css: {
-            color: theme('colors.volcanic.900'),
+            color: theme('colors.volcanic.100'),
           },
         },
       }),

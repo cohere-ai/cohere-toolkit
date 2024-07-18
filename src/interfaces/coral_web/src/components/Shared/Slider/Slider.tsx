@@ -1,3 +1,5 @@
+'use client';
+
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { InputLabel, Text } from '@/components/Shared';
@@ -80,7 +82,7 @@ export const Slider: React.FC<Props> = ({
           onChange={handleChange}
           className={cn(
             'flex w-full cursor-pointer appearance-none items-center outline-none active:cursor-grabbing',
-            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
             styles.slider,
             [themes['secondary']]
           )}
@@ -98,7 +100,7 @@ export const Slider: React.FC<Props> = ({
       {tickDescriptor && (
         <div className="flex w-full justify-between">
           {ticks.map((tick) => (
-            <Text styleAs="caption" className="text-volcanic-700" key={tick}>
+            <Text styleAs="caption" className="text-volcanic-400" key={tick}>
               {tickDescriptor(tick)}
             </Text>
           ))}

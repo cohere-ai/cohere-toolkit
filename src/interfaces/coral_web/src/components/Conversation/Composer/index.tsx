@@ -1,3 +1,5 @@
+'use client';
+
 import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -9,6 +11,8 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
+import { useChatRoutes } from '@/hooks/chatRoutes';
+import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
@@ -48,9 +52,11 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
+  const { agentId } = useChatRoutes();
   const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });
+  const { data: experimentalFeatures } = useExperimentalFeatures();
 
   const [isComposing, setIsComposing] = useState(false);
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
@@ -58,7 +64,9 @@ export const Composer: React.FC<Props> = ({
   const [showDataSourceMenu, setShowDataSourceMenu] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
-  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isToolAuthRequired;
+  const isAgentsModeOn = !!experimentalFeatures?.USE_AGENTS_VIEW;
+  const isComposerDisabled = isToolAuthRequired && isAgentsModeOn;
+  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isComposerDisabled;
 
   const handleCompositionStart = () => {
     setIsComposing(true);
@@ -84,7 +92,7 @@ export const Composer: React.FC<Props> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (isToolAuthRequired) {
+    if (isComposerDisabled) {
       return;
     }
 
@@ -159,15 +167,15 @@ export const Composer: React.FC<Props> = ({
 
   return (
     <div className="flex w-full flex-col">
-      <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />
+      {!agentId && <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />}
       <div
         className={cn(
           'relative flex w-full flex-col',
           'transition ease-in-out',
-          'rounded border bg-marble-100',
-          'border-marble-500 focus-within:border-secondary-700',
+          'rounded border bg-marble-1000',
+          'border-marble-800 focus-within:border-mushroom-400',
           {
-            'border-marble-500 bg-marble-300': isToolAuthRequired,
+            'border-marble-800 bg-marble-950': isComposerDisabled,
           }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
@@ -192,13 +200,13 @@ export const Composer: React.FC<Props> = ({
               'self-center',
               'px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-4',
               'rounded',
-              'bg-marble-100',
+              'bg-marble-1000',
               'transition ease-in-out',
-              'focus:outline-none',
+              'placeholder:text-volcanic-600 focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
               'leading-[150%]',
               {
-                'bg-marble-300': isToolAuthRequired,
+                'bg-marble-950': isComposerDisabled,
               }
             )}
             style={{
@@ -209,7 +217,7 @@ export const Composer: React.FC<Props> = ({
             rows={1}
             onKeyDown={handleKeyDown}
             onChange={handleChange}
-            disabled={isToolAuthRequired}
+            disabled={isComposerDisabled}
           />
           <button
             className={cn(
@@ -217,11 +225,17 @@ export const Composer: React.FC<Props> = ({
               'my-2 ml-1 md:my-4',
               'flex flex-shrink-0 items-center justify-center rounded',
               'transition ease-in-out',
-              'text-secondary-800 hover:bg-secondary-100'
+              'text-mushroom-300 hover:bg-mushroom-900',
+              { 'text-mushroom-600': !canSend }
             )}
             type="button"
-            onClick={() => (canSend ? onSend(value) : onStop())}
-            disabled={!canSend}
+            onClick={() => {
+              if (canSend) {
+                onSend(value);
+              } else {
+                onStop();
+              }
+            }}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>
