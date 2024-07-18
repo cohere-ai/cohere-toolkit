@@ -59,8 +59,15 @@ class MetricsAgent(BaseModel):
     description: str | None
 
 
+class MetricsChat(BaseModel):
+    input_nb_tokens: int
+    output_nb_tokens: int
+    search_units: int
+    model: str
+    assistant_id: str
+
+
 class MetricsData(MetricsDataBase):
-    success: bool = False
     input_nb_tokens: int | None = None
     output_nb_tokens: int | None = None
     search_units: int | None = None

@@ -79,6 +79,8 @@ async def chat_stream(
                 user_id=user_id,
                 trace_id=trace_id,
                 agent_id=agent_id,
+                # for logging metrics
+                signal_queue=request.state.signal_queue,
             ),
             response_message,
             conversation_id,
