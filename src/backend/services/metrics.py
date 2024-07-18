@@ -43,27 +43,40 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     # TODO: tie should_send_event to REPORT_SECRET and REPORT_ENDPOINT
     # currently tests are not setup correctly for it
     async def dispatch(self, request: Request, call_next: Callable):
-        if not REPORT_SECRET:
-            logger.warning("No report secret set")
-        if not REPORT_ENDPOINT:
-            logger.warning("No report endpoint set")
 
+        self.confirm_env()
+        self.init_req_state(request)
+
+        start_time = time.perf_counter()
+        response = await call_next(request)
+        duration_ms = time.perf_counter() - start_time
+        
+        self.send_signal(request, response, duration_ms)
+        return response
+
+    def init_req_state(self, request: Request) -> None:
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.user = None
         request.state.event_type = None
 
-        start_time = time.perf_counter()
-        response = await call_next(request)
-        duration_ms = time.perf_counter() - start_time
-        data = self.get_event_data(request, response, duration_ms)
-        signal = preprocess_event_data(data)
-        should_send_event = request.state.event_type and data and signal
+    def confirm_env(self):
+        if not REPORT_SECRET:
+            logger.warning("No report secret set")
+        if not REPORT_ENDPOINT:
+            logger.warning("No report endpoint set")
+
+    def send_signal(
+        self, request: Request, response: Response, duration_ms: float
+    ) -> None:
+        signal = self.get_event_data(request, response, duration_ms)
+        should_send_event = request.state.event_type and signal
         if should_send_event:
             response.background = BackgroundTask(report_metrics, signal)
-        return response
 
-    def get_event_data(self, request, response, duration_ms) -> MetricsData | None:
+    def get_event_data(
+        self, request: Request, response: Response, duration_ms: float
+    ) -> MetricsSignal | None:
 
         if request.scope["type"] != "http":
             return None
@@ -97,7 +110,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 assistant_id=agent_id,
                 duration_ms=duration_ms,
             )
-            return data
+            data = self.attach_secret(data)
+            signal = MetricsSignal(signal=data)
+            return signal
         except Exception as e:
             logger.warning(f"Failed to process event data: {e}")
             return None
@@ -121,6 +136,12 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             return None
         return request.state.agent
 
+    def attach_secret(self, data: MetricsData) -> MetricsData:
+        if not REPORT_SECRET:
+            return data
+        data.secret = REPORT_SECRET
+        return data
+
 
 async def report_metrics(signal: MetricsSignal) -> None:
     if METRICS_LOGS_CURLS == "true":
@@ -139,13 +160,6 @@ async def report_metrics(signal: MetricsSignal) -> None:
         logger.error(f"Failed to report metrics: {e}")
 
 
-def attach_secret(data: MetricsData) -> MetricsData:
-    if not REPORT_SECRET:
-        return data
-    data.secret = REPORT_SECRET
-    return data
-
-
 # TODO: remove the logging once metrics are configured correctly
 def log_signal_curl(signal: MetricsSignal) -> None:
     s = to_dict(signal)
@@ -155,15 +169,3 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     logger.info(
         f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
     )
-
-
-def preprocess_event_data(data: MetricsData | None) -> MetricsSignal | None:
-    if not data:
-        return None
-    data_with_secret = attach_secret(data)
-    try:
-        signal = MetricsSignal(signal=data)
-        return signal
-    except Exception as e:
-        logger.warning(f"Failed to preprocess event data: {e}")
-        return None
