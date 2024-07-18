@@ -64,7 +64,7 @@ def get_all_agent_tool_metadata_by_agent_id(
 def update_agent_tool_metadata(
     db: Session,
     agent_tool_metadata: AgentToolMetadata,
-    new_agent_tool_metadata: UpdateAgentToolMetadata
+    new_agent_tool_metadata: UpdateAgentToolMetadata,
 ) -> AgentToolMetadata:
     """
     Update a agent tool metadata.
