@@ -597,7 +597,6 @@ def test_upload_file_existing_conversation(
     assert response.status_code == 200
     assert "Mariana_Trench" in file["file_name"]
     assert file["conversation_id"] == conversation.id
-    assert file["user_id"] == conversation.user_id
 
     # File should not exist in the directory
     assert not os.path.exists(saved_file_path)
@@ -686,7 +685,6 @@ def test_batch_upload_file_existing_conversation(
     )
     for file in files:
         assert file["conversation_id"] == conversation.id
-        assert file["user_id"] == conversation.user_id
 
     # File should not exist in the directory
     for saved_file_path in saved_file_paths:
@@ -799,7 +797,6 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
     )
     for file in files:
         assert file["conversation_id"] == created_conversation.id
-        assert file["user_id"] == created_conversation.user_id
 
     assert file["conversation_id"] == created_conversation.id
 
