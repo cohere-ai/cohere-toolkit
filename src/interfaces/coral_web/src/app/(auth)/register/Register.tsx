@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { AuthLink } from '@/components/AuthLink';
@@ -21,7 +21,7 @@ type RegisterStatus = 'idle' | 'pending';
  */
 const Register = () => {
   const router = useRouter();
-  const params = useParams();
+  const search = useSearchParams();
 
   const { registerMutation } = useSession();
 
@@ -40,7 +40,7 @@ const Register = () => {
     }
   };
 
-  const redirect = getQueryString(params.redirect_uri);
+  const redirect = getQueryString(search.get('redirect_uri'));
 
   const errors: string[] = [];
 

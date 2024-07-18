@@ -1,7 +1,7 @@
 'use client';
 
 import { NextPage } from 'next';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { Text } from '@/components/Shared';
@@ -15,8 +15,11 @@ import { getQueryString } from '@/utils';
 const CompleteOauthPage: NextPage = () => {
   const router = useRouter();
   const params = useParams();
+  const search = useSearchParams();
+
   const { oidcSSOMutation, googleSSOMutation } = useSession();
-  const redirect = getQueryString(params.redirect_uri);
+  const redirect = getQueryString(search.get('redirect_uri'));
+  const code = getQueryString(search.get('code'));
   const { loginStrategies: ssoLogins } = useAuthConfig();
 
   const loginType = ssoLogins.find(
@@ -24,14 +27,14 @@ const CompleteOauthPage: NextPage = () => {
   );
 
   useEffect(() => {
-    if (!loginType) {
+    if (!loginType || !code) {
       return;
     }
 
     if (loginType.strategy.toLowerCase() === 'google') {
       googleSSOMutation.mutate(
         {
-          code: params.code as string,
+          code,
         },
         {
           onSuccess: () => {
@@ -47,7 +50,7 @@ const CompleteOauthPage: NextPage = () => {
 
     oidcSSOMutation.mutate(
       {
-        code: params.code as string,
+        code,
         strategy: loginType.strategy,
       },
       {
