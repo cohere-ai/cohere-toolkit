@@ -33,6 +33,23 @@ class AgentDeploymentModelAssociation(Base):
     )
 
 
+class AgentToolAssociation(Base):
+    __tablename__ = "agent_tool"
+
+    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"))
+    tool_id: Mapped[str] = mapped_column(ForeignKey("tools.id", ondelete="CASCADE"))
+    tool_config: Mapped[Optional[dict]] = mapped_column(JSON)
+
+    agent = relationship("Agent", back_populates="agent_tool_associations")
+    tool = relationship("Tool", back_populates="agent_tool_associations")
+
+    __table_args__ = (
+        UniqueConstraint(
+            "agent_id", "tool_id", name="agent_tool_uc"
+        ),
+    )
+
+
 class Agent(Base):
     __tablename__ = "agents"
 
@@ -69,6 +86,10 @@ class Agent(Base):
     )
     agent_deployment_associations = relationship(
         "AgentDeploymentModelAssociation", back_populates="agent"
+    )
+
+    agent_tool_associations = relationship(
+        "AgentToolAssociation", back_populates="agent"
     )
 
     user = relationship("User", back_populates="agents")
