@@ -56,24 +56,25 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         start_time = time.perf_counter()
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
-        data = self.get_event_data(request.scope, response, request, duration_ms)
+        data = self.get_event_data(request, response, duration_ms)
         signal = preprocess_event_data(data)
         should_send_event = request.state.event_type and data and signal
         if should_send_event:
             response.background = BackgroundTask(report_metrics, signal)
         return response
 
-    def get_event_data(
-        self, scope, response, request, duration_ms
-    ) -> MetricsData | None:
-        data = {}
-        if scope["type"] != "http":
+    def get_event_data(self, request, response, duration_ms) -> MetricsData | None:
+
+        if request.scope["type"] != "http":
             return None
+
         message_type = request.state.event_type
         if not message_type:
             return None
         try:
             user_id = get_header_user_id(request)
+            if not user_id:
+                raise ValueError("user_id empty")
         except:
             logger.warning(f"Failed to get user id from headers")
             return None
@@ -81,7 +82,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         agent = self.get_agent(request)
         agent_id = agent.id if agent else None
         user = self.get_user(request)
-        object_ids = self.get_object_ids(request)
         event_id = str(uuid.uuid4())
         now_unix_seconds = time.time()
 
@@ -93,7 +93,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 user=user,
                 message_type=message_type,
                 trace_id=request.state.trace_id,
-                object_ids=object_ids,
                 assistant=agent,
                 assistant_id=agent_id,
                 duration_ms=duration_ms,
@@ -101,26 +100,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             return data
         except Exception as e:
             logger.warning(f"Failed to process event data: {e}")
-            return None
-
-    def get_user_id(self, request: Request) -> Union[str, None]:
-        try:
-            user_id = request.headers.get("User-Id", None)
-
-            if not user_id:
-                user_id = (
-                    request.state.user.id
-                    if hasattr(request.state, "user") and request.state.user
-                    else None
-                )
-
-            # Health check does not have a user id - use a placeholder
-            if not user_id and HEALTH_ENDPOINT in request.url.path:
-                return HEALTH_ENDPOINT_USER_ID
-
-            return user_id
-        except Exception as e:
-            logger.warning(f"Failed to get user id: {e}")
             return None
 
     def get_user(self, request: Request) -> Union[MetricsUser, None]:
@@ -136,20 +115,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             logger.warning(f"Failed to get user: {e}")
             return None
-
-    def get_object_ids(self, request: Request) -> Dict[str, str]:
-        object_ids = {}
-        try:
-            for key, value in request.path_params.items():
-                object_ids[key] = value
-
-            for key, value in request.query_params.items():
-                object_ids[key] = value
-
-            return object_ids
-        except Exception as e:
-            logger.warning(f"Failed to get object ids: {e}")
-            return {}
 
     def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
         if not hasattr(request.state, "agent") or not request.state.agent:

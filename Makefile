@@ -12,6 +12,8 @@ run-agent-router-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_agent.py
 run-user-router-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_user.py
+run-chat-router-tests:
+	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_chat.py
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
 attach: 

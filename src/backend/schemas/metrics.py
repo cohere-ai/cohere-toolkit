@@ -66,7 +66,6 @@ class MetricsData(MetricsDataBase):
     search_units: int | None = None
     model: str | None = None
     error: str | None = None
-    object_ids: dict[str, str] | None = None
     duration_ms: float | None = None
     meta: dict[str, Any] | None = None
     assistant_id: str | None = None
