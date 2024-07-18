@@ -14,6 +14,9 @@ jobs:
       COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NEXT_PUBLIC_API_HOSTNAME: ${{ secrets.NEXT_PUBLIC_API_HOSTNAME }}
+      OIDC_CLIENT_ID: ${{ secrets.OIDC_CLIENT_ID }}
+      OIDC_CLIENT_SECRET: ${{ secrets.OIDC_CLIENT_SECRET }}
+      OIDC_WELL_KNOWN_ENDPOINT: ${{ secrets.OIDC_WELL_KNOWN_ENDPOINT }}
 
     steps:
       - name: Checkout repo
