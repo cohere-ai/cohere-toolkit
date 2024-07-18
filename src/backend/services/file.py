@@ -69,19 +69,16 @@ class FileService:
             update_conversation.file_ids = file_ids
         else:
             update_conversation.file_ids = [file.id]
-
-        print("old", conversation.file_ids)
-        print("new", update_conversation.file_ids)
         
         conversation_crud.update_conversation(session, conversation, update_conversation)
 
         return file
 
     
-    def get_files_by_conversation_id(self, conversation_id: str) -> list[File]:
-        conversation = conversation_crud.get_conversation(self.session, conversation_id)
+    def get_files_by_conversation_id(self, session: DBSessionDep, user_id: str, conversation_id: str) -> list[File]:
+        conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
         file_ids = conversation.file_ids
-        files = file_crud.get_files_by_ids(self.session, file_ids)
+        files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
 
 

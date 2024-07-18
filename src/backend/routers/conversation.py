@@ -66,6 +66,7 @@ async def get_conversation(
     """
     user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
 
     if not conversation:
         raise HTTPException(
@@ -73,7 +74,16 @@ async def get_conversation(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
-    return conversation
+    return Conversation(
+        id=conversation.id,
+        created_at=conversation.created_at,
+        updated_at=conversation.updated_at,
+        title=conversation.title,
+        messages=conversation.messages,
+        files=files,
+        description=conversation.description,
+        agent_id=conversation.agent_id
+    )
 
 
 @router.get("", response_model=list[ConversationWithoutMessages])
