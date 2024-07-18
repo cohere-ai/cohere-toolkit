@@ -24,13 +24,22 @@ def get_client() -> Redis:
 def cache_put(key: str, value: Any) -> None:
     client = get_client()
 
-    client.set(key, value)
+    if isinstance(value, dict): 
+        client.hmset(key, value)
+    else:
+        client.set(key, value)
 
 
 def cache_get(key: str) -> Any:
     client = get_client()
 
     return client.get(key)
+
+
+def cache_get_dict(key: str) -> dict:
+    client = get_client()
+
+    return client.hgetall(key)
 
 
 def cache_del(key: str) -> None:

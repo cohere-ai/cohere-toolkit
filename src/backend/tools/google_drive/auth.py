@@ -12,7 +12,7 @@ from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger import get_logger
-from backend.tools.base import BaseToolAuthentication
+from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
 from backend.tools.google_drive.tool import GoogleDrive
 
 from .constants import SCOPES
@@ -20,7 +20,7 @@ from .constants import SCOPES
 logger = get_logger()
 
 
-class GoogleDriveAuth(BaseToolAuthentication):
+class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     TOOL_ID = GoogleDrive.NAME
     AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
     TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
@@ -41,8 +41,11 @@ class GoogleDriveAuth(BaseToolAuthentication):
                 "GOOGLE_DRIVE_CLIENT_ID and GOOGLE_DRIVE_CLIENT_SECRET must be set to use Google Drive Tool Auth."
             )
 
+
     def get_auth_url(self, user_id: str) -> str:
-        state = {"user_id": user_id, "tool_id": self.TOOL_ID}
+        key = self.insert_tool_auth_cache(user_id, self.TOOL_ID)
+        state = {"key": key}
+        
         params = {
             "response_type": "code",
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
