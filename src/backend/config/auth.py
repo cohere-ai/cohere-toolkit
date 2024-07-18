@@ -14,7 +14,7 @@ SKIP_AUTH = os.getenv("SKIP_AUTH", None)
 # Ex: [BasicAuthentication]
 ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
 if "pytest" in sys.modules or SKIP_AUTH == "true":
-    ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
+    ENABLED_AUTH_STRATEGIES = []
 
 # Define the mapping from Auth strategy name to class obj - does not need to be manually modified.
 # During runtime, this will create an instance of each enabled strategy class.
