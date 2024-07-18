@@ -1,8 +1,8 @@
 """empty message
 
 Revision ID: ed17f144f4bf
-Revises: 1acff4138b79
-Create Date: 2024-07-10 10:00:50.507812
+Revises: f077676dfd5d
+Create Date: 2024-07-16 10:00:50.507812
 
 """
 
@@ -15,7 +15,7 @@ from src.backend.schemas.user import DEFAULT_USER_ID, DEFAULT_USER_NAME
 
 # revision identifiers, used by Alembic.
 revision: str = "ed17f144f4bf"
-down_revision: Union[str, None] = "1acff4138b79"
+down_revision: Union[str, None] = "f077676dfd5d"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

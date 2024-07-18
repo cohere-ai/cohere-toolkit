@@ -1,10 +1,11 @@
-import { QueryClient, dehydrate } from '@tanstack/react-query';
-import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
+'use client';
+
+import { NextPage } from 'next';
+import { useParams, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { CohereClient, CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
+import { CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
 import { Button, Input, Text } from '@/components/Shared';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
@@ -13,7 +14,6 @@ import { useAuthConfig } from '@/hooks/authConfig';
 import { useOidcAuthRoute } from '@/hooks/oidcAuthRoute';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
-import { PageAppProps, appSSR } from '@/pages/_app';
 import type { NoNullProperties } from '@/types/util';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
@@ -22,14 +22,13 @@ interface Credentials {
   password: string;
 }
 
-type Props = PageAppProps & {};
-
 type LoginStatus = 'idle' | 'pending';
 
 /**
  * @description The login page supports logging in with an email and password.
  */
-const LoginPage: NextPage<Props> = () => {
+const LoginPage: NextPage = () => {
+  const params = useParams();
   const router = useRouter();
   const { loginMutation } = useSession();
   const { loginStrategies } = useAuthConfig();
@@ -39,7 +38,7 @@ const LoginPage: NextPage<Props> = () => {
   const loginStatus: LoginStatus = loginMutation.isPending ? 'pending' : 'idle';
 
   const { register, handleSubmit, formState } = useForm<Credentials>();
-  const redirect = getQueryString(router.query.redirect_uri);
+  const redirect = getQueryString(params.redirect_uri);
   const hasBasicAuth = loginStrategies.some((login) => login.strategy.toLowerCase() === 'basic');
   const ssoStrategies = useMemo(() => {
     return (
@@ -188,21 +187,6 @@ const LoginPage: NextPage<Props> = () => {
       </div>
     </WelcomePage>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
 };
 
 export default LoginPage;

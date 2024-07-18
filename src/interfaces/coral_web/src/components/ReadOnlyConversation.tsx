@@ -1,3 +1,5 @@
+'use client';
+
 import { flatten, sortBy, uniqBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

@@ -81,22 +81,6 @@ def test_create_agent_missing_tool_name(session, user):
         )
 
 
-def test_create_agent_missing_user_id(session, user):
-    agent = get_factory("Agent", session).create(
-        id="1", name="test_agent", tools=[ToolName.Google_Drive], user_id=user.id
-    )
-
-    agent_tool_metadata_data = AgentToolMetadata(
-        agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
-        artifacts=[mock_artifact_1],
-    )
-    with pytest.raises(IntegrityError):
-        _ = agent_tool_metadata_crud.create_agent_tool_metadata(
-            session, agent_tool_metadata_data
-        )
-
-
 def test_update_agent_tool_metadata(session, user):
     agent = get_factory("Agent", session).create(user_id=user.id)
     original_agent_tool_metadata = get_factory("AgentToolMetadata", session).create(

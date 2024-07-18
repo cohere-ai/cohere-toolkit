@@ -1,3 +1,5 @@
+'use client';
+
 import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
@@ -5,7 +7,6 @@ import { UpdateAgent } from '@/components/Agents/UpdateAgent';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
-import { Spinner } from '@/components/Shared';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
@@ -14,7 +15,6 @@ import { useAgent, useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
-import { useRouteChange } from '@/hooks/route';
 import {
   useAgentsStore,
   useCitationsStore,
@@ -52,7 +52,6 @@ const Conversation: React.FC<Props> = ({
   } = useSettingsStore();
   const {
     conversation: { messages },
-    resetConversation,
   } = useConversationStore();
   const {
     citations: { selectedCitation },
@@ -123,20 +122,6 @@ const Conversation: React.FC<Props> = ({
       window?.removeEventListener('click', handleClickOutside);
     };
   }, [handleClickOutside]);
-
-  const [isRouteChanging] = useRouteChange({
-    onRouteChangeStart: () => {
-      resetConversation();
-    },
-  });
-
-  if (isRouteChanging) {
-    return (
-      <div className="flex h-full flex-grow items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
 
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFileIds = await uploadFile(e.target.files?.[0]);

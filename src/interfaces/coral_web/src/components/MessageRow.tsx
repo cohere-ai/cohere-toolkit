@@ -1,3 +1,5 @@
+'use client';
+
 import { usePreviousDistinct } from '@react-hookz/web';
 import { forwardRef, useEffect, useState } from 'react';
 import { useLongPress } from 'react-aria';

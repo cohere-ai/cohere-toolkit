@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/utils';
 
 export const Spinner: React.FC<{ className?: string }> = ({ className = '' }) => {

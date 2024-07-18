@@ -15,7 +15,6 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.metrics import MetricsData
 from backend.services.logger import get_logger, send_log_message
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"

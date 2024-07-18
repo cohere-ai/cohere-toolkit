@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import { MessageFile } from '@/components/MessageFile';

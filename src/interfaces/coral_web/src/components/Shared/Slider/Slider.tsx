@@ -1,3 +1,5 @@
+'use client';
+
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { InputLabel, Text } from '@/components/Shared';

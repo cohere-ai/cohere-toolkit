@@ -98,17 +98,6 @@ def test_create_agent_missing_model(session, user):
         _ = agent_crud.create_agent(session, agent_data)
 
 
-def test_create_agent_missing_user_id(session):
-    agent_data = Agent(
-        name="test",
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-    )
-
-    with pytest.raises(IntegrityError):
-        _ = agent_crud.create_agent(session, agent_data)
-
-
 def test_create_agent_duplicate_name_version(session, user):
     _ = get_factory("Agent", session).create(
         id="1", user_id=user.id, name="test_agent", version=1

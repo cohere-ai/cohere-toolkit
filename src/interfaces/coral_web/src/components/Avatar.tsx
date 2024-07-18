@@ -1,3 +1,5 @@
+'use client';
+
 import Lottie from 'react-lottie-player';
 
 import logoTyping from '@/assets/lotties/icon-loop-coral-950.json';
