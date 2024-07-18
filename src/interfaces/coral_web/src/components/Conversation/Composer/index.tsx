@@ -26,7 +26,7 @@ type Props = {
   onStop: VoidFunction;
   onSend: (message?: string, overrides?: Partial<ConfigurableParams>) => void;
   onChange: (message: string) => void;
-  onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUploadFile: (files: File[]) => void;
   requiredTools?: string[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
 };

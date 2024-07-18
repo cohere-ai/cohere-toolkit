@@ -138,8 +138,8 @@ const Conversation: React.FC<Props> = ({
     );
   }
 
-  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFileIds = await uploadFiles([...(e.target.files ?? [])], conversationId);
+  const handleUploadFile = async (files: File[]) => {
+    const newFileIds = await uploadFiles(files, conversationId);
     if (!newFileIds) return;
     enableDefaultFileLoaderTool();
   };

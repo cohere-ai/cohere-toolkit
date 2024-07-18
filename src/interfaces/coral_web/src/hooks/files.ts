@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { uniqBy } from 'lodash';
+import { first, uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
 import {
@@ -97,7 +97,7 @@ export const useDeleteUploadedFile = () => {
 export const useFileActions = () => {
   const {
     files: { uploadingFiles, composerFiles },
-    addUploadingFile,
+    addUploadingFiles,
     addComposerFile,
     deleteUploadingFile,
     deleteComposerFile,
@@ -122,7 +122,7 @@ export const useFileActions = () => {
 
     const MAX_FILE_SIZE = fileSizeToBytes(20);
 
-    const uploadingFileIds: string[] = [];
+    const newUploadingFiles: UploadingFile[] = [];
     files.forEach((file) => {
       const uploadingFileId = new Date().valueOf().toString();
       const newUploadingFile: UploadingFile = {
@@ -142,18 +142,26 @@ export const useFileActions = () => {
         newUploadingFile.error = `File size cannot exceed ${formatFileSize(MAX_FILE_SIZE)}`;
       }
 
-      addUploadingFile(newUploadingFile);
-      uploadingFileIds.push(uploadingFileId);
-      if (newUploadingFile.error) {
-        return;
-      }
+      newUploadingFiles.push(newUploadingFile);
     });
 
-    console.debug(uploadingFiles);
+    const firstInvalidFile = newUploadingFiles.find((file) => file.error);
+    if (!!firstInvalidFile) {
+      // If error exists, update all files with the same error so that none
+      // are shown as uploading in the composer and then exist the function.
+      // This is because batch file upload will currently fail if any one file is invalid.
+      const invalidFiles = newUploadingFiles.map((file) =>
+        !file.error ? { ...file, error: firstInvalidFile.error } : file
+      );
+      addUploadingFiles(invalidFiles);
+      return;
+    }
+    addUploadingFiles(newUploadingFiles);
+
     try {
       const uploadedFiles = await uploadFiles({ files, conversationId });
 
-      uploadingFileIds.forEach((fileId) => deleteUploadingFile(fileId));
+      newUploadingFiles.forEach((file) => deleteUploadingFile(file.id));
 
       const newFileIds: string[] = fileIds ?? [];
       uploadedFiles.forEach((uploadedFile) => {

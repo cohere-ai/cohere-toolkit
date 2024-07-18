@@ -8,29 +8,27 @@ import { cn } from '@/utils';
 
 export const DragDropFileUploadOverlay: React.FC<{
   active: boolean;
-  onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUploadFile: (files: File[]) => void;
 }> = ({ active, onUploadFile }) => {
   const { queueFocusFileInput, focusFileInput } = useFocusFileInput();
   const {
     settings: { isConfigDrawerOpen },
   } = useSettingsStore();
 
-  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // @ts-ignore
-    console.debug('[handleUploadFile]', e, e.target, e.dataTransfer);
+  const handleUploadFile = async (files: File[]) => {
     if (!isConfigDrawerOpen) {
       queueFocusFileInput();
     } else {
       focusFileInput();
     }
-    onUploadFile(e);
+    onUploadFile(files);
   };
 
   return (
     <DragDropFileInput
       label="Drop to upload"
       subLabel=""
-      onChange={handleUploadFile}
+      onDrop={handleUploadFile}
       multiple
       accept={ACCEPTED_FILE_TYPES}
       dragActiveDefault={true}
