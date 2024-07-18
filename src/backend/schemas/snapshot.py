@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.schemas.agent import AgentToolMetadata
 from backend.schemas.message import Message
@@ -22,7 +22,7 @@ class SnapshotData(BaseModel):
     title: str
     description: str
     messages: list[Message]
-    agent: Optional[SnapshotAgent]
+    agent: Optional[SnapshotAgent] = Field(exclude=True)
 
     class Config:
         from_attributes = True
