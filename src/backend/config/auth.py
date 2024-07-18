@@ -12,7 +12,7 @@ load_dotenv()
 SKIP_AUTH = os.getenv("SKIP_AUTH", None)
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
-ENABLED_AUTH_STRATEGIES = []
+ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
 if "pytest" in sys.modules or SKIP_AUTH == "true":
     ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
 
