@@ -485,6 +485,7 @@ async def generate_title(
     model_config = get_deployment_config(request)
 
     title = await generate_conversation_title(
+        request,
         session,
         conversation,
         deployment_name,

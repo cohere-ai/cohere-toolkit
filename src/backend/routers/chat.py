@@ -51,8 +51,6 @@ async def chat_stream(
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
     print("trace_id", trace_id)
-    request.state.is_stream = True
-    
     add_model_to_request_state(request, chat_request.model)
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
@@ -70,32 +68,29 @@ async def chat_stream(
         next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
-    stream = generate_chat_stream(
-        request,
-        session,
-        CustomChat().chat(
-            chat_request,
-            stream=True,
-            deployment_name=deployment_name,
-            deployment_config=deployment_config,
-            file_paths=file_paths,
-            managed_tools=managed_tools,
-            session=session,
-            conversation_id=conversation_id,
-            user_id=user_id,
-            trace_id=trace_id,
-            agent_id=agent_id,
-            # for logging metrics
-            request=request,
-        ),
-        response_message,
-        conversation_id,
-        user_id,
-        should_store=should_store,
-        next_message_position=next_message_position,
-    )
     return EventSourceResponse(
-        stream,
+        generate_chat_stream(
+            request,
+            session,
+            CustomChat().chat(
+                chat_request,
+                stream=True,
+                deployment_name=deployment_name,
+                deployment_config=deployment_config,
+                file_paths=file_paths,
+                managed_tools=managed_tools,
+                session=session,
+                conversation_id=conversation_id,
+                user_id=user_id,
+                trace_id=trace_id,
+                agent_id=agent_id,
+            ),
+            response_message,
+            conversation_id,
+            user_id,
+            should_store=should_store,
+            next_message_position=next_message_position,
+        ),
         media_type="text/event-stream",
         headers={"Connection": "keep-alive"},
         send_timeout=300,
@@ -142,6 +137,7 @@ async def chat(
     ) = process_chat(session, chat_request, request, agent_id)
 
     response = await generate_chat_response(
+        request,
         session,
         CustomChat().chat(
             chat_request,
