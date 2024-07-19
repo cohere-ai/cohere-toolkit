@@ -63,7 +63,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
     : isTool
     ? toolDisplayInfo?.icon ?? TOOL_FALLBACK_ICON
     : undefined;
-  const svg = TOOL_ID_TO_ICON[toolId ?? ''] ?? undefined;
+  const toolIcon = TOOL_ID_TO_ICON[toolId ?? ''] ?? undefined;
 
   return (
     <div className="flex items-center justify-between gap-x-3">
@@ -76,7 +76,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
         })}
       >
         <DocumentIcon
-          svg={svg}
+          toolIcon={toolIcon}
           url={safeUrl}
           icon={icon}
           iconKind={isSelected ? 'default' : 'outline'}
