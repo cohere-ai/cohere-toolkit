@@ -27,6 +27,7 @@ type Actions = {
   queueFocusFileInput: () => void;
   clearFocusFileInput: () => void;
   addUploadingFile: (file: UploadingFile) => void;
+  addUploadingFiles: (files: UploadingFile[]) => void;
   addComposerFile: (file: CohereFile) => void;
   updateUploadingFileError: (file: UploadingFile, error: string) => void;
   deleteUploadingFile: (id: string) => void;
@@ -61,6 +62,14 @@ export const createFilesSlice: StateCreator<StoreState, [], [], FilesStore> = (s
       files: {
         ...state.files,
         uploadingFiles: [...state.files.uploadingFiles, file],
+      },
+    }));
+  },
+  addUploadingFiles(files) {
+    set((state) => ({
+      files: {
+        ...state.files,
+        uploadingFiles: [...state.files.uploadingFiles, ...files],
       },
     }));
   },
