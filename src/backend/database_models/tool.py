@@ -7,6 +7,7 @@ from backend.database_models.base import Base
 
 DEFAULT_TOOLS_MODULE = "backend.tools"
 COMMUNITY_TOOLS_MODULE = "community.tools"
+DEFAULT_AUTH_MODULE = "backend.services.auth"
 
 
 class Tool(Base):
@@ -19,9 +20,12 @@ class Tool(Base):
     parameter_definitions: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     default_tool_config: Mapped[Optional[dict]] = mapped_column(JSON)
     is_visible: Mapped[bool] = mapped_column(Boolean, default=True)
-    auth_implementation: Mapped[Optional[str]] = mapped_column(Text)
+    is_community: Mapped[bool] = mapped_column(Boolean, default=False)
     error_message: Mapped[Optional[str]] = mapped_column(Text)
     category: Mapped[Optional[str]] = mapped_column(Text)
+    is_auth_required: Mapped[bool] = mapped_column(Boolean, default=False)
+    auth_implementation_class_name: Mapped[Optional[str]] = mapped_column(Text)
+    auth_url: Mapped[Optional[str]] = mapped_column(Text, default="")
 
     agent_tool_associations = relationship(
         "AgentToolAssociation", back_populates="tool"
@@ -68,11 +72,22 @@ class Tool(Base):
         if not self.implementation_class_name:
             return None
         cls = get_module_class(
-            DEFAULT_TOOLS_MODULE, self.deployment_class_name
+            DEFAULT_TOOLS_MODULE, self.implementation_class_name
         )
         if not cls:
             cls = get_module_class(
-                COMMUNITY_TOOLS_MODULE, self.deployment_class_name
+                COMMUNITY_TOOLS_MODULE, self.implementation_class_name
             )
 
+        return cls
+
+    @property
+    def auth_implementation_class(self):
+        from backend.model_deployments.utils import get_module_class
+
+        if not self.auth_implementation_class_name:
+            return None
+        cls = get_module_class(
+            DEFAULT_AUTH_MODULE, self.implementation_class_name
+        )
         return cls
