@@ -41,7 +41,6 @@ class BaseOAuthStrategy:
     PKCE_ENABLED = False
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self._post_init_check()
 
     def _post_init_check(self):
