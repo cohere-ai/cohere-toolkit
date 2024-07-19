@@ -58,7 +58,7 @@ class Agent(Base):
     description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     preamble: Mapped[str] = mapped_column(Text, default="", nullable=False)
     temperature: Mapped[float] = mapped_column(Float, default=0.3, nullable=False)
-    tools: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[], nullable=False)
+
     tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata")
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
@@ -84,6 +84,13 @@ class Agent(Base):
         back_populates="agents",
         overlaps="deployments,models,agents,agent,agent_deployment_associations,model",
     )
+    associated_tools = relationship(
+        "Tool",
+        secondary="agent_tool",
+        back_populates="agents",
+        overlaps="tools,agents,agent,agent_tool_associations,tool"
+    )
+
     agent_deployment_associations = relationship(
         "AgentDeploymentModelAssociation", back_populates="agent"
     )
@@ -136,6 +143,10 @@ class Agent(Base):
                 else None
             )
         return default_model_association.model if default_model_association else None
+
+    @property
+    def tools(self):
+        return [associated_tool.name for associated_tool in self.associated_tools]
 
     def set_default_agent_deployment_model(self, deployment_id: str, model_id: str):
         default_model_deployment = next(

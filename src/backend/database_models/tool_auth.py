@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -11,7 +13,10 @@ class ToolAuth(Base):
     user_id: Mapped[str] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=True
     )
-    tool_id: Mapped[str] = mapped_column(Text, nullable=False)
+    tool_id: Mapped[Optional[str]] = mapped_column(
+        ForeignKey("tools.id", name="metadata_tool_id_fkey", ondelete="CASCADE")
+    )
+
     token_type: Mapped[str] = mapped_column(Text, nullable=False)
     encrypted_access_token: Mapped[bytes] = mapped_column()
     encrypted_refresh_token: Mapped[bytes] = mapped_column()

@@ -27,6 +27,13 @@ class Tool(Base):
         "AgentToolAssociation", back_populates="tool"
     )
 
+    agents = relationship(
+        "Agent",
+        secondary="agent_tool",
+        back_populates="associated_tools",
+        overlaps="tools,agents,agent,agent_tool_associations",
+    )
+
     __table_args__ = (UniqueConstraint("name", name="tool_name_uc"),)
 
     @property
