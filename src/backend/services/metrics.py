@@ -49,20 +49,24 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         start_time = time.perf_counter()
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
-
         self.send_signal(request, response, duration_ms)
-        self.process_signal_queue(request, response)
+
+        # self.process_signal_queue(request, response)
         return response
 
     def init_req_state(self, request: Request) -> None:
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
+        request.state.model = None
+        request.state.is_stream = False
         request.state.user = None
         request.state.event_type = None
         request.state.signal_queue = []
 
     def process_signal_queue(self, request: Request, response: Response) -> None:
-        logger.info(f"Processing signal queue of size: {len(request.state.signal_queue)}")
+        logger.info(
+            f"Processing signal queue of size: {len(request.state.signal_queue)}"
+        )
         for signal in request.state.signal_queue:
             response.background = BackgroundTask(report_metrics, signal)
 
@@ -98,7 +102,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Failed to get user id: {e}")
             return None
 
-        agent = self.get_agent(request)
+        agent = get_agent(request)
         agent_id = agent.id if agent else None
         user = self.get_user(request)
         event_id = str(uuid.uuid4())
@@ -137,11 +141,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Failed to get user: {e}")
             return None
 
-    def get_agent(self, request: Request) -> Union[MetricsAgent, None]:
-        if not hasattr(request.state, "agent") or not request.state.agent:
-            return None
-        return request.state.agent
-
     def attach_secret(self, data: MetricsData) -> MetricsData:
         if not REPORT_SECRET:
             return data
@@ -177,17 +176,16 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     )
 
 
-def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) -> None:
-    state = kwargs.get("state", None)
-    if state is None or state.signal_queue is None:
-        logger.error(f"request state event queue not found")
+def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
+    event_type = event["event_type"]
+    if event_type != StreamEvent.STREAM_END:
         return
 
-    trace_id = kwargs.get("trace_id", None)
-    user_id = kwargs.get("user_id", None)
-    # agent_id = kwargs.get("agent_id", "TODO")
-    agent_id = "TODO"
-    
+    trace_id = request.state.trace_id
+    model = request.state.model
+    user_id = get_header_user_id(request)
+    agent = get_agent(request)
+    agent_id = agent.id if agent else None
     event_dict = to_dict(event).get("response", {})
     input_tokens = (
         event_dict.get("meta", {}).get("billed_units", {}).get("input_tokens", 0)
@@ -210,7 +208,7 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
             input_nb_tokens=input_tokens,
             output_nb_tokens=output_tokens,
             search_units=search_units,
-            model=chat_request.model,
+            model=model,
             assistant_id=agent_id,
         )
         metrics = MetricsData(
@@ -226,14 +224,13 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
             input_nb_tokens=input_tokens,
             output_nb_tokens=output_tokens,
             search_units=search_units,
-            model=chat_request.model,
+            model=model,
             assistant_id=agent_id,
-            error=event_dict.get("finish_reason") if is_error else None,
+            error=event_dict.get("finish_reason", None) if is_error else None,
         )
         signal = MetricsSignal(signal=metrics)
         log_signal_curl(signal)
-        
-        state.signal_queue.append(MetricsSignal(signal=metrics))
+        signal = MetricsSignal(signal=metrics)
 
     except Exception as e:
         logger.error(f"Failed to push chat success event to signal queue: {e}")
@@ -242,7 +239,8 @@ def push_final_chat_event_to_signal_queue(event, chat_request, **kwargs: Any) ->
 def push_interrupted_chat_event_to_signal_queue(
     event, chat_request, err_str, **kwargs: Any
 ) -> None:
-    state = kwargs.get("state", None)
+    request = kwargs.get("request", None)
+    state = request.state if request else None
     if state is None or state.signal_queue is None:
         logger.error(f"request state event queue not found")
         return
@@ -251,7 +249,6 @@ def push_interrupted_chat_event_to_signal_queue(
     user_id = kwargs.get("user_id", None)
     # agent_id = kwargs.get("agent_id", "TODO")
     agent_id = "TODO"
-
 
     try:
         metrics = MetricsData(
@@ -269,3 +266,9 @@ def push_interrupted_chat_event_to_signal_queue(
         request.state.signal_queue.append(signal)
     except Exception as e:
         logger.error(f"Failed to push chat interrupted event to signal queue: {e}")
+
+
+def get_agent(request: Request) -> Union[MetricsAgent, None]:
+    if not hasattr(request.state, "agent") or not request.state.agent:
+        return None
+    return request.state.agent

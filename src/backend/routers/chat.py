@@ -4,7 +4,7 @@ from typing import Any, Generator
 
 from fastapi import APIRouter, Depends, Header, Request
 from sse_starlette.sse import EventSourceResponse
-
+from backend.crud import agent as agent_crud
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
@@ -19,6 +19,10 @@ from backend.services.chat import (
     process_chat,
 )
 from backend.services.request_validators import validate_deployment_header
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_model_to_request_state,
+)
 
 router = APIRouter(
     prefix="/v1",
@@ -47,9 +51,15 @@ async def chat_stream(
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
     print("trace_id", trace_id)
-
+    request.state.is_stream = True
+    
+    add_model_to_request_state(request, chat_request.model)
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        add_agent_to_request_state(agent)
+        
     (
         session,
         chat_request,
@@ -64,30 +74,32 @@ async def chat_stream(
         next_message_position,
     ) = process_chat(session, chat_request, request, agent_id)
 
-    return EventSourceResponse(
-        generate_chat_stream(
-            session,
-            CustomChat().chat(
-                chat_request,
-                stream=True,
-                deployment_name=deployment_name,
-                deployment_config=deployment_config,
-                file_paths=file_paths,
-                managed_tools=managed_tools,
-                session=session,
-                conversation_id=conversation_id,
-                user_id=user_id,
-                trace_id=trace_id,
-                agent_id=agent_id,
-                # for logging metrics
-                state=request.state,
-            ),
-            response_message,
-            conversation_id,
-            user_id,
-            should_store=should_store,
-            next_message_position=next_message_position,
+    stream = generate_chat_stream(
+        request,
+        session,
+        CustomChat().chat(
+            chat_request,
+            stream=True,
+            deployment_name=deployment_name,
+            deployment_config=deployment_config,
+            file_paths=file_paths,
+            managed_tools=managed_tools,
+            session=session,
+            conversation_id=conversation_id,
+            user_id=user_id,
+            trace_id=trace_id,
+            agent_id=agent_id,
+            # for logging metrics
+            request=request,
         ),
+        response_message,
+        conversation_id,
+        user_id,
+        should_store=should_store,
+        next_message_position=next_message_position,
+    )
+    return EventSourceResponse(
+        stream,
         media_type="text/event-stream",
         headers={"Connection": "keep-alive"},
         send_timeout=300,
