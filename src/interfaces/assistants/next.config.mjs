@@ -31,15 +31,6 @@ const nextConfig = {
       },
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: '/chat',
-        destination: '/',
-        permanent: false,
-      },
-    ];
-  },
 };
 
 const getNextConfig = (phase) => {

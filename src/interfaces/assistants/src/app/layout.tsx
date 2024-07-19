@@ -1,9 +1,7 @@
 import { Metadata } from 'next';
 
 import { LayoutProviders } from '@/app/_providers';
-import { env } from '@/env.mjs';
 import '@/styles/main.css';
-import { cn } from '@/utils';
 
 export const metadata: Metadata = {
   title: {
@@ -14,7 +12,7 @@ export const metadata: Metadata = {
 
 const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
-    <html lang="en" className={cn({ dark: env.NEXT_PUBLIC_DARK_MODE })}>
+    <html lang="en" className="dark">
       <body>
         <LayoutProviders>{children}</LayoutProviders>
       </body>

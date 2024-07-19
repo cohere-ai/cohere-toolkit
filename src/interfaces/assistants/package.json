@@ -1,5 +1,5 @@
 {
-  "name": "@cohere-ai/toolkit-frontend",
+  "name": "@cohere-ai/assistants-frontend",
   "version": "0.0.0",
   "private": true,
   "engines": {
@@ -9,15 +9,15 @@
     "yarn": "9999"
   },
   "scripts": {
-    "dev": "next dev --port 4000",
+    "dev": "next dev --port 4444",
     "build": "next build",
     "lint": "next lint",
     "ts-lint": "tsc -noEmit -incremental -watch",
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
     "next:build": "next build",
-    "start": "next build && next start --port 4000",
-    "start:single-docker": "next build && next start --port 4000",
+    "start": "next build && next start --port 4444",
+    "start:single-docker": "next build && next start --port 4444",
     "start:single-docker-proxy": "next build && next start --port 8090",
     "generate:client": "openapi-ts"
   },
