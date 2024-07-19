@@ -76,6 +76,8 @@ services:
       - ./src/backend/alembic:/workspace/src/backend/alembic
       # Mount data folder to sync uploaded files
       - ./src/backend/data:/workspace/src/backend/data
+      # Mount configurations 
+      - ./src/backend/config_v2/configuration.yaml:/workspace/src/backend/config_v2/configuration.yaml
     # network_mode: host
     networks:
       - proxynet

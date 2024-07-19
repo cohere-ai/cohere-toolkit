@@ -14,5 +14,5 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "configuration.yaml")) as f:
     secrets.update(yaml.load(f, Loader=yaml.FullLoader))
 
-class Deployments():
-    cohere_platform_config: str = secrets['deployments']['cohere_api_key']
+class DeploymentSettings():
+    cohere_platform_config: str = secrets['deployments']['cohere_platform']

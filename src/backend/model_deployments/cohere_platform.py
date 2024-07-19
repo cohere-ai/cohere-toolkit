@@ -5,7 +5,7 @@ import threading
 import time
 from typing import Any, AsyncGenerator, Dict, List
 
-from backend.config.config import Deployments
+from backend.config_v2.config import DeploymentSettings
 import cohere
 import requests
 from cohere.core.api_error import ApiError
@@ -19,8 +19,9 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import MetricsData
 from backend.services.logger import get_logger, send_log_message
 
+COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
+COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
-
 
 logger = get_logger()
 
@@ -29,7 +30,7 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = Deployments.cohere_platform_config['cohere_api_key']
+    api_key = DeploymentSettings.cohere_platform_config['api_key'] # todo still support env vars
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
@@ -47,7 +48,7 @@ class CohereDeployment(BaseDeployment):
         url = "https://api.cohere.ai/v1/models"
         headers = {
             "accept": "application/json",
-            "authorization": f"Bearer {cls.api_key}",
+            "authorization": f"Bearer {DeploymentSettings.cohere_platform_config['api_key']}", # TODO 
         }
 
         response = requests.get(url, headers=headers)
@@ -65,7 +66,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return Deployments.cohere_api_key is not None
+        return DeploymentSettings.cohere_platform_config['api_key'] is not None #TODO support env vars
 
     async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(

@@ -12,9 +12,9 @@ load_dotenv()
 SKIP_AUTH = os.getenv("SKIP_AUTH", None)
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
-ENABLED_AUTH_STRATEGIES = []
+ENABLED_AUTH_STRATEGIES = [BasicAuthentication]
 if "pytest" in sys.modules or SKIP_AUTH == "true":
-    ENABLED_AUTH_STRATEGIES = []
+    ENABLED_AUTH_STRATEGIES = [BasicAuthentication]
 
 # Define the mapping from Auth strategy name to class obj - does not need to be manually modified.
 # During runtime, this will create an instance of each enabled strategy class.
