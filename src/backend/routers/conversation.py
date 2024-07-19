@@ -29,7 +29,7 @@ from backend.schemas.file import (
     UploadFileResponse,
 )
 from backend.services.auth.utils import get_header_user_id
-from backend.services.chat import  get_deployment_config
+from backend.services.chat import get_deployment_config
 from backend.services.conversation import (
     DEFAULT_TITLE,
     GENERATE_TITLE_PROMPT,

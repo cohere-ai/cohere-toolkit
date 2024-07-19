@@ -169,7 +169,14 @@ async def filter_conversations(
 
 
 async def generate_conversation_title(
-    request, session, conversation, deployment_name, model_config, trace_id, user_id, agent_id
+    request,
+    session,
+    conversation,
+    deployment_name,
+    model_config,
+    trace_id,
+    user_id,
+    agent_id,
 ):
     """Generate a title for a conversation
 

@@ -225,6 +225,11 @@ def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
                 model=model,
                 assistant_id=agent_id,
             )
+        else:
+            import pdb
+
+            pdb.set_trace()
+            pass
 
         metrics = MetricsData(
             id=str(uuid.uuid4()),
@@ -243,7 +248,6 @@ def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
         signal = MetricsSignal(signal=metrics)
         # do not await, fire and forget
         asyncio.create_task(report_metrics(signal))
-        
 
     except Exception as e:
         logger.error(f"Failed to report streaming event: {e}")

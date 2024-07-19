@@ -14,7 +14,6 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Tool
 from backend.services.logger import get_logger, send_log_message
 
-
 logger = get_logger()
 MAX_STEPS = 15
 

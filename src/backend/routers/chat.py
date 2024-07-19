@@ -4,11 +4,13 @@ from typing import Any, Generator
 
 from fastapi import APIRouter, Depends, Header, Request
 from sse_starlette.sse import EventSourceResponse
-from backend.crud import agent as agent_crud
+
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
+from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import add_agent_to_request_state, add_model_to_request_state
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.langchain_chat import LangchainChatRequest
@@ -19,10 +21,6 @@ from backend.services.chat import (
     process_chat,
 )
 from backend.services.request_validators import validate_deployment_header
-from backend.routers.utils import (
-    add_agent_to_request_state,
-    add_model_to_request_state,
-)
 
 router = APIRouter(
     prefix="/v1",
