@@ -19,6 +19,7 @@ import {
 } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
+import { useConversations } from '@/hooks/conversation';
 
 type Props = {
   isExpanded: boolean;
@@ -37,6 +38,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { conversationId } = useChatRoutes();
   const router = useRouter();
   const pathname = usePathname();
+  const { data: conversations } = useConversations({ agentId: id });
 
   const isActive = isBaseAgent
     ? conversationId
@@ -55,7 +57,9 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { resetFileParams } = useParamsStore();
 
   const handleNewChat = () => {
-    const url = isBaseAgent ? '/' : id ? `/a/${id}` : '/a';
+    const newestConversationId = conversations?.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))[0]?.id ?? '';
+    console.debug('newestConversation', newestConversationId);
+    const url = isBaseAgent ? `/c/${newestConversationId}` : id ? `/a/${id}/c/${newestConversationId}` : '/a';
     router.push(url, undefined);
     setEditAgentPanelOpen(false);
     resetConversation();
