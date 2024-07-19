@@ -44,7 +44,7 @@ const Conversation: React.FC<Props> = ({
 }) => {
   const chatHotKeys = useChatHotKeys();
 
-  const { uploadFile } = useFileActions();
+  const { uploadFiles } = useFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
   const {
     settings: { isConfigDrawerOpen },
@@ -123,8 +123,8 @@ const Conversation: React.FC<Props> = ({
     };
   }, [handleClickOutside]);
 
-  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFileIds = await uploadFile(e.target.files?.[0]);
+  const handleUploadFile = async (files: File[]) => {
+    const newFileIds = await uploadFiles(files, conversationId);
     if (!newFileIds) return;
     enableDefaultFileLoaderTool();
   };

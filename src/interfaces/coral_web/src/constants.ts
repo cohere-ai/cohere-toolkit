@@ -1,3 +1,6 @@
+import type { StaticImport } from 'next/dist/shared/lib/get-img-props';
+
+import GoogleDriveIconSVG from '@/assets/svg/google-drive-icon.svg';
 import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
 
@@ -22,6 +25,7 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'application/pdf',
   'application/epub+zip',
 ];
+export const MAX_NUM_FILES_PER_UPLOAD_BATCH = 50;
 
 /**
  * Special HTML ids and CSS classes
@@ -66,6 +70,9 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_CALCULATOR_ID]: { icon: 'calculator' },
   [TOOL_WIKIPEDIA_ID]: { icon: 'web' },
   [TOOL_SEARCH_FILE_ID]: { icon: 'search' },
+};
+export const TOOL_ID_TO_ICON: { [id: string]: StaticImport } = {
+  [TOOL_GOOGLE_DRIVE_ID]: GoogleDriveIconSVG,
 };
 
 export const MAX_TIMEOUT_PREFETCH = 5000;
