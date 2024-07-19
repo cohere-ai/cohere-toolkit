@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import json
 import os
 import uuid
@@ -14,6 +16,7 @@ from backend.database_models.message import Message, MessageAgent
 from backend.database_models.user import User
 from backend.schemas.tool import Category
 from backend.tests.factories import get_factory
+from backend.schemas.metrics import MetricsData, MetricsMessageType
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None
@@ -44,6 +47,43 @@ def test_streaming_new_chat(
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 2
     )
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_new_chat_metrics_with_agent(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(
+        user_id=user.id,
+        tools=[],
+        name="test agent",
+        preamble="you are a smart assistant",
+    )
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": user.id,
+                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            },
+            params={"agent_id": agent.id},
+            json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
+        )
+        # finish all the event stream
+        assert response.status_code == 200
+        for line in response.iter_lines():
+            continue
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
+        assert m_args.assistant_id == agent.id
+        assert m_args.model is not None
+        assert m_args.input_nb_tokens > 0
+        assert m_args.output_nb_tokens > 0
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -112,7 +152,12 @@ def test_streaming_new_chat_with_agent_existing_conversation(
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
+        json={
+            "message": "Hello",
+            "max_tokens": 10,
+            "conversation_id": conversation.id,
+            "agent_id": agent.id,
+        },
     )
 
     assert response.status_code == 200
@@ -157,7 +202,12 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
+        json={
+            "message": "Hello",
+            "max_tokens": 10,
+            "conversation_id": conversation.id,
+            "agent_id": agent.id,
+        },
     )
 
     assert response.status_code == 400
