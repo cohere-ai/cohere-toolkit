@@ -69,7 +69,7 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
 
         <div className="flex flex-col gap-y-4 py-6 md:gap-y-6">
           {messages.map((m, i) => (
-            <div key={i} className="flex items-start gap-x-3">
+            <div key={i} className="flex items-start justify-between gap-x-3">
               <MessageRow
                 message={m}
                 isLast={i === messages.length - 1}
