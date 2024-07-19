@@ -10,6 +10,8 @@ import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
+import { useConversations } from '@/hooks/conversation';
+import { useFileActions } from '@/hooks/files';
 import {
   useAgentsStore,
   useCitationsStore,
@@ -19,7 +21,6 @@ import {
 } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
-import { useConversations } from '@/hooks/conversation';
 
 type Props = {
   isExpanded: boolean;
@@ -55,16 +56,37 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
+  const { clearComposerFiles } = useFileActions();
 
-  const handleNewChat = () => {
-    const newestConversationId = conversations?.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))[0]?.id ?? '';
-    console.debug('newestConversation', newestConversationId);
-    const url = isBaseAgent ? `/c/${newestConversationId}` : id ? `/a/${id}/c/${newestConversationId}` : '/a';
-    router.push(url, undefined);
+  const resetConversationSettings = () => {
     setEditAgentPanelOpen(false);
+    clearComposerFiles();
     resetConversation();
     resetCitations();
     resetFileParams();
+  };
+
+  const handleAssistantClick = () => {
+    if (isActive) return;
+
+    const newestConversationId =
+      conversations?.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))[0]?.id ??
+      '';
+    const conversationPath = newestConversationId ? `c/${newestConversationId}` : '';
+    const url = isBaseAgent
+      ? `/c/${newestConversationId}`
+      : id
+      ? `/a/${id}/${conversationPath}`
+      : '/';
+    router.push(url, undefined);
+    resetConversationSettings();
+  };
+
+  const handleNewChat = () => {
+    const url = isBaseAgent ? `/c` : id ? `/a/${id}` : '/';
+    router.push(url, undefined);
+    setEditAgentPanelOpen(false);
+    resetConversationSettings();
   };
 
   const handleEditAssistant = () => {
@@ -91,7 +113,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   return (
     <Tooltip label={name} placement="right" hover={!isExpanded}>
       <div
-        onClick={handleNewChat}
+        onClick={handleAssistantClick}
         className={cn(
           'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-mushroom-900/80',
           {
