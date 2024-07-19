@@ -65,6 +65,48 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
 }) => {
   const [dragActive, setDragActive] = useState(dragActiveDefault);
 
+  const handleDrop = async (e: React.DragEvent<HTMLInputElement>) => {
+    const droppedFilesSystem = e.dataTransfer.items[0].webkitGetAsEntry();
+    if (!droppedFilesSystem) return;
+    const filesList: File[] = [];
+
+    const traverseFolder = async (fileSystem: FileSystemDirectoryEntry): Promise<void> => {
+      if (fileSystem.isDirectory) {
+        const directoryReader = fileSystem.createReader();
+        return new Promise((resolve) => {
+          directoryReader.readEntries(async function (entries) {
+            for (let i = 0; i < entries.length; i++) {
+              const entry = entries[i];
+
+              if (IGNORED_FILES.includes(entry.name)) {
+                continue;
+              }
+              if (entry.isDirectory) {
+                await traverseFolder(entry as FileSystemDirectoryEntry);
+              } else if (entry.isFile) {
+                const fileEntry = entry as FileSystemFileEntry;
+                const readFile = () =>
+                  new Promise((fileReadResolve) => {
+                    fileEntry.file((f) => {
+                      filesList.push(f);
+                      fileReadResolve(f);
+                    });
+                  });
+                await readFile();
+              }
+              if (i === entries.length - 1) {
+                resolve();
+              }
+            }
+          });
+        });
+      }
+    };
+    await traverseFolder(droppedFilesSystem.filesystem.root);
+    onDrop?.(filesList);
+
+    setDragActive(false);
+  };
   return (
     <div
       className={cn(
@@ -101,48 +143,7 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
         onDragEnter={() => setDragActive(true)}
         onDragOver={() => setDragActive(true)}
         onDragLeave={() => setDragActive(false)}
-        onDrop={async (e) => {
-          const droppedFilesSystem = e.dataTransfer.items[0].webkitGetAsEntry();
-          if (!droppedFilesSystem) return;
-          const filesList: File[] = [];
-
-          const traverseFolder = async (fileSystem: FileSystemDirectoryEntry): Promise<void> => {
-            if (fileSystem.isDirectory) {
-              const directoryReader = fileSystem.createReader();
-              return new Promise((resolve) => {
-                directoryReader.readEntries(async function (entries) {
-                  for (let i = 0; i < entries.length; i++) {
-                    const entry = entries[i];
-
-                    if (IGNORED_FILES.includes(entry.name)) {
-                      continue;
-                    }
-                    if (entry.isDirectory) {
-                      await traverseFolder(entry as FileSystemDirectoryEntry);
-                    } else if (entry.isFile) {
-                      const fileEntry = entry as FileSystemFileEntry;
-                      const readFile = () =>
-                        new Promise((fileReadResolve) => {
-                          fileEntry.file((f) => {
-                            filesList.push(f);
-                            fileReadResolve(f);
-                          });
-                        });
-                      await readFile();
-                    }
-                    if (i === entries.length - 1) {
-                      resolve();
-                    }
-                  }
-                });
-              });
-            }
-          };
-          await traverseFolder(droppedFilesSystem.filesystem.root);
-          onDrop?.(filesList);
-
-          setDragActive(false);
-        }}
+        onDrop={handleDrop}
       />
     </div>
   );
