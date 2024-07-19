@@ -58,10 +58,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.model = None
-        request.state.is_stream = False
+        request.state.stream_start = None
         request.state.user = None
         request.state.event_type = None
-        request.state.signal_queue = []
 
     def process_signal_queue(self, request: Request, response: Response) -> None:
         logger.info(
@@ -176,50 +175,63 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     )
 
 
+# TODO: think about how to do rerank
 def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
-    event_type = event["event_type"]
-    if event_type != StreamEvent.STREAM_END:
-        return
-
-    trace_id = request.state.trace_id
-    model = request.state.model
-    user_id = get_header_user_id(request)
-    agent = get_agent(request)
-    agent_id = agent.id if agent else None
-    event_dict = to_dict(event).get("response", {})
-    input_tokens = (
-        event_dict.get("meta", {}).get("billed_units", {}).get("input_tokens", 0)
-    )
-    output_tokens = (
-        event_dict.get("meta", {}).get("billed_units", {}).get("output_tokens", 0)
-    )
-    search_units = (
-        event_dict.get("meta", {}).get("billed_units", {}).get("search_units", 0)
-    )
-    search_units = search_units if search_units else 0
-    is_error = (
-        event_dict.get("event_type") == StreamEvent.STREAM_END
-        and event_dict.get("finish_reason") != "COMPLETE"
-        and event_dict.get("finish_reason") != "MAX_TOKENS"
-    )
-
     try:
-        chat_metrics = MetricsChat(
-            input_nb_tokens=input_tokens,
-            output_nb_tokens=output_tokens,
-            search_units=search_units,
-            model=model,
-            assistant_id=agent_id,
+        event_type = event["event_type"]
+        if event_type == StreamEvent.STREAM_START:
+            request.state.stream_start = time.perf_counter()
+
+        if event_type != StreamEvent.STREAM_END:
+            return
+
+        start_time = request.state.stream_start
+        duration_ms = (
+            None if not start_time else time.perf_counter() - request.state.stream_start
         )
+        trace_id = request.state.trace_id
+        model = request.state.model
+        user_id = get_header_user_id(request)
+        agent = get_agent(request)
+        agent_id = agent.id if agent else None
+        event_dict = to_dict(event).get("response", {})
+        input_tokens = (
+            event_dict.get("meta", {}).get("billed_units", {}).get("input_tokens", 0)
+        )
+        output_tokens = (
+            event_dict.get("meta", {}).get("billed_units", {}).get("output_tokens", 0)
+        )
+        search_units = (
+            event_dict.get("meta", {}).get("billed_units", {}).get("search_units", 0)
+        )
+        search_units = search_units if search_units else 0
+        is_error = (
+            event_dict.get("event_type") == StreamEvent.STREAM_END
+            and event_dict.get("finish_reason") != "COMPLETE"
+            and event_dict.get("finish_reason") != "MAX_TOKENS"
+        )
+
+        message_type = (
+            MetricsMessageType.CHAT_API_FAIL
+            if is_error
+            else MetricsMessageType.CHAT_API_SUCCESS
+        )
+        # validate successful event metrics
+        if not is_error:
+            chat_metrics = MetricsChat(
+                input_nb_tokens=input_tokens,
+                output_nb_tokens=output_tokens,
+                search_units=search_units,
+                model=model,
+                assistant_id=agent_id,
+            )
+
         metrics = MetricsData(
             id=str(uuid.uuid4()),
             user_id=user_id,
             trace_id=trace_id,
-            message_type=(
-                MetricsMessageType.CHAT_API_FAIL
-                if is_error
-                else MetricsMessageType.CHAT_API_SUCCESS
-            ),
+            duration_ms=duration_ms,
+            message_type=message_type,
             timestamp=time.time(),
             input_nb_tokens=input_tokens,
             output_nb_tokens=output_tokens,
@@ -229,43 +241,11 @@ def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
             error=event_dict.get("finish_reason", None) if is_error else None,
         )
         signal = MetricsSignal(signal=metrics)
-        log_signal_curl(signal)
-        signal = MetricsSignal(signal=metrics)
+        # do not await, fire and forget
+        report_metrics(signal)
 
     except Exception as e:
-        logger.error(f"Failed to push chat success event to signal queue: {e}")
-
-
-def push_interrupted_chat_event_to_signal_queue(
-    event, chat_request, err_str, **kwargs: Any
-) -> None:
-    request = kwargs.get("request", None)
-    state = request.state if request else None
-    if state is None or state.signal_queue is None:
-        logger.error(f"request state event queue not found")
-        return
-
-    trace_id = kwargs.get("trace_id", None)
-    user_id = kwargs.get("user_id", None)
-    # agent_id = kwargs.get("agent_id", "TODO")
-    agent_id = "TODO"
-
-    try:
-        metrics = MetricsData(
-            id=str(uuid.uuid4()),
-            user_id=user_id,
-            trace_id=trace_id,
-            message_type=MetricsMessageType.CHAT_API_FAIL,
-            timestamp=time.time(),
-            model=chat_request.model,
-            assistant_id=agent_id,
-            error=err_str,
-        )
-        signal = MetricsSignal(signal=metrics)
-        log_signal_curl(signal)
-        request.state.signal_queue.append(signal)
-    except Exception as e:
-        logger.error(f"Failed to push chat interrupted event to signal queue: {e}")
+        logger.error(f"Failed to report streaming event: {e}")
 
 
 def get_agent(request: Request) -> Union[MetricsAgent, None]:
