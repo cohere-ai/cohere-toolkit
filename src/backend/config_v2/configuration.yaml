@@ -1,7 +1,7 @@
 
 deployments: 
   cohere_platform:
-    api_key: bJKyg12Ul6HxXuykKwWhLU7ORmF49ZhgYDpVltSh
+    api_key: 
 #   sagemaker:
 #     access_key:
 #     secret_key:
