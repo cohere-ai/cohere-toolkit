@@ -59,7 +59,7 @@ class Agent(Base):
     preamble: Mapped[str] = mapped_column(Text, default="", nullable=False)
     temperature: Mapped[float] = mapped_column(Float, default=0.3, nullable=False)
 
-    tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata")
+    tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata", back_populates="agent")
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later

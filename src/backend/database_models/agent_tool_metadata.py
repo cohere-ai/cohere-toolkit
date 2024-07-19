@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 
@@ -19,6 +19,10 @@ class AgentToolMetadata(Base):
     tool_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("tools.id", name="metadata_tool_id_fkey", ondelete="CASCADE")
     )
+
+    agent = relationship("Agent", back_populates="tools_metadata")
+
+    tool = relationship("Tool", back_populates="tool_metadata")
 
     artifacts: Mapped[list[dict]] = mapped_column(ARRAY(JSONB), nullable=True)
 

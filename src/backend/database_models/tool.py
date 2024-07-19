@@ -34,6 +34,10 @@ class Tool(Base):
         overlaps="tools,agents,agent,agent_tool_associations",
     )
 
+    tool_metadata = relationship(
+        "AgentToolMetadata", back_populates="tool"
+    )
+
     __table_args__ = (UniqueConstraint("name", name="tool_name_uc"),)
 
     @property
