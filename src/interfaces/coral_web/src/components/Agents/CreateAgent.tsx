@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocalStorageValue } from '@react-hookz/web';
+import { uniqBy } from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -54,26 +55,35 @@ export const CreateAgent: React.FC = () => {
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
-      setFields((prev) => ({
-        ...prev,
-        tools_metadata: [
-          ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ?? []),
-          ...[
-            {
-              tool_name: TOOL_GOOGLE_DRIVE_ID,
-              artifacts: data.docs.map(
-                (doc: any) =>
-                  ({
-                    id: doc.id,
-                    name: doc.name,
-                    type: doc.type,
-                    url: doc.url,
-                  } as GoogleDriveToolArtifact)
-              ),
-            },
+      setFields((prev) => {
+        const updatedArtifacts = [
+          ...(prev.tools_metadata?.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID)
+            ?.artifacts ?? []),
+          ...data.docs.map(
+            (doc) =>
+              ({
+                id: doc.id,
+                name: doc.name,
+                type: doc.type,
+                url: doc.url,
+              } as GoogleDriveToolArtifact)
+          ),
+        ];
+
+        return {
+          ...prev,
+          tools_metadata: [
+            ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
+              []),
+            ...[
+              {
+                tool_name: TOOL_GOOGLE_DRIVE_ID,
+                artifacts: uniqBy(updatedArtifacts, 'id'),
+              },
+            ],
           ],
-        ],
-      }));
+        };
+      });
     }
   });
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocalStorageValue } from '@react-hookz/web';
+import { uniqBy } from 'lodash';
 import React, { useEffect, useState } from 'react';
 
 import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm';
@@ -62,7 +63,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
               {
                 tool_name: TOOL_GOOGLE_DRIVE_ID,
                 artifacts: data.docs.map(
-                  (doc: any) =>
+                  (doc) =>
                     ({
                       id: doc.id,
                       name: doc.name,
@@ -74,11 +75,12 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
             ],
           };
         }
-        // If the tool is already enabled, update the artifacts
-        const updateGoogleDriveTool = {
-          ...currentGoogleDriveTool,
-          artifacts: data.docs.map(
-            (doc: any) =>
+
+        const updatedArtifacts = [
+          ...(prev.tools_metadata?.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID)
+            ?.artifacts ?? []),
+          ...data.docs.map(
+            (doc) =>
               ({
                 id: doc.id,
                 name: doc.name,
@@ -86,6 +88,12 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
                 url: doc.url,
               } as GoogleDriveToolArtifact)
           ),
+        ];
+
+        // If the tool is already enabled, update the artifacts
+        const updateGoogleDriveTool = {
+          ...currentGoogleDriveTool,
+          artifacts: uniqBy(updatedArtifacts, 'id'),
         };
 
         return {
