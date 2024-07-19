@@ -5,7 +5,6 @@ from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
-from backend.services.file import FileService, get_file_content
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
@@ -30,9 +29,10 @@ from backend.services.conversation import (
     GENERATE_TITLE_PROMPT,
     SEARCH_RELEVANCE_THRESHOLD,
     extract_details_from_conversation,
-    getMessagesWithFiles
+    getMessagesWithFiles,
 )
 from backend.services.file import (
+    FileService,
     get_file_content,
     validate_batch_file_size,
     validate_file_size,
@@ -85,7 +85,7 @@ async def get_conversation(
         messages=messages,
         files=files,
         description=conversation.description,
-        agent_id=conversation.agent_id
+        agent_id=conversation.agent_id,
     )
 
 
@@ -119,7 +119,9 @@ async def list_conversations(
 
     results = []
     for conversation in conversations:
-        files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
+        files = file_service.get_files_by_conversation_id(
+            session, user_id, conversation.id
+        )
         results.append(
             ConversationWithoutMessages(
                 id=conversation.id,
@@ -130,10 +132,10 @@ async def list_conversations(
                 files=files,
                 description=conversation.description,
                 agent_id=conversation.agent_id,
-                messages=[]
+                messages=[],
             )
         )
-    
+
     return results
 
 
@@ -341,7 +343,9 @@ async def upload_file(
 
     # Handle uploading File
     try:
-        upload_file = await file_service.create_conversation_files(session, [file], user_id, conversation.id)
+        upload_file = await file_service.create_conversation_files(
+            session, [file], user_id, conversation.id
+        )
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file {file.filename}: {e}."
@@ -424,7 +428,9 @@ async def batch_upload_file(
         files_to_upload.append(upload_file)
 
     try:
-        uploaded_files = file_service.create_conversation_files(session, [files], user_id, conversation.id)
+        uploaded_files = file_service.create_conversation_files(
+            session, [files], user_id, conversation.id
+        )
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file(s): {e}."

@@ -1,22 +1,24 @@
 import io
+from copy import deepcopy
 from typing import Any, Optional
 
 import pandas as pd
 from fastapi import HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 from pypdf import PdfReader
-import backend.crud.file as file_crud
+
 import backend.crud.conversation as conversation_crud
+import backend.crud.file as file_crud
+from backend.config.tools import ToolName
+from backend.crud import agent as agent_crud
+from backend.crud import message as message_crud
+from backend.database_models import File as FileModel
+from backend.database_models import Message as MessageModel
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
-from backend.schemas.file import UpdateFile
-from backend.database_models import Message as MessageModel
-from backend.schemas.message import Message
-from backend.database_models import File as FileModel
-from backend.crud import message as message_crud
-from copy import deepcopy
 from backend.schemas.conversation import UpdateConversation
-
+from backend.schemas.file import UpdateFile
+from backend.schemas.message import Message
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -30,45 +32,49 @@ EXCEL_OLD_EXTENSION = "xls"
 JSON_EXTENSION = "json"
 DOCX_EXTENSION = "docx"
 
+
 class FileService:
     def __init__(self, session: DBSessionDep):
         self.session = session
-    
+
     @property
     def is_compass_enabled(self) -> bool:
         # todo: add compass env variable anc check here
         return False
-    
+
     # All these functions will eventually support file operations on Compass
     async def create_conversation_files(
-            self,
-            session: DBSessionDep,
-            files: list[FastAPIUploadFile],
-            user_id: str,
-            conversation_id: str, 
+        self,
+        session: DBSessionDep,
+        files: list[FastAPIUploadFile],
+        user_id: str,
+        conversation_id: str,
     ) -> File:
         # Todo @scott-cohere: need to refactor this file singular and multiple files
         for file in files:
             content = await get_file_content(file)
             cleaned_content = content.replace("\x00", "")
             filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-            conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+            conversation = conversation_crud.get_conversation(
+                session, conversation_id, user_id
+            )
             if not conversation:
                 raise HTTPException(
-                status_code=404,
-                detail=f"Conversation with ID: {conversation_id} not found.",
-            )
+                    status_code=404,
+                    detail=f"Conversation with ID: {conversation_id} not found.",
+                )
 
             file = file_crud.create_file(
-                session, 
+                session,
                 File(
-                    file_name=filename, 
+                    file_name=filename,
                     file_size=file.size,
                     file_path=filename,
                     file_content=cleaned_content,
-                    user_id=conversation.user_id)
-                )
-            
+                    user_id=conversation.user_id,
+                ),
+            )
+
             update_conversation = UpdateConversation()
             if conversation.file_ids:
                 file_ids = deepcopy(conversation.file_ids)
@@ -76,22 +82,56 @@ class FileService:
                 update_conversation.file_ids = file_ids
             else:
                 update_conversation.file_ids = [file.id]
-            
-            conversation_crud.update_conversation(session, conversation, update_conversation)
+
+            conversation_crud.update_conversation(
+                session, conversation, update_conversation
+            )
 
         return file
 
-    
-    def get_files_by_conversation_id(self, session: DBSessionDep, user_id: str, conversation_id: str) -> list[File]:
-        conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    def get_files_by_agent_id(
+        self, session: DBSessionDep, user_id: str, agent_id: str
+    ) -> list[File]:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Agent with ID: {agent_id} not found.",
+            )
+
+        files = []
+        agent_tool_metadata = agent.tools_metadata
+        if agent_tool_metadata is not None:
+            artifacts = next(
+                tool_metadata.artifacts
+                for tool_metadata in agent_tool_metadata
+                if tool_metadata.get("tool_name") == ToolName.Read_File
+                or tool_metadata.get("tool_name") == ToolName.Search_File
+            )
+
+            # TODO scott: enumerate type names (?), different types for local vs. compass?
+            file_ids = next(
+                artifact.get("id") for artifact in artifacts if artifact.get("type") == "local_file"
+            )
+            files = file_crud.get_files_by_ids(session, file_ids, user_id)
+        
+        return files
+        
+
+    def get_files_by_conversation_id(
+        self, session: DBSessionDep, user_id: str, conversation_id: str
+    ) -> list[File]:
+        # TODO scott: add checks that conversations exists, will get none type error on .file_ids
+        conversation = conversation_crud.get_conversation(
+            session, conversation_id, user_id
+        )
         file_ids = conversation.file_ids
 
         files = []
         if file_ids is not None:
             files = file_crud.get_files_by_ids(session, file_ids, user_id)
-        
-        return files
 
+        return files
 
     def delete_file_from_conversation(self, conversation_id: str, file_id: str) -> None:
         conversation = conversation_crud.get_conversation(self.session, conversation_id)
@@ -104,24 +144,26 @@ class FileService:
         # currently DB only, implement and fetch from compass after
         file = file_crud.get_file(session, file_id, user_id)
         return file
-    
 
-    def get_files_by_ids(self, session: DBSessionDep, file_ids: list[str], user_id: str) -> list[File]:
+    def get_files_by_ids(
+        self, session: DBSessionDep, file_ids: list[str], user_id: str
+    ) -> list[File]:
         # currently DB only, implement and fetch from compass after
         files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
-    
 
-    def update_file(self, session: DBSessionDep, file: File, new_file: UpdateFile) -> File:
+    def update_file(
+        self, session: DBSessionDep, file: File, new_file: UpdateFile
+    ) -> File:
         updated_file = file_crud.update_file(session, file, new_file)
         return updated_file
-
 
     def delete_file(self, session: DBSessionDep, file_id: str, user_id: str) -> None:
         file_crud.delete_file(session, file_id, user_id)
 
-
-    def get_message_files(self, session: DBSessionDep, message_id: str, user_id: str) -> list[File]:
+    def get_message_files(
+        self, session: DBSessionDep, message_id: str, user_id: str
+    ) -> list[File]:
         message = message_crud.get_message(session, message_id, user_id)
         files = []
         if message.file_ids is not None:

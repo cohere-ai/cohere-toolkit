@@ -1,10 +1,9 @@
-from backend.database_models.conversation import Conversation
-from backend.schemas.chat import ChatRole
-from backend.database_models.database import DBSessionDep
-from backend.services.file import FileService, get_file_content
 from backend.database_models import Message as MessageModel
+from backend.database_models.conversation import Conversation
+from backend.database_models.database import DBSessionDep
+from backend.schemas.chat import ChatRole
 from backend.schemas.message import Message
-
+from backend.services.file import FileService, get_file_content
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -19,6 +18,7 @@ Given the following conversation history, write a short title that summarizes th
 SEARCH_RELEVANCE_THRESHOLD = 0.3
 
 file_service = FileService(session=DBSessionDep)
+
 
 def extract_details_from_conversation(
     convo: Conversation,
@@ -60,9 +60,12 @@ def extract_details_from_conversation(
     chatlog = "\n".join(turns)
     return chatlog
 
-def getMessagesWithFiles(session: DBSessionDep, user_id: str, messages: list[MessageModel]) -> list[Message]:
+
+def getMessagesWithFiles(
+    session: DBSessionDep, user_id: str, messages: list[MessageModel]
+) -> list[Message]:
     messages_with_file = []
-    
+
     for message in messages:
         files = file_service.get_message_files(session, message.id, user_id)
         messages_with_file.append(
@@ -79,7 +82,7 @@ def getMessagesWithFiles(session: DBSessionDep, user_id: str, messages: list[Mes
                 citations=message.citations,
                 tool_calls=message.tool_calls,
                 tool_plan=message.tool_plan,
-                agent=message.agent
+                agent=message.agent,
             )
         )
 

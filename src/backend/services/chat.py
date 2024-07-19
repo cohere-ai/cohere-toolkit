@@ -1,8 +1,8 @@
 import json
 import logging
+from copy import deepcopy
 from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
-from copy import deepcopy
 
 from cohere.types import StreamedChatResponse
 from fastapi import HTTPException, Request
@@ -52,14 +52,15 @@ from backend.schemas.chat import (
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
+from backend.schemas.message import UpdateMessage
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
-from backend.services.generators import AsyncGeneratorContextManager
 from backend.services.file import FileService
-from backend.schemas.message import UpdateMessage
+from backend.services.generators import AsyncGeneratorContextManager
 
 fileService = FileService(session=DBSessionDep)
+
 
 def process_chat(
     session: DBSessionDep,
