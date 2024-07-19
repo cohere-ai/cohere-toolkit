@@ -25,6 +25,7 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'application/pdf',
   'application/epub+zip',
 ];
+export const MAX_NUM_FILES_PER_UPLOAD_BATCH = 50;
 
 /**
  * Special HTML ids and CSS classes
