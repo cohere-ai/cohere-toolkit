@@ -100,8 +100,11 @@ class GoogleDriveAuth(BaseToolAuthentication):
             session,
             existing_tool_auth,
             UpdateToolAuth(
+                user_id=user_id,
+                tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
+                encrypted_refresh_token=tool_auth.encrypted_refresh_token,
                 expires_at=datetime.datetime.now()
                 + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
