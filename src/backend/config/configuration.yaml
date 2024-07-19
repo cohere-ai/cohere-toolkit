@@ -1,0 +1,27 @@
+
+deployments: 
+  sagemaker:
+    region_name: us-west-2
+    endpoint_name: cohere-command-r
+  azure: 
+    endpoint_url: https://cohere-ai.azurewebsites.net
+  bedrock:
+    region_name: us-west-2
+database:
+  url: postgresql+psycopg2://postgres:postgres@db:5432
+tools: 
+  python_interpreter: 
+    url: http://terrarium:8080
+  compass:
+    api_url: 
+    parser_url:
+feature_flags: 
+  # Experimental features 
+  use_experimental_langchain: false
+  use_agents_view: false
+  # Community features
+  use_community_features: true
+auth: 
+  frontend_hostname: http://localhost:4000
+
+

@@ -5,7 +5,6 @@ import threading
 import time
 from typing import Any, AsyncGenerator, Dict, List
 
-from backend.config_v2.config import DeploymentSettings
 import cohere
 import requests
 from cohere.core.api_error import ApiError
@@ -13,6 +12,7 @@ from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
+from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -30,11 +30,18 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = DeploymentSettings.cohere_platform_config['api_key'] # todo still support env vars
+    api_key = get_config_value(
+        Configuration.get_deployment_config("cohere_platform"),
+        "api_key",
+        COHERE_API_KEY_ENV_VAR,
+    )
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
-        self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
+        api_key = get_model_config_var(
+            COHERE_API_KEY_ENV_VAR, CohereDeployment.api_key, **kwargs
+        )
+        self.client = cohere.Client(api_key, client_name=self.client_name)
 
     @property
     def rerank_enabled(self) -> bool:
@@ -48,7 +55,7 @@ class CohereDeployment(BaseDeployment):
         url = "https://api.cohere.ai/v1/models"
         headers = {
             "accept": "application/json",
-            "authorization": f"Bearer {DeploymentSettings.cohere_platform_config['api_key']}", # TODO 
+            "authorization": f"Bearer {cls.api_key}",
         }
 
         response = requests.get(url, headers=headers)
@@ -66,7 +73,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return DeploymentSettings.cohere_platform_config['api_key'] is not None #TODO support env vars
+        return CohereDeployment.api_key is not None
 
     async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(

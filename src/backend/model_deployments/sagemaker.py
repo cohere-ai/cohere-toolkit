@@ -1,14 +1,10 @@
 import io
 import json
-import logging
-import os
-import threading
-import time
 from typing import Any, AsyncGenerator, Dict, List
 
 import boto3
-from cohere.types import StreamedChatResponse
 
+from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -36,24 +32,33 @@ class SageMakerDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["sagemaker-command"]
 
+    sagemaker_config = Configuration.get_deployment_config("sagemaker")
+    endpoint = get_config_value(sagemaker_config, "endpoint_name", SAGE_MAKER_ENDPOINT_NAME_ENV_VAR)
+    region_name = get_config_value(
+        sagemaker_config, "region_name", SAGE_MAKER_REGION_NAME_ENV_VAR
+    )
+    aws_access_key_id = get_config_value(
+        sagemaker_config, "access_key", SAGE_MAKER_ACCESS_KEY_ENV_VAR
+    )
+    aws_secret_access_key = get_config_value(
+        sagemaker_config, "secret_key", SAGE_MAKER_SECRET_KEY_ENV_VAR
+    )
+    aws_session_token = get_config_value(
+        sagemaker_config, "session_token", SAGE_MAKER_SESSION_TOKEN_ENV_VAR
+    )
+
     def __init__(self, **kwargs: Any):
         # Create the AWS client for the Bedrock runtime with boto3
         self.client = boto3.client(
             "sagemaker-runtime",
-            region_name=get_model_config_var(SAGE_MAKER_REGION_NAME_ENV_VAR, **kwargs),
-            aws_access_key_id=get_model_config_var(
-                SAGE_MAKER_ACCESS_KEY_ENV_VAR, **kwargs
-            ),
-            aws_secret_access_key=get_model_config_var(
-                SAGE_MAKER_SECRET_KEY_ENV_VAR, **kwargs
-            ),
-            aws_session_token=get_model_config_var(
-                SAGE_MAKER_SESSION_TOKEN_ENV_VAR, **kwargs
-            ),
+            region_name=get_model_config_var(SAGE_MAKER_REGION_NAME_ENV_VAR, SageMakerDeployment.region_name, **kwargs),
+            aws_access_key_id=get_model_config_var(SAGE_MAKER_ACCESS_KEY_ENV_VAR, SageMakerDeployment.aws_access_key_id, **kwargs),
+            aws_secret_access_key=get_model_config_var(SAGE_MAKER_SECRET_KEY_ENV_VAR, SageMakerDeployment.aws_secret_access_key, **kwargs),
+            aws_session_token=get_model_config_var(SAGE_MAKER_SESSION_TOKEN_ENV_VAR, SageMakerDeployment.aws_session_token, **kwargs),
         )
         self.params = {
             "EndpointName": get_model_config_var(
-                SAGE_MAKER_ENDPOINT_NAME_ENV_VAR, **kwargs
+                SAGE_MAKER_ENDPOINT_NAME_ENV_VAR, SageMakerDeployment.endpoint, **kwargs
             ),
             "ContentType": "application/json",
         }
@@ -71,10 +76,15 @@ class SageMakerDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all([os.environ.get(var) is not None for var in SAGE_MAKER_ENV_VARS])
+        return (
+            SageMakerDeployment.region_name is not None
+            and SageMakerDeployment.aws_access_key_id is not None
+            and SageMakerDeployment.aws_secret_access_key is not None
+            and SageMakerDeployment.aws_session_token is not None
+        )
 
     async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> AsyncGenerator[Any, Any]:
         # Create the payload for the request
         json_params = {

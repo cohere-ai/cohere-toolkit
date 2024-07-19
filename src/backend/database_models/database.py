@@ -1,6 +1,7 @@
 import os
 from typing import Annotated, Any, Generator
 
+from backend.config.config import Configuration, get_config_value
 from dotenv import load_dotenv
 from fastapi import Depends
 from sqlalchemy import create_engine
@@ -8,9 +9,7 @@ from sqlalchemy.orm import Session
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.environ.get(
-    "DATABASE_URL", "postgresql+psycopg2://postgres:postgres@db:5432"
-)
+SQLALCHEMY_DATABASE_URL = get_config_value(Configuration.database_config, 'url', "DATABASE_URL")
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, pool_size=5, max_overflow=10, pool_timeout=30
 )
