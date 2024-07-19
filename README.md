@@ -44,6 +44,10 @@ Go to [localhost:4000](http://localhost:4000/) in your browser and start chattin
 
 *For the above you will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed. [Go here for a more detailed setup.](/docs/setup.md)*
 
+## GitHub Codespaces
+
+To run this project using GitHub Codespaces, please refer to our Codespaces Setup Guide.
+
 ## About Toolkit
 
 ![](/docs/assets/toolkit_graphic.png)

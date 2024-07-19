@@ -236,7 +236,7 @@ poetry run isort .
 ## Setting up the Environment Variables
 **Please confirm that you have at least one configuration of the Cohere Platform, SageMaker, Bedrock or Azure.**
 
-You have two methods to set up the environment variables:
+You have options to set up the environment variables:
 1. Run `make setup` and follow the instructions to configure it.
 2. Run `cp .env-template .env` and adjust the values in the `.env` file according to your situation.
 
