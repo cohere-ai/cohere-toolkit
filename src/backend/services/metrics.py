@@ -176,6 +176,7 @@ def log_signal_curl(signal: MetricsSignal) -> None:
 
 
 # TODO: think about how to do rerank
+# TODO: not all errors come from the stream end event, need additional metrics handlers?
 def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
     try:
         event_type = event["event_type"]

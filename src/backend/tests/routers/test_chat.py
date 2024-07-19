@@ -48,6 +48,7 @@ def test_streaming_new_chat(
     )
 
 
+# TODO: add test case for when stream raises an error
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat_metrics_with_agent(
     session_client_chat: TestClient, session_chat: Session, user: User
