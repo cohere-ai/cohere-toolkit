@@ -56,10 +56,6 @@ async def chat_stream(
     add_model_to_request_state(request, chat_request.model)
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
-    if agent_id:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        add_agent_to_request_state(agent)
-        
     (
         session,
         chat_request,
