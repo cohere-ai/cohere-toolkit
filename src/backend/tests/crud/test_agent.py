@@ -301,6 +301,17 @@ def test_delete_agent_model_deployment_association(session):
     assert association is None
 
 
+def test_delete_non_existing_agent_model_deployment_association(session):
+    organization = get_factory("Organization", session).create()
+    user = get_factory("User", session).create()
+    user.organizations.append(organization)
+    agent = get_factory("Agent", session).create(user=user, organization=organization)
+
+    agent_crud.delete_agent_model_deployment_association(
+        session, agent, "123", "123"
+    )
+
+
 def test_assign_model_deployment_to_agent(session):
     organization = get_factory("Organization", session).create()
     user = get_factory("User", session).create()

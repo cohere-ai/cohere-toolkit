@@ -368,6 +368,7 @@ async def update_agent(
                 "is_default_model",
             }
         )
+        # TODO Eugene - if no deployment or model is provide or if the deployment or model is not found, should we raise an error?
         if db_deployment and db_model:
             current_association = agent_crud.get_agent_model_deployment_association(
                 session, agent, db_model.id, db_deployment.id
