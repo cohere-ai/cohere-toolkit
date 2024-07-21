@@ -70,7 +70,7 @@ class Agent(Base):
     )
 
     user = relationship("User", back_populates="agents")
-    #TODO Eugene  - add the composite index here if needed
+    # TODO Eugene  - add the composite index here if needed
     __table_args__ = (UniqueConstraint("name", "version", name="_name_version_uc"),)
 
     @property
