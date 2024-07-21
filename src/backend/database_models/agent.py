@@ -61,8 +61,6 @@ class Agent(Base):
 
     tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata", back_populates="agent")
 
-    # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
-    # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
     user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", name="agents_user_id_fkey", ondelete="CASCADE")
     )
@@ -100,7 +98,7 @@ class Agent(Base):
     )
 
     user = relationship("User", back_populates="agents")
-
+    # TODO Eugene  - add the composite index here if needed
     __table_args__ = (UniqueConstraint("name", "version", name="_name_version_uc"),)
 
     @property

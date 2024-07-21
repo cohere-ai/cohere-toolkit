@@ -492,7 +492,7 @@ def test_get_nonexistent_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     response = session_client.get("/v1/agents/456", headers={"User-Id": user.id})
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 

@@ -28,7 +28,7 @@ def create_model(model: ModelCreate, session: DBSessionDep) -> Model:
     Create a new model.
 
     Args:
-        model (ModelCreateUpdate): Model data to be created.
+        model (ModelCreate): Model data to be created.
         session (DBSessionDep): Database session.
 
     Returns:

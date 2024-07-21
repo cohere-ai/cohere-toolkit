@@ -86,7 +86,7 @@ def get_association_by_deployment_id(
     db: Session, agent: Agent, deployment_id: str
 ) -> AgentDeploymentModelAssociation:
     """
-    Get an agent deployment model association by deployment name.
+    Get an agent deployment model association by deployment id.
 
     Args:
       db (Session): Database session.
@@ -139,7 +139,7 @@ def get_agents(
 
 
 def get_agent_model_deployment_association(
-    db: Session, agent: Agent, model_id, deployment_id
+    db: Session, agent: Agent, model_id: str, deployment_id: str
 ) -> AgentDeploymentModelAssociation:
     """
     Get an agent model deployment association.
@@ -164,6 +164,7 @@ def get_agent_model_deployment_association(
     )
 
 
+@validate_transaction
 def delete_agent_model_deployment_association(
     db: Session, agent: Agent, model_id: str, deployment_id: str
 ):
@@ -184,6 +185,7 @@ def delete_agent_model_deployment_association(
     db.commit()
 
 
+@validate_transaction
 def assign_model_deployment_to_agent(
     db: Session,
     agent: Agent,
@@ -219,6 +221,7 @@ def assign_model_deployment_to_agent(
     return agent
 
 
+@validate_transaction
 def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
     """
     Update an agent.
@@ -239,6 +242,7 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
     return agent
 
 
+@validate_transaction
 def delete_agent(db: Session, agent_id: str) -> None:
     """
     Delete an agent by ID.
