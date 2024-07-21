@@ -8,12 +8,8 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import deployment as deployment_crud
-from backend.crud.deployment import class_name_validator
 from backend.database_models.database import DBSessionDep
-from backend.database_models.deployment import (
-    COMMUNITY_MODEL_DEPLOYMENTS_MODULE,
-    DEFAULT_MODEL_DEPLOYMENTS_MODULE,
-)
+from backend.model_deployments.utils import class_name_validator
 from backend.services.auth.utils import get_header_user_id
 
 
@@ -24,6 +20,7 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
     Args:
         deployment_name (str): The deployment name
         model_name (str): The model name
+        session (DBSessionDep): The database session
 
     Raises:
         HTTPException: If the deployment and model are not compatible
@@ -70,7 +67,7 @@ def validate_deployment_config(deployment_config, deployment_db):
     for key in deployment_config:
         if (
             key not in deployment_db.default_deployment_config
-            or deployment_config[key] == ""
+            or not deployment_config[key]
         ):
             raise HTTPException(
                 status_code=400,
@@ -337,7 +334,7 @@ async def validate_create_update_model_request(session: DBSessionDep, request: R
 
 async def validate_create_deployment_request(session: DBSessionDep, request: Request):
     """
-    Validate that the create deployment request has valid env vars.
+    Validate that the create deployment request is valid.
 
     Args:
         request (Request): The request to validate

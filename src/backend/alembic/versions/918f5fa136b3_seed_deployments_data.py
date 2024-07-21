@@ -13,7 +13,7 @@ from alembic import op
 
 from backend.database_models.seeders.deplyments_models_seed import (
     delete_default_models,
-    seed_default_models,
+    deployments_models_seed,
 )
 
 # revision identifiers, used by Alembic.
@@ -24,7 +24,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    seed_default_models(op)
+    deployments_models_seed(op)
 
 
 def downgrade() -> None:

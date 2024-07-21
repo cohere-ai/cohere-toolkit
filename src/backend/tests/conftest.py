@@ -172,7 +172,7 @@ def model(session: Session) -> Model:
 
 @pytest.fixture
 def agent(session: Session) -> Agent:
-    return get_factory("Deployment", session).create()
+    return get_factory("Agent", session).create()
 
 
 @pytest.fixture

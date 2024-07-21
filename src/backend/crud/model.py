@@ -3,8 +3,10 @@ from sqlalchemy.orm import Session
 from backend.database_models import Agent, AgentDeploymentModelAssociation, Deployment
 from backend.database_models.model import Model
 from backend.schemas.model import ModelCreate, ModelUpdate
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_model(db: Session, model: ModelCreate) -> Model:
     """
     Create a new model.
@@ -76,6 +78,7 @@ def get_models_by_deployment_id(
     )
 
 
+@validate_transaction
 def update_model(db: Session, model: Model, new_model: ModelUpdate) -> Model:
     """
     Update a model.
@@ -95,6 +98,7 @@ def update_model(db: Session, model: Model, new_model: ModelUpdate) -> Model:
     return model
 
 
+@validate_transaction
 def delete_model(db: Session, model_id: str) -> None:
     """
     Delete a model by ID.

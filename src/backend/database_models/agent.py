@@ -44,8 +44,6 @@ class Agent(Base):
     tools: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[], nullable=False)
     tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata")
 
-    # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
-    # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
     user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", name="agents_user_id_fkey", ondelete="CASCADE")
     )

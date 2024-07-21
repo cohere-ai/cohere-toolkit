@@ -1,25 +1,9 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import (
-    COMMUNITY_MODEL_DEPLOYMENTS_MODULE,
-    DEFAULT_MODEL_DEPLOYMENTS_MODULE,
-    AgentDeploymentModelAssociation,
-    Deployment,
-)
+from backend.database_models import AgentDeploymentModelAssociation, Deployment
+from backend.model_deployments.utils import class_name_validator
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
-
-
-def class_name_validator(v: str):
-    from backend.model_deployments.utils import get_module_class
-
-    deployment_class = get_module_class(DEFAULT_MODEL_DEPLOYMENTS_MODULE, v)
-    if not deployment_class:
-        deployment_class = get_module_class(COMMUNITY_MODEL_DEPLOYMENTS_MODULE, v)
-    if not deployment_class:
-        raise ValueError(f"Deployment class not found: {v}")
-
-    return v
 
 
 def create_deployment(db: Session, deployment: DeploymentCreate) -> Deployment:
