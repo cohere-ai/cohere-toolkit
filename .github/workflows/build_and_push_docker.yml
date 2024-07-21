@@ -44,10 +44,15 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           file: ./standalone.Dockerfile
+      - name: Run the Docker image
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ${{ env.REGISTRY }}/cohere-ai/${{ env.IMAGE_NAME }}
+          options: -p 8000:8000
+      - name: Wait for the Docker image to start
+        run: sleep 30
       - name: Test the Docker image
         run: |
-          docker run -d -p 8000:8000 $REGISTRY/cohere-ai/$IMAGE_NAME
-          sleep 30
           status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health)
           if [ $status_code -eq 200 ]; then
             echo "Backend started successfully"
