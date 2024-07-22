@@ -439,6 +439,7 @@ def test_streaming_chat_with_search_queries_only(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+@pytest.mark.flaky(retries=3, delay=1)
 def test_streaming_chat_with_chat_history(
     session_client_chat: TestClient, session_chat: Session
 ) -> None:

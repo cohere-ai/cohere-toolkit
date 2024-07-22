@@ -47,6 +47,7 @@ google-api-python-client="^2.133.0"
 openpyxl = "^3.1.5"
 
 # Compass dependencies - To be removed once Compass is OSS
+pytest-retry = "^1.6.3"
 [tool.poetry.group.compass]
 optional = false
 
