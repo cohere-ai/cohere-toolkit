@@ -3,17 +3,19 @@
 import Link from 'next/link';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
-import { Text } from '@/components/Shared';
+import { CoralLogo, Text } from '@/components/Shared';
+import { useListAgents } from '@/hooks/agents';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
-import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
+import { getCohereColor } from '@/utils/getCohereColor';
 
 export type ConversationListItem = {
   conversationId: string;
   updatedAt: string;
   title: string;
+  agentId: string | null;
   description: string | null;
   weekHeading?: string;
 };
@@ -33,15 +35,17 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 
   const menuItems: KebabMenuItem[] = [
     {
-      label: 'Edit title',
-      iconName: 'edit',
+      label: 'Share Chat',
+      iconName: 'share',
       onClick: () => {
-        editConversationTitle({ id: conversationId, title: name });
+        // editConversationTitle({ id: conversationId, title: name });
+        alert('TODO: Share Chat');
       },
     },
     {
       label: 'Delete chat',
       iconName: 'trash',
+      iconClassName: 'dark:text-danger-500',
       onClick: () => {
         deleteConversation({ id: conversationId });
       },
@@ -51,9 +55,17 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
   return menuItems;
 };
 
+const formateDate = (date: string) =>
+  new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: '2-digit',
+  }).format(new Date(date));
+
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
-  const { title, conversationId, description } = conversation;
-  const { agentId } = useChatRoutes();
+  const { title, conversationId } = conversation;
+  const { data: agents = [] } = useListAgents();
+  const agent = agents.find((a) => a.id === conversation.agentId);
+  const agentColor = getCohereColor(agent?.id);
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
@@ -76,7 +88,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         <span className="flex items-center gap-x-1 truncate">
           <Text
             as="span"
-            className={cn('h-[21px] truncate text-volcanic-300', {
+            className={cn('h-[21px] truncate text-volcanic-300 dark:text-mushroom-950', {
               'font-medium': isActive,
             })}
           >
@@ -87,13 +99,32 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         {/* Placeholder for the kebab menu */}
         <div className="flex h-4 w-4 flex-shrink-0" />
       </div>
-      <Text styleAs="p-sm" className={cn('h-[18px] w-full truncate text-volcanic-500')}>
-        {description}
-      </Text>
+      <div className="flex h-[18px] w-full items-center gap-2">
+        <div
+          className={cn('flex size-4 flex-shrink-0 items-center justify-center rounded', {
+            'bg-mushroom-700': !agent,
+            [agentColor]: agent,
+          })}
+        >
+          {agent ? (
+            <Text className="text-white" styleAs="p-xs">
+              {agent.name[0]}
+            </Text>
+          ) : (
+            <CoralLogo style="secondary" className="scale-50" />
+          )}
+        </div>
+        <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
+          {agent?.name ?? 'Cohere AI'}
+        </Text>
+        <Text styleAs="code-sm" className="ml-auto mt-0.5 uppercase dark:text-mushroom-800">
+          {formateDate(conversation.updatedAt)}
+        </Text>
+      </div>
     </div>
   );
 
-  const conversationUrl = agentId ? `/a/${agentId}/c/${conversationId}` : `/c/${conversationId}`;
+  const conversationUrl = agent ? `/a/${agent.id}/c/${conversationId}` : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
@@ -118,14 +149,15 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     <div
       {...flippedProps}
       className={cn('group relative flex w-full rounded-lg', 'flex items-start gap-x-1', {
-        'bg-marble-1000 transition-colors ease-in-out hover:bg-mushroom-900/20': !isActive,
-        'bg-mushroom-900/40': isActive,
+        'bg-marble-1000 transition-colors ease-in-out hover:bg-mushroom-900/20 dark:bg-transparent':
+          !isActive,
+        'bg-mushroom-900/40 dark:bg-volcanic-200': isActive,
       })}
     >
       {conversationLink}
       <div className="absolute right-3 top-3.5 flex">
         <KebabMenu
-          anchor="left start"
+          anchor="right start"
           items={menuItems}
           className={cn('flex', {
             'hidden group-hover:flex': !isTouchDevice,

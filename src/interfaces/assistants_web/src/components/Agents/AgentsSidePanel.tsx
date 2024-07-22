@@ -2,12 +2,19 @@
 
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { IconButton } from '@/components/IconButton';
-import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
+import { Button, Icon, Logo, Text } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
-import { useAgentsStore, useSettingsStore } from '@/stores';
+import {
+  useAgentsStore,
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -20,6 +27,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   children,
 }) => {
   const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
+  const router = useRouter();
   const {
     agents: { isAgentsSidePanelOpen },
     setAgentsSidePanelOpen,
@@ -33,15 +41,19 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
     setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
 
-  const navigationItems: {
-    label: string;
-    icon: IconProps['name'];
-    href?: string;
-    onClick?: () => void;
-  }[] = [
-    { label: 'Create Assistant ', icon: 'add', href: '/new' },
-    { label: 'Discover', icon: 'compass', href: '/discover' },
-  ];
+  const { setEditAgentPanelOpen } = useAgentsStore();
+  const { resetConversation } = useConversationStore();
+  const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
+
+  const handleNewChat = () => {
+    const url = '/';
+    router.push(url, undefined);
+    setEditAgentPanelOpen(false);
+    resetConversation();
+    resetCitations();
+    resetFileParams();
+  };
 
   return (
     <Transition
@@ -49,8 +61,9 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
       as="div"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
-        'h-full bg-marble-1000',
-        'rounded-lg border border-marble-950',
+        'h-full bg-marble-1000 dark:bg-volcanic-60',
+        'rounded-lg border border-marble-950 dark:border-volcanic-60',
+        'dark:text-mushroom-950',
         {
           'right-1/4 md:right-auto': isAgentsSidePanelOpen,
         },
@@ -66,75 +79,74 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
       <div
         className={cn(
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
-          'md:transition-[min-width,max-width]',
-          {
-            'md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
-              !isAgentsSidePanelOpen,
-            'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
-              isAgentsSidePanelOpen,
-          }
+          'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg'
         )}
       >
         <div
           className={cn('flex flex-shrink-0 items-center', {
             'justify-between gap-x-3': isAgentsSidePanelOpen || isMobile,
-            'justify-center': !isAgentsSidePanelOpen && isDesktop,
           })}
         >
-          <Transition
-            show={isAgentsSidePanelOpen || isMobile}
-            as="div"
-            enter="transition-all transform ease-in-out duration-200"
-            enterFrom="-translate-x-full"
-            enterTo="translate-x-0"
-          >
-            <Link href="/" shallow>
-              <div className="mr-3 flex items-baseline">
-                <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
-              </div>
-            </Link>
-          </Transition>
+          <Link href="/" shallow>
+            <div className="mr-3 flex items-baseline">
+              <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
+            </div>
+          </Link>
 
           <IconButton
             iconName="close-drawer"
             onClick={handleToggleAgentsSidePanel}
-            className={cn('transition delay-100 duration-200 ease-in-out', {
-              'rotate-180 transform text-mushroom-400': isAgentsSidePanelOpen || isMobile,
-            })}
+            className={cn(
+              'flex text-mushroom-950 transition delay-100 duration-200 ease-in-out md:hidden',
+              {
+                'rotate-180 transform': isAgentsSidePanelOpen,
+              }
+            )}
           />
         </div>
+
+        <div className="flex flex-shrink-0 flex-col gap-y-4">
+          <Button
+            kind="secondary"
+            className="truncate [&_span]:text-evolved-green-700"
+            startIcon={<Icon name="add" kind="outline" className="text-evolved-green-700" />}
+            label="New chat"
+            onClick={handleNewChat}
+            shallow
+          />
+          <Button
+            kind="secondary"
+            className="truncate [&_span]:text-mushroom-950"
+            startIcon={<Icon name="compass" kind="outline" className="text-mushroom-950" />}
+            label="See all assistants"
+            href="/discover"
+            shallow
+          />
+        </div>
+
         <div className="flex-grow overflow-y-auto">{children}</div>
-        {isAgentsSidePanelOpen || isMobile ? (
-          <div className="flex flex-shrink-0 flex-col gap-y-4">
-            {navigationItems.map(({ label, icon, href, onClick }) => (
-              <Button
-                key={label}
-                kind="secondary"
-                className="truncate text-mushroom-150"
-                startIcon={<Icon name={icon} kind="outline" className="text-mushroom-150" />}
-                label={label}
-                href={href}
-                shallow
-                onClick={onClick}
+
+        <footer className="flex flex-col gap-4">
+          <Button
+            kind="secondary"
+            className="truncate [&_span]:text-mushroom-950"
+            startIcon={<Icon name="settings" kind="outline" className="text-mushroom-950" />}
+            label="Settings"
+            href="/settings"
+            shallow
+          />
+          <section className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Text styleAs="label" className="text-mushroom-800">
+                POWERED BY
+              </Text>
+              <Logo
+                hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'}
+                includeBrandName={false}
               />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-shrink-0 flex-col gap-y-4">
-            {navigationItems.map(({ label, icon, href, onClick }) => (
-              <Tooltip key={label} label={label} hover placement="right">
-                <IconButton
-                  iconName={icon}
-                  iconClassName="text-mushroom-150"
-                  shallow
-                  onClick={onClick}
-                  href={href}
-                  className="w-full text-mushroom-150"
-                />
-              </Tooltip>
-            ))}
-          </div>
-        )}
+            </div>
+          </section>
+        </footer>
       </div>
     </Transition>
   );
