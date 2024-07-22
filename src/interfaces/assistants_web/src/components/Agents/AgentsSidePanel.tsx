@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Logo, Text } from '@/components/Shared';
+import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import {
@@ -108,9 +109,14 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         <div className="flex flex-shrink-0 flex-col gap-y-4">
           <Button
             kind="secondary"
-            className="truncate [&_span]:text-evolved-green-700"
+            className="group truncate [&_span]:text-evolved-green-700"
             startIcon={<Icon name="add" kind="outline" className="text-evolved-green-700" />}
-            label="New chat"
+            label={
+              <div className="flex items-center justify-between">
+                <Text>New chat</Text>
+                <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
+              </div>
+            }
             onClick={handleNewChat}
             shallow
           />
