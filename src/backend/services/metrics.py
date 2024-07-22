@@ -85,17 +85,16 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         message_type = request.state.event_type
         if not message_type:
             return None
-        try:
-            user_id = get_header_user_id(request)
-            if not user_id:
-                raise ValueError("user_id empty")
-        except Exception as e:
-            logger.warning(f"Failed to get user id: {e}")
-            return None
 
+        user = self.get_user(request)
+        # when user is created, user_id is not in the header
+        user_id = (
+            user.id
+            if message_type == MetricsMessageType.USER_CREATED
+            else get_header_user_id(request)
+        )
         agent = get_agent(request)
         agent_id = agent.id if agent else None
-        user = self.get_user(request)
         event_id = str(uuid.uuid4())
         now_unix_seconds = time.time()
 
