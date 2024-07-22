@@ -230,6 +230,7 @@ def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
             search_units=search_units,
             model=model,
             assistant_id=agent_id,
+            assistant=agent,
             error=event_dict.get("finish_reason", None) if is_error else None,
         )
         signal = MetricsSignal(signal=metrics)
