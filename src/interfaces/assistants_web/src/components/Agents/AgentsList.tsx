@@ -7,7 +7,7 @@ import { AgentCard } from '@/components/Agents/AgentCard';
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
 import { Icon, Input, Text } from '@/components/Shared';
-import { useRecentAgents } from '@/hooks/agents';
+import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 
@@ -20,9 +20,13 @@ const sortByDate = (a: Conversation, b: Conversation) => {
  * It shows the most recent agents and the base agents.
  */
 export const AgentsList: React.FC = () => {
-  const { recentAgents } = useRecentAgents();
   const { data: conversations } = useConversations({});
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
+  const { data: agents = [] } = useListAgents();
+  const recentAgents = conversations
+    .sort(sortByDate)
+    .map((conversation) => agents.find((agent) => agent.id === conversation.agent_id))
+    .filter((agent, index, self) => self.indexOf(agent) === index);
 
   return (
     <div className="flex flex-col gap-8">
@@ -31,8 +35,8 @@ export const AgentsList: React.FC = () => {
           Recent Assistants
         </Text>
         <div className="flex gap-1">
-          <AgentCard key="commandR" name="Command R+" isBaseAgent />
-          {recentAgents.slice(0, 4).map((agent) => {
+          {recentAgents.slice(0, 5).map((agent) => {
+            if (!agent) return <AgentCard key="commandR+" name="Command R+" isBaseAgent />;
             return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
           })}
         </div>
