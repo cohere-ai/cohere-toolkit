@@ -1,9 +1,11 @@
+'use client';
+
 import React from 'react';
 
 import { Icon, IconName, Text } from '@/components/Shared';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useDefaultFileLoaderTool, useListFiles } from '@/hooks/files';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
@@ -15,7 +17,7 @@ type Props = {
  * @description Renders the enabled data sources in the composer toolbar.
  */
 export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const {
     conversation: { id },
   } = useConversationStore();
@@ -55,7 +57,7 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex gap-2 overflow-scroll">
       {enabledDocuments?.map((d, i) => (
         <DataSourceChip
           key={`doc-${i}`}
@@ -86,7 +88,7 @@ const DataSourceChip: React.FC<{
   onEditConfiguration?: VoidFunction;
 }> = ({ iconName, label, onDelete, disabled, hasEditableConfiguration, onEditConfiguration }) => {
   return (
-    <div className="flex items-center justify-between gap-x-2 rounded border border-dashed border-secondary-200 bg-secondary-50 px-2 py-0.5">
+    <div className="flex items-center justify-between gap-x-2 rounded border border-dashed border-mushroom-800 bg-mushroom-950 px-2 py-0.5">
       <div className="flex items-center gap-x-1">
         <Icon name={iconName} kind="outline" />
         <Text className="max-w-[100px] truncate md:max-w-[200px]">{label}</Text>

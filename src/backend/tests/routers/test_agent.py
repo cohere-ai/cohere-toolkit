@@ -363,6 +363,24 @@ async def test_get_agent_mertic(
         assert m_args.assistant.name == agent.name
 
 
+@pytest.mark.asyncio
+async def test_get_default_agent_mertic(
+    session_client: TestClient, session: Session, user
+) -> None:
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.get(
+            f"/v1/default_agent", headers={"User-Id": user.id}
+        )
+        assert response.status_code == 200
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
+        assert m_args.assistant.name == "Default Agent"
+
+
 def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(name="test agent")
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(

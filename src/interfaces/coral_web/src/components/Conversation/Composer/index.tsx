@@ -1,3 +1,5 @@
+'use client';
+
 import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -9,8 +11,8 @@ import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
@@ -26,7 +28,7 @@ type Props = {
   onStop: VoidFunction;
   onSend: (message?: string, overrides?: Partial<ConfigurableParams>) => void;
   onChange: (message: string) => void;
-  onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUploadFile: (files: File[]) => void;
   requiredTools?: string[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
 };
@@ -50,7 +52,7 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
-  const { agentId } = useSlugRoutes();
+  const { agentId } = useChatRoutes();
   const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });
@@ -170,10 +172,10 @@ export const Composer: React.FC<Props> = ({
         className={cn(
           'relative flex w-full flex-col',
           'transition ease-in-out',
-          'rounded border bg-marble-100',
-          'border-marble-500 focus-within:border-secondary-700',
+          'rounded border bg-marble-1000',
+          'border-marble-800 focus-within:border-mushroom-400',
           {
-            'border-marble-500 bg-marble-300': isComposerDisabled,
+            'border-marble-800 bg-marble-950': isComposerDisabled,
           }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
@@ -198,13 +200,13 @@ export const Composer: React.FC<Props> = ({
               'self-center',
               'px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-4',
               'rounded',
-              'bg-marble-100',
+              'bg-marble-1000',
               'transition ease-in-out',
-              'placeholder:text-volcanic-500 focus:outline-none',
+              'placeholder:text-volcanic-600 focus:outline-none',
               STYLE_LEVEL_TO_CLASSES.p,
               'leading-[150%]',
               {
-                'bg-marble-300': isComposerDisabled,
+                'bg-marble-950': isComposerDisabled,
               }
             )}
             style={{
@@ -223,12 +225,17 @@ export const Composer: React.FC<Props> = ({
               'my-2 ml-1 md:my-4',
               'flex flex-shrink-0 items-center justify-center rounded',
               'transition ease-in-out',
-              'text-secondary-800 hover:bg-secondary-100',
-              { 'text-secondary-500': !canSend }
+              'text-mushroom-300 hover:bg-mushroom-900',
+              { 'text-mushroom-600': !canSend }
             )}
             type="button"
-            disabled={!canSend}
-            onClick={() => (canSend ? onSend(value) : onStop())}
+            onClick={() => {
+              if (canSend) {
+                onSend(value);
+              } else {
+                onStop();
+              }
+            }}
           >
             {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
           </button>

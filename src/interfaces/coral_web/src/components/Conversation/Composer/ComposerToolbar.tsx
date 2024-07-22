@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef } from 'react';
 
 import {
@@ -11,7 +13,7 @@ import { cn } from '@/utils';
 
 type Props = {
   isStreaming: boolean;
-  onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUploadFile: (files: File[]) => void;
   onDataSourceMenuToggle: VoidFunction;
   menuProps: DataSourceMenuProps;
 };
@@ -27,14 +29,19 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
     fileInputRef.current.click();
   };
 
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onUploadFile([...(e.target.files ?? [])]);
+  };
+
   return (
-    <div className={cn('flex items-center gap-x-2', 'border-t border-marble-400', 'mx-2 py-2')}>
+    <div className={cn('flex items-center gap-x-2', 'border-t border-marble-950', 'mx-2 py-2')}>
       <input
         ref={fileInputRef}
         type="file"
+        multiple
         accept={ACCEPTED_FILE_TYPES.join(',')}
         className="hidden"
-        onChange={onUploadFile}
+        onChange={handleFileInputChange}
       />
       <IconButton
         iconName="clip"
@@ -43,7 +50,7 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
         onClick={handleOpenFileExplorer}
       />
       <DataSourceMenu {...menuProps} />
-      <div className="h-7 w-px bg-marble-300" />
+      <div className="h-7 w-px bg-marble-950" />
       <EnabledDataSources isStreaming={isStreaming} />
     </div>
   );

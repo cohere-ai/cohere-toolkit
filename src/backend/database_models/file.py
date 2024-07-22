@@ -7,11 +7,11 @@ from backend.database_models.base import Base
 class File(Base):
     __tablename__ = "files"
 
-    user_id: Mapped[str] = mapped_column(String)
+    user_id: Mapped[str] = mapped_column(String, nullable=True)
     message_id: Mapped[str] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE"), nullable=True
     )
-    conversation_id: Mapped[str] = mapped_column(String)
+    conversation_id: Mapped[str] = mapped_column(String, nullable=True)
 
     file_name: Mapped[str]
     file_path: Mapped[str]
