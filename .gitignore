@@ -140,6 +140,9 @@ secrets.toml
 
 .DS_Store
 
+# JetBrains IDEs
+.idea
+
 # Local file storage
 /src/backend/data
 
