@@ -20,6 +20,11 @@ def list_deployments(all: bool = False) -> list[Deployment]:
     Returns:
         list[Deployment]: List of available deployment options.
     """
+    send_log_message(
+        logger,
+        f"[Deployment] List deployment request"
+        "debug",
+    )
     available_deployments = [
         deployment
         for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()

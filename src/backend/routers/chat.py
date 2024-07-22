@@ -18,12 +18,15 @@ from backend.services.chat import (
     generate_langchain_chat_stream,
     process_chat,
 )
+from backend.services.logger import get_logger, send_log_message
 from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
     prefix="/v1",
 )
 router.name = RouterName.CHAT
+
+logger = get_logger()
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
@@ -49,6 +52,13 @@ async def chat_stream(
 
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
+
+    send_log_message(
+        logger,
+        f"[Chat] Streaming Chat Request: Trace ID {trace_id}, User ID {user_id}, Agent ID {agent_id}"
+        "debug",
+    )
+
     (
         session,
         chat_request,
@@ -116,6 +126,12 @@ async def chat(
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
 
+    send_log_message(
+        logger,
+        f"[Chat] Chat Request: Trace ID {trace_id}, User ID {user_id}, Agent ID {agent_id}"
+        "debug",
+    )
+
     (
         session,
         chat_request,
@@ -158,6 +174,11 @@ def langchain_chat_stream(
 ):
     use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
     if not use_langchain:
+        send_log_message(
+            logger,
+            f"[Chat] Error handling LangChain streaming chat request: LangChain is not enabled"
+            "debug",
+        )
         return {"error": "Langchain is not enabled."}
 
     (
@@ -173,6 +194,12 @@ def langchain_chat_stream(
         _,
         _,
     ) = process_chat(session, chat_request, request)
+
+    send_log_message(
+        logger,
+        f"[Chat] LangChain Streaming Chat Request: Conversation ID {conversation_id} User ID {user_id}"
+        "debug",
+    )
 
     return EventSourceResponse(
         generate_langchain_chat_stream(

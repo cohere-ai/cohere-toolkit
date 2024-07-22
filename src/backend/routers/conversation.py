@@ -72,6 +72,11 @@ async def get_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = get_header_user_id(request)
+    send_log_message(
+        logger,
+        f"[Conversation] Get conversation request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
     conversation = validate_conversation(session, conversation_id, user_id)
     return conversation
 
@@ -99,7 +104,11 @@ async def list_conversations(
         list[ConversationWithoutMessages]: List of conversations.
     """
     user_id = get_header_user_id(request)
-
+    send_log_message(
+        logger,
+        f"[Conversation] List conversations request: User ID {user_id}"
+        "debug",
+    )
     return conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
     )
@@ -129,7 +138,11 @@ async def update_conversation(
     """
     user_id = get_header_user_id(request)
     conversation = validate_conversation(session, conversation_id, user_id)
-
+    send_log_message(
+        logger,
+        f"[Conversation] Update conversation request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
     conversation = conversation_crud.update_conversation(
         session, conversation, new_conversation
     )
@@ -156,6 +169,11 @@ async def delete_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = get_header_user_id(request)
+    send_log_message(
+        logger,
+        f"[Conversation] Delete conversation request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
     _ = validate_conversation(session, conversation_id, user_id)
 
     conversation_crud.delete_conversation(session, conversation_id, user_id)
@@ -187,6 +205,12 @@ async def search_conversations(
     deployment_name = request.headers.get("Deployment-Name", "")
     model_deployment = get_deployment(deployment_name)
     trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
+
+    send_log_message(
+        logger,
+        f"[Conversation] Search conversation request: User ID {user_id} Trace ID {trace_id}"
+        "debug",
+    )
 
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -236,6 +260,12 @@ async def upload_file(
     """
 
     user_id = get_header_user_id(request)
+
+    send_log_message(
+        logger,
+        f"[Conversation] Upload file request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
 
     validate_file_size(session, user_id, file)
 
@@ -318,6 +348,12 @@ async def batch_upload_file(
 
     user_id = get_header_user_id(request)
 
+    send_log_message(
+        logger,
+        f"[Conversation] Batch upload file request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
+
     validate_batch_file_size(session, user_id, files)
 
     # Create new conversation
@@ -393,6 +429,13 @@ async def list_files(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = get_header_user_id(request)
+
+    send_log_message(
+        logger,
+        f"[Conversation] List files request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
+
     _ = validate_conversation(session, conversation_id, user_id)
 
     files = file_crud.get_files_by_conversation_id(session, conversation_id, user_id)
@@ -423,6 +466,11 @@ async def update_file(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = get_header_user_id(request)
+    send_log_message(
+        logger,
+        f"[Conversation] Update files request: User ID {user_id} Conversation ID {conversation_id} File ID {file_id}"
+        "debug",
+    )
     _ = validate_conversation(session, conversation_id, user_id)
     file = validate_file(session, file_id, user_id)
 
@@ -450,6 +498,11 @@ async def delete_file(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = get_header_user_id(request)
+    send_log_message(
+        logger,
+        f"[Conversation] Delete file request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
     _ = validate_conversation(session, conversation_id, user_id)
     _ = validate_file(session, file_id, user_id)
 
@@ -477,8 +530,12 @@ async def generate_title(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = get_header_user_id(request)
+    send_log_message(
+        logger,
+        f"[Conversation] Generate title request: User ID {user_id} Conversation ID {conversation_id}"
+        "debug",
+    )
     conversation = validate_conversation(session, conversation_id, user_id)
-
     agent_id = conversation.agent_id if conversation.agent_id else None
     trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
     deployment_name = request.headers.get("Deployment-Name", "")
