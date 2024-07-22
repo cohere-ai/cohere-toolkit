@@ -24,6 +24,10 @@ def add_event_type_to_request_state(request: Request, event_type: MetricsMessage
     request.state.event_type = event_type
 
 
+def add_model_to_request_state(request: Request, model: str):
+    request.state.model = model
+
+
 def add_default_agent_to_request_state(request: Request):
     # default_agent = agent_crud.get_agent_by_id("default")
     # if default_agent:

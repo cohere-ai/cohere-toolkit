@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,6 +14,7 @@ from backend.database_models import Agent
 from backend.database_models.conversation import Conversation
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.user import User
+from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.tool import Category
 from backend.tests.factories import get_factory
 
@@ -72,6 +74,45 @@ def test_streaming_new_chat(
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 2
     )
+
+
+# TODO: add test case for when stream raises an error
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_new_chat_metrics_with_agent(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(
+        user=user,
+        tools=[],
+        name="test agent",
+        preamble="you are a smart assistant",
+    )
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": user.id,
+                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            },
+            params={"agent_id": agent.id},
+            json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
+        )
+        # finish all the event stream
+        assert response.status_code == 200
+        for line in response.iter_lines():
+            continue
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
+        assert m_args.assistant_id == agent.id
+        assert m_args.assistant.name == agent.name
+        assert m_args.model is not None
+        assert m_args.input_nb_tokens > 0
+        assert m_args.output_nb_tokens > 0
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
