@@ -48,3 +48,13 @@ export const formatFileSize = (bytes: number): string => {
     return `${(bytes / mb).toFixed(1)} MB`;
   }
 };
+
+/**
+ *  Formats a date string to a short date format e.g. Jan 21
+ */
+export const formatDateToShortDate = (date: string) =>
+  new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(date));
