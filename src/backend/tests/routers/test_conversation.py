@@ -123,15 +123,16 @@ def test_get_conversation_lists_message_files(
 ) -> None:
     user = get_factory("User", session).create()
     conversation = get_factory("Conversation", session).create(user_id=user.id)
+    file = get_factory("File", session).create(
+        user_id=user.id,
+    )
     message = get_factory("Message", session).create(
         conversation_id=conversation.id,
         user_id=user.id,
         position=0,
         is_active=True,
         text="hello",
-    )
-    file = get_factory("File", session).create(
-        conversation_id=conversation.id, user_id=user.id, message_id=message.id
+        file_ids=[file.id]
     )
     session.refresh(conversation)
 
@@ -285,13 +286,12 @@ def test_delete_conversation_with_files(
     session: Session,
     user: User,
 ) -> None:
-    conversation = get_factory("Conversation", session).create(
-        title="test title", user_id=user.id
-    )
-    _ = get_factory("File", session).create(
+    file = get_factory("File", session).create(
         file_name="test_file.txt",
-        conversation_id=conversation.id,
         user_id=user.id,
+    )
+    conversation = get_factory("Conversation", session).create(
+        title="test title", user_id=user.id, file_ids=[file.id]
     )
 
     response = session_client.delete(
@@ -303,7 +303,7 @@ def test_delete_conversation_with_files(
     assert response.json() == {}
 
     # Check if the files were deleted
-    file = session.query(File).filter(File.conversation_id == conversation.id).first()
+    file = session.query(File).filter(File.id == file.id).first()
     assert file is None
 
     # Check if the conversation was deleted

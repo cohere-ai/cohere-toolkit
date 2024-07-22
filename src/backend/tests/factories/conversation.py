@@ -15,5 +15,5 @@ class ConversationFactory(BaseFactory):
     created_at = factory.Faker("date_time")
     updated_at = factory.Faker("date_time")
     text_messages = []
-    files = []
+    file_ids = []
     agent_id = None

@@ -17,7 +17,7 @@ Given the following conversation history, write a short title that summarizes th
 """
 SEARCH_RELEVANCE_THRESHOLD = 0.3
 
-file_service = FileService(session=DBSessionDep)
+file_service = FileService()
 
 
 def extract_details_from_conversation(

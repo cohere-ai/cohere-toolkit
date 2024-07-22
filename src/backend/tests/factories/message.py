@@ -18,4 +18,5 @@ class MessageFactory(BaseFactory):
     is_active = factory.Faker("boolean")
     documents = []
     citations = []
+    file_ids = []
     agent = factory.Faker("random_element", elements=("USER", "CHATBOT"))

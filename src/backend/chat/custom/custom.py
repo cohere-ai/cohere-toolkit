@@ -19,7 +19,7 @@ from backend.services.logger import get_logger, send_log_message
 logger = get_logger()
 MAX_STEPS = 15
 
-file_service = FileService(session=DBSessionDep)
+file_service = FileService()
 
 
 class CustomChat(BaseChat):

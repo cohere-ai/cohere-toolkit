@@ -12,13 +12,10 @@ import backend.crud.file as file_crud
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import message as message_crud
-from backend.database_models import File as FileModel
-from backend.database_models import Message as MessageModel
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
-from backend.schemas.message import Message
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -34,9 +31,6 @@ DOCX_EXTENSION = "docx"
 
 
 class FileService:
-    def __init__(self, session: DBSessionDep):
-        self.session = session
-
     @property
     def is_compass_enabled(self) -> bool:
         # todo: add compass env variable anc check here
@@ -49,8 +43,9 @@ class FileService:
         files: list[FastAPIUploadFile],
         user_id: str,
         conversation_id: str,
-    ) -> File:
+    ) -> list[File]:
         # Todo @scott-cohere: need to refactor this file singular and multiple files
+        files_to_upload = []
         for file in files:
             content = await get_file_content(file)
             cleaned_content = content.replace("\x00", "")
@@ -64,30 +59,30 @@ class FileService:
                     detail=f"Conversation with ID: {conversation_id} not found.",
                 )
 
-            file = file_crud.create_file(
-                session,
+            files_to_upload.append(
                 File(
                     file_name=filename,
                     file_size=file.size,
                     file_path=filename,
                     file_content=cleaned_content,
                     user_id=conversation.user_id,
-                ),
+                )
             )
 
-            update_conversation = UpdateConversation()
-            if conversation.file_ids:
-                file_ids = deepcopy(conversation.file_ids)
-                file_ids.append(file.id)
-                update_conversation.file_ids = file_ids
-            else:
-                update_conversation.file_ids = [file.id]
+        uploaded_files = file_crud.batch_create_files(session, files_to_upload)
+        uploaded_file_ids = [file.id for file in uploaded_files]
+        update_conversation = UpdateConversation()
+        if conversation.file_ids:
+            file_ids = deepcopy(conversation.file_ids)
+            update_conversation.file_ids = file_ids + uploaded_file_ids
+        else:
+            update_conversation.file_ids = uploaded_file_ids
 
-            conversation_crud.update_conversation(
-                session, conversation, update_conversation
-            )
-
-        return file
+        conversation_crud.update_conversation(
+            session, conversation, update_conversation
+        )
+        
+        return uploaded_files
 
     def get_files_by_agent_id(
         self, session: DBSessionDep, user_id: str, agent_id: str
@@ -139,7 +134,7 @@ class FileService:
         conversation.file_ids.remove(file_id)
         conversation_crud.update_conversation(self.session, conversation)
         file_crud.delete_file(self.session, file_id)
-        return
+        return        
 
     def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
         # currently DB only, implement and fetch from compass after
@@ -161,6 +156,9 @@ class FileService:
 
     def delete_file(self, session: DBSessionDep, file_id: str, user_id: str) -> None:
         file_crud.delete_file(session, file_id, user_id)
+
+    def bulk_delete_files(self, session: DBSessionDep, file_ids: list[str], user_id: str) -> None:
+        file_crud.bulk_delete_files(session, file_ids, user_id)
 
     def get_message_files(
         self, session: DBSessionDep, message_id: str, user_id: str

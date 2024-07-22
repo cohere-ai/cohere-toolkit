@@ -59,7 +59,7 @@ from backend.services.auth.utils import get_header_user_id
 from backend.services.file import FileService
 from backend.services.generators import AsyncGeneratorContextManager
 
-fileService = FileService(session=DBSessionDep)
+fileService = FileService()
 
 
 def process_chat(

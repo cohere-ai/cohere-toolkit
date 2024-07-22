@@ -168,3 +168,16 @@ def delete_file(db: Session, file_id: str, user_id: str) -> None:
     file = db.query(File).filter(File.id == file_id, File.user_id == user_id)
     file.delete()
     db.commit()
+
+def bulk_delete_files(db: Session, file_ids: list[str], user_id: str) -> None:
+    """
+    Bulk delete files by IDs.
+
+    Args:
+        db (Session): Database session.
+        file_ids (list[str]): List of file IDs.
+        user_id (str): User ID.
+    """
+    files = db.query(File).filter(File.id.in_(file_ids), File.user_id == user_id)
+    files.delete(synchronize_session=False)
+    db.commit()

@@ -33,7 +33,6 @@ from backend.services.conversation import (
 )
 from backend.services.file import (
     FileService,
-    get_file_content,
     validate_batch_file_size,
     validate_file_size,
 )
@@ -43,8 +42,7 @@ router = APIRouter(
 )
 router.name = RouterName.CONVERSATION
 
-file_service = FileService(session=DBSessionDep)
-
+file_service = FileService()
 
 # CONVERSATIONS
 @router.get("/{conversation_id}", response_model=Conversation)
@@ -67,7 +65,6 @@ async def get_conversation(
     """
     user_id = get_header_user_id(request)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-    files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
 
     if not conversation:
         raise HTTPException(
@@ -75,6 +72,7 @@ async def get_conversation(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
+    files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
     messages = getMessagesWithFiles(session, user_id, conversation.messages)
     return Conversation(
         id=conversation.id,
@@ -174,7 +172,19 @@ async def update_conversation(
         session, conversation, new_conversation
     )
 
-    return conversation
+    files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
+    messages = getMessagesWithFiles(session, user_id, conversation.messages)
+    return Conversation(
+        id=conversation.id,
+        user_id=user_id,
+        created_at=conversation.created_at,
+        updated_at=conversation.updated_at,
+        title=conversation.title,
+        messages=messages,
+        files=files,
+        description=conversation.description,
+        agent_id=conversation.agent_id,
+    )
 
 
 @router.delete("/{conversation_id}")
@@ -204,7 +214,12 @@ async def delete_conversation(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
+    # Delete all files
+    if conversation.file_ids:
+        file_service.bulk_delete_files(session, conversation.file_ids, user_id)
+
     conversation_crud.delete_conversation(session, conversation_id, user_id)
+
 
     return DeleteConversation()
 
@@ -351,7 +366,8 @@ async def upload_file(
             status_code=500, detail=f"Error while uploading file {file.filename}: {e}."
         )
 
-    return upload_file
+    # TODO scott: clean this up, just use one endpoint for both single and batch
+    return upload_file[0]
 
 
 @router.post("/batch_upload_file", response_model=list[UploadFile])
@@ -360,7 +376,7 @@ async def batch_upload_file(
     request: Request,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
-) -> UploadFile:
+) -> list[UploadFile]:
     """
     Uploads and creates a batch of File object.
     If no conversation_id is provided, a new Conversation is created as well.
@@ -409,27 +425,9 @@ async def batch_upload_file(
             )
 
     # TODO: check if file already exists in DB once we have files per agents
-
-    # Handle uploading File
-    files_to_upload = []
-    for file in files:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-
-        # Create File
-        upload_file = FileModel(
-            user_id=conversation.user_id,
-            file_name=filename,
-            file_path=filename,
-            file_size=file.size,
-            file_content=cleaned_content,
-        )
-        files_to_upload.append(upload_file)
-
     try:
-        uploaded_files = file_service.create_conversation_files(
-            session, [files], user_id, conversation.id
+        uploaded_files = await file_service.create_conversation_files(
+            session, files, user_id, conversation.id
         )
     except Exception as e:
         raise HTTPException(
