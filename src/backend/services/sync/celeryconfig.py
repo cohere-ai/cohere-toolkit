@@ -1,11 +1,20 @@
 # Celery configuration
 # http://docs.celeryproject.org/en/latest/configuration.html
 
+import socket
+
 from backend.services.sync.constants import (
     SYNC_BROKER_URL,
     SYNC_DATABASE_URL,
     SYNC_WORKER_CONCURRENCY,
 )
+
+from .constants import DEFAULT_TIME_OUT
+
+# Sockets timeout
+# This helps with GDrive SDK download timeouts
+socket.setdefaulttimeout(DEFAULT_TIME_OUT)
+
 
 # broker and db
 broker_url = SYNC_BROKER_URL

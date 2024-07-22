@@ -392,6 +392,8 @@ class CompassClient:
         num_chunks = 0
         for num_doc, doc in enumerate(docs, 1):
             if doc.status != CompassDocumentStatus.Success:
+                print("doc.metadata")
+                print(doc.metadata)
                 logger.error(
                     f"[Thread {threading.get_native_id()}] Document #{num_doc} has errors: {doc.errors}"
                 )

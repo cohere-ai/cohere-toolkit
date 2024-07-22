@@ -63,21 +63,23 @@ class Compass:
         self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
         self.parser_config = parser_config
         self.metadata_config = metadata_config
+        # Try initializing Compass Parser and Client and call list_indexes
+        # to check if the credentials are correct.
+        self.parser_client = CompassParserClient(
+            parser_url=self.compass_parser_url,
+            username=self.username,
+            password=self.password,
+            parser_config=self.parser_config,
+            metadata_config=self.metadata_config,
+        )
+        self.compass_client = CompassClient(
+            index_url=self.compass_api_url,
+            username=self.username,
+            password=self.password,
+        )
+            
+    def health_check(self):
         try:
-            # Try initializing Compass Parser and Client and call list_indexes
-            # to check if the credentials are correct.
-            self.parser_client = CompassParserClient(
-                parser_url=self.compass_parser_url,
-                username=self.username,
-                password=self.password,
-                parser_config=self.parser_config,
-                metadata_config=self.metadata_config,
-            )
-            self.compass_client = CompassClient(
-                index_url=self.compass_api_url,
-                username=self.username,
-                password=self.password,
-            )
             self.compass_client.list_indexes()
         except Exception as e:
             logger.exception(f"Compass Tool: Error initializing Compass client: {e}")

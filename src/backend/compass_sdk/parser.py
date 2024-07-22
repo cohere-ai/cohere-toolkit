@@ -68,9 +68,6 @@ class CompassParserClient:
         self.num_workers = num_workers
 
         self.metadata_config = metadata_config
-        logger.info(
-            f"CompassParserClient initialized with parser_url: {self.parser_url}"
-        )
 
     def process_folder(
         self,

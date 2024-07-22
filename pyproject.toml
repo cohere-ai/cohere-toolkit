@@ -22,7 +22,7 @@ psycopg2-binary = "^2.9.9"
 python-multipart = "^0.0.9"
 sse-starlette = "^2.0.0"
 boto3 = "^1.0.0"
-httpx = "^0.27.0"
+httpx = {extras = ["http2"], version = "^0.27.0"}
 chromadb = "^0.4.16"
 cohere = "^5.5.7"
 llama-index = "^0.10.11"

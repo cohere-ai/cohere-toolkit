@@ -4,7 +4,8 @@ CSV_MIMETYPE = "text/csv"
 TEXT_MIMETYPE = "text/plain"
 SEARCH_LIMIT = 5
 COMPASS_UPDATE_INTERVAL = 86400
-ACTIVITY_TRACKING_WINDOW = 86400
+# TODO dev only: revert to 86400
+ACTIVITY_TRACKING_WINDOW = 4 * 86400
 SCOPES = [
     "https://www.googleapis.com/auth/drive.metadata.readonly",
     "https://www.googleapis.com/auth/drive.readonly",
@@ -23,7 +24,7 @@ NON_NATIVE_SEARCH_MIME_TYPES = [
     "text/markdown",
 ]
 SEARCH_MIME_TYPES = NATIVE_SEARCH_MIME_TYPES + NON_NATIVE_SEARCH_MIME_TYPES
-DOC_FIELDS = "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails"
+DOC_FIELDS = "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails, trashed"
 
 GOOGLE_DRIVE_TOOL_ID = "google_drive"
 
@@ -36,3 +37,9 @@ class GoogleDriveActions(Enum):
     DELETE = "delete"
     RESTORE = "restore"
     PERMISSION_CHANGE = "permission_change"
+
+
+class Status(Enum):
+    SUCCESS = "success"
+    CANCELLED = "cancelled"
+    FAIL = "fail"
