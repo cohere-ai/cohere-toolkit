@@ -591,7 +591,6 @@ async def generate_chat_stream(
 
     stream_event = None
     async for event in model_deployment_stream:
-        report_streaming_event(request, event)
         (
             stream_event,
             stream_end_data,

@@ -16,7 +16,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.services.logger import get_logger, send_log_message
-from backend.services.metrics import collect_metrics_rerank
+from backend.services.metrics import collect_metrics_rerank, collect_metrics_chat_stream
 
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
@@ -75,6 +75,7 @@ class CohereDeployment(BaseDeployment):
         )
         yield to_dict(response)
 
+    @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Any:

@@ -248,7 +248,6 @@ def get_agent(request: Request) -> Union[MetricsAgent, None]:
 
 # DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
 def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
-    import pdb; pdb.set_trace()
     try:
         request = kwargs.get("request", None)
         if not request:
@@ -333,5 +332,17 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             duration_ms = time.perf_counter() - start_time
             metrics_data = report_rerank_failed_metrics(duration_ms, e, **kwargs)
             raise e
+
+    return wrapper
+
+
+def collect_metrics_chat_stream(func: Callable) -> Callable:
+    @wraps(func)
+    async def wrapper(*args, **kwargs: Any) -> Any:
+        stream = func(*args, **kwargs)
+        request = kwargs.get("request", None)
+        async for v in stream:
+            report_streaming_event(request, v)
+            yield v
 
     return wrapper
