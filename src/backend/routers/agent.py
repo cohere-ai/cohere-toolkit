@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.crud import tool as tool_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
@@ -15,6 +16,7 @@ from backend.routers.utils import (
     add_event_type_to_request_state,
     add_session_user_to_request_state,
     get_deployment_model_from_agent,
+    get_tools_from_agent,
 )
 from backend.schemas.agent import (
     Agent,
@@ -82,9 +84,10 @@ async def create_agent(
         temperature=agent.temperature,
         user_id=user_id,
         organization_id=agent.organization_id,
-        tools=agent.tools,
     )
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
+    tools_db = get_tools_from_agent(agent, session)
+    session.begin()
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
         add_agent_to_request_state(request, created_agent)
@@ -113,8 +116,15 @@ async def create_agent(
                 deployment_config=deployment_config,
                 set_default=True,
             )
+        if tools_db:
+            for tool in tools_db:
+                tool_crud.assign_tool_to_agent(
+                    session, tool, created_agent, tool.default_tool_config
+                )
+
         return created_agent
     except Exception as e:
+        session.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
 

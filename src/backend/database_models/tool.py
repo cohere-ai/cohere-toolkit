@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List, Optional
 
 from sqlalchemy import JSON, Boolean, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -37,42 +37,36 @@ class Tool(Base):
         overlaps="tools,agents,agent,agent_tool_associations,tool",
     )
 
-    tool_metadata = relationship(
-        "AgentToolMetadata", back_populates="tool"
-    )
+    tool_metadata = relationship("AgentToolMetadata", back_populates="tool")
 
     __table_args__ = (UniqueConstraint("name", name="tool_name_uc"),)
 
     @property
     def is_available(self) -> bool:
-        # Check if an agent has a deployment config set
+        # Check if an agent has a tool config set
         for agent_assoc in self.agent_tool_associations:
             if not agent_assoc.tool_config:
                 continue
-            if all(value != "" for value in agent_assoc.tool_config.values()):
+            if not agent_assoc.tool_config or all(
+                value for value in agent_assoc.tool_config.values()
+            ):
                 return True
-        # if no agent has a deployment config set, check if the deployment has a default config
+        # if no agent has a tool config set, check if the tool has a default config or no config
         if not self.default_tool_config:
-            return False
-        return all(value != "" for value in self.default_tool_config.values())
+            return True
+        return all(value for value in self.default_tool_config.values())
 
     @property
     def env_vars(self) -> List[str]:
-        return (
-            list(self.default_tool_config.keys())
-            if self.default_tool_config
-            else []
-        )
+        return list(self.default_tool_config.keys()) if self.default_tool_config else []
 
     @property
     def implementation_class(self):
-        from backend.model_deployments.utils import get_module_class
+        from backend.services.get_module_class import get_module_class
 
         if not self.implementation_class_name:
             return None
-        cls = get_module_class(
-            DEFAULT_TOOLS_MODULE, self.implementation_class_name
-        )
+        cls = get_module_class(DEFAULT_TOOLS_MODULE, self.implementation_class_name)
         if not cls:
             cls = get_module_class(
                 COMMUNITY_TOOLS_MODULE, self.implementation_class_name
@@ -82,11 +76,9 @@ class Tool(Base):
 
     @property
     def auth_implementation_class(self):
-        from backend.model_deployments.utils import get_module_class
+        from backend.services.get_module_class import get_module_class
 
         if not self.auth_implementation_class_name:
             return None
-        cls = get_module_class(
-            DEFAULT_AUTH_MODULE, self.implementation_class_name
-        )
+        cls = get_module_class(DEFAULT_AUTH_MODULE, self.implementation_class_name)
         return cls

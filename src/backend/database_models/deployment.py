@@ -58,7 +58,7 @@ class Deployment(Base):
 
     @property
     def deployment_class(self):
-        from backend.model_deployments.utils import get_module_class
+        from backend.services.get_module_class import get_module_class
 
         if not self.deployment_class_name:
             return None

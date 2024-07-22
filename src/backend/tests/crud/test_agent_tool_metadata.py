@@ -25,7 +25,7 @@ mock_artifact_2 = {
 
 def test_create_agent_tool_metadata(session, user):
     agent = get_factory("Agent", session).create(
-        id="1", name="test_agent", tools=[ToolName.Google_Drive], user=user
+        id="1", name="test_agent", user=user
     )
 
     agent_tool_metadata_data = AgentToolMetadata(
@@ -67,7 +67,7 @@ def test_create_agent_missing_agent_id(session, user):
 
 def test_create_agent_missing_tool_name(session, user):
     agent = get_factory("Agent", session).create(
-        id="1", name="test_agent", tools=[ToolName.Google_Drive], user=user
+        id="1", name="test_agent", user=user
     )
 
     agent_tool_metadata_data = AgentToolMetadata(
@@ -83,7 +83,7 @@ def test_create_agent_missing_tool_name(session, user):
 
 def test_create_agent_missing_user_id(session, user):
     agent = get_factory("Agent", session).create(
-        id="1", name="test_agent", tools=[ToolName.Google_Drive], user=user
+        id="1", name="test_agent", user=user
     )
 
     agent_tool_metadata_data = AgentToolMetadata(

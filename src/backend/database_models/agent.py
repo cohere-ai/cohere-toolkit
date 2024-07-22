@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
@@ -43,11 +44,7 @@ class AgentToolAssociation(Base):
     agent = relationship("Agent", back_populates="agent_tool_associations")
     tool = relationship("Tool", back_populates="agent_tool_associations")
 
-    __table_args__ = (
-        UniqueConstraint(
-            "agent_id", "tool_id", name="agent_tool_uc"
-        ),
-    )
+    __table_args__ = (UniqueConstraint("agent_id", "tool_id", name="agent_tool_uc"),)
 
 
 class Agent(Base):
@@ -59,7 +56,9 @@ class Agent(Base):
     preamble: Mapped[str] = mapped_column(Text, default="", nullable=False)
     temperature: Mapped[float] = mapped_column(Float, default=0.3, nullable=False)
 
-    tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata", back_populates="agent")
+    tools_metadata: Mapped[list[AgentToolMetadata]] = relationship(
+        "AgentToolMetadata", back_populates="agent"
+    )
 
     user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", name="agents_user_id_fkey", ondelete="CASCADE")
@@ -86,7 +85,7 @@ class Agent(Base):
         "Tool",
         secondary="agent_tool",
         back_populates="agents",
-        overlaps="tools,agents,agent,agent_tool_associations,tool"
+        overlaps="tools,agents,agent,agent_tool_associations,tool",
     )
 
     agent_deployment_associations = relationship(

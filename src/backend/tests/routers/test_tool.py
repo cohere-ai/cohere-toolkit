@@ -35,7 +35,7 @@ def test_list_tools_with_agent(
     session_client: TestClient, session: Session, user: User
 ) -> None:
     agent = get_factory("Agent", session).create(
-        name="test agent", tools=[ToolName.Wiki_Retriever_LangChain], user=user
+        name="test agent", user=user
     )
 
     response = session_client.get("/v1/tools", params={"agent_id": agent.id})

@@ -53,7 +53,6 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
         "temperature": 0.5,
         "model": "command-r-plus",
         "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
     }
 
     response = session_client.post(
@@ -69,7 +68,6 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert response_agent["temperature"] == request_json["temperature"]
     assert response_agent["model"]["name"] == request_json["model"]
     assert response_agent["deployment"]["name"] == request_json["deployment"]
-    assert response_agent["tools"] == request_json["tools"]
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None
@@ -80,7 +78,6 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert agent.temperature == request_json["temperature"]
     assert agent.model.name == request_json["model"]
     assert agent.deployment.name == request_json["deployment"]
-    assert agent.tools == request_json["tools"]
 
 
 def test_create_agent_with_tool_metadata(
@@ -571,7 +568,6 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        tools=[ToolName.Calculator],
         user=user,
     )
 

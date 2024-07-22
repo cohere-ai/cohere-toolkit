@@ -86,3 +86,14 @@ def get_deployment_model_from_agent(agent: Agent, session: DBSessionDep):
             None,
         )
     return deployment_db, model_db
+
+
+def get_tools_from_agent(agent: Agent, session: DBSessionDep):
+    from backend.crud import tool as tool_crud
+
+    tools_db = tool_crud.get_available_tools(session)
+    tools = []
+    for tool in tools_db:
+        if tool.name in agent.tools:
+            tools.append(tool)
+    return tools

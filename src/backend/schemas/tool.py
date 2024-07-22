@@ -16,9 +16,25 @@ class ToolInput(BaseModel):
 
 class Tool(BaseModel):
     name: Optional[str] = ""
-    display_name: str = ""
+    display_name: Optional[str] = ""
     description: Optional[str] = ""
     parameter_definitions: Optional[dict] = {}
+
+
+class ToolCreate(Tool):
+    name: str
+    implementation_class_name: Optional[str] = ""
+    default_tool_config: Optional[dict] = {}
+    is_visible: Optional[bool] = True
+    is_community: Optional[bool] = (False,)
+    is_auth_required: Optional[bool] = (False,)
+    auth_implementation_class_name: Optional[str] = ("",)
+    error_message: Optional[str] = ("",)
+    category: Optional[Category] = (Category.DataLoader,)
+
+
+class ToolUpdate(ToolCreate):
+    name: Optional[str] = ""
 
 
 class ManagedTool(Tool):

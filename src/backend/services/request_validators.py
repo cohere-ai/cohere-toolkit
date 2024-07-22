@@ -8,6 +8,7 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import deployment as deployment_crud
+from backend.crud import tool as tool_crud
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.utils import class_name_validator
 from backend.services.auth.utils import get_header_user_id
@@ -241,9 +242,15 @@ async def validate_create_agent_request(session: DBSessionDep, request: Request)
     # Validate tools
     tools = body.get("tools")
     if tools:
+        tools_db = tool_crud.get_available_tools(session)
+        tools_db_names = [tool.name for tool in tools_db]
         for tool in tools:
-            if tool not in AVAILABLE_TOOLS:
-                raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
+            if tools_db_names:
+                if tool not in tools_db_names:
+                    if tool not in AVAILABLE_TOOLS:
+                        raise HTTPException(
+                            status_code=400, detail=f"Tool {tool} not found."
+                        )
 
     name = body.get("name")
     model = body.get("model")
