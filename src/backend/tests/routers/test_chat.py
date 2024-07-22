@@ -79,15 +79,8 @@ def test_streaming_new_chat(
 # TODO: add test case for when stream raises an error
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat_metrics_with_agent(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient, session_chat: Session, default_agent_copy: Agent
 ):
-    agent = get_factory("Agent", session_chat).create(
-        user=user,
-        tools=[],
-        name="test agent",
-        preamble="you are a smart assistant",
-    )
-
     with patch(
         "backend.services.metrics.report_metrics",
         return_value=None,
@@ -95,21 +88,21 @@ def test_streaming_new_chat_metrics_with_agent(
         response = session_client_chat.post(
             "/v1/chat-stream",
             headers={
-                "User-Id": user.id,
-                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+                "User-Id": default_agent_copy.user.id,
+                "Deployment-Name": default_agent_copy.deployment.name,
             },
-            params={"agent_id": agent.id},
-            json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
+            params={"agent_id": default_agent_copy.id},
+            json={"message": "Hello", "max_tokens": 10, "agent_id": default_agent_copy.id},
         )
         # finish all the event stream
         assert response.status_code == 200
         for line in response.iter_lines():
             continue
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.user_id == user.id
+        assert m_args.user_id == default_agent_copy.user.id
         assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
-        assert m_args.assistant_id == agent.id
-        assert m_args.assistant.name == agent.name
+        assert m_args.assistant_id == default_agent_copy.id
+        assert m_args.assistant.name == default_agent_copy.name
         assert m_args.model is not None
         assert m_args.input_nb_tokens > 0
         assert m_args.output_nb_tokens > 0
