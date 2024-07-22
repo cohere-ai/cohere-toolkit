@@ -55,7 +55,6 @@ async def chat_stream(
     trace_id = None
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
-    print("trace_id", trace_id)
     add_model_to_request_state(request, chat_request.model)
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id

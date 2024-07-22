@@ -99,8 +99,7 @@ ROUTER_DEPENDENCIES = {
         ],
         "auth": [
             Depends(get_session),
-            # TODO: Add if the router's have to have authorization
-            # Depends(validate_authorization),
+            Depends(validate_authorization),
         ],
     },
     RouterName.DEFAULT_AGENT: {
@@ -109,8 +108,7 @@ ROUTER_DEPENDENCIES = {
         ],
         "auth": [
             Depends(get_session),
-            # TODO: Add if the router's have to have authorization
-            # Depends(validate_authorization),
+            Depends(validate_authorization),
         ],
     },
     RouterName.SNAPSHOT: {

@@ -60,6 +60,7 @@ export const useFilesStore = () => {
       queueFocusFileInput: state.queueFocusFileInput,
       clearFocusFileInput: state.clearFocusFileInput,
       addUploadingFile: state.addUploadingFile,
+      addUploadingFiles: state.addUploadingFiles,
       deleteUploadingFile: state.deleteUploadingFile,
       addComposerFile: state.addComposerFile,
       deleteComposerFile: state.deleteComposerFile,
