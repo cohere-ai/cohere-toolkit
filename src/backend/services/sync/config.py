@@ -19,4 +19,4 @@ class Configuration:
     # Skipping for now for simplicity
     COMPASS: Compass = Compass()
 
-    httpx_client: httpx.Client = httpx.Client(http2=True, timeout=300)
+    HTTPX_CLIENT: httpx.Client = httpx.Client(http2=True, timeout=300)

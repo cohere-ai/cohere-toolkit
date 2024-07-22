@@ -70,7 +70,7 @@ def create(event_type: str, file_id: str, index_name: str, user_id: str):
         export_link = extract_export_link(processed_file)
         if export_link:
             file_text = download.perform_single(
-                httpx_client=env().httpx_client,
+                httpx_client=env().HTTPX_CLIENT,
                 url=export_link,
                 access_token=creds.token,
             )
