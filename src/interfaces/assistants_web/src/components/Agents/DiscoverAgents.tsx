@@ -4,7 +4,8 @@ import { useDebouncedState } from '@react-hookz/web';
 import { useEffect, useState } from 'react';
 
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
-import { Input, Text } from '@/components/Shared';
+import { Text } from '@/components/Shared';
+import { InputSearch } from '@/components/Shared/InputSearch';
 import { useListAgents } from '@/hooks/agents';
 import { cn } from '@/utils';
 
@@ -51,14 +52,7 @@ export const DiscoverAgents = () => {
         <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-2 xl:grid-cols-3">
           {agents.length >= 1 && (
             <>
-              <Input
-                size="sm"
-                kind="default"
-                actionType="search"
-                placeholder="Search"
-                value={filterText}
-                onChange={(e) => setFilterText(e.target.value)}
-              />
+              <InputSearch placeholder="Search" value={filterText} onChange={setFilterText} />
               <div className="col-span-2 hidden md:flex" />
             </>
           )}

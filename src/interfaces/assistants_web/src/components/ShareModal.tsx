@@ -96,8 +96,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
       )}
       <div className="flex flex-col gap-y-2">
         <Input
-          truncate
-          readOnly
           label="Share link"
           value={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
           actionType="copy"

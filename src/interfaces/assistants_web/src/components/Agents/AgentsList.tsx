@@ -6,7 +6,8 @@ import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import { AgentCard } from '@/components/Agents/AgentCard';
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
-import { Icon, Input, Text } from '@/components/Shared';
+import { Icon, Text } from '@/components/Shared';
+import { InputSearch } from '@/components/Shared/InputSearch';
 import { useRecentAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
@@ -41,16 +42,11 @@ export const AgentsList: React.FC = () => {
         </div>
       </section>
       <section className="space-y-4">
-        <Input
+        <InputSearch
           placeholder="Search chat history"
-          theme="secondary"
-          actionType="search"
-          kind="default"
-          size="sm"
-          maxLength={40}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onClear={() => setSearch('')}
+          onChange={setSearch}
+          maxLength={40}
         />
         <Text styleAs="label" className="truncate text-mushroom-800">
           Recent Chats

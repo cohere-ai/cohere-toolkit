@@ -65,18 +65,15 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
     <div className={cn('flex flex-col gap-y-4', className)}>
       <RequiredInputLabel label="name" className="pb-2">
         <Input
-          kind="default"
           value={fields.name ?? ''}
           placeholder="Give your assistant a name"
           onChange={(e) => setFields((prev) => ({ ...prev, name: e.target.value }))}
-          hasError={!!errors?.name}
           errorText={errors?.name}
           disabled={!isAgentCreator}
         />
       </RequiredInputLabel>
       <InputLabel label="description" className="pb-2">
         <Input
-          kind="default"
           value={fields.description ?? ''}
           placeholder="What does your assistant do?"
           onChange={(e) => setFields((prev) => ({ ...prev, description: e.target.value }))}
