@@ -21,59 +21,8 @@ const sortByDate = (a: Conversation, b: Conversation) => {
  */
 export const AgentsList: React.FC = () => {
   const { recentAgents } = useRecentAgents();
-  const { data: conversations, isLoading: isConversationsLoading, isError } = useConversations({});
+  const { data: conversations } = useConversations({});
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
-  const hasSearchQuery = search.length > 0;
-  const hasSearchResults = searchResults.length > 0;
-  const hasConversations = conversations.length > 0;
-  const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
-  console.log(recentAgents);
-
-  const handleCheckConversationToggle = (id: string) => {
-    const newCheckedConversations = new Set(checkedConversations);
-    if (!newCheckedConversations.delete(id)) {
-      newCheckedConversations.add(id);
-    }
-    setCheckedConversations(newCheckedConversations);
-  };
-
-  const displayedConversations = useMemo<Conversation[]>(() => {
-    return search ? searchResults : conversations.sort(sortByDate);
-  }, [searchResults, conversations, search]);
-
-  let content;
-  if (isConversationsLoading) {
-    content = <ConversationListLoading />;
-  } else if (isError) {
-    content = (
-      <span className="my-auto flex flex-col items-center gap-2 text-center">
-        <Icon name="warning" />
-        <Text>Unable to load conversations.</Text>
-      </span>
-    );
-  } else if (hasSearchQuery && !hasSearchResults) {
-    content = (
-      <Text as="span" className="line-clamp-3">
-        No results found for &quot;{search}&quot;.
-      </Text>
-    );
-  } else if (!hasConversations) {
-    content = (
-      <span className="flex h-full w-full items-center justify-center text-volcanic-500">
-        <Text>It&apos;s quiet here... for now</Text>
-      </span>
-    );
-  } else {
-    content = (
-      <ConversationListPanelGroup
-        conversations={displayedConversations}
-        showWeekHeadings={!hasSearchQuery}
-        checkedConversations={checkedConversations}
-        onCheckConversation={handleCheckConversationToggle}
-        className="space-y-1"
-      />
-    );
-  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -106,8 +55,69 @@ export const AgentsList: React.FC = () => {
         <Text styleAs="label" className="truncate text-mushroom-800">
           Recent Chats
         </Text>
-        {content}
+        <RecentChats search={search} results={searchResults} />
       </section>
     </div>
+  );
+};
+
+const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
+  search,
+  results,
+}) => {
+  const { data: conversations, isLoading: isConversationsLoading, isError } = useConversations({});
+  const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
+
+  const hasSearchQuery = search.length > 0;
+  const hasSearchResults = results.length > 0;
+  const hasConversations = conversations.length > 0;
+  const displayedConversations = useMemo<Conversation[]>(() => {
+    return search ? results : conversations.sort(sortByDate);
+  }, [results, conversations, search]);
+
+  const handleCheckConversationToggle = (id: string) => {
+    const newCheckedConversations = new Set(checkedConversations);
+    if (!newCheckedConversations.delete(id)) {
+      newCheckedConversations.add(id);
+    }
+    setCheckedConversations(newCheckedConversations);
+  };
+
+  if (isConversationsLoading) {
+    return <ConversationListLoading />;
+  }
+
+  if (isError) {
+    return (
+      <span className="my-auto flex flex-col items-center gap-2 text-center">
+        <Icon name="warning" />
+        <Text>Unable to load conversations.</Text>
+      </span>
+    );
+  }
+
+  if (hasSearchQuery && !hasSearchResults) {
+    return (
+      <Text as="span" className="line-clamp-3">
+        No results found for &quot;{search}&quot;.
+      </Text>
+    );
+  }
+
+  if (!hasConversations) {
+    return (
+      <span className="flex h-full w-full items-center justify-center text-volcanic-500">
+        <Text>It&apos;s quiet here... for now</Text>
+      </span>
+    );
+  }
+  return (
+    <ConversationListPanelGroup
+      conversations={displayedConversations}
+      showWeekHeadings={!hasSearchQuery}
+      checkedConversations={checkedConversations}
+      onCheckConversation={handleCheckConversationToggle}
+      className="space-y-1"
+    />
   );
 };

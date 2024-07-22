@@ -49,7 +49,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
 
   const handleNewChat = () => {
     const url = '/';
-    router.push(url, undefined);
+    router.push(url);
     setEditAgentPanelOpen(false);
     resetConversation();
     resetCitations();
@@ -118,7 +118,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               </div>
             }
             onClick={handleNewChat}
-            shallow
           />
           <Button
             kind="secondary"
@@ -126,7 +125,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             startIcon={<Icon name="compass" kind="outline" className="text-mushroom-950" />}
             label="See all assistants"
             href="/discover"
-            shallow
           />
         </div>
 

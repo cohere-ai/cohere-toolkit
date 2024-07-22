@@ -11,7 +11,7 @@ import { useListAgents } from '@/hooks/agents';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useSettingsStore } from '@/stores';
-import { cn } from '@/utils';
+import { cn, formatDateToShortDate } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
 export type ConversationListItem = {
@@ -63,12 +63,6 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
   return menuItems;
 };
-
-const formateDate = (date: string) =>
-  new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    year: '2-digit',
-  }).format(new Date(date));
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId } = conversation;
@@ -127,7 +121,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
           {agent?.name ?? 'Cohere AI'}
         </Text>
         <Text styleAs="code-sm" className="ml-auto mt-0.5 uppercase dark:text-mushroom-800">
-          {formateDate(conversation.updatedAt)}
+          {formatDateToShortDate(conversation.updatedAt)}
         </Text>
       </div>
     </div>
