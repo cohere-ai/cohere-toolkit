@@ -34,7 +34,7 @@ class Tool(Base):
         "Agent",
         secondary="agent_tool",
         back_populates="associated_tools",
-        overlaps="tools,agents,agent,agent_tool_associations",
+        overlaps="tools,agents,agent,agent_tool_associations,tool",
     )
 
     tool_metadata = relationship(

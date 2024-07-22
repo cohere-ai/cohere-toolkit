@@ -9,7 +9,7 @@ from community.config.tools import COMMUNITY_TOOLS, CommunityToolName
 from backend.database_models import (
     User,
     Organization,
-    Tool
+    Tool, Agent, AgentToolAssociation
 )
 
 load_dotenv()
@@ -56,12 +56,13 @@ TOOLS_CONFIGS = {
 }
 
 
-def seed_tools(op):
+def seed_tools_data(op):
     """
-    Seed default deployments, models, organization, user and agent.
+    Seed default tools and set default tools for default agent.
     """
     session = Session(op.get_bind())
-    for tool_name, tool in tools:
+    # Creating tools
+    for tool_name, tool in tools.items():
         if tool_name in TOOLS_CONFIGS:
             default_tool_config = TOOLS_CONFIGS[tool_name]
         is_community = isinstance(tool_name, CommunityToolName)
@@ -82,12 +83,38 @@ def seed_tools(op):
         session.add(db_tool)
         session.commit()
 
+    # assign tools to default agent
+    default_agent = session.query(Agent).filter_by(id="default").first()
+    all_tools = session.query(Tool).all()
+    for tool in all_tools:
+        if tool.name in [
+            "web_search",
+            "search_file",
+            "read_document",
+            "toolkit_python_interpreter",
+            "toolkit_calculator",
+            "wikipedia",
+            "google_drive",
+            "arxiv",
+            "example_connector",
+            "pub_med",
+            "file_reader_llamaindex",
+            "wolfram_alpha",
+            "clinical_trials",
+        ]:
+            association = AgentToolAssociation(
+                agent_id=default_agent.id,
+                tool_id=tool.id,
+                tool_config=tool.default_tool_config,
+            )
+            session.add(association)
+    session.commit()
 
-def delete_default_models(op):
+
+def delete_tools_data(op):
     """
     Delete deployments and models.
     """
     session = Session(op.get_bind())
-    session.query(User).filter_by(id="user-id").delete()
-    session.query(Organization).filter_by(id="default").delete()
+    session.query(Tool).delete()
     session.commit()
