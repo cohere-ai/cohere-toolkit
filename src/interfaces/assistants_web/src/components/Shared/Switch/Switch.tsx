@@ -8,11 +8,9 @@ import { cn } from '@/utils';
 type Props = {
   checked: boolean;
   onChange: (checked: boolean) => void;
-  label?: React.ReactNode;
-  labelPosition?: 'left' | 'right';
+  label?: string;
   name?: string;
   theme?: 'blue' | 'evolved-green' | 'quartz' | 'green' | 'mushroom' | 'coral';
-  styleAs?: 'label' | 'p';
   className?: string;
 };
 
@@ -20,27 +18,14 @@ export const Switch: React.FC<Props> = ({
   checked,
   onChange,
   label,
-  labelPosition = 'right',
   theme = 'coral',
   name,
-  styleAs = 'label',
   className = '',
 }) => {
   return (
     <div className="group flex items-center">
       <Field>
-        <div
-          className={cn(
-            'flex items-center justify-end gap-6',
-            {
-              'flex-row-reverse': labelPosition === 'right',
-            },
-            className
-          )}
-        >
-          <Label>
-            {typeof label === 'string' ? <Text styleAs={styleAs}>{label}</Text> : label}
-          </Label>
+        <div className={cn('flex items-center justify-end gap-6', className)}>
           <HUSwitch
             name={name}
             checked={checked}
@@ -76,6 +61,9 @@ export const Switch: React.FC<Props> = ({
               )}
             />
           </HUSwitch>
+          <Label>
+            <Text>{label}</Text>
+          </Label>
         </div>
       </Field>
     </div>
