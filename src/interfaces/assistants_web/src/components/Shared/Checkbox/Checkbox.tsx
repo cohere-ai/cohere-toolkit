@@ -71,7 +71,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
         className={cn(
           'absolute flex cursor-pointer items-center justify-center rounded-sm',
           'transition-colors duration-200 ease-in-out',
-          'h-5 w-5',
+          'size-5',
           {
             'bg-coral-600 group-hover:bg-coral-500': checked && theme === 'coral',
             'bg-evolved-green-700 group-hover:bg-evolved-green-500':
