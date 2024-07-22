@@ -18,6 +18,7 @@ export type KebabMenuItem = {
   onClick?: VoidFunction;
   href?: string;
   iconName?: IconName;
+  iconClassName?: string;
   icon?: React.ReactNode;
   className?: string;
   visible?: boolean;
@@ -37,10 +38,14 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
       {({ open }) => (
         <>
           <MenuButton
-            className={cn('flex cursor-pointer p-0 text-mushroom-300', className, {
-              // Always override styles and show the kebab button if the menu is open
-              flex: open,
-            })}
+            className={cn(
+              'flex cursor-pointer p-0 text-mushroom-300 dark:text-mushroom-950',
+              className,
+              {
+                // Always override styles and show the kebab button if the menu is open
+                flex: open,
+              }
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <Icon name="kebab" />
@@ -52,14 +57,17 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
             enterFrom="opacity-0"
             enterTo="opacity-100"
             className={cn(
-              'z-menu divide-y divide-marble-950 rounded-md bg-marble-1000 p-2',
-              'min-w-menu shadow-menu',
+              'z-menu divide-y divide-marble-950 rounded-md bg-marble-1000 p-2 dark:divide-volcanic-300 dark:bg-volcanic-150 dark:text-marble-950',
+              'min-w-menu shadow-menu dark:shadow-none',
               'transition-opacity ease-in-out',
               { hidden: !open }
             )}
           >
             {items.map(
-              ({ label, iconName, icon, onClick, href, className, visible = true }, index) => {
+              (
+                { label, iconName, iconClassName, icon, onClick, href, className, visible = true },
+                index
+              ) => {
                 return (
                   visible && (
                     <MenuItem
@@ -84,8 +92,8 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
                         <Icon
                           name={iconName}
                           className={cn(
-                            'text-mushroom-400 group-hover/menu-item:!font-iconDefault',
-                            className
+                            'text-mushroom-400 group-hover/menu-item:!font-iconDefault dark:text-marble-950',
+                            iconClassName
                           )}
                           kind="outline"
                         />
