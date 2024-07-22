@@ -167,8 +167,11 @@ def log_signal_curl(signal: MetricsSignal) -> None:
 
 
 # DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
-def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
+def report_streaming_chat_event(event: dict[str, Any], **kwargs: Any) -> None:
     try:
+        request = kwargs.get("request", None)
+        if not request:
+            raise ValueError("request not set")
         event_type = event["event_type"]
         if event_type == StreamEvent.STREAM_START:
             request.state.stream_start = time.perf_counter()
@@ -279,6 +282,7 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
             assistant=agent,
             model=model,
             search_units=search_units,
+            timestamp=time.time(),
             duration_ms=duration_ms,
         )
         signal = MetricsSignal(signal=metrics_data)
@@ -309,6 +313,7 @@ def report_rerank_failed_metrics(duration_ms: float, error: Exception, **kwargs:
             model=model,
             search_units=search_units,
             duration_ms=duration_ms,
+            timestamp=time.time(),
             error=error_message,
         )
         signal = MetricsSignal(signal=metrics_data)
@@ -340,9 +345,8 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(*args, **kwargs: Any) -> Any:
         stream = func(*args, **kwargs)
-        request = kwargs.get("request", None)
         async for v in stream:
-            report_streaming_event(request, v)
+            report_streaming_chat_event(v, **kwargs)
             yield v
 
     return wrapper
