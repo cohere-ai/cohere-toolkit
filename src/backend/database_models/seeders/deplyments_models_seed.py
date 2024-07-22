@@ -195,7 +195,6 @@ def delete_default_models(op):
     session = Session(op.get_bind())
     session.query(Deployment).delete()
     session.query(Model).delete()
-    session.query(User).filter_by(id="user-id").delete()
     session.query(Organization).filter_by(id="default").delete()
     session.query(AgentDeploymentModelAssociation).delete()
     session.commit()
