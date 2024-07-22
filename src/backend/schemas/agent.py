@@ -7,6 +7,9 @@ from backend.schemas.deployment import DeploymentSimple as DeploymentSchema
 from backend.schemas.deployment import DeploymentWithModels as DeploymentFull
 from backend.schemas.deployment import ModelSimple as ModelSchema
 
+DEFAULT_AGENT_ID = "default"
+DEFAULT_AGENT_NAME = "Command R+"
+
 
 class AgentBase(BaseModel):
     user_id: str

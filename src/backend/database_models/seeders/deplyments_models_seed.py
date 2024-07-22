@@ -12,6 +12,7 @@ from backend.database_models import (
     Organization,
     User,
 )
+from backend.schemas.agent import DEFAULT_AGENT_ID, DEFAULT_AGENT_NAME
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
@@ -121,35 +122,28 @@ def deployments_models_seed(op):
     session.commit()
     default_organization.users.append(default_user)
     session.commit()
-
-    default_agent = Agent(
-        id="default",
-        version=1,
-        name="Command R+",
-        description="Default agent",
-        preamble="",
-        temperature=0.3,
-        tools=[
-            "web_search",
-            "search_file",
-            "read_document",
-            "toolkit_python_interpreter",
-            "toolkit_calculator",
-            "wikipedia",
-            "google_drive",
-            "arxiv",
-            "example_connector",
-            "pub_med",
-            "file_reader_llamaindex",
-            "wolfram_alpha",
-            "clinical_trials",
-        ],
-        user_id=default_user.id,
-        organization_id=default_organization.id,
+    tools = [
+        "web_search",
+        "search_file",
+        "read_document",
+        "toolkit_python_interpreter",
+        "toolkit_calculator",
+        "wikipedia",
+        "google_drive",
+        "arxiv",
+        "example_connector",
+        "pub_med",
+        "file_reader_llamaindex",
+        "wolfram_alpha",
+        "clinical_trials",
+    ]
+    op.execute(
+        f"""
+            INSERT INTO agents (id, version, name, description, preamble, temperature, tools, user_id, organization_id, created_at, updated_at)
+            VALUES ('{DEFAULT_AGENT_ID}', 1, '{DEFAULT_AGENT_NAME}', 'Default agent', '', 0.3, ARRAY{tools}, '{default_user.id}', {default_organization.id}, now(), now())
+            ON CONFLICT (id) DO NOTHING;
+            """
     )
-    session.add(default_agent)
-    session.commit()
-
     # Seed deployments and models
     for deployment in MODELS_NAME_MAPPING.keys():
         new_deployment = Deployment(
@@ -180,14 +174,14 @@ def deployments_models_seed(op):
 
         agent_deployment_association = AgentDeploymentModelAssociation(
             deployment_id=new_deployment.id,
-            agent_id=default_agent.id,
+            agent_id=DEFAULT_AGENT_ID,
             model_id=model_to_agent_id,
             deployment_config={
                 env_var: os.environ.get(env_var, "")
                 for env_var in model_deployments[deployment].env_vars
             },
             is_default_deployment=new_deployment.name
-            == ModelDeploymentName.CoherePlatform,
+                                  == ModelDeploymentName.CoherePlatform,
             is_default_model=is_default_for_agent,
         )
         session.add(agent_deployment_association)
