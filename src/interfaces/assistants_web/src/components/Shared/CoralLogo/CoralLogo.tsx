@@ -12,7 +12,7 @@ export const CoralLogo: React.FC<{
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={cn(
-      'h-5 w-5',
+      'size-5',
       {
         'fill-coral-800': style === 'primary',
         'dark:fill-blue-900': style === 'primary' && isDarkModeEnabled,

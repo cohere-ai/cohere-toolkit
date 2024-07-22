@@ -18,6 +18,7 @@ export * from './Modal';
 export * from './NavigationBar';
 export * from './PageNotFound';
 export * from './PageServerError';
+export * from './RadioGroup';
 export * from './Skeleton';
 export * from './Slider';
 export * from './Spinner';
