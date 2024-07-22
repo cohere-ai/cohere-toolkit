@@ -89,7 +89,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             user_id = get_header_user_id(request)
             if not user_id:
                 raise ValueError("user_id empty")
-        except:
+        except Exception as e:
             logger.warning(f"Failed to get user id: {e}")
             return None
 

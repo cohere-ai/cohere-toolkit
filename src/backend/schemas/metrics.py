@@ -66,7 +66,7 @@ class MetricsChat(BaseModel):
     output_nb_tokens: int
     search_units: int
     model: str
-    assistant_id: str | None
+    assistant_id: str
 
 
 class MetricsData(MetricsDataBase):
