@@ -7,7 +7,6 @@ from backend.config.tools import ALL_TOOLS, ToolName
 from community.config.tools import COMMUNITY_TOOLS, CommunityToolName
 
 from backend.database_models import (
-    Agent,
     User,
     Organization,
     Tool
@@ -20,7 +19,40 @@ tools.update(COMMUNITY_TOOLS)
 
 
 TOOLS_CONFIGS = {
-
+    ToolName.Wiki_Retriever_LangChain: {
+        "COHERE_API_KEY": os.environ.get("COHERE_API_KEY") or "",
+    },
+    ToolName.Search_File: {
+    },
+    ToolName.Read_File: {
+    },
+    ToolName.Python_Interpreter: {
+        "INTERPRETER_URL": os.environ.get("PYTHON_INTERPRETER_URL") or "",
+    },
+    ToolName.Calculator: {
+    },
+    ToolName.Tavily_Internet_Search: {
+        "TAVILY_API_KEY": os.environ.get("TAVILY_API_KEY") or "",
+    },
+    ToolName.Google_Drive: {
+        "GOOGLE_DRIVE_CLIENT_ID": os.environ.get("GOOGLE_DRIVE_CLIENT_ID") or "",
+        "GOOGLE_DRIVE_CLIENT_SECRET": os.environ.get("GOOGLE_DRIVE_CLIENT_SECRET") or "",
+    },
+    ToolName.Web_Scrape: {
+    },
+    CommunityToolName.Pub_Med: {
+    },
+    CommunityToolName.Arxiv: {
+    },
+    CommunityToolName.Connector: {
+    },
+    CommunityToolName.File_Upload_LlamaIndex: {
+    },
+    CommunityToolName.Wolfram_Alpha: {
+        "WOLFRAM_ALPHA_APP_ID": os.environ.get("WOLFRAM_ALPHA_APP_ID") or "",
+    },
+    CommunityToolName.ClinicalTrials: {
+    },
 }
 
 
@@ -36,13 +68,14 @@ def seed_tools(op):
         db_tool = Tool(
             name=str(tool_name),
             display_name=tool.display_name,
-            implementation_class_name=tool.implementation.__name__,
+            implementation_class_name=tool.implementation.__name__ if tool.implementation else "",
             description=tool.description,
             parameter_definitions=tool.parameter_definitions,
             default_tool_config=default_tool_config,
             is_visible=tool.is_visible,
             is_community=is_community,
-            auth_implementation=tool.auth_implementation,
+            is_auth_required=tool.is_auth_required,
+            auth_implementation_class_name=tool.auth_implementation.__name__ if tool.auth_implementation else "",
             error_message=tool.error_message,
             category=tool.category,
         )

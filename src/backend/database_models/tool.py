@@ -25,7 +25,6 @@ class Tool(Base):
     category: Mapped[Optional[str]] = mapped_column(Text)
     is_auth_required: Mapped[bool] = mapped_column(Boolean, default=False)
     auth_implementation_class_name: Mapped[Optional[str]] = mapped_column(Text)
-    auth_url: Mapped[Optional[str]] = mapped_column(Text, default="")
 
     agent_tool_associations = relationship(
         "AgentToolAssociation", back_populates="tool"

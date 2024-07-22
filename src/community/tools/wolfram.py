@@ -15,7 +15,7 @@ class WolframAlpha(BaseTool):
 
     NAME = "wolfram_alpha"
 
-    wolfram_app_id = os.environ.get("WOLFRAM_APP_ID")
+    wolfram_app_id = os.environ.get("WOLFRAM_ALPHA_APP_ID")
 
     def __init__(self):
         self.app_id = self.wolfram_app_id
