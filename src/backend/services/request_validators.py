@@ -305,7 +305,11 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
             detail=f"If updating an agent's model, the deployment must also be provided.",
         )
     elif model and deployment:
-        validate_deployment_model(deployment, model, session)
+        deployment_config = body.get("deployment_config")
+        # Validate
+        deployment_db, model_db = validate_deployment_model(deployment, model, session)
+        if deployment_config:
+            validate_deployment_config(deployment_config, deployment_db)
 
 
 async def validate_create_update_model_request(session: DBSessionDep, request: Request):

@@ -4,8 +4,10 @@ from backend.database_models import AgentDeploymentModelAssociation, Deployment
 from backend.model_deployments.utils import class_name_validator
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_deployment(db: Session, deployment: DeploymentCreate) -> Deployment:
     """
     Create a new deployment.
@@ -149,6 +151,7 @@ def get_available_deployments_by_agent_id(
     ]
 
 
+@validate_transaction
 def update_deployment(
     db: Session, deployment: Deployment, new_deployment: DeploymentUpdate
 ) -> Deployment:
@@ -170,6 +173,7 @@ def update_deployment(
     return deployment
 
 
+@validate_transaction
 def delete_deployment(db: Session, deployment_id: str) -> None:
     """
     Delete a deployment by ID.

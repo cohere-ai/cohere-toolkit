@@ -54,6 +54,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
           conversationId: weeksAgoStr,
           title: weeksAgoStr,
           description: weeksAgoStr,
+          agentId: c.agent_id,
         });
       }
       itemsWithTitles.push({
@@ -61,6 +62,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
         conversationId: c.id,
         title: c.title,
         description: c.description,
+        agentId: c.agent_id,
       });
     });
 
