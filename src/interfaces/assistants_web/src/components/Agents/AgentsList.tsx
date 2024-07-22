@@ -27,17 +27,14 @@ export const AgentsList: React.FC = () => {
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-2">
-        <Text styleAs="label" className="truncate text-mushroom-800">
+        <Text styleAs="label" className="truncate dark:text-mushroom-800">
           Recent Assistants
         </Text>
         <div className="flex gap-1">
-          <AgentCard name="Command R+" isBaseAgent />
-          {recentAgents
-            .filter((agent, idx, array) => array.findIndex((a) => a.id === agent.id) === idx)
-            .slice(0, 5)
-            .map((agent) => (
-              <AgentCard key={agent.id} name={agent.name} id={agent.id} />
-            ))}
+          <AgentCard key="commandR" name="Command R+" isBaseAgent />
+          {recentAgents.slice(0, 4).map((agent) => {
+            return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
+          })}
         </div>
       </section>
       <section className="space-y-4">
@@ -52,7 +49,7 @@ export const AgentsList: React.FC = () => {
           onChange={(e) => setSearch(e.target.value)}
           onClear={() => setSearch('')}
         />
-        <Text styleAs="label" className="truncate text-mushroom-800">
+        <Text styleAs="label" className="truncate dark:text-mushroom-800">
           Recent Chats
         </Text>
         <RecentChats search={search} results={searchResults} />

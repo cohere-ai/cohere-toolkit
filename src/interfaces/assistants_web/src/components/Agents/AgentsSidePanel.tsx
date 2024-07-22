@@ -3,6 +3,7 @@
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import React, { ReactElement } from 'react';
 
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Logo, Text } from '@/components/Shared';
@@ -27,20 +28,12 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   className = '',
   children,
 }) => {
-  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
   const router = useRouter();
   const {
     agents: { isAgentsSidePanelOpen },
-    setAgentsSidePanelOpen,
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-
-  const handleToggleAgentsSidePanel = () => {
-    setIsConvListPanelOpen(false);
-    setSettings({ isConfigDrawerOpen: false });
-    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
-  };
 
   const { setEditAgentPanelOpen } = useAgentsStore();
   const { resetConversation } = useConversationStore();
@@ -49,11 +42,11 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
 
   const handleNewChat = () => {
     const url = '/';
-    router.push(url);
     setEditAgentPanelOpen(false);
     resetConversation();
     resetCitations();
     resetFileParams();
+    router.push(url);
   };
 
   return (
@@ -80,68 +73,68 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
       <div
         className={cn(
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
-          'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg'
+          'md:transition-[min-width,max-width]',
+          {
+            'md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
+              !isAgentsSidePanelOpen,
+            'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
+              isAgentsSidePanelOpen,
+          }
         )}
       >
         <div
           className={cn('flex flex-shrink-0 items-center', {
-            'justify-between gap-x-3': isAgentsSidePanelOpen || isMobile,
+            'justify-center': !isAgentsSidePanelOpen,
+            'justify-between gap-x-3': isMobile && isAgentsSidePanelOpen,
           })}
         >
-          <Link href="/" shallow>
-            <div className="mr-3 flex items-baseline">
-              <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
-            </div>
+          <Link href="/">
+            <Logo
+              hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'}
+              includeBrandName={isAgentsSidePanelOpen}
+            />
           </Link>
 
-          <IconButton
-            iconName="close-drawer"
-            onClick={handleToggleAgentsSidePanel}
-            className={cn(
-              'flex text-mushroom-950 transition delay-100 duration-200 ease-in-out md:hidden',
-              {
-                'rotate-180 transform': isAgentsSidePanelOpen,
-              }
-            )}
-          />
+          <ToggleAgentsSidePanelButton className="flex md:hidden" />
         </div>
 
-        <div className="flex flex-shrink-0 flex-col gap-y-4">
-          <Button
-            kind="secondary"
-            className="group truncate [&_span]:text-evolved-green-700"
-            startIcon={<Icon name="add" kind="outline" className="text-evolved-green-700" />}
+        <div
+          className={cn('flex flex-shrink-0 flex-col gap-y-4', {
+            'items-center': !isAgentsSidePanelOpen,
+          })}
+        >
+          <SidePanelButton
             label={
-              <div className="flex items-center justify-between">
-                <Text>New chat</Text>
+              <div className="group flex items-center justify-between">
+                <Text className="dark:text-evolved-green-700">New chat</Text>
                 <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
               </div>
             }
             onClick={handleNewChat}
+            icon={<Icon name="add" kind="outline" className="dark:text-evolved-green-700" />}
           />
-          <Button
-            kind="secondary"
-            className="truncate [&_span]:text-mushroom-950"
-            startIcon={<Icon name="compass" kind="outline" className="text-mushroom-950" />}
+          <SidePanelButton
             label="See all assistants"
             href="/discover"
+            icon={<Icon name="compass" kind="outline" className="dark:text-mushroom-950" />}
           />
         </div>
 
-        <div className="flex-grow overflow-y-auto">{children}</div>
+        <div className={cn('flex-grow overflow-y-auto')}>{children}</div>
 
-        <footer className="flex flex-col gap-4">
-          <Button
-            kind="secondary"
-            className="truncate [&_span]:text-mushroom-950"
-            startIcon={<Icon name="settings" kind="outline" className="text-mushroom-950" />}
+        <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
+          <SidePanelButton
             label="Settings"
             href="/settings"
-            shallow
+            icon={<Icon name="settings" kind="outline" className="dark:text-mushroom-950" />}
           />
           <section className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Text styleAs="label" className="text-mushroom-800">
+            <div
+              className={cn('flex items-center gap-2', {
+                hidden: !isAgentsSidePanelOpen,
+              })}
+            >
+              <Text styleAs="label" className="dark:text-mushroom-800">
                 POWERED BY
               </Text>
               <Logo
@@ -149,9 +142,65 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
                 includeBrandName={false}
               />
             </div>
+            <ToggleAgentsSidePanelButton className="hidden md:flex" />
           </section>
         </footer>
       </div>
     </Transition>
+  );
+};
+
+const SidePanelButton: React.FC<{
+  label?: ReactElement | string;
+  href?: string;
+  onClick?: VoidFunction;
+  icon: ReactElement;
+  className?: string;
+}> = ({ label, href, icon, className, onClick }) => {
+  const {
+    agents: { isAgentsSidePanelOpen },
+  } = useAgentsStore();
+
+  if (isAgentsSidePanelOpen) {
+    return (
+      <Button
+        kind="secondary"
+        className={cn('dark:[&_span]:text-mushroom-950', className)}
+        startIcon={icon}
+        label={label}
+        href={href}
+        onClick={onClick}
+      />
+    );
+  }
+
+  return <IconButton icon={icon} href={href} onClick={onClick} className={className} />;
+};
+
+const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
+  const {
+    agents: { isAgentsSidePanelOpen },
+    setAgentsSidePanelOpen,
+  } = useAgentsStore();
+  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
+
+  const handleToggleAgentsSidePanel = () => {
+    setIsConvListPanelOpen(false);
+    setSettings({ isConfigDrawerOpen: false });
+    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
+  };
+
+  return (
+    <IconButton
+      iconName="close-drawer"
+      onClick={handleToggleAgentsSidePanel}
+      className={cn(
+        'transform transition delay-100 duration-200 ease-in-out dark:text-mushroom-950 dark:hover:text-mushroom-950',
+        className,
+        {
+          'rotate-180 ': isAgentsSidePanelOpen,
+        }
+      )}
+    />
   );
 };

@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useContext } from 'react';
 
+import { Agent } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
-import { useListAgents } from '@/hooks/agents';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useSettingsStore } from '@/stores';
@@ -18,9 +18,9 @@ export type ConversationListItem = {
   conversationId: string;
   updatedAt: string;
   title: string;
-  agentId: string | null;
   description: string | null;
   weekHeading?: string;
+  agent?: Agent;
 };
 
 type Props = {
@@ -66,9 +66,7 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId } = conversation;
-  const { data: agents = [] } = useListAgents();
-  const agent = agents.find((a) => a.id === conversation.agentId);
-  const agentColor = getCohereColor(agent?.id);
+  const agentColor = getCohereColor(conversation.agent?.id);
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
@@ -105,20 +103,20 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       <div className="flex h-[18px] w-full items-center gap-2">
         <div
           className={cn('flex size-4 flex-shrink-0 items-center justify-center rounded', {
-            'bg-mushroom-700': !agent,
-            [agentColor]: agent,
+            'bg-mushroom-700': !conversation.agent,
+            [agentColor]: conversation.agent,
           })}
         >
-          {agent ? (
+          {conversation.agent ? (
             <Text className="text-white" styleAs="p-xs">
-              {agent.name[0]}
+              {conversation.agent.name[0]}
             </Text>
           ) : (
             <CoralLogo style="secondary" className="scale-50" />
           )}
         </div>
         <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
-          {agent?.name ?? 'Cohere AI'}
+          {conversation.agent?.name ?? 'Cohere AI'}
         </Text>
         <Text styleAs="code-sm" className="ml-auto mt-0.5 uppercase dark:text-mushroom-800">
           {formatDateToShortDate(conversation.updatedAt)}
@@ -127,7 +125,9 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     </div>
   );
 
-  const conversationUrl = agent ? `/a/${agent.id}/c/${conversationId}` : `/c/${conversationId}`;
+  const conversationUrl = conversation.agent
+    ? `/a/${conversation.agent.id}/c/${conversationId}`
+    : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
