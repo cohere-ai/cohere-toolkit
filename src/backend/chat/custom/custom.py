@@ -9,6 +9,7 @@ from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.database_models.database import DBSessionDep
+from backend.database_models.file import File
 from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Tool
@@ -139,6 +140,7 @@ class CustomChat(BaseChat):
         user_id = kwargs.get("user_id", "")
         agent_id = kwargs.get("agent_id", "")
         managed_tools = self.get_managed_tools(chat_request)
+        session = kwargs.get("session")
 
         tool_names = []
         if managed_tools:
@@ -146,13 +148,21 @@ class CustomChat(BaseChat):
             tool_names = [tool.name for tool in managed_tools]
 
         # Add files to chat history if the tool requires it and files are provided
-        if chat_request.file_ids:
+        if chat_request.file_ids or chat_request.agent_id:
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
+                files = file_service.get_files_by_conversation_id(
+                            session, user_id, kwargs.get("conversation_id")
+                        )
+                
+                if agent_id:
+                    agent_files = file_service.get_files_by_agent_id(session, user_id, agent_id)
+                                
                 chat_request.chat_history = self.add_files_to_chat_history(
                     chat_request.chat_history,
                     kwargs.get("conversation_id"),
-                    kwargs.get("session"),
+                    session,
                     kwargs.get("user_id"),
+                    files + agent_files
                 )
         else:
             # TODO: remove this workaround
@@ -162,6 +172,7 @@ class CustomChat(BaseChat):
                 for tool in chat_request.tools
                 if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
             ]
+
 
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
@@ -329,16 +340,14 @@ class CustomChat(BaseChat):
         conversation_id: str,
         session: Any,
         user_id: str,
+        files: list[File]
     ) -> List[Dict[str, str]]:
-        if session is None or conversation_id is None or len(conversation_id) == 0:
+        if session is None or len(files) == 0:
             return chat_history
 
-        available_files = file_service.get_files_by_conversation_id(
-            session, user_id, conversation_id
-        )
         files_message = "The user uploaded the following attachments:\n"
 
-        for file in available_files:
+        for file in files:
             word_count = len(file.file_content.split())
 
             # Use the first 25 words as the document preview in the preamble
@@ -349,3 +358,5 @@ class CustomChat(BaseChat):
 
         chat_history.append(ChatMessage(message=files_message, role=ChatRole.SYSTEM))
         return chat_history
+
+    
