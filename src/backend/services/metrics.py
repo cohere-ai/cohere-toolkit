@@ -166,8 +166,7 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     )
 
 
-# TODO: think about how to do rerank
-# TODO: not all errors come from the stream end event, need additional metrics handlers?
+# DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
 def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
     try:
         event_type = event["event_type"]
@@ -245,3 +244,86 @@ def get_agent(request: Request) -> Union[MetricsAgent, None]:
     if not hasattr(request.state, "agent") or not request.state.agent:
         return None
     return request.state.agent
+
+
+# DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
+def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
+    try:
+        trace_id = kwargs.get("trace_id", None)
+        user_id = kwargs.get("user_id", None)
+        assistant_id = kwargs.get("agent_id", None)
+        assistant = kwargs.get("agent", None)
+        model = kwargs.get("model", None)
+        response_dict = to_dict(response)
+        search_units = (
+            response_dict.get("meta", {}).get("billed_units", {}).get("search_units")
+        )
+        message_type = MetricsMessageType.RERANK_API_SUCCESS
+        # ensure valid MetricsChat object
+        chat_metrics = MetricsChat(
+            input_nb_tokens=0,
+            output_nb_tokens=0,
+            search_units=search_units,
+            model=model,
+            assistant_id=agent_id,
+        )
+        metrics_data = MetricsData(
+            id=str(uuid.uuid4()),
+            message_type=message_type,
+            trace_id=trace_id,
+            user_id=user_id,
+            assistant_id=assistant_id,
+            assistant=assistant,
+            model=model,
+            search_units=search_units,
+            duration_ms=duration_ms,
+        )
+        signal = MetricsSignal(signal=metrics_data)
+        asyncio.create_task(report_metrics(signal))
+    except Exception as e:
+        logger.error(f"Failed to report rerank metrics: {e}")
+
+
+def report_rerank_failed_metrics(duration_ms: float, error: Exception, **kwargs: Any):
+    try:
+        trace_id = kwargs.get("trace_id", None)
+        user_id = kwargs.get("user_id", None)
+        assistant_id = kwargs.get("agent_id", None)
+        model = kwargs.get("model", None)
+        message_type = MetricsMessageType.RERANK_API_FAIL
+        error_message = str(error)
+        metrics_data = MetricsData(
+            id=str(uuid.uuid4()),
+            message_type=message_type,
+            trace_id=trace_id,
+            user_id=user_id,
+            assistant_id=assistant_id,
+            assistant=assistant,
+            model=model,
+            search_units=search_units,
+            duration_ms=duration_ms,
+            error=error_message,
+        )
+        signal = MetricsSignal(signal=metrics_data)
+        asyncio.create_task(report_metrics(signal))
+    except Exception as e:
+        logger.error(f"Failed to report rerank metrics: {e}")
+
+
+def collect_metrics_rerank(func: Callable) -> Callable:
+    @wraps(func)
+    async def wrapper(
+        self, query: str, documents: Dict[str, Any], **kwargs: Any
+    ) -> Any:
+        start_time = time.perf_counter()
+        try:
+            response = await func(self, query, documents, **kwargs)
+            duration_ms = time.perf_counter() - start_time
+            report_rerank_metrics(response, duration_ms, **kwargs)
+            return response
+        except Exception as e:
+            duration_ms = time.perf_counter() - start_time
+            metrics_data = report_rerank_failed_metrics(duration_ms, e, **kwargs)
+            raise e
+
+    return wrapper
