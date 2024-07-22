@@ -62,18 +62,18 @@ def seed_tools_data(op):
         db_tool = Tool(
             name=str(tool_name),
             display_name=tool.display_name,
-            implementation_class_name=(
-                tool.implementation.__name__ if tool.implementation else ""
-            ),
+            # implementation_class_name=(
+            #     tool.implementation.__name__ if tool.implementation else ""
+            # ),
             description=tool.description,
-            parameter_definitions=tool.parameter_definitions,
+            # parameter_definitions=tool.parameter_definitions,
             default_tool_config=default_tool_config,
             is_visible=tool.is_visible,
             is_community=is_community,
-            is_auth_required=tool.is_auth_required,
-            auth_implementation_class_name=(
-                tool.auth_implementation.__name__ if tool.auth_implementation else ""
-            ),
+            # is_auth_required=tool.is_auth_required,
+            # auth_implementation_class_name=(
+            #     tool.auth_implementation.__name__ if tool.auth_implementation else ""
+            # ),
             error_message=tool.error_message,
             category=tool.category,
         )
