@@ -36,8 +36,7 @@ export const ConversationListHeader: React.FC<Props> = ({
             checked={isSelectAllChecked}
             indeterminate={!isSelectAllChecked}
             onChange={onSelectAllToggle}
-            size="sm"
-            theme="secondary"
+            theme="ecg"
             className="mx-2"
           />
           <IconButton iconName="trash" onClick={onBulkDeleteClick} />

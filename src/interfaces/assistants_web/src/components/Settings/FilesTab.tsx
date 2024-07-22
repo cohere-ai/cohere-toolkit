@@ -118,7 +118,7 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
                                   onChange={() => handleToggle(id)}
                                   label={name}
                                   name={name}
-                                  theme="secondary"
+                                  theme="ecg"
                                   className="w-full"
                                   labelClassName="ml-0 truncate w-full"
                                   labelSubContainerClassName="w-full"
