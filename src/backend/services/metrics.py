@@ -51,7 +51,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         duration_ms = time.perf_counter() - start_time
         self.send_signal(request, response, duration_ms)
 
-        # self.process_signal_queue(request, response)
         return response
 
     def init_req_state(self, request: Request) -> None:
@@ -61,13 +60,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.stream_start = None
         request.state.user = None
         request.state.event_type = None
-
-    def process_signal_queue(self, request: Request, response: Response) -> None:
-        logger.info(
-            f"Processing signal queue of size: {len(request.state.signal_queue)}"
-        )
-        for signal in request.state.signal_queue:
-            response.background = BackgroundTask(report_metrics, signal)
 
     def confirm_env(self):
         if not REPORT_SECRET:
@@ -226,11 +218,6 @@ def report_streaming_event(request: Request, event: dict[str, Any]) -> None:
                 model=model,
                 assistant_id=agent_id,
             )
-        else:
-            import pdb
-
-            pdb.set_trace()
-            pass
 
         metrics = MetricsData(
             id=str(uuid.uuid4()),

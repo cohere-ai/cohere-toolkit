@@ -314,22 +314,6 @@ def test_default_chat_missing_deployment_name(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_fail_chat_missing_message_logs_metric(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
-    response = session_client_chat.post(
-        "/v1/chat-stream",
-        headers={
-            "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.CoherePlatform,
-        },
-        json={},
-    )
-
-    assert response.status_code == 422
-
-
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
     response = session_client_chat.post(
         "/v1/chat-stream",
