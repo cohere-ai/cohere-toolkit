@@ -92,7 +92,11 @@ def test_streaming_new_chat_metrics_with_agent(
                 "Deployment-Name": default_agent_copy.deployment.name,
             },
             params={"agent_id": default_agent_copy.id},
-            json={"message": "Hello", "max_tokens": 10, "agent_id": default_agent_copy.id},
+            json={
+                "message": "Hello",
+                "max_tokens": 10,
+                "agent_id": default_agent_copy.id,
+            },
         )
         # finish all the event stream
         assert response.status_code == 200
