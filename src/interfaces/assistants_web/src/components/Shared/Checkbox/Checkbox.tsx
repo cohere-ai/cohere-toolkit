@@ -7,13 +7,13 @@ import { cn } from '@/utils';
 
 type CheckboxProps = {
   checked: boolean;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (checked: boolean) => void;
   disabled?: boolean;
   indeterminate?: boolean;
   label?: string;
   name?: string;
   tooltipLabel?: React.ReactNode;
-  theme?: 'sc' | 'ecg';
+  theme?: 'coral' | 'evolved-green';
   className?: string;
   labelClassName?: string;
   labelSubContainerClassName?: string;
@@ -29,7 +29,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
     name,
     label,
     disabled,
-    theme = 'sc',
+    theme = 'coral',
     className,
     labelClassName,
     labelContainerClassName,
@@ -42,7 +42,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
   const handleKeyPress = (event: React.KeyboardEvent<HTMLLabelElement>) => {
     // on space key press, trigger onChange
     if (event.code === 'Space' && !disabled) {
-      onChange({ target: { checked: !checked } } as React.ChangeEvent<HTMLInputElement>);
+      onChange(!checked);
     }
   };
 
@@ -64,7 +64,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
         type="checkbox"
         disabled={disabled}
         checked={checked}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.checked)}
         className="hidden"
       />
       <span
@@ -73,8 +73,9 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
           'transition-colors duration-200 ease-in-out',
           'h-5 w-5',
           {
-            'bg-coral-600 group-hover:bg-coral-500': checked && theme === 'sc',
-            'bg-evolved-green-700 group-hover:bg-evolved-green-500': checked && theme === 'ecg',
+            'bg-coral-600 group-hover:bg-coral-500': checked && theme === 'coral',
+            'bg-evolved-green-700 group-hover:bg-evolved-green-500':
+              checked && theme === 'evolved-green',
             'cursor-not-allowed border border-volcanic-500 bg-volcanic-300 group-hover:bg-volcanic-400':
               disabled,
             'border border-marble-800 bg-volcanic-150 group-hover:bg-volcanic-300':
@@ -89,8 +90,8 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
             name="check-mark"
             size="md"
             className={cn({
-              'text-marble-1000': theme === 'sc',
-              'text-green-200': theme === 'ecg',
+              'text-marble-1000': theme === 'coral',
+              'text-green-200': theme === 'evolved-green',
               'text-volcanic-500': disabled,
             })}
           />

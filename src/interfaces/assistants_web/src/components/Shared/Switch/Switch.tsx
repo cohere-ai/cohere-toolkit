@@ -11,10 +11,9 @@ type Props = {
   label?: React.ReactNode;
   labelPosition?: 'left' | 'right';
   name?: string;
+  theme?: 'blue' | 'evolved-green' | 'quartz' | 'green' | 'mushroom' | 'coral';
   styleAs?: 'label' | 'p';
-  displayChecked?: boolean;
   className?: string;
-  dataTestId?: string;
 };
 
 export const Switch: React.FC<Props> = ({
@@ -22,15 +21,13 @@ export const Switch: React.FC<Props> = ({
   onChange,
   label,
   labelPosition = 'right',
+  theme = 'coral',
   name,
-  displayChecked,
   styleAs = 'label',
   className = '',
-  dataTestId,
 }) => {
   return (
     <div className="group flex items-center">
-      {displayChecked && <Text className="w-8 text-volcanic-400">{checked ? 'On' : 'Off'}</Text>}
       <Field>
         <div
           className={cn(
@@ -50,24 +47,31 @@ export const Switch: React.FC<Props> = ({
             onChange={onChange}
             className={cn(
               'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded border-2 border-transparent',
-              'transition-colors duration-200 ease-in-out',
-              'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
-              'bg-mushroom-600 group-hover:bg-mushroom-700',
+              'transition-colors duration-300 ease-in-out',
+              'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-500',
               {
-                'bg-mushroom-900 group-hover:bg-mushroom-800': !checked,
+                'bg-volcanic-500 group-hover:bg-volcanic-400': !checked,
+                'bg-blue-500 group-hover:bg-blue-400': checked && theme === 'blue',
+                'bg-evolved-green-700 group-hover:bg-evolved-green-500':
+                  checked && theme === 'evolved-green',
+                'bg-quartz-500 group-hover:bg-quartz-400': checked && theme === 'quartz',
+                'bg-green-250 group-hover:bg-green-200': checked && theme === 'green',
+                'bg-mushroom-600 group-hover:bg-mushroom-500': checked && theme === 'mushroom',
+                'bg-coral-600 group-hover:bg-coral-500': checked && theme === 'coral',
               }
             )}
-            data-testid={dataTestId}
           >
             <span
               aria-hidden="true"
               className={cn(
-                'pointer-events-none inline-block h-4 w-5 rounded bg-white shadow-lg',
-                'transform transition duration-200 ease-in-out',
+                'pointer-events-none inline-block h-4 w-5 rounded shadow-lg',
+                'transform transition-all duration-300 ease-in-out',
                 {
                   'translate-x-4': checked,
                   'translate-x-0': !checked,
-                  'flex items-center': displayChecked,
+                  'bg-volcanic-800': !checked,
+                  'bg-marble-950': checked,
+                  'bg-green-250': checked && theme === 'evolved-green',
                 }
               )}
             />

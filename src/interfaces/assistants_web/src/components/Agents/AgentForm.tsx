@@ -124,8 +124,8 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
                   tooltipLabel={tool.description}
                   name={tool.name ?? '' + i}
                   checked={checked}
-                  onChange={(e) =>
-                    onToolToggle(tool.name ?? '', e.target.checked, tool.auth_url ?? '')
+                  onChange={(checked) =>
+                    onToolToggle(tool.name ?? '', checked, tool.auth_url ?? '')
                   }
                   disabled={!isAgentCreator}
                 />
