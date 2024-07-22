@@ -90,7 +90,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         >
           <Link href="/">
             <Logo
-              hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'}
+              hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO}
               includeBrandName={isAgentsSidePanelOpen}
             />
           </Link>
@@ -137,10 +137,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               <Text styleAs="label" className="dark:text-mushroom-800">
                 POWERED BY
               </Text>
-              <Logo
-                hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'}
-                includeBrandName={false}
-              />
+              <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
             </div>
             <ToggleAgentsSidePanelButton className="hidden md:flex" />
           </section>
