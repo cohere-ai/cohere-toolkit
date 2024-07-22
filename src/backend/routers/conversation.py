@@ -204,6 +204,7 @@ async def search_conversations(
         user_id,
         agent_id,
         trace_id,
+        request,
     )
 
     return filtered_documents

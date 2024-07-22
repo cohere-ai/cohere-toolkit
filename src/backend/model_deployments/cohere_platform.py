@@ -16,6 +16,8 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.services.logger import get_logger, send_log_message
+from backend.services.metrics import collect_metrics_rerank
+
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
@@ -90,6 +92,7 @@ class CohereDeployment(BaseDeployment):
             )
             yield to_dict(event)
 
+    @collect_metrics_rerank
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:

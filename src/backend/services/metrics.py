@@ -248,12 +248,16 @@ def get_agent(request: Request) -> Union[MetricsAgent, None]:
 
 # DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
 def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
+    import pdb; pdb.set_trace()
     try:
-        trace_id = kwargs.get("trace_id", None)
-        user_id = kwargs.get("user_id", None)
-        assistant_id = kwargs.get("agent_id", None)
-        assistant = kwargs.get("agent", None)
-        model = kwargs.get("model", None)
+        request = kwargs.get("request", None)
+        if not request:
+            raise ValueError("request not set")
+        trace_id = request.state.trace_id
+        model = request.state.model
+        user_id = get_header_user_id(request)
+        agent = get_agent(request)
+        agent_id = agent.id if agent else None
         response_dict = to_dict(response)
         search_units = (
             response_dict.get("meta", {}).get("billed_units", {}).get("search_units")
@@ -272,8 +276,8 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
             message_type=message_type,
             trace_id=trace_id,
             user_id=user_id,
-            assistant_id=assistant_id,
-            assistant=assistant,
+            assistant_id=agent_id,
+            assistant=agent,
             model=model,
             search_units=search_units,
             duration_ms=duration_ms,
@@ -286,10 +290,14 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
 
 def report_rerank_failed_metrics(duration_ms: float, error: Exception, **kwargs: Any):
     try:
-        trace_id = kwargs.get("trace_id", None)
-        user_id = kwargs.get("user_id", None)
-        assistant_id = kwargs.get("agent_id", None)
-        model = kwargs.get("model", None)
+        request = kwargs.get("request", None)
+        if not request:
+            raise ValueError("request not set")
+        trace_id = request.state.trace_id
+        model = request.state.model
+        user_id = get_header_user_id(request)
+        agent = get_agent(request)
+        agent_id = agent.id if agent else None
         message_type = MetricsMessageType.RERANK_API_FAIL
         error_message = str(error)
         metrics_data = MetricsData(
@@ -297,8 +305,8 @@ def report_rerank_failed_metrics(duration_ms: float, error: Exception, **kwargs:
             message_type=message_type,
             trace_id=trace_id,
             user_id=user_id,
-            assistant_id=assistant_id,
-            assistant=assistant,
+            assistant_id=agent_id,
+            assistant=agent,
             model=model,
             search_units=search_units,
             duration_ms=duration_ms,
