@@ -71,10 +71,7 @@ def chat(agent_id):
     response = requests.post(
         f"http://localhost:8000/v1/chat-stream?agent_id={agent_id}",
         headers=headers,
-        json={
-            "message": "who is bo burnham?",
-            "tools": [{"name": "web_search"}],
-        },
+        json={"message": "who is bo burnham?", "tools": [{"name": "web_search"}]},
     )
 
     print(response.status_code)
