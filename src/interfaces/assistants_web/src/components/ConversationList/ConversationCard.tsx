@@ -1,9 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useContext } from 'react';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
+import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text } from '@/components/Shared';
+import { ModalContext } from '@/context/ModalContext';
 import { useListAgents } from '@/hooks/agents';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
@@ -30,17 +33,23 @@ type Props = {
   onCheck: (id: string) => void;
 };
 
-const useMenuItems = ({ conversationId, name }: { conversationId: string; name: string }) => {
-  const { deleteConversation, editConversationTitle } = useConversationActions();
+const useMenuItems = ({ conversationId }: { conversationId: string }) => {
+  const { deleteConversation } = useConversationActions();
+  const { open } = useContext(ModalContext);
+
+  const handleOpenShareModal = () => {
+    if (!conversationId) return;
+    open({
+      title: 'Share link to conversation',
+      content: <ShareModal conversationId={conversationId} />,
+    });
+  };
 
   const menuItems: KebabMenuItem[] = [
     {
       label: 'Share Chat',
       iconName: 'share',
-      onClick: () => {
-        // editConversationTitle({ id: conversationId, title: name });
-        alert('TODO: Share Chat');
-      },
+      onClick: handleOpenShareModal,
     },
     {
       label: 'Delete chat',
@@ -80,7 +89,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   // @see "handleUpdateConversationTitle" in hooks/chat.ts
   const name = conversationId === selectedConversationId ? conversationName : title;
 
-  const menuItems = useMenuItems({ conversationId, name: name! });
+  const menuItems = useMenuItems({ conversationId });
 
   const info = (
     <div className="flex flex-col gap-y-1 pl-3">
