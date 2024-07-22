@@ -105,14 +105,15 @@ class FileService:
             artifacts = next(
                 tool_metadata.artifacts
                 for tool_metadata in agent_tool_metadata
-                if tool_metadata.get("tool_name") == ToolName.Read_File
-                or tool_metadata.get("tool_name") == ToolName.Search_File
+                if tool_metadata.tool_name == ToolName.Read_File
+                or tool_metadata.tool_name == ToolName.Search_File
             )
 
             # TODO scott: enumerate type names (?), different types for local vs. compass?
-            file_ids = next(
+            file_ids = [
                 artifact.get("id") for artifact in artifacts if artifact.get("type") == "local_file"
-            )
+            ]
+
             files = file_crud.get_files_by_ids(session, file_ids, user_id)
         
         return files
