@@ -1,6 +1,6 @@
 
 deployments: 
-  default_deployment: cohere_platform
+  default_deployment: azure
   enabled_deployments:
     - cohere_platform
     - sagemaker
@@ -18,12 +18,6 @@ database:
 tools:
   enabled_tools:
     - wikipedia
-    - search_file
-    - read_document
-    - toolkit_python_interpreter
-    - toolkit_calculator
-    - web_search
-    - web_scrape
   python_interpreter: 
     url: http://terrarium:8080
   compass:

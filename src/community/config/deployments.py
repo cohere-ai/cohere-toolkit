@@ -12,6 +12,7 @@ class ModelDeploymentName(StrEnum):
     LocalModel = "LocalModel"
 
 
+# todo commuitity
 AVAILABLE_MODEL_DEPLOYMENTS = {
     # ModelDeploymentName.HuggingFace: Deployment(
     #     name=ModelDeploymentName.HuggingFace,

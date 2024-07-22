@@ -10,10 +10,21 @@ from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnec
 
 load_dotenv()
 
+auth_map = {
+    "basic": BasicAuthentication,
+    "google_oauth": GoogleOAuth,
+    "oidc": OpenIDConnect,
+}
+
 SKIP_AUTH = os.getenv("SKIP_AUTH", None)
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
 ENABLED_AUTH_STRATEGIES = []
+if ENABLED_AUTH_STRATEGIES == [] and Configuration.auth_config.get("enabled_auth"):
+    for auth in Configuration.auth_config.get("enabled_auth"):
+        auth_class = auth_map.get(auth)
+        if auth_class:
+            ENABLED_AUTH_STRATEGIES.append(auth_class)
 if "pytest" in sys.modules or SKIP_AUTH == "true":
     ENABLED_AUTH_STRATEGIES = []
 
