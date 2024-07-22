@@ -3,6 +3,7 @@ import os
 from distutils.util import strtobool
 from enum import StrEnum
 
+from backend.config.config import Configuration
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools import (
     Calculator,
@@ -211,6 +212,10 @@ def get_available_tools() -> dict[ToolName, dict]:
         tool.error_message = tool.error_message if not tool.is_available else None
         # Retrieve name
         tool.name = tool.implementation.NAME
+    
+    enabled_tools = Configuration.tool_config.get("enabled_tools")
+    if enabled_tools is not None:
+        tools = {key: value for key, value in tools.items() if key in enabled_tools}
 
     return tools
 

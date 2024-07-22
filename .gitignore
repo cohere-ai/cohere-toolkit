@@ -146,6 +146,6 @@ secrets.toml
 # Redis volume
 /data
 
-# Secret and config files - to do there will be the default one 
+# Secret and config files
 /src/backend/config/configuration.yaml
 /src/backend/config/secrets.yaml

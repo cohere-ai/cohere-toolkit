@@ -1,5 +1,11 @@
 
 deployments: 
+  default_deployment: cohere_platform
+  enabled_deployments:
+    - cohere_platform
+    - sagemaker
+    - azure
+    - bedrock
   sagemaker:
     region_name: us-west-2
     endpoint_name: cohere-command-r
@@ -9,7 +15,15 @@ deployments:
     region_name: us-west-2
 database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
-tools: 
+tools:
+  enabled_tools:
+    - wikipedia
+    - search_file
+    - read_document
+    - toolkit_python_interpreter
+    - toolkit_calculator
+    - web_search
+    - web_scrape
   python_interpreter: 
     url: http://terrarium:8080
   compass:
@@ -21,7 +35,9 @@ feature_flags:
   use_agents_view: false
   # Community features
   use_community_features: true
-auth: 
+auth:
+  enabled_auth:
+    - basic
   frontend_hostname: http://localhost:4000
 
 

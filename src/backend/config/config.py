@@ -19,6 +19,8 @@ class Configuration:
     database_config = secrets["database"] | configuration["database"]
     feature_flags = configuration["feature_flags"]
     auth_config = secrets["auth"] | configuration["auth"]
+    deployment_config = configuration["deployments"]
+    tool_config = configuration["tools"]
 
     @classmethod
     def get_auth_config(cls, auth_name: str) -> dict:
