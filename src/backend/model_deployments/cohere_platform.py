@@ -13,7 +13,10 @@ from cohere.types import StreamedChatResponse
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import (
+    add_rerank_model_to_request_state,
+    get_model_config_var,
+)
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.services.logger import get_logger, send_log_message
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
@@ -96,8 +99,7 @@ class CohereDeployment(BaseDeployment):
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        response = self.client.rerank(
-            query=query, documents=documents, model=DEFAULT_RERANK_MODEL
-        )
-
+        model = DEFAULT_RERANK_MODEL
+        add_rerank_model_to_request_state(model, **kwargs)
+        response = self.client.rerank(query=query, documents=documents, model=model)
         return to_dict(response)

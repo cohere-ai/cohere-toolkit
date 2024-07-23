@@ -523,13 +523,13 @@ def test_search_conversations_with_reranking_sends_metrics(
         results = response.json()
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        import pdb; pdb.set_trace()
         assert m_args.user_id == user.id
         assert m_args.message_type == MetricsMessageType.RERANK_API_SUCCESS
         assert m_args.assistant_id is not None
         assert m_args.assistant.name is not None
         assert m_args.model is not None
         assert m_args.search_units > 0
+
 
 def test_search_conversations_missing_user_id(
     session_client: TestClient,

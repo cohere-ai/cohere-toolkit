@@ -57,6 +57,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.model = None
+        request.state.rerank_model = None
         request.state.stream_start = None
         request.state.user = None
         request.state.event_type = None
@@ -166,6 +167,17 @@ def log_signal_curl(signal: MetricsSignal) -> None:
     )
 
 
+def collect_metrics_chat_stream(func: Callable) -> Callable:
+    @wraps(func)
+    async def wrapper(*args, **kwargs: Any) -> Any:
+        stream = func(*args, **kwargs)
+        async for v in stream:
+            report_streaming_chat_event(v, **kwargs)
+            yield v
+
+    return wrapper
+
+
 # DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
 def report_streaming_chat_event(event: dict[str, Any], **kwargs: Any) -> None:
     try:
@@ -256,7 +268,7 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
         if not request:
             raise ValueError("request not set")
         trace_id = request.state.trace_id
-        model = request.state.model
+        model = request.state.rerank_model
         user_id = get_header_user_id(request)
         agent = get_agent(request)
         agent_id = agent.id if agent else None
@@ -265,8 +277,7 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
             response_dict.get("meta", {}).get("billed_units", {}).get("search_units")
         )
         message_type = MetricsMessageType.RERANK_API_SUCCESS
-        import pdb; pdb.set_trace()
-        
+
         # ensure valid MetricsChat object
         chat_metrics = MetricsChat(
             input_nb_tokens=0,
@@ -275,6 +286,7 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
             model=model,
             assistant_id=agent_id,
         )
+
         metrics_data = MetricsData(
             id=str(uuid.uuid4()),
             message_type=message_type,
@@ -287,6 +299,7 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
             timestamp=time.time(),
             duration_ms=duration_ms,
         )
+
         signal = MetricsSignal(signal=metrics_data)
         asyncio.create_task(report_metrics(signal))
     except Exception as e:
@@ -299,7 +312,7 @@ def report_rerank_failed_metrics(duration_ms: float, error: Exception, **kwargs:
         if not request:
             raise ValueError("request not set")
         trace_id = request.state.trace_id
-        model = request.state.model
+        model = request.state.rerank_model
         user_id = get_header_user_id(request)
         agent = get_agent(request)
         agent_id = agent.id if agent else None
@@ -339,16 +352,5 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             duration_ms = time.perf_counter() - start_time
             metrics_data = report_rerank_failed_metrics(duration_ms, e, **kwargs)
             raise e
-
-    return wrapper
-
-
-def collect_metrics_chat_stream(func: Callable) -> Callable:
-    @wraps(func)
-    async def wrapper(*args, **kwargs: Any) -> Any:
-        stream = func(*args, **kwargs)
-        async for v in stream:
-            report_streaming_chat_event(v, **kwargs)
-            yield v
 
     return wrapper
