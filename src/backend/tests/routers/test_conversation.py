@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -6,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
 from backend.database_models import Citation, Conversation, Document, File, Message
+from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.user import User
 from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE
 from backend.tests.factories import get_factory
@@ -488,6 +490,46 @@ def test_search_conversations_with_reranking(
     assert len(results) == 1
     assert results[0]["id"] == conversation2.id
 
+
+@pytest.mark.skipif(
+    os.environ.get("COHERE_API_KEY") is None,
+    reason="Cohere API key not set, skipping test",
+)
+def test_search_conversations_with_reranking_sends_metrics(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    conversation1 = get_factory("Conversation", session).create(
+        title="Hello, how are you?", text_messages=[], user_id=user.id
+    )
+    conversation2 = get_factory("Conversation", session).create(
+        title="There are are seven colors in the rainbow",
+        text_messages=[],
+        user_id=user.id,
+    )
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.get(
+            "/v1/conversations:search",
+            headers={
+                "User-Id": user.id,
+                "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            },
+            params={"query": "color"},
+        )
+        results = response.json()
+        assert response.status_code == 200
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
+        import pdb; pdb.set_trace()
+        assert m_args.user_id == user.id
+        assert m_args.message_type == MetricsMessageType.RERANK_API_SUCCESS
+        assert m_args.assistant_id is not None
+        assert m_args.assistant.name is not None
+        assert m_args.model is not None
+        assert m_args.search_units > 0
 
 def test_search_conversations_missing_user_id(
     session_client: TestClient,

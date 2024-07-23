@@ -265,6 +265,8 @@ def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
             response_dict.get("meta", {}).get("billed_units", {}).get("search_units")
         )
         message_type = MetricsMessageType.RERANK_API_SUCCESS
+        import pdb; pdb.set_trace()
+        
         # ensure valid MetricsChat object
         chat_metrics = MetricsChat(
             input_nb_tokens=0,
