@@ -451,12 +451,8 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
-    file1 = get_factory("File", session_chat).create(
-        user_id=user.id
-    )
-    file2 = get_factory("File", session_chat).create(
-        user_id=user.id
-    )
+    file1 = get_factory("File", session_chat).create(user_id=user.id)
+    file2 = get_factory("File", session_chat).create(user_id=user.id)
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(

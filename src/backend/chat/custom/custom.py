@@ -151,18 +151,20 @@ class CustomChat(BaseChat):
         if chat_request.file_ids or chat_request.agent_id:
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
                 files = file_service.get_files_by_conversation_id(
-                            session, user_id, kwargs.get("conversation_id")
-                        )
-                
+                    session, user_id, kwargs.get("conversation_id")
+                )
+
                 if agent_id:
-                    agent_files = file_service.get_files_by_agent_id(session, user_id, agent_id)
-                                
+                    agent_files = file_service.get_files_by_agent_id(
+                        session, user_id, agent_id
+                    )
+
                 chat_request.chat_history = self.add_files_to_chat_history(
                     chat_request.chat_history,
                     kwargs.get("conversation_id"),
                     session,
                     kwargs.get("user_id"),
-                    files + agent_files
+                    files + agent_files,
                 )
         else:
             # TODO: remove this workaround
@@ -172,7 +174,6 @@ class CustomChat(BaseChat):
                 for tool in chat_request.tools
                 if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
             ]
-
 
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
@@ -340,7 +341,7 @@ class CustomChat(BaseChat):
         conversation_id: str,
         session: Any,
         user_id: str,
-        files: list[File]
+        files: list[File],
     ) -> List[Dict[str, str]]:
         if session is None or len(files) == 0:
             return chat_history
@@ -358,5 +359,3 @@ class CustomChat(BaseChat):
 
         chat_history.append(ChatMessage(message=files_message, role=ChatRole.SYSTEM))
         return chat_history
-
-    

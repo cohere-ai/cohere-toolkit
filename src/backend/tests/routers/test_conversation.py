@@ -132,7 +132,7 @@ def test_get_conversation_lists_message_files(
         position=0,
         is_active=True,
         text="hello",
-        file_ids=[file.id]
+        file_ids=[file.id],
     )
     session.refresh(conversation)
 

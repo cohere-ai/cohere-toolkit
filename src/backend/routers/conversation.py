@@ -44,6 +44,7 @@ router.name = RouterName.CONVERSATION
 
 file_service = FileService()
 
+
 # CONVERSATIONS
 @router.get("/{conversation_id}", response_model=Conversation)
 async def get_conversation(
@@ -219,7 +220,6 @@ async def delete_conversation(
         file_service.bulk_delete_files(session, conversation.file_ids, user_id)
 
     conversation_crud.delete_conversation(session, conversation_id, user_id)
-
 
     return DeleteConversation()
 

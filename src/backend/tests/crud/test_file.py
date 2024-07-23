@@ -72,9 +72,7 @@ def test_fail_get_nonexistent_file(session, user):
 
 
 def test_list_files(session, user):
-    _ = get_factory("File", session).create(
-        file_name="test.txt", user_id=user.id
-    )
+    _ = get_factory("File", session).create(file_name="test.txt", user_id=user.id)
 
     files = file_crud.get_files(session, user.id)
     assert len(files) == 1
@@ -119,9 +117,7 @@ def test_list_files_by_user_id_empty(session, user):
 
 
 def test_update_file(session, user):
-    file = get_factory("File", session).create(
-        file_name="test.txt", user_id=user.id
-    )
+    file = get_factory("File", session).create(file_name="test.txt", user_id=user.id)
 
     new_file_data = UpdateFile(
         file_name="new_name.txt",
@@ -135,9 +131,7 @@ def test_update_file(session, user):
 
 
 def test_delete_file(session, user):
-    file = get_factory("File", session).create(
-        file_name="test.txt", user_id=user.id
-    )
+    file = get_factory("File", session).create(file_name="test.txt", user_id=user.id)
 
     file_crud.delete_file(session, file.id, user.id)
     assert file_crud.get_file(session, file.id, user.id) is None

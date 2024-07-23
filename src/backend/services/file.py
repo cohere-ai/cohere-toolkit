@@ -81,7 +81,7 @@ class FileService:
         conversation_crud.update_conversation(
             session, conversation, update_conversation
         )
-        
+
         return uploaded_files
 
     def get_files_by_agent_id(
@@ -106,13 +106,14 @@ class FileService:
 
             # TODO scott: enumerate type names (?), different types for local vs. compass?
             file_ids = [
-                artifact.get("id") for artifact in artifacts if artifact.get("type") == "local_file"
+                artifact.get("id")
+                for artifact in artifacts
+                if artifact.get("type") == "local_file"
             ]
 
             files = file_crud.get_files_by_ids(session, file_ids, user_id)
-        
+
         return files
-        
 
     def get_files_by_conversation_id(
         self, session: DBSessionDep, user_id: str, conversation_id: str
@@ -134,7 +135,7 @@ class FileService:
         conversation.file_ids.remove(file_id)
         conversation_crud.update_conversation(self.session, conversation)
         file_crud.delete_file(self.session, file_id)
-        return        
+        return
 
     def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
         # currently DB only, implement and fetch from compass after
@@ -157,7 +158,9 @@ class FileService:
     def delete_file(self, session: DBSessionDep, file_id: str, user_id: str) -> None:
         file_crud.delete_file(session, file_id, user_id)
 
-    def bulk_delete_files(self, session: DBSessionDep, file_ids: list[str], user_id: str) -> None:
+    def bulk_delete_files(
+        self, session: DBSessionDep, file_ids: list[str], user_id: str
+    ) -> None:
         file_crud.bulk_delete_files(session, file_ids, user_id)
 
     def get_message_files(
