@@ -31,10 +31,14 @@ export const AgentsList: React.FC = () => {
     agents: { isAgentsSidePanelOpen },
     setAgentsSidePanelOpen,
   } = useAgentsStore();
-  const recentAgents = conversations
-    .sort(sortByDate)
-    .map((conversation) => agents.find((agent) => agent.id === conversation.agent_id))
-    .filter((agent, index, self) => self.indexOf(agent) === index);
+  const recentAgents = useMemo(
+    () =>
+      conversations
+        .sort(sortByDate)
+        .map((conversation) => agents.find((agent) => agent.id === conversation.agent_id))
+        .filter((agent, index, self) => self.indexOf(agent) === index),
+    [agents, conversations]
+  );
 
   return (
     <div className="flex flex-col gap-8">
