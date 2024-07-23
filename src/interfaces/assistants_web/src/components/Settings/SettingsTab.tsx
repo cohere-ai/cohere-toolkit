@@ -19,14 +19,10 @@ export const SettingsTab: React.FC = () => {
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { models } = useModels(deployment ?? '');
-  const modelOptions = [
-    {
-      options: models.map((model) => ({
-        label: model,
-        value: model,
-      })),
-    },
-  ];
+  const modelOptions = models.map((model) => ({
+    label: model,
+    value: model,
+  }));
 
   const reset = () => {
     setParams({
@@ -50,10 +46,9 @@ export const SettingsTab: React.FC = () => {
       <Dropdown
         className="w-full"
         label="Model"
-        kind="default"
         value={model}
         onChange={(model: string) => setParams({ model })}
-        optionGroups={modelOptions}
+        options={modelOptions}
       />
       <Slider
         className="w-full"
