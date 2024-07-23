@@ -18,13 +18,13 @@ export const Textarea: React.FC<Props> = forwardRef<HTMLTextAreaElement, Props>(
     return (
       <Field className="flex flex-col gap-y-2">
         {label && (
-          <Label className="flex items-start gap-x-2">
+          <Label>
             <Text styleAs="label" className="dark:text-marble-950">
               {label}
             </Text>
           </Label>
         )}
-        <div className="relative flex w-full items-center gap-x-2">
+        <div className="relative flex w-full">
           <textarea
             ref={ref}
             value={value}
@@ -32,12 +32,9 @@ export const Textarea: React.FC<Props> = forwardRef<HTMLTextAreaElement, Props>(
               'rounded-lg border border-volcanic-500',
               'w-full px-3 py-[18px]',
               'outline-none',
-              'bg-white focus:bg-marble-950',
-              'placeholder:text-volcanic-500',
-              'disabled:bg-volcanic-800 disabled:text-volcanic-300',
-              'dark:placeholder:text-volcanic-600',
-              'dark:bg-volcanic-100 dark:text-marble-950 dark:focus:bg-volcanic-150',
-              'dark:disabled:bg-volcanic-300 dark:disabled:text-volcanic-600',
+              'bg-white focus:bg-marble-950 dark:bg-volcanic-100 dark:text-marble-950 dark:focus:bg-volcanic-150',
+              'placeholder:text-volcanic-500 dark:placeholder:text-volcanic-600',
+              'disabled:bg-volcanic-800 disabled:text-volcanic-300 dark:disabled:bg-volcanic-300 dark:disabled:text-volcanic-600',
               STYLE_LEVEL_TO_CLASSES.p,
               className
             )}

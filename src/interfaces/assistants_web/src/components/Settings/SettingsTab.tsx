@@ -1,6 +1,13 @@
 'use client';
 
-import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
+import {
+  Dropdown,
+  InputLabel,
+  STYLE_LEVEL_TO_CLASSES,
+  Slider,
+  Text,
+  Textarea,
+} from '@/components/Shared';
 import { useModels } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSettingsDefaults } from '@/hooks/settings';
@@ -63,21 +70,11 @@ export const SettingsTab: React.FC = () => {
       />
 
       <InputLabel label="Preamble">
-        <textarea
+        <Textarea
           value={preamble}
           placeholder="e.g. You are Coral, a large language model trained to have polite, helpful, inclusive conversations with people."
-          className={cn(
-            'mt-2 w-full flex-1 resize-none p-3',
-            'transition ease-in-out',
-            'rounded-lg border',
-            'bg-marble-1000',
-            'border-marble-800 placeholder:text-volcanic-600 focus:border-mushroom-400',
-            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
-            STYLE_LEVEL_TO_CLASSES.p
-          )}
           rows={5}
           onChange={(e) => setParams({ preamble: e.target.value })}
-          data-testid="input-preamble"
         />
       </InputLabel>
 
