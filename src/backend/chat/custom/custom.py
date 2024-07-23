@@ -163,7 +163,6 @@ class CustomChat(BaseChat):
                 chat_request.chat_history = self.add_files_to_chat_history(
                     chat_request.chat_history,
                     session,
-                    kwargs.get("user_id"),
                     files + agent_files,
                 )
         else:

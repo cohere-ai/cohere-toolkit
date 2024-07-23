@@ -274,7 +274,27 @@ async def search_conversations(
             if query.lower() in rerank_document.lower():
                 filtered_conversations.append(conversation)
 
-        return filtered_conversations
+        #TODO: scott make this a helper func
+        results = []
+        for conversation in filtered_conversations:
+            files = file_service.get_files_by_conversation_id(
+                session, user_id, conversation.id
+            )
+
+            results.append(
+                ConversationWithoutMessages(
+                    id=conversation.id,
+                    user_id=user_id,
+                    created_at=conversation.created_at,
+                    updated_at=conversation.updated_at,
+                    title=conversation.title,
+                    files=files,
+                    description=conversation.description,
+                    agent_id=conversation.agent_id,
+                    messages=[],
+                )
+            )
+        return results
 
     # Rerank documents
     res = await model_deployment.invoke_rerank(
@@ -295,7 +315,27 @@ async def search_conversations(
         if r["relevance_score"] > SEARCH_RELEVANCE_THRESHOLD
     ]
 
-    return reranked_conversations
+    results = []
+    for conversation in reranked_conversations:
+        files = file_service.get_files_by_conversation_id(
+            session, user_id, conversation.id
+        )
+
+        results.append(
+            ConversationWithoutMessages(
+                id=conversation.id,
+                user_id=user_id,
+                created_at=conversation.created_at,
+                updated_at=conversation.updated_at,
+                title=conversation.title,
+                files=files,
+                description=conversation.description,
+                agent_id=conversation.agent_id,
+                messages=[],
+            )
+        )
+
+    return results
 
 
 # FILES
