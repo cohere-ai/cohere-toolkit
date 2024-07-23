@@ -154,6 +154,10 @@ class CustomChat(BaseChat):
                     session, user_id, kwargs.get("conversation_id")
                 )
 
+                print("FILES")
+                print(files)
+
+                agent_files = []
                 if agent_id:
                     agent_files = file_service.get_files_by_agent_id(
                         session, user_id, agent_id
@@ -161,7 +165,6 @@ class CustomChat(BaseChat):
 
                 chat_request.chat_history = self.add_files_to_chat_history(
                     chat_request.chat_history,
-                    kwargs.get("conversation_id"),
                     session,
                     kwargs.get("user_id"),
                     files + agent_files,
@@ -338,9 +341,7 @@ class CustomChat(BaseChat):
     def add_files_to_chat_history(
         self,
         chat_history: List[Dict[str, str]],
-        conversation_id: str,
         session: Any,
-        user_id: str,
         files: list[File],
     ) -> List[Dict[str, str]]:
         if session is None or len(files) == 0:
