@@ -469,16 +469,14 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     )
 
     conversation = session_chat.get(Conversation, (conversation.id, user.id))
-
+    print(conversation.messages)
     assert response.status_code == 200
     assert conversation is not None
-    # Files now linked to same user message
-    assert file1.message_id is not None
-    assert file2.message_id is not None
-    assert file1.message_id == file2.message_id
-    message = session_chat.get(Message, file1.message_id)
+    message = conversation.messages[0]
     assert message is not None
     assert message.agent == MessageAgent.USER
+    assert (file1.id in message.file_ids) == True
+    assert (file2.id in message.file_ids) == True
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 2
     )

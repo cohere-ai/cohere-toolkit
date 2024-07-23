@@ -154,9 +154,6 @@ class CustomChat(BaseChat):
                     session, user_id, kwargs.get("conversation_id")
                 )
 
-                print("FILES")
-                print(files)
-
                 agent_files = []
                 if agent_id:
                     agent_files = file_service.get_files_by_agent_id(
