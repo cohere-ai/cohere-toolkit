@@ -4,7 +4,14 @@ from fastapi import APIRouter
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
-
+from backend.crud import agent as agent_crud
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_agent_tool_metadata_to_request_state,
+    add_default_agent_to_request_state,
+    add_event_type_to_request_state,
+    add_session_user_to_request_state,
+)
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
@@ -99,6 +106,12 @@ async def list_conversations(
         list[ConversationWithoutMessages]: List of conversations.
     """
     user_id = get_header_user_id(request)
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent:
+            add_agent_to_request_state(request, agent)
+    else:
+        add_default_agent_to_request_state(request)
 
     return conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -187,6 +200,13 @@ async def search_conversations(
     deployment_name = request.headers.get("Deployment-Name", "")
     model_deployment = get_deployment(deployment_name)
     trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
+
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent:
+            add_agent_to_request_state(request, agent)
+    else:
+        add_default_agent_to_request_state(request)
 
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -482,6 +502,14 @@ async def generate_title(
 
     agent_id = conversation.agent_id if conversation.agent_id else None
     trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent:
+            add_agent_to_request_state(request, agent)
+    else:
+        add_default_agent_to_request_state(request)
+    
     deployment_name = request.headers.get("Deployment-Name", "")
     model_config = get_deployment_config(request)
 
