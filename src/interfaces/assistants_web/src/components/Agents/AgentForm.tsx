@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
-import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
+import { Checkbox, Input, InputLabel, Text, Textarea } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
@@ -65,18 +65,15 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
     <div className={cn('flex flex-col gap-y-4', className)}>
       <RequiredInputLabel label="name" className="pb-2">
         <Input
-          kind="default"
           value={fields.name ?? ''}
           placeholder="Give your assistant a name"
           onChange={(e) => setFields((prev) => ({ ...prev, name: e.target.value }))}
-          hasError={!!errors?.name}
           errorText={errors?.name}
           disabled={!isAgentCreator}
         />
       </RequiredInputLabel>
       <InputLabel label="description" className="pb-2">
         <Input
-          kind="default"
           value={fields.description ?? ''}
           placeholder="What does your assistant do?"
           onChange={(e) => setFields((prev) => ({ ...prev, description: e.target.value }))}
@@ -84,25 +81,11 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         />
       </InputLabel>
       <InputLabel label="Instructions">
-        <textarea
+        <Textarea
           value={fields.preamble ?? ''}
           placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
-          className={cn(
-            'mt-2 w-full flex-1 resize-none p-3',
-            'transition ease-in-out',
-            'rounded-lg border',
-            'bg-marble-1000',
-            'border-marble-800 placeholder:text-volcanic-600 focus:border-mushroom-400',
-            'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
-            'disabled:text-volcanic-700',
-            {
-              'border-marble-800 bg-marble-950': !isAgentCreator,
-            },
-            STYLE_LEVEL_TO_CLASSES.p
-          )}
           rows={5}
           onChange={(e) => setFields((prev) => ({ ...prev, preamble: e.target.value }))}
-          data-testid="input-preamble"
           disabled={!isAgentCreator}
         />
       </InputLabel>
