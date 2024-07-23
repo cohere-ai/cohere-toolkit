@@ -1,9 +1,9 @@
 import os
 from typing import Any, Dict, List
 
-from backend.config.settings import Settings
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
+from backend.config.settings import Settings
 from community.tools import BaseTool
 
 

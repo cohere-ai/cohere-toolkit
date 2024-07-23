@@ -96,6 +96,7 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
 
     return ALL_MODEL_DEPLOYMENTS
 
+
 def get_default_deployment(**kwargs) -> ModelDeploymentName:
     # Fallback to the first available deployment
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():

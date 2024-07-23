@@ -3,9 +3,9 @@ import logging
 import os
 import uuid
 
-from backend.config.settings import Settings
 import jwt
 
+from backend.config.settings import Settings
 from backend.services.logger import get_logger
 
 logger = get_logger()

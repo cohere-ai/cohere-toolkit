@@ -2,13 +2,13 @@ import os
 from distutils.util import strtobool
 from typing import Any, Generator
 
-from backend.config.settings import Settings
 from fastapi import APIRouter, Depends, Header, Request
 from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest

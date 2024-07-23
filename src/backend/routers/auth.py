@@ -3,13 +3,13 @@ import os
 from typing import Union
 from urllib.parse import quote
 
-from backend.config.settings import Settings
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist

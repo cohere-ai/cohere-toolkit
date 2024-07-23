@@ -1,10 +1,10 @@
 import os
 from distutils.util import strtobool
 
-from backend.config.settings import Settings
 from fastapi import APIRouter
 
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 
 router = APIRouter(
     prefix="/v1/experimental_features",
@@ -24,6 +24,6 @@ def list_experimental_features():
 
     experimental_features = {
         "USE_EXPERIMENTAL_LANGCHAIN": Settings().feature_flags.use_experimental_langchain,
-        "USE_AGENTS_VIEW":  Settings().feature_flags.use_agents_view,
+        "USE_AGENTS_VIEW": Settings().feature_flags.use_agents_view,
     }
     return experimental_features

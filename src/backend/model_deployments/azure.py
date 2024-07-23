@@ -1,9 +1,10 @@
 import os
 from typing import Any, AsyncGenerator, Dict, List
 
-from backend.config.settings import Settings
 import cohere
+
 from backend.chat.collate import to_dict
+from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -25,7 +26,7 @@ class AzureDeployment(BaseDeployment):
     DEFAULT_MODELS = ["azure-command"]
 
     azure_config = Settings().deployments.azure
-    default_api_key =   azure_config.api_key   
+    default_api_key = azure_config.api_key
     default_chat_endpoint_url = azure_config.endpoints_url
 
     def __init__(self, **kwargs: Any):

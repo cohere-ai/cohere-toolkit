@@ -1,12 +1,12 @@
 import os
 from typing import Annotated, Any, Generator
 
-from backend.config.settings import Settings
 from dotenv import load_dotenv
 from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from backend.config.settings import Settings
 
 load_dotenv()
 

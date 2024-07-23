@@ -2,9 +2,9 @@ import io
 import json
 from typing import Any, AsyncGenerator, Dict, List
 
-from backend.config.settings import Settings
 import boto3
 
+from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -35,9 +35,9 @@ class SageMakerDeployment(BaseDeployment):
     sagemaker_config = Settings().deployments.sagemaker
     endpoint = sagemaker_config.endpoint_name
     region_name = sagemaker_config.region_name
-    aws_access_key_id =  sagemaker_config.access_key
-    aws_secret_access_key =  sagemaker_config.secret_key
-    aws_session_token =  sagemaker_config.session_token
+    aws_access_key_id = sagemaker_config.access_key
+    aws_secret_access_key = sagemaker_config.secret_key
+    aws_session_token = sagemaker_config.session_token
 
     def __init__(self, **kwargs: Any):
         # Create the AWS client for the Bedrock runtime with boto3

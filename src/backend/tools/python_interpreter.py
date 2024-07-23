@@ -2,12 +2,12 @@ import json
 import os
 from typing import Any, Dict, Mapping
 
-from backend.config.settings import Settings
 import requests
 from dotenv import load_dotenv
 from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
+from backend.config.settings import Settings
 from backend.tools.base import BaseTool
 
 load_dotenv()

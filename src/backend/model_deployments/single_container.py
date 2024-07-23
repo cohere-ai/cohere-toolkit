@@ -1,11 +1,11 @@
 import os
 from typing import Any, AsyncGenerator, Dict, List
 
-from backend.config.settings import Settings
 import cohere
 from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
+from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest

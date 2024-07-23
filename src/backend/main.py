@@ -2,7 +2,6 @@ import os
 
 from alembic.command import upgrade
 from alembic.config import Config
-from backend.config.settings import Settings
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +14,7 @@ from backend.config.auth import (
     verify_migrate_token,
 )
 from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.config.settings import Settings
 from backend.routers.agent import default_agent_router
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
