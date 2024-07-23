@@ -57,7 +57,7 @@ export const EnabledDataSources: React.FC<Props> = ({ isStreaming }) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex gap-2 overflow-scroll">
       {enabledDocuments?.map((d, i) => (
         <DataSourceChip
           key={`doc-${i}`}
