@@ -5,13 +5,17 @@ from typing import Any, Dict, List
 from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
+from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.tools.base import BaseTool
 
 
 class TavilyInternetSearch(BaseTool):
     NAME = "web_search"
-    TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
+    tool_config = Configuration.get_tool_config(NAME)
+    TAVILY_API_KEY = get_config_value(
+        tool_config, "api_key", os.environ.get("TAVILY_API_KEY")
+    )
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)

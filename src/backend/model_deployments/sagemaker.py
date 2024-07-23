@@ -33,7 +33,9 @@ class SageMakerDeployment(BaseDeployment):
     DEFAULT_MODELS = ["sagemaker-command"]
 
     sagemaker_config = Configuration.get_deployment_config("sagemaker")
-    endpoint = get_config_value(sagemaker_config, "endpoint_name", SAGE_MAKER_ENDPOINT_NAME_ENV_VAR)
+    endpoint = get_config_value(
+        sagemaker_config, "endpoint_name", SAGE_MAKER_ENDPOINT_NAME_ENV_VAR
+    )
     region_name = get_config_value(
         sagemaker_config, "region_name", SAGE_MAKER_REGION_NAME_ENV_VAR
     )
@@ -51,10 +53,26 @@ class SageMakerDeployment(BaseDeployment):
         # Create the AWS client for the Bedrock runtime with boto3
         self.client = boto3.client(
             "sagemaker-runtime",
-            region_name=get_model_config_var(SAGE_MAKER_REGION_NAME_ENV_VAR, SageMakerDeployment.region_name, **kwargs),
-            aws_access_key_id=get_model_config_var(SAGE_MAKER_ACCESS_KEY_ENV_VAR, SageMakerDeployment.aws_access_key_id, **kwargs),
-            aws_secret_access_key=get_model_config_var(SAGE_MAKER_SECRET_KEY_ENV_VAR, SageMakerDeployment.aws_secret_access_key, **kwargs),
-            aws_session_token=get_model_config_var(SAGE_MAKER_SESSION_TOKEN_ENV_VAR, SageMakerDeployment.aws_session_token, **kwargs),
+            region_name=get_model_config_var(
+                SAGE_MAKER_REGION_NAME_ENV_VAR,
+                SageMakerDeployment.region_name,
+                **kwargs
+            ),
+            aws_access_key_id=get_model_config_var(
+                SAGE_MAKER_ACCESS_KEY_ENV_VAR,
+                SageMakerDeployment.aws_access_key_id,
+                **kwargs
+            ),
+            aws_secret_access_key=get_model_config_var(
+                SAGE_MAKER_SECRET_KEY_ENV_VAR,
+                SageMakerDeployment.aws_secret_access_key,
+                **kwargs
+            ),
+            aws_session_token=get_model_config_var(
+                SAGE_MAKER_SESSION_TOKEN_ENV_VAR,
+                SageMakerDeployment.aws_session_token,
+                **kwargs
+            ),
         )
         self.params = {
             "EndpointName": get_model_config_var(

@@ -1,6 +1,9 @@
 from typing import Any
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, get_default_deployment
+from backend.config.deployments import (
+    AVAILABLE_MODEL_DEPLOYMENTS,
+    get_default_deployment,
+)
 from backend.model_deployments.base import BaseDeployment
 
 

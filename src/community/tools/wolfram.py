@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
+from backend.config.config import Configuration, get_config_value
 from community.tools import BaseTool
 
 
@@ -15,7 +16,10 @@ class WolframAlpha(BaseTool):
 
     NAME = "wolfram_alpha"
 
-    wolfram_app_id = os.environ.get("WOLFRAM_APP_ID")
+    tool_config = Configuration.get_tool_config(NAME)
+    wolfram_app_id = get_config_value(
+        tool_config, "app_id", os.environ.get("WOLFRAM_APP_ID")
+    )
 
     def __init__(self):
         self.app_id = self.wolfram_app_id

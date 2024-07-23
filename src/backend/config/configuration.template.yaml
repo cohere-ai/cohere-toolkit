@@ -14,6 +14,9 @@ deployments:
     endpoint_url: https://cohere-ai.azurewebsites.net
   bedrock:
     region_name: us-west-2
+  single_container:
+    model: 
+    url:
 database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
 tools: 
@@ -43,6 +46,7 @@ feature_flags:
 auth:
   enabled_auth:
     - basic
+  backend_hostname: http://localhost:8000
   frontend_hostname: http://localhost:4000
   google_oauth: 
   oidc: 

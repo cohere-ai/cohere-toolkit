@@ -4,10 +4,14 @@ import os
 
 from cryptography.fernet import Fernet
 
+from backend.config.config import Configuration, get_config_value
+
 
 def get_cipher() -> Fernet:
     # 1. Get env var
-    auth_key = os.getenv("AUTH_SECRET_KEY")
+    auth_key = get_config_value(
+        Configuration.auth_config, "secret_key", os.getenv("AUTH_SECRET_KEY")
+    )
     # 2. Hash env var using SHA-256
     hash_digest = hashlib.sha256(auth_key.encode()).digest()
     # 3. Base64 encode hash and get 32-byte key

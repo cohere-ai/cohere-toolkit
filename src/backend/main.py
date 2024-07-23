@@ -2,7 +2,6 @@ import os
 
 from alembic.command import upgrade
 from alembic.config import Config
-from backend.config.config import Configuration, get_config_value
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +13,7 @@ from backend.config.auth import (
     is_authentication_enabled,
     verify_migrate_token,
 )
+from backend.config.config import Configuration, get_config_value
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.routers.agent import default_agent_router
 from backend.routers.agent import router as agent_router
@@ -57,10 +57,10 @@ def create_app():
     dependencies_type = "default"
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
-        auth_secret = get_config_value(Configuration.auth_config,'secret_key', "AUTH_SECRET_KEY")
-        app.add_middleware(
-            SessionMiddleware, secret_key=auth_secret
+        auth_secret = get_config_value(
+            Configuration.auth_config, "secret_key", "AUTH_SECRET_KEY"
         )
+        app.add_middleware(SessionMiddleware, secret_key=auth_secret)
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():

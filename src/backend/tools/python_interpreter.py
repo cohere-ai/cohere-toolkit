@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
+from backend.config.config import Configuration, get_config_value
 from backend.tools.base import BaseTool
 
 load_dotenv()
@@ -23,7 +24,8 @@ class PythonInterpreter(BaseTool):
     """
 
     NAME = "toolkit_python_interpreter"
-    INTERPRETER_URL = os.environ.get("PYTHON_INTERPRETER_URL")
+    tool_config = Configuration.get_tool_config(NAME)
+    INTERPRETER_URL = get_config_value(tool_config, "url", "PYTHON_INTERPRETER_URL")
 
     @classmethod
     def is_available(cls) -> bool:

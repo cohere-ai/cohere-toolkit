@@ -1,11 +1,11 @@
 import os
 import sys
 
-from backend.config.config import Configuration, get_config_value
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from backend.config.config import Configuration, get_config_value
 from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 
 load_dotenv()
@@ -34,7 +34,9 @@ if "pytest" in sys.modules or SKIP_AUTH == "true":
 ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
 
 # Token to authorize migration requests
-MIGRATE_TOKEN = get_config_value(Configuration.database_config,'migrate_token', "MIGRATE_TOKEN")
+MIGRATE_TOKEN = get_config_value(
+    Configuration.database_config, "migrate_token", "MIGRATE_TOKEN"
+)
 
 security = HTTPBearer()
 

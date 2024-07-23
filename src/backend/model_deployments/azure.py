@@ -10,6 +10,7 @@ from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
+from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -30,14 +31,25 @@ class AzureDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["azure-command"]
 
+    azure_config = Configuration.get_deployment_config("azure")
+    default_api_key = get_config_value(
+        azure_config, "api_key", os.environ.get(AZURE_API_KEY_ENV_VAR)
+    )
+    default_chat_endpoint_url = get_config_value(
+        azure_config, "endpoint_url", os.environ.get(AZURE_CHAT_URL_ENV_VAR)
+    )
+
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
-        self.api_key = get_model_config_var(AZURE_API_KEY_ENV_VAR, **kwargs)
-        self.chat_endpoint_url = get_model_config_var(AZURE_CHAT_URL_ENV_VAR, **kwargs)
+        self.api_key = get_model_config_var(
+            AZURE_API_KEY_ENV_VAR, AzureDeployment.default_api_key, **kwargs
+        )
+        self.chat_endpoint_url = get_model_config_var(
+            AZURE_CHAT_URL_ENV_VAR, AzureDeployment.default_chat_endpoint_url, **kwargs
+        )
 
         if not self.chat_endpoint_url.endswith("/v1"):
             self.chat_endpoint_url = self.chat_endpoint_url + "/v1"
-        print("Azure chat endpoint url: ", self.chat_endpoint_url)
         self.client = cohere.Client(
             base_url=self.chat_endpoint_url, api_key=self.api_key
         )
@@ -55,7 +67,10 @@ class AzureDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all([os.environ.get(var) is not None for var in AZURE_ENV_VARS])
+        return (
+            AzureDeployment.default_api_key is not None
+            and AzureDeployment.default_chat_endpoint_url is not None
+        )
 
     async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         response = self.client.chat(
@@ -64,7 +79,7 @@ class AzureDeployment(BaseDeployment):
         yield to_dict(response)
 
     async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest
+        self, chat_request: CohereChatRequest, **kwargs
     ) -> AsyncGenerator[Any, Any]:
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),

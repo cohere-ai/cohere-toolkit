@@ -7,6 +7,8 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
+from backend.config.config import Configuration, get_config_value
+from backend.model_deployments.cohere_platform import COHERE_API_KEY_ENV_VAR
 from backend.tools.base import BaseTool
 
 """
@@ -58,7 +60,11 @@ class LangChainVectorDBRetriever(BaseTool):
     """
 
     NAME = "vector_retriever"
-    COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
+    COHERE_API_KEY = get_config_value(
+        Configuration.get_deployment_config("cohere_platform"),
+        "api_key",
+        COHERE_API_KEY_ENV_VAR,
+    )
 
     def __init__(self, filepath: str):
         self.filepath = filepath

@@ -3,6 +3,7 @@ from distutils.util import strtobool
 
 from fastapi import APIRouter
 
+from backend.config.config import get_feature_flag
 from backend.config.routers import RouterName
 
 router = APIRouter(
@@ -23,8 +24,12 @@ def list_experimental_features():
 
     experimental_features = {
         "USE_EXPERIMENTAL_LANGCHAIN": bool(
-            strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false"))
+            get_feature_flag(
+                "use_experimental_langchain", "USE_EXPERIMENTAL_LANGCHAIN", False
+            )
         ),
-        "USE_AGENTS_VIEW": bool(strtobool(os.getenv("USE_AGENTS_VIEW", "false"))),
+        "USE_AGENTS_VIEW": get_feature_flag(
+            "use_agents_view", "USE_AGENTS_VIEW", False
+        ),
     }
     return experimental_features

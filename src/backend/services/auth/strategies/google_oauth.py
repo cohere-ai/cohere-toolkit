@@ -4,8 +4,9 @@ import requests
 from authlib.integrations.requests_client import OAuth2Session
 from starlette.requests import Request
 
+from backend.config.config import Configuration
+from backend.config.settings import Settings
 from backend.services.auth.strategies.base import BaseOAuthStrategy
-from backend.services.auth.strategies.settings import Settings
 
 
 class GoogleOAuthSettings(Settings):

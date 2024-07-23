@@ -8,6 +8,7 @@ from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
+from backend.config.config import Configuration, get_config_value
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import blacklist as blacklist_crud
@@ -216,7 +217,11 @@ async def login(request: Request, session: DBSessionDep):
     Raises:
         HTTPException: If no redirect_uri set.
     """
-    redirect_uri = os.getenv("FRONTEND_HOSTNAME")
+    redirect_uri = get_config_value(
+        Configuration.auth_config,
+        "frontend_hostname",
+        os.getenv("FRONTEND_HOSTNAME"),
+    )
 
     if not redirect_uri:
         raise HTTPException(

@@ -10,15 +10,23 @@ deployments:
     region_name: us-west-2
     endpoint_name: cohere-command-r
   azure: 
-    endpoint_url: https://cohere-ai.azurewebsites.net
+    endpoint_url: https://Cohere-command-r-wcrzo.eastus.models.ai.azure.com/v1
   bedrock:
     region_name: us-west-2
+  single_container: 
+    model: 
+    url:
 database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
 tools:
   enabled_tools:
-    - wikipedia
-  python_interpreter: 
+    - search_file
+    - read_document
+    - toolkit_python_interpreter
+    - toolkit_calculator
+    - web_search
+    - web_scrape
+  toolkit_python_interpreter: 
     url: http://terrarium:8080
   compass:
     api_url: 
@@ -30,8 +38,9 @@ feature_flags:
   # Community features
   use_community_features: true
 auth:
-  enabled_auth:
-    - basic
+  enabled_auth: 
+    - oidc
+  backend_hostname: http://localhost:8000
   frontend_hostname: http://localhost:4000
 
 

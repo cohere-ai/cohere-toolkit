@@ -3,8 +3,10 @@
 # fix the CLI
 # fix docker and deployments
 import os
+from distutils.util import strtobool
 
 import yaml
+
 
 # TODO have enabling different deployments, tools, auth configs
 class Configuration:
@@ -36,8 +38,16 @@ class Configuration:
 
     @classmethod
     def merge_configs(cls, config_name: str, filter_name: str) -> dict:
-        config = cls.configuration.get(config_name).get(filter_name) if cls.configuration.get(config_name) is not None else None
-        secrets = cls.secrets.get(config_name).get(filter_name) if cls.secrets.get(config_name) is not None else None
+        config = (
+            cls.configuration.get(config_name).get(filter_name)
+            if cls.configuration.get(config_name) is not None
+            else None
+        )
+        secrets = (
+            cls.secrets.get(config_name).get(filter_name)
+            if cls.secrets.get(config_name) is not None
+            else None
+        )
         # If we have secrets as well as config combine them
         # Otherwise return the one that is not None
         if config is not None and secrets is not None:
@@ -49,3 +59,13 @@ def get_config_value(config: dict, config_name: str, env_var: str) -> str:
     return (
         config.get(config_name) if config.get(config_name) else os.environ.get(env_var)
     )
+
+
+def get_feature_flag(flag_name: str, env_name: str, default: bool) -> bool:
+    return False
+    config_value = get_config_value(
+        Configuration.feature_flags, flag_name, os.getenv(env_name)
+    )
+    if config_value is not None:
+        return bool(strtobool(config_value))
+    return default
