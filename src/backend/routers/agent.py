@@ -59,6 +59,7 @@ async def create_agent(
 ) -> AgentPublic:
     """
     Create an agent.
+
     Args:
         session (DBSessionDep): Database session.
         agent (CreateAgentRequest): Agent data.
@@ -68,7 +69,7 @@ async def create_agent(
     Raises:
         HTTPException: If the agent creation fails.
     """
-    # add user data into request state for metrics
+    # Add user data into request state for metrics
     add_event_type_to_request_state(request, MetricsMessageType.ASSISTANT_CREATED)
     user_id = get_header_user_id(request)
     add_session_user_to_request_state(request, session)

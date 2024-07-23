@@ -7,7 +7,7 @@ up:
 down:
 	@docker compose down
 run-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
+	docker compose run --build backend poetry run pytest src/backend/tests/
 run-agent-router-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_agent.py
 run-user-router-tests:
@@ -24,6 +24,8 @@ migration:
 	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate
 migrate:
 	docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
+downgrade:
+	docker compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
 reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db

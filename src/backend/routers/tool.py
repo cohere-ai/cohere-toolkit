@@ -27,7 +27,8 @@ def list_tools(
         list[ManagedTool]: List of available tools.
     """
     all_tools = AVAILABLE_TOOLS.values()
-    if agent_id:
+
+    if agent_id is not None:
         agent_tools = []
         agent = agent_crud.get_agent_by_id(session, agent_id)
 
