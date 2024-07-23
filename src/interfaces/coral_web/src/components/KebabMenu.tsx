@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Menu,
   MenuButton,
@@ -35,7 +37,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
       {({ open }) => (
         <>
           <MenuButton
-            className={cn('flex cursor-pointer p-0 text-secondary-800', className, {
+            className={cn('flex cursor-pointer p-0 text-mushroom-300', className, {
               // Always override styles and show the kebab button if the menu is open
               flex: open,
             })}
@@ -50,7 +52,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
             enterFrom="opacity-0"
             enterTo="opacity-100"
             className={cn(
-              'z-menu divide-y divide-marble-400 rounded-md bg-marble-100 p-2',
+              'z-menu divide-y divide-marble-950 rounded-md bg-marble-1000 p-2',
               'min-w-menu shadow-menu',
               'transition-opacity ease-in-out',
               { hidden: !open }
@@ -64,7 +66,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
                       key={label}
                       as={href ? Link : 'button'}
                       className={cn(
-                        'group/menu-item flex w-full items-center gap-x-2 px-4 py-3 transition-colors ease-in-out hover:bg-secondary-100/80',
+                        'group/menu-item flex w-full items-center gap-x-2 px-4 py-3 transition-colors ease-in-out hover:bg-mushroom-900/80',
                         'cursor-pointer',
                         className,
                         {
@@ -82,7 +84,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
                         <Icon
                           name={iconName}
                           className={cn(
-                            'text-secondary-700 group-hover/menu-item:!font-iconDefault',
+                            'text-mushroom-400 group-hover/menu-item:!font-iconDefault',
                             className
                           )}
                           kind="outline"

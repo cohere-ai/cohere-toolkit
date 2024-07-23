@@ -1,3 +1,5 @@
+'use client';
+
 import { Field, Switch as HUSwitch, Label } from '@headlessui/react';
 
 import { Text } from '@/components/Shared';
@@ -28,7 +30,7 @@ export const Switch: React.FC<Props> = ({
 }) => {
   return (
     <div className="group flex items-center">
-      {displayChecked && <Text className="w-8 text-volcanic-700">{checked ? 'On' : 'Off'}</Text>}
+      {displayChecked && <Text className="w-8 text-volcanic-400">{checked ? 'On' : 'Off'}</Text>}
       <Field>
         <div
           className={cn(
@@ -49,10 +51,10 @@ export const Switch: React.FC<Props> = ({
             className={cn(
               'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded border-2 border-transparent',
               'transition-colors duration-200 ease-in-out',
-              'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
-              'bg-secondary-500 group-hover:bg-secondary-400',
+              'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
+              'bg-mushroom-600 group-hover:bg-mushroom-700',
               {
-                'bg-secondary-100 group-hover:bg-secondary-200': !checked,
+                'bg-mushroom-900 group-hover:bg-mushroom-800': !checked,
               }
             )}
             data-testid={dataTestId}

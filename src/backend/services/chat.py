@@ -49,12 +49,13 @@ from backend.schemas.chat import (
     ToolInputType,
 )
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.conversation import UpdateConversation
-from backend.schemas.file import UpdateFile
+from backend.schemas.conversation import UpdateConversationRequest
+from backend.schemas.file import UpdateFileRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 from backend.services.generators import AsyncGeneratorContextManager
+from backend.services.metrics import report_streaming_event
 
 
 def process_chat(
@@ -374,7 +375,9 @@ def attach_files_to_messages(
         files = file_crud.get_files_by_ids(session, file_ids, user_id)
         for file in files:
             if file.message_id is None:
-                file_crud.update_file(session, file, UpdateFile(message_id=message_id))
+                file_crud.update_file(
+                    session, file, UpdateFileRequest(message_id=message_id)
+                )
 
 
 def create_chat_history(
@@ -434,7 +437,7 @@ def update_conversation_after_turn(
 
     # Update conversation description with final message
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-    new_conversation = UpdateConversation(
+    new_conversation = UpdateConversationRequest(
         description=final_message_text,
         user_id=conversation.user_id,
     )
@@ -482,6 +485,7 @@ def save_tool_calls_message(
 
 
 async def generate_chat_response(
+    request: Request,
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
@@ -496,6 +500,7 @@ async def generate_chat_response(
     return only the final step as a non-streamed response.
 
     Args:
+        request (Request): request object.
         session (DBSessionDep): Database session.
         model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
         response_message (Message): Response message object.
@@ -508,6 +513,7 @@ async def generate_chat_response(
         bytes: Byte representation of chat response event.
     """
     stream = generate_chat_stream(
+        request,
         session,
         model_deployment_stream,
         response_message,
@@ -544,6 +550,7 @@ async def generate_chat_response(
 
 
 async def generate_chat_stream(
+    request: Request,
     session: DBSessionDep,
     model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
@@ -584,6 +591,7 @@ async def generate_chat_stream(
 
     stream_event = None
     async for event in model_deployment_stream:
+        report_streaming_event(request, event)
         (
             stream_event,
             stream_end_data,

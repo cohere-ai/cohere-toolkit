@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
-from backend.schemas.agent import UpdateAgent
+from backend.schemas.agent import UpdateAgentRequest
 from backend.services.transaction import validate_transaction
 
 
@@ -81,7 +81,7 @@ def get_agents(
     return query.all()
 
 
-def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
+def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Agent:
     """
     Update an agent.
 

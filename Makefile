@@ -3,15 +3,11 @@ dev:
 watch:
 	@docker compose watch --no-up
 up:
-	@docker compose up
+	@docker compose up --build
 down:
 	@docker compose down
 run-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
-run-agent-router-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_agent.py
-run-user-router-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_user.py
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
 attach: 

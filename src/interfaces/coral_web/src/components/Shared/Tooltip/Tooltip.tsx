@@ -1,3 +1,5 @@
+'use client';
+
 import {
   FloatingPortal,
   Placement,
@@ -91,7 +93,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
           className={cx(
             'flex h-full items-center',
             {
-              'focus:rounded focus:outline focus:outline-1 focus:outline-offset-2 focus:outline-volcanic-700':
+              'focus:rounded focus:outline focus:outline-1 focus:outline-offset-2 focus:outline-volcanic-400':
                 showOutline,
             },
             buttonClassName
@@ -114,7 +116,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             <Icon
               name="information"
               kind="outline"
-              className={cx(iconClassName || 'text-volcanic-800', {
+              className={cx(iconClassName || 'text-volcanic-300', {
                 'hover:!font-iconDefault': hoverEnabled,
               })}
             />
@@ -127,8 +129,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
             className={cx(
               'z-tooltip',
               {
-                'max-w-[400px] rounded-sm border-none bg-secondary-900 px-1 py-0.5': size === 'sm',
-                'max-w-[300px] rounded border border-marble-400 bg-marble-200 px-4 py-2.5':
+                'max-w-[400px] rounded-sm border-none bg-mushroom-150 px-1 py-0.5': size === 'sm',
+                'max-w-[300px] rounded border border-marble-950 bg-marble-980 px-4 py-2.5':
                   size === 'md',
               },
               className
@@ -142,7 +144,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             {...getFloatingProps()}
           >
             {size === 'sm' ? (
-              <Text as="span" styleAs="p-sm" className="flex text-marble-300">
+              <Text as="span" styleAs="p-sm" className="flex text-marble-950">
                 {label}
               </Text>
             ) : (

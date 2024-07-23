@@ -1,5 +1,7 @@
+'use client';
+'use client';
+
 import { Transition } from '@headlessui/react';
-import { capitalize } from 'lodash';
 import React, { Children, PropsWithChildren, useContext, useEffect, useState } from 'react';
 
 import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
@@ -10,7 +12,6 @@ import { NavigationUserMenu } from '@/components/NavigationUserMenu';
 import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
 import { Banner } from '@/components/Shared';
 import { NavigationBar } from '@/components/Shared/NavigationBar/NavigationBar';
-import { PageHead } from '@/components/Shared/PageHead';
 import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useSession } from '@/hooks/session';
@@ -20,16 +21,14 @@ import { cn } from '@/utils/cn';
 export const LeftSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
 export const MainSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
 
-type LayoutProps = {
-  title?: string;
-} & PropsWithChildren;
+type LayoutProps = {} & PropsWithChildren;
 
 /**
  * This component is in charge of layout out the entire page.
  * It shows the navigation bar, the left drawer and main content.
  * On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
-export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { message: bannerMessage } = useContext(BannerContext);
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
@@ -66,8 +65,7 @@ export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
 
   return (
     <>
-      <PageHead title={capitalize(title)} />
-      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
+      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3">
         <NavigationBar>
           <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
@@ -107,7 +105,7 @@ export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
               'lg:transition-[min-width,max-width,margin,opacity,border-width] lg:duration-300',
               'w-full',
               'flex flex-grow flex-col rounded-lg border',
-              'border-marble-400 bg-marble-100'
+              'border-marble-950 bg-marble-1000'
             )}
           >
             {leftDrawerElement}
@@ -129,7 +127,7 @@ export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
               className={cn(
                 'relative flex h-full min-w-0 flex-grow flex-col',
                 'rounded-lg border',
-                'border-marble-400 bg-marble-100',
+                'border-marble-950 bg-marble-1000',
                 'overflow-hidden'
               )}
             >
@@ -176,8 +174,7 @@ export const AgentsLayout: React.FC<AgentsLayoutProps> = ({
 
   return (
     <>
-      <PageHead title={capitalize(title)} />
-      <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-secondary-100 p-3">
+      <div className="dark:bg-vb-60 flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3">
         <div
           className={cn(
             'relative flex h-full flex-grow flex-col flex-nowrap gap-3 overflow-hidden lg:flex-row'
@@ -189,7 +186,7 @@ export const AgentsLayout: React.FC<AgentsLayoutProps> = ({
             className={cn(
               'relative flex h-full min-w-0 flex-grow flex-col',
               'rounded-lg border',
-              'border-marble-400 bg-marble-100',
+              'border-marble-950 bg-marble-1000',
               'overflow-hidden'
             )}
           >

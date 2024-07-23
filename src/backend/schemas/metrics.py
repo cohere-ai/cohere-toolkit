@@ -6,6 +6,10 @@ from typing import Any
 from pydantic import BaseModel
 
 
+class GenericResponseMessage(BaseModel):
+    message: str
+
+
 class MetricsMessageType(str, Enum):
     # users: implemented, has tests
     USER_CREATED = "user_created"
@@ -16,13 +20,13 @@ class MetricsMessageType(str, Enum):
     ASSISTANT_UPDATED = "assistant_updated"
     ASSISTANT_DELETED = "assistant_deleted"
     ASSISTANT_ACCESSED = "assistant_accessed"
-    # chat: implemented
+    # implemented, has tests
     CHAT_API_SUCCESS = "chat_api_call_success"
+    # implemented, needs tests
     CHAT_API_FAIL = "chat_api_call_failure"
-    # rerank: implemented
+    # pending implementation
     RERANK_API_SUCCESS = "rerank_api_call_success"
     RERANK_API_FAIL = "rerank_api_call_failure"
-    # pending implementation
     ENV_LIVENESS = "env_liveness"
     COMPASS_NEW_INDEX = "compass_new_index"
     COMPASS_REMOVE_INDEX = "compass_remove_index"
@@ -36,7 +40,7 @@ class MetricsDataBase(BaseModel):
     user_id: str
     trace_id: str
     message_type: MetricsMessageType
-    timestamp: float = time.time()
+    timestamp: float
     secret: str = ""
 
 
@@ -57,14 +61,20 @@ class MetricsAgent(BaseModel):
     description: str | None
 
 
+class MetricsChat(BaseModel):
+    input_nb_tokens: int
+    output_nb_tokens: int
+    search_units: int
+    model: str
+    assistant_id: str
+
+
 class MetricsData(MetricsDataBase):
-    success: bool = False
     input_nb_tokens: int | None = None
     output_nb_tokens: int | None = None
     search_units: int | None = None
     model: str | None = None
     error: str | None = None
-    object_ids: dict[str, str] | None = None
     duration_ms: float | None = None
     meta: dict[str, Any] | None = None
     assistant_id: str | None = None

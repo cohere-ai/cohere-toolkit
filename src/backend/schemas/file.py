@@ -19,19 +19,23 @@ class File(BaseModel):
         from_attributes = True
 
 
-class ListFile(File):
+class FilePublic(File):
+    user_id: Optional[str] = Field(exclude=True)
+
+
+class ListFile(FilePublic):
     pass
 
 
-class UploadFile(File):
+class UploadFileResponse(FilePublic):
     pass
 
 
-class DeleteFile(BaseModel):
+class DeleteFileResponse(BaseModel):
     pass
 
 
-class UpdateFile(BaseModel):
+class UpdateFileRequest(BaseModel):
     file_name: Optional[str] = None
     message_id: Optional[str] = None
 

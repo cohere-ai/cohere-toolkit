@@ -14,6 +14,7 @@ from backend.config.auth import (
     verify_migrate_token,
 )
 from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.routers.agent import default_agent_router
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
@@ -46,6 +47,7 @@ def create_app():
         deployment_router,
         experimental_feature_router,
         agent_router,
+        default_agent_router,
         snapshot_router,
     ]
 

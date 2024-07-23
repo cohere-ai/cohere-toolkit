@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 
@@ -82,7 +84,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
                 <Text
                   as="div"
                   styleAs="label"
-                  className="pb-1 pl-[26px] pr-3 pt-4 text-volcanic-600"
+                  className="pb-1 pl-[26px] pr-3 pt-4 text-volcanic-500"
                   {...flippedProps}
                 >
                   {c.weekHeading}

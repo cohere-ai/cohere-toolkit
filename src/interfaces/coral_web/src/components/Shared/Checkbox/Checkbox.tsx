@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import { Icon, InputLabel } from '@/components/Shared';
@@ -51,7 +53,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
       tabIndex={0}
       onKeyDown={handleKeyPress}
       className={cn(
-        'group relative rounded focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-900',
+        'group relative rounded focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100',
         'flex items-center',
         { 'min-h-[16px] min-w-[16px]': !label && size === 'md' },
         { 'min-h-[14px] min-w-[14px]': !label && size === 'sm' },
@@ -76,10 +78,10 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
           {
             'h-4 w-4': size === 'md',
             'h-3.5 w-3.5': size === 'sm',
-            'bg-primary-500 group-hover:bg-primary-400': checked && theme === 'primary',
-            'bg-secondary-600 group-hover:bg-secondary-500': checked && theme === 'secondary',
-            'cursor-not-allowed bg-marble-300': disabled,
-            'border border-marble-500 bg-white group-hover:bg-marble-300': !checked && !disabled,
+            'bg-coral-700 group-hover:bg-coral-800': checked && theme === 'primary',
+            'bg-mushroom-500 group-hover:bg-mushroom-600': checked && theme === 'secondary',
+            'cursor-not-allowed bg-marble-950': disabled,
+            'border border-marble-800 bg-white group-hover:bg-marble-950': !checked && !disabled,
           }
         )}
         role="checkbox"
@@ -88,7 +90,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
         {checked ? (
           <Icon name="check-mark" className="text-white" size={size} />
         ) : indeterminate ? (
-          <span className="h-[1.5px] w-2 bg-marble-500" />
+          <span className="h-[1.5px] w-2 bg-marble-800" />
         ) : null}
       </span>
       {label && (

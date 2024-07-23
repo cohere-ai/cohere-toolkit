@@ -1,3 +1,5 @@
+'use client';
+
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
 import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
@@ -27,7 +29,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
   };
 
   return (
-    <article className="flex overflow-x-hidden rounded-lg border border-marble-400 bg-marble-200 p-4">
+    <article className="flex overflow-x-hidden rounded-lg border border-marble-950 bg-marble-980 p-4">
       <div className="flex h-full flex-grow flex-col items-start gap-y-2 overflow-x-hidden">
         <div className="flex w-full items-center gap-x-2">
           <div
@@ -36,7 +38,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               'truncate',
               id && getCohereColor(id),
               {
-                'bg-secondary-400': isBaseAgent,
+                'bg-mushroom-700': isBaseAgent,
               }
             )}
           >
@@ -70,9 +72,9 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <Button
           className="ml-auto"
           href={isBaseAgent ? '/' : `/a/${id}`}
-          label={<Text className="text-green-700">Try now</Text>}
+          label={<Text className="text-green-250">Try now</Text>}
           kind="secondary"
-          endIcon={<Icon name="arrow-up-right" className="text-green-700" />}
+          endIcon={<Icon name="arrow-up-right" className="text-green-250" />}
         />
       </div>
     </article>

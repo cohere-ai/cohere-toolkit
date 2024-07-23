@@ -1,3 +1,5 @@
+'use client';
+
 import cx from 'classnames';
 import Link from 'next/link';
 import { MouseEventHandler, ReactElement, ReactNode } from 'react';
@@ -58,14 +60,14 @@ export const MinimalButton: React.FC<MinimalButtonProps> = ({
 }) => {
   const themeClasses: { [key in MinimalButtonTheme]: string } = {
     volcanic: cx({
-      'visited:text-primary-700': href,
-      'text-volcanic-700': disabled,
-      'text-volcanic-900': !disabled,
+      'visited:text-coral-400': href,
+      'text-volcanic-400': disabled,
+      'text-volcanic-100': !disabled,
     }),
     secondary: cx({
-      'visited:text-primary-700': href,
-      'text-volcanic-50': disabled,
-      'text-secondary-50': !disabled,
+      'visited:text-coral-400': href,
+      'text-volcanic-60': disabled,
+      'text-mushroom-950': !disabled,
     }),
   };
 
@@ -106,7 +108,7 @@ export const MinimalButton: React.FC<MinimalButtonProps> = ({
     'group inline-block max-w-full',
     'disabled:cursor-not-allowed',
     {
-      'focus-visible:outline-1 focus-visible:outline focus-visible:outline-primary-500 rounded-sm':
+      'focus-visible:outline-1 focus-visible:outline focus-visible:outline-coral-700 rounded-sm':
         !hideFocusStyles,
     },
     className

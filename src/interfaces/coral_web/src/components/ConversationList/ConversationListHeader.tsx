@@ -1,3 +1,5 @@
+'use client';
+
 import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
 import { useSettingsStore } from '@/stores';
@@ -24,7 +26,7 @@ export const ConversationListHeader: React.FC<Props> = ({
     <header
       className={cn(
         'flex h-header w-full items-center justify-between border-b px-3 py-5',
-        'border-marble-400',
+        'border-marble-950',
         'overflow-hidden'
       )}
     >
@@ -57,7 +59,7 @@ export const ConversationListHeader: React.FC<Props> = ({
             <span className="flex items-center gap-x-1">
               <Icon
                 name="side-panel"
-                className="flex h-8 w-8 items-center justify-center text-primary-500 lg:hidden"
+                className="flex h-8 w-8 items-center justify-center text-coral-700 lg:hidden"
                 kind="outline"
               />
               <Text styleAs="p-lg">Chats</Text>
