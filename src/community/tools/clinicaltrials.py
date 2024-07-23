@@ -21,11 +21,8 @@ class ClinicalTrials(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    def call(
-        self,
-        parameters: Dict[str, Any],
-        ctx: Any,
-        n_max_studies: int = 10,
+    async def call(
+        self, parameters: Dict[str, Any], ctx: Any, n_max_studies: int = 10, **kwargs
     ) -> List[Dict[str, Any]]:
         query_params = {"sort": "LastUpdatePostDate"}
         if condition := parameters.get("condition", ""):
