@@ -67,7 +67,7 @@ export const Dropdown: React.FC<Props> = ({
               <Text
                 as="span"
                 className={cn('truncate', {
-                  'dark:text-volcanic-500': !selectedOption,
+                  'text-volcanic-500 dark:text-volcanic-600': !selectedOption,
                 })}
               >
                 {selectedOption?.label || selectedOption?.value || placeholder}
