@@ -17,7 +17,6 @@ auth_map = {
 }
 
 SKIP_AUTH = os.getenv("SKIP_AUTH", None)
-# Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
 ENABLED_AUTH_STRATEGIES = []
 if ENABLED_AUTH_STRATEGIES == [] and Settings().auth.enabled_auth is not None:
