@@ -9,7 +9,16 @@ from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
+from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_agent_tool_metadata_to_request_state,
+    add_default_agent_to_request_state,
+    add_event_type_to_request_state,
+    add_model_to_request_state,
+    add_session_user_to_request_state,
+)
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.langchain_chat import LangchainChatRequest
@@ -47,9 +56,14 @@ async def chat_stream(
     trace_id = None
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
-
+    add_model_to_request_state(request, chat_request.model)
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        add_agent_to_request_state(request, agent)
+    else:
+        add_default_agent_to_request_state(request)
     (
         session,
         chat_request,
@@ -66,6 +80,7 @@ async def chat_stream(
 
     return EventSourceResponse(
         generate_chat_stream(
+            request,
             session,
             CustomChat().chat(
                 chat_request,
@@ -132,6 +147,7 @@ async def chat(
     ) = process_chat(session, chat_request, request, agent_id)
 
     response = await generate_chat_response(
+        request,
         session,
         CustomChat().chat(
             chat_request,

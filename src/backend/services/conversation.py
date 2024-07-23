@@ -169,11 +169,19 @@ async def filter_conversations(
 
 
 async def generate_conversation_title(
-    session, conversation, deployment_name, model_config, trace_id, user_id, agent_id
+    request,
+    session,
+    conversation,
+    deployment_name,
+    model_config,
+    trace_id,
+    user_id,
+    agent_id,
 ):
     """Generate a title for a conversation
 
     Args:
+        request: Request object
         session: Database session
         conversation: Conversation object
         deployment_name: Deployment name
@@ -194,6 +202,7 @@ async def generate_conversation_title(
         )
 
         response = await generate_chat_response(
+            request,
             session,
             CustomChat().chat(
                 chat_request,

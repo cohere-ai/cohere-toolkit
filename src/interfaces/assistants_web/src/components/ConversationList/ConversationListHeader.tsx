@@ -8,7 +8,7 @@ import { cn } from '@/utils';
 type Props = {
   isBulkActionMode: boolean;
   isSelectAllChecked: boolean;
-  onSelectAllToggle: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectAllToggle: (checked: boolean) => void;
   onBulkDeleteClick: VoidFunction;
   onSearchClick: VoidFunction;
 };
@@ -36,8 +36,7 @@ export const ConversationListHeader: React.FC<Props> = ({
             checked={isSelectAllChecked}
             indeterminate={!isSelectAllChecked}
             onChange={onSelectAllToggle}
-            size="sm"
-            theme="secondary"
+            theme="evolved-green"
             className="mx-2"
           />
           <IconButton iconName="trash" onClick={onBulkDeleteClick} />

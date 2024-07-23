@@ -82,7 +82,7 @@ export const MinimalButton: React.FC<MinimalButtonProps> = ({
         className={cx({
           'pl-3': startIcon && !!label && animate,
           'pl-1': startIcon && !!label && !animate,
-          'duration-400 transition-all ease-in-out group-hover:pl-1 group-hover:pr-2':
+          'duration-400 flex-grow transition-all ease-in-out group-hover:pl-1 group-hover:pr-2':
             startIcon && !endIcon && !disabled && animate,
         })}
       >
