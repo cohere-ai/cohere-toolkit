@@ -43,17 +43,17 @@ logger = logging.getLogger(__name__)
 class MetricsMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable):
 
-        self.confirm_env()
-        self.init_req_state(request)
+        self._confirm_env()
+        self._init_req_state(request)
 
         start_time = time.perf_counter()
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
-        self.send_signal(request, response, duration_ms)
+        self._send_signal(request, response, duration_ms)
 
         return response
 
-    def init_req_state(self, request: Request) -> None:
+    def _init_req_state(self, request: Request) -> None:
         request.state.trace_id = str(uuid.uuid4())
         request.state.agent = None
         request.state.model = None
@@ -62,21 +62,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         request.state.user = None
         request.state.event_type = None
 
-    def confirm_env(self):
+    def _confirm_env(self):
         if not REPORT_SECRET:
             logger.warning("No report secret set")
         if not REPORT_ENDPOINT:
             logger.warning("No report endpoint set")
 
-    def send_signal(
+    def _send_signal(
         self, request: Request, response: Response, duration_ms: float
     ) -> None:
-        signal = self.get_event_signal(request, response, duration_ms)
+        signal = self._get_event_signal(request, response, duration_ms)
         should_send_event = request.state.event_type and signal
         if should_send_event:
             response.background = BackgroundTask(report_metrics, signal)
 
-    def get_event_signal(
+    def _get_event_signal(
         self, request: Request, response: Response, duration_ms: float
     ) -> MetricsSignal | None:
 
@@ -87,7 +87,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         if not message_type:
             return None
 
-        user = self.get_user(request)
+        user = self._get_user(request)
         # when user is created, user_id is not in the header
         user_id = (
             user.id
@@ -111,14 +111,14 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 assistant_id=agent_id,
                 duration_ms=duration_ms,
             )
-            data = self.attach_secret(data)
+            data = self._attach_secret(data)
             signal = MetricsSignal(signal=data)
             return signal
         except Exception as e:
             logger.warning(f"Failed to process event data: {e}")
             return None
 
-    def get_user(self, request: Request) -> Union[MetricsUser, None]:
+    def _get_user(self, request: Request) -> Union[MetricsUser, None]:
         if not hasattr(request.state, "user") or not request.state.user:
             return None
 
@@ -132,7 +132,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Failed to get user: {e}")
             return None
 
-    def attach_secret(self, data: MetricsData) -> MetricsData:
+    def _attach_secret(self, data: MetricsData) -> MetricsData:
         if not REPORT_SECRET:
             return data
         data.secret = REPORT_SECRET
@@ -156,17 +156,6 @@ async def report_metrics(signal: MetricsSignal) -> None:
         logger.error(f"Failed to report metrics: {e}")
 
 
-# TODO: remove the logging once metrics are configured correctly
-def log_signal_curl(signal: MetricsSignal) -> None:
-    s = to_dict(signal)
-    s["signal"]["secret"] = "'$SECRET'"
-    json_signal = json.dumps(s)
-    # just general curl commands to test the endpoint for now
-    logger.info(
-        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
-    )
-
-
 def collect_metrics_chat_stream(func: Callable) -> Callable:
     @wraps(func)
     async def wrapper(*args, **kwargs: Any) -> Any:
@@ -176,6 +165,36 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
             yield v
 
     return wrapper
+
+
+def collect_metrics_rerank(func: Callable) -> Callable:
+    @wraps(func)
+    async def wrapper(
+        self, query: str, documents: Dict[str, Any], **kwargs: Any
+    ) -> Any:
+        start_time = time.perf_counter()
+        try:
+            response = await func(self, query, documents, **kwargs)
+            duration_ms = time.perf_counter() - start_time
+            report_rerank_metrics(response, duration_ms, **kwargs)
+            return response
+        except Exception as e:
+            duration_ms = time.perf_counter() - start_time
+            metrics_data = report_rerank_failed_metrics(duration_ms, e, **kwargs)
+            raise e
+
+    return wrapper
+
+
+# TODO: remove the logging once metrics are configured correctly
+def log_signal_curl(signal: MetricsSignal) -> None:
+    s = to_dict(signal)
+    s["signal"]["secret"] = "'$SECRET'"
+    json_signal = json.dumps(s)
+    # just general curl commands to test the endpoint for now
+    logger.info(
+        f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
+    )
 
 
 # DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
@@ -335,22 +354,3 @@ def report_rerank_failed_metrics(duration_ms: float, error: Exception, **kwargs:
         asyncio.create_task(report_metrics(signal))
     except Exception as e:
         logger.error(f"Failed to report rerank metrics: {e}")
-
-
-def collect_metrics_rerank(func: Callable) -> Callable:
-    @wraps(func)
-    async def wrapper(
-        self, query: str, documents: Dict[str, Any], **kwargs: Any
-    ) -> Any:
-        start_time = time.perf_counter()
-        try:
-            response = await func(self, query, documents, **kwargs)
-            duration_ms = time.perf_counter() - start_time
-            report_rerank_metrics(response, duration_ms, **kwargs)
-            return response
-        except Exception as e:
-            duration_ms = time.perf_counter() - start_time
-            metrics_data = report_rerank_failed_metrics(duration_ms, e, **kwargs)
-            raise e
-
-    return wrapper
