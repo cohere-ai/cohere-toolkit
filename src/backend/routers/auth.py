@@ -20,7 +20,7 @@ from backend.services.auth.utils import (
     get_or_create_user,
     is_enabled_authentication_strategy,
 )
-from backend.services.logger import get_logger
+from backend.services.logger import get_logger, send_log_message
 
 logger = get_logger()
 
@@ -84,6 +84,11 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     payload = login.payload
 
     if not is_enabled_authentication_strategy(strategy_name):
+        send_log_message(
+            logger,
+            f"[Auth] Invalid authentication strategy"
+            "debug",
+        )
         raise HTTPException(
             status_code=422, detail=f"Invalid Authentication strategy: {strategy_name}."
         )

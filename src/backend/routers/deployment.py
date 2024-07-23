@@ -4,7 +4,10 @@ from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.routers import RouterName
 from backend.schemas.deployment import Deployment, UpdateDeploymentEnv
 from backend.services.env import update_env_file
+from backend.services.logger import get_logger, send_log_message
 from backend.services.request_validators import validate_env_vars
+
+logger = get_logger()
 
 router = APIRouter(
     prefix="/v1/deployments",
@@ -33,6 +36,11 @@ def list_deployments(all: bool = False) -> list[Deployment]:
 
     # No available deployments
     if not available_deployments:
+        send_log_message(
+            logger,
+            f"[Deployment] No deployments available to list."
+            "warning",
+        )
         raise HTTPException(
             status_code=404,
             detail=(
@@ -54,4 +62,9 @@ async def set_env_vars(
     Returns:
         str: Empty string.
     """
+    send_log_message(
+        logger,
+        f"[Deployment] Set environment variables request"
+        "debug",
+    )
     update_env_file(env_vars.env_vars)
