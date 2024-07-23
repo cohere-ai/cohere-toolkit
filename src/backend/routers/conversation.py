@@ -106,12 +106,6 @@ async def list_conversations(
         list[ConversationWithoutMessages]: List of conversations.
     """
     user_id = get_header_user_id(request)
-    if agent_id:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        if agent:
-            add_agent_to_request_state(request, agent)
-    else:
-        add_default_agent_to_request_state(request)
 
     return conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -502,14 +496,6 @@ async def generate_title(
 
     agent_id = conversation.agent_id if conversation.agent_id else None
     trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
-    if agent_id:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        if agent:
-            add_agent_to_request_state(request, agent)
-    else:
-        add_default_agent_to_request_state(request)
-    
     deployment_name = request.headers.get("Deployment-Name", "")
     model_config = get_deployment_config(request)
 

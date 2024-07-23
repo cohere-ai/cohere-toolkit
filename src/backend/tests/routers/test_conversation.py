@@ -524,6 +524,8 @@ def test_search_conversations_with_reranking_sends_metrics(
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.user_id == user.id
+        assert m_args.model == "rerank-english-v2.0"
+
         assert m_args.message_type == MetricsMessageType.RERANK_API_SUCCESS
         assert m_args.assistant_id is not None
         assert m_args.assistant.name is not None
