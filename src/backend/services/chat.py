@@ -377,7 +377,9 @@ def attach_files_to_messages(
     """
     if file_ids is not None:
         message = message_crud.get_message(session, message_id, user_id)
-        update_message = UpdateMessage(text=message.text, title=message.text, file_ids=file_ids)
+        update_message = UpdateMessage(
+            text=message.text, title=message.text, file_ids=file_ids
+        )
         message_crud.update_message(session, message, update_message)
         # file_crud.update_file(session, file, UpdateFile(message_id=message_id))
 

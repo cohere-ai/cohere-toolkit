@@ -274,7 +274,7 @@ async def search_conversations(
             if query.lower() in rerank_document.lower():
                 filtered_conversations.append(conversation)
 
-        #TODO: scott make this a helper func
+        # TODO: scott make this a helper func
         results = []
         for conversation in filtered_conversations:
             files = file_service.get_files_by_conversation_id(

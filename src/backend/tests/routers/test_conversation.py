@@ -382,13 +382,7 @@ def test_delete_conversation_with_children_cascades_delete(
     assert response.json() == {}
 
     # Check if the files were deleted
-    db_files = (
-        session.query(File)
-        .filter(
-            File.id == "file_id"
-        )
-        .all()
-    )
+    db_files = session.query(File).filter(File.id == "file_id").all()
     assert not db_files
 
     # Check all children deleted
@@ -534,7 +528,9 @@ def test_list_files(
         file_name="test_file.txt",
         user_id=user.id,
     )
-    conversation = get_factory("Conversation", session).create(user_id=user.id, file_ids=[file.id])
+    conversation = get_factory("Conversation", session).create(
+        user_id=user.id, file_ids=[file.id]
+    )
 
     response = session_client.get(
         f"/v1/conversations/{conversation.id}/files",
