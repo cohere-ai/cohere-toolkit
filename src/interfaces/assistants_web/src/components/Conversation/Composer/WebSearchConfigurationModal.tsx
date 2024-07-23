@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { Button, Input } from '@/components/Shared';
 import { useParamsStore } from '@/stores';
-import { hasCommonDelimiters } from '@/utils';
 
 /**
  * @description Modal for configuring options on the web search tool.
@@ -18,13 +17,6 @@ export const WebSearchModal: React.FC<{
     params: { tools },
   } = useParamsStore();
   const [site, setSite] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
 
   return (
     <form
@@ -36,14 +28,8 @@ export const WebSearchModal: React.FC<{
       }}
     >
       <Input
-        ref={inputRef}
         label="Site"
         placeholder="Ground on 1 domain e.g. wikipedia.org"
-        description={
-          site.length > 0 && hasCommonDelimiters(site)
-            ? 'Multiple domains are not supported.'
-            : undefined
-        }
         value={site}
         onChange={(e) => setSite(e.target.value)}
       />
