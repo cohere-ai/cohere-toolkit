@@ -65,27 +65,6 @@ def get_files(db: Session, user_id: str, offset: int = 0, limit: int = 100):
     )
 
 
-def get_files_by_conversation_id(
-    db: Session, conversation_id: str, user_id: str
-) -> list[File]:
-    """
-    List all files from a conversation.
-
-    Args:
-        db (Session): Database session.
-        conversation_id (str): Conversation ID.
-        user_id (str): User ID.
-
-    Returns:
-        list[File]: List of files from the conversation.
-    """
-    return (
-        db.query(File)
-        .filter(File.conversation_id == conversation_id, File.user_id == user_id)
-        .all()
-    )
-
-
 def get_files_by_ids(db: Session, file_ids: list[str], user_id: str) -> list[File]:
     """
     Get files by IDs.
@@ -168,6 +147,7 @@ def delete_file(db: Session, file_id: str, user_id: str) -> None:
     file = db.query(File).filter(File.id == file_id, File.user_id == user_id)
     file.delete()
     db.commit()
+
 
 def bulk_delete_files(db: Session, file_ids: list[str], user_id: str) -> None:
     """

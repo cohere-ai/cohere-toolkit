@@ -452,10 +452,10 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
 ):
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
     file1 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
+        user_id=user.id
     )
     file2 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
+        user_id=user.id
     )
     session_chat.refresh(conversation)
 
@@ -467,7 +467,6 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
         },
         json={
             "message": "How are you doing?",
-            "conversation_id": conversation.id,
             "file_ids": [file1.id, file2.id],
             "max_tokens": 10,
         },
