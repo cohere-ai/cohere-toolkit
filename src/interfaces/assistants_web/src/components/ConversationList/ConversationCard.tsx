@@ -6,11 +6,11 @@ import { useContext } from 'react';
 import { Agent } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
-import { CoralLogo, Text } from '@/components/Shared';
+import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
-import { useConversationStore, useSettingsStore } from '@/stores';
+import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -72,6 +72,9 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
+  const {
+    agents: { isAgentsSidePanelOpen },
+  } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
 
@@ -147,6 +150,44 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         {info}
       </Link>
     );
+
+  if (!isAgentsSidePanelOpen) {
+    const content = (
+      <div
+        className={cn('flex size-8 flex-shrink-0 items-center justify-center rounded', {
+          'bg-mushroom-700': !conversation.agent,
+          [agentColor]: conversation.agent,
+        })}
+      >
+        {conversation.agent ? (
+          <Text className="text-white">{conversation.agent.name[0]}</Text>
+        ) : (
+          <CoralLogo style="secondary" />
+        )}
+      </div>
+    );
+    return (
+      <div {...flippedProps}>
+        <Tooltip label={conversation.title} placement={'bottom-end'} hover size="sm">
+          {isActive && isDesktop ? (
+            <div className="select-none">{content}</div>
+          ) : (
+            <Link
+              href={conversationUrl}
+              key={conversationId}
+              shallow
+              onClick={() => {
+                setConversation({ id: conversationId, name });
+                setSettings({ isMobileConvListPanelOpen: false });
+              }}
+            >
+              {content}
+            </Link>
+          )}
+        </Tooltip>
+      </div>
+    );
+  }
 
   return (
     <div

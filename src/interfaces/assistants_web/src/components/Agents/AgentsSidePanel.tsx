@@ -111,10 +111,12 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               </div>
             }
             onClick={handleNewChat}
+            tooltip="New chat"
             icon={<Icon name="add" kind="outline" className="dark:text-evolved-green-700" />}
           />
           <SidePanelButton
             label="See all assistants"
+            tooltip="See all assistants"
             href="/discover"
             icon={<Icon name="compass" kind="outline" className="dark:text-mushroom-950" />}
           />
@@ -125,6 +127,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
           <SidePanelButton
             label="Settings"
+            tooltip="Settings"
             href="/settings"
             icon={<Icon name="settings" kind="outline" className="dark:text-mushroom-950" />}
           />
@@ -149,11 +152,12 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
 
 const SidePanelButton: React.FC<{
   label?: ReactElement | string;
+  tooltip?: string;
   href?: string;
   onClick?: VoidFunction;
   icon: ReactElement;
   className?: string;
-}> = ({ label, href, icon, className, onClick }) => {
+}> = ({ label, tooltip, href, icon, className, onClick }) => {
   const {
     agents: { isAgentsSidePanelOpen },
   } = useAgentsStore();
@@ -171,7 +175,15 @@ const SidePanelButton: React.FC<{
     );
   }
 
-  return <IconButton icon={icon} href={href} onClick={onClick} className={className} />;
+  return (
+    <IconButton
+      icon={icon}
+      href={href}
+      onClick={onClick}
+      className={className}
+      tooltip={tooltip ? { label: tooltip } : undefined}
+    />
+  );
 };
 
 const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
@@ -191,6 +203,7 @@ const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ classNa
     <IconButton
       iconName="close-drawer"
       onClick={handleToggleAgentsSidePanel}
+      tooltip={{ label: 'Toggle agents side panel' }}
       className={cn(
         'transform transition delay-100 duration-200 ease-in-out dark:text-mushroom-950 dark:hover:text-mushroom-950',
         className,
