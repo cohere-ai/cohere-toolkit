@@ -29,7 +29,7 @@ const Page: React.FC = () => {
           required
         />
         <Input readOnly label="Read only" placeholder="Placeholder..." required />
-        <Input readOnly label="Disabled" placeholder="Placeholder..." required />
+        <Input disabled label="Disabled" placeholder="Placeholder..." required />
       </div>
     </div>
   );

@@ -1,45 +1,24 @@
 'use client';
 
-import { Field, Label, Input as _Input } from '@headlessui/react';
+import { Field, Label } from '@headlessui/react';
 import { forwardRef, useState } from 'react';
 
 import { Icon } from '@/components/Shared/Icon';
 import { STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
-type Props = {
+type Props = Omit<React.HTMLProps<HTMLInputElement>, 'onChange' | 'value'> & {
   value?: string;
   label?: string;
-  name?: string;
   type?: 'text' | 'email' | 'password';
-  placeholder?: string;
-  required?: boolean;
-  readOnly?: boolean;
   errorText?: string;
   className?: string;
-  disabled?: boolean;
   actionType?: 'copy' | 'reveal';
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
-  (
-    {
-      label,
-      name,
-      value,
-      type = 'text',
-      placeholder,
-      required,
-      readOnly,
-      disabled,
-      className,
-      errorText,
-      actionType,
-      onChange,
-    },
-    ref
-  ) => {
+  ({ value, label, type = 'text', errorText, className, actionType, onChange, ...rest }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
     const [copied, setCopied] = useState(false);
     return (
@@ -56,32 +35,36 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
             )}
           </Label>
         )}
-        <div className="flex items-center gap-x-2">
-          <_Input
+        <div className="relative flex w-full items-center gap-x-2">
+          <input
             type={actionType === 'reveal' && showPassword ? 'text' : type}
-            name={name}
             ref={ref}
             value={value}
-            placeholder={placeholder}
-            required={required}
-            readOnly={readOnly}
-            disabled={disabled}
             className={cn(
               'rounded-lg border border-volcanic-500',
               'w-full px-3 py-[18px]',
               'outline-none',
               'bg-volcanic-100 focus:bg-volcanic-150',
               'text-marble-950 placeholder:text-volcanic-600',
+              'disabled:bg-volcanic-300 disabled:text-volcanic-600',
+              {
+                'pr-8': actionType,
+              },
               STYLE_LEVEL_TO_CLASSES.p,
               className
             )}
             onChange={onChange}
+            {...rest}
           />
           {actionType === 'reveal' && (
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="cursor-pointer items-center justify-center"
+              className={cn(
+                'rounded outline-1 outline-offset-1 outline-volcanic-600',
+                'absolute right-2 top-1/2 -translate-y-1/2 transform',
+                'items-center justify-center'
+              )}
             >
               <Icon
                 className="text-marble-950"
@@ -101,9 +84,17 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
                 }
               }}
               disabled={!value?.trim()}
-              className="cursor-pointer items-center justify-center"
+              className={cn(
+                'rounded outline-1 outline-offset-1 outline-volcanic-600',
+                'absolute right-2 top-1/2 -translate-y-1/2 transform',
+                'items-center justify-center'
+              )}
             >
-              <Icon className="text-marble-950" name="copy" kind={copied ? 'default' : 'outline'} />
+              <Icon
+                className={cn({ 'text-marble-950': !!value, 'text-volcanic-600': !value })}
+                name="copy"
+                kind={copied ? 'default' : 'outline'}
+              />
             </button>
           )}
         </div>
