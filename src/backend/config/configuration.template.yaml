@@ -49,6 +49,3 @@ auth:
   frontend_hostname: http://localhost:4000
   google_oauth: 
   oidc: 
-
-
-
