@@ -2,19 +2,19 @@
 
 import { Transition, TransitionChild } from '@headlessui/react';
 import { useClickOutside } from '@react-hookz/web';
-import { useParams } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import { ConversationListHeader } from '@/components/ConversationList/ConversationListHeader';
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
-import { Icon, Input, Text } from '@/components/Shared';
+import { Icon, Text } from '@/components/Shared';
+import { InputSearch } from '@/components/Shared/InputSearch';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 import { useSettingsStore } from '@/stores';
-import { cn, getQueryString } from '@/utils';
+import { cn } from '@/utils';
 
 const sortByDate = (a: Conversation, b: Conversation) => {
   return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');
@@ -150,17 +150,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
         as="div"
         className="z-menu px-4 duration-300 ease-in-out"
       >
-        <Input
-          placeholder="Search"
-          theme="secondary"
-          actionType="search"
-          kind="default"
-          size="sm"
-          maxLength={40}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onClear={() => setSearch('')}
-        />
+        <InputSearch placeholder="Search" value={search} onChange={setSearch} maxLength={40} />
       </Transition>
 
       <section
