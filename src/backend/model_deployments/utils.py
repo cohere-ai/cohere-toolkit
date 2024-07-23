@@ -23,6 +23,7 @@ def get_model_config_var(var_name: str, **kwargs: Any) -> str:
         raise ValueError(f"Missing model config variable: {var_name}")
     return config
 
+
 def add_rerank_model_to_request_state(
     model: str,
     **kwargs: Any,

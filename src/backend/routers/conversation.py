@@ -4,7 +4,16 @@ from fastapi import APIRouter
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
+
+from backend.chat.custom.custom import CustomChat
+from backend.chat.custom.utils import get_deployment
+from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
+from backend.crud import conversation as conversation_crud
+from backend.crud import file as file_crud
+from backend.database_models import Conversation as ConversationModel
+from backend.database_models import File as FileModel
+from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     add_agent_to_request_state,
     add_agent_tool_metadata_to_request_state,
@@ -12,14 +21,6 @@ from backend.routers.utils import (
     add_event_type_to_request_state,
     add_session_user_to_request_state,
 )
-from backend.chat.custom.custom import CustomChat
-from backend.chat.custom.utils import get_deployment
-from backend.config.routers import RouterName
-from backend.crud import conversation as conversation_crud
-from backend.crud import file as file_crud
-from backend.database_models import Conversation as ConversationModel
-from backend.database_models import File as FileModel
-from backend.database_models.database import DBSessionDep
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import (
     ConversationPublic,
