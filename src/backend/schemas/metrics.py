@@ -24,9 +24,11 @@ class MetricsMessageType(str, Enum):
     CHAT_API_SUCCESS = "chat_api_call_success"
     # implemented, needs tests
     CHAT_API_FAIL = "chat_api_call_failure"
-    # pending implementation
+    # implemented, has tests
     RERANK_API_SUCCESS = "rerank_api_call_success"
+    # implemented, needs tests
     RERANK_API_FAIL = "rerank_api_call_failure"
+    # pending implementation
     ENV_LIVENESS = "env_liveness"
     COMPASS_NEW_INDEX = "compass_new_index"
     COMPASS_REMOVE_INDEX = "compass_remove_index"
