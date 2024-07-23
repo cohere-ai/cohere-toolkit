@@ -26,7 +26,7 @@ export const InputSearch: React.FC<Props> = ({ value, onChange, className, ...re
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          'bg-volcanic-100 text-marble-950 placeholder:text-volcanic-700 focus:bg-volcanic-150',
+          'bg-white placeholder:text-volcanic-700 dark:bg-volcanic-100 dark:text-marble-950 dark:focus:bg-volcanic-150',
           'rounded-lg border border-volcanic-500 py-[10px] pl-2 pr-8',
           'w-full outline-none',
           STYLE_LEVEL_TO_CLASSES.p
@@ -38,7 +38,7 @@ export const InputSearch: React.FC<Props> = ({ value, onChange, className, ...re
           name="close"
           kind="outline"
           className={cn(
-            'absolute right-2 top-1/2 -translate-y-1/2 transform text-marble-950 transition-colors duration-300 hover:text-marble-800',
+            'absolute right-2 top-1/2 -translate-y-1/2 transform transition-colors duration-300 hover:text-marble-800 dark:text-marble-950',
             'rotate-0 scale-0 transition-all',
             { '-rotate-90 scale-100': value !== '' }
           )}
@@ -47,11 +47,11 @@ export const InputSearch: React.FC<Props> = ({ value, onChange, className, ...re
           name="search"
           kind="outline"
           className={cn(
-            'absolute right-2 top-1/2 -translate-y-1/2 transform text-volcanic-700',
+            'absolute right-2 top-1/2 -translate-y-1/2 transform dark:text-volcanic-700',
             'rotate-90 scale-0 transition-all',
             {
               'rotate-0 scale-100': value === '',
-              'text-volcanic-600': isInputFocused,
+              'dark:text-volcanic-600': isInputFocused,
             }
           )}
         />
