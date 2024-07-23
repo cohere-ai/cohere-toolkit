@@ -188,8 +188,6 @@ export const Dropdown: React.FC<Props> = ({
                     <Input
                       placeholder="filter model"
                       className="m-0"
-                      size="sm"
-                      kind="default"
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </section>
