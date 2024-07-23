@@ -1,17 +1,12 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models import (
-    COMMUNITY_TOOLS_MODULE,
-    DEFAULT_AUTH_MODULE,
-    DEFAULT_TOOLS_MODULE,
     Agent,
     AgentToolAssociation,
     Tool,
 )
-from backend.schemas.tool import Tool as ToolSchema
 from backend.schemas.tool import ToolCreate as ToolCreateSchema
 from backend.schemas.tool import ToolUpdate as ToolUpdateSchema
-from backend.services.get_module_class import get_module_class
 from backend.services.transaction import validate_transaction
 
 
@@ -27,15 +22,8 @@ def create_tool(db: Session, tool: ToolCreateSchema) -> Tool:
     Returns:
         tool: Created tool.
     """
-    if tool.tool.implementation_class_name:
-        cls = get_module_class(DEFAULT_TOOLS_MODULE, tool.implementation_class_name)
-        if not cls:
-            cls = get_module_class(
-                COMMUNITY_TOOLS_MODULE, tool.implementation_class_name
-            )
-            raise ValueError(f"Tool class not found: {tool.implementation_class_name}")
 
-    tool = tool(**tool.model_dump(exclude_none=True))
+    tool = Tool(**tool.model_dump(exclude_none=True))
     db.add(tool)
     db.commit()
     db.refresh(tool)
@@ -159,6 +147,30 @@ def get_available_tools_by_agent_id(
     return [tool for tool in agent_tools if tool.is_available][offset : offset + limit]
 
 
+def get_agent_tool_by_name(db: Session, agent_id: str, tool_name: str) -> Tool:
+    """
+    Get a tool by agent_id and tool_name.
+
+    Args:
+        db (Session): Database session.
+        agent_id (str): Agent ID.
+        tool_name (str): Tool Name.
+
+    Returns:
+        tool: tool with the given name.
+    """
+    return (
+        db.query(Tool)
+        .join(
+            AgentToolAssociation,
+            Tool.id == AgentToolAssociation.tool_id,
+        )
+        .filter(AgentToolAssociation.agent_id == agent_id)
+        .filter(Tool.name == tool_name)
+        .first()
+    )
+
+
 @validate_transaction
 def update_tool(db: Session, tool: Tool, new_tool: ToolUpdateSchema) -> Tool:
     """
@@ -199,6 +211,52 @@ def assign_tool_to_agent(
         agent_id=agent.id, tool_id=tool.id, tool_config=tool_config
     )
     db.add(agent_tool)
+    db.commit()
+    db.refresh(agent)
+    return agent
+
+
+@validate_transaction
+def remove_tool_from_agent(db: Session, tool: Tool, agent: Agent) -> Agent:
+    """
+    Remove a tool from an agent.
+
+    Args:
+        db (Session): Database session.
+        agent (Agent): Agent to remove the tool.
+        tool (Tool): Tool to be removed.
+
+    Returns:
+        Agent: Agent without the removed tool.
+    """
+    agent_tool = (
+        db.query(AgentToolAssociation)
+        .filter(AgentToolAssociation.agent_id == agent.id)
+        .filter(AgentToolAssociation.tool_id == tool.id)
+        .first()
+    )
+    db.delete(agent_tool)
+    db.commit()
+    db.refresh(agent)
+    return agent
+
+
+@validate_transaction
+def remove_all_tools_from_agent(db: Session, agent: Agent) -> Agent:
+    """
+    Remove all tools from an agent.
+
+    Args:
+        db (Session): Database session.
+        agent (Agent): Agent to remove the tools.
+
+    Returns:
+        Agent: Agent without the removed tools.
+    """
+    agent_tools = (
+        db.query(AgentToolAssociation).filter(AgentToolAssociation.agent_id == agent.id)
+    )
+    agent_tools.delete()
     db.commit()
     db.refresh(agent)
     return agent

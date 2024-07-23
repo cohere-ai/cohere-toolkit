@@ -1,7 +1,7 @@
 import datetime
-from typing import Optional
+from typing import Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from backend.schemas.deployment import DeploymentSimple as DeploymentSchema
 from backend.schemas.deployment import DeploymentWithModels as DeploymentFull
@@ -19,8 +19,12 @@ class AgentBase(BaseModel):
 # Agent Tool Metadata
 class AgentToolMetadata(AgentBase):
     id: str
+    tool_id: str
     tool_name: str
     artifacts: list[dict]
+
+    class Config:
+        from_attributes = True
 
 
 class AgentToolMetadataPublic(AgentToolMetadata):
@@ -32,12 +36,21 @@ class AgentToolMetadataPublic(AgentToolMetadata):
 
 class CreateAgentToolMetadata(BaseModel):
     id: Optional[str] = None
-    tool_name: str
+    tool_id: Optional[str] = None
+    tool_name: Optional[str] = None
     artifacts: list[dict]
+
+    @model_validator(mode='before')
+    def check_tool_id_name(cls, values):
+        tool_id, tool_name = values.get('tool_id'), values.get('tool_name')
+        if not (tool_id or tool_name):
+            raise ValueError('At least one of tool_name or tool_id must be provided.')
+        return values
 
 
 class UpdateAgentToolMetadata(BaseModel):
     id: Optional[str] = None
+    tool_id: Optional[str] = None
     tool_name: Optional[str] = None
     artifacts: Optional[list[dict]] = None
 
@@ -60,12 +73,33 @@ class Agent(AgentBase):
     tools: Optional[list[str]]
     tools_metadata: list[AgentToolMetadata]
     deployments: list[DeploymentSchema]
-    deployment: Optional[DeploymentSchema]
-    model: Optional[ModelSchema]
+    deployment: Optional[Union[DeploymentSchema, str]]
+    model: Optional[Union[ModelSchema, str]]
 
     class Config:
         from_attributes = True
         use_enum_values = True
+
+    @classmethod
+    def custom_transform(cls, obj):
+        data = {
+            "id": obj.id,
+            "user_id": obj.user_id,
+            "organization_id": obj.organization_id,
+            "version": obj.version,
+            "name": obj.name,
+            "description": obj.description,
+            "preamble": obj.preamble,
+            "temperature": obj.temperature,
+            "tools": obj.tools,
+            "tools_metadata": obj.tools_metadata,
+            "deployments": obj.deployments,
+            "deployment": str(obj.deployment),
+            "model": str(obj.model),
+            "created_at": obj.created_at,
+            "updated_at": obj.updated_at,
+        }
+        return cls(**data)
 
 
 class AgentPublic(Agent):

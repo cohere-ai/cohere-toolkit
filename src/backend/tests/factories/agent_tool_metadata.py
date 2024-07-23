@@ -11,21 +11,6 @@ class AgentToolMetadataFactory(BaseFactory):
         model = AgentToolMetadata
 
     user_id = factory.Faker("uuid4")
-    tool_name = factory.List(
-        [
-            factory.Faker(
-                "random_element",
-                elements=[
-                    ToolName.Wiki_Retriever_LangChain,
-                    ToolName.Search_File,
-                    ToolName.Read_File,
-                    ToolName.Python_Interpreter,
-                    ToolName.Calculator,
-                    ToolName.Tavily_Internet_Search,
-                    ToolName.Google_Drive,
-                ],
-            )
-        ]
-    )
+    tool_id = factory.Faker("uuid4")
     agent_id = factory.Faker("uuid4")
     artifacts = factory.List([])

@@ -20,6 +20,7 @@ from backend.tests.factories.snapshot import (
 )
 from backend.tests.factories.tool_call import ToolCallFactory
 from backend.tests.factories.user import UserFactory
+from backend.tests.factories.tool import ToolFactory
 
 FACTORY_MAPPING = {
     "User": UserFactory,
@@ -39,6 +40,7 @@ FACTORY_MAPPING = {
     "Model": ModelFactory,
     "Deployment": DeploymentFactory,
     "AgentDeploymentModelAssociation": AgentDeploymentModelAssociation,
+    "Tool": ToolFactory,
 }
 
 

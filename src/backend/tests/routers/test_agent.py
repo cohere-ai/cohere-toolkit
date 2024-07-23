@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
+from backend.crud import tool as tool_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.metrics import MetricsData, MetricsMessageType
@@ -53,6 +54,7 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
         "temperature": 0.5,
         "model": "command-r-plus",
         "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
     }
 
     response = session_client.post(
@@ -78,6 +80,7 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert agent.temperature == request_json["temperature"]
     assert agent.model.name == request_json["model"]
     assert agent.deployment.name == request_json["deployment"]
+    assert len(agent.tools) == 3
 
 
 def test_create_agent_with_tool_metadata(
@@ -421,43 +424,11 @@ async def test_get_default_agent_mertic(
 
 def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user=user)
+    tool = get_factory("Tool", session).create(name="Test Tool")
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
-        artifacts=[
-            {
-                "name": "/folder1",
-                "ids": "folder1",
-                "type": "folder_id",
-            },
-            {
-                "name": "file1.txt",
-                "ids": "file1",
-                "type": "file_id",
-            },
-        ],
-    )
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.get(
-            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
-        assert m_args.assistant.name == agent.name
-
-
-def test_get_agent(session_client: TestClient, session: Session, user) -> None:
-    agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
-    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
-        user_id=user.id,
-        agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_id=tool.id,
         artifacts=[
             {
                 "name": "/folder1",
@@ -478,7 +449,7 @@ def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     assert response.status_code == 200
     response_agent = response.json()
     assert response_agent["name"] == agent.name
-    assert response_agent["tools_metadata"][0]["tool_name"] == ToolName.Google_Drive
+    assert response_agent["tools_metadata"][0]["tool_name"] == "Test Tool"
     assert (
         response_agent["tools_metadata"][0]["artifacts"]
         == agent_tool_metadata.artifacts
@@ -603,10 +574,12 @@ def test_update_agent_with_tool_metadata(
         temperature=0.5,
         user=user,
     )
+    tool = get_factory("Tool", session).create(name="Test Tool")
+    agent.associated_tools.append(tool)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_id=tool.id,
         artifacts=[
             {
                 "url": "test",
@@ -622,7 +595,7 @@ def test_update_agent_with_tool_metadata(
                 "user_id": user.id,
                 "organization_id": None,
                 "id": agent_tool_metadata.id,
-                "tool_name": "google_drive",
+                "tool_id": tool.id,
                 "artifacts": [
                     {
                         "url": "test",
@@ -649,7 +622,7 @@ def test_update_agent_with_tool_metadata(
         .all()
     )
     assert len(tool_metadata) == 1
-    assert tool_metadata[0].tool_name == "google_drive"
+    assert tool_metadata[0].tool_name == "Test Tool"
     assert tool_metadata[0].artifacts == [
         {"url": "test", "name": "test", "type": "folder"}
     ]
@@ -667,10 +640,14 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
         temperature=0.5,
         user=user,
     )
+    tool = get_factory("Tool", session).create(name="Test Tool")
+    tool_search_file = tool_crud.get_tool_by_name(session, ToolName.Search_File)
+    agent.associated_tools.append(tool)
+    agent.associated_tools.append(tool_search_file)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_id=tool.id,
         artifacts=[
             {
                 "url": "test",
@@ -686,7 +663,7 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
                 "user_id": user.id,
                 "organization_id": None,
                 "id": agent_tool_metadata.id,
-                "tool_name": "google_drive",
+                "tool_id": tool.id,
                 "artifacts": [
                     {
                         "url": "test",
@@ -696,7 +673,7 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
                 ],
             },
             {
-                "tool_name": "search_file",
+                "tool_id": tool_search_file.id,
                 "artifacts": [
                     {
                         "url": "test",
@@ -724,7 +701,7 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
     )
     assert len(tool_metadata) == 2
     tool_metadata.sort(key=lambda x: x.tool_name)
-    assert tool_metadata[0].tool_name == "google_drive"
+    assert tool_metadata[0].tool_name == "Test Tool"
     assert tool_metadata[0].artifacts == [
         {"url": "test", "name": "test", "type": "folder"}
     ]
@@ -746,10 +723,12 @@ def test_update_agent_remove_existing_tool_metadata(
         temperature=0.5,
         user=user,
     )
+    tool = get_factory("Tool", session).create(name="Test Tool")
+    agent.associated_tools.append(tool)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_id=tool.id,
         artifacts=[
             {
                 "url": "test",
@@ -929,8 +908,10 @@ def test_create_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
+    tool = get_factory("Tool", session).create(name="Test Tool")
+    agent.associated_tools.append(tool)
     request_json = {
-        "tool_name": ToolName.Google_Drive,
+        "tool_id": tool.id,
         "artifacts": [
             {
                 "name": "/folder1",
@@ -953,13 +934,13 @@ def test_create_agent_tool_metadata(
     assert response.status_code == 200
     response_agent_tool_metadata = response.json()
 
-    assert response_agent_tool_metadata["tool_name"] == request_json["tool_name"]
+    assert response_agent_tool_metadata["tool_id"] == request_json["tool_id"]
     assert response_agent_tool_metadata["artifacts"] == request_json["artifacts"]
 
     agent_tool_metadata = session.get(
         AgentToolMetadata, response_agent_tool_metadata["id"]
     )
-    assert agent_tool_metadata.tool_name == ToolName.Google_Drive
+    assert agent_tool_metadata.tool_name == "Test Tool"
     assert agent_tool_metadata.artifacts == [
         {
             "name": "/folder1",
@@ -978,10 +959,12 @@ def test_update_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
+    tool = get_factory("Tool", session).create(name="Test Tool")
+    agent.associated_tools.append(tool)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_id=tool.id,
         artifacts=[
             {
                 "name": "/folder1",
@@ -1039,10 +1022,14 @@ def test_get_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
+    tool1 = get_factory("Tool", session).create(name="Test Tool 1")
+    agent.associated_tools.append(tool1)
+    tool2 = get_factory("Tool", session).create(name="Test Tool 2")
+    agent.associated_tools.append(tool2)
     agent_tool_metadata_1 = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_id=tool1.id,
         artifacts=[
             {"name": "/folder", "ids": ["folder1", "folder2"], "type": "folder_ids"}
         ],
@@ -1050,7 +1037,7 @@ def test_get_agent_tool_metadata(
     agent_tool_metadata_2 = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Search_File,
+        tool_id=tool2.id,
         artifacts=[{"name": "file.txt", "ids": ["file1", "file2"], "type": "file_ids"}],
     )
 
@@ -1073,10 +1060,12 @@ def test_delete_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
+    tool = get_factory("Tool", session).create(name="Test Tool")
+    agent.associated_tools.append(tool)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_id=tool.id,
         artifacts=[
             {
                 "name": "/folder1",

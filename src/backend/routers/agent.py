@@ -87,16 +87,26 @@ async def create_agent(
     )
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
     tools_db = get_tools_from_agent(agent, session)
-    session.begin()
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
         add_agent_to_request_state(request, created_agent)
         if agent.tools_metadata:
             for tool_metadata in agent.tools_metadata:
+                if tool_metadata.tool_name:
+                    tool = tool_crud.get_tool_by_name(session, tool_metadata.tool_name)
+                    if not tool:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"Tool with name: {tool_metadata.tool_name} not found.",
+                        )
+                else:
+                    raise HTTPException(
+                        status_code=400, detail="Tool name is required for tool metadata."
+                    )
                 agent_tool_metadata_data = AgentToolMetadataModel(
                     user_id=user_id,
                     agent_id=created_agent.id,
-                    tool_name=tool_metadata.tool_name,
+                    tool_id=tool.id,
                     artifacts=tool_metadata.artifacts,
                 )
                 agent_tool_metadata_crud.create_agent_tool_metadata(
@@ -291,7 +301,7 @@ async def get_agent_by_id(
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
-    return agent
+    return Agent.custom_transform(agent)
 
 
 @router.get("/{agent_id}/deployments", response_model=list[DeploymentSchema])
@@ -366,6 +376,7 @@ async def update_agent(
 
     try:
         db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)
+        tools_db = get_tools_from_agent(new_agent, session)
         deployment_config = new_agent.deployment_config
         is_default_deployment = new_agent.is_default_deployment
         # remove association fields
@@ -376,6 +387,7 @@ async def update_agent(
                 "deployment_config",
                 "is_default_deployment",
                 "is_default_model",
+                "tools"
             }
         )
         # TODO Eugene - if no deployment or model is provide or if the deployment or model is not found, should we raise an error?
@@ -416,6 +428,13 @@ async def update_agent(
         agent = agent_crud.update_agent(
             session, agent, UpdateAgent(**new_agent_cleaned)
         )
+        if tools_db:
+            tool_crud.remove_all_tools_from_agent(session, agent)
+            for tool in tools_db:
+                tool_crud.assign_tool_to_agent(
+                    session, tool, agent, tool.default_tool_config
+                )
+
         add_agent_to_request_state(request, agent)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -427,9 +446,9 @@ async def handle_tool_metadata_update(
     agent: Agent, new_agent: Agent, session: DBSessionDep, request: Request
 ) -> Agent:
     # Delete tool metadata that are not in the request
-    new_tools_names = [metadata.tool_name for metadata in new_agent.tools_metadata]
+    new_tools_ids = [metadata.id for metadata in new_agent.tools_metadata if metadata.id]
     for tool_metadata in agent.tools_metadata:
-        if tool_metadata.tool_name not in new_tools_names:
+        if tool_metadata.id not in new_tools_ids:
             agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
                 session, tool_metadata.id
             )
@@ -556,7 +575,7 @@ def create_agent_tool_metadata(
     agent_tool_metadata_data = AgentToolMetadataModel(
         user_id=user_id,
         agent_id=agent_id,
-        tool_name=agent_tool_metadata.tool_name,
+        tool_id=agent_tool_metadata.tool_id,
         artifacts=agent_tool_metadata.artifacts,
     )
 

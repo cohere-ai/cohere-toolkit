@@ -12,20 +12,19 @@ DEFAULT_AUTH_MODULE = "backend.services.auth"
 
 class Tool(Base):
     __tablename__ = "tools"
-    # TODO Eugene: Remove commented out columns or uncomment them after Cohere confirmation
+    # TODO Eugene: change column list after Cohere confirmation
     name: Mapped[str] = mapped_column(Text, nullable=False)
     display_name: Mapped[str] = mapped_column(Text, nullable=False)
-    # implementation_class_name: Mapped[str] = mapped_column(Text, nullable=False)
+    implementation_class_name: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, default="")
-    # parameter_definitions: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
-    # kwargs: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    parameter_definitions: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    kwargs: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     default_tool_config: Mapped[Optional[dict]] = mapped_column(JSON)
     is_visible: Mapped[bool] = mapped_column(Boolean, default=True)
     is_community: Mapped[bool] = mapped_column(Boolean, default=False)
-    error_message: Mapped[Optional[str]] = mapped_column(Text)
+    error_message_text: Mapped[Optional[str]] = mapped_column(Text)
     category: Mapped[Optional[str]] = mapped_column(Text)
-    # is_auth_required: Mapped[bool] = mapped_column(Boolean, default=False)
-    # auth_implementation_class_name: Mapped[Optional[str]] = mapped_column(Text)
+    auth_implementation_class_name: Mapped[Optional[str]] = mapped_column(Text)
 
     agent_tool_associations = relationship(
         "AgentToolAssociation", back_populates="tool"
@@ -58,28 +57,32 @@ class Tool(Base):
         return all(value for value in self.default_tool_config.values())
 
     @property
+    def error_message(self) -> str:
+        return self.error_message_text if not self.is_available else None
+
+    @property
     def env_vars(self) -> List[str]:
         return list(self.default_tool_config.keys()) if self.default_tool_config else []
 
-    # @property
-    # def implementation_class(self):
-    #     from backend.services.get_module_class import get_module_class
-    #
-    #     if not self.implementation_class_name:
-    #         return None
-    #     cls = get_module_class(DEFAULT_TOOLS_MODULE, self.implementation_class_name)
-    #     if not cls:
-    #         cls = get_module_class(
-    #             COMMUNITY_TOOLS_MODULE, self.implementation_class_name
-    #         )
-    #
-    #     return cls
-    #
-    # @property
-    # def auth_implementation_class(self):
-    #     from backend.services.get_module_class import get_module_class
-    #
-    #     if not self.auth_implementation_class_name:
-    #         return None
-    #     cls = get_module_class(DEFAULT_AUTH_MODULE, self.implementation_class_name)
-    #     return cls
+    @property
+    def implementation(self):
+        from backend.services.get_module_class import get_module_class
+
+        if not self.implementation_class_name:
+            return None
+        cls = get_module_class(DEFAULT_TOOLS_MODULE, self.implementation_class_name)
+        if not cls:
+            cls = get_module_class(
+                COMMUNITY_TOOLS_MODULE, self.implementation_class_name
+            )
+
+        return cls
+
+    @property
+    def auth_implementation(self):
+        from backend.services.get_module_class import get_module_class
+
+        if not self.auth_implementation_class_name:
+            return None
+        cls = get_module_class(DEFAULT_AUTH_MODULE, self.implementation_class_name)
+        return cls

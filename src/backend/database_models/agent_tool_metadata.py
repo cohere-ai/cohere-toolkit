@@ -16,8 +16,8 @@ class AgentToolMetadata(Base):
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=False
     )
-    tool_id: Mapped[Optional[str]] = mapped_column(
-        ForeignKey("tools.id", name="metadata_tool_id_fkey", ondelete="CASCADE")
+    tool_id: Mapped[str] = mapped_column(
+        ForeignKey("tools.id", name="metadata_tool_id_fkey", ondelete="CASCADE"), nullable=False
     )
 
     agent = relationship("Agent", back_populates="tools_metadata")

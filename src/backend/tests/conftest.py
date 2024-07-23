@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
-from backend.database_models import get_session
+from backend.database_models import get_session, Tool
 from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
@@ -173,6 +173,11 @@ def model(session: Session) -> Model:
 @pytest.fixture
 def agent(session: Session) -> Agent:
     return get_factory("Agent", session).create()
+
+
+@pytest.fixture
+def tool(session: Session) -> Tool:
+    return get_factory("Tool", session).create()
 
 
 @pytest.fixture

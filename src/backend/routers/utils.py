@@ -97,7 +97,8 @@ def get_tools_from_agent(agent: Agent, session: DBSessionDep):
 
     tools_db = tool_crud.get_available_tools(session)
     tools = []
-    for tool in tools_db:
-        if tool.name in agent.tools:
-            tools.append(tool)
+    if agent.tools:
+        for tool in tools_db:
+            if tool.name in agent.tools:
+                tools.append(tool)
     return tools
