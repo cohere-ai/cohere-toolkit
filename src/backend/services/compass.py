@@ -56,9 +56,7 @@ class Compass:
             )
 
         self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
-        self.compass_parser_url = compass_parser_url or os.getenv(
-            "COHERE_COMPASS_PARSER_URL"
-        )
+        self.compass_parser_url = compass_parser_url or os.getenv("COHERE_COMPASS_PARSER_URL")
         self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
         self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
         self.parser_config = parser_config
@@ -77,7 +75,7 @@ class Compass:
             username=self.username,
             password=self.password,
         )
-            
+
     def health_check(self):
         try:
             self.compass_client.list_indexes()
@@ -118,13 +116,9 @@ class Compass:
                 case self.ValidActions.LIST_INDEXES.value:
                     return self.compass_client.list_indexes()
                 case self.ValidActions.CREATE_INDEX.value:
-                    return self.compass_client.create_index(
-                        index_name=parameters["index"]
-                    )
+                    return self.compass_client.create_index(index_name=parameters["index"])
                 case self.ValidActions.CREATE_INDEX.value:
-                    return self.compass_client.delete_index(
-                        index_name=parameters["index"]
-                    )
+                    return self.compass_client.delete_index(index_name=parameters["index"])
                 case self.ValidActions.CREATE.value:
                     self._create(parameters, **kwargs)
                 case self.ValidActions.SEARCH.value:
@@ -149,7 +143,6 @@ class Compass:
                     )
         except Exception as e:
             message = "Compass Error: {}".format(str(e))
-            logger.error(message)
             raise Exception(message)
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
@@ -167,8 +160,9 @@ class Compass:
             docs=compass_docs,
         )
         if error is not None:
-            message = ("Compass Tool: Error inserting/updating document ",)
-            f"into Compass: {error}"
+            message = "Compass Tool: Error inserting/updating document into Compass: {}".format(
+                error,
+            )
             raise Exception(message)
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
@@ -255,11 +249,9 @@ class Compass:
             )
 
         # Check if filename is specified for file-related actions
-        if not parameters.get("filename", None) and not parameters.get(
-            "file_text", None
-        ):
+        if not parameters.get("filename", None) and not parameters.get("file_bytes", None):
             logger.error(
-                "Compass Tool: No filename or file_text specified for "
+                "Compass Tool: No filename or file_bytes specified for "
                 "create/update operation. "
                 "No action will be taken. "
                 f"Parameters specified: {parameters}"
@@ -268,7 +260,7 @@ class Compass:
 
         file_id = parameters["file_id"]
         filename = parameters.get("filename", None)
-        file_text = parameters.get("file_text", None)
+        file_bytes = parameters.get("file_bytes", None)
 
         if filename and not os.path.exists(filename):
             logger.error(
@@ -279,9 +271,7 @@ class Compass:
             return None
 
         parser_config = self.parser_config or parameters.get("parser_config", None)
-        metadata_config = metadata_config = self.metadata_config or parameters.get(
-            "metadata_config", None
-        )
+        metadata_config = metadata_config = self.metadata_config or parameters.get("metadata_config", None)
 
         if filename:
             return self.parser_client.process_file(
@@ -294,14 +284,12 @@ class Compass:
             )
         else:
             return self._raw_parsing(
-                text=file_text,
+                file_bytes=file_bytes,
                 file_id=file_id,
-                bytes_content=isinstance(file_text, bytes),
             )
 
-    def _raw_parsing(self, text: str, file_id: str, bytes_content: bool):
-        text_bytes = str.encode(text) if not bytes_content else text
-        if len(text_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
+    def _raw_parsing(self, file_bytes: str, file_id: str):
+        if len(file_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
                 f"File too large, supported file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "
                 f"mb, file_id {file_id}"
@@ -313,13 +301,11 @@ class Compass:
             metadata_config=self.metadata_config,
             doc_id=file_id,
         )
-        auth = (
-            (self.username, self.password) if self.username and self.password else None
-        )
+        auth = (self.username, self.password) if self.username and self.password else None
         res = self.parser_client.session.post(
             url=f"{self.parser_client.parser_url}/v1/process_file",
             data={"data": json.dumps(params.model_dump())},
-            files={"file": (file_id, text_bytes)},
+            files={"file": (file_id, file_bytes)},
             auth=auth,
         )
 
@@ -329,6 +315,8 @@ class Compass:
                 additional_metadata = CompassParserClient._get_metadata(doc=doc)
                 doc.content = {**doc.content, **additional_metadata}
         else:
+            print(res)
+            print(res.ok)
             docs = []
             logger.error(f"Error processing file: {res.text}")
 

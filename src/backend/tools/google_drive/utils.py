@@ -8,7 +8,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
-from backend.services.compass import Compass
 from backend.services.logger import get_logger
 from backend.tools.google_drive.constants import DOC_FIELDS
 
@@ -21,15 +20,11 @@ NATIVE DOWNLOAD
 """
 
 
-def perform_native_batch(
-    file_ids: List[str], creds: Credentials
-) -> List[Dict[str, str]]:
+def perform_native_batch(file_ids: List[str], creds: Credentials) -> List[Dict[str, str]]:
     results = []
 
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures_list = [
-            executor.submit(_get_native_file, file_id, creds) for file_id in file_ids
-        ]
+        futures_list = [executor.submit(_get_native_file, file_id, creds) for file_id in file_ids]
         for future in futures.as_completed(futures_list):
             try:
                 results.append(future.result())
@@ -64,20 +59,14 @@ def perform_non_native_batch(service: Any, file_ids: List[str]) -> Dict[str, str
     tasks = []
 
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures_list = [
-            executor.submit(_download_non_native_file, service, file_id)
-            for file_id in file_ids
-        ]
+        futures_list = [executor.submit(_download_non_native_file, service, file_id) for file_id in file_ids]
         for future in futures.as_completed(futures_list):
             try:
                 tasks.append(future.result())
             except Exception as e:
                 raise e
 
-    return {
-        "{}".format(task.get("file_id", "")): task.get("file_text", "")
-        for task in tasks
-    }
+    return {"{}".format(task.get("file_id", "")): task.get("file_text", "") for task in tasks}
 
 
 def perform_non_native_single(service: Any, file_id: str):
@@ -85,7 +74,6 @@ def perform_non_native_single(service: Any, file_id: str):
 
 
 def _download_non_native_file(service: Any, file_id: str):
-    compass = Compass()
     request = service.files().get_media(fileId=file_id)
     file = io.BytesIO()
     downloader = MediaIoBaseDownload(file, request)
@@ -97,15 +85,11 @@ def _download_non_native_file(service: Any, file_id: str):
             logger.info("Downloading {}: {}%".format(file_id, status.progress()))
         logger.info("Finished downloading {}".format(file_id))
     except HttpError as e:
-        message = "An error occurred downloading file with id {}: {} -- {}".format(
-            file_id, type(e), e
-        )
+        message = "An error occurred downloading file with id {}: {} -- {}".format(file_id, type(e), e)
         logger.error(message)
         return ""
     except Exception as e:
-        message = "An error occurred downloading file with id {}: {} -- {}".format(
-            file_id, type(e), e
-        )
+        message = "An error occurred downloading file with id {}: {} -- {}".format(file_id, type(e), e)
         logger.error(message)
         return ""
 
@@ -113,20 +97,7 @@ def _download_non_native_file(service: Any, file_id: str):
         return ""
 
     file_bytes = file.getvalue()
-    logger.info("Initiated processing raw file bytes for {}".format(file_id))
-    try:
-        file_text = compass.invoke(
-            action=Compass.ValidActions.PROCESS_FILE,
-            parameters={"file_id": file_id, "file_text": file_bytes},
-        )[0].content["text"]
-        logger.info("Finished processing raw file bytes for {}".format(file_id))
-        return file_text
-    except Exception as e:
-        message = "An error occurred invoking Compass to process file with id {}: {} -- {}".format(
-            file_id, type(e), e
-        )
-        logger.error(message)
-        return ""
+    return file_bytes
 
 
 """
@@ -153,9 +124,7 @@ def process_shortcut_file(service: Any, file: Dict[str, str]) -> Dict[str, str]:
             )
             return targetFile
         except Exception as e:
-            message = "An error occurred processing a shortcut file with id {}: {} -- {}".format(
-                file["id"], type(e), e
-            )
+            message = "An error occurred processing a shortcut file with id {}: {} -- {}".format(file["id"], type(e), e)
             logger.error(message)
             return {}
     else:

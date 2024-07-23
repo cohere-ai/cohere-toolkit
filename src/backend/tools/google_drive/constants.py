@@ -5,7 +5,7 @@ TEXT_MIMETYPE = "text/plain"
 SEARCH_LIMIT = 5
 COMPASS_UPDATE_INTERVAL = 86400
 # TODO dev only: revert to 86400
-ACTIVITY_TRACKING_WINDOW = 4 * 86400
+ACTIVITY_TRACKING_WINDOW = 5 * 86400
 SCOPES = [
     "https://www.googleapis.com/auth/drive.metadata.readonly",
     "https://www.googleapis.com/auth/drive.readonly",

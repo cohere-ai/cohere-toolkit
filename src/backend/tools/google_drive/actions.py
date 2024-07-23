@@ -31,40 +31,37 @@ def create(event_type: str, file_id: str, index_name: str, user_id: str):
         agent_creator_auth_token = None
 
         with db_sessionmaker() as session, session.begin():
-            agent_creator_auth_token = gdrive_auth.get_token(
-                session=session, user_id=user_id
-            )
+            agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
             if agent_creator_auth_token is None:
                 raise Exception("Sync GDrive Error: No agent creator credentials found")
 
             if gdrive_auth.is_auth_required(session, user_id=user_id):
-                raise Exception(
-                    "Sync GDrive Error: Agent creator credentials need to re-authenticate"
-                )
+                raise Exception("Sync GDrive Error: Agent creator credentials need to re-authenticate")
 
         creds = Credentials(agent_creator_auth_token)
 
     service = build("drive", "v3", credentials=creds, cache_discovery=False)
 
     file_get = perform_native_single(file_id=file_id, creds=creds)
-    if file_get["trashed"]:
-        # # Delete file if trashed
-        # logger.info("Initiating Compass delete action for file {}".format(file_id))
-        # compass.invoke(
-        #     compass.ValidActions.DELETE,
-        #     {
-        #         "index": index_name,
-        #         "file_id": file_id,
-        #     },
-        # )
-        # logger.info("Finished Compass delete action for file {}".format(file_id))
-        return {"action": "create", "status": Status.CANCELLED.value}
+    # TODO put back
+    # if file_get["trashed"]:
+    # # Delete file if trashed
+    # logger.info("Initiating Compass delete action for file {}".format(file_id))
+    # compass.invoke(
+    #     compass.ValidActions.DELETE,
+    #     {
+    #         "index": index_name,
+    #         "file_id": file_id,
+    #     },
+    # )
+    # logger.info("Finished Compass delete action for file {}".format(file_id))
+    # return {"action": "create", "status": Status.CANCELLED.value}
 
     processed_file = process_shortcut_file(service, file_get)
     web_view_link = extract_web_view_link(processed_file)
     title = extract_title(file_get)
 
-    file_text = ""
+    file_bytes = None
     if processed_file["mimeType"] in NATIVE_SEARCH_MIME_TYPES:
         # native files
         export_link = extract_export_link(processed_file)
@@ -74,41 +71,42 @@ def create(event_type: str, file_id: str, index_name: str, user_id: str):
                 url=export_link,
                 access_token=creds.token,
             )
+            file_bytes = str.encode(file_text)
     else:
         # non-native files
-        file_text = perform_non_native_single(
-            service=service, file_id=processed_file["id"]
-        )
+        file_bytes = perform_non_native_single(service=service, file_id=processed_file["id"])
 
-    if not file_text:
+    if not file_bytes:
         return {
             "action": "create",
             "status": Status.FAIL.value,
-            "message": "File text is empty or could not be parsed.",
+            "message": "File bytes could not be parsed.",
             "file_id": file_id,
         }
 
     try:
         # idempotent create index
-        logger.info("Initiating Compass create action for file {}".format(file_id))
+        logger.info("Initiating Compass create_index action for file {}".format(web_view_link))
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.CREATE_INDEX,
             {
                 "index": index_name,
             },
         )
+        logger.info("Finished Compass create_index action for file {}".format(web_view_link))
+        logger.info("Initiating Compass create action for file {}".format(web_view_link))
         # Create or replace doc (if already exists)
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.CREATE,
             {
                 "index": index_name,
                 "file_id": file_id,
-                "file_text": file_text,
+                "file_bytes": file_bytes,
             },
         )
-        logger.info("Finished Compass create action for file {}".format(file_id))
+        logger.info("Finished Compass create action for file {}".format(web_view_link))
     except Exception as e:
-        logger.error("Failed to create document in Compass: {}".format(str(e)))
+        logger.error("Failed to create document in Compass for file {}: {}".format(web_view_link, str(e)))
         return {"action": "create", "status": Status.FAIL.value, "file_id": file_id}
 
     return {"action": "create", "status": Status.SUCCESS.value, "file_id": file_id}

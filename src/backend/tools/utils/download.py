@@ -9,14 +9,11 @@ from backend.services.logger import get_logger
 logger = get_logger()
 
 
-def perform_batch(
-    httpx_client: httpx.Client, id_to_urls: dict[str, str], access_token: str
-) -> dict[str, str]:
+def perform_batch(httpx_client: httpx.Client, id_to_urls: dict[str, str], access_token: str) -> dict[str, str]:
     texts = []
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
         futures_list = [
-            executor.submit(_download, httpx_client, id, url, access_token)
-            for (id, url) in id_to_urls.items()
+            executor.submit(_download, httpx_client, id, url, access_token) for (id, url) in id_to_urls.items()
         ]
         for future in futures.as_completed(futures_list):
             try:
@@ -27,9 +24,7 @@ def perform_batch(
     return texts
 
 
-def perform_single(
-    httpx_client: httpx.Client, url: str, access_token: str
-) -> Dict[str, str]:
+def perform_single(httpx_client: httpx.Client, url: str, access_token: str) -> Dict[str, str]:
     return _download(httpx_client=httpx_client, url=url, access_token=access_token)
 
 
