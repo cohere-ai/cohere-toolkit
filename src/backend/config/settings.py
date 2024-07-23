@@ -173,8 +173,8 @@ class SageMakerSettings(BaseSettings, BaseModel):
 
 class AzureSettings(BaseSettings, BaseModel):
     model_config = setting_config
-    endpoints_url: Optional[str] = Field(
-        validation_alias=AliasChoices("AZURE_CHAT_ENDPOINT_URL", "endpoints_url")
+    endpoint_url: Optional[str] = Field(
+        validation_alias=AliasChoices("AZURE_CHAT_ENDPOINT_URL", "endpoint_url")
     )
     api_key: Optional[str] = Field(
         validation_alias=AliasChoices("AZURE_API_KEY", "api_key")

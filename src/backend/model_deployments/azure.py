@@ -27,7 +27,7 @@ class AzureDeployment(BaseDeployment):
 
     azure_config = Settings().deployments.azure
     default_api_key = azure_config.api_key
-    default_chat_endpoint_url = azure_config.endpoints_url
+    default_chat_endpoint_url = azure_config.endpoint_url
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
