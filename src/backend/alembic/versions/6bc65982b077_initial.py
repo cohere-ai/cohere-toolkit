@@ -116,8 +116,8 @@ def upgrade() -> None:
     )
     op.create_table(
         "citation_documents",
-        sa.Column("left_id", sa.String(), nullable=True),
-        sa.Column("right_id", sa.String(), nullable=True),
+        sa.Column("left_id", sa.String(), nullable=False),
+        sa.Column("right_id", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(["left_id"], ["documents.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["right_id"], ["citations.id"], ondelete="CASCADE"),
         sa.Column("id", sa.String(), nullable=False),
