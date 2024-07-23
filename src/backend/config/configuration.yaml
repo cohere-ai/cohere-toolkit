@@ -20,6 +20,7 @@ database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
 tools:
   enabled_tools:
+    - google_drive
     - search_file
     - read_document
     - toolkit_python_interpreter

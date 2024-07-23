@@ -27,7 +27,10 @@ def get_deployment(name, **kwargs: Any) -> BaseDeployment:
 
     # Fallback to first available deployment
     default = get_default_deployment(**kwargs)
-    if default is not None and default.is_available:
+    if default is not None:
+        deployment = AVAILABLE_MODEL_DEPLOYMENTS.get(name) 
+        if deployment is not None and deployment.is_available:
+            return deployment.deployment_class(**kwargs, **deployment.kwargs)
         return default
 
     raise ValueError(
