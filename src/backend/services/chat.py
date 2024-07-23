@@ -55,7 +55,6 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 from backend.services.generators import AsyncGeneratorContextManager
-from backend.services.metrics import report_streaming_chat_event
 
 
 def process_chat(
