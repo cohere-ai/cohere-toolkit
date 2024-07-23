@@ -75,7 +75,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
           'md:transition-[min-width,max-width]',
           {
-            'md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
+            'gap-y-4 md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
               !isAgentsSidePanelOpen,
             'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
               isAgentsSidePanelOpen,
