@@ -171,7 +171,6 @@ async def filter_conversations(
 
 
 async def generate_conversation_title(
-    request,
     session,
     conversation,
     deployment_name,
@@ -204,7 +203,6 @@ async def generate_conversation_title(
         )
 
         response = await generate_chat_response(
-            request,
             session,
             CustomChat().chat(
                 chat_request,

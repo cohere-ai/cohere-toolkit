@@ -485,7 +485,6 @@ def save_tool_calls_message(
 
 
 async def generate_chat_response(
-    request: Request,
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
@@ -513,7 +512,6 @@ async def generate_chat_response(
         bytes: Byte representation of chat response event.
     """
     stream = generate_chat_stream(
-        request,
         session,
         model_deployment_stream,
         response_message,
@@ -550,7 +548,6 @@ async def generate_chat_response(
 
 
 async def generate_chat_stream(
-    request: Request,
     session: DBSessionDep,
     model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,

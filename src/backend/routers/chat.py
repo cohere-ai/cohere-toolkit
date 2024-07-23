@@ -79,7 +79,6 @@ async def chat_stream(
 
     return EventSourceResponse(
         generate_chat_stream(
-            request,
             session,
             CustomChat().chat(
                 chat_request,
@@ -147,7 +146,6 @@ async def chat(
     ) = process_chat(session, chat_request, request, agent_id)
 
     response = await generate_chat_response(
-        request,
         session,
         CustomChat().chat(
             chat_request,
