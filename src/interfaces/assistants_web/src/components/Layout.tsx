@@ -10,16 +10,14 @@ import { cn } from '@/utils/cn';
 export const LeftSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
 export const MainSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
 
-type Props = {
-  showSettingsDrawer?: boolean;
-} & PropsWithChildren;
+type Props = {} & PropsWithChildren;
 
 /**
  * @description This component is in charge of layout out the entire page when agents are available.
   It shows the navigation bar, the left drawer and main content.
   On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
-export const Layout: React.FC<Props> = ({ showSettingsDrawer = false, children }) => {
+export const Layout: React.FC<Props> = ({ children }) => {
   let leftElement: React.ReactNode = null;
   let mainElement: React.ReactNode = null;
 
@@ -56,7 +54,7 @@ export const Layout: React.FC<Props> = ({ showSettingsDrawer = false, children }
           >
             {mainElement}
           </section>
-          {showSettingsDrawer && <SettingsDrawer />}
+          <SettingsDrawer />
         </div>
       </div>
       <AgentsSidePanel className="rounded-bl-none rounded-tl-none md:hidden">

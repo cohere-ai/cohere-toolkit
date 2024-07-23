@@ -25,7 +25,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
       <Field className="flex flex-col gap-y-2">
         {label && (
           <Label className="flex items-start gap-x-2">
-            <Text styleAs="label" className="text-marble-950">
+            <Text styleAs="label" className="dark:text-marble-950">
               {label}
             </Text>
             {errorText && (
@@ -44,9 +44,9 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
               'rounded-lg border border-volcanic-500',
               'w-full px-3 py-[18px]',
               'outline-none',
-              'bg-volcanic-100 focus:bg-volcanic-150',
-              'text-marble-950 placeholder:text-volcanic-600',
-              'disabled:bg-volcanic-300 disabled:text-volcanic-600',
+              'bg-white focus:bg-marble-950 dark:bg-volcanic-100 dark:text-marble-950 dark:focus:bg-volcanic-150',
+              'placeholder:text-volcanic-500 dark:placeholder:text-volcanic-600',
+              'disabled:bg-volcanic-800 disabled:text-volcanic-300 dark:disabled:bg-volcanic-300 dark:disabled:text-volcanic-600',
               {
                 'pr-8': actionType,
               },
@@ -67,7 +67,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
               )}
             >
               <Icon
-                className="text-marble-950"
+                className="dark:text-marble-950"
                 name={!showPassword ? 'show' : 'hide'}
                 kind="outline"
               />
@@ -91,7 +91,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
               )}
             >
               <Icon
-                className={cn({ 'text-marble-950': !!value, 'text-volcanic-600': !value })}
+                className={cn({ 'dark:text-marble-950': !!value, 'text-volcanic-600': !value })}
                 name="copy"
                 kind={copied ? 'default' : 'outline'}
               />
