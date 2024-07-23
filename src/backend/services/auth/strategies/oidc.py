@@ -20,7 +20,6 @@ class OpenIDConnect(BaseOAuthStrategy):
     def __init__(self):
         try:
             self.settings = Settings().auth.oidc
-            print(Settings().auth.oidc.client_secret)
             self.REDIRECT_URI = (
                 f"{Settings().auth.frontend_hostname}/auth/{self.NAME.lower()}"
             )

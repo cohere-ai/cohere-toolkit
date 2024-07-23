@@ -1,18 +1,11 @@
-import asyncio
 import logging
-import os
-import threading
-import time
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, Dict, List
 
+from backend.config.settings import Settings
 import cohere
 import requests
-from cohere.core.api_error import ApiError
-from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
-from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -29,11 +22,7 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = get_config_value(
-        Configuration.get_deployment_config("cohere_platform"),
-        "api_key",
-        COHERE_API_KEY_ENV_VAR,
-    )
+    api_key = Settings().deployments.cohere_platform.api_key
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request

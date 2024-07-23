@@ -1,11 +1,11 @@
 import os
 import sys
 
+from backend.config.settings import Settings
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from backend.config.config import Configuration, get_config_value
 from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 
 load_dotenv()
@@ -20,11 +20,8 @@ SKIP_AUTH = os.getenv("SKIP_AUTH", None)
 # Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
 ENABLED_AUTH_STRATEGIES = []
-if ENABLED_AUTH_STRATEGIES == [] and Configuration.auth_config.get("enabled_auth"):
-    for auth in Configuration.auth_config.get("enabled_auth"):
-        auth_class = auth_map.get(auth)
-        if auth_class:
-            ENABLED_AUTH_STRATEGIES.append(auth_class)
+if ENABLED_AUTH_STRATEGIES == [] and Settings().auth.enabled_auth is not None:
+    ENABLED_AUTH_STRATEGIES = [auth_map[auth] for auth in Settings().auth.enabled_auth]
 if "pytest" in sys.modules or SKIP_AUTH == "true":
     ENABLED_AUTH_STRATEGIES = []
 
@@ -34,9 +31,7 @@ if "pytest" in sys.modules or SKIP_AUTH == "true":
 ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
 
 # Token to authorize migration requests
-MIGRATE_TOKEN = get_config_value(
-    Configuration.database_config, "migrate_token", "MIGRATE_TOKEN"
-)
+MIGRATE_TOKEN = Settings().database.migrate_token
 
 security = HTTPBearer()
 

@@ -2,9 +2,9 @@ import os
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional
 
+from backend.config.settings import Settings
 from fastapi import Request
 
-from backend.config.config import Configuration, get_config_value
 from backend.database_models.database import DBSessionDep
 
 
@@ -48,19 +48,10 @@ class BaseToolAuthentication:
     """
 
     def __init__(self, *args, **kwargs):
-        self.BACKEND_HOST = get_config_value(
-            Configuration.auth_config,
-            "backend_hostname",
-            os.getenv("NEXT_PUBLIC_API_HOSTNAME"),
-        )
-        self.FRONTEND_HOST = get_config_value(
-            Configuration.auth_config,
-            "frontend_hostname",
-            os.getenv("FRONTEND_HOSTNAME"),
-        )
-        self.AUTH_SECRET_KEY = get_config_value(
-            Configuration.auth_config, "secret_key", os.getenv("AUTH_SECRET_KEY")
-        )
+        auth_config =  Settings().auth
+        self.BACKEND_HOST =auth_config.backend_hostname
+        self.FRONTEND_HOST = auth_config.frontend_hostname
+        self.AUTH_SECRET_KEY = auth_config.secret_key
 
         self._post_init_check()
 

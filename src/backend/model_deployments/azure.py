@@ -1,16 +1,9 @@
-import logging
 import os
-import threading
-import time
 from typing import Any, AsyncGenerator, Dict, List
 
+from backend.config.settings import Settings
 import cohere
-from cohere.core.api_error import ApiError
-from cohere.types import StreamedChatResponse
-
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
-from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -31,13 +24,9 @@ class AzureDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["azure-command"]
 
-    azure_config = Configuration.get_deployment_config("azure")
-    default_api_key = get_config_value(
-        azure_config, "api_key", os.environ.get(AZURE_API_KEY_ENV_VAR)
-    )
-    default_chat_endpoint_url = get_config_value(
-        azure_config, "endpoint_url", os.environ.get(AZURE_CHAT_URL_ENV_VAR)
-    )
+    azure_config = Settings().deployments.azure
+    default_api_key =   azure_config.api_key   
+    default_chat_endpoint_url = azure_config.endpoints_url
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request

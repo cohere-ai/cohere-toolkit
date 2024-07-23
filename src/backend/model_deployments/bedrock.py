@@ -1,16 +1,9 @@
-import logging
-import os
-import threading
-import time
 from typing import Any, AsyncGenerator, Dict, List
 
+from backend.config.settings import Settings
 import cohere
-from cohere.core.api_error import ApiError
-from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
-from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -30,19 +23,11 @@ BEDROCK_ENV_VARS = [
 class BedrockDeployment(BaseDeployment):
     DEFAULT_MODELS = ["cohere.command-r-plus-v1:0"]
 
-    bedrock_config = Configuration.get_deployment_config("bedrock")
-    region_name = get_config_value(
-        bedrock_config, "region_name", BEDROCK_REGION_NAME_ENV_VAR
-    )
-    access_key = get_config_value(
-        bedrock_config, "access_key", BEDROCK_ACCESS_KEY_ENV_VAR
-    )
-    secret_access_key = get_config_value(
-        bedrock_config, "secret_key", BEDROCK_SECRET_KEY_ENV_VAR
-    )
-    session_token = get_config_value(
-        bedrock_config, "session_token", BEDROCK_SESSION_TOKEN_ENV_VAR
-    )
+    bedrock_config = Settings().deployments.bedrock
+    region_name = bedrock_config.region_name
+    access_key = bedrock_config.access_key
+    secret_access_key = bedrock_config.secret_key
+    session_token = bedrock_config.session_token
 
     def __init__(self, **kwargs: Any):
         self.client = cohere.BedrockClient(

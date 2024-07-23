@@ -1,9 +1,7 @@
 import logging
-import os
-from distutils.util import strtobool
 from enum import StrEnum
 
-from backend.config.config import Configuration, get_config_value, get_feature_flag
+from backend.config.settings import Settings
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools import (
     Calculator,
@@ -187,12 +185,8 @@ ALL_TOOLS = {
 
 def get_available_tools() -> dict[ToolName, dict]:
     langchain_tools = [ToolName.Python_Interpreter, ToolName.Tavily_Internet_Search]
-    use_langchain_tools = get_feature_flag(
-        "use_experimental_langchain", "USE_EXPERIMENTAL_LANGCHAIN", False
-    )
-    use_community_tools = get_feature_flag(
-        "use_community_features", "USE_COMMUNITY_FEATURES", False
-    )
+    use_langchain_tools = Settings().feature_flags.use_experimental_langchain
+    use_community_tools = Settings().feature_flags.use_community_features
 
     if use_langchain_tools:
         return {
@@ -215,7 +209,7 @@ def get_available_tools() -> dict[ToolName, dict]:
         # Retrieve name
         tool.name = tool.implementation.NAME
 
-    enabled_tools = Configuration.tool_config.get("enabled_tools")
+    enabled_tools = Settings().tools.enabled_tools
     if enabled_tools is not None:
         tools = {key: value for key, value in tools.items() if key in enabled_tools}
 

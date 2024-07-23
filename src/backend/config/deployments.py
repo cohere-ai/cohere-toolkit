@@ -1,9 +1,7 @@
 import logging
-import os
-from distutils.util import strtobool
 from enum import StrEnum
 
-from backend.config.config import Configuration, get_feature_flag
+from backend.config.settings import Settings
 from backend.model_deployments import (
     AzureDeployment,
     BedrockDeployment,
@@ -27,9 +25,7 @@ class ModelDeploymentName(StrEnum):
     SingleContainer = "Single Container"
 
 
-use_community_features = get_feature_flag(
-    "use_community_features", "USE_COMMUNITY_FEATURES", False
-)
+use_community_features = Settings().feature_flags.use_community_features
 
 # TODO names in the map below should not be the display names but ids
 ALL_MODEL_DEPLOYMENTS = {
@@ -91,17 +87,15 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
                 "Community deployments are not available. They can still be set up."
             )
 
-    if Configuration.deployment_config.get("enabled_deployments"):
+    if Settings().deployments.enabled_deployments:
         return {
             key: value
             for key, value in ALL_MODEL_DEPLOYMENTS.items()
-            if value.id in Configuration.deployment_config.get("enabled_deployments")
+            if value.id in Settings().deployments.enabled_deployments
         }
 
     return ALL_MODEL_DEPLOYMENTS
 
-
-# TODO test
 def get_default_deployment(**kwargs) -> ModelDeploymentName:
     # Fallback to the first available deployment
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
@@ -109,7 +103,7 @@ def get_default_deployment(**kwargs) -> ModelDeploymentName:
             fallback = deployment.deployment_class(**kwargs)
             break
 
-    default = Configuration.deployment_config.get("default_deployment")
+    default = Settings().deployments.default_deployment
     if default:
         return next(
             (k for k, v in AVAILABLE_MODEL_DEPLOYMENTS.items() if v.id == default),

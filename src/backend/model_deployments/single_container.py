@@ -1,11 +1,11 @@
 import os
 from typing import Any, AsyncGenerator, Dict, List
 
+from backend.config.settings import Settings
 import cohere
 from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
-from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -20,9 +20,9 @@ class SingleContainerDeployment(BaseDeployment):
     """Single Container Deployment."""
 
     client_name = "cohere-toolkit"
-    config = Configuration.get_deployment_config("single_container")
-    default_url = get_config_value(config, "url", SC_URL_ENV_VAR)
-    default_model = get_config_value(config, "model", SC_MODEL_ENV_VAR)
+    config = Settings().deployments.single_container
+    default_url = config.url
+    default_model = config.model
 
     def __init__(self, **kwargs: Any):
         self.url = get_model_config_var(

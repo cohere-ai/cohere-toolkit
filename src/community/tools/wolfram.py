@@ -1,9 +1,9 @@
 import os
 from typing import Any, Dict, List
 
+from backend.config.settings import Settings
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
-from backend.config.config import Configuration, get_config_value
 from community.tools import BaseTool
 
 
@@ -16,10 +16,7 @@ class WolframAlpha(BaseTool):
 
     NAME = "wolfram_alpha"
 
-    tool_config = Configuration.get_tool_config(NAME)
-    wolfram_app_id = get_config_value(
-        tool_config, "app_id", os.environ.get("WOLFRAM_APP_ID")
-    )
+    wolfram_app_id = Settings().tools.wolfram_alpha.app_id
 
     def __init__(self):
         self.app_id = self.wolfram_app_id

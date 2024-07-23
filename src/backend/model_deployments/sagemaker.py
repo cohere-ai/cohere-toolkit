@@ -2,9 +2,9 @@ import io
 import json
 from typing import Any, AsyncGenerator, Dict, List
 
+from backend.config.settings import Settings
 import boto3
 
-from backend.config.config import Configuration, get_config_value
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -32,22 +32,12 @@ class SageMakerDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["sagemaker-command"]
 
-    sagemaker_config = Configuration.get_deployment_config("sagemaker")
-    endpoint = get_config_value(
-        sagemaker_config, "endpoint_name", SAGE_MAKER_ENDPOINT_NAME_ENV_VAR
-    )
-    region_name = get_config_value(
-        sagemaker_config, "region_name", SAGE_MAKER_REGION_NAME_ENV_VAR
-    )
-    aws_access_key_id = get_config_value(
-        sagemaker_config, "access_key", SAGE_MAKER_ACCESS_KEY_ENV_VAR
-    )
-    aws_secret_access_key = get_config_value(
-        sagemaker_config, "secret_key", SAGE_MAKER_SECRET_KEY_ENV_VAR
-    )
-    aws_session_token = get_config_value(
-        sagemaker_config, "session_token", SAGE_MAKER_SESSION_TOKEN_ENV_VAR
-    )
+    sagemaker_config = Settings().deployments.sagemaker
+    endpoint = sagemaker_config.endpoint_name
+    region_name = sagemaker_config.region_name
+    aws_access_key_id =  sagemaker_config.access_key
+    aws_secret_access_key =  sagemaker_config.secret_key
+    aws_session_token =  sagemaker_config.session_token
 
     def __init__(self, **kwargs: Any):
         # Create the AWS client for the Bedrock runtime with boto3
