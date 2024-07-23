@@ -61,7 +61,7 @@ class MetricsAgent(BaseModel):
     description: str | None
 
 
-class MetricsChat(BaseModel):
+class MetricsModelAttrs(BaseModel):
     input_nb_tokens: int
     output_nb_tokens: int
     search_units: int

@@ -21,9 +21,9 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
-    MetricsChat,
     MetricsData,
     MetricsMessageType,
+    MetricsModelAttrs,
     MetricsSignal,
     MetricsUser,
 )
@@ -320,7 +320,7 @@ class ChatMetricHelper:
             )
             # validate successful event metrics
             if not is_error:
-                chat_metrics = MetricsChat(
+                chat_metrics = MetricsModelAttrs(
                     input_nb_tokens=input_tokens,
                     output_nb_tokens=output_tokens,
                     search_units=search_units,
@@ -369,9 +369,8 @@ class RerankMetricsHelper:
                 .get("search_units")
             )
             message_type = MetricsMessageType.RERANK_API_SUCCESS
-
             # ensure valid MetricsChat object
-            chat_metrics = MetricsChat(
+            chat_metrics = MetricsModelAttrs(
                 input_nb_tokens=0,
                 output_nb_tokens=0,
                 search_units=search_units,
@@ -387,6 +386,8 @@ class RerankMetricsHelper:
                 assistant_id=agent_id,
                 assistant=agent,
                 model=model,
+                input_nb_tokens=0,
+                output_nb_tokens=0,
                 search_units=search_units,
                 timestamp=time.time(),
                 duration_ms=duration_ms,
