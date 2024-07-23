@@ -48,7 +48,7 @@ export const Layout: React.FC<Props> = ({ children }) => {
             className={cn(
               'relative flex h-full min-w-0 flex-grow flex-col',
               'rounded-lg border',
-              'border-marble-950 bg-marble-1000',
+              'border-marble-950 bg-marble-1000 dark:border-volcanic-100 dark:bg-volcanic-100',
               'overflow-hidden'
             )}
           >
