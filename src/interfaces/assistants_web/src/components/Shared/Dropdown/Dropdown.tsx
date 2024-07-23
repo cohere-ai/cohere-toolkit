@@ -32,14 +32,14 @@ export const Dropdown: React.FC<Props> = ({
   label,
   options,
   value,
-  placeholder,
+  placeholder = 'Select an option',
   className,
   onChange,
 }) => {
   const selectedOption = options.find((option) => option.value === value);
 
   return (
-    <Field className={cn('flex w-full flex-col gap-y-2', className)}>
+    <Field className={cn('relative flex w-full flex-col gap-y-2', className)}>
       {label && (
         <Label className="flex items-start gap-x-2">
           <Text styleAs="label" className="dark:text-marble-950">
@@ -81,12 +81,12 @@ export const Dropdown: React.FC<Props> = ({
               </div>
             </ListboxButton>
             <ListboxOptions
-              anchor="bottom"
+              anchor="bottom start"
               className={cn(
-                'mt-1 rounded-lg border border-volcanic-500',
+                'z-dropdown',
+                'mt-1 rounded-lg border border-volcanic-500 bg-white dark:bg-volcanic-100',
                 'dark:text-marble-950',
-                'cursor-pointer',
-                className
+                'cursor-pointer'
               )}
             >
               {options.map((option) => (

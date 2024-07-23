@@ -47,6 +47,7 @@ export const SettingsTab: React.FC = () => {
         className="w-full"
         label="Model"
         value={model}
+        placeholder="Select a model"
         onChange={(model: string) => setParams({ model })}
         options={modelOptions}
       />
