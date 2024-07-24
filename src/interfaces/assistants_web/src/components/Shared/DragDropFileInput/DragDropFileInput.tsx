@@ -5,6 +5,9 @@ import { ReactNode, useState } from 'react';
 import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
+// Hidden files that should not be uploaded
+const IGNORED_FILES = ['.DS_Store'];
+
 export type FileAccept =
   | 'text/csv'
   | 'text/plain'
@@ -34,7 +37,7 @@ export type DragDropFileInputProps = {
   readOnly?: boolean;
   className?: string;
   multiple?: boolean;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void | Promise<void>;
+  onDrop?: (files: File[]) => void | Promise<void>;
 };
 
 /**
@@ -58,9 +61,52 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
   readOnly = false,
   multiple = false,
   className,
-  onChange,
+  onDrop,
 }) => {
   const [dragActive, setDragActive] = useState(dragActiveDefault);
+
+  const handleDrop = async (e: React.DragEvent<HTMLInputElement>) => {
+    const droppedFilesSystem = e.dataTransfer.items[0].webkitGetAsEntry();
+    if (!droppedFilesSystem) return;
+    const filesList: File[] = [];
+
+    const traverseFolder = async (fileSystem: FileSystemDirectoryEntry): Promise<void> => {
+      if (fileSystem.isDirectory) {
+        const directoryReader = fileSystem.createReader();
+        return new Promise((resolve) => {
+          directoryReader.readEntries(async function (entries) {
+            for (let i = 0; i < entries.length; i++) {
+              const entry = entries[i];
+
+              if (IGNORED_FILES.includes(entry.name)) {
+                continue;
+              }
+              if (entry.isDirectory) {
+                await traverseFolder(entry as FileSystemDirectoryEntry);
+              } else if (entry.isFile) {
+                const fileEntry = entry as FileSystemFileEntry;
+                const readFile = () =>
+                  new Promise((fileReadResolve) => {
+                    fileEntry.file((f) => {
+                      filesList.push(f);
+                      fileReadResolve(f);
+                    });
+                  });
+                await readFile();
+              }
+              if (i === entries.length - 1) {
+                resolve();
+              }
+            }
+          });
+        });
+      }
+    };
+    await traverseFolder(droppedFilesSystem.filesystem.root);
+    onDrop?.(filesList);
+
+    setDragActive(false);
+  };
 
   return (
     <div
@@ -95,11 +141,10 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         readOnly={readOnly}
-        onChange={onChange}
         onDragEnter={() => setDragActive(true)}
         onDragOver={() => setDragActive(true)}
         onDragLeave={() => setDragActive(false)}
-        onDrop={() => setDragActive(false)}
+        onDrop={handleDrop}
       />
     </div>
   );

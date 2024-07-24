@@ -1,6 +1,5 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { isNil } from 'lodash';
 import { useMemo } from 'react';
 
 import { Agent, ApiError, CreateAgent, UpdateAgent, useCohereClient } from '@/cohere-client';
@@ -95,7 +94,6 @@ export const useUpdateAgent = () => {
 /**
  * @description Returns the most recently used agents.
  */
-
 export const useRecentAgents = () => {
   const { data: agents } = useListAgents();
 
@@ -113,11 +111,11 @@ export const useRecentAgents = () => {
     set(recentAgentsIds.filter((id) => id !== agentId));
   };
 
-  const recentAgents = useMemo(() => {
+  const recentAgents = useMemo<Agent[]>(() => {
     if (!recentAgentsIds) return [];
     return recentAgentsIds
       .map((id) => agents?.find((agent) => agent.id === id))
-      .filter((agent) => !isNil(agent)) as Agent[];
+      .filter((agent) => agent !== undefined);
   }, [agents, recentAgentsIds]);
 
   return { recentAgents, addRecentAgentId, removeRecentAgentId };

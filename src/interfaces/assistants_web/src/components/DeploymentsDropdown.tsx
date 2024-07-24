@@ -2,7 +2,7 @@
 
 import { useContext } from 'react';
 
-import { Dropdown, DropdownOptionGroups } from '@/components/Shared';
+import { Dropdown } from '@/components/Shared';
 import { BannerContext } from '@/context/BannerContext';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
@@ -19,18 +19,13 @@ export const DeploymentsDropdown: React.FC = () => {
     setParams,
   } = useParamsStore();
   const { data: allDeployments = [] } = useListAllDeployments();
-  const deploymentOptions: DropdownOptionGroups = [
-    {
-      options: allDeployments.map(({ name }) => ({
-        label: name,
-        value: name,
-      })),
-    },
-  ];
+  const deploymentOptions = allDeployments.map(({ name }) => ({
+    label: name,
+    value: name,
+  }));
 
   return (
     <Dropdown
-      buttonClassName="py-0.5"
       placeholder="Select a deployment"
       value={deployment}
       onChange={(deploymentName: string) => {
@@ -45,7 +40,7 @@ export const DeploymentsDropdown: React.FC = () => {
         }
         setParams({ deployment: deploymentName });
       }}
-      optionGroups={deploymentOptions}
+      options={deploymentOptions}
     />
   );
 };
