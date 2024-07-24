@@ -22,3 +22,13 @@ def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
     if not config:
         raise ValueError(f"Missing model config variable: {var_name}")
     return config
+
+
+def add_rerank_model_to_request_state(
+    model: str,
+    **kwargs: Any,
+) -> None:
+    request = kwargs.get("request", None)
+    if not request:
+        return
+    request.state.rerank_model = model
