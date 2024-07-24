@@ -23,6 +23,7 @@ from backend.services.metrics import collect_metrics_chat_stream, collect_metric
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
+DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 
 
 logger = get_logger()
