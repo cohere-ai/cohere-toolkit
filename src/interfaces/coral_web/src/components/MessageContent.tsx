@@ -9,6 +9,7 @@ import { MarkdownImage } from '@/components/MarkdownImage';
 import { MessageFile } from '@/components/MessageFile';
 import { Icon } from '@/components/Shared';
 import { Markdown, Text } from '@/components/Shared';
+import { useCitationsStore } from '@/stores';
 import {
   type ChatMessage,
   MessageType,
@@ -17,7 +18,7 @@ import {
   isFulfilledOrTypingMessage,
   isLoadingMessage,
 } from '@/types/message';
-import { cn } from '@/utils';
+import { base64ToBlobUrl, cn, guessFileType } from '@/utils';
 
 type Props = {
   isLast: boolean;
@@ -34,6 +35,9 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   const isUserError = isUser && message.error;
   const isAborted = isAbortedMessage(message);
   const isTypingOrFulfilledMessage = isFulfilledOrTypingMessage(message);
+  // const {
+  //   citations: { outputFiles },
+  // } = useCitationsStore();
 
   let content: React.ReactNode = null;
 
@@ -116,6 +120,16 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
             table: DataTable as any,
           }}
           renderLaTex={!hasCitations}
+          // TODO(tomeu): model should send downloable files as links.
+          // urlTransform={(url) => {
+          //   const file = Object.keys(outputFiles).find((key) => outputFiles[key].name === url);
+          //   if (!file) {
+          //     return url;
+          //   }
+          //   const fileType = guessFileType(outputFiles[file].name);
+          //   const blobUrl = base64ToBlobUrl(outputFiles[file].data, fileType);
+          //   return blobUrl;
+          // }}
         />
         {isAborted && (
           <MessageInfo>

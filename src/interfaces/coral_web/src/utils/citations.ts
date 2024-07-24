@@ -45,9 +45,9 @@ export const replaceTextWithCitations = (
     const fixedText = fixMarkdownImagesInText(citationText);
 
     // Encode the citationText in case there are any weird characters or unclosed brackets that will
-    // interfere with parsing the markdown. However, let markdown images through so they may be properly
+    // interfere with parsing the markdown. However, let markdown images and links through so they may be properly
     // rendered.
-    const isMarkdownImage = fixedText.match(/!\[.*\]\(.*\)/);
+    const isMarkdownImage = fixedText.match(/!?\[.*\]\(.*\)/);
     const encodedCitationText = isMarkdownImage ? fixedText : encodeURIComponent(fixedText);
     const citationId = `:cite[${encodedCitationText}]{generationId="${generationId}" start="${start}" end="${end}"}`;
 

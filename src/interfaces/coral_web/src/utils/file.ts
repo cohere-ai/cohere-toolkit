@@ -44,3 +44,38 @@ export const getFileUploadTimeEstimateInMs = (fileSizeInBytes: number) => {
  */
 export const isDefaultFileLoaderTool = (t: ManagedTool) =>
   t.category === FILE_TOOL_CATEGORY && t.is_visible;
+
+/**
+ * @description Converts a base64 string to a blob URL.
+ * @param base64String
+ * @param fileType
+ * @returns blob URL
+ */
+export const base64ToBlobUrl = (base64String: string, fileType: string) => {
+  const binaryString = atob(base64String);
+  const arrayBuffer = new ArrayBuffer(binaryString.length);
+  const arrayView = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < binaryString.length; i++) {
+    arrayView[i] = binaryString.charCodeAt(i);
+  }
+  const blob = new Blob([arrayBuffer], { type: fileType });
+  return URL.createObjectURL(blob);
+};
+
+/**
+ * @description Guesses the file type based on the file name.
+ * @param fileName
+ * @returns file type
+ * @default text/plain
+ */
+export const guessFileType = (fileName: string) => {
+  const extension = fileName.split('.').pop();
+  switch (extension) {
+    case 'csv':
+      return 'text/csv';
+    case 'json':
+      return 'application/json';
+    default:
+      return 'text/plain';
+  }
+};

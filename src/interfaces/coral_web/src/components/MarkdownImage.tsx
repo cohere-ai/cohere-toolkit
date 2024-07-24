@@ -1,7 +1,8 @@
 'use client';
 
-import { Text } from '@/components/Shared';
+import { Button, Text } from '@/components/Shared';
 import { useCitationsStore } from '@/stores';
+import { base64ToBlobUrl, guessFileType } from '@/utils';
 
 type Props = {
   node: {
@@ -26,7 +27,7 @@ export const MarkdownImage: React.FC<Props> = ({ node }) => {
   const fileName = decodeURIComponent(node.properties.src).replace(/['"]/g, '');
 
   if (outputFiles[fileName]) {
-    return <B64Image data={outputFiles[fileName].data} caption={caption} />;
+    return <B64Image data={outputFiles[fileName].data} fileName={fileName} caption={caption} />;
   } else {
     return (
       <>
@@ -41,15 +42,45 @@ export const MarkdownImage: React.FC<Props> = ({ node }) => {
   }
 };
 
-export const B64Image: React.FC<{ data: string; caption?: string }> = ({ data, caption }) => {
+const IMAGE_FORMATS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'];
+
+export const B64Image: React.FC<{ data: string; fileName: string; caption?: string }> = ({
+  data,
+  fileName,
+  caption,
+}) => {
+  if (!fileName) {
+    return null;
+  }
+
+  if (IMAGE_FORMATS.some((format) => fileName.endsWith(format))) {
+    return (
+      <>
+        <img className="w-full" src={`data:image/png;base64,${data}`} alt={caption} />
+        {caption && (
+          <Text as="span" styleAs="caption" className="mb-2 text-mushroom-300">
+            {caption}
+          </Text>
+        )}
+      </>
+    );
+  }
+
+  // TODO(tomeu): model should not send downloable files as images. 
+  // Remove when model is fixed.
+  const fileType = guessFileType(fileName);
+  const blobUrl = base64ToBlobUrl(data, fileType);
+
+  const handleDownload = () => {
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = fileName;
+    a.click();
+  };
+
   return (
-    <>
-      <img className="w-full" src={`data:image/png;base64,${data}`} alt={caption} />
-      {caption && (
-        <Text as="span" styleAs="caption" className="mb-2 text-mushroom-300">
-          {caption}
-        </Text>
-      )}
-    </>
+    <Button kind="secondary" onClick={handleDownload}>
+      {fileName}
+    </Button>
   );
 };
