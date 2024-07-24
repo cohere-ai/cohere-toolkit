@@ -120,7 +120,7 @@ def create_conversation_file_association(db: Session, conversation_file_associat
 
 def delete_conversation_file_association(db: Session, conversation_id: str, file_id: str, user_id: str) -> None:
     conversation_file_association = db.query(ConversationFileAssociation).filter(
-        ConversationFileAssociation.id == conversation_id, ConversationFileAssociation.user_id == user_id, ConversationFileAssociation.file_id == file_id
+        ConversationFileAssociation.conversation_id == conversation_id, ConversationFileAssociation.user_id == user_id, ConversationFileAssociation.file_id == file_id
     )
     conversation_file_association.delete()
     db.commit()
