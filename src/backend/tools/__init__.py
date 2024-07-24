@@ -5,6 +5,7 @@ from backend.tools.lang_chain import LangChainVectorDBRetriever, LangChainWikiRe
 from backend.tools.python_interpreter import PythonInterpreter
 from backend.tools.web_scrape import WebScrapeTool
 from backend.tools.okta import OktaDocumentRetriever
+from backend.tools.tavily import TavilyInternetSearch
 
 __all__ = [
     "Calculator",
@@ -16,5 +17,6 @@ __all__ = [
     "GoogleDrive",
     "GoogleDriveAuth",
     "WebScrapeTool",
-    "OktaDocumentRetriever"
+    "OktaDocumentRetriever",
+    "TavilyInternetSearch"
 ]

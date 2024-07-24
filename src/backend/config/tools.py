@@ -13,6 +13,7 @@ from backend.tools import (
     ReadFileTool,
     SearchFileTool,
     WebScrapeTool,
+    TavilyInternetSearch,
     OktaDocumentRetriever
 )
 
@@ -31,6 +32,7 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 class ToolName(StrEnum):
     Okta_Retriever = OktaDocumentRetriever.NAME
     Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
+    Tavily_Internet_Search = TavilyInternetSearch.NAME
     Search_File = SearchFileTool.NAME
     Read_File = ReadFileTool.NAME
     Python_Interpreter = PythonInterpreter.NAME
@@ -55,6 +57,22 @@ ALL_TOOLS = {
         error_message="OktaDocumentRetriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
         category=Category.DataLoader,
         description="Returns documentation from the Okta product documentation website.",
+    ),
+    ToolName.Tavily_Internet_Search: ManagedTool(
+        display_name="Web Search",
+        implementation=TavilyInternetSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=TavilyInternetSearch.is_available(),
+        error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
     ),
     ToolName.Search_File: ManagedTool(
         display_name="Search File",
@@ -185,7 +203,7 @@ ALL_TOOLS = {
 
 
 def get_available_tools() -> dict[ToolName, dict]:
-    langchain_tools = [ToolName.Python_Interpreter]
+    langchain_tools = [ToolName.Python_Interpreter, ToolName.Tavily_Internet_Search]
     use_langchain_tools = bool(
         strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "False"))
     )
@@ -213,6 +231,5 @@ def get_available_tools() -> dict[ToolName, dict]:
         tool.name = tool.implementation.NAME
 
     return tools
-
 
 AVAILABLE_TOOLS = get_available_tools()

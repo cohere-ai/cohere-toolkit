@@ -1,7 +1,6 @@
 import os
 from typing import Any, Dict, List
 
-from langchain_community.document_loaders import UnstructuredHTMLLoader
 from langchain_cohere import CohereEmbeddings, CohereRerank
 from langchain_community.vectorstores import FAISS
 
@@ -17,7 +16,7 @@ class OktaDocumentRetriever(BaseTool):
 
     NAME = "okta_retriever"
     COHERE_API_KEY = os.getenv("COHERE_API_KEY")
-    FILEPATH = "workspace/src/backend/data/okta/okta_index"
+    FILEPATH = "/src/backend/data/okta/okta_index"
     USE_RERANK = True
 
     # search parameters
@@ -31,7 +30,7 @@ class OktaDocumentRetriever(BaseTool):
             model="embed-english-v3.0",
         )
 
-        print(CohereEmbeddings.embed("Hello"))
+        print(CohereEmbeddings.embed(["Hello"]))
 
         self.rerank = CohereRerank(
             cohere_api_key=self.COHERE_API_KEY,
@@ -40,23 +39,12 @@ class OktaDocumentRetriever(BaseTool):
 
         # load vectorstore as retriever
         self.retriever = self._load_db().as_retriever(search_kwargs={"k": self.TOP_K})
-    
-    def _load_db(self) -> FAISS:
-        try:
-            db = FAISS.load_local(
-                self.FILEPATH,
-                self.embed,
-                allow_dangerous_deserialization=True,
-            )
-        except:
-            raise FileNotFoundError("No FAISS vectorstore found")
-        return db
 
     @classmethod
     def is_available(cls) -> bool:
         return cls.COHERE_API_KEY is not None and os.path.isdir(cls.FILEPATH)
     
-    def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
 
         # retrieve documents
@@ -98,6 +86,17 @@ class OktaDocumentRetriever(BaseTool):
         if len(docs) < 1:
             return []
         return docs
+
+    def _load_db(self) -> FAISS:
+        try:
+            db = FAISS.load_local(
+                self.FILEPATH,
+                self.embed,
+                allow_dangerous_deserialization=True,
+            )
+        except:
+            raise FileNotFoundError("No FAISS vectorstore found")
+        return db
 
 
 # docs = []
