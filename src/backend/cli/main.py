@@ -257,11 +257,6 @@ TOOLS = {
             "PYTHON_INTERPRETER_URL": PYTHON_INTERPRETER_URL_DEFAULT,
         },
     },
-    ToolName.TavilyInternetSearch: {
-        "secrets": {
-            "TAVILY_API_KEY": None,
-        },
-    },
 }
 
 

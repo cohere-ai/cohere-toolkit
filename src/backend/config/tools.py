@@ -12,8 +12,8 @@ from backend.tools import (
     PythonInterpreter,
     ReadFileTool,
     SearchFileTool,
-    TavilyInternetSearch,
     WebScrapeTool,
+    OktaDocumentRetriever
 )
 
 """
@@ -29,32 +29,32 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
+    Okta_Retriever = OktaDocumentRetriever.NAME
     Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
     Search_File = SearchFileTool.NAME
     Read_File = ReadFileTool.NAME
     Python_Interpreter = PythonInterpreter.NAME
     Calculator = Calculator.NAME
-    Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
 
 
 ALL_TOOLS = {
-    ToolName.Tavily_Internet_Search: ManagedTool(
-        display_name="Web Search",
-        implementation=TavilyInternetSearch,
+    ToolName.Okta_Retriever: ManagedTool(
+        display_name="Okta Retriever",
+        implementation=OktaDocumentRetriever,
         parameter_definitions={
             "query": {
-                "description": "Query for retrieval.",
-                "type": "str",
+                "description": "Query for retrieval from Okta documentation.",
+                "type": str,
                 "required": True,
             }
         },
         is_visible=True,
-        is_available=TavilyInternetSearch.is_available(),
-        error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
+        is_available=OktaDocumentRetriever.is_available(),
+        error_message="OktaDocumentRetriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
         category=Category.DataLoader,
-        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
+        description="Returns documentation from the Okta product documentation website.",
     ),
     ToolName.Search_File: ManagedTool(
         display_name="Search File",
@@ -74,7 +74,7 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=SearchFileTool.is_available(),
         error_message="SearchFileTool not available.",
-        category=Category.FileLoader,
+        category=Category.DataLoader,
         description="Performs a search over a list of one or more of the attached files for a textual search query",
     ),
     ToolName.Read_File: ManagedTool(
@@ -185,7 +185,7 @@ ALL_TOOLS = {
 
 
 def get_available_tools() -> dict[ToolName, dict]:
-    langchain_tools = [ToolName.Python_Interpreter, ToolName.Tavily_Internet_Search]
+    langchain_tools = [ToolName.Python_Interpreter]
     use_langchain_tools = bool(
         strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "False"))
     )

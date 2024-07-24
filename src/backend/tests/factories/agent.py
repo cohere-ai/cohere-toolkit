@@ -29,7 +29,6 @@ class AgentFactory(BaseFactory):
                     ToolName.Read_File,
                     ToolName.Python_Interpreter,
                     ToolName.Calculator,
-                    ToolName.Tavily_Internet_Search,
                 ],
             )
         ]
