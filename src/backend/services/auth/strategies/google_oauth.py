@@ -4,14 +4,8 @@ import requests
 from authlib.integrations.requests_client import OAuth2Session
 from starlette.requests import Request
 
+from backend.config.settings import Settings
 from backend.services.auth.strategies.base import BaseOAuthStrategy
-from backend.services.auth.strategies.settings import Settings
-
-
-class GoogleOAuthSettings(Settings):
-    google_client_id: str
-    google_client_secret: str
-    frontend_hostname: str
 
 
 class GoogleOAuth(BaseOAuthStrategy):
@@ -24,13 +18,13 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            self.settings = GoogleOAuthSettings()
+            self.settings = Settings().auth.google_oauth
             self.REDIRECT_URI = (
-                f"{self.settings.frontend_hostname}/auth/{self.NAME.lower()}"
+                f"{Settings().auth.frontend_hostname}/auth/{self.NAME.lower()}"
             )
             self.client = OAuth2Session(
-                client_id=self.settings.google_client_id,
-                client_secret=self.settings.google_client_secret,
+                client_id=self.settings.client_id,
+                client_secret=self.settings.client_secret,
             )
         except Exception as e:
             logging.error(
@@ -39,7 +33,7 @@ class GoogleOAuth(BaseOAuthStrategy):
             raise
 
     def get_client_id(self):
-        return self.settings.google_client_id
+        return self.settings.client_id
 
     def get_authorization_endpoint(self):
         if hasattr(self, "AUTHORIZATION_ENDPOINT"):

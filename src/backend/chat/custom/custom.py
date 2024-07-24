@@ -180,7 +180,11 @@ class CustomChat(BaseChat):
             # Invoke chat stream
             has_tool_calls = False
             async for event in deployment_model.invoke_chat_stream(
-                chat_request, trace_id=trace_id, user_id=user_id, agent_id=agent_id
+                chat_request,
+                trace_id=trace_id,
+                user_id=user_id,
+                agent_id=agent_id,
+                request=kwargs.get("request"),
             ):
                 if event["event_type"] == StreamEvent.STREAM_END:
                     chat_request.chat_history = event["response"].get(

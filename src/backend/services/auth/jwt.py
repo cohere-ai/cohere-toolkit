@@ -5,6 +5,7 @@ import uuid
 
 import jwt
 
+from backend.config.settings import Settings
 from backend.services.logger import get_logger
 
 logger = get_logger()
@@ -16,7 +17,7 @@ class JWTService:
     ALGORITHM = "HS256"
 
     def __init__(self):
-        secret_key = os.environ.get("AUTH_SECRET_KEY")
+        secret_key = Settings().auth.secret_key
 
         if not secret_key:
             raise ValueError(

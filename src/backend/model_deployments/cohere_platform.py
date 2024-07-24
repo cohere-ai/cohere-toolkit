@@ -1,26 +1,23 @@
-import asyncio
 import logging
-import os
-import threading
-import time
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, Dict, List
 
 import cohere
 import requests
-from cohere.core.api_error import ApiError
-from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
+from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import (
+    add_rerank_model_to_request_state,
+    get_model_config_var,
+)
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.services.logger import get_logger, send_log_message
+from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
-
 
 logger = get_logger()
 
@@ -29,11 +26,14 @@ class CohereDeployment(BaseDeployment):
     """Cohere Platform Deployment."""
 
     client_name = "cohere-toolkit"
-    api_key = get_model_config_var(COHERE_API_KEY_ENV_VAR)
+    api_key = Settings().deployments.cohere_platform.api_key
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
-        self.client = cohere.Client(api_key=self.api_key, client_name=self.client_name)
+        api_key = get_model_config_var(
+            COHERE_API_KEY_ENV_VAR, CohereDeployment.api_key, **kwargs
+        )
+        self.client = cohere.Client(api_key, client_name=self.client_name)
 
     @property
     def rerank_enabled(self) -> bool:
@@ -67,7 +67,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all([os.environ.get(var) is not None for var in COHERE_ENV_VARS])
+        return CohereDeployment.api_key is not None
 
     async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         response = self.client.chat(
@@ -75,6 +75,7 @@ class CohereDeployment(BaseDeployment):
         )
         yield to_dict(response)
 
+    @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Any:
@@ -92,11 +93,11 @@ class CohereDeployment(BaseDeployment):
             )
             yield to_dict(event)
 
+    @collect_metrics_rerank
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         response = self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL
         )
-
         return to_dict(response)
