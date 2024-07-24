@@ -1,8 +1,13 @@
 from fastapi import HTTPException
 
 from backend.crud import tool as tool_crud
-from backend.database_models.tool import Tool, DEFAULT_TOOLS_MODULE, COMMUNITY_TOOLS_MODULE, DEFAULT_AUTH_MODULE
 from backend.database_models.database import DBSessionDep
+from backend.database_models.tool import (
+    COMMUNITY_TOOLS_MODULE,
+    DEFAULT_AUTH_MODULE,
+    DEFAULT_TOOLS_MODULE,
+    Tool,
+)
 from backend.services.get_module_class import get_module_class
 from backend.tools.base import BaseTool, BaseToolAuthentication
 
@@ -20,9 +25,7 @@ def validate_implementation_class_name(implementation_class_name: str) -> BaseTo
     """
     cls = get_module_class(DEFAULT_TOOLS_MODULE, implementation_class_name)
     if not cls:
-        cls = get_module_class(
-            COMMUNITY_TOOLS_MODULE, implementation_class_name
-        )
+        cls = get_module_class(COMMUNITY_TOOLS_MODULE, implementation_class_name)
     if not cls:
         raise HTTPException(
             status_code=400, detail=f"Tool class not found: {implementation_class_name}"

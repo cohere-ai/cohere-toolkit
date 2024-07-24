@@ -40,11 +40,11 @@ class CreateAgentToolMetadata(BaseModel):
     tool_name: Optional[str] = None
     artifacts: list[dict]
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     def check_tool_id_name(cls, values):
-        tool_id, tool_name = values.get('tool_id'), values.get('tool_name')
+        tool_id, tool_name = values.get("tool_id"), values.get("tool_name")
         if not (tool_id or tool_name):
-            raise ValueError('At least one of tool_name or tool_id must be provided.')
+            raise ValueError("At least one of tool_name or tool_id must be provided.")
         return values
 
 

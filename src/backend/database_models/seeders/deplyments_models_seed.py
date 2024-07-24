@@ -181,7 +181,7 @@ def deployments_models_seed(op):
                 for env_var in model_deployments[deployment].env_vars
             },
             is_default_deployment=new_deployment.name
-                                  == ModelDeploymentName.CoherePlatform,
+            == ModelDeploymentName.CoherePlatform,
             is_default_model=is_default_for_agent,
         )
         session.add(agent_deployment_association)

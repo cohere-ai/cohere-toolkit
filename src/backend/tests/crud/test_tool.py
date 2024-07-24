@@ -2,7 +2,7 @@ import pytest
 
 from backend.crud import tool as tool_crud
 from backend.database_models.tool import Tool
-from backend.schemas.tool import ToolCreate, ToolUpdate, ManagedTool 
+from backend.schemas.tool import ManagedTool, ToolCreate, ToolUpdate
 from backend.tests.factories import get_factory
 
 
@@ -23,7 +23,7 @@ def test_create_tool(session):
         default_tool_config={},
         is_visible=True,
         is_community=False,
-        auth_implementation_class_name='',
+        auth_implementation_class_name="",
         error_message_text="LangChainWikiRetriever not available.",
         category="DataLoader",
     )
@@ -72,9 +72,7 @@ def test_list_tools_with_pagination(session):
     # Delete default tools
     session.query(Tool).delete()
     for i in range(10):
-        _ = get_factory("Tool", session).create(
-            name=f"Test Model {i}"
-        )
+        _ = get_factory("Tool", session).create(name=f"Test Model {i}")
 
     tools = tool_crud.get_tools(session, offset=5, limit=5)
     assert len(tools) == 5
@@ -86,9 +84,7 @@ def test_list_tools_with_pagination(session):
 def test_get_tools_by_agent_id(session, user):
     agent = get_factory("Agent", session).create(user=user)
     for i in range(10):
-        tool = get_factory("Tool", session).create(
-            name=f"Test Tool {i}"
-        )
+        tool = get_factory("Tool", session).create(name=f"Test Tool {i}")
         agent.associated_tools.append(tool)
 
     tools = tool_crud.get_tools_by_agent_id(session, agent.id)
@@ -107,14 +103,10 @@ def test_get_tools_by_deployment_id_empty(session, user):
 def test_get_tools_by_agent_id_with_pagination(session, user):
     agent = get_factory("Agent", session).create(user=user)
     for i in range(10):
-        tool = get_factory("Tool", session).create(
-            name=f"Test Tool {i}"
-        )
+        tool = get_factory("Tool", session).create(name=f"Test Tool {i}")
         agent.associated_tools.append(tool)
 
-    tools = tool_crud.get_tools_by_agent_id(
-        session, agent.id, offset=5, limit=5
-    )
+    tools = tool_crud.get_tools_by_agent_id(session, agent.id, offset=5, limit=5)
     assert len(tools) == 5
 
     for i, tool in enumerate(tools):
@@ -165,9 +157,7 @@ def test_remove_tool_from_agent(session, user, tool):
 def test_remove_all_tools_from_agent(session, user):
     agent = get_factory("Agent", session).create(user=user)
     for i in range(5):
-        tool = get_factory("Tool", session).create(
-            name=f"Test Tool {i}"
-        )
+        tool = get_factory("Tool", session).create(name=f"Test Tool {i}")
         agent.associated_tools.append(tool)
 
     tool_crud.remove_all_tools_from_agent(session, agent)
@@ -189,5 +179,3 @@ def test_delete_nonexistent_tool(session):
     tool_crud.delete_tool(session, "123")  # no error
     tool = tool_crud.get_tool(session, "123")
     assert tool is None
-
-

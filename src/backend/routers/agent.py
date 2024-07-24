@@ -101,7 +101,8 @@ async def create_agent(
                         )
                 else:
                     raise HTTPException(
-                        status_code=400, detail="Tool name is required for tool metadata."
+                        status_code=400,
+                        detail="Tool name is required for tool metadata.",
                     )
                 agent_tool_metadata_data = AgentToolMetadataModel(
                     user_id=user_id,
@@ -387,7 +388,7 @@ async def update_agent(
                 "deployment_config",
                 "is_default_deployment",
                 "is_default_model",
-                "tools"
+                "tools",
             }
         )
         # TODO Eugene - if no deployment or model is provide or if the deployment or model is not found, should we raise an error?
@@ -446,7 +447,9 @@ async def handle_tool_metadata_update(
     agent: Agent, new_agent: Agent, session: DBSessionDep, request: Request
 ) -> Agent:
     # Delete tool metadata that are not in the request
-    new_tools_ids = [metadata.id for metadata in new_agent.tools_metadata if metadata.id]
+    new_tools_ids = [
+        metadata.id for metadata in new_agent.tools_metadata if metadata.id
+    ]
     for tool_metadata in agent.tools_metadata:
         if tool_metadata.id not in new_tools_ids:
             agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(

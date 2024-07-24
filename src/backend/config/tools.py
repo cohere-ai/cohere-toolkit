@@ -1,8 +1,8 @@
+import copy
 import logging
 import os
 from distutils.util import strtobool
 from enum import StrEnum
-import copy
 
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools import (

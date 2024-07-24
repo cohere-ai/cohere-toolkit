@@ -78,4 +78,3 @@ class ToolCallDelta(BaseModel):
 
 class ToolDelete(BaseModel):
     pass
-

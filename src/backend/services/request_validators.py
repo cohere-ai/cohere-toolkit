@@ -438,4 +438,3 @@ async def validate_update_tool_request(session: DBSessionDep, request: Request):
     auth_implementation_class_name = body.get("auth_implementation_class_name")
     if auth_implementation_class_name:
         validate_implementation_class_name(auth_implementation_class_name)
-

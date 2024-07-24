@@ -1,17 +1,19 @@
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.crud import tool as tool_crud
 from backend.crud import agent as agent_crud
-from backend.schemas.tool import ToolCreate, ToolUpdate, ToolDelete
+from backend.crud import tool as tool_crud
 from backend.database_models.database import DBSessionDep
-from backend.schemas.tool import ManagedTool
+from backend.schemas.tool import ManagedTool, ToolCreate, ToolDelete, ToolUpdate
 from backend.services.auth.utils import get_header_user_id
 from backend.services.logger import get_logger
-from backend.services.request_validators import validate_create_tool_request, validate_update_tool_request
+from backend.services.request_validators import (
+    validate_create_tool_request,
+    validate_update_tool_request,
+)
 
 logger = get_logger()
 
@@ -48,7 +50,9 @@ def create_tool(tool: ToolCreate, session: DBSessionDep) -> ManagedTool:
         Depends(validate_update_tool_request),
     ],
 )
-def update_tool(tool_id: str, new_tool: ToolUpdate, session: DBSessionDep) -> ManagedTool:
+def update_tool(
+    tool_id: str, new_tool: ToolUpdate, session: DBSessionDep
+) -> ManagedTool:
     """
     Update a tool by ID.
 
@@ -104,7 +108,10 @@ def delete_tool(tool_id: str, session: DBSessionDep) -> ToolDelete:
 
 @router.get("", response_model=list[ManagedTool])
 def list_tools(
-    request: Request, session: DBSessionDep, agent_id: str | None = None, all: bool = False
+    request: Request,
+    session: DBSessionDep,
+    agent_id: str | None = None,
+    all: bool = False,
 ) -> list[ManagedTool]:
     """
     List all available tools.
@@ -157,4 +164,3 @@ def list_tools(
                 logger.error(f"Error while fetching Tool Auth: {str(e)}.")
 
     return all_tools
-

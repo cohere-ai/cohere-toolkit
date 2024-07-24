@@ -31,7 +31,9 @@ def test_create_tool(session_client: TestClient, session: Session) -> None:
     assert tool["error_message"] is None
 
 
-def test_create_tool_default_config_not_set(session_client: TestClient, session: Session) -> None:
+def test_create_tool_default_config_not_set(
+    session_client: TestClient, session: Session
+) -> None:
     response = session_client.post(
         "/v1/tools",
         json={
@@ -56,7 +58,12 @@ def test_create_tool_default_config_not_set(session_client: TestClient, session:
 
 
 def test_update_tool(session_client: TestClient, session: Session) -> None:
-    tool = get_factory("Tool", session).create(name="Test Tool", kwargs={"test": "test"}, is_visible=True, description="Test Description")
+    tool = get_factory("Tool", session).create(
+        name="Test Tool",
+        kwargs={"test": "test"},
+        is_visible=True,
+        description="Test Description",
+    )
     response = session_client.put(
         f"/v1/tools/{tool.id}",
         json={
@@ -81,8 +88,16 @@ def test_update_tool(session_client: TestClient, session: Session) -> None:
     assert tool.error_message is None
 
 
-def test_update_tool_default_config_empty(session_client: TestClient, session: Session) -> None:
-    tool = get_factory("Tool", session).create(name="Test Tool", kwargs={"test": "test"}, is_visible=True, description="Test Description", default_tool_config={"test": ""})
+def test_update_tool_default_config_empty(
+    session_client: TestClient, session: Session
+) -> None:
+    tool = get_factory("Tool", session).create(
+        name="Test Tool",
+        kwargs={"test": "test"},
+        is_visible=True,
+        description="Test Description",
+        default_tool_config={"test": ""},
+    )
     response = session_client.put(
         f"/v1/tools/{tool.id}",
         json={
@@ -108,7 +123,12 @@ def test_update_tool_default_config_empty(session_client: TestClient, session: S
 
 
 def test_get_tool(session_client: TestClient, session: Session) -> None:
-    tool = get_factory("Tool", session).create(name="Test Tool", kwargs={"test": "test"}, is_visible=True, description="Test Description")
+    tool = get_factory("Tool", session).create(
+        name="Test Tool",
+        kwargs={"test": "test"},
+        is_visible=True,
+        description="Test Description",
+    )
     response = session_client.get(f"/v1/tools/{tool.id}")
     assert response.status_code == 200
     tool_response = response.json()
@@ -174,10 +194,13 @@ def test_list_tools_error_message_none_if_available(client: TestClient) -> None:
 def test_list_tools_with_agent(
     session_client: TestClient, session: Session, user: User
 ) -> None:
-    agent = get_factory("Agent", session).create(
-        name="test agent", user=user
+    agent = get_factory("Agent", session).create(name="test agent", user=user)
+    test_tool = get_factory("Tool", session).create(
+        name="Test Tool",
+        kwargs={"test": "test"},
+        is_visible=True,
+        description="Test Description",
     )
-    test_tool = get_factory("Tool", session).create(name="Test Tool", kwargs={"test": "test"}, is_visible=True, description="Test Description")
     agent.associated_tools.append(test_tool)
     response = session_client.get("/v1/tools", params={"agent_id": agent.id})
     assert response.status_code == 200
@@ -203,7 +226,12 @@ def test_list_tools_with_agent_that_doesnt_exist(
 
 
 def test_delete_tool(session_client: TestClient, session: Session) -> None:
-    tool = get_factory("Tool", session).create(name="Test Tool", kwargs={"test": "test"}, is_visible=True, description="Test Description")
+    tool = get_factory("Tool", session).create(
+        name="Test Tool",
+        kwargs={"test": "test"},
+        is_visible=True,
+        description="Test Description",
+    )
     response = session_client.delete(f"/v1/tools/{tool.id}")
     _ = tool_crud.get_tool(session, tool.id)
     assert response.status_code == 200

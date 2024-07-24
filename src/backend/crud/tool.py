@@ -1,10 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import (
-    Agent,
-    AgentToolAssociation,
-    Tool,
-)
+from backend.database_models import Agent, AgentToolAssociation, Tool
 from backend.schemas.tool import ToolCreate as ToolCreateSchema
 from backend.schemas.tool import ToolUpdate as ToolUpdateSchema
 from backend.services.transaction import validate_transaction
@@ -253,8 +249,8 @@ def remove_all_tools_from_agent(db: Session, agent: Agent) -> Agent:
     Returns:
         Agent: Agent without the removed tools.
     """
-    agent_tools = (
-        db.query(AgentToolAssociation).filter(AgentToolAssociation.agent_id == agent.id)
+    agent_tools = db.query(AgentToolAssociation).filter(
+        AgentToolAssociation.agent_id == agent.id
     )
     agent_tools.delete()
     db.commit()

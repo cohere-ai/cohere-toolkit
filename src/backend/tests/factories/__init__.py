@@ -18,9 +18,9 @@ from backend.tests.factories.snapshot import (
     SnapshotFactory,
     SnapshotLinkFactory,
 )
+from backend.tests.factories.tool import ToolFactory
 from backend.tests.factories.tool_call import ToolCallFactory
 from backend.tests.factories.user import UserFactory
-from backend.tests.factories.tool import ToolFactory
 
 FACTORY_MAPPING = {
     "User": UserFactory,
