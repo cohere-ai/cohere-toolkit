@@ -13,7 +13,7 @@ import { cn } from '@/utils';
 
 type Props = {
   isStreaming: boolean;
-  onUploadFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUploadFile: (files: File[]) => void;
   onDataSourceMenuToggle: VoidFunction;
   menuProps: DataSourceMenuProps;
 };
@@ -29,6 +29,10 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
     fileInputRef.current.click();
   };
 
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onUploadFile([...(e.target.files ?? [])]);
+  };
+
   return (
     <div className={cn('flex items-center gap-x-2', 'border-t border-marble-950', 'mx-2 py-2')}>
       <input
@@ -36,7 +40,7 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
         type="file"
         accept={ACCEPTED_FILE_TYPES.join(',')}
         className="hidden"
-        onChange={onUploadFile}
+        onChange={handleFileInputChange}
       />
       <IconButton
         iconName="clip"
