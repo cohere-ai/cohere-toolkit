@@ -52,3 +52,13 @@ def get_module_class(module_name: str, class_name: str):
         cls = None
 
     return cls
+
+
+def add_rerank_model_to_request_state(
+    model: str,
+    **kwargs: Any,
+) -> None:
+    request = kwargs.get("request", None)
+    if not request:
+        return
+    request.state.rerank_model = model
