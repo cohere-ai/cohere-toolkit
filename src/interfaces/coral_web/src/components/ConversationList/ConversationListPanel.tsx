@@ -14,7 +14,7 @@ import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 import { useSettingsStore } from '@/stores';
-import { cn, getQueryString } from '@/utils';
+import { cn } from '@/utils';
 
 const sortByDate = (a: Conversation, b: Conversation) => {
   return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');
