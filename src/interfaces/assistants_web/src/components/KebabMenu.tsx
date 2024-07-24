@@ -74,7 +74,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
                       key={label}
                       as={href ? Link : 'button'}
                       className={cn(
-                        'group/menu-item flex w-full items-center gap-x-2 px-4 py-3 transition-colors ease-in-out hover:bg-mushroom-900/80',
+                        'group/menu-item flex w-full items-center gap-x-2 px-4 py-3 transition-colors ease-in-out hover:bg-mushroom-900/80 dark:hover:bg-volcanic-300',
                         'cursor-pointer',
                         className,
                         {

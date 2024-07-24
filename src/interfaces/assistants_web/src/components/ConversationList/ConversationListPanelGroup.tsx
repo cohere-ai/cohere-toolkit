@@ -9,6 +9,7 @@ import {
   ConversationListItem,
 } from '@/components/ConversationList/ConversationCard';
 import { Text } from '@/components/Shared';
+import { useListAgents } from '@/hooks/agents';
 import { useConversationStore } from '@/stores';
 import { getWeeksAgo } from '@/utils/format';
 
@@ -36,6 +37,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
   const {
     conversation: { id: selectedConversationId },
   } = useConversationStore();
+  const { data: agents = [] } = useListAgents();
 
   const { items, flipKey } = useMemo(() => {
     let latestWeekHeading = '';
@@ -54,7 +56,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
           conversationId: weeksAgoStr,
           title: weeksAgoStr,
           description: weeksAgoStr,
-          agentId: c.agent_id,
+          agent: agents.find((agent) => agent.id === c.agent_id),
         });
       }
       itemsWithTitles.push({
@@ -62,7 +64,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
         conversationId: c.id,
         title: c.title,
         description: c.description,
-        agentId: c.agent_id,
+        agent: agents.find((agent) => agent.id === c.agent_id),
       });
     });
 

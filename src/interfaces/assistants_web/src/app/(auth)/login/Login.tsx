@@ -124,9 +124,9 @@ const Login: React.FC = () => {
               label="Email"
               placeholder="yourname@email.com"
               type="email"
-              stackPosition="start"
-              hasError={!!formState.errors.email}
-              errorText="Please enter a valid email address"
+              errorText={
+                !!formState.errors.email ? 'Please enter a valid email address' : undefined
+              }
               {...register('email', {
                 required: true,
                 validate: (value) => simpleEmailValidation(value),
@@ -138,10 +138,8 @@ const Login: React.FC = () => {
               label="Password"
               placeholder="••••••••••••"
               type="password"
-              actionType="revealable"
-              stackPosition="end"
-              hasError={!!formState.errors.password}
-              errorText="Please enter a valid password"
+              actionType="reveal"
+              errorText={!!formState.errors.password ? 'Please enter a valid password' : undefined}
               {...register('password', { required: true })}
             />
 
