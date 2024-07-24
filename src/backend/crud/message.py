@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models.message import Message
+from backend.database_models.message import Message, MessageFileAssociation
 from backend.schemas.message import UpdateMessage
 
 
@@ -119,4 +119,19 @@ def delete_message(db: Session, message_id: str, user_id: str) -> None:
         Message.id == message_id, Message.user_id == user_id
     )
     message.delete()
+    db.commit()
+
+
+def create_message_file_association(db: Session, message_file_association: MessageFileAssociation) -> MessageFileAssociation:
+    db.add(message_file_association)
+    db.commit()
+    db.refresh(message_file_association)
+    return message_file_association
+
+
+def delete_message_file_association(db: Session, message_id: str, file_id: str, user_id: str) -> None:
+    message_file_association = db.query(MessageFileAssociation).filter(
+        MessageFileAssociation.message_id == message_id, MessageFileAssociation.user_id == user_id, MessageFileAssociation.file_id == file_id
+    )
+    message_file_association.delete()
     db.commit()
