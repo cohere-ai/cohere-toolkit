@@ -79,7 +79,6 @@ class FileService:
                     conversation_id=conversation_id,
                     user_id=user_id,
                     file_id=file_id,
-                    conversation=conversation,
                 )
             )
 

@@ -23,7 +23,7 @@ from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
-from backend.database_models.message import Message, MessageAgent
+from backend.database_models.message import Message, MessageAgent, MessageFileAssociation
 from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.routers.utils import (
     add_agent_to_request_state,
@@ -163,7 +163,6 @@ def process_chat(
                 session,
                 user_id,
                 user_message.id,
-                conversation.id,
                 chat_request.file_ids,
             )
 
@@ -365,7 +364,6 @@ def attach_files_to_messages(
     session: DBSessionDep,
     user_id: str,
     message_id: str,
-    conversation_id: str,
     file_ids: List[str] | None = None,
 ) -> None:
     """
@@ -381,13 +379,21 @@ def attach_files_to_messages(
         None
     """
     if file_ids is not None:
-        message = message_crud.get_message(session, message_id, user_id)
-        update_message = UpdateMessage(
-            text=message.text, title=message.text, file_ids=file_ids
-        )
-        files = file_service.get
-        # TODO scott: check messages after table refactors
-        message_crud.update_message(session, message, update_message)
+        for file_id in file_ids:
+            message_file_association = message_crud.get_message_file_association_by_file_id(
+                session,
+                file_id,
+                user_id
+            )
+            if message_file_association is None:
+                message_crud.create_message_file_association(
+                    session,
+                    MessageFileAssociation(
+                        message_id=message_id,
+                        user_id=user_id,
+                        file_id=file_id
+                    )
+                )
 
 
 def create_chat_history(

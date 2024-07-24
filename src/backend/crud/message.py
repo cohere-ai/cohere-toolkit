@@ -126,7 +126,15 @@ def create_message_file_association(db: Session, message_file_association: Messa
     db.add(message_file_association)
     db.commit()
     db.refresh(message_file_association)
-    return message_file_association
+    return message_file_association    
+
+
+def get_message_file_association_by_file_id(db: Session, file_id: str, user_id: str) -> MessageFileAssociation:
+    return (
+        db.query(MessageFileAssociation)
+        .filter(MessageFileAssociation.file_id == file_id, Message.user_id == user_id)
+        .first()
+    )
 
 
 def delete_message_file_association(db: Session, message_id: str, file_id: str, user_id: str) -> None:
