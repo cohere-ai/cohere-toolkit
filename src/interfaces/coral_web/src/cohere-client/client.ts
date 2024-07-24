@@ -115,6 +115,9 @@ export class CohereClient {
     onError?: FetchEventSourceInit['onerror'];
   }) {
     const handleAuthUpdateOnOpen = async (response: Response) => {
+      if (response.status === 401) {
+        throw new CohereUnauthorizedError();
+      }
       this.handleAuthTokenUpdate(response);
       onOpen?.(response);
     }
@@ -155,6 +158,9 @@ export class CohereClient {
     onError?: FetchEventSourceInit['onerror'];
   }) {
     const handleAuthUpdateOnOpen = async (response: Response) => {
+      if (response.status === 401) {
+        throw new CohereUnauthorizedError();
+      }
       this.handleAuthTokenUpdate(response);
       onOpen?.(response);
     }

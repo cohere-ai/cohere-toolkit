@@ -4,7 +4,9 @@ import os
 import uuid
 
 import jwt
+from enum import Enum
 from fastapi import Depends
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from backend.database_models import Blacklist, get_session
@@ -13,14 +15,22 @@ from backend.services.logger import get_logger
 logger = get_logger()
 
 
+class Validity(Enum):
+    VALID = "valid"
+    REFRESHABLE = "refreshable"
+    EXPIRED = "expired"
+    INVALID = "invalid"
+
+
 class JWTService:
     ISSUER = "cohere-toolkit"
-    # AUTH_EXPIRY_MONTHS = 3
-    # JWT_EXPIRY_HOURS = 72
-    # REFRESH_AVAILABILITY_HOURS = 36
+    # AUTH_EXPIRY_MONTHS = 3 # Length of time before we require a user to log in again
+    # JWT_EXPIRY_HOURS = 72 # Length of time that any JWT is valid for
+    # REFRESH_AVAILABILITY_HOURS = 36 # Window of time before a JWT expires that we allow it to be refreshed
     AUTH_EXPIRY_SECONDS = 60 * 2
     JWT_EXPIRY_SECONDS = 30
     REFRESH_AVAILABILITY_SECONDS = 15
+    DEFAULT_BLOCK_DELAY_SECONDS = 60 # Amount of time to wait before a JWT is considered expired; allows in-flight requests to complete
     ALGORITHM = "HS256"
 
     def __init__(self):
@@ -118,6 +128,7 @@ class JWTService:
 
         Args:
             payload (dict): JWT payload.
+            session (Session): Database session.
 
         Returns:
             str: One of the following strings depending on the validity:
@@ -136,20 +147,21 @@ class JWTService:
                 "iat" not in payload,
             ]
         ):
-            return "invalid"
+            logger.warning("JWT payload is invalid.")
+            return Validity.INVALID
 
         now = datetime.datetime.now(datetime.timezone.utc)
 
         # Check if token is blacklisted
         blacklist = (
             session.query(Blacklist)
-            .filter(Blacklist.token_id == payload["jti"])
+            .filter(and_(Blacklist.token_id == payload["jti"], now > Blacklist.effective_at))
             .first()
         )
 
         if blacklist is not None:
             logger.warning("JWT payload is blacklisted.")
-            return "expired"
+            return Validity.EXPIRED
 
         # Check if token is expired; either we're past the expiry time or iat is more than 3 months ago
         expiry_datetime = datetime.datetime.fromtimestamp(
@@ -163,13 +175,32 @@ class JWTService:
         if now > expiry_datetime or now > (
             issued_datetime + datetime.timedelta(seconds=JWTService.AUTH_EXPIRY_SECONDS)
         ):
-            return "expired"
+            return Validity.EXPIRED
 
         # if now > (expiry_datetime - datetime.timedelta(hours=JWTService.REFRESH_AVAILABILITY_HOURS)):
         if now > (
             expiry_datetime
             - datetime.timedelta(seconds=JWTService.REFRESH_AVAILABILITY_SECONDS)
         ):
-            return "refreshable"
+            return Validity.REFRESHABLE
 
-        return "valid"
+        return Validity.VALID
+
+    @staticmethod
+    def block_token(payload: dict, session: Session = Depends(get_session)) -> None:
+        """
+        Adds a JWT to the blacklist.
+
+        Args:
+            payload (dict): The payload of the JWT to blacklist.
+            session (Session): Database session.
+        """
+        token_id = payload["jti"]
+        expires_at = datetime.datetime.fromtimestamp(
+            payload["exp"], datetime.timezone.utc
+        )
+        effective_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=JWTService.DEFAULT_BLOCK_DELAY_SECONDS)
+        blacklist = Blacklist(token_id=token_id, effective_at=effective_at, expires_at=expires_at)
+        session.add(blacklist)
+        session.commit()
+        return None

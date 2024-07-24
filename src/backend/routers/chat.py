@@ -2,7 +2,7 @@ import os
 from distutils.util import strtobool
 from typing import Any, Generator
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Header, Request, Response
 from sse_starlette.sse import EventSourceResponse
 
 from backend.chat.custom.custom import CustomChat
@@ -31,6 +31,7 @@ async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    response: Response,
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
@@ -86,7 +87,7 @@ async def chat_stream(
             next_message_position=next_message_position,
         ),
         media_type="text/event-stream",
-        headers={"Connection": "keep-alive"},
+        headers={**response.headers, **{"Connection": "keep-alive"}},
         send_timeout=300,
         ping=5,
     )

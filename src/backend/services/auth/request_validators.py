@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from backend.config.auth import get_auth_strategy
 from backend.database_models import Blacklist, get_session
+from backend.services.auth import jwt
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.utils import get_or_create_user
 from backend.services.logger import get_logger
@@ -49,11 +50,11 @@ def validate_authorization(
     jwt_payload = JWTService().decode_jwt(token)
 
     match JWTService.check_validity(jwt_payload, session):
-        case "invalid":
+        case jwt.Validity.INVALID:
             raise HTTPException(status_code=401, detail="Bearer token is invalid.")
-        case "expired":
+        case jwt.Validity.EXPIRED:
             raise HTTPException(status_code=401, detail="Auth token has expired.")
-        case "refreshable":
+        case jwt.Validity.REFRESHABLE:
             try:
                 logger.info("JWT is within refresh availability window; refreshing.")
                 token = JWTService().refresh_jwt(token)
@@ -64,9 +65,8 @@ def validate_authorization(
                         detail="Could not refresh token, please re-authenticate.",
                     )
 
+                JWTService.block_token(jwt_payload, session)
                 response.headers[UPDATE_TOKEN_HEADER] = token
-
-                # TODO(AW): Also add the old token to the blacklist
 
                 return JWTService().decode_jwt(token)
             except Exception as e:
