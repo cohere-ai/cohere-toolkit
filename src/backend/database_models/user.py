@@ -1,7 +1,6 @@
-from typing import List, Optional
+from typing import Optional
 
-from sqlalchemy import ForeignKey, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base
