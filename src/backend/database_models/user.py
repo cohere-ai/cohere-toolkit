@@ -17,11 +17,16 @@ class UserOrganizationAssociation(Base):
     )
 
 
+
 class User(Base):
     __tablename__ = "users"
 
     fullname: Mapped[str] = mapped_column()
     email: Mapped[Optional[str]] = mapped_column()
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
+
+    # testing
+    test_text: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[], nullable=False)
+    test_jsonb: Mapped[list[str]] = mapped_column(ARRAY(JSONB), nullable=True)
 
     __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)
