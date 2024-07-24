@@ -1,7 +1,8 @@
 from typing import List, Optional
 
-from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, Text, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base
 
@@ -17,16 +18,11 @@ class UserOrganizationAssociation(Base):
     )
 
 
-
 class User(Base):
     __tablename__ = "users"
 
     fullname: Mapped[str] = mapped_column()
     email: Mapped[Optional[str]] = mapped_column()
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
-
-    # testing
-    test_text: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[], nullable=False)
-    test_jsonb: Mapped[list[str]] = mapped_column(ARRAY(JSONB), nullable=True)
 
     __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)
