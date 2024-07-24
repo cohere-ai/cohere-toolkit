@@ -1,4 +1,3 @@
-
 deployments:
   default_deployment: cohere_platform
   enabled_deployments:

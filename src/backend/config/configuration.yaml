@@ -1,4 +1,3 @@
-
 deployments: 
   default_deployment: cohere_platform
   enabled_deployments:
@@ -20,13 +19,13 @@ database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
 tools:
   enabled_tools:
-    - google_drive
     - search_file
     - read_document
     - toolkit_python_interpreter
     - toolkit_calculator
     - web_search
     - web_scrape
+    - wikipedia
   python_interpreter: 
     url: http://terrarium:8080
   compass:
