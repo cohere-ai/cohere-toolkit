@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from langchain.vectorstores.faiss import FAISS
 from langchain_cohere import CohereEmbeddings, CohereRerank
-from src.backend.chat.collate import RELEVANCE_THRESHOLD
+from backend.chat.collate import RELEVANCE_THRESHOLD
 
 from dotenv import load_dotenv
 load_dotenv()
