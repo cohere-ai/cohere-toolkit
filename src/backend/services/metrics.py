@@ -93,7 +93,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     ) -> None:
         signal = self._get_event_signal(request, response, duration_ms)
         should_send_event = request.state.event_type and signal
-        if should_send_event:
+        if should_send_event and signal:
             response.background = BackgroundTask(report_metrics, signal)
 
     def _get_event_signal(
@@ -111,7 +111,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         # when user is created, user_id is not in the header
         user_id = (
             user.id
-            if message_type == MetricsMessageType.USER_CREATED
+            if user and message_type == MetricsMessageType.USER_CREATED
             else get_header_user_id(request)
         )
         agent = MetricsHelper.get_agent(request)
@@ -288,7 +288,9 @@ class ChatMetricHelper:
             model = request.state.model
             user_id = get_header_user_id(request)
             agent = MetricsHelper.get_agent(request)
-            agent_id = agent.id if agent else None
+            if not agent:
+                raise ValueError("agent not set")
+            agent_id = agent.id
             event_dict = to_dict(event).get("response", {})
             input_tokens = (
                 event_dict.get("meta", {})
