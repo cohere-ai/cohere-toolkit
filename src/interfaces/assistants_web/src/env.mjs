@@ -9,7 +9,11 @@ export const env = createEnv({
     NEXT_PUBLIC_FRONTEND_HOSTNAME: z.string().optional().default('http://localhost:4000'),
     NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: z.string().optional(),
     NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: z.string().optional(),
-    NEXT_PUBLIC_HAS_CUSTOM_LOGO: z.string().optional().default('false'),
+    NEXT_PUBLIC_HAS_CUSTOM_LOGO: z
+      .string()
+      .refine((s) => s === 'true' || s === 'false')
+      .transform((s) => s === 'true')
+      .default(false),
   },
   runtimeEnv: {
     NEXT_PUBLIC_API_HOSTNAME: process.env.NEXT_PUBLIC_API_HOSTNAME,

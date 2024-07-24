@@ -54,21 +54,14 @@ export const ToggleCard: React.FC<Props> = ({
           )}
         </div>
         {!disabled && (
-          <Switch
-            displayChecked
-            checked={checked}
-            onChange={onToggle}
-            className="flex-shrink-0 gap-0"
-          />
+          <Switch checked={checked} onChange={onToggle} className="flex-shrink-0 gap-0" />
         )}
       </div>
       {inputOptions && (
         <Input
           label="Site (Optional)"
           placeholder="Ground on 1 domain e.g. wikipedia.org"
-          data-testid={inputOptions.testId}
           value={inputOptions.value}
-          description={inputOptions.description}
           onChange={inputOptions.onChange}
           disabled={inputOptions.disabled || disabled}
         />
