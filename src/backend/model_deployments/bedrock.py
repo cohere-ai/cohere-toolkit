@@ -1,15 +1,9 @@
-import logging
-import os
-import threading
-import time
 from typing import Any, AsyncGenerator, Dict, List
 
 import cohere
-from cohere.core.api_error import ApiError
-from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
+from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -29,18 +23,32 @@ BEDROCK_ENV_VARS = [
 class BedrockDeployment(BaseDeployment):
     DEFAULT_MODELS = ["cohere.command-r-plus-v1:0"]
 
+    bedrock_config = Settings().deployments.bedrock
+    region_name = bedrock_config.region_name
+    access_key = bedrock_config.access_key
+    secret_access_key = bedrock_config.secret_key
+    session_token = bedrock_config.session_token
+
     def __init__(self, **kwargs: Any):
         self.client = cohere.BedrockClient(
             # TODO: remove hardcoded models once the SDK is updated
             chat_model="cohere.command-r-plus-v1:0",
             embed_model="cohere.embed-multilingual-v3",
             generate_model="cohere.command-text-v14",
-            aws_access_key=get_model_config_var(BEDROCK_ACCESS_KEY_ENV_VAR, **kwargs),
-            aws_secret_key=get_model_config_var(BEDROCK_SECRET_KEY_ENV_VAR, **kwargs),
-            aws_session_token=get_model_config_var(
-                BEDROCK_SESSION_TOKEN_ENV_VAR, **kwargs
+            aws_access_key=get_model_config_var(
+                BEDROCK_ACCESS_KEY_ENV_VAR, BedrockDeployment.access_key, **kwargs
             ),
-            aws_region=get_model_config_var(BEDROCK_REGION_NAME_ENV_VAR, **kwargs),
+            aws_secret_key=get_model_config_var(
+                BEDROCK_SECRET_KEY_ENV_VAR,
+                BedrockDeployment.secret_access_key,
+                **kwargs,
+            ),
+            aws_session_token=get_model_config_var(
+                BEDROCK_SESSION_TOKEN_ENV_VAR, BedrockDeployment.session_token, **kwargs
+            ),
+            aws_region=get_model_config_var(
+                BEDROCK_REGION_NAME_ENV_VAR, BedrockDeployment.region_name, **kwargs
+            ),
         )
 
     @property
@@ -56,7 +64,12 @@ class BedrockDeployment(BaseDeployment):
 
     @classmethod
     def is_available(cls) -> bool:
-        return all([os.environ.get(var) is not None for var in BEDROCK_ENV_VARS])
+        return (
+            BedrockDeployment.access_key is not None
+            and BedrockDeployment.secret_access_key is not None
+            and BedrockDeployment.session_token is not None
+            and BedrockDeployment.region_name is not None
+        )
 
     async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         # bedrock accepts a subset of the chat request fields

@@ -8,6 +8,7 @@ from sse_starlette.sse import EventSourceResponse
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
@@ -172,7 +173,7 @@ async def chat(
 def langchain_chat_stream(
     session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
 ):
-    use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
+    use_langchain = Settings().feature_flags.use_experimental_langchain
     if not use_langchain:
         return {"error": "Langchain is not enabled."}
 

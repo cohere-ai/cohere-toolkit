@@ -9,6 +9,7 @@ from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
@@ -216,7 +217,7 @@ async def login(request: Request, session: DBSessionDep):
     Raises:
         HTTPException: If no redirect_uri set.
     """
-    redirect_uri = os.getenv("FRONTEND_HOSTNAME")
+    redirect_uri = Settings().auth.frontend_hostname
 
     if not redirect_uri:
         raise HTTPException(
