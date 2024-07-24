@@ -1,7 +1,7 @@
-from backend.config.settings import Settings
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from backend.config.settings import Settings
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.schemas.user import User
 from backend.tests.factories import get_factory

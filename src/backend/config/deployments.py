@@ -109,7 +109,11 @@ def get_default_deployment(**kwargs) -> BaseDeployment:
     default = Settings().deployments.default_deployment
     if default:
         return next(
-            (v.deployment_class(**kwargs) for k, v in AVAILABLE_MODEL_DEPLOYMENTS.items() if v.id == default),
+            (
+                v.deployment_class(**kwargs)
+                for k, v in AVAILABLE_MODEL_DEPLOYMENTS.items()
+                if v.id == default
+            ),
             fallback,
         )
     else:

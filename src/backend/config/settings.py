@@ -226,8 +226,18 @@ class DeploymentSettings(BaseSettings, BaseModel):
     single_container: Optional[SingleContainerSettings]
     bedrock: Optional[BedrockSettings]
 
-config_file = "src/backend/config/configuration.yaml" if "pytest" not in sys.modules else "src/backend/tests/configuration.yaml"
-secrets_file = "src/backend/config/secrets.yaml" if "pytest" not in sys.modules else "src/backend/tests/secrets.yaml"
+
+config_file = (
+    "src/backend/config/configuration.yaml"
+    if "pytest" not in sys.modules
+    else "src/backend/tests/configuration.yaml"
+)
+secrets_file = (
+    "src/backend/config/secrets.yaml"
+    if "pytest" not in sys.modules
+    else "src/backend/tests/secrets.yaml"
+)
+
 
 class Settings(BaseSettings, case_sensitive=False):
     """
@@ -256,12 +266,8 @@ class Settings(BaseSettings, case_sensitive=False):
         return (
             env_settings,
             dotenv_settings,
-            YamlConfigSettingsSource(
-                settings_cls, yaml_file=config_file
-            ),
-            YamlConfigSettingsSource(
-                settings_cls, yaml_file= secrets_file
-            ),
+            YamlConfigSettingsSource(settings_cls, yaml_file=config_file),
+            YamlConfigSettingsSource(settings_cls, yaml_file=secrets_file),
             file_secret_settings,
             init_settings,
         )

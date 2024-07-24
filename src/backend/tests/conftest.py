@@ -18,6 +18,7 @@ from backend.tests.factories import get_factory
 
 DATABASE_URL = os.environ["DATABASE_URL"]
 
+
 @pytest.fixture
 def client():
     yield TestClient(app)
