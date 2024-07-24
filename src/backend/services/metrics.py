@@ -5,9 +5,8 @@ import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Generator, Union
+from typing import Any, Callable, Dict, Union
 
-from cohere.core.api_error import ApiError
 from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
@@ -18,8 +17,6 @@ from starlette.responses import Response
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
-from backend.model_deployments.cohere_platform import DEFAULT_RERANK_MODEL
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
     MetricsData,
@@ -29,7 +26,6 @@ from backend.schemas.metrics import (
     MetricsUser,
 )
 from backend.services.auth.utils import get_header_user_id
-from backend.services.generators import AsyncGeneratorContextManager
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -37,6 +33,8 @@ METRICS_LOGS_CURLS = os.getenv("METRICS_LOGS_CURLS", None)
 NUM_RETRIES = 0
 HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
+# TODO: fix this hack eventually
+DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 
 logger = logging.getLogger(__name__)
 
