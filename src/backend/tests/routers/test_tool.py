@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from backend.config.settings import Settings
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.crud import tool as tool_crud
 from backend.schemas.user import User

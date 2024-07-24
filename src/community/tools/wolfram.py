@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
+from backend.config.settings import Settings
 from community.tools import BaseTool
 
 
@@ -15,7 +16,7 @@ class WolframAlpha(BaseTool):
 
     NAME = "wolfram_alpha"
 
-    wolfram_app_id = os.environ.get("WOLFRAM_ALPHA_APP_ID")
+    wolfram_app_id = Settings().tools.wolfram_alpha.app_id
 
     def __init__(self):
         self.app_id = self.wolfram_app_id

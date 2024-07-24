@@ -118,7 +118,7 @@ COMMUNITY_TOOLS = {
 COMMUNITY_TOOLS_SETUP = {
     CommunityToolName.Wolfram_Alpha: {
         "secrets": {
-            "WOLFRAM_ALPHA_APP_ID": None,  # default value
+            "WOLFRAM_APP_ID": None,  # default value
         },
     },
 }
