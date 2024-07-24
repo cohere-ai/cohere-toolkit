@@ -31,7 +31,6 @@ def get_deployment(name, **kwargs: Any) -> BaseDeployment:
         deployment = AVAILABLE_MODEL_DEPLOYMENTS.get(name)
         if deployment is not None and deployment.is_available:
             return deployment.deployment_class(**kwargs, **deployment.kwargs)
-        return default
 
     raise ValueError(
         f"Deployment {name} is not supported, and no available deployments were found."
