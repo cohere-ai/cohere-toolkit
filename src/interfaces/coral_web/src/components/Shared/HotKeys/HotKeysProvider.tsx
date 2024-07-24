@@ -46,6 +46,7 @@ export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ customHotKeys 
   );
 
   customHotKeys.forEach(({ commands, action, options, dependencies }) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useHotkeys(
       commands,
       () => {
