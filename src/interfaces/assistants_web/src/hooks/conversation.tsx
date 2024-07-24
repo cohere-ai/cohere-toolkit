@@ -29,7 +29,7 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
         return conversations;
       }
 
-      return conversations.filter((c) => c.agent_id === null);
+      return conversations;
     },
     retry: 0,
     refetchOnWindowFocus: false,

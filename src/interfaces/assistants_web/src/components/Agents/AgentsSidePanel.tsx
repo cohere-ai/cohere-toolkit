@@ -2,12 +2,21 @@
 
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import React, { ReactElement } from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
+import { Button, Icon, Logo, Text } from '@/components/Shared';
+import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
-import { useAgentsStore, useSettingsStore } from '@/stores';
+import {
+  useAgentsStore,
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -19,29 +28,26 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   className = '',
   children,
 }) => {
-  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
+  const router = useRouter();
   const {
     agents: { isAgentsSidePanelOpen },
-    setAgentsSidePanelOpen,
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
 
-  const handleToggleAgentsSidePanel = () => {
-    setIsConvListPanelOpen(false);
-    setSettings({ isConfigDrawerOpen: false });
-    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
-  };
+  const { setEditAgentPanelOpen } = useAgentsStore();
+  const { resetConversation } = useConversationStore();
+  const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
 
-  const navigationItems: {
-    label: string;
-    icon: IconProps['name'];
-    href?: string;
-    onClick?: () => void;
-  }[] = [
-    { label: 'Create Assistant ', icon: 'add', href: '/new' },
-    { label: 'Discover', icon: 'compass', href: '/discover' },
-  ];
+  const handleNewChat = () => {
+    const url = '/';
+    setEditAgentPanelOpen(false);
+    resetConversation();
+    resetCitations();
+    resetFileParams();
+    router.push(url);
+  };
 
   return (
     <Transition
@@ -49,8 +55,9 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
       as="div"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
-        'h-full bg-marble-1000',
-        'rounded-lg border border-marble-950',
+        'h-full bg-marble-1000 dark:bg-volcanic-60',
+        'rounded-lg border border-marble-950 dark:border-volcanic-60',
+        'dark:text-mushroom-950',
         {
           'right-1/4 md:right-auto': isAgentsSidePanelOpen,
         },
@@ -68,7 +75,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
           'md:transition-[min-width,max-width]',
           {
-            'md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
+            'gap-y-4 md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
               !isAgentsSidePanelOpen,
             'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
               isAgentsSidePanelOpen,
@@ -77,65 +84,133 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
       >
         <div
           className={cn('flex flex-shrink-0 items-center', {
-            'justify-between gap-x-3': isAgentsSidePanelOpen || isMobile,
-            'justify-center': !isAgentsSidePanelOpen && isDesktop,
+            'justify-center': !isAgentsSidePanelOpen,
+            'justify-between gap-x-3': isMobile && isAgentsSidePanelOpen,
           })}
         >
-          <Transition
-            show={isAgentsSidePanelOpen || isMobile}
-            as="div"
-            enter="transition-all transform ease-in-out duration-200"
-            enterFrom="-translate-x-full"
-            enterTo="translate-x-0"
-          >
-            <Link href="/" shallow>
-              <div className="mr-3 flex items-baseline">
-                <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
-              </div>
-            </Link>
-          </Transition>
+          <Link href="/">
+            <Logo
+              hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO}
+              includeBrandName={isAgentsSidePanelOpen}
+            />
+          </Link>
 
-          <IconButton
-            iconName="close-drawer"
-            onClick={handleToggleAgentsSidePanel}
-            className={cn('transition delay-100 duration-200 ease-in-out', {
-              'rotate-180 transform text-mushroom-400': isAgentsSidePanelOpen || isMobile,
-            })}
+          <ToggleAgentsSidePanelButton className="flex md:hidden" />
+        </div>
+
+        <div
+          className={cn('flex flex-shrink-0 flex-col gap-y-4', {
+            'items-center': !isAgentsSidePanelOpen,
+          })}
+        >
+          <SidePanelButton
+            label={
+              <div className="group flex items-center justify-between">
+                <Text className="dark:text-evolved-green-700">New chat</Text>
+                <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
+              </div>
+            }
+            onClick={handleNewChat}
+            tooltip="New chat"
+            icon={<Icon name="add" kind="outline" className="dark:text-evolved-green-700" />}
+          />
+          <SidePanelButton
+            label="See all assistants"
+            tooltip="See all assistants"
+            href="/discover"
+            icon={<Icon name="compass" kind="outline" className="dark:text-mushroom-950" />}
           />
         </div>
-        <div className="flex-grow overflow-y-auto">{children}</div>
-        {isAgentsSidePanelOpen || isMobile ? (
-          <div className="flex flex-shrink-0 flex-col gap-y-4">
-            {navigationItems.map(({ label, icon, href, onClick }) => (
-              <Button
-                key={label}
-                kind="secondary"
-                className="truncate text-mushroom-150"
-                startIcon={<Icon name={icon} kind="outline" className="text-mushroom-150" />}
-                label={label}
-                href={href}
-                shallow
-                onClick={onClick}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-shrink-0 flex-col gap-y-4">
-            {navigationItems.map(({ label, icon, href, onClick }) => (
-              <Tooltip key={label} label={label} hover placement="right">
-                <IconButton
-                  iconName={icon}
-                  iconClassName="text-mushroom-150"
-                  shallow
-                  onClick={onClick}
-                  href={href}
-                  className="w-full text-mushroom-150"
-                />
-              </Tooltip>
-            ))}
-          </div>
-        )}
+
+        <div className={cn('flex-grow overflow-y-auto')}>{children}</div>
+
+        <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
+          <SidePanelButton
+            label="Settings"
+            tooltip="Settings"
+            href="/settings"
+            icon={<Icon name="settings" kind="outline" className="dark:text-mushroom-950" />}
+          />
+          <section className="flex items-center justify-between">
+            <div
+              className={cn('flex items-center gap-2', {
+                hidden: !isAgentsSidePanelOpen,
+              })}
+            >
+              <Text styleAs="label" className="dark:text-mushroom-800">
+                POWERED BY
+              </Text>
+              <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
+            </div>
+            <ToggleAgentsSidePanelButton className="hidden md:flex" />
+          </section>
+        </footer>
       </div>
     </Transition>
+  );
+};
+
+const SidePanelButton: React.FC<{
+  label?: ReactElement | string;
+  tooltip?: string;
+  href?: string;
+  onClick?: VoidFunction;
+  icon: ReactElement;
+  className?: string;
+}> = ({ label, tooltip, href, icon, className, onClick }) => {
+  const {
+    agents: { isAgentsSidePanelOpen },
+  } = useAgentsStore();
+
+  if (isAgentsSidePanelOpen) {
+    return (
+      <Button
+        kind="secondary"
+        className={cn('dark:[&_span]:text-mushroom-950', className)}
+        startIcon={icon}
+        label={label}
+        href={href}
+        onClick={onClick}
+      />
+    );
+  }
+
+  return (
+    <IconButton
+      icon={icon}
+      href={href}
+      onClick={onClick}
+      className={className}
+      tooltip={tooltip ? { label: tooltip } : undefined}
+    />
+  );
+};
+
+const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
+  const {
+    agents: { isAgentsSidePanelOpen },
+    setAgentsSidePanelOpen,
+  } = useAgentsStore();
+  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
+
+  const handleToggleAgentsSidePanel = () => {
+    setIsConvListPanelOpen(false);
+    setSettings({ isConfigDrawerOpen: false });
+    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
+  };
+
+  return (
+    <IconButton
+      iconName="close-drawer"
+      onClick={handleToggleAgentsSidePanel}
+      tooltip={{ label: 'Toggle agents side panel' }}
+      className={cn(
+        'transform transition delay-100 duration-200 ease-in-out dark:text-mushroom-950 dark:hover:text-mushroom-950',
+        className,
+        {
+          'rotate-180 ': isAgentsSidePanelOpen,
+        }
+      )}
+    />
   );
 };
