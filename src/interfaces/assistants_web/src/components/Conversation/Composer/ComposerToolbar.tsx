@@ -34,12 +34,19 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
   };
 
   return (
-    <div className={cn('flex items-center gap-x-2', 'border-t border-marble-950', 'mx-2 py-2')}>
+    <div
+      className={cn(
+        'flex items-center gap-x-2',
+        'border-t border-marble-950 dark:border-volcanic-300',
+        'mx-2 py-2'
+      )}
+    >
       <input
         ref={fileInputRef}
         type="file"
         accept={ACCEPTED_FILE_TYPES.join(',')}
         className="hidden"
+        multiple
         onChange={handleFileInputChange}
       />
       <IconButton
@@ -52,7 +59,6 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
         onClick={handleOpenFileExplorer}
       />
       <DataSourceMenu {...menuProps} />
-      <div className="h-7 w-px bg-marble-950" />
       <EnabledDataSources isStreaming={isStreaming} />
     </div>
   );
