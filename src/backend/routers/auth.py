@@ -86,7 +86,7 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     if not is_enabled_authentication_strategy(strategy_name):
         send_log_message(
             logger,
-            f"[Auth] Invalid authentication strategy"
+            f"[Auth] Error logging in: Invalid authentication strategy {strategy_name}"
             "debug",
         )
         raise HTTPException(
@@ -98,6 +98,11 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
         missing_keys = [key for key in strategy_payload if key not in payload.keys()]
+        send_log_message(
+            logger,
+            f"[Auth] Error logging in: Keys {missing_keys} missing from payload"
+            "debug",
+        )
         raise HTTPException(
             status_code=422,
             detail=f"Missing the following keys in the payload: {missing_keys}.",
@@ -105,6 +110,11 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
     user = strategy.login(session, payload)
     if not user:
+        send_log_message(
+            logger,
+            f"[Auth] Error logging in: Invalid credentials in payload {payload}",
+            "debug",
+        )
         raise HTTPException(
             status_code=401,
             detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
@@ -134,6 +144,11 @@ async def authorize(
         HTTPException: If authentication fails, or strategy is invalid.
     """
     if not code:
+        send_log_message(
+            logger,
+            f"[Auth] Auth endpoint called without code.",
+            "debug",
+        )
         raise HTTPException(
             status_code=400,
             detail=f"Error calling /auth with invalid code query parameter.",
@@ -145,6 +160,11 @@ async def authorize(
             strategy_name = enabled_strategy_name
 
     if not strategy_name:
+        send_log_message(
+            logger,
+            f"[Auth] Auth endpoint called with invalid strategy: {strategy}",
+            "debug",
+        )
         raise HTTPException(
             status_code=400,
             detail=f"Error calling /auth with invalid strategy name: {strategy_name}.",
