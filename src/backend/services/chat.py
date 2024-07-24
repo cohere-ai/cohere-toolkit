@@ -59,7 +59,7 @@ from backend.services.auth.utils import get_header_user_id
 from backend.services.file import FileService
 from backend.services.generators import AsyncGeneratorContextManager
 
-fileService = FileService()
+file_service = FileService()
 
 
 def process_chat(
@@ -160,7 +160,11 @@ def process_chat(
         file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
-                session, user_id, user_message.id, chat_request.file_ids
+                session,
+                user_id,
+                user_message.id,
+                conversation.id,
+                chat_request.file_ids,
             )
 
     chat_history = create_chat_history(
@@ -351,7 +355,7 @@ def handle_file_retrieval(
     file_paths = None
     # Use file_ids if provided
     if file_ids is not None:
-        files = fileService.get_files_by_ids(session, file_ids, user_id)
+        files = file_service.get_files_by_ids(session, file_ids, user_id)
         file_paths = [file.file_path for file in files]
 
     return file_paths
@@ -361,6 +365,7 @@ def attach_files_to_messages(
     session: DBSessionDep,
     user_id: str,
     message_id: str,
+    conversation_id: str,
     file_ids: List[str] | None = None,
 ) -> None:
     """
@@ -380,8 +385,9 @@ def attach_files_to_messages(
         update_message = UpdateMessage(
             text=message.text, title=message.text, file_ids=file_ids
         )
+        files = file_service.get
+        # TODO scott: check messages after table refactors
         message_crud.update_message(session, message, update_message)
-        # file_crud.update_file(session, file, UpdateFile(message_id=message_id))
 
 
 def create_chat_history(

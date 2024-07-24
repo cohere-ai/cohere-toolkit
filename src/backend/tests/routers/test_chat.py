@@ -463,13 +463,13 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
         },
         json={
             "message": "How are you doing?",
+            "conversation_id": conversation.id,
             "file_ids": [file1.id, file2.id],
             "max_tokens": 10,
         },
     )
 
     conversation = session_chat.get(Conversation, (conversation.id, user.id))
-    print(conversation.messages)
     assert response.status_code == 200
     assert conversation is not None
     message = conversation.messages[0]
@@ -486,15 +486,21 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
 def test_streaming_existing_chat_with_attached_files_does_not_attach(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
-    existing_message = get_factory("Message", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id, position=0, is_active=True
-    )
     file1 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id, message_id=existing_message.id
+        user_id=user.id,
     )
     file2 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id, message_id=existing_message.id
+        user_id=user.id,
+    )
+    conversation = get_factory("Conversation", session_chat).create(
+        user_id=user.id, file_ids=[file1.id, file2.id]
+    )
+    existing_message = get_factory("Message", session_chat).create(
+        conversation_id=conversation.id,
+        user_id=user.id,
+        position=0,
+        is_active=True,
+        file_ids=[file1.id, file2.id],
     )
     session_chat.refresh(conversation)
 
@@ -516,9 +522,12 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
 
     assert response.status_code == 200
     assert conversation is not None
-    # Files link not changed
-    assert file1.message_id == existing_message.id
-    assert file2.message_id == existing_message.id
+
+    # New messages should not contain the file IDs
+    message = conversation.messages[0]
+    assert message.file_ids == []
+    assert file1.id in existing_message.file_ids
+    assert file2.id in existing_message.file_ids
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 3
     )
