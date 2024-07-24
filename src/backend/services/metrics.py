@@ -7,7 +7,6 @@ import uuid
 from functools import wraps
 from typing import Any, Callable, Dict, Generator, Union
 
-from backend.model_deployments.cohere_platform import DEFAULT_RERANK_MODEL
 from cohere.core.api_error import ApiError
 from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
@@ -19,6 +18,7 @@ from starlette.responses import Response
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
+from backend.model_deployments.cohere_platform import DEFAULT_RERANK_MODEL
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.metrics import (
     MetricsAgent,
