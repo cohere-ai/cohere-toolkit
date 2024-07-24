@@ -93,7 +93,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     ) -> None:
         signal = self._get_event_signal(request, response, duration_ms)
         should_send_event = request.state.event_type and signal
-        if should_send_event:
+        if should_send_event and signal:
             response.background = BackgroundTask(report_metrics, signal)
 
     def _get_event_signal(
