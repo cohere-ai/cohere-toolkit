@@ -8,12 +8,13 @@ from fastapi import UploadFile as FastAPIUploadFile
 from pypdf import PdfReader
 
 import backend.crud.conversation as conversation_crud
-import backend.crud.file as file_crud
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
+import backend.crud.file as file_crud
 from backend.crud import message as message_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
+from backend.database_models.conversation import ConversationFileAssociation
 from backend.schemas.conversation import UpdateConversation
 from backend.schemas.file import UpdateFile
 
@@ -71,16 +72,16 @@ class FileService:
 
         uploaded_files = file_crud.batch_create_files(session, files_to_upload)
         uploaded_file_ids = [file.id for file in uploaded_files]
-        update_conversation = UpdateConversation()
-        if conversation.file_ids:
-            file_ids = deepcopy(conversation.file_ids)
-            update_conversation.file_ids = file_ids + uploaded_file_ids
-        else:
-            update_conversation.file_ids = uploaded_file_ids
-
-        conversation_crud.update_conversation(
-            session, conversation, update_conversation
-        )
+        for file_id in uploaded_file_ids:
+            conversation_crud.create_conversation_file_association(
+                session,
+                ConversationFileAssociation(
+                    conversation_id=conversation_id,
+                    user_id=user_id,
+                    file_id=file_id,
+                    conversation=conversation,
+                )
+            )
 
         return uploaded_files
 
@@ -130,17 +131,21 @@ class FileService:
 
         return files
 
-    def delete_file_from_conversation(self, conversation_id: str, file_id: str) -> None:
-        conversation = conversation_crud.get_conversation(self.session, conversation_id)
-        conversation.file_ids.remove(file_id)
-        conversation_crud.update_conversation(self.session, conversation)
-        file_crud.delete_file(self.session, file_id)
+    def delete_file_from_conversation(self, session: DBSessionDep, conversation_id: str, file_id: str, user_id: str) -> None:
+        conversation_crud.delete_conversation_file_association(
+            session,
+            conversation_id,
+            file_id,
+            user_id
+        )
+        file_crud.delete_file(session, file_id, user_id)
         return
 
     def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
         # currently DB only, implement and fetch from compass after
         file = file_crud.get_file(session, file_id, user_id)
         return file
+
 
     def get_files_by_ids(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
@@ -149,14 +154,13 @@ class FileService:
         files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
 
+
     def update_file(
         self, session: DBSessionDep, file: File, new_file: UpdateFile
     ) -> File:
         updated_file = file_crud.update_file(session, file, new_file)
         return updated_file
 
-    def delete_file(self, session: DBSessionDep, file_id: str, user_id: str) -> None:
-        file_crud.delete_file(session, file_id, user_id)
 
     def bulk_delete_files(
         self, session: DBSessionDep, file_ids: list[str], user_id: str

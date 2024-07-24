@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models.conversation import Conversation
+from backend.database_models.conversation import Conversation, ConversationFileAssociation
 from backend.schemas.conversation import UpdateConversation
 
 
@@ -109,4 +109,18 @@ def delete_conversation(db: Session, conversation_id: str, user_id: str) -> None
         Conversation.id == conversation_id, Conversation.user_id == user_id
     )
     conversation.delete()
+    db.commit()
+
+def create_conversation_file_association(db: Session, conversation_file_association: ConversationFileAssociation) -> ConversationFileAssociation:
+    db.add(conversation_file_association)
+    db.commit()
+    db.refresh(conversation_file_association)
+    return conversation_file_association
+
+
+def delete_conversation_file_association(db: Session, conversation_id: str, file_id: str, user_id: str) -> None:
+    conversation_file_association = db.query(ConversationFileAssociation).filter(
+        ConversationFileAssociation.id == conversation_id, ConversationFileAssociation.user_id == user_id, ConversationFileAssociation.file_id == file_id
+    )
+    conversation_file_association.delete()
     db.commit()
