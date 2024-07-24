@@ -7,6 +7,7 @@ import uuid
 from functools import wraps
 from typing import Any, Callable, Dict, Generator, Union
 
+from backend.model_deployments.cohere_platform import DEFAULT_RERANK_MODEL
 from cohere.core.api_error import ApiError
 from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
@@ -431,7 +432,7 @@ class RerankMetricsHelper:
     @staticmethod
     def _get_init_data(request: Request) -> tuple:
         trace_id = request.state.trace_id
-        model = request.state.rerank_model
+        model = DEFAULT_RERANK_MODEL
         user_id = get_header_user_id(request)
         agent = MetricsHelper.get_agent(request)
         agent_id = agent.id if agent else None

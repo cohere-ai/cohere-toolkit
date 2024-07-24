@@ -99,7 +99,7 @@ class CohereDeployment(BaseDeployment):
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
-        model = DEFAULT_RERANK_MODEL
-        add_rerank_model_to_request_state(model, **kwargs)
-        response = self.client.rerank(query=query, documents=documents, model=model)
+        response = self.client.rerank(
+            query=query, documents=documents, model=DEFAULT_RERANK_MODEL
+        )
         return to_dict(response)
