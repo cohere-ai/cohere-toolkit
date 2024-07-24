@@ -13,6 +13,7 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
@@ -63,6 +64,7 @@ class AzureDeployment(BaseDeployment):
         )
         yield to_dict(response)
 
+    @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest
     ) -> AsyncGenerator[Any, Any]:
@@ -73,5 +75,6 @@ class AzureDeployment(BaseDeployment):
         for event in stream:
             yield to_dict(event)
 
+    @collect_metrics_rerank
     async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
         return None

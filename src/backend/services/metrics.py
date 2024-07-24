@@ -419,7 +419,6 @@ class RerankMetricsHelper:
                 assistant_id=agent_id,
                 assistant=agent,
                 model=model,
-                search_units=search_units,
                 duration_ms=duration_ms,
                 timestamp=time.time(),
                 error=error_message,
