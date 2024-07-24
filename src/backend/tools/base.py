@@ -48,10 +48,9 @@ class BaseToolAuthentication:
     """
 
     def __init__(self, *args, **kwargs):
-        auth_config = Settings().auth
-        self.BACKEND_HOST = auth_config.backend_hostname
-        self.FRONTEND_HOST = auth_config.frontend_hostname
-        self.AUTH_SECRET_KEY = auth_config.secret_key
+        self.BACKEND_HOST = Settings().auth.backend_hostname
+        self.FRONTEND_HOST = Settings().auth.frontend_hostname
+        self.AUTH_SECRET_KEY = Settings().auth.secret_key
 
         self._post_init_check()
 

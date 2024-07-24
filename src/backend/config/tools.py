@@ -212,7 +212,6 @@ def get_available_tools() -> dict[ToolName, dict]:
     enabled_tools = Settings().tools.enabled_tools
     if enabled_tools is not None and len(enabled_tools) > 0:
         tools = {key: value for key, value in tools.items() if key in enabled_tools}
-
     return tools
 
 

@@ -10,6 +10,7 @@ from backend.model_deployments import (
     SingleContainerDeployment,
 )
 from backend.model_deployments.azure import AZURE_ENV_VARS
+from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.bedrock import BEDROCK_ENV_VARS
 from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
 from backend.model_deployments.sagemaker import SAGE_MAKER_ENV_VARS
@@ -87,7 +88,8 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
                 "Community deployments are not available. They can still be set up."
             )
 
-    if Settings().deployments.enabled_deployments:
+    deployments = Settings().deployments.enabled_deployments
+    if deployments is not None and len(deployments) > 0:
         return {
             key: value
             for key, value in ALL_MODEL_DEPLOYMENTS.items()
@@ -97,7 +99,7 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
     return ALL_MODEL_DEPLOYMENTS
 
 
-def get_default_deployment(**kwargs) -> ModelDeploymentName:
+def get_default_deployment(**kwargs) -> BaseDeployment:
     # Fallback to the first available deployment
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
         if deployment.is_available:
@@ -107,7 +109,7 @@ def get_default_deployment(**kwargs) -> ModelDeploymentName:
     default = Settings().deployments.default_deployment
     if default:
         return next(
-            (k for k, v in AVAILABLE_MODEL_DEPLOYMENTS.items() if v.id == default),
+            (v.deployment_class(**kwargs) for k, v in AVAILABLE_MODEL_DEPLOYMENTS.items() if v.id == default),
             fallback,
         )
     else:
