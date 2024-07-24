@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from backend.compass_sdk.constants import (
-    COHERE_API_ENV_VAR,
     DEFAULT_COMMANDR_EXTRACTABLE_ATTRIBUTES,
     DEFAULT_COMMANDR_PROMPT,
     DEFAULT_MAX_TOKENS_METADATA,
@@ -18,6 +17,7 @@ from backend.compass_sdk.constants import (
     METADATA_HEURISTICS_ATTRIBUTES,
     SKIP_INFER_TABLE_TYPES,
 )
+from backend.model_deployments.cohere_platform import CohereDeployment
 
 
 class Logger:
@@ -237,7 +237,7 @@ class MetadataConfig(ValidatedModel):
 
     pre_build_detectors: bool = False
     metadata_strategy: MetadataStrategy = MetadataStrategy.No_Metadata
-    cohere_api_key: Optional[str] = getenv(COHERE_API_ENV_VAR, None)
+    cohere_api_key: Optional[str] = CohereDeployment.api_key
     commandr_model_name: str = "command-r"
     commandr_prompt: str = DEFAULT_COMMANDR_PROMPT
     commandr_max_tokens: int = 500

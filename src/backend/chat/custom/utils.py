@@ -1,6 +1,9 @@
 from typing import Any
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
+from backend.config.deployments import (
+    AVAILABLE_MODEL_DEPLOYMENTS,
+    get_default_deployment,
+)
 from backend.model_deployments.base import BaseDeployment
 
 
@@ -23,9 +26,9 @@ def get_deployment(name, **kwargs: Any) -> BaseDeployment:
         return deployment.deployment_class(**kwargs, **deployment.kwargs)
 
     # Fallback to first available deployment
-    for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
-        if deployment.is_available:
-            return deployment.deployment_class(**kwargs)
+    default = get_default_deployment(**kwargs)
+    if default is not None:
+        return default
 
     raise ValueError(
         f"Deployment {name} is not supported, and no available deployments were found."

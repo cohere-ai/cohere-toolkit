@@ -6,6 +6,7 @@ from backend.model_deployments.base import BaseDeployment
 
 
 class Deployment(BaseModel):
+    id: str
     name: str
     models: list[str]
     is_available: bool
