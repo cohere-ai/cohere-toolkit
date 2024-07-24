@@ -1,0 +1,15 @@
+name: Typecheck
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: jakebailey/pyright-action@v2
+        with:
+          version: 2.3.1
