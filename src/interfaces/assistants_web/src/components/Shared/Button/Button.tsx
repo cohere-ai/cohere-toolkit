@@ -97,6 +97,7 @@ export type ButtonProps = {
   };
   animate?: boolean;
   danger?: boolean;
+  stretch?: boolean;
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -114,15 +115,22 @@ export const Button: React.FC<ButtonProps> = ({
   hrefOptions,
   animate = true,
   danger = false,
+  stretch = false,
   kind = danger ? 'secondary' : 'primary',
   theme = kind === 'secondary' ? 'mushroom-marble' : 'acrylic-blue',
   iconPosition = kind === 'cell' ? 'end' : 'start',
 }) => {
   const labelStyles = danger
-    ? 'text-danger-500 fill-danger-500'
+    ? 'text-danger-350 fill-danger-350'
     : getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
-  const shouldAnimate = animate && !disabled;
+  const animateStyles =
+    animate && !disabled
+      ? cn('duration-400 transition-spacing ease-in-out', {
+          'pl-3 group-hover:pl-1': iconPosition === 'start',
+          'pr-3 group-hover:pr-1': iconPosition === 'end',
+        })
+      : undefined;
 
   const iconElement = isLoading ? (
     <Spinner />
@@ -147,21 +155,18 @@ export const Button: React.FC<ButtonProps> = ({
     kind !== 'cell' ? (
       <div
         className={cn(
-          'group flex items-center justify-center rounded-md',
+          'group flex h-cell-button items-center justify-center rounded-md',
           buttonStyles,
           className,
-          { 'justify-start': kind === 'secondary', 'h-cell-button': kind !== 'secondary' }
+          { 'h-fit justify-start': kind === 'secondary', 'space-x-3': !animateStyles }
         )}
       >
         {iconPosition === 'start' && iconElement}
         {labelElement && (
           <div
-            className={cn('w-full', {
-              'pl-3': iconPosition === 'start',
-              'pr-3': iconPosition === 'end',
-              'duration-400 transition-spacing ease-in-out': shouldAnimate,
-              'group-hover:pl-1': shouldAnimate && iconPosition === 'start',
-              'group-hover:pr-1': shouldAnimate && iconPosition === 'end',
+            className={cn(animateStyles, {
+              'w-full': stretch,
+              'px-2': kind === 'outline',
             })}
           >
             {labelElement}
@@ -170,7 +175,7 @@ export const Button: React.FC<ButtonProps> = ({
         {iconPosition === 'end' && iconElement}
       </div>
     ) : (
-      cellInner(theme, iconElement, labelElement, shouldAnimate, iconPosition, disabled)
+      cellInner(theme, iconElement, labelElement, !disabled && animate, iconPosition, disabled)
     );
 
   return !disabled && href ? (
@@ -179,7 +184,7 @@ export const Button: React.FC<ButtonProps> = ({
       href={href}
       onClick={onClick}
       {...hrefOptions}
-      className={cn('w-full', { 'cursor-not-allowed': disabled })}
+      className={cn({ 'cursor-not-allowed': disabled, 'w-full': stretch })}
     >
       {inner}
     </Link>
@@ -189,7 +194,7 @@ export const Button: React.FC<ButtonProps> = ({
       type={buttonType}
       disabled={disabled}
       onClick={onClick}
-      className={cn('w-full', { 'cursor-not-allowed': disabled })}
+      className={cn({ 'cursor-not-allowed': disabled, 'w-full': stretch })}
     >
       {inner}
     </button>

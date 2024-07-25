@@ -113,6 +113,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             icon="add"
             theme="evolved-green"
             onClick={handleNewChat}
+            stretch
           />
 
           <Button kind="secondary" label="See all assistants" href="/discover" icon="compass" />
