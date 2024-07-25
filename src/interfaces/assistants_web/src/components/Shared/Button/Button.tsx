@@ -154,17 +154,19 @@ export const Button: React.FC<ButtonProps> = ({
         )}
       >
         {iconPosition === 'start' && iconElement}
-        <div
-          className={cn({
-            'pl-3': iconPosition === 'start',
-            'pr-3': iconPosition === 'end',
-            'duration-400 transition-spacing ease-in-out': shouldAnimate,
-            'group-hover:pl-1': shouldAnimate && iconPosition === 'start',
-            'group-hover:pr-1': shouldAnimate && iconPosition === 'end',
-          })}
-        >
-          {labelElement}
-        </div>
+        {labelElement && (
+          <div
+            className={cn('w-full', {
+              'pl-3': iconPosition === 'start',
+              'pr-3': iconPosition === 'end',
+              'duration-400 transition-spacing ease-in-out': shouldAnimate,
+              'group-hover:pl-1': shouldAnimate && iconPosition === 'start',
+              'group-hover:pr-1': shouldAnimate && iconPosition === 'end',
+            })}
+          >
+            {labelElement}
+          </div>
+        )}
         {iconPosition === 'end' && iconElement}
       </div>
     ) : (
