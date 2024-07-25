@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.9",
-    "@headlessui/react": "^2.0.4",
+    "@headlessui/react": "^2.1.2",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@popperjs/core": "^2.11.8",
     "@react-hookz/web": "^23.1.0",

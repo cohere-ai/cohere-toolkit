@@ -47,7 +47,7 @@ export const ListboxOption: React.FC<ListboxOptionProps> = ({ icon, name, select
               name={icon}
               kind="outline"
               size="sm"
-              className="flex items-center text-volcanic-600 dark:text-marble-950"
+              className="flex items-center text-volcanic-400 dark:text-marble-950"
             />
             <div className="absolute -bottom-0.5 -right-0.5  size-2 rounded-full bg-success-300" />
           </div>

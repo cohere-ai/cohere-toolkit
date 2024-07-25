@@ -1,7 +1,7 @@
 'use client';
 
-import { useClickOutside } from '@react-hookz/web';
-import React, { useCallback, useRef } from 'react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import React, { useCallback } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
 import { ListboxOption, ListboxOptions } from '@/components/Conversation/Composer/ListboxOptions';
@@ -46,7 +46,6 @@ export const DataSourceMenu: React.FC<Props> = ({
     params: { tools },
     setParams,
   } = useParamsStore();
-  const buttonAndMenuRef = useRef<HTMLDivElement>(null);
 
   const handleChange = useCallback(
     (value: { tag: Tag }) => {
@@ -63,36 +62,41 @@ export const DataSourceMenu: React.FC<Props> = ({
     [onChange, setParams, tools]
   );
 
-  useClickOutside(buttonAndMenuRef, onHide);
   const { agentId } = useChatRoutes();
 
   return (
-    <div ref={buttonAndMenuRef}>
-      <button
+    <Popover className="relative">
+      <PopoverButton
+        as="button"
         onClick={onToggle}
-        className={cn(
-          'flex items-center justify-center rounded border px-1.5 py-1 transition-colors',
-          getCohereColor(agentId, {
-            text: true,
-            contrastText: show,
-            border: true,
-            background: show,
-          })
-        )}
+        className={({ open }) =>
+          cn(
+            'flex items-center justify-center rounded border px-1.5 py-1 outline-none transition-colors',
+            getCohereColor(agentId, {
+              text: true,
+              contrastText: open,
+              border: true,
+              background: open,
+            })
+          )
+        }
       >
         <Text styleAs="label" as="span" className="font-medium">
           Tools: {tools?.length ?? 0}
         </Text>
-      </button>
-
-      {show && (
+      </PopoverButton>
+      <PopoverPanel
+        className="flex origin-top -translate-y-2 flex-col transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        anchor="top start"
+        transition
+      >
         <div
           role="listbox"
           aria-multiselectable="true"
           className={cn(
-            'absolute bottom-12 left-12 z-tag-suggestions max-h-[200px] md:w-[300px]',
-            'w-full overflow-y-scroll rounded p-2 focus:outline-none',
-            'bg-marble-1000 dark:bg-volcanic-150'
+            'z-tag-suggestions] md:w-[300px]',
+            'w-full rounded-md p-2 focus:outline-none',
+            'bg-mushroom-950 dark:bg-volcanic-200'
           )}
         >
           <ToolOptions
@@ -102,8 +106,8 @@ export const DataSourceMenu: React.FC<Props> = ({
             onSeeAll={onSeeAll}
           />
         </div>
-      )}
-    </div>
+      </PopoverPanel>
+    </Popover>
   );
 };
 

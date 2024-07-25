@@ -37,8 +37,8 @@ const BORDER_COLOR_LIST = [
 ];
 
 const DEFAULT_BG_COLOR = 'bg-mushroom-700';
-const DEFAULT_TEXT_COLOR = 'text-mushroom-700';
-const DEFAULT_CONTRAST_TEXT_COLOR = 'text-marble-950 dark:text-marble-950';
+const DEFAULT_TEXT_COLOR = 'text-mushroom-500 dark:text-mushroom-700';
+const DEFAULT_CONTRAST_TEXT_COLOR = 'text-mushroom-300 dark:text-mushroom-300';
 const DEFAULT_BORDER_COLOR = 'border-mushroom-700';
 
 /**

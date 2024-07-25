@@ -18,7 +18,7 @@ export const Switch: React.FC<Props> = ({
   checked,
   onChange,
   label,
-  theme = 'coral',
+  theme = 'evolved-green',
   name,
   className = '',
 }) => {
@@ -35,7 +35,8 @@ export const Switch: React.FC<Props> = ({
               'transition-colors duration-300 ease-in-out',
               'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-500',
               {
-                'bg-volcanic-500 group-hover:bg-volcanic-400': !checked,
+                'bg-mushroom-900 hover:bg-mushroom-800 dark:bg-volcanic-500 dark:group-hover:bg-volcanic-400':
+                  !checked,
                 'bg-blue-500 group-hover:bg-blue-400': checked && theme === 'blue',
                 'bg-evolved-green-700 group-hover:bg-evolved-green-500':
                   checked && theme === 'evolved-green',
@@ -54,7 +55,7 @@ export const Switch: React.FC<Props> = ({
                 {
                   'translate-x-4': checked,
                   'translate-x-0': !checked,
-                  'bg-volcanic-800': !checked,
+                  'bg-mushroom-700 dark:bg-volcanic-800': !checked,
                   'bg-marble-950': checked,
                   'bg-green-250': checked && theme === 'evolved-green',
                 }
