@@ -14,6 +14,7 @@ from backend.tools import (
     TavilyInternetSearch,
     WebScrapeTool,
 )
+from backend.tools.google_search import GoogleSearch
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 
@@ -36,6 +37,7 @@ class ToolName(StrEnum):
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
+    Google_Search = GoogleSearch.NAME
 
 
 ALL_TOOLS = {
@@ -179,6 +181,22 @@ ALL_TOOLS = {
         error_message="WebScrapeTool not available.",
         category=Category.DataLoader,
         description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
+    ),
+    ToolName.Google_Search: ManagedTool(
+        display_name="Google Search",
+        implementation=GoogleSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query to search the internet with",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=GoogleSearch.is_available(),
+        error_message="GoogleSearch not available, please make sure to set the GOOGLE_SEARCH_API_KEY environment variable.",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for a textual query retrieved from the internet",
     ),
 }
 

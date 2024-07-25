@@ -133,6 +133,12 @@ class GDriveSettings(BaseSettings, BaseModel):
         )
     )
 
+class GoogleSearchSettings(BaseSettings, BaseModel):
+    model_config = setting_config
+    api_key: Optional[str] = Field(
+        validation_alias=AliasChoices("GOOGLE_SEARCH_API_KEY", "api_key")
+    )
+
 
 class ToolSettings(BaseSettings, BaseModel):
     model_config = setting_config
@@ -143,6 +149,7 @@ class ToolSettings(BaseSettings, BaseModel):
     web_search: Optional[WebSearchSettings]
     wolfram_alpha: Optional[WolframAlphaSettings]
     gdrive: Optional[GDriveSettings]
+    google_search: Optional[GoogleSearchSettings]
 
 
 class DatabaseSettings(BaseSettings, BaseModel):
