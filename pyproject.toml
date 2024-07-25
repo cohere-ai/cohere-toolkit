@@ -45,10 +45,10 @@ google_auth_oauthlib ="^1.2.0"
 google-auth-httplib2="^0.2.0"
 google-api-python-client="^2.133.0"
 openpyxl = "^3.1.5"
-
-# Compass dependencies - To be removed once Compass is OSS
 python-docx = "^1.1.2"
 python-calamine = "^0.2.3"
+
+# Compass dependencies - To be removed once Compass is OSS
 [tool.poetry.group.compass]
 optional = false
 
