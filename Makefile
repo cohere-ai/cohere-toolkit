@@ -43,3 +43,7 @@ win-first-run:
 	make win-setup
 	make migrate
 	make dev
+lint-web: 
+	cd src/interfaces/coral_web && npm run format:write 
+generate-client:
+	cd src/interfaces/coral_web && npm run generate:client && npm run format:write 
