@@ -1,0 +1,33 @@
+
+deployments: 
+  default_deployment: 
+  enabled_deployments:
+  sagemaker:
+    region_name:
+    endpoint_name:
+  azure: 
+    endpoint_url:
+  bedrock:
+    region_name:
+  single_container: 
+    model: 
+    url:
+database:
+  url:
+tools:
+  enabled_tools:
+  python_interpreter: 
+    url:
+  compass:
+    api_url: 
+    parser_url:
+feature_flags: 
+  # Experimental features 
+  use_experimental_langchain: false
+  use_agents_view: false
+  # Community features
+  use_community_features: true
+auth:
+  enabled_auth: 
+  backend_hostname:
+  frontend_hostname:
