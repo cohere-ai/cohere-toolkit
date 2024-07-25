@@ -161,7 +161,6 @@ const Conversation: React.FC<Props> = ({
                 <Composer
                   isStreaming={isStreaming}
                   value={userMessage}
-                  isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}
                   chatWindowRef={chatWindowRef}
                   requiredTools={agent?.tools}
