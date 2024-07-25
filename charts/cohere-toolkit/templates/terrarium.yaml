@@ -67,7 +67,14 @@ spec:
             - containerPort: 8080
               protocol: TCP
               name: http
-          {{- /* TODO: Add livenessProbe and readinessProbe */}}
+          {{- with $values.livenessProbe }}
+          livenessProbe:
+              {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $values.readinessProbe }}
+          readinessProbe:
+              {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with $values.sidecars }}
           {{- toYaml . | nindent 12 }}
           {{- end }}

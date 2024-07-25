@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.schemas.agent import AgentToolMetadata
 from backend.schemas.message import Message
@@ -22,7 +22,7 @@ class SnapshotData(BaseModel):
     title: str
     description: str
     messages: list[Message]
-    agent: Optional[SnapshotAgent]
+    agent: Optional[SnapshotAgent] = Field(exclude=True)
 
     class Config:
         from_attributes = True
@@ -44,9 +44,24 @@ class Snapshot(BaseModel):
         from_attributes = True
 
 
+class SnapshotPublic(Snapshot):
+    user_id: Optional[str] = Field(exclude=True)
+    organization_id: Optional[str] = Field(exclude=True)
+
+    class Config:
+        from_attributes = True
+
+
 class SnapshotLink(BaseModel):
     snapshot_id: str
     user_id: str
+
+    class Config:
+        from_attributes = True
+
+
+class SnapshotLinkPublic(SnapshotLink):
+    user_id: Optional[str] = Field(exclude=True)
 
     class Config:
         from_attributes = True
@@ -61,23 +76,31 @@ class SnapshotAccess(BaseModel):
         from_attributes = True
 
 
-class SnapshotWithLinks(Snapshot):
+class SnapshotWithLinks(SnapshotPublic):
     links: list[str]
 
     class Config:
         from_attributes = True
 
 
-class CreateSnapshot(BaseModel):
+class CreateSnapshotRequest(BaseModel):
     conversation_id: str
 
     class Config:
         from_attributes = True
 
 
-class CreateSnapshotResponse(SnapshotLink):
+class CreateSnapshotResponse(SnapshotLinkPublic):
     link_id: str
     messages: list[Message]
 
     class Config:
         from_attributes = True
+
+
+class DeleteSnapshotLinkResponse(BaseModel):
+    pass
+
+
+class DeleteSnapshotResponse(BaseModel):
+    pass

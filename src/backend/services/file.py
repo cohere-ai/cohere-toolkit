@@ -3,9 +3,11 @@ from copy import deepcopy
 from typing import Any, Optional
 
 import pandas as pd
+from docx import Document
 from fastapi import HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 from pypdf import PdfReader
+from python_calamine.pandas import pandas_monkeypatch
 
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
@@ -15,8 +17,7 @@ from backend.crud import message as message_crud
 from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
-from backend.schemas.conversation import UpdateConversation
-from backend.schemas.file import UpdateFile
+from backend.schemas.file import UpdateFileRequest
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -29,6 +30,9 @@ EXCEL_EXTENSION = "xlsx"
 EXCEL_OLD_EXTENSION = "xls"
 JSON_EXTENSION = "json"
 DOCX_EXTENSION = "docx"
+
+# Monkey patch Pandas to use Calamine for Excel reading because Calamine is faster than Pandas
+pandas_monkeypatch()
 
 
 class FileService:
@@ -218,7 +222,7 @@ class FileService:
         return files
 
     def update_file(
-        self, session: DBSessionDep, file: File, new_file: UpdateFile
+        self, session: DBSessionDep, file: File, new_file: UpdateFileRequest
     ) -> File:
         """
         Update file
@@ -226,7 +230,7 @@ class FileService:
         Args:
             session (DBSessionDep): The database session
             file (File): The file to update
-            new_file (UpdateFile): The new file data
+            new_file (UpdateFileRequest): The new file data
 
         Returns:
             File: The updated file
@@ -268,22 +272,67 @@ class FileService:
         return files
 
 
+def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:
+    """Validates if a file exists and belongs to the user
+
+    Args:
+        session (DBSessionDep): Database session
+        file_id (str): File ID
+        user_id (str): User ID
+
+    Returns:
+        File: File object
+
+    Raises:
+        HTTPException: If the file is not found
+    """
+    file = file_crud.get_file(session, file_id, user_id)
+
+    if not file:
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} not found.",
+        )
+
+    return file
+
+
 def get_file_extension(file_name: str) -> str:
+    """Returns the file extension
+
+    Args:
+        file_name (str): The file name
+
+    Returns:
+        str: The file extension
+    """
     return file_name.split(".")[-1].lower()
 
 
 async def get_file_content(file: FastAPIUploadFile) -> str:
+    """Reads the file contents based on the file extension
+
+    Args:
+        file (UploadFile): The file to read
+
+    Returns:
+        str: The file contents
+
+    Raises:
+        ValueError: If the file extension is not supported
+    """
     file_contents = await file.read()
     file_extension = get_file_extension(file.filename)
 
     if file_extension == PDF_EXTENSION:
         return read_pdf(file_contents)
+    elif file_extension == DOCX_EXTENSION:
+        return read_docx(file_contents)
     elif file_extension in [
         TEXT_EXTENSION,
         MARKDOWN_EXTENSION,
         CSV_EXTENSION,
         JSON_EXTENSION,
-        DOCX_EXTENSION,
     ]:
         return file_contents.decode("utf-8")
     elif file_extension in [EXCEL_EXTENSION, EXCEL_OLD_EXTENSION]:
@@ -293,6 +342,14 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
 
 
 def read_pdf(file_contents: bytes) -> str:
+    """Reads the text from a PDF file using PyPDF2
+
+    Args:
+        file_contents (bytes): The file contents
+
+    Returns:
+        str: The text extracted from the PDF
+    """
     pdf_reader = PdfReader(io.BytesIO(file_contents))
     text = ""
 
@@ -305,8 +362,26 @@ def read_pdf(file_contents: bytes) -> str:
 
 
 def read_excel(file_contents: bytes) -> str:
-    excel = pd.read_excel(io.BytesIO(file_contents))
+    """Reads the text from an Excel file using Pandas
+
+    Args:
+        file_contents (bytes): The file contents
+
+    Returns:
+        str: The text extracted from the Excel
+    """
+    excel = pd.read_excel(io.BytesIO(file_contents), engine="calamine")
     return excel.to_string()
+
+
+def read_docx(file_contents: bytes) -> str:
+    document = Document(io.BytesIO(file_contents))
+    text = ""
+
+    for paragraph in document.paragraphs:
+        text += paragraph.text + "\n"
+
+    return text
 
 
 def validate_file_size(

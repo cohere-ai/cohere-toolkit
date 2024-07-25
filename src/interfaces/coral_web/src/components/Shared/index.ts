@@ -16,7 +16,6 @@ export * from './Logo';
 export * from './Markdown';
 export * from './Modal';
 export * from './NavigationBar';
-export * from './PageHead';
 export * from './PageNotFound';
 export * from './PageServerError';
 export * from './Skeleton';

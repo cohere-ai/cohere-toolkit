@@ -2,7 +2,7 @@ import pytest
 
 from backend.crud import file as file_crud
 from backend.database_models.file import File
-from backend.schemas.file import UpdateFile
+from backend.schemas.file import UpdateFileRequest
 from backend.tests.factories import get_factory
 
 
@@ -119,7 +119,7 @@ def test_list_files_by_user_id_empty(session, user):
 def test_update_file(session, user):
     file = get_factory("File", session).create(file_name="test.txt", user_id=user.id)
 
-    new_file_data = UpdateFile(
+    new_file_data = UpdateFileRequest(
         file_name="new_name.txt",
     )
 

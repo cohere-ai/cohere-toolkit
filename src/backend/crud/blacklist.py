@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.blacklist import Blacklist
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_blacklist(db: Session, blacklist: Blacklist) -> Blacklist:
     """ "
     Create a blacklist token.
@@ -20,6 +22,7 @@ def create_blacklist(db: Session, blacklist: Blacklist) -> Blacklist:
     return blacklist
 
 
+@validate_transaction
 def get_blacklist(db: Session, token_id: str) -> Blacklist:
     """
     Get a blacklist token by token_id column.

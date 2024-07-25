@@ -1,8 +1,7 @@
 import logging
-import os
-from distutils.util import strtobool
 from enum import StrEnum
 
+from backend.config.settings import Settings
 from backend.schemas.tool import Category, ManagedTool
 from backend.tools import (
     Calculator,
@@ -147,7 +146,7 @@ ALL_TOOLS = {
         implementation=GoogleDrive,
         parameter_definitions={
             "query": {
-                "description": "Query to search google drive documents with.",
+                "description": "Query to search Google Drive documents with.",
                 "type": "str",
                 "required": True,
             }
@@ -155,7 +154,7 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=GoogleDrive.is_available(),
         auth_implementation=GoogleDriveAuth,
-        error_message="Google Drive not available",
+        error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
     ),
@@ -186,10 +185,8 @@ ALL_TOOLS = {
 
 def get_available_tools() -> dict[ToolName, dict]:
     langchain_tools = [ToolName.Python_Interpreter, ToolName.Tavily_Internet_Search]
-    use_langchain_tools = bool(
-        strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "False"))
-    )
-    use_community_tools = bool(strtobool(os.getenv("USE_COMMUNITY_FEATURES", "False")))
+    use_langchain_tools = Settings().feature_flags.use_experimental_langchain
+    use_community_tools = Settings().feature_flags.use_community_features
 
     if use_langchain_tools:
         return {
@@ -212,6 +209,9 @@ def get_available_tools() -> dict[ToolName, dict]:
         # Retrieve name
         tool.name = tool.implementation.NAME
 
+    enabled_tools = Settings().tools.enabled_tools
+    if enabled_tools is not None and len(enabled_tools) > 0:
+        tools = {key: value for key, value in tools.items() if key in enabled_tools}
     return tools
 
 

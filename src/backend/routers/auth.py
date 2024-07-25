@@ -1,14 +1,15 @@
 import json
 import os
 from typing import Union
+from urllib.parse import quote
 
-from authlib.integrations.starlette_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
@@ -20,6 +21,9 @@ from backend.services.auth.utils import (
     get_or_create_user,
     is_enabled_authentication_strategy,
 )
+from backend.services.logger import get_logger
+
+logger = get_logger()
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -196,21 +200,24 @@ async def logout(
 @router.get("/tool/auth")
 async def login(request: Request, session: DBSessionDep):
     """
-    Logs user in, performing basic email/password auth.
-    Verifies their credentials, retrieves the user and returns a JWT token.
+    Endpoint for Tool Authentication. Note: The flow is different from
+    the regular login OAuth flow, the backend initiates it and redirects to the frontend
+    after completion.
+
+    If completed, a ToolAuth is stored in the DB containing the access token for the tool.
 
     Args:
         request (Request): current Request object.
-        login (Login): Login payload.
         session (DBSessionDep): Database session.
 
     Returns:
-        dict: JWT token on Basic auth success
+        RedirectResponse: A redirect pointing to the frontend, contains an error query parameter if
+            an unexpected error happens during the authentication.
 
     Raises:
-        HTTPException: If the strategy or payload are invalid, or if the login fails.
+        HTTPException: If no redirect_uri set.
     """
-    redirect_uri = os.getenv("FRONTEND_HOSTNAME")
+    redirect_uri = Settings().auth.frontend_hostname
 
     if not redirect_uri:
         raise HTTPException(
@@ -224,23 +231,35 @@ async def login(request: Request, session: DBSessionDep):
 
     if tool_id in AVAILABLE_TOOLS:
         tool = AVAILABLE_TOOLS.get(tool_id)
+        err = None
 
         # Tool not found
         if not tool:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tool {tool_id} does not exist or is not available.",
-            )
-        # Tool does not have Auth implemented
-        if not hasattr(tool, "auth_implementation"):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tool {tool.name} does not have an auth_implementation required for Tool Auth.",
-            )
+            err = f"Tool {tool_id} does not exist or is not available."
+            logger.error(err)
+            redirect_err = f"{redirect_uri}?error={quote(err)}"
+            return RedirectResponse(redirect_err)
 
-        err = tool.auth_implementation.process_auth_token(request, session)
+        # Tool does not have Auth implemented
+        if tool.auth_implementation is None:
+            err = f"Tool {tool.name} does not have an auth_implementation required for Tool Auth."
+            logger.error(err)
+            redirect_err = f"{redirect_uri}?error={quote(err)}"
+            return RedirectResponse(redirect_err)
+
+        try:
+            tool_auth_service = tool.auth_implementation()
+            err = tool_auth_service.retrieve_auth_token(request, session)
+        except Exception as e:
+            redirect_err = f"{redirect_uri}?error={quote(str(e))}"
+            logger.error(e)
+            return RedirectResponse(redirect_err)
+
         if err:
-            return RedirectResponse(redirect_uri + "?error=" + err)
+            redirect_err = f"{redirect_uri}?error={quote(err)}"
+            logger.error(err)
+            return RedirectResponse(redirect_err)
 
     response = RedirectResponse(redirect_uri)
+
     return response

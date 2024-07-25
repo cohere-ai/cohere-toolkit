@@ -161,6 +161,7 @@ def mock_available_model_deployments(request):
     is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
         ModelDeploymentName.CoherePlatform: Deployment(
+            id="cohere_platform",
             name=ModelDeploymentName.CoherePlatform,
             models=MockCohereDeployment.list_models(),
             is_available=is_available_values.get(
@@ -170,6 +171,7 @@ def mock_available_model_deployments(request):
             env_vars=["COHERE_VAR_1", "COHERE_VAR_2"],
         ),
         ModelDeploymentName.SageMaker: Deployment(
+            id="sagemaker",
             name=ModelDeploymentName.SageMaker,
             models=MockSageMakerDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.SageMaker, True),
@@ -177,6 +179,7 @@ def mock_available_model_deployments(request):
             env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
         ),
         ModelDeploymentName.Azure: Deployment(
+            id="azure",
             name=ModelDeploymentName.Azure,
             models=MockAzureDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.Azure, True),
@@ -184,6 +187,7 @@ def mock_available_model_deployments(request):
             env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
         ),
         ModelDeploymentName.Bedrock: Deployment(
+            id="bedrock",
             name=ModelDeploymentName.Bedrock,
             models=MockBedrockDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.Bedrock, True),

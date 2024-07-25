@@ -6,7 +6,7 @@ from backend.database_models.conversation import (
     Conversation,
     ConversationFileAssociation,
 )
-from backend.schemas.conversation import UpdateConversation
+from backend.schemas.conversation import UpdateConversationRequest
 from backend.tests.factories import get_factory
 
 
@@ -132,7 +132,7 @@ def test_update_conversation(session, user):
         user_id=user.id,
     )
 
-    new_conversation_data = UpdateConversation(
+    new_conversation_data = UpdateConversationRequest(
         title="Hello, Universe!",
         description="This is a new test",
         user_id="1",

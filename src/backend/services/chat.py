@@ -54,7 +54,7 @@ from backend.schemas.chat import (
     ToolInputType,
 )
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.conversation import UpdateConversation
+from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
@@ -454,7 +454,7 @@ def update_conversation_after_turn(
 
     # Update conversation description with final message
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-    new_conversation = UpdateConversation(
+    new_conversation = UpdateConversationRequest(
         description=final_message_text,
         user_id=conversation.user_id,
     )
@@ -516,6 +516,7 @@ async def generate_chat_response(
     return only the final step as a non-streamed response.
 
     Args:
+        request (Request): request object.
         session (DBSessionDep): Database session.
         model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
         response_message (Message): Response message object.

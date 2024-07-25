@@ -1,8 +1,10 @@
+import os
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional
 
 from fastapi import Request
 
+from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 
 
@@ -17,7 +19,6 @@ class BaseTool:
     NAME = None
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self._post_init_check()
 
     def _post_init_check(self):
@@ -46,19 +47,34 @@ class BaseToolAuthentication:
     Abstract base class for Tool Authentication.
     """
 
-    @classmethod
-    @abstractmethod
-    def get_auth_url(user_id: str) -> str: ...
+    def __init__(self, *args, **kwargs):
+        self.BACKEND_HOST = Settings().auth.backend_hostname
+        self.FRONTEND_HOST = Settings().auth.frontend_hostname
+        self.AUTH_SECRET_KEY = Settings().auth.secret_key
 
-    @classmethod
-    @abstractmethod
-    def is_auth_required(session: DBSessionDep, user_id: str) -> bool: ...
+        self._post_init_check()
 
-    @classmethod
-    @abstractmethod
-    def process_auth_token(request: Request, session: DBSessionDep) -> str: ...
+    def _post_init_check(self):
+        if any(
+            [
+                self.BACKEND_HOST is None,
+                self.FRONTEND_HOST is None,
+                self.AUTH_SECRET_KEY is None,
+            ]
+        ):
+            raise ValueError(
+                f"{self.__name__} requires NEXT_PUBLIC_API_HOSTNAME, FRONTEND_HOSTNAME, and AUTH_SECRET_KEY environment variables."
+            )
 
-    @classmethod
     @abstractmethod
-    def get_token(user_id: str, session: DBSessionDep) -> Optional[str]:
+    def get_auth_url(self, user_id: str) -> str: ...
+
+    @abstractmethod
+    def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool: ...
+
+    @abstractmethod
+    def retrieve_auth_token(self, request: Request, session: DBSessionDep) -> str: ...
+
+    @abstractmethod
+    def get_token(self, user_id: str, session: DBSessionDep) -> Optional[str]:
         return None
