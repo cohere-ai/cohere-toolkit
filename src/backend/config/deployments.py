@@ -101,6 +101,7 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
 
 def get_default_deployment(**kwargs) -> BaseDeployment:
     # Fallback to the first available deployment
+    fallback = None
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
         if deployment.is_available:
             fallback = deployment.deployment_class(**kwargs)
