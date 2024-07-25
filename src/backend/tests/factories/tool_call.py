@@ -1,8 +1,7 @@
 import factory
 
 from backend.database_models.tool_call import ToolCall
-
-from .base import BaseFactory
+from backend.tests.factories.base import BaseFactory
 
 
 class ToolCallFactory(BaseFactory):

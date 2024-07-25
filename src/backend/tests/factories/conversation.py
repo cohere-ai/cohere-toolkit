@@ -1,8 +1,7 @@
 import factory
 
 from backend.database_models import Conversation
-
-from .base import BaseFactory
+from backend.tests.factories.base import BaseFactory
 
 
 class ConversationFactory(BaseFactory):

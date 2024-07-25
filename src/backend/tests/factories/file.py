@@ -1,8 +1,7 @@
 import factory
 
 from backend.database_models import File
-
-from .base import BaseFactory
+from backend.tests.factories.base import BaseFactory
 
 
 class FileFactory(BaseFactory):

@@ -10,8 +10,12 @@ from backend.crud import tool_auth as tool_auth_crud
 from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
-
-from .constants import DOC_FIELDS, GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT, SEARCH_MIME_TYPES
+from backend.tools.google_drive.constants import (
+    DOC_FIELDS,
+    GOOGLE_DRIVE_TOOL_ID,
+    SEARCH_LIMIT,
+    SEARCH_MIME_TYPES,
+)
 
 logger = get_logger()
 
@@ -37,9 +41,7 @@ class GoogleDrive(BaseTool):
         if isinstance(error, RefreshError):
             session = kwargs["session"]
             user_id = kwargs["user_id"]
-            tool_auth_crud.delete_tool_auth(
-                db=session, user_id=user_id, tool_id=GOOGLE_DRIVE_TOOL_ID
-            )
+            tool_auth_crud.delete_tool_auth(db=session, user_id=user_id, tool_id=GOOGLE_DRIVE_TOOL_ID)
             message = "Google Drive Error: Something is wrong with your Google auth token. Please refresh the page and re-authenticate."
 
         logger.error(message)

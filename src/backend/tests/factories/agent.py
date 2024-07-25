@@ -3,8 +3,7 @@ import factory
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
-
-from .base import BaseFactory
+from backend.tests.factories.base import BaseFactory
 
 
 class AgentFactory(BaseFactory):

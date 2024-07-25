@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from pydantic import ValidationError
 
-from .config import Configuration
+from backend.services.sync.config import Configuration
 
 
 @lru_cache(maxsize=1)

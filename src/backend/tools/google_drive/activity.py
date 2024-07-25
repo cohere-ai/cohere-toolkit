@@ -5,13 +5,15 @@ from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
 from backend.services.logger import get_logger
-from backend.tools.google_drive.utils import get_service
-
-from .actions import create, edit, move
-from .auth import GoogleDriveAuth
-from .constants import ACTIVITY_TRACKING_WINDOW, SEARCH_MIME_TYPES, GoogleDriveActions
-from .tool import GoogleDrive
-from .utils import get_current_timestamp_in_ms
+from backend.tools.google_drive.actions import create, edit, move
+from backend.tools.google_drive.auth import GoogleDriveAuth
+from backend.tools.google_drive.constants import (
+    ACTIVITY_TRACKING_WINDOW,
+    SEARCH_MIME_TYPES,
+    GoogleDriveActions,
+)
+from backend.tools.google_drive.tool import GoogleDrive
+from backend.tools.google_drive.utils import get_current_timestamp_in_ms, get_service
 
 logger = get_logger()
 
@@ -26,6 +28,7 @@ def handle_google_drive_activity_event(
 
     match event_type:
         case GoogleDriveActions.CREATE.value:
+            return
             [
                 create.apply_async(
                     args=[file_id, index_name, user_id],
@@ -34,6 +37,7 @@ def handle_google_drive_activity_event(
                 for file_id in file_ids
             ]
         case GoogleDriveActions.EDIT.value:
+            return
             [
                 edit.apply_async(
                     args=[file_id, index_name, user_id],

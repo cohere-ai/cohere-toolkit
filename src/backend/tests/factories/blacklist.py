@@ -1,8 +1,7 @@
 import factory
 
 from backend.database_models import Blacklist
-
-from .base import BaseFactory
+from backend.tests.factories.base import BaseFactory
 
 
 class BlacklistFactory(BaseFactory):

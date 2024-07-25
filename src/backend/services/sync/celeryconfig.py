@@ -4,12 +4,11 @@
 import socket
 
 from backend.services.sync.constants import (
+    DEFAULT_TIME_OUT,
     SYNC_BROKER_URL,
     SYNC_DATABASE_URL,
     SYNC_WORKER_CONCURRENCY,
 )
-
-from .constants import DEFAULT_TIME_OUT
 
 # Sockets timeout
 # This helps with GDrive SDK download timeouts
@@ -45,24 +44,14 @@ database_table_names = {
     "group": "sync_celery_tasksetmeta",
 }
 
-# pool config
-# For info on decision-making https://celery.school/celery-worker-pools#heading-threads
-# The worker_pool setting shouldn't be used to select the eventlet/gevent
-# pools, instead you *must use the -P* argument so that patches are applied
-# as early as possible.
-# worker_pool = "gevent"
 worker_concurrency = SYNC_WORKER_CONCURRENCY
-
-# regarding broker_pool_limit https://stackoverflow.com/a/68546019/11582081
-# https://groups.google.com/g/celery-users/c/kjJb5-MhcZs/m/iNJEqNtkzuIJ
-worker_prefetch_multiplier = 1
 
 # Use UTC instead of localtime
 CELERY_enable_utc = True
 
 # modules to include
 include = [
-    "backend.tools.google_drive.actions",
+    "backend.tools.google_drive",
 ]
 
 # Send task events for Prometheus metrics
