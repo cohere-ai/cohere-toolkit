@@ -73,6 +73,16 @@ backend:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+  livenessProbe:
+    httpGet:
+      path: "/health"
+      port: http
+
+  readinessProbe:
+    httpGet:
+      path: "/health"
+      port: http
+
   nodeSelector: {}
 
   tolerations: []
@@ -135,6 +145,16 @@ frontend:
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
+
+  livenessProbe:
+    httpGet:
+      path: "/"
+      port: http
+
+  readinessProbe:
+    httpGet:
+      path: "/"
+      port: http
 
   nodeSelector: {}
 
@@ -200,6 +220,16 @@ terrarium:
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
+
+  livenessProbe:
+    httpGet:
+      path: "/health"
+      port: http
+
+  readinessProbe:
+    httpGet:
+      path: "/health"
+      port: http
 
   nodeSelector: { }
 

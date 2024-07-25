@@ -2,9 +2,11 @@ import io
 from typing import Any
 
 import pandas as pd
+from docx import Document
 from fastapi import HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 from pypdf import PdfReader
+from python_calamine.pandas import pandas_monkeypatch
 
 import backend.crud.file as file_crud
 from backend.database_models.database import DBSessionDep
@@ -21,6 +23,10 @@ EXCEL_EXTENSION = "xlsx"
 EXCEL_OLD_EXTENSION = "xls"
 JSON_EXTENSION = "json"
 DOCX_EXTENSION = "docx"
+
+
+# Monkey patch Pandas to use Calamine for Excel reading because Calamine is faster than Pandas
+pandas_monkeypatch()
 
 
 def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:
@@ -77,12 +83,13 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
 
     if file_extension == PDF_EXTENSION:
         return read_pdf(file_contents)
+    elif file_extension == DOCX_EXTENSION:
+        return read_docx(file_contents)
     elif file_extension in [
         TEXT_EXTENSION,
         MARKDOWN_EXTENSION,
         CSV_EXTENSION,
         JSON_EXTENSION,
-        DOCX_EXTENSION,
     ]:
         return file_contents.decode("utf-8")
     elif file_extension in [EXCEL_EXTENSION, EXCEL_OLD_EXTENSION]:
@@ -120,8 +127,18 @@ def read_excel(file_contents: bytes) -> str:
     Returns:
         str: The text extracted from the Excel
     """
-    excel = pd.read_excel(io.BytesIO(file_contents))
+    excel = pd.read_excel(io.BytesIO(file_contents), engine="calamine")
     return excel.to_string()
+
+
+def read_docx(file_contents: bytes) -> str:
+    document = Document(io.BytesIO(file_contents))
+    text = ""
+
+    for paragraph in document.paragraphs:
+        text += paragraph.text + "\n"
+
+    return text
 
 
 def validate_file_size(

@@ -79,6 +79,7 @@ export const Icons = [
   'thumbs-up',
   'trash',
   'upload',
+  'users-three',
   'warning',
   'web',
   'wrench',

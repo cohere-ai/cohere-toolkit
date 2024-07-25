@@ -10,6 +10,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
+import { useFileActions } from '@/hooks/files';
 import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
@@ -77,6 +78,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
+  const { clearComposerFiles } = useFileActions();
 
   // if the conversation card is for the selected conversation we use the `conversationName`
   // from the context store, otherwise we use the name from the conversation object
@@ -144,6 +146,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         onClick={() => {
           setConversation({ id: conversationId, name });
           setSettings({ isMobileConvListPanelOpen: false });
+          clearComposerFiles();
         }}
         className={wrapperClassName}
       >

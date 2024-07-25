@@ -67,7 +67,6 @@ export const ConversationListHeader: React.FC<Props> = ({
           <div className="flex items-center gap-x-3">
             <IconButton
               iconName="search"
-              isDefaultOnHover={false}
               onClick={onSearchClick}
               tooltip={{ label: 'Search', placement: 'bottom-start', size: 'md' }}
             />

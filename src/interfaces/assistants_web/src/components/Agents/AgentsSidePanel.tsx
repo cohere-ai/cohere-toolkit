@@ -1,21 +1,14 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { Button, Logo, Text, Tooltip } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
-import {
-  useAgentsStore,
-  useCitationsStore,
-  useConversationStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useAgentsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -27,26 +20,13 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   className = '',
   children,
 }) => {
-  const router = useRouter();
   const {
     agents: { isAgentsSidePanelOpen },
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
 
-  const { setEditAgentPanelOpen } = useAgentsStore();
-  const { resetConversation } = useConversationStore();
-  const { resetCitations } = useCitationsStore();
-  const { resetFileParams } = useParamsStore();
-
-  const handleNewChat = () => {
-    const url = '/';
-    setEditAgentPanelOpen(false);
-    resetConversation();
-    resetCitations();
-    resetFileParams();
-    router.push(url);
-  };
+  const navigateToNewChat = useNavigateToNewChat();
 
   return (
     <Transition
@@ -87,12 +67,12 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             'justify-between gap-x-3': isMobile && isAgentsSidePanelOpen,
           })}
         >
-          <Link href="/">
+          <button onClick={() => navigateToNewChat()}>
             <Logo
               hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO}
               includeBrandName={isAgentsSidePanelOpen}
             />
-          </Link>
+          </button>
 
           <ToggleAgentsSidePanelButton className="flex md:hidden" />
         </div>
@@ -112,7 +92,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             }
             icon="add"
             theme="evolved-green"
-            onClick={handleNewChat}
+            onClick={() => navigateToNewChat()}
             stretch
           />
 

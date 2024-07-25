@@ -2,7 +2,7 @@
 
 import React, { useContext, useMemo, useState } from 'react';
 
-import { Button, Dropdown, DropdownOptionGroups, Input } from '@/components/Shared';
+import { Button, Dropdown, Input } from '@/components/Shared';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
@@ -46,15 +46,13 @@ export const EditEnvVariablesModal: React.FC<{
 
   const { setParams } = useParamsStore();
 
-  const deploymentOptions: DropdownOptionGroups = useMemo(
-    () => [
-      {
-        options: (deployments ?? []).map(({ name }) => ({
-          label: name,
-          value: name,
-        })),
-      },
-    ],
+  const deploymentOptions = useMemo(
+    () =>
+      (deployments ?? []).map(({ name }) => ({
+        label: name,
+        value: name,
+      })),
+
     [deployments]
   );
 
@@ -88,11 +86,7 @@ export const EditEnvVariablesModal: React.FC<{
 
   return (
     <div className="flex flex-col gap-y-4 p-4">
-      <Dropdown
-        value={deployment}
-        optionGroups={deploymentOptions}
-        onChange={handleDeploymentChange}
-      />
+      <Dropdown value={deployment} options={deploymentOptions} onChange={handleDeploymentChange} />
 
       {Object.keys(envVariables).map((envVar) => (
         <Input
