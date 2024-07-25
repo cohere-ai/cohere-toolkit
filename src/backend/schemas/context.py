@@ -25,6 +25,7 @@ class Context(BaseModel):
     deployment_name: Optional[str] = None
     deployment_config: Optional[dict] = None
     conversation_id: Optional[str] = None
+    agent_id: Optional[str] = None
 
     # Metrics
     metrics_user: Optional[MetricsUser] = None
@@ -39,50 +40,14 @@ class Context(BaseModel):
     def set_receive(self, receive):
         self.receive = receive
 
-    def set_trace_id(self, trace_id: str):
+    def with_trace_id(self, trace_id: str):
         self.trace_id = trace_id
 
-    def set_user_id(self, user_id: str):
+    def with_user_id(self, user_id: str):
         self.user_id = user_id
 
-    def set_deployment_name(self, deployment_name: str):
+    def with_deployment_name(self, deployment_name: str):
         self.deployment_name = deployment_name
-
-    def get_request(self):
-        return self.request
-
-    def get_response(self):
-        return self.response
-
-    def get_receive(self):
-        return self.receive
-
-    def get_trace_id(self):
-        return self.trace_id
-
-    def get_user_id(self):
-        return self.user_id
-
-    def get_event_type(self):
-        return self.event_type
-
-    def get_metrics_user(self):
-        return self.metrics_user
-
-    def get_metrics_agent(self):
-        return self.metrics_agent
-
-    def get_model(self):
-        return self.model
-
-    def get_deployment_name(self):
-        return self.deployment_name
-
-    def get_model_config(self):
-        return self.model_config
-
-    def get_conversation_id(self):
-        return self.conversation_id
 
     def with_event_type(self, event_type: MetricsMessageType) -> "Context":
         self.event_type = event_type
@@ -141,3 +106,49 @@ class Context(BaseModel):
     def with_conversation_id(self, conversation_id: str) -> "Context":
         self.conversation_id = conversation_id
         return self
+
+    def with_agent_id(self, agent_id: str) -> "Context":
+        if not agent_id:
+            return self
+
+        self.agent_id = agent_id
+        return self
+
+    def get_request(self):
+        return self.request
+
+    def get_response(self):
+        return self.response
+
+    def get_receive(self):
+        return self.receive
+
+    def get_trace_id(self):
+        return self.trace_id
+
+    def get_user_id(self):
+        return self.user_id
+
+    def get_event_type(self):
+        return self.event_type
+
+    def get_metrics_user(self):
+        return self.metrics_user
+
+    def get_metrics_agent(self):
+        return self.metrics_agent
+
+    def get_model(self):
+        return self.model
+
+    def get_deployment_name(self):
+        return self.deployment_name
+
+    def get_model_config(self):
+        return self.model_config
+
+    def get_conversation_id(self):
+        return self.conversation_id
+
+    def get_agent_id(self):
+        return self.agent_id

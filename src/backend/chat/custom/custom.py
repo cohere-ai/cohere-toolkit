@@ -147,7 +147,6 @@ class CustomChat(BaseChat):
         ctx: Context,
         **kwargs: Any,
     ):
-        agent_id = kwargs.get("agent_id", "")
         managed_tools = self.get_managed_tools(chat_request)
 
         tool_names = []
@@ -195,7 +194,6 @@ class CustomChat(BaseChat):
             async for event in deployment_model.invoke_chat_stream(
                 chat_request,
                 ctx,
-                agent_id=agent_id,
             ):
                 if event["event_type"] == StreamEvent.STREAM_END:
                     chat_request.chat_history = event["response"].get(

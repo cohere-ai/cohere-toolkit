@@ -58,7 +58,6 @@ def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,
     request: Request,
-    agent_id: str | None = None,
     ctx: Context = Context(),
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
@@ -70,7 +69,6 @@ def process_chat(
         chat_request (BaseChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
-        agent_id (str): Agent ID.
         ctx (Context): Context object.
 
     Returns:
@@ -78,6 +76,7 @@ def process_chat(
     """
     user_id = ctx.get_user_id()
     ctx.with_deployment_config()
+    agent_id = ctx.get_agent_id()
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
@@ -520,7 +519,7 @@ async def generate_chat_stream(
     model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
     should_store: bool = True,
-    ctx: Context = None,
+    ctx: Context = Context(),
     **kwargs: Any,
 ) -> AsyncGenerator[Any, Any]:
     """

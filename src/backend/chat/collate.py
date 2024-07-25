@@ -14,7 +14,7 @@ RELEVANCE_THRESHOLD = 0.1
 async def rerank_and_chunk(
     tool_results: List[Dict[str, Any]],
     model: BaseDeployment,
-    ctx: Context = Depends(get_context),
+    ctx: Context,
     **kwargs: Any
 ) -> List[Dict[str, Any]]:
     """
@@ -31,8 +31,6 @@ async def rerank_and_chunk(
     Returns:
         List[Dict[str, Any]]: List of reranked and combined documents.
     """
-    agent_id = kwargs.get("agent_id", "")
-
     # If rerank is not enabled return documents as is:
     if not model.rerank_enabled:
         return tool_results
@@ -84,7 +82,6 @@ async def rerank_and_chunk(
         res = await model.invoke_rerank(
             query=query,
             documents=chunked_outputs,
-            agent_id=agent_id,
             ctx=ctx,
         )
 

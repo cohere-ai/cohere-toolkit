@@ -53,6 +53,7 @@ async def chat_stream(
     ctx.with_model(chat_request.model)
 
     agent_id = chat_request.agent_id
+    ctx.with_agent_id(agent_id)
 
     agent = DEFAULT_METRICS_AGENT
     if agent_id:
@@ -68,7 +69,7 @@ async def chat_stream(
         managed_tools,
         next_message_position,
         ctx,
-    ) = process_chat(session, chat_request, request, agent_id, ctx)
+    ) = process_chat(session, chat_request, request, ctx)
 
     return EventSourceResponse(
         generate_chat_stream(
@@ -112,8 +113,8 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
-    user_id = ctx.get_user_id()
     agent_id = chat_request.agent_id
+    ctx.with_agent_id(agent_id)
 
     (
         session,
@@ -124,7 +125,7 @@ async def chat(
         managed_tools,
         next_message_position,
         ctx,
-    ) = process_chat(session, chat_request, request, agent_id, ctx)
+    ) = process_chat(session, chat_request, request, ctx)
 
     response = await generate_chat_response(
         session,
@@ -177,7 +178,7 @@ def langchain_chat_stream(
         managed_tools,
         _,
         _,  # ctx
-    ) = process_chat(session, chat_request, request)
+    ) = process_chat(session, chat_request, request, ctx)
 
     return EventSourceResponse(
         generate_langchain_chat_stream(

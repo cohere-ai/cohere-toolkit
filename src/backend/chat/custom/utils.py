@@ -8,7 +8,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 
 
-def get_deployment(name, ctx: Context, **kwargs: Any) -> BaseDeployment:
+def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
     """Get the deployment implementation.
 
     Args:

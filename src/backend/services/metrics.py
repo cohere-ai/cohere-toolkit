@@ -396,5 +396,5 @@ class RerankMetricsHelper:
         model = DEFAULT_RERANK_MODEL
         user_id = ctx.get_user_id()
         agent = ctx.get_metrics_agent()
-        agent_id = agent.id if agent else None
+        agent_id = agent.id if agent else ctx.get_agent_id()
         return (trace_id, model, user_id, agent, agent_id)

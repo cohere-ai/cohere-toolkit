@@ -23,14 +23,17 @@ class ContextMiddleware:
         context.set_request(scope)
         context.set_response(send)
         context.set_receive(receive)
-        context.set_trace_id(trace_id)
+        context.with_trace_id(trace_id)
 
         request = Request(scope)
-        context.set_deployment_name(request.headers.get("Deployment-Name", ""))
+        context.with_deployment_name(request.headers.get("Deployment-Name", ""))
 
         request = Request(scope)
         user_id = get_header_user_id(request)
-        context.set_user_id(user_id)
+        context.with_user_id(user_id)
+
+        agent_id = request.headers.get("Agent-Id")
+        context.with_agent_id(agent_id)
 
         # Set the context on the scope
         scope["context"] = context

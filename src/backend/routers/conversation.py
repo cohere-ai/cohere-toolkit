@@ -196,7 +196,7 @@ async def search_conversations(
     """
     user_id = ctx.get_user_id()
     deployment_name = ctx.get_deployment_name()
-    model_deployment = get_deployment(deployment_name)
+    model_deployment = get_deployment(deployment_name, ctx)
 
     agent = DEFAULT_METRICS_AGENT
     if agent_id:
