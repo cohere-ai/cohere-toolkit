@@ -112,18 +112,16 @@ class Context(BaseModel):
     def with_stream_start_ms(self, now_ms: float) -> "Context":
         self.stream_start_ms = now_ms
 
-
-
     def with_agent_id(self, agent_id: str) -> "Context":
         if not agent_id:
             return self
 
         self.agent_id = agent_id
         return self
-    
+
     def get_stream_start_ms(self):
         return self.stream_start_ms
-    
+
     def get_request(self):
         return self.request
 
