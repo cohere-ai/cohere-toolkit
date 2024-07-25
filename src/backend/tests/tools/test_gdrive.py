@@ -98,18 +98,28 @@ async def test_gdrive(session, user) -> None:
 
     # List of queries and their corresponding expected text snippets in the retrieved documents
     queries = [
+        "apple operating expenses q1 2023",
         "In Amazon's Q2 2023 10-Q, how does the discussion on employee compensation and benefits in the human resources section relate to the reported financial expenses",  # pg 25/51
         "For Microsoft's Q2 2023 report, assess the connection between Microsoft's earnings from international markets and the discussion on currency risk in the financial section.",  # pg 14/80
         "For NVIDIA's Q1 2023 10-Q, what is the relationship between R&D spending and the development of new GPU technologies or services?",  # pg 33/49
-        "In Microsoft's Q1 2023 10-Q, how do the details of Microsoft's debt instruments from the financial statements correspond with the management's discussion on debt management?",  # pg 20/72
+        "Microsoft's Q1 2023 10-Q management's discussion on debt management",  # pg 20/72
         "What were the sales figures for NVIDIA's gaming and professional GPU segments in Q3 2023?",  # pg 24/52
         "How did Apple's operating expenses for Q1 2023 compare to its revenue for the same quarter?",  # pg 4/46
         "What is the recommended engine oil for the Audi R8?",  # pg 188/260
         "How does the Electronic Stabilization Program (ESP) function in the Audi R8?",  # pg 166/260
-        "How do I jump start my Audi R8?",  # pg 235/260
+        "jump start Audi R8",  # pg 235/260
         "What is the ground clearance between the axles at kerb weight for my Volkswagan?",  # table pg 676/683
         "How often should I check my tyre tread depth for my Volkswagan?",  # pg 559/683
         "What are the data transfer functions available for my Volkswagan?",  # pg 369/683
+        "Cuomo executive order restrictions on gatherings at synagogues",  # PR-NY-0010
+        "JP Morgan Chase Bank legal action City of Los Angeles",  # FH-CA-0015
+        "Zubik v. Burwell",  # FA-PA-0010
+        "2013 redistricting plan of Jefferson County, Florida",  # VR-FL-0171
+        "Black Voters Matter Fund and an individual voter had with the state of Georgia's handling of mail-in ballots",  # VR-GA-0170
+        "What laws were cited in the case against Plaza Home Mortgage, Inc.?",  # FH-CA-0013
+        "phone number for the aetna concierge for Amazon employees",  # ekm single doc amazon
+        "impact of 5by20 women initiative",  # ekm coco cola 5by20
+        "salary for promo auxiliary to regular BC",  # ekm bc
     ]
     golden_texts = [
         [
@@ -122,32 +132,54 @@ async def test_gdrive(session, user) -> None:
             "We have invested in research and development in markets where we have a limited operating history, which may not produce meaningful revenue for several years, if at all"
         ],
         [
-            "As of December 31, 2022 and June 30, 2022, the estimated fair value of long-term debt, including the current portion, was $46.4 billion and $50.9 billion, respectively"
+            "The obligations under our senior fixed rate notes rank equally in the right of payment with all of our other existing and future senior unsecured indebtedness and effectively rank junior to all liabilities of our subsidiaries"
         ],
         [
             "Total revenue  14,514 $ 2,856",
         ],
-        ["14,316"],
+        ["Total operating expenses  14,316"],
         [
-            "can use oil with a viscosity grade of SAE SW40 across all temperature ranges for normal driving conditions ",
-            "viscosity grade SAE SW40",
+            "VW 502 00 specifications",
         ],
-        ["It reduces the risk of skidding under all road conditions and at all speeds and improves vehicle stability "],
+        [
+            "It red uces the risk of skidding under all road cond itions and at a ll speeds and improves vehicle stability"
+        ],
         [
             "the battery can be connected to the battery of another vehicle, using a pair of jumper cables to start the engine"
         ],
         ["197 – 216"],
         ["check the tread depth every 5,000 to 10,000"],
         ["Media playback"],
+        ["Governor Cuomo issued Executive Order 202.68"],
+        [
+            "Specifically, Los Angeles seeks injunctive relief and damages for the injuries caused 20 by foreclosures on JPMorgan’s loans in minority neighborhoods and to minority 21 borrowers"
+        ],
+        [
+            "Affordable Care Act and related regulations pending final disposition of their petition for certiorari. Nothing in this interim order affects the ability of the applicants’ or their organizations’ employees to obtain, without cost, the full range of FDA approved contraceptives"
+        ],
+        [
+            "as a violation of their Fourteenth Amendment right to equal representation under the “one person, one vote” principle of the Equal Protection Clause"
+        ],
+        [
+            "requirement that voters affix their own postage to mail-in absentee ballots and mail-in absentee ballot applications is unconstitutiona"
+        ],
+        ["violation of the Fair Housing Act (FHA), 42 U.S.C. §§ 3601-3619, and the Equal Credit 2 Opportunity Act"],
+        ["1-866-574-9124"],
+        [
+            "The Coca-Cola Company  announced a global initiative to enable the  # economic empowerment of 5 million women  # entrepreneurs across our value chain by the  year 2020"
+        ],
+        [
+            "an auxiliary who has in-service status prior to the closing date of the competition, shall receive a maximum reduction which is the closest step to 8%"
+        ],
     ]
 
     assert len(queries) == len(golden_texts)
 
-    recall_scores = []
     df = pd.DataFrame()
     for k in [10]:
         # Run the queries and print the results
         # show tqdm progress bar
+        recall_scores = []
 
         for query, golden_text in tqdm(zip(queries, golden_texts), total=len(queries)):
             result = await query_gdrive(agent, sa_info, session, query)
@@ -156,10 +188,9 @@ async def test_gdrive(session, user) -> None:
             # print(f"Query: {query}")
             try:
                 sources = [res["title"] for res in result]
-                # print source and results
-                # print("\n--\n".join([f"{source}: {result}" for source, result in zip(sources, results)]))
+                print("\n--\n".join([f"{source}: {result}" for source, result in zip(sources, results)]))
             except:
-                # print("\n--\n".join(results))
+                print("\n--\n".join(results))
                 pass
 
             # calculate recall@k
