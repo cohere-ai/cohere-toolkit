@@ -8,7 +8,6 @@ from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
-from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File
 from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -17,9 +16,8 @@ from backend.services.file import FileService
 from backend.services.logger import get_logger, send_log_message
 
 logger = get_logger()
-MAX_STEPS = 15
-
 file_service = FileService()
+MAX_STEPS = 15
 
 
 class CustomChat(BaseChat):

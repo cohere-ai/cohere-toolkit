@@ -34,7 +34,7 @@ DOCX_EXTENSION = "docx"
 class FileService:
     @property
     def is_compass_enabled(self) -> bool:
-        # todo: add compass env variable anc check here
+        # TODO Scott: add compass env variable anc check here
         return False
 
     # All these functions will eventually support file operations on Compass
@@ -45,7 +45,18 @@ class FileService:
         user_id: str,
         conversation_id: str,
     ) -> list[File]:
-        # Todo @scott-cohere: need to refactor this file singular and multiple files
+        """
+        Create files and associations with conversation
+
+        Args:
+            session (DBSessionDep): The database session
+            files (list[FastAPIUploadFile]): The files to upload
+            user_id (str): The user ID
+            conversation_id (str): The conversation ID
+
+        Returns:
+            list[File]: The files that were created
+        """
         files_to_upload = []
         for file in files:
             content = await get_file_content(file)
@@ -83,10 +94,22 @@ class FileService:
             )
 
         return uploaded_files
+    
 
     def get_files_by_agent_id(
         self, session: DBSessionDep, user_id: str, agent_id: str
     ) -> list[File]:
+        """
+        Get files by agent ID
+
+        Args:
+            session (DBSessionDep): The database session
+            user_id (str): The user ID
+            agent_id (str): The agent ID
+
+        Returns:
+            list[File]: The files that were created
+        """
         agent = agent_crud.get_agent_by_id(session, agent_id)
         if agent is None:
             raise HTTPException(
@@ -115,13 +138,29 @@ class FileService:
 
         return files
 
+
     def get_files_by_conversation_id(
         self, session: DBSessionDep, user_id: str, conversation_id: str
     ) -> list[File]:
-        # TODO scott: add checks that conversations exists, will get none type error on .file_ids
+        """
+        Get files by conversation ID
+
+        Args:
+            session (DBSessionDep): The database session
+            user_id (str): The user ID
+            conversation_id (str): The conversation ID
+
+        Returns:
+            list[File]: The files that were created
+        """
         conversation = conversation_crud.get_conversation(
             session, conversation_id, user_id
         )
+        if not conversation:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Conversation with ID: {conversation_id} not found.",
+            )
         file_ids = conversation.file_ids
 
         files = []
@@ -130,41 +169,106 @@ class FileService:
 
         return files
 
+
     def delete_file_from_conversation(
         self, session: DBSessionDep, conversation_id: str, file_id: str, user_id: str
     ) -> None:
+        """
+        Delete file from conversation
+
+        Args:
+            session (DBSessionDep): The database session
+            conversation_id (str): The conversation ID
+            file_id (str): The file ID
+            user_id (str): The user ID
+        """
         conversation_crud.delete_conversation_file_association(
             session, conversation_id, file_id, user_id
         )
         file_crud.delete_file(session, file_id, user_id)
         return
+    
 
     def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
-        # currently DB only, implement and fetch from compass after
+        """
+        Get file by ID
+
+        Args:
+            session (DBSessionDep): The database session
+            file_id (str): The file ID
+            user_id (str): The user ID
+
+        Returns:
+            File: The file that was created
+        """
         file = file_crud.get_file(session, file_id, user_id)
         return file
+
 
     def get_files_by_ids(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
     ) -> list[File]:
-        # currently DB only, implement and fetch from compass after
+        """
+        Get files by IDs
+
+        Args:
+            session (DBSessionDep): The database session
+            file_ids (list[str]): The file IDs
+            user_id (str): The user ID
+
+        Returns:
+            list[File]: The files that were created
+        """
         files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
+
 
     def update_file(
         self, session: DBSessionDep, file: File, new_file: UpdateFile
     ) -> File:
+        """
+        Update file
+
+        Args:
+            session (DBSessionDep): The database session
+            file (File): The file to update
+            new_file (UpdateFile): The new file data
+
+        Returns:
+            File: The updated file
+        """
         updated_file = file_crud.update_file(session, file, new_file)
         return updated_file
+
 
     def bulk_delete_files(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
     ) -> None:
+        """
+        Bulk delete files
+
+        Args:
+            session (DBSessionDep): The database session
+            file_ids (list[str]): The file IDs
+            user_id (str): The user ID
+        """
         file_crud.bulk_delete_files(session, file_ids, user_id)
+
 
     def get_message_files(
         self, session: DBSessionDep, message_id: str, user_id: str
     ) -> list[File]:
+        """
+        Get message files
+
+        Args:
+            session (DBSessionDep): The database session
+            message_id (str): The message ID
+            user_id (str): The user ID
+
+        Returns:
+            list[File]: The files that were created
+        """
         message = message_crud.get_message(session, message_id, user_id)
         files = []
         if message.file_ids is not None:

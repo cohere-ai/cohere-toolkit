@@ -26,7 +26,8 @@ def extract_details_from_conversation(
     ignore_system: str = True,
     ignore_tool: str = True,
 ) -> str:
-    """Extracts the last num_turns from a conversation, ignoring system and tool messages
+    """
+    Extracts the last num_turns from a conversation, ignoring system and tool messages
 
     Args:
         convo (Conversation): The conversation object
@@ -64,6 +65,17 @@ def extract_details_from_conversation(
 def getMessagesWithFiles(
     session: DBSessionDep, user_id: str, messages: list[MessageModel]
 ) -> list[Message]:
+    """
+    Get messages and use the file service to get the files associated with each message
+
+    Args:
+        session (DBSessionDep): The database session
+        user_id (str): The user ID
+        messages (list[MessageModel]): The messages to get files for
+
+    Returns:
+        list[Message]: The messages with files
+    """
     messages_with_file = []
 
     for message in messages:

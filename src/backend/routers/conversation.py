@@ -10,8 +10,6 @@ from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.crud import conversation as conversation_crud
 from backend.database_models import Conversation as ConversationModel
-from backend.database_models import File as FileModel
-from backend.database_models import Message as MessageModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import (
@@ -37,12 +35,11 @@ from backend.services.file import (
     validate_file_size,
 )
 
+file_service = FileService()
 router = APIRouter(
     prefix="/v1/conversations",
 )
 router.name = RouterName.CONVERSATION
-
-file_service = FileService()
 
 
 # CONVERSATIONS
@@ -215,7 +212,6 @@ async def delete_conversation(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
-    # Delete all files
     if conversation.file_ids:
         file_service.bulk_delete_files(session, conversation.file_ids, user_id)
 
@@ -274,7 +270,6 @@ async def search_conversations(
             if query.lower() in rerank_document.lower():
                 filtered_conversations.append(conversation)
 
-        # TODO: scott make this a helper func
         results = []
         for conversation in filtered_conversations:
             files = file_service.get_files_by_conversation_id(

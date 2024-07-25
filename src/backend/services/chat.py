@@ -55,13 +55,10 @@ from backend.schemas.chat import (
 )
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import UpdateConversation
-from backend.schemas.file import UpdateFile
-from backend.schemas.message import UpdateMessage
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
 from backend.services.file import FileService
-from backend.services.generators import AsyncGeneratorContextManager
 
 file_service = FileService()
 
@@ -371,7 +368,7 @@ def attach_files_to_messages(
     file_ids: List[str] | None = None,
 ) -> None:
     """
-    Attach Files to Message if the File does not have a message_id foreign key.
+    Attach Files to Message if the message file association does not exists with the file ID
 
     Args:
         session (DBSessionDep): Database session.
@@ -389,6 +386,8 @@ def attach_files_to_messages(
                     session, file_id, user_id
                 )
             )
+
+            # If the file is not associated with a file yet, create the association
             if message_file_association is None:
                 message_crud.create_message_file_association(
                     session,

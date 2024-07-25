@@ -159,5 +159,5 @@ def bulk_delete_files(db: Session, file_ids: list[str], user_id: str) -> None:
         user_id (str): User ID.
     """
     files = db.query(File).filter(File.id.in_(file_ids), File.user_id == user_id)
-    files.delete(synchronize_session=False)
+    files.delete()
     db.commit()

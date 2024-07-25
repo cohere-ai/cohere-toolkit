@@ -118,6 +118,16 @@ def delete_conversation(db: Session, conversation_id: str, user_id: str) -> None
 def create_conversation_file_association(
     db: Session, conversation_file_association: ConversationFileAssociation
 ) -> ConversationFileAssociation:
+    """
+    Create a new conversation file association.
+
+    Args:
+        db (Session): Database session.
+        conversation_file_association (ConversationFileAssociation): Conversation file association data to be created.
+
+    Returns:
+        ConversationFileAssociation: Created conversation file association.
+    """
     db.add(conversation_file_association)
     db.commit()
     db.refresh(conversation_file_association)
@@ -127,6 +137,15 @@ def create_conversation_file_association(
 def delete_conversation_file_association(
     db: Session, conversation_id: str, file_id: str, user_id: str
 ) -> None:
+    """
+    Delete a conversation file association by ID.
+
+    Args:
+        db (Session): Database session.
+        conversation_id (str): Conversation ID.
+        file_id (str): File ID.
+        user_id (str): User ID.
+    """
     conversation_file_association = db.query(ConversationFileAssociation).filter(
         ConversationFileAssociation.conversation_id == conversation_id,
         ConversationFileAssociation.user_id == user_id,

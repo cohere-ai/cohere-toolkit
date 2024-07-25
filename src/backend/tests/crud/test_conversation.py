@@ -2,7 +2,7 @@ from backend.crud import citation as citation_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import document as document_crud
 from backend.crud import message as message_crud
-from backend.database_models.conversation import Conversation
+from backend.database_models.conversation import Conversation, ConversationFileAssociation
 from backend.schemas.conversation import UpdateConversation
 from backend.tests.factories import get_factory
 
@@ -25,7 +25,6 @@ def test_create_conversation(session, user):
     assert conversation.description == conversation_data.description
 
 
-# TODO scott: Note in PR, ask why this is allowed. Blocks relational table refactor. Needs ID to be unique.
 def test_create_conversation_same_id_different_user(session, user):
     user2 = get_factory("User", session).create(id=f"new_{user.id}")
     conversation_data = Conversation(
@@ -185,3 +184,31 @@ def test_delete_conversation_cascade(session, user):
 
     document = document_crud.get_document(session, document_id)
     assert document is None
+
+
+def test_create_conversation_file_association(session, user):
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    file = get_factory("File", session).create(user_id=user.id)
+
+    conversation_file_association = conversation_crud.create_conversation_file_association(session, ConversationFileAssociation(
+        conversation_id=conversation.id,
+        file_id=file.id,
+        user_id=user.id
+    ))
+    assert conversation_file_association.conversation_id == conversation.id
+    assert conversation_file_association.file_id == file.id
+    assert conversation_file_association.user_id == user.id
+
+    conversation = conversation_crud.get_conversation(session, conversation.id, user.id)
+    assert conversation.file_ids == [file.id]
+
+
+def test_delete_conversation_file_association(session, user):
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    file = get_factory("File", session).create(user_id=user.id)
+    _ = get_factory("ConversationFileAssociation", session).create(conversation_id=conversation.id, file_id=file.id, user_id=user.id)
+    
+    conversation_crud.delete_conversation_file_association(session, conversation.id, file.id, user.id)
+
+    conversation = conversation_crud.get_conversation(session, conversation.id, user.id)
+    assert conversation.file_ids == []
