@@ -8,7 +8,7 @@ from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.base import Base
 
 
-class AgentDeploymentModelAssociation(Base):
+class AgentDeploymentModel(Base):
     __tablename__ = "agent_deployment_model"
 
     agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"))
@@ -88,7 +88,7 @@ class Agent(Base):
     )
 
     agent_deployment_associations = relationship(
-        "AgentDeploymentModelAssociation", back_populates="agent"
+        "AgentDeploymentModel", back_populates="agent"
     )
 
     agent_tool_associations = relationship(

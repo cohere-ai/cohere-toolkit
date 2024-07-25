@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from backend.crud import deployment as deployment_crud
-from backend.database_models import AgentDeploymentModelAssociation, Model
+from backend.database_models import AgentDeploymentModel, Model
 from backend.database_models.deployment import Deployment
 from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
 from backend.tests.factories import get_factory
@@ -94,10 +94,10 @@ def test_get_available_deployments(session, user):
     model = get_factory("Model", session).create(deployment=deployment)
     another_model = get_factory("Model", session).create(deployment=another_deployment)
     agent_deployment_model = get_factory(
-        "AgentDeploymentModelAssociation", session
+        "AgentDeploymentModel", session
     ).create(agent=agent, deployment=deployment, model=model)
     agent_deployment_model_empty_config = get_factory(
-        "AgentDeploymentModelAssociation", session
+        "AgentDeploymentModel", session
     ).create(
         agent=agent,
         deployment=another_deployment,
@@ -130,10 +130,10 @@ def test_get_available_deployments_by_agent_id(session, user):
         deployment_id=another_deployment.id
     )
     agent_deployment_model = get_factory(
-        "AgentDeploymentModelAssociation", session
+        "AgentDeploymentModel", session
     ).create(agent=agent, deployment=deployment, model=model)
     agent_deployment_model_empty_config = get_factory(
-        "AgentDeploymentModelAssociation", session
+        "AgentDeploymentModel", session
     ).create(
         agent=agent, deployment=deployment, model=another_model, deployment_config={}
     )
@@ -152,7 +152,7 @@ def test_get_deployments_by_agent_id(session, user):
     agent = get_factory("Agent", session).create(user=user)
     model = get_factory("Model", session).create(deployment_id=deployment.id)
     agent_deployment_model = get_factory(
-        "AgentDeploymentModelAssociation", session
+        "AgentDeploymentModel", session
     ).create(agent=agent, deployment=deployment, model=model)
 
     deployments = deployment_crud.get_deployments_by_agent_id(session, agent.id)

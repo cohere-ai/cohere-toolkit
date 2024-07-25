@@ -27,7 +27,7 @@ class Deployment(Base):
         overlaps="deployments,models,agents,agent,agent_deployment_associations,deployment",
     )
     agent_deployment_associations = relationship(
-        "AgentDeploymentModelAssociation", back_populates="deployment"
+        "AgentDeploymentModel", back_populates="deployment"
     )
 
     __table_args__ = (UniqueConstraint("name", name="deployment_name_uc"),)

@@ -19,7 +19,7 @@ class Model(Base):
 
     deployment = relationship("Deployment", back_populates="models")
     agent_deployment_associations = relationship(
-        "AgentDeploymentModelAssociation", back_populates="model"
+        "AgentDeploymentModel", back_populates="model"
     )
     agents = relationship(
         "Agent",

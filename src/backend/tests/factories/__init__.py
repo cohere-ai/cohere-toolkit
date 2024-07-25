@@ -39,8 +39,7 @@ FACTORY_MAPPING = {
     "AgentToolMetadata": AgentToolMetadataFactory,
     "Model": ModelFactory,
     "Deployment": DeploymentFactory,
-    "AgentDeploymentModelAssociation": AgentDeploymentModelAssociation,
-    "Tool": ToolFactory,
+    "AgentDeploymentModel": AgentDeploymentModelAssociation,
 }
 
 
