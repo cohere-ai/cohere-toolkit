@@ -20,6 +20,7 @@ jobs:
       - name: Install code quality packages
         run: |
           pip install poetry
+          poetry env use 3.11
           poetry install --only=dev
       - name: Remove unused standard library imports from non-`__init__.py` files
         run:
