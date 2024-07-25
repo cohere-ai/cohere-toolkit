@@ -8,7 +8,10 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
+from backend.database_models.database import db_sessionmaker
 from backend.services.logger import get_logger
+from backend.services.sync.constants import Status
+from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import DOC_FIELDS
 
 from .constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
@@ -16,15 +19,44 @@ from .constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
 logger = get_logger()
 
 """
-NATIVE DOWNLOAD
+Get service
 """
 
 
-def perform_native_batch(file_ids: List[str], creds: Credentials) -> List[Dict[str, str]]:
+def get_service(api: str, user_id: str, version: str = "v3"):
+    # Get google credentials
+    gdrive_auth = GoogleDriveAuth()
+    agent_creator_auth_token = None
+
+    with db_sessionmaker() as session, session.begin():
+        agent_creator_auth_token = gdrive_auth.get_token(
+            session=session, user_id=user_id
+        )
+        if agent_creator_auth_token is None:
+            raise Exception("Sync GDrive Error: No agent creator credentials found")
+
+        if gdrive_auth.is_auth_required(session, user_id=user_id):
+            raise Exception(
+                "Sync GDrive Error: Agent creator credentials need to re-authenticate"
+            )
+
+    creds = Credentials(agent_creator_auth_token)
+    service = build(api, version, credentials=creds, cache_discovery=False)
+    return {"service": service, "creds": creds}
+
+
+"""
+GDrive GET file
+"""
+
+
+def perform_get_batch(file_ids: List[str], user_id: str) -> List[Dict[str, str]]:
     results = []
 
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures_list = [executor.submit(_get_native_file, file_id, creds) for file_id in file_ids]
+        futures_list = [
+            executor.submit(_get_file, file_id, user_id) for file_id in file_ids
+        ]
         for future in futures.as_completed(futures_list):
             try:
                 results.append(future.result())
@@ -33,12 +65,14 @@ def perform_native_batch(file_ids: List[str], creds: Credentials) -> List[Dict[s
     return results
 
 
-def perform_native_single(file_id: str, creds: Credentials) -> Dict[str, str]:
-    return _get_native_file(file_id=file_id, creds=creds)
+def perform_get_single(file_id: str, user_id: str) -> Dict[str, str]:
+    return _get_file(file_id=file_id, user_id=user_id)
 
 
-def _get_native_file(file_id: str, creds: Credentials):
-    service = build("drive", "v3", credentials=creds, cache_discovery=False)
+def _get_file(file_id: str, user_id: str):
+    (service,) = (
+        get_service(api="drive", user_id=user_id)[key] for key in ("service",)
+    )
     return (
         service.files()
         .get(
@@ -59,14 +93,20 @@ def perform_non_native_batch(service: Any, file_ids: List[str]) -> Dict[str, str
     tasks = []
 
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures_list = [executor.submit(_download_non_native_file, service, file_id) for file_id in file_ids]
+        futures_list = [
+            executor.submit(_download_non_native_file, service, file_id)
+            for file_id in file_ids
+        ]
         for future in futures.as_completed(futures_list):
             try:
                 tasks.append(future.result())
             except Exception as e:
                 raise e
 
-    return {"{}".format(task.get("file_id", "")): task.get("file_text", "") for task in tasks}
+    return {
+        "{}".format(task.get("file_id", "")): task.get("file_text", "")
+        for task in tasks
+    }
 
 
 def perform_non_native_single(service: Any, file_id: str):
@@ -85,11 +125,15 @@ def _download_non_native_file(service: Any, file_id: str):
             logger.info("Downloading {}: {}%".format(file_id, status.progress()))
         logger.info("Finished downloading {}".format(file_id))
     except HttpError as e:
-        message = "An error occurred downloading file with id {}: {} -- {}".format(file_id, type(e), e)
+        message = "An error occurred downloading file with id {}: {} -- {}".format(
+            file_id, type(e), e
+        )
         logger.error(message)
         return ""
     except Exception as e:
-        message = "An error occurred downloading file with id {}: {} -- {}".format(file_id, type(e), e)
+        message = "An error occurred downloading file with id {}: {} -- {}".format(
+            file_id, type(e), e
+        )
         logger.error(message)
         return ""
 
@@ -124,7 +168,9 @@ def process_shortcut_file(service: Any, file: Dict[str, str]) -> Dict[str, str]:
             )
             return targetFile
         except Exception as e:
-            message = "An error occurred processing a shortcut file with id {}: {} -- {}".format(file["id"], type(e), e)
+            message = "An error occurred processing a shortcut file with id {}: {} -- {}".format(
+                file["id"], type(e), e
+            )
             logger.error(message)
             return {}
     else:

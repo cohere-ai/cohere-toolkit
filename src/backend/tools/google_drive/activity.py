@@ -1,14 +1,13 @@
 from concurrent import futures
 from typing import Any, Dict, List
 
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
 from backend.services.logger import get_logger
+from backend.tools.google_drive.utils import get_service
 
-from .actions import create
+from .actions import create, edit, move
 from .auth import GoogleDriveAuth
 from .constants import ACTIVITY_TRACKING_WINDOW, SEARCH_MIME_TYPES, GoogleDriveActions
 from .tool import GoogleDrive
@@ -17,32 +16,47 @@ from .utils import get_current_timestamp_in_ms
 logger = get_logger()
 
 
-def handle_google_drive_activity_event(event_type: str, activity: Dict[str, str], agent_id: str, user_id: str):
+def handle_google_drive_activity_event(
+    event_type: str, activity: Dict[str, str], agent_id: str, user_id: str, **kwargs
+):
     index_name = "{}_{}".format(agent_id if agent_id is not None else user_id, GoogleDrive.NAME)
     match event_type:
         case GoogleDriveActions.CREATE.value:
-            file_ids = set()
-            targets = activity["targets"]
-            for target in targets:
-                # NOTE: if not a drive item then skip
-                if driveItem := target["driveItem"]:
-                    mimeType = driveItem["mimeType"]
-                    # NOTE: if mime type not being tracked then skip
-                    if mimeType in SEARCH_MIME_TYPES:
-                        file_id = driveItem["name"].split("/")[1]
-                        file_ids.add(file_id)
+            (file_ids,) = (_extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids",))
             if file_ids:
                 [
                     create.apply_async(
-                        args=[event_type, file_id, index_name],
-                        kwargs={"user_id": user_id},
+                        args=[file_id, index_name, user_id],
+                        kwargs=kwargs,
                     )
                     for file_id in file_ids
                 ]
         case GoogleDriveActions.EDIT.value:
-            print("edit")
+            (file_ids,) = (_extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids",))
+            if file_ids:
+                [
+                    edit.apply_async(
+                        args=[file_id, index_name, user_id],
+                        kwargs=kwargs,
+                    )
+                    for file_id in file_ids
+                ]
         case GoogleDriveActions.MOVE.value:
-            print("move")
+            (file_ids, titles) = (
+                _extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids", "titles")
+            )
+            if file_ids:
+                print(file_ids)
+                [
+                    move.apply_async(
+                        args=[file_id, index_name, user_id],
+                        kwargs={
+                            "title": titles[file_id],
+                            "artifact_id": kwargs["artifact_id"],
+                        },
+                    )
+                    for file_id in file_ids
+                ]
         case GoogleDriveActions.RENAME.value:
             print("rename")
         case GoogleDriveActions.DELETE.value:
@@ -65,8 +79,7 @@ def query_google_drive_activity(session: Session, agent: Agent, agent_artifacts:
     if gdrive_auth.is_auth_required(session, user_id=user_id):
         raise Exception("Sync GDrive Error: Agent creator credentials need to re-authenticate")
 
-    creds = Credentials(agent_creator_auth_token)
-    service = build("driveactivity", "v2", credentials=creds, cache_discovery=False)
+    (service,) = (get_service(api="driveactivity", version="v2", user_id=user_id)[key] for key in ("service",))
 
     activity_ts_filter = get_current_timestamp_in_ms(negative_offset=ACTIVITY_TRACKING_WINDOW)
     activities = []
@@ -120,3 +133,20 @@ def _get_activity(
             ),
         ]
     return response["activities"] if response else []
+
+
+def _extract_file_ids_from_target(activity: Dict[str, str]):
+    file_ids = set()
+    titles = {}
+    targets = activity["targets"]
+    for target in targets:
+        # NOTE: if not a drive item then skip
+        if driveItem := target["driveItem"]:
+            mimeType = driveItem["mimeType"]
+            # NOTE: if mime type not being tracked then skip
+            if mimeType in SEARCH_MIME_TYPES:
+                file_id = driveItem["name"].split("/")[1]
+                file_ids.add(file_id)
+                title = driveItem["title"]
+                titles[file_id] = title
+    return {"file_ids": file_ids, "titles": titles}

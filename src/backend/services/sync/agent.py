@@ -20,7 +20,7 @@ def sync_agent(agent_id: str):
                 activities = query_google_drive_activity(
                     session=session, agent=agent, agent_artifacts=metadata.artifacts
                 )
-                for _artifact_id, activity in activities.items():
+                for artifact_id, activity in activities.items():
                     for activity_item in activity:
                         event_type = list(activity_item["primaryActionDetail"].keys())[0]
                         # NOTE: This is an unfortunate hack because the Google APi
@@ -30,7 +30,11 @@ def sync_agent(agent_id: str):
                             event_type = "permission_change"
 
                         handle_google_drive_activity_event(
-                            event_type=event_type, activity=activity_item, agent_id=agent_id, user_id=agent.user_id
+                            event_type=event_type,
+                            activity=activity_item,
+                            agent_id=agent_id,
+                            user_id=agent.user_id,
+                            artifact_id=artifact_id,
                         )
             case _:
                 continue
