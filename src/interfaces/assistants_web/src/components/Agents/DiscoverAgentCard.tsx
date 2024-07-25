@@ -1,9 +1,6 @@
 'use client';
 
-import { DeleteAgent } from '@/components/Agents/DeleteAgent';
-import { KebabMenu } from '@/components/KebabMenu';
-import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
-import { useContextStore } from '@/context';
+import { Button, CoralLogo, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -26,10 +23,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             className={cn(
               'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
               'truncate',
-              id && getCohereColor(id),
-              {
-                'bg-mushroom-700': isBaseAgent,
-              }
+              getCohereColor(id, { background: true })
             )}
           >
             {isBaseAgent ? (

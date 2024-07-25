@@ -222,7 +222,7 @@ export const DataSourceMenu: React.FC<Props> = ({
     <div ref={buttonAndMenuRef}>
       <button
         onClick={onToggle}
-        className={cn('dark:text-marble-800', getCohereColor(agentId, { background: false }))}
+        className={cn('rounded border', getCohereColor(agentId, { text: true, border: true }))}
       >
         Tools: 1
       </button>
