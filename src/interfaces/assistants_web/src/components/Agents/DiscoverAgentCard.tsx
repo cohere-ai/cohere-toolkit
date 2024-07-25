@@ -2,7 +2,7 @@
 
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
-import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
+import { CoralLogo, NewButton, Text } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
@@ -69,12 +69,12 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
           )}
         </div>
         <Text className="line-clamp-2 flex-grow">{description}</Text>
-        <Button
-          className="ml-auto"
+        <NewButton
           href={isBaseAgent ? '/' : `/a/${id}`}
-          label={<Text className="text-green-250">Try now</Text>}
+          theme="evolved-green"
           kind="secondary"
-          endIcon={<Icon name="arrow-up-right" className="text-green-250" />}
+          iconPosition="end"
+          icon="arrow-up-right"
         />
       </div>
     </article>

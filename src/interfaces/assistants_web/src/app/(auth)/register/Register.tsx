@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { AuthLink } from '@/components/AuthLink';
-import { Button, Input, Text } from '@/components/Shared';
+import { Input, NewButton, Text } from '@/components/Shared';
 import { useSession } from '@/hooks/session';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
@@ -94,12 +94,13 @@ const Register: React.FC = () => {
             )
         )}
 
-        <Button
+        <NewButton
           disabled={registerStatus === 'pending' || !formState.isValid}
           label={registerStatus === 'pending' ? 'Logging in...' : 'Sign up'}
-          type="submit"
+          buttonType="submit"
+          kind="cell"
+          iconPosition="end"
           className="mt-10 w-full self-center md:w-fit"
-          splitIcon="arrow-right"
         />
       </form>
 
@@ -108,7 +109,7 @@ const Register: React.FC = () => {
         <AuthLink
           redirect={redirect !== '/' ? redirect : undefined}
           action="login"
-          className="text-green-250 no-underline"
+          theme="evolved-green"
         />
       </Text>
     </div>

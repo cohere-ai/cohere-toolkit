@@ -1,6 +1,5 @@
 export * from './Banner';
-export * from './BasicButton';
-export * from './Button';
+
 export * from './Checkbox';
 export * from './CodeSnippet';
 export * from './CopyToClipboardButton';

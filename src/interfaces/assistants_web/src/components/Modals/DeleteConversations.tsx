@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Text } from '@/components/Shared';
+import { NewButton, Text } from '@/components/Shared';
 import { pluralize } from '@/utils';
 
 type Props = {
@@ -25,29 +25,21 @@ export const DeleteConversations: React.FC<Props> = ({
         see or retrieve the messages. You cannot undo this action.
       </Text>
       <div className="flex flex-col-reverse items-center justify-between gap-y-4 md:flex-row">
-        <Button
-          kind="secondary"
-          onClick={onClose}
-          className="flex w-auto items-center justify-center md:mt-0"
-        >
-          <Text>Cancel</Text>
-        </Button>
-        <Button
-          kind="danger"
+        <NewButton kind="secondary" onClick={onClose} label="Cancel" />
+        <NewButton
+          kind="cell"
           onClick={onConfirm}
-          splitIcon="trash"
+          icon="trash"
           disabled={isPending}
-          className="w-full md:w-fit"
-        >
-          <Text>
-            {isPending
+          label={
+            isPending
               ? 'Deleting...'
               : `Delete ${numConversations === 1 ? '' : numConversations} ${pluralize(
                   'conversation',
                   numConversations
-                )}`}
-          </Text>
-        </Button>
+                )}`
+          }
+        />
       </div>
     </section>
   );

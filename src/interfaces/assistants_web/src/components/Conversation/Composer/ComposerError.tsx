@@ -1,10 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import React from 'react';
 
 import { FileError } from '@/components/FileError';
-import { Button, Text } from '@/components/Shared';
+import { NewButton, Text } from '@/components/Shared';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useFilesStore, useSettingsStore } from '@/stores';
@@ -35,10 +34,7 @@ export const ComposerError: React.FC<Props> = ({ className = '' }) => {
     return (
       <Text className="mt-2 text-danger-350">
         You need to connect {unauthedTool.display_name} before you can use this tool. Authenticate{' '}
-        <Button kind="secondary" onClick={handleOpenSettingsDrawer}>
-          <Text className="text-danger-350 underline">here</Text>
-        </Button>
-        .
+        <NewButton kind="secondary" onClick={handleOpenSettingsDrawer} label="here" />.
       </Text>
     );
   }

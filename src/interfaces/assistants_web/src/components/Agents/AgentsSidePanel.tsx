@@ -3,10 +3,10 @@
 import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { ReactElement } from 'react';
+import React from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { Button, Icon, Logo, Text } from '@/components/Shared';
+import { Logo, NewButton, Text } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
@@ -103,34 +103,26 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             'items-center': !isAgentsSidePanelOpen,
           })}
         >
-          <SidePanelButton
+          <NewButton
+            kind="secondary"
             label={
               <div className="group flex items-center justify-between">
                 <Text className="dark:text-evolved-green-700">New chat</Text>
                 <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
               </div>
             }
+            icon="add"
+            theme="evolved-green"
             onClick={handleNewChat}
-            tooltip="New chat"
-            icon={<Icon name="add" kind="outline" className="dark:text-evolved-green-700" />}
           />
-          <SidePanelButton
-            label="See all assistants"
-            tooltip="See all assistants"
-            href="/discover"
-            icon={<Icon name="compass" kind="outline" className="dark:text-mushroom-950" />}
-          />
+
+          <NewButton label="See all assistants" href="/discover" icon="compass" />
         </div>
 
         <div className={cn('flex-grow overflow-y-auto')}>{children}</div>
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
-          <SidePanelButton
-            label="Settings"
-            tooltip="Settings"
-            href="/settings"
-            icon={<Icon name="settings" kind="outline" className="dark:text-mushroom-950" />}
-          />
+          <NewButton label="Settings" href="/settings" icon="settings" />
           <section className="flex items-center justify-between">
             <div
               className={cn('flex items-center gap-2', {
@@ -147,42 +139,6 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         </footer>
       </div>
     </Transition>
-  );
-};
-
-const SidePanelButton: React.FC<{
-  label?: ReactElement | string;
-  tooltip?: string;
-  href?: string;
-  onClick?: VoidFunction;
-  icon: ReactElement;
-  className?: string;
-}> = ({ label, tooltip, href, icon, className, onClick }) => {
-  const {
-    agents: { isAgentsSidePanelOpen },
-  } = useAgentsStore();
-
-  if (isAgentsSidePanelOpen) {
-    return (
-      <Button
-        kind="secondary"
-        className={cn('dark:[&_span]:text-mushroom-950', className)}
-        startIcon={icon}
-        label={label}
-        href={href}
-        onClick={onClick}
-      />
-    );
-  }
-
-  return (
-    <IconButton
-      icon={icon}
-      href={href}
-      onClick={onClick}
-      className={className}
-      tooltip={tooltip ? { label: tooltip } : undefined}
-    />
   );
 };
 

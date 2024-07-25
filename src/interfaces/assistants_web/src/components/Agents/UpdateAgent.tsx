@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm';
 import { IconButton } from '@/components/IconButton';
-import { Banner, Button, Spinner, Text } from '@/components/Shared';
+import { Banner, NewButton, Spinner, Text } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
@@ -236,12 +236,11 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
       {isAgentCreator && (
         <div className="flex flex-col gap-y-6 px-4 py-4 lg:px-10 lg:pb-8 lg:pt-0">
           <InfoBanner agentName={agent.name} className="hidden md:flex" />
-          <Button
-            className="self-end"
-            splitIcon="check-mark"
+          <NewButton
+            kind="cell"
             label={isSubmitting ? 'Updating' : 'Update'}
-            onClick={handleSubmit}
             disabled={!canSubmit}
+            icon="check-mark"
           />
         </div>
       )}

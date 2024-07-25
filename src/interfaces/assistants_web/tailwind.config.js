@@ -61,6 +61,7 @@ module.exports = {
         'share-content-with-citations': '1500px',
       },
       height: {
+        'cell-button': '40px',
         'ep-icon-sm': '12px',
         'ep-icon-md': '16px',
         'ep-icon-lg': '24px',
@@ -152,6 +153,9 @@ module.exports = {
             width: '0%',
           },
         },
+      },
+      transitionProperty: {
+        spacing: 'padding',
       },
       animation: {
         'typing-ellipsis': 'typing 2s steps(4) infinite',

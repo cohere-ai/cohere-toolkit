@@ -1,9 +1,9 @@
 'use client';
 
 import { Placement } from '@floating-ui/react';
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributeAnchorTarget, ReactElement } from 'react';
 
-import { BasicButton, IconName, Target, Tooltip, Icon as _Icon } from '@/components/Shared';
+import { IconName, NewButton, Tooltip, Icon as _Icon } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
   };
   size?: 'sm' | 'md';
   href?: string;
-  target?: Target;
+  target?: HTMLAttributeAnchorTarget;
   shallow?: boolean;
   iconKind?: 'default' | 'outline';
   iconClassName?: string;
@@ -49,21 +49,19 @@ export const IconButton: React.FC<Props> = ({
   ) : null;
 
   const iconButton = (
-    <BasicButton
-      className={cn(
-        'group/icon-button h-8 w-8 p-0',
-        { 'h-8 w-8': size === 'md', 'h-7 w-7': size === 'sm' },
-        'rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200',
-        className
-      )}
-      startIcon={Icon}
-      size="lg"
-      kind="minimal"
+    <NewButton
+      kind="outline"
+      theme="mushroom-marble"
       disabled={disabled}
       href={href}
-      target={target}
-      shallow={shallow}
       onClick={onClick}
+      hrefOptions={{ target, shallow }}
+      icon={iconName}
+      iconOptions={{ customIcon: icon }}
+      className={cn(className, 'group/icon-button h-8 w-8 p-0', {
+        'h-8 w-8': size === 'md',
+        'h-7 w-7': size === 'sm',
+      })}
     />
   );
 

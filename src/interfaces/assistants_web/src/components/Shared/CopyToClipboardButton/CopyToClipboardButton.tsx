@@ -2,14 +2,14 @@
 
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
-import { Button, Icon, IconName, Tooltip } from '@/components/Shared';
+import { ButtonKind, Icon, IconName, NewButton, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type CopyToClipboardButtonProps = {
   value: string;
   label?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
-  kind?: 'primary' | 'secondary';
+  kind?: ButtonKind;
   animate?: boolean;
   disabled?: boolean;
   className?: string;
@@ -33,7 +33,6 @@ export const CopyToClipboardButton = forwardRef<
     value,
     disabled = false,
     className = '',
-    size = 'md',
     kind = 'primary',
     iconAtStart = false,
     onClick,
@@ -64,21 +63,14 @@ export const CopyToClipboardButton = forwardRef<
     },
   }));
 
-  const icon =
-    kind === 'secondary' ? (
-      <Icon name="copy" kind="outline" className="leading-normal" />
-    ) : undefined;
-
   return (
-    <Button
+    <NewButton
       kind={kind}
-      size={size}
       onClick={handleCopy}
       label={copied ? 'Copied!' : label}
+      icon="copy"
+      iconPosition={iconAtStart ? 'start' : 'end'}
       animate={animate}
-      {...(kind === 'primary' ? { splitIcon: 'copy' } : {})}
-      startIcon={iconAtStart ? icon : undefined}
-      endIcon={!iconAtStart ? icon : undefined}
       className={className}
       disabled={disabled}
       aria-label={copied ? 'copied' : 'copy'}

@@ -4,12 +4,13 @@ import React, { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 import { cn } from '@/utils';
 
 import { Icon, IconName } from '../Icon';
+import { Spinner } from '../Spinner';
 import { Text } from '../Text';
 
-type Kind = 'cell' | 'primary' | 'outline' | 'secondary';
-type Theme = 'acrylic-blue' | 'evolved-green' | 'coral' | 'quartz' | 'mushroom-marble';
+export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';
+export type ButtonTheme = 'acrylic-blue' | 'evolved-green' | 'coral' | 'quartz' | 'mushroom-marble';
 
-const getLabelStyles = (kind: Kind, theme: Theme, disabled: boolean) => {
+const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (disabled) return cn('dark:text-volcanic-700 dark:fill-volcanic-700');
 
   switch (kind) {
@@ -33,7 +34,7 @@ const getLabelStyles = (kind: Kind, theme: Theme, disabled: boolean) => {
   }
 };
 
-const getButtonStyles = (kind: Kind, theme: Theme, disabled: boolean) => {
+const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (kind === 'secondary') return '';
   if (disabled) return 'dark:bg-volcanic-600';
 
@@ -57,7 +58,7 @@ const getButtonStyles = (kind: Kind, theme: Theme, disabled: boolean) => {
   }
 };
 
-const getCellStyles = (theme: Theme, disabled: boolean) => {
+const getCellStyles = (theme: ButtonTheme, disabled: boolean) => {
   if (disabled) return 'dark:fill-volcanic-600';
 
   return cn({
@@ -72,12 +73,13 @@ const getCellStyles = (theme: Theme, disabled: boolean) => {
 
 export type ButtonProps = {
   id?: string;
-  kind?: Kind;
-  theme?: Theme;
+  kind?: ButtonKind;
+  theme?: ButtonTheme;
   label?: React.ReactNode | string;
   children?: React.ReactNode;
   icon?: IconName;
   disabled?: boolean;
+  isLoading?: boolean;
   className?: string;
   iconPosition?: 'start' | 'end';
   iconOptions?: {
@@ -94,39 +96,43 @@ export type ButtonProps = {
     target?: HTMLAttributeAnchorTarget;
   };
   animate?: boolean;
+  danger?: boolean;
 };
 
 export const NewButton: React.FC<ButtonProps> = ({
   id,
   kind = 'primary',
-  theme = 'acrylic-blue',
+  theme = kind === 'secondary' ? 'mushroom-marble' : 'acrylic-blue',
   label,
   children,
   icon,
   disabled = false,
+  isLoading = false,
   className,
-  iconPosition = 'start',
+  iconPosition = kind === 'cell' ? 'end' : 'start',
   iconOptions,
   buttonType,
   onClick,
   href,
   hrefOptions,
   animate = true,
+  danger = false,
 }) => {
   const labelStyles = getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
   const shouldAnimate = animate && !disabled;
 
-  const iconElement =
-    icon || kind === 'cell' ? (
-      <Icon
-        name={icon ?? 'arrow-right'}
-        kind={iconOptions?.kind ?? 'outline'}
-        className={cn(labelStyles, iconOptions?.className)}
-      />
-    ) : (
-      iconOptions?.customIcon ?? undefined
-    );
+  const iconElement = isLoading ? (
+    <Spinner />
+  ) : icon || kind === 'cell' ? (
+    <Icon
+      name={icon ?? 'arrow-right'}
+      kind={iconOptions?.kind ?? 'outline'}
+      className={cn(labelStyles, iconOptions?.className)}
+    />
+  ) : (
+    iconOptions?.customIcon ?? undefined
+  );
 
   const labelElement =
     typeof label === 'string' ? (
@@ -187,7 +193,7 @@ export const NewButton: React.FC<ButtonProps> = ({
 };
 
 const cellInner = (
-  theme: Theme,
+  theme: ButtonTheme,
   icon: ReactNode,
   label: ReactNode,
   animate: boolean,

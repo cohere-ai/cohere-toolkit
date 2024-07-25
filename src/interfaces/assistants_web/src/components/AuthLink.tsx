@@ -1,16 +1,16 @@
 'use client';
 
-import React, { ReactElement } from 'react';
+import React from 'react';
 
-import { Button, ButtonKind, IconName, InlineLink } from '@/components/Shared';
+import { ButtonTheme, IconName, NewButton } from '@/components/Shared';
 import { useAuthConfig } from '@/hooks/authConfig';
 
 type Props = {
   action: 'login' | 'register' | 'logout';
-  styleAs?: 'link' | 'button';
-  endIcon?: ReactElement | IconName;
-  splitIcon?: ReactElement | IconName;
-  kind?: ButtonKind;
+  icon?: IconName;
+  iconPosition?: 'start' | 'end';
+  theme?: ButtonTheme;
+  cellButton?: boolean;
   redirect?: string;
   className?: string;
 };
@@ -20,11 +20,11 @@ type Props = {
  * client apps
  */
 export const AuthLink: React.FC<Props> = ({
-  styleAs = 'link',
   action,
-  kind,
-  endIcon,
-  splitIcon,
+  icon,
+  iconPosition = 'end',
+  theme,
+  cellButton = false,
   redirect,
   className = '',
 }) => {
@@ -52,17 +52,16 @@ export const AuthLink: React.FC<Props> = ({
       break;
   }
 
-  return styleAs === 'button' ? (
-    <Button
+  return (
+    <NewButton
       label={label}
       href={href}
-      kind={kind}
-      endIcon={endIcon}
-      splitIcon={splitIcon}
+      kind={cellButton ? 'cell' : 'secondary'}
+      theme={theme}
+      icon={icon}
+      iconPosition={iconPosition}
       className={className}
       id="auth-link"
     />
-  ) : (
-    <InlineLink label={label} href={href} endIcon={endIcon} className={className} />
   );
 };

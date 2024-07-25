@@ -2,8 +2,7 @@
 
 import { MouseEventHandler } from 'react';
 
-import { CellButton } from '@/components/Shared/Button/CellButton';
-import { Text } from '@/components/Shared/Text';
+import { NewButton } from '@/components/Shared';
 
 type Props = {
   buttons: Array<{
@@ -23,24 +22,14 @@ const ButtonGroup: React.FC<Props> = ({ buttons }) => {
   return (
     <>
       {buttons.map((button, i) => (
-        <CellButton
+        <NewButton
           key={i}
-          size="sm"
-          shouldCenterContent
-          theme={{
-            cellKind: 'outline',
-            theme: 'secondary',
-            disabledTheme: 'volcanicLight',
-            focusTheme: 'volcanicLight',
-            hoverTheme: 'secondaryDark',
-            leftCell: i > 0,
-            rightCell: i < total - 1,
-          }}
           animate={false}
           onClick={button.onClick}
-        >
-          <Text>{button.label}</Text>
-        </CellButton>
+          label={button.label}
+          kind="outline"
+          theme="mushroom-marble"
+        />
       ))}
     </>
   );

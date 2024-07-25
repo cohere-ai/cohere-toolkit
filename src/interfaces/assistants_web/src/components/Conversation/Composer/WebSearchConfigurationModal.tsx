@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Button, Input } from '@/components/Shared';
+import { Input, NewButton } from '@/components/Shared';
 import { useParamsStore } from '@/stores';
 
 /**
@@ -34,8 +34,8 @@ export const WebSearchModal: React.FC<{
         onChange={(e) => setSite(e.target.value)}
       />
       <div className="flex w-full items-center justify-between">
-        <Button label="Cancel" kind="secondary" onClick={onCancel} />
-        <Button type="submit" label="Save" splitIcon="arrow-right" theme="volcanic" />
+        <NewButton label="Cancel" kind="secondary" onClick={onCancel} />
+        <NewButton buttonType="submit" label="Save" kind="cell" />
       </div>
     </form>
   );
