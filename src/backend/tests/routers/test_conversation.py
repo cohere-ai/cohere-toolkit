@@ -5,7 +5,14 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
-from backend.database_models import Citation, Conversation, Document, File, Message
+from backend.database_models import (
+    Citation,
+    Conversation,
+    ConversationFileAssociation,
+    Document,
+    File,
+    Message,
+)
 from backend.schemas.user import User
 from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE
 from backend.tests.factories import get_factory
@@ -132,8 +139,16 @@ def test_get_conversation_lists_message_files(
         position=0,
         is_active=True,
         text="hello",
-        file_ids=[file.id],
     )
+
+    # Create conversation,message<>file relations
+    _ = get_factory("ConversationFileAssociation", session).create(
+        conversation_id=conversation.id, user_id=user.id, file_id=file.id
+    )
+    _ = get_factory("MessageFileAssociation", session).create(
+        message_id=message.id, user_id=user.id, file_id=file.id
+    )
+
     session.refresh(conversation)
 
     response = session_client.get(
@@ -292,7 +307,11 @@ def test_delete_conversation_with_files(
         user_id=user.id,
     )
     conversation = get_factory("Conversation", session).create(
-        id="conversation_id", title="test title", user_id=user.id, file_ids=[file.id]
+        id="conversation_id", title="test title", user_id=user.id
+    )
+
+    _ = get_factory("ConversationFileAssociation", session).create(
+        conversation_id=conversation.id, user_id=user.id, file_id=file.id
     )
 
     response = session_client.delete(
@@ -358,7 +377,7 @@ def test_delete_conversation_with_children_cascades_delete(
         user_id=user.id,
     )
     conversation = get_factory("Conversation", session).create(
-        id="converastion_id", title="test title", user_id=user.id, file_ids=[file.id]
+        id="converastion_id", title="test title", user_id=user.id
     )
     message = get_factory("Message", session).create(
         text="test message",
@@ -371,6 +390,9 @@ def test_delete_conversation_with_children_cascades_delete(
         conversation_id=conversation.id,
         message_id=message.id,
         user_id=user.id,
+    )
+    _ = get_factory("ConversationFileAssociation", session).create(
+        conversation_id=conversation.id, user_id=user.id, file_id=file.id
     )
 
     response = session_client.delete(
@@ -529,7 +551,10 @@ def test_list_files(
         user_id=user.id,
     )
     conversation = get_factory("Conversation", session).create(
-        user_id=user.id, file_ids=[file.id]
+        user_id=user.id,
+    )
+    _ = get_factory("ConversationFileAssociation", session).create(
+        conversation_id=conversation.id, user_id=user.id, file_id=file.id
     )
 
     response = session_client.get(
@@ -617,16 +642,22 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
 
     file = response.json()
 
-    created_conversation = (
-        session.query(Conversation).filter_by(file_ids=[file.get("id")]).first()
+    conversation_file_association = (
+        session.query(ConversationFileAssociation)
+        .filter_by(file_id=file.get("id"))
+        .first()
     )
-
+    created_conversation = (
+        session.query(Conversation)
+        .filter_by(id=conversation_file_association.conversation_id)
+        .first()
+    )
     file_in_db = session.get(File, file.get("id"))
     assert file_in_db is not None
     assert response.status_code == 200
     assert created_conversation is not None
     assert created_conversation.user_id == user.id
-    assert created_conversation.file_ids == [file_in_db.id]
+    assert conversation_file_association is not None
     assert "Mariana_Trench" in file.get("file_name")
 
     # File should not exist in the directory
@@ -685,7 +716,12 @@ def test_batch_upload_file_existing_conversation(
         all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
     )
     for file in files:
-        assert file["conversation_id"] == conversation.id
+        conversation_file_association = (
+            session.query(ConversationFileAssociation)
+            .filter_by(conversation_id=conversation.id, file_id=file.get("id"))
+            .first()
+        )
+        assert conversation_file_association is not None
         assert file["user_id"] == conversation.user_id
 
     # File should not exist in the directory
@@ -709,11 +745,13 @@ def test_batch_upload_total_files_exceeds_limit(
     ]
 
     conversation = get_factory("Conversation", session).create(user_id=user.id)
-    _ = get_factory("File", session).create(
+    file = get_factory("File", session).create(
         file_name="test_file.txt",
-        conversation_id=conversation.id,
         user_id=conversation.user_id,
         file_size=1000000000,
+    )
+    _ = get_factory("ConversationFileAssociation", session).create(
+        conversation_id=conversation.id, user_id=user.id, file_id=file.id
     )
 
     response = session_client.post(
@@ -784,24 +822,36 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
         headers={"User-Id": user.id},
     )
 
-    files = response.json()
+    uploaded_files = response.json()
 
+    conversation_file_association = (
+        session.query(ConversationFileAssociation)
+        .filter_by(file_id=uploaded_files[0].get("id"))
+        .first()
+    )
     created_conversation = (
-        session.query(Conversation).filter_by(id=files[0]["conversation_id"]).first()
+        session.query(Conversation)
+        .filter_by(id=conversation_file_association.conversation_id)
+        .first()
     )
 
+    assert conversation_file_association is not None
     assert response.status_code == 200
     assert created_conversation is not None
     assert len(files) == len(file_paths)
-    uploaded_file_names = [file["file_name"] for file in files]
+    uploaded_file_names = [file["file_name"] for file in uploaded_files]
     assert (
         all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
     )
-    for file in files:
-        assert file["conversation_id"] == created_conversation.id
+    
+    for file in uploaded_files:
         assert file["user_id"] == created_conversation.user_id
-
-    assert file["conversation_id"] == created_conversation.id
+        conversation_file_association = (
+            session.query(ConversationFileAssociation)
+            .filter_by(file_id=file.get("id"), conversation_id=created_conversation.id)
+            .first()
+        )
+        assert conversation_file_association is not None
 
     # File should not exist in the directory
     for saved_file_path in saved_file_paths:
@@ -842,10 +892,8 @@ def test_update_file_name(
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file = get_factory("File", session).create(
         file_name="test_file.txt",
-        conversation_id=conversation.id,
         user_id=conversation.user_id,
     )
-
     response = session_client.put(
         f"/v1/conversations/{conversation.id}/files/{file.id}",
         headers={"User-Id": conversation.user_id},
@@ -903,7 +951,6 @@ def test_fail_update_file_missing_user_id(
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file = get_factory("File", session).create(
         file_name="test_file.txt",
-        conversation_id=conversation.id,
         user_id=conversation.user_id,
     )
 
@@ -923,9 +970,12 @@ def test_delete_file(
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file = get_factory("File", session).create(
+        id="file_id",
         file_name="test_file.txt",
-        conversation_id=conversation.id,
         user_id=conversation.user_id,
+    )
+    _ = get_factory("ConversationFileAssociation", session).create(
+        conversation_id=conversation.id, user_id=user.id, file_id=file.id
     )
 
     response = session_client.delete(
@@ -939,11 +989,24 @@ def test_delete_file(
     # Check if File
     db_file = (
         session.query(File)
-        .filter(File.id == file.id, File.user_id == file.user_id)
+        .filter(File.id =="file_id", File.user_id == user.id)
         .first()
     )
     assert db_file is None
 
+    conversation_file_association = (
+        session.query(ConversationFileAssociation)
+        .filter(File.id == "file_id", File.user_id == user.id)
+        .first()
+    )
+    assert conversation_file_association is None
+
+    conversation = (
+        session.query(Conversation)
+        .filter(Conversation.id == conversation.id)
+        .first()
+    )
+    assert conversation.file_ids == []
 
 def test_fail_delete_nonexistent_file(
     session_client: TestClient,
@@ -968,7 +1031,6 @@ def test_fail_delete_file_missing_user_id(
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file = get_factory("File", session).create(
         file_name="test_file.txt",
-        conversation_id=conversation.id,
         user_id=conversation.user_id,
     )
 

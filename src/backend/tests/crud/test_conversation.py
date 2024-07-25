@@ -25,6 +25,7 @@ def test_create_conversation(session, user):
     assert conversation.description == conversation_data.description
 
 
+# TODO scott: Note in PR, ask why this is allowed. Blocks relational table refactor. Needs ID to be unique.
 def test_create_conversation_same_id_different_user(session, user):
     user2 = get_factory("User", session).create(id=f"new_{user.id}")
     conversation_data = Conversation(

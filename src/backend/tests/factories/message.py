@@ -1,6 +1,6 @@
 import factory
 
-from backend.database_models import Message
+from backend.database_models import Message, MessageFileAssociation
 
 from .base import BaseFactory
 
@@ -18,5 +18,13 @@ class MessageFactory(BaseFactory):
     is_active = factory.Faker("boolean")
     documents = []
     citations = []
-    file_ids = []
     agent = factory.Faker("random_element", elements=("USER", "CHATBOT"))
+
+
+class MessageFileAssociationFactory(BaseFactory):
+    class Meta:
+        model = MessageFileAssociation
+
+    message_id = factory.Faker("uuid4")
+    user_id = factory.Faker("uuid4")
+    file_id = factory.Faker("uuid4")

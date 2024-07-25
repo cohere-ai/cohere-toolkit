@@ -39,7 +39,6 @@ class Message(MessageBase):
 class UpdateMessage(BaseModel):
     text: Optional[str] = None
     title: Optional[str] = None
-    file_ids: Optional[list[str]] = None
 
     class Config:
         from_attributes = True

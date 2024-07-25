@@ -492,16 +492,23 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
     file2 = get_factory("File", session_chat).create(
         user_id=user.id,
     )
-    conversation = get_factory("Conversation", session_chat).create(
-        user_id=user.id, file_ids=[file1.id, file2.id]
-    )
+    conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
     existing_message = get_factory("Message", session_chat).create(
         conversation_id=conversation.id,
         user_id=user.id,
         position=0,
         is_active=True,
-        file_ids=[file1.id, file2.id],
     )
+
+    # Create conversation,message<>file relations
+    for file in [file1, file2]:
+        _ = get_factory("ConversationFileAssociation", session_chat).create(
+            conversation_id=conversation.id, user_id=user.id, file_id=file.id
+        )
+        _ = get_factory("MessageFileAssociation", session_chat).create(
+            message_id=existing_message.id, user_id=user.id, file_id=file.id
+        )
+
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
@@ -523,11 +530,10 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
     assert response.status_code == 200
     assert conversation is not None
 
-    # New messages should not contain the file IDs
-    message = conversation.messages[0]
-    assert message.file_ids == []
-    assert file1.id in existing_message.file_ids
-    assert file2.id in existing_message.file_ids
+    # Existing message has file IDs
+    message = session_chat.query(Message).filter_by(id=existing_message.id).first()
+    assert file1.id in message.file_ids
+    assert file2.id in message.file_ids
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 3
     )
@@ -685,12 +691,9 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
-    file1 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
-    )
-    file2 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id
-    )
+    file1 = get_factory("File", session_chat).create(user_id=user.id)
+    file2 = get_factory("File", session_chat).create(user_id=user.id)
+
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
@@ -712,12 +715,10 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     assert response.status_code == 200
     assert conversation is not None
     # Files now linked to same user message
-    assert file1.message_id is not None
-    assert file2.message_id is not None
-    assert file1.message_id == file2.message_id
-    message = session_chat.get(Message, file1.message_id)
-    assert message is not None
+    message = conversation.messages[0]
     assert message.agent == MessageAgent.USER
+    assert (file1.id in message.file_ids) == True
+    assert (file2.id in message.file_ids) == True
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -728,12 +729,18 @@ def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
     existing_message = get_factory("Message", session_chat).create(
         conversation_id=conversation.id, user_id=user.id, position=0, is_active=True
     )
-    file1 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id, message_id=existing_message.id
-    )
-    file2 = get_factory("File", session_chat).create(
-        conversation_id=conversation.id, user_id=user.id, message_id=existing_message.id
-    )
+    file1 = get_factory("File", session_chat).create(user_id=user.id)
+    file2 = get_factory("File", session_chat).create(user_id=user.id)
+
+    # Create conversation,message<>file relations
+    for file in [file1, file2]:
+        _ = get_factory("ConversationFileAssociation", session_chat).create(
+            conversation_id=conversation.id, user_id=user.id, file_id=file.id
+        )
+        _ = get_factory("MessageFileAssociation", session_chat).create(
+            message_id=existing_message.id, user_id=user.id, file_id=file.id
+        )
+
     session_chat.refresh(conversation)
 
     response = session_client_chat.post(
@@ -754,9 +761,10 @@ def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
 
     assert response.status_code == 200
     assert conversation is not None
-    # Files link not changed
-    assert file1.message_id == existing_message.id
-    assert file2.message_id == existing_message.id
+    # Existing message has file IDs
+    message = session_chat.query(Message).filter_by(id=existing_message.id).first()
+    assert file1.id in message.file_ids
+    assert file2.id in message.file_ids
 
 
 def validate_chat_streaming_response(

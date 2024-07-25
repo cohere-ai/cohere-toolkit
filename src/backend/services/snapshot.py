@@ -13,6 +13,8 @@ from backend.database_models.conversation import Conversation as ConversationMod
 from backend.database_models.database import DBSessionDep
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
+from backend.services.conversation import getMessagesWithFiles
+
 
 SNAPSHOT_VERSION = 1
 
@@ -85,10 +87,11 @@ def wrap_create_snapshot(
             tools_metadata=agent.tools_metadata,
         )
 
+    messages = getMessagesWithFiles(session, user_id, conversation.messages)
     snapshot_data = SnapshotData(
         title=conversation.title,
         description=conversation.description,
-        messages=conversation.messages,
+        messages=messages,
         agent=snapshot_agent,
     )
     snapshot = to_dict(snapshot_data)

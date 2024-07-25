@@ -20,10 +20,11 @@ class ConversationFileAssociation(Base):
     conversation: Mapped["Conversation"] = relationship(
         "Conversation", back_populates="conversation_file_associations"
     )
-    
+
     __table_args__ = (
         UniqueConstraint("conversation_id", "file_id", name="unique_conversation_file"),
     )
+
 
 class Conversation(Base):
     __tablename__ = "conversations"

@@ -1,6 +1,6 @@
 import factory
 
-from backend.database_models import Conversation
+from backend.database_models import Conversation, ConversationFileAssociation
 
 from .base import BaseFactory
 
@@ -15,5 +15,13 @@ class ConversationFactory(BaseFactory):
     created_at = factory.Faker("date_time")
     updated_at = factory.Faker("date_time")
     text_messages = []
-    file_ids = []
     agent_id = None
+
+
+class ConversationFileAssociationFactory(BaseFactory):
+    class Meta:
+        model = ConversationFileAssociation
+
+    conversation_id = factory.Faker("uuid4")
+    user_id = factory.Faker("uuid4")
+    file_id = factory.Faker("uuid4")

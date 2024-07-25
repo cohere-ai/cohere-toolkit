@@ -1,7 +1,15 @@
 from enum import StrEnum
 from typing import List
 
-from sqlalchemy import Boolean, Enum, ForeignKey, ForeignKeyConstraint, Index, String, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    Enum,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -27,7 +35,7 @@ class MessageFileAssociation(Base):
     message: Mapped["Message"] = relationship(
         "Message", back_populates="message_file_associations"
     )
-    
+
     __table_args__ = (
         UniqueConstraint("message_id", "file_id", name="unique_message_file"),
     )
@@ -51,8 +59,8 @@ class Message(Base):
 
     documents: Mapped[List["Document"]] = relationship()
     citations: Mapped[List["Citation"]] = relationship()
-    message_file_associations: Mapped[List["MessageFileAssociation"]] = (
-        relationship("MessageFileAssociation", back_populates="message")
+    message_file_associations: Mapped[List["MessageFileAssociation"]] = relationship(
+        "MessageFileAssociation", back_populates="message"
     )
     tool_calls: Mapped[List["ToolCall"]] = relationship()
 
