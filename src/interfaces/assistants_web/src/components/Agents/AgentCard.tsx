@@ -80,12 +80,12 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
         <div
           className={cn(
             'flex size-8 flex-shrink-0 items-center justify-center rounded duration-300',
-            getCohereColor(id, { background: true })
+            getCohereColor(id, { background: true, contrastText: true })
           )}
         >
           {isBaseAgent && <CoralLogo style="secondary" />}
           {!isBaseAgent && (
-            <Text className="uppercase text-white" styleAs="p-lg">
+            <Text className="uppercase" styleAs="p-lg">
               {name[0]}
             </Text>
           )}

@@ -6,13 +6,11 @@ import {
   DataSourceMenu,
   Props as DataSourceMenuProps,
 } from '@/components/Conversation/Composer/DataSourceMenu';
-import { EnabledDataSources } from '@/components/Conversation/Composer/EnabledDataSources';
 import { IconButton } from '@/components/IconButton';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { cn } from '@/utils';
 
 type Props = {
-  isStreaming: boolean;
   onUploadFile: (files: File[]) => void;
   onDataSourceMenuToggle: VoidFunction;
   menuProps: DataSourceMenuProps;
@@ -21,7 +19,7 @@ type Props = {
 /**
  * @description Renders the bottom toolbar of the composer that shows available and selected data sources.
  */
-export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, menuProps }) => {
+export const ComposerToolbar: React.FC<Props> = ({ onUploadFile, menuProps }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenFileExplorer = () => {
@@ -59,7 +57,6 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
         onClick={handleOpenFileExplorer}
       />
       <DataSourceMenu {...menuProps} />
-      <EnabledDataSources isStreaming={isStreaming} />
     </div>
   );
 };

@@ -1,3 +1,5 @@
+import { cn } from '@/utils/cn';
+
 const BG_COLOR_LIST = [
   'bg-green-500 dark:bg-green-500',
   'bg-coral-600 dark:bg-coral-600',
@@ -16,6 +18,15 @@ const TEXT_COLOR_LIST = [
   'text-evolved-blue-500 dark:text-evolved-blue-500',
 ];
 
+const CONTRAST_TEXT_COLOR_LIST = [
+  'text-marble-950 dark:text-marble-950', // green 500
+  'text-volcanic-100 dark:text-volcanic-100', // coral 600
+  'text-marble-950 dark:text-marble-950', // evolved quartz 500
+  'text-volcanic-100 dark:text-volcanic-100', // evolved mushroom 500
+  'text-volcanic-100 dark:text-volcanic-100', // evolved green 500
+  'text-marble-950 dark:text-marble-950', // evolved blue 500
+];
+
 const BORDER_COLOR_LIST = [
   'border-green-500 dark:border-green-500',
   'border-coral-600 dark:border-coral-600',
@@ -27,6 +38,7 @@ const BORDER_COLOR_LIST = [
 
 const DEFAULT_BG_COLOR = 'bg-mushroom-700';
 const DEFAULT_TEXT_COLOR = 'text-mushroom-700';
+const DEFAULT_CONTRAST_TEXT_COLOR = 'text-marble-950 dark:text-marble-950';
 const DEFAULT_BORDER_COLOR = 'border-mushroom-700';
 
 /**
@@ -40,7 +52,7 @@ const DEFAULT_BORDER_COLOR = 'border-mushroom-700';
  */
 export const getCohereColor = (
   id: string | undefined,
-  options: { text?: boolean; border?: boolean; background?: boolean }
+  options: { text?: boolean; border?: boolean; background?: boolean; contrastText?: boolean }
 ): string => {
   if (id === undefined) {
     const colors = [];
@@ -53,7 +65,10 @@ export const getCohereColor = (
     if (options.background) {
       colors.push(DEFAULT_BG_COLOR);
     }
-    return colors.join(' ');
+    if (options.contrastText) {
+      colors.push(DEFAULT_CONTRAST_TEXT_COLOR);
+    }
+    return cn(colors);
   }
 
   const colors = [];
@@ -66,8 +81,11 @@ export const getCohereColor = (
   if (options.background) {
     colors.push(BG_COLOR_LIST);
   }
+  if (options.contrastText) {
+    colors.push(CONTRAST_TEXT_COLOR_LIST);
+  }
 
   const idNumber = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % TEXT_COLOR_LIST.length;
-  return colors.map((color) => color[index]).join(' ');
+  return cn(colors.map((color) => color[index]));
 };

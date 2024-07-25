@@ -233,7 +233,6 @@ export const Composer: React.FC<Props> = ({
         </div>
         <ComposerFiles />
         <ComposerToolbar
-          isStreaming={isStreaming}
           onUploadFile={onUploadFile}
           onDataSourceMenuToggle={handleDataSourceMenuClick}
           menuProps={{

@@ -222,9 +222,19 @@ export const DataSourceMenu: React.FC<Props> = ({
     <div ref={buttonAndMenuRef}>
       <button
         onClick={onToggle}
-        className={cn('rounded border', getCohereColor(agentId, { text: true, border: true }))}
+        className={cn(
+          'flex items-center justify-center rounded border px-1.5 py-1 transition-colors',
+          getCohereColor(agentId, {
+            text: true,
+            contrastText: show,
+            border: true,
+            background: show,
+          })
+        )}
       >
-        Tools: 1
+        <Text styleAs="label" as="span" className="font-medium">
+          Tools: {(fileIds?.length ?? 0) + (tools?.length ?? 0)}
+        </Text>
       </button>
       {show && (
         <div
@@ -345,28 +355,24 @@ const FileOptions: React.FC<{
       title={isOverview ? 'Files' : undefined}
       onSeeAll={hasFiles ? onSeeAll : undefined}
     >
-      {hasFiles ? (
-        tags.map((tag) => (
-          <ListboxOption
-            key={tag.id}
-            value={{ type: TagType.FILE, tag }}
-            focus={tag.id === (focusedTag?.tag?.id ?? '')}
-            selected={selectedTagIds.some((t) => t === tag.id)}
-            onSelect={() => onOptionSelect({ type: TagType.FILE, tag })}
-            icon="clip"
-            name={tag.name}
-            metadata={
-              <Text as="span" className="flex-shrink-0 whitespace-nowrap text-volcanic-500">
-                {selectedTagIds.some((t) => t === tag.id) ? 'Selected' : tag.metadata}
-              </Text>
-            }
-          />
-        ))
-      ) : (
-        <Text as="span" className="p-1.5 text-volcanic-400">
-          You don&apos;t have any files, upload one to use with the assistant.
-        </Text>
-      )}
+      {hasFiles
+        ? tags.map((tag) => (
+            <ListboxOption
+              key={tag.id}
+              value={{ type: TagType.FILE, tag }}
+              focus={tag.id === (focusedTag?.tag?.id ?? '')}
+              selected={selectedTagIds.some((t) => t === tag.id)}
+              onSelect={() => onOptionSelect({ type: TagType.FILE, tag })}
+              icon="clip"
+              name={tag.name}
+              metadata={
+                <Text as="span" className="flex-shrink-0 whitespace-nowrap text-volcanic-500">
+                  {selectedTagIds.some((t) => t === tag.id) ? 'Selected' : tag.metadata}
+                </Text>
+              }
+            />
+          ))
+        : null}
     </ListboxOptions>
   );
 };
