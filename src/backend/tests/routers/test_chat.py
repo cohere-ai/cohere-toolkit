@@ -42,9 +42,7 @@ def default_agent_copy(session_chat: Session, user: User) -> Agent:
         deployment=new_deployment, cohere_name=agent.model.cohere_name
     )
     new_agent = get_factory("Agent", session_chat).create(user=user, tools=[])
-    new_agent_association = get_factory(
-        "AgentDeploymentModel", session_chat
-    ).create(
+    new_agent_association = get_factory("AgentDeploymentModel", session_chat).create(
         agent=new_agent,
         deployment=new_deployment,
         model=new_model,

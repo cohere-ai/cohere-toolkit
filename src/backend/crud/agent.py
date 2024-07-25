@@ -71,9 +71,7 @@ def get_association_by_deployment_name(
     """
     return (
         db.query(AgentDeploymentModel)
-        .join(
-            Deployment, Deployment.id == AgentDeploymentModel.deployment_id
-        )
+        .join(Deployment, Deployment.id == AgentDeploymentModel.deployment_id)
         .filter(
             Deployment.name == deployment_name,
             AgentDeploymentModel.agent_id == agent.id,
