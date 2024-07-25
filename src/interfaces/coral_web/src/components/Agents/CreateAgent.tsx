@@ -22,7 +22,7 @@ import { GoogleDriveToolArtifact } from '@/types/tools';
 const DEFAULT_FIELD_VALUES = {
   name: '',
   description: '',
-  preamble: '',
+  preamble: null,
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
   tools: DEFAULT_AGENT_TOOLS,
