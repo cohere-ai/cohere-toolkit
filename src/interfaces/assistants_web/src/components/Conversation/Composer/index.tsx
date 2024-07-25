@@ -7,11 +7,9 @@ import { ComposerError } from '@/components/Conversation/Composer/ComposerError'
 import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
 import { ComposerToolbar } from '@/components/Conversation/Composer/ComposerToolbar';
 import { DragDropFileUploadOverlay } from '@/components/Conversation/Composer/DragDropFileUploadOverlay';
-import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
-import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
@@ -21,7 +19,6 @@ import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
 
 type Props = {
-  isFirstTurn: boolean;
   isStreaming: boolean;
   value: string;
   streamingMessage: ChatMessage | null;
@@ -34,7 +31,6 @@ type Props = {
 };
 
 export const Composer: React.FC<Props> = ({
-  isFirstTurn,
   value,
   isStreaming,
   requiredTools,
@@ -52,7 +48,6 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
-  const { agentId } = useChatRoutes();
   const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });
@@ -167,7 +162,6 @@ export const Composer: React.FC<Props> = ({
 
   return (
     <div className="flex w-full flex-col">
-      {!agentId && <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />}
       <div
         className={cn(
           'relative flex w-full flex-col',

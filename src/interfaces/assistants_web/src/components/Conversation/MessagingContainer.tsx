@@ -113,11 +113,11 @@ const Content: React.FC<Props> = (props) => {
 
   return (
     <div className="flex h-max min-h-full w-full">
-      <div id={MESSAGE_LIST_CONTAINER_ID} className={cn('flex h-auto min-w-0 flex-1 flex-col')}>
+      <div id={MESSAGE_LIST_CONTAINER_ID} className="flex h-auto min-w-0 flex-1 flex-col">
         <Messages {...props} ref={messageContainerDivRef} />
         {/* Composer container */}
         <div
-          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000')}
+          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000 dark:bg-volcanic-100')}
           ref={composerContainerDivRef}
         >
           <Transition

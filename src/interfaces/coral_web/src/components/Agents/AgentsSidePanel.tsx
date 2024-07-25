@@ -88,7 +88,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             enterFrom="-translate-x-full"
             enterTo="translate-x-0"
           >
-            <Link href="/" shallow>
+            <Link href="/">
               <div className="mr-3 flex items-baseline">
                 <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
               </div>

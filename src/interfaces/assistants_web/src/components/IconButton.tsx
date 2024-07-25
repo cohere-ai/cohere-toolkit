@@ -39,7 +39,6 @@ export const IconButton: React.FC<Props> = ({
   disabled,
   href,
   target,
-  shallow,
   onClick,
 }) => {
   const Icon = icon ? (
@@ -62,7 +61,6 @@ export const IconButton: React.FC<Props> = ({
       disabled={disabled}
       href={href}
       target={target}
-      shallow={shallow}
       onClick={onClick}
     />
   );

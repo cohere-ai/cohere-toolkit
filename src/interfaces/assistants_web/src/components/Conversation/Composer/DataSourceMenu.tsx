@@ -6,11 +6,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ManagedTool } from '@/cohere-client';
 import { ListboxOption, ListboxOptions } from '@/components/Conversation/Composer/ListboxOptions';
-import { IconButton } from '@/components/IconButton';
 import { IconName, Text } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID, TOOL_FALLBACK_ICON } from '@/constants';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
+import { getCohereColor } from '@/utils/getCohereColor';
 
 export const OVERVIEW_START_MAX_ITEMS = 3;
 
@@ -215,15 +216,16 @@ export const DataSourceMenu: React.FC<Props> = ({
   }, [show]);
 
   useClickOutside(buttonAndMenuRef, hideMenu);
+  const { agentId } = useChatRoutes();
 
   return (
     <div ref={buttonAndMenuRef}>
-      <IconButton
-        iconName="at"
-        tooltip={{ label: 'Use data source', size: 'sm' }}
+      <button
         onClick={onToggle}
-        size="sm"
-      />
+        className={cn('dark:text-marble-800', getCohereColor(agentId, { background: false }))}
+      >
+        Tools: 1
+      </button>
       {show && (
         <div
           role="listbox"
