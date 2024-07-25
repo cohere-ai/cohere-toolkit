@@ -33,6 +33,7 @@ win-setup:
 	poetry install --with setup --verbose
 	poetry run python src/backend/cli/main.py
 lint:
+	poetry run autoflake --in-place --recursive --ignore-init-module-imports .
 	poetry run black .
 	poetry run isort .
 first-run:

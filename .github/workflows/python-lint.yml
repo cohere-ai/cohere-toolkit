@@ -14,3 +14,13 @@ jobs:
       - uses: isort/isort-action@v1
         with:
           isort-version: "5.12.0"
+      - name: Upgrade pip
+        run: |
+          pip install --upgrade --user pip
+      - name: Install code quality packages
+        run: |
+          pip install poetry
+          poetry install --only=dev
+      - name: Remove unused standard library imports from non-`__init__.py` files
+        run:
+          poetry run autoflake --in-place --recursive --ignore-init-module-imports .

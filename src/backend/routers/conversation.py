@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request

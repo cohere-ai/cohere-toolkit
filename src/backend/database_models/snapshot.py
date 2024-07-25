@@ -1,5 +1,4 @@
-import json
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import JSON, ForeignKey, ForeignKeyConstraint, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, validates

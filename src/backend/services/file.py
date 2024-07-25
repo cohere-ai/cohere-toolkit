@@ -1,5 +1,4 @@
 import io
-from typing import Any
 
 import pandas as pd
 from fastapi import HTTPException

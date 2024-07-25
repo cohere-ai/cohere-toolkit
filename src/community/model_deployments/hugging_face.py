@@ -1,4 +1,3 @@
-import logging
 from typing import Any, Dict, List
 
 from transformers import AutoModelForCausalLM, AutoTokenizer

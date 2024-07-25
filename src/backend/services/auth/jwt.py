@@ -1,6 +1,4 @@
 import datetime
-import logging
-import os
 import uuid
 
 import jwt

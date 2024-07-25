@@ -1,4 +1,3 @@
-import os
 from typing import Any, AsyncGenerator, Dict, List
 
 import cohere
