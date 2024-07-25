@@ -99,7 +99,7 @@ export type ButtonProps = {
   danger?: boolean;
 };
 
-export const NewButton: React.FC<ButtonProps> = ({
+export const Button: React.FC<ButtonProps> = ({
   id,
   label,
   children,

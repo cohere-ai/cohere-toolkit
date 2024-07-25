@@ -1,5 +1,5 @@
 export * from './Banner';
-
+export * from './Button';
 export * from './Checkbox';
 export * from './CodeSnippet';
 export * from './CopyToClipboardButton';
@@ -30,4 +30,3 @@ export * from './Toggle';
 export * from './ToggleWithAction';
 export * from './Tooltip';
 export * from './WebManifestHead';
-export * from './NewButton';
