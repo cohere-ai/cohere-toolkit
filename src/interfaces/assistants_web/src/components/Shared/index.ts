@@ -31,3 +31,4 @@ export * from './Toggle';
 export * from './ToggleWithAction';
 export * from './Tooltip';
 export * from './WebManifestHead';
+export * from './NewButton';
