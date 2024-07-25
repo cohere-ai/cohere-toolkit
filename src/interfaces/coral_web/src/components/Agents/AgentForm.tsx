@@ -93,7 +93,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
               href="https://docs.cohere.com/docs/preambles#advanced-techniques-for-writing-a-preamble"
               className="underline"
             >
-              Cohere's guide
+              Cohere&apos;s guide
             </Link>
           </Text>
         }
