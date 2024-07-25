@@ -84,9 +84,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def _confirm_env(self):
         if not REPORT_SECRET:
-            logger.warning("No report secret set")
+            logger.warning("[Metrics] No report secret set")
         if not REPORT_ENDPOINT:
-            logger.warning("No report endpoint set")
+            logger.warning("[Metrics] No report endpoint set")
 
     def _send_signal(
         self, request: Request, response: Response, duration_ms: float
@@ -135,7 +135,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             signal = MetricsSignal(signal=data)
             return signal
         except Exception as e:
-            logger.warning(f"Failed to process event data: {e}")
+            logger.warning(f"[Metrics] Failed to process event data: {e}")
             return None
 
     def _get_user(self, request: Request) -> Union[MetricsUser, None]:
@@ -149,7 +149,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 email=request.state.user.email,
             )
         except Exception as e:
-            logger.warning(f"Failed to get user: {e}")
+            logger.warning(f"[Metrics] Error getting user: {e}")
             return None
 
     def _attach_secret(self, data: MetricsData) -> MetricsData:
@@ -183,7 +183,7 @@ async def report_metrics(signal: MetricsSignal) -> None:
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
-        logger.error(f"Failed to report metrics: {e}")
+        logger.error(f"[Metrics] Error posting report: {e}")
 
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
@@ -391,11 +391,10 @@ class RerankMetricsHelper:
                 timestamp=time.time(),
                 duration_ms=duration_ms,
             )
-
             signal = MetricsSignal(signal=metrics_data)
             asyncio.create_task(report_metrics(signal))
         except Exception as e:
-            logger.error(f"Failed to report rerank metrics: {e}")
+            logger.error(f"[Metrics] Error reporting rerank metrics: {e}")
 
     @staticmethod
     def report_rerank_failed_metrics(
