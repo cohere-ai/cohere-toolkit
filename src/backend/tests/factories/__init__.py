@@ -38,6 +38,7 @@ FACTORY_MAPPING = {
     "Model": ModelFactory,
     "Deployment": DeploymentFactory,
     "AgentDeploymentModel": AgentDeploymentModelFactory,
+    "Tool": ToolFactory,
 }
 
 

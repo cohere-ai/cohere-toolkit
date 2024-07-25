@@ -5,13 +5,7 @@ from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
 from backend.config.tools import ALL_TOOLS, ToolName
-from backend.database_models import (
-    Agent,
-    AgentToolAssociation,
-    Organization,
-    Tool,
-    User,
-)
+from backend.database_models import Agent, AgentTool, Organization, Tool, User
 from community.config.tools import COMMUNITY_TOOLS, CommunityToolName
 
 load_dotenv()
@@ -100,7 +94,7 @@ def seed_tools_data(op):
             "wolfram_alpha",
             "clinical_trials",
         ]:
-            association = AgentToolAssociation(
+            association = AgentTool(
                 agent_id=default_agent.id,
                 tool_id=tool.id,
                 tool_config=tool.default_tool_config,

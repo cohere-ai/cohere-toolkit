@@ -26,9 +26,7 @@ class Tool(Base):
     category: Mapped[Optional[str]] = mapped_column(Text)
     auth_implementation_class_name: Mapped[Optional[str]] = mapped_column(Text)
 
-    agent_tool_associations = relationship(
-        "AgentToolAssociation", back_populates="tool"
-    )
+    agent_tool_associations = relationship("AgentTool", back_populates="tool")
 
     agents = relationship(
         "Agent",

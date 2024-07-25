@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import Agent, AgentToolAssociation, Tool
+from backend.database_models import Agent, AgentTool, Tool
 from backend.schemas.tool import ToolCreate as ToolCreateSchema
 from backend.schemas.tool import ToolUpdate as ToolUpdateSchema
 from backend.services.transaction import validate_transaction
@@ -103,10 +103,10 @@ def get_tools_by_agent_id(
     return (
         db.query(Tool)
         .join(
-            AgentToolAssociation,
-            Tool.id == AgentToolAssociation.tool_id,
+            AgentTool,
+            Tool.id == AgentTool.tool_id,
         )
-        .filter(AgentToolAssociation.agent_id == agent_id)
+        .filter(AgentTool.agent_id == agent_id)
         .limit(limit)
         .offset(offset)
         .all()
@@ -131,10 +131,10 @@ def get_available_tools_by_agent_id(
     agent_tools = (
         db.query(Tool)
         .join(
-            AgentToolAssociation,
-            Tool.id == AgentToolAssociation.tool_id,
+            AgentTool,
+            Tool.id == AgentTool.tool_id,
         )
-        .filter(AgentToolAssociation.agent_id == agent_id)
+        .filter(AgentTool.agent_id == agent_id)
         .limit(limit)
         .offset(offset)
         .all()
@@ -158,10 +158,10 @@ def get_agent_tool_by_name(db: Session, agent_id: str, tool_name: str) -> Tool:
     return (
         db.query(Tool)
         .join(
-            AgentToolAssociation,
-            Tool.id == AgentToolAssociation.tool_id,
+            AgentTool,
+            Tool.id == AgentTool.tool_id,
         )
-        .filter(AgentToolAssociation.agent_id == agent_id)
+        .filter(AgentTool.agent_id == agent_id)
         .filter(Tool.name == tool_name)
         .first()
     )
@@ -203,9 +203,7 @@ def assign_tool_to_agent(
     Returns:
         Agent: Agent with the assigned tool.
     """
-    agent_tool = AgentToolAssociation(
-        agent_id=agent.id, tool_id=tool.id, tool_config=tool_config
-    )
+    agent_tool = AgentTool(agent_id=agent.id, tool_id=tool.id, tool_config=tool_config)
     db.add(agent_tool)
     db.commit()
     db.refresh(agent)
@@ -226,9 +224,9 @@ def remove_tool_from_agent(db: Session, tool: Tool, agent: Agent) -> Agent:
         Agent: Agent without the removed tool.
     """
     agent_tool = (
-        db.query(AgentToolAssociation)
-        .filter(AgentToolAssociation.agent_id == agent.id)
-        .filter(AgentToolAssociation.tool_id == tool.id)
+        db.query(AgentTool)
+        .filter(AgentTool.agent_id == agent.id)
+        .filter(AgentTool.tool_id == tool.id)
         .first()
     )
     db.delete(agent_tool)
@@ -249,9 +247,7 @@ def remove_all_tools_from_agent(db: Session, agent: Agent) -> Agent:
     Returns:
         Agent: Agent without the removed tools.
     """
-    agent_tools = db.query(AgentToolAssociation).filter(
-        AgentToolAssociation.agent_id == agent.id
-    )
+    agent_tools = db.query(AgentTool).filter(AgentTool.agent_id == agent.id)
     agent_tools.delete()
     db.commit()
     db.refresh(agent)

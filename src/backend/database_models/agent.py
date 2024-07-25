@@ -33,7 +33,7 @@ class AgentDeploymentModel(Base):
     )
 
 
-class AgentToolAssociation(Base):
+class AgentTool(Base):
     __tablename__ = "agent_tool"
 
     agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"))
@@ -91,9 +91,7 @@ class Agent(Base):
         "AgentDeploymentModel", back_populates="agent"
     )
 
-    agent_tool_associations = relationship(
-        "AgentToolAssociation", back_populates="agent"
-    )
+    agent_tool_associations = relationship("AgentTool", back_populates="agent")
 
     user = relationship("User", back_populates="agents")
     # TODO Eugene  - add the composite index here if needed
