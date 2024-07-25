@@ -140,16 +140,6 @@ def getMessagesWithFiles(
     return messages_with_file
 
 
-# def getFilesWithConversationID(session: DBSessionDep, files: list[FileModel]) -> List[File]:
-#     files_with_conversation_id = []
-
-#     for file in files:
-
-#         files_with_conversation_id.append(File(id=file.id, conversation_id=file.conversation_id))
-
-#     return files_with_conversation_id
-
-
 def get_documents_to_rerank(conversations: List[Conversation]) -> List[str]:
     """Get documents (strings) to rerank from a list of conversations
 
