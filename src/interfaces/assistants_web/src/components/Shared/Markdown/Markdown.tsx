@@ -120,6 +120,7 @@ export const Markdown = ({
       as="div"
       dir="auto"
       className={cn(
+        'dark:text-mushroom-950',
         'prose max-w-none',
         'prose-p:my-0',
         'prose-ol:my-0 prose-ol:space-y-2 prose-ol:whitespace-normal',

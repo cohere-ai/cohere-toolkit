@@ -141,9 +141,9 @@ const Conversation: React.FC<Props> = ({
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-full w-full min-w-0 flex-col">
+      <div className="flex h-full w-full min-w-0 flex-col border border-marble-800 bg-white dark:border-volcanic-300 dark:bg-volcanic-100">
         <HotKeysProvider customHotKeys={chatHotKeys} />
-        <Header conversationId={conversationId} agentId={agentId} isStreaming={isStreaming} />
+        <Header agentId={agentId} />
 
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
           <MessagingContainer
