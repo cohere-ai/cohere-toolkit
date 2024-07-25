@@ -20,12 +20,10 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.metrics import (
-    MetricsAgent,
     MetricsData,
     MetricsMessageType,
     MetricsModelAttrs,
     MetricsSignal,
-    MetricsUser,
 )
 from backend.services.auth.utils import get_header_user_id
 from backend.services.context import get_context
@@ -214,7 +212,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             return response
         except Exception as e:
             duration_ms = time.perf_counter() - start_time
-            metrics_data = RerankMetricsHelper.report_rerank_failed_metrics(
+            RerankMetricsHelper.report_rerank_failed_metrics(
                 duration_ms, e, ctx, **kwargs
             )
             raise e
@@ -241,16 +239,19 @@ class ChatMetricHelper:
     def report_streaming_chat_event(
         event: dict[str, Any], ctx: Context, **kwargs: Any
     ) -> None:
-        start_time = None
         try:
             event_type = event["event_type"]
             if event_type == StreamEvent.STREAM_START:
-                start_time = time.perf_counter()
+                ctx.with_stream_start_ms(time.perf_counter())
 
             if event_type != StreamEvent.STREAM_END:
                 return
 
-            duration_ms = None if not start_time else time.perf_counter() - start_time
+            duration_ms = (
+                None
+                if not ctx.get_stream_start_ms()
+                else time.perf_counter() - ctx.get_stream_start_ms()
+            )
             trace_id = ctx.get_trace_id()
             model = ctx.get_model()
             user_id = ctx.get_user_id()
