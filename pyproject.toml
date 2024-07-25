@@ -47,6 +47,8 @@ google-api-python-client="^2.133.0"
 openpyxl = "^3.1.5"
 
 # Compass dependencies - To be removed once Compass is OSS
+python-docx = "^1.1.2"
+python-calamine = "^0.2.3"
 [tool.poetry.group.compass]
 optional = false
 
