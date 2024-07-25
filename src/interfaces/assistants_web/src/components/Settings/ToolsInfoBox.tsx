@@ -2,7 +2,7 @@
 
 import { Transition } from '@headlessui/react';
 
-import { NewButton, Text } from '@/components/Shared';
+import { Button, Text } from '@/components/Shared';
 import { useShowToolsInfoBox } from '@/hooks/ftux';
 import { useSettingsStore } from '@/stores';
 
@@ -30,7 +30,7 @@ export const ToolsInfoBox: React.FC = () => {
         <br />
         Tools can be turned on or off at any time in your conversation.
       </Text>
-      <NewButton
+      <Button
         label="Got it"
         kind="secondary"
         animate={false}

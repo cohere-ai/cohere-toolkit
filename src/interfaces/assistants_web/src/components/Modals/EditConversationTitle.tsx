@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Input, NewButton, Text } from '@/components/Shared';
+import { Button, Input, Text } from '@/components/Shared';
 import { useEditConversation } from '@/hooks/conversation';
 import { useConversationStore } from '@/stores';
 
@@ -49,8 +49,8 @@ export const EditConversationTitle: React.FC<Props> = ({
       <Text className="mt-2 text-danger-350 first-letter:uppercase">{errorMessage}</Text>
 
       <div className="mt-6 flex items-center justify-between">
-        <NewButton label="Cancel" kind="secondary" onClick={onClose} />
-        <NewButton
+        <Button label="Cancel" kind="secondary" onClick={onClose} />
+        <Button
           kind="cell"
           onClick={onConfirm}
           disabled={isPending}

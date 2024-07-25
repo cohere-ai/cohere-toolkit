@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { AuthLink } from '@/components/AuthLink';
-import { Input, NewButton, Text } from '@/components/Shared';
+import { Button, Input, Text } from '@/components/Shared';
 import { useSession } from '@/hooks/session';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
@@ -94,7 +94,7 @@ const Register: React.FC = () => {
             )
         )}
 
-        <NewButton
+        <Button
           disabled={registerStatus === 'pending' || !formState.isValid}
           label={registerStatus === 'pending' ? 'Logging in...' : 'Sign up'}
           buttonType="submit"

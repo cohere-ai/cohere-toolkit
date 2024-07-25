@@ -3,7 +3,7 @@
 import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
 import { ComponentPropsWithoutRef, useRef, useState } from 'react';
 
-import { Icon, NewButton, Text } from '@/components/Shared';
+import { Button, Icon, Text } from '@/components/Shared';
 
 export const Pre: Component<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ children }) => {
   const [copied, setCopied] = useState(false);
@@ -22,7 +22,7 @@ export const Pre: Component<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ c
 
   return (
     <pre className="group/copy relative">
-      <NewButton
+      <Button
         kind="secondary"
         className="absolute right-3 top-3 hidden group-hover/copy:block"
         onClick={handleCopy}

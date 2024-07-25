@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { Input, NewButton, Spinner, Text } from '@/components/Shared';
+import { Button, Input, Spinner, Text } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useCreateSnapshotLinkId, useSnapshots } from '@/hooks/snapshots';
 
@@ -103,7 +103,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
           disabled={status === 'update-url-loading'}
         />
         <div className="flex justify-between">
-          <NewButton
+          <Button
             kind="cell"
             label="See preview"
             href={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
@@ -113,7 +113,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
             animate={false}
           />
           {snapshotLinksExists && (
-            <NewButton
+            <Button
               kind="secondary"
               label={status === 'update-url-loading' ? 'Generating link' : 'Update link'}
               onClick={updateSnapshotUrl}

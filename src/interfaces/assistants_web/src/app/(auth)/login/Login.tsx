@@ -6,7 +6,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
 import { AuthLink } from '@/components/AuthLink';
-import { Input, NewButton, Text } from '@/components/Shared';
+import { Button, Input, Text } from '@/components/Shared';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
 import { useAuthConfig } from '@/hooks/authConfig';
 import { useOidcAuthRoute } from '@/hooks/oidcAuthRoute';
@@ -152,7 +152,7 @@ const Login: React.FC = () => {
                 )
             )}
 
-            <NewButton
+            <Button
               disabled={loginStatus === 'pending' || !formState.isValid}
               label={loginStatus === 'pending' ? 'Logging in...' : 'Log in'}
               buttonType="submit"

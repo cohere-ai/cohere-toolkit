@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { ButtonTheme, IconName, NewButton } from '@/components/Shared';
+import { Button, ButtonTheme, IconName } from '@/components/Shared';
 import { useAuthConfig } from '@/hooks/authConfig';
 
 type Props = {
@@ -53,7 +53,7 @@ export const AuthLink: React.FC<Props> = ({
   }
 
   return (
-    <NewButton
+    <Button
       label={label}
       href={href}
       kind={cellButton ? 'cell' : 'secondary'}

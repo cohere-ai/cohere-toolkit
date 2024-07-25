@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
 import { ToolsInfoBox } from '@/components/Settings/ToolsInfoBox';
-import { Icon, NewButton, Text } from '@/components/Shared';
+import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
@@ -133,7 +133,7 @@ const ConnectDataBox: React.FC<{
       </div>
       <div className="flex flex-col gap-y-1">
         {tools.map((tool) => (
-          <NewButton
+          <Button
             key={tool.name}
             kind="secondary"
             href={tool.auth_url ?? ''}

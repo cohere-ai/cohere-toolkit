@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { Logo, NewButton, Text } from '@/components/Shared';
+import { Button, Logo, Text } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
@@ -103,7 +103,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             'items-center': !isAgentsSidePanelOpen,
           })}
         >
-          <NewButton
+          <Button
             kind="secondary"
             label={
               <div className="group flex items-center justify-between">
@@ -116,13 +116,13 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             onClick={handleNewChat}
           />
 
-          <NewButton label="See all assistants" href="/discover" icon="compass" />
+          <Button label="See all assistants" href="/discover" icon="compass" />
         </div>
 
         <div className={cn('flex-grow overflow-y-auto')}>{children}</div>
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
-          <NewButton label="Settings" href="/settings" icon="settings" />
+          <Button label="Settings" href="/settings" icon="settings" />
           <section className="flex items-center justify-between">
             <div
               className={cn('flex items-center gap-2', {

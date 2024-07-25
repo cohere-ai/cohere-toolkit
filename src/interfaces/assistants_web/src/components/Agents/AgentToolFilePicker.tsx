@@ -1,7 +1,7 @@
 'use client';
 
 import { IconButton } from '@/components/IconButton';
-import { Icon, NewButton, Text } from '@/components/Shared';
+import { Button, Icon, Text } from '@/components/Shared';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 
 type Props = {
@@ -27,7 +27,7 @@ export const AgentToolFilePicker: React.FC<Props> = ({
   return (
     <div className="flex max-w-[300px] flex-col gap-y-2">
       {!disabled && (
-        <NewButton
+        <Button
           kind="secondary"
           icon="add"
           label="Select files/folders"

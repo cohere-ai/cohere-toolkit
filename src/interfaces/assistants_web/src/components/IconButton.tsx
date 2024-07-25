@@ -3,7 +3,7 @@
 import { Placement } from '@floating-ui/react';
 import React, { HTMLAttributeAnchorTarget, ReactElement } from 'react';
 
-import { IconName, NewButton, Tooltip, Icon as _Icon } from '@/components/Shared';
+import { Button, IconName, Tooltip, Icon as _Icon } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
@@ -42,14 +42,8 @@ export const IconButton: React.FC<Props> = ({
   shallow,
   onClick,
 }) => {
-  const Icon = icon ? (
-    icon
-  ) : iconName ? (
-    <_Icon name={iconName} className={iconClassName} kind={iconKind} />
-  ) : null;
-
   const iconButton = (
-    <NewButton
+    <Button
       kind="outline"
       theme="mushroom-marble"
       disabled={disabled}

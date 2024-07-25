@@ -2,7 +2,7 @@
 
 import { MouseEventHandler } from 'react';
 
-import { NewButton } from '@/components/Shared';
+import { Button } from '@/components/Shared';
 
 type Props = {
   buttons: Array<{
@@ -22,7 +22,7 @@ const ButtonGroup: React.FC<Props> = ({ buttons }) => {
   return (
     <>
       {buttons.map((button, i) => (
-        <NewButton
+        <Button
           key={i}
           animate={false}
           onClick={button.onClick}

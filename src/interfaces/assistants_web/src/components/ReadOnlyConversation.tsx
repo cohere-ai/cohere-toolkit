@@ -8,7 +8,7 @@ import { DEFAULT_NUM_VISIBLE_DOCS } from '@/components/Citations/Citation';
 import { CitationDocument } from '@/components/Citations/CitationDocument';
 import { IconButton } from '@/components/IconButton';
 import MessageRow from '@/components/MessageRow';
-import { NewButton, Text } from '@/components/Shared';
+import { Button, Text } from '@/components/Shared';
 import { ReservedClasses } from '@/constants';
 import { useCitationsStore } from '@/stores';
 import { ChatMessage, isFulfilledMessage } from '@/types/message';
@@ -84,7 +84,7 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
         </div>
       </div>
       <div className="fixed bottom-0 left-0 z-read-only-conversation-footer flex w-full items-center justify-center bg-white py-4 shadow-top">
-        <NewButton label="Start a new conversation" href="/" icon="arrow-right" kind="primary" />
+        <Button label="Start a new conversation" href="/" icon="arrow-right" kind="primary" />
       </div>
     </>
   );

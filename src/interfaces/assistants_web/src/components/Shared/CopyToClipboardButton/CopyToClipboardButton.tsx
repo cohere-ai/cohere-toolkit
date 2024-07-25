@@ -2,7 +2,7 @@
 
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
-import { ButtonKind, Icon, IconName, NewButton, Tooltip } from '@/components/Shared';
+import { Button, ButtonKind, Icon, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type CopyToClipboardButtonProps = {
@@ -64,7 +64,7 @@ export const CopyToClipboardButton = forwardRef<
   }));
 
   return (
-    <NewButton
+    <Button
       kind={kind}
       onClick={handleCopy}
       label={copied ? 'Copied!' : label}

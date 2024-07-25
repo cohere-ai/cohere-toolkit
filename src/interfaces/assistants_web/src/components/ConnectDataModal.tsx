@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { NewButton, Text } from '@/components/Shared';
+import { Button, Text } from '@/components/Shared';
 import { useSettingsStore } from '@/stores';
 
 type Props = {
@@ -31,8 +31,8 @@ export const ConnectDataModal: React.FC<Props> = ({ onClose }) => {
         allow you to use the assistant to its full potential.
       </Text>
       <div className="flex justify-between">
-        <NewButton label="Cancel" kind="secondary" onClick={handleClose} />
-        <NewButton
+        <Button label="Cancel" kind="secondary" onClick={handleClose} />
+        <Button
           label="Start connecting"
           kind="secondary"
           theme="evolved-green"

@@ -7,7 +7,7 @@ import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bo
 
 import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
-import { Button, NewButton } from '@/components/Shared';
+import { Button } from '@/components/Shared';
 import { Welcome } from '@/components/Welcome';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
@@ -131,7 +131,7 @@ const Content: React.FC<Props> = (props) => {
             as="div"
             className="absolute bottom-full left-1/2 -z-10 flex h-fit -translate-x-1/2 transform pb-4"
           >
-            <NewButton
+            <Button
               label="New message"
               kind="cell"
               icon="arrow-down"

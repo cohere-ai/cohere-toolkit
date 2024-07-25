@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
-import { NewButton, Text } from '@/components/Shared';
+import { Button, Text } from '@/components/Shared';
 import { useDeleteAgent } from '@/hooks/agents';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 
@@ -34,13 +34,13 @@ export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
         Your assistant <strong>{name}</strong> will be deleted. This action cannot be undone.
       </Text>
       <div className="flex justify-between">
-        <NewButton label="Cancel" kind="secondary" onClick={onClose} />
-        {/* TODO: abi - waiting for danger designs from James */}
-        <NewButton
+        <Button label="Cancel" kind="secondary" onClick={onClose} />
+        <Button
           label={isPending ? 'Deleting' : 'Delete'}
           onClick={handleDeleteAgent}
           disabled={isPending}
           icon="arrow-right"
+          danger
           iconPosition="end"
         />
       </div>

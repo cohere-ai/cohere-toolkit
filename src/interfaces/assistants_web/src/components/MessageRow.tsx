@@ -9,9 +9,9 @@ import { IconButton } from '@/components/IconButton';
 import { LongPressMenu } from '@/components/LongPressMenu';
 import { MessageContent } from '@/components/MessageContent';
 import {
+  Button,
   CopyToClipboardButton,
   CopyToClipboardIconButton,
-  NewButton,
   Tooltip,
 } from '@/components/Shared';
 import { ToolEvents } from '@/components/ToolEvents';
@@ -143,7 +143,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               onClick={onCopy}
             />
             {hasSteps && (
-              <NewButton
+              <Button
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 icon="list"
                 kind="secondary"
