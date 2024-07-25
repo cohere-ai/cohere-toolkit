@@ -3,7 +3,7 @@
 import { Placement } from '@floating-ui/react';
 import React, { HTMLAttributeAnchorTarget, ReactElement } from 'react';
 
-import { Button, IconName, Tooltip, Icon as _Icon } from '@/components/Shared';
+import { Button, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
@@ -22,6 +22,7 @@ type Props = {
   iconClassName?: string;
   disabled?: boolean;
   className?: string;
+  outline?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
@@ -40,21 +41,22 @@ export const IconButton: React.FC<Props> = ({
   href,
   target,
   shallow,
+  outline = false,
   onClick,
 }) => {
   const iconButton = (
     <Button
-      kind="outline"
-      theme="mushroom-marble"
+      kind={outline ? 'outline' : 'secondary'}
       disabled={disabled}
       href={href}
       onClick={onClick}
       hrefOptions={{ target, shallow }}
       icon={iconName}
-      iconOptions={{ customIcon: icon }}
+      iconOptions={{ kind: iconKind, className: iconClassName, customIcon: icon }}
       className={cn(className, 'group/icon-button h-8 w-8 p-0', {
         'h-8 w-8': size === 'md',
         'h-7 w-7': size === 'sm',
+        'p-2': outline,
       })}
     />
   );
