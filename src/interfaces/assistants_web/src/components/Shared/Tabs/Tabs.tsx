@@ -103,7 +103,7 @@ export const Tabs: React.FC<TabsProps> = ({
                         'my-3 whitespace-nowrap group-hover:text-volcanic-100 dark:group-hover:text-mushroom-950',
                         {
                           'font-medium text-volcanic-100 dark:text-mushroom-950': selected,
-                          'text-volcanic-400 dark:text-mushroom-800': !selected,
+                          'text-volcanic-400 dark:text-volcanic-500': !selected,
                         }
                       )}
                     >

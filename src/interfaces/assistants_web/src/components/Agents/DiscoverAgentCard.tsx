@@ -1,9 +1,6 @@
 'use client';
 
-import { DeleteAgent } from '@/components/Agents/DeleteAgent';
-import { KebabMenu } from '@/components/KebabMenu';
-import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
-import { useContextStore } from '@/context';
+import { Button, CoralLogo, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
