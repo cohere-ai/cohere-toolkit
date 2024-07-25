@@ -2,11 +2,12 @@
 
 import { useLocalStorageValue } from '@react-hookz/web';
 import { uniqBy } from 'lodash';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
-import { Button, Text } from '@/components/Shared';
+import { Button, Icon, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
   DEFAULT_AGENT_TOOLS,
@@ -18,6 +19,8 @@ import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/a
 import { useNotify } from '@/hooks/toast';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
+
+import { CollapsibleSection } from '../CollapsibleSection';
 
 const DEFAULT_FIELD_VALUES = {
   name: '',
@@ -35,6 +38,7 @@ export const CreateAgent: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { open, close } = useContext(ModalContext);
+  const [currentStep, setCurrentStep] = useState<number | undefined>(0);
 
   const {
     value: pendingAssistant,
@@ -178,27 +182,65 @@ export const CreateAgent: React.FC = () => {
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-y-auto">
-      <div className="flex-grow overflow-y-scroll">
-        <div className="flex max-w-[650px] flex-col gap-y-2 p-10">
-          <Text styleAs="h4">Create an Assistant</Text>
-          <Text className="text-volcanic-400">
-            Create an unique assistant and share with your org
-          </Text>
-          <AgentForm<CreateAgentFormFields>
-            fields={fields}
-            setFields={setFields}
-            onToolToggle={handleToolToggle}
-            handleOpenFilePicker={openFilePicker}
-            errors={fieldErrors}
-            className="mt-6"
-            isAgentCreator
-          />
+      <div className="flex flex-col space-y-5 border-b px-12 py-10 dark:border-volcanic-150">
+        <div className="flex items-center space-x-2">
+          <Link href="/discover">
+            <Text className="dark:text-volcanic-600">All assistants</Text>
+          </Link>
+          <Icon name="chevron-right" className="dark:text-volcanic-600" />
+          <Text className="dark:text-volcanic-600">Create assistant</Text>
         </div>
+        <Text styleAs="h4">Create assistant</Text>
       </div>
-      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-950 bg-white px-4 py-4 md:py-8">
-        <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
-          Create
-        </Button>
+      <div className="flex flex-col space-y-6 p-8">
+        <CollapsibleSection
+          title="Define your assistant"
+          number={1}
+          description="What does your assistant do?"
+          isExpanded={currentStep === 0}
+          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : undefined)}
+        >
+          <div className="flex flex-col">
+            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
+            <Button className="ml-auto w-fit" label="Next" onClick={() => setCurrentStep(1)} />
+          </div>
+        </CollapsibleSection>
+        <CollapsibleSection
+          title="Add data sources"
+          number={2}
+          description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
+          isExpanded={currentStep === 1}
+          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : undefined)}
+        >
+          <div className="flex flex-col">
+            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
+            <Button className="ml-auto w-fit" label="Next" onClick={() => setCurrentStep(2)} />
+          </div>
+        </CollapsibleSection>
+        <CollapsibleSection
+          title="Set default tools"
+          number={3}
+          description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
+          isExpanded={currentStep === 2}
+          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : undefined)}
+        >
+          <div className="flex flex-col">
+            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
+            <Button className="ml-auto w-fit" label="Next" onClick={() => setCurrentStep(3)} />
+          </div>
+        </CollapsibleSection>
+        <CollapsibleSection
+          title="Set visibility"
+          number={4}
+          description="Control who can access this assistant and its knowledge base"
+          isExpanded={currentStep === 3}
+          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 3 : undefined)}
+        >
+          <div className="flex flex-col">
+            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
+            <Button className="ml-auto w-fit" label="Next" onClick={handleOpenSubmitModal} />
+          </div>
+        </CollapsibleSection>
       </div>
     </div>
   );
