@@ -498,6 +498,7 @@ async def generate_chat_response(
     return only the final step as a non-streamed response.
 
     Args:
+        request (Request): request object.
         session (DBSessionDep): Database session.
         model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
         response_message (Message): Response message object.
@@ -642,7 +643,9 @@ def handle_stream_event(
     event_type = event["event_type"]
 
     if event_type not in handlers.keys():
-        logging.warning(f"Event type {event_type} not supported")
+        logging.warning(
+            f"[Chat] Error handling stream event: Event type {event_type} not supported"
+        )
         return None, stream_end_data, response_message, document_ids_to_document
 
     return handlers[event_type](

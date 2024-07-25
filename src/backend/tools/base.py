@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Request
 
+from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.services.auth.crypto import encrypt
 from backend.services.cache import cache_get_dict, cache_put
@@ -49,9 +50,9 @@ class BaseToolAuthentication:
     """
 
     def __init__(self, *args, **kwargs):
-        self.BACKEND_HOST = os.getenv("NEXT_PUBLIC_API_HOSTNAME")
-        self.FRONTEND_HOST = os.getenv("FRONTEND_HOSTNAME")
-        self.AUTH_SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
+        self.BACKEND_HOST = Settings().auth.backend_hostname
+        self.FRONTEND_HOST = Settings().auth.frontend_hostname
+        self.AUTH_SECRET_KEY = Settings().auth.secret_key
 
         self._post_init_check()
 

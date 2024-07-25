@@ -32,7 +32,7 @@ class Calculator(BaseTool):
         try:
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
-            logging.error(f"Error parsing expression: {e}")
+            logging.error(f"[Calculator] Error parsing expression: {e}")
             result = {"text": "Parsing error - syntax not allowed."}
 
         return result

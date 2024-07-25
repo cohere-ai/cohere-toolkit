@@ -3,13 +3,14 @@ from typing import Any
 
 from redis import Redis
 
+from backend.config.settings import Settings
 from backend.services.logger import get_logger
 
 logger = get_logger()
 
 
 def get_client() -> Redis:
-    redis_url = os.getenv("REDIS_URL")
+    redis_url = Settings().redis.url
 
     if not redis_url:
         error = "Tried retrieving Redis client but REDIS_URL environment variable is not set."

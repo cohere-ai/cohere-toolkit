@@ -90,9 +90,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(
-                f"Error while refreshing token with GoogleDriveAuth: {response_body}"
-            )
+            logger.error(f"[Google Drive] Error refreshing token: {response_body}")
             return False
 
         existing_tool_auth = tool_auth_crud.get_tool_auth(
@@ -102,8 +100,11 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             session,
             existing_tool_auth,
             UpdateToolAuth(
+                user_id=user_id,
+                tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
+                encrypted_refresh_token=tool_auth.encrypted_refresh_token,
                 expires_at=datetime.datetime.now()
                 + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
@@ -116,9 +117,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     ) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
-            logger.error(
-                f"Error from Google OAuth provider while retrieving Google Auth token: {error}."
-            )
+            logger.error(f"[Google Drive] Auth token error: {error}.")
             return error
 
         body = {
@@ -133,9 +132,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(
-                f"Error while retrieving auth token with GoogleDriveAuth: {response_body}"
-            )
+            logger.error(f"[Google Drive] Error retrieving auth token: {response_body}")
             return response
 
         tool_auth_crud.create_tool_auth(
