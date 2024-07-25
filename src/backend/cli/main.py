@@ -90,7 +90,7 @@ def database_url_prompt(secrets):
 
     print_styled("💾 And now the hostname for the frontend client")
     frontend_hostname = inquirer.text(
-        "Enter your public API Hostname or press enter for default [recommended]",
+        "Enter your frontend hostname or press enter for default [recommended]",
         default=FRONTEND_HOSTNAME_DEFAULT,
     )
 
