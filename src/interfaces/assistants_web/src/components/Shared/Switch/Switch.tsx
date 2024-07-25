@@ -25,7 +25,7 @@ export const Switch: React.FC<Props> = ({
   return (
     <div className="group flex items-center">
       <Field>
-        <div className={cn('flex items-center justify-end gap-6', className)}>
+        <div className={cn('flex items-center justify-end gap-x-6', className)}>
           <HUSwitch
             name={name}
             checked={checked}
@@ -61,9 +61,11 @@ export const Switch: React.FC<Props> = ({
               )}
             />
           </HUSwitch>
-          <Label>
-            <Text>{label}</Text>
-          </Label>
+          {label && (
+            <Label>
+              <Text>{label}</Text>
+            </Label>
+          )}
         </div>
       </Field>
     </div>

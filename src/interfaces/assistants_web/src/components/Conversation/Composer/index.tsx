@@ -48,7 +48,7 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
-  const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
+  const { suggestedTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });
   const { data: experimentalFeatures } = useExperimentalFeatures();
@@ -108,7 +108,6 @@ export const Composer: React.FC<Props> = ({
     if (!textareaRef.current) return;
     onChange(value.slice(0, value.length - tagQuery.length));
     setTagQuery('');
-    setShowDataSourceMenu(false);
   };
 
   const handleDataSourceMenuClick = () => {
@@ -166,7 +165,7 @@ export const Composer: React.FC<Props> = ({
         className={cn(
           'relative flex w-full flex-col',
           'transition ease-in-out',
-          'rounded border bg-marble-1000 dark:bg-volcanic-150',
+          'rounded border bg-marble-1000 dark:bg-volcanic-100',
           'border-marble-800 dark:border-volcanic-200',
           {
             'bg-marble-950 dark:bg-volcanic-300': isComposerDisabled,
@@ -239,7 +238,6 @@ export const Composer: React.FC<Props> = ({
             show: showDataSourceMenu,
             tagQuery: tagQuery,
             tags: suggestedTags,
-            totalTags: totalTags,
             onChange: handleTagSelect,
             onHide: () => setShowDataSourceMenu(false),
             onToggle: handleDataSourceMenuClick,

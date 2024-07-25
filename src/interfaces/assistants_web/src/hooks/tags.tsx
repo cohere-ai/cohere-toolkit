@@ -6,7 +6,6 @@ import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useListFiles } from '@/hooks/files';
 import { useListTools } from '@/hooks/tools';
 import { useConversationStore } from '@/stores';
-import { formatFileSize } from '@/utils';
 
 /**
  * @description Hook that contains all the logic for filtering and displaying tags
@@ -37,10 +36,9 @@ export const useDataSourceTags = ({ requiredTools }: { requiredTools?: string[] 
         .filter((file) => {
           return file.file_name.toLowerCase().includes(query.toLowerCase());
         })
-        .map(({ id, file_name, file_size = 0 }) => ({
+        .map(({ id, file_name }) => ({
           id,
           name: file_name,
-          metadata: formatFileSize(file_size),
           getValue: () => id,
         })),
     [files, query]
@@ -52,7 +50,6 @@ export const useDataSourceTags = ({ requiredTools }: { requiredTools?: string[] 
       allTools.push({
         id: t.name ?? '',
         name: t.display_name ?? t.name ?? '',
-        description: t.description ?? '',
         icon: TOOL_ID_TO_DISPLAY_INFO[t.name ?? '']?.icon ?? TOOL_FALLBACK_ICON,
         getValue: () => t,
       });
