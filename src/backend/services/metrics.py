@@ -82,8 +82,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         self, request: Request, response: Response, duration_ms: float, ctx: Context
     ) -> None:
         signal = self._get_event_signal(request, response, duration_ms, ctx)
-        should_send_event = ctx.get_event_type() and signal
-        if should_send_event:
+        if ctx.get_event_type() and signal:
             response.background = BackgroundTask(report_metrics, signal)
 
     def _get_event_signal(
@@ -247,11 +246,10 @@ class ChatMetricHelper:
             if event_type != StreamEvent.STREAM_END:
                 return
 
-            duration_ms = (
-                None
-                if not ctx.get_stream_start_ms()
-                else time.perf_counter() - ctx.get_stream_start_ms()
-            )
+            duration_ms = None
+            time_start = ctx.get_stream_start_ms()
+            if time_start:
+                duration_ms = time.perf_counter() - time_start
             trace_id = ctx.get_trace_id()
             model = ctx.get_model()
             user_id = ctx.get_user_id()
@@ -285,14 +283,14 @@ class ChatMetricHelper:
                 if is_error
                 else MetricsMessageType.CHAT_API_SUCCESS
             )
-            # validate successful event metrics
+            # validate successful event metrics, ignore type errors to rely on pydantic exceptions
             if not is_error:
-                chat_metrics = MetricsModelAttrs(
+                MetricsModelAttrs(
                     input_nb_tokens=input_tokens,
                     output_nb_tokens=output_tokens,
                     search_units=search_units,
-                    model=model,
-                    assistant_id=agent_id,
+                    model=model,  # type: ignore
+                    assistant_id=agent_id,  # type: ignore
                 )
 
             metrics = MetricsData(

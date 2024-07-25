@@ -90,7 +90,7 @@ class MetricsSignal(BaseModel):
 
 DEFAULT_METRICS_AGENT = MetricsAgent(
     id="9c300cfd-1506-408b-829d-a6464137a7c1",
-    version="1",
+    version=1,
     name="Default Agent",
     temperature=0.3,
     model="command-r-plus",
