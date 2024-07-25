@@ -2,6 +2,8 @@ from fastapi import Request
 
 from backend.crud import agent as agent_crud
 from backend.crud import user as user_crud
+from backend.crud import deployment as deployment_crud
+from backend.crud import tool as tool_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.user import User
 from backend.schemas.agent import Agent, AgentToolMetadata
@@ -74,7 +76,6 @@ def add_agent_tool_metadata_to_request_state(
 
 
 def get_deployment_model_from_agent(agent: Agent, session: DBSessionDep):
-    from backend.crud import deployment as deployment_crud
 
     model_db = None
     deployment_db = deployment_crud.get_deployment_by_name(session, agent.deployment)
@@ -93,7 +94,6 @@ def get_deployment_model_from_agent(agent: Agent, session: DBSessionDep):
 
 
 def get_tools_from_agent(agent: Agent, session: DBSessionDep):
-    from backend.crud import tool as tool_crud
 
     tools_db = tool_crud.get_available_tools(session)
     tools = []
