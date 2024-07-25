@@ -498,6 +498,7 @@ async def generate_chat_response(
     return only the final step as a non-streamed response.
 
     Args:
+        request (Request): request object.
         session (DBSessionDep): Database session.
         model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
         response_message (Message): Response message object.
