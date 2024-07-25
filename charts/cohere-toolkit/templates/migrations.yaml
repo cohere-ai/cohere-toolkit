@@ -13,12 +13,19 @@ spec:
     spec:
       containers:
         - name: migrations
-          image: cgr.dev/chainguard/curl:latest
-          imagePullPolicy: IfNotPresent
+          image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag | default .Chart.AppVersion }}
           command:
-            - "curl"
-            - "-X"
-            - "POST"
-            - "--fail-with-body"
-            - "http://toolkit-backend/migrate"
+            - poetry
+            - run
+          args:
+            - alembic
+            - -c
+            - src/backend/alembic.ini
+            - upgrade
+            - head
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: toolkit-backend
+                optional: false
       restartPolicy: OnFailure
