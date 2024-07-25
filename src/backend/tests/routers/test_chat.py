@@ -43,7 +43,7 @@ def default_agent_copy(session_chat: Session, user: User) -> Agent:
     )
     new_agent = get_factory("Agent", session_chat).create(user=user, tools=[])
     new_agent_association = get_factory(
-        "AgentDeploymentModelAssociation", session_chat
+        "AgentDeploymentModel", session_chat
     ).create(
         agent=new_agent,
         deployment=new_deployment,

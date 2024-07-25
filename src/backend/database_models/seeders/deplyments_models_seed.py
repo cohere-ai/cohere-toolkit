@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import (
     Agent,
-    AgentDeploymentModelAssociation,
+    AgentDeploymentModel,
     Deployment,
     Model,
     Organization,
@@ -178,7 +178,7 @@ def deployments_models_seed(op):
                 model_to_agent_id = new_model.id
                 is_default_for_agent = True
 
-        agent_deployment_association = AgentDeploymentModelAssociation(
+        agent_deployment_association = AgentDeploymentModel(
             deployment_id=new_deployment.id,
             agent_id=default_agent.id,
             model_id=model_to_agent_id,
@@ -202,5 +202,5 @@ def delete_default_models(op):
     session.query(Deployment).delete()
     session.query(Model).delete()
     session.query(Organization).filter_by(id="default").delete()
-    session.query(AgentDeploymentModelAssociation).delete()
+    session.query(AgentDeploymentModel).delete()
     session.commit()

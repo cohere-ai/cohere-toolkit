@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models import Deployment
-from backend.database_models.agent import Agent, AgentDeploymentModelAssociation
+from backend.database_models.agent import Agent, AgentDeploymentModel
 from backend.schemas.agent import UpdateAgent
 from backend.services.transaction import validate_transaction
 
@@ -57,7 +57,7 @@ def get_agent_by_name(db: Session, agent_name: str) -> Agent:
 
 def get_association_by_deployment_name(
     db: Session, agent: Agent, deployment_name: str
-) -> AgentDeploymentModelAssociation:
+) -> AgentDeploymentModel:
     """
     Get an agent deployment model association by deployment name.
 
@@ -67,16 +67,16 @@ def get_association_by_deployment_name(
       deployment_name (str): Deployment name.
 
     Returns:
-      AgentDeploymentModelAssociation: Agent deployment model association.
+      AgentDeploymentModel: Agent deployment model association.
     """
     return (
-        db.query(AgentDeploymentModelAssociation)
+        db.query(AgentDeploymentModel)
         .join(
-            Deployment, Deployment.id == AgentDeploymentModelAssociation.deployment_id
+            Deployment, Deployment.id == AgentDeploymentModel.deployment_id
         )
         .filter(
             Deployment.name == deployment_name,
-            AgentDeploymentModelAssociation.agent_id == agent.id,
+            AgentDeploymentModel.agent_id == agent.id,
         )
         .first()
     )
@@ -84,7 +84,7 @@ def get_association_by_deployment_name(
 
 def get_association_by_deployment_id(
     db: Session, agent: Agent, deployment_id: str
-) -> AgentDeploymentModelAssociation:
+) -> AgentDeploymentModel:
     """
     Get an agent deployment model association by deployment id.
 
@@ -94,15 +94,15 @@ def get_association_by_deployment_id(
       deployment_id (str): Deployment ID.
 
     Returns:
-      AgentDeploymentModelAssociation: Agent deployment model association.
+      AgentDeploymentModel: Agent deployment model association.
     """
     return (
-        db.query(AgentDeploymentModelAssociation)
+        db.query(AgentDeploymentModel)
         .filter(
-            AgentDeploymentModelAssociation.deployment_id == deployment_id,
-            AgentDeploymentModelAssociation.agent_id == agent.id,
-            AgentDeploymentModelAssociation.is_default_deployment == True,
-            AgentDeploymentModelAssociation.is_default_model == True,
+            AgentDeploymentModel.deployment_id == deployment_id,
+            AgentDeploymentModel.agent_id == agent.id,
+            AgentDeploymentModel.is_default_deployment == True,
+            AgentDeploymentModel.is_default_model == True,
         )
         .first()
     )
@@ -140,7 +140,7 @@ def get_agents(
 
 def get_agent_model_deployment_association(
     db: Session, agent: Agent, model_id: str, deployment_id: str
-) -> AgentDeploymentModelAssociation:
+) -> AgentDeploymentModel:
     """
     Get an agent model deployment association.
 
@@ -151,14 +151,14 @@ def get_agent_model_deployment_association(
       deployment_id (str): Deployment ID.
 
     Returns:
-      AgentDeploymentModelAssociation: Agent model deployment association.
+      AgentDeploymentModel: Agent model deployment association.
     """
     return (
-        db.query(AgentDeploymentModelAssociation)
+        db.query(AgentDeploymentModel)
         .filter(
-            AgentDeploymentModelAssociation.agent_id == agent.id,
-            AgentDeploymentModelAssociation.model_id == model_id,
-            AgentDeploymentModelAssociation.deployment_id == deployment_id,
+            AgentDeploymentModel.agent_id == agent.id,
+            AgentDeploymentModel.model_id == model_id,
+            AgentDeploymentModel.deployment_id == deployment_id,
         )
         .first()
     )
@@ -177,10 +177,10 @@ def delete_agent_model_deployment_association(
       model_id (str): Model ID.
       deployment_id (str): Deployment ID.
     """
-    db.query(AgentDeploymentModelAssociation).filter(
-        AgentDeploymentModelAssociation.agent_id == agent.id,
-        AgentDeploymentModelAssociation.model_id == model_id,
-        AgentDeploymentModelAssociation.deployment_id == deployment_id,
+    db.query(AgentDeploymentModel).filter(
+        AgentDeploymentModel.agent_id == agent.id,
+        AgentDeploymentModel.model_id == model_id,
+        AgentDeploymentModel.deployment_id == deployment_id,
     ).delete()
     db.commit()
 
@@ -207,7 +207,7 @@ def assign_model_deployment_to_agent(
     Returns:
       Agent: Agent with the assigned model and deployment.
     """
-    agent_deployment = AgentDeploymentModelAssociation(
+    agent_deployment = AgentDeploymentModel(
         agent_id=agent.id,
         model_id=model_id,
         deployment_id=deployment_id,

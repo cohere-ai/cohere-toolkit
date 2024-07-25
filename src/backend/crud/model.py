@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import Agent, AgentDeploymentModelAssociation, Deployment
+from backend.database_models import Agent, AgentDeploymentModel, Deployment
 from backend.database_models.model import Model
 from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.services.transaction import validate_transaction
@@ -131,10 +131,10 @@ def get_models_by_agent_id(
     return (
         db.query(Model)
         .join(
-            AgentDeploymentModelAssociation,
-            agent_id == AgentDeploymentModelAssociation.agent_id,
+            AgentDeploymentModel,
+            agent_id == AgentDeploymentModel.agent_id,
         )
-        .filter(Model.deployment_id == AgentDeploymentModelAssociation.deployment_id)
+        .filter(Model.deployment_id == AgentDeploymentModel.deployment_id)
         .order_by(Model.name)
         .limit(limit)
         .offset(offset)

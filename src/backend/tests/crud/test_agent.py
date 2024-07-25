@@ -186,7 +186,7 @@ def test_get_association_by_deployment_name(session, user):
     agent = get_factory("Agent", session).create(user=user)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModelAssociation", session).create(
+    new_association = get_factory("AgentDeploymentModel", session).create(
         agent=agent, deployment=deployment, model=model
     )
     association = agent_crud.get_association_by_deployment_name(
@@ -202,7 +202,7 @@ def test_get_association_by_deployment_id(session, user):
     agent = get_factory("Agent", session).create(user=user)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModelAssociation", session).create(
+    new_association = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -222,7 +222,7 @@ def test_get_agents_by_user_id(session, user):
     agent = get_factory("Agent", session).create(user=user)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModelAssociation", session).create(
+    new_association = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -242,7 +242,7 @@ def test_get_agents_by_organization_id(session):
     agent = get_factory("Agent", session).create(user=user, organization=organization)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModelAssociation", session).create(
+    new_association = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -262,7 +262,7 @@ def test_get_agent_model_deployment_association(session):
     agent = get_factory("Agent", session).create(user=user, organization=organization)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModelAssociation", session).create(
+    new_association = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -283,7 +283,7 @@ def test_delete_agent_model_deployment_association(session):
     agent = get_factory("Agent", session).create(user=user, organization=organization)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModelAssociation", session).create(
+    new_association = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,

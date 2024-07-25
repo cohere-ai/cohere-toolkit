@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import AgentDeploymentModelAssociation, Deployment
+from backend.database_models import AgentDeploymentModel, Deployment
 from backend.model_deployments.utils import class_name_validator
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
@@ -109,10 +109,10 @@ def get_deployments_by_agent_id(
     return (
         db.query(Deployment)
         .join(
-            AgentDeploymentModelAssociation,
-            Deployment.id == AgentDeploymentModelAssociation.deployment_id,
+            AgentDeploymentModel,
+            Deployment.id == AgentDeploymentModel.deployment_id,
         )
-        .filter(AgentDeploymentModelAssociation.agent_id == agent_id)
+        .filter(AgentDeploymentModel.agent_id == agent_id)
         .limit(limit)
         .offset(offset)
         .all()
@@ -137,10 +137,10 @@ def get_available_deployments_by_agent_id(
     agent_deployments = (
         db.query(Deployment)
         .join(
-            AgentDeploymentModelAssociation,
-            Deployment.id == AgentDeploymentModelAssociation.deployment_id,
+            AgentDeploymentModel,
+            Deployment.id == AgentDeploymentModel.deployment_id,
         )
-        .filter(AgentDeploymentModelAssociation.agent_id == agent_id)
+        .filter(AgentDeploymentModel.agent_id == agent_id)
         .limit(limit)
         .offset(offset)
         .all()

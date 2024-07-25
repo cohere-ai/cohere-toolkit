@@ -1,6 +1,6 @@
 import factory
 
-from backend.database_models.agent import AgentDeploymentModelAssociation
+from backend.database_models.agent import AgentDeploymentModel
 from backend.tests.factories.agent import AgentFactory
 from backend.tests.factories.base import BaseFactory
 from backend.tests.factories.deployment import DeploymentFactory
@@ -10,7 +10,7 @@ from backend.tests.factories.model import ModelFactory
 class AgentDeploymentModelAssociationFactory(BaseFactory):
 
     class Meta:
-        model = AgentDeploymentModelAssociation
+        model = AgentDeploymentModel
 
     agent = factory.SubFactory(AgentFactory)
     deployment = factory.SubFactory(DeploymentFactory)
