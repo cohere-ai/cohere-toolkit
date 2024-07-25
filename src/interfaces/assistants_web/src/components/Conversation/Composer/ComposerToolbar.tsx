@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 
 import {
   DataSourceMenu,
   Props as DataSourceMenuProps,
 } from '@/components/Conversation/Composer/DataSourceMenu';
-import { IconButton } from '@/components/IconButton';
-import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { FilesMenu } from '@/components/Conversation/Composer/FilesMenu';
 import { cn } from '@/utils';
 
 type Props = {
@@ -20,17 +19,6 @@ type Props = {
  * @description Renders the bottom toolbar of the composer that shows available and selected data sources.
  */
 export const ComposerToolbar: React.FC<Props> = ({ onUploadFile, menuProps }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleOpenFileExplorer = () => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.click();
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onUploadFile([...(e.target.files ?? [])]);
-  };
-
   return (
     <div
       className={cn(
@@ -39,23 +27,7 @@ export const ComposerToolbar: React.FC<Props> = ({ onUploadFile, menuProps }) =>
         'mx-2 py-2'
       )}
     >
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={ACCEPTED_FILE_TYPES.join(',')}
-        className="hidden"
-        multiple
-        onChange={handleFileInputChange}
-      />
-      <IconButton
-        iconName="clip"
-        tooltip={{
-          label: 'Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .XSLS, .XLS, .DOCX Max 20 MB)',
-          size: 'sm',
-        }}
-        size="sm"
-        onClick={handleOpenFileExplorer}
-      />
+      <FilesMenu onUploadFile={onUploadFile} />
       <DataSourceMenu {...menuProps} />
     </div>
   );

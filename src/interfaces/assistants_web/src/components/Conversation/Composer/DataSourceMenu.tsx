@@ -84,6 +84,7 @@ export const DataSourceMenu: React.FC<Props> = ({
           Tools: {tools?.length ?? 0}
         </Text>
       </button>
+
       {show && (
         <div
           role="listbox"
