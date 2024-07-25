@@ -5,11 +5,13 @@ from fastapi import HTTPException, Request
 
 from backend.chat.custom.custom import CustomChat
 from backend.crud import conversation as conversation_crud
+from backend.database_models import File as FileModel
 from backend.database_models import Message as MessageModel
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.file import File
 from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
 from backend.services.file import FileService
@@ -133,6 +135,16 @@ def getMessagesWithFiles(
         )
 
     return messages_with_file
+
+
+# def getFilesWithConversationID(session: DBSessionDep, files: list[FileModel]) -> List[File]:
+#     files_with_conversation_id = []
+
+#     for file in files:
+
+#         files_with_conversation_id.append(File(id=file.id, conversation_id=file.conversation_id))
+
+#     return files_with_conversation_id
 
 
 def get_documents_to_rerank(conversations: List[Conversation]) -> List[str]:

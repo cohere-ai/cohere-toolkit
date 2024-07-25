@@ -10,6 +10,7 @@ class File(BaseModel):
     updated_at: datetime.datetime
 
     user_id: str
+    conversation_id: str
     file_name: str
     file_path: str
     file_size: int = Field(default=0, ge=0)

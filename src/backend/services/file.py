@@ -16,8 +16,8 @@ from backend.crud import agent as agent_crud
 from backend.crud import message as message_crud
 from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
-from backend.database_models.file import File
-from backend.schemas.file import UpdateFileRequest
+from backend.database_models.file import File as FileModel
+from backend.schemas.file import File, UpdateFileRequest
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -76,7 +76,7 @@ class FileService:
                 )
 
             files_to_upload.append(
-                File(
+                FileModel(
                     file_name=filename,
                     file_size=file.size,
                     file_path=filename,
@@ -143,7 +143,7 @@ class FileService:
 
     def get_files_by_conversation_id(
         self, session: DBSessionDep, user_id: str, conversation_id: str
-    ) -> list[File]:
+    ) -> list[FileModel]:
         """
         Get files by conversation ID
 
@@ -206,7 +206,7 @@ class FileService:
 
     def get_files_by_ids(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
-    ) -> list[File]:
+    ) -> list[FileModel]:
         """
         Get files by IDs
 
@@ -270,6 +270,26 @@ class FileService:
         if message.file_ids is not None:
             files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
+
+
+def attach_conversation_id_to_file(
+    conversation_id: str, files: list[FileModel]
+) -> list[File]:
+    results = []
+    for file in files:
+        results.append(
+            File(
+                id=file.id,
+                conversation_id=conversation_id,
+                file_name=file.file_name,
+                file_size=file.file_size,
+                file_path=file.file_path,
+                user_id=file.user_id,
+                created_at=file.created_at,
+                updated_at=file.updated_at,
+            )
+        )
+    return results
 
 
 def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:

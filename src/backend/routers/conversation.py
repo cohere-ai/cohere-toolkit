@@ -44,6 +44,7 @@ from backend.services.conversation import (
 )
 from backend.services.file import (
     FileService,
+    attach_conversation_id_to_file,
     validate_batch_file_size,
     validate_file,
     validate_file_size,
@@ -85,6 +86,7 @@ async def get_conversation(
         )
 
     files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
+    files_with_conversation_id = attach_conversation_id_to_file(conversation.id, files)
     messages = getMessagesWithFiles(session, user_id, conversation.messages)
     _ = validate_conversation(session, conversation_id, user_id)
 
@@ -95,7 +97,7 @@ async def get_conversation(
         updated_at=conversation.updated_at,
         title=conversation.title,
         messages=messages,
-        files=files,
+        files=files_with_conversation_id,
         description=conversation.description,
         agent_id=conversation.agent_id,
         organization_id=conversation.organization_id,
@@ -135,6 +137,9 @@ async def list_conversations(
         files = file_service.get_files_by_conversation_id(
             session, user_id, conversation.id
         )
+        files_with_conversation_id = attach_conversation_id_to_file(
+            conversation.id, files
+        )
         results.append(
             ConversationWithoutMessages(
                 id=conversation.id,
@@ -142,7 +147,7 @@ async def list_conversations(
                 created_at=conversation.created_at,
                 updated_at=conversation.updated_at,
                 title=conversation.title,
-                files=files,
+                files=files_with_conversation_id,
                 description=conversation.description,
                 agent_id=conversation.agent_id,
                 messages=[],
@@ -300,8 +305,6 @@ async def search_conversations(
         )
     return results
 
-    return filtered_documents
-
 
 # FILES
 # TODO: Deprecate singular file upload once client uses batch upload endpoint
@@ -381,7 +384,7 @@ async def batch_upload_file(
     request: Request,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
-) -> UploadFileResponse:
+) -> list[UploadFileResponse]:
     """
     Uploads and creates a batch of File object.
     If no conversation_id is provided, a new Conversation is created as well.
@@ -439,7 +442,10 @@ async def batch_upload_file(
             status_code=500, detail=f"Error while uploading file(s): {e}."
         )
 
-    return uploaded_files
+    files_with_conversation_id = attach_conversation_id_to_file(
+        conversation.id, uploaded_files
+    )
+    return files_with_conversation_id
 
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
@@ -463,7 +469,8 @@ async def list_files(
     _ = validate_conversation(session, conversation_id, user_id)
 
     files = file_service.get_files_by_conversation_id(session, user_id, conversation_id)
-    return files
+    files_with_conversation_id = attach_conversation_id_to_file(conversation_id, files)
+    return files_with_conversation_id
 
 
 @router.put("/{conversation_id}/files/{file_id}", response_model=FilePublic)
