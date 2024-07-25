@@ -20,43 +20,38 @@ def handle_google_drive_activity_event(
     event_type: str, activity: Dict[str, str], agent_id: str, user_id: str, **kwargs
 ):
     index_name = "{}_{}".format(agent_id if agent_id is not None else user_id, GoogleDrive.NAME)
+    (file_ids, titles) = (_extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids", "titles"))
+    if not file_ids:
+        return
+
     match event_type:
         case GoogleDriveActions.CREATE.value:
-            (file_ids,) = (_extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids",))
-            if file_ids:
-                [
-                    create.apply_async(
-                        args=[file_id, index_name, user_id],
-                        kwargs=kwargs,
-                    )
-                    for file_id in file_ids
-                ]
+            [
+                create.apply_async(
+                    args=[file_id, index_name, user_id],
+                    kwargs=kwargs,
+                )
+                for file_id in file_ids
+            ]
         case GoogleDriveActions.EDIT.value:
-            (file_ids,) = (_extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids",))
-            if file_ids:
-                [
-                    edit.apply_async(
-                        args=[file_id, index_name, user_id],
-                        kwargs=kwargs,
-                    )
-                    for file_id in file_ids
-                ]
+            [
+                edit.apply_async(
+                    args=[file_id, index_name, user_id],
+                    kwargs=kwargs,
+                )
+                for file_id in file_ids
+            ]
         case GoogleDriveActions.MOVE.value:
-            (file_ids, titles) = (
-                _extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids", "titles")
-            )
-            if file_ids:
-                print(file_ids)
-                [
-                    move.apply_async(
-                        args=[file_id, index_name, user_id],
-                        kwargs={
-                            "title": titles[file_id],
-                            "artifact_id": kwargs["artifact_id"],
-                        },
-                    )
-                    for file_id in file_ids
-                ]
+            [
+                move.apply_async(
+                    args=[file_id, index_name, user_id],
+                    kwargs={
+                        "title": titles[file_id],
+                        "artifact_id": kwargs["artifact_id"],
+                    },
+                )
+                for file_id in file_ids
+            ]
         case GoogleDriveActions.RENAME.value:
             print("rename")
         case GoogleDriveActions.DELETE.value:

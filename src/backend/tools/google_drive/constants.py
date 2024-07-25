@@ -4,7 +4,7 @@ CSV_MIMETYPE = "text/csv"
 TEXT_MIMETYPE = "text/plain"
 SEARCH_LIMIT = 5
 # TODO dev only: revert to 86400
-ACTIVITY_TRACKING_WINDOW = 86400 / 24
+ACTIVITY_TRACKING_WINDOW = 86400 / 24 * 3
 SCOPES = [
     "https://www.googleapis.com/auth/drive.metadata.readonly",
     "https://www.googleapis.com/auth/drive.readonly",

@@ -12,7 +12,6 @@ ACTION_NAME = "move"
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def move(file_id: str, index_name: str, user_id: str, **kwargs):
-    print("file_id", file_id)
     title = kwargs["title"]
     artifact_id = kwargs["artifact_id"]
     # folder_subfolders = get_folder_subfolders(folder_id=artifact_id, user_id=user_id)

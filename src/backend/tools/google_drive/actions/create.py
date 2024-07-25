@@ -9,7 +9,7 @@ from .utils import get_file_details
 
 logger = get_logger()
 
-ACTION_NAME = "create123"
+ACTION_NAME = "create"
 
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
@@ -17,8 +17,6 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
     # Get file bytes, web view link, title
     file_details = get_file_details(file_id=file_id, user_id=user_id)
     if file_details is None:
-        print("CANCELLLEEDD")
-        print(file_id)
         return {
             "action": ACTION_NAME,
             "status": Status.CANCELLED.value,
