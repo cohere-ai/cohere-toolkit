@@ -44,7 +44,7 @@ from backend.services.conversation import (
 )
 from backend.services.file import (
     FileService,
-    attach_conversation_id_to_file,
+    attach_conversation_id_to_files,
     validate_batch_file_size,
     validate_file,
     validate_file_size,
@@ -86,7 +86,7 @@ async def get_conversation(
         )
 
     files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
-    files_with_conversation_id = attach_conversation_id_to_file(conversation.id, files)
+    files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
     messages = getMessagesWithFiles(session, user_id, conversation.messages)
     _ = validate_conversation(session, conversation_id, user_id)
 
@@ -137,7 +137,7 @@ async def list_conversations(
         files = file_service.get_files_by_conversation_id(
             session, user_id, conversation.id
         )
-        files_with_conversation_id = attach_conversation_id_to_file(
+        files_with_conversation_id = attach_conversation_id_to_files(
             conversation.id, files
         )
         results.append(
@@ -189,6 +189,7 @@ async def update_conversation(
 
     files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
     messages = getMessagesWithFiles(session, user_id, conversation.messages)
+    files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
     return ConversationPublic(
         id=conversation.id,
         user_id=user_id,
@@ -196,9 +197,10 @@ async def update_conversation(
         updated_at=conversation.updated_at,
         title=conversation.title,
         messages=messages,
-        files=files,
+        files=files_with_conversation_id,
         description=conversation.description,
         agent_id=conversation.agent_id,
+        organization_id=conversation.organization_id,
     )
 
 
@@ -288,7 +290,9 @@ async def search_conversations(
         files = file_service.get_files_by_conversation_id(
             session, user_id, conversation.id
         )
-
+        files_with_conversation_id = attach_conversation_id_to_files(
+            conversation.id, files
+        )
         results.append(
             ConversationWithoutMessages(
                 id=conversation.id,
@@ -296,7 +300,7 @@ async def search_conversations(
                 created_at=conversation.created_at,
                 updated_at=conversation.updated_at,
                 title=conversation.title,
-                files=files,
+                files=files_with_conversation_id,
                 description=conversation.description,
                 agent_id=conversation.agent_id,
                 messages=[],
@@ -375,7 +379,10 @@ async def upload_file(
         )
 
     # TODO scott: clean this up, just use one endpoint for both single and batch
-    return upload_file[0]
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation.id, upload_file
+    )
+    return files_with_conversation_id[0]
 
 
 @router.post("/batch_upload_file", response_model=list[UploadFileResponse])
@@ -442,7 +449,7 @@ async def batch_upload_file(
             status_code=500, detail=f"Error while uploading file(s): {e}."
         )
 
-    files_with_conversation_id = attach_conversation_id_to_file(
+    files_with_conversation_id = attach_conversation_id_to_files(
         conversation.id, uploaded_files
     )
     return files_with_conversation_id
@@ -469,7 +476,7 @@ async def list_files(
     _ = validate_conversation(session, conversation_id, user_id)
 
     files = file_service.get_files_by_conversation_id(session, user_id, conversation_id)
-    files_with_conversation_id = attach_conversation_id_to_file(conversation_id, files)
+    files_with_conversation_id = attach_conversation_id_to_files(conversation_id, files)
     return files_with_conversation_id
 
 
@@ -502,8 +509,10 @@ async def update_file(
 
     file = file_service.get_file_by_id(session, file_id, user_id)
     file = file_service.update_file(session, file, new_file)
-
-    return file
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation_id, [file]
+    )
+    return files_with_conversation_id[0]
 
 
 @router.delete("/{conversation_id}/files/{file_id}")

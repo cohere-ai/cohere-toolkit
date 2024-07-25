@@ -272,7 +272,7 @@ class FileService:
         return files
 
 
-def attach_conversation_id_to_file(
+def attach_conversation_id_to_files(
     conversation_id: str, files: list[FileModel]
 ) -> list[File]:
     results = []

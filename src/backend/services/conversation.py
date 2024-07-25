@@ -14,7 +14,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.file import File
 from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
-from backend.services.file import FileService
+from backend.services.file import FileService, attach_conversation_id_to_files
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -116,6 +116,9 @@ def getMessagesWithFiles(
 
     for message in messages:
         files = file_service.get_message_files(session, message.id, user_id)
+        files_with_conversation_id = attach_conversation_id_to_files(
+            message.conversation_id, files
+        )
         messages_with_file.append(
             Message(
                 id=message.id,
@@ -125,7 +128,7 @@ def getMessagesWithFiles(
                 generation_id=message.generation_id,
                 position=message.position,
                 is_active=message.is_active,
-                files=files,
+                files=files_with_conversation_id,
                 documents=message.documents,
                 citations=message.citations,
                 tool_calls=message.tool_calls,
