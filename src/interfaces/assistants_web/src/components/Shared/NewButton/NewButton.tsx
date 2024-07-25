@@ -101,15 +101,12 @@ export type ButtonProps = {
 
 export const NewButton: React.FC<ButtonProps> = ({
   id,
-  kind = 'primary',
-  theme = kind === 'secondary' ? 'mushroom-marble' : 'acrylic-blue',
   label,
   children,
   icon,
   disabled = false,
   isLoading = false,
   className,
-  iconPosition = kind === 'cell' ? 'end' : 'start',
   iconOptions,
   buttonType,
   onClick,
@@ -117,8 +114,13 @@ export const NewButton: React.FC<ButtonProps> = ({
   hrefOptions,
   animate = true,
   danger = false,
+  kind = danger ? 'secondary' : 'primary',
+  theme = kind === 'secondary' ? 'mushroom-marble' : 'acrylic-blue',
+  iconPosition = kind === 'cell' ? 'end' : 'start',
 }) => {
-  const labelStyles = getLabelStyles(kind, theme, disabled);
+  const labelStyles = danger
+    ? 'text-danger-500 fill-danger-500'
+    : getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
   const shouldAnimate = animate && !disabled;
 
