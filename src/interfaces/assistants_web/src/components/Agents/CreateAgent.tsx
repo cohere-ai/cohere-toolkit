@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
-import { Button, Icon, Text } from '@/components/Shared';
+import { Button, Icon, Input, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
   DEFAULT_AGENT_TOOLS,
@@ -38,7 +38,6 @@ export const CreateAgent: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { open, close } = useContext(ModalContext);
-  const [currentStep, setCurrentStep] = useState<number | undefined>(0);
 
   const {
     value: pendingAssistant,
@@ -192,56 +191,16 @@ export const CreateAgent: React.FC = () => {
         </div>
         <Text styleAs="h4">Create assistant</Text>
       </div>
-      <div className="flex flex-col space-y-6 p-8">
-        <CollapsibleSection
-          title="Define your assistant"
-          number={1}
-          description="What does your assistant do?"
-          isExpanded={currentStep === 0}
-          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : undefined)}
-        >
-          <div className="flex flex-col">
-            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
-            <Button className="ml-auto w-fit" label="Next" onClick={() => setCurrentStep(1)} />
-          </div>
-        </CollapsibleSection>
-        <CollapsibleSection
-          title="Add data sources"
-          number={2}
-          description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
-          isExpanded={currentStep === 1}
-          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : undefined)}
-        >
-          <div className="flex flex-col">
-            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
-            <Button className="ml-auto w-fit" label="Next" onClick={() => setCurrentStep(2)} />
-          </div>
-        </CollapsibleSection>
-        <CollapsibleSection
-          title="Set default tools"
-          number={3}
-          description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
-          isExpanded={currentStep === 2}
-          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : undefined)}
-        >
-          <div className="flex flex-col">
-            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
-            <Button className="ml-auto w-fit" label="Next" onClick={() => setCurrentStep(3)} />
-          </div>
-        </CollapsibleSection>
-        <CollapsibleSection
-          title="Set visibility"
-          number={4}
-          description="Control who can access this assistant and its knowledge base"
-          isExpanded={currentStep === 3}
-          setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 3 : undefined)}
-        >
-          <div className="flex flex-col">
-            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
-            <Button className="ml-auto w-fit" label="Next" onClick={handleOpenSubmitModal} />
-          </div>
-        </CollapsibleSection>
-      </div>
+      <AgentForm<CreateAgentFormFields>
+        fields={fields}
+        setFields={setFields}
+        onToolToggle={handleToolToggle}
+        handleOpenFilePicker={openFilePicker}
+        handleSubmit={handleOpenSubmitModal}
+        errors={fieldErrors}
+        className="mt-6"
+        isAgentCreator
+      />
     </div>
   );
 };

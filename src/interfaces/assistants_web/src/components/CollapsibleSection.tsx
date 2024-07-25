@@ -68,12 +68,10 @@ export const CollapsibleSection: React.FC<Props> = ({
       <Transition
         show={isExpanded}
         as="div"
-        enter="transition-all transform ease-in-out duration-500"
-        enterFrom="-translate-y-full"
-        enterTo="translate-y-0"
-        leave="transition-all transform ease-in-out duration-500"
-        leaveFrom="translate-y-0 opacity-100"
-        leaveTo="-translate-y-full opacity-0"
+        enter="transition-all transform ease-in-out duration-300"
+        leave="transition-all transform ease-in-out duration-300"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
       >
         {children}
       </Transition>
