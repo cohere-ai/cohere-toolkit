@@ -14,6 +14,9 @@ jobs:
       - uses: isort/isort-action@v1
         with:
           isort-version: "5.12.0"
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
       - name: Upgrade pip
         run: |
           pip install --upgrade --user pip
