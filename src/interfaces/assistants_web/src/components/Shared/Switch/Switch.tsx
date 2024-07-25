@@ -62,7 +62,7 @@ export const Switch: React.FC<Props> = ({
             />
           </HUSwitch>
           <Label>
-            <Text>{label}</Text>
+            <Text className="dark:text-marble-950">{label}</Text>
           </Label>
         </div>
       </Field>
