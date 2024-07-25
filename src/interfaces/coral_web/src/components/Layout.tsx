@@ -152,7 +152,7 @@ type AgentsLayoutProps = {
   On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
 export const AgentsLayout: React.FC<AgentsLayoutProps> = ({
-  title = 'Chat',
+  title = 'Oktobot',
   showSettingsDrawer = false,
   children,
 }) => {

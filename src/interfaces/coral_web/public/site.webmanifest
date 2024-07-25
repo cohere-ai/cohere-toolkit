@@ -1,7 +1,7 @@
 {
-  "name": "Coral",
-  "description": "Cohere presents Coral, a knowledge assistant for enterprises to supercharge the productivity of their most strategic teams.",
-  "short_name": "Coral",
+  "name": "Oktobot",
+  "description": "A helpful Okta documentation chatbot.",
+  "short_name": "Oktobot",
   "start_url": "/",
   "scope": "/",
   "orientation": "portrait",
@@ -26,7 +26,7 @@
         "type": "image/png"
      }
   ],
-  "theme_color": "#e8e6de",
-  "background_color": "#e8e6de",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
   "display": "standalone"
 }

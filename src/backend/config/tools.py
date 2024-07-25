@@ -48,7 +48,7 @@ ALL_TOOLS = {
         parameter_definitions={
             "query": {
                 "description": "Query for retrieval from Okta documentation.",
-                "type": str,
+                "type": "str",
                 "required": True,
             }
         },
@@ -231,5 +231,6 @@ def get_available_tools() -> dict[ToolName, dict]:
         tool.name = tool.implementation.NAME
 
     return tools
+
 
 AVAILABLE_TOOLS = get_available_tools()

@@ -16,12 +16,15 @@ class OktaDocumentRetriever(BaseTool):
 
     NAME = "okta_retriever"
     COHERE_API_KEY = os.getenv("COHERE_API_KEY")
-    FILEPATH = "/src/backend/data/okta/okta_index"
+    FILEPATH = "src/backend/data/okta/okta_index"
     USE_RERANK = True
 
     # search parameters
     TOP_K = 30
     TOP_N = 10
+
+    # source
+    STUB = "https://help.okta.com/oie/en-us/content/topics/users-groups-profiles/"
 
     def __init__(self):
         # load cohere models
@@ -29,13 +32,11 @@ class OktaDocumentRetriever(BaseTool):
             cohere_api_key=self.COHERE_API_KEY,
             model="embed-english-v3.0",
         )
-
-        print(CohereEmbeddings.embed(["Hello"]))
-
-        self.rerank = CohereRerank(
-            cohere_api_key=self.COHERE_API_KEY,
-            model="rerank-english-v3.0"
-        )
+        if self.USE_RERANK:
+            self.rerank = CohereRerank(
+                cohere_api_key=self.COHERE_API_KEY,
+                model="rerank-english-v3.0"
+            )
 
         # load vectorstore as retriever
         self.retriever = self._load_db().as_retriever(search_kwargs={"k": self.TOP_K})
@@ -52,10 +53,12 @@ class OktaDocumentRetriever(BaseTool):
         # transform Document objs into dict w/ metadata for rerank
         docs = []
         for doc in _docs:
+            # prep source for url
+            url = doc.metadata.get("source", "").replace("src/backend/data/okta/", "")[:-4]
             docs.append(
                 {
                     "text": doc.page_content,
-                    "source": doc.metadata.get("source", ""),
+                    "url": self.STUB + url + "htm",
                 }
             )
 
@@ -79,12 +82,12 @@ class OktaDocumentRetriever(BaseTool):
                     )
             # return ranked results
             if len(ranked_results) < 1:
-                return []
+                return [{"text": "no information was found"}]
             return ranked_results
     
         # return non-ranked results
         if len(docs) < 1:
-            return []
+            return [{"text": "no information was found"}]
         return docs
 
     def _load_db(self) -> FAISS:
@@ -97,22 +100,3 @@ class OktaDocumentRetriever(BaseTool):
         except:
             raise FileNotFoundError("No FAISS vectorstore found")
         return db
-
-
-# docs = []
-# folder = "src/backend/data/okta"
-
-# for file in os.listdir(folder):
-#     if file.endswith(".html"):
-#         filepath = os.path.join(folder, file)
-#         loader = UnstructuredHTMLLoader(filepath)
-#         data = loader.load()
-
-#         docs.extend(data)
-
-# db = FAISS.from_documents(
-#     docs,
-#     CohereEmbeddings(cohere_api_key=os.getenv("COHERE_API_KEY"))
-# )
-
-# db.save_local("src/backend/data/okta/okta_index")

@@ -60,7 +60,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           isAgent && getCohereColor(agent.id, { background: false })
         )}
       >
-        {!isAgent ? 'Need help? Your wish is my command.' : agent.name}
+        {!isAgent ? 'Oktobot, roll out' : agent.name}
       </Text>
       {isAgent && (
         <Text className="!text-p-md text-center text-volcanic-100 md:!text-p-lg">

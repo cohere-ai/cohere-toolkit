@@ -97,12 +97,17 @@ optional = true
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
 torch = "^2.3.0"
+faiss-cpu = "^1.8.0.post1"
 
 [tool.poetry.group.local-model]
 optional = true
 
 [tool.poetry.group.local-model.dependencies]
 llama-cpp-python = "^0.2.67"
+
+
+[tool.poetry.group.backend.dependencies]
+faiss-cpu = "^1.8.0.post1"
 
 [build-system]
 requires = ["poetry-core"]
