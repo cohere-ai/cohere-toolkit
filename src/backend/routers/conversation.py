@@ -31,7 +31,6 @@ from backend.schemas.file import (
     UploadFileResponse,
 )
 from backend.schemas.metrics import DEFAULT_METRICS_AGENT
-from backend.services.chat import get_deployment_config
 from backend.services.context import get_context
 from backend.services.conversation import (
     DEFAULT_TITLE,
@@ -504,15 +503,14 @@ async def generate_title(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
+    ctx.with_deployment_config()
     conversation = validate_conversation(session, conversation_id, user_id)
 
     agent_id = conversation.agent_id if conversation.agent_id else None
-    model_config = get_deployment_config(request)
 
     title = await generate_conversation_title(
         session,
         conversation,
-        model_config,
         agent_id,
         ctx,
     )

@@ -167,7 +167,6 @@ async def filter_conversations(
 async def generate_conversation_title(
     session: DBSessionDep,
     conversation: ConversationModel,
-    model_config: dict,
     agent_id: str,
     ctx: Context = Depends(get_context),
 ):
@@ -199,7 +198,6 @@ async def generate_conversation_title(
             CustomChat().chat(
                 chat_request,
                 stream=False,
-                deployment_config=model_config,
                 agent_id=agent_id,
                 ctx=ctx,
             ),
@@ -207,6 +205,7 @@ async def generate_conversation_title(
             conversation_id=None,
             user_id=user_id,
             should_store=False,
+            ctx=ctx,
         )
 
         title = response.text

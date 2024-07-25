@@ -13,7 +13,8 @@ def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
         str: Model config variable value.
 
     """
-    model_config = kwargs.get("deployment_config")
+    ctx = kwargs.get("ctx")
+    model_config = ctx.model_config if ctx else None
     config = (
         model_config[var_name]
         if model_config and model_config.get(var_name)

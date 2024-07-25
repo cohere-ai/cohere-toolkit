@@ -43,7 +43,7 @@ class CustomChat(BaseChat):
         """
         # Choose the deployment model - validation already performed by request validator
         deployment_name = ctx.get_deployment_name()
-        deployment_model = get_deployment(deployment_name)
+        deployment_model = get_deployment(deployment_name, ctx)
 
         send_log_message(
             logger,
@@ -218,7 +218,7 @@ class CustomChat(BaseChat):
             if has_tool_calls:
                 # Handle tool calls
                 tool_results = await self.call_tools(
-                    chat_request.chat_history, deployment_model, **kwargs
+                    chat_request.chat_history, deployment_model, ctx, **kwargs
                 )
 
                 # Remove the message if tool results are present

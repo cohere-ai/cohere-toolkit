@@ -52,7 +52,6 @@ async def chat_stream(
     """
     ctx.with_model(chat_request.model)
 
-    user_id = ctx.get_user_id()
     agent_id = chat_request.agent_id
 
     agent = DEFAULT_METRICS_AGENT
@@ -65,12 +64,10 @@ async def chat_stream(
         chat_request,
         file_paths,
         response_message,
-        conversation_id,
-        user_id,
         should_store,
         managed_tools,
-        deployment_config,
         next_message_position,
+        ctx,
     ) = process_chat(session, chat_request, request, agent_id, ctx)
 
     return EventSourceResponse(
@@ -79,18 +76,15 @@ async def chat_stream(
             CustomChat().chat(
                 chat_request,
                 stream=True,
-                deployment_config=deployment_config,
                 file_paths=file_paths,
                 managed_tools=managed_tools,
                 session=session,
-                conversation_id=conversation_id,
                 ctx=ctx,
             ),
             response_message,
-            conversation_id,
-            user_id,
             should_store=should_store,
             next_message_position=next_message_position,
+            ctx=ctx,
         ),
         media_type="text/event-stream",
         headers={"Connection": "keep-alive"},
@@ -118,7 +112,6 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
-    trace_id = ctx.get_trace_id()
     user_id = ctx.get_user_id()
     agent_id = chat_request.agent_id
 
@@ -127,12 +120,10 @@ async def chat(
         chat_request,
         file_paths,
         response_message,
-        conversation_id,
-        user_id,
         should_store,
         managed_tools,
-        deployment_config,
         next_message_position,
+        ctx,
     ) = process_chat(session, chat_request, request, agent_id, ctx)
 
     response = await generate_chat_response(
@@ -140,16 +131,14 @@ async def chat(
         CustomChat().chat(
             chat_request,
             stream=False,
-            deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
             ctx=ctx,
         ),
         response_message,
-        conversation_id,
-        user_id,
         should_store=should_store,
         next_message_position=next_message_position,
+        ctx=ctx,
     )
     return response
 
@@ -173,6 +162,7 @@ def langchain_chat_stream(
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
+    user_id = ctx.get_user_id()
     use_langchain = Settings().feature_flags.use_experimental_langchain
     if not use_langchain:
         return {"error": "Langchain is not enabled."}
@@ -182,13 +172,11 @@ def langchain_chat_stream(
         chat_request,
         _,
         response_message,
-        conversation_id,
-        user_id,
         _,
         should_store,
         managed_tools,
         _,
-        _,
+        _,  # ctx
     ) = process_chat(session, chat_request, request)
 
     return EventSourceResponse(
@@ -196,7 +184,7 @@ def langchain_chat_stream(
             session,
             LangChainChat().chat(chat_request, managed_tools=managed_tools),
             response_message,
-            conversation_id,
+            ctx.get_conversation_id(),
             user_id,
             should_store,
         ),

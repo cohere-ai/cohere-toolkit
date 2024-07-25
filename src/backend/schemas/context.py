@@ -1,5 +1,6 @@
 from typing import Optional
 
+from fastapi import Request
 from pydantic import BaseModel, Field
 
 from backend.crud import user as user_crud
@@ -7,6 +8,7 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.schemas.metrics import MetricsAgent, MetricsMessageType, MetricsUser
 from backend.schemas.user import User
+from backend.services.utils import get_deployment_config
 
 
 class Context(BaseModel):
@@ -21,6 +23,8 @@ class Context(BaseModel):
     agent_tool_metadata: Optional[AgentToolMetadata] = None
     model: Optional[str] = None
     deployment_name: Optional[str] = None
+    deployment_config: Optional[dict] = None
+    conversation_id: Optional[str] = None
 
     # Metrics
     metrics_user: Optional[MetricsUser] = None
@@ -74,6 +78,12 @@ class Context(BaseModel):
     def get_deployment_name(self):
         return self.deployment_name
 
+    def get_model_config(self):
+        return self.model_config
+
+    def get_conversation_id(self):
+        return self.conversation_id
+
     def with_event_type(self, event_type: MetricsMessageType) -> "Context":
         self.event_type = event_type
         return self
@@ -122,4 +132,12 @@ class Context(BaseModel):
 
     def with_model(self, model: str) -> "Context":
         self.model = model
+        return self
+
+    def with_deployment_config(self) -> "Context":
+        self.deployment_config = get_deployment_config(self.request)
+        return self
+
+    def with_conversation_id(self, conversation_id: str) -> "Context":
+        self.conversation_id = conversation_id
         return self
