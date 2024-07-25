@@ -4,7 +4,7 @@ from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
@@ -24,10 +24,6 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.tool_call import ToolCall as ToolCallModel
-from backend.routers.utils import (
-    add_agent_to_request_state,
-    add_session_user_to_request_state,
-)
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -49,11 +45,12 @@ from backend.schemas.chat import (
     ToolInputType,
 )
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.file import UpdateFileRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
-from backend.services.auth.utils import get_header_user_id
+from backend.services.context import get_context
 from backend.services.generators import AsyncGeneratorContextManager
 
 
@@ -62,6 +59,7 @@ def process_chat(
     chat_request: BaseChatRequest,
     request: Request,
     agent_id: str | None = None,
+    ctx: Context = Context(),
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -72,12 +70,13 @@ def process_chat(
         chat_request (BaseChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        agent_id (str): Agent ID.
+        ctx (Context): Context object.
 
     Returns:
         Tuple: Tuple containing necessary data to construct the responses.
     """
-    user_id = get_header_user_id(request)
-    deployment_name = request.headers.get("Deployment-Name", "")
+    user_id = ctx.get_user_id()
     model_config = {}
     # Deployment config is the settings for the model deployment per request
     # It is a string of key value pairs separated by semicolons
@@ -87,16 +86,7 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-
-        # TODO: @Scott Validation error still needs to be fixed here
-        # ROD: error count: <built-in method error_count of pydantic_core._pydantic_core.ValidationError object at 0xffff703f08b0>
-
-        try:
-            add_agent_to_request_state(request, agent)
-        except ValidationError as exc:
-            print(f"Validation error count: {exc.error_count()}")
-            for err in exc.errors():
-                print(f"ROD: error: {repr(err)}")
+        ctx.with_agent(agent)
 
         if agent is None:
             raise HTTPException(
@@ -178,7 +168,6 @@ def process_chat(
         chatbot_message,
         conversation.id,
         user_id,
-        deployment_name,
         should_store,
         managed_tools,
         model_config,

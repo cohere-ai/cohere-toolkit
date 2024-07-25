@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 
 from backend.chat.custom.custom import CustomChat
 from backend.crud import conversation as conversation_crud
@@ -10,7 +10,9 @@ from backend.database_models.conversation import Conversation as ConversationMod
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.services.chat import generate_chat_response
+from backend.services.context import get_context
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -118,10 +120,7 @@ async def filter_conversations(
     conversations: List[Conversation],
     rerank_documents: List[str],
     model_deployment,
-    user_id: str,
-    agent_id: str,
-    trace_id: str,
-    request: Request,
+    ctx: Context,
 ) -> List[Conversation]:
     """Filter conversations based on the rerank score
 
@@ -130,9 +129,7 @@ async def filter_conversations(
         conversations (List[Conversation]): List of conversations
         rerank_documents (List[str]): List of documents to rerank
         model_deployment: Model deployment object
-        user_id (str): User ID
-        agent_id (str): Agent ID
-        trace_id (str): Trace ID
+        ctx (Context): Context object
 
     Returns:
         List[Conversation]: List of filtered conversations
@@ -151,10 +148,7 @@ async def filter_conversations(
     res = await model_deployment.invoke_rerank(
         query=query,
         documents=rerank_documents,
-        user_id=user_id,
-        agent_id=agent_id,
-        trace_id=trace_id,
-        request=request,
+        ctx=ctx,
     )
 
     # Sort conversations by rerank score
@@ -171,13 +165,11 @@ async def filter_conversations(
 
 
 async def generate_conversation_title(
-    session,
-    conversation,
-    deployment_name,
-    model_config,
-    trace_id,
-    user_id,
-    agent_id,
+    session: DBSessionDep,
+    conversation: ConversationModel,
+    model_config: dict,
+    agent_id: str,
+    ctx: Context = Depends(get_context),
 ):
     """Generate a title for a conversation
 
@@ -185,16 +177,16 @@ async def generate_conversation_title(
         request: Request object
         session: Database session
         conversation: Conversation object
-        deployment_name: Deployment name
         model_config: Model configuration
-        trace_id: Trace ID
-        user_id: User ID
         agent_id: Agent ID
+        ctx: Context object
 
     Returns:
         str: Generated title
     """
+    user_id = ctx.get_user_id()
     title = ""
+
     try:
         chatlog = extract_details_from_conversation(conversation)
         prompt = GENERATE_TITLE_PROMPT % chatlog
@@ -207,11 +199,9 @@ async def generate_conversation_title(
             CustomChat().chat(
                 chat_request,
                 stream=False,
-                deployment_name=deployment_name,
                 deployment_config=model_config,
-                trace_id=trace_id,
-                user_id=user_id,
                 agent_id=agent_id,
+                ctx=ctx,
             ),
             response_message=None,
             conversation_id=None,

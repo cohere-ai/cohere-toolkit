@@ -11,23 +11,18 @@ from backend.config.routers import RouterName
 from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
-from backend.routers.utils import (
-    add_agent_to_request_state,
-    add_agent_tool_metadata_to_request_state,
-    add_default_agent_to_request_state,
-    add_event_type_to_request_state,
-    add_model_to_request_state,
-    add_session_user_to_request_state,
-)
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.schemas.langchain_chat import LangchainChatRequest
+from backend.schemas.metrics import DEFAULT_METRICS_AGENT
 from backend.services.chat import (
     generate_chat_response,
     generate_chat_stream,
     generate_langchain_chat_stream,
     process_chat,
 )
+from backend.services.context import get_context
 from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
@@ -41,6 +36,7 @@ async def chat_stream(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    ctx: Context = Depends(get_context),
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
@@ -49,21 +45,21 @@ async def chat_stream(
         session (DBSessionDep): Database session.
         chat_request (CohereChatRequest): Chat request data.
         request (Request): Request object.
+        ctx (Context): Context object.
 
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
-    trace_id = None
-    if hasattr(request.state, "trace_id"):
-        trace_id = request.state.trace_id
-    add_model_to_request_state(request, chat_request.model)
-    user_id = request.headers.get("User-Id", None)
+    ctx.with_model(chat_request.model)
+
+    user_id = ctx.get_user_id()
     agent_id = chat_request.agent_id
+
+    agent = DEFAULT_METRICS_AGENT
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        add_agent_to_request_state(request, agent)
-    else:
-        add_default_agent_to_request_state(request)
+    ctx.with_agent(agent)
+
     (
         session,
         chat_request,
@@ -71,12 +67,11 @@ async def chat_stream(
         response_message,
         conversation_id,
         user_id,
-        deployment_name,
         should_store,
         managed_tools,
         deployment_config,
         next_message_position,
-    ) = process_chat(session, chat_request, request, agent_id)
+    ) = process_chat(session, chat_request, request, agent_id, ctx)
 
     return EventSourceResponse(
         generate_chat_stream(
@@ -84,16 +79,12 @@ async def chat_stream(
             CustomChat().chat(
                 chat_request,
                 stream=True,
-                deployment_name=deployment_name,
                 deployment_config=deployment_config,
                 file_paths=file_paths,
                 managed_tools=managed_tools,
                 session=session,
                 conversation_id=conversation_id,
-                user_id=user_id,
-                trace_id=trace_id,
-                agent_id=agent_id,
-                request=request,
+                ctx=ctx,
             ),
             response_message,
             conversation_id,
@@ -113,6 +104,7 @@ async def chat(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
     request: Request,
+    ctx: Context = Depends(get_context),
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
@@ -121,15 +113,13 @@ async def chat(
         chat_request (CohereChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        ctx (Context): Context object.
 
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
-    trace_id = None
-    if hasattr(request.state, "trace_id"):
-        trace_id = request.state.trace_id
-
-    user_id = request.headers.get("User-Id", None)
+    trace_id = ctx.get_trace_id()
+    user_id = ctx.get_user_id()
     agent_id = chat_request.agent_id
 
     (
@@ -139,26 +129,21 @@ async def chat(
         response_message,
         conversation_id,
         user_id,
-        deployment_name,
         should_store,
         managed_tools,
         deployment_config,
         next_message_position,
-    ) = process_chat(session, chat_request, request, agent_id)
+    ) = process_chat(session, chat_request, request, agent_id, ctx)
 
     response = await generate_chat_response(
         session,
         CustomChat().chat(
             chat_request,
             stream=False,
-            deployment_name=deployment_name,
             deployment_config=deployment_config,
             file_paths=file_paths,
             managed_tools=managed_tools,
-            trace_id=trace_id,
-            user_id=user_id,
-            agent_id=agent_id,
-            request=request,
+            ctx=ctx,
         ),
         response_message,
         conversation_id,
@@ -171,8 +156,23 @@ async def chat(
 
 @router.post("/langchain-chat")
 def langchain_chat_stream(
-    session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
+    session: DBSessionDep,
+    chat_request: LangchainChatRequest,
+    request: Request,
+    ctx: Context = Depends(get_context),
 ):
+    """
+    Stream chat endpoint to handle user messages and return chatbot responses using langchain.
+
+    Args:
+        session (DBSessionDep): Database session.
+        chat_request (LangchainChatRequest): Chat request data.
+        request (Request): Request object.
+        ctx (Context): Context object.
+
+    Returns:
+        EventSourceResponse: Server-sent event response with chatbot responses.
+    """
     use_langchain = Settings().feature_flags.use_experimental_langchain
     if not use_langchain:
         return {"error": "Langchain is not enabled."}
