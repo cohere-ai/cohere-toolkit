@@ -843,7 +843,7 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
     assert (
         all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
     )
-    
+
     for file in uploaded_files:
         assert file["user_id"] == created_conversation.user_id
         conversation_file_association = (
@@ -989,7 +989,7 @@ def test_delete_file(
     # Check if File
     db_file = (
         session.query(File)
-        .filter(File.id =="file_id", File.user_id == user.id)
+        .filter(File.id == "file_id", File.user_id == user.id)
         .first()
     )
     assert db_file is None
@@ -1002,11 +1002,10 @@ def test_delete_file(
     assert conversation_file_association is None
 
     conversation = (
-        session.query(Conversation)
-        .filter(Conversation.id == conversation.id)
-        .first()
+        session.query(Conversation).filter(Conversation.id == conversation.id).first()
     )
     assert conversation.file_ids == []
+
 
 def test_fail_delete_nonexistent_file(
     session_client: TestClient,

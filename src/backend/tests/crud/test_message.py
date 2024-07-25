@@ -157,11 +157,10 @@ def test_create_message_file_association(session, conversation, user):
     )
     file = get_factory("File", session).create(user_id=user.id)
 
-    message_file_association = message_crud.create_message_file_association(session, MessageFileAssociation(
-        message_id=message.id,
-        file_id=file.id,
-        user_id=user.id
-    ))
+    message_file_association = message_crud.create_message_file_association(
+        session,
+        MessageFileAssociation(message_id=message.id, file_id=file.id, user_id=user.id),
+    )
     assert message_file_association.message_id == message.id
     assert message_file_association.file_id == file.id
     assert message_file_association.user_id == user.id
@@ -175,9 +174,13 @@ def test_get_message_file_association_by_file_id(session, conversation, user):
         text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
     file = get_factory("File", session).create(user_id=user.id)
-    _ = get_factory("MessageFileAssociation", session).create(message_id=message.id, file_id=file.id, user_id=user.id)
+    _ = get_factory("MessageFileAssociation", session).create(
+        message_id=message.id, file_id=file.id, user_id=user.id
+    )
 
-    message_file_association = message_crud.get_message_file_association_by_file_id(session, file.id, user.id)
+    message_file_association = message_crud.get_message_file_association_by_file_id(
+        session, file.id, user.id
+    )
     assert message_file_association.message_id == message.id
     assert message_file_association.file_id == file.id
     assert message_file_association.user_id == user.id
@@ -188,11 +191,15 @@ def test_delete_message_file_association(session, conversation, user):
         text="Hello, World!", conversation_id=conversation.id, user_id=user.id
     )
     file = get_factory("File", session).create(user_id=user.id)
-    _ = get_factory("MessageFileAssociation", session).create(message_id=message.id, file_id=file.id, user_id=user.id)
+    _ = get_factory("MessageFileAssociation", session).create(
+        message_id=message.id, file_id=file.id, user_id=user.id
+    )
 
     message_crud.delete_message_file_association(session, message.id, file.id, user.id)
 
-    message_file_association = message_crud.get_message_file_association_by_file_id(session, file.id, user.id)
+    message_file_association = message_crud.get_message_file_association_by_file_id(
+        session, file.id, user.id
+    )
     assert message_file_association is None
 
     message = message_crud.get_message(session, message.id, user.id)

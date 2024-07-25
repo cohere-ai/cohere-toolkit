@@ -226,7 +226,6 @@ async def handle_tool_metadata_update(
 
     # Create or update tool metadata from the request
     for tool_metadata in new_agent.tools_metadata:
-        print("Tool metadata", tool_metadata)
         try:
             await update_or_create_tool_metadata(agent, tool_metadata, session, request)
         except Exception as e:

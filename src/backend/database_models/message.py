@@ -38,6 +38,7 @@ class MessageFileAssociation(Base):
 
     __table_args__ = (
         UniqueConstraint("message_id", "file_id", name="unique_message_file"),
+        Index("message_file_file_id", file_id),
     )
 
 
