@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-import { IconButton } from '@/components/IconButton';
-import { Button, Logo, Text } from '@/components/Shared';
+import { Button, Logo, Text, Tooltip } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
@@ -116,13 +115,13 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             onClick={handleNewChat}
           />
 
-          <Button label="See all assistants" href="/discover" icon="compass" />
+          <Button kind="secondary" label="See all assistants" href="/discover" icon="compass" />
         </div>
 
         <div className={cn('flex-grow overflow-y-auto')}>{children}</div>
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
-          <Button label="Settings" href="/settings" icon="settings" />
+          <Button label="Settings" href="/settings" icon="settings" kind="secondary" />
           <section className="flex items-center justify-between">
             <div
               className={cn('flex items-center gap-2', {
@@ -156,17 +155,19 @@ const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ classNa
   };
 
   return (
-    <IconButton
-      iconName="close-drawer"
-      onClick={handleToggleAgentsSidePanel}
-      tooltip={{ label: 'Toggle agents side panel' }}
-      className={cn(
-        'transform transition delay-100 duration-200 ease-in-out dark:text-mushroom-950 dark:hover:text-mushroom-950',
-        className,
-        {
-          'rotate-180 ': isAgentsSidePanelOpen,
-        }
-      )}
-    />
+    <Tooltip hover label="Toggle agents side panel">
+      <Button
+        kind="secondary"
+        className="px-2"
+        icon="close-drawer"
+        iconOptions={{
+          className: cn('transform transition delay-100 duration-200 ease-in-out', className, {
+            'rotate-180 ': isAgentsSidePanelOpen,
+          }),
+        }}
+        animate={false}
+        onClick={handleToggleAgentsSidePanel}
+      />
+    </Tooltip>
   );
 };
