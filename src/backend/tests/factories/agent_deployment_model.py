@@ -7,7 +7,7 @@ from backend.tests.factories.deployment import DeploymentFactory
 from backend.tests.factories.model import ModelFactory
 
 
-class AgentDeploymentModelAssociationFactory(BaseFactory):
+class AgentDeploymentModelFactory(BaseFactory):
 
     class Meta:
         model = AgentDeploymentModel

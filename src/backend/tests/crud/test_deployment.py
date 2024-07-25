@@ -93,9 +93,9 @@ def test_get_available_deployments(session, user):
     agent = get_factory("Agent", session).create(user=user)
     model = get_factory("Model", session).create(deployment=deployment)
     another_model = get_factory("Model", session).create(deployment=another_deployment)
-    agent_deployment_model = get_factory(
-        "AgentDeploymentModel", session
-    ).create(agent=agent, deployment=deployment, model=model)
+    agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+        agent=agent, deployment=deployment, model=model
+    )
     agent_deployment_model_empty_config = get_factory(
         "AgentDeploymentModel", session
     ).create(
@@ -129,9 +129,9 @@ def test_get_available_deployments_by_agent_id(session, user):
     another_model = get_factory("Model", session).create(
         deployment_id=another_deployment.id
     )
-    agent_deployment_model = get_factory(
-        "AgentDeploymentModel", session
-    ).create(agent=agent, deployment=deployment, model=model)
+    agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+        agent=agent, deployment=deployment, model=model
+    )
     agent_deployment_model_empty_config = get_factory(
         "AgentDeploymentModel", session
     ).create(
@@ -151,9 +151,9 @@ def test_get_deployments_by_agent_id(session, user):
     deployment = get_factory("Deployment", session).create()
     agent = get_factory("Agent", session).create(user=user)
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    agent_deployment_model = get_factory(
-        "AgentDeploymentModel", session
-    ).create(agent=agent, deployment=deployment, model=model)
+    agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+        agent=agent, deployment=deployment, model=model
+    )
 
     deployments = deployment_crud.get_deployments_by_agent_id(session, agent.id)
 

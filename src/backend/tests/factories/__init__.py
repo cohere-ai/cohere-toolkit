@@ -1,7 +1,5 @@
 from backend.tests.factories.agent import AgentFactory
-from backend.tests.factories.agent_deployment_model_association import (
-    AgentDeploymentModelAssociationFactory as AgentDeploymentModelAssociation,
-)
+from backend.tests.factories.agent_deployment_model import AgentDeploymentModelFactory
 from backend.tests.factories.agent_tool_metadata import AgentToolMetadataFactory
 from backend.tests.factories.base import BaseFactory
 from backend.tests.factories.blacklist import BlacklistFactory
@@ -39,7 +37,7 @@ FACTORY_MAPPING = {
     "AgentToolMetadata": AgentToolMetadataFactory,
     "Model": ModelFactory,
     "Deployment": DeploymentFactory,
-    "AgentDeploymentModel": AgentDeploymentModelAssociation,
+    "AgentDeploymentModel": AgentDeploymentModelFactory,
 }
 
 

@@ -184,9 +184,9 @@ def test_get_models_by_agent_id(session, user, deployment):
             name=f"Test Model {i}", deployment=deployment
         )
 
-        agent_deployment_model = get_factory(
-            "AgentDeploymentModel", session
-        ).create(agent=agent, deployment=deployment, model=model)
+        agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+            agent=agent, deployment=deployment, model=model
+        )
 
     models = model_crud.get_models_by_agent_id(session, agent.id)
 
