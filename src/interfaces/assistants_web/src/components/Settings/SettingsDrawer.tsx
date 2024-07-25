@@ -84,7 +84,6 @@ export const SettingsDrawer: React.FC = () => {
         <IconButton
           iconName="close-drawer"
           tooltip={{ label: 'Close drawer', size: 'md' }}
-          isDefaultOnHover={false}
           onClick={() => setSettings({ isConfigDrawerOpen: false })}
         />
         <span className="flex items-center gap-2">

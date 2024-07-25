@@ -9,6 +9,7 @@ from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
@@ -83,6 +84,8 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy_name = login.strategy
     payload = login.payload
 
+    send_log_message(logger, "[Auth] Login request", "debug")
+
     if not is_enabled_authentication_strategy(strategy_name):
         send_log_message(
             logger,
@@ -145,9 +148,7 @@ async def authorize(
     """
     if not code:
         send_log_message(
-            logger,
-            f"[Auth] Auth endpoint called without code.",
-            "debug",
+            logger, "[Auth] Error authorizing login: No code provided", "debug"
         )
         raise HTTPException(
             status_code=400,
@@ -162,7 +163,7 @@ async def authorize(
     if not strategy_name:
         send_log_message(
             logger,
-            f"[Auth] Auth endpoint called with invalid strategy: {strategy}",
+            f"[Auth] Error authorizing login: Invalid strategy {strategy_name}",
             "debug",
         )
         raise HTTPException(
@@ -171,6 +172,10 @@ async def authorize(
         )
 
     if not is_enabled_authentication_strategy(strategy_name):
+        send_log_message(
+            logger,
+            f"[Auth] Error authorizing login: Strategy {strategy_name} not enabled",
+        )
         raise HTTPException(
             status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
         )
@@ -186,6 +191,9 @@ async def authorize(
         )
 
     if not userinfo:
+        send_log_message(
+            logger, f"[Auth] Error authorizing login: Invalid token {token}", "debug"
+        )
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
         )
@@ -241,7 +249,7 @@ async def login(request: Request, session: DBSessionDep):
     Raises:
         HTTPException: If no redirect_uri set.
     """
-    redirect_uri = os.getenv("FRONTEND_HOSTNAME")
+    redirect_uri = Settings().auth.frontend_hostname
 
     if not redirect_uri:
         raise HTTPException(

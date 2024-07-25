@@ -9,7 +9,7 @@ import { ProtectedPage } from '@/components/ProtectedPage';
 const MainLayout: NextPage<React.PropsWithChildren> = ({ children }) => {
   return (
     <ProtectedPage>
-      <Layout showSettingsDrawer>
+      <Layout>
         <LeftSection>
           <AgentsList />
         </LeftSection>

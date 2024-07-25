@@ -8,11 +8,19 @@ from fastapi import UploadFile as FastAPIUploadFile
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
+from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models import File as FileModel
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_agent_tool_metadata_to_request_state,
+    add_default_agent_to_request_state,
+    add_event_type_to_request_state,
+    add_session_user_to_request_state,
+)
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.conversation import (
     ConversationPublic,
@@ -29,7 +37,7 @@ from backend.schemas.file import (
     UploadFileResponse,
 )
 from backend.services.auth.utils import get_header_user_id
-from backend.services.chat import generate_chat_response, get_deployment_config
+from backend.services.chat import get_deployment_config
 from backend.services.conversation import (
     DEFAULT_TITLE,
     GENERATE_TITLE_PROMPT,
@@ -109,8 +117,7 @@ async def list_conversations(
     user_id = get_header_user_id(request)
     send_log_message(
         logger,
-        f"[Conversation] List conversations request: User ID {user_id}"
-        "debug",
+        f"[Conversation] List conversations request: User ID {user_id}" "debug",
     )
     return conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -211,9 +218,16 @@ async def search_conversations(
 
     send_log_message(
         logger,
-        f"[Conversation] Search conversation request: User ID {user_id} Trace ID {trace_id}"
+        f"[Conversation] Search conversation request: User ID {user_id} Trace ID {trace_id} Agent ID {agent_id}"
         "debug",
     )
+
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        if agent:
+            add_agent_to_request_state(request, agent)
+    else:
+        add_default_agent_to_request_state(request)
 
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -231,6 +245,7 @@ async def search_conversations(
         user_id,
         agent_id,
         trace_id,
+        request,
     )
 
     return filtered_documents

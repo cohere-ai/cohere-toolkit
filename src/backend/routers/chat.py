@@ -8,7 +8,17 @@ from sse_starlette.sse import EventSourceResponse
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
+from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import (
+    add_agent_to_request_state,
+    add_agent_tool_metadata_to_request_state,
+    add_default_agent_to_request_state,
+    add_event_type_to_request_state,
+    add_model_to_request_state,
+    add_session_user_to_request_state,
+)
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.langchain_chat import LangchainChatRequest
@@ -49,7 +59,7 @@ async def chat_stream(
     trace_id = None
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
-
+    add_model_to_request_state(request, chat_request.model)
     user_id = request.headers.get("User-Id", None)
     agent_id = chat_request.agent_id
 
@@ -58,6 +68,12 @@ async def chat_stream(
         f"[Chat] Streaming Chat Request: Trace ID {trace_id}, User ID {user_id}, Agent ID {agent_id}"
         "debug",
     )
+
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        add_agent_to_request_state(request, agent)
+    else:
+        add_default_agent_to_request_state(request)
 
     (
         session,
@@ -88,6 +104,7 @@ async def chat_stream(
                 user_id=user_id,
                 trace_id=trace_id,
                 agent_id=agent_id,
+                request=request,
             ),
             response_message,
             conversation_id,
@@ -158,6 +175,7 @@ async def chat(
             trace_id=trace_id,
             user_id=user_id,
             agent_id=agent_id,
+            request=request,
         ),
         response_message,
         conversation_id,
@@ -172,7 +190,7 @@ async def chat(
 def langchain_chat_stream(
     session: DBSessionDep, chat_request: LangchainChatRequest, request: Request
 ):
-    use_langchain = bool(strtobool(os.getenv("USE_EXPERIMENTAL_LANGCHAIN", "false")))
+    use_langchain = Settings().feature_flags.use_experimental_langchain
     if not use_langchain:
         send_log_message(
             logger,

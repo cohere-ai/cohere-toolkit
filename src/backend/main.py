@@ -14,6 +14,7 @@ from backend.config.auth import (
     verify_migrate_token,
 )
 from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.config.settings import Settings
 from backend.routers.agent import default_agent_router
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -56,9 +57,8 @@ def create_app():
     dependencies_type = "default"
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
-        app.add_middleware(
-            SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")
-        )
+        auth_secret = Settings().auth.secret_key
+        app.add_middleware(SessionMiddleware, secret_key=auth_secret)
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():
@@ -88,7 +88,7 @@ app = create_app()
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     logger.info(
-        f"Error occurred: {exc!r} during request: {request.method}, {request.url}"
+        f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
     )
 
     return JSONResponse(
