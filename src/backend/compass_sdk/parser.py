@@ -13,6 +13,7 @@ from backend.compass_sdk import (
     ProcessFileParameters,
     logger,
 )
+from backend.config.settings import Settings
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.utils import imap_queued, open_document, scan_folder
 
@@ -61,8 +62,8 @@ class CompassParserClient:
             parser_url if not parser_url.endswith("/") else parser_url[:-1]
         )
         self.parser_config = parser_config
-        self.username = username or os.getenv("COHERE_COMPASS_USERNAME")
-        self.password = password or os.getenv("COHERE_COMPASS_PASSWORD")
+        self.username = username or Settings().tools.compass.username
+        self.password = password or Settings().tools.compass.password
         self.session = requests.Session()
         self.thread_pool = ThreadPoolExecutor(num_workers)
         self.num_workers = num_workers

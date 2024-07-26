@@ -31,6 +31,7 @@ from backend.compass_sdk import (
     SearchInput,
     logger,
 )
+from backend.config.settings import Settings
 from backend.compass_sdk.constants import (
     DEFAULT_MAX_CHUNKS_PER_REQUEST,
     DEFAULT_MAX_ERROR_RATE,
@@ -87,8 +88,8 @@ class CompassClient:
         :param password: the password for the Compass instance
         """
         self.index_url = index_url
-        self.username = username or os.getenv("COHERE_COMPASS_USERNAME")
-        self.password = password or os.getenv("COHERE_COMPASS_PASSWORD")
+        self.username = username or Settings().tools.compass.username
+        self.password = password or Settings().tools.compass.password
         self.session = requests.Session()
 
         self.function_call = {

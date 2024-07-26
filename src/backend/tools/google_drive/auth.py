@@ -3,6 +3,7 @@ import json
 import os
 import urllib.parse
 
+from backend.config.settings import Settings
 import requests
 from fastapi import Request
 
@@ -27,8 +28,8 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
     def __init__(self):
         super().__init__()
-        self.GOOGLE_DRIVE_CLIENT_ID = os.getenv("GOOGLE_DRIVE_CLIENT_ID")
-        self.GOOGLE_DRIVE_CLIENT_SECRET = os.getenv("GOOGLE_DRIVE_CLIENT_SECRET")
+        self.GOOGLE_DRIVE_CLIENT_ID = Settings().tools.gdrive.client_id
+        self.GOOGLE_DRIVE_CLIENT_SECRET = Settings().tools.gdrive.client_secret
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
         if any(
