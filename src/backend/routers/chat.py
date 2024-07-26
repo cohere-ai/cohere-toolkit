@@ -57,7 +57,7 @@ async def chat_stream(
     agent_id = chat_request.agent_id
     send_log_message(
         logger,
-        f"[Chat] Streaming Chat Request: Agent ID {agent_id}"
+        f"[Chat] Streaming Chat Request: Agent ID {agent_id}",
         "debug",
     )
     ctx.with_agent_id(agent_id)
