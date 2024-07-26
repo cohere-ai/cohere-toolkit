@@ -86,7 +86,6 @@ export const CitationTextHighlighter: React.FC<Props> = ({
           />
         ),
         title: 'OUTPUT',
-        kind: 'coral-mobile-only',
       });
     }
   };

@@ -39,7 +39,6 @@ export const IconButton: React.FC<Props> = ({
   disabled,
   href,
   target,
-  shallow,
   onClick,
 }) => {
   const Icon = icon ? (
@@ -53,7 +52,7 @@ export const IconButton: React.FC<Props> = ({
       className={cn(
         'group/icon-button h-8 w-8 p-0',
         { 'h-8 w-8': size === 'md', 'h-7 w-7': size === 'sm' },
-        'rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200',
+        'rounded hover:bg-mushroom-900 dark:text-marble-800 dark:hover:bg-volcanic-200',
         className
       )}
       startIcon={Icon}
@@ -62,7 +61,6 @@ export const IconButton: React.FC<Props> = ({
       disabled={disabled}
       href={href}
       target={target}
-      shallow={shallow}
       onClick={onClick}
     />
   );

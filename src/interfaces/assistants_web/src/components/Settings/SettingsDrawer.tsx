@@ -1,20 +1,13 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { AgentsToolsTab } from '@/components/Settings/AgentsToolsTab';
 import { FilesTab } from '@/components/Settings/FilesTab';
-import { SettingsTab } from '@/components/Settings/SettingsTab';
-import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
-import { useAgent } from '@/hooks/agents';
-import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useFilesInConversation } from '@/hooks/files';
-import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
+import { useCitationsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -23,9 +16,7 @@ import { cn } from '@/utils';
  */
 export const SettingsDrawer: React.FC = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const {
-    conversation: { id: conversationId },
-  } = useConversationStore();
+
   const {
     settings: { isConfigDrawerOpen },
     setSettings,
@@ -33,32 +24,8 @@ export const SettingsDrawer: React.FC = () => {
   const {
     citations: { hasCitations },
   } = useCitationsStore();
-  const { files } = useFilesInConversation();
-  const { agentId } = useChatRoutes();
-  const { data: agent } = useAgent({ agentId });
-  const { data: experimentalFeatures } = useExperimentalFeatures();
-  const isAgentsModeOn = experimentalFeatures?.USE_AGENTS_VIEW;
 
-  const tabs = useMemo(() => {
-    if (isAgentsModeOn) {
-      return files.length > 0 && conversationId
-        ? [
-            { name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> },
-            { name: 'Files', component: <FilesTab /> },
-          ]
-        : [{ name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> }];
-    }
-    return files.length > 0 && conversationId
-      ? [
-          { name: 'Tools', component: <ToolsTab /> },
-          { name: 'Files', component: <FilesTab /> },
-          { name: 'Settings', component: <SettingsTab /> },
-        ]
-      : [
-          { name: 'Tools', component: <ToolsTab /> },
-          { name: 'Settings', component: <SettingsTab /> },
-        ];
-  }, [files.length, conversationId, agent?.tools]);
+  const tabs = [{ name: 'Files', component: <FilesTab /> }];
 
   return (
     <Transition
