@@ -1,13 +1,13 @@
 'use client';
 
-import { Fragment, useContext, useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 
 import { Document } from '@/cohere-client';
 import { CitationDocumentHeader } from '@/components/Citations/CitationDocumentHeader';
 import { B64Image } from '@/components/MarkdownImage';
 import { Markdown, Text } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
 import { cn } from '@/utils';
 import { PythonInterpreterOutputFile, parsePythonInterpreterToolFields } from '@/utils/tools';
 
@@ -70,7 +70,7 @@ const getSnippetSegments = (snippet: string | undefined, keyword: string) => {
 export const CitationDocumentSnippet: React.FC<
   Props & { toolId?: string; onToggle: VoidFunction }
 > = ({ toolId, document, keyword, onToggle }) => {
-  const { open } = useContext(ModalContext);
+  const { open } = useContextStore();
 
   const openFullSnippetModal = () => {
     open({
@@ -89,7 +89,6 @@ export const CitationDocumentSnippet: React.FC<
           <Snippet snippet={document.text} keyword={keyword} />
         </div>
       ),
-      kind: 'coral',
     });
   };
 

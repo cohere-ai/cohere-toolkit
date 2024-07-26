@@ -1,13 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useContext } from 'react';
 
 import { Agent } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
@@ -36,7 +35,7 @@ type Props = {
 
 const useMenuItems = ({ conversationId }: { conversationId: string }) => {
   const { deleteConversation } = useConversationActions();
-  const { open } = useContext(ModalContext);
+  const { open } = useContextStore();
 
   const handleOpenShareModal = () => {
     if (!conversationId) return;

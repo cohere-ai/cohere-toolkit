@@ -2,11 +2,9 @@ import React, { PropsWithChildren, createContext, useState } from 'react';
 
 import { Modal } from '@/components/Shared';
 
-type ModalKind = React.ComponentProps<typeof Modal>['kind'];
 interface OpenParams {
-  title?: React.ReactNode;
+  title?: string;
   content?: React.ReactNode | React.FC;
-  kind?: ModalKind;
 }
 
 export type OpenFunction = (params: OpenParams) => void;
@@ -14,11 +12,10 @@ export type CloseFunction = () => void;
 
 interface Context {
   isOpen: boolean;
-  title?: React.ReactNode;
+  title?: string;
   open: OpenFunction;
   close: CloseFunction;
   content: React.ReactNode | React.FC;
-  kind?: ModalKind;
 }
 
 /**
@@ -26,13 +23,11 @@ interface Context {
  */
 const useModal = (): Context => {
   const [isOpen, setIsOpen] = useState(false);
-  const [title, setTitle] = useState<React.ReactNode | undefined>(undefined);
+  const [title, setTitle] = useState<string | undefined>(undefined);
   const [content, setContent] = useState<React.ReactNode | React.FC>(undefined);
-  const [kind, setModalKind] = useState<ModalKind>('default');
 
-  const open = ({ title, content, kind }: OpenParams) => {
+  const open = ({ title, content }: OpenParams) => {
     setIsOpen(true);
-    setModalKind(kind);
     setTitle(title);
     setContent(content);
   };
@@ -41,7 +36,7 @@ const useModal = (): Context => {
     setIsOpen(false);
   };
 
-  return { isOpen, open, close, content, title, kind };
+  return { isOpen, open, close, content, title };
 };
 
 /**
@@ -62,12 +57,12 @@ const ModalContext = createContext<Context>({
 });
 
 const ModalProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const { isOpen, title, open, close, content, kind } = useModal();
+  const { isOpen, title, open, close, content } = useModal();
 
   return (
     <ModalContext.Provider value={{ isOpen, title, open, close, content }}>
       <>{children}</>
-      <Modal title={title} isOpen={isOpen} onClose={close} kind={kind}>
+      <Modal title={title} isOpen={isOpen} onClose={close}>
         <>{content}</>
       </Modal>
     </ModalContext.Provider>
