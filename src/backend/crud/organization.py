@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from backend.database_models import Agent
 from backend.database_models.organization import Organization
 from backend.database_models.user import User, UserOrganizationAssociation
-from backend.schemas.organization import UpdateOrganization, CreateOrganization
+from backend.schemas.organization import CreateOrganization, UpdateOrganization
 from backend.services.transaction import validate_transaction
 
 

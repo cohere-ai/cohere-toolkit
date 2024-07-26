@@ -3,17 +3,20 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
-from backend.crud import organization as organization_crud
 from backend.crud import agent as agent_crud
+from backend.crud import organization as organization_crud
 from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.organization import Organization as OrganizationModel
-from backend.schemas import CreateOrganization, Organization, UpdateOrganization, DeleteOrganization
+from backend.schemas import (
+    CreateOrganization,
+    DeleteOrganization,
+    Organization,
+    UpdateOrganization,
+)
 from backend.services.auth.utils import get_header_user_id
 from backend.services.logger import get_logger
-from backend.services.request_validators import (
-    validate_organization_request
-)
+from backend.services.request_validators import validate_organization_request
 
 logger = get_logger()
 
@@ -28,7 +31,9 @@ router.name = RouterName.TOOL
         Depends(validate_organization_request),
     ],
 )
-def create_organization(organization: CreateOrganization, session: DBSessionDep) -> Organization:
+def create_organization(
+    organization: CreateOrganization, session: DBSessionDep
+) -> Organization:
     """
     Create a new organization.
 
@@ -67,7 +72,9 @@ def update_organization(
 
     """
     organization = organization_crud.get_organization(session, organization_id)
-    return organization_crud.update_organization(session, organization, new_organization)
+    return organization_crud.update_organization(
+        session, organization, new_organization
+    )
 
 
 @router.get("/{organization_id}", response_model=Organization)
@@ -89,7 +96,9 @@ def get_organization(organization_id: str, session: DBSessionDep) -> Organizatio
 
 
 @router.delete("/{organization_id}", response_model=DeleteOrganization)
-def delete_organization(organization_id: str, session: DBSessionDep) -> DeleteOrganization:
+def delete_organization(
+    organization_id: str, session: DBSessionDep
+) -> DeleteOrganization:
     """
     Delete a organization by ID.
 

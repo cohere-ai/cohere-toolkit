@@ -272,9 +272,12 @@ async def validate_organization_request(session: DBSessionDep, request: Request)
     if request.method == "PUT":
         if not organization_id:
             raise HTTPException(status_code=400, detail="Organization ID is required.")
-        if organization_id and not organization_crud.get_organization(session, organization_id):
+        if organization_id and not organization_crud.get_organization(
+            session, organization_id
+        ):
             raise HTTPException(
-                status_code=400, detail=f"Organization with ID: {organization_id} not found."
+                status_code=400,
+                detail=f"Organization with ID: {organization_id} not found.",
             )
     body = await request.json()
     name = body.get("name")
@@ -282,4 +285,6 @@ async def validate_organization_request(session: DBSessionDep, request: Request)
         raise HTTPException(status_code=400, detail="Organization name is required.")
     check_organization = organization_crud.get_organization_by_name(session, name)
     if check_organization:
-        raise HTTPException(status_code=400, detail=f"Organization with name: {name} already exists.")
+        raise HTTPException(
+            status_code=400, detail=f"Organization with name: {name} already exists."
+        )
