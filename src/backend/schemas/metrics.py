@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from backend.schemas.agent import Agent
+
 
 class GenericResponseMessage(BaseModel):
     message: str
@@ -100,7 +102,7 @@ DEFAULT_METRICS_AGENT = MetricsAgent(
 )
 
 
-def agent_to_metrics_agent(agent: Any) -> MetricsAgent:
+def agent_to_metrics_agent(agent: Agent) -> MetricsAgent:
     return MetricsAgent(
         id=agent.id,
         version=agent.version,
