@@ -245,7 +245,7 @@ Install your development dependencies:
 poetry install --with dev
 ```
 
-If you also need to install community features, run:
+If you also need to install the community features, run:
 
 ```bash
 poetry install --with dev --with community
