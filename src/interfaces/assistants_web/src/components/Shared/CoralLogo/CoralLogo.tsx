@@ -3,10 +3,9 @@
 import { cn } from '@/utils';
 
 export const CoralLogo: React.FC<{
-  isDarkModeEnabled?: boolean;
   style?: 'grayscale' | 'primary' | 'secondary';
   className?: string;
-}> = ({ className, style = 'primary', isDarkModeEnabled }) => (
+}> = ({ className, style = 'primary' }) => (
   <svg
     viewBox="0 0 22 23"
     fill="none"
@@ -14,8 +13,7 @@ export const CoralLogo: React.FC<{
     className={cn(
       'size-5',
       {
-        'fill-coral-800': style === 'primary',
-        'dark:fill-blue-900': style === 'primary' && isDarkModeEnabled,
+        'fill-coral-800 dark:fill-blue-900': style === 'primary',
         'fill-marble-950': style === 'grayscale',
         'fill-mushroom-300': style === 'secondary',
       },

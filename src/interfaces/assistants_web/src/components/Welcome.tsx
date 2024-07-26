@@ -3,10 +3,8 @@
 import { Transition } from '@headlessui/react';
 import React from 'react';
 
-import { BotAvatar } from '@/components/Avatar';
-import { Text } from '@/components/Shared';
+import { CoralLogo, Text } from '@/components/Shared';
 import { useAgent } from '@/hooks/agents';
-import { BotState } from '@/types/message';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -26,7 +24,6 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
     <Transition
       show={show}
       appear
-      className="flex flex-col items-center gap-y-4 p-4 md:max-w-[480px] lg:max-w-[720px]"
       enter="transition-all duration-300 ease-out delay-300"
       enterFrom="opacity-0"
       enterTo="opacity-100"
@@ -35,35 +32,41 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
       leaveTo="opacity-0"
       as="div"
     >
-      <div
-        className={cn(
-          'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
-          getCohereColor(agent?.id, { background: true })
-        )}
-      >
-        {!isAgent ? (
-          <BotAvatar state={BotState.FULFILLED} style="secondary" />
-        ) : (
-          <Text className="uppercase text-white" styleAs="p-lg">
-            {agent.name[0]}
+      <div className="flex flex-col items-center gap-y-4 p-4 md:w-[380px] lg:w-[520px]">
+        <div className="flex w-full items-center gap-x-3">
+          <div
+            className={cn(
+              'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
+              getCohereColor(agent?.id, { background: true, contrastText: true })
+            )}
+          >
+            {!isAgent ? (
+              <CoralLogo />
+            ) : (
+              <Text className="uppercase" styleAs="p-lg">
+                {agent.name[0]}
+              </Text>
+            )}
+          </div>
+          <Text styleAs="h4" className="truncate">
+            {isAgent ? agent.name : 'Your Private Assistant'}
+          </Text>
+          {!isAgent && (
+            <Text className="ml-auto" styleAs="caption">
+              By Cohere
+            </Text>
+          )}
+        </div>
+
+        <Text styleAs="p-lg" className={cn('text-center md:!text-h4')}>
+          {!isAgent ? 'Need help? Your wish is my command.' : agent.name}
+        </Text>
+        {isAgent && (
+          <Text className="!text-p-md text-center text-volcanic-100 md:!text-p-lg">
+            {agent.description}
           </Text>
         )}
       </div>
-
-      <Text
-        styleAs="p-lg"
-        className={cn(
-          'text-center text-mushroom-400 md:!text-h4',
-          isAgent && getCohereColor(agent.id, { background: false })
-        )}
-      >
-        {!isAgent ? 'Need help? Your wish is my command.' : agent.name}
-      </Text>
-      {isAgent && (
-        <Text className="!text-p-md text-center text-volcanic-100 md:!text-p-lg">
-          {agent.description}
-        </Text>
-      )}
     </Transition>
   );
 };

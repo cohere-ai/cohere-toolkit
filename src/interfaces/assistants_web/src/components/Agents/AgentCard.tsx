@@ -83,7 +83,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
             getCohereColor(id, { background: true, contrastText: true })
           )}
         >
-          {isBaseAgent && <CoralLogo style="secondary" />}
+          {isBaseAgent && <CoralLogo />}
           {!isBaseAgent && (
             <Text className="uppercase" styleAs="p-lg">
               {name[0]}

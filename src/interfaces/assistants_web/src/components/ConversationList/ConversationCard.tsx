@@ -107,15 +107,13 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         <div
           className={cn(
             'flex size-4 flex-shrink-0 items-center justify-center rounded',
-            getCohereColor(conversation.agent?.id, { background: true })
+            getCohereColor(conversation.agent?.id, { background: true, contrastText: true })
           )}
         >
           {conversation.agent ? (
-            <Text className="text-white" styleAs="p-xs">
-              {conversation.agent.name[0]}
-            </Text>
+            <Text styleAs="p-xs">{conversation.agent.name[0]}</Text>
           ) : (
-            <CoralLogo style="secondary" className="scale-50" />
+            <CoralLogo className="scale-50" />
           )}
         </div>
         <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
@@ -157,14 +155,10 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       <div
         className={cn(
           'flex size-8 flex-shrink-0 items-center justify-center rounded',
-          getCohereColor(conversation.agent?.id, { background: true })
+          getCohereColor(conversation.agent?.id, { background: true, contrastText: true })
         )}
       >
-        {conversation.agent ? (
-          <Text className="text-white">{conversation.agent.name[0]}</Text>
-        ) : (
-          <CoralLogo style="secondary" />
-        )}
+        {conversation.agent ? <Text>{conversation.agent.name[0]}</Text> : <CoralLogo />}
       </div>
     );
     return (
