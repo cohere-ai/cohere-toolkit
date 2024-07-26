@@ -2,15 +2,13 @@
 
 import React, { useMemo } from 'react';
 
-import { ManagedTool } from '@/cohere-client';
+import { Agent, ManagedTool } from '@/cohere-client';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
-import { useAgent } from '@/hooks/agents';
-import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
-import { useListTools, useUnauthedTools } from '@/hooks/tools';
+import { useUnauthedTools } from '@/hooks/tools';
 import { useFilesStore, useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { cn } from '@/utils';
@@ -19,13 +17,13 @@ import { cn } from '@/utils';
  * @description Tools for the assistant to use in the conversation.
  */
 export const AssistantTools: React.FC<{
-  requiredTools: string[] | undefined;
+  tools: ManagedTool[];
+  agent?: Agent;
   className?: string;
-}> = ({ requiredTools, className = '' }) => {
-  const { agentId } = useChatRoutes();
-  const { data: agent } = useAgent({ agentId });
+}> = ({ tools, agent, className = '' }) => {
+  const requiredTools = agent?.tools;
+
   const { params, setParams } = useParamsStore();
-  const { data } = useListTools();
   const { tools: paramTools } = params;
   const enabledTools = paramTools ?? [];
   const { defaultFileLoaderTool } = useDefaultFileLoaderTool();
@@ -33,13 +31,13 @@ export const AssistantTools: React.FC<{
 
   const { unauthedTools } = useUnauthedTools();
   const availableTools = useMemo(() => {
-    return (data ?? []).filter(
+    return (tools ?? []).filter(
       (t) =>
         t.is_visible &&
         t.is_available &&
         (!requiredTools || requiredTools.some((rt) => rt === t.name))
     );
-  }, [data, requiredTools]);
+  }, [tools, requiredTools]);
 
   const handleToggle = (name: string, checked: boolean) => {
     const newParams: Partial<ConfigurableParams> = {

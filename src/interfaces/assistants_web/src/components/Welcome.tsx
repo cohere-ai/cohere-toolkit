@@ -6,6 +6,7 @@ import React from 'react';
 import { AssistantTools } from '@/components/AssistantTools';
 import { CoralLogo, Icon, Text } from '@/components/Shared';
 import { useAgent } from '@/hooks/agents';
+import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -18,12 +19,13 @@ type Props = {
  * @description Welcome message shown to the user when they first open the chat.
  */
 export const Welcome: React.FC<Props> = ({ show, agentId }) => {
-  const { data: agent, isLoading } = useAgent({ agentId });
-  const isAgent = agentId !== undefined && !isLoading && !!agent;
+  const { data: agent, isLoading: isAgentsLoading } = useAgent({ agentId });
+  const { data: tools = [], isLoading: isToolsLoading } = useListTools();
+  const isAgent = agentId !== undefined && !isAgentsLoading && !!agent;
 
   return (
     <Transition
-      show={show && !isLoading}
+      show={show && !isToolsLoading && !isAgentsLoading}
       enter="transition-all duration-300 ease-out delay-300"
       enterFrom="opacity-0"
       enterTo="opacity-100"
@@ -60,15 +62,14 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
         <Text className="text-mushroom-300 dark:text-marble-800">
           {agent?.description || 'Ask questions and get answers based on your files.'}
         </Text>
-        <div>
-          {!isAgent && (
-            <div className="flex items-center gap-x-1">
-              <Icon name="circles-four" kind="outline" />
-              <Text className="font-medium">Toggle Tools On/Off</Text>
-            </div>
-          )}
-          <AssistantTools requiredTools={agent?.tools} />
-        </div>
+
+        {!isAgent && (
+          <div className="flex items-center gap-x-1">
+            <Icon name="circles-four" kind="outline" />
+            <Text className="font-medium">Toggle Tools On/Off</Text>
+          </div>
+        )}
+        <AssistantTools agent={agent} tools={tools} />
       </div>
     </Transition>
   );

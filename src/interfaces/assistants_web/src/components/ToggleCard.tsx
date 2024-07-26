@@ -37,7 +37,7 @@ export const ToggleCard: React.FC<Props> = ({
   onToggle,
 }) => {
   return (
-    <div className="flex flex-col rounded-md border border-mushroom-600 bg-mushroom-800 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
+    <div className="flex flex-col rounded-md border border-mushroom-700 bg-mushroom-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
       <div className="flex items-start gap-x-6">
         <div className="flex flex-grow flex-col gap-y-2">
           <div className="flex items-center gap-x-2">
@@ -46,7 +46,7 @@ export const ToggleCard: React.FC<Props> = ({
                 name={icon}
                 kind="outline"
                 size="sm"
-                className="text-p text-mushroom-500 dark:text-marble-950"
+                className="text-p text-mushroom-400 dark:text-marble-950"
               />
             </div>
             <Text styleAs="label" as="span" className="font-medium">
