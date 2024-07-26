@@ -67,7 +67,6 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId } = conversation;
-  const agentColor = getCohereColor(conversation.agent?.id);
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
@@ -107,10 +106,10 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       </div>
       <div className="flex h-[18px] w-full items-center gap-2">
         <div
-          className={cn('flex size-4 flex-shrink-0 items-center justify-center rounded', {
-            'bg-mushroom-700': !conversation.agent,
-            [agentColor]: conversation.agent,
-          })}
+          className={cn(
+            'flex size-4 flex-shrink-0 items-center justify-center rounded',
+            getCohereColor(conversation.agent?.id, { background: true })
+          )}
         >
           {conversation.agent ? (
             <Text className="text-white" styleAs="p-xs">
@@ -157,10 +156,10 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   if (!isAgentsSidePanelOpen) {
     const content = (
       <div
-        className={cn('flex size-8 flex-shrink-0 items-center justify-center rounded', {
-          'bg-mushroom-700': !conversation.agent,
-          [agentColor]: conversation.agent,
-        })}
+        className={cn(
+          'flex size-8 flex-shrink-0 items-center justify-center rounded',
+          getCohereColor(conversation.agent?.id, { background: true })
+        )}
       >
         {conversation.agent ? (
           <Text className="text-white">{conversation.agent.name[0]}</Text>

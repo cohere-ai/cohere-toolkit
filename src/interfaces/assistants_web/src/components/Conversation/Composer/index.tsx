@@ -7,11 +7,9 @@ import { ComposerError } from '@/components/Conversation/Composer/ComposerError'
 import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
 import { ComposerToolbar } from '@/components/Conversation/Composer/ComposerToolbar';
 import { DragDropFileUploadOverlay } from '@/components/Conversation/Composer/DragDropFileUploadOverlay';
-import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
-import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
@@ -21,7 +19,6 @@ import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
 
 type Props = {
-  isFirstTurn: boolean;
   isStreaming: boolean;
   value: string;
   streamingMessage: ChatMessage | null;
@@ -34,7 +31,6 @@ type Props = {
 };
 
 export const Composer: React.FC<Props> = ({
-  isFirstTurn,
   value,
   isStreaming,
   requiredTools,
@@ -52,8 +48,7 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
-  const { agentId } = useChatRoutes();
-  const { suggestedTags, totalTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
+  const { suggestedTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
     requiredTools,
   });
   const { data: experimentalFeatures } = useExperimentalFeatures();
@@ -113,7 +108,6 @@ export const Composer: React.FC<Props> = ({
     if (!textareaRef.current) return;
     onChange(value.slice(0, value.length - tagQuery.length));
     setTagQuery('');
-    setShowDataSourceMenu(false);
   };
 
   const handleDataSourceMenuClick = () => {
@@ -167,15 +161,14 @@ export const Composer: React.FC<Props> = ({
 
   return (
     <div className="flex w-full flex-col">
-      {!agentId && <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />}
       <div
         className={cn(
           'relative flex w-full flex-col',
           'transition ease-in-out',
-          'rounded border bg-marble-1000',
-          'border-marble-800 focus-within:border-mushroom-400',
+          'rounded border bg-marble-1000 dark:bg-volcanic-100',
+          'border-marble-800 dark:border-volcanic-200',
           {
-            'border-marble-800 bg-marble-950': isComposerDisabled,
+            'bg-marble-950 dark:bg-volcanic-300': isComposerDisabled,
           }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
@@ -188,7 +181,7 @@ export const Composer: React.FC<Props> = ({
         }}
       >
         <DragDropFileUploadOverlay active={isDragDropInputActive} onUploadFile={onUploadFile} />
-        <div className="relative flex items-end pr-2 md:pr-4">
+        <div className="relative flex items-end p-2">
           <textarea
             id={CHAT_COMPOSER_TEXTAREA_ID}
             dir="auto"
@@ -198,16 +191,14 @@ export const Composer: React.FC<Props> = ({
             className={cn(
               'w-full flex-1 resize-none overflow-hidden',
               'self-center',
-              'px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-4',
+              'px-2',
               'rounded',
-              'bg-marble-1000',
+              'bg-transparent',
               'transition ease-in-out',
-              'placeholder:text-volcanic-600 focus:outline-none',
+              'placeholder:text-volcanic-600 focus:outline-none dark:placeholder:text-marble-800',
+              'dark:text-marble-950',
               STYLE_LEVEL_TO_CLASSES.p,
-              'leading-[150%]',
-              {
-                'bg-marble-950': isComposerDisabled,
-              }
+              'leading-[150%]'
             )}
             style={{
               maxHeight: `${
@@ -221,12 +212,11 @@ export const Composer: React.FC<Props> = ({
           />
           <button
             className={cn(
-              'h-8 w-8',
-              'my-2 ml-1 md:my-4',
+              'size-8',
               'flex flex-shrink-0 items-center justify-center rounded',
               'transition ease-in-out',
-              'text-mushroom-300 hover:bg-mushroom-900',
-              { 'text-mushroom-600': !canSend }
+              'text-mushroom-300 hover:bg-mushroom-900 dark:text-marble-950 dark:hover:bg-mushroom-300',
+              { 'text-mushroom-600 dark:text-marble-800': !canSend }
             )}
             type="button"
             onClick={() => {
@@ -237,19 +227,17 @@ export const Composer: React.FC<Props> = ({
               }
             }}
           >
-            {isReadyToReceiveMessage ? <Icon name="arrow-right" /> : <Square />}
+            {isReadyToReceiveMessage ? <Icon name="enter" /> : <Square />}
           </button>
         </div>
         <ComposerFiles />
         <ComposerToolbar
-          isStreaming={isStreaming}
           onUploadFile={onUploadFile}
           onDataSourceMenuToggle={handleDataSourceMenuClick}
           menuProps={{
             show: showDataSourceMenu,
             tagQuery: tagQuery,
             tags: suggestedTags,
-            totalTags: totalTags,
             onChange: handleTagSelect,
             onHide: () => setShowDataSourceMenu(false),
             onToggle: handleDataSourceMenuClick,
