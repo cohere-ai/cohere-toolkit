@@ -1,13 +1,9 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.settings import Settings
-from backend.crud import organization as organization_crud
 from backend.database_models.organization import Organization as OrganizationModel
 from backend.schemas.organization import (
     CreateOrganization,
-    DeleteOrganization,
-    Organization,
     UpdateOrganization,
 )
 from backend.tests.factories import get_factory
