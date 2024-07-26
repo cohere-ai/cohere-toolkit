@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useMemo } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
@@ -9,7 +10,6 @@ import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
-import Link from 'next/link';
 
 export type CreateAgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
 export type UpdateAgentFormFields = Omit<UpdateAgent, 'version' | 'temperature'>;
@@ -81,18 +81,22 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
           disabled={!isAgentCreator}
         />
       </InputLabel>
-      <InputLabel 
+      <InputLabel
         label="Instructions"
         tooltipLabel={
           <Text>
-          Learn about writing a custom assistant instructions with {' '}
-          <Link href="https://docs.cohere.com/docs/preambles#advanced-techniques-for-writing-a-preamble" className="underline">
-          Cohere&apos;s guide 
-          </Link>
+            Learn about writing a custom assistant instructions with{' '}
+            <Link
+              href="https://docs.cohere.com/docs/preambles#advanced-techniques-for-writing-a-preamble"
+              className="underline"
+            >
+              Cohere&apos;s guide
+            </Link>
           </Text>
-        }>
+        }
+      >
         <Textarea
-          value={fields.preamble ?? '## Task And Context\nYou help people answer their questions and other requests interactively. You will be asked a very wide array of requests on all kinds of topics. You will be equipped with a wide range of search engines or similar tools to help you, which you use to research your answer. You should focus on serving the user\'s needs as best you can, which will be wide-ranging.\n\n## Style Guide\nUnless the user asks for a different style of answer, you should answer in full sentences, using proper grammar and spelling.'}
+          value={fields.preamble ?? ''}
           placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
           rows={5}
           onChange={(e) => setFields((prev) => ({ ...prev, preamble: e.target.value }))}

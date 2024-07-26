@@ -99,10 +99,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         }
       >
         <textarea
-          value={
-            fields.preamble ??
-            "## Task And Context\nYou help people answer their questions and other requests interactively. You will be asked a very wide array of requests on all kinds of topics. You will be equipped with a wide range of search engines or similar tools to help you, which you use to research your answer. You should focus on serving the user's needs as best you can, which will be wide-ranging.\n\n## Style Guide\nUnless the user asks for a different style of answer, you should answer in full sentences, using proper grammar and spelling."
-          }
+          value={fields.preamble ?? ''}
           placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
           className={cn(
             'mt-2 w-full flex-1 resize-none p-3',
