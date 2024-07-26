@@ -24,7 +24,7 @@ class CreateOrganization(OrganizationBase):
 
 
 class UpdateOrganization(OrganizationBase):
-    pass
+    name: Optional[str]
 
 
 class DeleteOrganization(BaseModel):

@@ -1,10 +1,13 @@
 from sqlalchemy.orm import Session
 
+from backend.database_models import Agent
 from backend.database_models.organization import Organization
 from backend.database_models.user import User, UserOrganizationAssociation
-from backend.schemas.organization import UpdateOrganization
+from backend.schemas.organization import UpdateOrganization, CreateOrganization
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_organization(db: Session, organization: Organization) -> Organization:
     """ "
     Create a new organization.
@@ -34,6 +37,20 @@ def get_organization(db: Session, organization_id: str) -> Organization:
         Organization: Organization with the given ID.
     """
     return db.query(Organization).filter(Organization.id == organization_id).first()
+
+
+def get_organization_by_name(db: Session, name: str) -> Organization:
+    """
+    Get a organization by name.
+
+    Args:
+        db (Session): Database session.
+        name (str): Organization name.
+
+    Returns:
+        Organization: Organization with the given name.
+    """
+    return db.query(Organization).filter(Organization.name == name).first()
 
 
 def get_organizations(
@@ -81,6 +98,32 @@ def get_organizations_by_user_id(
     )
 
 
+def get_organizations_by_agent_id(
+    db: Session, agent_id: str, offset: int = 0, limit: int = 100
+) -> list[Organization]:
+    """
+    List all organizations by agent id
+
+    Args:
+        db (Session): Database session.
+        agent_id (str): User ID
+        offset (int): Offset to start the list.
+        limit (int): Limit of organizations to be listed.
+
+    Returns:
+        list[Organization]: List of organizations.
+    """
+    return (
+        db.query(Organization)
+        .join(Agent, Organization.id == Agent.organization_id)
+        .filter(Agent.id == agent_id)
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+
+@validate_transaction
 def update_organization(
     db: Session, organization: Organization, new_organization: UpdateOrganization
 ) -> Organization:
@@ -102,6 +145,7 @@ def update_organization(
     return organization
 
 
+@validate_transaction
 def delete_organization(db: Session, organization_id: str) -> None:
     """
     Delete a organization by ID.
@@ -115,6 +159,7 @@ def delete_organization(db: Session, organization_id: str) -> None:
     db.commit()
 
 
+@validate_transaction
 def add_user_to_organization(db: Session, user_id: str, organization_id: str) -> None:
     """
     Add a user to an organization.
@@ -131,6 +176,7 @@ def add_user_to_organization(db: Session, user_id: str, organization_id: str) ->
     db.commit()
 
 
+@validate_transaction
 def remove_user_from_organization(
     db: Session, user_id: str, organization_id: str
 ) -> None:
