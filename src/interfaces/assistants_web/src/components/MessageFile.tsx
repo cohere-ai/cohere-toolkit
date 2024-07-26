@@ -55,7 +55,7 @@ export const MessageFile: React.FC<Props> = ({
         <Icon name="file" kind="outline" size="md" />
       </div>
       <div className="flex w-full flex-grow flex-col gap-y-0.5 truncate">
-        <Text styleAs="label" className="w-full truncate font-medium dark:text-marble-950">
+        <Text styleAs="label" className="w-full truncate font-medium">
           {name}
         </Text>
         <div className="flex items-center gap-x-2 uppercase">
