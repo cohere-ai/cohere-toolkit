@@ -4,6 +4,7 @@ from typing import Any, AsyncGenerator, Dict, List
 from cohere.types import StreamedChatResponse
 
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 
 
 class BaseDeployment:
@@ -33,10 +34,10 @@ class BaseDeployment:
 
     @abstractmethod
     async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> AsyncGenerator[Any, Any]: ...
 
     @abstractmethod
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
+        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
     ) -> Any: ...
