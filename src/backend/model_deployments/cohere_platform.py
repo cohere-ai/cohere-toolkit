@@ -7,11 +7,9 @@ import requests
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import (
-    add_rerank_model_to_request_state,
-    get_model_config_var,
-)
+from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.services.logger import get_logger, send_log_message
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
@@ -69,7 +67,9 @@ class CohereDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return CohereDeployment.api_key is not None
 
-    async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat(
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+    ) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
@@ -77,7 +77,7 @@ class CohereDeployment(BaseDeployment):
 
     @collect_metrics_chat_stream
     async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
@@ -89,13 +89,13 @@ class CohereDeployment(BaseDeployment):
                 f"Chat event: {to_dict(event)}",
                 level="info",
                 conversation_id=kwargs.get("conversation_id"),
-                user_id=kwargs.get("user_id"),
+                user_id=ctx.get_user_id(),
             )
             yield to_dict(event)
 
     @collect_metrics_rerank
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
+        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
     ) -> Any:
         response = self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL

@@ -8,7 +8,6 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/react';
-import { useMemo } from 'react';
 
 import { Icon } from '@/components/Shared/Icon';
 import { Text } from '@/components/Shared/Text';

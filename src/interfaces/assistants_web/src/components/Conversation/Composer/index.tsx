@@ -3,6 +3,7 @@
 import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { Agent, ManagedTool } from '@/cohere-client';
 import { ComposerError } from '@/components/Conversation/Composer/ComposerError';
 import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
 import { ComposerToolbar } from '@/components/Conversation/Composer/ComposerToolbar';
@@ -11,7 +12,6 @@ import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useDataSourceTags } from '@/hooks/tags';
 import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -26,14 +26,16 @@ type Props = {
   onSend: (message?: string, overrides?: Partial<ConfigurableParams>) => void;
   onChange: (message: string) => void;
   onUploadFile: (files: File[]) => void;
-  requiredTools?: string[];
+  agent?: Agent;
+  tools?: ManagedTool[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
 };
 
 export const Composer: React.FC<Props> = ({
   value,
   isStreaming,
-  requiredTools,
+  agent,
+  tools,
   onSend,
   onChange,
   onStop,
@@ -48,39 +50,25 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
-  const { suggestedTags, setTagQuery, tagQuery, getTagQuery } = useDataSourceTags({
-    requiredTools,
-  });
+
   const { data: experimentalFeatures } = useExperimentalFeatures();
 
-  const [isComposing, setIsComposing] = useState(false);
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
-  const [showDataSourceMenu, setShowDataSourceMenu] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
   const isAgentsModeOn = !!experimentalFeatures?.USE_AGENTS_VIEW;
   const isComposerDisabled = isToolAuthRequired && isAgentsModeOn;
   const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isComposerDisabled;
 
-  const handleCompositionStart = () => {
-    setIsComposing(true);
-  };
-
-  const handleCompositionEnd = () => {
-    setIsComposing(false);
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !isComposing) {
+    if (e.key === 'Enter') {
       // Do expected default behaviour (add a newline inside of the textarea)
       if (e.shiftKey || isSmallBreakpoint) return;
 
       e.preventDefault();
       if (canSend) {
         onSend(value);
-        setTagQuery('');
-        setShowDataSourceMenu(false);
         onChange('');
       }
     }
@@ -92,26 +80,6 @@ export const Composer: React.FC<Props> = ({
     }
 
     onChange(e.target.value);
-    if (textareaRef.current) {
-      const newTagQuery = getTagQuery(e.target.value, textareaRef.current.selectionStart);
-      setTagQuery(newTagQuery);
-
-      if (newTagQuery.length === 1 && !showDataSourceMenu) {
-        setShowDataSourceMenu(true);
-      } else if (newTagQuery.length === 0 && showDataSourceMenu) {
-        setShowDataSourceMenu(false);
-      }
-    }
-  };
-
-  const handleTagSelect = () => {
-    if (!textareaRef.current) return;
-    onChange(value.slice(0, value.length - tagQuery.length));
-    setTagQuery('');
-  };
-
-  const handleDataSourceMenuClick = () => {
-    setShowDataSourceMenu((prevShow) => !prevShow);
   };
 
   useEffect(() => {
@@ -119,8 +87,6 @@ export const Composer: React.FC<Props> = ({
     if (textarea) {
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
-      textarea.addEventListener('compositionstart', handleCompositionStart);
-      textarea.addEventListener('compositionend', handleCompositionEnd);
 
       // if the content overflows the max height, show the scrollbar
       if (textarea.scrollHeight > textarea.clientHeight + 2) {
@@ -128,13 +94,6 @@ export const Composer: React.FC<Props> = ({
       } else {
         textarea.style.overflowY = 'hidden';
       }
-
-      return () => {
-        if (textarea) {
-          textarea.removeEventListener('compositionstart', handleCompositionStart);
-          textarea.removeEventListener('compositionend', handleCompositionEnd);
-        }
-      };
     }
   }, [value]);
 
@@ -230,19 +189,7 @@ export const Composer: React.FC<Props> = ({
           </button>
         </div>
         <ComposerFiles />
-        <ComposerToolbar
-          onUploadFile={onUploadFile}
-          onDataSourceMenuToggle={handleDataSourceMenuClick}
-          menuProps={{
-            show: showDataSourceMenu,
-            tagQuery: tagQuery,
-            tags: suggestedTags,
-            onChange: handleTagSelect,
-            onHide: () => setShowDataSourceMenu(false),
-            onToggle: handleDataSourceMenuClick,
-            onSeeAll: () => textareaRef.current?.focus(),
-          }}
-        />
+        <ComposerToolbar onUploadFile={onUploadFile} agent={agent} tools={tools} />
       </div>
       <ComposerError className="pt-2" />
     </div>
