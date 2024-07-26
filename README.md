@@ -46,7 +46,7 @@ Go to [localhost:4000](http://localhost:4000/) in your browser and start chattin
 
 ## GitHub Codespaces
 
-To run this project using GitHub Codespaces, please refer to our Codespaces Setup Guide.
+To run this project using GitHub Codespaces, please refer to [our Codespaces Setup Guide](/docs/github_codespaces.md).
 
 ## About Toolkit
 
