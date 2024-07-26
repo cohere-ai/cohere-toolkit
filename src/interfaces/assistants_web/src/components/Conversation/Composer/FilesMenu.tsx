@@ -59,7 +59,7 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
               className={cn(
                 'z-tag-suggestions w-fit',
                 'w-full rounded-md p-2 focus:outline-none',
-                'bg-mushroom-950 dark:bg-volcanic-200'
+                'bg-mushroom-950 dark:bg-volcanic-150'
               )}
             >
               <Tooltip
@@ -71,7 +71,7 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
               >
                 <button
                   onClick={() => handleOpenFileExplorer(close)}
-                  className="flex w-full items-center rounded p-2 transition-colors hover:bg-mushroom-800 dark:hover:bg-volcanic-150"
+                  className="flex w-full items-center rounded p-2"
                 >
                   <Icon name="upload" size="md" />
                   <Text as="span" className="ml-2">

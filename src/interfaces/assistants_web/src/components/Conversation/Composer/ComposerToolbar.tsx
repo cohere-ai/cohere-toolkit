@@ -2,23 +2,21 @@
 
 import React from 'react';
 
-import {
-  DataSourceMenu,
-  Props as DataSourceMenuProps,
-} from '@/components/Conversation/Composer/DataSourceMenu';
+import { Agent, ManagedTool } from '@/cohere-client';
+import { DataSourceMenu } from '@/components/Conversation/Composer/DataSourceMenu';
 import { FilesMenu } from '@/components/Conversation/Composer/FilesMenu';
 import { cn } from '@/utils';
 
 type Props = {
+  agent?: Agent;
+  tools?: ManagedTool[];
   onUploadFile: (files: File[]) => void;
-  onDataSourceMenuToggle: VoidFunction;
-  menuProps: DataSourceMenuProps;
 };
 
 /**
  * @description Renders the bottom toolbar of the composer that shows available and selected data sources.
  */
-export const ComposerToolbar: React.FC<Props> = ({ onUploadFile, menuProps }) => {
+export const ComposerToolbar: React.FC<Props> = ({ agent, tools, onUploadFile }) => {
   return (
     <div
       className={cn(
@@ -28,7 +26,7 @@ export const ComposerToolbar: React.FC<Props> = ({ onUploadFile, menuProps }) =>
       )}
     >
       <FilesMenu onUploadFile={onUploadFile} />
-      <DataSourceMenu {...menuProps} />
+      <DataSourceMenu agent={agent} tools={tools} />
     </div>
   );
 };
