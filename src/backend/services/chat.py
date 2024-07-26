@@ -493,7 +493,7 @@ async def generate_chat_response(
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
-            response_id = response_message.id if response_message else None
+            response_id = ctx.get_trace_id()
             generation_id = response_message.generation_id if response_message else None
 
             non_streamed_chat_response = NonStreamedChatResponse(
@@ -543,7 +543,7 @@ async def generate_chat_stream(
 
     stream_end_data = {
         "conversation_id": conversation_id,
-        "response_id": response_message.id if response_message else None,
+        "response_id": ctx.get_trace_id(),
         "text": "",
         "citations": [],
         "documents": [],
