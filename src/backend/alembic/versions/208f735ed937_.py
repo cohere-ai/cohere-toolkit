@@ -248,6 +248,7 @@ def downgrade() -> None:
                     ARRAY(sa.VARCHAR()),
                     autoincrement=False,
                     nullable=False,
+                    server_default="{}",
                 ),
             )
             op.alter_column(
@@ -255,7 +256,6 @@ def downgrade() -> None:
                 "left_id",
                 existing_type=sa.String(),
                 nullable=True,
-                server_default='{}',
             )
             op.alter_column(
                 CITATION_DOCUMENTS_TABLE,
