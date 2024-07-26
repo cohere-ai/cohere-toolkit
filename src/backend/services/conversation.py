@@ -14,7 +14,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.file import File
 from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
-from backend.services.file import FileService, attach_conversation_id_to_files
+from backend.services.file import attach_conversation_id_to_files, get_file_service
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -27,8 +27,6 @@ Given the following conversation history, write a short title that summarizes th
 # TITLE
 """
 SEARCH_RELEVANCE_THRESHOLD = 0.3
-
-file_service = FileService()
 
 
 def validate_conversation(
@@ -98,7 +96,7 @@ def extract_details_from_conversation(
     return chatlog
 
 
-def getMessagesWithFiles(
+def get_messages_with_files(
     session: DBSessionDep, user_id: str, messages: list[MessageModel]
 ) -> list[Message]:
     """
@@ -115,7 +113,7 @@ def getMessagesWithFiles(
     messages_with_file = []
 
     for message in messages:
-        files = file_service.get_message_files(session, message.id, user_id)
+        files = get_file_service().get_message_files(session, message.id, user_id)
         files_with_conversation_id = attach_conversation_id_to_files(
             message.conversation_id, files
         )

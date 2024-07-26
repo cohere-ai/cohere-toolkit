@@ -34,6 +34,15 @@ DOCX_EXTENSION = "docx"
 # Monkey patch Pandas to use Calamine for Excel reading because Calamine is faster than Pandas
 pandas_monkeypatch()
 
+file_service = None
+
+
+def get_file_service():
+    global file_service
+    if file_service is None:
+        file_service = FileService()
+    return file_service
+
 
 class FileService:
     @property

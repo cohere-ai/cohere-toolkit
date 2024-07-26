@@ -12,12 +12,12 @@ from backend.database_models.file import File
 from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.tool import Tool
-from backend.services.file import FileService
+from backend.services.file import get_file_service
 from backend.services.logger import get_logger, send_log_message
 
-logger = get_logger()
-file_service = FileService()
 MAX_STEPS = 15
+
+logger = get_logger()
 
 
 class CustomChat(BaseChat):
@@ -148,13 +148,13 @@ class CustomChat(BaseChat):
         # Add files to chat history if the tool requires it and files are provided
         if chat_request.file_ids or chat_request.agent_id:
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
-                files = file_service.get_files_by_conversation_id(
+                files = get_file_service().get_files_by_conversation_id(
                     session, user_id, kwargs.get("conversation_id")
                 )
 
                 agent_files = []
                 if agent_id:
-                    agent_files = file_service.get_files_by_agent_id(
+                    agent_files = get_file_service().get_files_by_agent_id(
                         session, user_id, agent_id
                     )
 

@@ -58,9 +58,7 @@ from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.auth.utils import get_header_user_id
-from backend.services.file import FileService
-
-file_service = FileService()
+from backend.services.file import get_file_service
 
 
 def process_chat(
@@ -355,7 +353,7 @@ def handle_file_retrieval(
     file_paths = None
     # Use file_ids if provided
     if file_ids is not None:
-        files = file_service.get_files_by_ids(session, file_ids, user_id)
+        files = get_file_service().get_files_by_ids(session, file_ids, user_id)
         file_paths = [file.file_path for file in files]
 
     return file_paths

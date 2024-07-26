@@ -39,18 +39,17 @@ from backend.services.conversation import (
     filter_conversations,
     generate_conversation_title,
     get_documents_to_rerank,
-    getMessagesWithFiles,
+    get_messages_with_files,
     validate_conversation,
 )
 from backend.services.file import (
-    FileService,
     attach_conversation_id_to_files,
+    get_file_service,
     validate_batch_file_size,
     validate_file,
     validate_file_size,
 )
 
-file_service = FileService()
 router = APIRouter(
     prefix="/v1/conversations",
 )
@@ -85,9 +84,11 @@ async def get_conversation(
             detail=f"Conversation with ID: {conversation_id} not found.",
         )
 
-    files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
+    files = get_file_service().get_files_by_conversation_id(
+        session, user_id, conversation.id
+    )
     files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
-    messages = getMessagesWithFiles(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages)
     _ = validate_conversation(session, conversation_id, user_id)
 
     return ConversationPublic(
@@ -134,7 +135,7 @@ async def list_conversations(
 
     results = []
     for conversation in conversations:
-        files = file_service.get_files_by_conversation_id(
+        files = get_file_service().get_files_by_conversation_id(
             session, user_id, conversation.id
         )
         files_with_conversation_id = attach_conversation_id_to_files(
@@ -187,8 +188,10 @@ async def update_conversation(
         session, conversation, new_conversation
     )
 
-    files = file_service.get_files_by_conversation_id(session, user_id, conversation.id)
-    messages = getMessagesWithFiles(session, user_id, conversation.messages)
+    files = get_file_service().get_files_by_conversation_id(
+        session, user_id, conversation.id
+    )
+    messages = get_messages_with_files(session, user_id, conversation.messages)
     files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
     return ConversationPublic(
         id=conversation.id,
@@ -227,7 +230,7 @@ async def delete_conversation(
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if conversation.file_ids:
-        file_service.bulk_delete_files(session, conversation.file_ids, user_id)
+        get_file_service().bulk_delete_files(session, conversation.file_ids, user_id)
 
     conversation_crud.delete_conversation(session, conversation_id, user_id)
 
@@ -287,7 +290,7 @@ async def search_conversations(
 
     results = []
     for conversation in filtered_documents:
-        files = file_service.get_files_by_conversation_id(
+        files = get_file_service().get_files_by_conversation_id(
             session, user_id, conversation.id
         )
         files_with_conversation_id = attach_conversation_id_to_files(
@@ -370,7 +373,7 @@ async def upload_file(
 
     # Handle uploading File
     try:
-        upload_file = await file_service.create_conversation_files(
+        upload_file = await get_file_service().create_conversation_files(
             session, [file], user_id, conversation.id
         )
     except Exception as e:
@@ -441,7 +444,7 @@ async def batch_upload_file(
 
     # TODO: check if file already exists in DB once we have files per agents
     try:
-        uploaded_files = await file_service.create_conversation_files(
+        uploaded_files = await get_file_service().create_conversation_files(
             session, files, user_id, conversation.id
         )
     except Exception as e:
@@ -475,7 +478,9 @@ async def list_files(
     user_id = get_header_user_id(request)
     _ = validate_conversation(session, conversation_id, user_id)
 
-    files = file_service.get_files_by_conversation_id(session, user_id, conversation_id)
+    files = get_file_service().get_files_by_conversation_id(
+        session, user_id, conversation_id
+    )
     files_with_conversation_id = attach_conversation_id_to_files(conversation_id, files)
     return files_with_conversation_id
 
@@ -507,8 +512,8 @@ async def update_file(
     _ = validate_conversation(session, conversation_id, user_id)
     _ = validate_file(session, file_id, user_id)
 
-    file = file_service.get_file_by_id(session, file_id, user_id)
-    file = file_service.update_file(session, file, new_file)
+    file = get_file_service().get_file_by_id(session, file_id, user_id)
+    file = get_file_service().update_file(session, file, new_file)
     files_with_conversation_id = attach_conversation_id_to_files(
         conversation_id, [file]
     )
@@ -537,10 +542,10 @@ async def delete_file(
     _ = validate_conversation(session, conversation_id, user_id)
     _ = validate_file(session, file_id, user_id)
 
-    file = file_service.get_file_by_id(session, file_id, user_id)
+    file = get_file_service().get_file_by_id(session, file_id, user_id)
 
     # Delete the File DB object
-    file_service.delete_file_from_conversation(
+    get_file_service().delete_file_from_conversation(
         session, conversation_id, file_id, user_id
     )
 

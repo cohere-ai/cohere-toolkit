@@ -15,7 +15,7 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentToolMetadata
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
-from backend.services.conversation import getMessagesWithFiles
+from backend.services.conversation import get_messages_with_files
 
 SNAPSHOT_VERSION = 1
 
@@ -81,7 +81,7 @@ def wrap_create_snapshot(
             tools_metadata=tools_metadata,
         )
 
-    messages = getMessagesWithFiles(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages)
     snapshot_data = SnapshotData(
         title=conversation.title,
         description=conversation.description,
