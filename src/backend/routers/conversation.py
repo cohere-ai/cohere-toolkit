@@ -30,7 +30,7 @@ from backend.schemas.file import (
     UpdateFileRequest,
     UploadFileResponse,
 )
-from backend.schemas.metrics import DEFAULT_METRICS_AGENT
+from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.services.context import get_context
 from backend.services.conversation import (
     DEFAULT_TITLE,
@@ -202,7 +202,12 @@ async def search_conversations(
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
 
-    ctx.with_agent(agent)
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        ctx.with_agent(agent)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+    else:
+        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id

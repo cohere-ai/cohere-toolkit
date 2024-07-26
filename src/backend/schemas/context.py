@@ -74,21 +74,10 @@ class Context(BaseModel):
 
     def with_agent(self, agent: Agent | None) -> "Context":
         self.agent = agent
+        return self
 
-        if not agent:
-            return self
-
-        self.metrics_agent = MetricsAgent(
-            id=agent.id,
-            version=agent.version,
-            name=agent.name,
-            temperature=agent.temperature,
-            model=agent.model,
-            deployment=agent.deployment,
-            preamble=agent.preamble,
-            description=agent.description,
-        )
-
+    def with_metrics_agent(self, metrics_agent: MetricsAgent) -> "Context":
+        self.metrics_agent = metrics_agent
         return self
 
     def with_agent_tool_metadata(

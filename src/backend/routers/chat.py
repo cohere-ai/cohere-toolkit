@@ -15,7 +15,7 @@ from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.langchain_chat import LangchainChatRequest
-from backend.schemas.metrics import DEFAULT_METRICS_AGENT
+from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.services.chat import (
     generate_chat_response,
     generate_chat_stream,
@@ -55,10 +55,12 @@ async def chat_stream(
     agent_id = chat_request.agent_id
     ctx.with_agent_id(agent_id)
 
-    agent = DEFAULT_METRICS_AGENT
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-    ctx.with_agent(agent)
+        ctx.with_agent(agent)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+    else:
+        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     (
         session,

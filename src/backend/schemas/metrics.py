@@ -98,3 +98,16 @@ DEFAULT_METRICS_AGENT = MetricsAgent(
     preamble="",
     description="default",
 )
+
+
+def agent_to_metrics_agent(agent: Any) -> MetricsAgent:
+    return MetricsAgent(
+        id=agent.id,
+        version=agent.version,
+        name=agent.name,
+        temperature=agent.temperature,
+        model=agent.model,
+        deployment=agent.deployment,
+        preamble=agent.preamble,
+        description=agent.description,
+    )
