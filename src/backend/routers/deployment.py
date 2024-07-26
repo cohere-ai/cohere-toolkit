@@ -32,7 +32,8 @@ def list_deployments(
     """
     send_log_message(
         logger,
-        f"[Deployment] List deployment request" "debug",
+        f"[Deployment] List deployment request",
+        "debug",
     )
     available_deployments = [
         deployment
@@ -44,7 +45,8 @@ def list_deployments(
     if not available_deployments:
         send_log_message(
             logger,
-            f"[Deployment] No deployments available to list." "warning",
+            f"[Deployment] No deployments available to list.",
+            "warning",
         )
         raise HTTPException(
             status_code=404,
@@ -77,6 +79,7 @@ async def set_env_vars(
     """
     send_log_message(
         logger,
-        f"[Deployment] Set environment variables request" "debug",
+        f"[Deployment] Set environment variables request",
+        "debug",
     )
     update_env_file(env_vars.env_vars)

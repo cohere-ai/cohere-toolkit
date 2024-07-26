@@ -125,7 +125,7 @@ async def chat(
     agent_id = chat_request.agent_id
     ctx.with_agent_id(agent_id)
 
-    send_log_message(logger, f"[Chat] Chat Request: Agent ID {agent_id}" "debug")
+    send_log_message(logger, f"[Chat] Chat Request: Agent ID {agent_id}", "debug")
 
     (
         session,
@@ -179,7 +179,7 @@ def langchain_chat_stream(
     if not use_langchain:
         send_log_message(
             logger,
-            f"[Chat] Error handling LangChain streaming chat request: LangChain is not enabled"
+            f"[Chat] Error handling LangChain streaming chat request: LangChain is not enabled",
             "debug",
         )
         return {"error": "Langchain is not enabled."}
@@ -198,7 +198,7 @@ def langchain_chat_stream(
 
     send_log_message(
         logger,
-        f"[Chat] LangChain Streaming Chat Request: Conversation ID {conversation_id} User ID {user_id}"
+        f"[Chat] LangChain Streaming Chat Request: Conversation ID {conversation_id} User ID {user_id}",
         "debug",
     )
 

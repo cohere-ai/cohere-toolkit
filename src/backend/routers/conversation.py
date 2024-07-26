@@ -82,7 +82,7 @@ async def get_conversation(
     user_id = ctx.get_user_id()
     send_log_message(
         logger,
-        f"[Conversation] Get conversation request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] Get conversation request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
     conversation = validate_conversation(session, conversation_id, user_id)
@@ -115,7 +115,8 @@ async def list_conversations(
     user_id = ctx.get_user_id()
     send_log_message(
         logger,
-        f"[Conversation] List conversations request: User ID {user_id}" "debug",
+        f"[Conversation] List conversations request: User ID {user_id}",
+        "debug",
     )
 
     return conversation_crud.get_conversations(
@@ -149,7 +150,7 @@ async def update_conversation(
     conversation = validate_conversation(session, conversation_id, user_id)
     send_log_message(
         logger,
-        f"[Conversation] Update conversation request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] Update conversation request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
     conversation = conversation_crud.update_conversation(
@@ -180,7 +181,7 @@ async def delete_conversation(
     user_id = ctx.get_user_id()
     send_log_message(
         logger,
-        f"[Conversation] Delete conversation request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] Delete conversation request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
 
@@ -222,7 +223,7 @@ async def search_conversations(
 
     send_log_message(
         logger,
-        f"[Conversation] Search conversation request: User ID {user_id} Agent ID {agent_id}"
+        f"[Conversation] Search conversation request: User ID {user_id} Agent ID {agent_id}",
         "debug",
     )
 
@@ -287,7 +288,7 @@ async def upload_file(
 
     send_log_message(
         logger,
-        f"[Conversation] Upload file request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] Upload file request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
 
@@ -375,7 +376,7 @@ async def batch_upload_file(
 
     send_log_message(
         logger,
-        f"[Conversation] Batch upload file request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] Batch upload file request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
 
@@ -457,7 +458,7 @@ async def list_files(
     user_id = ctx.get_user_id()
     send_log_message(
         logger,
-        f"[Conversation] List files request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] List files request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
 
@@ -495,7 +496,7 @@ async def update_file(
 
     send_log_message(
         logger,
-        f"[Conversation] Update files request: User ID {user_id} Conversation ID {conversation_id} File ID {file_id}"
+        f"[Conversation] Update files request: User ID {user_id} Conversation ID {conversation_id} File ID {file_id}",
         "debug",
     )
 
@@ -531,7 +532,7 @@ async def delete_file(
     user_id = ctx.get_user_id()
     send_log_message(
         logger,
-        f"[Conversation] Delete file request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] Delete file request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
 
@@ -569,7 +570,7 @@ async def generate_title(
     user_id = ctx.get_user_id()
     send_log_message(
         logger,
-        f"[Conversation] Generate title request: User ID {user_id} Conversation ID {conversation_id}"
+        f"[Conversation] Generate title request: User ID {user_id} Conversation ID {conversation_id}",
         "debug",
     )
 
