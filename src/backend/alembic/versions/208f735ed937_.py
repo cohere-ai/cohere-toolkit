@@ -7,6 +7,7 @@ Create Date: 2024-07-24 18:40:59.287003
 """
 
 from typing import Sequence, Union
+from uuid import uuid4
 
 import sqlalchemy as sa
 from alembic import op
@@ -184,7 +185,13 @@ def upgrade() -> None:
         # Handle Citation table
         if not column_exists(CITATION_DOCUMENTS_TABLE, "id"):
             op.add_column(
-                CITATION_DOCUMENTS_TABLE, sa.Column("id", sa.String(), nullable=False)
+                CITATION_DOCUMENTS_TABLE,
+                sa.Column(
+                    "id",
+                    sa.String(),
+                    nullable=False,
+                    server_default=str(uuid4()),
+                ),
             )
         if not column_exists(CITATION_DOCUMENTS_TABLE, "created_at"):
             op.add_column(
@@ -248,6 +255,7 @@ def downgrade() -> None:
                 "left_id",
                 existing_type=sa.String(),
                 nullable=True,
+                server_default='{}',
             )
             op.alter_column(
                 CITATION_DOCUMENTS_TABLE,
