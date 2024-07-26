@@ -90,7 +90,7 @@ app = create_app()
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     logger.info(
-        f"Error occurred: {exc!r} during request: {request.method}, {request.url}"
+        f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
     )
 
     return JSONResponse(

@@ -211,6 +211,8 @@ async def generate_conversation_title(
         title = response.text
     except Exception as e:
         title = DEFAULT_TITLE
-        logging.error(f"Error generating title for conversation {conversation.id}: {e}")
+        logging.error(
+            f"[Conversation] Error generating title: Conversation ID {conversation.id}, {e}"
+        )
 
     return title

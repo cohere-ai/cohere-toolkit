@@ -23,7 +23,7 @@ from backend.services.auth.utils import (
     is_enabled_authentication_strategy,
 )
 from backend.services.context import get_context
-from backend.services.logger import get_logger
+from backend.services.logger import get_logger, send_log_message
 
 logger = get_logger()
 
@@ -91,7 +91,14 @@ async def login(
     strategy_name = login.strategy
     payload = login.payload
 
+    send_log_message(logger, "[Auth] Login request", "debug")
+
     if not is_enabled_authentication_strategy(strategy_name):
+        send_log_message(
+            logger,
+            f"[Auth] Invalid Authentication Strategy: {strategy_name}",
+            "debug",
+        )
         raise HTTPException(
             status_code=422, detail=f"Invalid Authentication strategy: {strategy_name}."
         )
@@ -101,6 +108,11 @@ async def login(
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
         missing_keys = [key for key in strategy_payload if key not in payload.keys()]
+        send_log_message(
+            logger,
+            f"Missing the following keys in the payload: {missing_keys}.",
+            "debug",
+        )
         raise HTTPException(
             status_code=422,
             detail=f"Missing the following keys in the payload: {missing_keys}.",
@@ -108,6 +120,9 @@ async def login(
 
     user = strategy.login(session, payload)
     if not user:
+        send_log_message(
+            logger, f"Error logging user in: Strategy {strategy_name}", "debug"
+        )
         raise HTTPException(
             status_code=401,
             detail=f"Error performing {strategy_name} authentication with payload: {payload}.",
@@ -143,6 +158,9 @@ async def authorize(
         HTTPException: If authentication fails, or strategy is invalid.
     """
     if not code:
+        send_log_message(
+            logger, "[Auth] Error authorizing login: No code provided", "debug"
+        )
         raise HTTPException(
             status_code=400,
             detail=f"Error calling /auth with invalid code query parameter.",
@@ -154,12 +172,19 @@ async def authorize(
             strategy_name = enabled_strategy_name
 
     if not strategy_name:
+        send_log_message(
+            logger, "[Auth] Error authorizing login: Invalid strategy", "debug"
+        )
         raise HTTPException(
             status_code=400,
             detail=f"Error calling /auth with invalid strategy name: {strategy_name}.",
         )
 
     if not is_enabled_authentication_strategy(strategy_name):
+        send_log_message(
+            logger,
+            f"[Auth] Error authorizing login: Strategy {strategy_name} not enabled",
+        )
         raise HTTPException(
             status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
         )
@@ -175,6 +200,9 @@ async def authorize(
         )
 
     if not userinfo:
+        send_log_message(
+            logger, f"[Auth] Error authorizing login: Invalid token {token}", "debug"
+        )
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
         )

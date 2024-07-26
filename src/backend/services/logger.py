@@ -56,7 +56,7 @@ def send_log_message(
     log_func = log_levels.get(level)
 
     if not log_func:
-        raise ValueError(f"Invalid log level: {level}")
+        raise ValueError(f"[Logger] Invalid log level: {level}")
 
     log_details = {
         "message": message,

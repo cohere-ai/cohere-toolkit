@@ -51,7 +51,9 @@ class CohereDeployment(BaseDeployment):
         response = requests.get(url, headers=headers)
 
         if not response.ok:
-            logging.warning("Couldn't get models from Cohere API.")
+            logging.warning(
+                f"[Cohere Deployment] Error retrieving models: Invalid HTTP {response.status} response"
+            )
             return []
 
         models = response.json()["models"]

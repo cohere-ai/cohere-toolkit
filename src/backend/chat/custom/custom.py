@@ -47,7 +47,7 @@ class CustomChat(BaseChat):
 
         send_log_message(
             logger,
-            f"Using deployment {deployment_model.__class__.__name__}",
+            f"[Custom Chat] Using deployment: {deployment_model.__class__.__name__}",
             level="info",
             conversation_id=kwargs.get("conversation_id"),
             user_id=ctx.get_user_id(),
@@ -176,14 +176,14 @@ class CustomChat(BaseChat):
         for step in range(MAX_STEPS):
             send_log_message(
                 logger,
-                f"Step {step + 1}",
+                f"[Custom Chat] Step: {step + 1}",
                 level="info",
                 conversation_id=kwargs.get("conversation_id"),
                 user_id=ctx.get_user_id(),
             )
             send_log_message(
                 logger,
-                f"Chat request: {chat_request.dict()}",
+                f"[Custom Chat] Chat request: {chat_request.dict()}",
                 level="info",
                 conversation_id=kwargs.get("conversation_id"),
                 user_id=ctx.get_user_id(),
@@ -206,7 +206,7 @@ class CustomChat(BaseChat):
 
             send_log_message(
                 logger,
-                f"Chat stream completed. Has tool calls: {has_tool_calls}",
+                f"[Custom Chat] Chat stream completed: Has tool calls {has_tool_calls}",
                 level="info",
                 conversation_id=kwargs.get("conversation_id"),
                 user_id=ctx.get_user_id(),
@@ -252,14 +252,14 @@ class CustomChat(BaseChat):
         tool_plan = chat_history[-1].get("message", None)
         send_log_message(
             logger,
-            f"Tool calls: {tool_calls}",
+            f"[Custom Chat] Making tool calls: {tool_calls}",
             level="info",
             conversation_id=kwargs.get("conversation_id"),
             user_id=ctx.get_user_id(),
         )
         send_log_message(
             logger,
-            f"Tool plan: {tool_plan}",
+            f"[Custom Chat]: Using tool plan: {tool_plan}",
             level="info",
             conversation_id=kwargs.get("conversation_id"),
             user_id=ctx.get_user_id(),
@@ -291,7 +291,7 @@ class CustomChat(BaseChat):
         )
         send_log_message(
             logger,
-            f"Tool results: {tool_results}",
+            f"[Custom Chat] Tool results: {tool_results}",
             level="info",
             conversation_id=kwargs.get("conversation_id"),
             user_id=ctx.get_user_id(),

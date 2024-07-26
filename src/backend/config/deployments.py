@@ -85,7 +85,7 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
             return model_deployments
         except ImportError:
             logging.warning(
-                "Community deployments are not available. They can still be set up."
+                "[Deployments] No available community deployments have been configured"
             )
 
     deployments = Settings().deployments.enabled_deployments
