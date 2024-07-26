@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import List, Optional, Tuple, Type
 
@@ -263,11 +264,18 @@ class Settings(BaseSettings, case_sensitive=False):
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
         # The YAML files have to be separate vs in a list as they have the same nested structure
         # Below are in prioritized order
+        if os.path.isfile(config_file) and os.path.isfile(secrets_file):
+            return (
+                env_settings,
+                dotenv_settings,
+                YamlConfigSettingsSource(settings_cls, yaml_file=config_file),
+                YamlConfigSettingsSource(settings_cls, yaml_file=secrets_file),
+                file_secret_settings,
+                init_settings,
+            )
         return (
             env_settings,
             dotenv_settings,
-            YamlConfigSettingsSource(settings_cls, yaml_file=config_file),
-            YamlConfigSettingsSource(settings_cls, yaml_file=secrets_file),
             file_secret_settings,
             init_settings,
         )
