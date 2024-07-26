@@ -14,7 +14,7 @@ class ContextMiddleware:
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         trace_id = str(uuid.uuid4())
 
-        if scope["type"] not in ["http", "websocket"]:
+        if request.scope["type"] != "http":
             await self.app(scope, receive, send)
             return
 

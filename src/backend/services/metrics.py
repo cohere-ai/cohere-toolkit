@@ -63,6 +63,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next: Callable):
+        self._confirm_env()
+
         start_time = time.perf_counter()
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
