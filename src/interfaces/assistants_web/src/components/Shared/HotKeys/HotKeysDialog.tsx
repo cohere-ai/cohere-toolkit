@@ -38,7 +38,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, customActions = 
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <DialogPanel className="relative flex w-full max-w-modal-xs flex-col rounded-lg bg-marble-1000 md:max-w-modal xl:max-w-modal-lg">
+            <DialogPanel className="relative flex w-full flex-col rounded-lg bg-marble-1000 md:w-modal">
               <div className="p-6">
                 <Combobox as="div" onChange={close}>
                   <QuickActions isOpen={isOpen} customActions={customActions} />

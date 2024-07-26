@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.9",
-    "@headlessui/react": "^2.0.4",
+    "@headlessui/react": "^2.1.2",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@popperjs/core": "^2.11.8",
     "@react-hookz/web": "^23.1.0",
@@ -37,7 +37,6 @@
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.7",
     "axios": "^1.6.7",
-    "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "cross-fetch": "^3.1.5",
     "csstype": "^3.0.10",

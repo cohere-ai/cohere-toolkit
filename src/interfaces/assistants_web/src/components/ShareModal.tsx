@@ -133,7 +133,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
       )}
       <div className="flex flex-col gap-y-2">
         <Text styleAs="label">Permissions & visibility</Text>
-        <Text styleAs="caption" className="text-volcanic-400">
+        <Text styleAs="caption" className="text-volcanic-400 dark:text-volcanic-600">
           Anyone with the link will see the full contents of this conversation history. You will be
           sharing the title, messages, and citations.
         </Text>

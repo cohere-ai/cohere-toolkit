@@ -18,14 +18,14 @@ export const Switch: React.FC<Props> = ({
   checked,
   onChange,
   label,
-  theme = 'coral',
+  theme = 'evolved-green',
   name,
   className = '',
 }) => {
   return (
     <div className="group flex items-center">
       <Field>
-        <div className={cn('flex items-center justify-end gap-6', className)}>
+        <div className={cn('flex items-center justify-end gap-x-6', className)}>
           <HUSwitch
             name={name}
             checked={checked}
@@ -35,7 +35,8 @@ export const Switch: React.FC<Props> = ({
               'transition-colors duration-300 ease-in-out',
               'focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-volcanic-500',
               {
-                'bg-volcanic-500 group-hover:bg-volcanic-400': !checked,
+                'bg-mushroom-900 hover:bg-mushroom-800 dark:bg-volcanic-500 dark:group-hover:bg-volcanic-400':
+                  !checked,
                 'bg-blue-500 group-hover:bg-blue-400': checked && theme === 'blue',
                 'bg-evolved-green-700 group-hover:bg-evolved-green-500':
                   checked && theme === 'evolved-green',
@@ -54,16 +55,18 @@ export const Switch: React.FC<Props> = ({
                 {
                   'translate-x-4': checked,
                   'translate-x-0': !checked,
-                  'bg-volcanic-800': !checked,
+                  'bg-mushroom-700 dark:bg-volcanic-800': !checked,
                   'bg-marble-950': checked,
                   'bg-green-250': checked && theme === 'evolved-green',
                 }
               )}
             />
           </HUSwitch>
-          <Label>
-            <Text className="dark:text-marble-950">{label}</Text>
-          </Label>
+          {label && (
+            <Label>
+              <Text className="dark:text-marble-950">{label}</Text>
+            </Label>
+          )}
         </div>
       </Field>
     </div>

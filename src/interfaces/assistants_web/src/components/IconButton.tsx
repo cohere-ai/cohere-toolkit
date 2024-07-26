@@ -40,7 +40,6 @@ export const IconButton: React.FC<Props> = ({
   disabled,
   href,
   target,
-  shallow,
   outline = false,
   onClick,
 }) => {
@@ -50,7 +49,7 @@ export const IconButton: React.FC<Props> = ({
       disabled={disabled}
       href={href}
       onClick={onClick}
-      hrefOptions={{ target, shallow }}
+      hrefOptions={{ target }}
       icon={iconName}
       iconOptions={{ kind: iconKind, className: iconClassName, customIcon: icon }}
       className={cn(className, 'group/icon-button h-8 w-8 p-0', {
