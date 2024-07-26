@@ -248,7 +248,7 @@ poetry install --with dev
 If you also need to install the community features, run:
 
 ```bash
-poetry install --with dev --with community
+poetry install --with community
 ```
 
 To run linters, you can use `make lint` or separate commands:
