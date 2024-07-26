@@ -20,12 +20,10 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.metrics import (
-    MetricsAgent,
     MetricsData,
     MetricsMessageType,
     MetricsModelAttrs,
     MetricsSignal,
-    MetricsUser,
 )
 from backend.services.auth.utils import get_header_user_id
 from backend.services.context import get_context
@@ -84,8 +82,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         self, request: Request, response: Response, duration_ms: float, ctx: Context
     ) -> None:
         signal = self._get_event_signal(request, response, duration_ms, ctx)
-        should_send_event = ctx.get_event_type() and signal
-        if should_send_event:
+        if ctx.get_event_type() and signal:
             response.background = BackgroundTask(report_metrics, signal)
 
     def _get_event_signal(
@@ -214,7 +211,7 @@ def collect_metrics_rerank(func: Callable) -> Callable:
             return response
         except Exception as e:
             duration_ms = time.perf_counter() - start_time
-            metrics_data = RerankMetricsHelper.report_rerank_failed_metrics(
+            RerankMetricsHelper.report_rerank_failed_metrics(
                 duration_ms, e, ctx, **kwargs
             )
             raise e
@@ -241,16 +238,18 @@ class ChatMetricHelper:
     def report_streaming_chat_event(
         event: dict[str, Any], ctx: Context, **kwargs: Any
     ) -> None:
-        start_time = None
         try:
             event_type = event["event_type"]
             if event_type == StreamEvent.STREAM_START:
-                start_time = time.perf_counter()
+                ctx.with_stream_start_ms(time.perf_counter())
 
             if event_type != StreamEvent.STREAM_END:
                 return
 
-            duration_ms = None if not start_time else time.perf_counter() - start_time
+            duration_ms = None
+            time_start = ctx.get_stream_start_ms()
+            if time_start:
+                duration_ms = time.perf_counter() - time_start
             trace_id = ctx.get_trace_id()
             model = ctx.get_model()
             user_id = ctx.get_user_id()
@@ -284,14 +283,14 @@ class ChatMetricHelper:
                 if is_error
                 else MetricsMessageType.CHAT_API_SUCCESS
             )
-            # validate successful event metrics
+            # validate successful event metrics, ignore type errors to rely on pydantic exceptions
             if not is_error:
-                chat_metrics = MetricsModelAttrs(
+                MetricsModelAttrs(
                     input_nb_tokens=input_tokens,
                     output_nb_tokens=output_tokens,
                     search_units=search_units,
-                    model=model,
-                    assistant_id=agent_id,
+                    model=model,  # type: ignore
+                    assistant_id=agent_id,  # type: ignore
                 )
 
             metrics = MetricsData(

@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 
 from fastapi import Request
@@ -26,6 +27,7 @@ class Context(BaseModel):
     deployment_config: Optional[dict] = None
     conversation_id: Optional[str] = None
     agent_id: Optional[str] = None
+    stream_start_ms: Optional[float] = None
 
     # Metrics
     metrics_user: Optional[MetricsUser] = None
@@ -107,12 +109,18 @@ class Context(BaseModel):
         self.conversation_id = conversation_id
         return self
 
+    def with_stream_start_ms(self, now_ms: float) -> "Context":
+        self.stream_start_ms = now_ms
+
     def with_agent_id(self, agent_id: str) -> "Context":
         if not agent_id:
             return self
 
         self.agent_id = agent_id
         return self
+
+    def get_stream_start_ms(self):
+        return self.stream_start_ms
 
     def get_request(self):
         return self.request
