@@ -1,4 +1,3 @@
-import os
 import time
 from typing import Any, Dict, List
 
@@ -13,6 +12,7 @@ from backend.services.compass import Compass
 from backend.services.logger import get_logger
 from backend.tools.base import BaseTool
 from backend.tools.utils import async_download, parallel_get_files
+from backend.config.settings import Settings
 
 from .constants import (
     COMPASS_UPDATE_INTERVAL,
@@ -43,11 +43,12 @@ class GoogleDrive(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        vars = [
-            "GOOGLE_DRIVE_CLIENT_ID",
-            "GOOGLE_DRIVE_CLIENT_SECRET",
-        ]
-        return all(os.getenv(var) is not None for var in vars)
+        return not any(
+            [
+                Settings().tools.gdrive.client_id is None, 
+                Settings().tools.gdrive.client_secret is None,
+            ]
+        )
 
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))

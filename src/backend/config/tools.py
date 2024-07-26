@@ -156,7 +156,7 @@ ALL_TOOLS = {
         auth_implementation=GoogleDriveAuth,
         error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
         category=Category.DataLoader,
-        description="Returns a list of relevant document snippets for the user's google drive.",
+        description="Returns a list of relevant document snippets for the user's Google Drive.",
     ),
     ToolName.Web_Scrape: ManagedTool(
         name=ToolName.Web_Scrape,

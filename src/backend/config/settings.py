@@ -133,7 +133,6 @@ class GDriveSettings(BaseSettings, BaseModel):
         )
     )
 
-
 class ToolSettings(BaseSettings, BaseModel):
     model_config = setting_config
     enabled_tools: Optional[List[str]]

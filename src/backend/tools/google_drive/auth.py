@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 import urllib.parse
 
 import requests
@@ -14,6 +13,7 @@ from backend.services.auth.crypto import encrypt
 from backend.services.logger import get_logger
 from backend.tools.base import BaseToolAuthentication
 from backend.tools.google_drive.tool import GoogleDrive
+from backend.config.settings import Settings
 
 from .constants import SCOPES
 
@@ -27,8 +27,8 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
     def __init__(self):
         super().__init__()
-        self.GOOGLE_DRIVE_CLIENT_ID = os.getenv("GOOGLE_DRIVE_CLIENT_ID")
-        self.GOOGLE_DRIVE_CLIENT_SECRET = os.getenv("GOOGLE_DRIVE_CLIENT_SECRET")
+        self.GOOGLE_DRIVE_CLIENT_ID = Settings().tools.gdrive.client_id
+        self.GOOGLE_DRIVE_CLIENT_SECRET = Settings().tools.gdrive.client_secret
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
         if any(
@@ -139,8 +139,9 @@ class GoogleDriveAuth(BaseToolAuthentication):
                 user_id=state["user_id"],
                 tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
-                encrypted_access_token=encrypt(response_body["access_token"]),
-                encrypted_refresh_token=encrypt(response_body["refresh_token"]),
+                # TODO add encryption back
+                encrypted_access_token=response_body["access_token"],
+                encrypted_refresh_token=response_body["refresh_token"],
                 expires_at=datetime.datetime.now()
                 + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
