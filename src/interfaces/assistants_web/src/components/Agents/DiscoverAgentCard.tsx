@@ -27,7 +27,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             )}
           >
             {isBaseAgent ? (
-              <CoralLogo style="secondary" />
+              <CoralLogo />
             ) : (
               <Text className="uppercase text-white" styleAs="p-lg">
                 {name[0]}
