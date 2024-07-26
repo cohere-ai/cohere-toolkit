@@ -3,17 +3,18 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { uniqBy } from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
   DEFAULT_AGENT_TOOLS,
+  DEFAULT_PREAMBLE,
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_GOOGLE_DRIVE_ID,
 } from '@/constants';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
@@ -22,7 +23,7 @@ import { GoogleDriveToolArtifact } from '@/types/tools';
 const DEFAULT_FIELD_VALUES = {
   name: '',
   description: '',
-  preamble: '',
+  preamble: DEFAULT_PREAMBLE,
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
   tools: DEFAULT_AGENT_TOOLS,
@@ -34,7 +35,7 @@ export const CreateAgent: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { open, close } = useContext(ModalContext);
+  const { open, close } = useContextStore();
 
   const {
     value: pendingAssistant,

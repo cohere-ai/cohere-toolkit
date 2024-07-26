@@ -1,35 +1,28 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useContext } from 'react';
+import { usePathname } from 'next/navigation';
 
 import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
 import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useSession } from '@/hooks/session';
-import {
-  useAgentsStore,
-  useCitationsStore,
-  useConversationStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
-  const { open } = useContext(ModalContext);
+  const { open } = useContextStore();
   const {
     conversation: { id: conversationId },
-    resetConversation,
   } = useConversationStore();
-  const { resetCitations } = useCitationsStore();
+
   const { userId } = useSession();
   const { data: agent } = useAgent({ agentId });
   const isAgentCreator = userId === agent?.user_id;
@@ -42,18 +35,14 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     agents: { isEditAgentPanelOpen },
     setEditAgentPanelOpen,
   } = useAgentsStore();
-  const { resetFileParams } = useParamsStore();
-  const router = useRouter();
+
   const pathname = usePathname();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
 
+  const navigateToNewChat = useNavigateToNewChat();
   const handleNewChat = () => {
-    const url = agentId ? `/a/${agentId}` : pathname.includes('/a') ? '/a' : '/';
-    router.push(url, undefined);
-    resetConversation();
-    resetCitations();
-    resetFileParams();
+    navigateToNewChat(agentId);
   };
 
   const handleOpenShareModal = () => {
