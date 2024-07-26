@@ -10,6 +10,7 @@ import { Button, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
   DEFAULT_AGENT_TOOLS,
+  DEFAULT_PREAMBLE,
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_GOOGLE_DRIVE_ID,
 } from '@/constants';
@@ -22,7 +23,7 @@ import { GoogleDriveToolArtifact } from '@/types/tools';
 const DEFAULT_FIELD_VALUES = {
   name: '',
   description: '',
-  preamble: '',
+  preamble: DEFAULT_PREAMBLE,
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
   tools: DEFAULT_AGENT_TOOLS,
