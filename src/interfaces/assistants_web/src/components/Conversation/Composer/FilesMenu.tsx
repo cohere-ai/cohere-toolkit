@@ -71,7 +71,7 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
               >
                 <button
                   onClick={() => handleOpenFileExplorer(close)}
-                  className="flex w-full items-center rounded p-2 transition-colors hover:bg-mushroom-800 dark:text-marble-950 dark:hover:bg-volcanic-150"
+                  className="flex w-full items-center rounded p-2 transition-colors hover:bg-mushroom-800 dark:hover:bg-volcanic-150"
                 >
                   <Icon name="upload" size="md" />
                   <Text as="span" className="ml-2">

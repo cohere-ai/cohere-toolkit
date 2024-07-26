@@ -3,8 +3,8 @@
 import { useContext } from 'react';
 
 import { Dropdown } from '@/components/Shared';
+import { useContextStore } from '@/context';
 import { BannerContext } from '@/context/BannerContext';
-import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
 
@@ -12,7 +12,7 @@ import { EditEnvVariablesModal } from './EditEnvVariablesButton';
 
 export const DeploymentsDropdown: React.FC = () => {
   const { message: bannerMessage, setMessage } = useContext(BannerContext);
-  const { open, close } = useContext(ModalContext);
+  const { open, close } = useContextStore();
 
   const {
     params: { deployment },

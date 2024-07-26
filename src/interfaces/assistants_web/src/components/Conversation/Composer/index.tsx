@@ -196,7 +196,6 @@ export const Composer: React.FC<Props> = ({
               'bg-transparent',
               'transition ease-in-out',
               'placeholder:text-volcanic-600 focus:outline-none dark:placeholder:text-marble-800',
-              'dark:text-marble-950',
               STYLE_LEVEL_TO_CLASSES.p,
               'leading-[150%]'
             )}

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en" className="dark">
-      <body>
+      <body className="text-volcanic-100 dark:text-marble-950">
         <LayoutProviders>{children}</LayoutProviders>
       </body>
     </html>

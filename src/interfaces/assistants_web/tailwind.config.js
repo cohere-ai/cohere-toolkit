@@ -42,12 +42,6 @@ module.exports = {
         'edit-agent-panel-2xl': '800px',
       },
       maxWidth: {
-        'modal-xs': '352px',
-        'modal-sm': '463px',
-        'modal-md': '476px',
-        modal: '648px',
-        'modal-lg': '1062px',
-        'modal-xl': '1600px',
         message: '976px',
         'agents-panel-collapsed': '82px',
         'agents-panel-expanded': '288px',
@@ -76,6 +70,7 @@ module.exports = {
         header: '64px',
       },
       maxHeight: {
+        modal: 'calc(100vh - 120px)',
         'cell-xs': '24px',
         'cell-sm': '32px',
         'cell-md': '40px',
@@ -83,9 +78,7 @@ module.exports = {
         'cell-xl': '64px',
       },
       zIndex: {
-        backdrop: '20',
         navigation: '30',
-        modal: '50',
         dropdown: '60',
         toast: '70',
         'main-section': '10',
@@ -97,6 +90,8 @@ module.exports = {
         menu: '90',
         'guide-tooltip': '30',
         tooltip: '50',
+        backdrop: '150',
+        modal: '200',
       },
       boxShadow: {
         drawer: '-10px 4px 12px -10px rgba(197, 188, 172, 0.48)', // secondary-400
