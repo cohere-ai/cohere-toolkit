@@ -37,7 +37,8 @@ const MessagingContainer: React.FC<Props> = (props) => {
   const { scrollViewClassName = '', ...rest } = props;
   return (
     <ScrollToBottom
-      initialScrollBehavior="auto"
+      mode={props.messages.length === 0 ? 'top' : 'bottom'}
+      initialScrollBehavior="smooth"
       className={cn(ReservedClasses.MESSAGES, 'relative flex h-0 flex-grow flex-col')}
       scrollViewClassName={cn(
         '!h-full',

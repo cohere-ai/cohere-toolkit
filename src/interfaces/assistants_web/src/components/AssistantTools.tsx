@@ -3,7 +3,6 @@
 import React, { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
-import { ToolsInfoBox } from '@/components/Settings/ToolsInfoBox';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
@@ -17,9 +16,9 @@ import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { cn } from '@/utils';
 
 /**
- * @description Tools tab content that shows a list of available tools and files
+ * @description Tools for the assistant to use in the conversation.
  */
-export const AgentsToolsTab: React.FC<{
+export const AssistantTools: React.FC<{
   requiredTools: string[] | undefined;
   className?: string;
 }> = ({ requiredTools, className = '' }) => {
@@ -58,14 +57,13 @@ export const AgentsToolsTab: React.FC<{
   };
 
   return (
-    <section className={cn('relative flex flex-col gap-y-5 px-5 pb-10', className)}>
-      <ToolsInfoBox />
-      <article className={cn('flex flex-col gap-y-5 pb-10')}>
-        <Text styleAs="p-sm" className="text-mushroom-300">
-          {availableTools.length === 0
-            ? `${agent?.name} does not use any tools.`
-            : 'Tools are data sources the assistant can search such as databases or the internet.'}
-        </Text>
+    <section className={cn('relative flex flex-col gap-y-5', className)}>
+      <article className={cn('flex flex-col gap-y-5')}>
+        {availableTools.length === 0 && (
+          <Text styleAs="p-sm" className="text-mushroom-300 dark:text-marble-800">
+            `${agent?.name} does not use any tools.`
+          </Text>
+        )}
 
         {unauthedTools.length > 0 && (
           <>
@@ -80,36 +78,30 @@ export const AgentsToolsTab: React.FC<{
         )}
 
         {unauthedTools.length > 0 && availableTools.length > 0 && (
-          <hr className="border-t border-marble-950" />
+          <hr className="border-t border-marble-950 dark:border-volcanic-300" />
         )}
 
         {availableTools.length > 0 && (
-          <>
-            <Text as="span" styleAs="label" className="font-medium">
-              Ready to Use
-            </Text>
+          <div className="flex flex-col gap-y-3">
+            {availableTools.map(({ name, display_name, description, error_message }) => {
+              const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
+              const checked = !!enabledTool;
+              const disabled = !!requiredTools;
 
-            <div className="flex flex-col gap-y-5">
-              {availableTools.map(({ name, display_name, description, error_message }) => {
-                const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
-                const checked = !!enabledTool;
-                const disabled = !!requiredTools;
-
-                return (
-                  <ToggleCard
-                    key={name}
-                    disabled={disabled}
-                    errorMessage={error_message}
-                    checked={checked}
-                    label={display_name ?? name ?? ''}
-                    icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
-                    description={description ?? ''}
-                    onToggle={(checked) => handleToggle(name ?? '', checked)}
-                  />
-                );
-              })}
-            </div>
-          </>
+              return (
+                <ToggleCard
+                  key={name}
+                  disabled={disabled}
+                  errorMessage={error_message}
+                  checked={checked}
+                  label={display_name ?? name ?? ''}
+                  icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
+                  description={description ?? ''}
+                  onToggle={(checked) => handleToggle(name ?? '', checked)}
+                />
+              );
+            })}
+          </div>
         )}
       </article>
       <WelcomeGuideTooltip step={2} className="fixed right-0 mr-3 mt-12 md:right-full md:mt-0" />
@@ -124,7 +116,7 @@ const ConnectDataBox: React.FC<{
   tools: ManagedTool[];
 }> = ({ tools }) => {
   return (
-    <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-800 bg-coral-800 p-4">
+    <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-800 bg-coral-800 p-4 dark:border-blue-300 dark:bg-evolved-blue-500">
       <div className="flex flex-col gap-y-3">
         <Text styleAs="h5">Connect your data</Text>
         <Text>
