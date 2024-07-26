@@ -1,17 +1,22 @@
 import Link from 'next/link';
 import React, { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
+import { Icon, IconName, Spinner, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
-import { Icon, IconName } from '../Icon';
-import { Spinner } from '../Spinner';
-import { Text } from '../Text';
-
 export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';
-export type ButtonTheme = 'acrylic-blue' | 'evolved-green' | 'coral' | 'quartz' | 'mushroom-marble';
+export type ButtonTheme =
+  | 'acrylic-blue'
+  | 'evolved-green'
+  | 'coral'
+  | 'quartz'
+  | 'mushroom-marble'
+  | 'danger';
 
 const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
-  if (disabled) return cn('dark:text-volcanic-700 dark:fill-volcanic-700');
+  if (disabled) {
+    return cn('dark:text-volcanic-700 dark:fill-volcanic-700');
+  }
 
   switch (kind) {
     case 'primary':
@@ -24,6 +29,11 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
         return cn(
           'dark:text-evolved-green-700 dark:fill-evolved-green-700',
           'dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500'
+        );
+      } else if (theme === 'danger') {
+        return cn(
+          'dark:text-danger-500 dark:fill-danger-500',
+          'dark:group-hover:text-danger-350 dark:group-hover:fill-danger-350'
         );
       }
     default:
@@ -40,6 +50,7 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
 
   if (kind === 'outline') {
     return cn('border', {
+      'dark:border-danger-500 dark:group-hover:border-danger-350': theme === 'danger',
       'dark:border-evolved-green-700 dark:group-hover:border-evolved-green-500':
         theme === 'evolved-green',
       'dark:border-blue-500 dark:group-hover:border-blue-400': theme === 'acrylic-blue',
@@ -49,6 +60,7 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
     });
   } else {
     return cn({
+      'dark:bg-danger-500 dark:group-hover:bg-danger-350': theme === 'danger',
       'dark:bg-evolved-green-700 dark:group-hover:bg-evolved-green-500': theme === 'evolved-green',
       'dark:bg-blue-500 dark:group-hover:bg-blue-400': theme === 'acrylic-blue',
       'dark:fill-coral-700 dark:bg-coral-700 dark:group-hover:bg-coral-600': theme === 'coral',
@@ -62,6 +74,7 @@ const getCellStyles = (theme: ButtonTheme, disabled: boolean) => {
   if (disabled) return 'dark:fill-volcanic-600';
 
   return cn({
+    'dark:fill-danger-500 dark:group-hover:fill-danger-350': theme === 'danger',
     'dark:fill-evolved-green-700 dark:group-hover:fill-evolved-green-500':
       theme === 'evolved-green',
     'dark:fill-blue-500 dark:group-hover:fill-blue-400': theme === 'acrylic-blue',
@@ -87,14 +100,11 @@ export type ButtonProps = {
     kind?: 'default' | 'outline';
     customIcon?: React.ReactNode;
   };
-  buttonType?: 'submit' | 'reset' | 'button' | undefined;
+  buttonType?: 'submit' | 'reset' | 'button';
   onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
   href?: string;
-  hrefOptions?: {
-    shallow?: boolean;
-    rel?: string;
-    target?: HTMLAttributeAnchorTarget;
-  };
+  rel?: string;
+  target?: HTMLAttributeAnchorTarget;
   animate?: boolean;
   danger?: boolean;
   stretch?: boolean;
@@ -102,6 +112,8 @@ export type ButtonProps = {
 
 export const Button: React.FC<ButtonProps> = ({
   id,
+  kind = 'primary',
+  theme = kind === 'secondary' ? 'mushroom-marble' : 'acrylic-blue',
   label,
   children,
   icon,
@@ -112,17 +124,13 @@ export const Button: React.FC<ButtonProps> = ({
   buttonType,
   onClick,
   href,
-  hrefOptions,
+  rel,
+  target,
   animate = true,
-  danger = false,
   stretch = false,
-  kind = danger ? 'secondary' : 'primary',
-  theme = kind === 'secondary' ? 'mushroom-marble' : 'acrylic-blue',
   iconPosition = kind === 'cell' ? 'end' : 'start',
 }) => {
-  const labelStyles = danger
-    ? 'text-danger-350 fill-danger-350'
-    : getLabelStyles(kind, theme, disabled);
+  const labelStyles = getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
   const animateStyles =
     animate && !disabled
@@ -183,7 +191,8 @@ export const Button: React.FC<ButtonProps> = ({
       id={id}
       href={href}
       onClick={onClick}
-      {...hrefOptions}
+      rel={rel}
+      target={target}
       className={cn({ 'cursor-not-allowed': disabled, 'w-full': stretch })}
     >
       {inner}

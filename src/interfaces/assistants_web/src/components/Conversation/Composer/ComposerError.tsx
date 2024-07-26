@@ -38,7 +38,7 @@ export const ComposerError: React.FC<Props> = ({ className = '' }) => {
           onClick={handleOpenSettingsDrawer}
           className="underline"
           label="here"
-          danger
+          theme="danger"
           animate={false}
         />
         .

@@ -17,12 +17,12 @@ type Props = {
   size?: 'sm' | 'md';
   href?: string;
   target?: HTMLAttributeAnchorTarget;
-  shallow?: boolean;
   iconKind?: 'default' | 'outline';
   iconClassName?: string;
   disabled?: boolean;
   className?: string;
   outline?: boolean;
+  animate?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
@@ -41,15 +41,17 @@ export const IconButton: React.FC<Props> = ({
   href,
   target,
   outline = false,
+  animate = false,
   onClick,
 }) => {
   const iconButton = (
     <Button
       kind={outline ? 'outline' : 'secondary'}
       disabled={disabled}
+      animate={animate}
       href={href}
       onClick={onClick}
-      hrefOptions={{ target }}
+      target={target}
       icon={iconName}
       iconOptions={{ kind: iconKind, className: iconClassName, customIcon: icon }}
       className={cn(className, 'group/icon-button h-8 w-8 p-0', {

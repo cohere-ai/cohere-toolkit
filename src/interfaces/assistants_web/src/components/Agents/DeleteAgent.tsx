@@ -40,7 +40,7 @@ export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
           onClick={handleDeleteAgent}
           disabled={isPending}
           icon="arrow-right"
-          danger
+          theme="danger"
           iconPosition="end"
         />
       </div>
