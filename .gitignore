@@ -150,5 +150,5 @@ secrets.toml
 /data
 
 # Secret and config files
-/src/backend/config/configuration.yaml
-/src/backend/config/secrets.yaml
+src/backend/config/configuration.yaml
+src/backend/config/secrets.yaml
