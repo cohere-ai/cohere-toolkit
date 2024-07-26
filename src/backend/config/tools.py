@@ -201,7 +201,9 @@ def get_available_tools() -> dict[ToolName, dict]:
             tools = ALL_TOOLS.copy()
             tools.update(COMMUNITY_TOOLS)
         except ImportError:
-            logging.warning("Community tools are not available. Skipping.")
+            logging.warning(
+                "[Tools] Error loading tools: Community tools not available."
+            )
 
     for tool in tools.values():
         # Conditionally set error message

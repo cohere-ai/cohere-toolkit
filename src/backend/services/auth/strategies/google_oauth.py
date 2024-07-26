@@ -27,7 +27,9 @@ class GoogleOAuth(BaseOAuthStrategy):
                 client_secret=self.settings.client_secret,
             )
         except Exception as e:
-            logging.error(f"Error during initializing of GoogleOAuth class: {str(e)}")
+            logging.error(
+                f"[Google OAuth] Error during initializing of GoogleOAuth class: {str(e)}"
+            )
             raise
 
     def get_client_id(self):
@@ -52,7 +54,7 @@ class GoogleOAuth(BaseOAuthStrategy):
             self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
         except Exception as e:
             logging.error(
-                f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
+                f"[Google OAuth] Error fetching endpoints: `token_endpoint`, `userinfo_endpoint` or `authorization_endpoint` not found in {endpoints}."
             )
             raise
 

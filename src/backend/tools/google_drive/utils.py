@@ -98,7 +98,7 @@ async def _download_non_native_file(service: Any, compass: Compass, file_id: str
         while done is False:
             _status, done = downloader.next_chunk()
     except HttpError as error:
-        logger.error("An error occurred: {}".format(error))
+        logger.error("[Google Drive] Error downloading file: {}".format(error))
         file = None
 
     if file is None:

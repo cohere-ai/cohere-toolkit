@@ -88,9 +88,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(
-                f"Error while refreshing token with GoogleDriveAuth: {response_body}"
-            )
+            logger.error(f"[Google Drive] Error refreshing token: {response_body}")
             return False
 
         existing_tool_auth = tool_auth_crud.get_tool_auth(
@@ -115,9 +113,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
     def retrieve_auth_token(self, request: Request, session: DBSessionDep) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
-            logger.error(
-                f"Error from Google OAuth provider while retrieving Google Auth token: {error}."
-            )
+            logger.error(f"[Google Drive] Auth token error: {error}.")
             return error
 
         state = json.loads(request.query_params.get("state"))
@@ -134,9 +130,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(
-                f"Error while retrieving auth token with GoogleDriveAuth: {response_body}"
-            )
+            logger.error(f"[Google Drive] Error retrieving auth token: {response_body}")
             return response
 
         tool_auth_crud.create_tool_auth(
