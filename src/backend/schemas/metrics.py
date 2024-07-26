@@ -102,7 +102,10 @@ DEFAULT_METRICS_AGENT = MetricsAgent(
 )
 
 
-def agent_to_metrics_agent(agent: Agent) -> MetricsAgent:
+def agent_to_metrics_agent(agent: Agent | None) -> MetricsAgent:
+    if not agent:
+        return None
+
     return MetricsAgent(
         id=agent.id,
         version=agent.version,

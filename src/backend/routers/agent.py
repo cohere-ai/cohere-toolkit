@@ -25,6 +25,7 @@ from backend.schemas.metrics import (
     DEFAULT_METRICS_AGENT,
     GenericResponseMessage,
     MetricsMessageType,
+    agent_to_metrics_agent,
 )
 from backend.services.agent import (
     raise_db_error,
@@ -88,6 +89,7 @@ async def create_agent(
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
         ctx.with_agent(created_agent)
+        ctx.with_metrics_agent(agent_to_metrics_agent(created_agent))
 
         if agent.tools_metadata:
             for tool_metadata in agent.tools_metadata:
@@ -148,6 +150,7 @@ async def get_agent_by_id(
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
         ctx.with_agent(agent)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -200,6 +203,7 @@ async def update_agent(
     try:
         agent = agent_crud.update_agent(session, agent, new_agent)
         ctx.with_agent(agent)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -295,6 +299,7 @@ async def delete_agent(
     ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
     agent = validate_agent_exists(session, agent_id)
     ctx.with_agent(agent)
+    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
     try:
         agent_crud.delete_agent(session, agent_id)
@@ -479,5 +484,5 @@ async def get_default_agent(ctx: Context = Depends(get_context)):
         GenericResponseMessage: OK message.
     """
     ctx.with_event_type(MetricsMessageType.ASSISTANT_ACCESSED)
-    ctx.with_agent(DEFAULT_METRICS_AGENT)
+    ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
     return {"message": "OK"}
