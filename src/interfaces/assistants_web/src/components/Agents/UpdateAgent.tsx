@@ -4,7 +4,7 @@ import { useLocalStorageValue } from '@react-hookz/web';
 import { uniqBy } from 'lodash';
 import React, { useEffect, useState } from 'react';
 
-import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm';
+import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm/AgentForm';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Spinner, Text } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';

@@ -1,16 +1,22 @@
 'use client';
 
-import { Label } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 
-import { CreateAgent, UpdateAgent } from '@/cohere-client';
-import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
-import { Button, Checkbox, Input, InputLabel, Switch, Text, Textarea } from '@/components/Shared';
-import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { CreateAgent, ManagedTool, UpdateAgent } from '@/cohere-client';
+import { Button, Icon, Input, InputLabel, Switch, Text, Textarea } from '@/components/Shared';
+import {
+  DEFAULT_AGENT_TOOLS,
+  TOOL_FALLBACK_ICON,
+  TOOL_GOOGLE_DRIVE_ID,
+  TOOL_ID_TO_DISPLAY_INFO,
+} from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 
-import { CollapsibleSection } from '../CollapsibleSection';
+import { CollapsibleSection } from '../../CollapsibleSection';
+import { IconButton } from '../../IconButton';
+import { DataSourcesStep } from './DataSourcesStep';
+import { DefineAssistantStep } from './DefineAssistantStep';
 
 export type CreateAgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
 export type UpdateAgentFormFields = Omit<UpdateAgent, 'version' | 'temperature'>;
@@ -23,6 +29,7 @@ type Props<K extends UpdateAgentFormFields | CreateAgentFormFields> = {
   handleOpenFilePicker: VoidFunction;
   handleSubmit: VoidFunction;
   isAgentCreator: boolean;
+  canSubmit: boolean;
   errors?: Partial<Record<AgentFormFieldKeys, string>>;
   className?: string;
 };
@@ -37,17 +44,21 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
   handleSubmit,
   errors,
   isAgentCreator,
+  canSubmit,
   className,
 }: Props<K>) {
   const [currentStep, setCurrentStep] = useState<number | undefined>(0);
   const { data: toolsData } = useListTools();
-  const tools =
-    toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name ?? '')) ?? [];
+  const tools = toolsData?.filter((t) => t.is_available) ?? [];
 
-  const googleDrivefiles: GoogleDriveToolArtifact[] = useMemo(() => {
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const googleDriveFiles: GoogleDriveToolArtifact[] = useMemo(() => {
     const toolsMetadata = fields.tools_metadata ?? [];
-    return (toolsMetadata.find((t) => t.tool_name === TOOL_GOOGLE_DRIVE_ID)?.artifacts ??
-      []) as GoogleDriveToolArtifact[];
+    return (toolsMetadata.find((t) => t.tool_name === TOOL_GOOGLE_DRIVE_ID)?.artifacts ?? [
+      { type: 'folder', id: 'test', name: 'test', url: 'test' },
+      { type: 'file', id: 'test', name: 'test', url: 'test' },
+      { type: 'folder', id: 'test', name: 'test', url: 'test' },
+    ]) as GoogleDriveToolArtifact[];
   }, [fields]);
 
   const handleRemoveGoogleDriveFiles = (id: string) => {
@@ -59,12 +70,15 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
           ...toolsMetadata.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID),
           {
             ...toolsMetadata.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID),
-            artifacts: googleDrivefiles.filter((file) => file.id !== id),
+            artifacts: googleDriveFiles.filter((file) => file.id !== id),
           },
         ],
       };
     });
   };
+
+  const googleDriveTool = tools.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID);
+  const requireGoogleAuth = googleDriveTool?.is_auth_required;
 
   return (
     <div className="flex flex-col space-y-6 p-8">
@@ -76,34 +90,13 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         isExpanded={currentStep === 0}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : undefined)}
       >
-        <div className="flex flex-col space-y-4">
-          <Input
-            label="Name"
-            placeholder="e.g., HR Benefits Bot"
-            value={fields.name ?? ''}
-            onChange={(e) => setFields((prev) => ({ ...prev, name: e.target.value }))}
-            errorText={errors?.name}
-            disabled={!isAgentCreator}
-          />
-          <Textarea
-            label="Description"
-            placeholder="e.g., Answers questions about our company benefits."
-            value={fields.description ?? ''}
-            defaultRows={1}
-            onChange={(e) => setFields((prev) => ({ ...prev, description: e.target.value }))}
-            disabled={!isAgentCreator}
-          />
-          <Textarea
-            label="Instruction (Optional)"
-            placeholder="e.g., You are friendly and helpful. You answer questions based on files in Google Drive."
-            value={fields.preamble ?? ''}
-            defaultRows={1}
-            onChange={(e) => setFields((prev) => ({ ...prev, preamble: e.target.value }))}
-            disabled={!isAgentCreator}
-          />
-          {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
-          <Button className="ml-auto w-fit" label="Next" onClick={() => setCurrentStep(1)} />
-        </div>
+        <DefineAssistantStep
+          fields={fields}
+          setFields={setFields}
+          errors={errors}
+          isAgentCreator={isAgentCreator}
+          setCurrentStep={setCurrentStep}
+        />
       </CollapsibleSection>
 
       {/* Step 2 -  Data sources */}
@@ -114,15 +107,20 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         isExpanded={currentStep === 1}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : undefined)}
       >
-        <div className="flex flex-col">
-          <Label>
-            <Text styleAs="label">Active Data Sources</Text>
-          </Label>
-          <div className="flex items-center justify-between">
-            {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
-            <Button kind="secondary" label="Back" onClick={() => setCurrentStep(1)} />
-            <Button className="w-fit" label="Next" onClick={() => setCurrentStep(2)} />
-          </div>
+        <DataSourcesStep
+          fields={fields}
+          tools={tools}
+          googleDriveFiles={googleDriveFiles}
+          isAgentCreator={isAgentCreator}
+          onToolToggle={onToolToggle}
+          handleRemoveGoogleDriveFile={handleRemoveGoogleDriveFiles}
+          setFields={setFields}
+        />
+        {/* use new button styles -> kind='outline' theme='mushroom-marble' icon  */}
+        <div className="flex items-center justify-between pt-3">
+          {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
+          <Button kind="secondary" label="Back" onClick={() => setCurrentStep(1)} />
+          <Button className="w-fit" label="Next" onClick={() => setCurrentStep(2)} />
         </div>
       </CollapsibleSection>
 
@@ -134,36 +132,33 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         isExpanded={currentStep === 2}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : undefined)}
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-2">
           {tools.map((tool, i) => {
+            const toolName = tool?.name || '';
+            if (toolName === TOOL_GOOGLE_DRIVE_ID) return;
             const enabledTools = [...(fields.tools ? fields.tools : [])];
-            const currentToolEnabled = enabledTools.find((t) => t === tool.name);
+            const currentToolEnabled = enabledTools.find((t) => t === toolName);
             const isEnabled = !!currentToolEnabled;
-            const isGoogleDrive = tool.name === TOOL_GOOGLE_DRIVE_ID;
+
             return (
-              <div className="flex w-full rounded-md border p-4 dark:border-volcanic-300 dark:bg-volcanic-100">
-                <div className="flex justify-between">
-                  <Text styleAs="label">{tool.name}</Text>
-                  <Switch
-                    theme="evolved-green"
-                    checked={isEnabled}
-                    onChange={(enabled) =>
-                      isGoogleDrive
-                        ? enabled
-                          ? handleOpenFilePicker
-                          : handleRemoveGoogleDriveFiles
-                        : onToolToggle(tool.name ?? '', enabled, tool.auth_url ?? '')
-                    }
-                  />
-                </div>
-                <Text>{tool.description}</Text>
-              </div>
+              <ToolSwitch
+                key={i}
+                tool={tool}
+                checked={isEnabled}
+                handleSwitch={(enabled) =>
+                  toolName === TOOL_GOOGLE_DRIVE_ID
+                    ? enabled
+                      ? handleOpenFilePicker
+                      : handleRemoveGoogleDriveFiles
+                    : onToolToggle(tool.name ?? '', enabled, tool.auth_url ?? '')
+                }
+              />
             );
           })}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pt-2">
             {/* use new button styles -> kind='primary' theme='evolved-green' icon='arrow-right' iconPosition='end' */}
             <Button kind="secondary" label="Back" onClick={() => setCurrentStep(2)} />
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               <Button kind="secondary" label="Skip" onClick={() => setCurrentStep(3)} />
               <Button className="w-fit" label="Next" onClick={() => setCurrentStep(3)} />
             </div>
@@ -183,7 +178,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
           <div className="flex items-center justify-between">
             {/* use new button styles -> kind='primary' theme='evolved-green' icon='check' iconPosition='end' */}
             <Button kind="secondary" label="Back" onClick={() => setCurrentStep(3)} />
-            <Button className="w-fit" label="Create" onClick={handleSubmit} />
+            <Button className="w-fit" label="Create" onClick={handleSubmit} disabled={!canSubmit} />
           </div>
         </div>
       </CollapsibleSection>
@@ -191,24 +186,27 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
   );
 }
 
-const RequiredInputLabel: React.FC<{
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}> = ({ label, children, className }) => (
-  <InputLabel
-    label={
-      <div className="flex items-center gap-x-2">
-        <Text as="span" styleAs="label" className="text-volcanic-100">
-          {label}
-        </Text>
-        <Text as="span" styleAs="label" className="text-danger-350">
-          *required
-        </Text>
+const ToolSwitch: React.FC<{
+  tool: ManagedTool;
+  checked: boolean;
+  handleSwitch: (checked: boolean) => void;
+}> = ({ tool, checked, handleSwitch }) => {
+  const toolName = tool?.name || '';
+  const icon = TOOL_ID_TO_DISPLAY_INFO[toolName]?.icon ?? TOOL_FALLBACK_ICON;
+  return (
+    <div className="flex w-full items-start justify-between rounded-md border p-4 dark:border-volcanic-300 dark:bg-volcanic-100">
+      <div className="flex flex-grow flex-col space-y-1">
+        <div className="flex items-center space-x-2">
+          <Icon
+            name={icon}
+            kind="outline"
+            className="flex h-5 w-5 items-center justify-center rounded-sm dark:bg-volcanic-200 dark:text-marble-950"
+          />
+          <Text styleAs="label">{tool.name}</Text>
+        </div>
+        <Text className="dark:text-marble-800">{tool.description}</Text>
       </div>
-    }
-    className={className}
-  >
-    {children}
-  </InputLabel>
-);
+      <Switch theme="evolved-green" checked={checked} onChange={handleSwitch} />
+    </div>
+  );
+};

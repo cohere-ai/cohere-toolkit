@@ -76,7 +76,7 @@ export const useDefaultAgent = (enabled?: boolean) => {
 export const useIsAgentNameUnique = () => {
   const { data: agents } = useListAgents();
   return (name: string, omittedAgentId?: string) =>
-    agents?.every((agent) => agent.name !== name || agent.id === omittedAgentId);
+    !agents || agents?.every((agent) => agent.name !== name || agent.id === omittedAgentId);
 };
 
 export const useUpdateAgent = () => {

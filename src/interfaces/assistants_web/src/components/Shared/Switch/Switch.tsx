@@ -23,7 +23,7 @@ export const Switch: React.FC<Props> = ({
   className = '',
 }) => {
   return (
-    <div className="group flex items-center">
+    <div className="group flex w-10 items-center">
       <Field>
         <div className={cn('flex items-center justify-end gap-6', className)}>
           <HUSwitch

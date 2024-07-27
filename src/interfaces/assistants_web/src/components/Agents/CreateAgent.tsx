@@ -4,9 +4,9 @@ import { useLocalStorageValue } from '@react-hookz/web';
 import { uniqBy } from 'lodash';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
-import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
+import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm/AgentForm';
 import { Button, Icon, Input, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
@@ -90,9 +90,13 @@ export const CreateAgent: React.FC = () => {
     }
   });
 
-  const fieldErrors = {
-    ...(isAgentNameUnique(fields.name) ? {} : { name: 'Assistant name must be unique' }),
-  };
+  const fieldErrors = useMemo(() => {
+    if (!isAgentNameUnique(fields.name)) {
+      return { name: 'Assistant name must be unique' };
+    } else {
+      return {};
+    }
+  }, [fields.name]);
 
   const canSubmit = (() => {
     const { name, deployment, model } = fields;
@@ -193,6 +197,7 @@ export const CreateAgent: React.FC = () => {
       </div>
       <AgentForm<CreateAgentFormFields>
         fields={fields}
+        canSubmit={canSubmit}
         setFields={setFields}
         onToolToggle={handleToolToggle}
         handleOpenFilePicker={openFilePicker}
