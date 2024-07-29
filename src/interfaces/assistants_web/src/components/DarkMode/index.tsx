@@ -1,29 +1,57 @@
 import { useState } from 'react';
 
-import { Switch } from '@/components/Shared';
+import { Icon, Text } from '@/components/Shared';
+import { cn } from '@/utils';
 
 import './style.css';
 
 export const DarkModeToggle = () => {
-  const [isDarkMode, setIsDarkMode] = useState(() =>
+  const [isDarkMode, _setIsDarkMode] = useState(() =>
     Boolean(document.querySelector('html')?.classList.contains('dark'))
   );
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
+
+  const setIsDarkMode = (darkMode: boolean) => {
+    _setIsDarkMode(darkMode);
     if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        document.querySelector('html')?.classList.toggle('dark');
-      });
+      document.startViewTransition(() => handleToggle(darkMode));
     } else {
-      document.querySelector('html')?.classList.toggle('dark');
+      handleToggle(darkMode);
     }
   };
+
+  const handleToggle = (darkMode: boolean) => {
+    const html = document.querySelector('html');
+    if (darkMode) {
+      html?.classList.add('dark');
+    } else {
+      html?.classList.remove('dark');
+    }
+  };
+
   return (
-    <Switch
-      label="Dark mode"
-      checked={isDarkMode}
-      theme="evolved-green"
-      onChange={toggleDarkMode}
-    />
+    <section className="flex gap-6">
+      <div className="flex flex-col gap-2">
+        <button
+          className={cn('h-24 w-28 rounded-lg bg-volcanic-200', {
+            'border border-evolved-green-700': isDarkMode,
+          })}
+          onClick={() => setIsDarkMode(true)}
+        >
+          <Icon name="add" className="text-mushroom-950" />
+        </button>
+        <Text className="text-center">Dark</Text>
+      </div>
+      <div className="flex flex-col gap-2">
+        <button
+          className={cn('h-24 w-28 rounded-lg bg-mushroom-950', {
+            'border border-evolved-green-700': !isDarkMode,
+          })}
+          onClick={() => setIsDarkMode(false)}
+        >
+          <Icon name="subtract" className="text-volcanic-150" />
+        </button>
+        <Text className="text-center">Light</Text>
+      </div>
+    </section>
   );
 };
