@@ -1,6 +1,6 @@
 'use client';
 
-import { BasicButton } from '@/components/Shared';
+import { Button } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type ButtonProps = {
@@ -77,11 +77,11 @@ const oidLogo = (
  */
 export const OidcSSOButton: React.FC<ButtonProps> = ({ className, service, onClick }) => {
   return (
-    <BasicButton
-      startIcon={service === 'Google' ? googleLogo : oidLogo}
+    <Button
+      iconOptions={{ customIcon: service === 'Google' ? googleLogo : oidLogo }}
+      iconPosition="start"
       onClick={onClick}
       label={`Continue with ${service ? service : 'OpenID'}`}
-      size="sm"
       kind="secondary"
       className={cn(
         // align with the max-width of the OIDC SSO button, which is 400px

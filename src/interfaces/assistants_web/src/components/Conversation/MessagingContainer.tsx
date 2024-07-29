@@ -37,7 +37,8 @@ const MessagingContainer: React.FC<Props> = (props) => {
   const { scrollViewClassName = '', ...rest } = props;
   return (
     <ScrollToBottom
-      initialScrollBehavior="auto"
+      mode={props.messages.length === 0 ? 'top' : 'bottom'}
+      initialScrollBehavior="smooth"
       className={cn(ReservedClasses.MESSAGES, 'relative flex h-0 flex-grow flex-col')}
       scrollViewClassName={cn(
         '!h-full',
@@ -113,11 +114,11 @@ const Content: React.FC<Props> = (props) => {
 
   return (
     <div className="flex h-max min-h-full w-full">
-      <div id={MESSAGE_LIST_CONTAINER_ID} className={cn('flex h-auto min-w-0 flex-1 flex-col')}>
+      <div id={MESSAGE_LIST_CONTAINER_ID} className="flex h-auto min-w-0 flex-1 flex-col">
         <Messages {...props} ref={messageContainerDivRef} />
         {/* Composer container */}
         <div
-          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000')}
+          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000 dark:bg-volcanic-100')}
           ref={composerContainerDivRef}
         >
           <Transition
@@ -133,10 +134,9 @@ const Content: React.FC<Props> = (props) => {
           >
             <Button
               label="New message"
-              splitIcon="arrow-down"
+              kind="cell"
+              icon="arrow-down"
               onClick={handleScrollToNewMessage}
-              hideFocusStyles
-              kind="primaryOutline"
             />
           </Transition>
           {composer}

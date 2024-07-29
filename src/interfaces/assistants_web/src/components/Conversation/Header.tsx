@@ -2,14 +2,13 @@
 
 import { Transition } from '@headlessui/react';
 import { usePathname } from 'next/navigation';
-import { useContext } from 'react';
 
 import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
 import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useNavigateToNewChat } from '@/hooks/chatRoutes';
@@ -19,7 +18,7 @@ import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores
 import { cn } from '@/utils';
 
 const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
-  const { open } = useContext(ModalContext);
+  const { open } = useContextStore();
   const {
     conversation: { id: conversationId },
   } = useConversationStore();

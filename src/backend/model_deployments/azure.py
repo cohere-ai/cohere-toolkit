@@ -8,6 +8,7 @@ from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
@@ -71,7 +72,7 @@ class AzureDeployment(BaseDeployment):
 
     @collect_metrics_chat_stream
     async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs
     ) -> AsyncGenerator[Any, Any]:
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
@@ -81,5 +82,7 @@ class AzureDeployment(BaseDeployment):
             yield to_dict(event)
 
     @collect_metrics_rerank
-    async def invoke_rerank(self, query: str, documents: List[Dict[str, Any]]) -> Any:
+    async def invoke_rerank(
+        self, query: str, documents: List[Dict[str, Any]], ctx: Context
+    ) -> Any:
         return None

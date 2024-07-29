@@ -29,7 +29,7 @@ class OpenIDConnect(BaseOAuthStrategy):
                 client_secret=self.settings.client_secret,
             )
         except Exception as e:
-            logging.error(f"Error during initializing of OpenIDConnect class: {str(e)}")
+            logging.error(f"[OpenIDConnect] Error initializing OpenIDConnect: {str(e)}")
             raise
 
     def get_client_id(self):
