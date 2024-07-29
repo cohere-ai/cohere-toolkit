@@ -134,10 +134,9 @@ const Content: React.FC<Props> = (props) => {
           >
             <Button
               label="New message"
-              splitIcon="arrow-down"
+              kind="cell"
+              icon="arrow-down"
               onClick={handleScrollToNewMessage}
-              hideFocusStyles
-              kind="primaryOutline"
             />
           </Transition>
           {composer}
