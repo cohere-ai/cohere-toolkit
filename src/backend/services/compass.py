@@ -46,10 +46,12 @@ class Compass:
         """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
 
-        self.compass_api_url = compass_api_url or Settings().tools.compass.api_url 
-        self.compass_parser_url = compass_parser_url or Settings().tools.compass.parser_url 
-        self.username = compass_username or Settings().tools.compass.username 
-        self.password = compass_password or Settings().tools.compass.password 
+        self.compass_api_url = compass_api_url or Settings().tools.compass.api_url
+        self.compass_parser_url = (
+            compass_parser_url or Settings().tools.compass.parser_url
+        )
+        self.username = compass_username or Settings().tools.compass.username
+        self.password = compass_password or Settings().tools.compass.password
 
         self._validate()
 
@@ -306,20 +308,14 @@ class Compass:
 
         return docs
 
-    def _validate(self): 
+    def _validate(self):
         if not self.compass_api_url:
-            raise ValueError(
-                "COHERE_COMPASS_API_URL must be set to use Compass Tool."
-            )
+            raise ValueError("COHERE_COMPASS_API_URL must be set to use Compass Tool.")
         if not self.compass_parser_url:
             raise ValueError(
                 "COHERE_COMPASS_PARSER_URL must be set to use Compass Tool."
             )
         if not self.username:
-            raise ValueError(
-                "COHERE_COMPASS_USERNAME must be set to use Compass Tool."
-            )
+            raise ValueError("COHERE_COMPASS_USERNAME must be set to use Compass Tool.")
         if not self.password:
-            raise ValueError(
-                "COHERE_COMPASS_PASSWORD must be set to use Compass Tool."
-            )
+            raise ValueError("COHERE_COMPASS_PASSWORD must be set to use Compass Tool.")

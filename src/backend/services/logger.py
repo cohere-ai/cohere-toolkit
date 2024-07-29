@@ -31,6 +31,7 @@ def get_logger():
 
     return logger
 
+
 def send_log_message(
     logger: logging.Logger, message: str, level: str = "info", **kwargs
 ):

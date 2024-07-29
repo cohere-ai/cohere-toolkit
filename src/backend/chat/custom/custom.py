@@ -1,5 +1,5 @@
-from itertools import tee
 import traceback
+from itertools import tee
 from typing import Any, AsyncGenerator, Dict, List
 
 from fastapi import HTTPException
@@ -265,21 +265,6 @@ class CustomChat(BaseChat):
             conversation_id=kwargs.get("conversation_id"),
             user_id=ctx.get_user_id(),
         )
-        try:
-            # TODO: Call tools in parallel and check the errors, 
-            for tool_call in tool_calls:
-                tool = AVAILABLE_TOOLS.get(tool_call["name"])
-                if not tool:
-                    continue
-# empty messages 
-                outputs = await tool.implementation().call(
-                    parameters=tool_call.get("parameters"),
-                    session=kwargs.get("session"),
-                    model_deployment=deployment_model,
-                    user_id=kwargs.get("user_id"),
-                    trace_id=kwargs.get("trace_id"),
-                    agent_id=kwargs.get("agent_id"),
-                )
 
         # TODO: Call tools in parallel
         for tool_call in tool_calls:
@@ -304,11 +289,11 @@ class CustomChat(BaseChat):
                     tool_results.append({"call": tool_call, "outputs": [output]})
             except Exception as e:
                 send_log_message(
-                logger,
-                f"[Custom Chat] Error calling tool: {e} type: {repr(e)}",
-                level="error",
-                conversation_id=kwargs.get("conversation_id"),
-                user_id=kwargs.get("user_id"),  
+                    logger,
+                    f"[Custom Chat] Error calling tool: {e} type: {repr(e)}",
+                    level="info",
+                    conversation_id=kwargs.get("conversation_id"),
+                    user_id=ctx.get_user_id(),
                 )
                 raise e
 
