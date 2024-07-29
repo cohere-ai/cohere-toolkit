@@ -23,7 +23,7 @@ from backend.services.auth.utils import (
     is_enabled_authentication_strategy,
 )
 from backend.services.context import get_context
-from backend.services.logger import get_logger, send_log_message
+from backend.services.logger.utils import get_logger
 
 logger = get_logger()
 
@@ -91,13 +91,9 @@ async def login(
     strategy_name = login.strategy
     payload = login.payload
 
-    send_log_message(logger, "[Auth] Login request", "debug")
-
     if not is_enabled_authentication_strategy(strategy_name):
-        send_log_message(
-            logger,
-            f"[Auth] Error logging in: Invalid authentication strategy {strategy_name}",
-            "debug",
+        logger.error(
+            event=f"[Auth] Error logging in: Invalid authentication strategy {strategy_name}",
         )
         raise HTTPException(
             status_code=422, detail=f"Invalid Authentication strategy: {strategy_name}."
@@ -108,10 +104,8 @@ async def login(
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
         missing_keys = [key for key in strategy_payload if key not in payload.keys()]
-        send_log_message(
-            logger,
-            f"[Auth] Error logging in: Keys {missing_keys} missing from payload",
-            "debug",
+        logger.error(
+            event=f"[Auth] Error logging in: Keys {missing_keys} missing from payload",
         )
         raise HTTPException(
             status_code=422,
@@ -120,10 +114,8 @@ async def login(
 
     user = strategy.login(session, payload)
     if not user:
-        send_log_message(
-            logger,
-            f"[Auth] Error logging in: Invalid credentials in payload {payload}",
-            "debug",
+        logger.error(
+            event=f"[Auth] Error logging in: Invalid credentials in payload {payload}",
         )
         raise HTTPException(
             status_code=401,
@@ -160,8 +152,8 @@ async def authorize(
         HTTPException: If authentication fails, or strategy is invalid.
     """
     if not code:
-        send_log_message(
-            logger, "[Auth] Error authorizing login: No code provided", "debug"
+        logger.error(
+            event="[Auth] Error authorizing login: No code provided",
         )
         raise HTTPException(
             status_code=400,
@@ -174,10 +166,8 @@ async def authorize(
             strategy_name = enabled_strategy_name
 
     if not strategy_name:
-        send_log_message(
-            logger,
-            f"[Auth] Error authorizing login: Invalid strategy {strategy_name}",
-            "debug",
+        logger.error(
+            event=f"[Auth] Error authorizing login: Invalid strategy {strategy_name}",
         )
         raise HTTPException(
             status_code=400,
@@ -185,9 +175,8 @@ async def authorize(
         )
 
     if not is_enabled_authentication_strategy(strategy_name):
-        send_log_message(
-            logger,
-            f"[Auth] Error authorizing login: Strategy {strategy_name} not enabled",
+        logger.error(
+            event=f"[Auth] Error authorizing login: Strategy {strategy_name} not enabled",
         )
         raise HTTPException(
             status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
@@ -204,8 +193,8 @@ async def authorize(
         )
 
     if not userinfo:
-        send_log_message(
-            logger, f"[Auth] Error authorizing login: Invalid token {token}", "debug"
+        logger.error(
+            event=f"[Auth] Error authorizing login: Invalid token {token}",
         )
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
@@ -288,14 +277,14 @@ async def login(
         # Tool not found
         if not tool:
             err = f"Tool {tool_id} does not exist or is not available."
-            logger.error(err)
+            logger.error(event=err)
             redirect_err = f"{redirect_uri}?error={quote(err)}"
             return RedirectResponse(redirect_err)
 
         # Tool does not have Auth implemented
         if tool.auth_implementation is None:
             err = f"Tool {tool.name} does not have an auth_implementation required for Tool Auth."
-            logger.error(err)
+            logger.error(event=err)
             redirect_err = f"{redirect_uri}?error={quote(err)}"
             return RedirectResponse(redirect_err)
 
@@ -304,12 +293,12 @@ async def login(
             err = tool_auth_service.retrieve_auth_token(request, session)
         except Exception as e:
             redirect_err = f"{redirect_uri}?error={quote(str(e))}"
-            logger.error(e)
+            logger.error(event=e)
             return RedirectResponse(redirect_err)
 
         if err:
             redirect_err = f"{redirect_uri}?error={quote(err)}"
-            logger.error(err)
+            logger.error(event=err)
             return RedirectResponse(redirect_err)
 
     response = RedirectResponse(redirect_uri)

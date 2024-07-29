@@ -1,6 +1,5 @@
 import asyncio
 import json
-import logging
 import os
 import time
 import uuid
@@ -25,8 +24,8 @@ from backend.schemas.metrics import (
     MetricsModelAttrs,
     MetricsSignal,
 )
-from backend.services.auth.utils import get_header_user_id
 from backend.services.context import get_context
+from backend.services.logger.utils import get_logger
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -37,7 +36,7 @@ HEALTH_ENDPOINT_USER_ID = "health"
 # TODO: fix this hack eventually
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -76,9 +75,9 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def _confirm_env(self):
         if not REPORT_SECRET:
-            logger.warning("[Metrics] No report secret set")
+            logger.warning(event="[Metrics] No report secret set")
         if not REPORT_ENDPOINT:
-            logger.warning("[Metrics] No report endpoint set")
+            logger.warning(event="[Metrics] No report endpoint set")
 
     def _send_signal(
         self, request: Request, response: Response, duration_ms: float, ctx: Context
@@ -122,7 +121,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             signal = MetricsSignal(signal=data)
             return signal
         except Exception as e:
-            logger.warning(f"[Metrics] Failed to process event data: {e}")
+            logger.warning(event=f"[Metrics] Failed to process event data: {e}")
             return None
 
     def _attach_secret(self, data: MetricsData) -> MetricsData:
@@ -156,7 +155,7 @@ async def report_metrics(signal: MetricsSignal) -> None:
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
-        logger.error(f"[Metrics] Error posting report: {e}")
+        logger.error(event=f"[Metrics] Error posting report: {e}")
 
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
@@ -315,7 +314,7 @@ class ChatMetricHelper:
             asyncio.create_task(report_metrics(signal))
 
         except Exception as e:
-            logger.error(f"Failed to report streaming event: {e}")
+            logger.error(event=f"Failed to report streaming event: {e}")
 
 
 class RerankMetricsHelper:
@@ -361,7 +360,7 @@ class RerankMetricsHelper:
             signal = MetricsSignal(signal=metrics_data)
             asyncio.create_task(report_metrics(signal))
         except Exception as e:
-            logger.error(f"[Metrics] Error reporting rerank metrics: {e}")
+            logger.error(event=f"[Metrics] Error reporting rerank metrics: {e}")
 
     @staticmethod
     def report_rerank_failed_metrics(
@@ -388,7 +387,7 @@ class RerankMetricsHelper:
             signal = MetricsSignal(signal=metrics_data)
             asyncio.create_task(report_metrics(signal))
         except Exception as e:
-            logger.error(f"Failed to report rerank metrics: {e}")
+            logger.error(event=f"Failed to report rerank metrics: {e}")
 
     @staticmethod
     def _get_init_data(ctx: Context) -> tuple:

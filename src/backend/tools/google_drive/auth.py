@@ -11,7 +11,7 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 from backend.tools.base import BaseToolAuthentication
 from backend.tools.google_drive.tool import GoogleDrive
 
@@ -88,7 +88,9 @@ class GoogleDriveAuth(BaseToolAuthentication):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(f"[Google Drive] Error refreshing token: {response_body}")
+            logger.error(
+                event=f"[Google Drive] Error refreshing token: {response_body}"
+            )
             return False
 
         existing_tool_auth = tool_auth_crud.get_tool_auth(
@@ -113,7 +115,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
     def retrieve_auth_token(self, request: Request, session: DBSessionDep) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
-            logger.error(f"[Google Drive] Auth token error: {error}.")
+            logger.error(event=f"[Google Drive] Auth token error: {error}.")
             return error
 
         state = json.loads(request.query_params.get("state"))
@@ -130,7 +132,9 @@ class GoogleDriveAuth(BaseToolAuthentication):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(f"[Google Drive] Error retrieving auth token: {response_body}")
+            logger.error(
+                event=f"[Google Drive] Error retrieving auth token: {response_body}"
+            )
             return response
 
         tool_auth_crud.create_tool_auth(
