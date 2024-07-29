@@ -1,7 +1,14 @@
 from typing import List, Optional
 from uuid import uuid4
 
-from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint, ForeignKeyConstraint
+from sqlalchemy import (
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    PrimaryKeyConstraint,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -19,15 +26,15 @@ class ConversationFileAssociation(Base):
     conversation: Mapped["Conversation"] = relationship(
         "Conversation",
         primaryjoin="and_(ConversationFileAssociation.conversation_id == Conversation.id, "
-                    "ConversationFileAssociation.conversation_user_id == Conversation.user_id)",
-        back_populates="conversation_file_associations"
+        "ConversationFileAssociation.conversation_user_id == Conversation.user_id)",
+        back_populates="conversation_file_associations",
     )
 
     __table_args__ = (
         ForeignKeyConstraint(
             ["conversation_id", "conversation_user_id"],
             ["conversations.id", "conversations.user_id"],
-            ondelete="CASCADE"
+            ondelete="CASCADE",
         ),
         UniqueConstraint("conversation_id", "file_id", name="unique_conversation_file"),
     )
