@@ -116,6 +116,7 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
       <Tooltip
         label={isCopied ? 'Copied!' : 'Copy'}
         duration={1000}
+        size="sm"
         showOutline={false}
         hover
         className="-translate-x-[40%]"
@@ -126,7 +127,7 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
             className={cn(
               'flex rounded p-2',
               'transition ease-in-out',
-              'text-volcanic-300 hover:bg-mushroom-900 hover:text-mushroom-300',
+              'text-volcanic-300 hover:bg-mushroom-900 hover:text-mushroom-300 dark:text-mushroom-800 dark:hover:bg-inherit dark:hover:text-mushroom-800',
               iconClassName
             )}
             name={iconName}
