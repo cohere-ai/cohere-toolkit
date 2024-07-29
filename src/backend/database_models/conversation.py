@@ -29,7 +29,7 @@ class ConversationFileAssociation(Base):
 class Conversation(Base):
     __tablename__ = "conversations"
 
-    id: Mapped[str] = mapped_column(String, default=lambda: str(uuid4()), unique=True)
+    id: Mapped[str] = mapped_column(String, default=lambda: str(uuid4()), primary_key=True, unique=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(String, default="New Conversation")
     description: Mapped[str] = mapped_column(String, nullable=True, default=None)
@@ -61,7 +61,6 @@ class Conversation(Base):
 
     __table_args__ = (
         UniqueConstraint("id", "user_id", name="conversation_id_user_id"),
-        PrimaryKeyConstraint("id", "user_id", name="conversation_pkey"),
         Index("conversation_user_agent_index", "user_id", "agent_id"),
         Index("conversation_user_id_index", "id", "user_id", unique=True),
     )
