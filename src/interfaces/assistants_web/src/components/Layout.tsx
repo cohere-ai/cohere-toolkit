@@ -4,7 +4,6 @@ import React, { Children, PropsWithChildren } from 'react';
 
 import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
 import { MobileHeader } from '@/components/MobileHeader';
-import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
 import { cn } from '@/utils/cn';
 
 export const LeftSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
@@ -54,7 +53,6 @@ export const Layout: React.FC<Props> = ({ children }) => {
           >
             {mainElement}
           </section>
-          <SettingsDrawer />
         </div>
       </div>
       <AgentsSidePanel className="rounded-bl-none rounded-tl-none md:hidden">

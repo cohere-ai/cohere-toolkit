@@ -131,7 +131,7 @@ export const Tabs: React.FC<TabsProps> = ({
         <div className="hidden flex-1 border-b border-marble-950 md:block dark:border-volcanic-150" />
       </div>
       {children && (
-        <TabPanels className={cn('w-full pt-10 lg:pt-14', panelsClassName)}>
+        <TabPanels className={cn('w-full pt-10', panelsClassName)}>
           {children.filter(Boolean).map((child, i) => (
             <TabPanel key={i} className={tabPanelClassName}>
               {child}
