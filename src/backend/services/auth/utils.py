@@ -79,3 +79,22 @@ def get_header_user_id(request: Request) -> str:
     else:
         user_id = request.headers.get("User-Id", "")
         return user_id
+
+
+def has_header_user_id(request: Request) -> bool:
+    """
+    Check whether we can get the user_id from the request headers.
+
+    Args:
+        request (Request): current Request
+
+    Returns:
+        bool: Whether the user_id is present in the headers
+    """
+
+    if is_authentication_enabled():
+        authorization = request.headers.get("Authorization")
+        return authorization is not None
+    else:
+        user_id = request.headers.get("User-Id")
+        return user_id is not None

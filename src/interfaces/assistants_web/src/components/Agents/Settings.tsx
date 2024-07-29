@@ -14,6 +14,11 @@ const tabs = [
     <Icon name="users-three" kind="outline" />
     <Text>Connections</Text>
   </div>,
+  <div className="flex items-center gap-2" key="company">
+    {/* TODO(tomeu): replace with SUN icon */}
+    <Icon name="add" kind="outline" />
+    <Text>appearance</Text>
+  </div>,
   <div className="flex items-center gap-2" key="private">
     <Icon name="profile" kind="outline" />
     <Text>Profile</Text>
@@ -57,6 +62,7 @@ export const Settings = () => {
           fitTabsContent
         >
           <Connections />
+          <Appearance />
           <Profile />
         </Tabs>
       </section>
@@ -82,6 +88,24 @@ const Connections = () => (
 const Profile = () => {
   return (
     <Wrapper>
+      <Button
+        className="dark:[&_span]:text-evolved-green-700"
+        label="Sign out"
+        href="/logout"
+        kind="secondary"
+        // TODO(tomeu): replace with Sign out icon
+        startIcon="arrow-right"
+      />
+    </Wrapper>
+  );
+};
+
+const Appearance = () => {
+  return (
+    <Wrapper>
+      <Text styleAs="h5" className="mb-6">
+        Appearance
+      </Text>
       <DarkModeToggle />
     </Wrapper>
   );
