@@ -120,13 +120,13 @@ const RightPanel: React.FC<Props> = () => {
             >
               <Banner theme="dark" className="flex flex-col">
                 Add a data source to expand the assistant’s knowledge.
-                <Button theme="acrylic-blue" className="mt-4" label="Add Data Source" icon="add" />
+                <Button theme="blue" className="mt-4" label="Add Data Source" icon="add" />
               </Banner>
             </Transition>
           </div>
         )}
 
-        <section className="relative flex flex-col gap-y-8">
+        <section className="relative flex flex-col gap-y-6">
           <div className="flex gap-x-2">
             <Text styleAs="label" className="font-medium">
               My files

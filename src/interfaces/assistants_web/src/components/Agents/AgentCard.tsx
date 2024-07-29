@@ -6,7 +6,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversations } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
-import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -35,14 +35,12 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
     ? pathname === `/a/${id}/c/${conversationId}`
     : pathname === `/a/${id}`;
 
-  const { setEditAgentPanelOpen } = useAgentsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
   const { clearComposerFiles } = useFileActions();
 
   const resetConversationSettings = () => {
-    setEditAgentPanelOpen(false);
     clearComposerFiles();
     resetConversation();
     resetCitations();
