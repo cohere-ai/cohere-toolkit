@@ -4,8 +4,7 @@ from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from backend.schemas.context import Context
-from backend.schemas.user import DEFAULT_USER_ID
-from backend.services.auth.utils import get_header_user_id
+from backend.services.auth.utils import get_header_user_id, has_header_user_id
 
 
 class ContextMiddleware:
@@ -29,11 +28,10 @@ class ContextMiddleware:
         request = Request(scope)
         context.with_deployment_name(request.headers.get("Deployment-Name", ""))
 
-        # Not all endpoints require authentication, so we need to handle the case where the user_id is not present
-        try:
+        if has_header_user_id(request):
             user_id = get_header_user_id(request)
-        except:
-            user_id = DEFAULT_USER_ID
+        else:
+            user_id = None
 
         context.with_user_id(user_id)
 
