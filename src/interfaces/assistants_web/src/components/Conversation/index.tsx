@@ -1,15 +1,12 @@
 'use client';
 
-import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import { Agent, ManagedTool } from '@/cohere-client';
-import { UpdateAgent } from '@/components/Agents/UpdateAgent';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import RightPanel from '@/components/Conversation/RightPanel';
-import { Tabs } from '@/components/Shared';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
@@ -19,7 +16,6 @@ import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import {
-  useAgentsStore,
   useCitationsStore,
   useConversationStore,
   useParamsStore,
@@ -27,7 +23,6 @@ import {
 } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
-import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -65,9 +60,7 @@ const Conversation: React.FC<Props> = ({
   const {
     params: { fileIds },
   } = useParamsStore();
-  const {
-    agents: { isEditAgentPanelOpen },
-  } = useAgentsStore();
+
   const { addRecentAgentId } = useRecentAgents();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 

@@ -88,7 +88,6 @@ export const useAgentsStore = () => {
     (state) => ({
       agents: state.agents,
       setAgentsSidePanelOpen: state.setAgentsSidePanelOpen,
-      setEditAgentPanelOpen: state.setEditAgentPanelOpen,
     }),
     shallow
   );
