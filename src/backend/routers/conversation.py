@@ -89,7 +89,7 @@ async def get_conversation(
     if not conversation:
         raise HTTPException(
             status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+            detail=f"Conversation with ID: {conversation_id} not found. 1",
         )
 
     files = get_file_service().get_files_by_conversation_id(

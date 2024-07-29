@@ -81,7 +81,7 @@ class FileService:
             if not conversation:
                 raise HTTPException(
                     status_code=404,
-                    detail=f"Conversation with ID: {conversation_id} not found.",
+                    detail=f"Conversation with ID: {conversation_id} not found. 3",
                 )
 
             files_to_upload.append(
@@ -170,7 +170,7 @@ class FileService:
         if not conversation:
             raise HTTPException(
                 status_code=404,
-                detail=f"Conversation with ID: {conversation_id} not found.",
+                detail=f"Conversation with ID: {conversation_id} not found. 4",
             )
         file_ids = conversation.file_ids
 

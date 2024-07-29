@@ -7,11 +7,12 @@ from backend.chat.custom.custom import CustomChat
 from backend.crud import conversation as conversation_crud
 from backend.database_models import File as FileModel
 from backend.database_models import Message as MessageModel
-from backend.database_models.conversation import Conversation
+from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
+from backend.schemas.conversation import Conversation
 from backend.schemas.file import File
 from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
@@ -51,7 +52,7 @@ def validate_conversation(
     if not conversation:
         raise HTTPException(
             status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found.",
+            detail=f"Conversation with ID: {conversation_id} not found. 2",
         )
     return conversation
 

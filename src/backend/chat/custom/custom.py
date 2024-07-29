@@ -162,7 +162,7 @@ class CustomChat(BaseChat):
         if chat_request.file_ids or chat_request.agent_id:
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
                 files = get_file_service().get_files_by_conversation_id(
-                    session, user_id, kwargs.get("conversation_id")
+                    session, user_id, ctx.get_conversation_id()
                 )
 
                 agent_files = []
