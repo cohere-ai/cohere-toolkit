@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Icon, Switch, Tabs } from '@/components/Shared';
+import { Banner, Button, Icon, Switch, Tabs } from '@/components/Shared';
 
 type Props = {};
 
@@ -27,7 +27,7 @@ const RightPanel: React.FC<Props> = () => {
       tabGroupClassName="h-full"
       kind="blue"
     >
-      <div>
+      <div className="flex flex-col gap-y-4">
         <Switch
           label="assistant knowledge"
           theme="blue"
@@ -37,6 +37,7 @@ const RightPanel: React.FC<Props> = () => {
           tooltip={{ label: 'tbd' }}
           reverse
         />
+        <Banner theme="dark">Add a data source to expand the assistant’s knowledge.</Banner>
       </div>
       <div>Citations</div>
     </Tabs>
