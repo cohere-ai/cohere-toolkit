@@ -52,7 +52,7 @@ def validate_conversation(
     if not conversation:
         raise HTTPException(
             status_code=404,
-            detail=f"Conversation with ID: {conversation_id} not found. 2",
+            detail=f"Conversation with ID: {conversation_id} not found.",
         )
     return conversation
 
