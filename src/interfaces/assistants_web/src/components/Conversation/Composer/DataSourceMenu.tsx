@@ -1,78 +1,41 @@
 'use client';
 
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import React, { useCallback } from 'react';
+import React from 'react';
 
-import { ManagedTool } from '@/cohere-client';
-import { ListboxOption, ListboxOptions } from '@/components/Conversation/Composer/ListboxOptions';
-import { IconName, Text } from '@/components/Shared';
-import { TOOL_FALLBACK_ICON } from '@/constants';
-import { useChatRoutes } from '@/hooks/chatRoutes';
+import { Agent, ManagedTool } from '@/cohere-client';
+import { Icon, Switch, Text } from '@/components/Shared';
+import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
+import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
-type TagValue = { tag: Tag };
-export type Tag = {
-  id: string;
-  name: string;
-  getValue: () => ManagedTool | string;
-  icon?: IconName;
-};
-
 export type Props = {
-  show: boolean;
-  tagQuery: string;
-  tags: { fileIds: Tag[]; tools: Tag[] };
-  onChange: (tag: TagValue) => void;
-  onHide: VoidFunction;
-  onToggle: VoidFunction;
-  onSeeAll: VoidFunction;
+  agent?: Agent;
+  tools?: ManagedTool[];
 };
 
 /**
  * @description Displays a list of available tools and data sources that the user can select from.
- * These can be filtered by the tagQuery, which starts with '@' and ends when a space character is found
  */
-export const DataSourceMenu: React.FC<Props> = ({
-  show,
-  onChange,
-  tags,
-  onHide,
-  onToggle,
-  onSeeAll,
-}) => {
+export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
   const {
-    params: { tools },
-    setParams,
+    params: { tools: paramsTools },
   } = useParamsStore();
-
-  const handleChange = useCallback(
-    (value: { tag: Tag }) => {
-      const newTools = (tools ?? [])?.includes(value.tag.getValue() as ManagedTool)
-        ? tools?.filter((t) => t !== value.tag.getValue())
-        : (tools ?? []).concat(value.tag.getValue() as ManagedTool);
-
-      setParams({
-        tools: newTools,
-      });
-
-      onChange(value);
-    },
-    [onChange, setParams, tools]
-  );
-
-  const { agentId } = useChatRoutes();
+  const { availableTools, handleToggle } = useAvailableTools({
+    agent,
+    managedTools: tools,
+  });
 
   return (
     <Popover className="relative">
       <PopoverButton
         as="button"
-        onClick={onToggle}
         className={({ open }) =>
           cn(
             'flex items-center justify-center rounded border px-1.5 py-1 outline-none transition-colors',
-            getCohereColor(agentId, {
+            getCohereColor(agent?.id, {
               text: true,
               contrastText: open,
               border: true,
@@ -82,7 +45,7 @@ export const DataSourceMenu: React.FC<Props> = ({
         }
       >
         <Text styleAs="label" as="span" className="font-medium">
-          Tools: {tools?.length ?? 0}
+          Tools: {paramsTools?.length ?? 0}
         </Text>
       </PopoverButton>
       <PopoverPanel
@@ -91,46 +54,54 @@ export const DataSourceMenu: React.FC<Props> = ({
         transition
       >
         <div
-          role="listbox"
-          aria-multiselectable="true"
           className={cn(
-            'z-tag-suggestions] md:w-[300px]',
+            'z-tag-suggestions flex flex-col',
             'w-full rounded-md p-2 focus:outline-none',
-            'bg-mushroom-950 dark:bg-volcanic-200'
+            'bg-mushroom-950 dark:bg-volcanic-150'
           )}
         >
-          <ToolOptions
-            tags={tags.tools}
-            onOptionSelect={handleChange}
-            selectedTagIds={(tools ?? []).map((c) => c.name ?? '')}
-            onSeeAll={onSeeAll}
-          />
+          <Text styleAs="label" className="mb-2 text-mushroom-300 dark:text-marble-800">
+            Avaiable tools
+          </Text>
+          {availableTools.map((tool, i) => (
+            <div
+              key={tool.name}
+              className={cn(
+                'flex w-full items-start justify-between gap-x-2 px-1.5 py-3',
+                'focus:outline focus:outline-volcanic-300',
+                {
+                  'border-b border-mushroom-800 md:w-[300px] dark:border-volcanic-300':
+                    i !== availableTools.length - 1,
+                }
+              )}
+            >
+              <div className="flex flex-1 justify-between gap-x-2">
+                <div className="flex gap-x-2">
+                  <div className="relative flex items-center justify-center rounded bg-mushroom-800 p-1 dark:bg-volcanic-200">
+                    <Icon
+                      name={TOOL_ID_TO_DISPLAY_INFO[tool.name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
+                      kind="outline"
+                      size="sm"
+                      className="flex items-center"
+                    />
+                    <div className="absolute -bottom-0.5 -right-0.5  size-2 rounded-full bg-success-300" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <Text as="span">{tool.display_name}</Text>
+                  </div>
+                </div>
+                {!agent && (
+                  <Switch
+                    theme="evolved-green"
+                    checked={!!paramsTools?.find((t) => t.name === tool.name)}
+                    onChange={(checked) => handleToggle(tool.name!, checked)}
+                  />
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </PopoverPanel>
     </Popover>
-  );
-};
-
-const ToolOptions: React.FC<{
-  tags: Tag[];
-  selectedTagIds: string[];
-  onOptionSelect: (tag: { tag: Tag }) => void;
-  onSeeAll?: VoidFunction;
-}> = ({ tags, selectedTagIds, onSeeAll, onOptionSelect }) => {
-  return (
-    <ListboxOptions title="Available tools" onSeeAll={onSeeAll}>
-      {tags.map((tag) => {
-        let selected = selectedTagIds.some((t) => t === tag.id);
-        return (
-          <ListboxOption
-            key={tag.id}
-            icon={tag.icon ?? TOOL_FALLBACK_ICON}
-            selected={selected}
-            name={tag.name}
-            onSelect={() => onOptionSelect({ tag })}
-          />
-        );
-      })}
-    </ListboxOptions>
   );
 };

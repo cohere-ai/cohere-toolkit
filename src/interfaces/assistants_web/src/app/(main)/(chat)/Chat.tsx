@@ -121,7 +121,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   ) : isError ? (
     <ConversationError error={error} />
   ) : (
-    <Conversation conversationId={conversationId} agentId={agentId} startOptionsEnabled />
+    <Conversation conversationId={conversationId} agent={agent} tools={tools} startOptionsEnabled />
   );
 };
 

@@ -24,6 +24,7 @@ from backend.routers.experimental_features import router as experimental_feature
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
+from backend.services.context import ContextMiddleware
 from backend.services.logger import LoggingMiddleware, get_logger
 from backend.services.metrics import MetricsMiddleware
 
@@ -75,6 +76,7 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(ContextMiddleware)  # This should be the first middleware
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
 

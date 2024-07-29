@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
@@ -14,14 +14,8 @@ from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models import File as FileModel
 from backend.database_models.database import DBSessionDep
-from backend.routers.utils import (
-    add_agent_to_request_state,
-    add_agent_tool_metadata_to_request_state,
-    add_default_agent_to_request_state,
-    add_event_type_to_request_state,
-    add_session_user_to_request_state,
-)
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.schemas.conversation import (
     ConversationPublic,
     ConversationWithoutMessages,
@@ -36,8 +30,8 @@ from backend.schemas.file import (
     UpdateFileRequest,
     UploadFileResponse,
 )
-from backend.services.auth.utils import get_header_user_id
-from backend.services.chat import get_deployment_config
+from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
+from backend.services.context import get_context
 from backend.services.conversation import (
     DEFAULT_TITLE,
     GENERATE_TITLE_PROMPT,
@@ -53,6 +47,9 @@ from backend.services.file import (
     validate_file,
     validate_file_size,
 )
+from backend.services.logger import get_logger, send_log_message
+
+logger = get_logger()
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -63,7 +60,10 @@ router.name = RouterName.CONVERSATION
 # CONVERSATIONS
 @router.get("/{conversation_id}", response_model=ConversationPublic)
 async def get_conversation(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str,
+    session: DBSessionDep,
+    request: Request,
+    ctx: Context = Depends(get_context),
 ) -> ConversationPublic:
     """
     Get a conversation by ID.
@@ -79,7 +79,12 @@ async def get_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+    send_log_message(
+        logger,
+        f"[Conversation] Get conversation request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
     conversation = validate_conversation(session, conversation_id, user_id)
     return conversation
 
@@ -92,6 +97,7 @@ async def list_conversations(
     agent_id: str = None,
     session: DBSessionDep,
     request: Request,
+    ctx: Context = Depends(get_context),
 ) -> list[ConversationWithoutMessages]:
     """
     List all conversations.
@@ -106,7 +112,12 @@ async def list_conversations(
     Returns:
         list[ConversationWithoutMessages]: List of conversations.
     """
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+    send_log_message(
+        logger,
+        f"[Conversation] List conversations request: User ID {user_id}",
+        "debug",
+    )
 
     return conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -118,7 +129,7 @@ async def update_conversation(
     conversation_id: str,
     new_conversation: UpdateConversationRequest,
     session: DBSessionDep,
-    request: Request,
+    ctx: Context = Depends(get_context),
 ) -> ConversationPublic:
     """
     Update a conversation by ID.
@@ -127,7 +138,7 @@ async def update_conversation(
         conversation_id (str): Conversation ID.
         new_conversation (UpdateConversationRequest): New conversation data.
         session (DBSessionDep): Database session.
-        request (Request): Request object.
+        ctx (Context): Context object.
 
     Returns:
         ConversationPublic: Updated conversation.
@@ -135,9 +146,13 @@ async def update_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
     conversation = validate_conversation(session, conversation_id, user_id)
-
+    send_log_message(
+        logger,
+        f"[Conversation] Update conversation request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
     conversation = conversation_crud.update_conversation(
         session, conversation, new_conversation
     )
@@ -147,7 +162,7 @@ async def update_conversation(
 
 @router.delete("/{conversation_id}")
 async def delete_conversation(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
 ) -> DeleteConversationResponse:
     """
     Delete a conversation by ID.
@@ -155,7 +170,7 @@ async def delete_conversation(
     Args:
         conversation_id (str): Conversation ID.
         session (DBSessionDep): Database session.
-        request (Request): Request object.
+        ctx (Context): Context object.
 
     Returns:
         DeleteConversationResponse: Empty response.
@@ -163,7 +178,13 @@ async def delete_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+    send_log_message(
+        logger,
+        f"[Conversation] Delete conversation request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
+
     _ = validate_conversation(session, conversation_id, user_id)
 
     conversation_crud.delete_conversation(session, conversation_id, user_id)
@@ -179,6 +200,7 @@ async def search_conversations(
     offset: int = 0,
     limit: int = 100,
     agent_id: str = None,
+    ctx: Context = Depends(get_context),
 ) -> list[ConversationWithoutMessages]:
     """
     Search conversations by title.
@@ -187,21 +209,34 @@ async def search_conversations(
         query (str): Query string to search for in conversation titles.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        offset (int): Offset to start the list.
+        limit (int): Limit of conversations to be listed.
+        agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
+        ctx (Context): Context object.
 
     Returns:
         list[ConversationWithoutMessages]: List of conversations that match the query.
     """
-    user_id = get_header_user_id(request)
-    deployment_name = request.headers.get("Deployment-Name", "")
-    model_deployment = get_deployment(deployment_name)
-    trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
+    user_id = ctx.get_user_id()
+    deployment_name = ctx.get_deployment_name()
+    model_deployment = get_deployment(deployment_name, ctx)
+
+    send_log_message(
+        logger,
+        f"[Conversation] Search conversation request: User ID {user_id} Agent ID {agent_id}",
+        "debug",
+    )
+
+    agent = DEFAULT_METRICS_AGENT
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
 
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        if agent:
-            add_agent_to_request_state(request, agent)
+        ctx.with_agent(agent)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     else:
-        add_default_agent_to_request_state(request)
+        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -216,10 +251,7 @@ async def search_conversations(
         conversations,
         rerank_documents,
         model_deployment,
-        user_id,
-        agent_id,
-        trace_id,
-        request,
+        ctx,
     )
 
     return filtered_documents
@@ -230,9 +262,9 @@ async def search_conversations(
 @router.post("/upload_file", response_model=UploadFileResponse)
 async def upload_file(
     session: DBSessionDep,
-    request: Request,
     conversation_id: str = Form(None),
     file: FastAPIUploadFile = RequestFile(...),
+    ctx: Context = Depends(get_context),
 ) -> UploadFileResponse:
     """
     Uploads and creates a File object.
@@ -240,8 +272,9 @@ async def upload_file(
 
     Args:
         session (DBSessionDep): Database session.
-        file (FastAPIUploadFile): File to be uploaded.
         conversation_id (Optional[str]): Conversation ID passed from request query parameter.
+        file (FastAPIUploadFile): File to be uploaded.
+        ctx (Context): Context object.
 
     Returns:
         UploadFileResponse: Uploaded file.
@@ -251,7 +284,13 @@ async def upload_file(
         HTTPException: If the file wasn't uploaded correctly. Status code 500.
     """
 
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+
+    send_log_message(
+        logger,
+        f"[Conversation] Upload file request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
 
     validate_file_size(session, user_id, file)
 
@@ -311,9 +350,9 @@ async def upload_file(
 @router.post("/batch_upload_file", response_model=list[UploadFileResponse])
 async def batch_upload_file(
     session: DBSessionDep,
-    request: Request,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
+    ctx: Context = Depends(get_context),
 ) -> UploadFileResponse:
     """
     Uploads and creates a batch of File object.
@@ -321,8 +360,9 @@ async def batch_upload_file(
 
     Args:
         session (DBSessionDep): Database session.
-        file (list[FastAPIUploadFile]): List of files to be uploaded.
         conversation_id (Optional[str]): Conversation ID passed from request query parameter.
+        files (list[FastAPIUploadFile]): List of files to be uploaded.
+        ctx (Context): Context object.
 
     Returns:
         list[UploadFileResponse]: List of uploaded files.
@@ -332,7 +372,13 @@ async def batch_upload_file(
         HTTPException: If the file wasn't uploaded correctly. Status code 500.
     """
 
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+
+    send_log_message(
+        logger,
+        f"[Conversation] Batch upload file request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
 
     validate_batch_file_size(session, user_id, files)
 
@@ -393,7 +439,7 @@ async def batch_upload_file(
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
 async def list_files(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
 ) -> list[ListFile]:
     """
     List all files from a conversation. Important - no pagination support yet.
@@ -401,6 +447,7 @@ async def list_files(
     Args:
         conversation_id (str): Conversation ID.
         session (DBSessionDep): Database session.
+        ctx (Context): Context object.
 
     Returns:
         list[ListFile]: List of files from the conversation.
@@ -408,7 +455,13 @@ async def list_files(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+    send_log_message(
+        logger,
+        f"[Conversation] List files request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
+
     _ = validate_conversation(session, conversation_id, user_id)
 
     files = file_crud.get_files_by_conversation_id(session, conversation_id, user_id)
@@ -421,7 +474,7 @@ async def update_file(
     file_id: str,
     new_file: UpdateFileRequest,
     session: DBSessionDep,
-    request: Request,
+    ctx: Context = Depends(get_context),
 ) -> FilePublic:
     """
     Update a file by ID.
@@ -431,6 +484,7 @@ async def update_file(
         file_id (str): File ID.
         new_file (UpdateFileRequest): New file data.
         session (DBSessionDep): Database session.
+        ctx (Context): Context object.
 
     Returns:
         FilePublic: Updated file.
@@ -438,7 +492,14 @@ async def update_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+
+    send_log_message(
+        logger,
+        f"[Conversation] Update files request: User ID {user_id} Conversation ID {conversation_id} File ID {file_id}",
+        "debug",
+    )
+
     _ = validate_conversation(session, conversation_id, user_id)
     file = validate_file(session, file_id, user_id)
 
@@ -449,7 +510,10 @@ async def update_file(
 
 @router.delete("/{conversation_id}/files/{file_id}")
 async def delete_file(
-    conversation_id: str, file_id: str, session: DBSessionDep, request: Request
+    conversation_id: str,
+    file_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> DeleteFileResponse:
     """
     Delete a file by ID.
@@ -465,7 +529,13 @@ async def delete_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
+    user_id = ctx.get_user_id()
+    send_log_message(
+        logger,
+        f"[Conversation] Delete file request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
+
     _ = validate_conversation(session, conversation_id, user_id)
     _ = validate_file(session, file_id, user_id)
 
@@ -477,7 +547,10 @@ async def delete_file(
 # MISC
 @router.post("/{conversation_id}/generate-title", response_model=GenerateTitleResponse)
 async def generate_title(
-    conversation_id: str, session: DBSessionDep, request: Request
+    conversation_id: str,
+    session: DBSessionDep,
+    request: Request,
+    ctx: Context = Depends(get_context),
 ) -> GenerateTitleResponse:
     """
     Generate a title for a conversation and update the conversation with the generated title.
@@ -485,6 +558,8 @@ async def generate_title(
     Args:
         conversation_id (str): Conversation ID.
         session (DBSessionDep): Database session.
+        request (Request): Request object.
+        ctx (Context): Context object.
 
     Returns:
         str: Generated title for the conversation.
@@ -492,22 +567,23 @@ async def generate_title(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = get_header_user_id(request)
-    conversation = validate_conversation(session, conversation_id, user_id)
+    user_id = ctx.get_user_id()
+    send_log_message(
+        logger,
+        f"[Conversation] Generate title request: User ID {user_id} Conversation ID {conversation_id}",
+        "debug",
+    )
 
+    ctx.with_deployment_config()
+
+    conversation = validate_conversation(session, conversation_id, user_id)
     agent_id = conversation.agent_id if conversation.agent_id else None
-    trace_id = request.state.trace_id if hasattr(request.state, "trace_id") else None
-    deployment_name = request.headers.get("Deployment-Name", "")
-    model_config = get_deployment_config(request)
 
     title = await generate_conversation_title(
         session,
         conversation,
-        deployment_name,
-        model_config,
-        trace_id,
-        user_id,
         agent_id,
+        ctx,
     )
 
     conversation_crud.update_conversation(
