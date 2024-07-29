@@ -119,7 +119,7 @@ const RightPanel: React.FC<Props> = () => {
               leaveTo="opacity-0 scale-90"
               as="div"
             >
-              <Banner theme="dark" className="flex flex-col">
+              <Banner className="flex flex-col">
                 Add a data source to expand the assistant’s knowledge.
                 <Button theme="blue" className="mt-4" label="Add Data Source" icon="add" />
               </Banner>

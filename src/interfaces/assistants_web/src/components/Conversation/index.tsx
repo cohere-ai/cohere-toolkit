@@ -1,19 +1,16 @@
 'use client';
 
-import { Transition } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import { Agent, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
-import RightPanel from '@/components/Conversation/RightPanel';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
 import { useRecentAgents } from '@/hooks/agents';
-import { useIsDesktop } from '@/hooks/breakpoint';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -45,8 +42,6 @@ const Conversation: React.FC<Props> = ({
   startOptionsEnabled = false,
 }) => {
   const chatHotKeys = useChatHotKeys();
-
-  const isDesktop = useIsDesktop();
 
   const { uploadFiles } = useFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
@@ -141,7 +136,7 @@ const Conversation: React.FC<Props> = ({
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-full w-full min-w-0 flex-col rounded-lg border-marble-800 bg-white md:border dark:border-volcanic-150 dark:bg-volcanic-100">
+      <div className="flex h-full w-full min-w-0 flex-col bg-marble-1000 dark:bg-volcanic-100">
         <HotKeysProvider customHotKeys={chatHotKeys} />
         <Header agentId={agent?.id} />
 
@@ -175,19 +170,6 @@ const Conversation: React.FC<Props> = ({
           />
         </div>
       </div>
-      <Transition
-        as="div"
-        show={isDesktop}
-        className="w-full flex-shrink-0 px-6 md:w-[280px] lg:w-[360px]"
-        enter="transition-transform duration-300 ease-in-out"
-        enterFrom="transform translate-x-full"
-        enterTo="transform translate-x-0"
-        leave="transition-transform duration-300 ease-in-out"
-        leaveFrom="transform translate-x-0"
-        leaveTo="transform translate-x-full"
-      >
-        <RightPanel />
-      </Transition>
     </div>
   );
 };

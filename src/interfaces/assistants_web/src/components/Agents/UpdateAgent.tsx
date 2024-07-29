@@ -245,7 +245,7 @@ const InfoBanner: React.FC<{ agentName: string; className?: string }> = ({
   agentName,
   className,
 }) => (
-  <Banner theme="dark" className={cn('w-full', className)}>
+  <Banner className={cn('w-full', className)}>
     Updating {agentName} will affect everyone using the assistant
   </Banner>
 );

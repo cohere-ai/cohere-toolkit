@@ -2,7 +2,7 @@
 
 import React, { Children, PropsWithChildren } from 'react';
 
-import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
+import { AgentLeftPanel } from '@/components/Agents/AgentLeftPanel';
 import { MobileHeader } from '@/components/MobileHeader';
 import { cn } from '@/utils/cn';
 
@@ -42,7 +42,7 @@ export const Layout: React.FC<Props> = ({ children }) => {
           )}
         >
           <MobileHeader />
-          <AgentsSidePanel className="hidden md:flex">{leftElement}</AgentsSidePanel>
+          <AgentLeftPanel className="hidden md:flex">{leftElement}</AgentLeftPanel>
           <section
             className={cn(
               'relative flex h-full min-w-0 flex-grow flex-col',
@@ -55,9 +55,9 @@ export const Layout: React.FC<Props> = ({ children }) => {
           </section>
         </div>
       </div>
-      <AgentsSidePanel className="rounded-bl-none rounded-tl-none md:hidden">
+      <AgentLeftPanel className="rounded-bl-none rounded-tl-none md:hidden">
         {leftElement}
-      </AgentsSidePanel>
+      </AgentLeftPanel>
     </>
   );
 };

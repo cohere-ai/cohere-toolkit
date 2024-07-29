@@ -3,14 +3,17 @@ import { StateCreator } from 'zustand';
 import { StoreState } from '@/stores';
 
 const INITIAL_STATE = {
-  isAgentsSidePanelOpen: true,
+  isAgentsLeftPanelOpen: true,
+  isAgentsRightPanelOpen: false,
 };
 
 type State = {
-  isAgentsSidePanelOpen: boolean;
+  isAgentsLeftPanelOpen: boolean;
+  isAgentsRightPanelOpen: boolean;
 };
 type Actions = {
-  setAgentsSidePanelOpen: (isOpen: boolean) => void;
+  setAgentsLeftSidePanelOpen: (isOpen: boolean) => void;
+  setAgentsRightSidePanelOpen: (isOpen: boolean) => void;
 };
 
 export type AgentsStore = {
@@ -18,14 +21,21 @@ export type AgentsStore = {
 } & Actions;
 
 export const createAgentsSlice: StateCreator<StoreState, [], [], AgentsStore> = (set) => ({
-  setAgentsSidePanelOpen(isOpen) {
+  setAgentsLeftSidePanelOpen(isOpen) {
     set((state) => ({
       agents: {
         ...state.agents,
-        isAgentsSidePanelOpen: isOpen,
+        isAgentsLeftPanelOpen: isOpen,
       },
     }));
   },
-
+  setAgentsRightSidePanelOpen(isOpen) {
+    set((state) => ({
+      agents: {
+        ...state.agents,
+        isAgentsRightPanelOpen: isOpen,
+      },
+    }));
+  },
   agents: INITIAL_STATE,
 });
