@@ -82,6 +82,7 @@ def test_streaming_new_chat_metrics_with_agent(
         assert m_args.message_type == MetricsMessageType.CHAT_API_SUCCESS
         assert m_args.assistant_id == agent.id
         assert m_args.assistant.name == agent.name
+        assert m_args.duration_ms is not None and m_args.duration_ms > 0
         assert m_args.model is not None
         assert m_args.input_nb_tokens > 0
         assert m_args.output_nb_tokens > 0

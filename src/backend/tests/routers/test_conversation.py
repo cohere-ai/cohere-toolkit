@@ -545,6 +545,7 @@ def test_search_conversations_with_reranking_sends_metrics(
         assert m_args.model == "rerank-english-v2.0"
 
         assert m_args.message_type == MetricsMessageType.RERANK_API_SUCCESS
+        assert m_args.duration_ms is not None and m_args.duration_ms > 0
         assert m_args.assistant_id is not None
         assert m_args.assistant.name is not None
         assert m_args.model is not None

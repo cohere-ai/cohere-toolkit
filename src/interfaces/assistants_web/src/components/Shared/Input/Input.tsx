@@ -25,9 +25,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
       <Field className="flex flex-col gap-y-2">
         {label && (
           <Label className="flex items-start gap-x-2">
-            <Text styleAs="label" className="dark:text-marble-950">
-              {label}
-            </Text>
+            <Text styleAs="label">{label}</Text>
             {errorText && (
               <Text styleAs="label" className="text-red-500">
                 *{errorText}
@@ -44,7 +42,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
               'rounded-lg border border-volcanic-500',
               'w-full px-3 py-[18px]',
               'outline-none',
-              'bg-white focus:bg-marble-950 dark:bg-volcanic-100 dark:text-marble-950 dark:focus:bg-volcanic-150',
+              'bg-white focus:bg-marble-950 dark:bg-volcanic-100 dark:focus:bg-volcanic-150',
               'placeholder:text-volcanic-500 dark:placeholder:text-volcanic-600',
               'disabled:bg-volcanic-800 disabled:text-volcanic-300 dark:disabled:bg-volcanic-300 dark:disabled:text-volcanic-600',
               {
@@ -66,11 +64,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
                 'items-center justify-center'
               )}
             >
-              <Icon
-                className="dark:text-marble-950"
-                name={!showPassword ? 'show' : 'hide'}
-                kind="outline"
-              />
+              <Icon name={!showPassword ? 'show' : 'hide'} kind="outline" />
             </button>
           )}
           {actionType === 'copy' && (

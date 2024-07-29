@@ -115,7 +115,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     return <ConversationListLoading />;
   }
 
-  if (isError) {
+  if (isError && isAgentsSidePanelOpen) {
     return (
       <span className="my-auto flex flex-col items-center gap-2 text-center">
         <Icon name="warning" />
@@ -124,7 +124,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     );
   }
 
-  if (hasSearchQuery && !hasSearchResults) {
+  if (hasSearchQuery && !hasSearchResults && isAgentsSidePanelOpen) {
     return (
       <Text as="span" className="line-clamp-3">
         No results found for &quot;{search}&quot;.
@@ -132,13 +132,14 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     );
   }
 
-  if (!hasConversations) {
+  if (!hasConversations && isAgentsSidePanelOpen) {
     return (
       <span className="flex h-full w-full items-center justify-center text-volcanic-500">
         <Text>It&apos;s quiet here... for now</Text>
       </span>
     );
   }
+
   return (
     <ConversationListPanelGroup
       conversations={displayedConversations}

@@ -38,5 +38,5 @@ async def _download(
         async with session.get(url, headers=headers, timeout=TIMEOUT) as response:
             return {id: await response.text()}
     except Exception as e:
-        logger.error(f"Error fetching {url}: {e}")
+        logger.error(f"[Async Download]: Error fetching url: {url}, {e}")
         return {}

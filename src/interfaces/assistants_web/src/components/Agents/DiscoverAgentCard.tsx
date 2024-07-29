@@ -1,9 +1,6 @@
 'use client';
 
-import { DeleteAgent } from '@/components/Agents/DeleteAgent';
-import { KebabMenu } from '@/components/KebabMenu';
-import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
-import { useContextStore } from '@/context';
+import { Button, CoralLogo, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -26,14 +23,11 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             className={cn(
               'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
               'truncate',
-              id && getCohereColor(id),
-              {
-                'bg-mushroom-700': isBaseAgent,
-              }
+              getCohereColor(id, { background: true })
             )}
           >
             {isBaseAgent ? (
-              <CoralLogo style="secondary" />
+              <CoralLogo />
             ) : (
               <Text className="uppercase text-white" styleAs="p-lg">
                 {name[0]}
@@ -49,10 +43,11 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <div className="flex w-full items-center justify-between">
           <Button
             href={isBaseAgent ? '/' : `/a/${id}`}
-            className="dark:[&_span]:text-evolved-green-700"
             label="Try now"
             kind="secondary"
-            endIcon="arrow-up-right"
+            icon="arrow-up-right"
+            iconPosition="end"
+            theme="evolved-green"
           />
           {!isBaseAgent && (
             <Button
@@ -60,7 +55,9 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               className="dark:[&_span]:text-evolved-green-700"
               label="Edit"
               kind="secondary"
-              endIcon="edit"
+              icon="edit"
+              iconPosition="end"
+              theme="evolved-green"
             />
           )}
         </div>
