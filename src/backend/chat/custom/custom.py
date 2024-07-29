@@ -1,4 +1,5 @@
 from itertools import tee
+import traceback
 from typing import Any, AsyncGenerator, Dict, List
 
 from fastapi import HTTPException
@@ -249,27 +250,36 @@ class CustomChat(BaseChat):
             conversation_id=kwargs.get("conversation_id"),
             user_id=kwargs.get("user_id"),
         )
+        try:
+            # TODO: Call tools in parallel and check the errors, 
+            for tool_call in tool_calls:
+                tool = AVAILABLE_TOOLS.get(tool_call["name"])
+                if not tool:
+                    continue
+# empty messages 
+                outputs = await tool.implementation().call(
+                    parameters=tool_call.get("parameters"),
+                    session=kwargs.get("session"),
+                    model_deployment=deployment_model,
+                    user_id=kwargs.get("user_id"),
+                    trace_id=kwargs.get("trace_id"),
+                    agent_id=kwargs.get("agent_id"),
+                )
 
-        # TODO: Call tools in parallel
-        for tool_call in tool_calls:
-            tool = AVAILABLE_TOOLS.get(tool_call["name"])
-            if not tool:
-                continue
-
-            outputs = await tool.implementation().call(
-                parameters=tool_call.get("parameters"),
-                session=kwargs.get("session"),
-                model_deployment=deployment_model,
+                # If the tool returns a list of outputs, append each output to the tool_results list
+                # Otherwise, append the single output to the tool_results list
+                outputs = outputs if isinstance(outputs, list) else [outputs]
+                for output in outputs:
+                    tool_results.append({"call": tool_call, "outputs": [output]})
+        except Exception as e:
+            send_log_message(
+                logger,
+                f"[Custom Chat] Error calling tool: {e} type: {repr(e)}",
+                level="error",
+                conversation_id=kwargs.get("conversation_id"),
                 user_id=kwargs.get("user_id"),
-                trace_id=kwargs.get("trace_id"),
-                agent_id=kwargs.get("agent_id"),
             )
-
-            # If the tool returns a list of outputs, append each output to the tool_results list
-            # Otherwise, append the single output to the tool_results list
-            outputs = outputs if isinstance(outputs, list) else [outputs]
-            for output in outputs:
-                tool_results.append({"call": tool_call, "outputs": [output]})
+            raise e
 
         tool_results = await rerank_and_chunk(tool_results, deployment_model, **kwargs)
         send_log_message(

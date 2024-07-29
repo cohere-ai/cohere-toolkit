@@ -19,6 +19,7 @@ class ToolAuth(Base):
 
     @property
     def access_token(self) -> str:
+        print("access_token")
         return decrypt(self.encrypted_access_token)
 
     @property

@@ -1,10 +1,6 @@
 deployments: 
-  default_deployment: cohere_platform
+  default_deployment:
   enabled_deployments:
-    - cohere_platform
-    - sagemaker
-    - azure
-    - bedrock
   sagemaker:
     region_name:
     endpoint_name:
@@ -16,28 +12,21 @@ deployments:
     model: 
     url:
 database:
-  url: postgresql+psycopg2://postgres:postgres@db:5432
+  url:
 tools:
   enabled_tools:
-    - search_file
-    - read_document
-    - toolkit_python_interpreter
-    - toolkit_calculator
-    - web_search
-    - web_scrape
-    - wikipedia
   python_interpreter: 
-    url: http://terrarium:8080
+    url:
   compass:
     api_url: 
     parser_url:
 feature_flags: 
   # Experimental features 
-  use_experimental_langchain: false
-  use_agents_view: false
+  use_experimental_langchain:
+  use_agents_view:
   # Community features
-  use_community_features: true
+  use_community_features:
 auth:
   enabled_auth: 
-  backend_hostname: http://localhost:8000
-  frontend_hostname: http://localhost:4000
+  backend_hostname:
+  frontend_hostname:

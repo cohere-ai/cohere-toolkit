@@ -1,3 +1,4 @@
+import json
 import os
 import time
 from typing import Any, Dict, List
@@ -71,6 +72,7 @@ class GoogleDrive(BaseTool):
         index_name = "{}_{}".format(
             agent_id if agent_id is not None else user_id, GOOGLE_DRIVE_TOOL_ID
         )
+        print("1 <==========================")
         query = parameters.get("query", "").replace("'", "\\'")
         conditions = [
             "("
@@ -88,21 +90,25 @@ class GoogleDrive(BaseTool):
         tool_auth = tool_auth_crud.get_tool_auth(
             db=session, tool_id=GOOGLE_DRIVE_TOOL_ID, user_id=user_id
         )
-
+        print(tool_auth)
+        print(json.dumps(tool_auth.access_token))
         if not tool_auth:
             error_message = f"[Google Drive] Error searching Google Drive: Could not find ToolAuth with tool_id: {self.NAME} and user_id: {kwargs.get('user_id')}"
             logger.error(error_message)
             raise HTTPException(status_code=401, detail=error_message)
-
+        print("2.a <==========================")
         creds = Credentials(tool_auth.access_token)
+        print("2.b <==========================")
 
         # fetch agent tool metadata
         file_ids = []
         folder_ids = []
         if agent_id:
+            print("2.c <==========================")
             agent_metadata = get_all_agent_tool_metadata_by_agent_id(
                 db=session, agent_id=agent_id
             )
+            print("2.d <==========================")
             for metadata in agent_metadata:
                 if metadata.tool_name == GOOGLE_DRIVE_TOOL_ID:
                     artifacts = metadata.artifacts
@@ -112,6 +118,7 @@ class GoogleDrive(BaseTool):
                         else:
                             file_ids.append(artifact["id"])
 
+        print("3 <==========================")
         # Condition on files if exist
         files = []
         service = build("drive", "v3", credentials=creds)
@@ -138,6 +145,7 @@ class GoogleDrive(BaseTool):
             fields = f"nextPageToken, files({DOC_FIELDS})"
 
             search_results = []
+            print("4 <==========================")
             try:
                 search_results = (
                     service.files()
@@ -168,6 +176,7 @@ class GoogleDrive(BaseTool):
 
         id_to_texts = {}
 
+        print("5 <==========================")
         # native files
         native_files = [
             x for x in processed_files if x["mimeType"] in NATIVE_SEARCH_MIME_TYPES
@@ -176,6 +185,7 @@ class GoogleDrive(BaseTool):
         if id_to_urls:
             id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
 
+        print("6 <==========================")
         # initialize Compass
         compass = None
         try:
@@ -192,6 +202,7 @@ class GoogleDrive(BaseTool):
                 for idd in id_to_texts
             ]
 
+        print("7 <==========================")
         # non-native files
         non_native_files = [
             x for x in processed_files if x["mimeType"] in NON_NATIVE_SEARCH_MIME_TYPES
@@ -293,6 +304,7 @@ class GoogleDrive(BaseTool):
                     parameters={"index": index_name},
                 )
 
+        print("8 <==========================")
         # fetch documents from index
         hits = compass.invoke(
             action=Compass.ValidActions.SEARCH,

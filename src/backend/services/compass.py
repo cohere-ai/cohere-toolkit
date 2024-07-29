@@ -13,6 +13,7 @@ from backend.compass_sdk import (
 from backend.compass_sdk.compass import CompassClient
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.parser import CompassParserClient
+from backend.config.settings import Settings
 
 logger = logging.getLogger()
 
@@ -44,23 +45,14 @@ class Compass:
     ):
         """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
-        vars = [
-            "COHERE_COMPASS_API_URL",
-            "COHERE_COMPASS_PARSER_URL",
-            "COHERE_COMPASS_USERNAME",
-            "COHERE_COMPASS_PASSWORD",
-        ]
-        if not all(os.getenv(var) is not None for var in vars):
-            raise Exception(
-                "[Compass] Error initializing client: Environment variables missing",
-            )
 
-        self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
-        self.compass_parser_url = compass_parser_url or os.getenv(
-            "COHERE_COMPASS_PARSER_URL"
-        )
-        self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
-        self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
+        self.compass_api_url = compass_api_url or Settings().tools.compass.api_url 
+        self.compass_parser_url = compass_parser_url or Settings().tools.compass.parser_url 
+        self.username = compass_username or Settings().tools.compass.username 
+        self.password = compass_password or Settings().tools.compass.password 
+
+        self._validate()
+
         self.parser_config = parser_config
         self.metadata_config = metadata_config
         try:
@@ -313,3 +305,21 @@ class Compass:
             logger.error(f"[Compass] Error processing file: {res.text}")
 
         return docs
+
+    def _validate(self): 
+        if not self.compass_api_url:
+            raise ValueError(
+                "COHERE_COMPASS_API_URL must be set to use Compass Tool."
+            )
+        if not self.compass_parser_url:
+            raise ValueError(
+                "COHERE_COMPASS_PARSER_URL must be set to use Compass Tool."
+            )
+        if not self.username:
+            raise ValueError(
+                "COHERE_COMPASS_USERNAME must be set to use Compass Tool."
+            )
+        if not self.password:
+            raise ValueError(
+                "COHERE_COMPASS_PASSWORD must be set to use Compass Tool."
+            )
