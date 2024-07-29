@@ -260,7 +260,7 @@ class FileService:
         """
         file_crud.bulk_delete_files(session, file_ids, user_id)
 
-    def get_message_files(
+    def get_files_by_message_id(
         self, session: DBSessionDep, message_id: str, user_id: str
     ) -> list[File]:
         """
