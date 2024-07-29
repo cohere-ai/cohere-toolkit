@@ -65,8 +65,8 @@ class JWTService:
             )
             return decoded_payload
         except jwt.ExpiredSignatureError:
-            logger.warning("Token has expired.")
+            logger.warning("[Auth] JWT token is expired.")
             return None
         except jwt.InvalidTokenError:
-            logger.warning("Invalid token.")
+            logger.warning("[Auth] JWT token is invalid.")
             return None

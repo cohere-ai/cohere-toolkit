@@ -1,10 +1,8 @@
 'use client';
 
-import { useContext } from 'react';
-
 import { ShareModal } from '@/components/ShareModal';
 import { Button, Icon, Text } from '@/components/Shared';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
 import { useConversationStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
@@ -17,7 +15,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   const {
     conversation: { id, name },
   } = useConversationStore();
-  const { open } = useContext(ModalContext);
+  const { open } = useContextStore();
   const accentColor = agentId && getCohereColor(agentId, { background: false });
 
   const handleOpenShareModal = () => {

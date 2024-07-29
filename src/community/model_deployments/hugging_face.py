@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from community.model_deployments import BaseDeployment
 
 
@@ -66,7 +67,7 @@ class HuggingFaceDeployment(BaseDeployment):
         return {"text": gen_text}
 
     async def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
         """
         Built in streamming is not supported, so this function wraps the invoke_chat function to return a single response.
@@ -89,7 +90,7 @@ class HuggingFaceDeployment(BaseDeployment):
         }
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
+        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
     ) -> Any:
         return None
 

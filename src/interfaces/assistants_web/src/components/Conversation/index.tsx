@@ -3,6 +3,7 @@
 import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
+import { Agent, ManagedTool } from '@/cohere-client';
 import { UpdateAgent } from '@/components/Agents/UpdateAgent';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
@@ -11,7 +12,7 @@ import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
-import { useAgent, useRecentAgents } from '@/hooks/agents';
+import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -29,7 +30,8 @@ import { cn } from '@/utils';
 type Props = {
   startOptionsEnabled?: boolean;
   conversationId?: string;
-  agentId?: string;
+  agent?: Agent;
+  tools?: ManagedTool[];
   history?: ChatMessage[];
 };
 
@@ -39,7 +41,8 @@ type Props = {
  */
 const Conversation: React.FC<Props> = ({
   conversationId,
-  agentId,
+  agent,
+  tools,
   startOptionsEnabled = false,
 }) => {
   const chatHotKeys = useChatHotKeys();
@@ -66,8 +69,6 @@ const Conversation: React.FC<Props> = ({
   const { addRecentAgentId } = useRecentAgents();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
-  const { data: agent } = useAgent({ agentId });
-
   const {
     userMessage,
     isStreaming,
@@ -79,8 +80,8 @@ const Conversation: React.FC<Props> = ({
     handleRetry,
   } = useChat({
     onSend: () => {
-      if (agentId) {
-        addRecentAgentId(agentId);
+      if (agent) {
+        addRecentAgentId(agent.id);
       }
       if (isConfigDrawerOpen) setSettings({ isConfigDrawerOpen: false });
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
@@ -143,7 +144,7 @@ const Conversation: React.FC<Props> = ({
     <div className="flex h-full w-full">
       <div className="flex h-full w-full min-w-0 flex-col border border-marble-800 bg-white dark:border-volcanic-300 dark:bg-volcanic-100">
         <HotKeysProvider customHotKeys={chatHotKeys} />
-        <Header agentId={agentId} />
+        <Header agentId={agent?.id} />
 
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
           <MessagingContainer
@@ -154,17 +155,17 @@ const Conversation: React.FC<Props> = ({
             onRetry={handleRetry}
             messages={messages}
             streamingMessage={streamingMessage}
-            agentId={agentId}
+            agentId={agent?.id}
             composer={
               <>
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
                 <Composer
                   isStreaming={isStreaming}
                   value={userMessage}
-                  isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}
                   chatWindowRef={chatWindowRef}
-                  requiredTools={agent?.tools}
+                  agent={agent}
+                  tools={tools}
                   onChange={(message) => setUserMessage(message)}
                   onSend={handleSend}
                   onStop={handleStop}
@@ -200,7 +201,7 @@ const Conversation: React.FC<Props> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <UpdateAgent agentId={agentId} />
+          <UpdateAgent agentId={agent?.id} />
         </TransitionChild>
       </Transition>
     </div>
