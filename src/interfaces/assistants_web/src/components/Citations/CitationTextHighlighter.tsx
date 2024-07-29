@@ -115,7 +115,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       ref={ref}
       onClick={handleClick}
       className={cn(
-        'bg-mushroom-600/[0.15] text-mushroom-150',
+        'bg-mushroom-600/[0.15] text-mushroom-150 dark:bg-[#3D3B36] dark:text-mushroom-950',
         {
           'bg-coral-900 text-coral-300': isHighlighted,
           'hover:bg-mushroom-600/[0.24]': !isHighlighted,

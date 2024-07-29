@@ -146,9 +146,8 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
             {hasSteps && (
               <Button
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
-                startIcon={<Icon name="list" />}
+                startIcon={<Icon name="list" className="dark:text-marble-800" />}
                 kind="secondary"
-                size="md"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 animate={false}
                 onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
@@ -161,7 +160,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         className={cn(
           'group flex h-fit w-full flex-col gap-2 rounded-md p-2 text-left md:flex-row',
           'transition-colors ease-in-out',
-          'hover:bg-mushroom-950',
+          'hover:bg-mushroom-950 dark:hover:bg-mushroom-150',
 
           {
             'bg-mushroom-950':
@@ -196,12 +195,12 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               })}
             >
               {hasSteps && (
-                <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
+                <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover size="sm">
                   <IconButton
                     iconName="list"
                     className="rounded hover:bg-mushroom-900"
                     iconClassName={cn(
-                      'text-volcanic-300 group-hover/icon-button:text-mushroom-300',
+                      'text-volcanic-300 group-hover/icon-button:text-mushroom-300 dark:group-hover/icon-button:bg-inherit dark:text-marble-800 dark:group-hover/icon-button:text-marble-800',
                       {
                         'hidden md:invisible md:flex': !isFulfilledMessage(message),
                       }

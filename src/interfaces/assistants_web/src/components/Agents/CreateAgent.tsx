@@ -197,9 +197,14 @@ export const CreateAgent: React.FC = () => {
         </div>
       </div>
       <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-950 bg-white px-4 py-4 md:py-8">
-        <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
-          Create
-        </Button>
+        <Button
+          label="Create"
+          kind="secondary"
+          theme="evolved-green"
+          icon="add"
+          onClick={handleOpenSubmitModal}
+          disabled={!canSubmit}
+        />
       </div>
     </div>
   );
@@ -217,12 +222,14 @@ const SubmitModalContent: React.FC<{
       able to see and use it.
     </Text>
     <div className="flex justify-between">
-      <Button kind="secondary" onClick={onClose}>
-        Cancel
-      </Button>
-      <Button kind="green" onClick={onSubmit} splitIcon="arrow-right" disabled={isSubmitting}>
-        {isSubmitting ? 'Creating assistant' : 'Yes, make it public'}
-      </Button>
+      <Button label="Cancel" kind="secondary" onClick={onClose} />
+      <Button
+        label={isSubmitting ? 'Creating assistant' : 'Yes, make it public'}
+        onClick={onSubmit}
+        icon="arrow-right"
+        iconPosition="end"
+        disabled={isSubmitting}
+      />
     </div>
   </div>
 );
