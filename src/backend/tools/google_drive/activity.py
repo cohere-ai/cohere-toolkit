@@ -5,7 +5,15 @@ from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
 from backend.services.logger import get_logger
-from backend.tools.google_drive.actions import create, edit, move
+from backend.tools.google_drive.actions import (
+    create,
+    delete,
+    edit,
+    move,
+    permission_change,
+    rename,
+    restore,
+)
 from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import (
     ACTIVITY_TRACKING_WINDOW,
@@ -28,7 +36,6 @@ def handle_google_drive_activity_event(
 
     match event_type:
         case GoogleDriveActions.CREATE.value:
-            return
             [
                 create.apply_async(
                     args=[file_id, index_name, user_id],
@@ -37,7 +44,6 @@ def handle_google_drive_activity_event(
                 for file_id in file_ids
             ]
         case GoogleDriveActions.EDIT.value:
-            return
             [
                 edit.apply_async(
                     args=[file_id, index_name, user_id],
@@ -57,13 +63,42 @@ def handle_google_drive_activity_event(
                 for file_id in file_ids
             ]
         case GoogleDriveActions.RENAME.value:
-            print("rename")
+            [
+                rename.apply_async(
+                    args=[file_id, index_name, user_id],
+                    kwargs={
+                        "title": titles[file_id],
+                    },
+                )
+                for file_id in file_ids
+            ]
         case GoogleDriveActions.DELETE.value:
-            print("delete")
+            [
+                delete.apply_async(
+                    args=[file_id, index_name, user_id],
+                    kwargs={
+                        "title": titles[file_id],
+                    },
+                )
+                for file_id in file_ids
+            ]
         case GoogleDriveActions.RESTORE.value:
-            print("restore")
+            [
+                restore.apply_async(
+                    args=[file_id, index_name, user_id],
+                    kwargs=kwargs,
+                )
+                for file_id in file_ids
+            ]
         case GoogleDriveActions.PERMISSION_CHANGE.value:
-            print("permission_change")
+            return
+            [
+                permission_change.apply_async(
+                    args=[file_id, index_name, user_id],
+                    kwargs=kwargs,
+                )
+                for file_id in file_ids
+            ]
         case _:
             raise Exception("This action is not tracked for Google Drive")
 

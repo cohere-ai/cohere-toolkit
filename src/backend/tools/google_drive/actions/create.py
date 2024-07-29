@@ -72,7 +72,7 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
         )
         logger.info("Finished Compass add context action for file {}".format(web_view_link))
     except Exception as e:
-        logger.error("Failed to create document in Compass for file {}: {}".format(web_view_link, str(e)))
+        logger.error("Failed to create document in Compass for file {}".format(web_view_link))
         return {"action": ACTION_NAME, "status": Status.FAIL.value, "file_id": file_id}
 
     return {"action": ACTION_NAME, "status": Status.SUCCESS.value, "file_id": file_id}
