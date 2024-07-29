@@ -94,7 +94,7 @@ const Profile = () => {
         href="/logout"
         kind="secondary"
         // TODO(tomeu): replace with Sign out icon
-        startIcon="arrow-right"
+        icon="arrow-right"
       />
     </Wrapper>
   );
@@ -149,14 +149,14 @@ const GoogleDriveConnection = () => {
                 className="dark:[&_span]:text-mushroom-950"
                 label="Sync now"
                 kind="secondary"
-                startIcon="redo"
+                icon="redo"
                 onClick={() => alert('not implemented')}
               />
               <Button
                 className="dark:[&_span]:text-danger-500"
                 label="Delete connection"
                 kind="secondary"
-                startIcon="trash"
+                icon="trash"
                 onClick={() => alert('not implemented')}
               />
             </div>
@@ -167,7 +167,7 @@ const GoogleDriveConnection = () => {
             label="Authenticate"
             href={googleDriveTool.auth_url ?? ''}
             kind="secondary"
-            startIcon="arrow-up-right"
+            icon="arrow-up-right"
           />
         )}
       </section>

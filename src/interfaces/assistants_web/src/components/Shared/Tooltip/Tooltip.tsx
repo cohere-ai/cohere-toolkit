@@ -116,7 +116,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             <Icon
               name="information"
               kind="outline"
-              className={cx(iconClassName || 'text-volcanic-300', {
+              className={cx(iconClassName || 'text-volcanic-300 dark:text-marble-800', {
                 'hover:!font-iconDefault': hoverEnabled,
               })}
             />

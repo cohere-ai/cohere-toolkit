@@ -146,7 +146,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
             {hasSteps && (
               <Button
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
-                startIcon={<Icon name="list" className="dark:text-marble-800" />}
+                iconOptions={{ customIcon: <Icon name="list" className="dark:text-marble-800" /> }}
                 kind="secondary"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 animate={false}
