@@ -12,7 +12,6 @@ import {
   Button,
   CopyToClipboardButton,
   CopyToClipboardIconButton,
-  Icon,
   Tooltip,
 } from '@/components/Shared';
 import { ToolEvents } from '@/components/ToolEvents';
@@ -146,9 +145,8 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
             {hasSteps && (
               <Button
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
-                startIcon={<Icon name="list" />}
+                icon="list"
                 kind="secondary"
-                size="md"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 animate={false}
                 onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}

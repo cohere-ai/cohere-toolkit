@@ -96,7 +96,7 @@ async def login(
     if not is_enabled_authentication_strategy(strategy_name):
         send_log_message(
             logger,
-            f"[Auth] Invalid Authentication Strategy: {strategy_name}",
+            f"[Auth] Error logging in: Invalid authentication strategy {strategy_name}",
             "debug",
         )
         raise HTTPException(
@@ -110,7 +110,7 @@ async def login(
         missing_keys = [key for key in strategy_payload if key not in payload.keys()]
         send_log_message(
             logger,
-            f"Missing the following keys in the payload: {missing_keys}.",
+            f"[Auth] Error logging in: Keys {missing_keys} missing from payload",
             "debug",
         )
         raise HTTPException(
@@ -121,7 +121,9 @@ async def login(
     user = strategy.login(session, payload)
     if not user:
         send_log_message(
-            logger, f"Error logging user in: Strategy {strategy_name}", "debug"
+            logger,
+            f"[Auth] Error logging in: Invalid credentials in payload {payload}",
+            "debug",
         )
         raise HTTPException(
             status_code=401,
@@ -173,7 +175,9 @@ async def authorize(
 
     if not strategy_name:
         send_log_message(
-            logger, "[Auth] Error authorizing login: Invalid strategy", "debug"
+            logger,
+            f"[Auth] Error authorizing login: Invalid strategy {strategy_name}",
+            "debug",
         )
         raise HTTPException(
             status_code=400,
