@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import uuid4
 
-from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,16 +12,23 @@ from backend.database_models.message import Message
 class ConversationFileAssociation(Base):
     __tablename__ = "conversation_files"
 
-    conversation_id: Mapped[str] = mapped_column(
-        ForeignKey("conversations.id", ondelete="CASCADE")
-    )
+    conversation_id: Mapped[str] = mapped_column(String, nullable=False)
+    conversation_user_id: Mapped[str] = mapped_column(String, nullable=False)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     file_id: Mapped[str] = mapped_column(String, default=None, nullable=False)
     conversation: Mapped["Conversation"] = relationship(
-        "Conversation", back_populates="conversation_file_associations"
+        "Conversation",
+        primaryjoin="and_(ConversationFileAssociation.conversation_id == Conversation.id, "
+                    "ConversationFileAssociation.conversation_user_id == Conversation.user_id)",
+        back_populates="conversation_file_associations"
     )
 
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["conversation_id", "conversation_user_id"],
+            ["conversations.id", "conversations.user_id"],
+            ondelete="CASCADE"
+        ),
         UniqueConstraint("conversation_id", "file_id", name="unique_conversation_file"),
     )
 
@@ -29,9 +36,7 @@ class ConversationFileAssociation(Base):
 class Conversation(Base):
     __tablename__ = "conversations"
 
-    id: Mapped[str] = mapped_column(
-        String, default=lambda: str(uuid4()), primary_key=True, unique=True
-    )
+    id: Mapped[str] = mapped_column(String, default=lambda: str(uuid4()))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(String, default="New Conversation")
     description: Mapped[str] = mapped_column(String, nullable=True, default=None)
@@ -63,6 +68,7 @@ class Conversation(Base):
 
     __table_args__ = (
         UniqueConstraint("id", "user_id", name="conversation_id_user_id"),
+        PrimaryKeyConstraint("id", "user_id", name="conversation_pkey"),
         Index("conversation_user_agent_index", "user_id", "agent_id"),
         Index("conversation_user_id_index", "id", "user_id", unique=True),
     )
