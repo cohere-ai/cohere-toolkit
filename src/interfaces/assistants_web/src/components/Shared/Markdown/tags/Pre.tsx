@@ -29,7 +29,7 @@ export const Pre: Component<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ c
         label={
           <div className="flex items-center gap-1">
             {copied && <Text className="text-mushroom-300">Copied!</Text>}
-            <Icon name={copied ? 'check-mark' : 'copy'} size="md" className="text-mushroom-300" />
+            <Icon name={copied ? 'checkmark' : 'copy'} className="fill-mushroom-300" />
           </div>
         }
       />

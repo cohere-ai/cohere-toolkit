@@ -68,7 +68,6 @@ export const AgentsList: React.FC = () => {
         ) : (
           <IconButton
             iconName="search"
-            iconClassName="dark:text-mushroom-950"
             onClick={() => setAgentsSidePanelOpen(true)}
             tooltip={{ label: 'Search' }}
           />

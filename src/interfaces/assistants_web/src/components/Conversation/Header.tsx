@@ -50,13 +50,8 @@ export const Header: React.FC<Props> = ({ agentId }) => {
             kind="secondary"
             className="hidden md:flex"
             label={<Text className={cn('dark:text-mushroom-950', accentColor)}>Share</Text>}
-            startIcon={
-              <Icon
-                name="share"
-                kind="outline"
-                className={cn('dark:text-mushroom-950', accentColor)}
-              />
-            }
+            icon="share"
+            iconOptions={{ kind: 'outline', className: cn('dark:fill-mushroom-950', accentColor) }}
             onClick={handleOpenShareModal}
           />
         )}

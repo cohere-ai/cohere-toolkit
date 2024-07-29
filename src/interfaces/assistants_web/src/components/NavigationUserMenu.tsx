@@ -19,7 +19,7 @@ export const NavigationUserMenu: React.FC<{
   return (
     <PopoverMenu email={showEmail && userEmail ? userEmail : undefined}>
       <div className="py-3">
-        <Icon name="profile" className="mb-3 px-4 text-volcanic-400" />
+        <Icon name="profile" className="mb-3 px-4" />
         {userEmail ? (
           <>
             <Text className="truncate px-4 pb-3 text-left text-volcanic-400">{userEmail}</Text>
@@ -56,7 +56,7 @@ const PopoverMenu: React.FC<{
           { 'dark:focus:outline-marble-800': darkModeEnabled }
         )}
       >
-        <Icon name="profile" size="md" />
+        <Icon name="profile" />
         {email && <Text className="hidden md:block">{email}</Text>}
       </Popover.Button>
       <Transition

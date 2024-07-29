@@ -3,7 +3,7 @@
 import { Transition } from '@headlessui/react';
 import React from 'react';
 
-import { Button, Logo, Text, Tooltip } from '@/components/Shared';
+import { Button, Icon, Logo, Text, Tooltip } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';

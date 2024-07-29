@@ -9,13 +9,13 @@ import { useSession } from '@/hooks/session';
 export const ProtectedPage: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { isLoading, isLoggedIn } = useSession();
 
-  if (isLoading || !isLoggedIn) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-mushroom-950">
-        <Spinner className="h-10 w-10" />
-      </div>
-    );
-  }
+  // if (isLoading || !isLoggedIn) {
+  //   return (
+  //     <div className="flex h-screen w-full items-center justify-center bg-mushroom-950">
+  //       <Spinner className="h-10 w-10" />
+  //     </div>
+  //   );
+  // }
 
   return children;
 };

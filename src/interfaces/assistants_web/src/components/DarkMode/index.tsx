@@ -37,7 +37,7 @@ export const DarkModeToggle = () => {
           })}
           onClick={() => setIsDarkMode(true)}
         >
-          <Icon name="add" className="text-mushroom-950" />
+          <Icon name="moon" className="text-mushroom-950" />
         </button>
         <Text className="text-center">Dark</Text>
       </div>
@@ -48,7 +48,7 @@ export const DarkModeToggle = () => {
           })}
           onClick={() => setIsDarkMode(false)}
         >
-          <Icon name="subtract" className="text-volcanic-150" />
+          <Icon name="sun" className="fill-volcanic-150" />
         </button>
         <Text className="text-center">Light</Text>
       </div>

@@ -146,7 +146,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
             {hasSteps && (
               <Button
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
-                startIcon={<Icon name="list" className="dark:text-marble-800" />}
+                icon="list"
                 kind="secondary"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 animate={false}
@@ -195,19 +195,19 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               })}
             >
               {hasSteps && (
-                <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover size="sm">
-                  <IconButton
-                    iconName="list"
-                    className="rounded hover:bg-mushroom-900"
-                    iconClassName={cn(
-                      'text-volcanic-300 group-hover/icon-button:text-mushroom-300 dark:group-hover/icon-button:bg-inherit dark:text-marble-800 dark:group-hover/icon-button:text-marble-800',
-                      {
-                        'hidden md:invisible md:flex': !isFulfilledMessage(message),
-                      }
-                    )}
-                    onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
-                  />
-                </Tooltip>
+                <IconButton
+                  tooltip={{ label: `${isStepsExpanded ? 'Hide' : 'Show'} steps`, size: 'sm' }}
+                  iconName="list"
+                  className={cn('rounded hover:bg-mushroom-900')}
+                  iconClassName={cn(
+                    'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+                    'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
+                    {
+                      'hidden md:invisible md:flex': !isFulfilledMessage(message),
+                    }
+                  )}
+                  onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
+                />
               )}
               <CopyToClipboardIconButton value={getMessageText()} onClick={onCopy} />
             </div>
