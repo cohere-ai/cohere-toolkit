@@ -1,7 +1,7 @@
 'use client';
 
 import { ShareModal } from '@/components/ShareModal';
-import { Button, Icon, Text } from '@/components/Shared';
+import { Button, Text } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useConversationStore } from '@/stores';
 import { cn } from '@/utils';
@@ -48,15 +48,13 @@ export const Header: React.FC<Props> = ({ agentId }) => {
         {id && (
           <Button
             kind="secondary"
-            className="hidden md:flex"
-            label={<Text className={cn('dark:text-mushroom-950', accentColor)}>Share</Text>}
-            startIcon={
-              <Icon
-                name="share"
-                kind="outline"
-                className={cn('dark:text-mushroom-950', accentColor)}
-              />
-            }
+            className={cn('hidden md:flex', accentColor)}
+            label={<Text className={accentColor}>Share</Text>}
+            icon="share"
+            iconOptions={{
+              className: 'dark:group-hover:text-inherit dark:text-inherit',
+            }}
+            iconPosition="start"
             onClick={handleOpenShareModal}
           />
         )}
