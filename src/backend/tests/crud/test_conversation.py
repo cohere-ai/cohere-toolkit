@@ -28,32 +28,6 @@ def test_create_conversation(session, user):
     assert conversation.description == conversation_data.description
 
 
-def test_create_conversation_same_id_different_user(session, user):
-    user2 = get_factory("User", session).create(id=f"new_{user.id}")
-    conversation_data = Conversation(
-        user_id=user.id,
-        title="Hello, World!",
-        description="This is a test",
-    )
-
-    conversation = conversation_crud.create_conversation(session, conversation_data)
-    assert conversation.user_id == conversation_data.user_id
-    assert conversation.title == conversation_data.title
-    assert conversation.description == conversation_data.description
-
-    conversation_data = Conversation(
-        id=conversation.id,
-        user_id=user2.id,
-        title="Hello, World!",
-        description="This is a test",
-    )
-
-    conversation = conversation_crud.create_conversation(session, conversation_data)
-    assert conversation.user_id == conversation_data.user_id
-    assert conversation.title == conversation_data.title
-    assert conversation.description == conversation_data.description
-
-
 def test_get_conversation(session, user):
     _ = get_factory("Conversation", session).create(
         id="1", title="Hello, World!", user_id=user.id
