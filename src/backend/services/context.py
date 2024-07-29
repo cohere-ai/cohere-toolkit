@@ -4,6 +4,7 @@ from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from backend.schemas.context import Context
+from backend.schemas.user import DEFAULT_USER_ID
 from backend.services.auth.utils import get_header_user_id, has_header_user_id
 
 
@@ -31,7 +32,7 @@ class ContextMiddleware:
         if has_header_user_id(request):
             user_id = get_header_user_id(request)
         else:
-            user_id = None
+            user_id = DEFAULT_USER_ID
 
         context.with_user_id(user_id)
 
