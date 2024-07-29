@@ -43,10 +43,11 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <div className="flex w-full items-center justify-between">
           <Button
             href={isBaseAgent ? '/' : `/a/${id}`}
-            className="dark:[&_span]:text-evolved-green-700"
             label="Try now"
             kind="secondary"
-            endIcon="arrow-up-right"
+            icon="arrow-up-right"
+            iconPosition="end"
+            theme="evolved-green"
           />
           {!isBaseAgent && (
             <Button
@@ -54,7 +55,9 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               className="dark:[&_span]:text-evolved-green-700"
               label="Edit"
               kind="secondary"
-              endIcon="edit"
+              icon="edit"
+              iconPosition="end"
+              theme="evolved-green"
             />
           )}
         </div>

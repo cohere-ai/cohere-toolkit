@@ -148,7 +148,6 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 startIcon={<Icon name="list" className="dark:text-marble-800" />}
                 kind="secondary"
-                size="md"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 animate={false}
                 onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
