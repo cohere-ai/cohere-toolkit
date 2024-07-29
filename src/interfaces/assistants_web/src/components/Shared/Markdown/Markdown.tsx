@@ -120,7 +120,6 @@ export const Markdown = ({
       as="div"
       dir="auto"
       className={cn(
-        'dark:text-mushroom-950',
         'prose max-w-none',
         'prose-p:my-0',
         'prose-ol:my-0 prose-ol:space-y-2 prose-ol:whitespace-normal',
@@ -133,7 +132,7 @@ export const Markdown = ({
         'prose-h1:font-medium prose-h2:font-medium prose-h3:font-medium prose-h4:font-medium prose-h5:font-medium prose-h6:font-medium prose-strong:font-medium',
         'prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-h4:text-base prose-h5:text-base prose-h6:text-base',
         'prose-pre:border prose-pre:border-mushroom-800 prose-pre:bg-mushroom-900 prose-pre:text-volcanic-100',
-        'dark:text-marble-950',
+        'dark:text-marble-950 dark:prose-pre:border-none dark:prose-pre:bg-volcanic-200',
         className
       )}
       {...rest}

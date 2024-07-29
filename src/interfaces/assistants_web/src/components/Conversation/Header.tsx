@@ -16,7 +16,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
     conversation: { id, name },
   } = useConversationStore();
   const { open } = useContextStore();
-  const accentColor = agentId && getCohereColor(agentId, { background: false });
+  const accentColor = getCohereColor(agentId, { background: false, text: true });
 
   const handleOpenShareModal = () => {
     if (!id) return;
