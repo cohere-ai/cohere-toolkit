@@ -118,7 +118,7 @@ const Content: React.FC<Props> = (props) => {
         <Messages {...props} ref={messageContainerDivRef} />
         {/* Composer container */}
         <div
-          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000 dark:bg-volcanic-100')}
+          className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100"
           ref={composerContainerDivRef}
         >
           <Transition
@@ -134,10 +134,9 @@ const Content: React.FC<Props> = (props) => {
           >
             <Button
               label="New message"
-              splitIcon="arrow-down"
+              kind="cell"
+              icon="arrow-down"
               onClick={handleScrollToNewMessage}
-              hideFocusStyles
-              kind="primaryOutline"
             />
           </Transition>
           {composer}
