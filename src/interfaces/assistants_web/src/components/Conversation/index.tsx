@@ -8,6 +8,8 @@ import { UpdateAgent } from '@/components/Agents/UpdateAgent';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
+import RightPanel from '@/components/Conversation/RightPanel';
+import { Tabs } from '@/components/Shared';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
@@ -176,34 +178,9 @@ const Conversation: React.FC<Props> = ({
           />
         </div>
       </div>
-
-      <Transition
-        show={!!isEditAgentPanelOpen}
-        as="div"
-        className={cn(
-          'absolute left-0 top-0 z-configuration-drawer md:relative',
-          'border-l border-marble-950 bg-marble-1000'
-        )}
-        enter="transition-[width] ease-in-out duration-300"
-        enterFrom="w-0"
-        enterTo="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
-        leave="transition-[width] ease-in-out duration-0 md:duration-300"
-        leaveFrom="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
-        leaveTo="w-0"
-      >
-        <TransitionChild
-          as="div"
-          className={cn('flex h-full flex-col')}
-          enter="transition-[opacity] ease-in-out duration-200 delay-200"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-[opacity] ease-in-out duration-0 md:duration-50"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <UpdateAgent agentId={agent?.id} />
-        </TransitionChild>
-      </Transition>
+      <div className="w-full flex-shrink-0 px-6 md:w-[280px] lg:w-[360px]">
+        <RightPanel />
+      </div>
     </div>
   );
 };
