@@ -1,9 +1,8 @@
 'use client';
 
-import { Transition, TransitionChild } from '@headlessui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 
-import { UpdateAgent } from '@/components/Agents/UpdateAgent';
+import { Agent, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
@@ -11,12 +10,11 @@ import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
-import { useAgent, useRecentAgents } from '@/hooks/agents';
+import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import {
-  useAgentsStore,
   useCitationsStore,
   useConversationStore,
   useParamsStore,
@@ -24,12 +22,12 @@ import {
 } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
-import { cn } from '@/utils';
 
 type Props = {
   startOptionsEnabled?: boolean;
   conversationId?: string;
-  agentId?: string;
+  agent?: Agent;
+  tools?: ManagedTool[];
   history?: ChatMessage[];
 };
 
@@ -39,7 +37,8 @@ type Props = {
  */
 const Conversation: React.FC<Props> = ({
   conversationId,
-  agentId,
+  agent,
+  tools,
   startOptionsEnabled = false,
 }) => {
   const chatHotKeys = useChatHotKeys();
@@ -60,13 +59,9 @@ const Conversation: React.FC<Props> = ({
   const {
     params: { fileIds },
   } = useParamsStore();
-  const {
-    agents: { isEditAgentPanelOpen },
-  } = useAgentsStore();
+
   const { addRecentAgentId } = useRecentAgents();
   const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
-
-  const { data: agent } = useAgent({ agentId });
 
   const {
     userMessage,
@@ -79,8 +74,8 @@ const Conversation: React.FC<Props> = ({
     handleRetry,
   } = useChat({
     onSend: () => {
-      if (agentId) {
-        addRecentAgentId(agentId);
+      if (agent) {
+        addRecentAgentId(agent.id);
       }
       if (isConfigDrawerOpen) setSettings({ isConfigDrawerOpen: false });
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
@@ -141,9 +136,9 @@ const Conversation: React.FC<Props> = ({
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-full w-full min-w-0 flex-col">
+      <div className="flex h-full w-full min-w-0 flex-col rounded-lg bg-marble-1000 dark:bg-volcanic-100">
         <HotKeysProvider customHotKeys={chatHotKeys} />
-        <Header conversationId={conversationId} agentId={agentId} isStreaming={isStreaming} />
+        <Header agentId={agent?.id} />
 
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
           <MessagingContainer
@@ -154,17 +149,17 @@ const Conversation: React.FC<Props> = ({
             onRetry={handleRetry}
             messages={messages}
             streamingMessage={streamingMessage}
-            agentId={agentId}
+            agentId={agent?.id}
             composer={
               <>
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
                 <Composer
                   isStreaming={isStreaming}
                   value={userMessage}
-                  isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}
                   chatWindowRef={chatWindowRef}
-                  requiredTools={agent?.tools}
+                  agent={agent}
+                  tools={tools}
                   onChange={(message) => setUserMessage(message)}
                   onSend={handleSend}
                   onStop={handleStop}
@@ -175,34 +170,6 @@ const Conversation: React.FC<Props> = ({
           />
         </div>
       </div>
-
-      <Transition
-        show={!!isEditAgentPanelOpen}
-        as="div"
-        className={cn(
-          'absolute left-0 top-0 z-configuration-drawer md:relative',
-          'border-l border-marble-950 bg-marble-1000'
-        )}
-        enter="transition-[width] ease-in-out duration-300"
-        enterFrom="w-0"
-        enterTo="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
-        leave="transition-[width] ease-in-out duration-0 md:duration-300"
-        leaveFrom="w-full md:w-edit-agent-panel lg:w-edit-agent-panel-lg 2xl:w-edit-agent-panel-2xl"
-        leaveTo="w-0"
-      >
-        <TransitionChild
-          as="div"
-          className={cn('flex h-full flex-col')}
-          enter="transition-[opacity] ease-in-out duration-200 delay-200"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-[opacity] ease-in-out duration-0 md:duration-50"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <UpdateAgent agentId={agentId} />
-        </TransitionChild>
-      </Transition>
     </div>
   );
 };

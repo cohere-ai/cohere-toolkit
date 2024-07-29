@@ -1,10 +1,9 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import React, { ReactElement } from 'react';
+import React from 'react';
 
-import { IconButton } from '@/components/IconButton';
-import { Button, Icon, Logo, Text } from '@/components/Shared';
+import { Button, Logo, Text, Tooltip } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
@@ -17,12 +16,12 @@ import { cn } from '@/utils';
  * It contains the logo and a button to expand or collapse the panel.
  * It also renders the children components that are passed to it.
  */
-export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
   className = '',
   children,
 }) => {
   const {
-    agents: { isAgentsSidePanelOpen },
+    agents: { isAgentsLeftPanelOpen },
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -31,7 +30,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
 
   return (
     <Transition
-      show={isAgentsSidePanelOpen || isDesktop}
+      show={isAgentsLeftPanelOpen || isDesktop}
       as="div"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
@@ -39,7 +38,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         'rounded-lg border border-marble-950 dark:border-volcanic-60',
         'dark:text-mushroom-950',
         {
-          'right-1/4 md:right-auto': isAgentsSidePanelOpen,
+          'right-1/4 md:right-auto': isAgentsLeftPanelOpen,
         },
         className
       )}
@@ -56,65 +55,58 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
           'md:transition-[min-width,max-width]',
           {
             'gap-y-4 md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
-              !isAgentsSidePanelOpen,
+              !isAgentsLeftPanelOpen,
             'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
-              isAgentsSidePanelOpen,
+              isAgentsLeftPanelOpen,
           }
         )}
       >
         <div
           className={cn('flex flex-shrink-0 items-center', {
-            'justify-center': !isAgentsSidePanelOpen,
-            'justify-between gap-x-3': isMobile && isAgentsSidePanelOpen,
+            'justify-center': !isAgentsLeftPanelOpen,
+            'justify-between gap-x-3': isMobile && isAgentsLeftPanelOpen,
           })}
         >
           <button onClick={() => navigateToNewChat()}>
             <Logo
               hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO}
-              includeBrandName={isAgentsSidePanelOpen}
+              includeBrandName={isAgentsLeftPanelOpen}
             />
           </button>
 
-          <ToggleAgentsSidePanelButton className="flex md:hidden" />
+          <ToggleAgentsLeftPanelButton className="flex md:hidden" />
         </div>
 
         <div
           className={cn('flex flex-shrink-0 flex-col gap-y-4', {
-            'items-center': !isAgentsSidePanelOpen,
+            'items-center': !isAgentsLeftPanelOpen,
           })}
         >
-          <SidePanelButton
+          <Button
+            kind="secondary"
             label={
               <div className="group flex items-center justify-between">
                 <Text className="dark:text-evolved-green-700">New chat</Text>
                 <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
               </div>
             }
+            icon="add"
+            theme="evolved-green"
             onClick={() => navigateToNewChat()}
-            tooltip="New chat"
-            icon={<Icon name="add" kind="outline" className="dark:text-evolved-green-700" />}
+            stretch
           />
-          <SidePanelButton
-            label="See all assistants"
-            tooltip="See all assistants"
-            href="/discover"
-            icon={<Icon name="compass" kind="outline" className="dark:text-mushroom-950" />}
-          />
+
+          <Button kind="secondary" label="See all assistants" href="/discover" icon="compass" />
         </div>
 
         <div className={cn('flex-grow overflow-y-auto')}>{children}</div>
 
-        <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
-          <SidePanelButton
-            label="Settings"
-            tooltip="Settings"
-            href="/settings"
-            icon={<Icon name="settings" kind="outline" className="dark:text-mushroom-950" />}
-          />
+        <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
+          <Button label="Settings" href="/settings" icon="settings" kind="secondary" />
           <section className="flex items-center justify-between">
             <div
               className={cn('flex items-center gap-2', {
-                hidden: !isAgentsSidePanelOpen,
+                hidden: !isAgentsLeftPanelOpen,
               })}
             >
               <Text styleAs="label" className="dark:text-mushroom-800">
@@ -122,7 +114,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               </Text>
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
             </div>
-            <ToggleAgentsSidePanelButton className="hidden md:flex" />
+            <ToggleAgentsLeftPanelButton className="hidden md:flex" />
           </section>
         </footer>
       </div>
@@ -130,67 +122,33 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   );
 };
 
-const SidePanelButton: React.FC<{
-  label?: ReactElement | string;
-  tooltip?: string;
-  href?: string;
-  onClick?: VoidFunction;
-  icon: ReactElement;
-  className?: string;
-}> = ({ label, tooltip, href, icon, className, onClick }) => {
+const ToggleAgentsLeftPanelButton: React.FC<{ className?: string }> = ({ className }) => {
   const {
-    agents: { isAgentsSidePanelOpen },
-  } = useAgentsStore();
-
-  if (isAgentsSidePanelOpen) {
-    return (
-      <Button
-        kind="secondary"
-        className={cn('dark:[&_span]:text-mushroom-950', className)}
-        startIcon={icon}
-        label={label}
-        href={href}
-        onClick={onClick}
-      />
-    );
-  }
-
-  return (
-    <IconButton
-      icon={icon}
-      href={href}
-      onClick={onClick}
-      className={className}
-      tooltip={tooltip ? { label: tooltip } : undefined}
-    />
-  );
-};
-
-const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
-  const {
-    agents: { isAgentsSidePanelOpen },
-    setAgentsSidePanelOpen,
+    agents: { isAgentsLeftPanelOpen },
+    setAgentsLeftSidePanelOpen,
   } = useAgentsStore();
   const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
 
-  const handleToggleAgentsSidePanel = () => {
+  const handleToggleAgentsLeftPanel = () => {
     setIsConvListPanelOpen(false);
     setSettings({ isConfigDrawerOpen: false });
-    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
+    setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
   };
 
   return (
-    <IconButton
-      iconName="close-drawer"
-      onClick={handleToggleAgentsSidePanel}
-      tooltip={{ label: 'Toggle agents side panel' }}
-      className={cn(
-        'transform transition delay-100 duration-200 ease-in-out dark:text-mushroom-950 dark:hover:text-mushroom-950',
-        className,
-        {
-          'rotate-180 ': isAgentsSidePanelOpen,
-        }
-      )}
-    />
+    <Tooltip hover label="Toggle agents side panel">
+      <Button
+        kind="secondary"
+        className="px-2"
+        icon="close-drawer"
+        iconOptions={{
+          className: cn('transform transition delay-100 duration-200 ease-in-out', className, {
+            'rotate-180 ': isAgentsLeftPanelOpen,
+          }),
+        }}
+        animate={false}
+        onClick={handleToggleAgentsLeftPanel}
+      />
+    </Tooltip>
   );
 };

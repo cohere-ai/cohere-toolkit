@@ -46,7 +46,7 @@ export const DiscoverAgents = () => {
         <Button
           kind="secondary"
           className="dark:[&_span]:text-evolved-green-700"
-          startIcon="add"
+          icon="add"
           label="Create Assistant"
           href="/new"
         />
