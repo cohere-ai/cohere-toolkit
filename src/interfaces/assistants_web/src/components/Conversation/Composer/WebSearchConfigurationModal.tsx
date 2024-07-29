@@ -34,8 +34,8 @@ export const WebSearchModal: React.FC<{
         onChange={(e) => setSite(e.target.value)}
       />
       <div className="flex w-full items-center justify-between">
-        <Button label="Cancel" kind="secondary" onClick={onCancel} />
-        <Button type="submit" label="Save" splitIcon="arrow-right" theme="volcanic" />
+        <Button label="Cancel" theme="danger" onClick={onCancel} />
+        <Button buttonType="submit" label="Save" kind="cell" />
       </div>
     </form>
   );

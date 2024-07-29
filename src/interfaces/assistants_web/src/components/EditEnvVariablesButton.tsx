@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 
-import { BasicButton, Button, Dropdown, Input } from '@/components/Shared';
+import { Button, Dropdown, Input } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
@@ -20,15 +20,7 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
     });
   };
 
-  return (
-    <BasicButton
-      label="Configure"
-      size="sm"
-      kind="minimal"
-      className="py-0"
-      onClick={handleClick}
-    />
-  );
+  return <Button label="Configure" kind="secondary" onClick={handleClick} />;
 };
 
 /**
@@ -108,11 +100,10 @@ export const EditEnvVariablesModal: React.FC<{
       ))}
 
       <span className="mt-10 flex items-center justify-between">
-        <BasicButton kind="minimal" size="sm" label="Cancel" onClick={onClose} />
+        <Button label="Cancel" kind="secondary" onClick={onClose} />
         <Button
           label={isSubmitting ? 'Saving...' : 'Save'}
           onClick={handleSubmit}
-          splitIcon="arrow-right"
           disabled={isSubmitting}
         />
       </span>

@@ -29,7 +29,7 @@ export const AgentToolFilePicker: React.FC<Props> = ({
       {!disabled && (
         <Button
           kind="secondary"
-          startIcon={<Icon name="add" kind="outline" className="text-green-250" />}
+          icon="add"
           label="Select files/folders"
           onClick={handleOpenFilePicker}
         />
