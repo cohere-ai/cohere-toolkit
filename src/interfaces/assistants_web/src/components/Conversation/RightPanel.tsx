@@ -19,6 +19,7 @@ type Props = {};
 
 const RightPanel: React.FC<Props> = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  // TODO: (khalil) configure this to use Google drive files
   const [useAssistantKnowledge, setUseAssistantKnowledge] = useState(true);
   const { agentId } = useChatRoutes();
 

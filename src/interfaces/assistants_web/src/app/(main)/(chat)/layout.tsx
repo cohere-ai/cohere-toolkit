@@ -5,7 +5,7 @@ import { useContext, useEffect } from 'react';
 import { BannerContext } from '@/context/BannerContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
+import { useConversationStore, useParamsStore } from '@/stores';
 
 const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { data: experimentalFeatures } = useExperimentalFeatures();

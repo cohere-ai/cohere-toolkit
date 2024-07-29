@@ -15,7 +15,7 @@ export const MobileHeader: React.FC = () => {
   };
 
   return (
-    <header className="flex h-11 w-full items-center justify-between rounded-lg border border-marble-950 bg-marble-980 pl-5 pr-3 lg:hidden">
+    <header className="flex h-11 w-full items-center justify-between pl-5 pr-3 lg:hidden">
       <Logo />
       <IconButton iconName="menu" onClick={onToggleAgentsSidePanel} />
     </header>

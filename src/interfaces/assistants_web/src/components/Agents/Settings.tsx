@@ -94,7 +94,7 @@ const Profile = () => {
         href="/logout"
         kind="secondary"
         // TODO(tomeu): replace with Sign out icon
-        startIcon="arrow-right"
+        icon="arrow-right"
       />
     </Wrapper>
   );

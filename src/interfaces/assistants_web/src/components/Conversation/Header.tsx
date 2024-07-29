@@ -29,7 +29,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   };
 
   return (
-    <div className="flex h-header w-full min-w-0 items-center border-b border-marble-950 dark:border-b-0">
+    <div className="flex h-header w-full min-w-0 items-center">
       <div className="flex w-full flex-1 items-center justify-between px-10">
         <div className="flex items-center gap-4">
           <Text className="truncate dark:text-mushroom-950" styleAs="p-lg" as="span">
