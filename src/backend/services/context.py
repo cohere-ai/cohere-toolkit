@@ -28,7 +28,7 @@ class ContextMiddleware:
 
         request = Request(scope)
         context.with_deployment_name(request.headers.get("Deployment-Name", ""))
-        
+
         # Not all endpoints require authentication, so we need to handle the case where the user_id is not present
         try:
             user_id = get_header_user_id(request)
