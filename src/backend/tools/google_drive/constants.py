@@ -22,10 +22,13 @@ NON_NATIVE_SEARCH_MIME_TYPES = [
     "text/plain",
     "text/markdown",
 ]
+NATIVE_EXTENSION_MAPPINGS = {
+    "application/vnd.google-apps.document": "txt",
+    "application/vnd.google-apps.spreadsheet": "csv",
+    "application/vnd.google-apps.presentation": "pptx",
+}
 SEARCH_MIME_TYPES = NATIVE_SEARCH_MIME_TYPES + NON_NATIVE_SEARCH_MIME_TYPES
-DOC_FIELDS = (
-    "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails, trashed, parents"
-)
+DOC_FIELDS = "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails, trashed, parents, fileExtension"
 
 GOOGLE_DRIVE_TOOL_ID = "google_drive"
 

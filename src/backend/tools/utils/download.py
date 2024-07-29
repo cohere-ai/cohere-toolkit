@@ -1,4 +1,3 @@
-import functools
 from concurrent import futures
 from typing import Dict
 

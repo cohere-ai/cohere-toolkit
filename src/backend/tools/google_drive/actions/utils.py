@@ -1,7 +1,8 @@
 from backend.services.sync.env import env
-from backend.tools.google_drive.constants import DOC_FIELDS, NATIVE_SEARCH_MIME_TYPES
+from backend.tools.google_drive.constants import NATIVE_SEARCH_MIME_TYPES
 from backend.tools.google_drive.utils import (
     extract_export_link,
+    extract_file_extension,
     extract_title,
     extract_web_view_link,
     get_service,
@@ -25,6 +26,7 @@ def get_file_details(file_id: str, user_id: str):
         return None
 
     processed_file = process_shortcut_file(service, file_get)
+    extension = extract_file_extension(file_get)
     web_view_link = extract_web_view_link(processed_file)
     title = extract_title(file_get)
 
@@ -46,6 +48,7 @@ def get_file_details(file_id: str, user_id: str):
 
     return {
         "file_bytes": file_bytes,
+        "extension": extension,
         "web_view_link": web_view_link,
         "title": title,
     }

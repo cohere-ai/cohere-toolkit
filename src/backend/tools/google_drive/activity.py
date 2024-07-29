@@ -158,7 +158,7 @@ def _get_activity(
     )
     if response_next_page_token := response.get("nextPageToken", None):
         return [
-            *response["activities"],
+            *response.get("activities", []),
             *_get_activity(
                 service=service,
                 artifact=artifact,

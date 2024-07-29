@@ -22,10 +22,9 @@ def edit(file_id: str, index_name: str, user_id: str, **kwargs):
             "file_id": file_id,
         }
 
-    file_bytes = file_details["file_bytes"]
-    web_view_link = file_details["web_view_link"]
-    title = file_details["title"]
-
+    file_bytes, web_view_link, title, extension = (
+        file_details[key] for key in ("file_bytes", "web_view_link", "title", "extension")
+    )
     if not file_bytes:
         return {
             "action": ACTION_NAME,
@@ -53,6 +52,7 @@ def edit(file_id: str, index_name: str, user_id: str, **kwargs):
                 "index": index_name,
                 "file_id": file_id,
                 "file_bytes": file_bytes,
+                "file_extension": extension,
             },
         )
         logger.info("Finished Compass update action for file {}".format(web_view_link))

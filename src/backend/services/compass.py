@@ -249,18 +249,21 @@ class Compass:
             )
 
         # Check if filename is specified for file-related actions
-        if not parameters.get("filename", None) and not parameters.get("file_bytes", None):
+        if not parameters.get("filename", None) and (
+            not parameters.get("file_bytes", None) or not parameters.get("file_extension", None)
+        ):
             logger.error(
-                "Compass Tool: No filename or file_bytes specified for "
+                "Compass Tool: No filename or file_bytes or file_extension specified for "
                 "create/update operation. "
                 "No action will be taken. "
-                f"Parameters specified: {parameters}"
+                f"Parameters specified: {parameters.keys()}"
             )
             return None
 
         file_id = parameters["file_id"]
         filename = parameters.get("filename", None)
         file_bytes = parameters.get("file_bytes", None)
+        file_extension = parameters.get("file_extension", None)
 
         if filename and not os.path.exists(filename):
             logger.error(
@@ -284,11 +287,12 @@ class Compass:
             )
         else:
             return self._raw_parsing(
-                file_bytes=file_bytes,
                 file_id=file_id,
+                file_bytes=file_bytes,
+                file_extension=file_extension,
             )
 
-    def _raw_parsing(self, file_bytes: str, file_id: str):
+    def _raw_parsing(self, file_id: str, file_bytes: str, file_extension: str):
         if len(file_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
                 f"File too large, supported file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "
@@ -305,7 +309,7 @@ class Compass:
         res = self.parser_client.session.post(
             url=f"{self.parser_client.parser_url}/v1/process_file",
             data={"data": json.dumps(params.model_dump())},
-            files={"file": (file_id, file_bytes)},
+            files={"file": ("{}.{}".format(file_id, file_extension), file_bytes)},
             auth=auth,
         )
 
@@ -315,8 +319,6 @@ class Compass:
                 additional_metadata = CompassParserClient._get_metadata(doc=doc)
                 doc.content = {**doc.content, **additional_metadata}
         else:
-            print(res)
-            print(res.ok)
             docs = []
             logger.error(f"Error processing file: {res.text}")
 

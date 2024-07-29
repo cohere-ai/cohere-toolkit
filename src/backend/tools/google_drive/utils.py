@@ -12,7 +12,12 @@ from backend.database_models.database import db_sessionmaker
 from backend.services.logger import get_logger
 from backend.services.sync.constants import Status
 from backend.tools.google_drive.auth import GoogleDriveAuth
-from backend.tools.google_drive.constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
+from backend.tools.google_drive.constants import (
+    CSV_MIMETYPE,
+    DOC_FIELDS,
+    NATIVE_EXTENSION_MAPPINGS,
+    TEXT_MIMETYPE,
+)
 
 logger = get_logger()
 
@@ -157,6 +162,14 @@ def process_shortcut_file(service: Any, file: Dict[str, str]) -> Dict[str, str]:
 
 def extract_web_view_link(file: Dict[str, str]) -> str:
     return file.pop("webViewLink", "")
+
+
+def extract_file_extension(file: Dict[str, str]) -> str:
+    extension = file.pop("fileExtension", "")
+    if not extension:
+        # NOTE: Mean native file
+        # ref. docs https://developers.google.com/drive/api/reference/rest/v3/files#File
+        return NATIVE_EXTENSION_MAPPINGS[file["mimeType"]]
 
 
 def extract_title(file: Dict[str, str]) -> str:
