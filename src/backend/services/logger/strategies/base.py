@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Any
 
-from src.backend.schemas.context import Context
+from backend.schemas.context import Context
 
 
 class BaseLogger:

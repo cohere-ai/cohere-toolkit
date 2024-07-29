@@ -229,7 +229,7 @@ class MetricsHelper:
         json_signal = json.dumps(s)
         # just general curl commands to test the endpoint for now
         logger.info(
-            f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
+            event=f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
         )
 
 
