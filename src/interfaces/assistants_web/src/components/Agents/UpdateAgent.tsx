@@ -12,7 +12,6 @@ import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
-import { useAgentsStore } from '@/stores';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 
@@ -22,7 +21,6 @@ type Props = {
 
 export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
-  const { setEditAgentPanelOpen } = useAgentsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
   const { data: toolsData } = useListTools();
   const { mutateAsync: updateAgent } = useUpdateAgent();
@@ -143,10 +141,6 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
     }
   }, [agent]);
 
-  const handleClose = () => {
-    setEditAgentPanelOpen(false);
-  };
-
   const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
     const enabledTools = fields.tools ?? [];
     if (toolName === TOOL_GOOGLE_DRIVE_ID) {
@@ -220,7 +214,6 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         )}
       >
         <Text>{isAgentCreator ? `Update ${agent.name}` : `About ${agent.name}`}</Text>
-        <IconButton iconName="close" onClick={handleClose} />
       </header>
       <div className={cn('flex flex-col gap-y-5 overflow-y-auto', 'p-4 lg:p-10')}>
         {isAgentCreator && <InfoBanner agentName={agent.name} className="flex md:hidden" />}
@@ -252,7 +245,7 @@ const InfoBanner: React.FC<{ agentName: string; className?: string }> = ({
   agentName,
   className,
 }) => (
-  <Banner theme="secondary" size="sm" className={cn('w-full', className)}>
+  <Banner className={cn('w-full', className)}>
     Updating {agentName} will affect everyone using the assistant
   </Banner>
 );

@@ -16,12 +16,12 @@ import { cn } from '@/utils';
  * It contains the logo and a button to expand or collapse the panel.
  * It also renders the children components that are passed to it.
  */
-export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
   className = '',
   children,
 }) => {
   const {
-    agents: { isAgentsSidePanelOpen },
+    agents: { isAgentsLeftPanelOpen },
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -30,7 +30,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
 
   return (
     <Transition
-      show={isAgentsSidePanelOpen || isDesktop}
+      show={isAgentsLeftPanelOpen || isDesktop}
       as="div"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
@@ -38,7 +38,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
         'rounded-lg border border-marble-950 dark:border-volcanic-60',
         'dark:text-mushroom-950',
         {
-          'right-1/4 md:right-auto': isAgentsSidePanelOpen,
+          'right-1/4 md:right-auto': isAgentsLeftPanelOpen,
         },
         className
       )}
@@ -55,31 +55,31 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
           'md:transition-[min-width,max-width]',
           {
             'gap-y-4 md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
-              !isAgentsSidePanelOpen,
+              !isAgentsLeftPanelOpen,
             'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
-              isAgentsSidePanelOpen,
+              isAgentsLeftPanelOpen,
           }
         )}
       >
         <div
           className={cn('flex flex-shrink-0 items-center', {
-            'justify-center': !isAgentsSidePanelOpen,
-            'justify-between gap-x-3': isMobile && isAgentsSidePanelOpen,
+            'justify-center': !isAgentsLeftPanelOpen,
+            'justify-between gap-x-3': isMobile && isAgentsLeftPanelOpen,
           })}
         >
           <button onClick={() => navigateToNewChat()}>
             <Logo
               hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO}
-              includeBrandName={isAgentsSidePanelOpen}
+              includeBrandName={isAgentsLeftPanelOpen}
             />
           </button>
 
-          <ToggleAgentsSidePanelButton className="flex md:hidden" />
+          <ToggleAgentsLeftPanelButton className="flex md:hidden" />
         </div>
 
         <div
           className={cn('flex flex-shrink-0 flex-col gap-y-4', {
-            'items-center': !isAgentsSidePanelOpen,
+            'items-center': !isAgentsLeftPanelOpen,
           })}
         >
           <Button
@@ -101,12 +101,12 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
 
         <div className={cn('flex-grow overflow-y-auto')}>{children}</div>
 
-        <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
+        <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
           <Button label="Settings" href="/settings" icon="settings" kind="secondary" />
           <section className="flex items-center justify-between">
             <div
               className={cn('flex items-center gap-2', {
-                hidden: !isAgentsSidePanelOpen,
+                hidden: !isAgentsLeftPanelOpen,
               })}
             >
               <Text styleAs="label" className="dark:text-mushroom-800">
@@ -114,7 +114,7 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
               </Text>
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
             </div>
-            <ToggleAgentsSidePanelButton className="hidden md:flex" />
+            <ToggleAgentsLeftPanelButton className="hidden md:flex" />
           </section>
         </footer>
       </div>
@@ -122,17 +122,17 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
   );
 };
 
-const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
+const ToggleAgentsLeftPanelButton: React.FC<{ className?: string }> = ({ className }) => {
   const {
-    agents: { isAgentsSidePanelOpen },
-    setAgentsSidePanelOpen,
+    agents: { isAgentsLeftPanelOpen },
+    setAgentsLeftSidePanelOpen,
   } = useAgentsStore();
   const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
 
-  const handleToggleAgentsSidePanel = () => {
+  const handleToggleAgentsLeftPanel = () => {
     setIsConvListPanelOpen(false);
     setSettings({ isConfigDrawerOpen: false });
-    setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
+    setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
   };
 
   return (
@@ -143,11 +143,11 @@ const ToggleAgentsSidePanelButton: React.FC<{ className?: string }> = ({ classNa
         icon="close-drawer"
         iconOptions={{
           className: cn('transform transition delay-100 duration-200 ease-in-out', className, {
-            'rotate-180 ': isAgentsSidePanelOpen,
+            'rotate-180 ': isAgentsLeftPanelOpen,
           }),
         }}
         animate={false}
-        onClick={handleToggleAgentsSidePanel}
+        onClick={handleToggleAgentsLeftPanel}
       />
     </Tooltip>
   );

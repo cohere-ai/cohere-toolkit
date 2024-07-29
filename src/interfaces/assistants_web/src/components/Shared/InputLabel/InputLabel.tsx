@@ -35,7 +35,11 @@ export const InputLabel: React.FC<Props> = ({
       <div className={cn('flex w-full flex-col gap-y-1 pb-0.5', className)}>
         <span className={cn('flex items-center gap-x-1', labelContainerClassName)}>
           {typeof label === 'string' ? (
-            <Text className={cn('text-volcanic-100', labelClassName)} as="span" styleAs={styleAs}>
+            <Text
+              className={cn('text-volcanic-100 dark:text-marble-950', labelClassName)}
+              as="span"
+              styleAs={styleAs}
+            >
               {label}
             </Text>
           ) : (

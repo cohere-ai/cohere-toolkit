@@ -116,7 +116,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             <Icon
               name="information"
               kind="outline"
-              className={cx(iconClassName || 'fill-volcanic-300')}
+              className={cx(iconClassName || 'fill-volcanic-300 dark:fill-marble-800')}
             />
           )}
         </button>

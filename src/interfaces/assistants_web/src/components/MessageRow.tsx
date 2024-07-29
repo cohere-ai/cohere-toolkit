@@ -8,13 +8,7 @@ import { Avatar } from '@/components/Avatar';
 import { IconButton } from '@/components/IconButton';
 import { LongPressMenu } from '@/components/LongPressMenu';
 import { MessageContent } from '@/components/MessageContent';
-import {
-  Button,
-  CopyToClipboardButton,
-  CopyToClipboardIconButton,
-  Icon,
-  Tooltip,
-} from '@/components/Shared';
+import { Button, CopyToClipboardButton, CopyToClipboardIconButton } from '@/components/Shared';
 import { ToolEvents } from '@/components/ToolEvents';
 import { ReservedClasses } from '@/constants';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
@@ -147,6 +141,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               <Button
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 icon="list"
+                iconOptions={{ className: 'dark:fill-marble-800' }}
                 kind="secondary"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 animate={false}
