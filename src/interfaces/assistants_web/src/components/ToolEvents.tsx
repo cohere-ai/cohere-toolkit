@@ -181,9 +181,13 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   children,
 }) => {
   return (
-    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900">
-      <Icon name={icon} kind="outline" className="flex h-[21px] items-center text-mushroom-500" />
-      <Text className="pt-px text-mushroom-300" styleAs="p-sm" as="span">
+    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900 dark:bg-volcanic-200 dark:group-hover:bg-inherit">
+      <Icon
+        name={icon}
+        kind="outline"
+        className="flex h-[21px] items-center fill-mushroom-500 dark:fill-marble-950"
+      />
+      <Text className="pt-px text-mushroom-300 dark:text-marble-850" styleAs="p-sm" as="span">
         {children}
       </Text>
     </div>

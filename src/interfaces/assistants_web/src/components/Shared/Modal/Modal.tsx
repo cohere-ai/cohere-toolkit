@@ -1,86 +1,15 @@
 'use client';
 
-import { Dialog, Transition } from '@headlessui/react';
-import { cva } from 'class-variance-authority';
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import React, { Fragment } from 'react';
 
-import { Icon } from '@/components/Shared';
 import { Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
-type CloseButtonProps = {
-  className?: string;
-  onClose?: VoidFunction;
-};
-
-const CloseButton: React.FC<CloseButtonProps> = ({ onClose, className }) => (
-  <button
-    type="button"
-    className={cn('group p-1 outline-none', className)}
-    aria-label="Close"
-    onClick={onClose}
-  >
-    <Icon name="close" size="md" />
-  </button>
-);
-
-const dialogStyle = cva(['relative', 'z-modal'], {
-  variants: {
-    kind: {
-      default: [],
-      'coral-mobile-only': ['lg:hidden'],
-      coral: [],
-    },
-  },
-});
-
-const panelStyle = cva(['relative', 'flex', 'w-full', 'flex-col', 'rounded-lg'], {
-  variants: {
-    kind: {
-      default: [
-        'max-w-modal',
-        'gap-6',
-        'bg-marble-1000',
-        'py-10',
-        'px-6',
-        'md:gap-8',
-        'md:px-10',
-        'md:py-14',
-        'lg:gap-10',
-      ],
-      'coral-mobile-only': ['max-w-modal', 'gap-2', 'bg-coral-900', 'p-3'],
-      coral: ['max-w-modal', 'gap-2', 'bg-coral-900', 'p-3'],
-    },
-  },
-});
-
-const closeButtonStyle = cva([], {
-  variants: {
-    kind: {
-      default: ['absolute', 'top-6', 'right-6'],
-      'coral-mobile-only': ['absolute', 'top-1', 'right-2', 'text-volcanic-400'],
-      coral: ['absolute', 'top-1', 'right-2', 'text-volcanic-700'],
-    },
-  },
-});
-
-const titleStyle = cva([], {
-  variants: {
-    kind: {
-      default: ['px-8', 'text-center'],
-      'coral-mobile-only': ['text-volcanic-400'],
-      coral: ['text-volcanic-400'],
-    },
-  },
-});
-
 type ModalProps = {
   isOpen: boolean;
-  title?: React.ReactNode;
-  kind?: 'default' | 'coral-mobile-only' | 'coral';
+  title?: string;
   children?: React.ReactNode;
-  hideCloseButton?: boolean;
-  panelClassName?: string;
   onClose?: VoidFunction;
 };
 
@@ -90,18 +19,13 @@ type ModalProps = {
 export const Modal: React.FC<ModalProps> = ({
   title = '',
   isOpen,
-  kind = 'default',
   children,
-  hideCloseButton = false,
-  panelClassName,
   onClose = () => {},
 }) => {
-  const isCitation = kind === 'coral-mobile-only' || kind === 'coral';
-
   return (
-    <Transition.Root appear show={isOpen} as={Fragment}>
-      <Dialog onClose={onClose} className={cn(dialogStyle({ kind }))}>
-        <Transition.Child
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog onClose={onClose} className={cn()}>
+        <TransitionChild
           as={Fragment}
           enter="ease-out transition-opacity duration-300"
           enterFrom="opacity-0"
@@ -111,14 +35,14 @@ export const Modal: React.FC<ModalProps> = ({
           leaveTo="opacity-0"
         >
           <div
-            className="fixed inset-0 bg-volcanic-300/20 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 z-backdrop bg-volcanic-300/20 transition-opacity dark:bg-volcanic-100/80"
             aria-hidden="true"
           />
-        </Transition.Child>
+        </TransitionChild>
 
         {/* Full-screen container to center the panel */}
-        <div className="fixed inset-0 flex items-center justify-center overflow-auto p-4">
-          <Transition.Child
+        <div className="fixed inset-0 z-modal flex items-center justify-center overflow-auto p-4">
+          <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0 scale-90"
@@ -128,38 +52,36 @@ export const Modal: React.FC<ModalProps> = ({
             leaveTo="opacity-0 scale-90"
           >
             {/* Container to center the panel */}
-            <div className="absolute top-0 flex min-h-full w-full items-center justify-center overflow-auto p-4">
+            <div
+              className={cn(
+                'absolute top-0 flex min-h-full w-full items-center justify-center overflow-auto p-4 md:w-modal'
+              )}
+            >
               {children && (
-                <Dialog.Panel className={cn(panelStyle({ kind, className: panelClassName }))}>
-                  {!hideCloseButton && title && (
+                <DialogPanel
+                  className={cn(
+                    'h-fit max-h-modal overflow-y-auto rounded-lg border px-5 py-7 md:px-10 md:py-14',
+                    'flex flex-col gap-y-8',
+                    'border-marble-900 dark:border-volcanic-500',
+                    'bg-mushroom-950 dark:bg-volcanic-200'
+                  )}
+                >
+                  {title && (
                     <header>
-                      {!hideCloseButton && (
-                        <CloseButton className={cn(closeButtonStyle({ kind }))} onClose={onClose} />
-                      )}
                       {title && (
-                        <Dialog.Title as="div" className="flex-0">
-                          {typeof title === 'string' ? (
-                            <Text
-                              as="h5"
-                              className={cn(titleStyle({ kind }))}
-                              styleAs={isCitation ? 'label' : 'h5'}
-                            >
-                              {title}
-                            </Text>
-                          ) : (
-                            title
-                          )}
-                        </Dialog.Title>
+                        <DialogTitle as="div" className="flex-0 text-center">
+                          <Text as="h5">{title}</Text>
+                        </DialogTitle>
                       )}
                     </header>
                   )}
                   {children}
-                </Dialog.Panel>
+                </DialogPanel>
               )}
             </div>
-          </Transition.Child>
+          </TransitionChild>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   );
 };

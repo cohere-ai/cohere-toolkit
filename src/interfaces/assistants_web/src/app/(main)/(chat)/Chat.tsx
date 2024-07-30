@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { Document, ManagedTool } from '@/cohere-client';
 import { ConnectDataModal } from '@/components/ConnectDataModal';
@@ -8,7 +8,7 @@ import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
 import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
 import { useAgent } from '@/hooks/agents';
 import { useConversation } from '@/hooks/conversation';
 import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
@@ -28,7 +28,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
   const { setParams, resetFileParams } = useParamsStore();
 
-  const { open, close } = useContext(ModalContext);
+  const { open, close } = useContextStore();
 
   const {
     data: conversation,
@@ -121,7 +121,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   ) : isError ? (
     <ConversationError error={error} />
   ) : (
-    <Conversation conversationId={conversationId} agentId={agentId} startOptionsEnabled />
+    <Conversation conversationId={conversationId} agent={agent} tools={tools} startOptionsEnabled />
   );
 };
 

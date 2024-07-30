@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 from backend.crud import tool_auth as tool_auth_crud
 from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.services.compass import Compass
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 from backend.tools.base import BaseTool
 from backend.tools.utils import async_download, parallel_get_files
 
@@ -50,7 +50,7 @@ class GoogleDrive(BaseTool):
         return all(os.getenv(var) is not None for var in vars)
 
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
-        message = "Google Drive Error: {}".format(str(error))
+        message = "[Google Drive] Tool Error: {}".format(str(error))
 
         if isinstance(error, RefreshError):
             session = kwargs["session"]
@@ -58,9 +58,10 @@ class GoogleDrive(BaseTool):
             tool_auth_crud.delete_tool_auth(
                 db=session, user_id=user_id, tool_id=GOOGLE_DRIVE_TOOL_ID
             )
-            message = "Google Drive Error: Something is wrong with your Google auth token. Please refresh the page and re-authenticate."
 
-        logger.error(message)
+        logger.error(
+            event="[Google Drive] Auth token error: Please refresh the page and re-authenticate."
+        )
         raise Exception(message)
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
@@ -89,8 +90,8 @@ class GoogleDrive(BaseTool):
         )
 
         if not tool_auth:
-            error_message = f"Could not find ToolAuth with tool_id: {self.NAME} and user_id: {kwargs.get('user_id')}"
-            logger.error(error_message)
+            error_message = f"[Google Drive] Error searching Google Drive: Could not find ToolAuth with tool_id: {self.NAME} and user_id: {kwargs.get('user_id')}"
+            logger.error(event=error_message)
             raise HTTPException(status_code=401, detail=error_message)
 
         creds = Credentials(tool_auth.access_token)
@@ -156,7 +157,7 @@ class GoogleDrive(BaseTool):
 
             files = search_results.get("files", [])
             if not files:
-                logger.debug("No files found.")
+                logger.debug(event="[Google Drive] No files found.")
         if not files:
             return [{"text": ""}]
 
@@ -181,7 +182,7 @@ class GoogleDrive(BaseTool):
             compass = Compass()
         except Exception as e:
             # Compass is not available. Using without Compass
-            logger.info("Compass Error: {}".format(str(e)))
+            logger.info(event=f"[Google Drive] Error initializing Compass: {str(e)}")
             return [
                 {
                     "text": id_to_texts[idd],

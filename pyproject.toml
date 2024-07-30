@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "~3.11"
 fastapi = "^0.109.2"
-uvicorn = {extras = ["standard"], version = "^0.27.1"}
+uvicorn = { extras = ["standard"], version = "^0.27.1" }
 sqlalchemy = "^2.0.26"
 pydantic = "^2.6.4"
 langchain = "0.1.16"
@@ -41,12 +41,16 @@ pypdf = "^4.2.0"
 pyjwt = "^2.8.0"
 pydantic-settings = "^2.3.1"
 transformers = "^4.41.2"
-google_auth_oauthlib ="^1.2.0"
-google-auth-httplib2="^0.2.0"
-google-api-python-client="^2.133.0"
+google_auth_oauthlib = "^1.2.0"
+google-auth-httplib2 = "^0.2.0"
+google-api-python-client = "^2.133.0"
 openpyxl = "^3.1.5"
+redis = {extras = ["hiredis"], version = "^5.0.7"}
+python-docx = "^1.1.2"
+python-calamine = "^0.2.3"
 
 # Compass dependencies - To be removed once Compass is OSS
+structlog = "^24.4.0"
 [tool.poetry.group.compass]
 optional = false
 
@@ -110,3 +114,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
 profile = "black"
+
+[tool.pyright]
+include = ["src/backend/services/metrics.py"]
+defineConstant = { DEBUG = true }
+reportMissingImports = true
+reportMissingTypeStubs = false

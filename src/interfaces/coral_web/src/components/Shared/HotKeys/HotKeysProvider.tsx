@@ -45,11 +45,19 @@ export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ customHotKeys 
     [isDialogOpen, close, open]
   );
 
-  useHotkeys(customHotKeys.map((a) => a.commands).join(', '), (_, handler) => {
-    const item = customHotKeys.find((action) => action.commands === handler.keys);
-    if (item) {
-      item.action();
-    }
+  customHotKeys.forEach(({ commands, action, options, dependencies }) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useHotkeys(
+      commands,
+      () => {
+        if (isDialogOpen) {
+          close();
+        }
+        action();
+      },
+      { enableOnFormTags: true, ...options },
+      dependencies
+    );
   });
 
   const dialogCustomActions: QuickAction[] = customHotKeys.map(({ name, commands, action }) => ({

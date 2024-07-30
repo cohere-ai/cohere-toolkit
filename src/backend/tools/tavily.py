@@ -4,13 +4,14 @@ from typing import Any, Dict, List
 from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
+from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.tools.base import BaseTool
 
 
 class TavilyInternetSearch(BaseTool):
     NAME = "web_search"
-    TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
+    TAVILY_API_KEY = Settings().tools.web_search.api_key
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
@@ -77,6 +78,7 @@ class TavilyInternetSearch(BaseTool):
                     f"{snippet['title']} {snippet['content']}"
                     for snippet in snippet_batch
                 ],
+                ctx=None,
                 **kwargs,
             )
             for b in batch_output.get("results", []):

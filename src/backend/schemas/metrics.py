@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from backend.schemas.agent import Agent
+
 
 class GenericResponseMessage(BaseModel):
     message: str
@@ -24,9 +26,11 @@ class MetricsMessageType(str, Enum):
     CHAT_API_SUCCESS = "chat_api_call_success"
     # implemented, needs tests
     CHAT_API_FAIL = "chat_api_call_failure"
-    # pending implementation
+    # implemented, has tests
     RERANK_API_SUCCESS = "rerank_api_call_success"
+    # implemented, needs tests
     RERANK_API_FAIL = "rerank_api_call_failure"
+    # pending implementation
     ENV_LIVENESS = "env_liveness"
     COMPASS_NEW_INDEX = "compass_new_index"
     COMPASS_REMOVE_INDEX = "compass_remove_index"
@@ -61,7 +65,7 @@ class MetricsAgent(BaseModel):
     description: str | None
 
 
-class MetricsChat(BaseModel):
+class MetricsModelAttrs(BaseModel):
     input_nb_tokens: int
     output_nb_tokens: int
     search_units: int
@@ -84,3 +88,31 @@ class MetricsData(MetricsDataBase):
 
 class MetricsSignal(BaseModel):
     signal: MetricsData
+
+
+DEFAULT_METRICS_AGENT = MetricsAgent(
+    id="9c300cfd-1506-408b-829d-a6464137a7c1",
+    version=1,
+    name="Default Agent",
+    temperature=0.3,
+    model="command-r-plus",
+    deployment="Cohere",
+    preamble="",
+    description="default",
+)
+
+
+def agent_to_metrics_agent(agent: Agent | None) -> MetricsAgent:
+    if not agent:
+        return None
+
+    return MetricsAgent(
+        id=agent.id,
+        version=agent.version,
+        name=agent.name,
+        temperature=agent.temperature,
+        model=agent.model,
+        deployment=agent.deployment,
+        preamble=agent.preamble,
+        description=agent.description,
+    )

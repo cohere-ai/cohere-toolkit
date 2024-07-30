@@ -1,17 +1,12 @@
-import logging
-
 import requests
 from authlib.integrations.requests_client import OAuth2Session
 from starlette.requests import Request
 
+from backend.config.settings import Settings
 from backend.services.auth.strategies.base import BaseOAuthStrategy
-from backend.services.auth.strategies.settings import Settings
+from backend.services.logger.utils import get_logger
 
-
-class GoogleOAuthSettings(Settings):
-    google_client_id: str
-    google_client_secret: str
-    frontend_hostname: str
+logger = get_logger()
 
 
 class GoogleOAuth(BaseOAuthStrategy):
@@ -24,20 +19,22 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            self.settings = GoogleOAuthSettings()
+            self.settings = Settings().auth.google_oauth
             self.REDIRECT_URI = (
-                f"{self.settings.frontend_hostname}/auth/{self.NAME.lower()}"
+                f"{Settings().auth.frontend_hostname}/auth/{self.NAME.lower()}"
             )
             self.client = OAuth2Session(
-                client_id=self.settings.google_client_id,
-                client_secret=self.settings.google_client_secret,
+                client_id=self.settings.client_id,
+                client_secret=self.settings.client_secret,
             )
         except Exception as e:
-            logging.error(f"Error during initializing of GoogleOAuth class: {str(e)}")
+            logger.error(
+                event=f"[Google OAuth] Error during initializing of GoogleOAuth class: {str(e)}"
+            )
             raise
 
     def get_client_id(self):
-        return self.settings.google_client_id
+        return self.settings.client_id
 
     def get_authorization_endpoint(self):
         if hasattr(self, "AUTHORIZATION_ENDPOINT"):
@@ -57,8 +54,8 @@ class GoogleOAuth(BaseOAuthStrategy):
             self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
             self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
         except Exception as e:
-            logging.error(
-                f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
+            logger.error(
+                event=f"[Google OAuth] Error fetching endpoints: `token_endpoint`, `userinfo_endpoint` or `authorization_endpoint` not found in {endpoints}."
             )
             raise
 

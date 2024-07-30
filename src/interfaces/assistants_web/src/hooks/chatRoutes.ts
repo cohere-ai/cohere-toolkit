@@ -1,7 +1,25 @@
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { getQueryString } from '@/utils';
+
+export const useNavigateToNewChat = () => {
+  const router = useRouter();
+  const { resetConversation } = useConversationStore();
+  const { resetCitations } = useCitationsStore();
+  const { resetFileParams } = useParamsStore();
+
+  const handleNavigate = (agentId?: string) => {
+    const url = agentId ? `/a/${agentId}` : '/';
+    resetConversation();
+    resetCitations();
+    resetFileParams();
+    router.push(url);
+  };
+
+  return handleNavigate;
+};
 
 export const useChatRoutes = () => {
   const params = useParams();
