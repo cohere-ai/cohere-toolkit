@@ -1,4 +1,4 @@
-export type GoogleDriveToolArtifact = {
+export type DataSourceArtifact = {
   type: string;
   id: string;
   name: string;

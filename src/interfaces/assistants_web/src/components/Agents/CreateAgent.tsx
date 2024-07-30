@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
-import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm/AgentForm';
+import { AgentSettingsForm } from '@/components/Agents//AgentSettings/AgentSettingsForm';
 import { Button, Icon, Input, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
@@ -19,9 +19,7 @@ import { useContextStore } from '@/context';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
-import { GoogleDriveToolArtifact } from '@/types/tools';
-
-import { CollapsibleSection } from '../CollapsibleSection';
+import { DataSourceArtifact } from '@/types/tools';
 
 const DEFAULT_FIELD_VALUES = {
   name: '',
@@ -40,14 +38,14 @@ export const CreateAgent: React.FC = () => {
   const searchParams = useSearchParams();
   const { open, close } = useContextStore();
 
-  const {
-    value: pendingAssistant,
-    set: setPendingAssistant,
-    remove: removePendingAssistant,
-  } = useLocalStorageValue<CreateAgentFormFields>('pending_assistant', {
-    initializeWithValue: false,
-    defaultValue: undefined,
-  });
+  // const {
+  //   value: pendingAssistant,
+  //   set: setPendingAssistant,
+  //   remove: removePendingAssistant,
+  // } = useLocalStorageValue<CreateAgentFormFields>('pending_assistant', {
+  //   initializeWithValue: false,
+  //   defaultValue: undefined,
+  // });
 
   const { data: toolsData } = useListTools();
   const { error } = useNotify();
@@ -55,134 +53,125 @@ export const CreateAgent: React.FC = () => {
   const { addRecentAgentId } = useRecentAgents();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<CreateAgentFormFields>(DEFAULT_FIELD_VALUES);
+  // const [fields, setFields] = useState<CreateAgentFormFields>(DEFAULT_FIELD_VALUES);
 
   const openFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
-      setFields((prev) => {
-        const updatedArtifacts = [
-          ...(prev.tools_metadata?.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID)
-            ?.artifacts ?? []),
-          ...data.docs.map(
-            (doc) =>
-              ({
-                id: doc.id,
-                name: doc.name,
-                type: doc.type,
-                url: doc.url,
-              } as GoogleDriveToolArtifact)
-          ),
-        ];
-
-        return {
-          ...prev,
-          tools_metadata: [
-            ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
-              []),
-            ...[
-              {
-                tool_name: TOOL_GOOGLE_DRIVE_ID,
-                artifacts: uniqBy(updatedArtifacts, 'id'),
-              },
-            ],
-          ],
-        };
-      });
+      // setFields((prev) => {
+      //   const updatedArtifacts = [
+      //     ...(prev.tools_metadata?.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID)
+      //       ?.artifacts ?? []),
+      //     ...data.docs.map(
+      //       (doc) =>
+      //         ({
+      //           id: doc.id,
+      //           name: doc.name,
+      //           type: doc.type,
+      //           url: doc.url,
+      //         } as DataSourceArtifact)
+      //     ),
+      //   ];
+      //   return {
+      //     ...prev,
+      //     tools_metadata: [
+      //       ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
+      //         []),
+      //       ...[
+      //         {
+      //           tool_name: TOOL_GOOGLE_DRIVE_ID,
+      //           artifacts: uniqBy(updatedArtifacts, 'id'),
+      //         },
+      //       ],
+      //     ],
+      //   };
+      // });
     }
   });
 
-  const fieldErrors = useMemo(() => {
-    if (!isAgentNameUnique(fields.name)) {
-      return { name: 'Assistant name must be unique' };
-    } else {
-      return {};
-    }
-  }, [fields.name]);
-
   const canSubmit = (() => {
-    const { name, deployment, model } = fields;
-    const requredFields = { name, deployment, model };
-    return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
+    // const { name, deployment, model } = fields;
+    // const requredFields = { name, deployment, model };
+    // return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
   })();
 
-  const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
-    const enabledTools = [...(fields.tools ? fields.tools : [])];
+  // const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
+  //   const enabledTools = [...(fields.tools ? fields.tools : [])];
 
-    if (toolName === TOOL_GOOGLE_DRIVE_ID) {
-      handleGoogleDriveToggle(checked, authUrl);
-    }
+  //   if (toolName === TOOL_GOOGLE_DRIVE_ID) {
+  //     handleGoogleDriveToggle(checked, authUrl);
+  //   }
 
-    setFields((prev) => ({
-      ...prev,
-      tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
-    }));
-  };
+  //   setFields((prev) => ({
+  //     ...prev,
+  //     tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
+  //   }));
+  // };
 
-  const handleGoogleDriveToggle = (checked: boolean, authUrl?: string) => {
-    const driveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
-    if (checked) {
-      if (driveTool?.is_auth_required && authUrl) {
-        setPendingAssistant({
-          ...fields,
-          tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID],
-        });
-        authUrl && window.open(authUrl, '_self');
-      } else {
-        openFilePicker();
-      }
-    } else {
-      setFields((prev) => ({
-        ...prev,
-        tools: (fields.tools ?? []).filter((t) => t !== TOOL_GOOGLE_DRIVE_ID),
-        tools_metadata: fields.tools_metadata?.filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
-      }));
-    }
-  };
+  // const handleGoogleDriveToggle = (checked: boolean, authUrl?: string) => {
+  //   const driveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
+  //   if (checked) {
+  //     if (driveTool?.is_auth_required && authUrl) {
+  //       setPendingAssistant({
+  //         ...fields,
+  //         tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID],
+  //       });
+  //       authUrl && window.open(authUrl, '_self');
+  //     } else {
+  //       openFilePicker();
+  //     }
+  //   } else {
+  //     setFields((prev) => ({
+  //       ...prev,
+  //       tools: (fields.tools ?? []).filter((t) => t !== TOOL_GOOGLE_DRIVE_ID),
+  //       tools_metadata: fields.tools_metadata?.filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
+  //     }));
+  //   }
+  // };
 
-  const queryString = searchParams.get('p');
-  useEffect(() => {
-    if (queryString) {
-      if (pendingAssistant) {
-        setFields(pendingAssistant);
-        removePendingAssistant();
-      }
+  // const queryString = searchParams.get('p');
+  // useEffect(() => {
+  //   if (queryString) {
+  //     if (pendingAssistant) {
+  //       setFields(pendingAssistant);
+  //       removePendingAssistant();
+  //     }
 
-      window.history.replaceState(null, '', pathname);
-    }
-  }, [queryString, pendingAssistant]);
+  //     window.history.replaceState(null, '', pathname);
+  //   }
+  // }, [queryString, pendingAssistant]);
 
-  const handleOpenSubmitModal = () => {
-    open({
-      title: `Create ${fields.name}?`,
-      content: (
-        <SubmitModalContent
-          agentName={fields.name}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          onClose={close}
-        />
-      ),
-    });
-  };
-  const handleSubmit = async () => {
-    if (!canSubmit) return;
+  // const handleOpenSubmitModal = () => {
+  //   open({
+  //     title: `Create ${fields.name}?`,
+  //     content: (
+  //       <SubmitModalContent
+  //         agentName={fields.name}
+  //         onSubmit={handleSubmit}
+  //         isSubmitting={isSubmitting}
+  //         onClose={close}
+  //       />
+  //     ),
+  //   });
+  // };
+  // const handleSubmit = async () => {
+  //   if (!canSubmit) return;
 
-    try {
-      setIsSubmitting(true);
+  //   try {
+  //     setIsSubmitting(true);
 
-      const agent = await createAgent(fields);
-      addRecentAgentId(agent.id);
-      setFields(DEFAULT_FIELD_VALUES);
-      close();
-      setIsSubmitting(false);
-      router.push(`/a/${agent.id}`);
-    } catch (e) {
-      setIsSubmitting(false);
-      close();
-      error('Failed to create assistant');
-      console.error(e);
-    }
-  };
+  //     const agent = await createAgent(fields);
+  //     addRecentAgentId(agent.id);
+  //     setFields(DEFAULT_FIELD_VALUES);
+  //     close();
+  //     setIsSubmitting(false);
+  //     router.push(`/a/${agent.id}`);
+  //   } catch (e) {
+  //     setIsSubmitting(false);
+  //     close();
+  //     error('Failed to create assistant');
+  //     console.error(e);
+  //   }
+  // };
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-y-auto">
@@ -196,16 +185,9 @@ export const CreateAgent: React.FC = () => {
         </div>
         <Text styleAs="h4">Create assistant</Text>
       </div>
-      <AgentForm<CreateAgentFormFields>
-        fields={fields}
-        canSubmit={canSubmit}
-        setFields={setFields}
-        onToolToggle={handleToolToggle}
+      <AgentSettingsForm
+        setFields={(fields) => console.log(fields)}
         handleOpenFilePicker={openFilePicker}
-        handleSubmit={handleOpenSubmitModal}
-        errors={fieldErrors}
-        className="mt-6"
-        isAgentCreator
       />
     </div>
   );

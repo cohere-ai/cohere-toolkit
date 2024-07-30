@@ -12,7 +12,7 @@ import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
-import { GoogleDriveToolArtifact } from '@/types/tools';
+import { DataSourceArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 
 type Props = {
@@ -67,7 +67,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
                       name: doc.name,
                       type: doc.type,
                       url: doc.url,
-                    } as GoogleDriveToolArtifact)
+                    } as DataSourceArtifact)
                 ),
               },
             ],
@@ -84,7 +84,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
                 name: doc.name,
                 type: doc.type,
                 url: doc.url,
-              } as GoogleDriveToolArtifact)
+              } as DataSourceArtifact)
           ),
         ];
 

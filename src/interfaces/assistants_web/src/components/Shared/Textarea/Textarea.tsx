@@ -6,9 +6,12 @@ import { forwardRef } from 'react';
 import { STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
+import { InputLabel } from '../InputLabel';
+
 type Props = Omit<React.HTMLProps<HTMLTextAreaElement>, 'onChange' | 'value'> & {
   value?: string;
   label?: string;
+  labelTooltip?: React.ReactNode;
   placeholder?: string;
   defaultRows?: number;
   className?: string;
@@ -16,13 +19,18 @@ type Props = Omit<React.HTMLProps<HTMLTextAreaElement>, 'onChange' | 'value'> & 
 };
 
 export const Textarea: React.FC<Props> = forwardRef<HTMLTextAreaElement, Props>(
-  ({ value, label, className, placeholder, defaultRows, onChange, ...rest }, ref) => {
+  ({ value, label, labelTooltip, className, placeholder, defaultRows, onChange, ...rest }, ref) => {
     return (
       <Field className="flex flex-col gap-y-2">
         {label && (
-          <Label>
-            <Text styleAs="label">{label}</Text>
-          </Label>
+          <InputLabel
+            label={
+              <Label>
+                <Text styleAs="label">{label}</Text>
+              </Label>
+            }
+            tooltipLabel={labelTooltip}
+          />
         )}
         <div className="relative flex w-full">
           <textarea
