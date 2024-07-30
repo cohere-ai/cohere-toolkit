@@ -6,8 +6,7 @@ import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import { AgentCard } from '@/components/Agents/AgentCard';
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
-import { IconButton } from '@/components/IconButton';
-import { Icon, Text } from '@/components/Shared';
+import { Icon, Text, Tooltip } from '@/components/Shared';
 import { InputSearch } from '@/components/Shared/InputSearch';
 import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
@@ -41,38 +40,41 @@ export const AgentsList: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col gap-8">
-      <section
-        className={cn('flex flex-col gap-2', {
-          hidden: !isAgentsLeftPanelOpen,
-        })}
-      >
-        <Text styleAs="label" className="truncate dark:text-mushroom-800">
-          Recent Assistants
-        </Text>
-        <div className="flex gap-1">
-          {recentAgents.slice(0, 5).map((agent) => {
-            if (!agent) return <AgentCard key="commandR+" name="Command R+" isBaseAgent />;
-            return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
+    <>
+      <div className="flex flex-col gap-8">
+        <section
+          className={cn('flex flex-col gap-2', {
+            hidden: !isAgentsLeftPanelOpen,
           })}
-        </div>
-      </section>
-      <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
-        {isAgentsLeftPanelOpen ? (
-          <InputSearch
-            placeholder="Search chat history"
-            value={search}
-            onChange={setSearch}
-            maxLength={40}
-          />
-        ) : (
-          <IconButton
-            iconName="search"
-            iconClassName="dark:text-mushroom-950"
-            onClick={() => setAgentsLeftSidePanelOpen(true)}
-            tooltip={{ label: 'Search' }}
-          />
-        )}
+        >
+          <Text styleAs="label" className="truncate dark:text-mushroom-800">
+            Recent Assistants
+          </Text>
+          <div className="flex gap-1">
+            {recentAgents.slice(0, 5).map((agent) => {
+              if (!agent) return <AgentCard key="commandR+" name="Command R+" isBaseAgent />;
+              return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
+            })}
+          </div>
+        </section>
+        <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
+          {isAgentsLeftPanelOpen ? (
+            <InputSearch
+              placeholder="Search chat history"
+              value={search}
+              onChange={setSearch}
+              maxLength={40}
+            />
+          ) : (
+            <Tooltip label="Search" hover size="sm">
+              <button onClick={() => setAgentsLeftSidePanelOpen(true)}>
+                <Icon name="search" kind="outline" className="dark:fill-marble-950" />
+              </button>
+            </Tooltip>
+          )}
+        </section>
+      </div>
+      <div className="flex-grow space-y-4 overflow-y-auto">
         <Text
           styleAs="label"
           className={cn('truncate dark:text-mushroom-800', {
@@ -82,8 +84,8 @@ export const AgentsList: React.FC = () => {
           Recent Chats
         </Text>
         <RecentChats search={search} results={searchResults} />
-      </section>
-    </div>
+      </div>
+    </>
   );
 };
 

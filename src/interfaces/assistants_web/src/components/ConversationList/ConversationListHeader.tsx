@@ -50,15 +50,16 @@ export const ConversationListHeader: React.FC<Props> = ({
               onClick={() => setIsConvListPanelOpen(false)}
             />
             <IconButton
-              iconName="side-panel"
+              iconName="close-drawer"
               className="hidden lg:flex"
               tooltip={{ label: 'Toggle chat list', placement: 'bottom-start', size: 'md' }}
               onClick={() => setIsConvListPanelOpen(false)}
             />
             <span className="flex items-center gap-x-1">
               <Icon
-                name="side-panel"
-                className="flex h-8 w-8 items-center justify-center text-coral-700 lg:hidden"
+                name="close-drawer"
+                className="flex h-8 w-8 items-center justify-center fill-coral-700 lg:hidden"
+                size="inherit"
                 kind="outline"
               />
               <Text styleAs="p-lg">Chats</Text>

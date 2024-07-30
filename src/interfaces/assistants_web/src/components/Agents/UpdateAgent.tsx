@@ -233,7 +233,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
             kind="cell"
             label={isSubmitting ? 'Updating' : 'Update'}
             disabled={!canSubmit}
-            icon="check-mark"
+            icon="checkmark"
           />
         </div>
       )}

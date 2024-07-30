@@ -4,8 +4,6 @@ from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from backend.schemas.context import Context
-from backend.schemas.user import DEFAULT_USER_ID
-from backend.services.auth.utils import get_header_user_id, has_header_user_id
 
 
 class ContextMiddleware:
@@ -13,6 +11,10 @@ class ContextMiddleware:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        # Import here to avoid circular imports
+        from backend.schemas.user import DEFAULT_USER_ID
+        from backend.services.auth.utils import get_header_user_id, has_header_user_id
+
         trace_id = str(uuid.uuid4())
 
         if scope["type"] != "http":

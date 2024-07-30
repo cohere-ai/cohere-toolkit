@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
@@ -9,7 +7,7 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool
 from backend.services.context import get_context
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 
 logger = get_logger()
 
@@ -63,6 +61,11 @@ def list_tools(
                 tool.auth_url = tool_auth_service.get_auth_url(user_id)
                 tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:
-                logger.error(f"[Tools] Error fetching Tool Auth: {str(e)}")
+                logger.error(f"Error while fetching Tool Auth: {str(e)}")
+
+                tool.is_available = False
+                tool.error_message = (
+                    f"Error while calling Tool Auth implementation {str(e)}"
+                )
 
     return all_tools

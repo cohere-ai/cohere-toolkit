@@ -10,21 +10,21 @@ const BG_COLOR_LIST = [
 ];
 
 const TEXT_COLOR_LIST = [
-  'text-green-500 dark:text-green-500',
-  'text-coral-600 dark:text-coral-600',
-  'text-evolved-quartz-500 dark:text-evolved-quartz-500',
-  'text-evolved-mushroom-500 dark:text-evolved-mushroom-500',
-  'text-evolved-green-500 dark:text-evolved-green-500',
-  'text-mushroom-700 dark:text-mushroom-700',
+  'text-green-500 dark:text-green-500 fill-green-500 dark:fill-green-500',
+  'text-coral-600 dark:text-coral-600 fill-coral-600 dark:fill-coral-600',
+  'text-evolved-quartz-500 dark:text-evolved-quartz-500 fill-evolved-quartz-500 dark:fill-evolved-quartz-500',
+  'text-evolved-mushroom-500 dark:text-evolved-mushroom-500 fill-evolved-mushroom-500 dark:fill-evolved-mushroom-500',
+  'text-evolved-green-500 dark:text-evolved-green-500 fill-evolved-green-500 dark:fill-evolved-green-500',
+  'text-mushroom-700 dark:text-mushroom-700 fill-mushroom-700 dark:fill-mushroom-700',
 ];
 
 const CONTRAST_TEXT_COLOR_LIST = [
-  'text-marble-950 dark:text-marble-950', // green 500
-  'text-volcanic-100 dark:text-volcanic-100', // coral 600
-  'text-marble-950 dark:text-marble-950', // evolved quartz 500
-  'text-volcanic-100 dark:text-volcanic-100', // evolved mushroom 500
-  'text-volcanic-100 dark:text-volcanic-100', // evolved green 500
-  'text-mushroom-300 dark:text-mushroom-300', // mushroom 700
+  'text-marble-950 dark:text-marble-950 fill-marble-950 dark:fill-marble-950', // green 500
+  'text-volcanic-100 dark:text-volcanic-100 fill-volcanic-100 dark:fill-volcanic-100', // coral 600
+  'text-marble-950 dark:text-marble-950 fill-marble-950 dark:fill-marble-950', // evolved quartz 500
+  'text-volcanic-100 dark:text-volcanic-100 fill-volcanic-100 dark:fill-volcanic-100', // evolved mushroom 500
+  'text-volcanic-100 dark:text-volcanic-100 fill-volcanic-100 dark:fill-volcanic-100', // evolved green 500
+  'text-mushroom-300 dark:text-mushroom-300 fill-mushroom-300 dark:fill-mushroom-300', // mushroom 700
 ];
 
 const BORDER_COLOR_LIST = [

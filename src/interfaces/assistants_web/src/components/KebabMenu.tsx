@@ -91,10 +91,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
                       {!!iconName && (
                         <Icon
                           name={iconName}
-                          className={cn(
-                            'text-mushroom-400 group-hover/menu-item:!font-iconDefault dark:text-marble-950',
-                            iconClassName
-                          )}
+                          className={cn('fill-mushroom-400 dark:fill-marble-950', iconClassName)}
                           kind="outline"
                         />
                       )}

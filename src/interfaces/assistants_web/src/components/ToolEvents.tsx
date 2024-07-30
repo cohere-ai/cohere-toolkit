@@ -185,7 +185,7 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
       <Icon
         name={icon}
         kind="outline"
-        className="flex h-[21px] items-center text-mushroom-500 dark:text-marble-950"
+        className="flex h-[21px] items-center fill-mushroom-500 dark:fill-marble-950"
       />
       <Text className="pt-px text-mushroom-300 dark:text-marble-850" styleAs="p-sm" as="span">
         {children}

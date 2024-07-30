@@ -46,7 +46,7 @@ export const InputLabel: React.FC<Props> = ({
             label
           )}
           {tooltipLabel && (
-            <Tooltip label={tooltipLabel} hover iconClassName="text-volcanic-500 mb-0.5" />
+            <Tooltip label={tooltipLabel} hover iconClassName="fill-volcanic-500 mb-0.5" />
           )}
         </span>
 
