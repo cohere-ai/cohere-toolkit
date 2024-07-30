@@ -15,7 +15,9 @@ def rename(file_id: str, index_name: str, user_id: str, **kwargs):
     title = kwargs["title"]
 
     # Add title and url context
-    logger.info("Initiating Compass create_index action for index {}".format(index_name))
+    logger.info(
+        "Initiating Compass create_index action for index {}".format(index_name)
+    )
     env().COMPASS.invoke(
         env().COMPASS.ValidActions.CREATE_INDEX,
         {

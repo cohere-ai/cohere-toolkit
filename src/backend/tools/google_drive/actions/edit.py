@@ -23,7 +23,8 @@ def edit(file_id: str, index_name: str, user_id: str, **kwargs):
         }
 
     file_bytes, web_view_link, title, extension = (
-        file_details[key] for key in ("file_bytes", "web_view_link", "title", "extension")
+        file_details[key]
+        for key in ("file_bytes", "web_view_link", "title", "extension")
     )
     if not file_bytes:
         return {
@@ -36,15 +37,21 @@ def edit(file_id: str, index_name: str, user_id: str, **kwargs):
     # take compass action
     try:
         # idempotent create index
-        logger.info("Initiating Compass create_index action for index {}".format(index_name))
+        logger.info(
+            "Initiating Compass create_index action for index {}".format(index_name)
+        )
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.CREATE_INDEX,
             {
                 "index": index_name,
             },
         )
-        logger.info("Finished Compass create_index action for index".format(index_name))
-        logger.info("Initiating Compass update action for file {}".format(web_view_link))
+        logger.info(
+            "Finished Compass create_index action for index {}".format(index_name)
+        )
+        logger.info(
+            "Initiating Compass update action for file {}".format(web_view_link)
+        )
         # Update doc
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.UPDATE,
@@ -71,9 +78,13 @@ def edit(file_id: str, index_name: str, user_id: str, **kwargs):
                 },
             },
         )
-        logger.info("Finished Compass add context action for file {}".format(web_view_link))
-    except Exception as e:
-        logger.error("Failed to edit document in Compass for file {}".format(web_view_link))
+        logger.info(
+            "Finished Compass add context action for file {}".format(web_view_link)
+        )
+    except Exception:
+        logger.error(
+            "Failed to edit document in Compass for file {}".format(web_view_link)
+        )
         return {"action": ACTION_NAME, "status": Status.FAIL.value, "file_id": file_id}
 
     return {"action": ACTION_NAME, "status": Status.SUCCESS.value, "file_id": file_id}

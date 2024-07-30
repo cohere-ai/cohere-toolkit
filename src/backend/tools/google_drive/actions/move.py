@@ -14,13 +14,17 @@ ACTION_NAME = "move"
 def move(file_id: str, index_name: str, user_id: str, **kwargs):
     title = kwargs["title"]
     artifact_id = kwargs["artifact_id"]
-    # folder_subfolders = get_folder_subfolders(folder_id=artifact_id, user_id=user_id)
-    folder_subfolders = []
+    folder_subfolders = get_folder_subfolders(folder_id=artifact_id, user_id=user_id)
 
-    (service,) = (get_service(api="drive", user_id=user_id)[key] for key in ("service",))
+    (service,) = (
+        get_service(api="drive", user_id=user_id)[key] for key in ("service",)
+    )
 
     folders_query = " or ".join(
-        ["'{}' in parents".format(folder_id) for folder_id in [artifact_id, *folder_subfolders]]
+        [
+            "'{}' in parents".format(folder_id)
+            for folder_id in [artifact_id, *folder_subfolders]
+        ]
     )
     response = (
         service.files()
@@ -40,14 +44,18 @@ def move(file_id: str, index_name: str, user_id: str, **kwargs):
 
     # Delete file if moved out of agent's artifacts
     if delete:
-        logger.info("Initiating Compass create_index action for index {}".format(index_name))
+        logger.info(
+            "Initiating Compass create_index action for index {}".format(index_name)
+        )
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.CREATE_INDEX,
             {
                 "index": index_name,
             },
         )
-        logger.info("Finished Compass create_index action for index {}".format(index_name))
+        logger.info(
+            "Finished Compass create_index action for index {}".format(index_name)
+        )
         logger.info("Initiating Compass move action for file_id {}".format(file_id))
         # Delete document
         env().COMPASS.invoke(

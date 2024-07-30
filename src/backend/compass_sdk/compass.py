@@ -265,7 +265,9 @@ class CompassClient:
         Get the status of a batch
         :param uuid: the uuid of the batch
         """
-        auth = (self.username, self.password) if self.username and self.password else None
+        auth = (
+            (self.username, self.password) if self.username and self.password else None
+        )
         resp = self.session.get(
             url=f"{self.index_url}/api/v1/batch/status/{uuid}",
             auth=auth,
@@ -274,7 +276,9 @@ class CompassClient:
         if resp.ok:
             return resp.json()
         else:
-            raise Exception(f"Failed to get batch status: {resp.status_code} {resp.text}")
+            raise Exception(
+                f"Failed to get batch status: {resp.status_code} {resp.text}"
+            )
 
     def insert_docs(
         self,
@@ -308,8 +312,12 @@ class CompassClient:
         ) -> None:
             nonlocal num_succeeded, errors
             errors.extend(previous_errors)
-            compass_docs: List[CompassDocument] = [compass_doc for compass_doc, _ in request_data]
-            put_docs_input = PutDocumentsInput(docs=[input_doc for _, input_doc in request_data])
+            compass_docs: List[CompassDocument] = [
+                compass_doc for compass_doc, _ in request_data
+            ]
+            put_docs_input = PutDocumentsInput(
+                docs=[input_doc for _, input_doc in request_data]
+            )
 
             # It could be that all documents have errors, in which case we should not send a request
             # to the Compass Server. This is a common case when the parsing of the documents fails.
@@ -335,14 +343,20 @@ class CompassClient:
             # Keep track of the results of the last N API calls to calculate the error rate
             # If the error rate is higher than the threshold, stop the insertion process
             error_window.append(results.error)
-            error_rate = mean([1 if x else 0 for x in error_window]) if len(error_window) == error_window.maxlen else 0
+            error_rate = (
+                mean([1 if x else 0 for x in error_window])
+                if len(error_window) == error_window.maxlen
+                else 0
+            )
             if error_rate > max_error_rate:
                 raise CompassMaxErrorRateExceeded(
                     f"[Thread {threading.get_native_id()}]{error_rate * 100}% of insertions failed "
                     f"in the last {errors_sliding_window_size} API calls. Stopping the insertion process."
                 )
 
-        error_window = deque(maxlen=errors_sliding_window_size)  # Keep track of the results of the last N API calls
+        error_window = deque(
+            maxlen=errors_sliding_window_size
+        )  # Keep track of the results of the last N API calls
         num_succeeded = 0
         errors = []
         requests_iter = tqdm(self._get_request_blocks(docs, max_chunks_per_request))
@@ -378,10 +392,16 @@ class CompassClient:
         num_chunks = 0
         for num_doc, doc in enumerate(docs, 1):
             if doc.status != CompassDocumentStatus.Success:
-                logger.error(f"[Thread {threading.get_native_id()}] Document #{num_doc} has errors: {doc.errors}")
+                logger.error(
+                    f"[Thread {threading.get_native_id()}] Document #{num_doc} has errors: {doc.errors}"
+                )
                 errors.append(doc)
             else:
-                num_chunks += len(doc.chunks) if doc.status == CompassDocumentStatus.Success else 0
+                num_chunks += (
+                    len(doc.chunks)
+                    if doc.status == CompassDocumentStatus.Success
+                    else 0
+                )
                 if num_chunks > max_chunks_per_request:
                     yield request_block, errors
                     request_block, errors = [], []
@@ -461,7 +481,9 @@ class CompassClient:
                         target_path, json=data_dict, auth=(self.username, self.password)
                     )
                 else:
-                    response = self.function_call[function](target_path, auth=(self.username, self.password))
+                    response = self.function_call[function](
+                        target_path, auth=(self.username, self.password)
+                    )
 
                 if response.ok:
                     error = None
@@ -493,7 +515,9 @@ class CompassClient:
 
         error = None
         try:
-            target_path = self.index_url + self.function_endpoint[function].format(index_name=index_name, doc_id=doc_id)
+            target_path = self.index_url + self.function_endpoint[function].format(
+                index_name=index_name, doc_id=doc_id
+            )
             res = _send_request_with_retry()
             if res:
                 return res

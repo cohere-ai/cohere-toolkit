@@ -18,7 +18,9 @@ def get_file_details(file_id: str, user_id: str):
     Return file bytes, web view link and title
     """
     # get service
-    service, creds = (get_service(api="drive", user_id=user_id)[key] for key in ("service", "creds"))
+    service, creds = (
+        get_service(api="drive", user_id=user_id)[key] for key in ("service", "creds")
+    )
 
     # get file details
     file_get = perform_get_single(file_id=file_id, user_id=user_id)
@@ -44,7 +46,9 @@ def get_file_details(file_id: str, user_id: str):
             file_bytes = file_text.encode()
     else:
         # non-native files
-        file_bytes = perform_non_native_single(service=service, file_id=processed_file["id"])
+        file_bytes = perform_non_native_single(
+            service=service, file_id=processed_file["id"]
+        )
 
     return {
         "file_bytes": file_bytes,
@@ -66,7 +70,11 @@ def get_folder_subfolders(folder_id: str, user_id: str):
 
     return [
         *[x["id"] for x in files],
-        *[y for x in files for y in get_folder_subfolders(folder_id=x["id"], user_id=user_id)],
+        *[
+            y
+            for x in files
+            for y in get_folder_subfolders(folder_id=x["id"], user_id=user_id)
+        ],
     ]
 
 
@@ -75,11 +83,15 @@ def _list_items_recursively(
     user_id: str,
     next_page_token: str = "",
 ):
-    (service,) = (get_service(api="drive", user_id=user_id)[key] for key in ("service",))
+    (service,) = (
+        get_service(api="drive", user_id=user_id)[key] for key in ("service",)
+    )
     response = (
         service.files()
         .list(
-            q="'{}' in parents and mimeType = 'application/vnd.google-apps.folder'".format(folder_id),
+            q="'{}' in parents and mimeType = 'application/vnd.google-apps.folder'".format(
+                folder_id
+            ),
             includeItemsFromAllDrives=True,
             supportsAllDrives=True,
             pageToken=next_page_token,

@@ -10,7 +10,9 @@ ACTION_NAME = "delete"
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def delete(file_id: str, index_name: str, user_id: str, **kwargs):
-    logger.info("Initiating Compass create_index action for index {}".format(index_name))
+    logger.info(
+        "Initiating Compass create_index action for index {}".format(index_name)
+    )
     env().COMPASS.invoke(
         env().COMPASS.ValidActions.CREATE_INDEX,
         {

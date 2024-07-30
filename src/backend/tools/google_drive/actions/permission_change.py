@@ -12,7 +12,9 @@ ACTION_NAME = "permission_change"
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def permission_change(file_id: str, index_name: str, user_id: str, **kwargs):
-    logger.info("Initiating Compass create_index action for index {}".format(index_name))
+    logger.info(
+        "Initiating Compass create_index action for index {}".format(index_name)
+    )
     env().COMPASS.invoke(
         env().COMPASS.ValidActions.CREATE_INDEX,
         {
@@ -27,6 +29,7 @@ def permission_change(file_id: str, index_name: str, user_id: str, **kwargs):
             "index": index_name,
             "file_id": file_id,
             "context": {
+                "last_updated": int(time.time()),
                 "permissions": [],
             },
         },
