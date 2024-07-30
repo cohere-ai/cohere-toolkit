@@ -96,53 +96,19 @@ class FileService:
                 )
             )
 
-        # TODO scott: Move to separate functions
-        compass = None
+        uploaded_files = []
         if self.is_compass_enabled:
-            new_file_id = uuid.uuid4()
-            try:
-                compass = Compass()
-                compass.invoke(
-                    action=Compass.ValidActions.CREATE_INDEX,
-                    parameters={
-                        "index_name": new_file_id,
-                    },
-                )
-                compass.invoke(
-                    action=Compass.ValidActions.CREATE,
-                    parameters={
-                        "index": new_file_id,
-                        "file_id": new_file_id,
-                        "file_text": cleaned_content,
-                    },
-                )
-                compass.invoke(
-                    action=Compass.ValidActions.ADD_CONTEXT,
-                    parameters={
-                        "index": new_file_id,
-                        "file_id": new_file_id,
-                        "context": {
-                            "file_name": filename,
-                            "file_size": file.size,
-                        },
-                    },
-                )
-                compass.invoke(
-                    action=Compass.ValidActions.REFRESH,
-                    parameters={"index": new_file_id},
-                )
-            except Exception as e:
-                print(f"Error initializing Compass: {e}")
+            uploaded_files = await index_files_to_compass(session, files, user_id)
         else:
             uploaded_files = file_crud.batch_create_files(session, files_to_upload)
-        uploaded_file_ids = [file.id for file in uploaded_files]
-        for file_id in uploaded_file_ids:
+
+        for file in uploaded_files:
             conversation_crud.create_conversation_file_association(
                 session,
                 ConversationFileAssociation(
                     conversation_id=conversation_id,
                     user_id=user_id,
-                    file_id=file_id,
+                    file_id=file.id,
                 ),
             )
 
@@ -319,6 +285,74 @@ class FileService:
         if message.file_ids is not None:
             files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
+
+
+async def index_files_to_compass(session: DBSessionDep, files: list[FastAPIUploadFile], user_id: str) -> None:
+    uploaded_files = []
+
+    for file in files:
+        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+        file_bytes = await file.read()
+        cleaned_content = file_bytes.decode("utf-8").replace("\x00", "")
+        cleaned_content_bytes = cleaned_content.encode("utf-8")
+        new_file_id = uuid.uuid4()
+
+        try:
+            compass = Compass()
+        except Exception as e:
+            print(f"Error initializing Compass: {e}")
+
+        file_text = compass.invoke(
+            action=Compass.ValidActions.PROCESS_FILE,
+            parameters={
+                "file_id": new_file_id,
+                "file_text": cleaned_content_bytes,
+            },
+        )[0].content["text"]
+
+        # try:
+        #     compass = Compass()
+        #     compass.invoke(
+        #         action=Compass.ValidActions.CREATE_INDEX,
+        #         parameters={
+        #             "index": new_file_id,
+        #         },
+        #     )
+        #     compass.invoke(
+        #         action=Compass.ValidActions.CREATE,
+        #         parameters={
+        #             "index": new_file_id,
+        #             "file_id": new_file_id,
+        #             "file_text": file_text,
+        #         },
+        #     )
+        #     compass.invoke(
+        #         action=Compass.ValidActions.ADD_CONTEXT,
+        #         parameters={
+        #             "index": new_file_id,
+        #             "file_id": new_file_id,
+        #             "context": {
+        #                 "file_name": filename,
+        #                 "file_size": file.size,
+        #             },
+        #         },
+        #     )
+        #     compass.invoke(
+        #         action=Compass.ValidActions.REFRESH,
+        #         parameters={"index": new_file_id},
+        #     )
+
+        #     uploaded_files.append(File(
+        #         id=new_file_id,
+        #         file_name=filename,
+        #         file_size=file.size,
+        #         file_path=filename,
+        #         user_id=user_id,
+        #     ))
+        # except Exception as e:
+        #     print(f"Error Creating File Index in Compass: {e}")
+    
+    return uploaded_files
 
 
 def attach_conversation_id_to_files(
