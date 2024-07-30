@@ -31,12 +31,11 @@ def get_context_log(ctx: Context) -> dict:
 
 
 class StructuredLogging(BaseLogger):
-    def __init__(self, level: str = "info"):
-        self.setup(level)
-
+    def __init__(self, level: str = "info", renderer: str = "json"):
+        self.setup(level, renderer)
         self.logger = structlog.get_logger()
 
-    def setup(self, level: str = "info"):
+    def setup(self, level: str = "info", renderer: str = "json"):
         structlog.contextvars.clear_contextvars()
 
         shared_processors = [
@@ -49,7 +48,7 @@ class StructuredLogging(BaseLogger):
 
         # If running in a terminal, use colored output
         # Otherwise, use JSON output
-        if sys.stderr.isatty():
+        if renderer.lower() == "console":
             processors = shared_processors + [
                 structlog.dev.set_exc_info,
                 structlog.dev.ConsoleRenderer(),
@@ -63,7 +62,7 @@ class StructuredLogging(BaseLogger):
         structlog.configure(
             processors=processors,
             wrapper_class=structlog.make_filtering_bound_logger(level),
-            cache_logger_on_first_use=True,  # Remove this line to make changes to the logger
+            # cache_logger_on_first_use=True,  # Remove this line to make changes to the logger
         )
 
     @log_context
