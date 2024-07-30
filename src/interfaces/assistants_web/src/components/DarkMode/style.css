@@ -37,12 +37,13 @@
     1 100%
   );
 }
+::view-transition-group(root) {
+  animation-duration: 0.7s;
+  animation-timing-function: var(--expo-out);
+}
 
 ::view-transition-new(root) {
-  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="white"/></svg>')
-    center / 0 no-repeat;
-  animation-timing-function: var(--expo-in);
-  animation: scale 1s;
+  animation-name: reveal-light;
 }
 
 ::view-transition-old(root),
@@ -51,11 +52,23 @@
   z-index: -1;
 }
 .dark::view-transition-new(root) {
-  animation: scale 1s;
+  animation-name: reveal-dark;
 }
 
-@keyframes scale {
+@keyframes reveal-dark {
+  from {
+    clip-path: polygon(50% -71%, -50% 71%, -50% 71%, 50% -71%);
+  }
   to {
-    mask-size: 200vmax;
+    clip-path: polygon(50% -71%, -50% 71%, 50% 171%, 171% 50%);
+  }
+}
+
+@keyframes reveal-light {
+  from {
+    clip-path: polygon(171% 50%, 50% 171%, 50% 171%, 171% 50%);
+  }
+  to {
+    clip-path: polygon(171% 50%, 50% 171%, -50% 71%, 50% -71%);
   }
 }
