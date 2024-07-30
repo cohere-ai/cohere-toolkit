@@ -6,7 +6,7 @@ from backend.config.deployments import (
     get_default_deployment,
 )
 from backend.model_deployments.cohere_platform import CohereDeployment
-from backend.tests.model_deployments.mock_deployments.mock_cohere_platform import (
+from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform import (
     MockCohereDeployment,
 )
 

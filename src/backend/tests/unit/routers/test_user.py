@@ -8,7 +8,7 @@ from backend.database_models.user import User
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.services.auth import BasicAuthentication
 from backend.services.metrics import report_metrics
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 def test_list_users(session_client: TestClient, session: Session) -> None:

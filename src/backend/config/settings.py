@@ -245,12 +245,12 @@ class LoggerSettings(BaseSettings, BaseModel):
 config_file = (
     "src/backend/config/configuration.yaml"
     if "pytest" not in sys.modules
-    else "src/backend/tests/configuration.yaml"
+    else "src/backend/tests/unit/configuration.yaml"
 )
 secrets_file = (
     "src/backend/config/secrets.yaml"
     if "pytest" not in sys.modules
-    else "src/backend/tests/secrets.yaml"
+    else "src/backend/tests/unit/secrets.yaml"
 )
 
 

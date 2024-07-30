@@ -5,7 +5,7 @@ from backend.crud import document as document_crud
 from backend.crud import message as message_crud
 from backend.database_models.message import Message
 from backend.schemas.message import UpdateMessage
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 @pytest.fixture(autouse=True)

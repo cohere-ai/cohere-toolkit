@@ -1,20 +1,20 @@
-from backend.tests.factories.agent import AgentFactory
-from backend.tests.factories.agent_tool_metadata import AgentToolMetadataFactory
-from backend.tests.factories.blacklist import BlacklistFactory
-from backend.tests.factories.citation import CitationFactory
-from backend.tests.factories.citation_documents import CitationDocumentsFactory
-from backend.tests.factories.conversation import ConversationFactory
-from backend.tests.factories.document import DocumentFactory
-from backend.tests.factories.file import FileFactory
-from backend.tests.factories.message import MessageFactory
-from backend.tests.factories.organization import OrganizationFactory
-from backend.tests.factories.snapshot import (
+from backend.tests.unit.factories.agent import AgentFactory
+from backend.tests.unit.factories.agent_tool_metadata import AgentToolMetadataFactory
+from backend.tests.unit.factories.blacklist import BlacklistFactory
+from backend.tests.unit.factories.citation import CitationFactory
+from backend.tests.unit.factories.citation_documents import CitationDocumentsFactory
+from backend.tests.unit.factories.conversation import ConversationFactory
+from backend.tests.unit.factories.document import DocumentFactory
+from backend.tests.unit.factories.file import FileFactory
+from backend.tests.unit.factories.message import MessageFactory
+from backend.tests.unit.factories.organization import OrganizationFactory
+from backend.tests.unit.factories.snapshot import (
     SnapshotAccessFactory,
     SnapshotFactory,
     SnapshotLinkFactory,
 )
-from backend.tests.factories.tool_call import ToolCallFactory
-from backend.tests.factories.user import UserFactory
+from backend.tests.unit.factories.tool_call import ToolCallFactory
+from backend.tests.unit.factories.user import UserFactory
 
 FACTORY_MAPPING = {
     "User": UserFactory,

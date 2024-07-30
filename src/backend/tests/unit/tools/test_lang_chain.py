@@ -81,7 +81,7 @@ async def test_wiki_retriever_no_docs() -> None:
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_vector_db_retriever() -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
+    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
     query = "What is the mariana trench?"
     mock_docs = [
@@ -89,28 +89,28 @@ async def test_vector_db_retriever() -> None:
             page_content="Location of the Mariana TrenchMariana Trench",
             metadata={
                 "page": 0,
-                "source": "src/backend/tests/test_data/Mariana_Trench.pdf",
+                "source": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
             },
         ),
         Document(
             page_content="Like other oceanic trenches, the Mariana Trench has been propos ed as a site for nuclear waste",
             metadata={
                 "page": 4,
-                "source": "src/backend/tests/test_data/Mariana_Trench.pdf",
+                "source": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
             },
         ),
         Document(
             page_content="The Pacific plate is subducted beneath the Mariana Plate",
             metadata={
                 "page": 1,
-                "source": "src/backend/tests/test_data/Mariana_Trench.pdf",
+                "source": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
             },
         ),
         Document(
             page_content='37. "Vityaz-D explored Mariana Trench according to preinstalled program — developer"',
             metadata={
                 "page": 7,
-                "source": "src/backend/tests/test_data/Mariana_Trench.pdf",
+                "source": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
             },
         ),
     ]
@@ -142,7 +142,7 @@ async def test_vector_db_retriever() -> None:
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_vector_db_retriever_no_docs() -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
+    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
     query = "What is the mariana trench?"
     mock_docs = []

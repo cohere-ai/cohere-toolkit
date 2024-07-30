@@ -3,7 +3,7 @@ import pytest
 from backend.crud import organization as organization_crud
 from backend.database_models.organization import Organization
 from backend.schemas.organization import UpdateOrganization
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 def test_create_organization(session):

@@ -15,7 +15,7 @@ from backend.database_models.message import Message, MessageAgent
 from backend.database_models.user import User
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.tool import Category
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None

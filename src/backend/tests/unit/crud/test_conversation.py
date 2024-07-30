@@ -4,7 +4,7 @@ from backend.crud import document as document_crud
 from backend.crud import message as message_crud
 from backend.database_models.conversation import Conversation
 from backend.schemas.conversation import UpdateConversationRequest
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 def test_create_conversation(session, user):

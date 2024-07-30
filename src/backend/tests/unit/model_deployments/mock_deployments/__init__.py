@@ -1,16 +1,16 @@
-from backend.tests.model_deployments.mock_deployments.mock_azure import (
+from backend.tests.unit.model_deployments.mock_deployments.mock_azure import (
     MockAzureDeployment,
 )
-from backend.tests.model_deployments.mock_deployments.mock_bedrock import (
+from backend.tests.unit.model_deployments.mock_deployments.mock_bedrock import (
     MockBedrockDeployment,
 )
-from backend.tests.model_deployments.mock_deployments.mock_cohere_platform import (
+from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform import (
     MockCohereDeployment,
 )
-from backend.tests.model_deployments.mock_deployments.mock_sagemaker import (
+from backend.tests.unit.model_deployments.mock_deployments.mock_sagemaker import (
     MockSageMakerDeployment,
 )
-from backend.tests.model_deployments.mock_deployments.mock_single_container import (
+from backend.tests.unit.model_deployments.mock_deployments.mock_single_container import (
     MockSingleContainerDeployment,
 )
 

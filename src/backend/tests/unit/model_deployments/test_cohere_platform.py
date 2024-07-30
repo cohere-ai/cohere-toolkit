@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from backend.config.deployments import ModelDeploymentName
 from backend.database_models.user import User
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.tests.model_deployments.mock_deployments import MockCohereDeployment
+from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 
 
 def test_streamed_chat(

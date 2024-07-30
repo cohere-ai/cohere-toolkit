@@ -10,7 +10,7 @@ from backend.database_models import Citation, Conversation, Document, File, Mess
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.user import User
 from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 # CONVERSATIONS
@@ -625,7 +625,7 @@ def test_upload_file_existing_conversation(
     session: Session,
     user: User,
 ) -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
+    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
     saved_file_path = "src/backend/data/Mariana_Trench.pdf"
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file_doc = {"file": open(file_path, "rb")}
@@ -652,7 +652,7 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
     session: Session,
     user: User,
 ) -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
+    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
     saved_file_path = "src/backend/data/Mariana_Trench.pdf"
     file_doc = {"file": open(file_path, "rb")}
 
@@ -682,7 +682,7 @@ def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
     session: Session,
     user: User,
 ) -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
+    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
     file_doc = {"file": open(file_path, "rb")}
 
     response = session_client.post("/v1/conversations/upload_file", files=file_doc)
@@ -695,10 +695,10 @@ def test_batch_upload_file_existing_conversation(
     session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+        "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
+        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
     }
     saved_file_paths = [
         "src/backend/data/Mariana_Trench.pdf",
@@ -741,10 +741,10 @@ def test_batch_upload_total_files_exceeds_limit(
 ) -> None:
     _ = get_factory("Conversation", session).create(user_id=user.id)
     file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+        "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
+        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
     }
     files = [
         ("files", (file_name, open(file_path, "rb")))
@@ -776,11 +776,11 @@ def test_batch_upload_single_file_exceeds_limit(
 ) -> None:
     _ = get_factory("Conversation", session).create(user_id=user.id)
     file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "26mb.pdf": "src/backend/tests/test_data/26mb.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+        "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
+        "26mb.pdf": "src/backend/tests/unit/test_data/26mb.pdf",
+        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
     }
     files = [
         ("files", (file_name, open(file_path, "rb")))
@@ -805,10 +805,10 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
     session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+        "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
+        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
     }
     saved_file_paths = [
         "src/backend/data/Mariana_Trench.pdf",
@@ -854,10 +854,10 @@ def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provide
     session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
+        "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
+        "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
+        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
+        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
     }
     saved_file_paths = [
         "src/backend/data/Mariana_Trench.pdf",

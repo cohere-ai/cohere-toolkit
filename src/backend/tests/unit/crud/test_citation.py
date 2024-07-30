@@ -2,7 +2,7 @@ import pytest
 
 from backend.crud import citation as citation_crud
 from backend.database_models.citation import Citation
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 @pytest.fixture(autouse=True)

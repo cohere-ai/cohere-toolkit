@@ -10,7 +10,7 @@ from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.services.metrics import report_metrics
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 async def test_create_agent_mertic(

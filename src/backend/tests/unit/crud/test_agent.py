@@ -6,7 +6,7 @@ from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
 from backend.schemas.agent import UpdateAgentRequest
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 def test_create_agent(session, user):

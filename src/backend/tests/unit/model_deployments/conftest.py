@@ -4,8 +4,8 @@ import pytest
 from sqlalchemy.orm import Session
 
 from backend.database_models.user import User
-from backend.tests.factories import get_factory
-from backend.tests.model_deployments.mock_deployments import (
+from backend.tests.unit.factories import get_factory
+from backend.tests.unit.model_deployments.mock_deployments import (
     MockAzureDeployment,
     MockBedrockDeployment,
     MockCohereDeployment,

@@ -157,7 +157,7 @@ def organization(session: Session) -> Organization:
 
 @pytest.fixture
 def mock_available_model_deployments(request):
-    from backend.tests.model_deployments.mock_deployments import (
+    from backend.tests.unit.model_deployments.mock_deployments import (
         MockAzureDeployment,
         MockBedrockDeployment,
         MockCohereDeployment,

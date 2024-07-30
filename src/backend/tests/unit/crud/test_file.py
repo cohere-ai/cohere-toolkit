@@ -3,7 +3,7 @@ import pytest
 from backend.crud import file as file_crud
 from backend.database_models.file import File
 from backend.schemas.file import UpdateFileRequest
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 @pytest.fixture(autouse=True)

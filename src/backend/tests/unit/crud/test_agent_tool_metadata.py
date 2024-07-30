@@ -7,7 +7,7 @@ from backend.config.tools import ToolName
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.agent import UpdateAgentToolMetadataRequest
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 mock_artifact_1 = {
     "id": "1T",

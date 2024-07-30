@@ -2,7 +2,7 @@ import uuid
 
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models.blacklist import Blacklist
-from backend.tests.factories import get_factory
+from backend.tests.unit.factories import get_factory
 
 
 def test_create_blacklist(session):
