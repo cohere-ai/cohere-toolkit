@@ -154,6 +154,7 @@ And then retry `poetry --version` 9. Clone the repo and run `make first-run` 10.
 - `NEXT_PUBLIC_API_HOSTNAME`: The backend URL which the frontend will communicate with. Defaults to http://backend:8000 for use with `docker compose`
 - `FRONTEND_HOSTNAME`: The URL for the frontend client. Defaults to http://localhost:4000
 - `DATABASE_URL`: Your PostgreSQL database connection string for SQLAlchemy, should follow the format `postgresql+psycopg2://USER:PASSWORD@HOST:PORT`.
+- `REDIS_URL`: Your Redis connection string, should follow the format `redis://USER:PASSWORD@HOST:PORT`.
 
 ### AWS Sagemaker
 
