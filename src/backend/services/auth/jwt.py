@@ -1,11 +1,11 @@
 import datetime
-import logging
 import os
 import uuid
 
 import jwt
 
-from backend.services.logger import get_logger
+from backend.config.settings import Settings
+from backend.services.logger.utils import get_logger
 
 logger = get_logger()
 
@@ -16,7 +16,7 @@ class JWTService:
     ALGORITHM = "HS256"
 
     def __init__(self):
-        secret_key = os.environ.get("AUTH_SECRET_KEY")
+        secret_key = Settings().auth.secret_key
 
         if not secret_key:
             raise ValueError(
@@ -64,8 +64,8 @@ class JWTService:
             )
             return decoded_payload
         except jwt.ExpiredSignatureError:
-            logger.warning("Token has expired.")
+            logger.warning(event="[Auth] JWT token is expired.")
             return None
         except jwt.InvalidTokenError:
-            logger.warning("Invalid token.")
+            logger.warning(event="[Auth] JWT token is invalid.")
             return None

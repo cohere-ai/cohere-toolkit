@@ -8,13 +8,7 @@ import { Avatar } from '@/components/Avatar';
 import { IconButton } from '@/components/IconButton';
 import { LongPressMenu } from '@/components/LongPressMenu';
 import { MessageContent } from '@/components/MessageContent';
-import {
-  Button,
-  CopyToClipboardButton,
-  CopyToClipboardIconButton,
-  Icon,
-  Tooltip,
-} from '@/components/Shared';
+import { Button, CopyToClipboardButton, CopyToClipboardIconButton } from '@/components/Shared';
 import { ToolEvents } from '@/components/ToolEvents';
 import { ReservedClasses } from '@/constants';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
@@ -146,9 +140,9 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
             {hasSteps && (
               <Button
                 label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
-                startIcon={<Icon name="list" />}
+                icon="list"
+                iconOptions={{ className: 'dark:fill-marble-800' }}
                 kind="secondary"
-                size="md"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
                 animate={false}
                 onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
@@ -161,7 +155,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         className={cn(
           'group flex h-fit w-full flex-col gap-2 rounded-md p-2 text-left md:flex-row',
           'transition-colors ease-in-out',
-          'hover:bg-mushroom-950',
+          'hover:bg-mushroom-950 dark:hover:bg-mushroom-150',
 
           {
             'bg-mushroom-950':
@@ -196,19 +190,19 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               })}
             >
               {hasSteps && (
-                <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
-                  <IconButton
-                    iconName="list"
-                    className="rounded hover:bg-mushroom-900"
-                    iconClassName={cn(
-                      'text-volcanic-300 group-hover/icon-button:text-mushroom-300',
-                      {
-                        'hidden md:invisible md:flex': !isFulfilledMessage(message),
-                      }
-                    )}
-                    onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
-                  />
-                </Tooltip>
+                <IconButton
+                  tooltip={{ label: `${isStepsExpanded ? 'Hide' : 'Show'} steps`, size: 'sm' }}
+                  iconName="list"
+                  className={cn('rounded hover:bg-mushroom-900')}
+                  iconClassName={cn(
+                    'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+                    'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
+                    {
+                      'hidden md:invisible md:flex': !isFulfilledMessage(message),
+                    }
+                  )}
+                  onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
+                />
               )}
               <CopyToClipboardIconButton value={getMessageText()} onClick={onCopy} />
             </div>

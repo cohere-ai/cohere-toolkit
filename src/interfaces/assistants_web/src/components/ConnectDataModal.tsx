@@ -1,9 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { Button, Text } from '@/components/Shared';
-import { useSettingsStore } from '@/stores';
 
 type Props = {
   onClose: VoidFunction;
@@ -13,14 +13,14 @@ type Props = {
  * @description Modal that prompts the user to connect their data to enable tools and opens the settings drawer
  */
 export const ConnectDataModal: React.FC<Props> = ({ onClose }) => {
-  const { setSettings } = useSettingsStore();
+  const router = useRouter();
 
   const handleClose = () => {
     onClose();
   };
 
   const handleStartConnecting = () => {
-    setSettings({ isConfigDrawerOpen: true });
+    router.push('/settings');
     handleClose();
   };
 
@@ -31,12 +31,13 @@ export const ConnectDataModal: React.FC<Props> = ({ onClose }) => {
         allow you to use the assistant to its full potential.
       </Text>
       <div className="flex justify-between">
-        <Button kind="secondary" onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button kind="green" onClick={handleStartConnecting} splitIcon="arrow-right">
-          Start connecting
-        </Button>
+        <Button label="Cancel" kind="secondary" onClick={handleClose} />
+        <Button
+          label="Start connecting"
+          kind="secondary"
+          theme="evolved-green"
+          onClick={handleStartConnecting}
+        />
       </div>
     </div>
   );

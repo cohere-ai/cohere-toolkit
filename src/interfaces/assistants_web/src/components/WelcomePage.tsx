@@ -36,7 +36,7 @@ export const WelcomePage: React.FC<Props> = ({
           {userEmail && <NavigationUserMenu userEmail={userEmail} showEmail={showEmailInHeader} />}
           {!userEmail && navigationAction && (
             <Text styleAs="p-lg" as="span" className="capitalize">
-              <AuthLink action={navigationAction} className="no-underline" />
+              <AuthLink action={navigationAction} theme="mushroom" />
             </Text>
           )}
         </Navigation>
