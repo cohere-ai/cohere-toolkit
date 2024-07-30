@@ -15,7 +15,7 @@ from backend.schemas import (
     UpdateOrganization,
 )
 from backend.services.auth.utils import get_header_user_id
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 from backend.services.request_validators import validate_organization_request
 
 logger = get_logger()
