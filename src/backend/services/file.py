@@ -1,6 +1,8 @@
 import io
+import os
 from copy import deepcopy
 from typing import Any, Optional
+import uuid
 
 import pandas as pd
 from docx import Document
@@ -8,6 +10,7 @@ from fastapi import HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 from pypdf import PdfReader
 from python_calamine.pandas import pandas_monkeypatch
+from backend.services.compass import Compass
 
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
@@ -47,8 +50,7 @@ def get_file_service():
 class FileService:
     @property
     def is_compass_enabled(self) -> bool:
-        # TODO Scott: add compass env variable anc check here
-        return False
+        return os.getenv("ENABLE_COMPASS_FILE_STORAGE", "false").lower() == "true"
 
     # All these functions will eventually support file operations on Compass
     async def create_conversation_files(
@@ -94,7 +96,45 @@ class FileService:
                 )
             )
 
-        uploaded_files = file_crud.batch_create_files(session, files_to_upload)
+        # TODO scott: Move to separate functions
+        compass = None
+        if self.is_compass_enabled:
+            new_file_id = uuid.uuid4()
+            try:
+                compass = Compass()
+                compass.invoke(
+                    action=Compass.ValidActions.CREATE_INDEX,
+                    parameters={
+                        "index_name": new_file_id,
+                    },
+                )
+                compass.invoke(
+                    action=Compass.ValidActions.CREATE,
+                    parameters={
+                        "index": new_file_id,
+                        "file_id": new_file_id,
+                        "file_text": cleaned_content,
+                    },
+                )
+                compass.invoke(
+                    action=Compass.ValidActions.ADD_CONTEXT,
+                    parameters={
+                        "index": new_file_id,
+                        "file_id": new_file_id,
+                        "context": {
+                            "file_name": filename,
+                            "file_size": file.size,
+                        },
+                    },
+                )
+                compass.invoke(
+                    action=Compass.ValidActions.REFRESH,
+                    parameters={"index": new_file_id},
+                )
+            except Exception as e:
+                print(f"Error initializing Compass: {e}")
+        else:
+            uploaded_files = file_crud.batch_create_files(session, files_to_upload)
         uploaded_file_ids = [file.id for file in uploaded_files]
         for file_id in uploaded_file_ids:
             conversation_crud.create_conversation_file_association(
@@ -422,7 +462,7 @@ def validate_file_size(
         user_id (str): The user ID
         file (UploadFile): The file to validate
 
-    Raises:
+    Raises: 
         HTTPException: If the file size is too large
     """
     if file.size > MAX_FILE_SIZE:
