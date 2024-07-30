@@ -14,6 +14,7 @@ from backend.tools import (
     SearchFileTool,
     TavilyInternetSearch,
     WebScrapeTool,
+    MarketCapTool
 )
 
 """
@@ -37,9 +38,11 @@ class ToolName(StrEnum):
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
+    Market_Cap_Tool = MarketCapTool.NAME
 
 
 ALL_TOOLS = {
+
     ToolName.Tavily_Internet_Search: ManagedTool(
         display_name="Web Search",
         implementation=TavilyInternetSearch,
@@ -56,6 +59,24 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
     ),
+
+    ToolName.Market_Cap_Tool: ManagedTool(
+        display_name="Market Cap",  
+        implementation=MarketCapTool,
+        parameter_definitions={
+            "ticker": {
+                "description": "The ticker symbol of the stock",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=MarketCapTool.is_available(),
+        error_message="MarketCapTool not available.",
+        category=Category.Function,
+        description="Retrieves the market cap of a stock ticker symbol.",
+    ),
+
     ToolName.Search_File: ManagedTool(
         display_name="Search File",
         implementation=SearchFileTool,
