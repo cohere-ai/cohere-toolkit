@@ -16,4 +16,3 @@ class CitationFactory(BaseFactory):
     end = factory.Faker("random_int")
 
     documents = []
-    document_ids = []
