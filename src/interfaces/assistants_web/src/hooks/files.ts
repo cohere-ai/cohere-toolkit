@@ -2,31 +2,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
-import {
-  ApiError,
-  File as CohereFile,
-  DeleteFile,
-  ListFile,
-  useCohereClient,
-} from '@/cohere-client';
+import { ApiError, DeleteFile, ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
 import { useNotify } from '@/hooks/toast';
 import { useListTools } from '@/hooks/tools';
-import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
+import { useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
-import { MessageType } from '@/types/message';
 import {
   fileSizeToBytes,
   formatFileSize,
   getFileExtension,
   isDefaultFileLoaderTool,
 } from '@/utils';
-
-class FileUploadError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
 
 export const useListFiles = (conversationId?: string, options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
@@ -47,22 +34,6 @@ export const useListFiles = (conversationId?: string, options?: { enabled?: bool
   });
 };
 
-export const useFilesInConversation = () => {
-  const {
-    conversation: { messages },
-  } = useConversationStore();
-  const files = useMemo<CohereFile[]>(() => {
-    return messages.reduce<CohereFile[]>((filesInConversation, msg) => {
-      if (msg.type === MessageType.USER && msg.files) {
-        filesInConversation.push(...msg.files);
-      }
-      return filesInConversation;
-    }, []);
-  }, [messages.length]);
-
-  return { files };
-};
-
 export const useUploadFile = () => {
   const cohereClient = useCohereClient();
 
@@ -74,7 +45,6 @@ export const useUploadFile = () => {
 
 export const useBatchUploadFile = () => {
   const cohereClient = useCohereClient();
-
   return useMutation({
     mutationFn: ({ files, conversationId }: { files: File[]; conversationId?: string }) =>
       cohereClient.batchUploadFile({ files, conversation_id: conversationId }),
@@ -111,7 +81,6 @@ export const useFileActions = () => {
   const { mutateAsync: uploadFiles } = useBatchUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
-  const { setConversation } = useConversationStore();
 
   const handleUploadFiles = async (files?: File[], conversationId?: string) => {
     // cleanup uploadingFiles with errors
@@ -180,10 +149,6 @@ export const useFileActions = () => {
         setParams({ fileIds: newFileIds });
         addComposerFile(uploadedFile);
       });
-
-      if (!conversationId) {
-        setConversation({ id: uploadedFiles[0].conversation_id });
-      }
 
       return newFileIds;
     } catch (e: any) {
