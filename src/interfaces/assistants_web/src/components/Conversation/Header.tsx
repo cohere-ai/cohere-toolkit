@@ -55,6 +55,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
             label={<Text className={accentColor}>Share</Text>}
             icon="share"
             iconOptions={{
+              kind: 'outline',
               className: 'dark:group-hover:text-inherit dark:text-inherit',
             }}
             iconPosition="start"

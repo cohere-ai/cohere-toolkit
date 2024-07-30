@@ -93,7 +93,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
               </div>
             }
             iconName="add"
-            iconClassName="dark:text-evolved-green-700"
+            iconClassName="dark:fill-evolved-green-700"
             onClick={() => navigateToNewChat()}
             stretch
           />
@@ -141,9 +141,13 @@ const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ class
     <Tooltip hover label="Toggle agents side panel" size="sm">
       <AgentsSidePanelButton
         iconName="close-drawer"
-        iconClassName={cn('transform transition delay-100 duration-200 ease-in-out', className, {
-          'rotate-180 ': isAgentsLeftPanelOpen,
-        })}
+        iconClassName={cn(
+          'transform transition delay-100 duration-200 ease-in-out dark:fill-marble-950',
+          className,
+          {
+            'rotate-180 ': isAgentsLeftPanelOpen,
+          }
+        )}
         onClick={handleToggleAgentsLeftPanel}
       />
     </Tooltip>

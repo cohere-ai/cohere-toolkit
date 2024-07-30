@@ -1,5 +1,5 @@
 import { Field } from '@headlessui/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Icon } from '@/components/Shared/Icon';
 import { STYLE_LEVEL_TO_CLASSES } from '@/components/Shared/Text';
@@ -12,14 +12,28 @@ type Props = Omit<React.HTMLProps<HTMLInputElement>, 'onChange' | 'value'> & {
 
 export const InputSearch: React.FC<Props> = ({ value, onChange, className, ...rest }) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const searchChatHistoryRef = useRef<HTMLInputElement>(null);
 
   const handleClear = () => {
     onChange('');
   };
+  const handleFocus = () => {
+    !!searchChatHistoryRef.current && searchChatHistoryRef.current.focus();
+  };
+
+  const iconStyles = cn(
+    'absolute right-2 top-1/2 -translate-y-1/2',
+    'transform transition-all scale-0',
+    'fill-volcanic-600',
+    {
+      'fill-volcanic-700': isInputFocused,
+    }
+  );
 
   return (
     <Field className={cn('relative w-full', className)}>
       <input
+        ref={searchChatHistoryRef}
         type="text"
         onFocus={() => setIsInputFocused(true)}
         onBlur={() => setIsInputFocused(false)}
@@ -33,27 +47,19 @@ export const InputSearch: React.FC<Props> = ({ value, onChange, className, ...re
         )}
         {...rest}
       />
-      <button onClick={handleClear} className="outline-none">
-        <Icon
-          name="close"
-          kind="outline"
-          className={cn(
-            'absolute right-2 top-1/2 -translate-y-1/2 transform transition-colors duration-300 hover:text-marble-800',
-            'rotate-0 scale-0 transition-all',
-            { '-rotate-90 scale-100': value !== '' }
-          )}
-        />
+      <button onClick={!value ? handleFocus : handleClear} className="outline-none">
         <Icon
           name="search"
           kind="outline"
-          className={cn(
-            'absolute right-2 top-1/2 -translate-y-1/2 transform dark:text-volcanic-700',
-            'rotate-90 scale-0 transition-all',
-            {
-              'rotate-0 scale-100': value === '',
-              'dark:text-volcanic-600': isInputFocused,
-            }
-          )}
+          className={cn(iconStyles, 'rotate-90', {
+            'rotate-0 scale-100': value === '',
+          })}
+        />
+        <Icon
+          name="close"
+          className={cn(iconStyles, 'rotate-0 duration-300', {
+            '-rotate-90 scale-100': value !== '',
+          })}
         />
       </button>
     </Field>
