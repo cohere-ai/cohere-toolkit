@@ -4,3 +4,5 @@ export type DataSourceArtifact = {
   name: string;
   url: string;
 };
+
+//no url or type for file upload

@@ -16,7 +16,7 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
     case 'primary':
     case 'cell':
       if (theme === 'evolved-green') {
-        return cn('text-volcanic-150 fill-volcanic-150');
+        return cn('dark:text-volcanic-150 fill-volcanic-150');
       }
     case 'secondary':
       if (theme === 'evolved-green') {
@@ -49,7 +49,7 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
       'border-blue-500 group-hover:border-blue-400': theme === 'blue',
       'border-coral-700 group-hover:border-coral-600': theme === 'coral',
       'border-quartz-500 group-hover:border-quartz-400': theme === 'quartz',
-      'border-mushroom-500 group-hover:border-mushroom-400': theme === 'mushroom',
+      'border-volcanic-500 group-hover:border-volcanic-400': theme === 'mushroom',
     });
   } else {
     return cn({
@@ -155,23 +155,18 @@ export const Button: React.FC<ButtonProps> = ({
     kind !== 'cell' ? (
       <div
         className={cn(
-          'group flex h-cell-button items-center justify-center rounded-md',
+          'group flex h-cell-button w-fit items-center justify-center rounded-md',
           buttonStyles,
           className,
-          { 'h-fit justify-start': kind === 'secondary', 'space-x-3': !animateStyles }
+          {
+            'h-fit justify-start': kind === 'secondary',
+            'w-full': stretch,
+            'space-x-3': !animateStyles,
+          }
         )}
       >
         {iconPosition === 'start' && iconElement}
-        {labelElement && (
-          <div
-            className={cn(animateStyles, {
-              'w-full': stretch,
-              'px-2': kind === 'outline',
-            })}
-          >
-            {labelElement}
-          </div>
-        )}
+        {labelElement && <div className={cn(animateStyles)}>{labelElement}</div>}
         {iconPosition === 'end' && iconElement}
       </div>
     ) : (

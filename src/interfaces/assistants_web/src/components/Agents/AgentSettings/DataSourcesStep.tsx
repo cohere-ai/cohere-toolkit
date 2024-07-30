@@ -4,59 +4,136 @@ import { UseFormSetValue } from 'react-hook-form';
 import { ManagedTool } from '@/cohere-client';
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconName, Text } from '@/components/Shared';
-import { TOOL_FILE_UPLOAD, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { FILE_UPLOAD_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
-import { ASSISTANT_SETTINGS_FORM } from './AgentSettingsForm';
+type DataSourceState = {
+  name: string;
+  icon: IconName;
+  id: string;
+  artifacts: DataSourceArtifact[];
+  diabledButton?: string;
+};
 
 type Props = {
-  fields: ASSISTANT_SETTINGS_FORM;
+  googleDriveArtifacts?: DataSourceArtifact[];
+  fileUploadArtifacts?: DataSourceArtifact[];
   tools?: ManagedTool[];
-  setValue: UseFormSetValue<ASSISTANT_SETTINGS_FORM>;
-  openFilePicker: VoidFunction;
+  setGoogleDriveArtifacts: (artifacts?: DataSourceArtifact[]) => void;
+  setFileUploadArtifacts: (artifacts?: DataSourceArtifact[]) => void;
 };
-export const DataSourcesStep: React.FC<Props> = ({ fields, tools, setValue }) => {
-  const googleDriveTool = tools?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID && t.is_available);
-  const fileUploadTool = tools?.find((t) => t.name === TOOL_FILE_UPLOAD && t.is_available);
 
-  const handleGoogleDriveEnable = () => {};
-  const handleFileUploadEnable = () => {};
+const isToolAvailable = (name: string | string[], tools?: ManagedTool[]) => {
+  if (!tools) return false;
+  const checkedTools = Array.isArray(name)
+    ? tools.filter((t) => t.name && name.includes(t.name))
+    : [tools.find((t) => t.name === name)];
+  return checkedTools.every(t => !!t?.is_available);
+};
 
-  const activeDataSources =
-    fields.tools.includes(TOOL_GOOGLE_DRIVE_ID) || fields.tools.includes(TOOL_FILE_UPLOAD);
+export const DataSourcesStep: React.FC<Props> = ({
+  googleDriveArtifacts,
+  fileUploadArtifacts,
+  tools,
+  setGoogleDriveArtifacts,
+  setFileUploadArtifacts,
+}) => {
+  const isGoogleDriveAvailable = isToolAvailable(TOOL_GOOGLE_DRIVE_ID, tools);
+  const isFileUploadAvailable = isToolAvailable(FILE_UPLOAD_TOOLS, tools);
+
+  const isGoogleDriveActive = googleDriveArtifacts && !!googleDriveArtifacts.length;
+  const isFileUploadActive = fileUploadArtifacts && !!fileUploadArtifacts.length;
+
+  const dataSourcesActive = isGoogleDriveActive || isFileUploadActive;
+
+  const handleGoogleDriveFilePicker = useOpenGoogleDrivePicker((data) => {
+    if (data.docs) {
+      setGoogleDriveArtifacts(
+        data.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              name: doc.name,
+              type: doc.type,
+              url: doc.url,
+            } as DataSourceArtifact)
+        )
+      );
+    }
+  });
+
+  const handleRemoveGoogleDriveFile = (id: string) => {
+    setGoogleDriveArtifacts(googleDriveArtifacts?.filter((f) => f.id !== id));
+  };
+
+  const handleFileUploadPicker = () => {};
+  const handleRemoveFileUploadFile = (id: string) => {
+    setFileUploadArtifacts(fileUploadArtifacts?.filter((f) => f.id !== id));
+  };
+
   return (
     <div className="flex flex-col space-y-3">
-      {googleDriveTool &&
-        (fields.tools.includes(TOOL_GOOGLE_DRIVE_ID) ? (
-          <></>
-        ) : (
-          // TODO: abi - use new google drive icon
+      {dataSourcesActive && <Text styleAs="label">Active Data Sources</Text>}
+      {isGoogleDriveAvailable && isGoogleDriveActive && (
+        <DataSourceFileList
+          name="Google Drive"
+          icon="google-drive"
+          artifacts={googleDriveArtifacts}
+          handleRemoveTool={() => setGoogleDriveArtifacts(undefined)}
+          handleRemoveFile={handleRemoveGoogleDriveFile}
+        />
+      )}
+      {isFileUploadAvailable && isFileUploadActive && (
+        <DataSourceFileList
+          name="Files"
+          icon="desktop"
+          artifacts={fileUploadArtifacts}
+          handleRemoveTool={() => setGoogleDriveArtifacts(undefined)}
+          handleRemoveFile={handleRemoveFileUploadFile}
+        />
+      )}
+      <Text styleAs="label">Add {dataSourcesActive ? 'More' : ''} Data Sources</Text>
+      <div className="flex space-x-4">
+        {isGoogleDriveAvailable && !isGoogleDriveActive && (
           <Button
             kind="outline"
+            theme="mushroom"
+            icon="google-drive"
             label="Google Drive"
-            icon="file"
-            onClick={handleGoogleDriveEnable}
+            onClick={handleGoogleDriveFilePicker}
           />
-        ))}
+        )}
+        {isFileUploadAvailable && !isFileUploadActive && (
+          <Button
+            kind="outline"
+            theme="mushroom"
+            icon="desktop"
+            label="Upload Files"
+            onClick={handleFileUploadPicker}
+          />
+        )}
+      </div>
     </div>
   );
 };
 
-const EnabledDataSource: React.FC<{
+const DataSourceFileList: React.FC<{
   name: string;
   icon: IconName;
   artifacts?: DataSourceArtifact[];
-}> = ({ name, icon, artifacts = [] }) => {
+  handleRemoveFile: (id: string) => void;
+  handleRemoveTool: VoidFunction;
+}> = ({ name, icon, artifacts = [], handleRemoveFile, handleRemoveTool }) => {
   return (
     <div className="flex flex-col space-y-6 rounded-md border border-volcanic-500 p-4">
       <div className="flex flex-col space-y-2">
         <div className="flex justify-between">
           <div className="flex space-x-2">
-            <Icon name="add" />
+            <Icon name={icon} />
             <Text>{name}</Text>
           </div>
-          {/* TODO: iconbutton! */}
-          <Icon name="trash" />
+          <Button icon="trash" kind="secondary" theme="danger" onClick={handleRemoveTool} />
         </div>
         <Text className="text-marble-800">
           {name === TOOL_GOOGLE_DRIVE_ID ? 'Connect to Google Drive and add ' : 'Add '} files to the
@@ -78,12 +155,12 @@ const EnabledDataSource: React.FC<{
             <Text styleAs="overline" className="dark:test-marble-950 mr-auto truncate">
               {name}
             </Text>
+            <Button icon="close" />
             <IconButton
               size="sm"
               iconName="close"
               className="text-mushroom-500 dark:text-marble-950"
-              //   TODO: abi - onclick
-              //   onClick={() => handleRemove(id)}
+              onClick={() => handleRemoveFile(id)}
             />
           </div>
         ))}

@@ -8,6 +8,8 @@ import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
+import { ToolsStep } from './ToolsStep';
+
 type AgentSettingsFields = Omit<CreateAgent, 'version' | 'temperature'>;
 type Props = {
   fields?: AgentSettingsFields;
@@ -20,15 +22,13 @@ export type ASSISTANT_SETTINGS_FORM = {
   description?: string | null;
   instruction?: string | null;
   tools: string[];
-  dataSourceArtifacts?: {
-    googleDrive?: DataSourceArtifact[];
-    fileUpload?: DataSourceArtifact[];
-  };
+  googleDriveArtifacts?: DataSourceArtifact[];
+  fileUploadArtifacts?: DataSourceArtifact[];
 };
 
 export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOpenFilePicker }) => {
   const [currentStep, setCurrentStep] = useState<number | null>(0);
-  const { register, setValue, getValues } = useForm<ASSISTANT_SETTINGS_FORM>({
+  const { register, setValue, getValues, watch } = useForm<ASSISTANT_SETTINGS_FORM>({
     defaultValues: {
       name: fields?.name ?? '',
       description: fields?.description,
@@ -37,23 +37,8 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
     },
   });
   const { data: listToolsData } = useListTools();
-
-  const openFilePicker = useOpenGoogleDrivePicker((data) => {
-    if (data.docs) {
-      setValue(
-        'dataSourceArtifacts.googleDrive',
-        data.docs.map(
-          (doc) =>
-            ({
-              id: doc.id,
-              name: doc.name,
-              type: doc.type,
-              url: doc.url,
-            } as DataSourceArtifact)
-        )
-      );
-    }
-  });
+  const googleDriveArtifacts = watch('googleDriveArtifacts');
+  const fileUploadArtifacts = watch('fileUploadArtifacts');
 
   return (
     <div className="flex flex-col space-y-6 p-8">
@@ -62,8 +47,8 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
         title="Define your assistant"
         number={1}
         description="What does your assistant do?"
-        isExpanded={currentStep === 0}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : null)}
+        expanded={currentStep === 0}
+        // setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : null)}
       >
         <DefineAssistantStep register={register} handleNext={() => setCurrentStep(1)} />
       </CollapsibleSection>
@@ -72,15 +57,28 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
         title="Add data sources"
         number={2}
         description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
-        isExpanded={currentStep === 1}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : null)}
+        expanded={currentStep === 1}
       >
         <DataSourcesStep
-          fields={getValues()}
-          setValue={setValue}
+          googleDriveArtifacts={googleDriveArtifacts}
+          fileUploadArtifacts={fileUploadArtifacts}
           tools={listToolsData}
-          openFilePicker={openFilePicker}
+          setGoogleDriveArtifacts={(artifacts?: DataSourceArtifact[]) =>
+            setValue('googleDriveArtifacts', artifacts)
+          }
+          setFileUploadArtifacts={(artifacts?: DataSourceArtifact[]) =>
+            setValue('fileUploadArtifacts', artifacts)
+          }
         />
+      </CollapsibleSection>
+      {/* Step 3: Tools */}
+      <CollapsibleSection
+        title="Set default tools"
+        number={3}
+        description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
+        expanded={currentStep === 2}
+      >
+        <ToolsStep fields={getValues()} />
       </CollapsibleSection>
     </div>
   );

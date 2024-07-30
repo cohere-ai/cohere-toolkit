@@ -11,27 +11,25 @@ type Props = {
   title?: string | ReactNode;
   description?: string | ReactNode;
   children: ReactNode;
-  isExpanded?: boolean;
-  setIsExpanded: (expanded: boolean) => void;
+  expanded?: boolean;
 };
 export const CollapsibleSection: React.FC<Props> = ({
   number,
   title,
   description,
   children,
-  isExpanded = false,
-  setIsExpanded,
+  expanded,
 }) => {
+  const [isExpanded, setIsExpanded] = useState(expanded ?? false);
+
   return (
     <div
       className={cn(
         'flex w-full max-w-screen-md flex-col rounded-md',
         'space-y-5 border p-6',
-        'dark:border-volcanic-200',
-        'dark:bg-volcanic-150'
+        'border-volcanic-200 bg-volcanic-150'
       )}
     >
-      {/* Visible portion */}
       <button className="flex w-full flex-col space-y-1" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="flex w-full items-center justify-between">
           <div className="flex w-full items-center space-x-2.5">
@@ -47,17 +45,9 @@ export const CollapsibleSection: React.FC<Props> = ({
                 {number}
               </Text>
             )}
-            {title && typeof title === 'string' ? (
-              <Text className="text-lg dark:text-marble-950">{title}</Text>
-            ) : (
-              title
-            )}
+            {title && typeof title === 'string' ? <Text className="text-lg">{title}</Text> : title}
           </div>
-          <Icon
-            name={isExpanded ? 'chevron-up' : 'chevron-down'}
-            size="lg"
-            className="dark:text-marble-950"
-          />
+          <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size="lg" />
         </div>
         {description && typeof description === 'string' ? (
           <Text className="text-left dark:text-marble-800">{description}</Text>
