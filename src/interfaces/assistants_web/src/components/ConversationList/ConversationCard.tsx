@@ -72,7 +72,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     setConversation,
   } = useConversationStore();
   const {
-    agents: { isAgentsSidePanelOpen },
+    agents: { isAgentsLeftPanelOpen },
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
@@ -150,7 +150,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       </Link>
     );
 
-  if (!isAgentsSidePanelOpen) {
+  if (!isAgentsLeftPanelOpen) {
     const content = (
       <div
         className={cn(

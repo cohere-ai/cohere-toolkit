@@ -1,0 +1,12 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"features": {
+	  "ghcr.io/devcontainers/features/python": {
+		"version": "3.11"
+	  },
+	  "ghcr.io/devcontainers-contrib/features/poetry": {}
+	},
+	"forwardPorts": [
+	  8000
+	]
+}

@@ -1,13 +1,20 @@
 'use client';
 
+import { Placement } from '@floating-ui/react';
 import { Field, Switch as HUSwitch, Label } from '@headlessui/react';
 
-import { Text } from '@/components/Shared';
+import { Text, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
   checked: boolean;
   onChange: (checked: boolean) => void;
+  tooltip?: {
+    label: string;
+    size?: 'sm' | 'md';
+    placement?: Placement;
+  };
+  reverse?: boolean;
   label?: string;
   name?: string;
   theme?: 'blue' | 'evolved-green' | 'quartz' | 'green' | 'mushroom' | 'coral';
@@ -18,6 +25,8 @@ export const Switch: React.FC<Props> = ({
   checked,
   onChange,
   label,
+  reverse = false,
+  tooltip,
   theme = 'evolved-green',
   name,
   className = '',
@@ -25,7 +34,13 @@ export const Switch: React.FC<Props> = ({
   return (
     <div className="group flex items-center">
       <Field>
-        <div className={cn('flex items-center justify-end gap-x-6', className)}>
+        <div
+          className={cn(
+            'flex items-center justify-end gap-x-6',
+            { 'flex-row-reverse': reverse },
+            className
+          )}
+        >
           <HUSwitch
             name={name}
             checked={checked}
@@ -63,9 +78,22 @@ export const Switch: React.FC<Props> = ({
             />
           </HUSwitch>
           {label && (
-            <Label>
-              <Text className="dark:text-marble-950">{label}</Text>
-            </Label>
+            <span className="flex items-center gap-x-2">
+              <Label>
+                <Text styleAs="label" className="dark:text-marble-950">
+                  {label}
+                </Text>
+              </Label>
+              {tooltip && (
+                <Tooltip
+                  label={tooltip.label}
+                  size={tooltip.size ?? 'sm'}
+                  placement={tooltip.placement}
+                  hover
+                  hoverDelay={{ open: 250 }}
+                />
+              )}
+            </span>
           )}
         </div>
       </Field>
