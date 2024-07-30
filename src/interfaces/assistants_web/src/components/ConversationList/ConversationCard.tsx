@@ -1,16 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useContext } from 'react';
 
+import { Agent } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
-import { CoralLogo, Text } from '@/components/Shared';
-import { ModalContext } from '@/context/ModalContext';
-import { useListAgents } from '@/hooks/agents';
+import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useContextStore } from '@/context';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
-import { useConversationStore, useSettingsStore } from '@/stores';
+import { useFileActions } from '@/hooks/files';
+import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -18,9 +18,9 @@ export type ConversationListItem = {
   conversationId: string;
   updatedAt: string;
   title: string;
-  agentId: string | null;
   description: string | null;
   weekHeading?: string;
+  agent?: Agent;
 };
 
 type Props = {
@@ -35,7 +35,7 @@ type Props = {
 
 const useMenuItems = ({ conversationId }: { conversationId: string }) => {
   const { deleteConversation } = useConversationActions();
-  const { open } = useContext(ModalContext);
+  const { open } = useContextStore();
 
   const handleOpenShareModal = () => {
     if (!conversationId) return;
@@ -66,16 +66,17 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId } = conversation;
-  const { data: agents = [] } = useListAgents();
-  const agent = agents.find((a) => a.id === conversation.agentId);
-  const agentColor = getCohereColor(agent?.id);
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
+  const {
+    agents: { isAgentsLeftPanelOpen },
+  } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
+  const { clearComposerFiles } = useFileActions();
 
   // if the conversation card is for the selected conversation we use the `conversationName`
   // from the context store, otherwise we use the name from the conversation object
@@ -104,21 +105,19 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       </div>
       <div className="flex h-[18px] w-full items-center gap-2">
         <div
-          className={cn('flex size-4 flex-shrink-0 items-center justify-center rounded', {
-            'bg-mushroom-700': !agent,
-            [agentColor]: agent,
-          })}
+          className={cn(
+            'flex size-4 flex-shrink-0 items-center justify-center rounded',
+            getCohereColor(conversation.agent?.id, { background: true, contrastText: true })
+          )}
         >
-          {agent ? (
-            <Text className="text-white" styleAs="p-xs">
-              {agent.name[0]}
-            </Text>
+          {conversation.agent ? (
+            <Text styleAs="p-xs">{conversation.agent.name[0]}</Text>
           ) : (
-            <CoralLogo style="secondary" className="scale-50" />
+            <CoralLogo className="scale-50" />
           )}
         </div>
         <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
-          {agent?.name ?? 'Cohere AI'}
+          {conversation.agent?.name ?? 'Cohere AI'}
         </Text>
         <Text styleAs="code-sm" className="ml-auto mt-0.5 uppercase dark:text-mushroom-800">
           {formatDateToShortDate(conversation.updatedAt)}
@@ -127,7 +126,9 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     </div>
   );
 
-  const conversationUrl = agent ? `/a/${agent.id}/c/${conversationId}` : `/c/${conversationId}`;
+  const conversationUrl = conversation.agent
+    ? `/a/${conversation.agent.id}/c/${conversationId}`
+    : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
@@ -141,12 +142,47 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         onClick={() => {
           setConversation({ id: conversationId, name });
           setSettings({ isMobileConvListPanelOpen: false });
+          clearComposerFiles();
         }}
         className={wrapperClassName}
       >
         {info}
       </Link>
     );
+
+  if (!isAgentsLeftPanelOpen) {
+    const content = (
+      <div
+        className={cn(
+          'flex size-8 flex-shrink-0 items-center justify-center rounded',
+          getCohereColor(conversation.agent?.id, { background: true, contrastText: true })
+        )}
+      >
+        {conversation.agent ? <Text>{conversation.agent.name[0]}</Text> : <CoralLogo />}
+      </div>
+    );
+    return (
+      <div {...flippedProps}>
+        <Tooltip label={conversation.title} placement={'bottom-end'} hover size="sm">
+          {isActive && isDesktop ? (
+            <div className="select-none">{content}</div>
+          ) : (
+            <Link
+              href={conversationUrl}
+              key={conversationId}
+              shallow
+              onClick={() => {
+                setConversation({ id: conversationId, name });
+                setSettings({ isMobileConvListPanelOpen: false });
+              }}
+            >
+              {content}
+            </Link>
+          )}
+        </Tooltip>
+      </div>
+    );
+  }
 
   return (
     <div

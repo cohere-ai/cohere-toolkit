@@ -14,6 +14,7 @@ from backend.config.auth import (
     verify_migrate_token,
 )
 from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.config.settings import Settings
 from backend.routers.agent import default_agent_router
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -24,7 +25,9 @@ from backend.routers.experimental_features import router as experimental_feature
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.services.logger import LoggingMiddleware, get_logger
+from backend.services.context import ContextMiddleware
+from backend.services.logger.middleware import LoggingMiddleware
+from backend.services.logger.utils import get_logger
 from backend.services.metrics import MetricsMiddleware
 
 logger = get_logger()
@@ -56,9 +59,8 @@ def create_app():
     dependencies_type = "default"
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
-        app.add_middleware(
-            SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")
-        )
+        auth_secret = Settings().auth.secret_key
+        app.add_middleware(SessionMiddleware, secret_key=auth_secret)
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():
@@ -76,6 +78,7 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(ContextMiddleware)  # This should be the first middleware
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
 
@@ -87,8 +90,8 @@ app = create_app()
 
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
-    logger.info(
-        f"Error occurred: {exc!r} during request: {request.method}, {request.url}"
+    logger.exception(
+        event=f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
     )
 
     return JSONResponse(

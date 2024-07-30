@@ -2,7 +2,7 @@ import os
 from typing import Any
 
 
-def get_model_config_var(var_name: str, **kwargs: Any) -> str:
+def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
     """Get the model config variable.
 
     Args:
@@ -13,11 +13,12 @@ def get_model_config_var(var_name: str, **kwargs: Any) -> str:
         str: Model config variable value.
 
     """
-    model_config = kwargs.get("deployment_config")
+    ctx = kwargs.get("ctx")
+    model_config = ctx.model_config if ctx else None
     config = (
         model_config[var_name]
         if model_config and model_config.get(var_name)
-        else os.environ.get(var_name)
+        else default
     )
     if not config:
         raise ValueError(f"Missing model config variable: {var_name}")

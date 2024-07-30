@@ -1,13 +1,14 @@
 'use client';
 
 import { Placement } from '@floating-ui/react';
-import React from 'react';
+import React, { HTMLAttributeAnchorTarget, ReactElement } from 'react';
 
-import { BasicButton, Icon, IconName, Target, Tooltip } from '@/components/Shared';
+import { Button, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
-  iconName: IconName;
+  iconName?: IconName;
+  icon?: ReactElement;
   tooltip?: {
     label: string;
     size?: 'sm' | 'md';
@@ -15,13 +16,13 @@ type Props = {
   };
   size?: 'sm' | 'md';
   href?: string;
-  target?: Target;
-  shallow?: boolean;
-  isDefaultOnHover?: boolean;
+  target?: HTMLAttributeAnchorTarget;
   iconKind?: 'default' | 'outline';
   iconClassName?: string;
   disabled?: boolean;
   className?: string;
+  outline?: boolean;
+  animate?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
@@ -30,47 +31,34 @@ type Props = {
  */
 export const IconButton: React.FC<Props> = ({
   iconName,
+  icon,
   tooltip,
   size = 'md',
   iconKind = 'outline',
   iconClassName,
-  isDefaultOnHover = true,
   className,
   disabled,
   href,
   target,
-  shallow,
+  outline = false,
+  animate = false,
   onClick,
 }) => {
   const iconButton = (
-    <BasicButton
-      className={cn(
-        'group/icon-button h-8 w-8 p-0',
-        { 'h-8 w-8': size === 'md', 'h-7 w-7': size === 'sm' },
-        'rounded hover:bg-mushroom-900',
-        className
-      )}
-      startIcon={
-        <Icon
-          name={iconName}
-          className={cn(
-            'text-mushroom-400',
-            'transition-colors ease-in-out',
-            {
-              'group-hover/icon-button:!font-iconDefault': isDefaultOnHover,
-            },
-            iconClassName
-          )}
-          kind={iconKind}
-        />
-      }
-      size="lg"
-      kind="minimal"
+    <Button
+      kind={outline ? 'outline' : 'secondary'}
       disabled={disabled}
+      animate={animate}
       href={href}
-      target={target}
-      shallow={shallow}
       onClick={onClick}
+      target={target}
+      icon={iconName}
+      iconOptions={{ kind: iconKind, className: iconClassName, customIcon: icon }}
+      className={cn(className, 'group/icon-button h-8 w-8 p-0', {
+        'h-8 w-8': size === 'md',
+        'h-7 w-7': size === 'sm',
+        'p-2': outline,
+      })}
     />
   );
 

@@ -45,7 +45,10 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
       />
       <IconButton
         iconName="clip"
-        tooltip={{ label: 'Attach file (.PDF, .TXT Max 20 MB)', size: 'sm' }}
+        tooltip={{
+          label: 'Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .XSLS, .XLS, .DOCX Max 20 MB)',
+          size: 'sm',
+        }}
         size="sm"
         onClick={handleOpenFileExplorer}
       />

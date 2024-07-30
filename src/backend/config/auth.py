@@ -5,14 +5,22 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from backend.config.settings import Settings
 from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 
 load_dotenv()
 
+auth_map = {
+    "basic": BasicAuthentication,
+    "google_oauth": GoogleOAuth,
+    "oidc": OpenIDConnect,
+}
+
 SKIP_AUTH = os.getenv("SKIP_AUTH", None)
-# Add Auth strategy classes here to enable them
 # Ex: [BasicAuthentication]
-ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
+ENABLED_AUTH_STRATEGIES = []
+if ENABLED_AUTH_STRATEGIES == [] and Settings().auth.enabled_auth is not None:
+    ENABLED_AUTH_STRATEGIES = [auth_map[auth] for auth in Settings().auth.enabled_auth]
 if "pytest" in sys.modules or SKIP_AUTH == "true":
     ENABLED_AUTH_STRATEGIES = []
 
@@ -22,13 +30,13 @@ if "pytest" in sys.modules or SKIP_AUTH == "true":
 ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
 
 # Token to authorize migration requests
-MIGRATE_TOKEN = os.environ.get("MIGRATE_TOKEN", None)
+MIGRATE_TOKEN = Settings().database.migrate_token
 
 security = HTTPBearer()
 
 
 def verify_migrate_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if not MIGRATE_TOKEN or credentials.credentials != MIGRATE_TOKEN:
+    if not MIGRATE_TOKEN and credentials.credentials != MIGRATE_TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing token",

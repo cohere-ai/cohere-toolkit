@@ -1,5 +1,4 @@
 export * from './Banner';
-export * from './BasicButton';
 export * from './Button';
 export * from './Checkbox';
 export * from './CodeSnippet';
@@ -26,6 +25,7 @@ export * from './Switch';
 export * from './Tabs';
 export * from './Tag';
 export * from './Text';
+export * from './Textarea';
 export * from './ToastNotification';
 export * from './Toggle';
 export * from './ToggleWithAction';

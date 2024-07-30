@@ -11,7 +11,7 @@ from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 from backend.tools.base import BaseToolAuthentication
 from backend.tools.google_drive.constants import SCOPES
 from backend.tools.google_drive.tool import GoogleDrive
@@ -73,7 +73,9 @@ class GoogleDriveAuth(BaseToolAuthentication):
         # ToolAuth retrieved and is not expired
         return False
 
-    def try_refresh_token(self, session: Session, user_id: str, tool_auth: ToolAuth) -> bool:
+    def try_refresh_token(
+        self, session: Session, user_id: str, tool_auth: ToolAuth
+    ) -> bool:
         body = {
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
             "client_secret": self.GOOGLE_DRIVE_CLIENT_SECRET,
@@ -85,10 +87,14 @@ class GoogleDriveAuth(BaseToolAuthentication):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(f"Error while refreshing token with GoogleDriveAuth: {response_body}")
+            logger.error(
+                event=f"[Google Drive] Error refreshing token: {response_body}"
+            )
             return False
 
-        existing_tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
+        existing_tool_auth = tool_auth_crud.get_tool_auth(
+            session, self.TOOL_ID, user_id
+        )
         tool_auth_crud.update_tool_auth(
             session,
             existing_tool_auth,
@@ -98,7 +104,8 @@ class GoogleDriveAuth(BaseToolAuthentication):
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
                 encrypted_refresh_token=tool_auth.encrypted_refresh_token,
-                expires_at=datetime.datetime.now() + datetime.timedelta(seconds=response_body["expires_in"]),
+                expires_at=datetime.datetime.now()
+                + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
         )
 
@@ -107,7 +114,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
     def retrieve_auth_token(self, request: Request, session: Session) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
-            logger.error(f"Error from Google OAuth provider while retrieving Google Auth token: {error}.")
+            logger.error(event=f"[Google Drive] Auth token error: {error}.")
             return error
 
         state = json.loads(request.query_params.get("state"))
@@ -124,7 +131,9 @@ class GoogleDriveAuth(BaseToolAuthentication):
         response_body = response.json()
 
         if response.status_code != 200:
-            logger.error(f"Error while retrieving auth token with GoogleDriveAuth: {response_body}")
+            logger.error(
+                event=f"[Google Drive] Error retrieving auth token: {response_body}"
+            )
             return response
 
         tool_auth_crud.create_tool_auth(
@@ -135,7 +144,8 @@ class GoogleDriveAuth(BaseToolAuthentication):
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
                 encrypted_refresh_token=encrypt(response_body["refresh_token"]),
-                expires_at=datetime.datetime.now() + datetime.timedelta(seconds=response_body["expires_in"]),
+                expires_at=datetime.datetime.now()
+                + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
         )
 

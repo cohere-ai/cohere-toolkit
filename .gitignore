@@ -140,8 +140,15 @@ secrets.toml
 
 .DS_Store
 
+# JetBrains IDEs
+.idea
+
 # Local file storage
 /src/backend/data
 
 # Redis volume
 /data
+
+# Secret and config files
+/src/backend/config/configuration.yaml
+/src/backend/config/secrets.yaml

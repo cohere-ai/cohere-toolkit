@@ -1,0 +1,22 @@
+name: Typecheck
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: pipx install poetry
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11' 
+          cache: 'poetry'
+      - run: poetry install
+      - run: echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
+      - uses: jakebailey/pyright-action@v2
+        with:
+          version: 1.1.311

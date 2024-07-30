@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING, is_authentication_enabled
 from backend.crud import user as user_crud
 from backend.database_models import User
-from backend.services.auth.jwt import JWTService
 
 
 def is_enabled_authentication_strategy(strategy_name: str) -> bool:
@@ -67,6 +66,9 @@ def get_header_user_id(request: Request) -> str:
     Returns:
         str: User ID
     """
+    # Import here to avoid circular imports
+    from backend.services.auth.jwt import JWTService
+
     # Check if Auth enabled
     if is_authentication_enabled():
         # Validation already performed, so just retrieve value
@@ -79,3 +81,22 @@ def get_header_user_id(request: Request) -> str:
     else:
         user_id = request.headers.get("User-Id", "")
         return user_id
+
+
+def has_header_user_id(request: Request) -> bool:
+    """
+    Check whether we can get the user_id from the request headers.
+
+    Args:
+        request (Request): current Request
+
+    Returns:
+        bool: Whether the user_id is present in the headers
+    """
+
+    if is_authentication_enabled():
+        authorization = request.headers.get("Authorization")
+        return authorization is not None
+    else:
+        user_id = request.headers.get("User-Id")
+        return user_id is not None

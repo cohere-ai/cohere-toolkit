@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from enum import Enum
 from typing import Any, Dict, List
@@ -13,8 +12,9 @@ from backend.compass_sdk import (
 from backend.compass_sdk.compass import CompassClient
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.parser import CompassParserClient
+from backend.services.logger.utils import get_logger
 
-logger = logging.getLogger()
+logger = get_logger()
 
 
 class Compass:
@@ -52,7 +52,7 @@ class Compass:
         ]
         if not all(os.getenv(var) is not None for var in vars):
             raise Exception(
-                "Compass cannot be configured. Environment variables missing.",
+                "[Compass] Error initializing client: Environment variables missing",
             )
 
         self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
@@ -80,7 +80,7 @@ class Compass:
         try:
             self.compass_client.list_indexes()
         except Exception as e:
-            logger.exception(f"Compass Tool: Error initializing Compass client: {e}")
+            logger.exception(event=f"[Compass] Error initializing Compass client: {e}")
             raise e
 
     def invoke(
@@ -105,9 +105,7 @@ class Compass:
             self.ValidActions.PROCESS_FILE.value,
         ]:
             raise Exception(
-                "Compass Tool: No index specified. ",
-                "No action will be taken. ",
-                f"Parameters specified: {parameters}",
+                f"[Compass] Error invoking Compass: No index specified in parameters {parameters}",
             )
 
         # Index-related actions
@@ -136,20 +134,17 @@ class Compass:
                 case self.ValidActions.PROCESS_FILE.value:
                     return self._process_file(parameters, **kwargs)
                 case _:
-                    raise Exception(
-                        f"Compass Tool: Invalid action {parameters['action']}. "
-                        "No action will be taken. "
-                        f"Parameters specified: {parameters}"
-                    )
+                    raise Exception(f"[Compass] Error invoking Compass: Invalid action in parameters {parameters}")
         except Exception as e:
-            message = "Compass Error: {}".format(str(e))
+            message = f"[Compass] Error invoking Compass: {e}"
+            logger.error(event=message)
             raise Exception(message)
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
         """Insert the document into Compass"""
         compass_docs = self._process_file(parameters, **kwargs)
         if compass_docs is None:
-            raise Exception("Parsing failed")
+            raise Exception("[Compass] Error inserting document: Failed to process file")
 
         if doc_metadata := parameters.get("metadata", None):
             for doc in compass_docs:
@@ -160,17 +155,15 @@ class Compass:
             docs=compass_docs,
         )
         if error is not None:
-            message = "Compass Tool: Error inserting/updating document into Compass: {}".format(
-                error,
-            )
+            message = ("[Compass] Error inserting document: {error}",)
+            logger.error(event=message)
             raise Exception(message)
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
         """Run a search query on Compass and return the
         top_k results. By default, k=10."""
         if not parameters.get("query", None):
-            message = ("Compass Tool: No search query specified. ",)
-            ("Returning empty list. " "Parameters specified: {parameters}",)
+            message = f"[Compass] Error searching Compass: No search query specified in parameters {parameters}"
             raise Exception(message)
 
         return self.compass_client.search(
@@ -189,11 +182,7 @@ class Compass:
         """Delete file from Compass"""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(
-                "Compass Tool: No uninque identifier file_id specified. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
+            raise Exception(f"[Compass] Error deleting file: No file_id in parameters {parameters}")
         self.compass_client.delete_document(
             index_name=parameters["index"],
             doc_id=parameters["file_id"],
@@ -203,11 +192,7 @@ class Compass:
         """Get document with id from Compass"""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(
-                "Compass Tool: No uninque identifier file_id specified. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
+            raise Exception(f"[Compass] Error fetching document: No file_id in parameters {parameters}")
         return self.compass_client.get_document(
             index_name=parameters["index"],
             doc_id=parameters["file_id"],
@@ -217,17 +202,9 @@ class Compass:
         """Adds context to a document with id in Compass"""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(
-                "Compass Tool: No uninque identifier file_id specified. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
+            raise Exception(f"[Compass] Error adding context: No file_id in parameters {parameters}")
         if not parameters.get("context", None):
-            raise Exception(
-                "Compass Tool: Context cannot be empty. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
+            raise Exception(f"[Compass] Error adding context: Context cannot be empty for parameters {parameters}")
         self.compass_client.add_context(
             index_name=parameters["index"],
             doc_id=parameters["file_id"],
@@ -242,21 +219,15 @@ class Compass:
         """Parse the input file."""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(
-                "Compass Tool: No uninque identifier file_id specified. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters}"
-            )
+            raise Exception(f"[Compass] Error processing file: No file_id specified in parameters {parameters}")
 
         # Check if filename is specified for file-related actions
         if not parameters.get("filename", None) and (
             not parameters.get("file_bytes", None) or not parameters.get("file_extension", None)
         ):
+
             logger.error(
-                "Compass Tool: No filename or file_bytes or file_extension specified for "
-                "create/update operation. "
-                "No action will be taken. "
-                f"Parameters specified: {parameters.keys()}"
+                event=f"[Compass] Error processing file: No filename or file_text or file_extension specified in parameters {parameters.keys()}"
             )
             return None
 
@@ -267,9 +238,7 @@ class Compass:
 
         if filename and not os.path.exists(filename):
             logger.error(
-                f"Compass Tool: File {filename} does not exist. "
-                "No action will be taken."
-                f"Parameters specified: {parameters}"
+                event=f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
             )
             return None
 
@@ -295,8 +264,8 @@ class Compass:
     def _raw_parsing(self, file_id: str, file_bytes: str, file_extension: str):
         if len(file_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
-                f"File too large, supported file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "
-                f"mb, file_id {file_id}"
+                event=f"[Compass] Error parsing file: File Size is too large {len(file_bytes)}",
+                max_size=DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES,
             )
             return []
 
@@ -320,6 +289,6 @@ class Compass:
                 doc.content = {**doc.content, **additional_metadata}
         else:
             docs = []
-            logger.error(f"Error processing file: {res.text}")
+            logger.error(event=f"[Compass] Error processing file: {res.text}")
 
         return docs

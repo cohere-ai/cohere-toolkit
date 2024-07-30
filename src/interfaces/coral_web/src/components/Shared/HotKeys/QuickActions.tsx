@@ -1,11 +1,11 @@
 'use client';
 
 import { Combobox } from '@headlessui/react';
-import cx from 'classnames';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import { Text } from '@/components/Shared';
 import { useOS } from '@/hooks/os';
+import { cn } from '@/utils';
 
 export type QuickAction = {
   name: string;
@@ -15,18 +15,13 @@ export type QuickAction = {
 
 type QuickActionsProps = {
   isOpen: boolean;
-  onGoTo: (url: string) => void;
   customActions?: QuickAction[];
 };
 
 const QuickActions: React.FC<QuickActionsProps> = ({ isOpen, customActions = [] }) => {
-  return (
-    <>
-      {customActions.map((action) => (
-        <QuickAction key={action.name} isOpen={isOpen} {...action} />
-      ))}
-    </>
-  );
+  return customActions.map((action) => (
+    <QuickAction key={action.name} isOpen={isOpen} {...action} />
+  ));
 };
 
 interface QuickActionProps extends QuickAction {
@@ -69,14 +64,14 @@ const QuickAction: React.FC<QuickActionProps> = ({ name, commands, action, isOpe
       key={name}
       value={action}
       className={({ active }) =>
-        cx('flex select-none items-center rounded-lg py-2', active && 'bg-green-600 text-white')
+        cn('flex select-none items-center rounded-lg py-2', active && 'bg-green-600 text-white')
       }
     >
       {({ active }) => (
         <Text className="mx-3 flex w-full items-center justify-between">
           <Text className="flex-auto truncate">{name}</Text>
           <span
-            className={cx('', {
+            className={cn({
               'text-white': active,
             })}
           >

@@ -1,6 +1,7 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
+  Body_batch_upload_file_v1_conversations_batch_upload_file_post,
   Body_upload_file_v1_conversations_upload_file_post,
   CancelablePromise,
   CohereChatRequest,
@@ -54,6 +55,12 @@ export class CohereClient {
 
   public uploadFile(formData: Body_upload_file_v1_conversations_upload_file_post) {
     return this.cohereService.default.uploadFileV1ConversationsUploadFilePost({
+      formData,
+    });
+  }
+
+  public batchUploadFile(formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post) {
+    return this.cohereService.default.batchUploadFileV1ConversationsBatchUploadFilePost({
       formData,
     });
   }
@@ -325,6 +332,7 @@ export class CohereClient {
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
       Connection: 'keep-alive',
+      'X-Date': new Date().getTime().toString(),
     };
     return headers;
   }

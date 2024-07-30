@@ -60,6 +60,7 @@ export const useFilesStore = () => {
       queueFocusFileInput: state.queueFocusFileInput,
       clearFocusFileInput: state.clearFocusFileInput,
       addUploadingFile: state.addUploadingFile,
+      addUploadingFiles: state.addUploadingFiles,
       deleteUploadingFile: state.deleteUploadingFile,
       addComposerFile: state.addComposerFile,
       deleteComposerFile: state.deleteComposerFile,
@@ -86,8 +87,8 @@ export const useAgentsStore = () => {
   return useStore(
     (state) => ({
       agents: state.agents,
-      setAgentsSidePanelOpen: state.setAgentsSidePanelOpen,
-      setEditAgentPanelOpen: state.setEditAgentPanelOpen,
+      setAgentsLeftSidePanelOpen: state.setAgentsLeftSidePanelOpen,
+      setAgentsRightSidePanelOpen: state.setAgentsRightSidePanelOpen,
     }),
     shallow
   );

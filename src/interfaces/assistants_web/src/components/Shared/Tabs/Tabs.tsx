@@ -1,13 +1,14 @@
 'use client';
 
 import { Tab, TabList, TabPanel, TabPanels } from '@headlessui/react';
-import { ReactNode, isValidElement, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 
 import { Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type TabsProps = {
   tabs: ReactNode[];
+  kind?: 'evolved-green' | 'blue';
   hiddenTabs?: string[];
   subLabels?: string[];
   fitTabsContent?: boolean;
@@ -34,6 +35,7 @@ export const Tabs: React.FC<TabsProps> = ({
   hiddenTabs = [],
   subLabels = [],
   fitTabsContent = true,
+  kind = 'evolved-green',
   selectedIndex,
   className = '',
   tabGroupClassName = '',
@@ -82,29 +84,32 @@ export const Tabs: React.FC<TabsProps> = ({
             <Tab
               key={i}
               className={cn('flex w-full flex-1 flex-col focus:outline-none md:flex-initial', {
-                [`border-b-4 border-coral-700`]: i === selectedIndex,
-                'border-b border-marble-950': i !== selectedIndex,
+                'border-b-4': i === selectedIndex,
+                'border-evolved-green-700': kind === 'evolved-green',
+                'border-blue-700': kind === 'blue',
+                'border-b border-marble-950 dark:border-volcanic-150': i !== selectedIndex,
                 hidden: hiddenIndexes.includes(i),
               })}
             >
               {({ selected }) => {
                 // If the label is a React node, we want the node to handle their own margins.
-                const isReactNodeElement = isValidElement(label);
                 return (
                   <div
                     className={cn(
-                      'group flex w-full items-center justify-center gap-x-3 px-10',
+                      'group flex w-full items-center justify-center gap-x-3 px-6',
                       tabClassName
                     )}
                   >
                     <Text
                       as="span"
                       styleAs="label"
-                      className={cn('whitespace-nowrap group-hover:text-volcanic-100', {
-                        'font-medium text-volcanic-100': selected,
-                        'text-volcanic-400': !selected,
-                        'my-3': !isReactNodeElement,
-                      })}
+                      className={cn(
+                        'my-3 whitespace-nowrap group-hover:text-volcanic-100 dark:group-hover:text-mushroom-950',
+                        {
+                          'font-medium text-volcanic-100 dark:text-mushroom-950': selected,
+                          'text-volcanic-400 dark:text-volcanic-500': !selected,
+                        }
+                      )}
                     >
                       {label}
                     </Text>
@@ -112,7 +117,7 @@ export const Tabs: React.FC<TabsProps> = ({
                       <Text
                         as="span"
                         styleAs="overline"
-                        className="whitespace-nowrap text-volcanic-400"
+                        className="whitespace-nowrap text-volcanic-400 dark:text-mushroom-800"
                       >
                         {subLabels[i]}
                       </Text>
@@ -123,10 +128,10 @@ export const Tabs: React.FC<TabsProps> = ({
             </Tab>
           ))}
         </TabList>
-        <div className="hidden flex-1 border-b border-marble-950 md:block" />
+        <div className="hidden flex-1 border-b border-marble-950 md:block dark:border-volcanic-150" />
       </div>
       {children && (
-        <TabPanels className={cn('w-full pt-10 lg:pt-14', panelsClassName)}>
+        <TabPanels className={cn('w-full pt-10', panelsClassName)}>
           {children.filter(Boolean).map((child, i) => (
             <TabPanel key={i} className={tabPanelClassName}>
               {child}

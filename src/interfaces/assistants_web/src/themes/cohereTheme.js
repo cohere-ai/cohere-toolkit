@@ -60,7 +60,7 @@ module.exports = {
           300: '#4D4D4D',
           200: '#333333',
           150: '#262626',
-          100: '#292929',
+          100: '#1A1A1A',
           60: '#0F0F0F',
         },
         // Coniferous Green
@@ -156,17 +156,11 @@ module.exports = {
         h2: ['3.1875rem', { letterSpacing: '0em', lineHeight: '116%' }], // 51px - Desktop Heading 2
         'h1-m': ['3.1875rem', { letterSpacing: '0em', lineHeight: '116%' }], // 51px - Mobile Heading 1
         h1: ['4.1875rem', { letterSpacing: '0em', lineHeight: '116%' }], // 67px - Desktop Heading 1
-        'icon-sm': ['12px', { lineHeight: '100%' }],
-        'icon-md': ['16px', { lineHeight: '100%' }],
-        'icon-lg': ['24px', { lineHeight: '100%' }],
-        'icon-xl': ['36px', { lineHeight: '100%' }],
       },
       fontFamily: {
         body: ['CohereText', 'Arial', ...defaultTheme.fontFamily.sans],
         variable: ['CohereVariable', 'Arial', ...defaultTheme.fontFamily.serif],
         code: ['CohereMono', ...defaultTheme.fontFamily.mono],
-        iconOutline: ['CohereIconOutline'],
-        iconDefault: ['CohereIconDefault'],
       },
       fontWeight: {
         // Bolded fonts will always use Cohere Variable with the weight 525
