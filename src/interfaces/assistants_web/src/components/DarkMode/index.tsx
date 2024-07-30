@@ -32,23 +32,23 @@ export const DarkModeToggle = () => {
     <section className="flex gap-6">
       <div className="flex flex-col gap-2">
         <button
-          className={cn('h-24 w-28 rounded-lg bg-volcanic-200', {
+          className={cn('grid h-24 w-28 place-items-center rounded-lg bg-volcanic-200', {
             'border border-evolved-green-700': isDarkMode,
           })}
           onClick={() => setIsDarkMode(true)}
         >
-          <Icon name="add" className="text-mushroom-950" />
+          <Icon name="moon" className="fill-mushroom-950" kind="outline" size="lg" />
         </button>
         <Text className="text-center">Dark</Text>
       </div>
       <div className="flex flex-col gap-2">
         <button
-          className={cn('h-24 w-28 rounded-lg bg-mushroom-950', {
+          className={cn('grid h-24 w-28 place-items-center rounded-lg bg-mushroom-950', {
             'border border-evolved-green-700': !isDarkMode,
           })}
           onClick={() => setIsDarkMode(false)}
         >
-          <Icon name="subtract" className="text-volcanic-150" />
+          <Icon name="sun" className="fill-volcanic-150" kind="outline" size="lg" />
         </button>
         <Text className="text-center">Light</Text>
       </div>
