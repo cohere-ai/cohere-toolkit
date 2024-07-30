@@ -50,7 +50,6 @@ export const Composer: React.FC<Props> = ({
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isToolAuthRequired } = useUnauthedTools();
-
   const { data: experimentalFeatures } = useExperimentalFeatures();
 
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
@@ -112,7 +111,7 @@ export const Composer: React.FC<Props> = ({
       textareaRef.current?.blur();
     }
     return () => clearTimeout(timer);
-  }, [isMobileConvListPanelOpen, isDesktop, textareaRef.current]);
+  }, [isMobileConvListPanelOpen, isDesktop]);
 
   useResizeObserver(chatWindowRef || null, (e) => {
     setChatWindowHeight(e.target.clientHeight);
@@ -185,7 +184,7 @@ export const Composer: React.FC<Props> = ({
               }
             }}
           >
-            {isReadyToReceiveMessage ? <Icon name="enter" /> : <Square />}
+            {isReadyToReceiveMessage ? <Icon name="arrow-submit" /> : <Square />}
           </button>
         </div>
         <ComposerFiles />

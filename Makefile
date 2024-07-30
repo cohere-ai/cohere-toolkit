@@ -48,6 +48,10 @@ migration:
 migrate:
 	docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
 
+.PHONY: downgrade
+downgrade:
+	docker compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
+
 .PHONY: reset-db
 reset-db:
 	docker compose down

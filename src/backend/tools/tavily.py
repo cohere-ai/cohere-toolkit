@@ -1,4 +1,3 @@
-import copy
 import os
 from typing import Any, Dict, List
 
@@ -79,6 +78,7 @@ class TavilyInternetSearch(BaseTool):
                     f"{snippet['title']} {snippet['content']}"
                     for snippet in snippet_batch
                 ],
+                ctx=None,
                 **kwargs,
             )
             for b in batch_output.get("results", []):

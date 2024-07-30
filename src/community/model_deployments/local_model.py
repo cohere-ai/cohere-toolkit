@@ -1,10 +1,12 @@
 import asyncio
 from typing import Any, Dict, List
 
-# To use local models install poetry with: poetry install --with setup,community,local-model --verbose
 from llama_cpp import Llama
 
 from backend.schemas.cohere_chat import CohereChatRequest
+
+# To use local models install poetry with: poetry install --with setup,community,local-model --verbose
+from backend.schemas.context import Context
 from community.model_deployments import BaseDeployment
 
 
@@ -66,7 +68,9 @@ class LocalModelDeployment(BaseDeployment):
             "finish_reason": "COMPLETE",
         }
 
-    async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
+    async def invoke_chat(
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+    ) -> Any:
         model = self._get_model()
 
         if chat_request.max_tokens is None:
@@ -90,7 +94,7 @@ class LocalModelDeployment(BaseDeployment):
         return model
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
+        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
     ) -> Any:
         return None
 

@@ -17,8 +17,8 @@ class Conversation(Base):
     title: Mapped[str] = mapped_column(String, default="New Conversation")
     description: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
-    text_messages: Mapped[List["Message"]] = relationship()
-    files: Mapped[List["File"]] = relationship()
+    text_messages: Mapped[List[Message]] = relationship()
+    files: Mapped[List[File]] = relationship()
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=True
     )

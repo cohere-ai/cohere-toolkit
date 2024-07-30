@@ -22,10 +22,11 @@ module.exports = {
         'left-panel-3xl': '360px',
       },
       width: {
-        'ep-icon-sm': '12px',
-        'ep-icon-md': '16px',
-        'ep-icon-lg': '24px',
-        'ep-icon-xl': '36px',
+        'icon-xs': '12px',
+        'icon-sm': '14px',
+        'icon-md': '16px',
+        'icon-lg': '24px',
+        'icon-xl': '36px',
         'btn-sm': '280px',
         'btn-md': '312px',
         'btn-lg': '350px',
@@ -55,10 +56,12 @@ module.exports = {
         'share-content-with-citations': '1500px',
       },
       height: {
-        'ep-icon-sm': '12px',
-        'ep-icon-md': '16px',
-        'ep-icon-lg': '24px',
-        'ep-icon-xl': '36px',
+        'cell-button': '40px',
+        'icon-xs': '12px',
+        'icon-sm': '14px',
+        'icon-md': '16px',
+        'icon-lg': '24px',
+        'icon-xl': '36px',
         header: '64px',
       },
       minHeight: {
@@ -147,6 +150,9 @@ module.exports = {
             width: '0%',
           },
         },
+      },
+      transitionProperty: {
+        spacing: 'padding',
       },
       animation: {
         'typing-ellipsis': 'typing 2s steps(4) infinite',
