@@ -58,24 +58,6 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         return f"{self.AUTH_ENDPOINT}?{urllib.parse.urlencode(params)}"
 
-    def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool:
-        auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
-
-        if auth is None:
-            return True
-
-        if datetime.datetime.now() > auth.expires_at:
-            if self.try_refresh_token(session, user_id, auth):
-                # Refreshed token successfully
-                return False
-
-            # Refresh failed, delete existing Auth
-            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
-            return True
-
-        # ToolAuth retrieved and is not expired
-        return False
-
     def try_refresh_token(
         self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
     ) -> bool:
@@ -145,7 +127,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
                 user_id=user_id,
                 tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
-                encrypted_access_token=encrypt(response_body["access_token"]),
+                encrypted_access_token=str.encode(response_body["access_token"]),
                 encrypted_refresh_token=encrypt(response_body["refresh_token"]),
                 expires_at=datetime.datetime.now()
                 + datetime.timedelta(seconds=response_body["expires_in"]),

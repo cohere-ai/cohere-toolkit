@@ -1,11 +1,13 @@
-import os
+import datetime
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional
 
 from fastapi import Request
 
 from backend.config.settings import Settings
+from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
+from backend.database_models.tool_auth import ToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.cache import cache_get_dict, cache_put
 
@@ -71,8 +73,38 @@ class BaseToolAuthentication:
     @abstractmethod
     def get_auth_url(self, user_id: str) -> str: ...
 
+    def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool:
+        auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
+
+        # Check Auth DNE
+        if auth is None:
+            return True
+
+        # Check expired
+        if datetime.datetime.now() > auth.expires_at:
+            if self.try_refresh_token(session, user_id, auth):
+                # Refreshed token successfully
+                return False
+
+            # Refresh failed, delete existing Auth
+            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
+            return True
+
+        # Check access_token is retrievable
+        try:
+            auth.access_token
+        except:
+            # Retrieval failed, delete existing Auth
+            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
+            return True
+
+        # ToolAuth retrieved and is not expired
+        return False
+
     @abstractmethod
-    def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool: ...
+    def try_refresh_token(
+        self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
+    ) -> bool: ...
 
     @abstractmethod
     def retrieve_auth_token(
