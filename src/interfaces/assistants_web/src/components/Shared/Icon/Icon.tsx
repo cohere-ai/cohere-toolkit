@@ -1,3 +1,4 @@
+import { Link } from '@/components/Shared/Icon/Link';
 import { cn } from '@/utils';
 
 export type IconKind = 'default' | 'outline';
@@ -9,33 +10,34 @@ export type IconName =
   | 'arrow-down'
   | 'arrow-left'
   | 'arrow-right'
-  | 'arrow-up'
-  | 'arrow-up-right'
   | 'arrow-submit'
+  | 'arrow-up-right'
+  | 'arrow-up'
   | 'book-open-text'
   | 'calculator'
-  | 'close'
   | 'chat-circle-dots'
   | 'checkmark'
   | 'chevron-down'
   | 'chevron-left'
   | 'chevron-right'
   | 'chevron-up'
-  | 'circles-three'
   | 'circles-four'
+  | 'circles-three'
   | 'close-drawer'
+  | 'close'
   | 'code-simple'
   | 'compass'
   | 'copy'
   | 'desktop'
   | 'download'
   | 'edit'
-  | 'file'
   | 'file-search'
+  | 'file'
   | 'folder'
   | 'hide'
   | 'information'
   | 'kebab'
+  | 'link'
   | 'list'
   | 'menu'
   | 'moon'
@@ -50,8 +52,8 @@ export type IconName =
   | 'sparkle'
   | 'subtract'
   | 'sun'
-  | 'thumbs-up'
   | 'thumbs-down'
+  | 'thumbs-up'
   | 'trash'
   | 'upload'
   | 'users-three'
@@ -1339,5 +1341,7 @@ const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
           fill="#28a8ea"
         />
       </svg>;
+    case 'link':
+      return <Link />;
   }
 };

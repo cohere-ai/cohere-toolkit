@@ -1,18 +1,16 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { usePrevious, useTimeoutEffect } from '@react-hookz/web';
-import React, { ReactNode, forwardRef, memo, useEffect, useMemo, useState } from 'react';
+import { usePrevious } from '@react-hookz/web';
+import React, { ReactNode, forwardRef, memo, useEffect, useMemo } from 'react';
 import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
 
-import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
 import { Button } from '@/components/Shared';
 import { Welcome } from '@/components/Welcome';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
-import { useCitationsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -66,20 +64,9 @@ const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
   const scrollToBottom = useScrollToBottom();
 
-  const {
-    citations: { hasCitations },
-  } = useCitationsStore();
-
   useFixCopyBug();
   const [isAtBottom] = useSticky();
   const prevIsStreaming = usePrevious(isStreaming);
-
-  // Wait some time before being able to fetch previous messages
-  // This is to prevent loading a bunch of messages on first load
-  const [isReadyToFetchPreviousMessages, setIsReadyToFetchPreviousMessages] = useState(false);
-  useTimeoutEffect(() => {
-    setIsReadyToFetchPreviousMessages(true);
-  }, 1000);
 
   // Show the `New Message` button if the user has scrolled up
   // and the last message is a bot message.
@@ -103,9 +90,6 @@ const Content: React.FC<Props> = (props) => {
     }
   }, [messages.length, scrollToBottom]);
 
-  const { citationToStyles, messageContainerDivRef, composerContainerDivRef } =
-    useCalculateCitationStyles(messages, streamingMessage);
-
   const handleScrollToNewMessage = () => {
     scrollToBottom({ behavior: 'smooth' });
   };
@@ -113,11 +97,11 @@ const Content: React.FC<Props> = (props) => {
   return (
     <div className="flex h-max min-h-full w-full">
       <div id={MESSAGE_LIST_CONTAINER_ID} className="flex h-auto min-w-0 flex-1 flex-col">
-        <Messages {...props} ref={messageContainerDivRef} />
+        <Messages {...props} />
         {/* Composer container */}
         <div
           className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100"
-          ref={composerContainerDivRef}
+          id="composer-container"
         >
           <Transition
             show={showNewMessageButton}
@@ -140,23 +124,6 @@ const Content: React.FC<Props> = (props) => {
           {composer}
         </div>
       </div>
-
-      <div
-        className={cn('hidden h-auto border-marble-950', {
-          'border-l md:flex': hasCitations,
-        })}
-      />
-      <CitationPanel
-        citationToStyles={citationToStyles}
-        streamingMessage={streamingMessage}
-        className={cn(
-          ReservedClasses.CITATION_PANEL,
-          'hidden',
-          { 'md:flex': hasCitations },
-          'relative h-auto w-auto',
-          'md:min-w-citation-panel-md lg:min-w-citation-panel-lg xl:min-w-citation-panel-xl'
-        )}
-      />
     </div>
   );
 };
@@ -180,7 +147,11 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
   }
 
   return (
-    <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
+    <div
+      className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6"
+      ref={ref}
+      id="messages-container"
+    >
       <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
         {messages.map((m, i) => {
           const isLastInList = i === messages.length - 1;

@@ -4,6 +4,7 @@ import { Transition } from '@headlessui/react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { ListFile } from '@/cohere-client';
+import { CitationsTab } from '@/components/Agents/CitationsTab';
 import { Banner, Button, Checkbox, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
 import { useFocusFileInput } from '@/hooks/actions';
 import { useChatRoutes } from '@/hooks/chatRoutes';
@@ -85,6 +86,8 @@ const RightPanel: React.FC<Props> = () => {
         </span>,
       ]}
       tabGroupClassName="h-full"
+      tabPanelClassName="h-full"
+      panelsClassName="h-full"
       kind="blue"
     >
       <div className="flex flex-col gap-y-10">
@@ -174,7 +177,7 @@ const RightPanel: React.FC<Props> = () => {
           </Text>
         </section>
       </div>
-      <div>Citations</div>
+      <CitationsTab />
     </Tabs>
   );
 };

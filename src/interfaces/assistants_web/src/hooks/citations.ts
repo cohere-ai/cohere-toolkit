@@ -47,6 +47,23 @@ export const useCalculateCitationStyles = (
 ) => {
   const messageContainerDivRef = useRef<HTMLDivElement>(null);
   const composerContainerDivRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!messageContainerDivRef.current || !composerContainerDivRef.current) {
+      messageContainerDivRef.current = document.getElementById('messages-container');
+      composerContainerDivRef.current = document.getElementById('composer-container');
+    }
+
+    return () => {
+      if (messageContainerDivRef.current) {
+        messageContainerDivRef.current = null;
+      }
+      if (composerContainerDivRef.current) {
+        composerContainerDivRef.current = null;
+      }
+    };
+  }, []);
+
   const [citationToStyles, setCitationToStyles] = useState<{
     [generationId: string]: { top?: string; bottom?: string };
   }>({});
@@ -121,8 +138,6 @@ export const useCalculateCitationStyles = (
 
   return {
     citationToStyles,
-    messageContainerDivRef,
-    composerContainerDivRef,
   };
 };
 

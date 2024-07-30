@@ -29,13 +29,13 @@ import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
+import { useStreamingStore } from '@/stores/streaming';
 import {
   BotState,
   ChatMessage,
   ErrorMessage,
   FulfilledMessage,
   MessageType,
-  StreamingMessage,
   createAbortedMessage,
   createErrorMessage,
   createLoadingMessage,
@@ -101,7 +101,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isStreamingToolEvents, setIsStreamingToolEvents] = useState(false);
-  const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
+  const { streamingMessage, setStreamingMessage } = useStreamingStore();
   const { agentId } = useChatRoutes();
 
   useEffect(() => {
