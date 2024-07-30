@@ -1,3 +1,4 @@
+import sys
 from typing import Any
 
 import structlog
@@ -31,27 +32,39 @@ def get_context_log(ctx: Context) -> dict:
 
 class StructuredLogging(BaseLogger):
     def __init__(self, level: str = "info"):
-        structlog.configure(
-            processors=[
-                structlog.processors.add_log_level,
-                structlog.processors.EventRenamer("msg"),
-                structlog.processors.TimeStamper(fmt="iso"),
-                structlog.processors.StackInfoRenderer(),
-                structlog.processors.format_exc_info,
-                structlog.processors.UnicodeDecoder(),
-                structlog.processors.dict_tracebacks,
-                structlog.processors.JSONRenderer(),
-            ],
-            wrapper_class=structlog.make_filtering_bound_logger(level),
-            cache_logger_on_first_use=True,  # Remove this line to make changes to the logger
-        )
-
-        self.setup()
+        self.setup(level)
 
         self.logger = structlog.get_logger()
 
-    def setup(self):
+    def setup(self, level: str = "info"):
         structlog.contextvars.clear_contextvars()
+
+        shared_processors = [
+            structlog.processors.add_log_level,
+            structlog.processors.EventRenamer("msg"),
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.UnicodeDecoder(),
+        ]
+
+        # If running in a terminal, use colored output
+        # Otherwise, use JSON output
+        if sys.stderr.isatty():
+            processors = shared_processors + [
+                structlog.dev.set_exc_info,
+                structlog.dev.ConsoleRenderer(),
+            ]
+        else:
+            processors = shared_processors + [
+                structlog.processors.dict_tracebacks,
+                structlog.processors.JSONRenderer(),
+            ]
+
+        structlog.configure(
+            processors=processors,
+            wrapper_class=structlog.make_filtering_bound_logger(level),
+            cache_logger_on_first_use=True,  # Remove this line to make changes to the logger
+        )
 
     @log_context
     def info(self, **kwargs):

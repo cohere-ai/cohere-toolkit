@@ -1,3 +1,4 @@
+import traceback
 import os
 
 from alembic.command import upgrade
@@ -91,7 +92,10 @@ app = create_app()
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     logger.exception(
-        event=f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
+        event="Unhandled exception",
+        error=str(exc),
+        method=request.method,
+        url=request.url,
     )
 
     return JSONResponse(
