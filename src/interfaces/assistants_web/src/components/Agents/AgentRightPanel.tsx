@@ -1,40 +1,70 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
+import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { useAgent } from '@/hooks/agents';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
 import { useParamsStore } from '@/stores';
+import { GoogleDriveToolArtifact } from '@/types/tools';
+import { pluralize } from '@/utils';
 
 type Props = {};
 
-const RightPanel: React.FC<Props> = () => {
-  const [isPending, setIsPending] = useState(false);
+const AgentRightPanel: React.FC<Props> = () => {
+  const [isDeletingFile, setIsDeletingFile] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   // TODO: (khalil) configure this to use Google drive files
   const [useAssistantKnowledge, setUseAssistantKnowledge] = useState(true);
   const { agentId, conversationId } = useChatRoutes();
+  const { data: agent, isLoading: isAgentLoading } = useAgent({ agentId });
 
   const {
     params: { fileIds },
     setParams,
   } = useParamsStore();
 
-  const { data: files } = useListFiles(conversationId);
+  const { data: files, isLoading: isFilesLoading } = useListFiles(conversationId);
   const { deleteFile } = useFileActions();
 
-  const handleDeleteFile = async (fileId: string) => {
-    if (isPending || !conversationId) return;
+  const agentGoogleDriveArtifcats = useMemo(() => {
+    if (!agent)
+      return {
+        files: [],
+        folders: [],
+      };
 
-    setIsPending(true);
+    const artifacts =
+      (agent.tools_metadata?.find(
+        (tool_metadata) => tool_metadata.tool_name === TOOL_GOOGLE_DRIVE_ID
+      )?.artifacts as GoogleDriveToolArtifact[]) ?? [];
+
+    const files = artifacts.filter((artifact) => artifact.type === 'file');
+    const folders = artifacts.filter((artifact) => artifact.type === 'folder');
+    return {
+      files,
+      folders,
+    };
+  }, [agent]);
+
+  const agentKnowledgeFiles = [
+    ...agentGoogleDriveArtifcats.files,
+    ...agentGoogleDriveArtifcats.folders,
+  ];
+
+  const handleDeleteFile = async (fileId: string) => {
+    if (isDeletingFile || !conversationId) return;
+
+    setIsDeletingFile(true);
     try {
       await deleteFile({ conversationId, fileId });
       setParams({ fileIds: (fileIds ?? []).filter((id) => id !== fileId) });
     } finally {
-      setIsPending(false);
+      setIsDeletingFile(false);
     }
   };
 
@@ -42,6 +72,7 @@ const RightPanel: React.FC<Props> = () => {
     <Tabs
       selectedIndex={selectedIndex}
       onChange={setSelectedIndex}
+      isLoading={isAgentLoading || isFilesLoading}
       tabs={[
         <span className="flex items-center gap-x-2" key="knowledge">
           <Icon name="folder" kind="outline" />
@@ -87,14 +118,40 @@ const RightPanel: React.FC<Props> = () => {
               leaveTo="opacity-0 scale-90"
               as="div"
             >
-              <Banner className="flex flex-col">
-                Add a data source to expand the assistant’s knowledge.
-                <Button theme="blue" className="mt-4" label="Add Data Source" icon="add" />
-              </Banner>
+              {agentKnowledgeFiles.length === 0 ? (
+                <Banner className="flex flex-col">
+                  Add a data source to expand the assistant’s knowledge.
+                  <Button theme="blue" className="mt-4" label="Add Data Source" icon="add" />
+                </Banner>
+              ) : (
+                <div className="flex flex-col gap-y-3">
+                  <Text as="div" className="flex items-center gap-x-3">
+                    <Icon name="folder" kind="outline" />
+                    {/*  This renders the number of folders and files in the agent's Google Drive.
+                    For example, if the agent has 2 folders and 3 files, it will render:
+                    - "2 folders and 3 files" */}
+                    {agentGoogleDriveArtifcats.folders.length > 0 &&
+                      `${agentGoogleDriveArtifcats.folders.length} ${pluralize(
+                        'folder',
+                        agentGoogleDriveArtifcats.folders.length
+                      )} ${agentGoogleDriveArtifcats.files.length > 0 ? 'and' : ''}`}
+                    {agentGoogleDriveArtifcats.files.length > 0 &&
+                      `${agentGoogleDriveArtifcats.files.length} ${pluralize(
+                        'file',
+                        agentGoogleDriveArtifcats.files.length
+                      )}`}
+                  </Text>
+                  {agentKnowledgeFiles.map((file) => (
+                    <Text as="div" key={file.id} className="ml-6 flex items-center gap-x-3">
+                      <Icon name={file.type === 'folder' ? 'folder' : 'file'} kind="outline" />
+                      {file.name}
+                    </Text>
+                  ))}
+                </div>
+              )}
             </Transition>
           </div>
         )}
-
         <section className="relative flex flex-col gap-y-6">
           <div className="flex gap-x-2">
             <Text styleAs="label" className="font-medium">
@@ -119,12 +176,13 @@ const RightPanel: React.FC<Props> = () => {
                       <Icon
                         name="file"
                         kind="outline"
-                        className="text-mushroom-300 dark:text-marble-950"
+                        className="fill-mushroom-300 dark:fill-marble-950"
                       />
                       <Text className="truncate">{name}</Text>
                     </div>
                     <IconButton
                       onClick={() => handleDeleteFile(id)}
+                      disabled={isDeletingFile}
                       iconName="close"
                       className="hidden group-hover:flex"
                     />
@@ -143,4 +201,4 @@ const RightPanel: React.FC<Props> = () => {
   );
 };
 
-export default RightPanel;
+export default AgentRightPanel;
