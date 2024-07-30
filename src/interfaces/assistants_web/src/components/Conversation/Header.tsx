@@ -19,6 +19,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
 
   const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
+  const accentColor = getCohereColor(agentId, { text: true });
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -50,19 +51,13 @@ export const Header: React.FC<Props> = ({ agentId }) => {
         {id && (
           <Button
             kind="secondary"
-            className="hidden md:flex"
-            label={
-              <Text
-                className={cn('dark:text-mushroom-950', getCohereColor(agentId, { text: true }))}
-              >
-                Share
-              </Text>
-            }
+            className={cn('hidden md:flex', accentColor)}
+            label={<Text className={accentColor}>Share</Text>}
             icon="share"
             iconOptions={{
-              kind: 'outline',
-              className: getCohereColor(agentId, { text: true }),
+              className: 'dark:group-hover:text-inherit dark:text-inherit',
             }}
+            iconPosition="start"
             onClick={handleOpenShareModal}
           />
         )}
