@@ -23,6 +23,9 @@ export const useNavigateToNewChat = () => {
 
 export const useChatRoutes = () => {
   const params = useParams();
+  const {
+    conversation: { id },
+  } = useConversationStore();
 
   const { agentId, conversationId } = useMemo(() => {
     return {
@@ -31,5 +34,5 @@ export const useChatRoutes = () => {
     };
   }, [params]);
 
-  return { agentId, conversationId };
+  return { agentId, conversationId: conversationId || id };
 };

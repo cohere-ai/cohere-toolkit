@@ -68,7 +68,7 @@ export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
 export const TOOL_FALLBACK_ICON = 'circles-four';
 export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_WEB_SEARCH_ID]: { icon: 'web' },
-  [TOOL_PYTHON_INTERPRETER_ID]: { icon: 'code' },
+  [TOOL_PYTHON_INTERPRETER_ID]: { icon: 'code-simple' },
   [TOOL_CALCULATOR_ID]: { icon: 'calculator' },
   [TOOL_WIKIPEDIA_ID]: { icon: 'web' },
   [TOOL_SEARCH_FILE_ID]: { icon: 'search' },
