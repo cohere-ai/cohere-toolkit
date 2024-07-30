@@ -40,7 +40,6 @@ class StructuredLogging(BaseLogger):
 
         shared_processors = [
             structlog.processors.add_log_level,
-            structlog.processors.EventRenamer("msg"),
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.UnicodeDecoder(),
