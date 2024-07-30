@@ -1,10 +1,7 @@
 import Link from 'next/link';
-import { useMemo } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
-import { ASSISTANT_SETTINGS_FORM } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { Icon, IconName, Switch, Text } from '@/components/Shared';
-import { DATA_SOURCE_TOOLS, TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 
 type Props = {
   pythonTool?: ManagedTool;
