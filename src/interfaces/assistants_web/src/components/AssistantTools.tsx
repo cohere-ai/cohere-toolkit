@@ -1,16 +1,14 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { Agent, ManagedTool } from '@/cohere-client';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
-import { useDefaultFileLoaderTool } from '@/hooks/files';
-import { useUnauthedTools } from '@/hooks/tools';
-import { useFilesStore, useParamsStore } from '@/stores';
-import { ConfigurableParams } from '@/stores/slices/paramsSlice';
+import { useAvailableTools } from '@/hooks/tools';
+import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -22,37 +20,14 @@ export const AssistantTools: React.FC<{
   className?: string;
 }> = ({ tools, agent, className = '' }) => {
   const requiredTools = agent?.tools;
-
-  const { params, setParams } = useParamsStore();
-  const { tools: paramTools } = params;
+  const {
+    params: { tools: paramTools },
+  } = useParamsStore();
   const enabledTools = paramTools ?? [];
-  const { defaultFileLoaderTool } = useDefaultFileLoaderTool();
-  const { clearComposerFiles } = useFilesStore();
-
-  const { unauthedTools } = useUnauthedTools();
-  const availableTools = useMemo(() => {
-    return (tools ?? []).filter(
-      (t) =>
-        t.is_visible &&
-        t.is_available &&
-        (!requiredTools || requiredTools.some((rt) => rt === t.name))
-    );
-  }, [tools, requiredTools]);
-
-  const handleToggle = (name: string, checked: boolean) => {
-    const newParams: Partial<ConfigurableParams> = {
-      tools: checked
-        ? [...enabledTools, { name }]
-        : enabledTools.filter((enabledTool) => enabledTool.name !== name),
-    };
-
-    if (name === defaultFileLoaderTool?.name) {
-      newParams.fileIds = [];
-      clearComposerFiles();
-    }
-
-    setParams(newParams);
-  };
+  const { availableTools, unauthedTools, handleToggle } = useAvailableTools({
+    agent,
+    managedTools: tools,
+  });
 
   return (
     <section className={cn('relative flex flex-col gap-y-5', className)}>
@@ -127,10 +102,9 @@ const ConnectDataBox: React.FC<{
             key={tool.name}
             kind="secondary"
             href={tool.auth_url ?? ''}
-            endIcon={<Icon name="arrow-up-right" className="ml-1" />}
-          >
-            {tool.display_name}
-          </Button>
+            label={tool.display_name}
+            icon="arrow-up-right"
+          />
         ))}
       </div>
     </div>

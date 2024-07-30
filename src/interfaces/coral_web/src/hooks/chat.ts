@@ -33,6 +33,7 @@ import {
   BotState,
   ChatMessage,
   ErrorMessage,
+  FulfilledMessage,
   MessageType,
   StreamingMessage,
   createAbortedMessage,
@@ -466,7 +467,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                   )
                 : botResponse;
 
-              setStreamingMessage({
+              const finalMessage: FulfilledMessage = {
                 type: MessageType.BOT,
                 state: BotState.FULFILLED,
                 generationId,
@@ -478,7 +479,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 isRAGOn,
                 originalText: isRAGOn ? responseText : botResponse,
                 toolEvents,
-              });
+              };
+
+              setConversation({ messages: [...newMessages, finalMessage] });
+              setStreamingMessage(null);
 
               if (shouldUpdateConversationTitle(newMessages)) {
                 handleUpdateConversationTitle(conversationId);
@@ -592,10 +596,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     };
     let newMessages: ChatMessage[] = currentMessages;
 
-    if (streamingMessage) {
-      newMessages.push(streamingMessage);
-      setStreamingMessage(null);
-    }
     newMessages = newMessages.concat({
       type: MessageType.USER,
       text: message,

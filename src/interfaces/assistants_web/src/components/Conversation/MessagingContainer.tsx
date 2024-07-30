@@ -12,7 +12,7 @@ import { Welcome } from '@/components/Welcome';
 import { ReservedClasses } from '@/constants';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
-import { useAgentsStore, useCitationsStore } from '@/stores';
+import { useCitationsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -65,9 +65,7 @@ export default memo(MessagingContainer);
 const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
   const scrollToBottom = useScrollToBottom();
-  const {
-    agents: { isEditAgentPanelOpen },
-  } = useAgentsStore();
+
   const {
     citations: { hasCitations },
   } = useCitationsStore();
@@ -118,7 +116,7 @@ const Content: React.FC<Props> = (props) => {
         <Messages {...props} ref={messageContainerDivRef} />
         {/* Composer container */}
         <div
-          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000 dark:bg-volcanic-100')}
+          className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100"
           ref={composerContainerDivRef}
         >
           <Transition
@@ -134,10 +132,9 @@ const Content: React.FC<Props> = (props) => {
           >
             <Button
               label="New message"
-              splitIcon="arrow-down"
+              kind="cell"
+              icon="arrow-down"
               onClick={handleScrollToNewMessage}
-              hideFocusStyles
-              kind="primaryOutline"
             />
           </Transition>
           {composer}
@@ -146,8 +143,7 @@ const Content: React.FC<Props> = (props) => {
 
       <div
         className={cn('hidden h-auto border-marble-950', {
-          'md:flex': hasCitations || !isEditAgentPanelOpen,
-          'border-l': hasCitations,
+          'border-l md:flex': hasCitations,
         })}
       />
       <CitationPanel

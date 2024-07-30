@@ -1,10 +1,9 @@
 import json
-import logging
 from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
@@ -24,10 +23,6 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.tool_call import ToolCall as ToolCallModel
-from backend.routers.utils import (
-    add_agent_to_request_state,
-    add_session_user_to_request_state,
-)
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -49,11 +44,12 @@ from backend.schemas.chat import (
     ToolInputType,
 )
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.file import UpdateFileRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
-from backend.services.auth.utils import get_header_user_id
+from backend.services.context import get_context
 from backend.services.generators import AsyncGeneratorContextManager
 
 
@@ -61,7 +57,7 @@ def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,
     request: Request,
-    agent_id: str | None = None,
+    ctx: Context = Context(),
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -72,31 +68,18 @@ def process_chat(
         chat_request (BaseChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        ctx (Context): Context object.
 
     Returns:
         Tuple: Tuple containing necessary data to construct the responses.
     """
-    user_id = get_header_user_id(request)
-    deployment_name = request.headers.get("Deployment-Name", "")
-    model_config = {}
-    # Deployment config is the settings for the model deployment per request
-    # It is a string of key value pairs separated by semicolons
-    # For example: "azure_key1=value1;azure_key2=value2"
-    if not request.headers.get("Deployment-Config", "") == "":
-        model_config = get_deployment_config(request)
+    user_id = ctx.get_user_id()
+    ctx.with_deployment_config()
+    agent_id = ctx.get_agent_id()
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-
-        # TODO: @Scott Validation error still needs to be fixed here
-        # ROD: error count: <built-in method error_count of pydantic_core._pydantic_core.ValidationError object at 0xffff703f08b0>
-
-        try:
-            add_agent_to_request_state(request, agent)
-        except ValidationError as exc:
-            print(f"Validation error count: {exc.error_count()}")
-            for err in exc.errors():
-                print(f"ROD: error: {repr(err)}")
+        ctx.with_agent(agent)
 
         if agent is None:
             raise HTTPException(
@@ -124,6 +107,8 @@ def process_chat(
     conversation = get_or_create_conversation(
         session, chat_request, user_id, should_store, agent_id, chat_request.message
     )
+
+    ctx.with_conversation_id(conversation.id)
 
     # Get position to put next message in
     next_message_position = get_next_message_position(conversation)
@@ -176,25 +161,11 @@ def process_chat(
         chat_request,
         file_paths,
         chatbot_message,
-        conversation.id,
-        user_id,
-        deployment_name,
         should_store,
         managed_tools,
-        model_config,
         next_message_position,
+        ctx,
     )
-
-
-def get_deployment_config(request: Request) -> dict:
-    header = request.headers.get("Deployment-Config", "")
-    config = {}
-    for c in header.split(";"):
-        kv = c.split("=")
-        if len(kv) < 2:
-            continue
-        config[kv[0]] = "".join(kv[1:])
-    return config
 
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
@@ -487,9 +458,8 @@ async def generate_chat_response(
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
-    conversation_id: str,
-    user_id: str,
     should_store: bool = True,
+    ctx: Context = Context(),
     **kwargs: Any,
 ) -> NonStreamedChatResponse:
     """
@@ -498,13 +468,11 @@ async def generate_chat_response(
     return only the final step as a non-streamed response.
 
     Args:
-        request (Request): request object.
         session (DBSessionDep): Database session.
         model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
         response_message (Message): Response message object.
-        conversation_id (str): Conversation ID.
-        user_id (str): User ID.
         should_store (bool): Whether to store the conversation in the database.
+        ctx (Context): Context object.
         **kwargs (Any): Additional keyword arguments.
 
     Yields:
@@ -514,9 +482,8 @@ async def generate_chat_response(
         session,
         model_deployment_stream,
         response_message,
-        conversation_id,
-        user_id,
         should_store,
+        ctx,
         **kwargs,
     )
 
@@ -525,7 +492,7 @@ async def generate_chat_response(
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
-            response_id = response_message.id if response_message else None
+            response_id = ctx.get_trace_id()
             generation_id = response_message.generation_id if response_message else None
 
             non_streamed_chat_response = NonStreamedChatResponse(
@@ -539,7 +506,7 @@ async def generate_chat_response(
                 documents=data.get("documents", []),
                 search_results=data.get("search_results", []),
                 event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
-                conversation_id=conversation_id,
+                conversation_id=ctx.get_conversation_id(),
                 tool_calls=data.get("tool_calls", []),
             )
 
@@ -550,9 +517,8 @@ async def generate_chat_stream(
     session: DBSessionDep,
     model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
-    conversation_id: str,
-    user_id: str,
     should_store: bool = True,
+    ctx: Context = Context(),
     **kwargs: Any,
 ) -> AsyncGenerator[Any, Any]:
     """
@@ -565,14 +531,18 @@ async def generate_chat_stream(
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
         should_store (bool): Whether to store the conversation in the database.
+        ctx (Context): Context object.
         **kwargs (Any): Additional keyword arguments.
 
     Yields:
         bytes: Byte representation of chat response event.
     """
+    conversation_id = ctx.get_conversation_id()
+    user_id = ctx.get_user_id()
+
     stream_end_data = {
         "conversation_id": conversation_id,
-        "response_id": response_message.id if response_message else None,
+        "response_id": ctx.get_trace_id(),
         "text": "",
         "citations": [],
         "documents": [],
@@ -643,8 +613,8 @@ def handle_stream_event(
     event_type = event["event_type"]
 
     if event_type not in handlers.keys():
-        logging.warning(
-            f"[Chat] Error handling stream event: Event type {event_type} not supported"
+        logger.warning(
+            event=f"[Chat] Error handling stream event: Event type {event_type} not supported"
         )
         return None, stream_end_data, response_message, document_ids_to_document
 

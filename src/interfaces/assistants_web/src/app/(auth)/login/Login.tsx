@@ -155,9 +155,10 @@ const Login: React.FC = () => {
             <Button
               disabled={loginStatus === 'pending' || !formState.isValid}
               label={loginStatus === 'pending' ? 'Logging in...' : 'Log in'}
-              type="submit"
+              buttonType="submit"
+              kind="cell"
+              iconPosition="end"
               className="mt-10 w-full self-center md:w-fit"
-              splitIcon="arrow-right"
             />
           </form>
 
@@ -169,7 +170,7 @@ const Login: React.FC = () => {
             <AuthLink
               redirect={redirect !== '/' ? redirect : undefined}
               action="register"
-              className="text-green-700 no-underline"
+              theme="evolved-green"
             />
           </Text>
         </>

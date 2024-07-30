@@ -1,11 +1,12 @@
 import asyncio
 import functools
-import logging
 
 import aiohttp
 
+from backend.services.logger.utils import get_logger
+
 TIMEOUT = aiohttp.ClientTimeout(total=120)
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 def sync_perform(id_to_urls: dict[str, str], access_token: str) -> dict[str, str]:
@@ -38,5 +39,5 @@ async def _download(
         async with session.get(url, headers=headers, timeout=TIMEOUT) as response:
             return {id: await response.text()}
     except Exception as e:
-        logger.error(f"[Async Download]: Error fetching url: {url}, {e}")
+        logger.error(event=f"[Async Download]: Error fetching url: {url}, {e}")
         return {}

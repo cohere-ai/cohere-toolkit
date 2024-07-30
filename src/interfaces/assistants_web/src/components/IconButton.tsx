@@ -1,9 +1,9 @@
 'use client';
 
 import { Placement } from '@floating-ui/react';
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributeAnchorTarget, ReactElement } from 'react';
 
-import { BasicButton, IconName, Target, Tooltip, Icon as _Icon } from '@/components/Shared';
+import { Button, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
@@ -16,12 +16,13 @@ type Props = {
   };
   size?: 'sm' | 'md';
   href?: string;
-  target?: Target;
-  shallow?: boolean;
+  target?: HTMLAttributeAnchorTarget;
   iconKind?: 'default' | 'outline';
   iconClassName?: string;
   disabled?: boolean;
   className?: string;
+  outline?: boolean;
+  animate?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
@@ -39,29 +40,25 @@ export const IconButton: React.FC<Props> = ({
   disabled,
   href,
   target,
+  outline = false,
+  animate = false,
   onClick,
 }) => {
-  const Icon = icon ? (
-    icon
-  ) : iconName ? (
-    <_Icon name={iconName} className={iconClassName} kind={iconKind} />
-  ) : null;
-
   const iconButton = (
-    <BasicButton
-      className={cn(
-        'group/icon-button h-8 w-8 p-0',
-        { 'h-8 w-8': size === 'md', 'h-7 w-7': size === 'sm' },
-        'rounded hover:bg-mushroom-900 dark:text-marble-800 dark:hover:bg-volcanic-200',
-        className
-      )}
-      startIcon={Icon}
-      size="lg"
-      kind="minimal"
+    <Button
+      kind={outline ? 'outline' : 'secondary'}
       disabled={disabled}
+      animate={animate}
       href={href}
-      target={target}
       onClick={onClick}
+      target={target}
+      icon={iconName}
+      iconOptions={{ kind: iconKind, className: iconClassName, customIcon: icon }}
+      className={cn(className, 'group/icon-button h-8 w-8 p-0', {
+        'h-8 w-8': size === 'md',
+        'h-7 w-7': size === 'sm',
+        'p-2': outline,
+      })}
     />
   );
 

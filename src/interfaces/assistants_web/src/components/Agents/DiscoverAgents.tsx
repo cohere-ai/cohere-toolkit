@@ -39,14 +39,14 @@ export const DiscoverAgents = () => {
             <Icon
               name="information"
               kind="outline"
-              className="text-volcanic-300 dark:text-mushroom-700"
+              className="fill-volcanic-300 dark:fill-mushroom-700"
             />
           </Tooltip>
         </div>
         <Button
           kind="secondary"
-          className="dark:[&_span]:text-evolved-green-700"
-          startIcon="add"
+          theme="evolved-green"
+          icon="add"
           label="Create Assistant"
           href="/new"
         />

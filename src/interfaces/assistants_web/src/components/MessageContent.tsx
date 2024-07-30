@@ -153,7 +153,7 @@ const MessageInfo = ({
       'text-danger-350': type === 'error',
     })}
   >
-    <Icon name="warning" size="md" className="flex items-center text-p" />
+    <Icon name="warning" size="sm" className="flex items-center" />
     <Text as="span">{children}</Text>
   </div>
 );

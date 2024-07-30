@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 @import url('./fonts.css');
-@import url('./icons.css');
 @import url('./globals.css');
 @import url('./code-style.css');
 

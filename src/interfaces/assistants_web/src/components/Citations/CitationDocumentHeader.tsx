@@ -144,7 +144,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
             <Icon
               name="arrow-up-right"
               className={cn('ml-1 hidden', 'transition-colors duration-200 ease-in-out', {
-                'text-mushroom-300': !isSelected,
+                'fill-mushroom-300': !isSelected,
                 'group-hover:block': safeUrl,
               })}
             />
@@ -155,7 +155,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
         <IconButton
           iconName="chevron-down"
           iconClassName={cn(
-            'text-coral-300 transition duration-200 delay-75 ease-in-out group-hover:text-coral-200',
+            'fill-coral-300 transition duration-200 delay-75 ease-in-out group-hover:fill-coral-200',
             'hidden lg:flex',
             {
               'rotate-180': isExpanded,

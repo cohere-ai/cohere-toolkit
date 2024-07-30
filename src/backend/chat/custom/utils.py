@@ -5,9 +5,10 @@ from backend.config.deployments import (
     get_default_deployment,
 )
 from backend.model_deployments.base import BaseDeployment
+from backend.schemas.context import Context
 
 
-def get_deployment(name, **kwargs: Any) -> BaseDeployment:
+def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
     """Get the deployment implementation.
 
     Args:
@@ -19,6 +20,7 @@ def get_deployment(name, **kwargs: Any) -> BaseDeployment:
     Raises:
         ValueError: If the deployment is not supported.
     """
+    kwargs["ctx"] = ctx
     deployment = AVAILABLE_MODEL_DEPLOYMENTS.get(name)
 
     # Check provided deployment against config const

@@ -14,6 +14,10 @@ const tabs = [
     <Icon name="users-three" kind="outline" />
     <Text>Connections</Text>
   </div>,
+  <div className="flex items-center gap-2" key="company">
+    <Icon name="sun" kind="outline" />
+    <Text>appearance</Text>
+  </div>,
   <div className="flex items-center gap-2" key="private">
     <Icon name="profile" kind="outline" />
     <Text>Profile</Text>
@@ -41,7 +45,7 @@ export const Settings = () => {
             <Icon
               name="information"
               kind="outline"
-              className="text-volcanic-300 dark:text-mushroom-700"
+              className="fill-volcanic-300 dark:fill-mushroom-700"
             />
           </Tooltip>
         </div>
@@ -57,6 +61,7 @@ export const Settings = () => {
           fitTabsContent
         >
           <Connections />
+          <Appearance />
           <Profile />
         </Tabs>
       </section>
@@ -82,6 +87,23 @@ const Connections = () => (
 const Profile = () => {
   return (
     <Wrapper>
+      <Button
+        label="Sign out"
+        href="/logout"
+        kind="secondary"
+        icon="sign-out"
+        theme="evolved-green"
+      />
+    </Wrapper>
+  );
+};
+
+const Appearance = () => {
+  return (
+    <Wrapper>
+      <Text styleAs="h5" className="mb-6">
+        Appearance
+      </Text>
       <DarkModeToggle />
     </Wrapper>
   );
@@ -122,28 +144,27 @@ const GoogleDriveConnection = () => {
             </div>
             <div className="flex items-center justify-between">
               <Button
-                className="dark:[&_span]:text-mushroom-950"
                 label="Sync now"
                 kind="secondary"
-                startIcon="redo"
+                icon="arrow-clockwise"
                 onClick={() => alert('not implemented')}
               />
               <Button
-                className="dark:[&_span]:text-danger-500"
                 label="Delete connection"
                 kind="secondary"
-                startIcon="trash"
+                icon="trash"
+                theme="danger"
                 onClick={() => alert('not implemented')}
               />
             </div>
           </div>
         ) : (
           <Button
-            className="dark:[&_span]:text-evolved-green-700"
             label="Authenticate"
             href={googleDriveTool.auth_url ?? ''}
             kind="secondary"
-            startIcon="arrow-up-right"
+            theme="evolved-green"
+            icon="arrow-up-right"
           />
         )}
       </section>
