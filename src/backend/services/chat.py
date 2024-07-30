@@ -779,12 +779,15 @@ def handle_stream_citation_generation(
             user_id=response_message.user_id,
             start=event_citation.get("start"),
             end=event_citation.get("end"),
-            document_ids=event_citation.get("document_ids"),
         )
-        for document_id in citation.document_ids:
+
+        document_ids = event_citation.get("document_ids")
+        for document_id in document_ids:
             document = document_ids_to_document.get(document_id, None)
             if document is not None:
                 citation.documents.append(document)
+
+        # Populates CitationDocuments table
         citations.append(citation)
     stream_event = StreamCitationGeneration(**event | {"citations": citations})
     stream_end_data["citations"].extend(citations)
