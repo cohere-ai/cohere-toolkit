@@ -68,7 +68,7 @@ export const AgentsList: React.FC = () => {
           ) : (
             <Tooltip label="Search" hover size="sm">
               <button onClick={() => setAgentsLeftSidePanelOpen(true)}>
-                <Icon name="search" kind="outline" className="dark:text-mushroom-950" />
+                <Icon name="search" kind="outline" className="dark:fill-marble-950" />
               </button>
             </Tooltip>
           )}
