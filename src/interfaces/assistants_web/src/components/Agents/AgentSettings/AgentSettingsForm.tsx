@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { CreateAgent } from '@/cohere-client';
+import { CreateAgent, ManagedTool } from '@/cohere-client';
 import { DataSourcesStep } from '@/components/Agents/AgentSettings/DataSourcesStep';
 import { DefineAssistantStep } from '@/components/Agents/AgentSettings/DefineStep';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
-import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { TOOL_GOOGLE_DRIVE_ID, TOOL_PYTHON_INTERPRETER_ID, TOOL_WEB_SEARCH_ID } from '@/constants';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
@@ -26,7 +26,7 @@ export type ASSISTANT_SETTINGS_FORM = {
   name: string;
   description?: string | null;
   instruction?: string | null;
-  tools: string[];
+  tools?: string[];
   dataSources: AgentDataSources;
 };
 
@@ -37,11 +37,11 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
       name: fields?.name ?? '',
       description: fields?.description,
       instruction: fields?.preamble,
-      tools: [],
     },
   });
   const { data: listToolsData } = useListTools();
   const dataSources = watch('dataSources');
+  const tools = watch('tools');
 
   return (
     <div className="flex flex-col space-y-6 p-8">
@@ -77,7 +77,12 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
         description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
         expanded={currentStep === 2}
       >
-        <div></div>
+        <ToolsStep
+          pythonTool={listToolsData?.find((t) => t.name === TOOL_PYTHON_INTERPRETER_ID)}
+          webSearchTool={listToolsData?.find((t) => t.name === TOOL_WEB_SEARCH_ID)}
+          activeTools={tools}
+          setActiveTools={(tools?: string[]) => setValue('tools', tools)}
+        />
       </CollapsibleSection>
     </div>
   );
