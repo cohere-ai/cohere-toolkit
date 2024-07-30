@@ -1,73 +1,41 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { ListFile } from '@/cohere-client';
-import { Banner, Button, Checkbox, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
-import { useFocusFileInput } from '@/hooks/actions';
+import { IconButton } from '@/components/IconButton';
+import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useDefaultFileLoaderTool, useFilesInConversation } from '@/hooks/files';
+import { useFileActions, useListFiles } from '@/hooks/files';
 import { useParamsStore } from '@/stores';
-import { cn, formatFileSize } from '@/utils';
-
-interface UploadedFile extends ListFile {
-  checked: boolean;
-}
 
 type Props = {};
 
 const RightPanel: React.FC<Props> = () => {
+  const [isPending, setIsPending] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   // TODO: (khalil) configure this to use Google drive files
   const [useAssistantKnowledge, setUseAssistantKnowledge] = useState(true);
-  const { agentId } = useChatRoutes();
+  const { agentId, conversationId } = useChatRoutes();
 
   const {
     params: { fileIds },
     setParams,
   } = useParamsStore();
 
-  const { isFileInputQueuedToFocus, focusFileInput } = useFocusFileInput();
-  const { files } = useFilesInConversation();
-  const { enableDefaultFileLoaderTool, disableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
+  const { data: files } = useListFiles(conversationId);
+  const { deleteFile } = useFileActions();
 
-  useEffect(() => {
-    if (isFileInputQueuedToFocus) {
-      focusFileInput();
+  const handleDeleteFile = async (fileId: string) => {
+    if (isPending || !conversationId) return;
+
+    setIsPending(true);
+    try {
+      await deleteFile({ conversationId, fileId });
+      setParams({ fileIds: (fileIds ?? []).filter((id) => id !== fileId) });
+    } finally {
+      setIsPending(false);
     }
-  }, [isFileInputQueuedToFocus]);
-
-  const uploadedFiles: UploadedFile[] = useMemo(() => {
-    if (!files) return [];
-
-    return files
-      .map((document: ListFile) => ({
-        ...document,
-        checked: (fileIds ?? []).some((id) => id === document.id),
-      }))
-      .sort(
-        (a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
-      );
-  }, [files, fileIds]);
-
-  const handleToggle = (fileId?: string) => {
-    if (!fileId) return;
-
-    let newFileIds: string[] = [];
-    if (fileIds?.some((id) => id === fileId)) {
-      newFileIds = fileIds.filter((id) => id !== fileId);
-    } else {
-      newFileIds = [...(fileIds ?? []), fileId];
-    }
-
-    if (newFileIds.length === 0) {
-      disableDefaultFileLoaderTool();
-    } else {
-      enableDefaultFileLoaderTool();
-    }
-
-    setParams({ fileIds: newFileIds });
   };
 
   return (
@@ -139,34 +107,30 @@ const RightPanel: React.FC<Props> = () => {
               label="To use uploaded files, at least 1 File Upload tool must be enabled"
             />
           </div>
-          {uploadedFiles.length > 0 && (
-            <div className="flex w-full flex-col gap-y-14 pb-2">
-              <div className="flex flex-col gap-y-4">
-                {uploadedFiles.map(({ file_name: name, file_size: size, id, checked }) => (
-                  <div key={id} className="group flex w-full flex-col gap-y-2">
-                    <div className="flex w-full items-center justify-between gap-x-2">
-                      <div className={cn('flex w-[60%] overflow-hidden lg:w-[70%]')}>
-                        <Checkbox
-                          checked={checked}
-                          onChange={() => handleToggle(id)}
-                          label={name}
-                          name={name}
-                          theme="evolved-green"
-                          className="w-full"
-                          labelClassName="ml-0 truncate w-full"
-                          labelSubContainerClassName="w-full"
-                          labelContainerClassName="w-full"
-                        />
-                      </div>
-                      <div className="flex h-5 w-32 grow items-center justify-end gap-x-1">
-                        <Text styleAs="caption" className="text-volcanic-400 dark:text-marble-800">
-                          {formatFileSize(size ?? 0)}
-                        </Text>
-                      </div>
+          {files && files.length > 0 && (
+            <div className="flex flex-col gap-y-4">
+              {files.map(({ file_name: name, id }) => (
+                <div
+                  key={id}
+                  className="group flex w-full flex-col gap-y-2 rounded-lg p-2 dark:hover:bg-volcanic-200"
+                >
+                  <div className="group flex w-full items-center justify-between gap-x-4">
+                    <div className="flex items-center gap-x-2 overflow-hidden">
+                      <Icon
+                        name="file"
+                        kind="outline"
+                        className="text-mushroom-300 dark:text-marble-950"
+                      />
+                      <Text className="truncate">{name}</Text>
                     </div>
+                    <IconButton
+                      onClick={() => handleDeleteFile(id)}
+                      iconName="close"
+                      className="hidden group-hover:flex"
+                    />
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
           <Text styleAs="caption" className="text-mushroom-300 dark:text-marble-800">
