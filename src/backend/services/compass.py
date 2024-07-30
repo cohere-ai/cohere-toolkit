@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from enum import Enum
 from typing import Any, Dict, List
@@ -13,8 +12,9 @@ from backend.compass_sdk import (
 from backend.compass_sdk.compass import CompassClient
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.parser import CompassParserClient
+from backend.services.logger.utils import get_logger
 
-logger = logging.getLogger()
+logger = get_logger()
 
 
 class Compass:
@@ -80,7 +80,7 @@ class Compass:
             )
             self.compass_client.list_indexes()
         except Exception as e:
-            logger.exception(f"[Compass] Error initializing Compass client: {e}")
+            logger.exception(event=f"[Compass] Error initializing Compass client: {e}")
             raise e
 
     def invoke(
@@ -142,8 +142,8 @@ class Compass:
                         f"[Compass] Error invoking Compass: Invalid action in parameters {parameters}"
                     )
         except Exception as e:
-            message = "[Compass] Error invoking Compass: {}".format(str(e))
-            logger.error(message)
+            message = f"[Compass] Error invoking Compass: {e}"
+            logger.error(event=message)
             raise Exception(message)
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
@@ -164,7 +164,7 @@ class Compass:
         )
         if error is not None:
             message = ("[Compass] Error inserting document: {error}",)
-            logger.error(message)
+            logger.error(event=message)
             raise Exception(message)
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
@@ -244,7 +244,7 @@ class Compass:
             "file_text", None
         ):
             logger.error(
-                f"[Compass] Error processing file: No filename or file_text specified in parameters {parameters}"
+                event=f"[Compass] Error processing file: No filename or file_text specified in parameters {parameters}"
             )
             return None
 
@@ -254,7 +254,7 @@ class Compass:
 
         if filename and not os.path.exists(filename):
             logger.error(
-                f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
+                event=f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
             )
             return None
 
@@ -283,8 +283,8 @@ class Compass:
         text_bytes = str.encode(text) if not bytes_content else text
         if len(text_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
-                f"[Compass] Error parsing file: Maximum file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "
-                f"mb for file_id {file_id}"
+                event=f"[Compass] Error parsing file: File Size is too large {len(text_bytes)}",
+                max_size=DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES,
             )
             return []
 
@@ -310,6 +310,6 @@ class Compass:
                 doc.content = {**doc.content, **additional_metadata}
         else:
             docs = []
-            logger.error(f"[Compass] Error processing file: {res.text}")
+            logger.error(event=f"[Compass] Error processing file: {res.text}")
 
         return docs
