@@ -3,7 +3,7 @@
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { Button, ButtonKind,  IconName, Tooltip } from '@/components/Shared';
+import { Button, ButtonKind, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type CopyToClipboardButtonProps = {
@@ -126,7 +126,7 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
           <IconButton
             aria-disabled={disabled}
             iconName={iconName}
-            iconKind={isCopied?'default':'outline'}
+            iconKind={isCopied ? 'default' : 'outline'}
             iconClassName={cn(
               'flex rounded p-2',
               'transition ease-in-out',
