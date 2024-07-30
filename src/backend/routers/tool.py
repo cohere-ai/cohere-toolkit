@@ -36,7 +36,8 @@ def list_tools(
     user_id = ctx.get_user_id()
 
     all_tools = AVAILABLE_TOOLS.values()
-    if agent_id:
+
+    if agent_id is not None:
         agent_tools = []
         agent = agent_crud.get_agent_by_id(session, agent_id)
 

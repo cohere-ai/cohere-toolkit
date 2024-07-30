@@ -117,7 +117,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
               kind="secondary"
               label={status === 'update-url-loading' ? 'Generating link' : 'Update link'}
               onClick={updateSnapshotUrl}
-              icon="redo"
+              icon="arrow-clockwise"
               iconPosition="end"
               isLoading={status === 'update-url-loading'}
               disabled={status === 'update-url-loading'}
