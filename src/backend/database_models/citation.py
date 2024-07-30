@@ -1,18 +1,19 @@
 from typing import List
 
-from sqlalchemy import Column, ForeignKey, Index, String, Table
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 from backend.database_models.document import Document
 
-citation_documents = Table(
-    "citation_documents",
-    Base.metadata,
-    Column("left_id", ForeignKey("documents.id", ondelete="CASCADE")),
-    Column("right_id", ForeignKey("citations.id", ondelete="CASCADE")),
-)
+
+class CitationDocuments(Base):
+    __tablename__ = "citation_documents"
+
+    left_id: Mapped[str] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"))
+    right_id: Mapped[str] = mapped_column(
+        ForeignKey("citations.id", ondelete="CASCADE")
+    )
 
 
 class Citation(Base):
@@ -28,9 +29,12 @@ class Citation(Base):
     message_id: Mapped[str] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE")
     )
-    document_ids: Mapped[List[str]] = mapped_column(ARRAY(String))
 
-    documents: Mapped[List[Document]] = relationship(secondary=citation_documents)
+    documents: Mapped[List[Document]] = relationship(secondary="citation_documents")
+
+    @property
+    def document_ids(self) -> List[str]:
+        return [document.document_id for document in self.documents]
 
     __table_args__ = (
         Index("citation_message_id_user_id", message_id, user_id),
