@@ -13,6 +13,8 @@ deployments:
     url:
 database:
   url:
+redis:
+  url:
 tools:
   enabled_tools:
   python_interpreter:
