@@ -2,9 +2,8 @@
 
 import React, { Children, PropsWithChildren } from 'react';
 
-import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
+import { AgentLeftPanel } from '@/components/Agents/AgentLeftPanel';
 import { MobileHeader } from '@/components/MobileHeader';
-import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
 import { cn } from '@/utils/cn';
 
 export const LeftSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
@@ -43,23 +42,17 @@ export const Layout: React.FC<Props> = ({ children }) => {
           )}
         >
           <MobileHeader />
-          <AgentsSidePanel className="hidden md:flex">{leftElement}</AgentsSidePanel>
+          <AgentLeftPanel className="hidden md:flex">{leftElement}</AgentLeftPanel>
           <section
-            className={cn(
-              'relative flex h-full min-w-0 flex-grow flex-col',
-              'rounded-lg border',
-              'border-marble-950 bg-marble-1000 dark:border-volcanic-100 dark:bg-volcanic-100',
-              'overflow-hidden'
-            )}
+            className={cn('relative flex h-full min-w-0 flex-grow flex-col', 'overflow-hidden')}
           >
             {mainElement}
           </section>
-          <SettingsDrawer />
         </div>
       </div>
-      <AgentsSidePanel className="rounded-bl-none rounded-tl-none md:hidden">
+      <AgentLeftPanel className="rounded-bl-none rounded-tl-none md:hidden">
         {leftElement}
-      </AgentsSidePanel>
+      </AgentLeftPanel>
     </>
   );
 };

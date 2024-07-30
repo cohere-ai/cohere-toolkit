@@ -15,6 +15,7 @@ from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
+from backend.schemas.context import Context
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
 from backend.services.auth.utils import (
@@ -22,7 +23,8 @@ from backend.services.auth.utils import (
     is_enabled_authentication_strategy,
 )
 from backend.services.cache import cache_get_dict
-from backend.services.logger import get_logger, send_log_message
+from backend.services.context import get_context
+from backend.services.logger.utils import get_logger
 
 logger = get_logger()
 
@@ -31,11 +33,14 @@ router.name = RouterName.AUTH
 
 
 @router.get("/auth_strategies", response_model=list[ListAuthStrategy])
-def get_strategies() -> list[ListAuthStrategy]:
+def get_strategies(
+    ctx: Context = Depends(get_context),
+) -> list[ListAuthStrategy]:
     """
     Retrieves the currently enabled list of Authentication strategies.
 
-
+    Args:
+        ctx (Context): Context object.
     Returns:
         List[dict]: List of dictionaries containing the enabled auth strategy names.
     """
@@ -66,15 +71,17 @@ def get_strategies() -> list[ListAuthStrategy]:
 
 
 @router.post("/login", response_model=Union[JWTResponse, None])
-async def login(request: Request, login: Login, session: DBSessionDep):
+async def login(
+    login: Login, session: DBSessionDep, ctx: Context = Depends(get_context)
+):
     """
     Logs user in, performing basic email/password auth.
     Verifies their credentials, retrieves the user and returns a JWT token.
 
     Args:
-        request (Request): current Request object.
         login (Login): Login payload.
         session (DBSessionDep): Database session.
+        ctx (Context): Context object.
 
     Returns:
         dict: JWT token on Basic auth success
@@ -85,13 +92,9 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy_name = login.strategy
     payload = login.payload
 
-    send_log_message(logger, "[Auth] Login request", "debug")
-
     if not is_enabled_authentication_strategy(strategy_name):
-        send_log_message(
-            logger,
-            f"[Auth] Invalid Authentication Strategy: {strategy_name}",
-            "debug",
+        logger.error(
+            event=f"[Auth] Error logging in: Invalid authentication strategy {strategy_name}",
         )
         raise HTTPException(
             status_code=422, detail=f"Invalid Authentication strategy: {strategy_name}."
@@ -102,10 +105,8 @@ async def login(request: Request, login: Login, session: DBSessionDep):
     strategy_payload = strategy.get_required_payload()
     if not set(strategy_payload).issubset(payload.keys()):
         missing_keys = [key for key in strategy_payload if key not in payload.keys()]
-        send_log_message(
-            logger,
-            f"Missing the following keys in the payload: {missing_keys}.",
-            "debug",
+        logger.error(
+            event=f"[Auth] Error logging in: Keys {missing_keys} missing from payload",
         )
         raise HTTPException(
             status_code=422,
@@ -114,8 +115,8 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
     user = strategy.login(session, payload)
     if not user:
-        send_log_message(
-            logger, f"Error logging user in: Strategy {strategy_name}", "debug"
+        logger.error(
+            event=f"[Auth] Error logging in: Invalid credentials in payload {payload}",
         )
         raise HTTPException(
             status_code=401,
@@ -129,7 +130,11 @@ async def login(request: Request, login: Login, session: DBSessionDep):
 
 @router.post("/{strategy}/auth", response_model=JWTResponse)
 async def authorize(
-    strategy: str, request: Request, session: DBSessionDep, code: str = None
+    strategy: str,
+    request: Request,
+    session: DBSessionDep,
+    code: str = None,
+    ctx: Context = Depends(get_context),
 ):
     """
     Callback authorization endpoint used for OAuth providers after authenticating on the provider's login screen.
@@ -138,6 +143,8 @@ async def authorize(
         strategy (str): Current strategy name.
         request (Request): Current Request object.
         session (Session): DB session.
+        code (str): OAuth code.
+        ctx (Context): Context object.
 
     Returns:
         dict: Containing "token" key, on success.
@@ -146,8 +153,8 @@ async def authorize(
         HTTPException: If authentication fails, or strategy is invalid.
     """
     if not code:
-        send_log_message(
-            logger, "[Auth] Error authorizing login: No code provided", "debug"
+        logger.error(
+            event="[Auth] Error authorizing login: No code provided",
         )
         raise HTTPException(
             status_code=400,
@@ -160,8 +167,8 @@ async def authorize(
             strategy_name = enabled_strategy_name
 
     if not strategy_name:
-        send_log_message(
-            logger, "[Auth] Error authorizing login: Invalid strategy", "debug"
+        logger.error(
+            event=f"[Auth] Error authorizing login: Invalid strategy {strategy_name}",
         )
         raise HTTPException(
             status_code=400,
@@ -169,9 +176,8 @@ async def authorize(
         )
 
     if not is_enabled_authentication_strategy(strategy_name):
-        send_log_message(
-            logger,
-            f"[Auth] Error authorizing login: Strategy {strategy_name} not enabled",
+        logger.error(
+            event=f"[Auth] Error authorizing login: Strategy {strategy_name} not enabled",
         )
         raise HTTPException(
             status_code=404, detail=f"Invalid Authentication strategy: {strategy_name}."
@@ -188,8 +194,8 @@ async def authorize(
         )
 
     if not userinfo:
-        send_log_message(
-            logger, f"[Auth] Error authorizing login: Invalid token {token}", "debug"
+        logger.error(
+            event=f"[Auth] Error authorizing login: Invalid token {token}",
         )
         raise HTTPException(
             status_code=401, detail=f"Could not get user from auth token: {token}."
@@ -208,12 +214,16 @@ async def logout(
     request: Request,
     session: DBSessionDep,
     token: dict | None = Depends(validate_authorization),
+    ctx: Context = Depends(get_context),
 ):
     """
     Logs out the current user, adding the given JWT token to the blacklist.
 
     Args:
         request (Request): current Request object.
+        session (DBSessionDep): Database session.
+        token (dict): JWT token payload.
+        ctx (Context): Context object.
 
     Returns:
         dict: Empty on success
@@ -227,7 +237,9 @@ async def logout(
 
 # NOTE: Tool Auth is experimental and in development
 @router.get("/tool/auth")
-async def login(request: Request, session: DBSessionDep):
+async def login(
+    request: Request, session: DBSessionDep, ctx: Context = Depends(get_context)
+):
     """
     Endpoint for Tool Authentication. Note: The flow is different from
     the regular login OAuth flow, the backend initiates it and redirects to the frontend
@@ -238,6 +250,7 @@ async def login(request: Request, session: DBSessionDep):
     Args:
         request (Request): current Request object.
         session (DBSessionDep): Database session.
+        ctx (Context): Context object.
 
     Returns:
         RedirectResponse: A redirect pointing to the frontend, contains an error query parameter if
@@ -255,7 +268,7 @@ async def login(request: Request, session: DBSessionDep):
         )
 
     def log_and_redirect_err(error_message: str):
-        logger.error(error_message)
+        logger.error(event=error_message)
         redirect_err = f"{redirect_uri}?error={quote(error_message)}"
         return RedirectResponse(redirect_err)
 

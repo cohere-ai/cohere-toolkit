@@ -1,12 +1,16 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
-import { ManagedTool, useCohereClient } from '@/cohere-client';
+import { Agent, ManagedTool, useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
+import { useDefaultFileLoaderTool } from '@/hooks/files';
 import { useNotify } from '@/hooks/toast';
+import { useFilesStore, useParamsStore } from '@/stores';
+import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
 export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
@@ -89,4 +93,51 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
       multiselect: true,
       callbackFunction: handleCallback,
     });
+};
+
+export const useAvailableTools = ({
+  agent,
+  managedTools,
+}: {
+  agent?: Agent;
+  managedTools?: ManagedTool[];
+}) => {
+  const requiredTools = agent?.tools;
+
+  const { params, setParams } = useParamsStore();
+  const { tools: paramTools } = params;
+  const enabledTools = paramTools ?? [];
+  const { defaultFileLoaderTool } = useDefaultFileLoaderTool();
+  const { clearComposerFiles } = useFilesStore();
+
+  const { unauthedTools } = useUnauthedTools();
+  const availableTools = useMemo(() => {
+    return (managedTools ?? []).filter(
+      (t) =>
+        t.is_visible &&
+        t.is_available &&
+        (!requiredTools || requiredTools.some((rt) => rt === t.name))
+    );
+  }, [managedTools, requiredTools]);
+
+  const handleToggle = (name: string, checked: boolean) => {
+    const newParams: Partial<ConfigurableParams> = {
+      tools: checked
+        ? [...enabledTools, { name }]
+        : enabledTools.filter((enabledTool) => enabledTool.name !== name),
+    };
+
+    if (name === defaultFileLoaderTool?.name) {
+      newParams.fileIds = [];
+      clearComposerFiles();
+    }
+
+    setParams(newParams);
+  };
+
+  return {
+    availableTools,
+    unauthedTools,
+    handleToggle,
+  };
 };

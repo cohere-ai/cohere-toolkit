@@ -1,59 +1,32 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 
-import {
-  DataSourceMenu,
-  Props as DataSourceMenuProps,
-} from '@/components/Conversation/Composer/DataSourceMenu';
-import { EnabledDataSources } from '@/components/Conversation/Composer/EnabledDataSources';
-import { IconButton } from '@/components/IconButton';
-import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { Agent, ManagedTool } from '@/cohere-client';
+import { DataSourceMenu } from '@/components/Conversation/Composer/DataSourceMenu';
+import { FilesMenu } from '@/components/Conversation/Composer/FilesMenu';
 import { cn } from '@/utils';
 
 type Props = {
-  isStreaming: boolean;
+  agent?: Agent;
+  tools?: ManagedTool[];
   onUploadFile: (files: File[]) => void;
-  onDataSourceMenuToggle: VoidFunction;
-  menuProps: DataSourceMenuProps;
 };
 
 /**
  * @description Renders the bottom toolbar of the composer that shows available and selected data sources.
  */
-export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, menuProps }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleOpenFileExplorer = () => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.click();
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onUploadFile([...(e.target.files ?? [])]);
-  };
-
+export const ComposerToolbar: React.FC<Props> = ({ agent, tools, onUploadFile }) => {
   return (
-    <div className={cn('flex items-center gap-x-2', 'border-t border-marble-950', 'mx-2 py-2')}>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={ACCEPTED_FILE_TYPES.join(',')}
-        className="hidden"
-        onChange={handleFileInputChange}
-      />
-      <IconButton
-        iconName="clip"
-        tooltip={{
-          label: 'Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .XSLS, .XLS, .DOCX Max 20 MB)',
-          size: 'sm',
-        }}
-        size="sm"
-        onClick={handleOpenFileExplorer}
-      />
-      <DataSourceMenu {...menuProps} />
-      <div className="h-7 w-px bg-marble-950" />
-      <EnabledDataSources isStreaming={isStreaming} />
+    <div
+      className={cn(
+        'flex items-center gap-x-2',
+        'border-t border-marble-950 dark:border-volcanic-300',
+        'mx-2 py-2'
+      )}
+    >
+      <FilesMenu onUploadFile={onUploadFile} />
+      <DataSourceMenu agent={agent} tools={tools} />
     </div>
   );
 };

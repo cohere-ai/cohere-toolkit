@@ -6,7 +6,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversations } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
-import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
 
@@ -35,14 +35,12 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
     ? pathname === `/a/${id}/c/${conversationId}`
     : pathname === `/a/${id}`;
 
-  const { setEditAgentPanelOpen } = useAgentsStore();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
   const { clearComposerFiles } = useFileActions();
 
   const resetConversationSettings = () => {
-    setEditAgentPanelOpen(false);
     clearComposerFiles();
     resetConversation();
     resetCitations();
@@ -80,15 +78,12 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
         <div
           className={cn(
             'flex size-8 flex-shrink-0 items-center justify-center rounded duration-300',
-            id && getCohereColor(id),
-            {
-              'bg-mushroom-700': isBaseAgent,
-            }
+            getCohereColor(id, { background: true, contrastText: true })
           )}
         >
-          {isBaseAgent && <CoralLogo style="secondary" />}
+          {isBaseAgent && <CoralLogo />}
           {!isBaseAgent && (
-            <Text className="uppercase text-white" styleAs="p-lg">
+            <Text className="uppercase" styleAs="p-lg">
               {name[0]}
             </Text>
           )}

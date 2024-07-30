@@ -1,12 +1,13 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
+from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool
-from backend.services.auth.utils import get_header_user_id
-from backend.services.logger import get_logger
+from backend.services.context import get_context
+from backend.services.logger.utils import get_logger
 
 logger = get_logger()
 
@@ -16,14 +17,24 @@ router.name = RouterName.TOOL
 
 @router.get("", response_model=list[ManagedTool])
 def list_tools(
-    request: Request, session: DBSessionDep, agent_id: str | None = None
+    request: Request,
+    session: DBSessionDep,
+    agent_id: str | None = None,
+    ctx: Context = Depends(get_context),
 ) -> list[ManagedTool]:
     """
     List all available tools.
 
+    Args:
+        request (Request): The request to validate
+        session (DBSessionDep): Database session.
+        agent_id (str): Agent ID.
+        ctx (Context): Context object.
     Returns:
         list[ManagedTool]: List of available tools.
     """
+    user_id = ctx.get_user_id()
+
     all_tools = AVAILABLE_TOOLS.values()
     if agent_id:
         agent_tools = []
@@ -39,7 +50,6 @@ def list_tools(
             agent_tools.append(AVAILABLE_TOOLS[tool])
         all_tools = agent_tools
 
-    user_id = get_header_user_id(request)
     for tool in all_tools:
         if tool.is_available and tool.auth_implementation is not None:
             try:
