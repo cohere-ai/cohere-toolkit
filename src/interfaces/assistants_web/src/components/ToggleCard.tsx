@@ -46,7 +46,7 @@ export const ToggleCard: React.FC<Props> = ({
                 name={icon}
                 kind="outline"
                 size="sm"
-                className="text-p text-mushroom-400 dark:text-marble-950"
+                className="fill-mushroom-400 dark:fill-marble-950"
               />
             </div>
             <Text styleAs="label" as="span" className="font-medium">
