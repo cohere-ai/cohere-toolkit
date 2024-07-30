@@ -12,6 +12,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.chat import generate_chat_response
 from backend.services.context import get_context
+from backend.services.logger.utils import logger
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
