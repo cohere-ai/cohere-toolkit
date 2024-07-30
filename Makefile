@@ -44,4 +44,4 @@ win-first-run:
 	make migrate
 	make dev
 start-sync:
-	watchmedo auto-restart --directory=src/backend --recursive -- celery -A backend.services.sync worker -P gevent --loglevel=INFO
+	@docker compose up --build sync

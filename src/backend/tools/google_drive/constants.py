@@ -28,7 +28,9 @@ NATIVE_EXTENSION_MAPPINGS = {
     "application/vnd.google-apps.presentation": "pptx",
 }
 SEARCH_MIME_TYPES = NATIVE_SEARCH_MIME_TYPES + NON_NATIVE_SEARCH_MIME_TYPES
-DOC_FIELDS = "id, name, mimeType, webViewLink, lastModifyingUser, modifiedTime, exportLinks, shortcutDetails, trashed, parents, fileExtension"
+DOC_FIELDS = (
+    "id, name, mimeType, webViewLink, exportLinks, shortcutDetails, trashed, parents, fileExtension, permissions"
+)
 
 GOOGLE_DRIVE_TOOL_ID = "google_drive"
 

@@ -91,7 +91,6 @@ def handle_google_drive_activity_event(
                 for file_id in file_ids
             ]
         case GoogleDriveActions.PERMISSION_CHANGE.value:
-            return
             [
                 permission_change.apply_async(
                     args=[file_id, index_name, user_id],

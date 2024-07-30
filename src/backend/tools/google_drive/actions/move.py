@@ -40,6 +40,14 @@ def move(file_id: str, index_name: str, user_id: str, **kwargs):
 
     # Delete file if moved out of agent's artifacts
     if delete:
+        logger.info("Initiating Compass create_index action for index {}".format(index_name))
+        env().COMPASS.invoke(
+            env().COMPASS.ValidActions.CREATE_INDEX,
+            {
+                "index": index_name,
+            },
+        )
+        logger.info("Finished Compass create_index action for index {}".format(index_name))
         logger.info("Initiating Compass move action for file_id {}".format(file_id))
         # Delete document
         env().COMPASS.invoke(

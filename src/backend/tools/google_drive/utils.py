@@ -170,6 +170,7 @@ def extract_file_extension(file: Dict[str, str]) -> str:
         # NOTE: Mean native file
         # ref. docs https://developers.google.com/drive/api/reference/rest/v3/files#File
         return NATIVE_EXTENSION_MAPPINGS[file["mimeType"]]
+    return extension
 
 
 def extract_title(file: Dict[str, str]) -> str:

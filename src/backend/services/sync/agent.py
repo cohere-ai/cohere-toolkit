@@ -8,7 +8,6 @@ from backend.tools.google_drive import (
 )
 
 
-# @app.task(time_limit=120)
 def sync_agent(agent_id: str):
     agent_tool_metadata = []
     session = db_sessionmaker()

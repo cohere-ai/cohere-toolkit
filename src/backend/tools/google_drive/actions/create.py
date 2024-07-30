@@ -67,6 +67,7 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
                     "url": web_view_link,
                     "title": title,
                     "last_updated": int(time.time()),
+                    "permissions": [],
                 },
             },
         )
