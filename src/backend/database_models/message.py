@@ -32,10 +32,10 @@ class Message(Base):
     generation_id: Mapped[str] = mapped_column(String, nullable=True)
     tool_plan: Mapped[str] = mapped_column(String, nullable=True)
 
-    documents: Mapped[List["Document"]] = relationship()
-    citations: Mapped[List["Citation"]] = relationship()
-    files: Mapped[List["File"]] = relationship()
-    tool_calls: Mapped[List["ToolCall"]] = relationship()
+    documents: Mapped[List[Document]] = relationship()
+    citations: Mapped[List[Citation]] = relationship()
+    files: Mapped[List[File]] = relationship()
+    tool_calls: Mapped[List[ToolCall]] = relationship()
 
     agent: Mapped[MessageAgent] = mapped_column(
         Enum(MessageAgent, native_enum=False),

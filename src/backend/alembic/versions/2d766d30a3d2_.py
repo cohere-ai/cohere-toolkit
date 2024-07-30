@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column("agent_id", sa.String(), nullable=False),
         sa.Column("tool_name", sa.Text(), nullable=False),
         sa.Column("type", sa.Text(), nullable=False),
-        sa.Column("artifacts", postgresql.ARRAY(sa.Text()), nullable=True),
+        sa.Column("artifacts", sa.JSON(), nullable=False),
         sa.Column("id", sa.String(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),

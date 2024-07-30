@@ -82,7 +82,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                       name={TOOL_ID_TO_DISPLAY_INFO[tool.name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
                       kind="outline"
                       size="sm"
-                      className="flex items-center"
+                      className="flex items-center fill-mushroom-300 dark:fill-marble-800"
                     />
                     <div className="absolute -bottom-0.5 -right-0.5  size-2 rounded-full bg-success-300" />
                   </div>
