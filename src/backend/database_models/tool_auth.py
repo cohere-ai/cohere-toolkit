@@ -19,6 +19,8 @@ class ToolAuth(Base):
 
     @property
     def access_token(self) -> str:
+        import pdb 
+        pdb.set_trace()
         return decrypt(self.encrypted_access_token)
 
     @property
