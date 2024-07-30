@@ -227,6 +227,16 @@ class DeploymentSettings(BaseSettings, BaseModel):
     bedrock: Optional[BedrockSettings]
 
 
+class LoggerSettings(BaseSettings, BaseModel):
+    model_config = setting_config
+    level: Optional[str] = Field(
+        default="INFO", validation_alias=AliasChoices("LOG_LEVEL", "level")
+    )
+    strategy: Optional[str] = Field(
+        default="structlog", validation_alias=AliasChoices("LOG_STRATEGY", "strategy")
+    )
+
+
 config_file = (
     "src/backend/config/configuration.yaml"
     if "pytest" not in sys.modules
@@ -251,6 +261,7 @@ class Settings(BaseSettings, case_sensitive=False):
     tools: Optional[ToolSettings]
     database: Optional[DatabaseSettings]
     deployments: Optional[DeploymentSettings]
+    logger: Optional[LoggerSettings]
 
     @classmethod
     def settings_customise_sources(

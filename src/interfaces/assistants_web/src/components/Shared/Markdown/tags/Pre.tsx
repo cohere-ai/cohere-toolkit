@@ -28,8 +28,12 @@ export const Pre: Component<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ c
         onClick={handleCopy}
         label={
           <div className="flex items-center gap-1">
-            {copied && <Text className="text-mushroom-300">Copied!</Text>}
-            <Icon name={copied ? 'checkmark' : 'copy'} className="fill-mushroom-300" />
+            {copied && <Text className="text-mushroom-300 dark:text-marble-950">Copied!</Text>}
+            <Icon
+              name={copied ? 'checkmark' : 'copy'}
+              size="md"
+              className="fill-mushroom-300 dark:fill-marble-950"
+            />
           </div>
         }
       />
