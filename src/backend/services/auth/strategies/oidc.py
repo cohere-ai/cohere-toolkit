@@ -1,5 +1,3 @@
-import logging
-
 import requests
 from authlib.integrations.requests_client import OAuth2Session
 from fastapi import HTTPException
@@ -7,6 +5,9 @@ from starlette.requests import Request
 
 from backend.config.settings import Settings
 from backend.services.auth.strategies.base import BaseOAuthStrategy
+from backend.services.logger.utils import get_logger
+
+logger = get_logger()
 
 
 class OpenIDConnect(BaseOAuthStrategy):
@@ -29,7 +30,9 @@ class OpenIDConnect(BaseOAuthStrategy):
                 client_secret=self.settings.client_secret,
             )
         except Exception as e:
-            logging.error(f"[OpenIDConnect] Error initializing OpenIDConnect: {str(e)}")
+            logger.error(
+                event=f"[OpenIDConnect] Error initializing OpenIDConnect: {str(e)}"
+            )
             raise
 
     def get_client_id(self):
@@ -53,8 +56,8 @@ class OpenIDConnect(BaseOAuthStrategy):
             self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
             self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
         except Exception as e:
-            logging.error(
-                f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
+            logger.error(
+                event=f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
             )
             raise
 

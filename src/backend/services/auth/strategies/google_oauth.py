@@ -1,11 +1,12 @@
-import logging
-
 import requests
 from authlib.integrations.requests_client import OAuth2Session
 from starlette.requests import Request
 
 from backend.config.settings import Settings
 from backend.services.auth.strategies.base import BaseOAuthStrategy
+from backend.services.logger.utils import get_logger
+
+logger = get_logger()
 
 
 class GoogleOAuth(BaseOAuthStrategy):
@@ -27,8 +28,8 @@ class GoogleOAuth(BaseOAuthStrategy):
                 client_secret=self.settings.client_secret,
             )
         except Exception as e:
-            logging.error(
-                f"[Google OAuth] Error during initializing of GoogleOAuth class: {str(e)}"
+            logger.error(
+                event=f"[Google OAuth] Error during initializing of GoogleOAuth class: {str(e)}"
             )
             raise
 
@@ -53,8 +54,8 @@ class GoogleOAuth(BaseOAuthStrategy):
             self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
             self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
         except Exception as e:
-            logging.error(
-                f"[Google OAuth] Error fetching endpoints: `token_endpoint`, `userinfo_endpoint` or `authorization_endpoint` not found in {endpoints}."
+            logger.error(
+                event=f"[Google OAuth] Error fetching endpoints: `token_endpoint`, `userinfo_endpoint` or `authorization_endpoint` not found in {endpoints}."
             )
             raise
 

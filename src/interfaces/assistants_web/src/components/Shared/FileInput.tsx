@@ -114,15 +114,15 @@ export const FileInput: React.FC<FileInputProps> = ({
             <Spinner className="my-0.5" />
           ) : file ? (
             <button
-              className="z-10 ml-4 text-volcanic-100 transition ease-in-out hover:text-danger-350"
+              className="z-10 ml-4 fill-volcanic-100 transition ease-in-out hover:fill-danger-350"
               type="button"
               onClick={handleRemoveFile}
             >
-              <Icon name="trash" size="md" kind="outline" />
+              <Icon name="trash" kind="outline" />
             </button>
           ) : (
-            <span className="ml-4 h-[21px] text-volcanic-100">
-              <Icon name="upload" size="md" />
+            <span className="ml-4 h-[21px] fill-volcanic-100">
+              <Icon name="upload" />
             </span>
           )}
         </div>

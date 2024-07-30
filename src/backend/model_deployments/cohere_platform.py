@@ -1,4 +1,3 @@
-import logging
 from typing import Any, Dict, List
 
 import cohere
@@ -10,7 +9,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from backend.services.logger import get_logger, send_log_message
+from backend.services.logger.utils import get_logger
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
@@ -51,8 +50,8 @@ class CohereDeployment(BaseDeployment):
         response = requests.get(url, headers=headers)
 
         if not response.ok:
-            logging.warning(
-                f"[Cohere Deployment] Error retrieving models: Invalid HTTP {response.status} response"
+            logger.warning(
+                event=f"[Cohere Deployment] Error retrieving models: Invalid HTTP {response.status} response",
             )
             return []
 
@@ -84,14 +83,13 @@ class CohereDeployment(BaseDeployment):
         )
 
         for event in stream:
-            send_log_message(
-                logger,
-                f"Chat event: {to_dict(event)}",
-                level="info",
+            event_dict = to_dict(event)
+            logger.debug(
+                event=f"Chat event",
+                **event_dict,
                 conversation_id=kwargs.get("conversation_id"),
-                user_id=ctx.get_user_id(),
             )
-            yield to_dict(event)
+            yield event_dict
 
     @collect_metrics_rerank
     async def invoke_rerank(
