@@ -159,7 +159,7 @@ class CustomChat(BaseChat):
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
                 chat_request.chat_history = self.add_files_to_chat_history(
                     chat_request.chat_history,
-                    kwargs.get("conversation_id"),
+                    ctx.get_conversation_id(),
                     kwargs.get("session"),
                     ctx.get_user_id(),
                 )

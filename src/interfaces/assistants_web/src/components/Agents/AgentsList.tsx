@@ -6,7 +6,6 @@ import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import { AgentCard } from '@/components/Agents/AgentCard';
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
-import { IconButton } from '@/components/IconButton';
 import { Icon, Text, Tooltip } from '@/components/Shared';
 import { InputSearch } from '@/components/Shared/InputSearch';
 import { useListAgents } from '@/hooks/agents';
@@ -28,8 +27,8 @@ export const AgentsList: React.FC = () => {
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
   const { data: agents = [] } = useListAgents();
   const {
-    agents: { isAgentsSidePanelOpen },
-    setAgentsSidePanelOpen,
+    agents: { isAgentsLeftPanelOpen },
+    setAgentsLeftSidePanelOpen,
   } = useAgentsStore();
   const recentAgents = useMemo(
     () =>
@@ -45,7 +44,7 @@ export const AgentsList: React.FC = () => {
       <div className="flex flex-col gap-8">
         <section
           className={cn('flex flex-col gap-2', {
-            hidden: !isAgentsSidePanelOpen,
+            hidden: !isAgentsLeftPanelOpen,
           })}
         >
           <Text styleAs="label" className="truncate dark:text-mushroom-800">
@@ -58,8 +57,8 @@ export const AgentsList: React.FC = () => {
             })}
           </div>
         </section>
-        <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsSidePanelOpen })}>
-          {isAgentsSidePanelOpen ? (
+        <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
+          {isAgentsLeftPanelOpen ? (
             <InputSearch
               placeholder="Search chat history"
               value={search}
@@ -68,7 +67,7 @@ export const AgentsList: React.FC = () => {
             />
           ) : (
             <Tooltip label="Search" hover size="sm">
-              <button onClick={() => setAgentsSidePanelOpen(true)}>
+              <button onClick={() => setAgentsLeftSidePanelOpen(true)}>
                 <Icon name="search" kind="outline" className="dark:text-mushroom-950" />
               </button>
             </Tooltip>
@@ -79,7 +78,7 @@ export const AgentsList: React.FC = () => {
         <Text
           styleAs="label"
           className={cn('truncate dark:text-mushroom-800', {
-            hidden: !isAgentsSidePanelOpen,
+            hidden: !isAgentsLeftPanelOpen,
           })}
         >
           Recent Chats
@@ -96,7 +95,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
 }) => {
   const { data: conversations, isLoading: isConversationsLoading, isError } = useConversations({});
   const {
-    agents: { isAgentsSidePanelOpen },
+    agents: { isAgentsLeftPanelOpen },
   } = useAgentsStore();
   const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
   const hasSearchQuery = search.length > 0;
@@ -118,7 +117,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     return <ConversationListLoading />;
   }
 
-  if (isError && isAgentsSidePanelOpen) {
+  if (isError && isAgentsLeftPanelOpen) {
     return (
       <span className="my-auto flex flex-col items-center gap-2 text-center">
         <Icon name="warning" />
@@ -127,7 +126,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     );
   }
 
-  if (hasSearchQuery && !hasSearchResults && isAgentsSidePanelOpen) {
+  if (hasSearchQuery && !hasSearchResults && isAgentsLeftPanelOpen) {
     return (
       <Text as="span" className="line-clamp-3">
         No results found for &quot;{search}&quot;.
@@ -135,7 +134,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     );
   }
 
-  if (!hasConversations && isAgentsSidePanelOpen) {
+  if (!hasConversations && isAgentsLeftPanelOpen) {
     return (
       <span className="flex h-full w-full items-center justify-center text-volcanic-500">
         <Text>It&apos;s quiet here... for now</Text>
@@ -149,7 +148,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
       showWeekHeadings={!hasSearchQuery}
       checkedConversations={checkedConversations}
       onCheckConversation={handleCheckConversationToggle}
-      className={cn('space-y-1', { 'space-y-2': !isAgentsSidePanelOpen })}
+      className={cn('space-y-1', { 'space-y-2': !isAgentsLeftPanelOpen })}
     />
   );
 };
