@@ -5,6 +5,7 @@ import { CreateAgent } from '@/cohere-client';
 import { DataSourcesStep } from '@/components/Agents/AgentSettings/DataSourcesStep';
 import { DefineAssistantStep } from '@/components/Agents/AgentSettings/DefineStep';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
+import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
@@ -17,13 +18,16 @@ type Props = {
   handleOpenFilePicker: VoidFunction;
 };
 
+export type AgentDataSources = {
+  googleDrive?: DataSourceArtifact[];
+  defaultUpload?: DataSourceArtifact[];
+};
 export type ASSISTANT_SETTINGS_FORM = {
   name: string;
   description?: string | null;
   instruction?: string | null;
   tools: string[];
-  googleDriveArtifacts?: DataSourceArtifact[];
-  fileUploadArtifacts?: DataSourceArtifact[];
+  dataSources: AgentDataSources;
 };
 
 export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOpenFilePicker }) => {
@@ -37,8 +41,7 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
     },
   });
   const { data: listToolsData } = useListTools();
-  const googleDriveArtifacts = watch('googleDriveArtifacts');
-  const fileUploadArtifacts = watch('fileUploadArtifacts');
+  const dataSources = watch('dataSources');
 
   return (
     <div className="flex flex-col space-y-6 p-8">
@@ -60,15 +63,11 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
         expanded={currentStep === 1}
       >
         <DataSourcesStep
-          googleDriveArtifacts={googleDriveArtifacts}
-          fileUploadArtifacts={fileUploadArtifacts}
-          tools={listToolsData}
-          setGoogleDriveArtifacts={(artifacts?: DataSourceArtifact[]) =>
-            setValue('googleDriveArtifacts', artifacts)
+          dataSources={dataSources}
+          googleDriveEnabled={
+            !!listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID)?.is_available
           }
-          setFileUploadArtifacts={(artifacts?: DataSourceArtifact[]) =>
-            setValue('fileUploadArtifacts', artifacts)
-          }
+          setDataSources={(val: AgentDataSources) => setValue('dataSources', val)}
         />
       </CollapsibleSection>
       {/* Step 3: Tools */}
@@ -78,7 +77,7 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
         description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
         expanded={currentStep === 2}
       >
-        <ToolsStep fields={getValues()} />
+        <div></div>
       </CollapsibleSection>
     </div>
   );

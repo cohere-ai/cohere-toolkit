@@ -1,27 +1,18 @@
-import { useMemo } from 'react';
-import { UseFormSetValue } from 'react-hook-form';
+import { useRef } from 'react';
 
 import { ManagedTool } from '@/cohere-client';
+import { AgentDataSources } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconName, Text } from '@/components/Shared';
-import { FILE_UPLOAD_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { useBatchUploadFile } from '@/hooks/files';
 import { useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
-type DataSourceState = {
-  name: string;
-  icon: IconName;
-  id: string;
-  artifacts: DataSourceArtifact[];
-  diabledButton?: string;
-};
-
 type Props = {
-  googleDriveArtifacts?: DataSourceArtifact[];
-  fileUploadArtifacts?: DataSourceArtifact[];
-  tools?: ManagedTool[];
-  setGoogleDriveArtifacts: (artifacts?: DataSourceArtifact[]) => void;
-  setFileUploadArtifacts: (artifacts?: DataSourceArtifact[]) => void;
+  dataSources: AgentDataSources;
+  googleDriveEnabled: boolean;
+  setDataSources: (sources: AgentDataSources) => void;
 };
 
 const isToolAvailable = (name: string | string[], tools?: ManagedTool[]) => {
@@ -29,28 +20,54 @@ const isToolAvailable = (name: string | string[], tools?: ManagedTool[]) => {
   const checkedTools = Array.isArray(name)
     ? tools.filter((t) => t.name && name.includes(t.name))
     : [tools.find((t) => t.name === name)];
-  return checkedTools.every(t => !!t?.is_available);
+  return checkedTools.every((t) => !!t?.is_available);
 };
 
 export const DataSourcesStep: React.FC<Props> = ({
-  googleDriveArtifacts,
-  fileUploadArtifacts,
-  tools,
-  setGoogleDriveArtifacts,
-  setFileUploadArtifacts,
+  dataSources,
+  googleDriveEnabled,
+  setDataSources,
 }) => {
-  const isGoogleDriveAvailable = isToolAvailable(TOOL_GOOGLE_DRIVE_ID, tools);
-  const isFileUploadAvailable = isToolAvailable(FILE_UPLOAD_TOOLS, tools);
+  const { mutateAsync: batchUploadFiles } = useBatchUploadFile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isGoogleDriveActive = googleDriveArtifacts && !!googleDriveArtifacts.length;
-  const isFileUploadActive = fileUploadArtifacts && !!fileUploadArtifacts.length;
+  const handleUpdateDataSources = ({
+    source,
+    artifacts,
+    removedId,
+  }: {
+    source: 'googleDrive' | 'defaultUpload';
+    artifacts?: DataSourceArtifact[];
+    removedId?: string;
+  }) => {
+    const updatedGoogleDrive =
+      source === 'googleDrive'
+        ? artifacts
+        : removedId
+        ? dataSources.googleDrive?.filter((f) => f.id !== removedId)
+        : dataSources.googleDrive;
+    const updatedDefaultUpload =
+      source === 'defaultUpload'
+        ? artifacts
+        : removedId
+        ? dataSources.defaultUpload?.filter((f) => f.id !== removedId)
+        : dataSources.defaultUpload;
 
-  const dataSourcesActive = isGoogleDriveActive || isFileUploadActive;
+    setDataSources({
+      ...(updatedGoogleDrive && !!updatedGoogleDrive.length
+        ? { googleDrive: updatedGoogleDrive }
+        : {}),
+      ...(updatedDefaultUpload && !!updatedDefaultUpload.length
+        ? { defaultUpload: updatedDefaultUpload }
+        : {}),
+    });
+  };
 
   const handleGoogleDriveFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
-      setGoogleDriveArtifacts(
-        data.docs.map(
+      handleUpdateDataSources({
+        source: 'googleDrive',
+        artifacts: data.docs.map(
           (doc) =>
             ({
               id: doc.id,
@@ -58,44 +75,61 @@ export const DataSourcesStep: React.FC<Props> = ({
               type: doc.type,
               url: doc.url,
             } as DataSourceArtifact)
-        )
-      );
+        ),
+      });
     }
   });
 
-  const handleRemoveGoogleDriveFile = (id: string) => {
-    setGoogleDriveArtifacts(googleDriveArtifacts?.filter((f) => f.id !== id));
+  const handleOpenFileExplorer = (callback: VoidFunction) => {
+    if (!fileInputRef.current) return;
+    fileInputRef.current.click();
+    callback();
   };
 
-  const handleFileUploadPicker = () => {};
-  const handleRemoveFileUploadFile = (id: string) => {
-    setFileUploadArtifacts(fileUploadArtifacts?.filter((f) => f.id !== id));
+  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFileIds = await batchUploadFiles({ files: [...(e.target.files ?? [])] });
+    if (!newFileIds) return;
+    handleUpdateDataSources({
+      source: 'defaultUpload',
+      artifacts: newFileIds.map(({ id, file_name }) => ({
+        id,
+        name: file_name,
+        type: 'file',
+      })),
+    });
   };
 
+  const hasActiveDataSources = dataSources.googleDrive?.length || dataSources.defaultUpload?.length;
   return (
     <div className="flex flex-col space-y-3">
-      {dataSourcesActive && <Text styleAs="label">Active Data Sources</Text>}
-      {isGoogleDriveAvailable && isGoogleDriveActive && (
+      {hasActiveDataSources && <Text styleAs="label">Active Data Sources</Text>}
+      {googleDriveEnabled && dataSources.googleDrive?.length && (
         <DataSourceFileList
           name="Google Drive"
           icon="google-drive"
-          artifacts={googleDriveArtifacts}
-          handleRemoveTool={() => setGoogleDriveArtifacts(undefined)}
-          handleRemoveFile={handleRemoveGoogleDriveFile}
+          artifacts={dataSources.googleDrive}
+          handleRemoveTool={() => handleUpdateDataSources({ source: 'googleDrive', artifacts: [] })}
+          handleRemoveFile={(removedId: string) =>
+            handleUpdateDataSources({ source: 'googleDrive', removedId })
+          }
         />
       )}
-      {isFileUploadAvailable && isFileUploadActive && (
+      {dataSources.defaultUpload?.length && (
         <DataSourceFileList
           name="Files"
           icon="desktop"
-          artifacts={fileUploadArtifacts}
-          handleRemoveTool={() => setGoogleDriveArtifacts(undefined)}
-          handleRemoveFile={handleRemoveFileUploadFile}
+          artifacts={dataSources.defaultUpload}
+          handleRemoveTool={() =>
+            handleUpdateDataSources({ source: 'defaultUpload', artifacts: [] })
+          }
+          handleRemoveFile={(removedId: string) =>
+            handleUpdateDataSources({ source: 'defaultUpload', removedId })
+          }
         />
       )}
-      <Text styleAs="label">Add {dataSourcesActive ? 'More' : ''} Data Sources</Text>
+      <Text styleAs="label">Add {hasActiveDataSources ? 'More' : ''} Data Sources</Text>
       <div className="flex space-x-4">
-        {isGoogleDriveAvailable && !isGoogleDriveActive && (
+        {googleDriveEnabled && !dataSources.googleDrive?.length && (
           <Button
             kind="outline"
             theme="mushroom"
@@ -104,14 +138,24 @@ export const DataSourcesStep: React.FC<Props> = ({
             onClick={handleGoogleDriveFilePicker}
           />
         )}
-        {isFileUploadAvailable && !isFileUploadActive && (
-          <Button
-            kind="outline"
-            theme="mushroom"
-            icon="desktop"
-            label="Upload Files"
-            onClick={handleFileUploadPicker}
-          />
+        {!dataSources.defaultUpload?.length && (
+          <>
+            <input
+              type="file"
+              accept={ACCEPTED_FILE_TYPES.join(',')}
+              className="hidden"
+              multiple
+              ref={fileInputRef}
+              onChange={handleFileInputChange}
+            />
+            <Button
+              kind="outline"
+              theme="mushroom"
+              icon="desktop"
+              label="Upload Files"
+              onClick={() => handleOpenFileExplorer(close)}
+            />
+          </>
         )}
       </div>
     </div>
