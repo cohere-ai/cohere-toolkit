@@ -26,5 +26,7 @@ def encrypt(value: str) -> bytes:
 
 def decrypt(encrypted_value: bytes) -> str:
     cipher = get_cipher()
-
-    return cipher.decrypt(encrypted_value).decode()
+    try:
+        return cipher.decrypt(encrypted_value)
+    except Exception as e:
+        return encrypted_value.decode()
