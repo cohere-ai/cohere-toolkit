@@ -9,14 +9,12 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
-
-logger = get_logger()
 
 
 class CohereDeployment(BaseDeployment):
@@ -87,7 +85,7 @@ class CohereDeployment(BaseDeployment):
             logger.debug(
                 event=f"Chat event",
                 **event_dict,
-                conversation_id=kwargs.get("conversation_id"),
+                conversation_id=ctx.conversation_id,
             )
             yield event_dict
 

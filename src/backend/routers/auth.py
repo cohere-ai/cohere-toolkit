@@ -23,9 +23,7 @@ from backend.services.auth.utils import (
     is_enabled_authentication_strategy,
 )
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH

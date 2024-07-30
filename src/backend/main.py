@@ -28,10 +28,8 @@ from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware
 from backend.services.logger.middleware import LoggingMiddleware
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.services.metrics import MetricsMiddleware
-
-logger = get_logger()
 
 load_dotenv()
 

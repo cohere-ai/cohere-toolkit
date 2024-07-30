@@ -14,9 +14,8 @@ from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Tool
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 
-logger = get_logger()
 MAX_STEPS = 15
 
 
