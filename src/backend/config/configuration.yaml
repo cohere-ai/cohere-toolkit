@@ -28,9 +28,6 @@ tools:
     - wikipedia
   python_interpreter:
     url: http://terrarium:8080
-  compass:
-    api_url:
-    parser_url:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false
@@ -44,3 +41,9 @@ auth:
 logger:
   log_level: INFO
   log_strategy:
+compass:
+  api_url:
+  parser_url: "${COHERE_COMPASS_API_URL}/parse"
+sync:
+  broker_url: "redis://:redis@redis:6379/0"
+  worker_concurrency: 4

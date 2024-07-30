@@ -139,7 +139,6 @@ class ToolSettings(BaseSettings, BaseModel):
     enabled_tools: Optional[List[str]]
 
     python_interpreter: Optional[PythonToolSettings]
-    compass: Optional[CompassSettings]
     web_search: Optional[WebSearchSettings]
     wolfram_alpha: Optional[WolframAlphaSettings]
     gdrive: Optional[GDriveSettings]
@@ -237,6 +236,17 @@ class LoggerSettings(BaseSettings, BaseModel):
     )
 
 
+class SyncSettings(BaseSettings, BaseModel):
+    model_config = setting_config
+    broker_url: Optional[str] = Field(
+        default="INFO", validation_alias=AliasChoices("BROKER_URL", "url")
+    )
+    worker_concurrency: Optional[int] = Field(
+        default="INFO",
+        validation_alias=AliasChoices("SYNC_WORKER_CONCURRENCY", "worker_concurrency"),
+    )
+
+
 config_file = (
     "src/backend/config/configuration.yaml"
     if "pytest" not in sys.modules
@@ -262,6 +272,8 @@ class Settings(BaseSettings, case_sensitive=False):
     database: Optional[DatabaseSettings]
     deployments: Optional[DeploymentSettings]
     logger: Optional[LoggerSettings]
+    compass: Optional[CompassSettings]
+    sync: Optional[SyncSettings]
 
     @classmethod
     def settings_customise_sources(

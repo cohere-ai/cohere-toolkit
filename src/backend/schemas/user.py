@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from backend.services.auth import BasicAuthentication
+from backend.services.auth.strategies import BasicAuthentication
 
 DEFAULT_USER_ID = "user-id"
 DEFAULT_USER_NAME = "Default User"

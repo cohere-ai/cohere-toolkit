@@ -1,9 +1,6 @@
 import datetime
-from typing import Optional
 
 from pydantic import BaseModel
-
-from backend.services.auth import BasicAuthentication
 
 
 class OrganizationBase(BaseModel):

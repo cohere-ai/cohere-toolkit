@@ -1,9 +1,5 @@
-from typing import Any
-
 import structlog
 
-from backend.schemas.context import Context
-from backend.services.context import get_context
 from backend.services.logger.strategies.base import BaseLogger
 
 
@@ -17,7 +13,7 @@ def log_context(func):
     return wrapper
 
 
-def get_context_log(ctx: Context) -> dict:
+def get_context_log(ctx) -> dict:
     """
     Remove private attributes from context and return a dictionary.
     """

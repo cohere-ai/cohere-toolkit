@@ -1,14 +1,12 @@
 from abc import abstractmethod
 from typing import Any
 
-from backend.schemas.context import Context
-
 
 class BaseLogger:
     """Base for all logger options."""
 
     @abstractmethod
-    def setup(self, ctx: Context, **kwargs: Any) -> Any: ...
+    def setup(self, ctx, **kwargs: Any) -> Any: ...
 
     @abstractmethod
     def info(self, msg: str | None, **kwargs: Any) -> Any: ...

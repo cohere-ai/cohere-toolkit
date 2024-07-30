@@ -49,3 +49,6 @@ auth:
   google_oauth:
   oidc:
 logger:
+sync:
+  broker_url: 'redis://:redis@redis:6379/0'
+  sync_worker_concurrency: 4
