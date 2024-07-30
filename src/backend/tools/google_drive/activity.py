@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 from backend.tools.google_drive.actions import (
     create,
     delete,
@@ -29,13 +29,8 @@ logger = get_logger()
 def handle_google_drive_activity_event(
     event_type: str, activity: Dict[str, str], agent_id: str, user_id: str, **kwargs
 ):
-    index_name = "{}_{}".format(
-        agent_id if agent_id is not None else user_id, GoogleDrive.NAME
-    )
-    (file_ids, titles) = (
-        _extract_file_ids_from_target(activity=activity)[key]
-        for key in ("file_ids", "titles")
-    )
+    index_name = "{}_{}".format(agent_id if agent_id is not None else user_id, GoogleDrive.NAME)
+    (file_ids, titles) = (_extract_file_ids_from_target(activity=activity)[key] for key in ("file_ids", "titles"))
     if not file_ids:
         return
 
@@ -107,9 +102,7 @@ def handle_google_drive_activity_event(
             raise Exception("This action is not tracked for Google Drive")
 
 
-def query_google_drive_activity(
-    session: Session, agent: Agent, agent_artifacts: List[Dict[str, str]]
-):
+def query_google_drive_activity(session: Session, agent: Agent, agent_artifacts: List[Dict[str, str]]):
     user_id = agent.user_id
     gdrive_auth = GoogleDriveAuth()
     agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
@@ -117,23 +110,15 @@ def query_google_drive_activity(
         raise Exception("Sync GDrive Error: No agent creator credentials found")
 
     if gdrive_auth.is_auth_required(session, user_id=user_id):
-        raise Exception(
-            "Sync GDrive Error: Agent creator credentials need to re-authenticate"
-        )
+        raise Exception("Sync GDrive Error: Agent creator credentials need to re-authenticate")
 
-    (service,) = (
-        get_service(api="driveactivity", version="v2", user_id=user_id)[key]
-        for key in ("service",)
-    )
+    (service,) = (get_service(api="driveactivity", version="v2", user_id=user_id)[key] for key in ("service",))
 
-    activity_ts_filter = get_current_timestamp_in_ms(
-        negative_offset=ACTIVITY_TRACKING_WINDOW
-    )
+    activity_ts_filter = get_current_timestamp_in_ms(negative_offset=ACTIVITY_TRACKING_WINDOW)
     activities = []
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
         futures_list = [
-            executor.submit(_get_activity, service, artifact, activity_ts_filter)
-            for artifact in agent_artifacts
+            executor.submit(_get_activity, service, artifact, activity_ts_filter) for artifact in agent_artifacts
         ]
         for future in futures.as_completed(futures_list):
             try:
@@ -141,10 +126,7 @@ def query_google_drive_activity(
             except Exception as e:
                 raise e
 
-    return {
-        agent_artifacts[index]["id"]: activities[index]
-        for index in range(len(activities))
-    }
+    return {agent_artifacts[index]["id"]: activities[index] for index in range(len(activities))}
 
 
 def _get_activity(
@@ -163,16 +145,8 @@ def _get_activity(
                     activity_ts_filter,
                     " ".join([e.value.upper() for e in GoogleDriveActions]),
                 ),
-                **(
-                    {"ancestorName": "items/{}".format(artifact_id)}
-                    if artifact_type == "folder"
-                    else {}
-                ),
-                **(
-                    {"itemName": "items/{}".format(artifact_id)}
-                    if artifact_type == "file"
-                    else {}
-                ),
+                **({"ancestorName": "items/{}".format(artifact_id)} if artifact_type == "folder" else {}),
+                **({"itemName": "items/{}".format(artifact_id)} if artifact_type == "file" else {}),
                 "pageToken": next_page_token,
                 "consolidationStrategy": {
                     "legacy": {},

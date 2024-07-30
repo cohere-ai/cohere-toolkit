@@ -5,7 +5,7 @@ import httpx
 from dotenv import load_dotenv
 
 from backend.services.compass import Compass
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 
 load_dotenv()
 

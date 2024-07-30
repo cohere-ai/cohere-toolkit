@@ -1,7 +1,7 @@
 from backend.config.tools import ToolName
 from backend.crud.agent import get_agent_by_id
 from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
-from backend.database_models.database import db_sessionmaker
+from backend.database_models.database import get_session
 from backend.tools.google_drive import (
     handle_google_drive_activity_event,
     query_google_drive_activity,
@@ -10,7 +10,7 @@ from backend.tools.google_drive import (
 
 def sync_agent(agent_id: str):
     agent_tool_metadata = []
-    session = db_sessionmaker()
+    session = next(get_session())
     agent = get_agent_by_id(session, agent_id)
     agent_tool_metadata = get_all_agent_tool_metadata_by_agent_id(session, agent_id)
     for metadata in agent_tool_metadata:
@@ -21,9 +21,7 @@ def sync_agent(agent_id: str):
                 )
                 for artifact_id, activity in activities.items():
                     for activity_item in activity:
-                        event_type = list(activity_item["primaryActionDetail"].keys())[
-                            0
-                        ]
+                        event_type = list(activity_item["primaryActionDetail"].keys())[0]
                         # NOTE: This is an unfortunate hack because the Google APi
                         # does not provide consistency over the request and response
                         # format of this action

@@ -1,6 +1,6 @@
 import time
 
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env

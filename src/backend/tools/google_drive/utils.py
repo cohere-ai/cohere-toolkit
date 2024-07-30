@@ -8,8 +8,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
-from backend.database_models.database import db_sessionmaker
-from backend.services.logger import get_logger
+from backend.database_models.database import get_session
+from backend.services.logger.utils import get_logger
 from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import (
     CSV_MIMETYPE,
@@ -30,17 +30,15 @@ def get_service(api: str, user_id: str, version: str = "v3"):
     gdrive_auth = GoogleDriveAuth()
     agent_creator_auth_token = None
 
-    with db_sessionmaker() as session, session.begin():
-        agent_creator_auth_token = gdrive_auth.get_token(
-            session=session, user_id=user_id
-        )
-        if agent_creator_auth_token is None:
-            raise Exception("Sync GDrive Error: No agent creator credentials found")
+    session = next(get_session())
+    agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
+    if agent_creator_auth_token is None:
+        raise Exception("Sync GDrive Error: No agent creator credentials found")
 
-        if gdrive_auth.is_auth_required(session, user_id=user_id):
-            raise Exception(
-                "Sync GDrive Error: Agent creator credentials need to re-authenticate"
-            )
+    if gdrive_auth.is_auth_required(session, user_id=user_id):
+        raise Exception(
+            "Sync GDrive Error: Agent creator credentials need to re-authenticate"
+        )
 
     creds = Credentials(agent_creator_auth_token)
     service = build(api, version, credentials=creds, cache_discovery=False)

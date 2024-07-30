@@ -3,7 +3,7 @@ from typing import Dict
 
 import httpx
 
-from backend.services.logger import get_logger
+from backend.services.logger.utils import get_logger
 
 logger = get_logger()
 
