@@ -240,19 +240,19 @@ If you did not change the default port, visit http://localhost:4000/ in your bro
 
 Use for configuring and adding new retrieval chains.
 
-Install your dependencies:
+Install your development dependencies:
 
 ```bash
-poetry install
+poetry install --with dev
 ```
 
-if you need to install the community features, run:
+If you also need to install the community features, run:
 
 ```bash
 poetry install --with community
 ```
 
-Run linters:
+To run linters, you can use `make lint` or separate commands:
 
 ```bash
 poetry run black .
