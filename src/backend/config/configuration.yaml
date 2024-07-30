@@ -17,6 +17,8 @@ deployments:
     url:
 database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
+redis:
+  url: redis://:redis@redis:6379
 tools:
   enabled_tools:
     - search_file
