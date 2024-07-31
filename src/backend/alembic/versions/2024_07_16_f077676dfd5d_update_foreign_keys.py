@@ -1,4 +1,4 @@
-"""empty message
+"""Update foreign keys
 
 Revision ID: f077676dfd5d
 Revises: a48691a80366

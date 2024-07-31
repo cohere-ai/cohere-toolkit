@@ -17,7 +17,7 @@ exec-backend:
 exec-db:
 	docker exec -ti cohere-toolkit-db-1 bash
 migration:
-	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate
+	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"
 migrate:
 	docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
 downgrade:

@@ -1,4 +1,4 @@
-"""empty message
+"""Add Agent Tool Metadata
 
 Revision ID: 2d766d30a3d2
 Revises: 52633db2dae9

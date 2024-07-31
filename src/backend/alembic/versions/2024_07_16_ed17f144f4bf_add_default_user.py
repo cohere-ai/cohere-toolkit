@@ -1,4 +1,4 @@
-"""empty message
+"""Insert default User
 
 Revision ID: ed17f144f4bf
 Revises: f077676dfd5d

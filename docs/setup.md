@@ -313,7 +313,7 @@ make run-tests
 When making changes to any of the database models, such as adding new tables, modifying or removing columns, you will need to create a new Alembic migration. You can use the following Make command:
 
 ```bash
-make migration
+make migration message="Your migration message"
 ```
 
 Important: If adding a new table, make sure to add the import to the `model/__init__.py` file! This will allow Alembic to import the models and generate migrations accordingly.

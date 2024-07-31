@@ -1,4 +1,4 @@
-"""empty message
+"""Updates to Agents table
 
 Revision ID: a9b07acef4e8
 Revises: f5819b10ef2a

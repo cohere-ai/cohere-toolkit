@@ -1,4 +1,4 @@
-"""empty message
+"""Adds hashed passwords for users
 
 Revision ID: b88f00283a27
 Revises: 2853273872ca

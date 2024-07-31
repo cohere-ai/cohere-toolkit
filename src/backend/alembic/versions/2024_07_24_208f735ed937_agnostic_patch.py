@@ -1,5 +1,4 @@
-"""empty message
-
+"""Patch to fix existing users after making past migrations DB agnostic
 Revision ID: 208f735ed937
 Revises: dc0d3f19222f
 Create Date: 2024-07-24 18:40:59.287003

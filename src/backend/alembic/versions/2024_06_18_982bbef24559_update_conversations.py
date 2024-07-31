@@ -1,4 +1,4 @@
-"""empty message
+"""Update conversations 
 
 Revision ID: 982bbef24559
 Revises: 3f207ae41477
