@@ -270,7 +270,7 @@ def test_create_agent_invalid_tool(
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
@@ -451,7 +451,7 @@ def test_get_nonexistent_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     response = session_client.get("/v1/agents/456", headers={"User-Id": user.id})
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
@@ -810,7 +810,7 @@ def test_update_nonexistent_agent(
     response = session_client.put(
         "/v1/agents/456", json=request_json, headers={"User-Id": user.id}
     )
-    assert response.status_code == 400
+    assert response.status_code == 40
     assert response.json() == {"detail": "Agent with ID 456 not found."}
 
 
@@ -854,7 +854,7 @@ def test_update_agent_invalid_model(
     response = session_client.put(
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
     )
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {
         "detail": "Model not a real model not found for deployment Cohere Platform."
     }
@@ -965,7 +965,7 @@ def test_update_agent_invalid_tool(
     response = session_client.put(
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
     )
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Tool not a real tool not found."}
 
 
@@ -1019,7 +1019,7 @@ def test_fail_delete_nonexistent_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     response = session_client.delete("/v1/agents/456", headers={"User-Id": user.id})
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Agent with ID 456 not found."}
 
 
@@ -1208,5 +1208,5 @@ def test_fail_delete_nonexistent_agent_tool_metadata(
     response = session_client.delete(
         "/v1/agents/456/tool-metadata/789", headers={"User-Id": user.id}
     )
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Agent tool metadata with ID 789 not found."}

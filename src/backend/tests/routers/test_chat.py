@@ -212,7 +212,7 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
         },
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {
         "detail": f"Conversation ID {conversation.id} not found for specified agent."
     }
@@ -237,7 +237,7 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
         },
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {
         "detail": f"Tool web_search not found in agent {agent.id}"
     }

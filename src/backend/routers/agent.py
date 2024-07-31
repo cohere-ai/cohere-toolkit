@@ -156,7 +156,7 @@ async def get_agent_by_id(
 
     if not agent:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Agent with ID: {agent_id} not found.",
         )
 
