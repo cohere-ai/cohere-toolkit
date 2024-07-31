@@ -63,6 +63,7 @@ class Context(BaseModel):
 
         if not user:
             user = user_crud.get_user(session, self.user_id)
+            user = User.model_validate(user)
 
         if user:
             self.metrics_user = MetricsUser(

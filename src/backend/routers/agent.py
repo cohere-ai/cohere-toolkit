@@ -88,8 +88,10 @@ async def create_agent(
 
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
-        ctx.with_agent(created_agent)
-        ctx.with_metrics_agent(agent_to_metrics_agent(created_agent))
+
+        agent_schema = Agent.model_validate(created_agent)
+        ctx.with_agent(agent_schema)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
 
         if agent.tools_metadata:
             for tool_metadata in agent.tools_metadata:
@@ -149,7 +151,9 @@ async def get_agent_by_id(
 
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -202,7 +206,8 @@ async def update_agent(
 
     try:
         agent = agent_crud.update_agent(session, agent, new_agent)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -298,7 +303,8 @@ async def delete_agent(
     """
     ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
     agent = validate_agent_exists(session, agent_id)
-    ctx.with_agent(agent)
+    agent_schema = Agent.model_validate(agent)
+    ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
     try:
@@ -365,7 +371,8 @@ def create_agent_tool_metadata(
     """
     user_id = ctx.get_user_id()
     agent = validate_agent_exists(session, agent_id)
-    ctx.with_agent(agent)
+    agent_schema = Agent.model_validate(agent)
+    ctx.with_agent(agent_schema)
 
     agent_tool_metadata_data = AgentToolMetadataModel(
         user_id=user_id,
@@ -380,7 +387,9 @@ def create_agent_tool_metadata(
                 session, agent_tool_metadata_data
             )
         )
-        ctx.with_agent_tool_metadata(created_agent_tool_metadata)
+
+        metadata_schema = AgentToolMetadata.model_validate(created_agent_tool_metadata)
+        ctx.with_agent_tool_metadata(metadata_schema)
     except Exception as e:
         raise_db_error(e, "Tool name", agent_tool_metadata.tool_name)
 
@@ -420,7 +429,8 @@ async def update_agent_tool_metadata(
         agent_tool_metadata_crud.update_agent_tool_metadata(
             session, agent_tool_metadata, new_agent_tool_metadata
         )
-        ctx.with_agent_tool_metadata(agent_tool_metadata)
+        metadata_schema = AgentToolMetadata.model_validate(agent_tool_metadata)
+        ctx.with_agent_tool_metadata(metadata_schema)
     except Exception as e:
         raise_db_error(e, "Tool name", agent_tool_metadata.tool_name)
 
@@ -454,7 +464,8 @@ async def delete_agent_tool_metadata(
         session, agent_tool_metadata_id
     )
 
-    ctx.with_agent_tool_metadata(agent_tool_metadata)
+    metadata_schema = AgentToolMetadata.model_validate(agent_tool_metadata)
+    ctx.with_agent_tool_metadata(metadata_schema)
     try:
         agent_tool_metadata_crud.delete_agent_tool_metadata_by_id(
             session, agent_tool_metadata_id
