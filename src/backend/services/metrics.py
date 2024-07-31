@@ -25,7 +25,7 @@ from backend.schemas.metrics import (
     MetricsSignal,
 )
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -35,8 +35,6 @@ HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
 # TODO: fix this hack eventually
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
-
-logger = get_logger()
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):

@@ -4,9 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -15,6 +13,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
 
         ctx = get_context(request)
+
+        # Bind context to logger
+        logger.bind(
+            user_id=ctx.get_user_id(),
+            trace_id=ctx.get_trace_id(),
+            ctx=ctx,
+        )
 
         logger.info(
             event="Request",

@@ -17,6 +17,7 @@ from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
 from backend.services.context import get_context
 from backend.services.file import attach_conversation_id_to_files, get_file_service
+from backend.services.logger.utils import logger
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -215,7 +216,7 @@ async def generate_conversation_title(
     session: DBSessionDep,
     conversation: ConversationModel,
     agent_id: str,
-    ctx: Context = Depends(get_context),
+    ctx: Context,
 ):
     """Generate a title for a conversation
 

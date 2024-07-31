@@ -24,9 +24,7 @@ from backend.services.auth.utils import (
 )
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -195,10 +193,10 @@ async def authorize(
 
     if not userinfo:
         logger.error(
-            event=f"[Auth] Error authorizing login: Invalid token {token}",
+            event="[Auth] Error authorizing login: Invalid token",
         )
         raise HTTPException(
-            status_code=401, detail=f"Could not get user from auth token: {token}."
+            status_code=401, detail="Could not get user from auth token."
         )
 
     # Get or create user, then set session user

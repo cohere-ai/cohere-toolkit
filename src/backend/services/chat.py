@@ -54,9 +54,7 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 
 def process_chat(

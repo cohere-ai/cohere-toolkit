@@ -240,6 +240,9 @@ class LoggerSettings(BaseSettings, BaseModel):
     strategy: Optional[str] = Field(
         default="structlog", validation_alias=AliasChoices("LOG_STRATEGY", "strategy")
     )
+    renderer: Optional[str] = Field(
+        default="json", validation_alias=AliasChoices("LOG_RENDERER", "renderer")
+    )
 
 
 config_file = (
