@@ -4,7 +4,9 @@ from typing import Any
 from redis import Redis
 
 from backend.config.settings import Settings
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 def get_client() -> Redis:
