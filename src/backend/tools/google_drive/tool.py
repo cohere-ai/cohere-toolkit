@@ -182,7 +182,7 @@ class GoogleDrive(BaseTool):
             return [
                 {
                     "text": id_to_texts[idd],
-                    "url": id_to_urls.get(idd, ""),
+                    "url": web_view_links.get(idd, ""),
                     "title": titles.get(idd, ""),
                 }
                 for idd in id_to_texts
