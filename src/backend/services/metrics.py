@@ -4,7 +4,7 @@ import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict
 
 from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport

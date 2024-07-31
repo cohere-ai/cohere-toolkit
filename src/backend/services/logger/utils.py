@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 from backend.config.settings import Settings
 from backend.services.logger.strategies.structured_log import StructuredLogging
