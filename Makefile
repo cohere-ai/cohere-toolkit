@@ -7,7 +7,7 @@ up:
 down:
 	@docker compose down
 run-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/$(file) -vv
+	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
 attach: 
