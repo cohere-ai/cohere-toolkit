@@ -3,6 +3,7 @@
 import { Transition } from '@headlessui/react';
 import { useMemo, useState } from 'react';
 
+import { CitationsTab } from '@/components/Agents/CitationsTab';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -84,6 +85,8 @@ const AgentRightPanel: React.FC<Props> = () => {
         </span>,
       ]}
       tabGroupClassName="h-full"
+      tabPanelClassName="h-full"
+      panelsClassName="h-full"
       kind="blue"
     >
       <div className="flex flex-col gap-y-10">
@@ -196,7 +199,7 @@ const AgentRightPanel: React.FC<Props> = () => {
           </Text>
         </section>
       </div>
-      <div>Citations</div>
+      <CitationsTab />
     </Tabs>
   );
 };
