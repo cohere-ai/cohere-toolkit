@@ -6,7 +6,6 @@ from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment, UpdateDeploymentEnv
 from backend.services.context import get_context
 from backend.services.env import update_env_file
-from backend.services.logger.utils import logger
 from backend.services.request_validators import validate_env_vars
 
 router = APIRouter(
@@ -28,6 +27,8 @@ def list_deployments(
     Returns:
         list[Deployment]: List of available deployment options.
     """
+    logger = ctx.get_logger()
+
     available_deployments = [
         deployment
         for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()

@@ -41,6 +41,8 @@ class ContextMiddleware:
         agent_id = request.headers.get("Agent-Id")
         context.with_agent_id(agent_id)
 
+        context.with_logger()
+
         # Set the context on the scope
         scope["context"] = context
 
@@ -51,7 +53,7 @@ class ContextMiddleware:
 
 
 def get_context_from_scope(scope: Scope) -> Context:
-    return scope.get("context") or Context()
+    return scope.get("context")
 
 
 def get_context(request: Request) -> Context:

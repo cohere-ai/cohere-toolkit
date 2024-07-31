@@ -1,5 +1,5 @@
 import time
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import Request
 from pydantic import BaseModel, Field
@@ -9,6 +9,7 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.schemas.metrics import MetricsAgent, MetricsMessageType, MetricsUser
 from backend.schemas.user import User
+from backend.services.logger.utils import LoggerFactory
 from backend.services.utils import get_deployment_config
 
 
@@ -28,6 +29,7 @@ class Context(BaseModel):
     conversation_id: Optional[str] = None
     agent_id: Optional[str] = None
     stream_start_ms: Optional[float] = None
+    logger: Optional[Any] = None
 
     # Metrics
     metrics_user: Optional[MetricsUser] = None
@@ -41,6 +43,12 @@ class Context(BaseModel):
 
     def set_receive(self, receive):
         self.receive = receive
+
+    def with_logger(self):
+        logger = LoggerFactory().get_logger()
+        logger.bind(trace_id=self.trace_id, user_id=self.user_id)
+        self.logger = logger
+        return self
 
     def with_trace_id(self, trace_id: str):
         self.trace_id = trace_id
@@ -149,3 +157,6 @@ class Context(BaseModel):
 
     def get_agent_id(self):
         return self.agent_id
+
+    def get_logger(self):
+        return self.logger

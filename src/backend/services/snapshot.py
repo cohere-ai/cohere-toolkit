@@ -12,9 +12,9 @@ from backend.database_models import SnapshotLink as SnapshotLinkModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentToolMetadata
+from backend.schemas.context import Context
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
-from backend.services.logger.utils import logger
 
 SNAPSHOT_VERSION = 1
 
@@ -43,15 +43,6 @@ def validate_snapshot_link(session: DBSessionDep, link_id: str) -> SnapshotLinkM
         raise HTTPException(status_code=404, detail="Snapshot not found")
 
     return snapshot
-
-
-def create_conversation_dict(conversation: ConversationModel) -> dict[str, Any]:
-    try:
-        conversation_schema = Conversation.model_validate(conversation)
-        return to_dict(conversation_schema)
-    except Exception as e:
-        logger.error(event=f"[Snapshot] Error creating conversation dict: {e}")
-        raise HTTPException(status_code=500, detail=f"Error creating snapshot - {e}")
 
 
 def wrap_create_snapshot_link(
@@ -100,8 +91,14 @@ def wrap_create_snapshot(
 
 
 def wrap_create_snapshot_access(
-    session: DBSessionDep, snapshot_id: str, user_id: str, link_id: str
+    session: DBSessionDep,
+    snapshot_id: str,
+    user_id: str,
+    link_id: str,
+    ctx: Context,
 ) -> SnapshotAccessModel:
+    logger = ctx.get_logger()
+
     try:
         snapshot_access = SnapshotAccessModel(
             user_id=user_id, snapshot_id=snapshot_id, link_id=link_id

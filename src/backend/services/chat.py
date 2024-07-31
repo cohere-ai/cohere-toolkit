@@ -51,14 +51,13 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.context import get_context
 from backend.services.generators import AsyncGeneratorContextManager
-from backend.services.logger.utils import logger
 
 
 def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,
     request: Request,
-    ctx: Context = Context(),
+    ctx: Context,
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -568,6 +567,7 @@ async def generate_chat_stream(
             conversation_id,
             stream_end_data,
             response_message,
+            ctx,
             document_ids_to_document,
             session=session,
             should_store=should_store,
@@ -595,12 +595,15 @@ def handle_stream_event(
     conversation_id: str,
     stream_end_data: dict[str, Any],
     response_message: Message,
+    ctx: Context,
     document_ids_to_document: dict[str, Document] = {},
     session: DBSessionDep = None,
     should_store: bool = True,
     user_id: str = "",
     next_message_position: int = 0,
 ) -> tuple[StreamEventType, dict[str, Any], Message, dict[str, Document]]:
+    logger = ctx.get_logger()
+
     handlers = {
         StreamEvent.STREAM_START: handle_stream_start,
         StreamEvent.TEXT_GENERATION: handle_stream_text_generation,

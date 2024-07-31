@@ -15,7 +15,9 @@ from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
 from backend.model_deployments.sagemaker import SAGE_MAKER_ENV_VARS
 from backend.model_deployments.single_container import SC_ENV_VARS
 from backend.schemas.deployment import Deployment
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 class ModelDeploymentName(StrEnum):

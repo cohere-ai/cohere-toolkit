@@ -4,7 +4,7 @@ from typing import Any, AsyncGenerator, Dict, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import rerank_and_chunk
+from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
@@ -14,7 +14,6 @@ from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Tool
-from backend.services.logger.utils import logger
 
 MAX_STEPS = 15
 
@@ -39,13 +38,14 @@ class CustomChat(BaseChat):
         Returns:
             Generator[StreamResponse, None, None]: Chat response.
         """
+        logger = ctx.get_logger()
         # Choose the deployment model - validation already performed by request validator
         deployment_name = ctx.get_deployment_name()
         deployment_model = get_deployment(deployment_name, ctx)
 
         # Bind the logger with the conversation ID
         logger.debug(
-            event=f"[Custom Chat] Using deployment: {deployment_model.__class__.__name__}"
+            event=f"[Custom Chat] Using deployment: {deployment_model.__class__.__name__}",
         )
 
         if len(chat_request.tools) > 0 and len(chat_request.documents) > 0:
@@ -56,29 +56,27 @@ class CustomChat(BaseChat):
         self.chat_request = chat_request
         self.is_first_start = True
 
-        try:
-            stream = self.call_chat(self.chat_request, deployment_model, ctx, **kwargs)
+        # try:
+        stream = self.call_chat(self.chat_request, deployment_model, ctx, **kwargs)
 
-            async for event in stream:
-                result = self.handle_event(event, chat_request)
+        async for event in stream:
+            result = self.handle_event(event, chat_request)
 
-                if result:
-                    yield result
+            if result:
+                yield result
 
-                if event[
-                    "event_type"
-                ] == StreamEvent.STREAM_END and self.is_final_event(
-                    event, chat_request
-                ):
-                    logger.debug(event=f"Final event: {event}")
-                    break
-        except Exception as e:
-            yield {
-                "event_type": StreamEvent.STREAM_END,
-                "finish_reason": "ERROR",
-                "error": str(e),
-                "status_code": 500,
-            }
+            if event["event_type"] == StreamEvent.STREAM_END and self.is_final_event(
+                event, chat_request
+            ):
+                logger.debug(event=f"Final event: {event}")
+                break
+        # except Exception as e:
+        #     yield {
+        #         "event_type": StreamEvent.STREAM_END,
+        #         "finish_reason": "ERROR",
+        #         "error": str(e),
+        #         "status_code": 500,
+        #     }
 
     def is_final_event(
         self, event: Dict[str, Any], chat_request: CohereChatRequest
@@ -136,6 +134,7 @@ class CustomChat(BaseChat):
         ctx: Context,
         **kwargs: Any,
     ):
+        logger = ctx.get_logger()
         managed_tools = self.get_managed_tools(chat_request)
 
         tool_names = []
@@ -219,6 +218,8 @@ class CustomChat(BaseChat):
         ctx: Context,
         **kwargs: Any,
     ):
+        logger = ctx.get_logger()
+
         tool_results = []
         if "tool_calls" not in chat_history[-1]:
             return tool_results
@@ -239,6 +240,7 @@ class CustomChat(BaseChat):
 
             outputs = await tool.implementation().call(
                 parameters=tool_call.get("parameters"),
+                ctx=ctx,
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=ctx.get_user_id(),

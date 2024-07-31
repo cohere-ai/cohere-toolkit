@@ -12,7 +12,9 @@ from backend.compass_sdk import (
 from backend.compass_sdk.compass import CompassClient
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.parser import CompassParserClient
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 class Compass:

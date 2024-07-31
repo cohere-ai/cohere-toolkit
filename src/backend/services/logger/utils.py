@@ -15,15 +15,10 @@ class LoggerFactory:
             return self.logger
 
         strategy = Settings().logger.strategy
-        level_str = Settings().logger.level
+        level = Settings().logger.level
         renderer = Settings().logger.renderer
-
-        level = getattr(logging, level_str.upper(), None)
 
         if strategy == "structlog":
             return StructuredLogging(level, renderer)
         else:
             raise ValueError(f"Invalid logger strategy: {strategy}")
-
-
-logger = LoggerFactory().get_logger()

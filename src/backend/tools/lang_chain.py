@@ -35,7 +35,9 @@ class LangChainWikiRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         wiki_retriever = WikipediaRetriever()
         query = parameters.get("query", "")
         docs = wiki_retriever.get_relevant_documents(query)
@@ -69,7 +71,9 @@ class LangChainVectorDBRetriever(BaseTool):
     def is_available(cls) -> bool:
         return cls.COHERE_API_KEY is not None
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         cohere_embeddings = CohereEmbeddings(cohere_api_key=self.COHERE_API_KEY)
 
         # Load text files and split into chunks

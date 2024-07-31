@@ -45,7 +45,6 @@ from backend.services.file import (
     validate_file,
     validate_file_size,
 )
-from backend.services.logger.utils import logger
 
 router = APIRouter(
     prefix="/v1/conversations",

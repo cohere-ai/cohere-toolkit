@@ -22,7 +22,9 @@ class TavilyInternetSearch(BaseTool):
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
         result = self.client.search(
             query=query, search_depth="advanced", include_raw_content=True
@@ -51,7 +53,7 @@ class TavilyInternetSearch(BaseTool):
                     expanded.append(new_result)
 
         reranked_results = await self.rerank_page_snippets(
-            query, expanded, model=kwargs.get("model_deployment"), **kwargs
+            query, expanded, model=kwargs.get("model_deployment"), ctx=ctx, **kwargs
         )
 
         return [
@@ -64,6 +66,7 @@ class TavilyInternetSearch(BaseTool):
         query: str,
         snippets: List[Dict[str, Any]],
         model: BaseDeployment,
+        ctx: Any,
         **kwargs: Any,
     ) -> List[Dict[str, Any]]:
         if len(snippets) == 0:
@@ -79,8 +82,7 @@ class TavilyInternetSearch(BaseTool):
                     f"{snippet['title']} {snippet['content']}"
                     for snippet in snippet_batch
                 ],
-                ctx=None,
-                **kwargs,
+                ctx=ctx,
             )
             for b in batch_output.get("results", []):
                 index = b.get("index", None)

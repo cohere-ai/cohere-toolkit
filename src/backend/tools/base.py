@@ -39,7 +39,9 @@ class BaseTool:
         pass
 
     @abstractmethod
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]: ...
 
 
 class BaseToolAuthentication:
