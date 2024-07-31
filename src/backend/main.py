@@ -23,6 +23,7 @@ from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
+from backend.routers.organization import router as organization_router
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
@@ -53,6 +54,7 @@ def create_app():
         agent_router,
         default_agent_router,
         snapshot_router,
+        organization_router,
     ]
 
     # Dynamically set router dependencies

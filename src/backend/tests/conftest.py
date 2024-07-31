@@ -13,6 +13,7 @@ from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploym
 from backend.database_models import get_session
 from backend.main import app, create_app
 from backend.schemas.deployment import Deployment
+from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.factories import get_factory
 
@@ -147,6 +148,11 @@ def session_client_chat(session_chat: Session) -> Generator[TestClient, None, No
 @pytest.fixture
 def user(session: Session) -> User:
     return get_factory("User", session).create(id="1")
+
+
+@pytest.fixture
+def organization(session: Session) -> Organization:
+    return get_factory("Organization", session).create()
 
 
 @pytest.fixture

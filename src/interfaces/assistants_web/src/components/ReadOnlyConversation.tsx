@@ -171,7 +171,7 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
           {uniqueDocuments.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
-                'h-4 w-4 text-volcanic-300 transition delay-75 duration-200 ease-in-out',
+                'h-4 w-4 fill-volcanic-300 transition delay-75 duration-200 ease-in-out',
                 {
                   'rotate-180': isAllDocsVisible,
                 }

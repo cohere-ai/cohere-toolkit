@@ -153,6 +153,11 @@ class DatabaseSettings(BaseSettings, BaseModel):
     )
 
 
+class RedisSettings(BaseSettings, BaseModel):
+    model_config = setting_config
+    url: Optional[str] = Field(validation_alias=AliasChoices("REDIS_URL", "url"))
+
+
 class SageMakerSettings(BaseSettings, BaseModel):
     model_config = setting_config
     endpoint_name: Optional[str] = Field(
@@ -263,6 +268,7 @@ class Settings(BaseSettings, case_sensitive=False):
     feature_flags: Optional[FeatureFlags]
     tools: Optional[ToolSettings]
     database: Optional[DatabaseSettings]
+    redis: Optional[RedisSettings]
     deployments: Optional[DeploymentSettings]
     logger: Optional[LoggerSettings]
 

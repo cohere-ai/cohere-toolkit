@@ -81,5 +81,7 @@ export const BotAvatar: React.FC<{
 };
 
 const UserAvatar: React.FC = () => {
-  return <Icon name="profile" className="text-icon-md text-white md:text-icon-lg" />;
+  return (
+    <Icon name="profile" className="h-ep-icon-md w-ep-icon-md md:h-ep-icon-lg md:w-ep-icon-lg" />
+  );
 };
