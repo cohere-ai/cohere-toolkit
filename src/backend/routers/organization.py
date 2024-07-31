@@ -14,11 +14,10 @@ from backend.schemas import (
     Organization,
     UpdateOrganization,
 )
-from backend.services.auth.utils import get_header_user_id
-from backend.services.request_validators import validate_organization_request
-from backend.services.context import get_context
-from fastapi import APIRouter, Depends
 from backend.schemas.context import Context
+from backend.services.auth.utils import get_header_user_id
+from backend.services.context import get_context
+from backend.services.request_validators import validate_organization_request
 
 router = APIRouter(prefix="/v1/organizations")
 router.name = RouterName.TOOL
@@ -32,7 +31,9 @@ router.name = RouterName.TOOL
     ],
 )
 def create_organization(
-    organization: CreateOrganization, session: DBSessionDep, ctx: Context = Depends(get_context),
+    organization: CreateOrganization,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> Organization:
     """
     Create a new organization.
@@ -57,7 +58,10 @@ def create_organization(
     ],
 )
 def update_organization(
-    organization_id: str, new_organization: UpdateOrganization, session: DBSessionDep, ctx: Context = Depends(get_context),
+    organization_id: str,
+    new_organization: UpdateOrganization,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> Organization:
     """
     Update organization by ID.
@@ -78,7 +82,9 @@ def update_organization(
 
 
 @router.get("/{organization_id}", response_model=Organization)
-def get_organization(organization_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)) -> Organization:
+def get_organization(
+    organization_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+) -> Organization:
     """
     Get a organization by ID.
 
@@ -97,7 +103,9 @@ def get_organization(organization_id: str, session: DBSessionDep, ctx: Context =
 
 @router.delete("/{organization_id}", response_model=DeleteOrganization)
 def delete_organization(
-    organization_id: str, session: DBSessionDep, ctx: Context = Depends(get_context),
+    organization_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> DeleteOrganization:
     """
     Delete a organization by ID.
