@@ -34,4 +34,5 @@ class User(Base):
     fullname: Mapped[str] = mapped_column()
     email: Mapped[Optional[str]] = mapped_column()
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
+    external_id: Mapped[Optional[str]] = mapped_column()
     __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)
