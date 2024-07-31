@@ -53,10 +53,10 @@ export const useSession = () => {
     mutationFn: (params) => cohereClient.login(params),
     onSuccess: async (data: JWTResponse | null) => {
       if (!data) {
-        return new Promise((_, reject) => reject(new Error('Invalid login')));
+        throw new Error('Invalid login');
       }
       await setAuthToken(data.token);
-      return new Promise((resolve) => resolve(data?.token));
+      return data?.token;
     },
   });
 
@@ -87,7 +87,7 @@ export const useSession = () => {
     },
     onSuccess: async (data: { token: string }) => {
       await setAuthToken(data.token);
-      return new Promise((resolve) => resolve(data.token));
+      return data.token;
     },
   });
 
@@ -101,7 +101,7 @@ export const useSession = () => {
     },
     onSuccess: async (data: { token: string }) => {
       await setAuthToken(data.token);
-      return new Promise((resolve) => resolve(data.token));
+      return data.token;
     },
     onSettled: () => {
       Cookies.remove('code_verifier');
