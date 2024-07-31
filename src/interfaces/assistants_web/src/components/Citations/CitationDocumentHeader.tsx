@@ -81,7 +81,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
           icon={icon}
           iconKind={isSelected ? 'default' : 'outline'}
           className={cn(
-            'bg-coral-700/[0.16] text-coral-300/80 transition-colors duration-200 ease-in-out',
+            'bg-coral-700/[0.16] text-coral-300/80 transition-colors duration-200 ease-in-out dark:bg-volcanic-200',
             {
               'bg-mushroom-400/20 text-mushroom-300': !isSelected,
             }
@@ -96,7 +96,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                 className={cn(
                   'truncate',
                   'transition-colors duration-200 ease-in-out',
-                  'text-coral-300',
+                  'text-coral-300 dark:text-marble-800',
                   {
                     'text-mushroom-400': !isSelected,
                   }
@@ -107,7 +107,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               <Text
                 as="span"
                 styleAs="label-sm"
-                className={cn('text-coral-300/80', 'hidden', {
+                className={cn('text-coral-300/80 dark:text-marble-950', 'hidden', {
                   flex: isSelected,
                 })}
               >
@@ -121,7 +121,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
               className={cn(
                 'font-medium',
                 'transition-colors duration-200 ease-in-out',
-                'text-coral-300',
+                'text-coral-300 dark:text-marble-800',
                 {
                   'text-mushroom-400': !isSelected,
                 }
@@ -131,22 +131,29 @@ export const CitationDocumentHeader: React.FC<Props> = ({
             </Text>
           )}
 
-          <div className={cn('flex text-coral-200', { 'group-hover:text-coral-600': safeUrl })}>
+          <div
+            className={cn('flex text-coral-200 dark:text-marble-950', {
+              'group-hover:text-coral-600 dark:group-hover:text-marble-800': safeUrl,
+            })}
+          >
             <Text
               as="span"
               styleAs="label"
               className={cn('truncate font-medium transition-colors duration-200 ease-in-out', {
-                'text-mushroom-300': !isSelected,
+                'text-mushroom-300 dark:text-marble-950': !isSelected,
               })}
             >
               {displayTitle}
             </Text>
             <Icon
               name="arrow-up-right"
-              className={cn('ml-1 hidden', 'transition-colors duration-200 ease-in-out', {
-                'fill-mushroom-300': !isSelected,
-                'group-hover:block': safeUrl,
-              })}
+              className={cn(
+                'ml-1 hidden transition-colors duration-200 ease-in-out dark:fill-marble-950',
+                {
+                  'fill-mushroom-300 dark:fill-marble-950': !isSelected,
+                  'group-hover:block': safeUrl,
+                }
+              )}
             />
           </div>
         </div>
@@ -155,7 +162,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
         <IconButton
           iconName="chevron-down"
           iconClassName={cn(
-            'fill-coral-300 transition duration-200 delay-75 ease-in-out group-hover:fill-coral-200',
+            'fill-coral-300 dark:fill-marble-800 transition duration-200 delay-75 ease-in-out group-hover:fill-coral-200 dark:group-hover:fill-marble-900',
             'hidden lg:flex',
             {
               'rotate-180': isExpanded,
