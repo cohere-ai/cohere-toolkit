@@ -142,7 +142,7 @@ class ToolSettings(BaseSettings, BaseModel):
     compass: Optional[CompassSettings]
     web_search: Optional[WebSearchSettings]
     wolfram_alpha: Optional[WolframAlphaSettings]
-    gdrive: Optional[GDriveSettings]
+    google_drive: Optional[GDriveSettings]
 
 
 class DatabaseSettings(BaseSettings, BaseModel):
