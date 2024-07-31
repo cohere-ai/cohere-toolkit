@@ -193,10 +193,10 @@ async def authorize(
 
     if not userinfo:
         logger.error(
-            event=f"[Auth] Error authorizing login: Invalid token {token}",
+            event="[Auth] Error authorizing login: Invalid token",
         )
         raise HTTPException(
-            status_code=401, detail=f"Could not get user from auth token: {token}."
+            status_code=401, detail="Could not get user from auth token."
         )
 
     # Get or create user, then set session user
