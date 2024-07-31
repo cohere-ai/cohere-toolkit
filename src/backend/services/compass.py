@@ -101,9 +101,13 @@ class Compass:
                 case self.ValidActions.LIST_INDEXES.value:
                     return self.compass_client.list_indexes()
                 case self.ValidActions.CREATE_INDEX.value:
-                    return self.compass_client.create_index(index_name=parameters["index"])
+                    return self.compass_client.create_index(
+                        index_name=parameters["index"]
+                    )
                 case self.ValidActions.CREATE_INDEX.value:
-                    return self.compass_client.delete_index(index_name=parameters["index"])
+                    return self.compass_client.delete_index(
+                        index_name=parameters["index"]
+                    )
                 case self.ValidActions.CREATE.value:
                     self._create(parameters, **kwargs)
                 case self.ValidActions.SEARCH.value:
@@ -121,7 +125,9 @@ class Compass:
                 case self.ValidActions.PROCESS_FILE.value:
                     return self._process_file(parameters, **kwargs)
                 case _:
-                    raise Exception(f"[Compass] Error invoking Compass: Invalid action in parameters {parameters}")
+                    raise Exception(
+                        f"[Compass] Error invoking Compass: Invalid action in parameters {parameters}"
+                    )
         except Exception as e:
             message = f"[Compass] Error invoking Compass: {e}"
             logger.error(event=message)
@@ -131,7 +137,9 @@ class Compass:
         """Insert the document into Compass"""
         compass_docs = self._process_file(parameters, **kwargs)
         if compass_docs is None:
-            raise Exception("[Compass] Error inserting document: Failed to process file")
+            raise Exception(
+                "[Compass] Error inserting document: Failed to process file"
+            )
 
         if doc_metadata := parameters.get("metadata", None):
             for doc in compass_docs:
@@ -169,7 +177,9 @@ class Compass:
         """Delete file from Compass"""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(f"[Compass] Error deleting file: No file_id in parameters {parameters}")
+            raise Exception(
+                f"[Compass] Error deleting file: No file_id in parameters {parameters}"
+            )
         self.compass_client.delete_document(
             index_name=parameters["index"],
             doc_id=parameters["file_id"],
@@ -179,7 +189,9 @@ class Compass:
         """Get document with id from Compass"""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(f"[Compass] Error fetching document: No file_id in parameters {parameters}")
+            raise Exception(
+                f"[Compass] Error fetching document: No file_id in parameters {parameters}"
+            )
         return self.compass_client.get_document(
             index_name=parameters["index"],
             doc_id=parameters["file_id"],
@@ -189,9 +201,13 @@ class Compass:
         """Adds context to a document with id in Compass"""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(f"[Compass] Error adding context: No file_id in parameters {parameters}")
+            raise Exception(
+                f"[Compass] Error adding context: No file_id in parameters {parameters}"
+            )
         if not parameters.get("context", None):
-            raise Exception(f"[Compass] Error adding context: Context cannot be empty for parameters {parameters}")
+            raise Exception(
+                f"[Compass] Error adding context: Context cannot be empty for parameters {parameters}"
+            )
         self.compass_client.add_context(
             index_name=parameters["index"],
             doc_id=parameters["file_id"],
@@ -206,10 +222,14 @@ class Compass:
         """Parse the input file."""
         # Check if file_id is specified for file-related actions
         if not parameters.get("file_id", None):
-            raise Exception(f"[Compass] Error processing file: No file_id specified in parameters {parameters}")
+            raise Exception(
+                f"[Compass] Error processing file: No file_id specified in parameters {parameters}"
+            )
 
         # Check if filename is specified for file-related actions
-        if not parameters.get("filename", None) and not parameters.get("file_text", None):
+        if not parameters.get("filename", None) and not parameters.get(
+            "file_text", None
+        ):
             logger.error(
                 event=f"[Compass] Error processing file: No filename or file_text specified in parameters {parameters}"
             )
@@ -226,7 +246,9 @@ class Compass:
             return None
 
         parser_config = self.parser_config or parameters.get("parser_config", None)
-        metadata_config = metadata_config = self.metadata_config or parameters.get("metadata_config", None)
+        metadata_config = metadata_config = self.metadata_config or parameters.get(
+            "metadata_config", None
+        )
 
         if filename:
             return self.parser_client.process_file(
@@ -258,7 +280,9 @@ class Compass:
             metadata_config=self.metadata_config,
             doc_id=file_id,
         )
-        auth = (self.username, self.password) if self.username and self.password else None
+        auth = (
+            (self.username, self.password) if self.username and self.password else None
+        )
         res = self.parser_client.session.post(
             url=f"{self.parser_client.parser_url}/v1/process_file",
             data={"data": json.dumps(params.model_dump())},
