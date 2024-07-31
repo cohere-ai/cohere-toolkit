@@ -175,7 +175,9 @@ class DatabaseSettings(BaseSettings, BaseModel):
 
 class RedisSettings(BaseSettings, BaseModel):
     model_config = setting_config
-    url: Optional[str] = Field(validation_alias=AliasChoices("REDIS_URL", "url"))
+    url: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("REDIS_URL", "url")
+    )
 
 
 class SageMakerSettings(BaseSettings, BaseModel):
