@@ -1,12 +1,13 @@
-import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { useCookies } from 'next-client-cookies';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
+import { clearAuthToken, setAuthToken } from '@/app/actions.server';
 import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
-import { LOCAL_STORAGE_KEYS } from '@/constants';
+import { COOKIE_KEYS } from '@/constants';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
 
 interface LoginParams {
@@ -27,17 +28,12 @@ interface UserSession {
 }
 
 export const useSession = () => {
+  const cookies = useCookies();
+  const authToken = cookies.get(COOKIE_KEYS.authToken);
   const router = useRouter();
   const { data: authStrategies, isLoading: isLoadingStrategies } = useServerAuthStrategies();
-  const {
-    value: authToken,
-    set: setAuthToken,
-    remove: clearAuthToken,
-  } = useLocalStorageValue<string | undefined>(LOCAL_STORAGE_KEYS.authToken, {
-    defaultValue: undefined,
-  });
 
-  const isLoading = isLoadingStrategies || authToken === null;
+  const isLoading = isLoadingStrategies;
 
   const isLoggedIn = useMemo(
     () =>
@@ -55,15 +51,18 @@ export const useSession = () => {
 
   const loginMutation = useMutation<JWTResponse | null, ApiError, LoginParams>({
     mutationFn: (params) => cohereClient.login(params),
-    onSuccess: (data: JWTResponse | null) => {
-      setAuthToken(data?.token);
+    onSuccess: async (data: JWTResponse | null) => {
+      if (!data) {
+        return new Promise((_, reject) => reject(new Error('Invalid login')));
+      }
+      await setAuthToken(data.token);
       return new Promise((resolve) => resolve(data?.token));
     },
   });
 
   const logoutMutation = useMutation({
-    mutationFn: () => {
-      clearAuthToken();
+    mutationFn: async () => {
+      await clearAuthToken();
       return cohereClient.logout();
     },
   });
@@ -86,8 +85,8 @@ export const useSession = () => {
     mutationFn: async (params: { code: string }) => {
       return cohereClient.googleSSOAuth(params);
     },
-    onSuccess: (data: { token: string }) => {
-      setAuthToken(data.token);
+    onSuccess: async (data: { token: string }) => {
+      await setAuthToken(data.token);
       return new Promise((resolve) => resolve(data.token));
     },
   });
@@ -100,8 +99,8 @@ export const useSession = () => {
         ...(codeVerifier && { codeVerifier }),
       });
     },
-    onSuccess: (data: { token: string }) => {
-      setAuthToken(data.token);
+    onSuccess: async (data: { token: string }) => {
+      await setAuthToken(data.token);
       return new Promise((resolve) => resolve(data.token));
     },
     onSettled: () => {
