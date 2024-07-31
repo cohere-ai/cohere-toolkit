@@ -32,17 +32,17 @@ services:
     image: redis:7.2-alpine
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
       - "6379:6379"
+    networks:
+      - proxynet
     command: redis-server --save 60 1 --loglevel warning --requirepass redis
     volumes:
       - ./data:/data
-    networks:
-      - proxynet
 
   backend:
     build:
@@ -78,7 +78,7 @@ services:
       - ./src/backend/alembic:/workspace/src/backend/alembic
       # Mount data folder to sync uploaded files
       - ./src/backend/data:/workspace/src/backend/data
-      # Mount configurations 
+      # Mount configurations
       - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
       - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml
     # network_mode: host

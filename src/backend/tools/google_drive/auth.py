@@ -5,21 +5,22 @@ import urllib.parse
 
 import requests
 from fastapi import Request
-from sqlalchemy.orm import Session
 
 from backend.crud import tool_auth as tool_auth_crud
+from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import get_logger
-from backend.tools.base import BaseToolAuthentication
-from backend.tools.google_drive.constants import SCOPES
+from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
 from backend.tools.google_drive.tool import GoogleDrive
+
+from .constants import SCOPES
 
 logger = get_logger()
 
 
-class GoogleDriveAuth(BaseToolAuthentication):
+class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     TOOL_ID = GoogleDrive.NAME
     AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
     TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
@@ -41,7 +42,9 @@ class GoogleDriveAuth(BaseToolAuthentication):
             )
 
     def get_auth_url(self, user_id: str) -> str:
-        state = {"user_id": user_id, "tool_id": self.TOOL_ID}
+        key = self.insert_tool_auth_cache(user_id, self.TOOL_ID)
+        state = {"key": key}
+
         params = {
             "response_type": "code",
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
@@ -55,7 +58,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
         return f"{self.AUTH_ENDPOINT}?{urllib.parse.urlencode(params)}"
 
-    def is_auth_required(self, session: Session, user_id: str) -> bool:
+    def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool:
         auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
 
         if auth is None:
@@ -74,7 +77,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         return False
 
     def try_refresh_token(
-        self, session: Session, user_id: str, tool_auth: ToolAuth
+        self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
     ) -> bool:
         body = {
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
@@ -111,13 +114,13 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
         return True
 
-    def retrieve_auth_token(self, request: Request, session: Session) -> str:
+    def retrieve_auth_token(
+        self, request: Request, session: DBSessionDep, user_id: str
+    ) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
             logger.error(event=f"[Google Drive] Auth token error: {error}.")
             return error
-
-        state = json.loads(request.query_params.get("state"))
 
         body = {
             "code": request.query_params.get("code"),
@@ -139,7 +142,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         tool_auth_crud.create_tool_auth(
             session,
             ToolAuth(
-                user_id=state["user_id"],
+                user_id=user_id,
                 tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),
@@ -150,10 +153,10 @@ class GoogleDriveAuth(BaseToolAuthentication):
         )
 
     @classmethod
-    def get_tool_auth(self, session: Session, user_id: str) -> ToolAuth:
+    def get_tool_auth(self, session: DBSessionDep, user_id: str) -> ToolAuth:
         tool_auth = tool_auth_crud.get_tool_auth(session, GoogleDrive.NAME, user_id)
         return tool_auth
 
-    def get_token(self, session: Session, user_id: str) -> str:
+    def get_token(self, session: DBSessionDep, user_id: str) -> str:
         tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
         return tool_auth.access_token if tool_auth else None

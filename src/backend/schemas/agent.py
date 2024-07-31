@@ -82,7 +82,7 @@ class CreateAgentRequest(BaseModel):
     temperature: Optional[float] = None
     model: str
     deployment: str
-    tools: Optional[list[str]] = None
+    tools: Optional[list[str]] = []
     tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
 
     class Config:

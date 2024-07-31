@@ -1,7 +1,7 @@
 'use client';
 
 import { ShareModal } from '@/components/ShareModal';
-import { Button, Text } from '@/components/Shared';
+import { Button, Icon, Text } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useAgent } from '@/hooks/agents';
 import { useConversationStore } from '@/stores';
@@ -19,7 +19,6 @@ export const Header: React.FC<Props> = ({ agentId }) => {
 
   const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
-  const accentColor = getCohereColor(agentId, { text: true });
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -51,12 +50,16 @@ export const Header: React.FC<Props> = ({ agentId }) => {
         {id && (
           <Button
             kind="secondary"
-            className={cn('hidden md:flex', accentColor)}
-            label={<Text className={accentColor}>Share</Text>}
-            icon="share"
+            className={cn('hidden md:flex')}
+            label={<Text className={getCohereColor(agentId, { text: true })}>Share</Text>}
             iconOptions={{
-              kind: 'outline',
-              className: 'dark:group-hover:text-inherit dark:text-inherit',
+              customIcon: (
+                <Icon
+                  name="share"
+                  kind="outline"
+                  className={getCohereColor(agentId, { fill: true })}
+                />
+              ),
             }}
             iconPosition="start"
             onClick={handleOpenShareModal}

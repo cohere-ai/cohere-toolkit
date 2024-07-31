@@ -136,7 +136,7 @@ const Conversation: React.FC<Props> = ({
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-full w-full min-w-0 flex-col rounded-lg bg-marble-1000 dark:bg-volcanic-100">
+      <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-mushroom-800 bg-marble-1000 md:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
         <HotKeysProvider customHotKeys={chatHotKeys} />
         <Header agentId={agent?.id} />
 

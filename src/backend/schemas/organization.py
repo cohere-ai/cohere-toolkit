@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -21,7 +22,7 @@ class CreateOrganization(OrganizationBase):
 
 
 class UpdateOrganization(OrganizationBase):
-    pass
+    name: Optional[str]
 
 
 class DeleteOrganization(BaseModel):
