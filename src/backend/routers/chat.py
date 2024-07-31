@@ -66,9 +66,9 @@ async def chat_stream(
                 session, agent_id
             )
         )
-        agent_tool_metadata_schema = AgentToolMetadata.model_validate(
-            agent_tool_metadata
-        )
+        agent_tool_metadata_schema = [
+            AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
+        ]
         ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
 
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
@@ -141,9 +141,9 @@ async def chat(
                 session, agent_id
             )
         )
-        agent_tool_metadata_schema = AgentToolMetadata.model_validate(
-            agent_tool_metadata
-        )
+        agent_tool_metadata_schema = [
+            AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
+        ]
         ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     else:

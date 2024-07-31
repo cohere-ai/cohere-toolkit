@@ -8,7 +8,6 @@ from googleapiclient.discovery import build
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
-from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.services.compass import Compass
 from backend.services.logger.utils import get_logger
 from backend.tools.base import BaseTool
@@ -108,9 +107,6 @@ class GoogleDrive(BaseTool):
                             folder_ids.append(artifact["id"])
                         else:
                             file_ids.append(artifact["id"])
-        print("file_ids")
-        print(file_ids)
-        print(folder_ids)
 
         # Condition on files if exist
         files = []
@@ -159,7 +155,7 @@ class GoogleDrive(BaseTool):
             if not files:
                 logger.debug(event="[Google Drive] No files found.")
         if not files:
-            return [{"text": ""}]
+            return []
 
         # post process files
         processed_files = process_shortcut_files(service, files)
@@ -205,7 +201,7 @@ class GoogleDrive(BaseTool):
         }
 
         if not id_to_texts:
-            return [{"text": ""}]
+            return []
 
         """
         Compass logic

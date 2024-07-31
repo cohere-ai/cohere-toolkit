@@ -1,4 +1,3 @@
-from itertools import tee
 from typing import Any, AsyncGenerator, Dict, List
 
 from fastapi import HTTPException
@@ -227,7 +226,7 @@ class CustomChat(BaseChat):
         tool_calls = chat_history[-1]["tool_calls"]
         tool_plan = chat_history[-1].get("message", None)
         logger.info(
-            event=f"[Custom Chat] Using tools",
+            event="[Custom Chat] Using tools",
             tool_calls=to_dict(tool_calls),
             tool_plan=to_dict(tool_plan),
         )
@@ -238,9 +237,6 @@ class CustomChat(BaseChat):
             if not tool:
                 continue
 
-            print("hey")
-            ctx.user.id
-            print("hey")
             outputs = await tool.implementation().call(
                 parameters=tool_call.get("parameters"),
                 session=kwargs.get("session"),
@@ -261,7 +257,7 @@ class CustomChat(BaseChat):
             tool_results, deployment_model, ctx, **kwargs
         )
         logger.info(
-            event=f"[Custom Chat] Tool results",
+            event="[Custom Chat] Tool results",
             tool_results=to_dict(tool_results),
         )
 
