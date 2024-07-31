@@ -27,7 +27,6 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
   const { setParams, resetFileParams } = useParamsStore();
-
   const { open, close } = useContextStore();
 
   const {

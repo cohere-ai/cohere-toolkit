@@ -29,17 +29,11 @@ export const AssistantTools: React.FC<{
     managedTools: tools,
   });
 
-  console.log(availableTools);
+  if (availableTools.length === 0) return null;
 
   return (
     <section className={cn('relative flex flex-col gap-y-5', className)}>
       <article className={cn('flex flex-col gap-y-5')}>
-        {availableTools.length === 0 && (
-          <Text styleAs="p-sm" className="text-mushroom-300 dark:text-marble-800">
-            `${agent?.name} does not use any tools.`
-          </Text>
-        )}
-
         {unauthedTools.length > 0 && (
           <>
             <div className="flex items-center justify-between">

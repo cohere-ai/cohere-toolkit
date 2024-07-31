@@ -20,6 +20,7 @@ import {
   isStreamError,
 } from '@/cohere-client';
 import {
+  DEFAULT_AGENT_TOOLS,
   DEFAULT_TYPING_VELOCITY,
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
@@ -550,7 +551,9 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     return {
       message,
       conversation_id: currentConversationId,
-      tools: requestTools?.map((tool) => ({ name: tool.name })),
+      tools: requestTools
+        ?.map((tool) => ({ name: tool.name }))
+        .concat(DEFAULT_AGENT_TOOLS.map((defaultTool) => ({ name: defaultTool }))),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
