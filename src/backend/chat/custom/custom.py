@@ -14,11 +14,9 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Tool
 from backend.services.file import get_file_service
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 
 MAX_STEPS = 15
-
-logger = get_logger()
 
 
 class CustomChat(BaseChat):
