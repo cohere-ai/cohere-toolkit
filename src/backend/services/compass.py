@@ -1,7 +1,7 @@
 import json
 import os
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from backend.compass_sdk import (
     CompassDocument,
@@ -12,6 +12,7 @@ from backend.compass_sdk import (
 from backend.compass_sdk.compass import CompassClient
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.parser import CompassParserClient
+from backend.config.settings import Settings
 from backend.services.logger.utils import get_logger
 
 logger = get_logger()
@@ -35,32 +36,25 @@ class Compass:
 
     def __init__(
         self,
-        compass_api_url=None,
-        compass_parser_url=None,
-        compass_username=None,
-        compass_password=None,
+        compass_api_url: Optional[str] = None,
+        compass_parser_url: Optional[str] = None,
+        compass_username: Optional[str] = None,
+        compass_password: Optional[str] = None,
         metadata_config=MetadataConfig(),
         parser_config=ParserConfig(),
     ):
         """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
-        vars = [
-            "COHERE_COMPASS_API_URL",
-            "COHERE_COMPASS_PARSER_URL",
-            "COHERE_COMPASS_USERNAME",
-            "COHERE_COMPASS_PASSWORD",
-        ]
-        if not all(os.getenv(var) is not None for var in vars):
-            raise Exception(
-                "[Compass] Error initializing client: Environment variables missing",
-            )
-
-        self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
-        self.compass_parser_url = compass_parser_url or os.getenv(
-            "COHERE_COMPASS_PARSER_URL"
+        self.compass_api_url = compass_api_url or Settings().tools.compass.api_url
+        self.compass_parser_url = (
+            compass_parser_url or Settings().tools.compass.parser_url
         )
-        self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
-        self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
+        self.username = compass_username or Settings().tools.compass.username
+        self.password = compass_password or Settings().tools.compass.password
+        if self.compass_api_url is None or self.compass_parser_url is None:
+            message = "[Compass] Error initializing Compass client: API url or parser url missing."
+            logger.exception(event=message)
+            raise Exception(message)
         self.parser_config = parser_config
         self.metadata_config = metadata_config
         try:

@@ -1,10 +1,6 @@
-import sys
-from typing import Any
-
 import structlog
 
 from backend.schemas.context import Context
-from backend.services.context import get_context
 from backend.services.logger.strategies.base import BaseLogger
 
 

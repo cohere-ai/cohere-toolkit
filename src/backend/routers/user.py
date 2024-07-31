@@ -36,7 +36,9 @@ async def create_user(
 
     db_user = UserModel(**user.model_dump(exclude_none=True))
     db_user = user_crud.create_user(session, db_user)
-    ctx.with_user(user=db_user)
+
+    user_schema = UserSchema.model_validate(db_user)
+    ctx.with_user(user=user_schema)
 
     return db_user
 
@@ -91,7 +93,8 @@ async def get_user(
             status_code=404, detail=f"User with ID: {user_id} not found."
         )
 
-    ctx.with_user(user=user)
+    user_schema = UserSchema.model_validate(user)
+    ctx.with_user(user=user_schema)
     return user
 
 
@@ -128,7 +131,8 @@ async def update_user(
         )
 
     user = user_crud.update_user(session, user, new_user)
-    ctx.with_user(user=user)
+    user_schema = UserSchema.model_validate(user)
+    ctx.with_user(user=user_schema)
 
     return user
 
@@ -161,7 +165,8 @@ async def delete_user(
             status_code=404, detail=f"User with ID: {user_id} not found."
         )
 
-    ctx.with_user(user=user)
+    user_schema = UserSchema.model_validate(user)
+    ctx.with_user(user=user_schema)
     user_crud.delete_user(session, user_id)
 
     return DeleteUser()
