@@ -1,1 +1,1 @@
-export * from './Spinner';
+export { Spinner } from './Spinner';

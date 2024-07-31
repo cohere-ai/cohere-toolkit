@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import React, { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
-import { Icon, IconName, Spinner, Text } from '@/components/Shared';
+import { Icon, IconName } from '@/components/Shared/Icon';
+import { Spinner } from '@/components/Shared/Spinner';
+import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
 export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';
