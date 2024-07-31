@@ -5,7 +5,7 @@ import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
 import { Agent, ManagedTool, useCohereClient } from '@/cohere-client';
-import { LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { DEFAULT_AGENT_TOOLS, LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
 import { useNotify } from '@/hooks/toast';
@@ -16,7 +16,10 @@ export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
   return useQuery<ManagedTool[], Error>({
     queryKey: ['tools'],
-    queryFn: () => client.listTools({}),
+    queryFn: async () => {
+      const tools = await client.listTools({});
+      return tools.filter((tool) => DEFAULT_AGENT_TOOLS.includes(tool.name ?? ''));
+    },
     refetchOnWindowFocus: false,
     enabled,
   });

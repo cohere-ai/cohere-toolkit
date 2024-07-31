@@ -29,6 +29,8 @@ export const AssistantTools: React.FC<{
     managedTools: tools,
   });
 
+  console.log(availableTools);
+
   return (
     <section className={cn('relative flex flex-col gap-y-5', className)}>
       <article className={cn('flex flex-col gap-y-5')}>
