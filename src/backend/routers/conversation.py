@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
+from backend.services.compass import Compass
 
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
@@ -453,6 +454,10 @@ async def batch_upload_file(
             )
 
     # TODO: check if file already exists in DB once we have files per agents
+    compass = Compass()
+    result = compass.invoke(
+        action=Compass.ValidActions.CREATE_INDEX, parameters={"index": "foobar"}
+    )
     try:
         uploaded_files = await get_file_service().create_conversation_files(
             session, files, user_id, conversation.id

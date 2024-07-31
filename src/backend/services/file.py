@@ -21,6 +21,7 @@ from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.file import File, UpdateFileRequest
+from backend.config.settings import Settings
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -50,7 +51,7 @@ def get_file_service():
 class FileService:
     @property
     def is_compass_enabled(self) -> bool:
-        return os.getenv("ENABLE_COMPASS_FILE_STORAGE", "false").lower() == "true"
+        return True
 
     # All these functions will eventually support file operations on Compass
     async def create_conversation_files(
@@ -97,8 +98,9 @@ class FileService:
             )
 
         uploaded_files = []
+        compass = None
         if self.is_compass_enabled:
-            uploaded_files = await index_files_to_compass(session, files, user_id)
+            pass
         else:
             uploaded_files = file_crud.batch_create_files(session, files_to_upload)
 
@@ -288,26 +290,41 @@ class FileService:
     
 async def index_files_to_compass(session: DBSessionDep, files: list[FastAPIUploadFile], user_id: str) -> None:
     uploaded_files = []
+    compass = None
+    try:
+        compass = Compass()
+        compass.invoke(
+            action=Compass.ValidActions.CREATE_INDEX,
+            parameters={"index": "test_index"},
+        )
+    except Exception as e:
+        print(f"Error initializing Compass: {e}")
 
-    for file in files:
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-        file_bytes = await file.read()
-        cleaned_content = file_bytes.decode("utf-8").replace("\x00", "")
-        cleaned_content_bytes = cleaned_content.encode("utf-8")
-        new_file_id = uuid.uuid4()
 
-        try:
-            compass = Compass()
-        except Exception as e:
-            print(f"Error initializing Compass: {e}")
+    # for file in files:
+    #     filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+    #     file_bytes = await file.read()
+    #     cleaned_content = file_bytes.decode("utf-8").replace("\x00", "")
+    #     cleaned_content_bytes = cleaned_content.encode("utf-8")
+    #     new_file_id = str(uuid.uuid4())
 
-        file_text = compass.invoke(
-            action=Compass.ValidActions.PROCESS_FILE,
-            parameters={
-                "file_id": new_file_id,
-                "file_text": cleaned_content_bytes,
-            },
-        )[0].content["text"]
+    #     compass = None
+    #     try:
+    #         compass = Compass()
+    #     except Exception as e:
+    #         print(f"Error initializing Compass: {e}")
+
+    #     compass.invoke(
+    #         action=Compass.ValidActions.CREATE_INDEX,
+    #         parameters={"index": new_file_id},
+    #     )
+        # file_text = compass.invoke(
+        #     action=Compass.ValidActions.PROCESS_FILE,
+        #     parameters={
+        #         "file_id": new_file_id,
+        #         "file_text": cleaned_content_bytes,
+        #     },
+        # )[0].content["text"]
 
         # try:
         #     compass = Compass()

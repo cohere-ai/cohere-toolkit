@@ -234,23 +234,23 @@ class Compass:
             )
 
         # Check if filename is specified for file-related actions
-        if not parameters.get("filename", None) and not parameters.get(
-            "file_text", None
-        ):
-            logger.error(
-                event=f"[Compass] Error processing file: No filename or file_text specified in parameters {parameters}"
-            )
-            return None
+        # if not parameters.get("filename", None) and not parameters.get(
+        #     "file_text", None
+        # ):
+        #     logger.error(
+        #         event=f"[Compass] Error processing file: No filename or file_text specified in parameters {parameters}"
+        #     )
+        #     return None
 
         file_id = parameters["file_id"]
         filename = parameters.get("filename", None)
         file_text = parameters.get("file_text", None)
 
-        if filename and not os.path.exists(filename):
-            logger.error(
-                event=f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
-            )
-            return None
+        # if filename and not os.path.exists(filename):
+        #     logger.error(
+        #         event=f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
+        #     )
+        #     return None
 
         parser_config = self.parser_config or parameters.get("parser_config", None)
         metadata_config = metadata_config = self.metadata_config or parameters.get(
