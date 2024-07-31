@@ -42,7 +42,7 @@ export const CitationsTab: React.FC<Props> = () => {
   }, []);
 
   return (
-    <aside className={cn('flex max-h-full overflow-y-auto', ReservedClasses.CITATION_PANEL)}>
+    <aside className={cn('flex max-h-full overflow-y-auto pb-12', ReservedClasses.CITATION_PANEL)}>
       <div className="h-auto flex-grow" ref={ref}>
         <CitationPanel />
       </div>
