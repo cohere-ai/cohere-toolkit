@@ -106,7 +106,6 @@ async def get_conversation(
     )
 
     _ = validate_conversation(session, conversation_id, user_id)
-    conversation = validate_conversation(session, conversation_id, user_id)
     return conversation
 
 
