@@ -7,9 +7,7 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL

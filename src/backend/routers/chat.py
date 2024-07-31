@@ -23,15 +23,13 @@ from backend.services.chat import (
     process_chat,
 )
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
     prefix="/v1",
 )
 router.name = RouterName.CHAT
-
-logger = get_logger()
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
