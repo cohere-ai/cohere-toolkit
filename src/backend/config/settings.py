@@ -142,7 +142,7 @@ class ToolSettings(BaseSettings, BaseModel):
     compass: Optional[CompassSettings]
     web_search: Optional[WebSearchSettings]
     wolfram_alpha: Optional[WolframAlphaSettings]
-    gdrive: Optional[GDriveSettings]
+    google_drive: Optional[GDriveSettings]
 
 
 class DatabaseSettings(BaseSettings, BaseModel):
@@ -151,6 +151,11 @@ class DatabaseSettings(BaseSettings, BaseModel):
     migrate_token: Optional[str] = Field(
         validation_alias=AliasChoices("MIGRATE_TOKEN", "migrate_token")
     )
+
+
+class RedisSettings(BaseSettings, BaseModel):
+    model_config = setting_config
+    url: Optional[str] = Field(validation_alias=AliasChoices("REDIS_URL", "url"))
 
 
 class SageMakerSettings(BaseSettings, BaseModel):
@@ -227,6 +232,16 @@ class DeploymentSettings(BaseSettings, BaseModel):
     bedrock: Optional[BedrockSettings]
 
 
+class LoggerSettings(BaseSettings, BaseModel):
+    model_config = setting_config
+    level: Optional[str] = Field(
+        default="INFO", validation_alias=AliasChoices("LOG_LEVEL", "level")
+    )
+    strategy: Optional[str] = Field(
+        default="structlog", validation_alias=AliasChoices("LOG_STRATEGY", "strategy")
+    )
+
+
 config_file = (
     "src/backend/config/configuration.yaml"
     if "pytest" not in sys.modules
@@ -250,7 +265,9 @@ class Settings(BaseSettings, case_sensitive=False):
     feature_flags: Optional[FeatureFlags]
     tools: Optional[ToolSettings]
     database: Optional[DatabaseSettings]
+    redis: Optional[RedisSettings]
     deployments: Optional[DeploymentSettings]
+    logger: Optional[LoggerSettings]
 
     @classmethod
     def settings_customise_sources(

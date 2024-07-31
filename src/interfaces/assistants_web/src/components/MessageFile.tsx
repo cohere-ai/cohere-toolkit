@@ -52,7 +52,7 @@ export const MessageFile: React.FC<Props> = ({
           { 'text-mushroom-500 dark:text-volcanic-600': progress !== undefined }
         )}
       >
-        <Icon name="file" kind="outline" size="md" />
+        <Icon name="file" kind="outline" />
       </div>
       <div className="flex w-full flex-grow flex-col gap-y-0.5 truncate">
         <Text styleAs="label" className="w-full truncate font-medium">

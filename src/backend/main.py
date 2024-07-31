@@ -22,11 +22,13 @@ from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
+from backend.routers.organization import router as organization_router
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware
-from backend.services.logger import LoggingMiddleware, get_logger
+from backend.services.logger.middleware import LoggingMiddleware
+from backend.services.logger.utils import get_logger
 from backend.services.metrics import MetricsMiddleware
 
 logger = get_logger()
@@ -51,6 +53,7 @@ def create_app():
         agent_router,
         default_agent_router,
         snapshot_router,
+        organization_router,
     ]
 
     # Dynamically set router dependencies
@@ -89,8 +92,8 @@ app = create_app()
 
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
-    logger.info(
-        f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
+    logger.exception(
+        event=f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
     )
 
     return JSONResponse(

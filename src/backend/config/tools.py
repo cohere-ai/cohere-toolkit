@@ -1,8 +1,8 @@
-import logging
 from enum import StrEnum
 
 from backend.config.settings import Settings
 from backend.schemas.tool import Category, ManagedTool
+from backend.services.logger.utils import get_logger
 from backend.tools import (
     Calculator,
     GoogleDrive,
@@ -25,6 +25,8 @@ If a tool is not visible, it will not be shown in the frontend.
 If you want to add a new tool, check the instructions on how to implement a retriever in the documentation.
 Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 """
+
+logger = get_logger()
 
 
 class ToolName(StrEnum):
@@ -201,8 +203,8 @@ def get_available_tools() -> dict[ToolName, dict]:
             tools = ALL_TOOLS.copy()
             tools.update(COMMUNITY_TOOLS)
         except ImportError:
-            logging.warning(
-                "[Tools] Error loading tools: Community tools not available."
+            logger.warning(
+                event="[Tools] Error loading tools: Community tools not available."
             )
 
     for tool in tools.values():

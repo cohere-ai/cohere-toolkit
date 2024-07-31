@@ -2,6 +2,7 @@ from backend.tests.factories.agent import AgentFactory
 from backend.tests.factories.agent_tool_metadata import AgentToolMetadataFactory
 from backend.tests.factories.blacklist import BlacklistFactory
 from backend.tests.factories.citation import CitationFactory
+from backend.tests.factories.citation_documents import CitationDocumentsFactory
 from backend.tests.factories.conversation import (
     ConversationFactory,
     ConversationFileAssociationFactory,
@@ -27,6 +28,7 @@ FACTORY_MAPPING = {
     "File": FileFactory,
     "Conversation": ConversationFactory,
     "Citation": CitationFactory,
+    "CitationDocuments": CitationDocumentsFactory,
     "Message": MessageFactory,
     "Document": DocumentFactory,
     "Agent": AgentFactory,

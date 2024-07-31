@@ -1,6 +1,4 @@
 import json
-import logging
-from copy import deepcopy
 from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
@@ -56,6 +54,9 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
+from backend.services.logger.utils import get_logger
+
+logger = get_logger()
 
 
 def process_chat(
@@ -84,7 +85,8 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
 
         if agent is None:
             raise HTTPException(
@@ -630,8 +632,8 @@ def handle_stream_event(
     event_type = event["event_type"]
 
     if event_type not in handlers.keys():
-        logging.warning(
-            f"[Chat] Error handling stream event: Event type {event_type} not supported"
+        logger.warning(
+            event=f"[Chat] Error handling stream event: Event type {event_type} not supported"
         )
         return None, stream_end_data, response_message, document_ids_to_document
 
@@ -796,12 +798,15 @@ def handle_stream_citation_generation(
             user_id=response_message.user_id,
             start=event_citation.get("start"),
             end=event_citation.get("end"),
-            document_ids=event_citation.get("document_ids"),
         )
-        for document_id in citation.document_ids:
+
+        document_ids = event_citation.get("document_ids")
+        for document_id in document_ids:
             document = document_ids_to_document.get(document_id, None)
             if document is not None:
                 citation.documents.append(document)
+
+        # Populates CitationDocuments table
         citations.append(citation)
     stream_event = StreamCitationGeneration(**event | {"citations": citations})
     stream_end_data["citations"].extend(citations)

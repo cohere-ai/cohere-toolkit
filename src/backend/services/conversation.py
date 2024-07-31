@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from fastapi import Depends, HTTPException, Request
@@ -259,8 +258,8 @@ async def generate_conversation_title(
         title = response.text
     except Exception as e:
         title = DEFAULT_TITLE
-        logging.error(
-            f"[Conversation] Error generating title: Conversation ID {conversation.id}, {e}"
+        logger.error(
+            event=f"[Conversation] Error generating title: Conversation ID {conversation.id}, {e}",
         )
 
     return title

@@ -1,8 +1,7 @@
 import json
-import logging
 import os
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from backend.compass_sdk import (
     CompassDocument,
@@ -13,8 +12,10 @@ from backend.compass_sdk import (
 from backend.compass_sdk.compass import CompassClient
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.parser import CompassParserClient
+from backend.config.settings import Settings
+from backend.services.logger.utils import get_logger
 
-logger = logging.getLogger()
+logger = get_logger()
 
 
 class Compass:
@@ -35,32 +36,25 @@ class Compass:
 
     def __init__(
         self,
-        compass_api_url=None,
-        compass_parser_url=None,
-        compass_username=None,
-        compass_password=None,
+        compass_api_url: Optional[str] = None,
+        compass_parser_url: Optional[str] = None,
+        compass_username: Optional[str] = None,
+        compass_password: Optional[str] = None,
         metadata_config=MetadataConfig(),
         parser_config=ParserConfig(),
     ):
         """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
-        vars = [
-            "COHERE_COMPASS_API_URL",
-            "COHERE_COMPASS_PARSER_URL",
-            "COHERE_COMPASS_USERNAME",
-            "COHERE_COMPASS_PASSWORD",
-        ]
-        if not all(os.getenv(var) is not None for var in vars):
-            raise Exception(
-                "[Compass] Error initializing client: Environment variables missing",
-            )
-
-        self.compass_api_url = compass_api_url or os.getenv("COHERE_COMPASS_API_URL")
-        self.compass_parser_url = compass_parser_url or os.getenv(
-            "COHERE_COMPASS_PARSER_URL"
+        self.compass_api_url = compass_api_url or Settings().tools.compass.api_url
+        self.compass_parser_url = (
+            compass_parser_url or Settings().tools.compass.parser_url
         )
-        self.username = compass_username or os.getenv("COHERE_COMPASS_USERNAME")
-        self.password = compass_password or os.getenv("COHERE_COMPASS_PASSWORD")
+        self.username = compass_username or Settings().tools.compass.username
+        self.password = compass_password or Settings().tools.compass.password
+        if self.compass_api_url is None or self.compass_parser_url is None:
+            message = "[Compass] Error initializing Compass client: API url or parser url missing."
+            logger.exception(event=message)
+            raise Exception(message)
         self.parser_config = parser_config
         self.metadata_config = metadata_config
         try:
@@ -80,7 +74,7 @@ class Compass:
             )
             self.compass_client.list_indexes()
         except Exception as e:
-            logger.exception(f"[Compass] Error initializing Compass client: {e}")
+            logger.exception(event=f"[Compass] Error initializing Compass client: {e}")
             raise e
 
     def invoke(
@@ -142,8 +136,8 @@ class Compass:
                         f"[Compass] Error invoking Compass: Invalid action in parameters {parameters}"
                     )
         except Exception as e:
-            message = "[Compass] Error invoking Compass: {}".format(str(e))
-            logger.error(message)
+            message = f"[Compass] Error invoking Compass: {e}"
+            logger.error(event=message)
             raise Exception(message)
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
@@ -164,7 +158,7 @@ class Compass:
         )
         if error is not None:
             message = ("[Compass] Error inserting document: {error}",)
-            logger.error(message)
+            logger.error(event=message)
             raise Exception(message)
 
     def _search(self, parameters: dict, **kwargs: Any) -> None:
@@ -244,7 +238,7 @@ class Compass:
             "file_text", None
         ):
             logger.error(
-                f"[Compass] Error processing file: No filename or file_text specified in parameters {parameters}"
+                event=f"[Compass] Error processing file: No filename or file_text specified in parameters {parameters}"
             )
             return None
 
@@ -254,7 +248,7 @@ class Compass:
 
         if filename and not os.path.exists(filename):
             logger.error(
-                f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
+                event=f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
             )
             return None
 
@@ -283,8 +277,8 @@ class Compass:
         text_bytes = str.encode(text) if not bytes_content else text
         if len(text_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
-                f"[Compass] Error parsing file: Maximum file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "
-                f"mb for file_id {file_id}"
+                event=f"[Compass] Error parsing file: File Size is too large {len(text_bytes)}",
+                max_size=DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES,
             )
             return []
 
@@ -310,6 +304,6 @@ class Compass:
                 doc.content = {**doc.content, **additional_metadata}
         else:
             docs = []
-            logger.error(f"[Compass] Error processing file: {res.text}")
+            logger.error(event=f"[Compass] Error processing file: {res.text}")
 
         return docs

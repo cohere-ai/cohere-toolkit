@@ -38,24 +38,27 @@
   );
 }
 
+::view-transition-group(root) {
+  animation-timing-function: var(--expo-out);
+}
+
 ::view-transition-new(root) {
-  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="white"/></svg>')
-    center / 0 no-repeat;
-  animation-timing-function: var(--expo-in);
+  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><defs><filter id="blur"><feGaussianBlur stdDeviation="2"/></filter></defs><circle cx="0" cy="0" r="18" fill="white" filter="url(%23blur)"/></svg>')
+    top left / 0 no-repeat;
+  mask-origin: content-box;
   animation: scale 1s;
+  transform-origin: top left;
 }
 
 ::view-transition-old(root),
 .dark::view-transition-old(root) {
-  animation: none;
-  z-index: -1;
-}
-.dark::view-transition-new(root) {
   animation: scale 1s;
+  transform-origin: top left;
+  z-index: -1;
 }
 
 @keyframes scale {
   to {
-    mask-size: 200vmax;
+    mask-size: 350vmax;
   }
 }

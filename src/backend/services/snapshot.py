@@ -1,4 +1,3 @@
-import logging
 from typing import Any
 
 from fastapi import HTTPException
@@ -51,7 +50,7 @@ def create_conversation_dict(conversation: ConversationModel) -> dict[str, Any]:
         conversation_schema = Conversation.model_validate(conversation)
         return to_dict(conversation_schema)
     except Exception as e:
-        logging.error(f"[Snapshot] Error creating conversation dict: {e}")
+        logger.error(msg=f"[Snapshot] Error creating conversation dict: {e}")
         raise HTTPException(status_code=500, detail=f"Error creating snapshot - {e}")
 
 
@@ -112,7 +111,7 @@ def wrap_create_snapshot_access(
     except Exception as e:
         # Do not raise exception if snapshot access creation fails
         session.rollback()
-        logging.error(f"[Snapshot] Error creating snapshot access: {e}")
+        logger.error(msg=f"[Snapshot] Error creating snapshot access: {e}")
 
 
 def remove_private_keys(
