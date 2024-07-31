@@ -1,9 +1,6 @@
-from typing import Any
-
 import structlog
 
 from backend.schemas.context import Context
-from backend.services.context import get_context
 from backend.services.logger.strategies.base import BaseLogger
 
 
@@ -30,28 +27,38 @@ def get_context_log(ctx: Context) -> dict:
 
 
 class StructuredLogging(BaseLogger):
-    def __init__(self, level: str = "info"):
-        structlog.configure(
-            processors=[
-                structlog.processors.add_log_level,
-                structlog.processors.EventRenamer("msg"),
-                structlog.processors.TimeStamper(fmt="iso"),
-                structlog.processors.StackInfoRenderer(),
-                structlog.processors.format_exc_info,
-                structlog.processors.UnicodeDecoder(),
+    def __init__(self, level: str = "info", renderer: str = "json"):
+        self.setup(level, renderer)
+        self.logger = structlog.get_logger()
+
+    def setup(self, level: str = "info", renderer: str = "json"):
+        structlog.contextvars.clear_contextvars()
+
+        shared_processors = [
+            structlog.processors.add_log_level,
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.UnicodeDecoder(),
+        ]
+
+        # If running in a terminal, use colored output
+        # Otherwise, use JSON output
+        if renderer.lower() == "console":
+            processors = shared_processors + [
+                structlog.dev.set_exc_info,
+                structlog.dev.ConsoleRenderer(),
+            ]
+        else:
+            processors = shared_processors + [
                 structlog.processors.dict_tracebacks,
                 structlog.processors.JSONRenderer(),
-            ],
+            ]
+
+        structlog.configure(
+            processors=processors,
             wrapper_class=structlog.make_filtering_bound_logger(level),
             cache_logger_on_first_use=True,  # Remove this line to make changes to the logger
         )
-
-        self.setup()
-
-        self.logger = structlog.get_logger()
-
-    def setup(self):
-        structlog.contextvars.clear_contextvars()
 
     @log_context
     def info(self, **kwargs):

@@ -17,7 +17,7 @@ from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
 from backend.services.context import get_context
 from backend.services.file import attach_conversation_id_to_files, get_file_service
-from backend.services.logger.utils import get_logger
+
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -30,7 +30,6 @@ Given the following conversation history, write a short title that summarizes th
 # TITLE
 """
 SEARCH_RELEVANCE_THRESHOLD = 0.3
-logger = get_logger()
 
 
 def validate_conversation(
@@ -234,6 +233,7 @@ async def generate_conversation_title(
     """
     user_id = ctx.get_user_id()
     title = ""
+    logger = ctx.get_logger()
 
     try:
         chatlog = extract_details_from_conversation(conversation)

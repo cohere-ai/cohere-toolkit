@@ -39,7 +39,7 @@ tools:
   compass:
     api_url:
     parser_url:
-  gdrive:
+  google_drive:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false

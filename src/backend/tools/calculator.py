@@ -2,10 +2,8 @@ from typing import Any, Dict, List
 
 from py_expression_eval import Parser
 
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.tools.base import BaseTool
-
-logger = get_logger()
 
 
 class Calculator(BaseTool):

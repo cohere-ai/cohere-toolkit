@@ -44,9 +44,7 @@ from backend.services.file import (
     validate_file,
     validate_file_size,
 )
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -276,7 +274,8 @@ async def search_conversations(
 
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     else:
         ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
