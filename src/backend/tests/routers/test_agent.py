@@ -751,13 +751,9 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
         if tool.tool_name == "search_file":
             search_tool = tool
     assert drive_tool.tool_name == "google_drive"
-    assert drive_tool.artifacts == [
-        {"url": "test", "name": "test", "type": "folder"}
-    ]
+    assert drive_tool.artifacts == [{"url": "test", "name": "test", "type": "folder"}]
     assert search_tool.tool_name == "search_file"
-    assert search_tool.artifacts == [
-        {"url": "test", "name": "test", "type": "file"}
-    ]
+    assert search_tool.artifacts == [{"url": "test", "name": "test", "type": "file"}]
 
 
 def test_update_agent_remove_existing_tool_metadata(
