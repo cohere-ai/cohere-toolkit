@@ -57,7 +57,6 @@ from backend.services.generators import AsyncGeneratorContextManager
 from backend.services.logger.utils import logger
 
 
-
 def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,

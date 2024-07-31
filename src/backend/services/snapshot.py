@@ -17,7 +17,6 @@ from backend.schemas.snapshot import SnapshotAgent, SnapshotData
 from backend.services.conversation import get_messages_with_files
 from backend.services.logger.utils import logger
 
-
 SNAPSHOT_VERSION = 1
 
 
