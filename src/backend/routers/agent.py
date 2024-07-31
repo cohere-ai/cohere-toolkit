@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
@@ -151,10 +151,6 @@ async def get_agent_by_id(
 
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-
-        agent_schema = Agent.model_validate(agent)
-        ctx.with_agent(agent_schema)
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -163,6 +159,10 @@ async def get_agent_by_id(
             status_code=400,
             detail=f"Agent with ID: {agent_id} not found.",
         )
+
+    agent_schema = Agent.model_validate(agent)
+    ctx.with_agent(agent_schema)
+    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
     return agent
 
