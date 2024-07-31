@@ -88,12 +88,12 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
           <AgentsSidePanelButton
             label={
               <div className="group flex items-center justify-between">
-                <Text className="dark:text-evolved-green-700">New chat</Text>
+                <Text className="text-coral-500 dark:text-evolved-green-700">New chat</Text>
                 <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
               </div>
             }
             iconName="add"
-            iconClassName="dark:fill-evolved-green-700"
+            theme="evolved-green"
             onClick={() => navigateToNewChat()}
             stretch
           />
