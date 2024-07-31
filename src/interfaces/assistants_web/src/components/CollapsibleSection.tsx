@@ -11,17 +11,17 @@ type Props = {
   title?: string | ReactNode;
   description?: string | ReactNode;
   children: ReactNode;
-  expanded?: boolean;
+  isExpanded?: boolean;
+  setIsExpanded: (expanded: boolean) => void;
 };
 export const CollapsibleSection: React.FC<Props> = ({
   number,
   title,
   description,
   children,
-  expanded,
+  isExpanded = false,
+  setIsExpanded,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(expanded ?? false);
-
   return (
     <div
       className={cn(
@@ -30,6 +30,7 @@ export const CollapsibleSection: React.FC<Props> = ({
         'border-volcanic-200 bg-volcanic-150'
       )}
     >
+      {/* Visible portion */}
       <button className="flex w-full flex-col space-y-1" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="flex w-full items-center justify-between">
           <div className="flex w-full items-center space-x-2.5">

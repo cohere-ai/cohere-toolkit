@@ -1,13 +1,15 @@
 import Link from 'next/link';
 
 import { ManagedTool } from '@/cohere-client';
-import { Icon, IconName, Switch, Text } from '@/components/Shared';
+import { Button, Icon, IconName, Switch, Text } from '@/components/Shared';
 
 type Props = {
   pythonTool?: ManagedTool;
   webSearchTool?: ManagedTool;
   activeTools?: string[];
   setActiveTools: (tools?: string[]) => void;
+  handleBack: VoidFunction;
+  handleNext: VoidFunction;
 };
 
 export const ToolsStep: React.FC<Props> = ({
@@ -15,6 +17,8 @@ export const ToolsStep: React.FC<Props> = ({
   webSearchTool,
   activeTools = [],
   setActiveTools,
+  handleBack,
+  handleNext,
 }) => {
   const handleUpdateActiveTools = (checked: boolean, name?: string | null) => {
     if (!name) return;
@@ -46,11 +50,24 @@ export const ToolsStep: React.FC<Props> = ({
         />
       )}
       <Text styleAs="caption" className="dark:text-marble-800">
-        Don't see the tool you need?{' '}
-        <Link className="underline" href="">
+        Don't see the tool you need? {/* TODO: get tool request link from Elaine */}
+        <Link className="underline" onClick={() => alert('Needs to be developed!')} href="">
           Make a request
         </Link>
       </Text>
+      <div className="flex w-full items-center justify-between">
+        <Button label="Back" kind="secondary" onClick={handleBack} />
+        <div className="flex items-center space-x-4">
+          <Button label="Skip" kind="secondary" onClick={handleNext} />
+          <Button
+            label="Next"
+            theme="evolved-green"
+            kind="cell"
+            icon="arrow-right"
+            onClick={handleNext}
+          />
+        </div>
+      </div>
     </div>
   );
 };

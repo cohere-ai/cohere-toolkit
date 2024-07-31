@@ -19,6 +19,7 @@ export const DefineAssistantStep: React.FC<Props> = ({ register, handleNext }) =
         label="Name"
         placeholder="e.g., HR Benefits Bot"
         {...register('name', {
+          required: true,
           validate: {
             uniqueName: (v) =>
               (!!v.trim() && isAgentNameUnique(v)) || 'Assistant name must be unique',

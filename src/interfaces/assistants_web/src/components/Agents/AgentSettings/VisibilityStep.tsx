@@ -1,19 +1,24 @@
-import Link from 'next/link';
-
-import { ManagedTool } from '@/cohere-client';
-import { Banner, Icon, RadioGroup, Text } from '@/components/Shared';
+import { Button, Icon, RadioGroup, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
   isPublic: boolean;
+  canSubmit: boolean;
   setIsPublic: (isPublic: boolean) => void;
+  handleBack: VoidFunction;
+  handleNext: VoidFunction;
 };
 
-export const VisibilityStep: React.FC<Props> = ({ isPublic, setIsPublic }) => {
+export const VisibilityStep: React.FC<Props> = ({
+  isPublic,
+  canSubmit,
+  setIsPublic,
+  handleBack,
+  handleNext,
+}) => {
   const handleRadioChange = (value: 'private' | 'public') => {
     setIsPublic(value === 'public');
   };
-  console.log(isPublic);
 
   return (
     <div className="flex flex-col space-y-5">
@@ -39,6 +44,17 @@ export const VisibilityStep: React.FC<Props> = ({ isPublic, setIsPublic }) => {
           All files will be public, including any private files you add from your Drive or local.
           Those will be viewable/accessible to everyone.
         </Text>
+      </div>
+      <div className="flex w-full items-center justify-between">
+        <Button label="Back" kind="secondary" onClick={handleBack} />
+        <Button
+          label="Next"
+          theme="evolved-green"
+          kind="cell"
+          icon="arrow-right"
+          disabled={!canSubmit}
+          onClick={handleNext}
+        />
       </div>
     </div>
   );

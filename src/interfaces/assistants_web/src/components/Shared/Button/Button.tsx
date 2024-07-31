@@ -124,13 +124,6 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const labelStyles = getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
-  const animateStyles =
-    animate && !disabled
-      ? cn('duration-400 transition-spacing ease-in-out', {
-          'pl-3 group-hover:pl-1': iconPosition === 'start',
-          'pr-3 group-hover:pr-1': iconPosition === 'end',
-        })
-      : undefined;
 
   const iconElement = isLoading ? (
     <Spinner />
@@ -143,6 +136,13 @@ export const Button: React.FC<ButtonProps> = ({
   ) : (
     iconOptions?.customIcon ?? undefined
   );
+  const animateStyles =
+    animate && !disabled && iconElement
+      ? cn('duration-400 transition-spacing ease-in-out', {
+          'pl-3 group-hover:pl-1': iconPosition === 'start',
+          'pr-3 group-hover:pr-1': iconPosition === 'end',
+        })
+      : undefined;
 
   const labelElement =
     typeof label === 'string' ? (
@@ -155,7 +155,7 @@ export const Button: React.FC<ButtonProps> = ({
     kind !== 'cell' ? (
       <div
         className={cn(
-          'group flex h-cell-button w-fit items-center justify-center rounded-md',
+          'group flex h-cell-button w-fit items-center justify-center rounded-md px-3',
           buttonStyles,
           className,
           {

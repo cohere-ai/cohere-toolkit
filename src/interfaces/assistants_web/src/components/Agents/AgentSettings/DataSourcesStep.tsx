@@ -1,34 +1,32 @@
 import { useRef } from 'react';
 
-import { ManagedTool } from '@/cohere-client';
 import { AgentDataSources } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconName, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
-import { useBatchUploadFile } from '@/hooks/files';
+import { useBatchUploadFile, useDeleteUploadedFile } from '@/hooks/files';
 import { useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
 type Props = {
   dataSources: AgentDataSources;
   googleDriveEnabled: boolean;
+  isUpdatingAgent: boolean;
   setDataSources: (sources: AgentDataSources) => void;
-};
-
-const isToolAvailable = (name: string | string[], tools?: ManagedTool[]) => {
-  if (!tools) return false;
-  const checkedTools = Array.isArray(name)
-    ? tools.filter((t) => t.name && name.includes(t.name))
-    : [tools.find((t) => t.name === name)];
-  return checkedTools.every((t) => !!t?.is_available);
+  handleBack: VoidFunction;
+  handleNext: VoidFunction;
 };
 
 export const DataSourcesStep: React.FC<Props> = ({
   dataSources,
   googleDriveEnabled,
+  isUpdatingAgent,
   setDataSources,
+  handleBack,
+  handleNext,
 }) => {
   const { mutateAsync: batchUploadFiles } = useBatchUploadFile();
+  const { mutateAsync: deleteUploadFile } = useDeleteUploadedFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpdateDataSources = ({
@@ -99,9 +97,16 @@ export const DataSourcesStep: React.FC<Props> = ({
     });
   };
 
+  const handleDeleteFileUpload = (id: string) => {
+    if (!isUpdatingAgent) {
+      //TODO: awaiting Scott's pr -> delete file mutation requires conversation ID
+    }
+    handleUpdateDataSources({ source: 'defaultUpload', removedId: id });
+  };
+
   const hasActiveDataSources = dataSources.googleDrive?.length || dataSources.defaultUpload?.length;
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col gap-3">
       {hasActiveDataSources && <Text styleAs="label">Active Data Sources</Text>}
       {googleDriveEnabled && dataSources.googleDrive?.length && (
         <DataSourceFileList
@@ -122,13 +127,11 @@ export const DataSourcesStep: React.FC<Props> = ({
           handleRemoveTool={() =>
             handleUpdateDataSources({ source: 'defaultUpload', artifacts: [] })
           }
-          handleRemoveFile={(removedId: string) =>
-            handleUpdateDataSources({ source: 'defaultUpload', removedId })
-          }
+          handleRemoveFile={(removedId: string) => handleDeleteFileUpload(removedId)}
         />
       )}
       <Text styleAs="label">Add {hasActiveDataSources ? 'More' : ''} Data Sources</Text>
-      <div className="flex space-x-4">
+      <div className="flex gap-4">
         {googleDriveEnabled && !dataSources.googleDrive?.length && (
           <Button
             kind="outline"
@@ -157,6 +160,16 @@ export const DataSourcesStep: React.FC<Props> = ({
             />
           </>
         )}
+      </div>
+      <div className="flex w-full items-center justify-between">
+        <Button label="Back" kind="secondary" onClick={handleBack} />
+        <Button
+          label="Next"
+          theme="evolved-green"
+          kind="cell"
+          icon="arrow-right"
+          onClick={handleNext}
+        />
       </div>
     </div>
   );
