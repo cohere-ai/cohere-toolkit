@@ -14,7 +14,7 @@ def get_client() -> Redis:
 
     if not redis_url:
         error = "Tried retrieving Redis client but REDIS_URL environment variable is not set."
-        logger.error(error)
+        logger.error(event=error)
         raise ValueError(error)
 
     client = Redis.from_url(redis_url, decode_responses=True)
