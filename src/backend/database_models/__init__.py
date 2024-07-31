@@ -12,3 +12,4 @@ from backend.database_models.organization import *
 from backend.database_models.snapshot import *
 from backend.database_models.tool_auth import *
 from backend.database_models.user import *
+from backend.database_models.group import *
