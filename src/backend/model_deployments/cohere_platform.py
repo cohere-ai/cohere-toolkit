@@ -84,11 +84,15 @@ class CohereDeployment(BaseDeployment):
 
         for event in stream:
             event_dict = to_dict(event)
+
+            event_dict_log = event_dict.copy()
+            event_dict_log.pop("conversation_id", None)
             logger.debug(
                 event=f"Chat event",
-                **event_dict,
-                conversation_id=kwargs.get("conversation_id"),
+                **event_dict_log,
+                conversation_id=ctx.get_conversation_id(),
             )
+
             yield event_dict
 
     @collect_metrics_rerank
