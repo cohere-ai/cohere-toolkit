@@ -203,7 +203,8 @@ async def search_conversations(
 
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     else:
         ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
