@@ -5,7 +5,6 @@ from cohere.types import StreamedChatResponse
 from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.context import Context
 
 
 class MockAzureDeployment(BaseDeployment):
@@ -28,9 +27,7 @@ class MockAzureDeployment(BaseDeployment):
     def is_available(cls) -> bool:
         return True
 
-    def invoke_chat(
-        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
-    ) -> Any:
+    def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         event = {
             "text": "Hi! Hello there! How's it going?",
             "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
@@ -56,7 +53,7 @@ class MockAzureDeployment(BaseDeployment):
         yield event
 
     def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         events = [
             {
@@ -84,6 +81,6 @@ class MockAzureDeployment(BaseDeployment):
             yield event
 
     def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None

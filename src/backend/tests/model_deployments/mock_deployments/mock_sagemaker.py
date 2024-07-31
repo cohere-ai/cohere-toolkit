@@ -5,7 +5,6 @@ from cohere.types import StreamedChatResponse
 from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
-from backend.schemas.context import Context
 
 
 class MockSageMakerDeployment(BaseDeployment):
@@ -26,7 +25,7 @@ class MockSageMakerDeployment(BaseDeployment):
         return True
 
     def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         events = [
             {
@@ -54,6 +53,6 @@ class MockSageMakerDeployment(BaseDeployment):
             yield event
 
     def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
     ) -> Any:
         return None
