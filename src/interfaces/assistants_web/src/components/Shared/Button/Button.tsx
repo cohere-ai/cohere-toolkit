@@ -5,82 +5,74 @@ import { Icon, IconName, Spinner, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
 export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';
-export type ButtonTheme =
-  | 'acrylic-blue'
-  | 'evolved-green'
-  | 'coral'
-  | 'quartz'
-  | 'mushroom-marble'
-  | 'danger';
+export type ButtonTheme = 'blue' | 'coral' | 'evolved-green' | 'quartz' | 'mushroom' | 'danger';
 
 const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (disabled) {
-    return cn('dark:text-volcanic-700 dark:fill-volcanic-700');
+    return cn('text-volcanic-700 fill-volcanic-700');
   }
 
   switch (kind) {
     case 'primary':
     case 'cell':
       if (theme === 'evolved-green') {
-        return cn('dark:text-volcanic-150 dark:fill-volcanic-150');
+        return cn('text-volcanic-150 fill-volcanic-150');
       }
     case 'secondary':
       if (theme === 'evolved-green') {
         return cn(
-          'dark:text-evolved-green-700 dark:fill-evolved-green-700',
-          'dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500'
+          'text-evolved-green-700 fill-evolved-green-700',
+          'group-hover:text-evolved-green-500 group-hover:fill-evolved-green-500'
         );
       } else if (theme === 'danger') {
         return cn(
-          'dark:text-danger-500 dark:fill-danger-500',
-          'dark:group-hover:text-danger-350 dark:group-hover:fill-danger-350'
+          'text-danger-500 fill-danger-500',
+          'group-hover:text-danger-350 group-hover:fill-danger-350'
         );
       }
     default:
       return cn(
-        'dark:text-marble-950 dark:fill-marble-950',
-        'dark:group-hover:text-marble-1000 dark:group-hover:fill-marble-1000'
+        'text-marble-950 fill-marble-950',
+        'group-hover:text-marble-1000 group-hover:fill-marble-1000'
       );
   }
 };
 
 const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (kind === 'secondary') return '';
-  if (disabled) return 'dark:bg-volcanic-600';
+  if (disabled) return 'bg-volcanic-600';
 
   if (kind === 'outline') {
     return cn('border', {
-      'dark:border-danger-500 dark:group-hover:border-danger-350': theme === 'danger',
-      'dark:border-evolved-green-700 dark:group-hover:border-evolved-green-500':
-        theme === 'evolved-green',
-      'dark:border-blue-500 dark:group-hover:border-blue-400': theme === 'acrylic-blue',
-      'dark:border-coral-700 dark:group-hover:border-coral-600': theme === 'coral',
-      'dark:border-quartz-500 dark:group-hover:border-quartz-400': theme === 'quartz',
-      'dark:border-mushroom-500 dark:group-hover:border-mushroom-400': theme === 'mushroom-marble',
+      'border-danger-500 group-hover:border-danger-350': theme === 'danger',
+      'border-evolved-green-700 group-hover:border-evolved-green-500': theme === 'evolved-green',
+      'border-blue-500 group-hover:border-blue-400': theme === 'blue',
+      'border-coral-700 group-hover:border-coral-600': theme === 'coral',
+      'border-quartz-500 group-hover:border-quartz-400': theme === 'quartz',
+      'border-mushroom-500 group-hover:border-mushroom-400': theme === 'mushroom',
     });
   } else {
     return cn({
-      'dark:bg-danger-500 dark:group-hover:bg-danger-350': theme === 'danger',
-      'dark:bg-evolved-green-700 dark:group-hover:bg-evolved-green-500': theme === 'evolved-green',
-      'dark:bg-blue-500 dark:group-hover:bg-blue-400': theme === 'acrylic-blue',
-      'dark:fill-coral-700 dark:bg-coral-700 dark:group-hover:bg-coral-600': theme === 'coral',
-      'dark:bg-quartz-500 dark:group-hover:bg-quartz-400': theme === 'quartz',
-      'dark:bg-mushroom-500 dark:group-hover:bg-mushroom-400': theme === 'mushroom-marble',
+      'bg-danger-500 group-hover:bg-danger-350': theme === 'danger',
+      'bg-evolved-green-700 group-hover:bg-evolved-green-500': theme === 'evolved-green',
+      'bg-blue-500 group-hover:bg-blue-400': theme === 'blue',
+      'fill-coral-700 bg-coral-700 group-hover:bg-coral-600': theme === 'coral',
+      'bg-quartz-500 group-hover:bg-quartz-400': theme === 'quartz',
+      'bg-mushroom-500 group-hover:bg-mushroom-400': theme === 'mushroom',
     });
   }
 };
 
 const getCellStyles = (theme: ButtonTheme, disabled: boolean) => {
-  if (disabled) return 'dark:fill-volcanic-600';
+  if (disabled) return 'fill-volcanic-600';
 
   return cn({
-    'dark:fill-danger-500 dark:group-hover:fill-danger-350': theme === 'danger',
-    'dark:fill-evolved-green-700 dark:group-hover:fill-evolved-green-500':
-      theme === 'evolved-green',
-    'dark:fill-blue-500 dark:group-hover:fill-blue-400': theme === 'acrylic-blue',
-    'dark:fill-coral-700 dark:group-hover:fill-coral-600': theme === 'coral',
-    'dark:fill-quartz-500 dark:group-hover:fill-quartz-400': theme === 'quartz',
-    'dark:fill-mushroom-500 dark:group-hover:fill-mushroom-400': theme === 'mushroom-marble',
+    'fill-danger-500 group-hover:fill-danger-350': theme === 'danger',
+    'fill-evolved-green-700 group-hover:fill-evolved-green-500': theme === 'evolved-green',
+    'fill-blue-500 group-hover:fill-blue-400': theme === 'blue',
+    'fill-coral-700 group-hover:fill-coral-600': theme === 'coral',
+    'fill-quartz-500 group-hover:fill-quartz-400': theme === 'quartz',
+    'fill-mushroom-500 group-hover:fill-mushroom-400': theme === 'mushroom',
   });
 };
 
@@ -113,7 +105,7 @@ export type ButtonProps = {
 export const Button: React.FC<ButtonProps> = ({
   id,
   kind = 'primary',
-  theme = kind === 'secondary' ? 'mushroom-marble' : 'acrylic-blue',
+  theme = kind === 'secondary' ? 'mushroom' : 'blue',
   label,
   children,
   icon,

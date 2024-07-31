@@ -107,7 +107,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
             kind="cell"
             label="See preview"
             href={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
-            hrefOptions={{ target: '_blank' }}
+            target="_blank"
             icon="arrow-up-right"
             disabled={status === 'update-url-loading'}
             animate={false}
@@ -117,7 +117,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
               kind="secondary"
               label={status === 'update-url-loading' ? 'Generating link' : 'Update link'}
               onClick={updateSnapshotUrl}
-              icon="redo"
+              icon="arrow-clockwise"
               iconPosition="end"
               isLoading={status === 'update-url-loading'}
               disabled={status === 'update-url-loading'}

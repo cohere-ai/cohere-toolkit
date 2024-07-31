@@ -4,7 +4,7 @@ from typing import Any, AsyncGenerator, Dict, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import rerank_and_chunk
+from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
@@ -15,7 +15,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Tool
 from backend.services.file import get_file_service
-from backend.services.logger import get_logger, send_log_message
+from backend.services.logger.utils import get_logger
 
 MAX_STEPS = 15
 
@@ -46,12 +46,9 @@ class CustomChat(BaseChat):
         deployment_name = ctx.get_deployment_name()
         deployment_model = get_deployment(deployment_name, ctx)
 
-        send_log_message(
-            logger,
-            f"[Custom Chat] Using deployment: {deployment_model.__class__.__name__}",
-            level="info",
-            conversation_id=kwargs.get("conversation_id"),
-            user_id=ctx.get_user_id(),
+        # Bind the logger with the conversation ID
+        logger.debug(
+            event=f"[Custom Chat] Using deployment: {deployment_model.__class__.__name__}"
         )
 
         if len(chat_request.tools) > 0 and len(chat_request.documents) > 0:
@@ -76,13 +73,7 @@ class CustomChat(BaseChat):
                 ] == StreamEvent.STREAM_END and self.is_final_event(
                     event, chat_request
                 ):
-                    send_log_message(
-                        logger,
-                        f"Final event: {event}",
-                        level="info",
-                        conversation_id=kwargs.get("conversation_id"),
-                        user_id=ctx.get_user_id(),
-                    )
+                    logger.debug(event=f"Final event: {event}")
                     break
         except Exception as e:
             yield {
@@ -187,19 +178,9 @@ class CustomChat(BaseChat):
 
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
-            send_log_message(
-                logger,
-                f"[Custom Chat] Step: {step + 1}",
-                level="info",
-                conversation_id=kwargs.get("conversation_id"),
-                user_id=ctx.get_user_id(),
-            )
-            send_log_message(
-                logger,
-                f"[Custom Chat] Chat request: {chat_request.dict()}",
-                level="info",
-                conversation_id=kwargs.get("conversation_id"),
-                user_id=ctx.get_user_id(),
+            logger.debug(
+                event=f"[Custom Chat] Chat request: {chat_request.model_dump()}",
+                step=step + 1,
             )
 
             # Invoke chat stream
@@ -217,12 +198,8 @@ class CustomChat(BaseChat):
 
                 yield event
 
-            send_log_message(
-                logger,
-                f"[Custom Chat] Chat stream completed: Has tool calls {has_tool_calls}",
-                level="info",
-                conversation_id=kwargs.get("conversation_id"),
-                user_id=ctx.get_user_id(),
+            logger.info(
+                event=f"[Custom Chat] Chat stream completed: Has tool calls {has_tool_calls}",
             )
 
             # Check for new tool calls in the chat history
@@ -263,19 +240,10 @@ class CustomChat(BaseChat):
 
         tool_calls = chat_history[-1]["tool_calls"]
         tool_plan = chat_history[-1].get("message", None)
-        send_log_message(
-            logger,
-            f"[Custom Chat] Making tool calls: {tool_calls}",
-            level="info",
-            conversation_id=kwargs.get("conversation_id"),
-            user_id=ctx.get_user_id(),
-        )
-        send_log_message(
-            logger,
-            f"[Custom Chat]: Using tool plan: {tool_plan}",
-            level="info",
-            conversation_id=kwargs.get("conversation_id"),
-            user_id=ctx.get_user_id(),
+        logger.info(
+            event=f"[Custom Chat] Using tools",
+            tool_calls=to_dict(tool_calls),
+            tool_plan=to_dict(tool_plan),
         )
 
         # TODO: Call tools in parallel
@@ -302,12 +270,9 @@ class CustomChat(BaseChat):
         tool_results = await rerank_and_chunk(
             tool_results, deployment_model, ctx, **kwargs
         )
-        send_log_message(
-            logger,
-            f"[Custom Chat] Tool results: {tool_results}",
-            level="info",
-            conversation_id=kwargs.get("conversation_id"),
-            user_id=ctx.get_user_id(),
+        logger.info(
+            event=f"[Custom Chat] Tool results",
+            tool_results=to_dict(tool_results),
         )
 
         return tool_results

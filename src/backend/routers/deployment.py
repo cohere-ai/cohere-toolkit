@@ -6,7 +6,7 @@ from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment, UpdateDeploymentEnv
 from backend.services.context import get_context
 from backend.services.env import update_env_file
-from backend.services.logger import get_logger, send_log_message
+from backend.services.logger.utils import get_logger
 from backend.services.request_validators import validate_env_vars
 
 logger = get_logger()
@@ -30,11 +30,6 @@ def list_deployments(
     Returns:
         list[Deployment]: List of available deployment options.
     """
-    send_log_message(
-        logger,
-        f"[Deployment] List deployment request",
-        "debug",
-    )
     available_deployments = [
         deployment
         for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
@@ -43,10 +38,8 @@ def list_deployments(
 
     # No available deployments
     if not available_deployments:
-        send_log_message(
-            logger,
-            f"[Deployment] No deployments available to list.",
-            "warning",
+        logger.warning(
+            event=f"[Deployment] No deployments available to list.",
         )
         raise HTTPException(
             status_code=404,
@@ -77,9 +70,4 @@ async def set_env_vars(
     Returns:
         str: Empty string.
     """
-    send_log_message(
-        logger,
-        f"[Deployment] Set environment variables request",
-        "debug",
-    )
     update_env_file(env_vars.env_vars)

@@ -102,10 +102,9 @@ const ConnectDataBox: React.FC<{
             key={tool.name}
             kind="secondary"
             href={tool.auth_url ?? ''}
-            endIcon={<Icon name="arrow-up-right" className="ml-1" />}
-          >
-            {tool.display_name}
-          </Button>
+            label={tool.display_name}
+            icon="arrow-up-right"
+          />
         ))}
       </div>
     </div>

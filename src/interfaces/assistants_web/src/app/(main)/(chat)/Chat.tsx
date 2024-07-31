@@ -64,14 +64,26 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
       .map((name) => (tools ?? [])?.find((t) => t.name === name))
       .filter((t) => t !== undefined) ?? []) as ManagedTool[];
 
+    const fileIds = conversation?.files.map((file) => file.id);
+
     setParams({
       tools: agentTools,
+      fileIds,
     });
 
     if (conversationId) {
       setConversation({ id: conversationId });
     }
-  }, [conversationId, setConversation, resetCitations, agent, tools]);
+  }, [
+    agent,
+    conversation,
+    tools,
+    conversationId,
+    setConversation,
+    resetCitations,
+    resetFileParams,
+    setParams,
+  ]);
 
   useEffect(() => {
     if (!conversation) return;

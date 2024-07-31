@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, Depends
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
@@ -46,7 +44,7 @@ from backend.services.file import (
     validate_file,
     validate_file_size,
 )
-from backend.services.logger import get_logger, send_log_message
+from backend.services.logger.utils import get_logger
 
 logger = get_logger()
 
@@ -79,11 +77,6 @@ async def get_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    send_log_message(
-        logger,
-        f"[Conversation] Get conversation request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -113,6 +106,7 @@ async def get_conversation(
     )
 
     _ = validate_conversation(session, conversation_id, user_id)
+    conversation = validate_conversation(session, conversation_id, user_id)
     return conversation
 
 
@@ -140,11 +134,6 @@ async def list_conversations(
         list[ConversationWithoutMessages]: List of conversations.
     """
     user_id = ctx.get_user_id()
-    send_log_message(
-        logger,
-        f"[Conversation] List conversations request: User ID {user_id}",
-        "debug",
-    )
 
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -200,11 +189,6 @@ async def update_conversation(
     """
     user_id = ctx.get_user_id()
     conversation = validate_conversation(session, conversation_id, user_id)
-    send_log_message(
-        logger,
-        f"[Conversation] Update conversation request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
     conversation = conversation_crud.update_conversation(
         session, conversation, new_conversation
     )
@@ -247,12 +231,6 @@ async def delete_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    send_log_message(
-        logger,
-        f"[Conversation] Delete conversation request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
-
     _ = validate_conversation(session, conversation_id, user_id)
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
@@ -292,12 +270,6 @@ async def search_conversations(
     user_id = ctx.get_user_id()
     deployment_name = ctx.get_deployment_name()
     model_deployment = get_deployment(deployment_name, ctx)
-
-    send_log_message(
-        logger,
-        f"[Conversation] Search conversation request: User ID {user_id} Agent ID {agent_id}",
-        "debug",
-    )
 
     agent = DEFAULT_METRICS_AGENT
     if agent_id:
@@ -379,13 +351,6 @@ async def upload_file(
     """
 
     user_id = ctx.get_user_id()
-
-    send_log_message(
-        logger,
-        f"[Conversation] Upload file request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
-
     validate_file_size(session, user_id, file)
 
     # Create new conversation
@@ -459,13 +424,6 @@ async def batch_upload_file(
     """
 
     user_id = ctx.get_user_id()
-
-    send_log_message(
-        logger,
-        f"[Conversation] Batch upload file request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
-
     validate_batch_file_size(session, user_id, files)
 
     # Create new conversation
@@ -529,12 +487,6 @@ async def list_files(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    send_log_message(
-        logger,
-        f"[Conversation] List files request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
-
     _ = validate_conversation(session, conversation_id, user_id)
 
     files = get_file_service().get_files_by_conversation_id(
@@ -569,13 +521,6 @@ async def update_file(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-
-    send_log_message(
-        logger,
-        f"[Conversation] Update files request: User ID {user_id} Conversation ID {conversation_id} File ID {file_id}",
-        "debug",
-    )
-
     _ = validate_conversation(session, conversation_id, user_id)
     _ = validate_file(session, file_id, user_id)
 
@@ -609,12 +554,6 @@ async def delete_file(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    send_log_message(
-        logger,
-        f"[Conversation] Delete file request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
-
     _ = validate_conversation(session, conversation_id, user_id)
     _ = validate_file(session, file_id, user_id)
 
@@ -652,12 +591,6 @@ async def generate_title(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    send_log_message(
-        logger,
-        f"[Conversation] Generate title request: User ID {user_id} Conversation ID {conversation_id}",
-        "debug",
-    )
-
     ctx.with_deployment_config()
 
     conversation = validate_conversation(session, conversation_id, user_id)

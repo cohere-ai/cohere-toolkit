@@ -2,7 +2,8 @@
 
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
-import { Button, ButtonKind, Icon, IconName, Tooltip } from '@/components/Shared';
+import { IconButton } from '@/components/IconButton';
+import { Button, ButtonKind, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type CopyToClipboardButtonProps = {
@@ -122,16 +123,17 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
         className="-translate-x-[40%]"
         buttonClassName={buttonClassName}
         icon={
-          <Icon
+          <IconButton
             aria-disabled={disabled}
-            className={cn(
+            iconName={iconName}
+            iconKind={isCopied ? 'default' : 'outline'}
+            iconClassName={cn(
               'flex rounded p-2',
               'transition ease-in-out',
-              'text-volcanic-300 hover:bg-mushroom-900 hover:text-mushroom-300 dark:text-mushroom-800 dark:hover:bg-inherit dark:hover:text-mushroom-800',
+              'fill-volcanic-300 hover:bg-mushroom-900 hover:fill-mushroom-300 dark:fill-mushroom-800 dark:hover:bg-inherit dark:hover:fill-mushroom-800',
               iconClassName
             )}
-            name={iconName}
-            kind="outline"
+            animate={false}
             onClick={handleCopy}
           />
         }

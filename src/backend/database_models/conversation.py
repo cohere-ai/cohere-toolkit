@@ -33,10 +33,11 @@ class Conversation(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(String, default="New Conversation")
     description: Mapped[str] = mapped_column(String, nullable=True, default=None)
-    text_messages: Mapped[List["Message"]] = relationship()
     conversation_file_associations: Mapped[List["ConversationFileAssociation"]] = (
         relationship("ConversationFileAssociation", back_populates="conversation")
     )
+    text_messages: Mapped[List[Message]] = relationship()
+    files: Mapped[List[File]] = relationship()
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=True
     )

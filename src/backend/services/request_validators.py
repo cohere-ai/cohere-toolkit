@@ -7,6 +7,7 @@ from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
+from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
 from backend.services.auth.utils import get_header_user_id
 
@@ -253,3 +254,37 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
                 status_code=400,
                 detail=f"Model {model} not found for deployment {deployment}.",
             )
+
+
+async def validate_organization_request(session: DBSessionDep, request: Request):
+    """
+    Validate create/update organization request.
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If the request does not have the appropriate values in the body
+    """
+
+    organization_id = request.path_params.get("organization_id")
+    # Organization ID is required for PUT requests
+    if request.method == "PUT":
+        if not organization_id:
+            raise HTTPException(status_code=400, detail="Organization ID is required.")
+        if organization_id and not organization_crud.get_organization(
+            session, organization_id
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Organization with ID: {organization_id} not found.",
+            )
+    body = await request.json()
+    name = body.get("name")
+    if not name and request.method == "POST":
+        raise HTTPException(status_code=400, detail="Organization name is required.")
+    check_organization = organization_crud.get_organization_by_name(session, name)
+    if check_organization:
+        raise HTTPException(
+            status_code=400, detail=f"Organization with name: {name} already exists."
+        )
