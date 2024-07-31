@@ -1,74 +1,53 @@
 'use client';
 
-import { Transition } from '@headlessui/react';
-
 import { Citation } from '@/components/Citations/Citation';
-import { CitationToStyles } from '@/hooks/citations';
-import { useCitationsStore, useConversationStore } from '@/stores';
-import { ChatMessage, isFulfilledOrTypingMessage } from '@/types/message';
-import { cn } from '@/utils';
+import { useCalculateCitationStyles } from '@/hooks/citations';
+import { useConversationStore } from '@/stores';
+import { useStreamingStore } from '@/stores/streaming';
+import { isFulfilledOrTypingMessage } from '@/types/message';
 
-type Props = {
-  streamingMessage: ChatMessage | null;
-  citationToStyles?: CitationToStyles;
-  className?: string;
-};
+type Props = {};
 
-export const CitationPanel: React.FC<Props> = ({
-  streamingMessage,
-  citationToStyles,
-  className = '',
-}) => {
-  const {
-    citations: { hasCitations },
-  } = useCitationsStore();
+export const CitationPanel: React.FC<Props> = () => {
   const {
     conversation: { messages },
   } = useConversationStore();
+  const { streamingMessage } = useStreamingStore();
+  const { citationToStyles } = useCalculateCitationStyles(messages, streamingMessage);
 
   return (
-    <Transition
-      show={hasCitations}
-      appear
-      enter="transition-opacity delay-1000 ease-in-out duration-1000"
-      enterFrom="opacity-0"
-      enterTo="opacity-100"
-      as="div"
-      className={cn('h-auto flex-col gap-y-2 md:items-end lg:items-center', className)}
-    >
-      <div className="relative flex h-full w-full flex-col gap-y-2 overflow-hidden pb-12 pt-1">
-        <>
-          {messages.map((message) => {
-            if (
-              isFulfilledOrTypingMessage(message) &&
-              message.citations &&
-              message.citations.length > 0
-            ) {
-              const generationId = message.generationId;
-              return (
-                <Citation
-                  key={generationId}
-                  generationId={generationId}
-                  message={message.originalText}
-                  styles={citationToStyles?.[generationId]}
-                />
-              );
-            }
-            return null;
-          })}
-          {streamingMessage &&
-            isFulfilledOrTypingMessage(streamingMessage) &&
-            citationToStyles?.[streamingMessage.generationId] && (
+    <div className="h-full flex-grow flex-col gap-y-2 md:items-end lg:items-center">
+      <div className="relative flex h-full w-full flex-col gap-y-2 pb-12 pl-2 pt-1">
+        {messages.map((message) => {
+          if (
+            isFulfilledOrTypingMessage(message) &&
+            message.citations &&
+            message.citations.length > 0
+          ) {
+            const generationId = message.generationId;
+            return (
               <Citation
-                key={streamingMessage.generationId}
-                generationId={streamingMessage.generationId}
-                isLastStreamed={true}
-                message={streamingMessage.originalText}
-                styles={citationToStyles?.[streamingMessage.generationId]}
+                key={generationId}
+                generationId={generationId}
+                message={message.originalText}
+                styles={citationToStyles?.[generationId]}
               />
-            )}
-        </>
+            );
+          }
+          return null;
+        })}
+        {streamingMessage &&
+          isFulfilledOrTypingMessage(streamingMessage) &&
+          citationToStyles?.[streamingMessage.generationId] && (
+            <Citation
+              key={streamingMessage.generationId}
+              generationId={streamingMessage.generationId}
+              isLastStreamed={true}
+              message={streamingMessage.originalText}
+              styles={citationToStyles?.[streamingMessage.generationId]}
+            />
+          )}
       </div>
-    </Transition>
+    </div>
   );
 };

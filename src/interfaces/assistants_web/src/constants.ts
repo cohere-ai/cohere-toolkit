@@ -35,8 +35,11 @@ export enum ReservedClasses {
   CITATION_PANEL = 'side-panel',
   MESSAGE = 'message',
   CITATION = 'citation',
+  MESSAGES_SCROLL_VIEW = 'messages-scroll-view',
 }
+export const MESSAGES_CONTAINER_ID = 'messages-container';
 export const CHAT_COMPOSER_TEXTAREA_ID = 'composer';
+export const COMPOSER_CONTAINER_ID = 'composer-container';
 export const CONFIGURATION_FILE_UPLOAD_ID = 'file-upload';
 export const SETTINGS_DRAWER_ID = 'settings';
 
