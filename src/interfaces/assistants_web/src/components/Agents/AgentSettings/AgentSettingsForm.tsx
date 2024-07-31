@@ -10,6 +10,7 @@ import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
 import { ToolsStep } from './ToolsStep';
+import { VisibilityStep } from './VisibilityStep';
 
 type AgentSettingsFields = Omit<CreateAgent, 'version' | 'temperature'>;
 type Props = {
@@ -28,6 +29,7 @@ export type ASSISTANT_SETTINGS_FORM = {
   instruction?: string | null;
   tools?: string[];
   dataSources: AgentDataSources;
+  isPublic: boolean;
 };
 
 export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOpenFilePicker }) => {
@@ -37,11 +39,13 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
       name: fields?.name ?? '',
       description: fields?.description,
       instruction: fields?.preamble,
+      isPublic: true,
     },
   });
   const { data: listToolsData } = useListTools();
   const dataSources = watch('dataSources');
   const tools = watch('tools');
+  const isPublic = watch('isPublic');
 
   return (
     <div className="flex flex-col space-y-6 p-8">
@@ -82,6 +86,18 @@ export const AgentSettingsForm: React.FC<Props> = ({ fields, setFields, handleOp
           webSearchTool={listToolsData?.find((t) => t.name === TOOL_WEB_SEARCH_ID)}
           activeTools={tools}
           setActiveTools={(tools?: string[]) => setValue('tools', tools)}
+        />
+      </CollapsibleSection>
+      {/* Step 4: Visibility */}
+      <CollapsibleSection
+        title="Set visibility"
+        number={4}
+        description="Control who can access this assistant and its knowledge base."
+        expanded={currentStep === 2}
+      >
+        <VisibilityStep
+          isPublic={isPublic}
+          setIsPublic={(isPublic: boolean) => setValue('isPublic', isPublic)}
         />
       </CollapsibleSection>
     </div>
