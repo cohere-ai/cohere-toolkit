@@ -184,7 +184,7 @@ export const Composer: React.FC<Props> = ({
               }
             }}
           >
-            {isReadyToReceiveMessage ? <Icon name="enter" /> : <Square />}
+            {isReadyToReceiveMessage ? <Icon name="arrow-submit" /> : <Square />}
           </button>
         </div>
         <ComposerFiles />

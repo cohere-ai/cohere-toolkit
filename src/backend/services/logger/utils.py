@@ -21,4 +21,4 @@ class LoggerFactory:
         if strategy == "structlog":
             return StructuredLogging(level, renderer)
         else:
-            raise ValueError(f"Invalid logger strategy: {strategy}")
+            return StructuredLogging(level, renderer)

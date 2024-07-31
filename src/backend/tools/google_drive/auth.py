@@ -12,7 +12,7 @@ from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import BaseToolAuthentication
+from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
 from backend.tools.google_drive.tool import GoogleDrive
 
 from .constants import SCOPES
@@ -20,7 +20,7 @@ from .constants import SCOPES
 logger = LoggerFactory().get_logger()
 
 
-class GoogleDriveAuth(BaseToolAuthentication):
+class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     TOOL_ID = GoogleDrive.NAME
     AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
     TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
@@ -42,7 +42,9 @@ class GoogleDriveAuth(BaseToolAuthentication):
             )
 
     def get_auth_url(self, user_id: str) -> str:
-        state = {"user_id": user_id, "tool_id": self.TOOL_ID}
+        key = self.insert_tool_auth_cache(user_id, self.TOOL_ID)
+        state = {"key": key}
+
         params = {
             "response_type": "code",
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
@@ -112,13 +114,13 @@ class GoogleDriveAuth(BaseToolAuthentication):
 
         return True
 
-    def retrieve_auth_token(self, request: Request, session: DBSessionDep) -> str:
+    def retrieve_auth_token(
+        self, request: Request, session: DBSessionDep, user_id: str
+    ) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
             logger.error(event=f"[Google Drive] Auth token error: {error}.")
             return error
-
-        state = json.loads(request.query_params.get("state"))
 
         body = {
             "code": request.query_params.get("code"),
@@ -140,7 +142,7 @@ class GoogleDriveAuth(BaseToolAuthentication):
         tool_auth_crud.create_tool_auth(
             session,
             ToolAuth(
-                user_id=state["user_id"],
+                user_id=user_id,
                 tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
                 encrypted_access_token=encrypt(response_body["access_token"]),

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
@@ -36,7 +34,8 @@ def list_tools(
     logger = ctx.get_logger()
 
     all_tools = AVAILABLE_TOOLS.values()
-    if agent_id:
+
+    if agent_id is not None:
         agent_tools = []
         agent = agent_crud.get_agent_by_id(session, agent_id)
 
@@ -61,6 +60,11 @@ def list_tools(
                 tool.auth_url = tool_auth_service.get_auth_url(user_id)
                 tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:
-                logger.error(event=f"[Tools] Error fetching Tool Auth: {str(e)}")
+                logger.error(f"Error while fetching Tool Auth: {str(e)}")
+
+                tool.is_available = False
+                tool.error_message = (
+                    f"Error while calling Tool Auth implementation {str(e)}"
+                )
 
     return all_tools

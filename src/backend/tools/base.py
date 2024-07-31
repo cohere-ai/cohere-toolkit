@@ -6,6 +6,8 @@ from fastapi import Request
 
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
+from backend.services.auth.crypto import encrypt
+from backend.services.cache import cache_get_dict, cache_put
 
 
 class BaseTool:
@@ -65,7 +67,7 @@ class BaseToolAuthentication:
             ]
         ):
             raise ValueError(
-                f"{self.__name__} requires NEXT_PUBLIC_API_HOSTNAME, FRONTEND_HOSTNAME, and AUTH_SECRET_KEY environment variables."
+                f"Tool Authentication requires NEXT_PUBLIC_API_HOSTNAME, FRONTEND_HOSTNAME, and AUTH_SECRET_KEY environment variables."
             )
 
     @abstractmethod
@@ -75,8 +77,30 @@ class BaseToolAuthentication:
     def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool: ...
 
     @abstractmethod
-    def retrieve_auth_token(self, request: Request, session: DBSessionDep) -> str: ...
+    def retrieve_auth_token(
+        self, request: Request, session: DBSessionDep, user_id: str
+    ) -> str: ...
 
     @abstractmethod
     def get_token(self, user_id: str, session: DBSessionDep) -> Optional[str]:
         return None
+
+
+class ToolAuthenticationCacheMixin:
+    def insert_tool_auth_cache(self, user_id: str, tool_id: str) -> str:
+        """
+        Generates a token from a composite string formed by user_id + tool_id, and stores it in
+        cache.
+        """
+        value = user_id + tool_id
+        # Encrypt value with Fernet and convert to string
+        key = encrypt(value).decode()
+
+        # Existing cache entry
+        if cache_get_dict(key):
+            return key
+
+        payload = {"user_id": user_id, "tool_id": tool_id}
+        cache_put(key, payload)
+
+        return key

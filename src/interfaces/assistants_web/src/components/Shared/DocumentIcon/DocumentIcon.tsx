@@ -4,7 +4,7 @@ import type { StaticImport } from 'next/dist/shared/lib/get-img-props';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import { Icon, IconName, IconProps } from '@/components/Shared';
+import { Icon, IconKind, IconName } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
   toolIcon?: StaticImport;
   icon?: IconName;
   className?: string;
-  iconKind?: IconProps['kind'];
+  iconKind?: IconKind;
 };
 
 // Returns the domain name of a url,

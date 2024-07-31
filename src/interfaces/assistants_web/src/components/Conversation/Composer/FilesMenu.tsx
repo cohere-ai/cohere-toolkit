@@ -32,12 +32,12 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
           as="button"
           className={({ open }) =>
             cn(
-              'flex items-center justify-center rounded p-1 outline-none dark:text-marble-800',
+              'flex items-center justify-center rounded p-1 outline-none dark:fill-marble-800',
               getCohereColor(agentId, { background: open, contrastText: open })
             )
           }
         >
-          <Icon name="clip" />
+          <Icon name="paperclip" />
         </PopoverButton>
         <input
           ref={fileInputRef}
@@ -50,7 +50,6 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
         <PopoverPanel
           className="flex origin-top -translate-y-2 flex-col transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
           anchor="top start"
-          transition
         >
           {({ close }) => (
             <div
@@ -73,7 +72,7 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
                   onClick={() => handleOpenFileExplorer(close)}
                   className="flex w-full items-center rounded p-2"
                 >
-                  <Icon name="upload" size="md" />
+                  <Icon name="upload" />
                   <Text as="span" className="ml-2">
                     Upload files
                   </Text>
