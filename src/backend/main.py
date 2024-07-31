@@ -1,4 +1,5 @@
 import os
+import traceback
 
 from alembic.command import upgrade
 from alembic.config import Config
@@ -28,10 +29,8 @@ from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware
 from backend.services.logger.middleware import LoggingMiddleware
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.services.metrics import MetricsMiddleware
-
-logger = get_logger()
 
 load_dotenv()
 
@@ -93,7 +92,10 @@ app = create_app()
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     logger.exception(
-        event=f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
+        event="Unhandled exception",
+        error=str(exc),
+        method=request.method,
+        url=request.url,
     )
 
     return JSONResponse(

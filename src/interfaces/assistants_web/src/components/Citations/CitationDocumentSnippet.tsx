@@ -126,7 +126,7 @@ export const CitationDocumentSnippet: React.FC<
       />
 
       <button
-        className="self-end p-0 text-coral-200 transition-colors ease-in-out hover:text-coral-400"
+        className="self-end p-0 text-coral-200 transition-colors ease-in-out hover:text-coral-400 dark:text-marble-800 dark:hover:text-marble-900"
         onClick={openFullSnippetModal}
         data-testid="button-see-full-snippet"
       >
@@ -148,7 +148,7 @@ const Snippet: React.FC<{
   if (!snippetSections) return null;
 
   return (
-    <Text className={cn('content text-coral-200', lineLimitClass)}>
+    <Text className={cn('text-coral-200 dark:text-marble-950', lineLimitClass)}>
       {snippetSections.map(({ beforeKeyword, snippetKeyword }, i) => {
         return (
           <Fragment key={i}>

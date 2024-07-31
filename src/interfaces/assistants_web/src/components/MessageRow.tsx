@@ -158,11 +158,11 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
           'hover:bg-mushroom-950 dark:hover:bg-mushroom-150',
 
           {
-            'bg-mushroom-950':
+            'bg-mushroom-950 dark:bg-mushroom-150':
               isFulfilledOrTypingMessage(message) &&
               message.generationId &&
               hoveredGenerationId === message.generationId,
-            'bg-coral-950 hover:bg-coral-950': highlightMessage,
+            'bg-coral-950 hover:bg-coral-950 dark:hover:bg-mushroom-150': highlightMessage,
           }
         )}
         {...(enableLongPress && longPressProps)}
