@@ -97,16 +97,16 @@ export const CreateAgent: React.FC = () => {
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-y-auto">
-      <div className="flex flex-col space-y-5 border-b px-12 py-10 dark:border-volcanic-150">
+      <header className="flex flex-col space-y-5 border-b px-12 py-10 dark:border-volcanic-150">
         <div className="flex items-center space-x-2">
           <Link href="/discover">
-            <Text className="dark:text-volcanic-600">All assistants</Text>
+            <Text className="dark:text-volcanic-600">Explore assistants</Text>
           </Link>
           <Icon name="chevron-right" className="dark:text-volcanic-600" />
           <Text className="dark:text-volcanic-600">Create assistant</Text>
         </div>
         <Text styleAs="h4">Create assistant</Text>
-      </div>
+      </header>
       <AgentSettingsForm
         fields={fields}
         setFields={setFields}

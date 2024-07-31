@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
@@ -132,18 +134,18 @@ export const AgentSettingsForm: React.FC<Props> = ({
         title="Define your assistant"
         number={1}
         description="What does your assistant do?"
-        isExpanded={currentStep === 0}
+        isExpanded={source === 'update' || currentStep === 0}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : 1)}
       >
         <DefineAssistantStep fields={fields} setFields={setFields} />
-        <StepButtons onClick={handleStepChange} />
+        <StepButtons onClick={handleStepChange} hide={source !== 'create'} />
       </CollapsibleSection>
       {/* Step 2: Data sources - google drive and file upload */}
       <CollapsibleSection
         title="Add data sources"
         number={2}
         description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
-        isExpanded={currentStep === 1}
+        isExpanded={source === 'update' || currentStep === 1}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : 2)}
       >
         <DataSourcesStep
@@ -156,14 +158,14 @@ export const AgentSettingsForm: React.FC<Props> = ({
           setGoogleFiles={setGoogleFiles}
           setDefaultUploadFiles={setDefaultUploadFiles}
         />
-        <StepButtons onClick={handleStepChange} allowBack />
+        <StepButtons onClick={handleStepChange} allowBack hide={source !== 'create'} />
       </CollapsibleSection>
       {/* Step 3: Tools */}
       <CollapsibleSection
         title="Set default tools"
         number={3}
         description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
-        isExpanded={currentStep === 2}
+        isExpanded={source === 'update' || currentStep === 2}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : 3)}
       >
         <ToolsStep
@@ -171,14 +173,14 @@ export const AgentSettingsForm: React.FC<Props> = ({
           activeTools={fields.tools ?? []}
           setActiveTools={(tools: string[]) => setFields({ ...fields, tools })}
         />
-        <StepButtons onClick={handleStepChange} allowBack allowSkip />
+        <StepButtons onClick={handleStepChange} allowBack allowSkip hide={source !== 'create'} />
       </CollapsibleSection>
       {/* Step 4: Visibility */}
       <CollapsibleSection
         title="Set visibility"
         number={4}
         description="Control who can access this assistant and its knowledge base."
-        isExpanded={currentStep === 3}
+        isExpanded={source === 'update' || currentStep === 3}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 3 : 0)}
       >
         <VisibilityStep
@@ -191,6 +193,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
           disabled={!!nameError}
           allowBack
           isSubmit
+          hide={source !== 'create'}
         />
       </CollapsibleSection>
     </div>
@@ -204,6 +207,7 @@ const StepButtons: React.FC<{
   allowBack?: boolean;
   isSubmit?: boolean;
   disabled?: boolean;
+  hide?: boolean;
 }> = ({
   onClick,
   nextLabel = 'Next',
@@ -211,10 +215,14 @@ const StepButtons: React.FC<{
   allowBack = false,
   isSubmit = false,
   disabled = false,
+  hide = false,
 }) => {
   return (
     <div
-      className={cn('flex w-full items-center justify-between pt-5', { 'justify-end': !allowBack })}
+      className={cn('flex w-full items-center justify-between pt-5', {
+        'justify-end': !allowBack,
+        hidden: hide,
+      })}
     >
       <Button
         label="Back"
