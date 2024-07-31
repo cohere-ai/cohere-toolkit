@@ -35,6 +35,10 @@ class Context(BaseModel):
     metrics_user: Optional[MetricsUser] = None
     metrics_agent: Optional[MetricsAgent] = None
 
+    def __init__(self):
+        super().__init__()
+        self.with_logger()
+
     def set_request(self, request):
         self.request = request
 
@@ -45,6 +49,9 @@ class Context(BaseModel):
         self.receive = receive
 
     def with_logger(self):
+        if self.logger is not None:
+            return self
+
         logger = LoggerFactory().get_logger()
         logger.bind(trace_id=self.trace_id, user_id=self.user_id)
         self.logger = logger
@@ -158,5 +165,5 @@ class Context(BaseModel):
     def get_agent_id(self):
         return self.agent_id
 
-    def get_logger(self):
+    def get_logger(self) -> Any:
         return self.logger
