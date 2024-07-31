@@ -1,4 +1,3 @@
-from itertools import tee
 from typing import Any, AsyncGenerator, Dict, List
 
 from fastapi import HTTPException
@@ -241,7 +240,7 @@ class CustomChat(BaseChat):
         tool_calls = chat_history[-1]["tool_calls"]
         tool_plan = chat_history[-1].get("message", None)
         logger.info(
-            event=f"[Custom Chat] Using tools",
+            event="[Custom Chat] Using tools",
             tool_calls=to_dict(tool_calls),
             tool_plan=to_dict(tool_plan),
         )
@@ -258,7 +257,8 @@ class CustomChat(BaseChat):
                 model_deployment=deployment_model,
                 user_id=ctx.get_user_id(),
                 trace_id=ctx.get_trace_id(),
-                agent_id=kwargs.get("agent_id"),
+                agent_id=ctx.get_agent_id(),
+                agent_tool_metadata=ctx.get_agent_tool_metadata(),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list
@@ -271,7 +271,7 @@ class CustomChat(BaseChat):
             tool_results, deployment_model, ctx, **kwargs
         )
         logger.info(
-            event=f"[Custom Chat] Tool results",
+            event="[Custom Chat] Tool results",
             tool_results=to_dict(tool_results),
         )
 
