@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models.conversation import Conversation
+from backend.database_models.conversation import (
+    Conversation,
+    ConversationFileAssociation,
+)
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.services.transaction import validate_transaction
 
@@ -96,7 +99,6 @@ def update_conversation(
     for attr, value in new_conversation.model_dump().items():
         if value is not None:
             setattr(conversation, attr, value)
-
     db.commit()
     db.refresh(conversation)
     return conversation
@@ -116,4 +118,44 @@ def delete_conversation(db: Session, conversation_id: str, user_id: str) -> None
         Conversation.id == conversation_id, Conversation.user_id == user_id
     )
     conversation.delete()
+    db.commit()
+
+
+def create_conversation_file_association(
+    db: Session, conversation_file_association: ConversationFileAssociation
+) -> ConversationFileAssociation:
+    """
+    Create a new conversation file association.
+
+    Args:
+        db (Session): Database session.
+        conversation_file_association (ConversationFileAssociation): Conversation file association data to be created.
+
+    Returns:
+        ConversationFileAssociation: Created conversation file association.
+    """
+    db.add(conversation_file_association)
+    db.commit()
+    db.refresh(conversation_file_association)
+    return conversation_file_association
+
+
+def delete_conversation_file_association(
+    db: Session, conversation_id: str, file_id: str, user_id: str
+) -> None:
+    """
+    Delete a conversation file association by ID.
+
+    Args:
+        db (Session): Database session.
+        conversation_id (str): Conversation ID.
+        file_id (str): File ID.
+        user_id (str): User ID.
+    """
+    conversation_file_association = db.query(ConversationFileAssociation).filter(
+        ConversationFileAssociation.conversation_id == conversation_id,
+        ConversationFileAssociation.user_id == user_id,
+        ConversationFileAssociation.file_id == file_id,
+    )
+    conversation_file_association.delete()
     db.commit()
