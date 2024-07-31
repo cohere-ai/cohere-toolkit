@@ -28,7 +28,6 @@ tools:
     - web_search
     - web_scrape
     - wikipedia
-    - google_drive
   python_interpreter:
     url: http://terrarium:8080
   compass:

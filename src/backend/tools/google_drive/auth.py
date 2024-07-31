@@ -58,8 +58,6 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         return f"{self.AUTH_ENDPOINT}?{urllib.parse.urlencode(params)}"
 
-    
-
     def try_refresh_token(
         self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
     ) -> bool:
