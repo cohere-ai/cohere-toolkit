@@ -4,7 +4,7 @@ import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
@@ -80,8 +80,11 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             logger.warning(event="[Metrics] No report endpoint set")
 
     def _should_send_signal(
-        self, signal: Request, event_type: Response, response: Response
-    ):
+        self,
+        signal: Optional[MetricsSignal],
+        event_type: Optional[MetricsMessageType],
+        response: Response,
+    ) -> bool:
         middleware_allowed_signals = {
             MetricsMessageType.USER_CREATED,
             MetricsMessageType.USER_UPDATED,
@@ -91,15 +94,19 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             MetricsMessageType.ASSISTANT_DELETED,
             MetricsMessageType.ASSISTANT_ACCESSED,
         }
-        
+
         return (
-            event_type in middleware_allowed_signals
-            and signal
-            # TODO: we may want to log failing reqeusts as well in the future
-            # right now we only track failures from chat streams and rerank
-            # through the decorators
-            and response.status_code >= 200
-            and response.status_code < 300
+            True
+            if (
+                event_type in middleware_allowed_signals
+                and signal
+                # TODO: we may want to log failing reqeusts as well in the future
+                # right now we only track failures from chat streams and rerank
+                # through the decorators
+                and response.status_code >= 200
+                and response.status_code < 300
+            )
+            else False
         )
 
     def _send_signal(
@@ -108,7 +115,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         signal = self._get_event_signal(request, duration_ms, ctx)
         event_type = ctx.get_event_type()
         if self._should_send_signal(signal, event_type, response):
-            response.background = BackgroundTask(report_metrics, signal)
+            # signal is being checked in the condition above
+            response.background = BackgroundTask(report_metrics, signal)  # type: ignore
 
     def _get_event_signal(
         self, request: Request, duration_ms: float, ctx: Context
