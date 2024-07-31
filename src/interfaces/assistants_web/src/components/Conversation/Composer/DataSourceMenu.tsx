@@ -61,8 +61,13 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
           )}
         >
           <Text styleAs="label" className="mb-2 text-mushroom-300 dark:text-marble-800">
-            Avaiable tools
+            Available tools
           </Text>
+          {availableTools.length === 0 && (
+            <Text as="span" styleAs="caption" className="text-mushroom-400 dark:text-volcanic-500">
+              No tools available
+            </Text>
+          )}
           {availableTools.map((tool, i) => (
             <div
               key={tool.name}
