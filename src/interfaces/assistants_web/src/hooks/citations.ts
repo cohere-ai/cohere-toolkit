@@ -6,6 +6,7 @@ import {
 } from '@react-hookz/web';
 import { RefObject, useEffect, useRef, useState } from 'react';
 
+import { COMPOSER_CONTAINER_ID, MESSAGES_CONTAINER_ID } from '@/constants';
 import { useIsSmBreakpoint } from '@/hooks/breakpoint';
 import { useCitationsStore } from '@/stores';
 import { ChatMessage, isFulfilledOrTypingMessageWithCitations } from '@/types/message';
@@ -45,13 +46,13 @@ export const useCalculateCitationStyles = (
   messages: ChatMessage[],
   streamingMessage: ChatMessage | null
 ) => {
-  const messageContainerDivRef = useRef<HTMLDivElement>(null);
-  const composerContainerDivRef = useRef<HTMLDivElement>(null);
+  const messageContainerDivRef = useRef<HTMLElement | null>(null);
+  const composerContainerDivRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!messageContainerDivRef.current || !composerContainerDivRef.current) {
-      messageContainerDivRef.current = document.getElementById('messages-container');
-      composerContainerDivRef.current = document.getElementById('composer-container');
+      messageContainerDivRef.current = document.getElementById(MESSAGES_CONTAINER_ID);
+      composerContainerDivRef.current = document.getElementById(COMPOSER_CONTAINER_ID);
     }
 
     return () => {
