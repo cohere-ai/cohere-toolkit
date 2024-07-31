@@ -1,36 +1,37 @@
 import Link from 'next/link';
-import { UseFormRegister } from 'react-hook-form';
 
-import { ASSISTANT_SETTINGS_FORM } from '@/components/Agents/AgentSettings/AgentSettingsForm';
+import { AgentSettingsFields } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { Button, Input, Text, Textarea } from '@/components/Shared';
-import { useIsAgentNameUnique } from '@/hooks/agents';
+import { DEFAULT_PREAMBLE } from '@/constants';
 
 type Props = {
-  register: UseFormRegister<ASSISTANT_SETTINGS_FORM>;
+  fields: AgentSettingsFields;
+  nameError?: string;
+  setFields: (fields: AgentSettingsFields) => void;
   handleNext: VoidFunction;
 };
 
-export const DefineAssistantStep: React.FC<Props> = ({ register, handleNext }) => {
-  const isAgentNameUnique = useIsAgentNameUnique();
-
+export const DefineAssistantStep: React.FC<Props> = ({
+  fields,
+  nameError,
+  setFields,
+  handleNext,
+}) => {
   return (
     <div className="flex flex-col space-y-3">
       <Input
         label="Name"
         placeholder="e.g., HR Benefits Bot"
-        {...register('name', {
-          required: true,
-          validate: {
-            uniqueName: (v) =>
-              (!!v.trim() && isAgentNameUnique(v)) || 'Assistant name must be unique',
-          },
-        })}
+        value={fields.name}
+        onChange={(e) => setFields({ ...fields, name: e.target.value })}
+        errorText={nameError}
       />
       <Textarea
         label="Description"
         placeholder="e.g., Answers questions about our company benefits."
         defaultRows={1}
-        {...register('description')}
+        value={fields.description ?? ''}
+        onChange={(e) => setFields({ ...fields, description: e.target.value })}
       />
       <Textarea
         label="Instructions"
@@ -47,7 +48,8 @@ export const DefineAssistantStep: React.FC<Props> = ({ register, handleNext }) =
         }
         placeholder="e.g., You are friendly and helpful. You answer questions based on files in Google Drive."
         defaultRows={3}
-        {...register('instruction')}
+        value={fields.preamble ?? DEFAULT_PREAMBLE}
+        onChange={(e) => setFields({ ...fields, preamble: e.target.value })}
       />
       <div className="flex w-full justify-end">
         <Button

@@ -1,82 +1,66 @@
-import { useRef } from 'react';
+import { Dispatch, SetStateAction, useRef } from 'react';
 
-import { AgentDataSources } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconName, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
-import { useBatchUploadFile, useDeleteUploadedFile } from '@/hooks/files';
+import { useBatchUploadFile } from '@/hooks/files';
 import { useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
 type Props = {
-  dataSources: AgentDataSources;
   googleDriveEnabled: boolean;
-  isUpdatingAgent: boolean;
-  setDataSources: (sources: AgentDataSources) => void;
+  googleFiles?: DataSourceArtifact[];
+  defaultUploadFiles?: DataSourceArtifact[];
+  setGoogleFiles: Dispatch<SetStateAction<DataSourceArtifact[]>>;
+  setDefaultUploadFiles: Dispatch<SetStateAction<DataSourceArtifact[]>>;
   handleBack: VoidFunction;
   handleNext: VoidFunction;
 };
 
 export const DataSourcesStep: React.FC<Props> = ({
-  dataSources,
   googleDriveEnabled,
-  isUpdatingAgent,
-  setDataSources,
+  googleFiles,
+  defaultUploadFiles,
+  setGoogleFiles,
+  setDefaultUploadFiles,
   handleBack,
   handleNext,
 }) => {
   const { mutateAsync: batchUploadFiles } = useBatchUploadFile();
-  const { mutateAsync: deleteUploadFile } = useDeleteUploadedFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpdateDataSources = ({
-    source,
-    artifacts,
-    removedId,
-  }: {
-    source: 'googleDrive' | 'defaultUpload';
-    artifacts?: DataSourceArtifact[];
-    removedId?: string;
-  }) => {
-    const updatedGoogleDrive =
-      source === 'googleDrive'
-        ? artifacts
-        : removedId
-        ? dataSources.googleDrive?.filter((f) => f.id !== removedId)
-        : dataSources.googleDrive;
-    const updatedDefaultUpload =
-      source === 'defaultUpload'
-        ? artifacts
-        : removedId
-        ? dataSources.defaultUpload?.filter((f) => f.id !== removedId)
-        : dataSources.defaultUpload;
+  const handleGoogleDriveEnable = useOpenGoogleDrivePicker((data) => {
+    if (data.docs) {
+      setGoogleFiles(
+        data.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.name,
+          type: doc.type,
+          url: doc.url,
+        }))
+      );
+    }
+  });
 
-    setDataSources({
-      ...(updatedGoogleDrive && !!updatedGoogleDrive.length
-        ? { googleDrive: updatedGoogleDrive }
-        : {}),
-      ...(updatedDefaultUpload && !!updatedDefaultUpload.length
-        ? { defaultUpload: updatedDefaultUpload }
-        : {}),
+  const handleRemoveGoogleDriveFile = (id: string) => {
+    setGoogleFiles((prev) => {
+      return prev?.filter((artifact) => artifact.id !== id);
     });
   };
 
-  const handleGoogleDriveFilePicker = useOpenGoogleDrivePicker((data) => {
-    if (data.docs) {
-      handleUpdateDataSources({
-        source: 'googleDrive',
-        artifacts: data.docs.map(
-          (doc) =>
-            ({
-              id: doc.id,
-              name: doc.name,
-              type: doc.type,
-              url: doc.url,
-            } as DataSourceArtifact)
-        ),
-      });
+  const handleRemoveUploadFile = (id: string) => {
+    setDefaultUploadFiles((prev) => {
+      return prev?.filter((artifact) => artifact.id !== id);
+    });
+  };
+
+  const handleRemoveAllFiles = (dataSource: 'google-drive' | 'default-upload') => {
+    if (dataSource === 'google-drive') {
+      setGoogleFiles([]);
+    } else {
+      setDefaultUploadFiles([]);
     }
-  });
+  };
 
   const handleOpenFileExplorer = (callback: VoidFunction) => {
     if (!fileInputRef.current) return;
@@ -87,61 +71,51 @@ export const DataSourcesStep: React.FC<Props> = ({
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFileIds = await batchUploadFiles({ files: [...(e.target.files ?? [])] });
     if (!newFileIds) return;
-    handleUpdateDataSources({
-      source: 'defaultUpload',
-      artifacts: newFileIds.map(({ id, file_name }) => ({
+    setDefaultUploadFiles(
+      newFileIds.map(({ id, file_name }) => ({
         id,
         name: file_name,
         type: 'file',
-      })),
-    });
+      }))
+    );
   };
 
-  const handleDeleteFileUpload = (id: string) => {
-    if (!isUpdatingAgent) {
-      //TODO: awaiting Scott's pr -> delete file mutation requires conversation ID
-    }
-    handleUpdateDataSources({ source: 'defaultUpload', removedId: id });
-  };
+  const hasActiveDataSources =
+    (googleFiles && !!googleFiles.length) || (defaultUploadFiles && !!defaultUploadFiles.length);
 
-  const hasActiveDataSources = dataSources.googleDrive?.length || dataSources.defaultUpload?.length;
   return (
     <div className="flex flex-col gap-3">
       {hasActiveDataSources && <Text styleAs="label">Active Data Sources</Text>}
-      {googleDriveEnabled && dataSources.googleDrive?.length && (
+      {googleDriveEnabled && googleFiles && !!googleFiles.length && (
         <DataSourceFileList
           name="Google Drive"
           icon="google-drive"
-          artifacts={dataSources.googleDrive}
-          handleRemoveTool={() => handleUpdateDataSources({ source: 'googleDrive', artifacts: [] })}
-          handleRemoveFile={(removedId: string) =>
-            handleUpdateDataSources({ source: 'googleDrive', removedId })
-          }
+          artifacts={googleFiles}
+          handleRemoveTool={() => handleRemoveAllFiles('google-drive')}
+          handleRemoveFile={(removedId: string) => handleRemoveGoogleDriveFile(removedId)}
         />
       )}
-      {dataSources.defaultUpload?.length && (
+      {defaultUploadFiles && !!defaultUploadFiles.length && (
         <DataSourceFileList
           name="Files"
           icon="desktop"
-          artifacts={dataSources.defaultUpload}
-          handleRemoveTool={() =>
-            handleUpdateDataSources({ source: 'defaultUpload', artifacts: [] })
-          }
-          handleRemoveFile={(removedId: string) => handleDeleteFileUpload(removedId)}
+          artifacts={defaultUploadFiles}
+          handleRemoveTool={() => handleRemoveAllFiles('default-upload')}
+          handleRemoveFile={(removedId: string) => handleRemoveUploadFile(removedId)}
         />
       )}
       <Text styleAs="label">Add {hasActiveDataSources ? 'More' : ''} Data Sources</Text>
       <div className="flex gap-4">
-        {googleDriveEnabled && !dataSources.googleDrive?.length && (
+        {googleDriveEnabled && !(googleFiles && googleFiles.length) && (
           <Button
             kind="outline"
             theme="mushroom"
             icon="google-drive"
             label="Google Drive"
-            onClick={handleGoogleDriveFilePicker}
+            onClick={handleGoogleDriveEnable}
           />
         )}
-        {!dataSources.defaultUpload?.length && (
+        {!(defaultUploadFiles && defaultUploadFiles.length) && (
           <>
             <input
               type="file"

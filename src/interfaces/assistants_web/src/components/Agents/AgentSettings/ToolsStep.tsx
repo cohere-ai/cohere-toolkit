@@ -2,52 +2,49 @@ import Link from 'next/link';
 
 import { ManagedTool } from '@/cohere-client';
 import { Button, Icon, IconName, Switch, Text } from '@/components/Shared';
+import { AGENT_SETTINGS_TOOLS, TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 
 type Props = {
-  pythonTool?: ManagedTool;
-  webSearchTool?: ManagedTool;
+  tools?: ManagedTool[];
   activeTools?: string[];
-  setActiveTools: (tools?: string[]) => void;
+  setActiveTools: (tools: string[]) => void;
   handleBack: VoidFunction;
   handleNext: VoidFunction;
 };
 
 export const ToolsStep: React.FC<Props> = ({
-  pythonTool,
-  webSearchTool,
-  activeTools = [],
+  tools,
+  activeTools,
   setActiveTools,
   handleBack,
   handleNext,
 }) => {
-  const handleUpdateActiveTools = (checked: boolean, name?: string | null) => {
-    if (!name) return;
+  const availableTools = tools?.filter(
+    (tool) => tool.name && AGENT_SETTINGS_TOOLS.includes(tool.name)
+  );
+
+  const handleUpdateActiveTools = (checked: boolean, name: string) => {
     if (checked) {
       setActiveTools([...(activeTools ?? []), name]);
     } else {
-      setActiveTools(activeTools.filter((t) => t !== name));
+      setActiveTools(activeTools?.filter((t) => t !== name) ?? []);
     }
   };
 
   return (
     <div className="flex flex-col space-y-3">
-      {pythonTool && (
-        <ToolRow
-          name={pythonTool.name ?? 'Python Interpreter'}
-          description={pythonTool.description ?? ''}
-          icon="code-simple"
-          checked={!!(pythonTool.name && activeTools.includes(pythonTool.name))}
-          handleSwitch={(checked: boolean) => handleUpdateActiveTools(checked, pythonTool.name)}
-        />
-      )}
-      {webSearchTool && (
-        <ToolRow
-          name={webSearchTool.name ?? 'Web Search'}
-          description={webSearchTool.description ?? ''}
-          icon="web"
-          checked={!!(webSearchTool.name && activeTools.includes(webSearchTool.name))}
-          handleSwitch={(checked: boolean) => handleUpdateActiveTools(checked, webSearchTool.name)}
-        />
+      {availableTools?.map(
+        ({ name, description }) =>
+          !!name &&
+          description && (
+            <ToolRow
+              name={name}
+              description={description}
+              icon={TOOL_ID_TO_DISPLAY_INFO[name].icon ?? TOOL_FALLBACK_ICON}
+              checked={!!activeTools?.includes(name)}
+              handleSwitch={(checked: boolean) => handleUpdateActiveTools(checked, name)}
+            />
+          )
       )}
       <Text styleAs="caption" className="dark:text-marble-800">
         Don't see the tool you need? {/* TODO: get tool request link from Elaine */}

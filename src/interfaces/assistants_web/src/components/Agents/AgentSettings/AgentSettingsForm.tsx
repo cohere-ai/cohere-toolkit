@@ -1,102 +1,101 @@
 import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
 
-import { UpdateAgent } from '@/cohere-client';
+import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { DataSourcesStep } from '@/components/Agents/AgentSettings/DataSourcesStep';
 import { DefineAssistantStep } from '@/components/Agents/AgentSettings/DefineStep';
+import { ToolsStep } from '@/components/Agents/AgentSettings/ToolsStep';
+import { VisibilityStep } from '@/components/Agents/AgentSettings/VisibilityStep';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
-import {
-  DEFAULT_AGENT_TOOLS,
-  TOOL_GOOGLE_DRIVE_ID,
-  TOOL_PYTHON_INTERPRETER_ID,
-  TOOL_READ_DOCUMENT_ID,
-  TOOL_SEARCH_FILE_ID,
-  TOOL_WEB_SEARCH_ID,
-} from '@/constants';
+import { Button } from '@/components/Shared';
+import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
+import { useIsAgentNameUnique } from '@/hooks/agents';
 import { useListTools } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
-import { getDefaultUploadArtifacts } from '@/utils/artifacts';
 
-import { ToolsStep } from './ToolsStep';
-import { VisibilityStep } from './VisibilityStep';
+type RequiredAndNotNull<T> = {
+  [P in keyof T]-?: Exclude<T[P], null | undefined>;
+};
 
-type AgentSettingsFields = Omit<UpdateAgent, 'version' | 'temperature'>;
+type RequireAndNotNullSome<T, K extends keyof T> = RequiredAndNotNull<Pick<T, K>> & Omit<T, K>;
+
+export type AgentSettingsFields = RequireAndNotNullSome<
+  Omit<UpdateAgent, 'version' | 'temperature'> | Omit<CreateAgent, 'version' | 'temperature'>,
+  'name' | 'model' | 'deployment'
+>;
+
 type Props = {
-  existingAgent?: AgentSettingsFields;
-  defaultValues?: ASSISTANT_SETTINGS_FORM;
-  isExistingAgent?: boolean;
+  source?: 'update' | 'create';
+  fields: AgentSettingsFields;
+  setFields: (fields: AgentSettingsFields) => void;
   onSubmit: VoidFunction;
 };
 
-export type AgentDataSources = {
-  googleDrive?: DataSourceArtifact[];
-  defaultUpload?: DataSourceArtifact[];
-};
-export type ASSISTANT_SETTINGS_FORM = {
-  name: string;
-  description?: string | null;
-  instruction?: string | null;
-  tools?: string[];
-  dataSources: AgentDataSources;
-  isPublic: boolean;
-};
-
 export const AgentSettingsForm: React.FC<Props> = ({
-  existingAgent,
-  defaultValues,
-  isExistingAgent = false,
+  source = 'create',
+  fields,
+  setFields,
   onSubmit,
 }) => {
+  const { data: listToolsData } = useListTools();
+  const isAgentNameUnique = useIsAgentNameUnique();
+
   const [currentStep, setCurrentStep] = useState<number | null>(0);
 
-  const existingAgentValues: ASSISTANT_SETTINGS_FORM | undefined = useMemo(() => {
-    if (!existingAgent || !existingAgent.name) return;
-    const googleDriveArtifacts = existingAgent?.tools_metadata?.find(
-      (metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID
-    )?.artifacts as DataSourceArtifact[];
-    const defaultUploadArtifacts = getDefaultUploadArtifacts(
-      existingAgent?.tools_metadata?.find(
-        (metadata) => metadata.tool_name === TOOL_READ_DOCUMENT_ID
-      )?.artifacts as DataSourceArtifact[],
-      existingAgent?.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_SEARCH_FILE_ID)
-        ?.artifacts as DataSourceArtifact[]
-    );
+  const [googleFiles, setGoogleFiles] = useState<DataSourceArtifact[]>(
+    fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
+      ?.artifacts as DataSourceArtifact[]
+  );
+  // read_document and search_files have identical metadata -> using read_document as base
+  const [defaultUploadFiles, setDefaultUploadFiles] = useState<DataSourceArtifact[]>(
+    fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_READ_DOCUMENT_ID)
+      ?.artifacts as DataSourceArtifact[]
+  );
 
-    return {
-      name: existingAgent.name,
-      description: existingAgent.description,
-      instructions: existingAgent.preamble,
-      tools: existingAgent.tools ?? [],
-      dataSources: {
-        googleDrive: googleDriveArtifacts,
-        defaultUpload: defaultUploadArtifacts,
-      },
-      isPublic: true,
-    };
-  }, [existingAgent]);
+  const nameError = useMemo(() => {
+    return !fields.name.trim()
+      ? 'Assistant name is required'
+      : isAgentNameUnique(fields.name.trim())
+      ? 'Assistant name must be unique'
+      : undefined;
+  }, [fields.name]);
 
-  const {
-    register,
-    setValue,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ASSISTANT_SETTINGS_FORM>({
-    defaultValues: existingAgentValues ??
-      defaultValues ?? {
-        name: '',
-        dataSources: {},
-        isPublic: true,
-      },
-  });
-  const { data: listToolsData } = useListTools();
-  const name = watch('name');
-  const dataSources = watch('dataSources');
-  const tools = watch('tools');
-  const isPublic = watch('isPublic');
+  const handleSubmit = () => {
+    const tools_metadata = [
+      ...(!!googleFiles.length
+        ? [
+            {
+              tool_name: TOOL_GOOGLE_DRIVE_ID,
+              artifacts: googleFiles,
+            },
+          ]
+        : []),
+      ...(!!defaultUploadFiles.length
+        ? [
+            {
+              tool_name: TOOL_READ_DOCUMENT_ID,
+              artifacts: defaultUploadFiles,
+            },
+            {
+              tool_name: TOOL_SEARCH_FILE_ID,
+              artifacts: defaultUploadFiles,
+            },
+          ]
+        : []),
+    ];
+    const tools = fields.tools ?? [];
+    tools_metadata.forEach((tool) => {
+      if (!tools.includes(tool.tool_name)) {
+        tools.push(tool.tool_name);
+      }
+    });
+
+    setFields({ ...fields, tools, tools_metadata });
+
+    onSubmit();
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-6 p-8">
+    <div className="flex flex-col space-y-6 p-8">
       {/* Step 1: Define your assistant - name, description, instruction */}
       <CollapsibleSection
         title="Define your assistant"
@@ -105,7 +104,11 @@ export const AgentSettingsForm: React.FC<Props> = ({
         isExpanded={currentStep === 0}
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : null)}
       >
-        <DefineAssistantStep register={register} handleNext={() => setCurrentStep(1)} />
+        <DefineAssistantStep
+          fields={fields}
+          setFields={setFields}
+          handleNext={() => setCurrentStep(1)}
+        />
       </CollapsibleSection>
       {/* Step 2: Data sources - google drive and file upload */}
       <CollapsibleSection
@@ -116,12 +119,13 @@ export const AgentSettingsForm: React.FC<Props> = ({
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : null)}
       >
         <DataSourcesStep
-          dataSources={dataSources}
           googleDriveEnabled={
             !!listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID)?.is_available
           }
-          isUpdatingAgent={isExistingAgent}
-          setDataSources={(val: AgentDataSources) => setValue('dataSources', val)}
+          googleFiles={googleFiles}
+          defaultUploadFiles={defaultUploadFiles}
+          setGoogleFiles={setGoogleFiles}
+          setDefaultUploadFiles={setDefaultUploadFiles}
           handleNext={() => setCurrentStep(2)}
           handleBack={() => setCurrentStep(1)}
         />
@@ -135,10 +139,9 @@ export const AgentSettingsForm: React.FC<Props> = ({
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : null)}
       >
         <ToolsStep
-          pythonTool={listToolsData?.find((t) => t.name === TOOL_PYTHON_INTERPRETER_ID)}
-          webSearchTool={listToolsData?.find((t) => t.name === TOOL_WEB_SEARCH_ID)}
-          activeTools={tools}
-          setActiveTools={(tools?: string[]) => setValue('tools', tools)}
+          tools={listToolsData}
+          activeTools={fields.tools ?? []}
+          setActiveTools={(tools: string[]) => setFields({ ...fields, tools })}
           handleNext={() => setCurrentStep(3)}
           handleBack={() => setCurrentStep(2)}
         />
@@ -152,13 +155,21 @@ export const AgentSettingsForm: React.FC<Props> = ({
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 3 : null)}
       >
         <VisibilityStep
-          isPublic={isPublic}
-          setIsPublic={(isPublic: boolean) => setValue('isPublic', isPublic)}
-          handleNext={onSubmit}
-          handleBack={() => setCurrentStep(3)}
-          canSubmit={!!name && !!name.trim() && !errors.name}
+          isPublic={true}
+          setIsPublic={(isPublic: boolean) => alert('to be developed!')}
         />
+        <div className="flex w-full items-center justify-between">
+          <Button label="Back" kind="secondary" onClick={() => setCurrentStep(2)} />
+          <Button
+            label={source === 'create' ? 'Create' : 'Update'}
+            theme="evolved-green"
+            kind="cell"
+            icon="checkmark"
+            disabled={!nameError}
+            onClick={handleSubmit}
+          />
+        </div>
       </CollapsibleSection>
-    </form>
+    </div>
   );
 };

@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import {
-  ASSISTANT_SETTINGS_FORM,
+  AgentSettingsFields,
   AgentSettingsForm,
 } from '@/components/Agents//AgentSettings/AgentSettingsForm';
 import { Button, Icon, Text } from '@/components/Shared';
@@ -41,27 +41,23 @@ export const CreateAgent: React.FC = () => {
   const { mutateAsync: createAgent } = useCreateAgent();
 
   const { addRecentAgentId } = useRecentAgents();
+  const [fields, setFields] = useState<AgentSettingsFields>(DEFAULT_FIELD_VALUES);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     value: pendingAssistant,
     set: setPendingAssistant,
     remove: removePendingAssistant,
-  } = useLocalStorageValue<ASSISTANT_SETTINGS_FORM>('pending_assistant', {
+  } = useLocalStorageValue<AgentSettingsFields>('pending_assistant', {
     initializeWithValue: false,
     defaultValue: undefined,
-  });
-  const [defaultValues, setDefaultValues] = useState<ASSISTANT_SETTINGS_FORM>({
-    name: '',
-    instruction: DEFAULT_PREAMBLE,
-    dataSources: {},
-    isPublic: true,
   });
 
   const queryString = searchParams.get('p');
   useEffect(() => {
     if (queryString) {
       if (pendingAssistant) {
-        setDefaultValues(pendingAssistant);
+        setFields(pendingAssistant);
         removePendingAssistant();
       }
 
@@ -69,34 +65,34 @@ export const CreateAgent: React.FC = () => {
     }
   }, [queryString, pendingAssistant]);
 
-  // const handleOpenSubmitModal = () => {
-  //   open({
-  //     title: `Create ${fields.name}?`,
-  //     content: (
-  //       <SubmitModalContent
-  //         agentName={fields.name}
-  //         onSubmit={handleSubmit}
-  //         isSubmitting={isSubmitting}
-  //         onClose={close}
-  //       />
-  //     ),
-  //   });
-  // };
+  const handleOpenSubmitModal = () => {
+    open({
+      title: `Create ${fields.name}?`,
+      content: (
+        <SubmitModalContent
+          agentName={fields.name}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          onClose={close}
+        />
+      ),
+    });
+  };
+
   const handleSubmit = async () => {
-    // try {
-    //   setIsSubmitting(true);
-    //   const agent = await createAgent(fields);
-    //   addRecentAgentId(agent.id);
-    //   setFields(DEFAULT_FIELD_VALUES);
-    //   close();
-    //   setIsSubmitting(false);
-    //   router.push(`/a/${agent.id}`);
-    // } catch (e) {
-    //   setIsSubmitting(false);
-    //   close();
-    //   error('Failed to create assistant');
-    //   console.error(e);
-    // }
+    try {
+      setIsSubmitting(true);
+      const agent = await createAgent(fields);
+      addRecentAgentId(agent.id);
+      close();
+      setIsSubmitting(false);
+      router.push(`/a/${agent.id}`);
+    } catch (e) {
+      setIsSubmitting(false);
+      close();
+      error('Failed to create assistant');
+      console.error(e);
+    }
   };
 
   return (
@@ -111,7 +107,7 @@ export const CreateAgent: React.FC = () => {
         </div>
         <Text styleAs="h4">Create assistant</Text>
       </div>
-      <AgentSettingsForm defaultValues={defaultValues} onSubmit={handleSubmit} />
+      <AgentSettingsForm fields={fields} setFields={setFields} onSubmit={handleOpenSubmitModal} />
     </div>
   );
 };

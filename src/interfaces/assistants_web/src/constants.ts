@@ -65,8 +65,7 @@ export const TOOL_SEARCH_FILE_ID = 'search_file';
 export const TOOL_READ_DOCUMENT_ID = 'read_document';
 export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
 export const FILE_UPLOAD_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
-
-export const DATA_SOURCE_TOOLS = [TOOL_GOOGLE_DRIVE_ID, ...FILE_UPLOAD_TOOLS];
+export const AGENT_SETTINGS_TOOLS = [TOOL_WEB_SEARCH_ID, TOOL_PYTHON_INTERPRETER_ID];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
 export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
