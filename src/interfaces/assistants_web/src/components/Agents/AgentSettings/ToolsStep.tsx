@@ -1,24 +1,16 @@
 import Link from 'next/link';
 
 import { ManagedTool } from '@/cohere-client';
-import { Button, Icon, IconName, Switch, Text } from '@/components/Shared';
+import { Icon, IconName, Switch, Text } from '@/components/Shared';
 import { AGENT_SETTINGS_TOOLS, TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 
 type Props = {
   tools?: ManagedTool[];
   activeTools?: string[];
   setActiveTools: (tools: string[]) => void;
-  handleBack: VoidFunction;
-  handleNext: VoidFunction;
 };
 
-export const ToolsStep: React.FC<Props> = ({
-  tools,
-  activeTools,
-  setActiveTools,
-  handleBack,
-  handleNext,
-}) => {
+export const ToolsStep: React.FC<Props> = ({ tools, activeTools, setActiveTools }) => {
   const availableTools = tools?.filter(
     (tool) => tool.name && AGENT_SETTINGS_TOOLS.includes(tool.name)
   );
@@ -32,7 +24,7 @@ export const ToolsStep: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-4">
       {availableTools?.map(
         ({ name, description }) =>
           !!name &&
@@ -52,19 +44,6 @@ export const ToolsStep: React.FC<Props> = ({
           Make a request
         </Link>
       </Text>
-      <div className="flex w-full items-center justify-between">
-        <Button label="Back" kind="secondary" onClick={handleBack} />
-        <div className="flex items-center space-x-4">
-          <Button label="Skip" kind="secondary" onClick={handleNext} />
-          <Button
-            label="Next"
-            theme="evolved-green"
-            kind="cell"
-            icon="arrow-right"
-            onClick={handleNext}
-          />
-        </div>
-      </div>
     </div>
   );
 };

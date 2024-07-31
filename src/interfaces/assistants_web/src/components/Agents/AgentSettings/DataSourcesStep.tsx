@@ -4,43 +4,27 @@ import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconName, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useBatchUploadFile } from '@/hooks/files';
-import { useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 
 type Props = {
   googleDriveEnabled: boolean;
   googleFiles?: DataSourceArtifact[];
   defaultUploadFiles?: DataSourceArtifact[];
+  openGoogleFilePicker: VoidFunction;
   setGoogleFiles: Dispatch<SetStateAction<DataSourceArtifact[]>>;
   setDefaultUploadFiles: Dispatch<SetStateAction<DataSourceArtifact[]>>;
-  handleBack: VoidFunction;
-  handleNext: VoidFunction;
 };
 
 export const DataSourcesStep: React.FC<Props> = ({
   googleDriveEnabled,
   googleFiles,
   defaultUploadFiles,
+  openGoogleFilePicker,
   setGoogleFiles,
   setDefaultUploadFiles,
-  handleBack,
-  handleNext,
 }) => {
   const { mutateAsync: batchUploadFiles } = useBatchUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleGoogleDriveEnable = useOpenGoogleDrivePicker((data) => {
-    if (data.docs) {
-      setGoogleFiles(
-        data.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.name,
-          type: doc.type,
-          url: doc.url,
-        }))
-      );
-    }
-  });
 
   const handleRemoveGoogleDriveFile = (id: string) => {
     setGoogleFiles((prev) => {
@@ -84,7 +68,7 @@ export const DataSourcesStep: React.FC<Props> = ({
     (googleFiles && !!googleFiles.length) || (defaultUploadFiles && !!defaultUploadFiles.length);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {hasActiveDataSources && <Text styleAs="label">Active Data Sources</Text>}
       {googleDriveEnabled && googleFiles && !!googleFiles.length && (
         <DataSourceFileList
@@ -112,7 +96,7 @@ export const DataSourcesStep: React.FC<Props> = ({
             theme="mushroom"
             icon="google-drive"
             label="Google Drive"
-            onClick={handleGoogleDriveEnable}
+            onClick={openGoogleFilePicker}
           />
         )}
         {!(defaultUploadFiles && defaultUploadFiles.length) && (
@@ -134,16 +118,6 @@ export const DataSourcesStep: React.FC<Props> = ({
             />
           </>
         )}
-      </div>
-      <div className="flex w-full items-center justify-between">
-        <Button label="Back" kind="secondary" onClick={handleBack} />
-        <Button
-          label="Next"
-          theme="evolved-green"
-          kind="cell"
-          icon="arrow-right"
-          onClick={handleNext}
-        />
       </div>
     </div>
   );

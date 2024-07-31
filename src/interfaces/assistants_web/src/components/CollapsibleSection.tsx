@@ -1,7 +1,7 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 
 import { Icon, Text } from '@/components/Shared';
 import { cn } from '@/utils';
@@ -12,7 +12,7 @@ type Props = {
   description?: string | ReactNode;
   children: ReactNode;
   isExpanded?: boolean;
-  setIsExpanded: (expanded: boolean) => void;
+  setIsExpanded?: (expanded: boolean) => void;
 };
 export const CollapsibleSection: React.FC<Props> = ({
   number,
@@ -31,7 +31,11 @@ export const CollapsibleSection: React.FC<Props> = ({
       )}
     >
       {/* Visible portion */}
-      <button className="flex w-full flex-col space-y-1" onClick={() => setIsExpanded(!isExpanded)}>
+      <button
+        className="flex w-full flex-col space-y-1"
+        disabled={!setIsExpanded}
+        onClick={() => setIsExpanded && setIsExpanded(!isExpanded)}
+      >
         <div className="flex w-full items-center justify-between">
           <div className="flex w-full items-center space-x-2.5">
             {number && (
@@ -59,8 +63,10 @@ export const CollapsibleSection: React.FC<Props> = ({
       <Transition
         show={isExpanded}
         as="div"
-        enter="transition-all transform ease-in-out duration-300"
-        leave="transition-all transform ease-in-out duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        enter="transition-all transform duration-400 delay-100"
+        leave="transition-all transform duration-300"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >

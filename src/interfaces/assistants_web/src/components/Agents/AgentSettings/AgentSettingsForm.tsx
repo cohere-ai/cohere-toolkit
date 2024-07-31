@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { DataSourcesStep } from '@/components/Agents/AgentSettings/DataSourcesStep';
@@ -9,8 +9,9 @@ import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { Button } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
 import { useIsAgentNameUnique } from '@/hooks/agents';
-import { useListTools } from '@/hooks/tools';
+import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
+import { cn } from '@/utils';
 
 type RequiredAndNotNull<T> = {
   [P in keyof T]-?: Exclude<T[P], null | undefined>;
@@ -26,6 +27,7 @@ export type AgentSettingsFields = RequireAndNotNullSome<
 type Props = {
   source?: 'update' | 'create';
   fields: AgentSettingsFields;
+  savePendingAssistant: VoidFunction;
   setFields: (fields: AgentSettingsFields) => void;
   onSubmit: VoidFunction;
 };
@@ -33,13 +35,14 @@ type Props = {
 export const AgentSettingsForm: React.FC<Props> = ({
   source = 'create',
   fields,
+  savePendingAssistant,
   setFields,
   onSubmit,
 }) => {
   const { data: listToolsData } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
 
-  const [currentStep, setCurrentStep] = useState<number | null>(0);
+  const [currentStep, setCurrentStep] = useState<number>(0);
 
   const [googleFiles, setGoogleFiles] = useState<DataSourceArtifact[]>(
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
@@ -51,15 +54,13 @@ export const AgentSettingsForm: React.FC<Props> = ({
       ?.artifacts as DataSourceArtifact[]
   );
 
-  const nameError = useMemo(() => {
-    return !fields.name.trim()
-      ? 'Assistant name is required'
-      : isAgentNameUnique(fields.name.trim())
-      ? 'Assistant name must be unique'
-      : undefined;
-  }, [fields.name]);
+  const nameError = !fields.name.trim()
+    ? 'Assistant name is required'
+    : !isAgentNameUnique(fields.name.trim())
+    ? 'Assistant name must be unique'
+    : undefined;
 
-  const handleSubmit = () => {
+  const setToolsMetadata = () => {
     const tools_metadata = [
       ...(!!googleFiles.length
         ? [
@@ -90,8 +91,38 @@ export const AgentSettingsForm: React.FC<Props> = ({
     });
 
     setFields({ ...fields, tools, tools_metadata });
+  };
 
-    onSubmit();
+  const handleGoogleFilePicker = () => {
+    setToolsMetadata();
+    savePendingAssistant();
+    useOpenGoogleDrivePicker((data) => {
+      if (data.docs) {
+        setGoogleFiles(
+          data.docs.map((doc) => ({
+            id: doc.id,
+            name: doc.name,
+            type: doc.type,
+            url: doc.url,
+          }))
+        );
+      }
+    });
+  };
+
+  const handleStepChange = (action: 'next' | 'back' | 'submit') => {
+    switch (action) {
+      case 'back':
+        setCurrentStep((prev) => prev - 1);
+        return;
+      case 'next':
+        setCurrentStep((prev) => prev + 1);
+        return;
+      case 'submit':
+        setToolsMetadata();
+        onSubmit();
+        return;
+    }
   };
 
   return (
@@ -102,13 +133,10 @@ export const AgentSettingsForm: React.FC<Props> = ({
         number={1}
         description="What does your assistant do?"
         isExpanded={currentStep === 0}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : null)}
+        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : 1)}
       >
-        <DefineAssistantStep
-          fields={fields}
-          setFields={setFields}
-          handleNext={() => setCurrentStep(1)}
-        />
+        <DefineAssistantStep fields={fields} setFields={setFields} />
+        <StepButtons onClick={handleStepChange} />
       </CollapsibleSection>
       {/* Step 2: Data sources - google drive and file upload */}
       <CollapsibleSection
@@ -116,7 +144,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
         number={2}
         description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
         isExpanded={currentStep === 1}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : null)}
+        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : 2)}
       >
         <DataSourcesStep
           googleDriveEnabled={
@@ -124,11 +152,11 @@ export const AgentSettingsForm: React.FC<Props> = ({
           }
           googleFiles={googleFiles}
           defaultUploadFiles={defaultUploadFiles}
+          openGoogleFilePicker={handleGoogleFilePicker}
           setGoogleFiles={setGoogleFiles}
           setDefaultUploadFiles={setDefaultUploadFiles}
-          handleNext={() => setCurrentStep(2)}
-          handleBack={() => setCurrentStep(1)}
         />
+        <StepButtons onClick={handleStepChange} allowBack />
       </CollapsibleSection>
       {/* Step 3: Tools */}
       <CollapsibleSection
@@ -136,15 +164,14 @@ export const AgentSettingsForm: React.FC<Props> = ({
         number={3}
         description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
         isExpanded={currentStep === 2}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : null)}
+        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : 3)}
       >
         <ToolsStep
           tools={listToolsData}
           activeTools={fields.tools ?? []}
           setActiveTools={(tools: string[]) => setFields({ ...fields, tools })}
-          handleNext={() => setCurrentStep(3)}
-          handleBack={() => setCurrentStep(2)}
         />
+        <StepButtons onClick={handleStepChange} allowBack allowSkip />
       </CollapsibleSection>
       {/* Step 4: Visibility */}
       <CollapsibleSection
@@ -152,24 +179,65 @@ export const AgentSettingsForm: React.FC<Props> = ({
         number={4}
         description="Control who can access this assistant and its knowledge base."
         isExpanded={currentStep === 3}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 3 : null)}
+        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 3 : 0)}
       >
         <VisibilityStep
           isPublic={true}
           setIsPublic={(isPublic: boolean) => alert('to be developed!')}
         />
-        <div className="flex w-full items-center justify-between">
-          <Button label="Back" kind="secondary" onClick={() => setCurrentStep(2)} />
-          <Button
-            label={source === 'create' ? 'Create' : 'Update'}
-            theme="evolved-green"
-            kind="cell"
-            icon="checkmark"
-            disabled={!nameError}
-            onClick={handleSubmit}
-          />
-        </div>
+        <StepButtons
+          onClick={handleStepChange}
+          nextLabel="Create"
+          disabled={!!nameError}
+          allowBack
+          isSubmit
+        />
       </CollapsibleSection>
+    </div>
+  );
+};
+
+const StepButtons: React.FC<{
+  onClick: (action: 'next' | 'back' | 'submit') => void;
+  nextLabel?: string;
+  allowSkip?: boolean;
+  allowBack?: boolean;
+  isSubmit?: boolean;
+  disabled?: boolean;
+}> = ({
+  onClick,
+  nextLabel = 'Next',
+  allowSkip = false,
+  allowBack = false,
+  isSubmit = false,
+  disabled = false,
+}) => {
+  return (
+    <div
+      className={cn('flex w-full items-center justify-between pt-5', { 'justify-end': !allowBack })}
+    >
+      <Button
+        label="Back"
+        kind="secondary"
+        onClick={() => onClick('back')}
+        className={cn({ hidden: !allowBack })}
+      />
+      <div className="flex items-center gap-4">
+        <Button
+          label="Skip"
+          kind="secondary"
+          onClick={() => onClick('next')}
+          className={cn({ hidden: !allowSkip })}
+        />
+        <Button
+          label={nextLabel}
+          theme="evolved-green"
+          kind="cell"
+          icon={isSubmit ? 'checkmark' : 'arrow-right'}
+          disabled={disabled}
+          onClick={() => onClick(isSubmit ? 'submit' : 'next')}
+        />
+      </div>
     </div>
   );
 };

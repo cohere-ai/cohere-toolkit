@@ -1,30 +1,24 @@
 import Link from 'next/link';
 
 import { AgentSettingsFields } from '@/components/Agents/AgentSettings/AgentSettingsForm';
-import { Button, Input, Text, Textarea } from '@/components/Shared';
+import { Input, Text, Textarea } from '@/components/Shared';
 import { DEFAULT_PREAMBLE } from '@/constants';
 
 type Props = {
   fields: AgentSettingsFields;
   nameError?: string;
   setFields: (fields: AgentSettingsFields) => void;
-  handleNext: VoidFunction;
 };
 
-export const DefineAssistantStep: React.FC<Props> = ({
-  fields,
-  nameError,
-  setFields,
-  handleNext,
-}) => {
+export const DefineAssistantStep: React.FC<Props> = ({ fields, nameError, setFields }) => {
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-4">
       <Input
         label="Name"
         placeholder="e.g., HR Benefits Bot"
         value={fields.name}
         onChange={(e) => setFields({ ...fields, name: e.target.value })}
-        errorText={nameError}
+        errorText={!fields.name.trim() ? 'Assistant name is required' : nameError}
       />
       <Textarea
         label="Description"
@@ -51,15 +45,6 @@ export const DefineAssistantStep: React.FC<Props> = ({
         value={fields.preamble ?? DEFAULT_PREAMBLE}
         onChange={(e) => setFields({ ...fields, preamble: e.target.value })}
       />
-      <div className="flex w-full justify-end">
-        <Button
-          label="Next"
-          theme="evolved-green"
-          kind="cell"
-          icon="arrow-right"
-          onClick={handleNext}
-        />
-      </div>
     </div>
   );
 };

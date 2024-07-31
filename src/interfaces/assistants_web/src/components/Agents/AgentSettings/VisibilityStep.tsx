@@ -8,7 +8,7 @@ type Props = {
 
 export const VisibilityStep: React.FC<Props> = ({ isPublic, setIsPublic }) => {
   return (
-    <div className="flex flex-col space-y-5">
+    <div className="flex flex-col space-y-4">
       <RadioGroup
         value={isPublic ? 'public' : 'private'}
         options={[

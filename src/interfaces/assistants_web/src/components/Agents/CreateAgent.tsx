@@ -107,7 +107,12 @@ export const CreateAgent: React.FC = () => {
         </div>
         <Text styleAs="h4">Create assistant</Text>
       </div>
-      <AgentSettingsForm fields={fields} setFields={setFields} onSubmit={handleOpenSubmitModal} />
+      <AgentSettingsForm
+        fields={fields}
+        setFields={setFields}
+        onSubmit={handleOpenSubmitModal}
+        savePendingAssistant={() => setPendingAssistant(fields)}
+      />
     </div>
   );
 };
