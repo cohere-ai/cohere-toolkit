@@ -5,11 +5,11 @@ import React from 'react';
 
 import { Agent, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/Shared';
-import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
+import { getToolIcon } from '@/utils/tools';
 
 export type Props = {
   agent?: Agent;
@@ -79,7 +79,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                 <div className="flex gap-x-2">
                   <div className="relative flex items-center justify-center rounded bg-mushroom-800 p-1 dark:bg-volcanic-200">
                     <Icon
-                      name={TOOL_ID_TO_DISPLAY_INFO[tool.name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
+                      name={getToolIcon(tool.name)}
                       kind="outline"
                       size="sm"
                       className="flex items-center fill-mushroom-300 dark:fill-marble-800"
