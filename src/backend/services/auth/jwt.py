@@ -59,6 +59,7 @@ class JWTService:
             dict: Decoded JWT token payload.
         """
         try:
+            print("secret key", self.secret_key)
             decoded_payload = jwt.decode(
                 token, self.secret_key, algorithms=[self.ALGORITHM]
             )
