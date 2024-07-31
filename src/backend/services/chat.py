@@ -21,7 +21,11 @@ from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
-from backend.database_models.message import Message, MessageAgent
+from backend.database_models.message import (
+    Message,
+    MessageAgent,
+    MessageFileAssociation,
+)
 from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
@@ -46,12 +50,12 @@ from backend.schemas.chat import (
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
-from backend.schemas.file import UpdateFileRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
-from backend.services.context import get_context
+from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
 from backend.services.logger.utils import logger
+
 
 
 def process_chat(
@@ -80,7 +84,8 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
 
         if agent is None:
             raise HTTPException(
@@ -141,7 +146,10 @@ def process_chat(
         file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
-                session, user_id, user_message.id, chat_request.file_ids
+                session,
+                user_id,
+                user_message.id,
+                chat_request.file_ids,
             )
 
     chat_history = create_chat_history(
@@ -318,7 +326,7 @@ def handle_file_retrieval(
     file_paths = None
     # Use file_ids if provided
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
+        files = get_file_service().get_files_by_ids(session, file_ids, user_id)
         file_paths = [file.file_path for file in files]
 
     return file_paths
@@ -331,7 +339,7 @@ def attach_files_to_messages(
     file_ids: List[str] | None = None,
 ) -> None:
     """
-    Attach Files to Message if the File does not have a message_id foreign key.
+    Attach Files to Message if the message file association does not exists with the file ID
 
     Args:
         session (DBSessionDep): Database session.
@@ -343,11 +351,20 @@ def attach_files_to_messages(
         None
     """
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
-        for file in files:
-            if file.message_id is None:
-                file_crud.update_file(
-                    session, file, UpdateFileRequest(message_id=message_id)
+        for file_id in file_ids:
+            message_file_association = (
+                message_crud.get_message_file_association_by_file_id(
+                    session, file_id, user_id
+                )
+            )
+
+            # If the file is not associated with a file yet, create the association
+            if message_file_association is None:
+                message_crud.create_message_file_association(
+                    session,
+                    MessageFileAssociation(
+                        message_id=message_id, user_id=user_id, file_id=file_id
+                    ),
                 )
 
 

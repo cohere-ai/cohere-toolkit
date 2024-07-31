@@ -8,11 +8,8 @@ from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
-from backend.crud import file as file_crud
 from backend.database_models import Conversation as ConversationModel
-from backend.database_models import File as FileModel
 from backend.database_models.database import DBSessionDep
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import (
     ConversationPublic,
@@ -37,10 +34,12 @@ from backend.services.conversation import (
     filter_conversations,
     generate_conversation_title,
     get_documents_to_rerank,
+    get_messages_with_files,
     validate_conversation,
 )
 from backend.services.file import (
-    get_file_content,
+    attach_conversation_id_to_files,
+    get_file_service,
     validate_batch_file_size,
     validate_file,
     validate_file_size,
@@ -76,7 +75,35 @@ async def get_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    conversation = validate_conversation(session, conversation_id, user_id)
+    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+
+    if not conversation:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation with ID: {conversation_id} not found.",
+        )
+
+    files = get_file_service().get_files_by_conversation_id(
+        session, user_id, conversation.id
+    )
+    files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
+    messages = get_messages_with_files(session, user_id, conversation.messages)
+    _ = validate_conversation(session, conversation_id, user_id)
+
+    conversation = ConversationPublic(
+        id=conversation.id,
+        user_id=user_id,
+        created_at=conversation.created_at,
+        updated_at=conversation.updated_at,
+        title=conversation.title,
+        messages=messages,
+        files=files_with_conversation_id,
+        description=conversation.description,
+        agent_id=conversation.agent_id,
+        organization_id=conversation.organization_id,
+    )
+
+    _ = validate_conversation(session, conversation_id, user_id)
     return conversation
 
 
@@ -104,9 +131,35 @@ async def list_conversations(
         list[ConversationWithoutMessages]: List of conversations.
     """
     user_id = ctx.get_user_id()
-    return conversation_crud.get_conversations(
+
+    conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
     )
+
+    results = []
+    for conversation in conversations:
+        files = get_file_service().get_files_by_conversation_id(
+            session, user_id, conversation.id
+        )
+        files_with_conversation_id = attach_conversation_id_to_files(
+            conversation.id, files
+        )
+        results.append(
+            ConversationWithoutMessages(
+                id=conversation.id,
+                user_id=user_id,
+                created_at=conversation.created_at,
+                updated_at=conversation.updated_at,
+                title=conversation.title,
+                files=files_with_conversation_id,
+                description=conversation.description,
+                agent_id=conversation.agent_id,
+                messages=[],
+                organization_id=conversation.organization_id,
+            )
+        )
+
+    return results
 
 
 @router.put("/{conversation_id}", response_model=ConversationPublic)
@@ -137,7 +190,23 @@ async def update_conversation(
         session, conversation, new_conversation
     )
 
-    return conversation
+    files = get_file_service().get_files_by_conversation_id(
+        session, user_id, conversation.id
+    )
+    messages = get_messages_with_files(session, user_id, conversation.messages)
+    files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
+    return ConversationPublic(
+        id=conversation.id,
+        user_id=user_id,
+        created_at=conversation.created_at,
+        updated_at=conversation.updated_at,
+        title=conversation.title,
+        messages=messages,
+        files=files_with_conversation_id,
+        description=conversation.description,
+        agent_id=conversation.agent_id,
+        organization_id=conversation.organization_id,
+    )
 
 
 @router.delete("/{conversation_id}")
@@ -160,6 +229,10 @@ async def delete_conversation(
     """
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
+    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+
+    if conversation.file_ids:
+        get_file_service().bulk_delete_files(session, conversation.file_ids, user_id)
 
     conversation_crud.delete_conversation(session, conversation_id, user_id)
 
@@ -201,7 +274,8 @@ async def search_conversations(
 
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     else:
         ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
@@ -222,7 +296,29 @@ async def search_conversations(
         ctx,
     )
 
-    return filtered_documents
+    results = []
+    for conversation in filtered_documents:
+        files = get_file_service().get_files_by_conversation_id(
+            session, user_id, conversation.id
+        )
+        files_with_conversation_id = attach_conversation_id_to_files(
+            conversation.id, files
+        )
+        results.append(
+            ConversationWithoutMessages(
+                id=conversation.id,
+                user_id=user_id,
+                created_at=conversation.created_at,
+                updated_at=conversation.updated_at,
+                title=conversation.title,
+                files=files_with_conversation_id,
+                description=conversation.description,
+                agent_id=conversation.agent_id,
+                messages=[],
+                organization_id=conversation.organization_id,
+            )
+        )
+    return results
 
 
 # FILES
@@ -285,27 +381,19 @@ async def upload_file(
 
     # Handle uploading File
     try:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-
-        # Create File
-        upload_file = FileModel(
-            user_id=conversation.user_id,
-            conversation_id=conversation.id,
-            file_name=filename,
-            file_path=filename,
-            file_size=file.size,
-            file_content=cleaned_content,
+        upload_file = await get_file_service().create_conversation_files(
+            session, [file], user_id, conversation.id
         )
-
-        upload_file = file_crud.create_file(session, upload_file)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error while uploading file {file.filename}."
+            status_code=500, detail=f"Error while uploading file {file.filename}: {e}."
         )
 
-    return upload_file
+    # TODO scott: clean this up, just use one endpoint for both single and batch
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation.id, upload_file
+    )
+    return files_with_conversation_id[0]
 
 
 @router.post("/batch_upload_file", response_model=list[UploadFileResponse])
@@ -363,32 +451,19 @@ async def batch_upload_file(
             )
 
     # TODO: check if file already exists in DB once we have files per agents
-
-    # Handle uploading File
-    files_to_upload = []
-    for file in files:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-
-        # Create File
-        upload_file = FileModel(
-            user_id=conversation.user_id,
-            conversation_id=conversation.id,
-            file_name=filename,
-            file_path=filename,
-            file_size=file.size,
-            file_content=cleaned_content,
-        )
-        files_to_upload.append(upload_file)
     try:
-        uploaded_files = file_crud.batch_create_files(session, files_to_upload)
+        uploaded_files = await get_file_service().create_conversation_files(
+            session, files, user_id, conversation.id
+        )
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error while uploading file(s): {e}."
         )
 
-    return uploaded_files
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation.id, uploaded_files
+    )
+    return files_with_conversation_id
 
 
 @router.get("/{conversation_id}/files", response_model=list[ListFile])
@@ -412,8 +487,11 @@ async def list_files(
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
 
-    files = file_crud.get_files_by_conversation_id(session, conversation_id, user_id)
-    return files
+    files = get_file_service().get_files_by_conversation_id(
+        session, user_id, conversation_id
+    )
+    files_with_conversation_id = attach_conversation_id_to_files(conversation_id, files)
+    return files_with_conversation_id
 
 
 @router.put("/{conversation_id}/files/{file_id}", response_model=FilePublic)
@@ -442,11 +520,14 @@ async def update_file(
     """
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
-    file = validate_file(session, file_id, user_id)
+    _ = validate_file(session, file_id, user_id)
 
-    file = file_crud.update_file(session, file, new_file)
-
-    return file
+    file = get_file_service().get_file_by_id(session, file_id, user_id)
+    file = get_file_service().update_file(session, file, new_file)
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation_id, [file]
+    )
+    return files_with_conversation_id[0]
 
 
 @router.delete("/{conversation_id}/files/{file_id}")
@@ -474,7 +555,12 @@ async def delete_file(
     _ = validate_conversation(session, conversation_id, user_id)
     _ = validate_file(session, file_id, user_id)
 
-    file_crud.delete_file(session, file_id, user_id)
+    file = get_file_service().get_file_by_id(session, file_id, user_id)
+
+    # Delete the File DB object
+    get_file_service().delete_file_from_conversation(
+        session, conversation_id, file_id, user_id
+    )
 
     return DeleteFileResponse()
 

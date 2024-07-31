@@ -1,4 +1,3 @@
-import os
 import time
 from typing import Any, Dict, List
 
@@ -7,8 +6,8 @@ from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
-from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.services.compass import Compass
 from backend.services.logger.utils import logger
 from backend.tools.base import BaseTool
@@ -39,13 +38,12 @@ class GoogleDrive(BaseTool):
 
     NAME = GOOGLE_DRIVE_TOOL_ID
 
+    CLIENT_ID = Settings().tools.google_drive.client_id
+    CLIENT_SECRET = Settings().tools.google_drive.client_secret
+
     @classmethod
     def is_available(cls) -> bool:
-        vars = [
-            "GOOGLE_DRIVE_CLIENT_ID",
-            "GOOGLE_DRIVE_CLIENT_SECRET",
-        ]
-        return all(os.getenv(var) is not None for var in vars)
+        return cls.CLIENT_ID is not None and cls.CLIENT_ID is not None
 
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))
@@ -66,6 +64,7 @@ class GoogleDrive(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
+        agent_tool_metadata = kwargs["agent_tool_metadata"]
         index_name = "{}_{}".format(
             agent_id if agent_id is not None else user_id, GOOGLE_DRIVE_TOOL_ID
         )
@@ -94,14 +93,11 @@ class GoogleDrive(BaseTool):
 
         creds = Credentials(tool_auth.access_token)
 
-        # fetch agent tool metadata
+        # parse tool metadata
         file_ids = []
         folder_ids = []
-        if agent_id:
-            agent_metadata = get_all_agent_tool_metadata_by_agent_id(
-                db=session, agent_id=agent_id
-            )
-            for metadata in agent_metadata:
+        if agent_tool_metadata:
+            for metadata in agent_tool_metadata:
                 if metadata.tool_name == GOOGLE_DRIVE_TOOL_ID:
                     artifacts = metadata.artifacts
                     for artifact in artifacts:
@@ -157,7 +153,7 @@ class GoogleDrive(BaseTool):
             if not files:
                 logger.debug(event="[Google Drive] No files found.")
         if not files:
-            return [{"text": ""}]
+            return []
 
         # post process files
         processed_files = process_shortcut_files(service, files)
@@ -184,7 +180,7 @@ class GoogleDrive(BaseTool):
             return [
                 {
                     "text": id_to_texts[idd],
-                    "url": id_to_urls.get(idd, ""),
+                    "url": web_view_links.get(idd, ""),
                     "title": titles.get(idd, ""),
                 }
                 for idd in id_to_texts
@@ -203,7 +199,7 @@ class GoogleDrive(BaseTool):
         }
 
         if not id_to_texts:
-            return [{"text": ""}]
+            return []
 
         """
         Compass logic

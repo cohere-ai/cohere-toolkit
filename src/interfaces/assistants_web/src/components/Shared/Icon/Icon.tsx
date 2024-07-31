@@ -1,3 +1,4 @@
+import { Link } from '@/components/Shared/Icon/Link';
 import { cn } from '@/utils';
 
 export type IconKind = 'default' | 'outline';
@@ -9,29 +10,29 @@ export type IconName =
   | 'arrow-down'
   | 'arrow-left'
   | 'arrow-right'
-  | 'arrow-up'
-  | 'arrow-up-right'
   | 'arrow-submit'
+  | 'arrow-up-right'
+  | 'arrow-up'
   | 'book-open-text'
   | 'calculator'
-  | 'close'
   | 'chat-circle-dots'
   | 'checkmark'
   | 'chevron-down'
   | 'chevron-left'
   | 'chevron-right'
   | 'chevron-up'
-  | 'circles-three'
   | 'circles-four'
+  | 'circles-three'
   | 'close-drawer'
+  | 'close'
   | 'code-simple'
   | 'compass'
   | 'copy'
   | 'desktop'
   | 'download'
   | 'edit'
-  | 'file'
   | 'file-search'
+  | 'file'
   | 'folder'
   | 'hide'
   | 'information'
@@ -51,8 +52,8 @@ export type IconName =
   | 'sparkle'
   | 'subtract'
   | 'sun'
-  | 'thumbs-up'
   | 'thumbs-down'
+  | 'thumbs-up'
   | 'trash'
   | 'upload'
   | 'users-three'
@@ -63,9 +64,8 @@ export const Icon: React.FC<{
   name: IconName | LogoIconName;
   kind?: IconKind;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit';
-  fill?: string;
   className?: string;
-}> = ({ name, kind = 'default', size = 'md', className, fill }) => {
+}> = ({ name, kind = 'default', size = 'md', className }) => {
   const sizeClass = cn({
     'h-inherit w-inherit': size == 'inherit',
     'h-icon-xs w-icon-xs': size === 'xs',
@@ -1364,5 +1364,7 @@ const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
           fill="#28a8ea"
         />
       </svg>;
+    case 'link':
+      return <Link />;
   }
 };

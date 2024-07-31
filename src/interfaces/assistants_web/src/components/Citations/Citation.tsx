@@ -118,11 +118,11 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
           : {}),
       }}
       className={cn(
-        'rounded md:w-citation-md lg:w-citation-lg xl:w-citation-xl',
-        'bg-marble-1000 transition-[transform,top] duration-300 ease-in-out',
-        'md:absolute md:left-2.5 lg:left-[18px]',
+        'w-[260px] max-w-[260px] rounded',
+        'bg-marble-1000 transition-[transform,top] duration-300 ease-in-out dark:bg-volcanic-200',
+        'md:absolute',
         {
-          'md:-translate-x-1 lg:-translate-x-2': isHovered,
+          'md:-translate-x-1': isHovered,
           'md:z-selected-citation': isSelected || isAllDocsVisible || isHovered,
           'md:translate-y-[var(--selectedTranslateY)] md:shadow-lg': isSelected,
         }
@@ -132,13 +132,14 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
         ref={ref}
         className={cn(
           ReservedClasses.CITATION,
-          'rounded md:w-citation-md md:p-3 lg:w-citation-lg xl:w-citation-xl',
+          'rounded md:p-3',
           'transition-[colors,opacity] duration-300 ease-in-out',
           {
-            'opacity-60': !isSelected && !isHovered && (!isLastStreamed || isSomeSelected),
-            'opacity-90': !isSelected && isHovered,
-            'bg-mushroom-400/[0.08]': !isSelected,
-            'bg-coral-700/[0.08]': isSelected,
+            'opacity-60 dark:opacity-100':
+              !isSelected && !isHovered && (!isLastStreamed || isSomeSelected),
+            'opacity-90 dark:opacity-100': !isSelected && isHovered,
+            'bg-mushroom-400/[0.08 dark:bg-volcanic-200': !isSelected,
+            'bg-coral-700/[0.08] dark:bg-volcanic-200': isSelected,
             'flex flex-col gap-y-4 lg:gap-y-6': isSelected,
           },
           className
@@ -146,16 +147,16 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <Text className="text-coral-300 md:hidden">{keyword}</Text>
+        <Text className="text-coral-300 md:hidden dark:text-marble-950">{keyword}</Text>
 
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
-          <Text as="span" styleAs="caption" className="text-volcanic-300">
+          <Text as="span" styleAs="caption" className="text-volcanic-300 dark:text-marble-800">
             {uniqueDocumentsUrls.length} {pluralize('reference', uniqueDocumentsUrls.length)}
           </Text>
           {uniqueDocumentsUrls.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
-                'h-4 w-4 fill-volcanic-300 transition delay-75 duration-200 ease-in-out',
+                'h-4 w-4 fill-volcanic-300 transition delay-75 duration-200 ease-in-out dark:fill-marble-800',
                 {
                   'rotate-180': isAllDocsVisible,
                 }
