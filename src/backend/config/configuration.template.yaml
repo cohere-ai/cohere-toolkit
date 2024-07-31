@@ -20,7 +20,7 @@ database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
 redis:
   url: redis://:redis@redis:6379
-tools: 
+tools:
   enabled_tools:
     - wikipedia
     - search_file
@@ -36,7 +36,7 @@ tools:
   compass:
     api_url:
     parser_url:
-  gdrive:
+  google_drive:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false

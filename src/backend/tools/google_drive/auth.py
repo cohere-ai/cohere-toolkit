@@ -6,6 +6,7 @@ import urllib.parse
 import requests
 from fastapi import Request
 
+from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
@@ -27,15 +28,13 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
     def __init__(self):
         super().__init__()
-        self.GOOGLE_DRIVE_CLIENT_ID = os.getenv("GOOGLE_DRIVE_CLIENT_ID")
-        self.GOOGLE_DRIVE_CLIENT_SECRET = os.getenv("GOOGLE_DRIVE_CLIENT_SECRET")
+        self.GOOGLE_DRIVE_CLIENT_ID = Settings().tools.google_drive.client_id
+        self.GOOGLE_DRIVE_CLIENT_SECRET = Settings().tools.google_drive.client_secret
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
-        if any(
-            [
-                self.GOOGLE_DRIVE_CLIENT_ID is None,
-                self.GOOGLE_DRIVE_CLIENT_SECRET is None,
-            ]
+        if (
+            self.GOOGLE_DRIVE_CLIENT_ID is None
+            or self.GOOGLE_DRIVE_CLIENT_SECRET is None
         ):
             raise ValueError(
                 "GOOGLE_DRIVE_CLIENT_ID and GOOGLE_DRIVE_CLIENT_SECRET must be set to use Google Drive Tool Auth."

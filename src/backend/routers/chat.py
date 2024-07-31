@@ -10,6 +10,7 @@ from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -60,6 +61,12 @@ async def chat_stream(
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
         ctx.with_agent(agent)
+        agent_tool_metadata = (
+            agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
+                session, agent_id
+            )
+        )
+        ctx.with_agent_tool_metadata(agent_tool_metadata)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     else:
         ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
@@ -117,8 +124,22 @@ async def chat(
     Returns:
         NonStreamedChatResponse: Chatbot response.
     """
+    ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id
     ctx.with_agent_id(agent_id)
+
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        ctx.with_agent(agent)
+        agent_tool_metadata = (
+            agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
+                session, agent_id
+            )
+        )
+        ctx.with_agent_tool_metadata(agent_tool_metadata)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+    else:
+        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     (
         session,

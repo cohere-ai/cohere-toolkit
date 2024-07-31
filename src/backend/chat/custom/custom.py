@@ -238,13 +238,17 @@ class CustomChat(BaseChat):
             if not tool:
                 continue
 
+            print("hey")
+            ctx.user.id
+            print("hey")
             outputs = await tool.implementation().call(
                 parameters=tool_call.get("parameters"),
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=ctx.get_user_id(),
                 trace_id=ctx.get_trace_id(),
-                agent_id=kwargs.get("agent_id"),
+                agent_id=ctx.get_agent_id(),
+                agent_tool_metadata=ctx.get_agent_tool_metadata(),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list

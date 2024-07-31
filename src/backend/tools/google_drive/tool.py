@@ -1,4 +1,3 @@
-import os
 import time
 from typing import Any, Dict, List
 
@@ -7,6 +6,7 @@ from google.auth.exceptions import RefreshError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.services.compass import Compass
@@ -41,13 +41,12 @@ class GoogleDrive(BaseTool):
 
     NAME = GOOGLE_DRIVE_TOOL_ID
 
+    CLIENT_ID = Settings().tools.google_drive.client_id
+    CLIENT_SECRET = Settings().tools.google_drive.client_secret
+
     @classmethod
     def is_available(cls) -> bool:
-        vars = [
-            "GOOGLE_DRIVE_CLIENT_ID",
-            "GOOGLE_DRIVE_CLIENT_SECRET",
-        ]
-        return all(os.getenv(var) is not None for var in vars)
+        return cls.CLIENT_ID is not None and cls.CLIENT_ID is not None
 
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))
@@ -68,6 +67,7 @@ class GoogleDrive(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
+        agent_tool_metadata = kwargs["agent_tool_metadata"]
         index_name = "{}_{}".format(
             agent_id if agent_id is not None else user_id, GOOGLE_DRIVE_TOOL_ID
         )
@@ -96,14 +96,11 @@ class GoogleDrive(BaseTool):
 
         creds = Credentials(tool_auth.access_token)
 
-        # fetch agent tool metadata
+        # parse tool metadata
         file_ids = []
         folder_ids = []
-        if agent_id:
-            agent_metadata = get_all_agent_tool_metadata_by_agent_id(
-                db=session, agent_id=agent_id
-            )
-            for metadata in agent_metadata:
+        if agent_tool_metadata:
+            for metadata in agent_tool_metadata:
                 if metadata.tool_name == GOOGLE_DRIVE_TOOL_ID:
                     artifacts = metadata.artifacts
                     for artifact in artifacts:
@@ -111,6 +108,9 @@ class GoogleDrive(BaseTool):
                             folder_ids.append(artifact["id"])
                         else:
                             file_ids.append(artifact["id"])
+        print("file_ids")
+        print(file_ids)
+        print(folder_ids)
 
         # Condition on files if exist
         files = []
