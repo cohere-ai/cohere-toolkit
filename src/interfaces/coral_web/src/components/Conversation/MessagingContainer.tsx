@@ -107,8 +107,6 @@ const Content: React.FC<Props> = (props) => {
   const { citationToStyles, messageContainerDivRef, composerContainerDivRef } =
     useCalculateCitationStyles(messages, streamingMessage);
 
-  console.log({ citationToStyles });
-
   const handleScrollToNewMessage = () => {
     scrollToBottom({ behavior: 'smooth' });
   };
