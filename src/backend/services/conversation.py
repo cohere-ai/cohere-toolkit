@@ -18,7 +18,6 @@ from backend.services.chat import generate_chat_response
 from backend.services.context import get_context
 from backend.services.file import attach_conversation_id_to_files, get_file_service
 
-
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
 Given the following conversation history, write a short title that summarizes the topic of the conversation. Be concise and respond with just the title.
