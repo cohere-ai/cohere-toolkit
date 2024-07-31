@@ -15,8 +15,7 @@ const tabs = [
     <Text>Connections</Text>
   </div>,
   <div className="flex items-center gap-2" key="company">
-    {/* TODO(tomeu): replace with SUN icon */}
-    <Icon name="add" kind="outline" />
+    <Icon name="sun" kind="outline" />
     <Text>appearance</Text>
   </div>,
   <div className="flex items-center gap-2" key="private">
@@ -46,7 +45,7 @@ export const Settings = () => {
             <Icon
               name="information"
               kind="outline"
-              className="text-volcanic-300 dark:text-mushroom-700"
+              className="fill-volcanic-300 dark:fill-mushroom-700"
             />
           </Tooltip>
         </div>
@@ -89,12 +88,11 @@ const Profile = () => {
   return (
     <Wrapper>
       <Button
-        className="dark:[&_span]:text-evolved-green-700"
         label="Sign out"
         href="/logout"
         kind="secondary"
-        // TODO(tomeu): replace with Sign out icon
-        icon="arrow-right"
+        icon="sign-out"
+        theme="evolved-green"
       />
     </Wrapper>
   );
@@ -146,27 +144,26 @@ const GoogleDriveConnection = () => {
             </div>
             <div className="flex items-center justify-between">
               <Button
-                className="dark:[&_span]:text-mushroom-950"
                 label="Sync now"
                 kind="secondary"
-                icon="redo"
+                icon="arrow-clockwise"
                 onClick={() => alert('not implemented')}
               />
               <Button
-                className="dark:[&_span]:text-danger-500"
                 label="Delete connection"
                 kind="secondary"
                 icon="trash"
+                theme="danger"
                 onClick={() => alert('not implemented')}
               />
             </div>
           </div>
         ) : (
           <Button
-            className="dark:[&_span]:text-evolved-green-700"
             label="Authenticate"
             href={googleDriveTool.auth_url ?? ''}
             kind="secondary"
+            theme="evolved-green"
             icon="arrow-up-right"
           />
         )}

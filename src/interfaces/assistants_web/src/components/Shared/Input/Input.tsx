@@ -7,6 +7,8 @@ import { Icon } from '@/components/Shared/Icon';
 import { STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
+import { CopyToClipboardButton, CopyToClipboardIconButton } from '../CopyToClipboardButton';
+
 type Props = Omit<React.HTMLProps<HTMLInputElement>, 'onChange' | 'value'> & {
   value?: string;
   label?: string;
@@ -68,28 +70,16 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
             </button>
           )}
           {actionType === 'copy' && (
-            <button
-              type="button"
-              onClick={() => {
-                if (value) {
-                  navigator.clipboard.writeText(value);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 1000);
-                }
-              }}
+            <CopyToClipboardIconButton
+              value={value ?? ''}
               disabled={!value?.trim()}
-              className={cn(
+              buttonClassName={cn(
                 'rounded outline-1 outline-offset-1 outline-volcanic-600',
                 'absolute right-2 top-1/2 -translate-y-1/2 transform',
                 'items-center justify-center'
               )}
-            >
-              <Icon
-                className={cn({ 'dark:text-marble-950': !!value, 'text-volcanic-600': !value })}
-                name="copy"
-                kind={copied ? 'default' : 'outline'}
-              />
-            </button>
+              iconClassName={cn({ 'dark:fill-marble-950': !!value, 'fill-volcanic-600': !value })}
+            />
           )}
         </div>
       </Field>

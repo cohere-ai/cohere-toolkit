@@ -45,6 +45,7 @@ google_auth_oauthlib = "^1.2.0"
 google-auth-httplib2 = "^0.2.0"
 google-api-python-client = "^2.133.0"
 openpyxl = "^3.1.5"
+redis = {extras = ["hiredis"], version = "^5.0.7"}
 python-docx = "^1.1.2"
 python-calamine = "^0.2.3"
 

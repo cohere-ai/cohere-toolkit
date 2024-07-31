@@ -3,6 +3,7 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ThemeProvider } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
@@ -61,17 +62,19 @@ export const LayoutProviders: React.FC<React.PropsWithChildren> = ({ children })
   );
 
   return (
-    <CohereClientProvider client={cohereClient}>
-      <QueryClientProvider client={queryClient}>
-        <ContextStore>
-          <ViewportFix />
-          <GlobalHead />
-          <WebManifestHead />
-          <ToastNotification />
-          <ReactQueryDevtools />
-          {children}
-        </ContextStore>
-      </QueryClientProvider>
-    </CohereClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <CohereClientProvider client={cohereClient}>
+        <QueryClientProvider client={queryClient}>
+          <ContextStore>
+            <ViewportFix />
+            <GlobalHead />
+            <WebManifestHead />
+            <ToastNotification />
+            <ReactQueryDevtools />
+            {children}
+          </ContextStore>
+        </QueryClientProvider>
+      </CohereClientProvider>
+    </ThemeProvider>
   );
 };
