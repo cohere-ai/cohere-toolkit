@@ -16,8 +16,8 @@ from backend.schemas.file import File
 from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
 from backend.services.file import attach_conversation_id_to_files, get_file_service
+from backend.services.logger.utils import get_logger
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
