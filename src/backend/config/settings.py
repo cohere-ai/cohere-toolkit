@@ -239,11 +239,11 @@ class LoggerSettings(BaseSettings, BaseModel):
 class SyncSettings(BaseSettings, BaseModel):
     model_config = setting_config
     broker_url: Optional[str] = Field(
-        default="INFO", validation_alias=AliasChoices("BROKER_URL", "url")
+        validation_alias=AliasChoices("BROKER_URL", "broker_url")
     )
     worker_concurrency: Optional[int] = Field(
-        default="INFO",
-        validation_alias=AliasChoices("SYNC_WORKER_CONCURRENCY", "worker_concurrency"),
+        default=4,
+        validation_alias=AliasChoices("WORKER_CONCURRENCY", "worker_concurrency"),
     )
 
 

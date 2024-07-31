@@ -31,9 +31,6 @@ tools:
     url: http://terrarium:8080
   tavily:
   wolfram_alpha:
-  compass:
-    api_url:
-    parser_url:
   gdrive:
 feature_flags:
   # Experimental features
@@ -49,6 +46,8 @@ auth:
   google_oauth:
   oidc:
 logger:
+  log_level: INFO
+  log_strategy:
 sync:
-  broker_url: 'redis://:redis@redis:6379/0'
+  broker_url: "redis://:redis@redis:6379/0"
   sync_worker_concurrency: 4
