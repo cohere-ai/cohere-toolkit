@@ -1,15 +1,13 @@
-import os
 from typing import Any, Dict, List
 
 from google.auth.exceptions import RefreshError
 
+from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.tools.base import BaseTool
 
 from .constants import GOOGLE_DRIVE_TOOL_ID
-
-logger = get_logger()
 
 
 class GoogleDrive(BaseTool):
@@ -19,13 +17,12 @@ class GoogleDrive(BaseTool):
 
     NAME = GOOGLE_DRIVE_TOOL_ID
 
+    CLIENT_ID = Settings().tools.google_drive.client_id
+    CLIENT_SECRET = Settings().tools.google_drive.client_secret
+
     @classmethod
     def is_available(cls) -> bool:
-        vars = [
-            "GOOGLE_DRIVE_CLIENT_ID",
-            "GOOGLE_DRIVE_CLIENT_SECRET",
-        ]
-        return all(os.getenv(var) is not None for var in vars)
+        return cls.CLIENT_ID is not None and cls.CLIENT_ID is not None
 
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))

@@ -54,9 +54,7 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 
 def process_chat(
@@ -85,7 +83,8 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
 
         if agent is None:
             raise HTTPException(

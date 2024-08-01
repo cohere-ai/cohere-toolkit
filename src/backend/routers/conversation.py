@@ -10,6 +10,7 @@ from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
+from backend.schemas.agent import Agent
 from backend.schemas.context import Context
 from backend.schemas.conversation import (
     ConversationPublic,
@@ -44,9 +45,7 @@ from backend.services.file import (
     validate_file,
     validate_file_size,
 )
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
+from backend.services.logger.utils import logger
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -276,7 +275,8 @@ async def search_conversations(
 
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     else:
         ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)

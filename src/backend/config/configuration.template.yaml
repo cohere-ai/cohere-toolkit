@@ -6,6 +6,7 @@ deployments:
     - azure
     - bedrock
   cohere_platform:
+    api_key:
   sagemaker:
     region_name: us-west-2
     endpoint_name: cohere-ai
@@ -20,7 +21,7 @@ database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
 redis:
   url: redis://:redis@redis:6379
-tools: 
+tools:
   enabled_tools:
     - wikipedia
     - search_file
@@ -31,9 +32,11 @@ tools:
     - web_scrape
   python_interpreter:
     url: http://terrarium:8080
-  tavily:
+  web_search:
+    api_key:
   wolfram_alpha:
-  gdrive:
+    app_id:
+  google_drive:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false
@@ -48,8 +51,4 @@ auth:
   google_oauth:
   oidc:
 logger:
-  log_level: INFO
-  log_strategy:
-sync:
-  broker_url: "redis://:redis@redis:6379/0"
-  sync_worker_concurrency: 4
+  strategy: structlog
