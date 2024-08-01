@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { Dispatch, SetStateAction, useRef } from 'react';
 
-import { IconButton } from '@/components/IconButton';
-import { Button, Icon, IconName, Text } from '@/components/Shared';
+import { Button, Icon, IconName, Spinner, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useBatchUploadFile } from '@/hooks/files';
 import { DataSourceArtifact } from '@/types/tools';
@@ -10,8 +9,9 @@ import { pluralize } from '@/utils';
 
 type Props = {
   googleDriveEnabled: boolean;
-  googleFiles?: DataSourceArtifact[];
-  defaultUploadFiles?: DataSourceArtifact[];
+  googleFiles: DataSourceArtifact[];
+  defaultUploadFiles: DataSourceArtifact[];
+  isLoading?: boolean;
   openGoogleFilePicker: VoidFunction;
   setGoogleFiles: Dispatch<SetStateAction<DataSourceArtifact[]>>;
   setDefaultUploadFiles: Dispatch<SetStateAction<DataSourceArtifact[]>>;
@@ -21,6 +21,7 @@ export const DataSourcesStep: React.FC<Props> = ({
   googleDriveEnabled,
   googleFiles = [],
   defaultUploadFiles = [],
+  isLoading,
   openGoogleFilePicker,
   setGoogleFiles,
   setDefaultUploadFiles,
@@ -69,6 +70,13 @@ export const DataSourcesStep: React.FC<Props> = ({
   const hasActiveDataSources =
     (googleFiles && !!googleFiles.length) || (defaultUploadFiles && !!defaultUploadFiles.length);
 
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-4">
       {hasActiveDataSources && <Text styleAs="label">Active Data Sources</Text>}

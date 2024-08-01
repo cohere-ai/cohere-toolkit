@@ -19,12 +19,6 @@ type Props = {
   agentId: string;
 };
 
-const DEFAULT_FIELD_VALUES = {
-  name: '',
-  deployment: DEPLOYMENT_COHERE_PLATFORM,
-  model: DEFAULT_AGENT_MODEL,
-};
-
 export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
   const { data: agent, isLoading } = useAgent({ agentId });
@@ -33,9 +27,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const { mutateAsync: updateAgent } = useUpdateAgent();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<AgentSettingsFields>(
-    agent && !!agent.name ? agent : DEFAULT_FIELD_VALUES
-  );
+  const [fields, setFields] = useState<AgentSettingsFields>();
 
   const { set: setPendingAssistant } = useLocalStorageValue<AgentSettingsFields>(
     'pending_assistant',
@@ -59,6 +51,30 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
     }
   }, [agent]);
 
+  const handleOpenDeleteModal = () => {
+    if (!agent || !agent.name || !agentId) return;
+    open({
+      title: `Delete ${agent.name}`,
+      content: <DeleteAgent name={agent.name} agentId={agentId} onClose={close} />,
+    });
+  };
+
+  if (isLoading && !fields) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!agent || !fields) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Text className="text-danger-350">Unable to load assistant information</Text>
+      </div>
+    );
+  }
+
   const handleSubmit = async () => {
     if (!agentId) return;
     try {
@@ -72,30 +88,6 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
       console.error(e);
     }
   };
-
-  const handleOpenDeleteModal = () => {
-    if (!agent || !agent.name || !agentId) return;
-    open({
-      title: `Delete ${agent.name}`,
-      content: <DeleteAgent name={agent.name} agentId={agentId} onClose={close} />,
-    });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (!agent) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-danger-350">Unable to load assistant information</Text>
-      </div>
-    );
-  }
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-y-auto">

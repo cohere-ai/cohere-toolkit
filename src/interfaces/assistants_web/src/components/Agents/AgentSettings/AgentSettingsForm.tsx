@@ -41,7 +41,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
   setFields,
   onSubmit,
 }) => {
-  const { data: listToolsData } = useListTools();
+  const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
 
   const [stepsExpanded, setStepsExpanded] = useState({
@@ -162,6 +162,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
           }
           googleFiles={googleFiles}
           defaultUploadFiles={defaultUploadFiles}
+          isLoading={listToolsStatus === 'pending'}
           openGoogleFilePicker={handleGoogleFilePicker}
           setGoogleFiles={setGoogleFiles}
           setDefaultUploadFiles={setDefaultUploadFiles}
