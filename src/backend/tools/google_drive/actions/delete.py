@@ -8,17 +8,11 @@ ACTION_NAME = "delete"
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def delete(file_id: str, index_name: str, user_id: str, **kwargs):
+    # Delete document
     logger.info(
-        "Initiating Compass create_index action for index {}".format(index_name)
+        event="[Google Drive Delete] Initiating Compass delete for file",
+        file_id=file_id,
     )
-    env().COMPASS.invoke(
-        env().COMPASS.ValidActions.CREATE_INDEX,
-        {
-            "index": index_name,
-        },
-    )
-    logger.info("Finished Compass create_index action for index {}".format(index_name))
-    logger.info("Initiating Compass delete for file {}".format(file_id))
     env().COMPASS.invoke(
         env().COMPASS.ValidActions.DELETE,
         {
@@ -26,7 +20,10 @@ def delete(file_id: str, index_name: str, user_id: str, **kwargs):
             "file_id": file_id,
         },
     )
-    logger.info("Finished Compass delete action for file {}".format(file_id))
+    logger.info(
+        event="[Google Drive Delete] Finished Compass delete action for file",
+        file_id=file_id,
+    )
     return {
         "action": ACTION_NAME,
         "status": Status.SUCCESS.value,

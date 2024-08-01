@@ -12,7 +12,9 @@ ACTION_NAME = "create"
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def create(file_id: str, index_name: str, user_id: str, **kwargs):
     # Get file bytes, web view link, title
-    file_details = get_file_details(file_id=file_id, user_id=user_id)
+    file_details = get_file_details(
+        file_id=file_id, user_id=user_id, include_permissions=True
+    )
     if file_details is None:
         return {
             "action": ACTION_NAME,
@@ -20,9 +22,9 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
             "file_id": file_id,
         }
 
-    file_bytes, web_view_link, title, extension = (
+    file_bytes, web_view_link, title, extension, permissions = (
         file_details[key]
-        for key in ("file_bytes", "web_view_link", "title", "extension")
+        for key in ("file_bytes", "web_view_link", "title", "extension", "permissions")
     )
     if not file_bytes:
         return {
@@ -36,7 +38,8 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
     try:
         # idempotent create index
         logger.info(
-            "Initiating Compass create_index action for index {}".format(index_name)
+            event="[Google Drive Create] Initiating Compass create_index action for index",
+            index_name=index_name,
         )
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.CREATE_INDEX,
@@ -45,12 +48,14 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
             },
         )
         logger.info(
-            "Finished Compass create_index action for index {}".format(index_name)
-        )
-        logger.info(
-            "Initiating Compass create action for file {}".format(web_view_link)
+            event="[Google Drive Create] Finished Compass create_index action for index",
+            index_name=index_name,
         )
         # Create or replace doc (if already exists)
+        logger.info(
+            event="[Google Drive Create] Initiating Compass create action for file",
+            web_view_link=web_view_link,
+        )
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.CREATE,
             {
@@ -60,8 +65,14 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
                 "file_extension": extension,
             },
         )
-        logger.info("Finished Compass create action for file {}".format(web_view_link))
-        logger.info("Initiating Compass add context for file {}".format(web_view_link))
+        logger.info(
+            event="[Google Drive Create] Finished Compass create action for file",
+            web_view_link=web_view_link,
+        )
+        logger.info(
+            event="[Google Drive Create] Initiating Compass add context for file",
+            web_view_link=web_view_link,
+        )
         # Add title and url context
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.ADD_CONTEXT,
@@ -72,17 +83,16 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
                     "url": web_view_link,
                     "title": title,
                     "last_updated": int(time.time()),
-                    "permissions": [],
+                    "permissions": permissions,
                 },
             },
         )
         logger.info(
-            "Finished Compass add context action for file {}".format(web_view_link)
+            event="[Google Drive Create] Finished Compass add context action for file",
+            web_view_link=web_view_link,
         )
     except Exception:
-        logger.error(
-            "Failed to create document in Compass for file {}".format(web_view_link)
-        )
+        logger.error(f"Failed to create document in Compass for file {web_view_link}")
         return {"action": ACTION_NAME, "status": Status.FAIL.value, "file_id": file_id}
 
     return {"action": ACTION_NAME, "status": Status.SUCCESS.value, "file_id": file_id}

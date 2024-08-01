@@ -1,3 +1,5 @@
+from typing import Dict, List, Optional
+
 from backend.services.sync.env import env
 from backend.tools.google_drive.constants import NATIVE_SEARCH_MIME_TYPES
 from backend.tools.google_drive.utils import (
@@ -13,7 +15,7 @@ from backend.tools.google_drive.utils import (
 from backend.tools.utils import download
 
 
-def get_file_details(file_id: str, user_id: str):
+def get_file_details(file_id: str, user_id: str, include_permissions=False):
     """
     Return file bytes, web view link and title
     """
@@ -50,11 +52,16 @@ def get_file_details(file_id: str, user_id: str):
             service=service, file_id=processed_file["id"]
         )
 
+    permissions = []
+    if include_permissions:
+        permissions = list_permissions(file_id=file_id, user_id=user_id)
+
     return {
         "file_bytes": file_bytes,
         "extension": extension,
         "web_view_link": web_view_link,
         "title": title,
+        "permissions": permissions,
     }
 
 
@@ -78,10 +85,36 @@ def get_folder_subfolders(folder_id: str, user_id: str):
     ]
 
 
+def list_permissions(file_id: str, user_id: str, next_page_token: Optional[str] = None):
+    (service,) = (
+        get_service(api="drive", user_id=user_id)[key] for key in ("service",)
+    )
+    response = (
+        service.permissions()
+        .list(
+            fileId=file_id,
+            supportsAllDrives=True,
+            pageToken=next_page_token,
+            fields="permissions(emailAddress, type, domain), nextPageToken",
+        )
+        .execute()
+    )
+    if response_next_page_token := response.get("nextPageToken", None):
+        return [
+            *_format_permissions(response.get("permissions", [])),
+            *list_permissions(
+                file_id=file_id,
+                user_id=user_id,
+                next_page_token=response_next_page_token,
+            ),
+        ]
+    return _format_permissions(response.get("permissions", []))
+
+
 def _list_items_recursively(
     folder_id: str,
     user_id: str,
-    next_page_token: str = "",
+    next_page_token: Optional[str] = None,
 ):
     (service,) = (
         get_service(api="drive", user_id=user_id)[key] for key in ("service",)
@@ -109,3 +142,14 @@ def _list_items_recursively(
             ),
         ]
     return response.get("files", [])
+
+
+def _format_permissions(permissions: List[Dict[str, str]]):
+    return [
+        *[
+            {"id": x["emailAddress"], "type": x["type"]}
+            for x in permissions
+            if "emailAddress" in x
+        ],
+        *[{"id": x["domain"], "type": x["type"]} for x in permissions if "domain" in x],
+    ]

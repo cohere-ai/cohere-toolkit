@@ -75,7 +75,8 @@ class CompassMaxErrorRateExceeded(Exception):
 class CompassClient:
     def __init__(
         self,
-        index_url: str = "http://localhost:80",
+        *,
+        index_url: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         logger_level: LoggerLevel = LoggerLevel.INFO,
@@ -117,7 +118,7 @@ class CompassClient:
         }
         logger.setLevel(logger_level.value)
 
-    def create_index(self, index_name: str):
+    def create_index(self, *, index_name: str):
         """
         Create an index in Compass
         :param index_name: the name of the index
@@ -130,7 +131,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def refresh(self, index_name: str):
+    def refresh(self, *, index_name: str):
         """
         Refresh index
         :param index_name: the name of the index
@@ -143,7 +144,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def delete_index(self, index_name: str):
+    def delete_index(self, *, index_name: str):
         """
         Delete an index from Compass
         :param index_name: the name of the index
@@ -156,7 +157,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def delete_document(self, index_name: str, doc_id: str):
+    def delete_document(self, *, index_name: str, doc_id: str):
         """
         Delete a document from Compass
         :param index_name: the name of the index
@@ -171,7 +172,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def get_document(self, index_name: str, doc_id: str):
+    def get_document(self, *, index_name: str, doc_id: str):
         """
         Get a document from Compass
         :param index_name: the name of the index
@@ -200,6 +201,7 @@ class CompassClient:
 
     def add_context(
         self,
+        *,
         index_name: str,
         doc_id: str,
         context: Dict,
@@ -227,6 +229,7 @@ class CompassClient:
 
     def insert_doc(
         self,
+        *,
         index_name: str,
         doc: CompassDocument,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -246,7 +249,7 @@ class CompassClient:
             sleep_retry_seconds=sleep_retry_seconds,
         )
 
-    def insert_docs_batch(self, uuid: str, index_name: str):
+    def insert_docs_batch(self, *, uuid: str, index_name: str):
         """
         Insert a batch of parsed documents into an index in Compass
         :param uuid: the uuid of the batch
@@ -260,7 +263,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def batch_status(self, uuid: str):
+    def batch_status(self, *, uuid: str):
         """
         Get the status of a batch
         :param uuid: the uuid of the batch
@@ -282,6 +285,7 @@ class CompassClient:
 
     def insert_docs(
         self,
+        *,
         index_name: str,
         docs: Iterator[CompassDocument],
         max_chunks_per_request: int = DEFAULT_MAX_CHUNKS_PER_REQUEST,
@@ -425,6 +429,7 @@ class CompassClient:
 
     def search(
         self,
+        *,
         index_name: str,
         query: str,
         top_k: int = 10,

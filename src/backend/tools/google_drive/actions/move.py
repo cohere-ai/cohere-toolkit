@@ -42,20 +42,11 @@ def move(file_id: str, index_name: str, user_id: str, **kwargs):
 
     # Delete file if moved out of agent's artifacts
     if delete:
-        logger.info(
-            "Initiating Compass create_index action for index {}".format(index_name)
-        )
-        env().COMPASS.invoke(
-            env().COMPASS.ValidActions.CREATE_INDEX,
-            {
-                "index": index_name,
-            },
-        )
-        logger.info(
-            "Finished Compass create_index action for index {}".format(index_name)
-        )
-        logger.info("Initiating Compass move action for file_id {}".format(file_id))
         # Delete document
+        logger.info(
+            event="[Google Drive Move] Initiating Compass delete action for file_id",
+            file_id=file_id,
+        )
         env().COMPASS.invoke(
             env().COMPASS.ValidActions.DELETE,
             {
@@ -63,7 +54,10 @@ def move(file_id: str, index_name: str, user_id: str, **kwargs):
                 "file_id": file_id,
             },
         )
-        logger.info("Finished Compass move action for file_id {}".format(file_id))
+        logger.info(
+            event="[Google Drive Move] Finished Compass delete action for file_id",
+            file_id=file_id,
+        )
         return {
             "action": ACTION_NAME,
             "status": Status.SUCCESS.value,

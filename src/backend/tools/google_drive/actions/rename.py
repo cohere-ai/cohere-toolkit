@@ -12,18 +12,11 @@ ACTION_NAME = "rename"
 def rename(file_id: str, index_name: str, user_id: str, **kwargs):
     title = kwargs["title"]
 
-    # Add title and url context
+    # Modify title
     logger.info(
-        "Initiating Compass create_index action for index {}".format(index_name)
+        event="[Google Drive Rename] Initiating Compass add context for file",
+        file_id=file_id,
     )
-    env().COMPASS.invoke(
-        env().COMPASS.ValidActions.CREATE_INDEX,
-        {
-            "index": index_name,
-        },
-    )
-    logger.info("Finished Compass create_index action for index {}".format(index_name))
-    logger.info("Initiating Compass add context for file {}".format(file_id))
     env().COMPASS.invoke(
         env().COMPASS.ValidActions.ADD_CONTEXT,
         {
@@ -35,7 +28,10 @@ def rename(file_id: str, index_name: str, user_id: str, **kwargs):
             },
         },
     )
-    logger.info("Finished Compass add context action for file {}".format(file_id))
+    logger.info(
+        event="[Google Drive Rename] Finished Compass add context action for file",
+        file_id=file_id,
+    )
     return {
         "action": ACTION_NAME,
         "status": Status.SUCCESS.value,

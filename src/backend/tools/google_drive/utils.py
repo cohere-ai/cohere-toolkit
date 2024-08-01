@@ -31,15 +31,18 @@ def get_service(api: str, user_id: str, version: str = "v3"):
     session = next(get_session())
     agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
     if agent_creator_auth_token is None:
+        session.close()
         raise Exception("Sync GDrive Error: No agent creator credentials found")
 
     if gdrive_auth.is_auth_required(session, user_id=user_id):
+        session.close()
         raise Exception(
             "Sync GDrive Error: Agent creator credentials need to re-authenticate"
         )
 
     creds = Credentials(agent_creator_auth_token)
     service = build(api, version, credentials=creds, cache_discovery=False)
+    session.close()
     return {"service": service, "creds": creds}
 
 
