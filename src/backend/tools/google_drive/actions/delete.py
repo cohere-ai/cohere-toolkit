@@ -1,9 +1,10 @@
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
 
 ACTION_NAME = "delete"
+logger = LoggerFactory().get_logger()
 
 
 @app.task(time_limit=DEFAULT_TIME_OUT)

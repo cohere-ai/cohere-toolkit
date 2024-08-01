@@ -3,7 +3,9 @@ from typing import Dict
 
 import httpx
 
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 def perform_batch(
