@@ -4,7 +4,6 @@ import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Union
 
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
@@ -23,6 +22,7 @@ from backend.schemas.metrics import (
     MetricsModelAttrs,
     MetricsSignal,
 )
+
 from backend.services.context import get_context
 from backend.services.logger.utils import logger
 
