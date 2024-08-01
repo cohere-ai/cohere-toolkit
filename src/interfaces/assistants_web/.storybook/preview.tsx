@@ -21,8 +21,8 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => (
-      <ThemeProvider forcedTheme={context.globals.theme} attribute="class">
-        <div className="h-screen w-screen bg-marble-950 p-4 dark:bg-volcanic-60">
+      <ThemeProvider forcedTheme={context.globals.theme} attribute="class" defaultTheme="dark">
+        <div className="h-screen w-screen bg-marble-950 p-4 dark:bg-volcanic-100">
           <Story />
         </div>
       </ThemeProvider>
