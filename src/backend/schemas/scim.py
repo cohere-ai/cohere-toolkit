@@ -50,13 +50,13 @@ class Operation(BaseModel):
 
 class GroupOperation(BaseModel):
     op: str
-    path: str
-    value: list[dict[str, str]]
+    path: Optional[str]
+    value: Any
 
 
 class PatchUser(BaseModel):
     schemas: list[str]
-    Operations: list[GroupOperation]
+    Operations: list[Operation]
 
 
 class PatchGroup(BaseModel):

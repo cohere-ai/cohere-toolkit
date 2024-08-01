@@ -15,6 +15,7 @@ def get_group_by_name(db: Session, name: str) -> Group | None:
     """
     return db.query(Group).filter(Group.display_name == name).first()
 
+
 def get_group(db: Session, group_id: str) -> Group:
     """
     Get a user by ID.
@@ -28,7 +29,8 @@ def get_group(db: Session, group_id: str) -> Group:
     """
     return db.query(Group).filter(Group.id == group_id).first()
 
-def  create_group(db: Session, group: Group) -> Group:
+
+def create_group(db: Session, group: Group) -> Group:
     """ "
     Create a new user.
 
@@ -43,3 +45,16 @@ def  create_group(db: Session, group: Group) -> Group:
     db.commit()
     db.refresh(group)
     return group
+
+
+def delete_group(db: Session, group_id: str) -> None:
+    """
+    Delete a user by ID.
+
+    Args:
+        db (Session): Database session.
+        user_id (str): User ID.
+    """
+    group = db.query(Group).filter(Group.id == group_id)
+    group.delete()
+    db.commit()

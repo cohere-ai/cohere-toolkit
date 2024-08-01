@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Dict, List, Optional, Union
 
 from fastapi import APIRouter
 
@@ -16,9 +16,12 @@ from backend.schemas.scim import (
     PatchGroup,
     CreateGroup,
 )
+from backend.services.logger.utils import get_logger
+
 
 router = APIRouter(prefix="/scim/v2")
 router.name = RouterName.SCIM
+logger = get_logger()
 
 
 class SCIMException(Exception):
@@ -118,6 +121,15 @@ async def get_group(group_id: str, session: DBSessionDep):
 
     return Group.from_db_group(db_group)
 
+@router.delete("/Groups/{group_id}")
+async def get_group(group_id: str, session: DBSessionDep):
+    db_group = group_repo.get_group(session, group_id)
+    if not db_group:
+        raise SCIMException(status_code=404, detail="User not found")
+    group_repo.delete_group(session, group_id)
+    return None
+
+
 @router.post("/Users", status_code=201)
 async def create_user(user: CreateUser, session: DBSessionDep):
     db_user = user_repo.get_user_by_external_id(session, user.externalId)
@@ -171,19 +183,13 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
     return User.from_db_user(db_user)
 
 
+# TODO: not working
 @router.patch("/Groups/{group_id}")
-async def update_grup(group_id: str, patch: PatchGroup, session: DBSessionDep):
-    db_user = user_repo.get_user(session, user_id)
-    if not db_user:
-        raise SCIMException(status_code=404, detail="User not found")
-
-    db_user.user_name = user.userName
-    db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
-    db_user.active = user.active
-
-    session.commit()
-
-    return User.from_db_user(db_user)
+async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
+    db_group = group_repo.get_group(session, group_id)
+    if not db_group:
+        raise SCIMException(status_code=404, detail="Group not found")
+    return Group.from_db_group(db_group)
 
 
 @router.patch("/Users/{user_id}")
