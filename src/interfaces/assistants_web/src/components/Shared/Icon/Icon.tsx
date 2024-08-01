@@ -64,9 +64,8 @@ export const Icon: React.FC<{
   name: IconName | LogoIconName;
   kind?: IconKind;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit';
-  fill?: string;
   className?: string;
-}> = ({ name, kind = 'default', size = 'md', className, fill }) => {
+}> = ({ name, kind = 'default', size = 'md', className }) => {
   const sizeClass = cn({
     'h-inherit w-inherit': size == 'inherit',
     'h-icon-xs w-icon-xs': size === 'xs',

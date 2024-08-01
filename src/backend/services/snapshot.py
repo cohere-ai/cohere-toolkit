@@ -14,6 +14,8 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentToolMetadata
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
+from backend.services.conversation import get_messages_with_files
+from backend.services.logger.utils import logger
 
 SNAPSHOT_VERSION = 1
 
@@ -49,7 +51,7 @@ def create_conversation_dict(conversation: ConversationModel) -> dict[str, Any]:
         conversation_schema = Conversation.model_validate(conversation)
         return to_dict(conversation_schema)
     except Exception as e:
-        logger.error(msg=f"[Snapshot] Error creating conversation dict: {e}")
+        logger.error(event=f"[Snapshot] Error creating conversation dict: {e}")
         raise HTTPException(status_code=500, detail=f"Error creating snapshot - {e}")
 
 
@@ -79,10 +81,11 @@ def wrap_create_snapshot(
             tools_metadata=tools_metadata,
         )
 
+    messages = get_messages_with_files(session, user_id, conversation.messages)
     snapshot_data = SnapshotData(
         title=conversation.title,
         description=conversation.description,
-        messages=conversation.messages,
+        messages=messages,
         agent=snapshot_agent,
     )
     snapshot = to_dict(snapshot_data)
@@ -109,7 +112,7 @@ def wrap_create_snapshot_access(
     except Exception as e:
         # Do not raise exception if snapshot access creation fails
         session.rollback()
-        logger.error(msg=f"[Snapshot] Error creating snapshot access: {e}")
+        logger.error(event=f"[Snapshot] Error creating snapshot access: {e}")
 
 
 def remove_private_keys(
