@@ -29,7 +29,6 @@ from backend.compass_sdk import (
     PutDocumentsInput,
     SearchFilter,
     SearchInput,
-    logger,
 )
 from backend.compass_sdk.constants import (
     DEFAULT_MAX_CHUNKS_PER_REQUEST,
@@ -37,6 +36,9 @@ from backend.compass_sdk.constants import (
     DEFAULT_MAX_RETRIES,
     DEFAULT_SLEEP_RETRY_SECONDS,
 )
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 @dataclass
@@ -116,7 +118,6 @@ class CompassClient:
             "add_context": "/api/v1/indexes/{index_name}/documents/add_context/{doc_id}",
             "refresh": "/api/v1/indexes/{index_name}/refresh",
         }
-        logger.setLevel(logger_level.value)
 
     def create_index(self, *, index_name: str):
         """
@@ -377,7 +378,7 @@ class CompassClient:
                 if i > skip_first_n_docs
             )
         except CompassMaxErrorRateExceeded as e:
-            logger.error(e.message)
+            logger.error(event=f"[CompassError] {e.message}")
         return errors if len(errors) > 0 else None
 
     @staticmethod
@@ -397,7 +398,7 @@ class CompassClient:
         for num_doc, doc in enumerate(docs, 1):
             if doc.status != CompassDocumentStatus.Success:
                 logger.error(
-                    f"[Thread {threading.get_native_id()}] Document #{num_doc} has errors: {doc.errors}"
+                    event=f"[Thread {threading.get_native_id()}] Document #{num_doc} has errors: {doc.errors}"
                 )
                 errors.append(doc)
             else:
@@ -503,7 +504,7 @@ class CompassClient:
                 else:
                     error = str(e) + " " + e.response.text
                     logger.error(
-                        f"[Thread {threading.get_native_id()}] Failed to send request to "
+                        event=f"[Thread {threading.get_native_id()}] Failed to send request to "
                         f"{function} {target_path}: {type(e)} {error}. Going to sleep for "
                         f"{sleep_retry_seconds} seconds and retrying."
                     )
@@ -512,7 +513,7 @@ class CompassClient:
             except Exception as e:
                 error = str(e)
                 logger.error(
-                    f"[Thread {threading.get_native_id()}] Failed to send request to "
+                    event=f"[Thread {threading.get_native_id()}] Failed to send request to "
                     f"{function} {target_path}: {type(e)} {error}. Going to sleep for "
                     f"{sleep_retry_seconds} seconds and retrying."
                 )
@@ -530,6 +531,6 @@ class CompassClient:
                 return RetryResult(result=None, error=error)
         except RetryError:
             logger.error(
-                f"[Thread {threading.get_native_id()}] Failed to send request after {max_retries} attempts. Aborting."
+                event=f"[Thread {threading.get_native_id()}] Failed to send request after {max_retries} attempts. Aborting."
             )
             return RetryResult(result=None, error=error)
