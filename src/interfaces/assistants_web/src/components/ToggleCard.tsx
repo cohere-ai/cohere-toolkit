@@ -37,16 +37,25 @@ export const ToggleCard: React.FC<Props> = ({
   onToggle,
 }) => {
   return (
-    <div className="flex flex-col gap-y-2 rounded-md border border-marble-950 bg-marble-980 p-3">
+    <div className="flex flex-col rounded-md border border-mushroom-700 bg-mushroom-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
       <div className="flex items-start gap-x-6">
         <div className="flex flex-grow flex-col gap-y-2">
-          <div className="flex h-[26px] w-[26px] items-center justify-center rounded bg-mushroom-600/25">
-            <Icon name={icon} kind="outline" size="sm" className="text-p text-mushroom-500" />
+          <div className="flex items-center gap-x-2">
+            <div className="flex size-6 items-center justify-center rounded bg-mushroom-800 dark:bg-volcanic-200">
+              <Icon
+                name={icon}
+                kind="outline"
+                size="sm"
+                className="fill-mushroom-400 dark:fill-marble-950"
+              />
+            </div>
+            <Text styleAs="label" as="span" className="font-medium">
+              {label}
+            </Text>
           </div>
-          <Text styleAs="label" as="span" className="font-medium">
-            {label}
+          <Text styleAs="p-sm" className="text-mushroom-300 dark:text-marble-800">
+            {description}
           </Text>
-          <Text styleAs="p-sm">{description}</Text>
           {errorMessage && (
             <Text styleAs="p-sm" className="text-danger-350">
               Error: {errorMessage}

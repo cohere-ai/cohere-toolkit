@@ -8,7 +8,6 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/react';
-import { useMemo } from 'react';
 
 import { Icon } from '@/components/Shared/Icon';
 import { Text } from '@/components/Shared/Text';
@@ -42,9 +41,7 @@ export const Dropdown: React.FC<Props> = ({
     <Field className={cn('relative flex w-full flex-col gap-y-2', className)}>
       {label && (
         <Label className="flex items-start gap-x-2">
-          <Text styleAs="label" className="dark:text-marble-950">
-            {label}
-          </Text>
+          <Text styleAs="label">{label}</Text>
         </Label>
       )}
       <Listbox value={value} onChange={onChange}>
@@ -60,7 +57,7 @@ export const Dropdown: React.FC<Props> = ({
                 'placeholder:text-volcanic-500',
                 'disabled:bg-volcanic-800 disabled:text-volcanic-300',
                 'dark:placeholder:text-volcanic-600',
-                'dark:bg-volcanic-100 dark:text-marble-950 dark:focus:bg-volcanic-150',
+                'dark:bg-volcanic-100 dark:focus:bg-volcanic-150',
                 'dark:disabled:bg-volcanic-300 dark:disabled:text-volcanic-600'
               )}
             >
@@ -85,7 +82,6 @@ export const Dropdown: React.FC<Props> = ({
               className={cn(
                 'z-dropdown',
                 'mt-1 rounded-lg border border-volcanic-500 bg-white dark:bg-volcanic-100',
-                'dark:text-marble-950',
                 'cursor-pointer'
               )}
             >

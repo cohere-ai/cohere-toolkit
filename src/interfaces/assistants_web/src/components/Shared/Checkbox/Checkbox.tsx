@@ -87,12 +87,11 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
       >
         {checked ? (
           <Icon
-            name="check-mark"
-            size="md"
+            name="checkmark"
             className={cn({
-              'text-marble-1000': theme === 'coral',
-              'text-green-200': theme === 'evolved-green',
-              'text-volcanic-500': disabled,
+              'fill-marble-1000': theme === 'coral',
+              'fill-green-200': theme === 'evolved-green',
+              'fill-volcanic-500': disabled,
             })}
           />
         ) : indeterminate ? (

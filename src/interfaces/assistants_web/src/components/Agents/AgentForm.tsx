@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useMemo } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
@@ -80,7 +81,20 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
           disabled={!isAgentCreator}
         />
       </InputLabel>
-      <InputLabel label="Instructions">
+      <InputLabel
+        label="Instructions"
+        tooltipLabel={
+          <Text>
+            Learn about writing a custom assistant instructions with{' '}
+            <Link
+              href="https://docs.cohere.com/docs/preambles#advanced-techniques-for-writing-a-preamble"
+              className="underline"
+            >
+              Cohere&apos;s guide
+            </Link>
+          </Text>
+        }
+      >
         <Textarea
           value={fields.preamble ?? ''}
           placeholder="Give instructions to your chatbot. What does it do? How does it behave?"

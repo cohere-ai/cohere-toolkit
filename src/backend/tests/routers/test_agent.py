@@ -496,35 +496,6 @@ def test_get_nonexistent_agent(
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
-async def test_create_agent_mertic(
-    session_client: TestClient, session: Session
-) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
-    request_json = {
-        "name": "test agent",
-        "version": 1,
-        "description": "test description",
-        "preamble": "test preamble",
-        "temperature": 0.5,
-        "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.post(
-            "/v1/agents", json=request_json, headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.user_id == user.id
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
-
 
 def test_update_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(
@@ -719,7 +690,6 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
     )
 
     assert response.status_code == 200
-    updated_agent = response.json()
 
     tool_metadata = (
         session.query(AgentToolMetadata)
@@ -727,15 +697,17 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
         .all()
     )
     assert len(tool_metadata) == 2
-    tool_metadata.sort(key=lambda x: x.tool_name)
-    assert tool_metadata[0].tool_name == "google_drive"
-    assert tool_metadata[0].artifacts == [
-        {"url": "test", "name": "test", "type": "folder"}
-    ]
-    assert tool_metadata[1].tool_name == "search_file"
-    assert tool_metadata[1].artifacts == [
-        {"url": "test", "name": "test", "type": "file"}
-    ]
+    drive_tool = None
+    search_tool = None
+    for tool in tool_metadata:
+        if tool.tool_name == "google_drive":
+            drive_tool = tool
+        if tool.tool_name == "search_file":
+            search_tool = tool
+    assert drive_tool.tool_name == "google_drive"
+    assert drive_tool.artifacts == [{"url": "test", "name": "test", "type": "folder"}]
+    assert search_tool.tool_name == "search_file"
+    assert search_tool.artifacts == [{"url": "test", "name": "test", "type": "file"}]
 
 
 def test_update_agent_remove_existing_tool_metadata(

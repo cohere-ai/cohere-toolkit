@@ -14,9 +14,9 @@ from backend.database_models import get_session
 from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
-from backend.database_models.organization import Organization
-from backend.database_models.user import User
 from backend.main import app, create_app
+from backend.schemas.organization import Organization
+from backend.schemas.user import User
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.tests.factories import get_factory
 

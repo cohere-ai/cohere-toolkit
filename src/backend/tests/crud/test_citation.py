@@ -20,18 +20,21 @@ def message(session, conversation, user):
 @pytest.fixture(autouse=True)
 def document(session, conversation, message, user):
     return get_factory("Document", session).create(
-        id="1", conversation_id=conversation.id, message_id=message.id, user_id=user.id
+        id="1",
+        conversation_id=conversation.id,
+        message_id=message.id,
+        user_id=user.id,
+        document_id="hello",
     )
 
 
-def test_create_citation(session, user):
+def test_create_citation(session, document):
     citation_data = Citation(
         text="Hello, World!",
-        user_id=user.id,
+        user_id="1",
         start=1,
         end=2,
         message_id="1",
-        document_ids=["1"],
     )
 
     citation = citation_crud.create_citation(session, citation_data)
@@ -40,7 +43,10 @@ def test_create_citation(session, user):
     assert citation.start == citation_data.start
     assert citation.end == citation_data.end
     assert citation.message_id == citation_data.message_id
-    assert citation.document_ids == citation_data.document_ids
+
+    get_factory("CitationDocuments", session).create(
+        left_id=document.id, right_id=citation.id
+    )
 
     citation = citation_crud.get_citation(session, citation.id)
     assert citation.text == citation_data.text
@@ -48,7 +54,7 @@ def test_create_citation(session, user):
     assert citation.start == citation_data.start
     assert citation.end == citation_data.end
     assert citation.message_id == citation_data.message_id
-    assert citation.document_ids == citation_data.document_ids
+    assert citation.document_ids == ["hello"]
 
 
 def test_get_citation(session, user):
@@ -57,7 +63,6 @@ def test_get_citation(session, user):
         text="Hello, World!",
         user_id=user.id,
         message_id="1",
-        document_ids=["1"],
     )
 
     citation = citation_crud.get_citation(session, "1")
@@ -72,7 +77,7 @@ def test_fail_get_nonexistent_citation(session):
 
 def test_list_citations(session, user):
     _ = get_factory("Citation", session).create(
-        text="Hello, World!", user_id=user.id, message_id="1", document_ids=["1"]
+        text="Hello, World!", user_id=user.id, message_id="1"
     )
 
     citations = citation_crud.get_citations(session)
@@ -88,7 +93,7 @@ def test_list_citations_empty(session):
 def test_list_citations_with_pagination(session, user):
     for i in range(10):
         get_factory("Citation", session).create(
-            text=f"Citation {i}", user_id=user.id, message_id="1", document_ids=["1"]
+            text=f"Citation {i}", user_id=user.id, message_id="1"
         )
 
     citations = citation_crud.get_citations(session, offset=5, limit=5)
@@ -101,7 +106,7 @@ def test_list_citations_with_pagination(session, user):
 def test_list_citations_by_message_id(session, user):
     for i in range(10):
         get_factory("Citation", session).create(
-            text=f"Citation {i}", user_id=user.id, message_id="1", document_ids=["1"]
+            text=f"Citation {i}", user_id=user.id, message_id="1"
         )
 
     citations = citation_crud.get_citations_by_message_id(session, "1")
@@ -121,8 +126,7 @@ def test_delete_citation(session, user):
         id="1",
         text="Hello, World!",
         user_id=user.id,
-        message_id="1",
-        document_ids=["1"],
+        message_id="1"
     )
 
     citation_crud.delete_citation(session, "1")

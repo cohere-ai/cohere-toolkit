@@ -13,7 +13,9 @@ class WebScrapeTool(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         url = parameters.get("url")
 
         response = get(url)

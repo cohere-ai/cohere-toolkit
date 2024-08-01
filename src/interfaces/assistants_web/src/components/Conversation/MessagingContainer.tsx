@@ -1,18 +1,16 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { usePrevious, useTimeoutEffect } from '@react-hookz/web';
-import React, { ReactNode, forwardRef, memo, useEffect, useMemo, useState } from 'react';
+import { usePrevious } from '@react-hookz/web';
+import React, { ReactNode, forwardRef, memo, useEffect, useMemo } from 'react';
 import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
 
-import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
 import { Button } from '@/components/Shared';
 import { Welcome } from '@/components/Welcome';
-import { ReservedClasses } from '@/constants';
-import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
+import { COMPOSER_CONTAINER_ID, MESSAGES_CONTAINER_ID, ReservedClasses } from '@/constants';
+import { MESSAGE_LIST_CONTAINER_ID } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
-import { useAgentsStore, useCitationsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -37,11 +35,13 @@ const MessagingContainer: React.FC<Props> = (props) => {
   const { scrollViewClassName = '', ...rest } = props;
   return (
     <ScrollToBottom
-      initialScrollBehavior="auto"
+      mode={props.messages.length === 0 ? 'top' : 'bottom'}
+      initialScrollBehavior="smooth"
       className={cn(ReservedClasses.MESSAGES, 'relative flex h-0 flex-grow flex-col')}
       scrollViewClassName={cn(
         '!h-full',
         'flex relative mt-auto overflow-x-hidden',
+        ReservedClasses.MESSAGES_SCROLL_VIEW,
         {
           // For vertically centering the content in @/components/Welcome.tsx
           'mt-0 md:mt-auto': props.messages.length === 0,
@@ -64,23 +64,10 @@ export default memo(MessagingContainer);
 const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
   const scrollToBottom = useScrollToBottom();
-  const {
-    agents: { isEditAgentPanelOpen },
-  } = useAgentsStore();
-  const {
-    citations: { hasCitations },
-  } = useCitationsStore();
 
   useFixCopyBug();
   const [isAtBottom] = useSticky();
   const prevIsStreaming = usePrevious(isStreaming);
-
-  // Wait some time before being able to fetch previous messages
-  // This is to prevent loading a bunch of messages on first load
-  const [isReadyToFetchPreviousMessages, setIsReadyToFetchPreviousMessages] = useState(false);
-  useTimeoutEffect(() => {
-    setIsReadyToFetchPreviousMessages(true);
-  }, 1000);
 
   // Show the `New Message` button if the user has scrolled up
   // and the last message is a bot message.
@@ -104,21 +91,18 @@ const Content: React.FC<Props> = (props) => {
     }
   }, [messages.length, scrollToBottom]);
 
-  const { citationToStyles, messageContainerDivRef, composerContainerDivRef } =
-    useCalculateCitationStyles(messages, streamingMessage);
-
   const handleScrollToNewMessage = () => {
     scrollToBottom({ behavior: 'smooth' });
   };
 
   return (
-    <div className="flex h-max min-h-full w-full">
-      <div id={MESSAGE_LIST_CONTAINER_ID} className={cn('flex h-auto min-w-0 flex-1 flex-col')}>
-        <Messages {...props} ref={messageContainerDivRef} />
+    <div className="flex h-max min-h-full w-full" id="test-tomeu">
+      <div id={MESSAGE_LIST_CONTAINER_ID} className="flex h-auto min-w-0 flex-1 flex-col">
+        <Messages {...props} />
         {/* Composer container */}
         <div
-          className={cn('sticky bottom-0 px-4 pb-4', 'bg-marble-1000')}
-          ref={composerContainerDivRef}
+          className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100"
+          id={COMPOSER_CONTAINER_ID}
         >
           <Transition
             show={showNewMessageButton}
@@ -133,33 +117,14 @@ const Content: React.FC<Props> = (props) => {
           >
             <Button
               label="New message"
-              splitIcon="arrow-down"
+              kind="cell"
+              icon="arrow-down"
               onClick={handleScrollToNewMessage}
-              hideFocusStyles
-              kind="primaryOutline"
             />
           </Transition>
           {composer}
         </div>
       </div>
-
-      <div
-        className={cn('hidden h-auto border-marble-950', {
-          'md:flex': hasCitations || !isEditAgentPanelOpen,
-          'border-l': hasCitations,
-        })}
-      />
-      <CitationPanel
-        citationToStyles={citationToStyles}
-        streamingMessage={streamingMessage}
-        className={cn(
-          ReservedClasses.CITATION_PANEL,
-          'hidden',
-          { 'md:flex': hasCitations },
-          'relative h-auto w-auto',
-          'md:min-w-citation-panel-md lg:min-w-citation-panel-lg xl:min-w-citation-panel-xl'
-        )}
-      />
     </div>
   );
 };
@@ -168,10 +133,13 @@ type MessagesProps = Props;
 /**
  * This component is in charge of rendering the messages.
  */
-const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInternal(
-  { onRetry, messages, streamingMessage, agentId, isStreamingToolEvents },
-  ref
-) {
+const Messages: React.FC<MessagesProps> = ({
+  onRetry,
+  messages,
+  streamingMessage,
+  agentId,
+  isStreamingToolEvents,
+}) => {
   const isChatEmpty = messages.length === 0;
 
   if (isChatEmpty) {
@@ -183,7 +151,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
   }
 
   return (
-    <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
+    <div id={MESSAGES_CONTAINER_ID} className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6">
       <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
         {messages.map((m, i) => {
           const isLastInList = i === messages.length - 1;
@@ -219,4 +187,4 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
       )}
     </div>
   );
-});
+};

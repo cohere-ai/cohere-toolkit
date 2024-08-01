@@ -34,17 +34,15 @@ export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
         Your assistant <strong>{name}</strong> will be deleted. This action cannot be undone.
       </Text>
       <div className="flex justify-between">
-        <Button kind="secondary" onClick={onClose}>
-          Cancel
-        </Button>
+        <Button label="Cancel" kind="secondary" onClick={onClose} />
         <Button
-          kind="danger"
+          label={isPending ? 'Deleting' : 'Delete'}
           onClick={handleDeleteAgent}
-          splitIcon="arrow-right"
           disabled={isPending}
-        >
-          {isPending ? 'Deleting' : 'Delete'}
-        </Button>
+          icon="arrow-right"
+          theme="danger"
+          iconPosition="end"
+        />
       </div>
     </div>
   );

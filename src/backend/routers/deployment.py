@@ -12,6 +12,8 @@ from backend.schemas.deployment import (
     DeploymentUpdate,
     UpdateDeploymentEnv,
 )
+from backend.schemas.context import Context
+from backend.services.context import get_context
 from backend.services.env import update_env_file
 from backend.services.request_validators import (
     validate_create_deployment_request,
@@ -93,14 +95,20 @@ def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentSchem
 
 @router.get("", response_model=list[DeploymentSchema])
 def list_deployments(
-    session: DBSessionDep, all: bool = False
+    session: DBSessionDep, all: bool = False, ctx: Context = Depends(get_context)
 ) -> list[DeploymentSchema]:
     """
     List all available deployments and their models.
 
+    Args:
+        session (DBSessionDep)
+        all (bool): Include all deployments, regardless of availability.
+        ctx (Context): Context object.
     Returns:
         list[Deployment]: List of available deployment options.
     """
+    logger = ctx.get_logger()
+
     if all:
         available_deployments = [
             DeploymentSchema.custom_transform(_)
@@ -122,6 +130,9 @@ def list_deployments(
 
     # No available deployments
     if not available_deployments:
+        logger.warning(
+            event=f"[Deployment] No deployments available to list.",
+        )
         raise HTTPException(
             status_code=404,
             detail=(
@@ -165,11 +176,19 @@ async def delete_deployment(
 
 @router.post("/{name}/set_env_vars", response_class=Response)
 async def set_env_vars(
-    name: str, env_vars: UpdateDeploymentEnv, valid_env_vars=Depends(validate_env_vars)
+    name: str,
+    env_vars: UpdateDeploymentEnv,
+    valid_env_vars=Depends(validate_env_vars),
+    ctx: Context = Depends(get_context),
 ):
     """
     Set environment variables for the deployment.
 
+    Args:
+        name (str): Deployment name.
+        env_vars (UpdateDeploymentEnv): Environment variables to set.
+        valid_env_vars (str): Validated environment variables.
+        ctx (Context): Context object.
     Returns:
         str: Empty string.
     """

@@ -1,9 +1,9 @@
-import time
-import uuid
 from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel
+
+from backend.schemas.agent import Agent
 
 
 class GenericResponseMessage(BaseModel):
@@ -86,3 +86,31 @@ class MetricsData(MetricsDataBase):
 
 class MetricsSignal(BaseModel):
     signal: MetricsData
+
+
+DEFAULT_METRICS_AGENT = MetricsAgent(
+    id="9c300cfd-1506-408b-829d-a6464137a7c1",
+    version=1,
+    name="Default Agent",
+    temperature=0.3,
+    model="command-r-plus",
+    deployment="Cohere",
+    preamble="",
+    description="default",
+)
+
+
+def agent_to_metrics_agent(agent: Agent | None) -> MetricsAgent:
+    if not agent:
+        return None
+
+    return MetricsAgent(
+        id=agent.id,
+        version=agent.version,
+        name=agent.name,
+        temperature=agent.temperature,
+        model=agent.model,
+        deployment=agent.deployment,
+        preamble=agent.preamble,
+        description=agent.description,
+    )

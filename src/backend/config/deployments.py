@@ -1,4 +1,3 @@
-import logging
 from enum import StrEnum
 
 from backend.config.settings import Settings
@@ -16,6 +15,9 @@ from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
 from backend.model_deployments.sagemaker import SAGE_MAKER_ENV_VARS
 from backend.model_deployments.single_container import SC_ENV_VARS
 from backend.schemas.deployment import Deployment
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 class ModelDeploymentName(StrEnum):
@@ -83,9 +85,9 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
             model_deployments = ALL_MODEL_DEPLOYMENTS.copy()
             model_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
             return model_deployments
-        except ImportError as e:
-            logging.warning(
-                "Community deployments are not available. They can still be set up."
+        except ImportError:
+            logger.warning(
+                event="[Deployments] No available community deployments have been configured"
             )
 
     deployments = Settings().deployments.enabled_deployments
@@ -101,6 +103,7 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
 
 def get_default_deployment(**kwargs) -> BaseDeployment:
     # Fallback to the first available deployment
+    fallback = None
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
         if deployment.is_available:
             fallback = deployment.deployment_class(**kwargs)
