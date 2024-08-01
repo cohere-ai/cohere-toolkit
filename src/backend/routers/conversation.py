@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
-from backend.services.compass import Compass
 
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
@@ -27,6 +26,7 @@ from backend.schemas.file import (
     UploadFileResponse,
 )
 from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
+from backend.services.compass import Compass
 from backend.services.context import get_context
 from backend.services.conversation import (
     DEFAULT_TITLE,
@@ -457,7 +457,11 @@ async def batch_upload_file(
 
     try:
         uploaded_files = await get_file_service().create_conversation_files(
-            session, files, user_id, conversation.id, ctx,
+            session,
+            files,
+            user_id,
+            conversation.id,
+            ctx,
         )
     except Exception as e:
         raise HTTPException(

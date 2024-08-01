@@ -7,26 +7,25 @@ from typing import Any, Optional
 
 import pandas as pd
 from docx import Document
-from fastapi import HTTPException, Depends
+from fastapi import Depends, HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 from pypdf import PdfReader
 from python_calamine.pandas import pandas_monkeypatch
 
-from backend.services.compass import Compass
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
+from backend.config.settings import Settings
+
 # from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import message as message_crud
 from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
-from backend.schemas.file import File, UpdateFileRequest
-from backend.config.settings import Settings
 from backend.schemas.context import Context
+from backend.schemas.file import File, UpdateFileRequest
+from backend.services.compass import Compass
 from backend.services.context import get_context
-from backend.config.settings import Settings
-
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -44,6 +43,7 @@ DOCX_EXTENSION = "docx"
 pandas_monkeypatch()
 
 file_service = None
+compass = None
 
 
 def get_file_service():
@@ -53,12 +53,21 @@ def get_file_service():
     return file_service
 
 
+def get_compass():
+    global compass
+    if compass is None:
+        try:
+            compass = Compass()
+        except Exception as e:
+            print(f"Error initializing Compass: {e}")
+    return compass
+
+
 class FileService:
     @property
     def is_compass_enabled(self) -> bool:
         return Settings().feature_flags.use_compass_file_storage
 
-    # All these functions will eventually support file operations on Compass
     async def create_conversation_files(
         self,
         session: DBSessionDep,
@@ -81,9 +90,11 @@ class FileService:
         """
         uploaded_files = []
         if self.is_compass_enabled:
-            uploaded_files = await insert_files_in_compass(session, files, user_id, conversation_id)
+            uploaded_files = await insert_files_in_compass(files, user_id)
         else:
-            uploaded_files = await insert_files_in_db(session, files, user_id, conversation_id)
+            uploaded_files = await insert_files_in_db(
+                session, files, user_id, conversation_id
+            )
 
         for file in uploaded_files:
             conversation_crud.create_conversation_file_association(
@@ -282,29 +293,40 @@ class FileService:
                 files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
 
+
 def get_files_in_compass(file_ids: list[str], user_id: str) -> list[File]:
-    compass = Compass()
     files = []
     for file_id in file_ids:
-        fetched_doc = compass.invoke(
-            action=Compass.ValidActions.GET_DOCUMENT,
-            parameters={"index": file_id, "file_id": file_id},
-        ).result["doc"]["content"]
+        fetched_doc = (
+            get_compass()
+            .invoke(
+                action=Compass.ValidActions.GET_DOCUMENT,
+                parameters={"index": file_id, "file_id": file_id},
+            )
+            .result["doc"]["content"]
+        )
 
-        files.append(File(
-            id=file_id,
-            file_name=fetched_doc["file_name"],
-            file_size=fetched_doc["file_size"],
-            file_path=fetched_doc["file_path"],
-            file_content=fetched_doc["text"],
-            user_id=user_id,
-            created_at=datetime.fromisoformat(fetched_doc["created_at"]),
-            updated_at=datetime.fromisoformat(fetched_doc["updated_at"]),
-        ))
+        files.append(
+            File(
+                id=file_id,
+                file_name=fetched_doc["file_name"],
+                file_size=fetched_doc["file_size"],
+                file_path=fetched_doc["file_path"],
+                file_content=fetched_doc["text"],
+                user_id=user_id,
+                created_at=datetime.fromisoformat(fetched_doc["created_at"]),
+                updated_at=datetime.fromisoformat(fetched_doc["updated_at"]),
+            )
+        )
 
     return files
 
-async def insert_files_in_db(session: DBSessionDep, files: list[FastAPIUploadFile], user_id: str, conversation_id: str) -> list[File]:
+
+async def insert_files_in_db(
+    session: DBSessionDep,
+    files: list[FastAPIUploadFile],
+    user_id: str,
+) -> list[File]:
     files_to_upload = []
     for file in files:
         content = await get_file_content(file)
@@ -324,10 +346,12 @@ async def insert_files_in_db(session: DBSessionDep, files: list[FastAPIUploadFil
     uploaded_files = file_crud.batch_create_files(session, files_to_upload)
     return uploaded_files
 
-    
-async def insert_files_in_compass(session: DBSessionDep, files: list[FastAPIUploadFile], user_id: str, conversation_id: str) -> list[File]:
+
+async def insert_files_in_compass(
+    files: list[FastAPIUploadFile],
+    user_id: str,
+) -> list[File]:
     uploaded_files = []
-    compass = None
     try:
         compass = Compass()
     except Exception as e:
@@ -336,17 +360,16 @@ async def insert_files_in_compass(session: DBSessionDep, files: list[FastAPIUplo
     for file in files:
         filename = file.filename.encode("ascii", "ignore").decode("utf-8")
         file_bytes = await file.read()
-        cleaned_content = file_bytes.decode("utf-8", errors="ignore").replace("\x00", "")
         new_file_id = str(uuid.uuid4())
 
         # Create new index for file
-        compass.invoke(
+        get_compass().invoke(
             action=Compass.ValidActions.CREATE_INDEX,
             parameters={
                 "index": new_file_id,
             },
         )
-        compass.invoke(
+        get_compass().invoke(
             action=Compass.ValidActions.CREATE,
             parameters={
                 "index": new_file_id,
@@ -354,7 +377,7 @@ async def insert_files_in_compass(session: DBSessionDep, files: list[FastAPIUplo
                 "file_text": file_bytes,
             },
         )
-        compass.invoke(
+        get_compass().invoke(
             action=Compass.ValidActions.ADD_CONTEXT,
             parameters={
                 "index": new_file_id,
@@ -369,20 +392,22 @@ async def insert_files_in_compass(session: DBSessionDep, files: list[FastAPIUplo
                 },
             },
         )
-        compass.invoke(
+        get_compass().invoke(
             action=Compass.ValidActions.REFRESH,
             parameters={"index": new_file_id},
         )
 
-        uploaded_files.append(FileModel(
-            file_name=filename,
-            id=new_file_id,
-            file_size=file.size,
-            file_path=filename,
-            user_id=user_id,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        ))
+        uploaded_files.append(
+            File(
+                file_name=filename,
+                id=new_file_id,
+                file_size=file.size,
+                file_path=filename,
+                user_id=user_id,
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+            )
+        )
 
     return uploaded_files
 

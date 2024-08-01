@@ -267,7 +267,6 @@ class Compass:
                 custom_context=parameters.get("custom_context", None),
             )
         else:
-            print("raw parsing")
             return self._raw_parsing(
                 text=file_text,
                 file_id=file_id,

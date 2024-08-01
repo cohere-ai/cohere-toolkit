@@ -67,7 +67,7 @@ ALL_TOOLS = {
                 "required": True,
             },
             "files": {
-                "description": "A list of one or more tuples of (filename, file ID) to search over",
+                "description": "A list of files represented as tuples of (filename, file ID) to search over",
                 "type": "list[tuple[str, str]]",
                 "required": True,
             },
@@ -82,9 +82,9 @@ ALL_TOOLS = {
         display_name="Read Document",
         implementation=ReadFileTool,
         parameter_definitions={
-            "files": {
-                "description": "A list of one or more tuples of (filename, file ID) to read over",
-                "type": "list[tuple[str, str]]",
+            "file": {
+                "description": "A file represented as a tuple of (filename, file ID) to read over",
+                "type": "tuple[str, str]",
                 "required": True,
             }
         },
