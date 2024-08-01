@@ -8,8 +8,6 @@ class Group(Base):
     __tablename__ = "groups"
 
     display_name: Mapped[str] = mapped_column(String, nullable=True)
-    external_id: Mapped[str] = mapped_column(String, unique=True, nullable=True)
-    meta: Mapped[str] = mapped_column(String, nullable=True)
     members = relationship("UserGroup", back_populates="group")
 
 

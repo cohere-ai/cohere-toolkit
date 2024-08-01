@@ -1,7 +1,7 @@
 from typing import ClassVar
 
 from pydantic import BaseModel
-from backend.database_models import User as DBUser
+from backend.database_models import User as DBUser, Group as DBGroup
 
 
 class Meta(BaseModel):
@@ -9,6 +9,8 @@ class Meta(BaseModel):
     created: str
     lastModified: str
 
+class GroupMeta(BaseModel):
+    resourceType: str
 
 class Name(BaseModel):
     givenName: str
@@ -23,7 +25,17 @@ class BaseUser(BaseModel):
     schemas: list[str]
 
 
-class CreateUser(BaseUser):
+class BaseGroup(BaseModel):
+    schemas: list[str]
+    members: list[str]
+    displayName: str
+
+
+class CreateGroup(BaseGroup):
+    pass
+
+
+class CreateUser(BaseGroup):
     externalId: str
 
 
@@ -39,6 +51,20 @@ class Operation(BaseModel):
 class PatchUser(BaseModel):
     schemas: list[str]
     Operations: list[Operation]
+
+
+class Group(BaseGroup):
+    @staticmethod
+    def from_db_group(db_group: DBGroup) -> "Group":
+        return Group(
+            id=db_group.id,
+            displayName=db_group.display_name,
+            members=db_group.members,
+            meta=GroupMeta(
+                resourceType="Group",
+            ),
+            schemas=["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        )
 
 
 class User(BaseUser):
@@ -58,14 +84,16 @@ class User(BaseUser):
             meta=Meta(
                 resourceType="User",
                 created=db_user.created_at.isoformat(),
-                lastModified=db_user.updated_at.isoformat()
+                lastModified=db_user.updated_at.isoformat(),
             ),
             schemas=["urn:ietf:params:scim:schemas:core:2.0:User"],
         )
 
 
 class ListUserResponse(BaseModel):
-    schemas: ClassVar[list[str]] = ["urn:ietf:params:scim:api:messages:2.0:ListResponse"]
+    schemas: ClassVar[list[str]] = [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+    ]
     totalResults: int
     startIndex: int
     itemsPerPage: int

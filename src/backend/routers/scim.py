@@ -3,9 +3,18 @@ from typing import Optional
 from fastapi import APIRouter
 
 import backend.crud.user as user_repo
+import backend.crud.group as group_repo
 from backend.config.routers import RouterName
-from backend.database_models import DBSessionDep, User as DBUser
-from backend.schemas.scim import ListUserResponse, User, CreateUser, UpdateUser, PatchUser
+from backend.database_models import DBSessionDep, User as DBUser, Group as DBGroup
+from backend.schemas.scim import (
+    ListUserResponse,
+    User,
+    Group,
+    CreateUser,
+    UpdateUser,
+    PatchUser,
+    CreateGroup,
+)
 
 router = APIRouter(prefix="/scim/v2")
 router.name = RouterName.SCIM
@@ -18,8 +27,12 @@ class SCIMException(Exception):
 
 
 @router.get("/Users")
-async def get_users(session: DBSessionDep, count: int = 100, start_index: int = 1,
-                    filter: Optional[str] = None) -> ListUserResponse:
+async def get_users(
+    session: DBSessionDep,
+    count: int = 100,
+    start_index: int = 1,
+    filter: Optional[str] = None,
+) -> ListUserResponse:
     if filter:
         single_filter = filter.split(" ")
         filter_value = single_filter[2].strip('"')
@@ -38,7 +51,9 @@ async def get_users(session: DBSessionDep, count: int = 100, start_index: int = 
             Resources=[User.from_db_user(db_user)],
         )
 
-    db_users = user_repo.get_external_users(session, offset=start_index - 1, limit=count)
+    db_users = user_repo.get_external_users(
+        session, offset=start_index - 1, limit=count
+    )
     users = [User.from_db_user(db_user) for db_user in db_users]
     return ListUserResponse(
         totalResults=len(users),
@@ -61,7 +76,9 @@ async def get_user(user_id: str, session: DBSessionDep):
 async def create_user(user: CreateUser, session: DBSessionDep):
     db_user = user_repo.get_user_by_external_id(session, user.externalId)
     if db_user:
-        raise SCIMException(status_code=409, detail="User already exists in the database.")
+        raise SCIMException(
+            status_code=409, detail="User already exists in the database."
+        )
 
     db_user = DBUser(
         user_name=user.userName,
@@ -72,6 +89,24 @@ async def create_user(user: CreateUser, session: DBSessionDep):
 
     db_user = user_repo.create_user(session, db_user)
     return User.from_db_user(db_user)
+
+
+@router.post("/Groups", status_code=201)
+async def create_group(group: CreateGroup, session: DBSessionDep):
+    db_group = group_repo.get_group_by_name(session, group.displayName)
+    # TODO: do we need this check?
+    if db_group:
+        raise SCIMException(
+            status_code=409, detail="Group already exists in the database."
+        )
+
+    db_group = DBGroup(
+        display_name=group.displayName,
+        members=[],
+    )
+
+    g = group_repo.create_group(session, db_group)
+    return Group.from_db_group(g)
 
 
 @router.put("/Users/{user_id}")
