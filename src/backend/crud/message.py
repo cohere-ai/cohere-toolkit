@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models.message import Message
+from backend.database_models.message import Message, MessageFileAssociation
 from backend.schemas.message import UpdateMessage
 from backend.services.transaction import validate_transaction
 
@@ -126,4 +126,65 @@ def delete_message(db: Session, message_id: str, user_id: str) -> None:
         Message.id == message_id, Message.user_id == user_id
     )
     message.delete()
+    db.commit()
+
+
+def create_message_file_association(
+    db: Session, message_file_association: MessageFileAssociation
+) -> MessageFileAssociation:
+    """
+    Create a new message file association.
+
+    Args:
+        db (Session): Database session.
+        message_file_association (MessageFileAssociation): Message file association data to be created.
+
+    Returns:
+        MessageFileAssociation: Created message file association.
+    """
+    db.add(message_file_association)
+    db.commit()
+    db.refresh(message_file_association)
+    return message_file_association
+
+
+def get_message_file_association_by_file_id(
+    db: Session, file_id: str, user_id: str
+) -> MessageFileAssociation:
+    """
+    Get a message file association by file ID.
+
+    Args:
+        db (Session): Database session.
+        file_id (str): File ID.
+        user_id (str): User ID.
+
+    Returns:
+        MessageFileAssociation: Message file association with the given file ID.
+    """
+    return (
+        db.query(MessageFileAssociation)
+        .filter(MessageFileAssociation.file_id == file_id, Message.user_id == user_id)
+        .first()
+    )
+
+
+def delete_message_file_association(
+    db: Session, message_id: str, file_id: str, user_id: str
+) -> None:
+    """
+    Delete a message file association by ID.
+
+    Args:
+        db (Session): Database session.
+        message_id (str): Message ID.
+        file_id (str): File ID.
+        user_id (str): User ID.
+    """
+    message_file_association = db.query(MessageFileAssociation).filter(
+        MessageFileAssociation.message_id == message_id,
+        MessageFileAssociation.user_id == user_id,
+        MessageFileAssociation.file_id == file_id,
+    )
+    message_file_association.delete()
     db.commit()

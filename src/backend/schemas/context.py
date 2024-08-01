@@ -1,7 +1,6 @@
 from typing import Optional
 
-from fastapi import Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
@@ -62,6 +61,7 @@ class Context(BaseModel):
 
         if not user:
             user = user_crud.get_user(session, self.user_id)
+            user = User.model_validate(user)
 
         if user:
             self.metrics_user = MetricsUser(
@@ -148,3 +148,6 @@ class Context(BaseModel):
 
     def get_agent_id(self):
         return self.agent_id
+
+    def get_agent_tool_metadata(self):
+        return self.agent_tool_metadata

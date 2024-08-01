@@ -38,8 +38,11 @@ export enum ReservedClasses {
   CITATION_PANEL = 'side-panel',
   MESSAGE = 'message',
   CITATION = 'citation',
+  MESSAGES_SCROLL_VIEW = 'messages-scroll-view',
 }
+export const MESSAGES_CONTAINER_ID = 'messages-container';
 export const CHAT_COMPOSER_TEXTAREA_ID = 'composer';
+export const COMPOSER_CONTAINER_ID = 'composer-container';
 export const CONFIGURATION_FILE_UPLOAD_ID = 'file-upload';
 export const SETTINGS_DRAWER_ID = 'settings';
 
@@ -49,9 +52,15 @@ export const SETTINGS_DRAWER_ID = 'settings';
 export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
-  authToken: 'authToken',
   recentAgents: 'recentAgents',
   unauthedToolsModalDismissed: 'tools/unauthedModal/dismissed',
+};
+
+/**
+ * Cookies
+ */
+export const COOKIE_KEYS = {
+  authToken: 'authToken',
 };
 
 /**
