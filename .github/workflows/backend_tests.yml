@@ -8,7 +8,7 @@ on:
 jobs:
   pytest:
     permissions: write-all
-    environment: development
+    # environment: development
     runs-on: ubuntu-latest
     env:
       COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
