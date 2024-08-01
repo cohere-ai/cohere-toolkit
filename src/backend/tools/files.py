@@ -2,7 +2,8 @@ from typing import Any, Dict, List
 
 import backend.crud.file as file_crud
 from backend.tools.base import BaseTool
-
+from backend.services.compass import Compass
+from backend.services.file import get_file_service
 
 class ReadFileTool(BaseTool):
     """
@@ -20,14 +21,19 @@ class ReadFileTool(BaseTool):
         return True
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        file_name = parameters.get("filename", "")
+        files = parameters.get("files", [])
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
 
-        if not file_name:
+        if not files:
             return []
 
-        files = file_crud.get_files_by_file_names(session, [file_name], user_id)
+        # files = file_crud.get_files_by_file_names(session, [file_name], user_id)
+        compass = Compass()
+        fetched_doc = compass.invoke(
+            action=Compass.ValidActions.GET_DOCUMENT,
+            parameters={"index": index_name, "file_id": file_id},
+        ).result["doc"]["content"]
 
         if not files:
             return []
@@ -35,9 +41,9 @@ class ReadFileTool(BaseTool):
         file = files[0]
         return [
             {
-                "text": file.file_content,
-                "title": file.file_name,
-                "url": file.file_path,
+                "text": fetched_doc.get("text", ""),
+                "title": fetched_doc.get("title", ""),
+                "url": fetched_doc.get("url", ""),
             }
         ]
 
@@ -59,19 +65,21 @@ class SearchFileTool(BaseTool):
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("search_query")
-        file_names = parameters.get("filenames")
+        files = parameters.get("files")
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
 
-        if not query or not file_names:
+        if not query or not files:
             return []
 
-        file_names = [
-            file_name.encode("ascii", "ignore").decode("utf-8")
-            for file_name in file_names
-        ]
+        # file_names = [
+        #     file_name.encode("ascii", "ignore").decode("utf-8")
+        #     for file_name in file_names
+        # ]
 
-        files = file_crud.get_files_by_file_names(session, file_names, user_id)
+        # files = file_crud.get_files_by_file_names(session, file_names, user_id)
+        file_ids = [file_id for file_name, file_id in files]
+        files = get_file_service().get_files_by_ids(session, file_ids, user_id)
 
         if not files:
             return []

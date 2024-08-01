@@ -80,6 +80,12 @@ class FeatureFlags(BaseSettings, BaseModel):
             "USE_COMMUNITY_FEATURES", "use_community_features"
         ),
     )
+    use_compass_file_storage: Optional[bool] = Field(
+        default=False,
+        validation_alias=AliasChoices(
+            "USE_COMPASS_FILE_STORAGE", "use_compass_file_storage"
+        ),
+    )
 
 
 class PythonToolSettings(BaseSettings, BaseModel):

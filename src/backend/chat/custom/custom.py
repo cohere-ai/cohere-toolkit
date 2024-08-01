@@ -302,7 +302,7 @@ class CustomChat(BaseChat):
             num_words = min(25, word_count)
             preview = " ".join(file.file_content.split()[:num_words])
 
-            files_message += f"Filename: {file.file_name}\nWord Count: {word_count} Preview: {preview}\n\n"
+            files_message += f"Filename: {file.file_name}\nFile ID: {file.id}\nWord Count: {word_count} Preview: {preview}\n\n"
 
         chat_history.append(ChatMessage(message=files_message, role=ChatRole.SYSTEM))
         return chat_history

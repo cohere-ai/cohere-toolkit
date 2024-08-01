@@ -15,7 +15,7 @@ from python_calamine.pandas import pandas_monkeypatch
 from backend.services.compass import Compass
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
-from backend.config.tools import ToolName
+# from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import message as message_crud
 from backend.database_models.conversation import ConversationFileAssociation
@@ -25,6 +25,7 @@ from backend.schemas.file import File, UpdateFileRequest
 from backend.config.settings import Settings
 from backend.schemas.context import Context
 from backend.services.context import get_context
+from backend.config.settings import Settings
 
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
@@ -55,7 +56,7 @@ def get_file_service():
 class FileService:
     @property
     def is_compass_enabled(self) -> bool:
-        return True
+        return Settings().feature_flags.use_compass_file_storage
 
     # All these functions will eventually support file operations on Compass
     async def create_conversation_files(
@@ -120,11 +121,12 @@ class FileService:
         files = []
         agent_tool_metadata = agent.tools_metadata
         if agent_tool_metadata is not None:
+            # fix circular import
             artifacts = next(
                 tool_metadata.artifacts
                 for tool_metadata in agent_tool_metadata
-                if tool_metadata.tool_name == ToolName.Read_File
-                or tool_metadata.tool_name == ToolName.Search_File
+                if tool_metadata.tool_name == "read_document"
+                or tool_metadata.tool_name == "search_file"
             )
 
             # TODO scott: enumerate type names (?), different types for local vs. compass?
@@ -294,6 +296,7 @@ def get_files_in_compass(file_ids: list[str], user_id: str) -> list[File]:
             file_name=fetched_doc["file_name"],
             file_size=fetched_doc["file_size"],
             file_path=fetched_doc["file_path"],
+            file_content=fetched_doc["text"],
             user_id=user_id,
             created_at=datetime.fromisoformat(fetched_doc["created_at"]),
             updated_at=datetime.fromisoformat(fetched_doc["updated_at"]),
