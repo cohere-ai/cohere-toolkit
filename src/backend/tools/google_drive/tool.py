@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.services.compass import Compass
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
 from backend.tools.utils import async_download, parallel_get_files
 
@@ -29,6 +29,8 @@ from .utils import (
     non_native_files_perform,
     process_shortcut_files,
 )
+
+logger = LoggerFactory().get_logger()
 
 
 class GoogleDrive(BaseTool):
