@@ -1,11 +1,12 @@
 import datetime
-import os
 import uuid
 
 import jwt
 
 from backend.config.settings import Settings
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 class JWTService:

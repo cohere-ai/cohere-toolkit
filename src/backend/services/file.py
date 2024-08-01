@@ -1,6 +1,4 @@
 import io
-from copy import deepcopy
-from typing import Any, Optional
 
 import pandas as pd
 from docx import Document

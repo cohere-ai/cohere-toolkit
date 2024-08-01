@@ -6,9 +6,11 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
 from backend.services.compass import Compass
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 
 from .constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
+
+logger = LoggerFactory().get_logger()
 
 
 def extract_links(files: List[Dict[str, str]]) -> Dict[str, str]:

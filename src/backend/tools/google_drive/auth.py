@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 import urllib.parse
 
 import requests
@@ -12,11 +11,13 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
 from backend.tools.google_drive.tool import GoogleDrive
 
 from .constants import SCOPES
+
+logger = LoggerFactory().get_logger()
 
 
 class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):

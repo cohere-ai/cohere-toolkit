@@ -14,7 +14,6 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Tool
 from backend.services.file import get_file_service
-from backend.services.logger.utils import logger
 
 MAX_STEPS = 15
 
@@ -39,13 +38,14 @@ class CustomChat(BaseChat):
         Returns:
             Generator[StreamResponse, None, None]: Chat response.
         """
+        logger = ctx.get_logger()
         # Choose the deployment model - validation already performed by request validator
         deployment_name = ctx.get_deployment_name()
         deployment_model = get_deployment(deployment_name, ctx)
 
         # Bind the logger with the conversation ID
         logger.debug(
-            event=f"[Custom Chat] Using deployment: {deployment_model.__class__.__name__}"
+            event=f"[Custom Chat] Using deployment: {deployment_model.__class__.__name__}",
         )
 
         if len(chat_request.tools) > 0 and len(chat_request.documents) > 0:
@@ -136,6 +136,7 @@ class CustomChat(BaseChat):
         ctx: Context,
         **kwargs: Any,
     ):
+        logger = ctx.get_logger()
         managed_tools = self.get_managed_tools(chat_request)
         session = kwargs.get("session")
         user_id = ctx.get_user_id()
@@ -231,6 +232,8 @@ class CustomChat(BaseChat):
         ctx: Context,
         **kwargs: Any,
     ):
+        logger = ctx.get_logger()
+
         tool_results = []
         if "tool_calls" not in chat_history[-1]:
             return tool_results
@@ -251,6 +254,7 @@ class CustomChat(BaseChat):
 
             outputs = await tool.implementation().call(
                 parameters=tool_call.get("parameters"),
+                ctx=ctx,
                 session=kwargs.get("session"),
                 model_deployment=deployment_model,
                 user_id=ctx.get_user_id(),

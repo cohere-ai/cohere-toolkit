@@ -24,6 +24,7 @@ class ClinicalTrials(BaseTool):
     def call(
         self,
         parameters: Dict[str, Any],
+        ctx: Any,
         n_max_studies: int = 10,
     ) -> List[Dict[str, Any]]:
         query_params = {"sort": "LastUpdatePostDate"}
