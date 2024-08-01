@@ -7,7 +7,6 @@ const config: StorybookConfig = {
     experimentalRSC: true,
   },
   addons: [
-    '@storybook/addon-onboarding',
     '@storybook/addon-links',
     '@storybook/addon-essentials',
     '@chromatic-com/storybook',
@@ -25,7 +24,6 @@ const config: StorybookConfig = {
         '@': path.resolve(__dirname, '../src'),
       };
     }
-    console.log({ alias: config.resolve?.alias });
     return config;
   },
 };

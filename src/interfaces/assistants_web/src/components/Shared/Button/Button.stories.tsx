@@ -1,7 +1,7 @@
 // Replace your-framework with the name of your framework
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Button } from './Button';
+import { Button } from '@/components/Shared';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
