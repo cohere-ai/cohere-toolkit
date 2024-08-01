@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Dispatch, SetStateAction, useRef } from 'react';
 
 import { IconButton } from '@/components/IconButton';
@@ -5,6 +6,7 @@ import { Button, Icon, IconName, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useBatchUploadFile } from '@/hooks/files';
 import { DataSourceArtifact } from '@/types/tools';
+import { pluralize } from '@/utils';
 
 type Props = {
   googleDriveEnabled: boolean;
@@ -17,13 +19,13 @@ type Props = {
 
 export const DataSourcesStep: React.FC<Props> = ({
   googleDriveEnabled,
-  googleFiles,
-  defaultUploadFiles,
+  googleFiles = [],
+  defaultUploadFiles = [],
   openGoogleFilePicker,
   setGoogleFiles,
   setDefaultUploadFiles,
 }) => {
-  const { mutateAsync: batchUploadFiles } = useBatchUploadFile();
+  const { mutateAsync: batchUploadFiles, status: batchUploadStatus } = useBatchUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleRemoveGoogleDriveFile = (id: string) => {
@@ -77,6 +79,7 @@ export const DataSourcesStep: React.FC<Props> = ({
           artifacts={googleFiles}
           handleRemoveTool={() => handleRemoveAllFiles('google-drive')}
           handleRemoveFile={(removedId: string) => handleRemoveGoogleDriveFile(removedId)}
+          handleAddFiles={openGoogleFilePicker}
         />
       )}
       {defaultUploadFiles && !!defaultUploadFiles.length && (
@@ -86,6 +89,7 @@ export const DataSourcesStep: React.FC<Props> = ({
           artifacts={defaultUploadFiles}
           handleRemoveTool={() => handleRemoveAllFiles('default-upload')}
           handleRemoveFile={(removedId: string) => handleRemoveUploadFile(removedId)}
+          handleAddFiles={() => handleOpenFileExplorer(close)}
         />
       )}
       <Text styleAs="label">Add {hasActiveDataSources ? 'More' : ''} Data Sources</Text>
@@ -114,13 +118,26 @@ export const DataSourcesStep: React.FC<Props> = ({
               theme="mushroom"
               icon="desktop"
               label="Upload Files"
+              isLoading={batchUploadStatus === 'pending'}
               onClick={() => handleOpenFileExplorer(close)}
             />
           </>
         )}
       </div>
+      <Text styleAs="caption" className="dark:text-marble-800">
+        Don&lsquo;t see the data source you need? {/* TODO: get tool request link from Elaine */}
+        <Link className="underline" onClick={() => alert('Needs to be developed!')} href="">
+          Make a request
+        </Link>
+      </Text>
     </div>
   );
+};
+
+const getCountString = (type: 'file' | 'folder', artifacts?: DataSourceArtifact[]) => {
+  const count = artifacts ? artifacts.length : undefined;
+  if (!count || count === 0) return;
+  return `${count} ${pluralize(type, count)}`;
 };
 
 const DataSourceFileList: React.FC<{
@@ -129,46 +146,61 @@ const DataSourceFileList: React.FC<{
   artifacts?: DataSourceArtifact[];
   handleRemoveFile: (id: string) => void;
   handleRemoveTool: VoidFunction;
-}> = ({ name, icon, artifacts = [], handleRemoveFile, handleRemoveTool }) => {
+  handleAddFiles: VoidFunction;
+}> = ({ name, icon, artifacts = [], handleRemoveFile, handleRemoveTool, handleAddFiles }) => {
+  const filesCount = getCountString(
+    'file',
+    artifacts.filter((artifact) => artifact.type === 'file')
+  );
+  const foldersCount = getCountString(
+    'folder',
+    artifacts.filter((artifact) => artifact.type === 'folder')
+  );
+
+  const countCopy = [filesCount, foldersCount].filter((text) => !!text).join(', ');
+
   return (
     <div className="flex flex-col space-y-6 rounded-md border border-volcanic-500 p-4">
       <div className="flex flex-col space-y-2">
         <div className="flex justify-between">
-          <div className="flex space-x-2">
-            <Icon name={icon} />
-            <Text>{name}</Text>
+          <div className="flex items-center space-x-2">
+            <Icon name={icon} size="lg" />
+            <Text styleAs="p-lg">{name}</Text>
           </div>
           <Button icon="trash" kind="secondary" theme="danger" onClick={handleRemoveTool} />
         </div>
-        <Text className="text-marble-800">
-          {name === TOOL_GOOGLE_DRIVE_ID ? 'Connect to Google Drive and add ' : 'Add '} files to the
-          assistant.
+        <Text className="dark:text-marble-800">
+          {name === TOOL_GOOGLE_DRIVE_ID
+            ? 'Add relevant files to your assistant.'
+            : 'Upload files and folders from your local drive.'}
         </Text>
       </div>
       <div className="flex flex-col">
         {artifacts.map(({ id, type, name }) => (
           <div
             key={id}
-            className="flex w-full items-center gap-x-2 border-b border-mushroom-500 py-2 dark:border-volcanic-300"
+            className="flex w-full items-center gap-x-2 border-b border-mushroom-500 py-3 dark:border-volcanic-300"
           >
-            <Icon
-              kind="outline"
-              name={type === 'folder' ? 'folder' : 'file'}
-              className="text-mushroom-500 dark:text-marble-950"
-              size="sm"
-            />
-            <Text styleAs="overline" className="dark:test-marble-950 mr-auto truncate">
+            <Icon kind="outline" name={type === 'folder' ? 'folder' : 'file'} size="sm" />
+            <Text styleAs="label" className="dark:test-marble-950 mr-auto truncate">
               {name}
             </Text>
-            <Button icon="close" />
-            <IconButton
-              size="sm"
-              iconName="close"
-              className="text-mushroom-500 dark:text-marble-950"
-              onClick={() => handleRemoveFile(id)}
-            />
+            <Button icon="close" kind="secondary" onClick={() => handleRemoveFile(id)} />
           </div>
         ))}
+
+        <Text className="py-4 dark:text-marble-800">{countCopy}</Text>
+        <Button
+          label={
+            <Text styleAs="p-lg" className="dark:text-evolved-green-700">
+              Add Files
+            </Text>
+          }
+          icon="add"
+          kind="secondary"
+          theme="evolved-green"
+          onClick={handleAddFiles}
+        />
       </div>
     </div>
   );

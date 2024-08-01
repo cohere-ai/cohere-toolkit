@@ -64,7 +64,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
 
   const setToolsMetadata = () => {
     const tools_metadata = [
-      ...(!!googleFiles.length
+      ...(googleFiles && !!googleFiles.length
         ? [
             {
               tool_name: TOOL_GOOGLE_DRIVE_ID,
@@ -72,7 +72,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
             },
           ]
         : []),
-      ...(!!defaultUploadFiles.length
+      ...(defaultUploadFiles && !!defaultUploadFiles.length
         ? [
             {
               tool_name: TOOL_READ_DOCUMENT_ID,
@@ -95,21 +95,23 @@ export const AgentSettingsForm: React.FC<Props> = ({
     setFields({ ...fields, tools, tools_metadata });
   };
 
+  const openGoogleFilePicker = useOpenGoogleDrivePicker((data) => {
+    if (data.docs) {
+      setGoogleFiles(
+        data.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.name,
+          type: doc.type,
+          url: doc.url,
+        }))
+      );
+    }
+  });
+
   const handleGoogleFilePicker = () => {
     setToolsMetadata();
     savePendingAssistant();
-    useOpenGoogleDrivePicker((data) => {
-      if (data.docs) {
-        setGoogleFiles(
-          data.docs.map((doc) => ({
-            id: doc.id,
-            name: doc.name,
-            type: doc.type,
-            url: doc.url,
-          }))
-        );
-      }
-    });
+    openGoogleFilePicker();
   };
 
   const handleStepChange = (action: 'next' | 'back' | 'submit') => {
@@ -138,7 +140,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
         setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : 1)}
       >
         <DefineAssistantStep fields={fields} setFields={setFields} />
-        <StepButtons onClick={handleStepChange} hide={source !== 'create'} />
+        <StepButtons onClick={handleStepChange} hide={source !== 'create'} disabled={!!nameError} />
       </CollapsibleSection>
       {/* Step 2: Data sources - google drive and file upload */}
       <CollapsibleSection

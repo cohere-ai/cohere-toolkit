@@ -40,6 +40,8 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
         // dark mode
         'dark:text-evolved-green-700 dark:fill-evolved-green-700 dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500':
           theme == 'evolved-green',
+        'dark:text-danger-500 dark:fill-danger-500 dark:group-hover:text-danger-350 dark:group-hover:fill-danger-350':
+          theme == 'danger',
       });
 
     default:
@@ -171,7 +173,7 @@ export const Button: React.FC<ButtonProps> = ({
     kind !== 'cell' ? (
       <div
         className={cn(
-          'group flex h-cell-button w-fit items-center justify-center rounded-md px-3',
+          'group flex h-cell-button w-fit items-center justify-center rounded-md',
           buttonStyles,
           className,
           {

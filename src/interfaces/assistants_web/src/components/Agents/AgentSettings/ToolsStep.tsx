@@ -30,6 +30,7 @@ export const ToolsStep: React.FC<Props> = ({ tools, activeTools, setActiveTools 
           !!name &&
           description && (
             <ToolRow
+              key={name}
               name={name}
               description={description}
               icon={TOOL_ID_TO_DISPLAY_INFO[name].icon ?? TOOL_FALLBACK_ICON}
@@ -39,7 +40,7 @@ export const ToolsStep: React.FC<Props> = ({ tools, activeTools, setActiveTools 
           )
       )}
       <Text styleAs="caption" className="dark:text-marble-800">
-        Don't see the tool you need? {/* TODO: get tool request link from Elaine */}
+        Don&lsquo;t see the tool you need? {/* TODO: get tool request link from Elaine */}
         <Link className="underline" onClick={() => alert('Needs to be developed!')} href="">
           Make a request
         </Link>
@@ -58,8 +59,8 @@ const ToolRow: React.FC<{
   return (
     <div className="flex flex-col space-y-4 rounded-md border p-4 dark:border-volcanic-300 dark:bg-volcanic-100">
       <div className="flex justify-between">
-        <div className="flex space-x-2">
-          <Icon name={icon} kind="outline" className="dark:bg-volcanic-20 h-5 w-5 rounded-sm" />
+        <div className="flex items-center space-x-2">
+          <Icon name={icon} kind="outline" size="sm" withBg />
           <Text styleAs="label" className="font-medium">
             {name}
           </Text>
@@ -69,7 +70,7 @@ const ToolRow: React.FC<{
           onChange={(checked: boolean) => !!name && handleSwitch(checked)}
         />
       </div>
-      <Text>{description}</Text>
+      <Text className="dark:text-marble-800">{description}</Text>
     </div>
   );
 };

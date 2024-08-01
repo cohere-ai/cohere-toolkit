@@ -65,7 +65,9 @@ export const Icon: React.FC<{
   kind?: IconKind;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit';
   className?: string;
-}> = ({ name, kind = 'default', size = 'md', className }) => {
+  withBg?: boolean;
+  bgClassName?: string;
+}> = ({ name, kind = 'default', size = 'md', className, withBg = false, bgClassName }) => {
   const sizeClass = cn({
     'h-inherit w-inherit': size == 'inherit',
     'h-icon-xs w-icon-xs': size === 'xs',
@@ -74,10 +76,23 @@ export const Icon: React.FC<{
     'h-icon-lg w-icon-lg': size === 'lg',
     'h-icon-xl w-icon-xl': size === 'xl',
   });
-  return (
-    <div className={cn(sizeClass, className ?? 'fill-volcanic-100 dark:fill-marble-950')}>
+
+  const iconElement = (
+    <div className={cn(sizeClass, 'fill-volcanic-100 dark:fill-marble-950', className)}>
       {getIcon(name, kind)}
     </div>
+  );
+  return withBg ? (
+    <div
+      className={cn(
+        'flex h-5 w-5 items-center justify-center rounded-sm bg-marble-800 dark:bg-volcanic-200',
+        bgClassName
+      )}
+    >
+      {iconElement}
+    </div>
+  ) : (
+    iconElement
   );
 };
 

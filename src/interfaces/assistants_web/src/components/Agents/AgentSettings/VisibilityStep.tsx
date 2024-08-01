@@ -26,7 +26,12 @@ export const VisibilityStep: React.FC<Props> = ({ isPublic, setIsPublic }) => {
           { hidden: !isPublic }
         )}
       >
-        <Icon name="warning" kind="outline" className="mx-1 fill-danger-500" size="lg" />
+        <Icon
+          name="warning"
+          kind="outline"
+          className="mx-1 fill-danger-500 dark:fill-danger-500"
+          size="lg"
+        />
         <Text>
           All files will be public, including any private files you add from your Drive or local.
           Those will be viewable/accessible to everyone.
