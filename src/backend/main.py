@@ -1,5 +1,3 @@
-import os
-import traceback
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
