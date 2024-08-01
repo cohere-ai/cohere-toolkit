@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { DataSourcesStep } from '@/components/Agents/AgentSettings/DataSourcesStep';
@@ -95,6 +95,13 @@ export const AgentSettingsForm: React.FC<Props> = ({
     setFields({ ...fields, tools, tools_metadata });
   };
 
+  useEffect(() => {
+    if (googleFiles || defaultUploadFiles) {
+      setToolsMetadata();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleFiles, defaultUploadFiles]);
+
   const openGoogleFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
       setGoogleFiles(
@@ -109,7 +116,6 @@ export const AgentSettingsForm: React.FC<Props> = ({
   });
 
   const handleGoogleFilePicker = () => {
-    setToolsMetadata();
     savePendingAssistant();
     openGoogleFilePicker();
   };
@@ -130,7 +136,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="flex flex-col space-y-6 p-8">
       {/* Step 1: Define your assistant - name, description, instruction */}
       <CollapsibleSection
         title="Define your assistant"

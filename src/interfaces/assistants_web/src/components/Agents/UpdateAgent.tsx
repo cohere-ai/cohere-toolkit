@@ -98,7 +98,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   }
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-y-auto p-8">
+    <div className="relative flex h-full w-full flex-col overflow-y-auto">
       <header className="flex flex-col space-y-5 border-b px-12 py-10 dark:border-volcanic-150">
         <div className="flex items-center space-x-2">
           <Link href="/discover">
@@ -116,27 +116,31 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         onSubmit={handleSubmit}
         savePendingAssistant={() => setPendingAssistant(fields)}
       />
-      <div className={'flex w-full items-center justify-between py-5'}>
-        <Button label="Cancel" kind="secondary" href="/discover" />
+      <div className="space-y-5 px-8 pb-8">
+        <div className={'flex w-full items-center justify-between'}>
+          <Button label="Cancel" kind="secondary" href="/discover" />
+          <Button
+            label="Update"
+            theme="evolved-green"
+            kind="cell"
+            icon={'checkmark'}
+            iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}
+            disabled={
+              isSubmitting ||
+              !fields.name.trim() ||
+              !isAgentNameUnique(fields.name.trim(), agent.id)
+            }
+            onClick={handleSubmit}
+          />
+        </div>
         <Button
-          label="Update"
-          theme="evolved-green"
-          kind="cell"
-          icon={'checkmark'}
-          iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}
-          disabled={
-            isSubmitting || !fields.name.trim() || !isAgentNameUnique(fields.name.trim(), agent.id)
-          }
-          onClick={handleSubmit}
+          label="Delete assistant"
+          icon="trash"
+          theme="danger"
+          kind="secondary"
+          onClick={handleOpenDeleteModal}
         />
       </div>
-      <Button
-        label="Delete assistant"
-        icon="trash"
-        theme="danger"
-        kind="secondary"
-        onClick={handleOpenDeleteModal}
-      />
     </div>
   );
 };
