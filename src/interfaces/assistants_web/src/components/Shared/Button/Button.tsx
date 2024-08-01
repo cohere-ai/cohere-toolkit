@@ -23,8 +23,12 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
     case 'secondary':
       if (theme === 'evolved-green') {
         return cn(
-          'text-evolved-green-700 fill-evolved-green-700',
-          'group-hover:text-evolved-green-500 group-hover:fill-evolved-green-500'
+          // light mode
+          'text-coral-500 fill-coral-500',
+          'group-hover:text-coral-500 group-hover:fill-coral-500',
+          // dark mode
+          'dark:text-evolved-green-700 dark:fill-evolved-green-700',
+          'dark:group-hover:text-evolved-green-700 dark:group-hover:fill-evolved-green-700'
         );
       } else if (theme === 'danger') {
         return cn(
@@ -34,8 +38,12 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
       }
     default:
       return cn(
-        'text-marble-950 fill-marble-950',
-        'group-hover:text-marble-1000 group-hover:fill-marble-1000'
+        // light mode
+        'text-volcanic-100 volcanic-100',
+        'group-hover:text-volcanic-150 group-hover:fill-volcanic-150',
+        // dark mode
+        'dark:text-marble-950 dark:fill-marble-950',
+        'dark:group-hover:text-marble-1000 dark:group-hover:fill-marble-1000'
       );
   }
 };

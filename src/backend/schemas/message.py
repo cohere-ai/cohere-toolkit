@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -36,5 +36,9 @@ class Message(MessageBase):
         from_attributes = True
 
 
-class UpdateMessage(MessageBase):
-    pass
+class UpdateMessage(BaseModel):
+    text: Optional[str] = None
+    title: Optional[str] = None
+
+    class Config:
+        from_attributes = True
