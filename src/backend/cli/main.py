@@ -12,49 +12,7 @@ from community.config.deployments import (
 )
 from community.config.tools import COMMUNITY_TOOLS_SETUP
 
-
-class bcolors:
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    MAGENTA = "\033[35m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-
-
-class DeploymentName(StrEnum):
-    COHERE_PLATFORM = "Cohere Platform"
-    SAGE_MAKER = "SageMaker"
-    AZURE = "Azure"
-    BEDROCK = "Bedrock"
-
-
-class BuildTarget(StrEnum):
-    DEV = "dev"
-    PROD = "prod"
-
-
-class ToolName(StrEnum):
-    PythonInterpreter = "Python Interpreter"
-    TavilyInternetSearch = "Tavily Internet Search"
-
-
-WELCOME_MESSAGE = r"""
- █████╗  █████╗ ██╗  ██╗███████╗██████╗ ███████╗ ████████╗ █████╗  █████╗ ██╗     ██╗  ██╗██╗████████╗
-██╔══██╗██╔══██╗██║  ██║██╔════╝██╔══██╗██╔════╝ ╚══██╔══╝██╔══██╗██╔══██╗██║     ██║ ██╔╝██║╚══██╔══╝
-██║  ╚═╝██║  ██║███████║█████╗  ██████╔╝█████╗      ██║   ██║  ██║██║  ██║██║     █████═╝ ██║   ██║   
-██║  ██╗██║  ██║██╔══██║██╔══╝  ██╔══██╗██╔══╝      ██║   ██║  ██║██║  ██║██║     ██╔═██╗ ██║   ██║   
-╚█████╔╝╚█████╔╝██║  ██║███████╗██║  ██║███████╗    ██║   ╚█████╔╝╚█████╔╝███████╗██║ ╚██╗██║   ██║   
- ╚════╝  ╚════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝    ╚═╝    ╚════╝  ╚════╝ ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   
-"""
-DATABASE_URL_DEFAULT = "postgresql+psycopg2://postgres:postgres@db:5432"
-REDIS_URL_DEFAULT = "redis://:redis@redis:6379"
-PYTHON_INTERPRETER_URL_DEFAULT = "http://terrarium:8080"
-NEXT_PUBLIC_API_HOSTNAME_DEFAULT = "http://localhost:8000"
-FRONTEND_HOSTNAME_DEFAULT = "http://localhost:4000"
-
-DOT_ENV_FILE_PATH = ".env"
-
+from backend.cli.constants import bcolors
 
 def print_styled(text: str, color: str = bcolors.ENDC):
     print(color + text + bcolors.ENDC)
@@ -77,7 +35,7 @@ def cohere_api_key_prompt(secrets):
 
 
 def core_env_var_prompt(secrets):
-    print_styled("💾 We need to set up your database URL.")
+    print_styled("💾 Let's set up your database URL.")
     database_url = inquirer.text(
         "Enter your database URL or press enter for default [recommended]",
         default=DATABASE_URL_DEFAULT,
@@ -195,19 +153,18 @@ def select_deployments_prompt(deployments, _):
 
 
 def wrap_up(deployments):
-    print_styled("✅ Your .env file has been set up.", bcolors.OKGREEN)
+    print_styled("✅ Your configuration file has been set up.", bcolors.OKGREEN)
 
     print_styled(
-        "🎉 You're all set up! You can now run 'make migrate' and 'make dev' to start the Cohere Toolkit. Make sure Docker is running.",
+        "🎉 You're all set up! You can now run `make migrate` and `make dev` to start the Cohere Toolkit. Make sure Docker is running.",
         bcolors.OKGREEN,
     )
 
     if DeploymentName.SAGE_MAKER in deployments:
         print_styled(
-            "🔑 For SageMaker ensure you have run `aws configure` before make dev for authentication",
+            "🔑 For SageMaker ensure you have run `aws configure` before `make dev` for authentication.",
             bcolors.OKGREEN,
         )
-
 
 def show_examples():
     print_styled("📚 Here are some examples to get you started:", bcolors.OKCYAN)
@@ -254,7 +211,7 @@ def show_examples():
     )
 
 
-IMPLEMENTATIONS = {
+PROMPTS = {
     "core": core_env_var_prompt,
     "build_target": build_target_prompt,
 }
@@ -286,14 +243,15 @@ def start():
     )
 
     # SET UP ENVIRONMENT
-    for _, implementation in IMPLEMENTATIONS.items():
-        implementation(secrets)
+    for _, prompt in PROMPTS.items():
+        prompt(secrets)
 
-    # SET UP TOOLS
+    # ENABLE COMMUNITY TOOLS
     use_community_features = args.use_community and community_tools_prompt(secrets)
     if use_community_features:
         TOOLS.update(COMMUNITY_TOOLS_SETUP)
 
+    # SET UP TOOLS
     for name, configs in TOOLS.items():
         tool_prompt(secrets, name, configs)
 
@@ -309,6 +267,8 @@ def start():
 
     # SET UP .ENV FILE
     write_env_file(secrets)
+
+    # SET UP YAML CONFIG FILES
 
     # REVIEW VARIABLES
     variables_to_update = review_variables_prompt(secrets)

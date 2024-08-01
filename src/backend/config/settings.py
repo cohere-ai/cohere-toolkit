@@ -10,7 +10,7 @@ from pydantic_settings import (
 )
 
 # In order to get the env vars from the top level every model need to inherit from BaseSettings with this config
-setting_config = SettingsConfigDict(
+SETTINGS_CONFIG = SettingsConfigDict(
     env_file=".env",
     extra="ignore",
     env_nested_delimiter="_",
@@ -18,23 +18,35 @@ setting_config = SettingsConfigDict(
     env_ignore_empty=True,
 )
 
+CONFIG_PATH = "src/backend/config"
+PYTEST_CONFIG_PATH = "src/backend/tests"
+CONFIG_FILE_PATH = (
+    f"{CONFIG_PATH}/configuration.yaml"
+    if "pytest" not in sys.modules
+    else f"{PYTEST_CONFIG_PATH}/configuration.yaml"
+)
+SECRETS_FILE_PATH = (
+    f"{CONFIG_PATH}/secrets.yaml"
+    if "pytest" not in sys.modules
+    else f"{PYTEST_CONFIG_PATH}/secrets.yaml"
+)
+
 # To add settings to both YAML and ENV
 # First create the nested structure in the YAML file
 # Then add the env variables as an AliasChoices in the Field - these aren't nested
 
-
 class GoogleOAuthSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     client_id: Optional[str] = Field(
         validation_alias=AliasChoices("GOOGLE_CLIENT_ID", "client_id")
-    )
+    ) = None
     client_secret: Optional[str] = Field(
         validation_alias=AliasChoices("GOOGLE_CLIENT_SECRET", "client_secret")
-    )
+    ) = None
 
 
 class OIDCSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     client_id: Optional[str] = Field(
         validation_alias=AliasChoices("OIDC_CLIENT_ID", "client_id")
     )
@@ -47,7 +59,7 @@ class OIDCSettings(BaseSettings, BaseModel):
 
 
 class AuthSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     enabled_auth: Optional[List[str]]
     secret_key: Optional[str] = Field(
         validation_alias=AliasChoices("AUTH_SECRET_KEY", "frontend_hostname")
@@ -63,7 +75,7 @@ class AuthSettings(BaseSettings, BaseModel):
 
 
 class FeatureFlags(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     use_experimental_langchain: Optional[bool] = Field(
         default=False,
         validation_alias=AliasChoices(
@@ -83,14 +95,14 @@ class FeatureFlags(BaseSettings, BaseModel):
 
 
 class PythonToolSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     url: Optional[str] = Field(
         validation_alias=AliasChoices("PYTHON_INTERPRETER_URL", "url")
     )
 
 
 class CompassSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     username: Optional[str] = Field(
         validation_alias=AliasChoices("COHERE_COMPASS_USERNAME", "username")
     )
@@ -106,21 +118,21 @@ class CompassSettings(BaseSettings, BaseModel):
 
 
 class WebSearchSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
         validation_alias=AliasChoices("TAVILY_API_KEY", "api_key")
     )
 
 
 class WolframAlphaSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     app_id: Optional[str] = Field(
         validation_alias=AliasChoices("WOLFRAM_APP_ID", "app_id")
     )
 
 
 class GDriveSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     client_id: Optional[str] = Field(
         validation_alias=AliasChoices("GOOGLE_DRIVE_CLIENT_ID", "client_id")
     )
@@ -135,7 +147,7 @@ class GDriveSettings(BaseSettings, BaseModel):
 
 
 class ToolSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     enabled_tools: Optional[List[str]]
 
     python_interpreter: Optional[PythonToolSettings]
@@ -146,7 +158,7 @@ class ToolSettings(BaseSettings, BaseModel):
 
 
 class DatabaseSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     url: Optional[str] = Field(validation_alias=AliasChoices("DATABASE_URL", "url"))
     migrate_token: Optional[str] = Field(
         validation_alias=AliasChoices("MIGRATE_TOKEN", "migrate_token")
@@ -154,12 +166,12 @@ class DatabaseSettings(BaseSettings, BaseModel):
 
 
 class RedisSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     url: Optional[str] = Field(validation_alias=AliasChoices("REDIS_URL", "url"))
 
 
 class SageMakerSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     endpoint_name: Optional[str] = Field(
         validation_alias=AliasChoices("SAGE_MAKER_ENDPOINT_NAME", "endpoint_name")
     )
@@ -178,7 +190,7 @@ class SageMakerSettings(BaseSettings, BaseModel):
 
 
 class AzureSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     endpoint_url: Optional[str] = Field(
         validation_alias=AliasChoices("AZURE_CHAT_ENDPOINT_URL", "endpoint_url")
     )
@@ -188,14 +200,14 @@ class AzureSettings(BaseSettings, BaseModel):
 
 
 class CoherePlatformSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
         validation_alias=AliasChoices("COHERE_API_KEY", "api_key")
     )
 
 
 class SingleContainerSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     model: Optional[str] = Field(
         validation_alias=AliasChoices("SINGLE_CONTAINER_MODEL", "model")
     )
@@ -205,7 +217,7 @@ class SingleContainerSettings(BaseSettings, BaseModel):
 
 
 class BedrockSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     region_name: Optional[str] = Field(
         validation_alias=AliasChoices("BEDROCK_REGION_NAME", "region_name")
     )
@@ -221,7 +233,7 @@ class BedrockSettings(BaseSettings, BaseModel):
 
 
 class DeploymentSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     default_deployment: Optional[str]
     enabled_deployments: Optional[List[str]]
 
@@ -233,7 +245,7 @@ class DeploymentSettings(BaseSettings, BaseModel):
 
 
 class LoggerSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     level: Optional[str] = Field(
         default="INFO", validation_alias=AliasChoices("LOG_LEVEL", "level")
     )
@@ -245,32 +257,19 @@ class LoggerSettings(BaseSettings, BaseModel):
     )
 
 
-config_file = (
-    "src/backend/config/configuration.yaml"
-    if "pytest" not in sys.modules
-    else "src/backend/tests/configuration.yaml"
-)
-secrets_file = (
-    "src/backend/config/secrets.yaml"
-    if "pytest" not in sys.modules
-    else "src/backend/tests/secrets.yaml"
-)
-
-
-class Settings(BaseSettings, case_sensitive=False):
+class Settings(BaseSettings):
     """
     Settings class used to grab environment variables from .env file.
     Uppercase env variables converted to class parameters.
     """
-
-    model_config = setting_config
-    auth: Optional[AuthSettings]
-    feature_flags: Optional[FeatureFlags]
-    tools: Optional[ToolSettings]
-    database: Optional[DatabaseSettings]
-    redis: Optional[RedisSettings]
-    deployments: Optional[DeploymentSettings]
-    logger: Optional[LoggerSettings]
+    model_config = SETTINGS_CONFIG
+    auth: Optional[AuthSettings] = None
+    feature_flags: Optional[FeatureFlags] = None
+    tools: Optional[ToolSettings] = None
+    database: Optional[DatabaseSettings] = None
+    redis: Optional[RedisSettings] = None
+    deployments: Optional[DeploymentSettings] = None
+    logger: Optional[LoggerSettings] = None
 
     @classmethod
     def settings_customise_sources(
@@ -286,8 +285,10 @@ class Settings(BaseSettings, case_sensitive=False):
         return (
             env_settings,
             dotenv_settings,
-            YamlConfigSettingsSource(settings_cls, yaml_file=config_file),
-            YamlConfigSettingsSource(settings_cls, yaml_file=secrets_file),
+            YamlConfigSettingsSource(settings_cls, yaml_file=CONFIG_FILE_PATH),
+            YamlConfigSettingsSource(settings_cls, yaml_file=SECRETS_FILE_PATH),
             file_secret_settings,
             init_settings,
         )
+    
+
