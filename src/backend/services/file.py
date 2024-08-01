@@ -1,6 +1,4 @@
 import io
-from copy import deepcopy
-from typing import Any, Optional
 
 import pandas as pd
 from docx import Document
@@ -131,7 +129,7 @@ class FileService:
 
         files = []
         agent_tool_metadata = agent.tools_metadata
-        if agent_tool_metadata is not None:
+        if agent_tool_metadata is not None and len(agent_tool_metadata) > 0:
             artifacts = next(
                 tool_metadata.artifacts
                 for tool_metadata in agent_tool_metadata

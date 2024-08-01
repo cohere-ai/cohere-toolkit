@@ -55,3 +55,5 @@ auth:
   oidc:
 logger:
   strategy: structlog
+  renderer: console
+  level: info

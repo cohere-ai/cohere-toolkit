@@ -3,9 +3,11 @@ import functools
 
 import aiohttp
 
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 
 TIMEOUT = aiohttp.ClientTimeout(total=120)
+
+logger = LoggerFactory().get_logger()
 
 
 def sync_perform(id_to_urls: dict[str, str], access_token: str) -> dict[str, str]:

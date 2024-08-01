@@ -1,6 +1,3 @@
-import logging
-from typing import Any
-
 from backend.config.settings import Settings
 from backend.services.logger.strategies.base import BaseLogger
 from backend.services.logger.strategies.structured_log import StructuredLogging
@@ -15,16 +12,11 @@ class LoggerFactory:
             return self.logger
 
         strategy = Settings().logger.strategy
-        level_str = Settings().logger.level
+        level = Settings().logger.level
         renderer = Settings().logger.renderer
-
-        level = getattr(logging, level_str.upper(), None)
 
         if strategy == "structlog":
             return StructuredLogging(level, renderer)
         else:
             # Default to StructuredLogging
             return StructuredLogging(level, renderer)
-
-
-logger = LoggerFactory().get_logger()

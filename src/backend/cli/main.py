@@ -1,8 +1,4 @@
 import argparse
-from enum import StrEnum
-
-import inquirer
-from dotenv import set_key
 
 from backend.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as MANAGED_DEPLOYMENTS_SETUP,
@@ -11,224 +7,29 @@ from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
 from community.config.tools import COMMUNITY_TOOLS_SETUP
+from backend.cli.utils import (
+    welcome_message,
+    wrap_up,
+    show_examples,
+)
+from backend.cli.prompts import (
+    deployment_prompt,
+    community_tools_prompt,
+    tool_prompt,
+    review_variables_prompt,
+    update_variable_prompt,
+    select_deployments_prompt,
+    PROMPTS,
+)
+from backend.cli.setters import (
+    write_env_file,
+    write_template_config_files,
+    write_template_files,
+)
+from backend.cli.constants import (
+    TOOLS,
+)
 
-from backend.cli.constants import bcolors
-
-def print_styled(text: str, color: str = bcolors.ENDC):
-    print(color + text + bcolors.ENDC)
-
-
-def cohere_api_key_prompt(secrets):
-    key_exists = inquirer.confirm("Do you have a Cohere API key?")
-    if key_exists:
-        cohere_api_key = inquirer.text(
-            "Enter your Cohere API key", validate=lambda _, x: len(x) > 0
-        )
-    else:
-        print_styled(
-            "✋ Please visit the following link to get your Cohere API key: https://dashboard.cohere.com/api-keys 🔗",
-            bcolors.FAIL,
-        )
-        cohere_api_key = inquirer.text("Enter your Cohere API key")
-
-    secrets["COHERE_API_KEY"] = cohere_api_key
-
-
-def core_env_var_prompt(secrets):
-    print_styled("💾 Let's set up your database URL.")
-    database_url = inquirer.text(
-        "Enter your database URL or press enter for default [recommended]",
-        default=DATABASE_URL_DEFAULT,
-    )
-
-    print_styled("💾 Now, let's set up need to set up your Redis URL.")
-    redis_url = inquirer.text(
-        "Enter your Redis URL or press enter for default [recommended]",
-        default=REDIS_URL_DEFAULT,
-    )
-
-    print_styled("💾 Now, let's set up your public backend API hostname.")
-    next_public_api_hostname = inquirer.text(
-        "Enter your public API Hostname or press enter for default [recommended]",
-        default=NEXT_PUBLIC_API_HOSTNAME_DEFAULT,
-    )
-
-    print_styled("💾 Finally, the frontend client hostname.")
-    frontend_hostname = inquirer.text(
-        "Enter your frontend hostname or press enter for default [recommended]",
-        default=FRONTEND_HOSTNAME_DEFAULT,
-    )
-
-    secrets["DATABASE_URL"] = database_url
-    secrets["REDIS_URL"] = redis_url
-    secrets["NEXT_PUBLIC_API_HOSTNAME"] = next_public_api_hostname
-    secrets["FRONTEND_HOSTNAME"] = frontend_hostname
-
-
-def deployment_prompt(secrets, configs):
-    for secret in configs.env_vars:
-        value = inquirer.text(
-            f"Enter the value for {secret}", validate=lambda _, x: len(x) > 0
-        )
-        secrets[secret] = value
-
-
-def community_tools_prompt(secrets):
-    print_styled(
-        "🏘️ We have some community tools that you can set up. These tools are not required for the Cohere Toolkit to run."
-    )
-    use_community_features = inquirer.confirm(
-        "Do you want to set up community features (tools and model deployments)?"
-    )
-    secrets["USE_COMMUNITY_FEATURES"] = use_community_features
-    return use_community_features
-
-
-def tool_prompt(secrets, name, configs):
-    print_styled(
-        f"🛠️ If you want to enable {name}, set up the following secrets. Otherwise, press enter."
-    )
-
-    for key, default_value in configs["secrets"].items():
-        value = inquirer.text(f"Enter the value for {key}", default=default_value)
-        secrets[key] = value
-
-
-def build_target_prompt(secrets):
-    build_target = inquirer.list_input(
-        "Select the build target",
-        choices=[BuildTarget.DEV, BuildTarget.PROD],
-        default=BuildTarget.DEV,
-    )
-    secrets["BUILD_TARGET"] = build_target
-
-
-def review_variables_prompt(secrets):
-    review_list = [f"{key}: {value}" for key, value in secrets.items()]
-
-    questions = [
-        inquirer.Checkbox(
-            "variables",
-            message="Review your variables and select the ones you want to update, if any. Press enter to continue",
-            choices=review_list,
-        ),
-    ]
-
-    answers = inquirer.prompt(questions)
-    return answers["variables"]
-
-
-def update_variable_prompt(_, variables_to_update):
-    for variable_to_update in variables_to_update:
-        variable_to_update = variable_to_update.split(":")[0]
-        new_value = inquirer.text(f"Enter the new value for {variable_to_update}")
-        write_env_file({variable_to_update: new_value})
-        print_styled(
-            f"🪛 Updated {variable_to_update} to {new_value}.", bcolors.OKGREEN
-        )
-
-
-def write_env_file(secrets):
-    for key, value in secrets.items():
-        set_key(DOT_ENV_FILE_PATH, key, str(value))
-
-    set_key(
-        DOT_ENV_FILE_PATH,
-        "NEXT_PUBLIC_FRONTEND_HOSTNAME",
-        "${FRONTEND_HOSTNAME}",
-        "never",
-    )
-
-
-def select_deployments_prompt(deployments, _):
-    print_styled("🚀 Let's set up your model deployments.", bcolors.MAGENTA)
-
-    deployments = inquirer.checkbox(
-        "Select the model deployments you want to set up",
-        choices=[deployment.value for deployment in deployments.keys()],
-        default=["Cohere Platform"],
-        validate=lambda _, x: len(x) > 0,
-    )
-    return deployments
-
-
-def wrap_up(deployments):
-    print_styled("✅ Your configuration file has been set up.", bcolors.OKGREEN)
-
-    print_styled(
-        "🎉 You're all set up! You can now run `make migrate` and `make dev` to start the Cohere Toolkit. Make sure Docker is running.",
-        bcolors.OKGREEN,
-    )
-
-    if DeploymentName.SAGE_MAKER in deployments:
-        print_styled(
-            "🔑 For SageMaker ensure you have run `aws configure` before `make dev` for authentication.",
-            bcolors.OKGREEN,
-        )
-
-def show_examples():
-    print_styled("📚 Here are some examples to get you started:", bcolors.OKCYAN)
-
-    print_styled(
-        "1. Navigate to the Cohere Toolkit frontend: ",
-        bcolors.OKCYAN,
-    )
-    print_styled(
-        "\thttp://localhost:4000",
-        bcolors.OKCYAN,
-    )
-
-    print_styled(
-        "2. Ask a question to the Cohere Platform model",
-        bcolors.OKCYAN,
-    )
-    print_styled(
-        """\tcurl --location 'http://localhost:8000/v1/chat-stream' --header 'User-Id: test-user' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
-        bcolors.OKCYAN,
-    )
-
-    print_styled(
-        "3. Ask a question to the SageMaker model",
-        bcolors.OKCYAN,
-    )
-    print_styled(
-        """\tcurl --location 'http://localhost:8000/v1/chat-stream' --header 'User-Id: test-user' --header 'Deployment-Name: SageMaker' --header 'Content-Type: application/json' --data '{"message": "hey"}'""",
-        bcolors.OKCYAN,
-    )
-
-    print_styled(
-        "4. List all available models deployments and their models",
-        bcolors.OKCYAN,
-    )
-    print_styled(
-        "\tcurl http://localhost:8000/deployments",
-        bcolors.OKCYAN,
-    )
-
-    print_styled(
-        "For more examples, please visit the Cohere Toolkit README.md",
-        bcolors.MAGENTA,
-    )
-
-
-PROMPTS = {
-    "core": core_env_var_prompt,
-    "build_target": build_target_prompt,
-}
-
-
-TOOLS = {
-    ToolName.PythonInterpreter: {
-        "secrets": {
-            "PYTHON_INTERPRETER_URL": PYTHON_INTERPRETER_URL_DEFAULT,
-        },
-    },
-    ToolName.TavilyInternetSearch: {
-        "secrets": {
-            "TAVILY_API_KEY": None,
-        },
-    },
-}
 
 
 def start():
@@ -236,11 +37,9 @@ def start():
     parser.add_argument("--use-community", action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
 
+    welcome_message()
+
     secrets = {}
-    print_styled(WELCOME_MESSAGE, bcolors.OKGREEN)
-    print_styled(
-        "👋 First things first, let's set up your environment.", bcolors.MAGENTA
-    )
 
     # SET UP ENVIRONMENT
     for _, prompt in PROMPTS.items():
@@ -269,6 +68,7 @@ def start():
     write_env_file(secrets)
 
     # SET UP YAML CONFIG FILES
+    write_template_config_files()
 
     # REVIEW VARIABLES
     variables_to_update = review_variables_prompt(secrets)
@@ -279,7 +79,6 @@ def start():
 
     # SHOW SOME EXAMPLES
     show_examples()
-
 
 if __name__ == "__main__":
     start()

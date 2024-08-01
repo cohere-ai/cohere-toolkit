@@ -1,6 +1,8 @@
+import logging
+from typing import Any, Dict
+
 import structlog
 
-from backend.schemas.context import Context
 from backend.services.logger.strategies.base import BaseLogger
 
 
@@ -14,16 +16,27 @@ def log_context(func):
     return wrapper
 
 
-def get_context_log(ctx: Context) -> dict:
+def get_context_log(ctx: Any) -> dict:
     """
     Remove private attributes from context and return a dictionary.
     """
-    ctx.request = None
-    ctx.response = None
-    ctx.receive = None
     ctx_dict = ctx.model_dump()
 
+    keys_to_remove = ["request", "response", "receive", "logger"]
+    for key in keys_to_remove:
+        ctx_dict.pop(key, None)
+
     return ctx_dict
+
+
+def add_module(
+    logger: structlog.BoundLogger, name: str, event_dict: Dict[str, Any]
+) -> Dict[str, Any]:
+    _, module_str = structlog._frames._find_first_app_frame_and_name(
+        additional_ignores=[__name__]
+    )
+    event_dict["module"] = module_str
+    return event_dict
 
 
 class StructuredLogging(BaseLogger):
@@ -32,10 +45,13 @@ class StructuredLogging(BaseLogger):
         self.logger = structlog.get_logger()
 
     def setup(self, level: str = "info", renderer: str = "json"):
+        level = getattr(logging, level.upper(), None)
+
         structlog.contextvars.clear_contextvars()
 
         shared_processors = [
             structlog.processors.add_log_level,
+            add_module,
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.UnicodeDecoder(),
@@ -84,5 +100,9 @@ class StructuredLogging(BaseLogger):
     def exception(self, **kwargs):
         self.logger.exception(**kwargs)
 
+    @log_context
     def bind(self, **kwargs):
         self.logger = self.logger.bind(**kwargs)
+
+    def unbind(self, *args):
+        self.logger = self.logger.unbind(*args)

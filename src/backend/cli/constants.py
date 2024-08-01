@@ -25,7 +25,6 @@ class ToolName(StrEnum):
     PythonInterpreter = "Python Interpreter"
     TavilyInternetSearch = "Tavily Internet Search"
 
-
 WELCOME_MESSAGE = r"""
  █████╗  █████╗ ██╗  ██╗███████╗██████╗ ███████╗ ████████╗ █████╗  █████╗ ██╗     ██╗  ██╗██╗████████╗
 ██╔══██╗██╔══██╗██║  ██║██╔════╝██╔══██╗██╔════╝ ╚══██╔══╝██╔══██╗██╔══██╗██║     ██║ ██╔╝██║╚══██╔══╝
@@ -46,3 +45,17 @@ CONFIG_TEMPLATE_PATH = f"{BASE_CONFIG_PATH}/configuration.template.yaml"
 SECRETS_FILE_PATH = f"{BASE_CONFIG_PATH}/secrets.yaml"
 SECRETS_TEMPLATE_PATH = f"{BASE_CONFIG_PATH}/secrets.template.yaml"
 DOT_ENV_FILE_PATH = ".env"
+
+
+TOOLS = {
+    ToolName.PythonInterpreter: {
+        "secrets": {
+            "PYTHON_INTERPRETER_URL": PYTHON_INTERPRETER_URL_DEFAULT,
+        },
+    },
+    ToolName.TavilyInternetSearch: {
+        "secrets": {
+            "TAVILY_API_KEY": None,
+        },
+    },
+}
