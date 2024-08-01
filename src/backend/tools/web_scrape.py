@@ -1,10 +1,10 @@
-import io
 from typing import Any, Dict, List
 
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
 from requests import get
 
+from backend.services.utils import read_pdf
 from backend.tools.base import BaseTool
 
 
@@ -32,17 +32,10 @@ class WebScrapeTool(BaseTool):
 
         content_type = response.headers.get("content-type")
         if "application/pdf" in content_type:
-            pdf_reader = PdfReader(io.BytesIO(response.content))
-            text = ""
-
-            # Extract text from each page
-            for page in pdf_reader.pages:
-                page_text = page.extract_text()
-                text += page_text
             return [
                 (
                     {
-                        "text": text,
+                        "text": read_pdf(response.content),
                         "url": url,
                     }
                 )
