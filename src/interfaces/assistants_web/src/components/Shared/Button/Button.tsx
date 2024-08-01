@@ -11,7 +11,7 @@ export type ButtonTheme = 'blue' | 'coral' | 'evolved-green' | 'quartz' | 'mushr
 
 const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (disabled) {
-    return cn('text-volcanic-700 fill-volcanic-700');
+    return cn('text-volcanic-200 fill-volcanic-200');
   }
 
   switch (kind) {
