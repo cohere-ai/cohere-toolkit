@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Union
 from urllib.parse import quote
 
