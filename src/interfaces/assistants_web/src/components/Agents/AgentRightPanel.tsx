@@ -125,7 +125,12 @@ const AgentRightPanel: React.FC<Props> = () => {
               {agentKnowledgeFiles.length === 0 ? (
                 <Banner className="flex flex-col">
                   Add a data source to expand the assistant’s knowledge.
-                  <Button theme="blue" className="mt-4" label="Add Data Source" icon="add" />
+                  <Button
+                    theme={getCohereTheme(agent?.id)}
+                    className="mt-4"
+                    label="Add Data Source"
+                    icon="add"
+                  />
                 </Banner>
               ) : (
                 <div className="flex flex-col gap-y-3">
