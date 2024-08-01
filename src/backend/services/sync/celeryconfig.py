@@ -14,20 +14,6 @@ from backend.services.sync.constants import (
 # This helps with GDrive SDK download timeouts
 socket.setdefaulttimeout(DEFAULT_TIME_OUT)
 
-# Priorities.
-# Celery implicitly shards into 4 queues, use that.
-# https://docs.celeryq.dev/en/stable/userguide/routing.html#redis-message-priorities
-#  0. Priority
-#  1. Normal (default)
-#  2. Slow
-#  3. Background
-task_default_priority = 1
-broker_transport_options = {
-    "priority_steps": list(range(4)),
-    "sep": ":",
-    "queue_order_strategy": "priority",
-}
-
 # broker and db
 broker_url = SYNC_BROKER_URL
 
@@ -78,7 +64,3 @@ CELERY_enable_utc = True
 include = [
     "backend.tools.google_drive",
 ]
-
-# Send task events for Prometheus metrics
-worker_send_task_events = True
-task_send_sent_event = True
