@@ -35,6 +35,7 @@ SECRETS_FILE_PATH = (
 # First create the nested structure in the YAML file
 # Then add the env variables as an AliasChoices in the Field - these aren't nested
 
+
 class GoogleOAuthSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     client_id: Optional[str] = Field(
@@ -325,5 +326,3 @@ class Settings(BaseSettings):
             file_secret_settings,
             init_settings,
         )
-    
-

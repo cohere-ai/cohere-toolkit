@@ -1,9 +1,11 @@
-from backend.cli.constants import bcolors, DeploymentName, WELCOME_MESSAGE
+from backend.cli.constants import WELCOME_MESSAGE, DeploymentName, bcolors
+
 
 def print_styled(text: str, color: str = bcolors.ENDC):
     print(color + text + bcolors.ENDC)
 
-def welcome_message():
+
+def show_welcome_message():
     print_styled(WELCOME_MESSAGE, bcolors.OKGREEN)
     print_styled(
         "👋 First things first, let's set up your environment.", bcolors.MAGENTA
@@ -23,6 +25,7 @@ def wrap_up(deployments):
             "🔑 For SageMaker ensure you have run `aws configure` before `make dev` for authentication.",
             bcolors.OKGREEN,
         )
+
 
 def show_examples():
     print_styled("📚 Here are some examples to get you started:", bcolors.OKCYAN)
@@ -67,4 +70,3 @@ def show_examples():
         "For more examples, please visit the Cohere Toolkit README.md",
         bcolors.MAGENTA,
     )
-

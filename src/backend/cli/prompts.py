@@ -1,23 +1,15 @@
 import inquirer
 
-from backend.cli.utils import print_styled
-from backend.cli.setters import write_env_file
 from backend.cli.constants import (
-    bcolors,
-
-    BuildTarget,
     DATABASE_URL_DEFAULT,
-    REDIS_URL_DEFAULT,
-    NEXT_PUBLIC_API_HOSTNAME_DEFAULT,
     FRONTEND_HOSTNAME_DEFAULT,
-    BASE_CONFIG_PATH,
-    CONFIG_FILE_PATH,
-    CONFIG_TEMPLATE_PATH,
-    SECRETS_FILE_PATH,
-    SECRETS_TEMPLATE_PATH,
-    DOT_ENV_FILE_PATH,
-    TOOLS,
+    NEXT_PUBLIC_API_HOSTNAME_DEFAULT,
+    REDIS_URL_DEFAULT,
+    BuildTarget,
+    bcolors,
 )
+from backend.cli.setters import write_env_file
+from backend.cli.utils import print_styled
 
 
 def cohere_api_key_prompt(secrets):
@@ -141,7 +133,9 @@ def select_deployments_prompt(deployments, _):
     )
     return deployments
 
+
 PROMPTS = {
+    "api_key": cohere_api_key_prompt,
     "core": core_env_var_prompt,
     "build_target": build_target_prompt,
 }

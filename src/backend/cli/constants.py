@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+
 class bcolors:
     OKCYAN = "\033[96m"
     OKGREEN = "\033[92m"
@@ -24,6 +25,7 @@ class BuildTarget(StrEnum):
 class ToolName(StrEnum):
     PythonInterpreter = "Python Interpreter"
     TavilyInternetSearch = "Tavily Internet Search"
+
 
 WELCOME_MESSAGE = r"""
  █████╗  █████╗ ██╗  ██╗███████╗██████╗ ███████╗ ████████╗ █████╗  █████╗ ██╗     ██╗  ██╗██╗████████╗
