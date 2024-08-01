@@ -25,7 +25,7 @@ from backend.schemas.metrics import (
     MetricsSignal,
 )
 from backend.services.context import get_context
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -72,6 +72,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return response
 
     def _confirm_env(self):
+        logger = LoggerFactory().get_logger()
         if not REPORT_SECRET:
             logger.warning(event="[Metrics] No report secret set")
         if not REPORT_ENDPOINT:
@@ -114,7 +115,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         event_type = ctx.get_event_type()
         if self._should_send_signal(signal, event_type, response):
             # signal is being checked in the condition above
-            response.background = BackgroundTask(report_metrics, signal)  # type: ignore
+            response.background = BackgroundTask(report_metrics, signal, ctx)  # type: ignore
 
     def _get_event_signal(
         self, request: Request, duration_ms: float, ctx: Context
@@ -125,6 +126,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         message_type = ctx.get_event_type()
         if not message_type:
             return None
+
+        logger = ctx.get_logger()
 
         user = ctx.get_metrics_user()
         # when user is created, user_id is not in the header
@@ -161,7 +164,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return data
 
 
-async def report_metrics(signal: MetricsSignal) -> None:
+async def report_metrics(signal: MetricsSignal, ctx: Context) -> None:
     """
     Reports the given metrics signal to the specified endpoint.
     This is the key function for reporting metrics. It should never throw exceptions but log them.
@@ -172,8 +175,10 @@ async def report_metrics(signal: MetricsSignal) -> None:
     Returns:
         None
     """
+    logger = ctx.get_logger()
+
     if METRICS_LOGS_CURLS == "true":
-        MetricsHelper.log_signal_curl(signal)
+        MetricsHelper.log_signal_curl(signal, ctx)
     if not REPORT_SECRET:
         return
     if not REPORT_ENDPOINT:
@@ -253,7 +258,8 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 class MetricsHelper:
     # TODO: remove the logging once metrics are configured correctly
     @staticmethod
-    def log_signal_curl(signal: MetricsSignal) -> None:
+    def log_signal_curl(signal: MetricsSignal, ctx: Context) -> None:
+        logger = ctx.get_logger()
         s = to_dict(signal)
         s["signal"]["secret"] = "'$SECRET'"
         json_signal = json.dumps(s)
@@ -269,6 +275,8 @@ class ChatMetricHelper:
     def report_streaming_chat_event(
         event: dict[str, Any], ctx: Context, **kwargs: Any
     ) -> None:
+        logger = ctx.get_logger()
+
         try:
             event_type = event["event_type"]
             if event_type == StreamEvent.STREAM_START:
@@ -341,7 +349,7 @@ class ChatMetricHelper:
             )
             signal = MetricsSignal(signal=metrics)
             # do not await, fire and forget
-            asyncio.create_task(report_metrics(signal))
+            asyncio.create_task(report_metrics(signal, ctx))
 
         except Exception as e:
             logger.error(event=f"Failed to report streaming event: {e}")
@@ -353,6 +361,8 @@ class RerankMetricsHelper:
     def report_rerank_metrics(
         response: Any, duration_ms: float, ctx: Context, **kwargs: Any
     ):
+        logger = ctx.get_logger()
+
         try:
             (trace_id, model, user_id, agent, agent_id) = (
                 RerankMetricsHelper._get_init_data(ctx)
@@ -388,7 +398,7 @@ class RerankMetricsHelper:
                 duration_ms=duration_ms,
             )
             signal = MetricsSignal(signal=metrics_data)
-            asyncio.create_task(report_metrics(signal))
+            asyncio.create_task(report_metrics(signal, ctx))
         except Exception as e:
             logger.error(event=f"[Metrics] Error reporting rerank metrics: {e}")
 
@@ -396,6 +406,8 @@ class RerankMetricsHelper:
     def report_rerank_failed_metrics(
         duration_ms: float, error: Exception, ctx: Context, **kwargs: Any
     ):
+        logger = ctx.get_logger()
+
         try:
             (trace_id, model, user_id, agent, agent_id) = (
                 RerankMetricsHelper._get_init_data(ctx)
@@ -415,7 +427,7 @@ class RerankMetricsHelper:
                 error=error_message,
             )
             signal = MetricsSignal(signal=metrics_data)
-            asyncio.create_task(report_metrics(signal))
+            asyncio.create_task(report_metrics(signal, ctx))
         except Exception as e:
             logger.error(event=f"Failed to report rerank metrics: {e}")
 
