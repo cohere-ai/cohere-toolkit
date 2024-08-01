@@ -2,10 +2,11 @@ import Link from 'next/link';
 import React, { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
 import { Icon, IconName, Spinner, Text } from '@/components/Shared';
+import { COHERE_BRANDED_COLORS } from '@/constants';
 import { cn } from '@/utils';
 
 export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';
-export type ButtonTheme = 'blue' | 'coral' | 'evolved-green' | 'quartz' | 'mushroom' | 'danger';
+export type ButtonTheme = COHERE_BRANDED_COLORS;
 
 const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (disabled) {

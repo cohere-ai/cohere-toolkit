@@ -20,6 +20,11 @@ export const AllStyles: StoryFn<typeof Button> = () => (
         <Button kind="primary" icon="add" label="Primary" theme="coral" />
         <Button kind="primary" icon="add" label="Primary" theme="quartz" />
         <Button kind="primary" icon="add" label="Primary" theme="mushroom" />
+        <Button kind="primary" icon="add" label="Primary" theme="danger" />
+        <Button kind="primary" icon="add" label="Primary" theme="evolved-blue" />
+        <Button kind="primary" icon="add" label="Primary" theme="evolved-mushroom" />
+        <Button kind="primary" icon="add" label="Primary" theme="evolved-quartz" />
+        <Button kind="primary" icon="add" label="Primary" theme="green" />
         <Button kind="primary" icon="add" label="Primary" theme="evolved-green" disabled />
       </div>
     </div>
