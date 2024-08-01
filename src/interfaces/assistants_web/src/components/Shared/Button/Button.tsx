@@ -189,7 +189,6 @@ export const Button: React.FC<ButtonProps> = ({
         className={cn(
           'group flex h-cell-button items-center justify-center rounded-md',
           buttonStyles,
-          className,
           {
             'h-fit justify-start': kind === 'secondary',
             'space-x-3': !animateStyles,
@@ -202,6 +201,7 @@ export const Button: React.FC<ButtonProps> = ({
           <div
             className={cn(animateStyles, {
               'px-2': kind === 'outline',
+              'w-full': stretch,
             })}
           >
             {labelElement}
@@ -220,10 +220,14 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       rel={rel}
       target={target}
-      className={cn('group select-none', {
-        'cursor-not-allowed': disabled,
-        'w-full': stretch,
-      })}
+      className={cn(
+        'group select-none',
+        {
+          'cursor-not-allowed': disabled,
+          'w-full': stretch,
+        },
+        className
+      )}
     >
       {inner}
     </Link>
@@ -233,10 +237,14 @@ export const Button: React.FC<ButtonProps> = ({
       type={buttonType}
       disabled={disabled}
       onClick={onClick}
-      className={cn('group select-none', {
-        'cursor-not-allowed': disabled,
-        'w-full': stretch,
-      })}
+      className={cn(
+        'group select-none',
+        {
+          'cursor-not-allowed': disabled,
+          'w-full': stretch,
+        },
+        className
+      )}
     >
       {inner}
     </button>
