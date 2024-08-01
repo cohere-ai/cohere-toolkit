@@ -16,7 +16,7 @@ def test_create_file(session, user):
         file_name="test.txt",
         file_path="/tmp/test.txt",
         file_size=100,
-        user_id="1",
+        user_id=user.id,
     )
 
     file = file_crud.create_file(session, file_data)

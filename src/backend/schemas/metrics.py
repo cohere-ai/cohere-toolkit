@@ -57,7 +57,7 @@ class MetricsAgent(BaseModel):
     version: int
     name: str
     temperature: float
-    model: str
+    model: str | None
     deployment: str | None
     preamble: str | None
     description: str | None
@@ -109,8 +109,8 @@ def agent_to_metrics_agent(agent: Agent | None) -> MetricsAgent:
         version=agent.version,
         name=agent.name,
         temperature=agent.temperature,
-        model=agent.model,
-        deployment=agent.deployment,
+        model=agent.model.name if agent.model else None,
+        deployment=agent.deployment.name if agent.deployment else None,
         preamble=agent.preamble,
         description=agent.description,
     )

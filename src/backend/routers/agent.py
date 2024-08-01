@@ -90,10 +90,6 @@ async def create_agent(
     try:
         created_agent = agent_crud.create_agent(session, agent_data)
 
-        agent_schema = Agent.model_validate(created_agent)
-        ctx.with_agent(agent_schema)
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
-
         if agent.tools_metadata:
             for tool_metadata in agent.tools_metadata:
                 await update_or_create_tool_metadata(
@@ -113,6 +109,11 @@ async def create_agent(
                 deployment_config=deployment_config,
                 set_default=True,
             )
+
+        agent_schema = Agent.model_validate(created_agent)
+        ctx.with_agent(agent_schema)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
+
         return created_agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

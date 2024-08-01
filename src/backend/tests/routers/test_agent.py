@@ -423,39 +423,6 @@ async def test_get_default_agent_mertic(
 
 
 def test_get_agent(session_client: TestClient, session: Session, user) -> None:
-    agent = get_factory("Agent", session).create(name="test agent", user=user)
-    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
-        user_id=user.id,
-        agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
-        artifacts=[
-            {
-                "name": "/folder1",
-                "ids": "folder1",
-                "type": "folder_id",
-            },
-            {
-                "name": "file1.txt",
-                "ids": "file1",
-                "type": "file_id",
-            },
-        ],
-    )
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.get(
-            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
-        assert m_args.assistant.name == agent.name
-
-
-def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,

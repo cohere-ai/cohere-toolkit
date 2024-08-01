@@ -135,7 +135,6 @@ def test_delete_message_cascade(session, conversation, user):
         message_id=message.id, conversation_id=conversation.id, user_id=user.id
     )
     document_id = document.id
-
     message_crud.delete_message(session, message.id, user.id)
 
     message = message_crud.get_message(session, message.id, user.id)
@@ -145,11 +144,11 @@ def test_delete_message_cascade(session, conversation, user):
 
     citation = citation_crud.get_citation(session, citation_id)
     assert citation is None
-    assert citation_crud.get_citations(session, user.id) == []
+    assert citation_crud.get_citations(session) == []
 
     document = document_crud.get_document(session, document_id)
     assert document is None
-    assert document_crud.get_documents(session, user.id) == []
+    assert document_crud.get_documents(session) == []
 
 
 def test_create_message_file_association(session, conversation, user):
