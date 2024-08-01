@@ -297,15 +297,11 @@ class FileService:
 def get_files_in_compass(file_ids: list[str], user_id: str) -> list[File]:
     files = []
     for file_id in file_ids:
-        fetched_doc = (
-            get_compass()
-            .invoke(
+        fetched_doc = get_compass().invoke(
                 action=Compass.ValidActions.GET_DOCUMENT,
                 parameters={"index": file_id, "file_id": file_id},
-            )
-            .result["doc"]["content"]
-        )
-
+        ).result["doc"]["content"]
+        
         files.append(
             File(
                 id=file_id,
