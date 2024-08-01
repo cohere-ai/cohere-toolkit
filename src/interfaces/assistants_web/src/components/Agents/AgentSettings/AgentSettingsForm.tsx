@@ -187,6 +187,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
       >
         <VisibilityStep
           isPublic={true}
+          // TODO: add visibility when available
           setIsPublic={(isPublic: boolean) => alert('to be developed!')}
         />
         <StepButtons

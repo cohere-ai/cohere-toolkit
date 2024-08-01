@@ -16,7 +16,7 @@ export const VisibilityStep: React.FC<Props> = ({ isPublic, setIsPublic }) => {
             value: 'public',
             label: 'Company (Everyone in your organization can access)',
           },
-          { value: 'private', label: 'Private (Only you can access)' },
+          // { value: 'private', label: 'Private (Only you can access)' },
         ]}
         onChange={(val) => setIsPublic(val === 'public')}
       />
