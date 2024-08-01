@@ -5,7 +5,7 @@ import { useCookies } from 'next-client-cookies';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
-import { clearAuthToken, setAuthToken } from '@/app/actions.server';
+import { clearAuthToken, setAuthToken } from '@/app/server.actions';
 import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
 import { COOKIE_KEYS } from '@/constants';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';

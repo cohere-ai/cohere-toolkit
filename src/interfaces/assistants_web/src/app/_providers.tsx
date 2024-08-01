@@ -6,7 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { clearAuthToken } from '@/app/actions.server';
+import { clearAuthToken } from '@/app/server.actions';
 import {
   CohereClient,
   CohereClientProvider,
