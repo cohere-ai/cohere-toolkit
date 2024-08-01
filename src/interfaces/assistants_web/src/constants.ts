@@ -85,3 +85,17 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon?: IconName } } = {
 
 export const MAX_TIMEOUT_PREFETCH = 5000;
 export const DEFAULT_AGENT_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
+
+export type COHERE_BRANDED_COLORS =
+  | 'blue'
+  | 'evolved-blue'
+  | 'coral'
+  | 'green'
+  | 'evolved-green'
+  | 'quartz'
+  | 'evolved-quartz'
+  | 'mushroom'
+  | 'evolved-mushroom'
+  | 'marble'
+  | 'volcanic'
+  | 'danger';
