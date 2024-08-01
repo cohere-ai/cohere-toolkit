@@ -36,3 +36,4 @@ class AgentFactory(BaseFactory):
     )
     model = "command-r-plus"
     deployment = ModelDeploymentName.CoherePlatform
+    is_private = False

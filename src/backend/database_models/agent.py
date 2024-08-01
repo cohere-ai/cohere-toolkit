@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import JSON, Float, ForeignKey, Integer, Text, UniqueConstraint
+from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
@@ -18,6 +18,7 @@ class Agent(Base):
 
     tools: Mapped[list[str]] = mapped_column(JSON, default=[], nullable=False)
     tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata")
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later

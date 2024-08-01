@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import HTTPException
 
 from backend.crud import agent as agent_crud
@@ -42,3 +44,35 @@ def raise_db_error(e: Exception, type: str, name: str):
         )
 
     raise HTTPException(status_code=500, detail=str(e))
+
+
+def get_public_and_private_agents(
+    session: DBSessionDep,
+    user_id: str,
+    organization_id: Optional[str] = None,
+    offset: int = 0,
+    limit: int = 100,
+) -> list[Agent]:
+    public_agents = agent_crud.get_public_agents(
+        session, organization_id=organization_id, offset=offset, limit=limit
+    )
+    private_agents = agent_crud.get_private_agents(
+        session, user_id=user_id, offset=offset, limit=limit
+    )
+
+    return public_agents + private_agents
+
+
+def validate_user_has_access_to_agent(user_id: str, agent: Agent | None) -> bool:
+    # Check if agent exists and user has access to it
+    error = None
+    if not agent:
+        error = "Agent not found."
+
+    if agent and agent.user_id != user_id and not agent.is_private:
+        error = f"Agent with ID: {agent.id} not found."
+
+    if error:
+        raise HTTPException(status_code=404, detail=error)
+
+    return True

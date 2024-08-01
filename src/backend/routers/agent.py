@@ -28,9 +28,11 @@ from backend.schemas.metrics import (
     agent_to_metrics_agent,
 )
 from backend.services.agent import (
+    get_public_and_private_agents,
     raise_db_error,
     validate_agent_exists,
     validate_agent_tool_metadata_exists,
+    validate_user_has_access_to_agent,
 )
 from backend.services.context import get_context
 from backend.services.request_validators import (
@@ -84,6 +86,7 @@ async def create_agent(
         model=agent.model,
         deployment=agent.deployment,
         tools=agent.tools,
+        is_private=agent.is_private,
     )
 
     try:
@@ -124,8 +127,12 @@ async def list_agents(
     Returns:
         list[AgentPublic]: List of agents with no user ID or organization ID.
     """
+    user_id = ctx.get_user_id()
+
     try:
-        return agent_crud.get_agents(session, offset=offset, limit=limit)
+        return get_public_and_private_agents(
+            session=session, user_id=user_id, offset=offset, limit=limit
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -148,6 +155,8 @@ async def get_agent_by_id(
         HTTPException: If the agent with the given ID is not found.
     """
     ctx.with_event_type(MetricsMessageType.ASSISTANT_ACCESSED)
+    user_id = ctx.get_user_id()
+    agent = None
 
     try:
         agent = agent_crud.get_agent_by_id(session, agent_id)
@@ -156,9 +165,11 @@ async def get_agent_by_id(
 
     if not agent:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Agent with ID: {agent_id} not found.",
         )
+
+    validate_user_has_access_to_agent(user_id, agent)
 
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
@@ -199,7 +210,9 @@ async def update_agent(
     """
     ctx.with_user(session)
     ctx.with_event_type(MetricsMessageType.ASSISTANT_UPDATED)
+    user_id = ctx.get_user_id()
     agent = validate_agent_exists(session, agent_id)
+    validate_user_has_access_to_agent(user_id, agent)
 
     if new_agent.tools_metadata is not None:
         agent = await handle_tool_metadata_update(agent, new_agent, session, ctx)
@@ -302,7 +315,10 @@ async def delete_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
+    user_id = ctx.get_user_id()
     agent = validate_agent_exists(session, agent_id)
+    validate_user_has_access_to_agent(user_id, agent)
+
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
@@ -336,12 +352,22 @@ async def list_agent_tool_metadata(
     Raises:
         HTTPException: If the agent tool metadata retrieval fails.
     """
+    user_id = ctx.get_user_id()
+    tool_metadata = []
+    agent = None
+
     try:
-        return agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
-            session, agent_id
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        tool_metadata = (
+            agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
+                session, agent_id
+            )
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    validate_user_has_access_to_agent(user_id, agent)
+    return tool_metadata
 
 
 @router.post(
@@ -370,7 +396,10 @@ def create_agent_tool_metadata(
         HTTPException: If the agent tool metadata creation fails.
     """
     user_id = ctx.get_user_id()
+
     agent = validate_agent_exists(session, agent_id)
+    validate_user_has_access_to_agent(user_id, agent)
+
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
 
@@ -421,6 +450,11 @@ async def update_agent_tool_metadata(
         HTTPException: If the agent tool metadata with the given ID is not found.
         HTTPException: If the agent tool metadata update fails.
     """
+    user_id = ctx.get_user_id()
+
+    agent = validate_agent_exists(session, agent_id)
+    validate_user_has_access_to_agent(user_id, agent)
+
     agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id
     )
@@ -460,6 +494,11 @@ async def delete_agent_tool_metadata(
         HTTPException: If the agent tool metadata with the given ID is not found.
         HTTPException: If the agent tool metadata deletion fails.
     """
+    user_id = ctx.get_user_id()
+
+    agent = validate_agent_exists(session, agent_id)
+    validate_user_has_access_to_agent(user_id, agent)
+
     agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id
     )

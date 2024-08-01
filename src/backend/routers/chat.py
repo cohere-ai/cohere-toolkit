@@ -16,6 +16,7 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.langchain_chat import LangchainChatRequest
 from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
+from backend.services.agent import validate_user_has_access_to_agent
 from backend.services.chat import (
     generate_chat_response,
     generate_chat_stream,
@@ -53,9 +54,11 @@ async def chat_stream(
     ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id
     ctx.with_agent_id(agent_id)
+    user_id = ctx.get_user_id()
 
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
+        validate_user_has_access_to_agent(user_id, agent)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
         agent_tool_metadata = (
@@ -128,9 +131,11 @@ async def chat(
     ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id
     ctx.with_agent_id(agent_id)
+    user_id = ctx.get_user_id()
 
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
+        validate_user_has_access_to_agent(user_id, agent)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
         agent_tool_metadata = (

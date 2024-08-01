@@ -54,7 +54,7 @@ def get_agent_by_name(db: Session, agent_name: str) -> Agent:
     return db.query(Agent).filter(Agent.name == agent_name).first()
 
 
-def get_agents(
+def get_public_agents(
     db: Session,
     offset: int = 0,
     limit: int = 100,
@@ -75,9 +75,39 @@ def get_agents(
     query = db.query(Agent)
 
     if organization_id is not None:
-        query = query.filter(Agent.organization_id == organization_id)
+        # Piblic agents -> is_private = False or None
+        query = query.filter(
+            Agent.organization_id == organization_id, not Agent.is_private
+        )
 
     query = query.offset(offset).limit(limit)
+    return query.all()
+
+
+def get_private_agents(
+    db: Session,
+    user_id: str,
+    offset: int = 0,
+    limit: int = 100,
+) -> list[Agent]:
+    """
+    Get all agents for a user.
+
+    Args:
+      db (Session): Database session.
+      offset (int): Offset of the results.
+      limit (int): Limit of the results.
+      organization_id (str): Organization ID.
+
+    Returns:
+      list[Agent]: List of agents.
+    """
+    query = (
+        db.query(Agent)
+        .filter(Agent.user_id == user_id, Agent.is_private is True)
+        .offset(offset)
+        .limit(limit)
+    )
     return query.all()
 
 

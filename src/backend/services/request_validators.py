@@ -9,6 +9,10 @@ from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
+from backend.services.agent import (
+    validate_agent_exists,
+    validate_user_has_access_to_agent,
+)
 from backend.services.auth.utils import get_header_user_id
 
 
@@ -68,15 +72,12 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
     """
     # Validate that the agent_id is valid
     body = await request.json()
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
 
     agent_id = request.query_params.get("agent_id")
     if agent_id:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        if agent is None:
-            raise HTTPException(
-                status_code=400, detail=f"Agent with ID {agent_id} not found."
-            )
+        agent = validate_agent_exists(session, agent_id)
+        validate_user_has_access_to_agent(user_id, agent)
 
     # If conversation_id is passed in with agent_id, then make sure that conversation exists with the agent_id
     conversation_id = body.get("conversation_id")

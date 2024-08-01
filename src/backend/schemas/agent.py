@@ -60,6 +60,7 @@ class Agent(AgentBase):
     temperature: float
     tools: list[str]
     tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
+    is_private: bool
 
     model: str
     deployment: str
@@ -85,6 +86,7 @@ class CreateAgentRequest(BaseModel):
     deployment: str
     tools: Optional[list[str]] = []
     tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
+    is_private: Optional[bool] = False
 
     class Config:
         from_attributes = True

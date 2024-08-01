@@ -145,12 +145,12 @@ def test_list_agents(session, user):
             id=i, name=f"test_agent_{i}", user_id=user.id
         )
 
-    agents = agent_crud.get_agents(session)
+    agents = agent_crud.get_public_agents(session)
     assert len(agents) == length
 
 
 def test_list_agents_empty(session, user):
-    agents = agent_crud.get_agents(session)
+    agents = agent_crud.get_public_agents(session)
     assert len(agents) == 0
 
 
@@ -158,7 +158,7 @@ def test_list_conversations_with_pagination(session, user):
     for i in range(10):
         get_factory("Agent", session).create(name=f"Agent {i}", user_id=user.id)
 
-    agents = agent_crud.get_agents(session, offset=5, limit=5)
+    agents = agent_crud.get_public_agents(session, offset=5, limit=5)
     assert len(agents) == 5
 
 
