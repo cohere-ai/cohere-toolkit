@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Union
 from urllib.parse import quote
 
@@ -24,7 +23,6 @@ from backend.services.auth.utils import (
 )
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
-from backend.services.logger.utils import logger
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -87,6 +85,7 @@ async def login(
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
     """
+    logger = ctx.get_logger()
     strategy_name = login.strategy
     payload = login.payload
 
@@ -150,6 +149,8 @@ async def authorize(
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
     """
+    logger = ctx.get_logger()
+
     if not code:
         logger.error(
             event="[Auth] Error authorizing login: No code provided",
@@ -257,6 +258,7 @@ async def login(
     Raises:
         HTTPException: If no redirect_uri set.
     """
+    logger = ctx.get_logger()
     redirect_uri = Settings().auth.frontend_hostname
 
     if not redirect_uri:

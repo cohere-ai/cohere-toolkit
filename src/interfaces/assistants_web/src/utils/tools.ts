@@ -1,4 +1,6 @@
 import { Document } from '@/cohere-client';
+import { IconName } from '@/components/Shared';
+import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 
 type PythonInterpreterFieldsBase = {
   snippet?: string; // citation snippet, will either be the stdout, stderr, or the file name
@@ -75,4 +77,8 @@ export const parsePythonInterpreterToolFields = (document: Document) => {
     error,
     outputFile,
   };
+};
+
+export const getToolIcon = (toolId?: string | null): IconName => {
+  return TOOL_ID_TO_DISPLAY_INFO[toolId ?? '']?.icon ?? TOOL_FALLBACK_ICON;
 };

@@ -9,38 +9,46 @@ export type ButtonTheme = 'blue' | 'coral' | 'evolved-green' | 'quartz' | 'mushr
 
 const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (disabled) {
-    return cn('text-volcanic-700 fill-volcanic-700');
+    switch (kind) {
+      case 'primary':
+      case 'cell':
+      case 'outline':
+        return cn('dark:text-volcanic-200 dark:fill-volcanic-200');
+      case 'secondary':
+        return cn('dark:text-volcanic-700 dark:fill-volcanic-700');
+      default:
+        return cn('dark:text-volcanic-100 dark:fill-volcanic-100');
+    }
   }
 
   switch (kind) {
     case 'primary':
     case 'cell':
-      if (theme === 'evolved-green') {
-        return cn('text-volcanic-150 fill-volcanic-150');
-      }
+      return cn('dark:text-marble-950 dark:fill-marble-950', {
+        // dark mode
+        'dark:text-volcanic-150 dark:fill-volcanic-150': theme === 'evolved-green',
+      });
+
     case 'secondary':
-      if (theme === 'evolved-green') {
-        return cn(
-          // light mode
-          'text-coral-500 fill-coral-500',
-          'group-hover:text-coral-500 group-hover:fill-coral-500',
-          // dark mode
-          'dark:text-evolved-green-700 dark:fill-evolved-green-700',
-          'dark:group-hover:text-evolved-green-700 dark:group-hover:fill-evolved-green-700'
-        );
-      } else if (theme === 'danger') {
-        return cn(
-          'text-danger-500 fill-danger-500',
-          'group-hover:text-danger-350 group-hover:fill-danger-350'
-        );
-      }
+      return cn('dark:text-marble-950 dark:fill-marble-950', {
+        // light mode
+        'text-coral-500 fill-coral-500 group-hover:text-coral-500 group-hover:fill-coral-500':
+          theme == 'evolved-green',
+        'text-danger-500 fill-danger-500 group-hover:text-danger-350 group-hover:fill-danger-350':
+          theme == 'danger',
+
+        // dark mode
+        'dark:text-evolved-green-700 dark:fill-evolved-green-700 dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500':
+          theme == 'evolved-green',
+      });
+
     default:
       return cn(
         // light mode
         'text-volcanic-100 volcanic-100',
         'group-hover:text-volcanic-150 group-hover:fill-volcanic-150',
         // dark mode
-        'dark:text-marble-950 dark:fill-marble-950',
+        'dark:text-marble-950 dark:fill-marble-950 dark:disabled:text-volcanic-700',
         'dark:group-hover:text-marble-1000 dark:group-hover:fill-marble-1000'
       );
   }
@@ -52,23 +60,23 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
 
   if (kind === 'outline') {
     return cn('border', {
-      'border-danger-500 group-hover:border-danger-350': theme === 'danger',
       'border-evolved-green-700 group-hover:border-evolved-green-500': theme === 'evolved-green',
       'border-blue-500 group-hover:border-blue-400': theme === 'blue',
       'border-coral-700 group-hover:border-coral-600': theme === 'coral',
       'border-quartz-500 group-hover:border-quartz-400': theme === 'quartz',
       'border-mushroom-500 group-hover:border-mushroom-400': theme === 'mushroom',
-    });
-  } else {
-    return cn({
-      'bg-danger-500 group-hover:bg-danger-350': theme === 'danger',
-      'bg-evolved-green-700 group-hover:bg-evolved-green-500': theme === 'evolved-green',
-      'bg-blue-500 group-hover:bg-blue-400': theme === 'blue',
-      'fill-coral-700 bg-coral-700 group-hover:bg-coral-600': theme === 'coral',
-      'bg-quartz-500 group-hover:bg-quartz-400': theme === 'quartz',
-      'bg-mushroom-500 group-hover:bg-mushroom-400': theme === 'mushroom',
+      'border-danger-500 group-hover:border-danger-350': theme === 'danger',
     });
   }
+
+  return cn({
+    'bg-evolved-green-700 group-hover:bg-evolved-green-500': theme === 'evolved-green',
+    'bg-blue-500 group-hover:bg-blue-400': theme === 'blue',
+    'fill-coral-700 bg-coral-700 group-hover:bg-coral-600': theme === 'coral',
+    'bg-quartz-500 group-hover:bg-quartz-400': theme === 'quartz',
+    'bg-mushroom-500 group-hover:bg-mushroom-400': theme === 'mushroom',
+    'bg-danger-500 group-hover:bg-danger-350': theme === 'danger',
+  });
 };
 
 const getCellStyles = (theme: ButtonTheme, disabled: boolean) => {
@@ -166,14 +174,17 @@ export const Button: React.FC<ButtonProps> = ({
           'group flex h-cell-button items-center justify-center rounded-md',
           buttonStyles,
           className,
-          { 'h-fit justify-start': kind === 'secondary', 'space-x-3': !animateStyles }
+          {
+            'h-fit justify-start': kind === 'secondary',
+            'space-x-3': !animateStyles,
+            'px-5': kind !== 'secondary',
+          }
         )}
       >
         {iconPosition === 'start' && iconElement}
         {labelElement && (
           <div
             className={cn(animateStyles, {
-              'w-full': stretch,
               'px-2': kind === 'outline',
             })}
           >
@@ -193,7 +204,10 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       rel={rel}
       target={target}
-      className={cn({ 'cursor-not-allowed': disabled, 'w-full': stretch })}
+      className={cn('group select-none', {
+        'cursor-not-allowed': disabled,
+        'w-full': stretch,
+      })}
     >
       {inner}
     </Link>
@@ -203,7 +217,10 @@ export const Button: React.FC<ButtonProps> = ({
       type={buttonType}
       disabled={disabled}
       onClick={onClick}
-      className={cn({ 'cursor-not-allowed': disabled, 'w-full': stretch })}
+      className={cn('group select-none', {
+        'cursor-not-allowed': disabled,
+        'w-full': stretch,
+      })}
     >
       {inner}
     </button>

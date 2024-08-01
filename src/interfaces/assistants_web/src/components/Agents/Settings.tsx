@@ -1,9 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { PropsWithChildren, useState } from 'react';
 
-import GoogleDriveIconSVG from '@/assets/svg/google-drive-icon.svg';
 import { DarkModeToggle } from '@/components/DarkMode';
 import { Button, Icon, Tabs, Text, Tooltip } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
@@ -123,7 +121,7 @@ const GoogleDriveConnection = () => {
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
       <header className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Image src={GoogleDriveIconSVG} alt={`Icon for Google Drive`} width={32} height={32} />
+          <Icon name="google-drive" size="xl" />
           <Text className="text-volcanic-400 dark:text-mushroom-950">Google Drive</Text>
         </div>
         <StatusConnection connected={isGoogleDriveConnected} />

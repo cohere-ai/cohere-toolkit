@@ -1,4 +1,3 @@
-import os
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional
 
@@ -41,7 +40,9 @@ class BaseTool:
         pass
 
     @abstractmethod
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]: ...
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]: ...
 
 
 class BaseToolAuthentication:
