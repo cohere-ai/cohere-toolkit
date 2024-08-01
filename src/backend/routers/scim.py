@@ -62,6 +62,42 @@ async def get_users(
         Resources=users,
     )
 
+@router.get("/Groups")
+async def get_groups(
+    session: DBSessionDep,
+    count: int = 100,
+    start_index: int = 1,
+    filter: Optional[str] = None,
+) -> ListUserResponse:
+    if filter:
+        single_filter = filter.split(" ")
+        filter_value = single_filter[2].strip('"')
+        db_group = group_repo.get_group_by_name(session, filter_value)
+        if not db_group:
+            return ListUserResponse(
+                totalResults=0,
+                startIndex=start_index,
+                itemsPerPage=count,
+                Resources=[],
+            )
+        return ListUserResponse(
+            totalResults=1,
+            startIndex=start_index,
+            itemsPerPage=count,
+            Resources=[Group.from_db_group(db_group)],
+        )
+
+    db_users = user_repo.get_external_users(
+        session, offset=start_index - 1, limit=count
+    )
+    users = [User.from_db_user(db_user) for db_user in db_users]
+    return ListUserResponse(
+        totalResults=len(users),
+        startIndex=start_index,
+        itemsPerPage=count,
+        Resources=users,
+    )
+
 
 @router.get("/Users/{user_id}")
 async def get_user(user_id: str, session: DBSessionDep):

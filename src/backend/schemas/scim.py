@@ -1,7 +1,9 @@
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 from pydantic import BaseModel
-from backend.database_models import User as DBUser, Group as DBGroup
+
+from backend.database_models import Group as DBGroup
+from backend.database_models import User as DBUser
 
 
 class Meta(BaseModel):
@@ -9,8 +11,6 @@ class Meta(BaseModel):
     created: str
     lastModified: str
 
-class GroupMeta(BaseModel):
-    resourceType: str
 
 class Name(BaseModel):
     givenName: str
@@ -54,14 +54,20 @@ class PatchUser(BaseModel):
 
 
 class Group(BaseGroup):
+    id: str
+    displayName: str
+    meta: Meta
+
     @staticmethod
     def from_db_group(db_group: DBGroup) -> "Group":
         return Group(
             id=db_group.id,
             displayName=db_group.display_name,
             members=db_group.members,
-            meta=GroupMeta(
+            meta=Meta(
                 resourceType="Group",
+                created=db_group.created_at.isoformat(),
+                lastModified=db_group.updated_at.isoformat(),
             ),
             schemas=["urn:ietf:params:scim:schemas:core:2.0:Group"],
         )
@@ -90,11 +96,18 @@ class User(BaseUser):
         )
 
 
-class ListUserResponse(BaseModel):
+class BaseListResponse(BaseModel):
     schemas: ClassVar[list[str]] = [
         "urn:ietf:params:scim:api:messages:2.0:ListResponse"
     ]
     totalResults: int
     startIndex: int
     itemsPerPage: int
+
+
+class ListUserResponse(BaseListResponse):
     Resources: list[User]
+
+
+class ListGroupResponse(BaseModel):
+    Resources: list[Group]
