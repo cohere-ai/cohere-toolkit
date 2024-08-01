@@ -14,7 +14,6 @@ from starlette.responses import Response
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.metrics import (
     MetricsData,
