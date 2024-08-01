@@ -21,4 +21,5 @@ class LoggerFactory:
         if strategy == "structlog":
             return StructuredLogging(level, renderer)
         else:
+            # Default to StructuredLogging
             return StructuredLogging(level, renderer)
