@@ -4,6 +4,13 @@ module.exports = {
   content: ['src/**/*.{js,jsx,ts,tsx}'],
   plugins: [require('@tailwindcss/typography')],
   darkMode: 'selector',
+  safelist: [
+    {
+      pattern:
+        /(bg|text|border|fill)-(blue|evolved-blue|coral|green|evolved-green|quartz|evolved-quartz|mushroom|evolved-mushroom|marble|volcanic|danger)-\S+/,
+      variants: ['hover', 'dark', 'dark:hover'],
+    },
+  ],
   theme: {
     extend: {
       screens: {
