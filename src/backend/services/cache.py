@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 from redis import Redis

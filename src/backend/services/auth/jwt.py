@@ -1,5 +1,4 @@
 import datetime
-import os
 import uuid
 
 import jwt

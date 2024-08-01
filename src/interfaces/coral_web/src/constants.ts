@@ -49,9 +49,15 @@ export const SETTINGS_DRAWER_ID = 'settings';
 export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
-  authToken: 'authToken',
   recentAgents: 'recentAgents',
   unauthedToolsModalDismissed: 'tools/unauthedModal/dismissed',
+};
+
+/**
+ * Cookies
+ */
+export const COOKIE_KEYS = {
+  authToken: 'authToken',
 };
 
 /**

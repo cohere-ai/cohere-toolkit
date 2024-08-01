@@ -1,4 +1,3 @@
-import os
 from typing import Any, Dict, List
 
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
