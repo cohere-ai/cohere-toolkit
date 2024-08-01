@@ -2,7 +2,6 @@
 
 import { useLocalStorageValue } from '@react-hookz/web';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -13,12 +12,11 @@ import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { Button, Icon, Spinner, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useContextStore } from '@/context';
-import { useAgent, useDeleteAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
-import { useChatRoutes } from '@/hooks/chatRoutes';
+import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 
 type Props = {
-  agentId?: string;
+  agentId: string;
 };
 
 const DEFAULT_FIELD_VALUES = {
@@ -29,10 +27,7 @@ const DEFAULT_FIELD_VALUES = {
 
 export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const { error, success } = useNotify();
-  const router = useRouter();
   const { data: agent, isLoading } = useAgent({ agentId });
-  const { mutateAsync: deleteAgent, isPending: isPendingDelete } = useDeleteAgent();
-  const { agentId: currentAgentId } = useChatRoutes();
   const { open, close } = useContextStore();
 
   const { mutateAsync: updateAgent } = useUpdateAgent();
@@ -78,14 +73,6 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
     }
   };
 
-  const handleDeleteAgent = async () => {
-    if (!agentId) return;
-    await deleteAgent({ agentId });
-    if (agentId === currentAgentId) {
-      router.push('/', undefined);
-    }
-  };
-
   const handleOpenDeleteModal = () => {
     if (!agent || !agent.name || !agentId) return;
     open({
@@ -111,7 +98,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   }
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-y-auto">
+    <div className="relative flex h-full w-full flex-col overflow-y-auto p-8">
       <header className="flex flex-col space-y-5 border-b px-12 py-10 dark:border-volcanic-150">
         <div className="flex items-center space-x-2">
           <Link href="/discover">
@@ -130,7 +117,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         savePendingAssistant={() => setPendingAssistant(fields)}
       />
       <div className={'flex w-full items-center justify-between py-5'}>
-        <Button label="Back" kind="secondary" href="/discover" />
+        <Button label="Cancel" kind="secondary" href="/discover" />
         <Button
           label="Update"
           theme="evolved-green"
