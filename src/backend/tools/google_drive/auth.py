@@ -60,6 +60,14 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         if auth is None:
             return True
 
+        # Check if token is valid
+        try:
+            auth.access_token
+            auth.refresh_token
+        except Exception as e:
+            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
+            return True
+
         if datetime.datetime.now() > auth.expires_at:
             if self.try_refresh_token(session, user_id, auth):
                 # Refreshed token successfully
