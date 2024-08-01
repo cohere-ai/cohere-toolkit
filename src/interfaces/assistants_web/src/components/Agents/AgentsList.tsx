@@ -35,6 +35,7 @@ export const AgentsList: React.FC = () => {
       conversations
         .sort(sortByDate)
         .map((conversation) => agents.find((agent) => agent.id === conversation.agent_id))
+        .concat(agents.sort((a, b) => b.created_at.localeCompare(a.created_at)))
         .filter((agent, index, self) => self.indexOf(agent) === index),
     [agents, conversations]
   );
