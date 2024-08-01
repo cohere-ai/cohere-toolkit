@@ -454,13 +454,10 @@ async def batch_upload_file(
             )
 
     # TODO: check if file already exists in DB once we have files per agents
-    compass = Compass()
-    result = compass.invoke(
-        action=Compass.ValidActions.CREATE_INDEX, parameters={"index": "foobar"}
-    )
+
     try:
         uploaded_files = await get_file_service().create_conversation_files(
-            session, files, user_id, conversation.id
+            session, files, user_id, conversation.id, ctx,
         )
     except Exception as e:
         raise HTTPException(

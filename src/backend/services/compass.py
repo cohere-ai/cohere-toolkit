@@ -157,7 +157,7 @@ class Compass:
             docs=compass_docs,
         )
         if error is not None:
-            message = ("[Compass] Error inserting document: {error}",)
+            message = (f"[Compass] Error inserting document: {error}",)
             logger.error(event=message)
             raise Exception(message)
 
@@ -267,6 +267,7 @@ class Compass:
                 custom_context=parameters.get("custom_context", None),
             )
         else:
+            print("raw parsing")
             return self._raw_parsing(
                 text=file_text,
                 file_id=file_id,
