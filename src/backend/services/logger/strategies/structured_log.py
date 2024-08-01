@@ -47,7 +47,6 @@ class StructuredLogging(BaseLogger):
 
     def setup(self, level: str = "info", renderer: str = "json"):
         level = getattr(logging, level.upper(), None)
-        # logging.basicConfig(level=level)
 
         structlog.contextvars.clear_contextvars()
 
@@ -75,7 +74,7 @@ class StructuredLogging(BaseLogger):
         structlog.configure(
             processors=processors,
             wrapper_class=structlog.make_filtering_bound_logger(level),
-            # cache_logger_on_first_use=True,  # Remove this line to make changes to the logger
+            cache_logger_on_first_use=True,  # Remove this line to make changes to the logger
         )
 
     @log_context
