@@ -496,7 +496,6 @@ def test_get_nonexistent_agent(
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
-
 def test_update_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",

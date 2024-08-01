@@ -5,6 +5,7 @@ from backend.config.routers import RouterName
 from backend.crud import deployment as deployment_crud
 from backend.database_models import Deployment
 from backend.database_models.database import DBSessionDep
+from backend.schemas.context import Context
 from backend.schemas.deployment import DeleteDeployment
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.deployment import (
@@ -12,7 +13,6 @@ from backend.schemas.deployment import (
     DeploymentUpdate,
     UpdateDeploymentEnv,
 )
-from backend.schemas.context import Context
 from backend.services.context import get_context
 from backend.services.env import update_env_file
 from backend.services.request_validators import (

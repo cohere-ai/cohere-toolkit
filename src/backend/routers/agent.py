@@ -1,3 +1,4 @@
+from backend.routers.utils import get_deployment_model_from_agent
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.config.routers import RouterName
@@ -20,8 +21,8 @@ from backend.schemas.agent import (
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
 )
-from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.context import Context
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.metrics import (
     DEFAULT_METRICS_AGENT,
     GenericResponseMessage,

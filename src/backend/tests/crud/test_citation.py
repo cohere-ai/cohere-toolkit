@@ -28,10 +28,10 @@ def document(session, conversation, message, user):
     )
 
 
-def test_create_citation(session, document):
+def test_create_citation(session, document, user):
     citation_data = Citation(
         text="Hello, World!",
-        user_id="1",
+        user_id=user.id,
         start=1,
         end=2,
         message_id="1",
@@ -123,10 +123,7 @@ def test_list_citations_by_message_id_empty(session):
 
 def test_delete_citation(session, user):
     citation = get_factory("Citation", session).create(
-        id="1",
-        text="Hello, World!",
-        user_id=user.id,
-        message_id="1"
+        id="1", text="Hello, World!", user_id=user.id, message_id="1"
     )
 
     citation_crud.delete_citation(session, "1")

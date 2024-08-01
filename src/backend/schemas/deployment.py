@@ -1,8 +1,8 @@
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, Any
 
 from pydantic import BaseModel, Field, field_validator
 
-from backend.model_deployments.base import BaseDeployment
+# from backend.model_deployments.base import BaseDeployment
 from backend.schemas.model import ModelSimple
 
 
@@ -37,7 +37,7 @@ class Deployment(BaseModel):
     name: str
     models: list[str]
     is_available: bool = False
-    deployment_class: Optional[Type[BaseDeployment]] = Field(exclude=True, default=None)
+    deployment_class: Optional[Type[Any]] = Field(exclude=True, default=None)
     env_vars: Optional[List[str]]
     description: Optional[str] = None
     deployment_class_name: Optional[str] = Field(exclude=True, default="")

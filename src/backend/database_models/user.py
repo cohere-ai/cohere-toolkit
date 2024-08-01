@@ -1,7 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import ForeignKey, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 

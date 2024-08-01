@@ -1,6 +1,5 @@
 from backend.database_models.database import DBSessionDep
-from backend.schemas.agent import Agent, AgentToolMetadata
-from backend.schemas.metrics import MetricsAgent, MetricsMessageType, MetricsUser
+from backend.schemas.agent import Agent
 
 
 def get_deployment_model_from_agent(agent: Agent, session: DBSessionDep):

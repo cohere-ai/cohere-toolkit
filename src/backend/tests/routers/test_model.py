@@ -1,6 +1,3 @@
-import re
-from unittest.mock import Mock, patch
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
