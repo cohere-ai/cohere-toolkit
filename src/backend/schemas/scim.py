@@ -35,7 +35,7 @@ class CreateGroup(BaseGroup):
     pass
 
 
-class CreateUser(BaseGroup):
+class CreateUser(BaseUser):
     externalId: str
 
 
@@ -91,7 +91,9 @@ class User(BaseUser):
 
     @staticmethod
     def from_db_user(db_user: DBUser) -> "User":
-        given_name, family_name = db_user.fullname.split(" ")
+        names = db_user.fullname.split(" ")
+        given_name = names[0] if names[0] else ""
+        family_name = names[1] if names[1] else ""
         return User(
             id=db_user.id,
             userName=db_user.user_name,
