@@ -1083,7 +1083,7 @@ def test_fail_delete_file_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
-# # MISC
+# MISC
 def test_generate_title(
     session_client: TestClient,
     session: Session,
