@@ -6,10 +6,8 @@ from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment, UpdateDeploymentEnv
 from backend.services.context import get_context
 from backend.services.env import update_env_file
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.services.request_validators import validate_env_vars
-
-logger = get_logger()
 
 router = APIRouter(
     prefix="/v1/deployments",
