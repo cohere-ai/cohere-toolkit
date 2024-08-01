@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar, Optional, Dict, Union
 
 from pydantic import BaseModel
 
@@ -50,8 +50,8 @@ class Operation(BaseModel):
 
 class GroupOperation(BaseModel):
     op: str
-    path: Optional[str]
-    value: Any
+    path: Optional[str] = None
+    value: Union[Dict[str, str], list[str]]
 
 
 class PatchUser(BaseModel):

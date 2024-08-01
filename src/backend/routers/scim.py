@@ -153,7 +153,7 @@ async def create_user(user: CreateUser, session: DBSessionDep):
 async def create_group(group: CreateGroup, session: DBSessionDep):
     print(group)
     # db_group = group_repo.get_group_by_name(session, group.displayName)
-    # # TODO: do we need this check?
+    # # TODO: do we need this check? seems to cause more problems
     # if db_group:
     #     raise SCIMException(
     #         status_code=409, detail="Group already exists in the database."
@@ -187,6 +187,12 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
 @router.patch("/Groups/{group_id}")
 async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
     db_group = group_repo.get_group(session, group_id)
+    for operation in patch.Operations:
+        if operation.op == "replace":
+            k, v = list(operation.value.items())[0]
+            print(k, v)
+
+    session.commit()
     if not db_group:
         raise SCIMException(status_code=404, detail="Group not found")
     return Group.from_db_group(db_group)
