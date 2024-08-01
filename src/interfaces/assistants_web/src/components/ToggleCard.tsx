@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
+import { getCohereTheme } from '@/utils/getCohereColor';
 
 type Props = {
   checked: boolean;
@@ -12,6 +13,7 @@ type Props = {
   onToggle: (checked: boolean) => void;
   disabled?: boolean;
   errorMessage?: string | null;
+  agentId?: string;
   inputOptions?: {
     label: string;
     placeholder: string;
@@ -31,6 +33,7 @@ export const ToggleCard: React.FC<Props> = ({
   disabled = false,
   icon,
   label,
+  agentId,
   description,
   inputOptions,
   errorMessage,
@@ -63,7 +66,12 @@ export const ToggleCard: React.FC<Props> = ({
           )}
         </div>
         {!disabled && (
-          <Switch checked={checked} onChange={onToggle} className="flex-shrink-0 gap-0" />
+          <Switch
+            checked={checked}
+            onChange={onToggle}
+            className="flex-shrink-0 gap-0"
+            theme={getCohereTheme(agentId)}
+          />
         )}
       </div>
       {inputOptions && (

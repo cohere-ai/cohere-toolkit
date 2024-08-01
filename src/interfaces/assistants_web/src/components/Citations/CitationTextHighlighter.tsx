@@ -65,7 +65,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
     [agentId]
   );
   const hoverAccentClassNames = useMemo(
-    () => getCohereColor(agentId, { background: true, hover: true }),
+    () => getCohereColor(agentId, { background: true }, { hover: true }),
     [agentId]
   );
 

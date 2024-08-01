@@ -1,4 +1,24 @@
+import { COHERE_BRANDED_COLORS } from '@/constants';
 import { cn } from '@/utils/cn';
+
+/** !IMPORTANT: Order of colors must match the order of COHERE_BRANDED_COLORS
+ * DEFAULT COLOR: evolved-blue
+ * 1. green
+ * 2. coral
+ * 3. evolved-quartz
+ * 4. evolved-mushroom
+ * 5. evolved-green
+ * 6. mushroom
+ */
+
+/**
+ * THEMES
+ */
+
+const COHERE_THEMES_MAP: { default: COHERE_BRANDED_COLORS; branded: COHERE_BRANDED_COLORS[] } = {
+  default: 'evolved-blue',
+  branded: ['green', 'coral', 'evolved-quartz', 'evolved-mushroom', 'evolved-green', 'mushroom'],
+};
 
 /**
  * HOVER CLASSES
@@ -152,7 +172,8 @@ const COLORS_MAP = {
  * @param options.border - if true, returns a border color
  * @param options.background - if true, returns a background color
  * @param options.contrastText - if true, returns a contrast text color
- * @param options.hover - if true, returns a hover color
+ * @param variant.hover - if true, returns a hover color
+ * @param variant.theme - if true, returns the theme name
  * @returns color from the Cohere color palette
  */
 export const getCohereColor = (
@@ -163,42 +184,42 @@ export const getCohereColor = (
     border?: boolean;
     background?: boolean;
     contrastText?: boolean;
-    hover?: boolean;
-  }
+  },
+  variant?: { hover?: boolean }
 ): string => {
   if (id === undefined) {
     const colors = [];
 
     if (options.text) {
-      if (options.hover) {
+      if (variant?.hover) {
         colors.push(COLORS_MAP.text.defaultHover);
       } else {
         colors.push(COLORS_MAP.text.default);
       }
     }
     if (options.fill) {
-      if (options.hover) {
+      if (variant?.hover) {
         colors.push(COLORS_MAP.fill.defaultHover);
       } else {
         colors.push(COLORS_MAP.fill.default);
       }
     }
     if (options.border) {
-      if (options.hover) {
+      if (variant?.hover) {
         colors.push(COLORS_MAP.border.defaultHover);
       } else {
         colors.push(COLORS_MAP.border.default);
       }
     }
     if (options.background) {
-      if (options.hover) {
+      if (variant?.hover) {
         colors.push(COLORS_MAP.background.defaultHover);
       } else {
         colors.push(COLORS_MAP.background.default);
       }
     }
     if (options.contrastText) {
-      if (options.hover) {
+      if (variant?.hover) {
         colors.push(COLORS_MAP.contrastText.defaultHover);
       } else {
         colors.push(COLORS_MAP.contrastText.default);
@@ -209,35 +230,35 @@ export const getCohereColor = (
 
   const colors = [];
   if (options.text) {
-    if (options.hover) {
+    if (variant?.hover) {
       colors.push(COLORS_MAP.text.brandedHover);
     } else {
       colors.push(COLORS_MAP.text.branded);
     }
   }
   if (options.fill) {
-    if (options.hover) {
+    if (variant?.hover) {
       colors.push(COLORS_MAP.fill.brandedHover);
     } else {
       colors.push(COLORS_MAP.fill.branded);
     }
   }
   if (options.border) {
-    if (options.hover) {
+    if (variant?.hover) {
       colors.push(COLORS_MAP.border.brandedHover);
     } else {
       colors.push(COLORS_MAP.border.branded);
     }
   }
   if (options.background) {
-    if (options.hover) {
+    if (variant?.hover) {
       colors.push(COLORS_MAP.background.brandedHover);
     } else {
       colors.push(COLORS_MAP.background.branded);
     }
   }
   if (options.contrastText) {
-    if (options.hover) {
+    if (variant?.hover) {
       colors.push(COLORS_MAP.contrastText.brandedHover);
     } else {
       colors.push(COLORS_MAP.contrastText.branded);
@@ -247,4 +268,19 @@ export const getCohereColor = (
   const idNumber = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % TEXT_COLOR_LIST.length;
   return cn(colors.map((color) => color[index]));
+};
+
+/**
+ * @description Get a theme color from the Cohere color palette, when no index is provided, a random color is returned
+ * @param id - id for generating a constant color in the palette
+ * @returns color from the Cohere color palette
+ */
+export const getCohereTheme = (id: string | undefined): COHERE_BRANDED_COLORS => {
+  if (id === undefined) {
+    return COHERE_THEMES_MAP.default;
+  } else {
+    const idNumber = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const index = idNumber % COHERE_THEMES_MAP.branded.length;
+    return COHERE_THEMES_MAP.branded[index];
+  }
 };

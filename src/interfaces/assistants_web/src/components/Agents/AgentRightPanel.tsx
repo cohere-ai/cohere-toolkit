@@ -13,6 +13,7 @@ import { useFileActions, useListFiles } from '@/hooks/files';
 import { useParamsStore } from '@/stores';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
+import { getCohereTheme } from '@/utils/getCohereColor';
 
 type Props = {};
 
@@ -106,7 +107,7 @@ const AgentRightPanel: React.FC<Props> = () => {
                 />
               </span>
               <Switch
-                theme="blue"
+                theme={getCohereTheme(agent?.id)}
                 checked={useAssistantKnowledge}
                 onChange={setUseAssistantKnowledge}
               />
