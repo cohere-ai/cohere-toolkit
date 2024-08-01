@@ -52,6 +52,8 @@ auth:
   oidc:
 logger:
   strategy: structlog
+  renderer: console
+  level: info
 sync:
-  broker_url:
-  worker_concurrency:
+  broker_url: redis://:redis@redis:6379
+  worker_concurrency: 4

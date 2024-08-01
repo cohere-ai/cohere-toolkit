@@ -4,10 +4,12 @@ from google.auth.exceptions import RefreshError
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
 
 from .constants import GOOGLE_DRIVE_TOOL_ID
+
+logger = LoggerFactory().get_logger()
 
 
 class GoogleDrive(BaseTool):
