@@ -41,6 +41,8 @@ class ContextMiddleware:
         agent_id = request.headers.get("Agent-Id")
         context.with_agent_id(agent_id)
 
+        context.with_logger()
+
         # Set the context on the scope
         scope["context"] = context
 

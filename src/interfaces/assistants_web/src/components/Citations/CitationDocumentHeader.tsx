@@ -2,12 +2,7 @@
 
 import { IconButton } from '@/components/IconButton';
 import { DocumentIcon, Icon, IconName, Text } from '@/components/Shared';
-import {
-  TOOL_FALLBACK_ICON,
-  TOOL_ID_TO_DISPLAY_INFO,
-  TOOL_ID_TO_ICON,
-  TOOL_WEB_SEARCH_ID,
-} from '@/constants';
+import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';
 import { cn, getSafeUrl, getWebDomain } from '@/utils';
 
 const getWebSourceName = (toolId?: string) => {
@@ -63,7 +58,6 @@ export const CitationDocumentHeader: React.FC<Props> = ({
     : isTool
     ? toolDisplayInfo?.icon ?? TOOL_FALLBACK_ICON
     : undefined;
-  const toolIcon = TOOL_ID_TO_ICON[toolId ?? ''] ?? undefined;
 
   return (
     <div className="flex items-center justify-between gap-x-3">
@@ -76,7 +70,6 @@ export const CitationDocumentHeader: React.FC<Props> = ({
         })}
       >
         <DocumentIcon
-          toolIcon={toolIcon}
           url={safeUrl}
           icon={icon}
           iconKind={isSelected ? 'default' : 'outline'}
