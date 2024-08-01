@@ -27,7 +27,9 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
     case 'cell':
       return cn('dark:text-marble-950 dark:fill-marble-950', {
         // dark mode
-        'dark:text-volcanic-150 dark:fill-volcanic-150': theme === 'evolved-green',
+
+        'dark:text-volcanic-150 dark:fill-volcanic-150':
+          theme === 'evolved-green' || theme === 'evolved-mushroom',
       });
 
     case 'secondary':
