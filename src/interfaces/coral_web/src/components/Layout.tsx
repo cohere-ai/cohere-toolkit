@@ -1,8 +1,7 @@
 'use client';
-'use client';
 
 import { Transition } from '@headlessui/react';
-import React, { Children, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useContext, useEffect, useState } from 'react';
 
 import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
 import { DeploymentsDropdown } from '@/components/DeploymentsDropdown';
@@ -18,42 +17,23 @@ import { useSession } from '@/hooks/session';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils/cn';
 
-export const LeftSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
-export const MainSection: React.FC<React.PropsWithChildren> = ({ children }) => <>{children}</>;
-
-type LayoutProps = {} & PropsWithChildren;
+type LayoutProps = {
+  leftDrawerElement: React.ReactNode;
+  mainElement: React.ReactNode;
+};
 
 /**
  * This component is in charge of layout out the entire page.
  * It shows the navigation bar, the left drawer and main content.
  * On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = ({ leftDrawerElement, mainElement }) => {
   const { message: bannerMessage } = useContext(BannerContext);
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
   } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const { session } = useSession();
-
-  let leftDrawerElement: React.ReactNode = null;
-  let mainElement: React.ReactNode = null;
-
-  Children.toArray(children).forEach((child: React.ReactNode) => {
-    const element = child as React.ReactElement;
-    const { type } = element;
-
-    switch (type) {
-      case LeftSection:
-        leftDrawerElement = child;
-        break;
-      case MainSection:
-        mainElement = child;
-        break;
-      default:
-        break;
-    }
-  });
 
   const [userMenu, setUserMenu] = useState<React.ReactNode>(null);
 
@@ -142,6 +122,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 };
 
 type AgentsLayoutProps = {
+  leftElement: React.ReactNode;
+  mainElement: React.ReactNode;
   title?: string;
   showSettingsDrawer?: boolean;
 } & PropsWithChildren;
@@ -152,26 +134,10 @@ type AgentsLayoutProps = {
   On small devices (e.g. mobile), the left drawer and main section are stacked vertically.
  */
 export const AgentsLayout: React.FC<AgentsLayoutProps> = ({
-  title = 'Chat',
+  leftElement,
+  mainElement,
   showSettingsDrawer = false,
-  children,
 }) => {
-  let leftElement: React.ReactNode = null;
-  let mainElement: React.ReactNode = null;
-
-  Children.toArray(children).forEach((child: React.ReactNode) => {
-    const element = child as React.ReactElement;
-
-    if (element.type === LeftSection) {
-      leftElement = child;
-      return;
-    }
-    if (element.type === MainSection) {
-      mainElement = child;
-      return;
-    }
-  });
-
   return (
     <>
       <div className="dark:bg-vb-60 flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3">
