@@ -188,9 +188,8 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
 async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
     db_group = group_repo.get_group(session, group_id)
     for operation in patch.Operations:
-        if operation.op == "replace":
-            k, v = list(operation.value.items())[0]
-            print(k, v)
+        if operation.op == "replace" and operation and operation.path == "members":
+            db_group.members = operation.value
 
     session.commit()
     if not db_group:
