@@ -1,6 +1,6 @@
 'use client';
 
-import { Text } from '@/components/Shared';
+import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
 type Props = {
