@@ -13,6 +13,7 @@ from backend.schemas.scim import (
     CreateUser,
     UpdateUser,
     PatchUser,
+    PatchGroup,
     CreateGroup,
 )
 
@@ -62,6 +63,7 @@ async def get_users(
         Resources=users,
     )
 
+
 @router.get("/Groups")
 async def get_groups(
     session: DBSessionDep,
@@ -108,6 +110,14 @@ async def get_user(user_id: str, session: DBSessionDep):
     return User.from_db_user(db_user)
 
 
+@router.get("/Groups/{group_id}")
+async def get_group(group_id: str, session: DBSessionDep):
+    db_group = group_repo.get_group(session, group_id)
+    if not db_group:
+        raise SCIMException(status_code=404, detail="User not found")
+
+    return Group.from_db_group(db_group)
+
 @router.post("/Users", status_code=201)
 async def create_user(user: CreateUser, session: DBSessionDep):
     db_user = user_repo.get_user_by_external_id(session, user.externalId)
@@ -129,12 +139,13 @@ async def create_user(user: CreateUser, session: DBSessionDep):
 
 @router.post("/Groups", status_code=201)
 async def create_group(group: CreateGroup, session: DBSessionDep):
-    db_group = group_repo.get_group_by_name(session, group.displayName)
-    # TODO: do we need this check?
-    if db_group:
-        raise SCIMException(
-            status_code=409, detail="Group already exists in the database."
-        )
+    print(group)
+    # db_group = group_repo.get_group_by_name(session, group.displayName)
+    # # TODO: do we need this check?
+    # if db_group:
+    #     raise SCIMException(
+    #         status_code=409, detail="Group already exists in the database."
+    #     )
 
     db_group = DBGroup(
         display_name=group.displayName,
@@ -147,6 +158,21 @@ async def create_group(group: CreateGroup, session: DBSessionDep):
 
 @router.put("/Users/{user_id}")
 async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
+    db_user = user_repo.get_user(session, user_id)
+    if not db_user:
+        raise SCIMException(status_code=404, detail="User not found")
+
+    db_user.user_name = user.userName
+    db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
+    db_user.active = user.active
+
+    session.commit()
+
+    return User.from_db_user(db_user)
+
+
+@router.patch("/Groups/{group_id}")
+async def update_grup(group_id: str, patch: PatchGroup, session: DBSessionDep):
     db_user = user_repo.get_user(session, user_id)
     if not db_user:
         raise SCIMException(status_code=404, detail="User not found")

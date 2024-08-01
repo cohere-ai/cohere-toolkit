@@ -15,6 +15,19 @@ def get_group_by_name(db: Session, name: str) -> Group | None:
     """
     return db.query(Group).filter(Group.display_name == name).first()
 
+def get_group(db: Session, group_id: str) -> Group:
+    """
+    Get a user by ID.
+
+    Args:
+        db (Session): Database session.
+        user_id (str): User ID.
+
+    Returns:
+        User: User with the given ID.
+    """
+    return db.query(Group).filter(Group.id == group_id).first()
+
 def  create_group(db: Session, group: Group) -> Group:
     """ "
     Create a new user.

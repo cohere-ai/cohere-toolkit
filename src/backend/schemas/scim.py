@@ -1,4 +1,4 @@
-from typing import ClassVar, Optional
+from typing import Any, ClassVar, Optional
 
 from pydantic import BaseModel
 
@@ -27,7 +27,7 @@ class BaseUser(BaseModel):
 
 class BaseGroup(BaseModel):
     schemas: list[str]
-    members: list[str]
+    members: Any
     displayName: str
 
 
@@ -48,9 +48,20 @@ class Operation(BaseModel):
     value: dict[str, bool]
 
 
+class GroupOperation(BaseModel):
+    op: str
+    path: str
+    value: list[dict[str, str]]
+
+
 class PatchUser(BaseModel):
     schemas: list[str]
-    Operations: list[Operation]
+    Operations: list[GroupOperation]
+
+
+class PatchGroup(BaseModel):
+    schemas: list[str]
+    Operations: list[GroupOperation]
 
 
 class Group(BaseGroup):
