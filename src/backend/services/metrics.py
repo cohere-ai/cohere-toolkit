@@ -8,7 +8,6 @@ from functools import wraps
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
 from starlette.background import BackgroundTask
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
