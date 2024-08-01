@@ -73,6 +73,10 @@ class CustomChat(BaseChat):
                     logger.debug(event=f"Final event: {event}")
                     break
         except Exception as e:
+            logger.exception(
+                event="[Custom Chat] Error occurred during chat stream",
+                error=str(e),
+            )
             yield {
                 "event_type": StreamEvent.STREAM_END,
                 "finish_reason": "ERROR",

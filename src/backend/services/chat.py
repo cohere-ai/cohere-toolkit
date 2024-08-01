@@ -524,6 +524,7 @@ async def generate_chat_response(
                 event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
                 conversation_id=ctx.get_conversation_id(),
                 tool_calls=data.get("tool_calls", []),
+                error=data.get("error", ""),
             )
 
     return non_streamed_chat_response

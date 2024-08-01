@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
@@ -571,6 +573,7 @@ async def generate_title(
     conversation_id: str,
     session: DBSessionDep,
     request: Request,
+    model: Optional[str] = "command-r",
     ctx: Context = Depends(get_context),
 ) -> GenerateTitleResponse:
     """
@@ -590,19 +593,32 @@ async def generate_title(
     """
     user_id = ctx.get_user_id()
     ctx.with_deployment_config()
+    ctx.with_model(model)
 
     conversation = validate_conversation(session, conversation_id, user_id)
     agent_id = conversation.agent_id if conversation.agent_id else None
 
-    title = await generate_conversation_title(
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+    else:
+        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
+
+    title, error = await generate_conversation_title(
         session,
         conversation,
         agent_id,
         ctx,
+        model,
     )
 
     conversation_crud.update_conversation(
         session, conversation, UpdateConversationRequest(title=title)
     )
 
-    return GenerateTitleResponse(title=title)
+    return GenerateTitleResponse(
+        title=title,
+        error=error,
+    )
