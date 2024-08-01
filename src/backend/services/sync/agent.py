@@ -28,7 +28,9 @@ def sync_agent(agent_id: str):
                 # raise "hey"
                 for artifact_id, activity in activities.items():
                     for activity_item in activity:
-                        event_type = list(activity_item["primaryActionDetail"].keys())[0]
+                        event_type = list(activity_item["primaryActionDetail"].keys())[
+                            0
+                        ]
                         # NOTE: This is an unfortunate hack because the Google APi
                         # does not provide consistency over the request and response
                         # format of this action
