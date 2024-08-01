@@ -17,17 +17,6 @@ class UserOrganizationAssociation(Base):
     )
 
 
-class UserGroupAssociation(Base):
-    __tablename__ = "user_group"
-
-    user_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
-    )
-    group_id: Mapped[str] = mapped_column(
-        ForeignKey("groups.id", ondelete="CASCADE"), primary_key=True
-    )
-
-
 class User(Base):
     __tablename__ = "users"
 
@@ -38,6 +27,5 @@ class User(Base):
 
     email: Mapped[Optional[str]] = mapped_column()
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
-
 
     __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)
