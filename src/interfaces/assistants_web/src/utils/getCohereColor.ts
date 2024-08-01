@@ -1,5 +1,58 @@
 import { cn } from '@/utils/cn';
 
+/**
+ * HOVER CLASSES
+ */
+
+const HOVER_BG_COLOR_LIST = [
+  'hover:bg-green-500 hover:dark:bg-green-500',
+  'hover:bg-coral-600 hover:dark:bg-coral-600',
+  'hover:bg-evolved-quartz-500 hover:dark:bg-evolved-quartz-500',
+  'hover:bg-evolved-mushroom-500 hover:dark:bg-evolved-mushroom-500',
+  'hover:bg-evolved-green-500 hover:dark:bg-evolved-green-500',
+  'hover:bg-mushroom-700 hover:dark:bg-mushroom-700',
+];
+
+const HOVER_TEXT_COLOR_LIST = [
+  'hover:text-green-500 hover:dark:text-green-500 hover:fill-green-500 hover:dark:fill-green-500',
+  'hover:text-coral-600 hover:dark:text-coral-600 hover:fill-coral-600 hover:dark:fill-coral-600',
+  'hover:text-evolved-quartz-500 hover:dark:text-evolved-quartz-500 hover:fill-evolved-quartz-500 hover:dark:fill-evolved-quartz-500',
+  'hover:text-evolved-mushroom-500 hover:dark:text-evolved-mushroom-500 hover:fill-evolved-mushroom-500 hover:dark:fill-evolved-mushroom-500',
+  'hover:text-evolved-green-500 hover:dark:text-evolved-green-500 hover:fill-evolved-green-500 hover:dark:fill-evolved-green-500',
+  'hover:text-mushroom-700 hover:dark:text-mushroom-700 hover:fill-mushroom-700 hover:dark:fill-mushroom-700',
+];
+
+const HOVER_FILL_COLOR_LIST = [
+  'hover:fill-green-500 hover:dark:fill-green-500',
+  'hover:fill-coral-600 hover:dark:fill-coral-600',
+  'hover:fill-evolved-quartz-500 hover:dark:fill-evolved-quartz-500',
+  'hover:fill-evolved-mushroom-500 hover:dark:fill-evolved-mushroom-500',
+  'hover:fill-evolved-green-500 hover:dark:fill-evolved-green-500',
+  'hover:fill-mushroom-700 hover:dark:fill-mushroom-700',
+];
+
+const HOVER_CONTRAST_TEXT_COLOR_LIST = [
+  'hover:text-marble-950 dark:hover:text-marble-950 hover:fill-marble-950 dark:hover:fill-marble-950', // green 500
+  'hover:text-volcanic-100 dark:hover:text-volcanic-100 hover:fill-volcanic-100 dark:hover:fill-volcanic-100', // coral 600
+  'hover:text-marble-950 dark:hover:text-marble-950 hover:fill-marble-950 dark:hover:fill-marble-950', // evolved quartz 500
+  'hover:text-volcanic-100 dark:hover:text-volcanic-100 hover:fill-volcanic-100 dark:hover:fill-volcanic-100', // evolved mushroom 500
+  'hover:text-volcanic-100 dark:hover:text-volcanic-100 hover:fill-volcanic-100 dark:hover:fill-volcanic-100', // evolved green 500
+  'hover:text-mushroom-300 dark:hover:text-mushroom-300 hover:fill-mushroom-300 dark:hover:fill-mushroom-300', // mushroom 700
+];
+
+const HOVER_BORDER_COLOR_LIST = [
+  'hover:border-green-500 dark:hover:border-green-500',
+  'hover:border-coral-600 dark:hover:border-coral-600',
+  'hover:border-evolved-quartz-500 dark:hover:border-evolved-quartz-500',
+  'hover:border-evolved-mushroom-500 dark:hover:border-evolved-mushroom-500',
+  'hover:border-evolved-green-500 dark:hover:border-evolved-green-500',
+  'hover:border-mushroom-700 dark:hover:border-mushroom-700',
+];
+
+/**
+ * END OF DECORATOR CLASSES
+ */
+
 const BG_COLOR_LIST = [
   'bg-green-500 dark:bg-green-500',
   'bg-coral-600 dark:bg-coral-600',
@@ -45,11 +98,50 @@ const BORDER_COLOR_LIST = [
   'border-mushroom-700 dark:border-mushroom-700',
 ];
 
-const DEFAULT_BG_COLOR = 'bg-evolved-blue-500';
+// DEFAULT COLORS
+const DEFAULT_BG_COLOR = 'bg-evolved-blue-500 dark:bg-evolved-blue-500';
 const DEFAULT_TEXT_COLOR = 'text-evolved-blue-500 dark:text-blue-700';
 const DEFAULT_FILL_COLOR = 'fill-evolved-blue-500 dark:fill-blue-700';
 const DEFAULT_CONTRAST_TEXT_COLOR = 'text-blue-800 dark:text-blue-800';
-const DEFAULT_BORDER_COLOR = 'border-evolved-blue-500';
+const DEFAULT_BORDER_COLOR = 'border-evolved-blue-500 dark:border-blue-500';
+const HOVER_DEFAULT_BG_COLOR = 'hover:bg-evolved-blue-500 dark:hover:bg-evolved-blue-500';
+const HOVER_DEFAULT_TEXT_COLOR = 'hover:text-evolved-blue-500 dark:hover:text-blue-700';
+const HOVER_DEFAULT_FILL_COLOR = 'hover:fill-evolved-blue-500 dark:hover:fill-blue-700';
+const HOVER_DEFAULT_CONTRAST_TEXT_COLOR = 'hover:text-blue-800 dark:hover:text-blue-800';
+const HOVER_DEFAULT_BORDER_COLOR = 'hover:border-evolved-blue-500 dark:hover:border-blue-500';
+
+const COLORS_MAP = {
+  text: {
+    default: DEFAULT_TEXT_COLOR,
+    defaultHover: HOVER_DEFAULT_TEXT_COLOR,
+    brandedHover: HOVER_TEXT_COLOR_LIST,
+    branded: TEXT_COLOR_LIST,
+  },
+  fill: {
+    default: DEFAULT_FILL_COLOR,
+    defaultHover: HOVER_DEFAULT_FILL_COLOR,
+    brandedHover: HOVER_FILL_COLOR_LIST,
+    branded: FILL_COLOR_LIST,
+  },
+  border: {
+    default: DEFAULT_BORDER_COLOR,
+    defaultHover: HOVER_DEFAULT_BORDER_COLOR,
+    brandedHover: HOVER_BORDER_COLOR_LIST,
+    branded: BORDER_COLOR_LIST,
+  },
+  background: {
+    default: DEFAULT_BG_COLOR,
+    defaultHover: HOVER_DEFAULT_BG_COLOR,
+    brandedHover: HOVER_BG_COLOR_LIST,
+    branded: BG_COLOR_LIST,
+  },
+  contrastText: {
+    default: DEFAULT_CONTRAST_TEXT_COLOR,
+    defaultHover: HOVER_DEFAULT_CONTRAST_TEXT_COLOR,
+    brandedHover: HOVER_CONTRAST_TEXT_COLOR_LIST,
+    branded: CONTRAST_TEXT_COLOR_LIST,
+  },
+};
 
 /**
  * @description Get a color from the Cohere color palette, when no index is provided, a random color is returned
@@ -60,6 +152,7 @@ const DEFAULT_BORDER_COLOR = 'border-evolved-blue-500';
  * @param options.border - if true, returns a border color
  * @param options.background - if true, returns a background color
  * @param options.contrastText - if true, returns a contrast text color
+ * @param options.hover - if true, returns a hover color
  * @returns color from the Cohere color palette
  */
 export const getCohereColor = (
@@ -70,43 +163,85 @@ export const getCohereColor = (
     border?: boolean;
     background?: boolean;
     contrastText?: boolean;
+    hover?: boolean;
   }
 ): string => {
   if (id === undefined) {
     const colors = [];
+
     if (options.text) {
-      colors.push(DEFAULT_TEXT_COLOR);
+      if (options.hover) {
+        colors.push(COLORS_MAP.text.defaultHover);
+      } else {
+        colors.push(COLORS_MAP.text.default);
+      }
     }
     if (options.fill) {
-      colors.push(DEFAULT_FILL_COLOR);
+      if (options.hover) {
+        colors.push(COLORS_MAP.fill.defaultHover);
+      } else {
+        colors.push(COLORS_MAP.fill.default);
+      }
     }
     if (options.border) {
-      colors.push(DEFAULT_BORDER_COLOR);
+      if (options.hover) {
+        colors.push(COLORS_MAP.border.defaultHover);
+      } else {
+        colors.push(COLORS_MAP.border.default);
+      }
     }
     if (options.background) {
-      colors.push(DEFAULT_BG_COLOR);
+      if (options.hover) {
+        colors.push(COLORS_MAP.background.defaultHover);
+      } else {
+        colors.push(COLORS_MAP.background.default);
+      }
     }
     if (options.contrastText) {
-      colors.push(DEFAULT_CONTRAST_TEXT_COLOR);
+      if (options.hover) {
+        colors.push(COLORS_MAP.contrastText.defaultHover);
+      } else {
+        colors.push(COLORS_MAP.contrastText.default);
+      }
     }
     return cn(colors);
   }
 
   const colors = [];
   if (options.text) {
-    colors.push(TEXT_COLOR_LIST);
+    if (options.hover) {
+      colors.push(COLORS_MAP.text.brandedHover);
+    } else {
+      colors.push(COLORS_MAP.text.branded);
+    }
   }
   if (options.fill) {
-    colors.push(FILL_COLOR_LIST);
+    if (options.hover) {
+      colors.push(COLORS_MAP.fill.brandedHover);
+    } else {
+      colors.push(COLORS_MAP.fill.branded);
+    }
   }
   if (options.border) {
-    colors.push(BORDER_COLOR_LIST);
+    if (options.hover) {
+      colors.push(COLORS_MAP.border.brandedHover);
+    } else {
+      colors.push(COLORS_MAP.border.branded);
+    }
   }
   if (options.background) {
-    colors.push(BG_COLOR_LIST);
+    if (options.hover) {
+      colors.push(COLORS_MAP.background.brandedHover);
+    } else {
+      colors.push(COLORS_MAP.background.branded);
+    }
   }
   if (options.contrastText) {
-    colors.push(CONTRAST_TEXT_COLOR_LIST);
+    if (options.hover) {
+      colors.push(COLORS_MAP.contrastText.brandedHover);
+    } else {
+      colors.push(COLORS_MAP.contrastText.branded);
+    }
   }
 
   const idNumber = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
