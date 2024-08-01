@@ -23,6 +23,7 @@ class RouterName(StrEnum):
     AGENT = "agent"
     DEFAULT_AGENT = "default_agent"
     SNAPSHOT = "snapshot"
+    SCIM = "scim"
 
 
 # Router dependency mappings
@@ -119,6 +120,14 @@ ROUTER_DEPENDENCIES = {
         "auth": [
             Depends(get_session),
             Depends(validate_authorization),
+        ],
+    },
+    RouterName.SCIM: {
+        "default": [
+            Depends(get_session),
+        ],
+        "auth": [
+            Depends(get_session),
         ],
     },
 }

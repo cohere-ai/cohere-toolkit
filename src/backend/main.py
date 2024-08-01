@@ -1,5 +1,3 @@
-import os
-
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
@@ -7,6 +5,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import Response
 
 from backend.config.auth import (
     get_auth_strategy_endpoints,
@@ -22,6 +21,7 @@ from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
+from backend.routers.scim import router as scim_router, SCIMException
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
@@ -38,6 +38,16 @@ load_dotenv()
 ORIGINS = ["*"]
 
 
+async def scim_exception_handler(request: Request, exc: SCIMException) -> Response:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+        },
+    )
+
+
 def create_app():
     app = FastAPI()
 
@@ -52,6 +62,7 @@ def create_app():
         agent_router,
         default_agent_router,
         snapshot_router,
+        scim_router
     ]
 
     # Dynamically set router dependencies
@@ -81,6 +92,8 @@ def create_app():
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
+
+    app.add_exception_handler(SCIMException, scim_exception_handler)
 
     return app
 
