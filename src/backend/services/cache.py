@@ -1,12 +1,11 @@
-import os
 from typing import Any
 
 from redis import Redis
 
 from backend.config.settings import Settings
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import LoggerFactory
 
-logger = get_logger()
+logger = LoggerFactory().get_logger()
 
 
 def get_client() -> Redis:
@@ -14,7 +13,7 @@ def get_client() -> Redis:
 
     if not redis_url:
         error = "Tried retrieving Redis client but REDIS_URL environment variable is not set."
-        logger.error(error)
+        logger.error(event=error)
         raise ValueError(error)
 
     client = Redis.from_url(redis_url, decode_responses=True)

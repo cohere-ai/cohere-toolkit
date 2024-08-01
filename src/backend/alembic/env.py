@@ -1,9 +1,10 @@
-import os
 from logging.config import fileConfig
 
 from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
+
+from backend.config.settings import Settings
 
 # Need to import Models - note they will be unused but are required for Alembic to detect
 from backend.database_models import *
@@ -15,7 +16,7 @@ load_dotenv()
 config = context.config
 
 # Overwrite alembic.file `sqlachemy.url` value
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+config.set_main_option("sqlalchemy.url", Settings().database.url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

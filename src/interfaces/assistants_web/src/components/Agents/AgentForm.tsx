@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
 import { Checkbox, Input, InputLabel, Text, Textarea } from '@/components/Shared';
-import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
@@ -36,9 +36,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
   isAgentCreator,
   className,
 }: Props<K>) {
-  const { data: toolsData } = useListTools();
-  const tools =
-    toolsData?.filter((t) => t.is_available && !DEFAULT_AGENT_TOOLS.includes(t.name ?? '')) ?? [];
+  const { data: tools = [] } = useListTools();
 
   const googleDrivefiles: GoogleDriveToolArtifact[] = useMemo(() => {
     const toolsMetadata = fields.tools_metadata ?? [];

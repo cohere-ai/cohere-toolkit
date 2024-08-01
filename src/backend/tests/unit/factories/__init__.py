@@ -3,10 +3,16 @@ from backend.tests.unit.factories.agent_tool_metadata import AgentToolMetadataFa
 from backend.tests.unit.factories.blacklist import BlacklistFactory
 from backend.tests.unit.factories.citation import CitationFactory
 from backend.tests.unit.factories.citation_documents import CitationDocumentsFactory
-from backend.tests.unit.factories.conversation import ConversationFactory
+from backend.tests.unit.factories.conversation import (
+    ConversationFactory,
+    ConversationFileAssociationFactory,
+)
 from backend.tests.unit.factories.document import DocumentFactory
 from backend.tests.unit.factories.file import FileFactory
-from backend.tests.unit.factories.message import MessageFactory
+from backend.tests.unit.factories.message import (
+    MessageFactory,
+    MessageFileAssociationFactory,
+)
 from backend.tests.unit.factories.organization import OrganizationFactory
 from backend.tests.unit.factories.snapshot import (
     SnapshotAccessFactory,
@@ -32,6 +38,8 @@ FACTORY_MAPPING = {
     "SnapshotLink": SnapshotLinkFactory,
     "SnapshotAccess": SnapshotAccessFactory,
     "AgentToolMetadata": AgentToolMetadataFactory,
+    "ConversationFileAssociation": ConversationFileAssociationFactory,
+    "MessageFileAssociation": MessageFileAssociationFactory,
 }
 
 
