@@ -1,6 +1,3 @@
-import type { StaticImport } from 'next/dist/shared/lib/get-img-props';
-
-import GoogleDriveIconSVG from '@/assets/svg/google-drive-icon.svg';
 import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
 
@@ -67,23 +64,23 @@ export const COOKIE_KEYS = {
  * Tools
  */
 export const TOOL_WEB_SEARCH_ID = 'web_search';
-export const TOOL_PYTHON_INTERPRETER_ID = 'toolkit_python_interpreter';
-export const TOOL_CALCULATOR_ID = 'toolkit_calculator';
-export const TOOL_WIKIPEDIA_ID = 'wikipedia';
 export const TOOL_SEARCH_FILE_ID = 'search_file';
 export const TOOL_READ_DOCUMENT_ID = 'read_document';
+export const TOOL_PYTHON_INTERPRETER_ID = 'toolkit_python_interpreter';
+export const TOOL_WIKIPEDIA_ID = 'wikipedia';
+export const TOOL_CALCULATOR_ID = 'toolkit_calculator';
+export const TOOL_WEB_SCRAPE_ID = 'web_scrape';
 export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
-export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
+export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon?: IconName } } = {
   [TOOL_WEB_SEARCH_ID]: { icon: 'web' },
+  [TOOL_WEB_SCRAPE_ID]: { icon: 'web' },
   [TOOL_PYTHON_INTERPRETER_ID]: { icon: 'code-simple' },
   [TOOL_CALCULATOR_ID]: { icon: 'calculator' },
   [TOOL_WIKIPEDIA_ID]: { icon: 'web' },
   [TOOL_SEARCH_FILE_ID]: { icon: 'search' },
-};
-export const TOOL_ID_TO_ICON: { [id: string]: StaticImport } = {
-  [TOOL_GOOGLE_DRIVE_ID]: GoogleDriveIconSVG,
+  [TOOL_GOOGLE_DRIVE_ID]: { icon: 'google-drive' },
 };
 
 export const MAX_TIMEOUT_PREFETCH = 5000;
