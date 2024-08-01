@@ -61,3 +61,63 @@ TOOLS = {
         },
     },
 }
+
+ENV_YAML_CONFIG_MAPPING = {
+    "USE_COMMUNITY_FEATURES": {
+        "type": "config",
+        "path": "feature_flags.use_community_features",
+    },
+    "DATABASE_URL": {"type": "config", "path": "database.url"},
+    "REDIS_URL": {"type": "config", "path": "redis.url"},
+    # "NEXT_PUBLIC_API_HOSTNAME": "" - this does not exist in Settings() yet to be used for Docker setups,
+    "FRONTEND_HOSTNAME": {"type": "config", "path": "auth.frontend_hostname"},
+    "PYTHON_INTERPRETER_URL": {
+        "type": "config",
+        "path": "tools.python_interpreter.url",
+    },
+    "TAVILY_API_KEY": {"type": "secret", "path": "tools.tavily.api_key"},
+    "COHERE_API_KEY": {"type": "secret", "path": "deployments.cohere_platform.api_key"},
+    "SAGE_MAKER_ACCESS_KEY": {
+        "type": "secret",
+        "path": "deployments.sagemaker.access_key",
+    },
+    "SAGE_MAKER_SECRET_KEY": {
+        "type": "secret",
+        "path": "deployments.sagemaker.secret_key",
+    },
+    "SAGE_MAKER_SESSION_TOKEN": {
+        "type": "secret",
+        "path": "deployments.sagemaker.session_token",
+    },
+    "SAGE_MAKER_REGION_NAME": {
+        "type": "config",
+        "path": "deployments.sagemaker.region_name",
+    },
+    "SAGE_MAKER_ENDPOINT_NAME": {
+        "type": "config",
+        "path": "deployments.sagemaker.endpoint_name",
+    },
+    "BEDROCK_ACCESS_KEY": {"type": "secret", "path": "deployments.bedrock.access_key"},
+    "BEDROCK_SECRET_KEY": {"type": "secret", "path": "deployments.bedrock.secret_key"},
+    "BEDROCK_SESSION_TOKEN": {
+        "type": "secret",
+        "path": "deployments.bedrock.session_token",
+    },
+    "BEDROCK_REGION_NAME": {
+        "type": "config",
+        "path": "deployments.bedrock.region_name",
+    },
+    "AZURE_API_KEY": {"type": "secret", "path": "deployments.azure.api_key"},
+    "AZURE_CHAT_ENDPOINT_URL": {
+        "type": "config",
+        "path": "deployments.azure.endpoint_url",
+    },
+    "SINGLE_CONTAINER_URL": {
+        "type": "config",
+        "path": "deployments.single_container.url",
+    },
+    "SINGLE_CONTAINER_MODEL": {
+        "type": "config",
+        "path": "deployments.single_container.model",
+    },
+}

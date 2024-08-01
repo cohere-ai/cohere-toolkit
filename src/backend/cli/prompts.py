@@ -12,22 +12,6 @@ from backend.cli.setters import write_env_file
 from backend.cli.utils import print_styled
 
 
-def cohere_api_key_prompt(secrets):
-    key_exists = inquirer.confirm("Do you have a Cohere API key?")
-    if key_exists:
-        cohere_api_key = inquirer.text(
-            "Enter your Cohere API key", validate=lambda _, x: len(x) > 0
-        )
-    else:
-        print_styled(
-            "✋ Please visit the following link to get your Cohere API key: https://dashboard.cohere.com/api-keys 🔗",
-            bcolors.FAIL,
-        )
-        cohere_api_key = inquirer.text("Enter your Cohere API key")
-
-    secrets["COHERE_API_KEY"] = cohere_api_key
-
-
 def core_env_var_prompt(secrets):
     print_styled("💾 Let's set up your database URL.")
     database_url = inquirer.text(
@@ -135,7 +119,6 @@ def select_deployments_prompt(deployments, _):
 
 
 PROMPTS = {
-    "api_key": cohere_api_key_prompt,
     "core": core_env_var_prompt,
     "build_target": build_target_prompt,
 }
