@@ -76,14 +76,6 @@ export const AllStyles: StoryFn<typeof Button> = () => (
         <Button kind="outline" icon="add" label="Outline" theme="evolved-green" disabled />
       </div>
     </div>
-
-    {/* <Button kind="secondary" icon="add" label="Secondary" />
-    <Button kind="cell" icon="add" label="Cell" />
-    <Button kind="outline" icon="add" label="Outline" />
-    <Button kind="primary" icon="add" disabled label="Primary - Disabled" />
-    <Button kind="secondary" icon="add" disabled label="Secondary - Disabled" />
-    <Button kind="cell" icon="add" disabled label="Cell - Disabled" />
-    <Button kind="outline" icon="add" disabled label="Outline - Disabled" /> */}
   </div>
 );
 
@@ -94,5 +86,6 @@ export const Selection: Story = {
     animate: true,
     theme: 'evolved-green',
     label: 'Button',
+    stretch: true,
   },
 };
