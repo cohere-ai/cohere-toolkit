@@ -44,7 +44,12 @@ export const AgentSettingsForm: React.FC<Props> = ({
   const { data: listToolsData } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
 
-  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [stepsExpanded, setStepsExpanded] = useState({
+    define: true,
+    dataSources: source === 'update',
+    tools: source === 'update',
+    visibility: source === 'update',
+  });
 
   const [googleFiles, setGoogleFiles] = useState<DataSourceArtifact[]>(
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
@@ -120,21 +125,6 @@ export const AgentSettingsForm: React.FC<Props> = ({
     openGoogleFilePicker();
   };
 
-  const handleStepChange = (action: 'next' | 'back' | 'submit') => {
-    switch (action) {
-      case 'back':
-        setCurrentStep((prev) => prev - 1);
-        return;
-      case 'next':
-        setCurrentStep((prev) => prev + 1);
-        return;
-      case 'submit':
-        setToolsMetadata();
-        onSubmit();
-        return;
-    }
-  };
-
   return (
     <div className="flex flex-col space-y-6 p-8">
       {/* Step 1: Define your assistant - name, description, instruction */}
@@ -142,19 +132,29 @@ export const AgentSettingsForm: React.FC<Props> = ({
         title="Define your assistant"
         number={1}
         description="What does your assistant do?"
-        isExpanded={source === 'update' || currentStep === 0}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 0 : 1)}
+        isExpanded={stepsExpanded.define}
+        setIsExpanded={(expanded: boolean) =>
+          setStepsExpanded({ ...stepsExpanded, define: expanded })
+        }
       >
         <DefineAssistantStep fields={fields} setFields={setFields} />
-        <StepButtons onClick={handleStepChange} hide={source !== 'create'} disabled={!!nameError} />
+        <StepButtons
+          handleNext={() =>
+            setStepsExpanded({ ...stepsExpanded, define: false, dataSources: true })
+          }
+          hide={source !== 'create'}
+          disabled={!!nameError}
+        />
       </CollapsibleSection>
       {/* Step 2: Data sources - google drive and file upload */}
       <CollapsibleSection
         title="Add data sources"
         number={2}
         description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
-        isExpanded={source === 'update' || currentStep === 1}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 1 : 2)}
+        isExpanded={stepsExpanded.dataSources}
+        setIsExpanded={(expanded: boolean) =>
+          setStepsExpanded({ ...stepsExpanded, dataSources: expanded })
+        }
       >
         <DataSourcesStep
           googleDriveEnabled={
@@ -166,41 +166,56 @@ export const AgentSettingsForm: React.FC<Props> = ({
           setGoogleFiles={setGoogleFiles}
           setDefaultUploadFiles={setDefaultUploadFiles}
         />
-        <StepButtons onClick={handleStepChange} allowBack hide={source !== 'create'} />
+        <StepButtons
+          handleNext={() => setStepsExpanded({ ...stepsExpanded, dataSources: false, tools: true })}
+          handleBack={() =>
+            setStepsExpanded({ ...stepsExpanded, dataSources: false, define: true })
+          }
+          hide={source !== 'create'}
+        />
       </CollapsibleSection>
       {/* Step 3: Tools */}
       <CollapsibleSection
         title="Set default tools"
         number={3}
         description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
-        isExpanded={source === 'update' || currentStep === 2}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 2 : 3)}
+        isExpanded={stepsExpanded.tools}
+        setIsExpanded={(expanded: boolean) =>
+          setStepsExpanded({ ...stepsExpanded, tools: expanded })
+        }
       >
         <ToolsStep
           tools={listToolsData}
           activeTools={fields.tools ?? []}
           setActiveTools={(tools: string[]) => setFields({ ...fields, tools })}
         />
-        <StepButtons onClick={handleStepChange} allowBack allowSkip hide={source !== 'create'} />
+        <StepButtons
+          handleNext={() => setStepsExpanded({ ...stepsExpanded, tools: false, visibility: true })}
+          handleBack={() => setStepsExpanded({ ...stepsExpanded, tools: false, dataSources: true })}
+          allowSkip
+          hide={source !== 'create'}
+        />
       </CollapsibleSection>
       {/* Step 4: Visibility */}
       <CollapsibleSection
         title="Set visibility"
         number={4}
         description="Control who can access this assistant and its knowledge base."
-        isExpanded={source === 'update' || currentStep === 3}
-        setIsExpanded={(expanded: boolean) => setCurrentStep(expanded ? 3 : 0)}
+        isExpanded={stepsExpanded.visibility}
+        setIsExpanded={(expanded: boolean) =>
+          setStepsExpanded({ ...stepsExpanded, visibility: expanded })
+        }
       >
         <VisibilityStep
           isPublic={true}
           // TODO: add visibility when available
-          setIsPublic={(isPublic: boolean) => alert('to be developed!')}
+          setIsPublic={(_: boolean) => alert('to be developed!')}
         />
         <StepButtons
-          onClick={handleStepChange}
+          handleNext={onSubmit}
+          handleBack={() => setStepsExpanded({ ...stepsExpanded, visibility: false, tools: true })}
           nextLabel="Create"
           disabled={!!nameError}
-          allowBack
           isSubmit
           hide={source !== 'create'}
         />
@@ -210,18 +225,18 @@ export const AgentSettingsForm: React.FC<Props> = ({
 };
 
 const StepButtons: React.FC<{
-  onClick: (action: 'next' | 'back' | 'submit') => void;
+  handleNext: VoidFunction;
+  handleBack?: VoidFunction;
   nextLabel?: string;
   allowSkip?: boolean;
-  allowBack?: boolean;
   isSubmit?: boolean;
   disabled?: boolean;
   hide?: boolean;
 }> = ({
-  onClick,
+  handleNext,
+  handleBack,
   nextLabel = 'Next',
   allowSkip = false,
-  allowBack = false,
   isSubmit = false,
   disabled = false,
   hide = false,
@@ -229,21 +244,21 @@ const StepButtons: React.FC<{
   return (
     <div
       className={cn('flex w-full items-center justify-between pt-5', {
-        'justify-end': !allowBack,
+        'justify-end': !handleBack,
         hidden: hide,
       })}
     >
       <Button
         label="Back"
         kind="secondary"
-        onClick={() => onClick('back')}
-        className={cn({ hidden: !allowBack })}
+        onClick={handleBack}
+        className={cn({ hidden: !handleBack })}
       />
       <div className="flex items-center gap-4">
         <Button
           label="Skip"
           kind="secondary"
-          onClick={() => onClick('next')}
+          onClick={handleNext}
           className={cn({ hidden: !allowSkip })}
         />
         <Button
@@ -252,7 +267,7 @@ const StepButtons: React.FC<{
           kind="cell"
           icon={isSubmit ? 'checkmark' : 'arrow-right'}
           disabled={disabled}
-          onClick={() => onClick(isSubmit ? 'submit' : 'next')}
+          onClick={handleNext}
         />
       </div>
     </div>

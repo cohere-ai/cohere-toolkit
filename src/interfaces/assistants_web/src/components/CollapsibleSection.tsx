@@ -52,7 +52,11 @@ export const CollapsibleSection: React.FC<Props> = ({
             )}
             {title && typeof title === 'string' ? <Text className="text-lg">{title}</Text> : title}
           </div>
-          <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size="lg" />
+          <Icon
+            name={isExpanded ? 'chevron-up' : 'chevron-down'}
+            size="lg"
+            className={!setIsExpanded ? 'hidden' : ''}
+          />
         </div>
         {description && typeof description === 'string' ? (
           <Text className="text-left dark:text-marble-800">{description}</Text>
