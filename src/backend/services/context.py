@@ -53,7 +53,7 @@ class ContextMiddleware:
 
 
 def get_context_from_scope(scope: Scope) -> Context:
-    return scope.get("context")
+    return scope.get("context") or Context()
 
 
 def get_context(request: Request) -> Context:
