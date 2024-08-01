@@ -2,7 +2,7 @@
 
 import { Button, CoralLogo, Text } from '@/components/Shared';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 
 type Props = {
   name: string;

@@ -12,7 +12,7 @@ import { useConversationActions } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
 import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 
 export type ConversationListItem = {
   conversationId: string;

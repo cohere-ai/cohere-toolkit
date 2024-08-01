@@ -5,7 +5,7 @@ import { Icon, Text, Tooltip } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 
 type Props = {
   onUploadFile: (files: File[]) => void;

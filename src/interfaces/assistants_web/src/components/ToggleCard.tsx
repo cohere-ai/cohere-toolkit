@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
-import { getCohereTheme } from '@/utils/getCohereColor';
+import { getCohereTheme } from '@/utils/cohereColors';
 
 type Props = {
   checked: boolean;

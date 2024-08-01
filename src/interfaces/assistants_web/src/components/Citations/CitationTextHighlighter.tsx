@@ -10,7 +10,7 @@ import { useCitationsStore, useConversationStore, useSettingsStore } from '@/sto
 import { FulfilledMessage, TypingMessage, isFulfilledOrTypingMessage } from '@/types/message';
 import { cn } from '@/utils';
 import { createStartEndKey } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 
 const FALLBACK_CODE_SNIPPET_TEXT = '[source]';
 

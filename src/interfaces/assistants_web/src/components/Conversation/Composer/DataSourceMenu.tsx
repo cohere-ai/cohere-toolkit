@@ -8,7 +8,7 @@ import { Icon, Switch, Text } from '@/components/Shared';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 import { getToolIcon } from '@/utils/tools';
 
 export type Props = {

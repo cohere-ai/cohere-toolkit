@@ -13,7 +13,7 @@ import { useFileActions, useListFiles } from '@/hooks/files';
 import { useParamsStore } from '@/stores';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
-import { getCohereTheme } from '@/utils/getCohereColor';
+import { getCohereTheme } from '@/utils/cohereColors';
 
 type Props = {};
 

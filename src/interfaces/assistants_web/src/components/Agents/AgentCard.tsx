@@ -8,7 +8,7 @@ import { useConversations } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 
 type Props = {
   name: string;

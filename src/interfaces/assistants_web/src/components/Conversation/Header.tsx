@@ -6,7 +6,7 @@ import { useContextStore } from '@/context';
 import { useAgent } from '@/hooks/agents';
 import { useConversationStore } from '@/stores';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 
 type Props = {
   agentId?: string;

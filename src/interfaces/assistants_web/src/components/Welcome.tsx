@@ -8,7 +8,7 @@ import { CoralLogo, Icon, Text } from '@/components/Shared';
 import { useAgent } from '@/hooks/agents';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { getCohereColor } from '@/utils/cohereColors';
 
 type Props = {
   show: boolean;
