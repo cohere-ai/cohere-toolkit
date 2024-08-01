@@ -4,13 +4,13 @@ import { PropsWithChildren, useMemo, useRef } from 'react';
 
 import { Citation } from '@/components/Citations/Citation';
 import { useContextStore } from '@/context';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { FulfilledMessage, TypingMessage, isFulfilledOrTypingMessage } from '@/types/message';
 import { cn } from '@/utils';
 import { createStartEndKey } from '@/utils';
-import { getCohereColor } from '@/utils/cohereColors';
 
 const FALLBACK_CODE_SNIPPET_TEXT = '[source]';
 
@@ -59,15 +59,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
     );
   }, [end, selectedCitation, start, isGenerationSelected]);
 
-  const accentClassNames = useMemo(() => getCohereColor(agentId, { text: true }), [agentId]);
-  const selectedAccentClassNames = useMemo(
-    () => getCohereColor(agentId, { background: true, contrastText: true }),
-    [agentId]
-  );
-  const hoverAccentClassNames = useMemo(
-    () => getCohereColor(agentId, { background: true }, { hover: true }),
-    [agentId]
-  );
+  const { text, bg, contrastText, hover } = useBrandedColors(agentId);
 
   const handleClick = () => {
     setSettings({ isConfigDrawerOpen: false });
@@ -129,10 +121,10 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       onClick={handleClick}
       className={cn(
         'bg-transparent',
-        accentClassNames,
+        text,
         {
-          [selectedAccentClassNames]: isHighlighted,
-          [`${hoverAccentClassNames} hover:bg-opacity-35 dark:hover:bg-opacity-35`]: !isHighlighted,
+          [`${bg} ${contrastText}`]: isHighlighted,
+          [`${hover(bg)} hover:bg-opacity-35 dark:hover:bg-opacity-35`]: !isHighlighted,
         },
         'cursor-pointer rounded'
       )}

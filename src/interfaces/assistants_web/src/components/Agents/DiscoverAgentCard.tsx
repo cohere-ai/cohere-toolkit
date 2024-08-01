@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, CoralLogo, Text } from '@/components/Shared';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/cohereColors';
 
 type Props = {
   name: string;
@@ -15,6 +15,8 @@ type Props = {
  * @description renders a card for an agent with the agent's name, description
  */
 export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBaseAgent }) => {
+  const { bg } = useBrandedColors(id);
+
   return (
     <article className="flex overflow-x-hidden rounded-lg border border-marble-950 bg-marble-980 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
       <div className="flex h-full flex-grow flex-col items-start gap-y-2 overflow-x-hidden">
@@ -23,7 +25,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             className={cn(
               'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
               'truncate',
-              getCohereColor(id, { background: true })
+              bg
             )}
           >
             {isBaseAgent ? (

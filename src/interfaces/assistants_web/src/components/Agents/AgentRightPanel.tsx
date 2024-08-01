@@ -8,12 +8,12 @@ import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
 import { useParamsStore } from '@/stores';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
-import { getCohereTheme } from '@/utils/cohereColors';
 
 type Props = {};
 
@@ -24,6 +24,7 @@ const AgentRightPanel: React.FC<Props> = () => {
   const [useAssistantKnowledge, setUseAssistantKnowledge] = useState(true);
   const { agentId, conversationId } = useChatRoutes();
   const { data: agent, isLoading: isAgentLoading } = useAgent({ agentId });
+  const { theme } = useBrandedColors(agentId);
 
   const {
     params: { fileIds },
@@ -107,7 +108,7 @@ const AgentRightPanel: React.FC<Props> = () => {
                 />
               </span>
               <Switch
-                theme={getCohereTheme(agent?.id)}
+                theme={theme}
                 checked={useAssistantKnowledge}
                 onChange={setUseAssistantKnowledge}
               />
@@ -125,12 +126,7 @@ const AgentRightPanel: React.FC<Props> = () => {
               {agentKnowledgeFiles.length === 0 ? (
                 <Banner className="flex flex-col">
                   Add a data source to expand the assistant’s knowledge.
-                  <Button
-                    theme={getCohereTheme(agent?.id)}
-                    className="mt-4"
-                    label="Add Data Source"
-                    icon="add"
-                  />
+                  <Button theme={theme} className="mt-4" label="Add Data Source" icon="add" />
                 </Banner>
               ) : (
                 <div className="flex flex-col gap-y-3">

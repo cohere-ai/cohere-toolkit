@@ -3,9 +3,9 @@ import { useRef } from 'react';
 
 import { Icon, Text, Tooltip } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/cohereColors';
 
 type Props = {
   onUploadFile: (files: File[]) => void;
@@ -14,6 +14,7 @@ type Props = {
 export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { agentId } = useChatRoutes();
+  const { bg, contrastFill } = useBrandedColors(agentId);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onUploadFile([...(e.target.files ?? [])]);
@@ -33,11 +34,14 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
           className={({ open }) =>
             cn(
               'flex items-center justify-center rounded p-1 outline-none dark:fill-marble-800',
-              getCohereColor(agentId, { background: open, contrastText: open })
+
+              {
+                [bg]: open,
+              }
             )
           }
         >
-          <Icon name="paperclip" />
+          {({ open }) => <Icon className={cn({ [contrastFill]: open })} name="paperclip" />}
         </PopoverButton>
         <input
           ref={fileInputRef}

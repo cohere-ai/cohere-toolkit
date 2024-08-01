@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
-import { getCohereTheme } from '@/utils/cohereColors';
+import { useBrandedColors } from '@/hooks/brandedColors';
 
 type Props = {
   checked: boolean;
@@ -39,6 +39,7 @@ export const ToggleCard: React.FC<Props> = ({
   errorMessage,
   onToggle,
 }) => {
+  const { theme } = useBrandedColors(agentId);
   return (
     <div className="flex flex-col rounded-md border border-mushroom-700 bg-mushroom-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
       <div className="flex items-start gap-x-6">
@@ -70,7 +71,7 @@ export const ToggleCard: React.FC<Props> = ({
             checked={checked}
             onChange={onToggle}
             className="flex-shrink-0 gap-0"
-            theme={getCohereTheme(agentId)}
+            theme={theme}
           />
         )}
       </div>

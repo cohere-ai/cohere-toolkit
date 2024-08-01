@@ -5,10 +5,10 @@ import React from 'react';
 
 import { Agent, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/Shared';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/cohereColors';
 import { getToolIcon } from '@/utils/tools';
 
 export type Props = {
@@ -28,6 +28,8 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
     managedTools: tools,
   });
 
+  const { text, contrastText, border, bg } = useBrandedColors(agent?.id);
+
   return (
     <Popover className="relative">
       <PopoverButton
@@ -35,12 +37,10 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
         className={({ open }) =>
           cn(
             'flex items-center justify-center rounded border px-1.5 py-1 outline-none transition-colors',
-            getCohereColor(agent?.id, {
-              text: true,
-              contrastText: open,
-              border: true,
-              background: open,
-            })
+            text,
+            border,
+            { [contrastText]: open },
+            { [bg]: open }
           )
         }
       >
