@@ -9,7 +9,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
 from backend.database_models.database import get_session
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import (
     CSV_MIMETYPE,
@@ -17,8 +17,6 @@ from backend.tools.google_drive.constants import (
     NATIVE_EXTENSION_MAPPINGS,
     TEXT_MIMETYPE,
 )
-
-logger = get_logger()
 
 """
 Get service

@@ -1,11 +1,9 @@
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
 from backend.tools.google_drive.actions.utils import get_folder_subfolders
 from backend.tools.google_drive.utils import get_service
-
-logger = get_logger()
 
 ACTION_NAME = "move"
 

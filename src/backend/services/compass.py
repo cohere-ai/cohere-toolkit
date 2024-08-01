@@ -43,10 +43,10 @@ class Compass:
     ):
         """Initialize the Compass tool. Pass the Compass URL, username, and password
         as arguments or as environment variables."""
-        self.compass_api_url = compass_api_url or Settings().tools.compass.api_url
-        self.compass_parser_url = compass_parser_url or Settings().tools.compass.parser_url
-        self.username = compass_username or Settings().tools.compass.username
-        self.password = compass_password or Settings().tools.compass.password
+        self.compass_api_url = compass_api_url or Settings().compass.api_url
+        self.compass_parser_url = compass_parser_url or Settings().compass.parser_url
+        self.username = compass_username or Settings().compass.username
+        self.password = compass_password or Settings().compass.password
         if self.compass_api_url is None or self.compass_parser_url is None:
             message = "[Compass] Error initializing Compass client: API url or parser url missing."
             logger.exception(event=message)

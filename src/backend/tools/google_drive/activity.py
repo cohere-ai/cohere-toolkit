@@ -4,7 +4,6 @@ from typing import Any, Dict, List
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
-from backend.services.logger.utils import get_logger
 from backend.tools.google_drive.actions import (
     create,
     delete,
@@ -22,8 +21,6 @@ from backend.tools.google_drive.constants import (
 )
 from backend.tools.google_drive.tool import GoogleDrive
 from backend.tools.google_drive.utils import get_current_timestamp_in_ms, get_service
-
-logger = get_logger()
 
 
 def handle_google_drive_activity_event(

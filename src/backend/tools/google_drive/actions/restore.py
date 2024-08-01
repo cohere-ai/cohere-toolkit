@@ -1,9 +1,6 @@
-from backend.services.logger.utils import get_logger
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT
 from backend.tools.google_drive.actions.create import create
-
-logger = get_logger()
 
 ACTION_NAME = "restore"
 

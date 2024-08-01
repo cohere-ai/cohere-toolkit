@@ -52,3 +52,6 @@ auth:
   oidc:
 logger:
   strategy: structlog
+sync:
+  broker_url:
+  worker_concurrency:

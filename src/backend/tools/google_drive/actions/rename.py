@@ -1,11 +1,9 @@
 import time
 
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import logger
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
-
-logger = get_logger()
 
 ACTION_NAME = "rename"
 
