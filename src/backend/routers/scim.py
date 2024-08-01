@@ -1,7 +1,6 @@
 from typing import Optional
 
 from fastapi import APIRouter
-from starlette.responses import JSONResponse
 
 import backend.crud.user as user_repo
 from backend.config.routers import RouterName
@@ -21,7 +20,24 @@ class SCIMException(Exception):
 @router.get("/Users")
 async def get_users(session: DBSessionDep, count: int = 100, start_index: int = 1,
                     filter: Optional[str] = None) -> ListUserResponse:
-    # TODO implement filter
+    if filter:
+        single_filter = filter.split(" ")
+        filter_value = single_filter[2].strip('"')
+        db_user = user_repo.get_user_by_user_name(session, filter_value)
+        if not db_user:
+            return ListUserResponse(
+                totalResults=0,
+                startIndex=start_index,
+                itemsPerPage=count,
+                Resources=[],
+            )
+        return ListUserResponse(
+            totalResults=1,
+            startIndex=start_index,
+            itemsPerPage=count,
+            Resources=[User.from_db_user(db_user)],
+        )
+
     db_users = user_repo.get_external_users(session, offset=start_index - 1, limit=count)
     users = [User.from_db_user(db_user) for db_user in db_users]
     return ListUserResponse(
@@ -44,8 +60,8 @@ async def get_user(user_id: str, session: DBSessionDep):
 @router.post("/Users", status_code=201)
 async def create_user(user: CreateUser, session: DBSessionDep):
     db_user = user_repo.get_user_by_external_id(session, user.externalId)
-    if not db_user:
-        raise SCIMException(status_code=404, detail="User not found")
+    if db_user:
+        raise SCIMException(status_code=409, detail="User already exists in the database.")
 
     db_user = DBUser(
         user_name=user.userName,
@@ -55,8 +71,7 @@ async def create_user(user: CreateUser, session: DBSessionDep):
     )
 
     db_user = user_repo.create_user(session, db_user)
-    r = User.from_db_user(db_user)
-    return r
+    return User.from_db_user(db_user)
 
 
 @router.put("/Users/{user_id}")

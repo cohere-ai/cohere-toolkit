@@ -48,6 +48,19 @@ def get_user_by_external_id(db: Session, external_id: str) -> User | None:
     """
     return db.query(User).filter(User.external_id == external_id).first()
 
+def get_user_by_user_name(db: Session, user_name: str) -> User | None:
+    """
+    Get a user by ID.
+
+    Args:
+        db (Session): Database session.
+        user_name (str): username.
+
+    Returns:
+        User: User with the given username.
+    """
+    return db.query(User).filter(User.user_name == user_name).first()
+
 
 def get_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     """
@@ -66,7 +79,7 @@ def get_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
 
 def get_external_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     """
-    List all users.
+    List all external users create by the SCIM integration.
 
     Args:
         db (Session): Database session.

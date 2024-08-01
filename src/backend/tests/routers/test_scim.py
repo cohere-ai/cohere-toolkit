@@ -26,7 +26,7 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
     response = create_user_request(session_client)
     response_user = response.json()
 
-    db_user = user_repo.get_user_by_external_id(session, response_user["externalId"])
+    db_user = user_repo.get_user(session, response_user["id"])
     assert db_user is not None
 
     expected_user = {
@@ -99,6 +99,12 @@ def test_get_user(session_client: TestClient, session: Session):
             "lastModified": db_user.updated_at.isoformat()
         }
     }
+
+    assert user_response == expected_user
+
+    response = session_client.get("/scim/v2/Users?filter=userName%20eq%20%22testuser@company.com%22&startIndex=1&count=100")
+    list_user_response = response.json()
+    user_response = list_user_response["Resources"][0]
 
     assert user_response == expected_user
 
