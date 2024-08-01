@@ -30,8 +30,8 @@ class WebScrapeTool(BaseTool):
                 )
             ]
 
-        content_type = response.headers.get('content-type')
-        if 'application/pdf' in content_type:
+        content_type = response.headers.get("content-type")
+        if "application/pdf" in content_type:
             pdf_reader = PdfReader(io.BytesIO(response.content))
             text = ""
 
@@ -47,7 +47,7 @@ class WebScrapeTool(BaseTool):
                     }
                 )
             ]
-        elif 'text/html' in content_type:
+        elif "text/html" in content_type:
             soup = BeautifulSoup(response.text, "html.parser")
             text = soup.get_text(separator="\n")
 
