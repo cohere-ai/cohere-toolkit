@@ -27,7 +27,7 @@ export function RadioGroup<K extends string>({ options, value, onChange }: Props
             <span className="size-3 rounded-full bg-evolved-green-700 opacity-0 transition-opacity duration-300 group-data-[checked]:opacity-100" />
           </Radio>
           <Label>
-            <Text className="text-marble-950">{option.label ?? option.value}</Text>
+            <Text className="dark:text-marble-950">{option.label ?? option.value}</Text>
           </Label>
         </Field>
       ))}
