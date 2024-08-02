@@ -64,8 +64,8 @@ class Agent(AgentBase):
     tools: Optional[list[str]]
     tools_metadata: list[AgentToolMetadataPublic]
     deployments: list[DeploymentSchema]
-    deployment: Optional[str]
-    model: Optional[str]
+    deployment: Optional[DeploymentSchema]
+    model: Optional[ModelSchema]
 
     class Config:
         from_attributes = True
@@ -109,8 +109,8 @@ class UpdateAgentRequest(BaseModel):
     description: Optional[str] = None
     preamble: Optional[str] = None
     temperature: Optional[float] = None
-    model: Optional[str] = None
-    deployment: Optional[str] = None
+    model: Optional[str | ModelSchema] = None
+    deployment: Optional[str | DeploymentSchema] = None
     deployment_config: Optional[dict[str, str]] = None
     is_default_deployment: Optional[bool] = False
     is_default_model: Optional[bool] = False

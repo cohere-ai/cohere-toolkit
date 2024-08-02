@@ -92,7 +92,7 @@ class Agent(Base):
             )
         # TODO Eugene - return the deployment object here when FE is ready Discuss with Scott
         return (
-            default_model_association.deployment.name if default_model_association else None
+            default_model_association.deployment if default_model_association else None
         )
 
     @property
@@ -113,7 +113,7 @@ class Agent(Base):
                 else None
             )
         # TODO Eugene - return the model object here when FE is ready Discuss with Scott
-        return default_model_association.model.name if default_model_association else None
+        return default_model_association.model if default_model_association else None
 
     def set_default_agent_deployment_model(self, deployment_id: str, model_id: str):
         default_model_deployment = next(
