@@ -14,7 +14,7 @@ import { cn } from '@/utils';
 const makeCohereClient = () => {
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
   return new CohereClient({
-    hostname: env.NEXT_PUBLIC_API_HOSTNAME,
+    hostname: env.API_HOSTNAME,
     fetch: apiFetch,
   });
 };
