@@ -30,6 +30,21 @@ def get_group(db: Session, group_id: str) -> Group:
     return db.query(Group).filter(Group.id == group_id).first()
 
 
+def get_groups(db: Session, offset: int = 0, limit: int = 100) -> list[Group]:
+    """
+    List all groups
+
+    Args:
+        db (Session): Database session.
+        offset (int): Offset to start the list.
+        limit (int): Limit of users to be listed.
+
+    Returns:
+        list[Group]: List of groups.
+    """
+    return db.query(Group).offset(offset).limit(limit).all()
+
+
 def create_group(db: Session, group: Group) -> Group:
     """ "
     Create a new user.

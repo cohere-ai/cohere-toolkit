@@ -1,25 +1,36 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+import backend.crud.group as group_repo
 import backend.crud.user as user_repo
 
 
-def create_user_request(session_client: TestClient):
+def create_user_request(
+    session_client: TestClient,
+    user_name: str = "testuser@company.com",
+    external_id: str = "23123123",
+):
     user_data_req = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
-        "userName": "testuser@company.com",
-        "name": {
-            "givenName": "Test",
-            "familyName": "User"
-        },
-        "externalId": "23123123",
+        "userName": user_name,
+        "name": {"givenName": "Test", "familyName": "User"},
+        "externalId": external_id,
         "locale": "en-US",
         "groups": [],
-        "active": True
+        "active": True,
     }
 
-    response = session_client.post("/scim/v2/Users", json=user_data_req)
-    return response
+    return session_client.post("/scim/v2/Users", json=user_data_req)
+
+
+def create_group_request(session_client: TestClient):
+    request = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        "displayName": "Test SCIMv2",
+        "members": [],
+    }
+
+    return session_client.post("/scim/v2/Groups", json=request)
 
 
 def test_create_user(session_client: TestClient, session: Session) -> None:
@@ -30,22 +41,17 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
     assert db_user is not None
 
     expected_user = {
-        "schemas": [
-            "urn:ietf:params:scim:schemas:core:2.0:User"
-        ],
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "id": db_user.id,
         "userName": "testuser@company.com",
-        "name": {
-            "givenName": "Test",
-            "familyName": "User"
-        },
+        "name": {"givenName": "Test", "familyName": "User"},
         "externalId": "23123123",
         "active": True,
         "meta": {
             "resourceType": "User",
             "created": db_user.created_at.isoformat(),
-            "lastModified": db_user.updated_at.isoformat()
-        }
+            "lastModified": db_user.updated_at.isoformat(),
+        },
     }
 
     assert response.status_code == 201
@@ -57,7 +63,7 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
     assert response.status_code == 409
     assert error_response == {
         "detail": "User already exists in the database.",
-        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"]
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
     }
 
 
@@ -68,7 +74,7 @@ def test_get_user(session_client: TestClient, session: Session):
     assert response.status_code == 404
     assert error_response == {
         "detail": "User not found",
-        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"]
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
     }
 
     response = create_user_request(session_client)
@@ -82,27 +88,24 @@ def test_get_user(session_client: TestClient, session: Session):
     assert db_user is not None
 
     expected_user = {
-        "schemas": [
-            "urn:ietf:params:scim:schemas:core:2.0:User"
-        ],
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "id": db_user.id,
         "userName": "testuser@company.com",
-        "name": {
-            "givenName": "Test",
-            "familyName": "User"
-        },
+        "name": {"givenName": "Test", "familyName": "User"},
         "externalId": "23123123",
         "active": True,
         "meta": {
             "resourceType": "User",
             "created": db_user.created_at.isoformat(),
-            "lastModified": db_user.updated_at.isoformat()
-        }
+            "lastModified": db_user.updated_at.isoformat(),
+        },
     }
 
     assert user_response == expected_user
 
-    response = session_client.get("/scim/v2/Users?filter=userName%20eq%20%22testuser@company.com%22&startIndex=1&count=100")
+    response = session_client.get(
+        "/scim/v2/Users?filter=userName%20eq%20%22testuser@company.com%22&startIndex=1&count=100"
+    )
     list_user_response = response.json()
     user_response = list_user_response["Resources"][0]
 
@@ -119,14 +122,9 @@ def test_put_user(session_client: TestClient, session: Session):
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "id": user_id,
         "userName": "test.user@okta.local",
-        "name": {
-            "givenName": "Another",
-            "familyName": "User"
-        },
+        "name": {"givenName": "Another", "familyName": "User"},
         "active": True,
-        "meta": {
-            "resourceType": "User"
-        }
+        "meta": {"resourceType": "User"},
     }
 
     response = session_client.put(f"/scim/v2/Users/{user_id}", json=put_data)
@@ -139,17 +137,14 @@ def test_put_user(session_client: TestClient, session: Session):
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "id": user_id,
         "userName": "test.user@okta.local",
-        "name": {
-            "givenName": "Another",
-            "familyName": "User"
-        },
+        "name": {"givenName": "Another", "familyName": "User"},
         "externalId": db_user.external_id,
         "active": True,
         "meta": {
             "resourceType": "User",
             "created": db_user.created_at.isoformat(),
-            "lastModified": db_user.updated_at.isoformat()
-        }
+            "lastModified": db_user.updated_at.isoformat(),
+        },
     }
 
     assert response_user == expected_response
@@ -163,12 +158,7 @@ def test_patch_user(session_client: TestClient, session: Session):
 
     patch_data = {
         "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
-        "Operations": [{
-            "op": "replace",
-            "value": {
-                "active": False
-            }
-        }]
+        "Operations": [{"op": "replace", "value": {"active": False}}],
     }
 
     response = session_client.patch(f"/scim/v2/Users/{user_id}", json=patch_data)
@@ -179,22 +169,247 @@ def test_patch_user(session_client: TestClient, session: Session):
     assert db_user.active is False
 
     expected_response = {
-        "schemas": [
-            "urn:ietf:params:scim:schemas:core:2.0:User"
-        ],
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "id": db_user.id,
         "userName": "testuser@company.com",
-        "name": {
-            "givenName": "Test",
-            "familyName": "User"
-        },
+        "name": {"givenName": "Test", "familyName": "User"},
         "externalId": "23123123",
         "active": False,
         "meta": {
             "resourceType": "User",
             "created": db_user.created_at.isoformat(),
-            "lastModified": db_user.updated_at.isoformat()
-        }
+            "lastModified": db_user.updated_at.isoformat(),
+        },
     }
 
     assert response_user == expected_response
+
+
+def test_create_group(session_client: TestClient, session: Session):
+    response = create_group_request(session_client)
+    response_group = response.json()
+
+    group = group_repo.get_group(session, response_group["id"])
+    assert group is not None
+
+    assert response.status_code == 201
+    assert response_group == {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        "id": group.id,
+        "displayName": "Test SCIMv2",
+        "members": [],
+        "meta": {
+            "resourceType": "Group",
+            "created": group.created_at.isoformat(),
+            "lastModified": group.updated_at.isoformat(),
+        },
+    }
+
+    response = create_group_request(session_client)
+    assert response.status_code == 409
+
+
+def test_get_group(session_client: TestClient, session: Session):
+    response = session_client.get("/scim/v2/Groups/does-not-exist")
+    error_response = response.json()
+
+    assert response.status_code == 404
+    assert error_response == {
+        "detail": "Group not found",
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+    }
+
+    response = create_group_request(session_client)
+    response_group = response.json()
+    assert response.status_code == 201
+
+    response = session_client.get(f"/scim/v2/Groups/{response_group['id']}")
+    group_response = response.json()
+
+    db_group = group_repo.get_group(session, response_group["id"])
+    assert db_group is not None
+
+    expected_group = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        "id": db_group.id,
+        "displayName": "Test SCIMv2",
+        "members": [],
+        "meta": {
+            "resourceType": "Group",
+            "created": db_group.created_at.isoformat(),
+            "lastModified": db_group.updated_at.isoformat(),
+        },
+    }
+
+    assert group_response == expected_group
+
+    response = session_client.get(
+        "/scim/v2/Groups?filter=displayName%20eq%20%22Test%20SCIMv2%22&startIndex=1&count=100"
+    )
+    list_group_response = response.json()
+    group_response = list_group_response["Resources"][0]
+
+    assert group_response == expected_group
+
+
+def test_delete_group(session_client: TestClient, session: Session):
+    response = create_group_request(session_client)
+    response_group = response.json()
+    group_id = response_group["id"]
+    assert response.status_code == 201
+
+    response = session_client.delete(f"/scim/v2/Groups/{group_id}")
+    assert response.status_code == 204
+
+    response = session_client.get(f"/scim/v2/Groups/{group_id}")
+    error_response = response.json()
+
+    assert response.status_code == 404
+    assert error_response == {
+        "detail": "Group not found",
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+    }
+
+
+def test_update_group_name(session_client: TestClient, session: Session):
+    response = create_group_request(session_client)
+    response_group = response.json()
+    group_id = response_group["id"]
+    assert response.status_code == 201
+
+    patch_data = {
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+        "Operations": [
+            {
+                "op": "replace",
+                "value": {
+                    "id": "abf4dd94-a4c0-4f67-89c9-76b03340cb9b",
+                    "displayName": "New Group Name",
+                },
+            }
+        ],
+    }
+
+    response = session_client.patch(f"/scim/v2/Groups/{group_id}", json=patch_data)
+    response_group = response.json()
+
+    db_group = group_repo.get_group(session, group_id)
+    assert db_group is not None
+
+    expected_response = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        "id": group_id,
+        "displayName": "New Group Name",
+        "members": [],
+        "meta": {
+            "resourceType": "Group",
+            "created": db_group.created_at.isoformat(),
+            "lastModified": db_group.updated_at.isoformat(),
+        },
+    }
+
+    assert response_group == expected_response
+
+
+def test_add_users_to_group(session_client: TestClient, session: Session):
+    response = create_group_request(session_client)
+    response_group = response.json()
+    group_id = response_group["id"]
+    assert response.status_code == 201
+
+    response = create_user_request(session_client)
+    response_user = response.json()
+    user_id = response_user["id"]
+    assert response.status_code == 201
+
+    patch_data = {
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+        "Operations": [
+            {
+                "op": "add",
+                "path": "members",
+                "value": [
+                    {
+                        "value": user_id,
+                        "display": "test.user@okta.local",
+                    }
+                ],
+            },
+        ],
+    }
+
+    response = session_client.patch(f"/scim/v2/Groups/{group_id}", json=patch_data)
+    response_group = response.json()
+
+    db_group = group_repo.get_group(session, group_id)
+    assert db_group is not None
+
+    expected_response = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        "id": group_id,
+        "displayName": "Test SCIMv2",
+        "members": [
+            {
+                "value": user_id,
+                "display": "test.user@okta.local",
+            }
+        ],
+        "meta": {
+            "resourceType": "Group",
+            "created": db_group.created_at.isoformat(),
+            "lastModified": db_group.updated_at.isoformat(),
+        },
+    }
+
+    assert response_group == expected_response
+
+
+def test_replace_users_in_group(session_client: TestClient, session: Session):
+    test_add_users_to_group(session_client, session)
+    group = group_repo.get_groups(session)[0]
+
+    response = create_user_request(
+        session_client, user_name="test.user.new@okta.local", external_id="1234546"
+    )
+    response_user = response.json()
+    user_id = response_user["id"]
+    username = response_user["userName"]
+    assert response.status_code == 201
+
+    patch_data = {
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+        "Operations": [
+            {
+                "op": "replace",
+                "path": "members",
+                "value": [
+                    {
+                        "value": user_id,
+                        "display": username,
+                    },
+                ],
+            }
+        ],
+    }
+
+    response = session_client.patch(f"/scim/v2/Groups/{group.id}", json=patch_data)
+    response_group = response.json()
+
+    expected_response = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        "id": group.id,
+        "displayName": "Test SCIMv2",
+        "members": [
+            {
+                "value": user_id,
+                "display": "test.user.new@okta.local",
+            }
+        ],
+        "meta": {
+            "resourceType": "Group",
+            "created": group.created_at.isoformat(),
+            "lastModified": group.updated_at.isoformat(),
+        },
+    }
+
+    assert response_group == expected_response

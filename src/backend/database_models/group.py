@@ -17,10 +17,6 @@ class UserGroup(Base):
     group_id: Mapped[str] = mapped_column(
         String, ForeignKey("groups.id"), nullable=False
     )
-    user_id: Mapped[str] = mapped_column(
-        String, ForeignKey("users.id"), nullable=False
-    )
-    # refers to user's external_id
-    value: Mapped[str] = mapped_column(String, nullable=False)
+    user_id: Mapped[str] = mapped_column(String, ForeignKey("users.id"), nullable=False)
     display: Mapped[str] = mapped_column(String, nullable=True)
     group = relationship("Group", back_populates="members")

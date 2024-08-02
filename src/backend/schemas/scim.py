@@ -25,9 +25,14 @@ class BaseUser(BaseModel):
     schemas: list[str]
 
 
+class GroupMember(BaseModel):
+    value: str
+    display: str
+
+
 class BaseGroup(BaseModel):
     schemas: list[str]
-    members: Any
+    members: list[GroupMember]
     displayName: str
 
 
@@ -51,7 +56,7 @@ class Operation(BaseModel):
 class GroupOperation(BaseModel):
     op: str
     path: Optional[str] = None
-    value: Union[Dict[str, str], list[str]]
+    value: Union[Dict[str, str], list[Dict[str, str]]]
 
 
 class PatchUser(BaseModel):
@@ -74,7 +79,10 @@ class Group(BaseGroup):
         return Group(
             id=db_group.id,
             displayName=db_group.display_name,
-            members=db_group.members,
+            members=[
+                GroupMember(value=g.user_id, display=g.display)
+                for g in db_group.members
+            ],
             meta=Meta(
                 resourceType="Group",
                 created=db_group.created_at.isoformat(),
@@ -122,5 +130,5 @@ class ListUserResponse(BaseListResponse):
     Resources: list[User]
 
 
-class ListGroupResponse(BaseModel):
+class ListGroupResponse(BaseListResponse):
     Resources: list[Group]
