@@ -20,6 +20,11 @@ export const AllStyles: StoryFn<typeof Button> = () => (
         <Button kind="primary" icon="add" label="Primary" theme="coral" />
         <Button kind="primary" icon="add" label="Primary" theme="quartz" />
         <Button kind="primary" icon="add" label="Primary" theme="mushroom" />
+        <Button kind="primary" icon="add" label="Primary" theme="danger" />
+        <Button kind="primary" icon="add" label="Primary" theme="evolved-blue" />
+        <Button kind="primary" icon="add" label="Primary" theme="evolved-mushroom" />
+        <Button kind="primary" icon="add" label="Primary" theme="evolved-quartz" />
+        <Button kind="primary" icon="add" label="Primary" theme="green" />
         <Button kind="primary" icon="add" label="Primary" theme="evolved-green" disabled />
       </div>
     </div>
@@ -51,6 +56,11 @@ export const AllStyles: StoryFn<typeof Button> = () => (
         <Button kind="secondary" icon="add" label="Secondary" theme="coral" />
         <Button kind="secondary" icon="add" label="Secondary" theme="quartz" />
         <Button kind="secondary" icon="add" label="Secondary" theme="mushroom" />
+        <Button kind="secondary" icon="add" label="Secondary" theme="danger" />
+        <Button kind="secondary" icon="add" label="Secondary" theme="evolved-blue" />
+        <Button kind="secondary" icon="add" label="Secondary" theme="evolved-mushroom" />
+        <Button kind="secondary" icon="add" label="Secondary" theme="evolved-quartz" />
+        <Button kind="secondary" icon="add" label="Secondary" theme="green" />
         <Button kind="secondary" icon="add" label="Secondary" theme="evolved-green" disabled />
       </div>
     </div>
@@ -62,6 +72,11 @@ export const AllStyles: StoryFn<typeof Button> = () => (
         <Button kind="cell" icon="add" label="Cell" theme="coral" />
         <Button kind="cell" icon="add" label="Cell" theme="quartz" />
         <Button kind="cell" icon="add" label="Cell" theme="mushroom" />
+        <Button kind="cell" icon="add" label="Cell" theme="danger" />
+        <Button kind="cell" icon="add" label="Cell" theme="evolved-blue" />
+        <Button kind="cell" icon="add" label="Cell" theme="evolved-mushroom" />
+        <Button kind="cell" icon="add" label="Cell" theme="evolved-quartz" />
+        <Button kind="cell" icon="add" label="Cell" theme="green" />
         <Button kind="cell" icon="add" label="Cell" theme="evolved-green" disabled />
       </div>
     </div>
@@ -73,6 +88,11 @@ export const AllStyles: StoryFn<typeof Button> = () => (
         <Button kind="outline" icon="add" label="Outline" theme="coral" />
         <Button kind="outline" icon="add" label="Outline" theme="quartz" />
         <Button kind="outline" icon="add" label="Outline" theme="mushroom" />
+        <Button kind="outline" icon="add" label="Outline" theme="danger" />
+        <Button kind="outline" icon="add" label="Outline" theme="evolved-blue" />
+        <Button kind="outline" icon="add" label="Outline" theme="evolved-mushroom" />
+        <Button kind="outline" icon="add" label="Outline" theme="evolved-quartz" />
+        <Button kind="outline" icon="add" label="Outline" theme="green" />
         <Button kind="outline" icon="add" label="Outline" theme="evolved-green" disabled />
       </div>
     </div>

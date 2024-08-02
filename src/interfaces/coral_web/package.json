@@ -38,6 +38,7 @@
     "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
+    "cross-fetch": "^4.0.0",
     "csstype": "^3.0.10",
     "form-data": "^4.0.0",
     "hast-util-to-jsx-runtime": "^2.3.0",

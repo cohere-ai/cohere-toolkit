@@ -6,9 +6,9 @@ import React from 'react';
 import { AssistantTools } from '@/components/AssistantTools';
 import { CoralLogo, Icon, Text } from '@/components/Shared';
 import { useAgent } from '@/hooks/agents';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
 
 type Props = {
   show: boolean;
@@ -21,6 +21,8 @@ type Props = {
 export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { data: agent, isLoading: isAgentsLoading } = useAgent({ agentId });
   const { data: tools = [], isLoading: isToolsLoading } = useListTools();
+  const { contrastText, bg } = useBrandedColors(agentId);
+
   const isAgent = agentId !== undefined && !isAgentsLoading && !!agent;
 
   return (
@@ -39,7 +41,8 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           <div
             className={cn(
               'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
-              getCohereColor(agent?.id, { background: true, contrastText: true })
+              contrastText,
+              bg
             )}
           >
             {!isAgent ? (
