@@ -8,11 +8,11 @@ runs:
     - name: Install Node.js
       uses: actions/setup-node@v4
       with:
-        node-version-file: "src/interfaces/coral_web/.nvmrc"
+        node-version-file: "src/interfaces/assistants_web/.nvmrc"
         cache: "npm"
-        cache-dependency-path: "src/interfaces/coral_web/package-lock.json"
+        cache-dependency-path: "src/interfaces/assistants_web/package-lock.json"
 
     - name: Install dependencies with npm
       shell: bash
-      working-directory: src/interfaces/coral_web
+      working-directory: src/interfaces/assistants_web
       run: npm ci
