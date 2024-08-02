@@ -326,7 +326,9 @@ def test_get_nonexistent_agent(
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
-def test_update_agent_mock_metrics(session_client: TestClient, session: Session, user) -> None:
+def test_update_agent_mock_metrics(
+    session_client: TestClient, session: Session, user
+) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,

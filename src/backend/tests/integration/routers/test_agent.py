@@ -49,6 +49,7 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert agent.deployment == request_json["deployment"]
     assert agent.tools == request_json["tools"]
 
+
 def test_create_agent_with_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
@@ -177,3 +178,83 @@ def test_update_agent_metric(session_client: TestClient, session: Session) -> No
         assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
         assert m_args.assistant.name == request_json["name"]
         assert m_args.user.fullname == user.fullname
+
+
+def test_update_agent_mock_metrics(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+        user_id=user.id,
+    )
+
+    request_json = {
+        "name": "updated name",
+        "version": 2,
+        "description": "updated description",
+        "preamble": "updated preamble",
+        "temperature": 0.7,
+        "model": "command-r",
+        "deployment": ModelDeploymentName.CoherePlatform,
+    }
+
+    with patch(
+        "backend.services.metrics.report_metrics",
+        return_value=None,
+    ) as mock_metrics:
+        response = session_client.put(
+            f"/v1/agents/{agent.id}",
+            json=request_json,
+            headers={"User-Id": user.id},
+        )
+
+        assert response.status_code == 200
+        m_args: MetricsData = mock_metrics.await_args.args[0].signal
+        assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
+        assert m_args.assistant.name == request_json["name"]
+        assert m_args.user.fullname == user.fullname
+
+
+def test_update_agent(session_client: TestClient, session: Session, user) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+        user_id=user.id,
+    )
+
+    request_json = {
+        "name": "updated name",
+        "version": 2,
+        "description": "updated description",
+        "preamble": "updated preamble",
+        "temperature": 0.7,
+        "model": "command-r",
+        "deployment": ModelDeploymentName.CoherePlatform,
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}",
+        json=request_json,
+        headers={"User-Id": user.id},
+    )
+
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["name"] == "updated name"
+    assert updated_agent["version"] == 2
+    assert updated_agent["description"] == "updated description"
+    assert updated_agent["preamble"] == "updated preamble"
+    assert updated_agent["temperature"] == 0.7
+    assert updated_agent["model"] == "command-r"
+    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform

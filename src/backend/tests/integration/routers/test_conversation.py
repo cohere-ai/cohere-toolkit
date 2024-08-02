@@ -61,3 +61,21 @@ def test_search_conversations_with_reranking(
     assert response.status_code == 200
     assert len(results) == 1
     assert results[0]["id"] == conversation2.id
+
+
+def test_search_conversations_no_conversations(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    _ = get_factory("Conversation", session).create(title="test title", user_id=user.id)
+    user2 = get_factory("User", session).create()
+
+    response = session_client.get(
+        "/v1/conversations:search",
+        headers={"User-Id": user2.id},
+        params={"query": "test"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == []

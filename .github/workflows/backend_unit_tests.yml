@@ -1,4 +1,4 @@
-name: Pytest
+name: Backend unit tests
 
 on:
   push:
