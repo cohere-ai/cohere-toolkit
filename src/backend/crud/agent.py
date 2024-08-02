@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.agent import Agent
-from backend.schemas.agent import UpdateAgentRequest
+from backend.schemas.agent import AgentVisibility, UpdateAgentRequest
 from backend.services.transaction import validate_transaction
 
 
@@ -62,11 +62,13 @@ def get_agent_by_name(db: Session, agent_name: str, user_id: str) -> Agent:
     return agent
 
 
-def get_public_agents(
+def get_agents(
     db: Session,
+    user_id: str,
     offset: int = 0,
     limit: int = 100,
     organization_id: str = None,
+    visibility: AgentVisibility = AgentVisibility.ALL,
 ) -> list[Agent]:
     """
     Get all agents that are public.
@@ -82,40 +84,17 @@ def get_public_agents(
     """
     query = db.query(Agent)
 
-    # Public agents -> is_private = False or None
-    query = query.filter((Agent.is_private == False) | (Agent.is_private == None))
+    if visibility == AgentVisibility.PUBLIC:
+        # Public agents -> is_private = False or None
+        query = query.filter((Agent.is_private == False) | (Agent.is_private == None))
+    elif visibility == AgentVisibility.PRIVATE:
+        # Private agents -> is_private = True
+        query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
 
     if organization_id is not None:
         query = query.filter(Agent.organization_id == organization_id)
 
     query = query.offset(offset).limit(limit)
-    return query.all()
-
-
-def get_private_agents(
-    db: Session,
-    user_id: str,
-    offset: int = 0,
-    limit: int = 100,
-) -> list[Agent]:
-    """
-    Get all agents for a user.
-
-    Args:
-      db (Session): Database session.
-      offset (int): Offset of the results.
-      limit (int): Limit of the results.
-      organization_id (str): Organization ID.
-
-    Returns:
-      list[Agent]: List of agents.
-    """
-    query = (
-        db.query(Agent)
-        .filter(Agent.user_id == user_id, Agent.is_private)
-        .offset(offset)
-        .limit(limit)
-    )
     return query.all()
 
 

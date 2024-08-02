@@ -5,7 +5,7 @@ from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
-from backend.schemas.agent import UpdateAgentRequest
+from backend.schemas.agent import AgentVisibility, UpdateAgentRequest
 from backend.tests.factories import get_factory
 
 
@@ -155,15 +155,15 @@ def test_list_public_agents(session, user):
             id=i, name=f"test_agent_{i}", user_id=user.id, is_private=False
         )
 
-    agents = agent_crud.get_public_agents(session)
+    agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.PUBLIC)
     assert len(agents) == length
 
-    agents = agent_crud.get_private_agents(session, user.id)
+    agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.PRIVATE)
     assert len(agents) == 0
 
 
 def test_list_public_agents_empty(session, user):
-    agents = agent_crud.get_public_agents(session)
+    agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.PUBLIC)
     assert len(agents) == 0
 
 
@@ -174,10 +174,10 @@ def test_list_private_agents(session, user):
             id=i, name=f"test_agent_{i}", user_id=user.id, is_private=True
         )
 
-    agents = agent_crud.get_private_agents(session, user.id)
+    agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.PRIVATE)
     assert len(agents) == length
 
-    agents = agent_crud.get_public_agents(session)
+    agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.PUBLIC)
     assert len(agents) == 0
 
 
@@ -193,18 +193,17 @@ def test_list_public_and_private_agents(session, user):
             id=i, name=f"test_agent_{i}", user_id=user.id, is_private=False
         )
 
-    agents = agent_crud.get_public_agents(session)
-    assert len(agents) == length
-
-    agents = agent_crud.get_private_agents(session, user.id)
-    assert len(agents) == length
+    agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.ALL)
+    assert len(agents) == length * 2
 
 
 def test_list_conversations_with_pagination(session, user):
     for i in range(10):
         get_factory("Agent", session).create(name=f"Agent {i}", user_id=user.id)
 
-    agents = agent_crud.get_public_agents(session, offset=5, limit=5)
+    agents = agent_crud.get_agents(
+        session, user.id, offset=5, limit=5, visibility=AgentVisibility.ALL
+    )
     assert len(agents) == 5
 
 

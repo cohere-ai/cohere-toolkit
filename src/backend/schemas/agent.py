@@ -1,7 +1,14 @@
 import datetime
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
+
+
+class AgentVisibility(str, Enum):
+    PRIVATE = "private"
+    PUBLIC = "public"
+    ALL = "all"
 
 
 class AgentBase(BaseModel):

@@ -13,6 +13,7 @@ from backend.schemas.agent import (
     AgentPublic,
     AgentToolMetadata,
     AgentToolMetadataPublic,
+    AgentVisibility,
     CreateAgentRequest,
     CreateAgentToolMetadataRequest,
     DeleteAgent,
@@ -28,7 +29,6 @@ from backend.schemas.metrics import (
     agent_to_metrics_agent,
 )
 from backend.services.agent import (
-    get_public_and_private_agents,
     raise_db_error,
     validate_agent_exists,
     validate_agent_tool_metadata_exists,
@@ -111,6 +111,7 @@ async def list_agents(
     *,
     offset: int = 0,
     limit: int = 100,
+    visibility: AgentVisibility = AgentVisibility.ALL,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> list[AgentPublic]:
@@ -129,9 +130,14 @@ async def list_agents(
     user_id = ctx.get_user_id()
 
     try:
-        return get_public_and_private_agents(
-            session=session, user_id=user_id, offset=offset, limit=limit
+        agents = agent_crud.get_agents(
+            db=session,
+            user_id=user_id,
+            offset=offset,
+            limit=limit,
+            visibility=visibility,
         )
+        return agents
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
