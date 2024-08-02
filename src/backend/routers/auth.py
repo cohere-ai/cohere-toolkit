@@ -273,9 +273,12 @@ async def login(
         return RedirectResponse(redirect_err)
 
     # Get key from state and retrieve cache
-    state = json.loads(request.query_params.get("state"))
-    cache_key = state["key"]
-    tool_auth_cache = cache_get_dict(cache_key)
+    try:
+        state = json.loads(request.query_params.get("state"))
+        cache_key = state["key"]
+        tool_auth_cache = cache_get_dict(cache_key)
+    except Exception as e:
+        log_and_redirect_err(str(e))
 
     user_id = tool_auth_cache.get("user_id")
     tool_id = tool_auth_cache.get("tool_id")

@@ -50,7 +50,7 @@ class CohereDeployment(BaseDeployment):
 
         if not response.ok:
             logger.warning(
-                event=f"[Cohere Deployment] Error retrieving models: Invalid HTTP {response.status} response",
+                event=f"[Cohere Deployment] Error retrieving models: Invalid HTTP {response.status_code} response",
             )
             return []
 
