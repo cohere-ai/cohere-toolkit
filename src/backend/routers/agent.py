@@ -32,7 +32,6 @@ from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
     validate_agent_tool_metadata_exists,
-    validate_user_has_access_to_agent,
 )
 from backend.services.context import get_context
 from backend.services.request_validators import (
@@ -159,7 +158,7 @@ async def get_agent_by_id(
     agent = None
 
     try:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
+        agent = agent_crud.get_agent_by_id(session, agent_id, user_id=user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -168,8 +167,6 @@ async def get_agent_by_id(
             status_code=404,
             detail=f"Agent with ID: {agent_id} not found.",
         )
-
-    validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
 
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
@@ -211,14 +208,13 @@ async def update_agent(
     ctx.with_user(session)
     ctx.with_event_type(MetricsMessageType.ASSISTANT_UPDATED)
     user_id = ctx.get_user_id()
-    agent = validate_agent_exists(session, agent_id)
-    validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+    agent = validate_agent_exists(session, agent_id, user_id=user_id)
 
     if new_agent.tools_metadata is not None:
         agent = await handle_tool_metadata_update(agent, new_agent, session, ctx)
 
     try:
-        agent = agent_crud.update_agent(session, agent, new_agent)
+        agent = agent_crud.update_agent(session, agent, new_agent, user_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
@@ -245,6 +241,9 @@ async def handle_tool_metadata_update(
     Returns:
         Agent: Agent.
     """
+    user_id = ctx.get_user_id()
+    validate_agent_exists(session, agent.id, user_id=user_id)
+
     # Delete tool metadata that are not in the request
     new_tools_names = [metadata.tool_name for metadata in new_agent.tools_metadata]
     for tool_metadata in agent.tools_metadata:
@@ -262,7 +261,7 @@ async def handle_tool_metadata_update(
 
     # Remove tools_metadata from new_agent to avoid updating it in the agent
     new_agent.tools_metadata = None
-    agent = agent_crud.get_agent_by_id(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id, user_id=agent.user_id)
     return agent
 
 
@@ -316,15 +315,14 @@ async def delete_agent(
     """
     ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
     user_id = ctx.get_user_id()
-    agent = validate_agent_exists(session, agent_id)
-    validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+    agent = validate_agent_exists(session, agent_id, user_id=user_id)
 
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
     try:
-        agent_crud.delete_agent(session, agent_id)
+        agent_crud.delete_agent(session, agent_id, user_id=user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -354,10 +352,9 @@ async def list_agent_tool_metadata(
     """
     user_id = ctx.get_user_id()
     tool_metadata = []
-    agent = None
+    validate_agent_exists(session, agent_id, user_id=user_id)
 
     try:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
         tool_metadata = (
             agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
                 session, agent_id
@@ -366,7 +363,6 @@ async def list_agent_tool_metadata(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
     return tool_metadata
 
 
@@ -397,8 +393,7 @@ def create_agent_tool_metadata(
     """
     user_id = ctx.get_user_id()
 
-    agent = validate_agent_exists(session, agent_id)
-    validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+    agent = validate_agent_exists(session, agent_id, user_id=user_id)
 
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
@@ -452,8 +447,7 @@ async def update_agent_tool_metadata(
     """
     user_id = ctx.get_user_id()
 
-    agent = validate_agent_exists(session, agent_id)
-    validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+    validate_agent_exists(session, agent_id, user_id=user_id)
 
     agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id
@@ -496,8 +490,7 @@ async def delete_agent_tool_metadata(
     """
     user_id = ctx.get_user_id()
 
-    agent = validate_agent_exists(session, agent_id)
-    validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+    validate_agent_exists(session, agent_id, user_id=user_id)
 
     agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id

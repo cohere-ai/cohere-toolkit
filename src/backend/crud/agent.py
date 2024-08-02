@@ -26,9 +26,10 @@ def create_agent(db: Session, agent: Agent) -> Agent:
 
 
 @validate_transaction
-def get_agent_by_id(db: Session, agent_id: str) -> Agent:
+def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
     """
     Get an agent by its ID.
+    Anyone can get a public agent, but only the owner can get a private agent.
 
     Args:
       db (Session): Database session.
@@ -37,12 +38,16 @@ def get_agent_by_id(db: Session, agent_id: str) -> Agent:
     Returns:
       Agent: Agent with the given ID.
     """
-    return db.query(Agent).filter(Agent.id == agent_id).first()
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if agent and agent.is_private and agent.user_id != user_id:
+        return None
+    return agent
 
 
-def get_agent_by_name(db: Session, agent_name: str) -> Agent:
+def get_agent_by_name(db: Session, agent_name: str, user_id: str) -> Agent:
     """
     Get an agent by its name.
+    Anyone can get a public agent, but only the owner can get a private agent.
 
     Args:
       db (Session): Database session.
@@ -51,7 +56,10 @@ def get_agent_by_name(db: Session, agent_name: str) -> Agent:
     Returns:
       Agent: Agent with the given name.
     """
-    return db.query(Agent).filter(Agent.name == agent_name).first()
+    agent = db.query(Agent).filter(Agent.name == agent_name).first()
+    if agent and agent.is_private and agent.user_id != user_id:
+        return None
+    return agent
 
 
 def get_public_agents(
@@ -61,7 +69,7 @@ def get_public_agents(
     organization_id: str = None,
 ) -> list[Agent]:
     """
-    Get all agents for a user.
+    Get all agents that are public.
 
     Args:
       db (Session): Database session.
@@ -74,11 +82,11 @@ def get_public_agents(
     """
     query = db.query(Agent)
 
+    # Public agents -> is_private = False or None
+    query = query.filter((Agent.is_private == False) | (Agent.is_private == None))
+
     if organization_id is not None:
-        # Piblic agents -> is_private = False or None
-        query = query.filter(
-            Agent.organization_id == organization_id, not Agent.is_private
-        )
+        query = query.filter(Agent.organization_id == organization_id)
 
     query = query.offset(offset).limit(limit)
     return query.all()
@@ -104,16 +112,19 @@ def get_private_agents(
     """
     query = (
         db.query(Agent)
-        .filter(Agent.user_id == user_id, Agent.is_private is True)
+        .filter(Agent.user_id == user_id, Agent.is_private)
         .offset(offset)
         .limit(limit)
     )
     return query.all()
 
 
-def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Agent:
+def update_agent(
+    db: Session, agent: Agent, new_agent: UpdateAgentRequest, user_id: str
+) -> Agent:
     """
     Update an agent.
+    Anyone can update a public agent, but only the owner can update a private agent.
 
     Args:
       db (Session): Database session.
@@ -123,6 +134,9 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Ag
     Returns:
       Agent: Updated agent.
     """
+    if agent.is_private and agent.user_id != user_id:
+        return None
+
     for attr, value in new_agent.model_dump(exclude_none=True).items():
         setattr(agent, attr, value)
 
@@ -131,15 +145,27 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Ag
     return agent
 
 
-def delete_agent(db: Session, agent_id: str) -> None:
+def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     """
     Delete an agent by ID.
+    Anyone can delete a public agent, but only the owner can delete a private agent.
 
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
+
+    Returns:
+        bool: True if the agent was deleted, False otherwise
     """
-    agent = db.query(Agent).filter(Agent.id == agent_id)
-    agent.delete()
+    agent_query = db.query(Agent).filter(Agent.id == agent_id)
+    agent = agent_query.first()
+
+    if not agent:
+        return False
+
+    if agent and agent.is_private and agent.user_id != user_id:
+        return False
+
+    agent_query.delete()
     db.commit()
-    return None
+    return True

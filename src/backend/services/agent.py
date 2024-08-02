@@ -8,12 +8,12 @@ from backend.database_models.agent import Agent, AgentToolMetadata
 from backend.database_models.database import DBSessionDep
 
 
-def validate_agent_exists(session: DBSessionDep, agent_id: str) -> Agent:
-    agent = agent_crud.get_agent_by_id(session, agent_id)
+def validate_agent_exists(session: DBSessionDep, agent_id: str, user_id: str) -> Agent:
+    agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
 
     if not agent:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Agent with ID {agent_id} not found.",
         )
 
@@ -61,20 +61,3 @@ def get_public_and_private_agents(
     )
 
     return public_agents + private_agents
-
-
-def validate_user_has_access_to_agent(
-    user_id: str, agent: Agent | None, agent_id: str = ""
-) -> bool:
-    # Check if agent exists and user has access to it
-    error = None
-    if not agent:
-        error = f"Agent with ID: {agent_id} not found."
-
-    if agent and agent.user_id != user_id and agent.is_private:
-        error = f"Agent with ID: {agent.id} not found."
-
-    if error:
-        raise HTTPException(status_code=404, detail=error)
-
-    return True

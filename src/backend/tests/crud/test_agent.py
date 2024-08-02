@@ -20,6 +20,7 @@ def test_create_agent(session, user):
         tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
+        is_private=True,
     )
 
     agent = agent_crud.create_agent(session, agent_data)
@@ -33,7 +34,7 @@ def test_create_agent(session, user):
     assert agent.model == "command-r-plus"
     assert agent.deployment == ModelDeploymentName.CoherePlatform
 
-    agent = agent_crud.get_agent_by_id(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
     assert agent.user_id == user.id
     assert agent.version == 1
     assert agent.name == "test"
@@ -64,7 +65,7 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.model == "command-r-plus"
     assert agent.deployment == ModelDeploymentName.CoherePlatform
 
-    agent = agent_crud.get_agent_by_id(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
     assert agent.user_id == user.id
     assert agent.version == 1
     assert agent.name == "test"
@@ -121,37 +122,82 @@ def test_create_agent_duplicate_name_version(session, user):
 
 def test_get_agent_by_id(session, user):
     _ = get_factory("Agent", session).create(id="1", name="test_agent", user_id=user.id)
-    agent = agent_crud.get_agent_by_id(session, "1")
+    agent = agent_crud.get_agent_by_id(session, "1", user.id)
     assert agent.id == "1"
     assert agent.name == "test_agent"
 
 
 def test_get_agent_by_name(session, user):
     _ = get_factory("Agent", session).create(id="1", name="test_agent", user_id=user.id)
-    agent = agent_crud.get_agent_by_name(session, "test_agent")
+    agent = agent_crud.get_agent_by_name(session, "test_agent", user.id)
     assert agent.id == "1"
     assert agent.name == "test_agent"
 
 
-def test_fail_get_nonexistant_agent(session, user):
-    agent = agent_crud.get_agent_by_id(session, "123")
+def test_get_someone_elses_agent(session, user):
+    user2 = get_factory("User", session).create()
+    agent = get_factory("Agent", session).create(
+        id="1", name="test_agent", user_id=user.id, is_private=True
+    )
+    agent = agent_crud.get_agent_by_id(session, agent.id, user2.id)
     assert agent is None
 
 
-def test_list_agents(session, user):
+def test_fail_get_nonexistant_agent(session, user):
+    agent = agent_crud.get_agent_by_id(session, "123", user.id)
+    assert agent is None
+
+
+def test_list_public_agents(session, user):
     length = 3
     for i in range(length):
         _ = get_factory("Agent", session).create(
-            id=i, name=f"test_agent_{i}", user_id=user.id
+            id=i, name=f"test_agent_{i}", user_id=user.id, is_private=False
         )
 
     agents = agent_crud.get_public_agents(session)
     assert len(agents) == length
 
+    agents = agent_crud.get_private_agents(session, user.id)
+    assert len(agents) == 0
 
-def test_list_agents_empty(session, user):
+
+def test_list_public_agents_empty(session, user):
     agents = agent_crud.get_public_agents(session)
     assert len(agents) == 0
+
+
+def test_list_private_agents(session, user):
+    length = 3
+    for i in range(length):
+        _ = get_factory("Agent", session).create(
+            id=i, name=f"test_agent_{i}", user_id=user.id, is_private=True
+        )
+
+    agents = agent_crud.get_private_agents(session, user.id)
+    assert len(agents) == length
+
+    agents = agent_crud.get_public_agents(session)
+    assert len(agents) == 0
+
+
+def test_list_public_and_private_agents(session, user):
+    length = 3
+    for i in range(length):
+        _ = get_factory("Agent", session).create(
+            id=i, name=f"test_agent_{i}", user_id=user.id, is_private=True
+        )
+
+    for i in range(length, length * 2):
+        _ = get_factory("Agent", session).create(
+            id=i, name=f"test_agent_{i}", user_id=user.id, is_private=False
+        )
+
+    agents = agent_crud.get_public_agents(session)
+    assert len(agents) == length
+
+    agents = agent_crud.get_private_agents(session, user.id)
+    assert len(agents) == length
 
 
 def test_list_conversations_with_pagination(session, user):
@@ -182,7 +228,7 @@ def test_update_agent(session, user):
         tools=[ToolName.Python_Interpreter, ToolName.Calculator],
     )
 
-    agent = agent_crud.update_agent(session, agent, new_agent_data)
+    agent = agent_crud.update_agent(session, agent, new_agent_data, user.id)
     assert agent.name == new_agent_data.name
     assert agent.description == new_agent_data.description
     assert agent.version == new_agent_data.version
@@ -192,17 +238,17 @@ def test_update_agent(session, user):
 
 
 def test_delete_agent(session, user):
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user_id=user.id, is_private=True)
 
-    agent_crud.delete_agent(session, agent.id)
+    agent_crud.delete_agent(session, agent.id, user.id)
 
-    agent = agent_crud.get_agent_by_id(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
     assert agent is None
 
 
 def test_fail_delete_nonexistent_agent(session, user):
-    agent = agent_crud.delete_agent(session, "123")
-    assert agent is None
+    status = agent_crud.delete_agent(session, "123", user.id)
+    assert status is False
 
 
-# TODO @scott-cohere: add test for delete cascades once tools, model, deployment DB changes are done
+# # TODO @scott-cohere: add test for delete cascades once tools, model, deployment DB changes are done

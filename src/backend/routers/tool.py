@@ -6,7 +6,7 @@ from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool
-from backend.services.agent import validate_user_has_access_to_agent
+from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 
 router = APIRouter(prefix="/v1/tools")
@@ -38,8 +38,7 @@ def list_tools(
 
     if agent_id is not None:
         agent_tools = []
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+        agent = validate_agent_exists(session, agent_id, user_id)
 
         for tool in agent.tools:
             agent_tools.append(AVAILABLE_TOOLS[tool])

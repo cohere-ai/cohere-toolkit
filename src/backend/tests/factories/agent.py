@@ -36,4 +36,4 @@ class AgentFactory(BaseFactory):
     )
     model = "command-r-plus"
     deployment = ModelDeploymentName.CoherePlatform
-    is_private = False
+    is_private = factory.Faker("boolean", chance_of_getting_true=0)

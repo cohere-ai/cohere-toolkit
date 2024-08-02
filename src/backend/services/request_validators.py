@@ -9,10 +9,7 @@ from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
-from backend.services.agent import (
-    validate_agent_exists,
-    validate_user_has_access_to_agent,
-)
+from backend.services.agent import validate_agent_exists
 from backend.services.auth.utils import get_header_user_id
 
 
@@ -76,8 +73,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
 
     agent_id = request.query_params.get("agent_id")
     if agent_id:
-        agent = validate_agent_exists(session, agent_id)
-        validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+        validate_agent_exists(session, agent_id, user_id)
 
     # If conversation_id is passed in with agent_id, then make sure that conversation exists with the agent_id
     conversation_id = body.get("conversation_id")
@@ -156,11 +152,12 @@ async def validate_create_agent_request(session: DBSessionDep, request: Request)
     Raises:
         HTTPException: If the request does not have the appropriate values in the body
     """
+    user_id = get_header_user_id(request)
     body = await request.json()
 
     # TODO @scott-cohere: for now we disregard versions and assume agents have unique names, enforce versioning later
     agent_name = body.get("name")
-    agent = agent_crud.get_agent_by_name(session, agent_name)
+    agent = agent_crud.get_agent_by_name(session, agent_name, user_id=user_id)
     if agent:
         raise HTTPException(
             status_code=400, detail=f"Agent {agent_name} already exists."
@@ -206,17 +203,19 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     Raises:
         HTTPException: If the request does not have the appropriate values in the body
     """
+    user_id = get_header_user_id(request)
+
     agent_id = request.path_params.get("agent_id")
     if not agent_id:
         raise HTTPException(status_code=400, detail="Agent ID is required.")
 
-    agent = agent_crud.get_agent_by_id(session, agent_id)
+    agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
     if not agent:
         raise HTTPException(
             status_code=400, detail=f"Agent with ID {agent_id} not found."
         )
 
-    if agent.user_id != get_header_user_id(request):
+    if agent.user_id != user_id:
         raise HTTPException(
             status_code=401, detail=f"Agent with ID {agent_id} does not belong to user."
         )

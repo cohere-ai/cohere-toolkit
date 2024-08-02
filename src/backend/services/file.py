@@ -16,10 +16,7 @@ from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.file import File, UpdateFileRequest
-from backend.services.agent import (
-    validate_agent_exists,
-    validate_user_has_access_to_agent,
-)
+from backend.services.agent import validate_agent_exists
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -124,8 +121,7 @@ class FileService:
         Returns:
             list[File]: The files that were created
         """
-        agent = validate_agent_exists(session, agent_id)
-        validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
+        agent = validate_agent_exists(session, agent_id, user_id)
 
         files = []
         agent_tool_metadata = agent.tools_metadata
