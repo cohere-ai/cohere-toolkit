@@ -171,7 +171,7 @@ async def get_agent_by_id(
     if not agent:
         raise HTTPException(
             status_code=404,
-            detail=f"Agent with ID: {agent_id} not found.",
+            detail=f"Agent with ID {agent_id} not found.",
         )
 
     agent_schema = Agent.model_validate(agent)

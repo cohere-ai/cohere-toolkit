@@ -134,7 +134,7 @@ def test_get_agent_by_name(session, user):
     assert agent.name == "test_agent"
 
 
-def test_get_someone_elses_agent(session, user):
+def test_get_private_agent_by_another_user(session, user):
     user2 = get_factory("User", session).create()
     agent = get_factory("Agent", session).create(
         id="1", name="test_agent", user_id=user.id, is_private=True
