@@ -1,6 +1,6 @@
 from backend.crud.agent import get_agents
 from backend.database_models.database import get_session
-from backend.services.sync.agent import sync_agent
+from backend.services.sync.jobs.sync_agent_activity import sync_agent_activity
 
 # NOTE Variable to limit the number of agents you are syncing at once
 # Helpful for first time setups
@@ -16,7 +16,7 @@ def main():
     session.close()
 
     for agent in agents:
-        sync_agent(agent_id=agent.id)
+        sync_agent_activity(agent_id=agent.id)
 
 
 if __name__ == "__main__":
