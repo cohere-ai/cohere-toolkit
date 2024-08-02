@@ -87,6 +87,7 @@ export const useAgentsStore = () => {
   return useStore(
     (state) => ({
       agents: state.agents,
+      setUseAssistantKnowledge: state.setUseAssistantKnowledge,
       setAgentsLeftSidePanelOpen: state.setAgentsLeftSidePanelOpen,
       setAgentsRightSidePanelOpen: state.setAgentsRightSidePanelOpen,
     }),

@@ -104,36 +104,40 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         </div>
         <Text styleAs="h4">Edit {agent.name}</Text>
       </header>
-      <AgentSettingsForm
-        source="update"
-        fields={fields}
-        setFields={setFields}
-        onSubmit={handleSubmit}
-        savePendingAssistant={() => setPendingAssistant(fields)}
-        agentId={agentId}
-      />
-      <div className="space-y-5 px-8 pb-8">
-        <div className="flex w-full max-w-screen-md items-center justify-between ">
-          <Button label="Cancel" kind="secondary" href="/discover" />
+      <div className="flex flex-col overflow-y-auto">
+        <AgentSettingsForm
+          source="update"
+          fields={fields}
+          setFields={setFields}
+          onSubmit={handleSubmit}
+          savePendingAssistant={() => setPendingAssistant(fields)}
+          agentId={agentId}
+        />
+        <div className="space-y-5 p-8">
+          <div className="flex w-full max-w-screen-md items-center justify-between ">
+            <Button label="Cancel" kind="secondary" href="/discover" />
+            <Button
+              label="Update"
+              theme="evolved-green"
+              kind="cell"
+              icon={'checkmark'}
+              iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}
+              disabled={
+                isSubmitting ||
+                !fields.name.trim() ||
+                isAgentNameUnique(fields.name.trim(), agent.id)
+              }
+              onClick={handleSubmit}
+            />
+          </div>
           <Button
-            label="Update"
-            theme="evolved-green"
-            kind="cell"
-            icon={'checkmark'}
-            iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}
-            disabled={
-              isSubmitting || !fields.name.trim() || isAgentNameUnique(fields.name.trim(), agent.id)
-            }
-            onClick={handleSubmit}
+            label="Delete assistant"
+            icon="trash"
+            theme="danger"
+            kind="secondary"
+            onClick={handleOpenDeleteModal}
           />
         </div>
-        <Button
-          label="Delete assistant"
-          icon="trash"
-          theme="danger"
-          kind="secondary"
-          onClick={handleOpenDeleteModal}
-        />
       </div>
     </div>
   );
