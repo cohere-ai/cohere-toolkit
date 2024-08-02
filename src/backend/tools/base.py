@@ -83,8 +83,7 @@ class BaseToolAuthentication:
             return True
 
         # Check expired
-        if 
-        .datetime.now() > auth.expires_at:
+        if datetime.datetime.now() > auth.expires_at:
             if self.try_refresh_token(session, user_id, auth):
                 # Refreshed token successfully
                 return False
