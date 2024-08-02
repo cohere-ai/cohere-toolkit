@@ -1,11 +1,8 @@
 import os
-from unittest.mock import patch
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ModelDeploymentName
 from backend.database_models import (
     Citation,
     Conversation,
@@ -14,7 +11,6 @@ from backend.database_models import (
     File,
     Message,
 )
-from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.user import User
 from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE
 from backend.tests.unit.factories import get_factory
