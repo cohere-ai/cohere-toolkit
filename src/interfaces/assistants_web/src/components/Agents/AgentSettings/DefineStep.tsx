@@ -2,7 +2,6 @@ import Link from 'next/link';
 
 import { AgentSettingsFields } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { Input, Text, Textarea } from '@/components/Shared';
-import { DEFAULT_PREAMBLE } from '@/constants';
 
 type Props = {
   fields: AgentSettingsFields;
@@ -42,7 +41,7 @@ export const DefineAssistantStep: React.FC<Props> = ({ fields, nameError, setFie
         }
         placeholder="e.g., You are friendly and helpful. You answer questions based on files in Google Drive."
         defaultRows={3}
-        value={fields.preamble ?? DEFAULT_PREAMBLE}
+        value={fields.preamble || ''}
         onChange={(e) => setFields({ ...fields, preamble: e.target.value })}
       />
     </div>

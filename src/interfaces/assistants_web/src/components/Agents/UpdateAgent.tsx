@@ -110,6 +110,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         setFields={setFields}
         onSubmit={handleSubmit}
         savePendingAssistant={() => setPendingAssistant(fields)}
+        agentId={agentId}
       />
       <div className="space-y-5 px-8 pb-8">
         <div className={'flex w-full items-center justify-between'}>
@@ -121,9 +122,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
             icon={'checkmark'}
             iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}
             disabled={
-              isSubmitting ||
-              !fields.name.trim() ||
-              !isAgentNameUnique(fields.name.trim(), agent.id)
+              isSubmitting || !fields.name.trim() || isAgentNameUnique(fields.name.trim(), agent.id)
             }
             onClick={handleSubmit}
           />

@@ -32,6 +32,7 @@ type Props = {
   savePendingAssistant: VoidFunction;
   setFields: (fields: AgentSettingsFields) => void;
   onSubmit: VoidFunction;
+  agentId?: string;
 };
 
 export const AgentSettingsForm: React.FC<Props> = ({
@@ -40,6 +41,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
   savePendingAssistant,
   setFields,
   onSubmit,
+  agentId,
 }) => {
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
@@ -60,10 +62,9 @@ export const AgentSettingsForm: React.FC<Props> = ({
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_READ_DOCUMENT_ID)
       ?.artifacts as DataSourceArtifact[]
   );
-
   const nameError = !fields.name.trim()
     ? 'Assistant name is required'
-    : !isAgentNameUnique(fields.name.trim())
+    : isAgentNameUnique(fields.name.trim(), agentId)
     ? 'Assistant name must be unique'
     : undefined;
 
@@ -90,7 +91,6 @@ export const AgentSettingsForm: React.FC<Props> = ({
           ]
         : []),
     ];
-    console.log(tools_metadata);
     const tools = fields.tools ?? [];
     tools_metadata.forEach((tool) => {
       if (!tools.includes(tool.tool_name)) {
@@ -138,7 +138,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
           setStepsExpanded({ ...stepsExpanded, define: expanded })
         }
       >
-        <DefineAssistantStep fields={fields} setFields={setFields} />
+        <DefineAssistantStep fields={fields} setFields={setFields} nameError={nameError} />
         <StepButtons
           handleNext={() =>
             setStepsExpanded({ ...stepsExpanded, define: false, dataSources: true })
