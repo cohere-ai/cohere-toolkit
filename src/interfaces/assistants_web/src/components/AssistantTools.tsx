@@ -67,6 +67,7 @@ export const AssistantTools: React.FC<{
                   icon={getToolIcon(name)}
                   description={description ?? ''}
                   onToggle={(checked) => handleToggle(name ?? '', checked)}
+                  agentId={agent?.id}
                 />
               );
             })}

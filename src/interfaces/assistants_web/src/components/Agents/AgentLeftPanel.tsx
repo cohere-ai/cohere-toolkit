@@ -26,7 +26,6 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-
   const navigateToNewChat = useNavigateToNewChat();
 
   return (
@@ -87,9 +86,9 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
         >
           <AgentsSidePanelButton
             label={
-              <div className="group flex items-center justify-between">
+              <div className="group flex w-full items-center justify-between">
                 <Text className="text-coral-500 dark:text-evolved-green-700">New chat</Text>
-                <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
+                <Shortcut sequence={['⌘', '↑', 'O']} className="hidden group-hover:flex" />
               </div>
             }
             tooltip="New chat"
