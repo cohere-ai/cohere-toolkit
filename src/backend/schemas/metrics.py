@@ -103,14 +103,15 @@ DEFAULT_METRICS_AGENT = MetricsAgent(
 def agent_to_metrics_agent(agent: Agent | None) -> MetricsAgent:
     if not agent:
         return None
-
+    # TODO Eugene: Check agent.model and agent.deployment after the refactor Agent deployment
+    #  and model to object(if needed)
     return MetricsAgent(
         id=agent.id,
         version=agent.version,
         name=agent.name,
         temperature=agent.temperature,
-        model=agent.model.name if agent.model else None,
-        deployment=agent.deployment.name if agent.deployment else None,
+        model=agent.model,
+        deployment=agent.deployment,
         preamble=agent.preamble,
         description=agent.description,
     )

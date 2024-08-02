@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from backend.schemas.deployment import DeploymentSimple as DeploymentSchema
+from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
 from backend.schemas.deployment import ModelSimple as ModelSchema
 
 
@@ -64,8 +64,8 @@ class Agent(AgentBase):
     tools: Optional[list[str]]
     tools_metadata: list[AgentToolMetadataPublic]
     deployments: list[DeploymentSchema]
-    deployment: Optional[DeploymentSchema]
-    model: Optional[ModelSchema]
+    deployment: Optional[str]
+    model: Optional[str]
 
     class Config:
         from_attributes = True
