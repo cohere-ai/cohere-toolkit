@@ -17,7 +17,7 @@ export const DefineAssistantStep: React.FC<Props> = ({ fields, nameError, setFie
         placeholder="e.g., HR Benefits Bot"
         value={fields.name}
         onChange={(e) => setFields({ ...fields, name: e.target.value })}
-        errorText={!fields.name.trim() ? 'Assistant name is required' : nameError}
+        errorText={nameError}
       />
       <Textarea
         label="Description"
