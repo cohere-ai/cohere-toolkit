@@ -12,14 +12,13 @@ type Props = Omit<React.HTMLProps<HTMLTextAreaElement>, 'onChange' | 'value'> & 
   value?: string;
   label?: string;
   labelTooltip?: React.ReactNode;
-  placeholder?: string;
   defaultRows?: number;
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
 
 export const Textarea: React.FC<Props> = forwardRef<HTMLTextAreaElement, Props>(
-  ({ value, label, labelTooltip, className, placeholder, defaultRows, onChange, ...rest }, ref) => {
+  ({ value, label, labelTooltip, className, defaultRows, onChange, ...rest }, ref) => {
     return (
       <Field className="flex flex-col gap-y-2">
         {label && (
@@ -36,7 +35,6 @@ export const Textarea: React.FC<Props> = forwardRef<HTMLTextAreaElement, Props>(
           <textarea
             ref={ref}
             value={value}
-            placeholder={placeholder}
             className={cn(
               'rounded-lg border border-volcanic-500',
               'w-full px-3 py-[18px]',
