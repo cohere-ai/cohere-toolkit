@@ -15,7 +15,7 @@ export const env = createEnv({
       .string()
       .refine((s) => s === 'true' || s === 'false')
       .transform((s) => s === 'true')
-      .default(false),
+      .optional(),
   },
   runtimeEnv: {
     API_HOSTNAME: process.env.API_HOSTNAME,
