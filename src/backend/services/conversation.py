@@ -17,7 +17,6 @@ from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
 from backend.services.context import get_context
 from backend.services.file import attach_conversation_id_to_files, get_file_service
-from backend.services.logger.utils import logger
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -232,6 +231,7 @@ async def generate_conversation_title(
         str: Generated title
     """
     user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
     title = ""
 
     try:

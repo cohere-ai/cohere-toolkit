@@ -9,7 +9,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from backend.services.logger.utils import logger
+from backend.services.logger.utils import LoggerFactory
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
@@ -36,6 +36,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def list_models(cls) -> List[str]:
+        logger = LoggerFactory().get_logger()
         if not CohereDeployment.is_available():
             return []
 
@@ -76,6 +77,8 @@ class CohereDeployment(BaseDeployment):
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
+        logger = ctx.get_logger()
+
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
