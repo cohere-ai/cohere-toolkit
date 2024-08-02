@@ -1,14 +1,13 @@
-import time
-from typing import Optional
+from typing import Any, Optional
 
-from fastapi import Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.schemas.metrics import MetricsAgent, MetricsMessageType, MetricsUser
 from backend.schemas.user import User
+from backend.services.logger.utils import LoggerFactory
 from backend.services.utils import get_deployment_config
 
 
@@ -28,10 +27,15 @@ class Context(BaseModel):
     conversation_id: Optional[str] = None
     agent_id: Optional[str] = None
     stream_start_ms: Optional[float] = None
+    logger: Optional[Any] = None
 
     # Metrics
     metrics_user: Optional[MetricsUser] = None
     metrics_agent: Optional[MetricsAgent] = None
+
+    def __init__(self):
+        super().__init__()
+        self.with_logger()
 
     def set_request(self, request):
         self.request = request
@@ -41,6 +45,15 @@ class Context(BaseModel):
 
     def set_receive(self, receive):
         self.receive = receive
+
+    def with_logger(self):
+        if self.logger is not None:
+            return self
+
+        logger = LoggerFactory().get_logger()
+        logger.bind(trace_id=self.trace_id, user_id=self.user_id)
+        self.logger = logger
+        return self
 
     def with_trace_id(self, trace_id: str):
         self.trace_id = trace_id
@@ -63,6 +76,7 @@ class Context(BaseModel):
 
         if not user:
             user = user_crud.get_user(session, self.user_id)
+            user = User.model_validate(user)
 
         if user:
             self.metrics_user = MetricsUser(
@@ -149,3 +163,9 @@ class Context(BaseModel):
 
     def get_agent_id(self):
         return self.agent_id
+
+    def get_logger(self) -> Any:
+        return self.logger
+
+    def get_agent_tool_metadata(self):
+        return self.agent_tool_metadata

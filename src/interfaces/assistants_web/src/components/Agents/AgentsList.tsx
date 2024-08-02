@@ -35,6 +35,7 @@ export const AgentsList: React.FC = () => {
       conversations
         .sort(sortByDate)
         .map((conversation) => agents.find((agent) => agent.id === conversation.agent_id))
+        .concat(agents.sort((a, b) => b.created_at.localeCompare(a.created_at)))
         .filter((agent, index, self) => self.indexOf(agent) === index),
     [agents, conversations]
   );
@@ -148,7 +149,9 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
       showWeekHeadings={!hasSearchQuery}
       checkedConversations={checkedConversations}
       onCheckConversation={handleCheckConversationToggle}
-      className={cn('space-y-1', { 'space-y-2': !isAgentsLeftPanelOpen })}
+      className={cn('flex flex-col items-center space-y-1', {
+        'space-y-2': !isAgentsLeftPanelOpen,
+      })}
     />
   );
 };

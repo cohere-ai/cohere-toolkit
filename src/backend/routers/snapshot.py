@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.chat.collate import to_dict
@@ -128,7 +126,7 @@ async def get_snapshot(
 
     snapshot = validate_snapshot_link(session, link_id)
 
-    wrap_create_snapshot_access(session, snapshot.id, user_id, link_id)
+    wrap_create_snapshot_access(session, snapshot.id, user_id, link_id, ctx)
 
     return snapshot
 

@@ -1,4 +1,3 @@
-import json
 import re
 from uuid import uuid4
 
@@ -20,7 +19,12 @@ def agents():
             "temperature": 0.5,
             "model": "command-r-plus",
             "deployment": "Cohere Platform",
-            "tools": ["toolkit_calculator"],
+            "tools": [
+                "search_file",
+                "read_document",
+                "toolkit_calculator",
+                "wikipedia",
+            ],
         },
     )
     print("create agent")

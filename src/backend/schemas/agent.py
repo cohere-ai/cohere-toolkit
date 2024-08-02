@@ -9,18 +9,19 @@ class AgentBase(BaseModel):
     organization_id: Optional[str] = None
 
 
-# Agent Tool Metadata
-class AgentToolMetadata(AgentBase):
+class AgentToolMetadata(BaseModel):
     id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    user_id: Optional[str]
+    agent_id: str
     tool_name: str
     artifacts: list[dict]
 
-
-class AgentToolMetadataPublic(AgentToolMetadata):
-    user_id: Optional[str] = Field(exclude=True)
-
     class Config:
         from_attributes = True
+        use_enum_values = True
 
 
 class AgentToolMetadataPublic(AgentToolMetadata):

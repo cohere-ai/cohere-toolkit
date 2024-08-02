@@ -7,7 +7,7 @@ import { Icon } from '@/components/Shared/Icon';
 import { STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
 
-import { CopyToClipboardButton, CopyToClipboardIconButton } from '../CopyToClipboardButton';
+import { CopyToClipboardIconButton } from '../CopyToClipboardButton';
 
 type Props = Omit<React.HTMLProps<HTMLInputElement>, 'onChange' | 'value'> & {
   value?: string;
@@ -22,17 +22,11 @@ type Props = Omit<React.HTMLProps<HTMLInputElement>, 'onChange' | 'value'> & {
 export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
   ({ value, label, type = 'text', errorText, className, actionType, onChange, ...rest }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
-    const [copied, setCopied] = useState(false);
     return (
       <Field className="flex flex-col gap-y-2">
         {label && (
           <Label className="flex items-start gap-x-2">
             <Text styleAs="label">{label}</Text>
-            {errorText && (
-              <Text styleAs="label" className="text-red-500">
-                *{errorText}
-              </Text>
-            )}
           </Label>
         )}
         <div className="relative flex w-full items-center gap-x-2">
@@ -49,6 +43,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
               'disabled:bg-volcanic-800 disabled:text-volcanic-300 dark:disabled:bg-volcanic-300 dark:disabled:text-volcanic-600',
               {
                 'pr-8': actionType,
+                'dark:border-danger-500 dark:text-danger-500': errorText,
               },
               STYLE_LEVEL_TO_CLASSES.p,
               className
@@ -82,6 +77,11 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
             />
           )}
         </div>
+        {errorText && (
+          <Text styleAs="label-sm" className="dark:text-danger-500">
+            {errorText}
+          </Text>
+        )}
       </Field>
     );
   }

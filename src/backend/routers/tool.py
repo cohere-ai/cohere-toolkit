@@ -7,9 +7,6 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
 
 router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL
@@ -34,6 +31,7 @@ def list_tools(
         list[ManagedTool]: List of available tools.
     """
     user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
 
     all_tools = AVAILABLE_TOOLS.values()
 

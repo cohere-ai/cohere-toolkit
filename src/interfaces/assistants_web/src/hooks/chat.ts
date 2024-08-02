@@ -20,6 +20,7 @@ import {
   isStreamError,
 } from '@/cohere-client';
 import {
+  DEFAULT_AGENT_TOOLS,
   DEFAULT_TYPING_VELOCITY,
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
@@ -27,15 +28,21 @@ import {
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
-import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
+import {
+  useAgentsStore,
+  useCitationsStore,
+  useConversationStore,
+  useFilesStore,
+  useParamsStore,
+} from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
+import { useStreamingStore } from '@/stores/streaming';
 import {
   BotState,
   ChatMessage,
   ErrorMessage,
   FulfilledMessage,
   MessageType,
-  StreamingMessage,
   createAbortedMessage,
   createErrorMessage,
   createLoadingMessage,
@@ -96,6 +103,9 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     clearComposerFiles,
     clearUploadingErrors,
   } = useFilesStore();
+  const {
+    agents: { disabledAssistantKnowledge },
+  } = useAgentsStore();
   const queryClient = useQueryClient();
 
   const currentConversationId = id || composerFiles[0]?.conversation_id;
@@ -103,7 +113,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isStreamingToolEvents, setIsStreamingToolEvents] = useState(false);
-  const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
+  const { streamingMessage, setStreamingMessage } = useStreamingStore();
   const { agentId } = useChatRoutes();
 
   useEffect(() => {
@@ -550,7 +560,9 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     return {
       message,
       conversation_id: currentConversationId,
-      tools: requestTools?.map((tool) => ({ name: tool.name })),
+      tools: requestTools
+        ?.map((tool) => ({ name: tool.name }))
+        .concat(DEFAULT_AGENT_TOOLS.map((defaultTool) => ({ name: defaultTool }))),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
