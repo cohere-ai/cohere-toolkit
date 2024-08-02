@@ -366,7 +366,7 @@ def test_add_users_to_group(session_client: TestClient, session: Session):
 
 def test_replace_users_in_group(session_client: TestClient, session: Session):
     test_add_users_to_group(session_client, session)
-    group = group_repo.get_groups(session)[0]
+    group = group_repo.get_group_by_name(session, "Test SCIMv2")
 
     response = create_user_request(
         session_client, user_name="test.user.new@okta.local", external_id="1234546"

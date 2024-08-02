@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from backend.database_models.base import Base
@@ -20,3 +20,5 @@ class UserGroup(Base):
     user_id: Mapped[str] = mapped_column(String, ForeignKey("users.id"), nullable=False)
     display: Mapped[str] = mapped_column(String, nullable=True)
     group = relationship("Group", back_populates="members")
+
+    __table_args__ = (UniqueConstraint("group_id", "user_id", name="uix_group_user"),)
