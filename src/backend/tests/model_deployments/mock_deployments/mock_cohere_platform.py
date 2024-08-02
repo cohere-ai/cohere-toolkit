@@ -5,6 +5,7 @@ from cohere.types import StreamedChatResponse
 from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 
 
 class MockCohereDeployment(BaseDeployment):
@@ -25,7 +26,7 @@ class MockCohereDeployment(BaseDeployment):
         return True
 
     def invoke_chat(
-        self, chat_request: CohereChatRequest, **kwargs: Any
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         event = {
             "text": "Hi! Hello there! How's it going?",
@@ -51,7 +52,7 @@ class MockCohereDeployment(BaseDeployment):
         yield event
 
     def invoke_chat_stream(
-        self, chat_request: CohereChatRequest, **kwargs: Any
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         events = [
             {
@@ -79,7 +80,7 @@ class MockCohereDeployment(BaseDeployment):
             yield event
 
     def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], **kwargs: Any
+        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
     ) -> Any:
         # TODO: Add
         pass

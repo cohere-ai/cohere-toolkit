@@ -1,18 +1,24 @@
 import { useLocalStorageValue } from '@react-hookz/web';
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
-import { ManagedTool, useCohereClient } from '@/cohere-client';
-import { LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { Agent, ManagedTool, useCohereClient } from '@/cohere-client';
+import { DEFAULT_AGENT_TOOLS, LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks/toast';
+import { useParamsStore } from '@/stores';
+import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
 export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
   return useQuery<ManagedTool[], Error>({
     queryKey: ['tools'],
-    queryFn: () => client.listTools({}),
+    queryFn: async () => {
+      const tools = await client.listTools({});
+      return tools.filter((tool) => !DEFAULT_AGENT_TOOLS.includes(tool.name ?? ''));
+    },
     refetchOnWindowFocus: false,
     enabled,
   });
@@ -89,4 +95,44 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
       multiselect: true,
       callbackFunction: handleCallback,
     });
+};
+
+export const useAvailableTools = ({
+  agent,
+  managedTools,
+}: {
+  agent?: Agent;
+  managedTools?: ManagedTool[];
+}) => {
+  const requiredTools = agent?.tools;
+
+  const { params, setParams } = useParamsStore();
+  const { tools: paramTools } = params;
+  const enabledTools = paramTools ?? [];
+
+  const { unauthedTools } = useUnauthedTools();
+  const availableTools = useMemo(() => {
+    return (managedTools ?? []).filter(
+      (t) =>
+        t.is_visible &&
+        t.is_available &&
+        (!requiredTools || requiredTools.some((rt) => rt === t.name))
+    );
+  }, [managedTools, requiredTools]);
+
+  const handleToggle = (name: string, checked: boolean) => {
+    const newParams: Partial<ConfigurableParams> = {
+      tools: checked
+        ? [...enabledTools, { name }]
+        : enabledTools.filter((enabledTool) => enabledTool.name !== name),
+    };
+
+    setParams(newParams);
+  };
+
+  return {
+    availableTools,
+    unauthedTools,
+    handleToggle,
+  };
 };

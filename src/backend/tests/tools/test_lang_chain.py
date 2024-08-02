@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from langchain_core.documents.base import Document
 
+from backend.services.context import Context
 from backend.tools import LangChainVectorDBRetriever, LangChainWikiRetriever
 
 is_cohere_env_set = (
@@ -14,6 +15,7 @@ is_cohere_env_set = (
 
 @pytest.mark.asyncio
 async def test_wiki_retriever() -> None:
+    ctx = Context()
     retriever = LangChainWikiRetriever()
     query = "Python programming"
     mock_docs = [
@@ -54,7 +56,7 @@ async def test_wiki_retriever() -> None:
         "backend.tools.lang_chain.WikipediaRetriever",
         return_value=wiki_retriever_mock,
     ):
-        result = await retriever.call({"query": query})
+        result = await retriever.call({"query": query}, ctx)
 
     assert result == expected_docs
 
@@ -62,6 +64,7 @@ async def test_wiki_retriever() -> None:
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_wiki_retriever_no_docs() -> None:
+    ctx = Context()
     retriever = LangChainWikiRetriever()
     query = "Python programming"
     mock_docs = []
@@ -73,7 +76,7 @@ async def test_wiki_retriever_no_docs() -> None:
         "backend.tools.lang_chain.WikipediaRetriever",
         return_value=wiki_retriever_mock,
     ):
-        result = await retriever.call({"query": query})
+        result = await retriever.call({"query": query}, ctx)
 
     assert result == []
 
@@ -81,6 +84,7 @@ async def test_wiki_retriever_no_docs() -> None:
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_vector_db_retriever() -> None:
+    ctx = Context()
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
     query = "What is the mariana trench?"
@@ -134,7 +138,7 @@ async def test_vector_db_retriever() -> None:
         mock_db = MagicMock()
         mock_from_documents.return_value = mock_db
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
-        result = await retriever.call({"query": query})
+        result = await retriever.call({"query": query}, ctx)
 
     assert result == expected_docs
 
@@ -142,6 +146,7 @@ async def test_vector_db_retriever() -> None:
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_vector_db_retriever_no_docs() -> None:
+    ctx = Context()
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
     retriever = LangChainVectorDBRetriever(file_path)
     query = "What is the mariana trench?"
@@ -156,6 +161,6 @@ async def test_vector_db_retriever_no_docs() -> None:
         mock_db = MagicMock()
         mock_from_documents.return_value = mock_db
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
-        result = await retriever.call({"query": query})
+        result = await retriever.call({"query": query}, ctx)
 
     assert result == []

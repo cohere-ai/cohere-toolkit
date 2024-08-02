@@ -26,12 +26,17 @@ export const Pre: Component<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ c
         kind="secondary"
         className="absolute right-3 top-3 hidden group-hover/copy:block"
         onClick={handleCopy}
-      >
-        <div className="flex items-center gap-1">
-          {copied && <Text className="text-mushroom-300">Copied!</Text>}
-          <Icon name={copied ? 'check-mark' : 'copy'} size="md" className="text-mushroom-300" />
-        </div>
-      </Button>
+        label={
+          <div className="flex items-center gap-1">
+            {copied && <Text className="text-mushroom-300 dark:text-marble-950">Copied!</Text>}
+            <Icon
+              name={copied ? 'checkmark' : 'copy'}
+              size="md"
+              className="fill-mushroom-300 dark:fill-marble-950"
+            />
+          </div>
+        }
+      />
       <div ref={ref}>{children}</div>
     </pre>
   );

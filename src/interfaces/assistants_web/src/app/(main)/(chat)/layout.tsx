@@ -3,19 +3,16 @@
 import { Transition } from '@headlessui/react';
 import { useContext, useEffect } from 'react';
 
-import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
+import AgentRightPanel from '@/components/Agents/AgentRightPanel';
 import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
+import { useAgentsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { data: experimentalFeatures } = useExperimentalFeatures();
-  const {
-    settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
-  } = useSettingsStore();
   const { resetConversation } = useConversationStore();
   const {
     params: { deployment },
@@ -23,17 +20,20 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
 
+  const {
+    agents: { isAgentsRightPanelOpen },
+  } = useAgentsStore();
+  const isDesktop = useIsDesktop();
+
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
-
-  const isDesktop = useIsDesktop();
-  const isMobile = !isDesktop;
 
   // Reset conversation when unmounting
   useEffect(() => {
     return () => {
       resetConversation();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -43,45 +43,36 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         setParams({ deployment: firstAvailableDeployment.name });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployment, allDeployments]);
 
   useEffect(() => {
     if (!isLangchainModeOn) return;
     setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLangchainModeOn]);
 
   return (
     <div className="flex h-full">
+      {children}
       <Transition
-        as="section"
-        appear
-        show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
-        enterFrom="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
-        enterTo="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
-        leaveFrom="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
-        leaveTo="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
+        show={isAgentsRightPanelOpen || isDesktop}
+        as="div"
         className={cn(
-          'z-main-section flex lg:min-w-0',
-          'absolute h-full w-full lg:static lg:h-auto',
-          'border-0 border-marble-950 md:border-r',
-          'transition-[transform,min-width,max-width] duration-300 ease-in-out'
+          'border-mushroom-800 bg-marble-1000 px-6 dark:border-volcanic-200 dark:bg-volcanic-100',
+          {
+            'w-[280px] flex-shrink-0 rounded-r-lg border-y border-r lg:w-[360px]': isDesktop,
+            'absolute inset-0 rounded-lg border': isAgentsRightPanelOpen || !isDesktop,
+          }
         )}
-      >
-        <ConversationListPanel />
-      </Transition>
-      <Transition
-        as="main"
-        show={isDesktop || !isMobileConvListPanelOpen}
-        enterFrom="-translate-x-full"
+        enter="transition-all transform ease-in-out duration-300"
+        enterFrom="translate-x-full"
         enterTo="translate-x-0"
-        leaveFrom="translate-x-0"
-        leaveTo="-translate-x-full"
-        className={cn(
-          'flex min-w-0 flex-grow flex-col',
-          'transition-transform duration-500 ease-in-out'
-        )}
+        leave="transition-all transform ease-in-out duration-300"
+        leaveFrom="translate-x-0 opacity-100"
+        leaveTo="translate-x-full opacity-0"
       >
-        {children}
+        <AgentRightPanel />
       </Transition>
     </div>
   );

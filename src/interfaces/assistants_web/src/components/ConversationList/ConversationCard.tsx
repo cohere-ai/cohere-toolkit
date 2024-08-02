@@ -1,19 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useContext } from 'react';
 
 import { Agent } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
-import { ModalContext } from '@/context/ModalContext';
+import { useContextStore } from '@/context';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
 import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
 
 export type ConversationListItem = {
   conversationId: string;
@@ -36,7 +35,7 @@ type Props = {
 
 const useMenuItems = ({ conversationId }: { conversationId: string }) => {
   const { deleteConversation } = useConversationActions();
-  const { open } = useContext(ModalContext);
+  const { open } = useContextStore();
 
   const handleOpenShareModal = () => {
     if (!conversationId) return;
@@ -67,18 +66,18 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId } = conversation;
-  const agentColor = getCohereColor(conversation.agent?.id);
   const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
   const {
-    agents: { isAgentsSidePanelOpen },
+    agents: { isAgentsLeftPanelOpen },
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
   const { clearComposerFiles } = useFileActions();
+  const { bg, contrastText } = useBrandedColors(conversation.agent?.id);
 
   // if the conversation card is for the selected conversation we use the `conversationName`
   // from the context store, otherwise we use the name from the conversation object
@@ -107,17 +106,16 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       </div>
       <div className="flex h-[18px] w-full items-center gap-2">
         <div
-          className={cn('flex size-4 flex-shrink-0 items-center justify-center rounded', {
-            'bg-mushroom-700': !conversation.agent,
-            [agentColor]: conversation.agent,
-          })}
+          className={cn(
+            'flex size-4 flex-shrink-0 items-center justify-center rounded',
+            bg,
+            contrastText
+          )}
         >
           {conversation.agent ? (
-            <Text className="text-white" styleAs="p-xs">
-              {conversation.agent.name[0]}
-            </Text>
+            <Text styleAs="p-xs">{conversation.agent.name[0]}</Text>
           ) : (
-            <CoralLogo style="secondary" className="scale-50" />
+            <CoralLogo className="scale-50" />
           )}
         </div>
         <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
@@ -154,19 +152,16 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       </Link>
     );
 
-  if (!isAgentsSidePanelOpen) {
+  if (!isAgentsLeftPanelOpen) {
     const content = (
       <div
-        className={cn('flex size-8 flex-shrink-0 items-center justify-center rounded', {
-          'bg-mushroom-700': !conversation.agent,
-          [agentColor]: conversation.agent,
-        })}
-      >
-        {conversation.agent ? (
-          <Text className="text-white">{conversation.agent.name[0]}</Text>
-        ) : (
-          <CoralLogo style="secondary" />
+        className={cn(
+          'flex size-8 flex-shrink-0 items-center justify-center rounded',
+          bg,
+          contrastText
         )}
+      >
+        {conversation.agent ? <Text>{conversation.agent.name[0]}</Text> : <CoralLogo />}
       </div>
     );
     return (

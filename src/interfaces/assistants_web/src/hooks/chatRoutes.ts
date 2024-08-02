@@ -1,19 +1,18 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { useAgentsStore, useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { getQueryString } from '@/utils';
 
 export const useNavigateToNewChat = () => {
   const router = useRouter();
-  const { setEditAgentPanelOpen } = useAgentsStore();
+  const { agentId } = useChatRoutes();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
 
-  const handleNavigate = (agentId?: string) => {
+  const handleNavigate = () => {
     const url = agentId ? `/a/${agentId}` : '/';
-    setEditAgentPanelOpen(false);
     resetConversation();
     resetCitations();
     resetFileParams();
@@ -25,6 +24,9 @@ export const useNavigateToNewChat = () => {
 
 export const useChatRoutes = () => {
   const params = useParams();
+  const {
+    conversation: { id },
+  } = useConversationStore();
 
   const { agentId, conversationId } = useMemo(() => {
     return {
@@ -33,5 +35,5 @@ export const useChatRoutes = () => {
     };
   }, [params]);
 
-  return { agentId, conversationId };
+  return { agentId, conversationId: conversationId || id };
 };

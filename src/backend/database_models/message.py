@@ -1,19 +1,45 @@
 from enum import StrEnum
 from typing import List
 
-from sqlalchemy import Boolean, Enum, ForeignKey, ForeignKeyConstraint, Index, String
+from sqlalchemy import (
+    Boolean,
+    Enum,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    String,
+    UniqueConstraint,
+)
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 from backend.database_models.citation import Citation
 from backend.database_models.document import Document
-from backend.database_models.file import File
 from backend.database_models.tool_call import ToolCall
 
 
 class MessageAgent(StrEnum):
     USER = "USER"
     CHATBOT = "CHATBOT"
+
+
+class MessageFileAssociation(Base):
+    __tablename__ = "message_files"
+
+    message_id: Mapped[str] = mapped_column(
+        ForeignKey("messages.id", ondelete="CASCADE")
+    )
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    file_id: Mapped[str] = mapped_column(String, default=None, nullable=False)
+    message: Mapped["Message"] = relationship(
+        "Message", back_populates="message_file_associations"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("message_id", "file_id", name="unique_message_file"),
+        Index("message_file_file_id", file_id),
+    )
 
 
 class Message(Base):
@@ -32,14 +58,23 @@ class Message(Base):
     generation_id: Mapped[str] = mapped_column(String, nullable=True)
     tool_plan: Mapped[str] = mapped_column(String, nullable=True)
 
-    documents: Mapped[List["Document"]] = relationship()
-    citations: Mapped[List["Citation"]] = relationship()
-    files: Mapped[List["File"]] = relationship()
-    tool_calls: Mapped[List["ToolCall"]] = relationship()
+    documents: Mapped[List[Document]] = relationship()
+    citations: Mapped[List[Citation]] = relationship()
+    message_file_associations: Mapped[List["MessageFileAssociation"]] = relationship(
+        "MessageFileAssociation", back_populates="message"
+    )
+    tool_calls: Mapped[List[ToolCall]] = relationship()
 
     agent: Mapped[MessageAgent] = mapped_column(
         Enum(MessageAgent, native_enum=False),
     )
+
+    @property
+    def file_ids(self):
+        return [
+            message_file_association.file_id
+            for message_file_association in self.message_file_associations
+        ]
 
     __table_args__ = (
         ForeignKeyConstraint(

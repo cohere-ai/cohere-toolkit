@@ -3,12 +3,12 @@
 import { Transition } from '@headlessui/react';
 import React from 'react';
 
-import { BotAvatar } from '@/components/Avatar';
-import { Text } from '@/components/Shared';
+import { AssistantTools } from '@/components/AssistantTools';
+import { CoralLogo, Icon, Text } from '@/components/Shared';
 import { useAgent } from '@/hooks/agents';
-import { BotState } from '@/types/message';
+import { useBrandedColors } from '@/hooks/brandedColors';
+import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
 
 type Props = {
   show: boolean;
@@ -19,14 +19,15 @@ type Props = {
  * @description Welcome message shown to the user when they first open the chat.
  */
 export const Welcome: React.FC<Props> = ({ show, agentId }) => {
-  const { data: agent, isLoading } = useAgent({ agentId });
-  const isAgent = agentId !== undefined && !isLoading && !!agent;
+  const { data: agent, isLoading: isAgentsLoading } = useAgent({ agentId });
+  const { data: tools = [], isLoading: isToolsLoading } = useListTools();
+  const { contrastText, bg } = useBrandedColors(agentId);
+
+  const isAgent = agentId !== undefined && !isAgentsLoading && !!agent;
 
   return (
     <Transition
-      show={show}
-      appear
-      className="flex flex-col items-center gap-y-4 p-4 md:max-w-[480px] lg:max-w-[720px]"
+      show={show && !isToolsLoading && !isAgentsLoading}
       enter="transition-all duration-300 ease-out delay-300"
       enterFrom="opacity-0"
       enterTo="opacity-100"
@@ -35,38 +36,44 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
       leaveTo="opacity-0"
       as="div"
     >
-      <div
-        className={cn(
-          'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
-          isAgent && getCohereColor(agent.id),
-          {
-            'bg-mushroom-700': !isAgent,
-          }
-        )}
-      >
-        {!isAgent ? (
-          <BotAvatar state={BotState.FULFILLED} style="secondary" />
-        ) : (
-          <Text className="uppercase text-white" styleAs="p-lg">
-            {agent.name[0]}
+      <div className="flex flex-col gap-y-4 p-4 md:w-[380px] lg:w-[520px]">
+        <div className="flex w-full items-center gap-x-3">
+          <div
+            className={cn(
+              'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
+              contrastText,
+              bg
+            )}
+          >
+            {!isAgent ? (
+              <CoralLogo />
+            ) : (
+              <Text className="uppercase" styleAs="p-lg">
+                {agent.name[0]}
+              </Text>
+            )}
+          </div>
+          <Text styleAs="h4" className="truncate">
+            {isAgent ? agent.name : 'Your Private Assistant'}
           </Text>
-        )}
-      </div>
-
-      <Text
-        styleAs="p-lg"
-        className={cn(
-          'text-center text-mushroom-400 md:!text-h4',
-          isAgent && getCohereColor(agent.id, { background: false })
-        )}
-      >
-        {!isAgent ? 'Need help? Your wish is my command.' : agent.name}
-      </Text>
-      {isAgent && (
-        <Text className="!text-p-md text-center text-volcanic-100 md:!text-p-lg">
-          {agent.description}
+          {!isAgent && (
+            <Text className="ml-auto" styleAs="caption">
+              By Cohere
+            </Text>
+          )}
+        </div>
+        <Text className="text-mushroom-300 dark:text-marble-800">
+          {agent?.description || 'Ask questions and get answers based on your files.'}
         </Text>
-      )}
+
+        {!isAgent && (
+          <div className="flex items-center gap-x-1">
+            <Icon name="circles-four" kind="outline" />
+            <Text className="font-medium">Toggle Tools On/Off</Text>
+          </div>
+        )}
+        <AssistantTools agent={agent} tools={tools} />
+      </div>
     </Transition>
   );
 };
