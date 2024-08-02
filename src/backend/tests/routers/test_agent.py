@@ -1133,6 +1133,64 @@ def test_update_public_agent(
     assert updated_agent["is_private"] == False
 
 
+def update_agent_change_visibility_to_public(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+        is_private=True,
+        user_id=user.id,
+    )
+
+    request_json = {
+        "name": "updated name",
+        "is_private": False,
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
+    )
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["name"] == "updated name"
+    assert updated_agent["is_private"] == False
+
+
+def update_agent_change_visibility_to_private(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        model="command-r-plus",
+        deployment=ModelDeploymentName.CoherePlatform,
+        is_private=False,
+        user_id=user.id,
+    )
+
+    request_json = {
+        "name": "updated name",
+        "is_private": True,
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
+    )
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["name"] == "updated name"
+    assert updated_agent["is_private"] == True
+
+
 def test_delete_agent_metric(
     session_client: TestClient, session: Session, user
 ) -> None:

@@ -85,10 +85,8 @@ def get_agents(
     query = db.query(Agent)
 
     if visibility == AgentVisibility.PUBLIC:
-        # Public agents -> is_private = False or None
-        query = query.filter((Agent.is_private == False) | (Agent.is_private == None))
+        query = query.filter(Agent.is_private == False)
     elif visibility == AgentVisibility.PRIVATE:
-        # Private agents -> is_private = True
         query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
 
     if organization_id is not None:

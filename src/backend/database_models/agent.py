@@ -18,7 +18,7 @@ class Agent(Base):
 
     tools: Mapped[list[str]] = mapped_column(JSON, default=[], nullable=False)
     tools_metadata: Mapped[list[AgentToolMetadata]] = relationship("AgentToolMetadata")
-    is_private: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # TODO @scott-cohere: eventually switch to Fkey when new deployment tables are implemented
     # TODO @scott-cohere: deployments have different names for models, need to implement mapping later
