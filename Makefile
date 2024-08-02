@@ -47,10 +47,10 @@ win-first-run:
 	make migrate
 	make dev
 format-web: 
-	cd src/interfaces/coral_web && npm run format:write 
+	cd src/interfaces/assistants_web && npm run format:write 
 generate-client-web:
-	cd src/interfaces/coral_web && npm run generate:client && npm run format:write 
+	cd src/interfaces/assistants_web && npm run generate:client && npm run format:write 
 install-web: 
-	cd src/interfaces/coral_web && npm install
+	cd src/interfaces/assistants_web && npm install
 build-web:
-	cd src/interfaces/coral_web && npm run build
+	cd src/interfaces/assistants_web && npm run build
