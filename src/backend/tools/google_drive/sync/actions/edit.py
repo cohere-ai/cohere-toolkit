@@ -4,7 +4,7 @@ from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
-from backend.tools.google_drive.actions.utils import get_file_details
+from backend.tools.google_drive.sync.actions.utils import get_file_details
 
 ACTION_NAME = "edit"
 logger = LoggerFactory().get_logger()

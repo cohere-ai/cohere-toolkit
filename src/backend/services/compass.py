@@ -135,10 +135,12 @@ class Compass:
                     raise Exception(
                         f"[Compass] Error invoking Compass: Invalid action in parameters {parameters}"
                     )
-        except Exception as e:
-            message = f"[Compass] Error invoking Compass: {e}"
-            logger.error(event=message)
-            raise Exception(message)
+        except Exception as error:
+            logger.error(
+                event="[Compass] Error invoking Compass",
+                error=error,
+            )
+            raise Exception(f"[Compass] Error invoking Compass: {error}")
 
     def _create(self, parameters: dict, **kwargs: Any) -> Dict[str, str]:
         """Insert the document into Compass"""
@@ -251,7 +253,9 @@ class Compass:
 
         if filename and not os.path.exists(filename):
             logger.error(
-                event=f"[Compass] Error processing file: Invalid filename {filename} in parameters {parameters}"
+                event="[Compass] Error processing file: Invalid filename in parameters",
+                filename=filename,
+                parameters=parameters,
             )
             return None
 
@@ -279,7 +283,8 @@ class Compass:
     def _raw_parsing(self, file_id: str, file_bytes: str, file_extension: str):
         if len(file_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
-                event=f"[Compass] Error parsing file: File Size is too large {len(file_bytes)}",
+                event="[Compass] Error parsing file: File Size is too large",
+                file_bytes=len(file_bytes),
                 max_size=DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES,
             )
             return []

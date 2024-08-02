@@ -1,6 +1,6 @@
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT
-from backend.tools.google_drive.actions.create import create
+from backend.tools.google_drive.sync.actions.create import create
 
 ACTION_NAME = "restore"
 

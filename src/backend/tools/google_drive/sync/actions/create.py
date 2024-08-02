@@ -4,7 +4,7 @@ from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
-from backend.tools.google_drive.actions.utils import get_file_details
+from backend.tools.google_drive.sync.actions.utils import get_file_details
 
 ACTION_NAME = "create"
 logger = LoggerFactory().get_logger()
@@ -92,8 +92,16 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
             event="[Google Drive Create] Finished Compass add context action for file",
             web_view_link=web_view_link,
         )
-    except Exception:
-        logger.error(f"Failed to create document in Compass for file {web_view_link}")
-        return {"action": ACTION_NAME, "status": Status.FAIL.value, "file_id": file_id}
+    except Exception as error:
+        logger.error(
+            event="Failed to create document in Compass for file",
+            web_view_link=web_view_link,
+        )
+        return {
+            "action": ACTION_NAME,
+            "status": Status.FAIL.value,
+            "file_id": file_id,
+            "message": str(error),
+        }
 
     return {"action": ACTION_NAME, "status": Status.SUCCESS.value, "file_id": file_id}

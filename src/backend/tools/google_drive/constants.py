@@ -3,13 +3,13 @@ from enum import Enum
 CSV_MIMETYPE = "text/csv"
 TEXT_MIMETYPE = "text/plain"
 SEARCH_LIMIT = 5
-# TODO dev only: revert to 86400
 ACTIVITY_TRACKING_WINDOW = 86400
 SCOPES = [
     "https://www.googleapis.com/auth/drive.metadata.readonly",
     "https://www.googleapis.com/auth/drive.readonly",
     "https://www.googleapis.com/auth/drive.activity.readonly",
 ]
+FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
 NATIVE_SEARCH_MIME_TYPES = [
     "application/vnd.google-apps.document",
     "application/vnd.google-apps.spreadsheet",

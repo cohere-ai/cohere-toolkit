@@ -109,6 +109,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
                 + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
         )
+        session.refresh()
 
         return True
 

@@ -2,8 +2,7 @@ from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
-from backend.tools.google_drive.actions.utils import get_folder_subfolders
-from backend.tools.google_drive.utils import get_service
+from backend.tools.google_drive.sync.utils import get_service
 
 ACTION_NAME = "move"
 logger = LoggerFactory().get_logger()
@@ -13,22 +12,14 @@ logger = LoggerFactory().get_logger()
 def move(file_id: str, index_name: str, user_id: str, **kwargs):
     title = kwargs["title"]
     artifact_id = kwargs["artifact_id"]
-    folder_subfolders = get_folder_subfolders(folder_id=artifact_id, user_id=user_id)
 
     (service,) = (
         get_service(api="drive", user_id=user_id)[key] for key in ("service",)
     )
-
-    folders_query = " or ".join(
-        [
-            "'{}' in parents".format(folder_id)
-            for folder_id in [artifact_id, *folder_subfolders]
-        ]
-    )
     response = (
         service.files()
         .list(
-            q="({}) and name = '{}'".format(folders_query, title),
+            q="'{}' in parents and name = '{}'".format(artifact_id, title),
             includeItemsFromAllDrives=True,
             supportsAllDrives=True,
         )

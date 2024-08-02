@@ -38,6 +38,6 @@ def _download(httpx_client: httpx.Client, url: str, access_token: str):
         response = httpx_client.get(url, headers=headers, follow_redirects=True)
         response = response.text
         return response
-    except Exception as e:
-        logger.error(f"Error fetching {url}: {e}")
+    except Exception as error:
+        logger.error("Error fetching", url=url, error=error)
         return ""

@@ -3,8 +3,13 @@ from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
-from backend.database_models.agent import Agent
-from backend.tools.google_drive.actions import (
+from backend.tools.google_drive.auth import GoogleDriveAuth
+from backend.tools.google_drive.constants import (
+    ACTIVITY_TRACKING_WINDOW,
+    SEARCH_MIME_TYPES,
+    GoogleDriveActions,
+)
+from backend.tools.google_drive.sync.actions import (
     create,
     delete,
     edit,
@@ -13,14 +18,11 @@ from backend.tools.google_drive.actions import (
     rename,
     restore,
 )
-from backend.tools.google_drive.auth import GoogleDriveAuth
-from backend.tools.google_drive.constants import (
-    ACTIVITY_TRACKING_WINDOW,
-    SEARCH_MIME_TYPES,
-    GoogleDriveActions,
+from backend.tools.google_drive.sync.utils import (
+    get_current_timestamp_in_ms,
+    get_service,
 )
 from backend.tools.google_drive.tool import GoogleDrive
-from backend.tools.google_drive.utils import get_current_timestamp_in_ms, get_service
 
 
 def handle_google_drive_activity_event(
@@ -105,9 +107,8 @@ def handle_google_drive_activity_event(
 
 
 def query_google_drive_activity(
-    session: Session, agent: Agent, agent_artifacts: List[Dict[str, str]]
+    session: Session, user_id: str, agent_artifacts: List[Dict[str, str]]
 ):
-    user_id = agent.user_id
     gdrive_auth = GoogleDriveAuth()
     agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
     if agent_creator_auth_token is None:

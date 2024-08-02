@@ -125,17 +125,31 @@ def _download_non_native_file(service: Any, file_id: str):
         done = False
         while done is False:
             status, done = downloader.next_chunk(num_retries=5)
-            logger.info("Downloading {}: {}%".format(file_id, status.progress()))
-        logger.info("Finished downloading {}".format(file_id))
+            logger.info(
+                event="Downloading",
+                file_id=file_id,
+                status=status.progress(),
+            )
+        logger.info(
+            event="Finished downloading",
+            file_id=file_id,
+        )
     except HttpError as error:
-        logger.error(f"[Google Drive] Error downloading file: {str(error)}")
-        return ""
-    except Exception as e:
         logger.error(
-            f"[Google Drive] Error downloading file: {file_id}: {type(e)} -- {e}"
+            event="[Google Drive] Error downloading file",
+            file_id=file_id,
+            type=(type(error)),
+            error=error,
         )
         return ""
-
+    except Exception as error:
+        logger.error(
+            event="[Google Drive] Error downloading file",
+            file_id=file_id,
+            type=(type(error)),
+            error=error,
+        )
+        return ""
     if file is None:
         return ""
 
@@ -166,11 +180,14 @@ def process_shortcut_file(service: Any, file: Dict[str, str]) -> Dict[str, str]:
                 .execute()
             )
             return targetFile
-        except Exception as e:
-            message = "An error occurred processing a shortcut file with id {}: {} -- {}".format(
-                file["id"], type(e), e
+        except Exception as error:
+            file_id = file["id"]
+            logger.error(
+                event="An error occurred processing a shortcut file with id",
+                file_id=file_id,
+                type=type(error),
+                error=error,
             )
-            logger.error(message)
             return {}
     else:
         return file

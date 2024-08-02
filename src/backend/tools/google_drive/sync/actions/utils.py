@@ -1,8 +1,11 @@
 from typing import Dict, List, Optional
 
 from backend.services.sync.env import env
-from backend.tools.google_drive.constants import NATIVE_SEARCH_MIME_TYPES
-from backend.tools.google_drive.utils import (
+from backend.tools.google_drive.constants import (
+    NATIVE_SEARCH_MIME_TYPES,
+    SEARCH_MIME_TYPES,
+)
+from backend.tools.google_drive.sync.utils import (
     extract_export_link,
     extract_file_extension,
     extract_title,
@@ -30,9 +33,12 @@ def get_file_details(file_id: str, user_id: str, include_permissions=False):
         return None
 
     processed_file = process_shortcut_file(service, file_get)
-    extension = extract_file_extension(file_get)
+    if processed_file["mimeType"] not in SEARCH_MIME_TYPES:
+        return None
+
+    extension = extract_file_extension(processed_file)
     web_view_link = extract_web_view_link(processed_file)
-    title = extract_title(file_get)
+    title = extract_title(processed_file)
 
     # get file content bytes
     file_bytes = None
@@ -65,26 +71,6 @@ def get_file_details(file_id: str, user_id: str, include_permissions=False):
     }
 
 
-def get_folder_subfolders(folder_id: str, user_id: str):
-    """
-    Return folder's subfolders ids
-    """
-    # get service
-    files = _list_items_recursively(folder_id=folder_id, user_id=user_id)
-
-    if not files:
-        return []
-
-    return [
-        *[x["id"] for x in files],
-        *[
-            y
-            for x in files
-            for y in get_folder_subfolders(folder_id=x["id"], user_id=user_id)
-        ],
-    ]
-
-
 def list_permissions(file_id: str, user_id: str, next_page_token: Optional[str] = None):
     (service,) = (
         get_service(api="drive", user_id=user_id)[key] for key in ("service",)
@@ -109,39 +95,6 @@ def list_permissions(file_id: str, user_id: str, next_page_token: Optional[str] 
             ),
         ]
     return _format_permissions(response.get("permissions", []))
-
-
-def _list_items_recursively(
-    folder_id: str,
-    user_id: str,
-    next_page_token: Optional[str] = None,
-):
-    (service,) = (
-        get_service(api="drive", user_id=user_id)[key] for key in ("service",)
-    )
-    response = (
-        service.files()
-        .list(
-            q="'{}' in parents and mimeType = 'application/vnd.google-apps.folder'".format(
-                folder_id
-            ),
-            includeItemsFromAllDrives=True,
-            supportsAllDrives=True,
-            pageToken=next_page_token,
-            fields="nextPageToken, files(id)",
-        )
-        .execute()
-    )
-    if response_next_page_token := response.get("nextPageToken", None):
-        return [
-            *response.get("files", []),
-            *_list_items_recursively(
-                folder_id=folder_id,
-                user_id=user_id,
-                next_page_token=response_next_page_token,
-            ),
-        ]
-    return response.get("files", [])
 
 
 def _format_permissions(permissions: List[Dict[str, str]]):
