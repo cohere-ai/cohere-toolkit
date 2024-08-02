@@ -3,7 +3,9 @@ import { createEnv } from '@t3-oss/env-nextjs';
 import z from 'zod';
 
 export const env = createEnv({
-  server: {},
+  server: {
+    API_HOSTNAME: z.string().default('http://backend:8000'),
+  },
   client: {
     NEXT_PUBLIC_API_HOSTNAME: z.string(),
     NEXT_PUBLIC_FRONTEND_HOSTNAME: z.string().optional().default('http://localhost:4000'),
@@ -16,6 +18,7 @@ export const env = createEnv({
       .default(false),
   },
   runtimeEnv: {
+    API_HOSTNAME: process.env.API_HOSTNAME,
     NEXT_PUBLIC_API_HOSTNAME: process.env.NEXT_PUBLIC_API_HOSTNAME,
     NEXT_PUBLIC_FRONTEND_HOSTNAME: process.env.NEXT_PUBLIC_FRONTEND_HOSTNAME,
     NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID,
