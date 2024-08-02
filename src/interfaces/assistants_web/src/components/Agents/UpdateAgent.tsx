@@ -10,7 +10,6 @@ import {
 } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { Button, Icon, Spinner, Text } from '@/components/Shared';
-import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useContextStore } from '@/context';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -77,9 +76,13 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
 
   const handleSubmit = async () => {
     if (!agentId) return;
+    const tools_metadata = (fields.tools_metadata ?? []).map((tool) => ({
+      ...tool,
+      id: agent.tools_metadata?.find((t) => t.tool_name === tool.tool_name)?.id,
+    }));
     try {
       setIsSubmitting(true);
-      const newAgent = await updateAgent({ request: fields, agentId });
+      const newAgent = await updateAgent({ request: { ...fields, tools_metadata }, agentId });
       setIsSubmitting(false);
       success(`Updated ${newAgent?.name}`);
     } catch (e) {

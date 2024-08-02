@@ -90,6 +90,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
           ]
         : []),
     ];
+    console.log(tools_metadata);
     const tools = fields.tools ?? [];
     tools_metadata.forEach((tool) => {
       if (!tools.includes(tool.tool_name)) {

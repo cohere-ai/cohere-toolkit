@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Dispatch, SetStateAction, useRef } from 'react';
+import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
 
 import { Button, Icon, IconName, Spinner, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -85,9 +85,9 @@ export const DataSourcesStep: React.FC<Props> = ({
           name="Google Drive"
           icon="google-drive"
           artifacts={googleFiles}
+          addFileButton={googleDriveButton(openGoogleFilePicker, 'Add Files')}
           handleRemoveTool={() => handleRemoveAllFiles('google-drive')}
           handleRemoveFile={(removedId: string) => handleRemoveGoogleDriveFile(removedId)}
-          handleAddFiles={openGoogleFilePicker}
         />
       )}
       {defaultUploadFiles && !!defaultUploadFiles.length && (
@@ -95,42 +95,30 @@ export const DataSourcesStep: React.FC<Props> = ({
           name="Files"
           icon="desktop"
           artifacts={defaultUploadFiles}
+          addFileButton={defaultUploadButton(
+            'Add Files',
+            fileInputRef,
+            handleFileInputChange,
+            batchUploadStatus,
+            handleOpenFileExplorer
+          )}
           handleRemoveTool={() => handleRemoveAllFiles('default-upload')}
           handleRemoveFile={(removedId: string) => handleRemoveUploadFile(removedId)}
-          handleAddFiles={() => handleOpenFileExplorer(close)}
         />
       )}
       <Text styleAs="label">Add {hasActiveDataSources ? 'More' : ''} Data Sources</Text>
       <div className="flex gap-4">
-        {googleDriveEnabled && !(googleFiles && googleFiles.length) && (
-          <Button
-            kind="outline"
-            theme="mushroom"
-            icon="google-drive"
-            label="Google Drive"
-            onClick={openGoogleFilePicker}
-          />
-        )}
-        {!(defaultUploadFiles && defaultUploadFiles.length) && (
-          <>
-            <input
-              type="file"
-              accept={ACCEPTED_FILE_TYPES.join(',')}
-              className="hidden"
-              multiple
-              ref={fileInputRef}
-              onChange={handleFileInputChange}
-            />
-            <Button
-              kind="outline"
-              theme="mushroom"
-              icon="desktop"
-              label="Upload Files"
-              isLoading={batchUploadStatus === 'pending'}
-              onClick={() => handleOpenFileExplorer(close)}
-            />
-          </>
-        )}
+        {googleDriveEnabled &&
+          !(googleFiles && googleFiles.length) &&
+          googleDriveButton(openGoogleFilePicker, 'Google Drive')}
+        {!(defaultUploadFiles && defaultUploadFiles.length) &&
+          defaultUploadButton(
+            'Add Files',
+            fileInputRef,
+            handleFileInputChange,
+            batchUploadStatus,
+            handleOpenFileExplorer
+          )}
       </div>
       <Text styleAs="caption" className="dark:text-marble-800">
         Don&lsquo;t see the data source you need? {/* TODO: get tool request link from Elaine */}
@@ -139,6 +127,47 @@ export const DataSourcesStep: React.FC<Props> = ({
         </Link>
       </Text>
     </div>
+  );
+};
+
+const googleDriveButton = (handleAddFiles: VoidFunction, label: string | ReactNode) => {
+  return (
+    <Button
+      kind="outline"
+      theme="mushroom"
+      icon={label === 'Add Files' ? 'add' : 'google-drive'}
+      label={label}
+      onClick={handleAddFiles}
+    />
+  );
+};
+
+const defaultUploadButton = (
+  label: string | ReactNode,
+  fileInputRef: RefObject<HTMLInputElement>,
+  handleFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>,
+  batchUploadStatus: 'error' | 'idle' | 'pending' | 'success',
+  handleOpenFileExplorer: (callback: VoidFunction) => void
+) => {
+  return (
+    <>
+      <input
+        type="file"
+        accept={ACCEPTED_FILE_TYPES.join(',')}
+        className="hidden"
+        multiple
+        ref={fileInputRef}
+        onChange={handleFileInputChange}
+      />
+      <Button
+        kind="outline"
+        theme="mushroom"
+        icon={label === 'Add Files' ? 'add' : 'desktop'}
+        label={label}
+        isLoading={batchUploadStatus === 'pending'}
+        onClick={() => handleOpenFileExplorer(close)}
+      />
+    </>
   );
 };
 
@@ -152,10 +181,10 @@ const DataSourceFileList: React.FC<{
   name: string;
   icon: IconName;
   artifacts?: DataSourceArtifact[];
+  addFileButton: ReactNode;
   handleRemoveFile: (id: string) => void;
   handleRemoveTool: VoidFunction;
-  handleAddFiles: VoidFunction;
-}> = ({ name, icon, artifacts = [], handleRemoveFile, handleRemoveTool, handleAddFiles }) => {
+}> = ({ name, icon, artifacts = [], addFileButton, handleRemoveFile, handleRemoveTool }) => {
   const filesCount = getCountString(
     'file',
     artifacts.filter((artifact) => artifact.type === 'file')
@@ -198,17 +227,7 @@ const DataSourceFileList: React.FC<{
         ))}
 
         <Text className="py-4 dark:text-marble-800">{countCopy}</Text>
-        <Button
-          label={
-            <Text styleAs="p-lg" className="dark:text-evolved-green-700">
-              Add Files
-            </Text>
-          }
-          icon="add"
-          kind="secondary"
-          theme="evolved-green"
-          onClick={handleAddFiles}
-        />
+        {addFileButton}
       </div>
     </div>
   );
