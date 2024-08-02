@@ -77,7 +77,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
     agent_id = request.query_params.get("agent_id")
     if agent_id:
         agent = validate_agent_exists(session, agent_id)
-        validate_user_has_access_to_agent(user_id, agent)
+        validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
 
     # If conversation_id is passed in with agent_id, then make sure that conversation exists with the agent_id
     conversation_id = body.get("conversation_id")

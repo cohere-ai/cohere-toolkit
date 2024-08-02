@@ -125,7 +125,7 @@ class FileService:
             list[File]: The files that were created
         """
         agent = validate_agent_exists(session, agent_id)
-        validate_user_has_access_to_agent(user_id, agent)
+        validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
 
         files = []
         agent_tool_metadata = agent.tools_metadata

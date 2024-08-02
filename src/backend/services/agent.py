@@ -63,13 +63,15 @@ def get_public_and_private_agents(
     return public_agents + private_agents
 
 
-def validate_user_has_access_to_agent(user_id: str, agent: Agent | None) -> bool:
+def validate_user_has_access_to_agent(
+    user_id: str, agent: Agent | None, agent_id: str = ""
+) -> bool:
     # Check if agent exists and user has access to it
     error = None
     if not agent:
-        error = "Agent not found."
+        error = f"Agent with ID: {agent_id} not found."
 
-    if agent and agent.user_id != user_id and not agent.is_private:
+    if agent and agent.user_id != user_id and agent.is_private:
         error = f"Agent with ID: {agent.id} not found."
 
     if error:

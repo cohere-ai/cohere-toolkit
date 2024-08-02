@@ -39,7 +39,7 @@ def list_tools(
     if agent_id is not None:
         agent_tools = []
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        validate_user_has_access_to_agent(user_id, agent)
+        validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
 
         for tool in agent.tools:
             agent_tools.append(AVAILABLE_TOOLS[tool])

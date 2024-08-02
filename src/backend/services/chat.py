@@ -83,7 +83,7 @@ def process_chat(
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        validate_user_has_access_to_agent(user_id, agent)
+        validate_user_has_access_to_agent(user_id, agent, agent_id=agent_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
 
