@@ -60,7 +60,9 @@ const ToolRow: React.FC<{
     <div className="flex flex-col space-y-4 rounded-md border p-4 dark:border-volcanic-300 dark:bg-volcanic-100">
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
-          <Icon name={icon} kind="outline" size="sm" withBg />
+          <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-marble-800 dark:bg-volcanic-200">
+            <Icon name={icon} kind="outline" size="sm" />
+          </div>
           <Text styleAs="label" className="font-medium">
             {name}
           </Text>
