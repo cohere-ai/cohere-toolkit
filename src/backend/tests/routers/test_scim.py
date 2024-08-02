@@ -446,10 +446,11 @@ def test_replace_users_in_group(session_client: TestClient, session: Session):
 
     assert response_group == expected_response
 
+
 def test_scim_requests_are_authenticated(session_client: TestClient):
     response = session_client.get("/scim/v2/Users")
     assert response.status_code == 401
-    
+
     response = session_client.post("/scim/v2/Users")
     assert response.status_code == 401
 
@@ -458,21 +459,21 @@ def test_scim_requests_are_authenticated(session_client: TestClient):
 
     response = session_client.put("/scim/v2/Users")
     assert response.status_code == 401
-    
+
     response = session_client.delete("/scim/v2/Users")
     assert response.status_code == 401
 
     response = session_client.get("/scim/v2/Groups")
     assert response.status_code == 401
-    
+
     response = session_client.post("/scim/v2/Groups")
     assert response.status_code == 401
-    
+
     response = session_client.put("/scim/v2/Groups")
     assert response.status_code == 401
-    
+
     response = session_client.patch("/scim/v2/Groups")
     assert response.status_code == 401
-    
+
     response = session_client.delete("/scim/v2/Groups")
     assert response.status_code == 401

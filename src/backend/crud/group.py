@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from backend.database_models.group import Group
 
 

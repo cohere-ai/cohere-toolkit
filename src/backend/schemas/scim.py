@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Optional, Dict, Union
+from typing import Any, ClassVar, Dict, Optional, Union
 
 from pydantic import BaseModel
 

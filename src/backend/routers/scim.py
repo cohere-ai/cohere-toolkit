@@ -2,31 +2,29 @@ from typing import Optional
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
 import backend.crud.group as group_repo
 import backend.crud.user as user_repo
 from backend.config.routers import RouterName
-from backend.database_models import (
-    DBSessionDep,
-    User as DBUser,
-    Group as DBGroup,
-    UserGroup,
-)
+from backend.config.settings import Settings
+from backend.database_models import DBSessionDep
+from backend.database_models import Group as DBGroup
+from backend.database_models import User as DBUser
+from backend.database_models import UserGroup
 from backend.schemas.scim import (
-    ListUserResponse,
-    User,
-    Group,
-    CreateUser,
-    UpdateUser,
-    PatchUser,
-    PatchGroup,
     CreateGroup,
+    CreateUser,
+    Group,
     ListGroupResponse,
+    ListUserResponse,
+    PatchGroup,
+    PatchUser,
+    UpdateUser,
+    User,
 )
 from backend.services.logger.utils import get_logger
-
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from backend.config.settings import Settings
 
 SCIM_PREFIX = "/scim/v2"
 scim_secret = Settings().auth.scim_token
