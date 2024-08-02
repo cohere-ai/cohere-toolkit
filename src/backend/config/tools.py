@@ -83,7 +83,7 @@ ALL_TOOLS = {
         implementation=ReadFileTool,
         parameter_definitions={
             "file": {
-                "description": "A file represented as a tuple of (filename, file ID) to read over",
+                "description": "A file represented as a tuple (filename, file ID) to read over",
                 "type": "tuple[str, str]",
                 "required": True,
             }

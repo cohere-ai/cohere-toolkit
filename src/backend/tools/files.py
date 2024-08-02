@@ -2,9 +2,43 @@ from typing import Any, Dict, List
 
 import backend.crud.file as file_crud
 from backend.config.settings import Settings
+from backend.schemas.file import File
 from backend.services.compass import Compass
-from backend.services.file import get_file_service, get_compass
+from backend.services.file import get_compass, get_file_service
 from backend.tools.base import BaseTool
+
+
+def compass_file_search(
+    file_ids: List[str], query: str, search_limit: int = 5
+) -> List[Dict[str, Any]]:
+    results = []
+    for file_id in file_ids:
+        hits = (
+            get_compass()
+            .invoke(
+                action=Compass.ValidActions.SEARCH,
+                parameters={"index": file_id, "query": query, "top_k": search_limit},
+            )
+            .result["hits"]
+        )
+        results.extend(hits)
+
+    chunks = sorted(
+        [
+            {
+                "text": chunk["content"]["text"],
+                "score": chunk["score"],
+                "url": result["content"].get("title", ""),
+                "title": result["content"].get("title", ""),
+            }
+            for result in results
+            for chunk in result["chunks"]
+        ],
+        key=lambda x: x["score"],
+        reverse=True,
+    )[:search_limit]
+
+    return chunks
 
 
 class ReadFileTool(BaseTool):
@@ -24,29 +58,22 @@ class ReadFileTool(BaseTool):
         return True
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        files = parameters.get("files", [])
+        file = parameters.get("file", [])
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
-
-        if not files:
+        if not file:
             return []
 
-        if Settings().feature_flags.use_compass_file_storage:
-            file_ids = [file_id for _, file_id in files]
-            files = get_file_service().get_files_by_ids(session, file_ids, user_id)
-        else:
-            # TODO get file by file id not file name
-            files = file_crud.get_files_by_file_names(session, file_names, user_id)
-
-        if not files:
+        _, file_id = file
+        retrieved_file = get_file_service().get_file_by_id(session, file_id, user_id)
+        if not retrieved_file:
             return []
 
-        file = files[0]
         return [
             {
-                "text": file.file_content,
-                "title": file.file_name,
-                "url": file.file_path,
+                "text": retrieved_file.file_content,
+                "title": retrieved_file.file_name,
+                "url": retrieved_file.file_path,
             }
         ]
 
@@ -76,45 +103,16 @@ class SearchFileTool(BaseTool):
         if not query or not files:
             return []
 
-        compass_file_stroage_enabled = Settings().feature_flags.use_compass_file_storage
-        retrieved_files = []
-        if compass_file_stroage_enabled:
+        if Settings().feature_flags.use_compass_file_storage:
             file_ids = [file_id for _, file_id in files]
-            retrieved_files = get_file_service().get_files_by_ids(session, file_ids, user_id)
+            return compass_file_search(file_ids, query, search_limit=self.SEARCH_LIMIT)
         else:
-            # TODO get file by file id not file name
-            file_names = [file_name for file_name, _ in files]
-            retrieved_files = file_crud.get_files_by_file_names(session, file_names, user_id)
+            retrieved_files = get_file_service().get_files_by_ids(
+                session, file_ids, user_id
+            )
+            if not retrieved_files:
+                return []
 
-        if not retrieved_files:
-            return []
-
-        if compass_file_stroage_enabled:
-            results = []
-            for file in retrieved_files:
-                hits = get_compass().invoke(
-                    action=Compass.ValidActions.SEARCH,
-                    parameters={"index": file.id, "query": query, "top_k": self.SEARCH_LIMIT},
-                ).result["hits"]
-                results.extend(hits)
-
-            chunks = sorted(
-                [
-                    {
-                        "text": chunk["content"]["text"],
-                        "score": chunk["score"],
-                        "url": result["content"].get("url", ""),
-                        "title": result["content"].get("title", ""),
-                    }
-                    for result in results
-                    for chunk in result["chunks"]
-                ],
-                key=lambda x: x["score"],
-                reverse=True,
-            )[:self.SEARCH_LIMIT]
-
-            return chunks
-        else:
             results = []
             for file in files:
                 results.append(

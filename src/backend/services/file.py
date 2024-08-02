@@ -1,9 +1,7 @@
 import io
 import os
 import uuid
-from copy import deepcopy
 from datetime import datetime
-from typing import Any, Optional
 
 import pandas as pd
 from docx import Document
@@ -26,6 +24,7 @@ from backend.schemas.context import Context
 from backend.schemas.file import File, UpdateFileRequest
 from backend.services.compass import Compass
 from backend.services.context import get_context
+from backend.services.logger.utils import get_logger
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -42,6 +41,7 @@ DOCX_EXTENSION = "docx"
 # Monkey patch Pandas to use Calamine for Excel reading because Calamine is faster than Pandas
 pandas_monkeypatch()
 
+logger = get_logger()
 file_service = None
 compass = None
 
@@ -59,7 +59,7 @@ def get_compass():
         try:
             compass = Compass()
         except Exception as e:
-            print(f"Error initializing Compass: {e}")
+            logger.error(f"Error initializing Compass: {e}")
     return compass
 
 
@@ -122,6 +122,8 @@ class FileService:
         Returns:
             list[File]: The files that were created
         """
+        from backend.config.tools import ToolName
+
         agent = agent_crud.get_agent_by_id(session, agent_id)
         if agent is None:
             raise HTTPException(
@@ -132,12 +134,11 @@ class FileService:
         files = []
         agent_tool_metadata = agent.tools_metadata
         if agent_tool_metadata is not None:
-            # fix circular import
             artifacts = next(
                 tool_metadata.artifacts
                 for tool_metadata in agent_tool_metadata
-                if tool_metadata.tool_name == "read_document"
-                or tool_metadata.tool_name == "search_file"
+                if tool_metadata.tool_name == ToolName.READ_DOCUMENT
+                or tool_metadata.tool_name == ToolName.SEARCH_FILE
             )
 
             # TODO scott: enumerate type names (?), different types for local vs. compass?
@@ -217,12 +218,15 @@ class FileService:
         Returns:
             File: The file that was created
         """
-        file = file_crud.get_file(session, file_id, user_id)
+        if self.is_compass_enabled:
+            file = get_file_in_compass(file_id, user_id)
+        else:
+            file = file_crud.get_file(session, file_id, user_id)
         return file
 
     def get_files_by_ids(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
-    ) -> list[FileModel]:
+    ) -> list[File]:
         """
         Get files by IDs
 
@@ -294,14 +298,40 @@ class FileService:
         return files
 
 
+def get_file_in_compass(file_id: str, user_id: str) -> File:
+    fetched_doc = (
+        get_compass()
+        .invoke(
+            action=Compass.ValidActions.GET_DOCUMENT,
+            parameters={"index": file_id, "file_id": file_id},
+        )
+        .result["doc"]["content"]
+    )
+
+    return File(
+        id=file_id,
+        file_name=fetched_doc["file_name"],
+        file_size=fetched_doc["file_size"],
+        file_path=fetched_doc["file_path"],
+        file_content=fetched_doc["text"],
+        user_id=user_id,
+        created_at=datetime.fromisoformat(fetched_doc["created_at"]),
+        updated_at=datetime.fromisoformat(fetched_doc["updated_at"]),
+    )
+
+
 def get_files_in_compass(file_ids: list[str], user_id: str) -> list[File]:
     files = []
     for file_id in file_ids:
-        fetched_doc = get_compass().invoke(
+        fetched_doc = (
+            get_compass()
+            .invoke(
                 action=Compass.ValidActions.GET_DOCUMENT,
                 parameters={"index": file_id, "file_id": file_id},
-        ).result["doc"]["content"]
-        
+            )
+            .result["doc"]["content"]
+        )
+
         files.append(
             File(
                 id=file_id,
@@ -348,10 +378,6 @@ async def insert_files_in_compass(
     user_id: str,
 ) -> list[File]:
     uploaded_files = []
-    try:
-        compass = Compass()
-    except Exception as e:
-        print(f"Error initializing Compass: {e}")
 
     for file in files:
         filename = file.filename.encode("ascii", "ignore").decode("utf-8")
