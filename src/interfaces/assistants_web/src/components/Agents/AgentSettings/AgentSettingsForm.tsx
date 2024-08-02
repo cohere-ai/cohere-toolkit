@@ -1,6 +1,7 @@
 'use client';
 
 import { uniqBy } from 'lodash';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
@@ -46,10 +47,12 @@ export const AgentSettingsForm: React.FC<Props> = ({
 }) => {
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
+  const params = useSearchParams();
+  const defaultStep = params.has('datasources');
 
   const [currentStep, setCurrentStep] = useState<
     'define' | 'dataSources' | 'tools' | 'visibility' | undefined
-  >('define');
+  >(() => (defaultStep ? 'dataSources' : 'define'));
 
   const [googleFiles, setGoogleFiles] = useState<DataSourceArtifact[]>(
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
@@ -142,7 +145,11 @@ export const AgentSettingsForm: React.FC<Props> = ({
         isExpanded={currentStep === 'define'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'define' : undefined)}
       >
-        <DefineAssistantStep fields={fields} setFields={setFields} nameError={nameError} />
+        <DefineAssistantStep
+          fields={fields}
+          setFields={setFields}
+          nameError={!!fields.name ? nameError : undefined}
+        />
         <StepButtons
           handleNext={() => setCurrentStep('dataSources')}
           hide={source !== 'create'}
