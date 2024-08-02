@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Docker
         run: docker compose up test_db -d
-      - name: Run unit tests
+      - name: Run integration tests
         if: github.actor != 'dependabot[bot]'
         run: |
           mkdir -p coverage
