@@ -4,7 +4,6 @@ import pandas as pd
 from docx import Document
 from fastapi import HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
-from pypdf import PdfReader
 from python_calamine.pandas import pandas_monkeypatch
 
 import backend.crud.conversation as conversation_crud
@@ -16,6 +15,7 @@ from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.file import File, UpdateFileRequest
+from backend.services import utils
 from backend.services.agent import validate_agent_exists
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
@@ -125,7 +125,7 @@ class FileService:
 
         files = []
         agent_tool_metadata = agent.tools_metadata
-        if agent_tool_metadata is not None:
+        if agent_tool_metadata is not None and len(agent_tool_metadata) > 0:
             artifacts = next(
                 tool_metadata.artifacts
                 for tool_metadata in agent_tool_metadata
@@ -348,7 +348,7 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
     file_extension = get_file_extension(file.filename)
 
     if file_extension == PDF_EXTENSION:
-        return read_pdf(file_contents)
+        return utils.read_pdf(file_contents)
     elif file_extension == DOCX_EXTENSION:
         return read_docx(file_contents)
     elif file_extension in [
@@ -362,26 +362,6 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
         return read_excel(file_contents)
 
     raise ValueError(f"File extension {file_extension} is not supported")
-
-
-def read_pdf(file_contents: bytes) -> str:
-    """Reads the text from a PDF file using PyPDF2
-
-    Args:
-        file_contents (bytes): The file contents
-
-    Returns:
-        str: The text extracted from the PDF
-    """
-    pdf_reader = PdfReader(io.BytesIO(file_contents))
-    text = ""
-
-    # Extract text from each page
-    for page in pdf_reader.pages:
-        page_text = page.extract_text()
-        text += page_text
-
-    return text
 
 
 def read_excel(file_contents: bytes) -> str:

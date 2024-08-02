@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
+import { useBrandedColors } from '@/hooks/brandedColors';
 
 type Props = {
   checked: boolean;
@@ -12,6 +13,7 @@ type Props = {
   onToggle: (checked: boolean) => void;
   disabled?: boolean;
   errorMessage?: string | null;
+  agentId?: string;
   inputOptions?: {
     label: string;
     placeholder: string;
@@ -31,11 +33,13 @@ export const ToggleCard: React.FC<Props> = ({
   disabled = false,
   icon,
   label,
+  agentId,
   description,
   inputOptions,
   errorMessage,
   onToggle,
 }) => {
+  const { theme } = useBrandedColors(agentId);
   return (
     <div className="flex flex-col rounded-md border border-mushroom-700 bg-mushroom-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
       <div className="flex items-start gap-x-6">
@@ -63,7 +67,12 @@ export const ToggleCard: React.FC<Props> = ({
           )}
         </div>
         {!disabled && (
-          <Switch checked={checked} onChange={onToggle} className="flex-shrink-0 gap-0" />
+          <Switch
+            checked={checked}
+            onChange={onToggle}
+            className="flex-shrink-0 gap-0"
+            theme={theme}
+          />
         )}
       </div>
       {inputOptions && (

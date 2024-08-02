@@ -8,7 +8,7 @@ import { Button, ButtonTheme, Icon, IconName, Logo, Text, Tooltip } from '@/comp
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
-import { useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useAgentsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -26,7 +26,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-
+  const { agentId } = useChatRoutes();
   const navigateToNewChat = useNavigateToNewChat();
 
   return (
@@ -87,7 +87,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
         >
           <AgentsSidePanelButton
             label={
-              <div className="group flex items-center justify-between">
+              <div className="group flex w-full items-center justify-between">
                 <Text className="text-coral-500 dark:text-evolved-green-700">New chat</Text>
                 <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
               </div>
@@ -95,7 +95,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
             tooltip="New chat"
             iconName="add"
             theme="evolved-green"
-            onClick={() => navigateToNewChat()}
+            onClick={() => navigateToNewChat(agentId)}
             stretch
           />
 
