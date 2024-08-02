@@ -1,4 +1,7 @@
+import io
+
 from fastapi import Request
+from pypdf import PdfReader
 
 
 def get_deployment_config(request: Request) -> dict:
@@ -18,3 +21,23 @@ def get_header_value(headers: list, keys: list) -> str:
         if k.decode("utf-8") in keys:
             return v.decode("utf-8")
     return ""
+
+
+def read_pdf(file_contents: bytes) -> str:
+    """Reads the text from a PDF file using PyPDF2
+
+    Args:
+        file_contents (bytes): The file contents
+
+    Returns:
+        str: The text extracted from the PDF
+    """
+    pdf_reader = PdfReader(io.BytesIO(file_contents))
+    text = ""
+
+    # Extract text from each page
+    for page in pdf_reader.pages:
+        page_text = page.extract_text()
+        text += page_text
+
+    return text

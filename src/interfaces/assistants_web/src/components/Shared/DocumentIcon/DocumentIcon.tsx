@@ -36,7 +36,6 @@ const getHostname = (url?: string) => {
 export const DocumentIcon: React.FC<Props> = ({
   icon,
   url,
-  toolIcon,
   className = '',
   iconKind = 'outline',
 }) => {
@@ -49,15 +48,7 @@ export const DocumentIcon: React.FC<Props> = ({
 
   return (
     <div className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded', className)}>
-      {toolIcon ? (
-        <Image
-          src={toolIcon}
-          alt={`Icon for ${domain}`}
-          width={16}
-          height={16}
-          onError={() => setError(true)}
-        />
-      ) : icon ? (
+      {icon ? (
         <Icon name={icon} kind={iconKind} />
       ) : domain === '' ? (
         <Icon name="file" kind={iconKind} />

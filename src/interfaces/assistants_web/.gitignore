@@ -24,3 +24,4 @@ dist
 # package manager lock files not supported
 yarn.lock
 pnpm-lock.yaml
+*storybook.log

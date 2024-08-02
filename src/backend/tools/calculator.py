@@ -2,10 +2,7 @@ from typing import Any, Dict, List
 
 from py_expression_eval import Parser
 
-from backend.services.logger.utils import get_logger
 from backend.tools.base import BaseTool
-
-logger = get_logger()
 
 
 class Calculator(BaseTool):
@@ -19,7 +16,11 @@ class Calculator(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
+        logger = ctx.get_logger()
+
         math_parser = Parser()
         expression = parameters.get("code", "")
 

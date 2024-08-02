@@ -215,7 +215,7 @@ async def generate_conversation_title(
     session: DBSessionDep,
     conversation: ConversationModel,
     agent_id: str,
-    ctx: Context = Depends(get_context),
+    ctx: Context,
 ):
     """Generate a title for a conversation
 
@@ -231,6 +231,7 @@ async def generate_conversation_title(
         str: Generated title
     """
     user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
     title = ""
 
     try:

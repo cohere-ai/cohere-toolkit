@@ -23,15 +23,12 @@ from backend.services.chat import (
     process_chat,
 )
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
 from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
     prefix="/v1",
 )
 router.name = RouterName.CHAT
-
-logger = get_logger()
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
@@ -196,6 +193,7 @@ def langchain_chat_stream(
     Returns:
         EventSourceResponse: Server-sent event response with chatbot responses.
     """
+    logger = ctx.get_logger()
     user_id = ctx.get_user_id()
     use_langchain = Settings().feature_flags.use_experimental_langchain
     if not use_langchain:

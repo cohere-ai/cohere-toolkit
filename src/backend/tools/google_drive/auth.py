@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 import urllib.parse
 
 import requests
@@ -12,13 +11,13 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
 from backend.tools.google_drive.tool import GoogleDrive
 
 from .constants import SCOPES
 
-logger = get_logger()
+logger = LoggerFactory().get_logger()
 
 
 class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
@@ -56,24 +55,6 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         }
 
         return f"{self.AUTH_ENDPOINT}?{urllib.parse.urlencode(params)}"
-
-    def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool:
-        auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
-
-        if auth is None:
-            return True
-
-        if datetime.datetime.now() > auth.expires_at:
-            if self.try_refresh_token(session, user_id, auth):
-                # Refreshed token successfully
-                return False
-
-            # Refresh failed, delete existing Auth
-            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
-            return True
-
-        # ToolAuth retrieved and is not expired
-        return False
 
     def try_refresh_token(
         self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth

@@ -1,7 +1,6 @@
 import { StateCreator } from 'zustand';
 
 import { CohereChatRequest, DEFAULT_CHAT_TEMPERATURE } from '@/cohere-client';
-import { isDefaultFileLoaderTool } from '@/utils';
 
 import { StoreState } from '..';
 
@@ -55,7 +54,7 @@ export const createParamsSlice: StateCreator<StoreState, [], [], ParamStore> = (
         params: {
           ...state.params,
           fileIds: [],
-          tools: state.params?.tools?.filter((t) => !isDefaultFileLoaderTool(t)),
+          tools: [],
         },
       };
     });
