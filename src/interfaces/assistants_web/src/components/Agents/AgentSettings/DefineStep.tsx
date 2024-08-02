@@ -40,7 +40,7 @@ export const DefineAssistantStep: React.FC<Props> = ({ fields, nameError, setFie
           </Text>
         }
         placeholder="e.g., You are friendly and helpful. You answer questions based on files in Google Drive."
-        defaultRows={3}
+        defaultRows={8}
         value={fields.preamble || ''}
         onChange={(e) => setFields({ ...fields, preamble: e.target.value })}
       />

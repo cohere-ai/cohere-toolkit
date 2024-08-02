@@ -1,5 +1,6 @@
 'use client';
 
+import { uniqBy } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
@@ -46,12 +47,9 @@ export const AgentSettingsForm: React.FC<Props> = ({
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
 
-  const [stepsExpanded, setStepsExpanded] = useState({
-    define: true,
-    dataSources: source === 'update',
-    tools: source === 'update',
-    visibility: source === 'update',
-  });
+  const [currentStep, setCurrentStep] = useState<
+    'define' | 'dataSources' | 'tools' | 'visibility' | undefined
+  >('define');
 
   const [googleFiles, setGoogleFiles] = useState<DataSourceArtifact[]>(
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
@@ -62,6 +60,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_READ_DOCUMENT_ID)
       ?.artifacts as DataSourceArtifact[]
   );
+
   const nameError = !fields.name.trim()
     ? 'Assistant name is required'
     : isAgentNameUnique(fields.name.trim(), agentId)
@@ -110,14 +109,21 @@ export const AgentSettingsForm: React.FC<Props> = ({
 
   const openGoogleFilePicker = useOpenGoogleDrivePicker((data) => {
     if (data.docs) {
-      setGoogleFiles(
-        data.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.name,
-          type: doc.type,
-          url: doc.url,
-        }))
-      );
+      setGoogleFiles((prev) => {
+        const updatedArtifacts = [
+          ...data.docs.map(
+            (doc) =>
+              ({
+                id: doc.id,
+                name: doc.name,
+                type: doc.type,
+                url: doc.url,
+              } as DataSourceArtifact)
+          ),
+        ];
+
+        return uniqBy([...(prev ?? []), ...updatedArtifacts], 'id');
+      });
     }
   });
 
@@ -133,16 +139,12 @@ export const AgentSettingsForm: React.FC<Props> = ({
         title="Define your assistant"
         number={1}
         description="What does your assistant do?"
-        isExpanded={stepsExpanded.define}
-        setIsExpanded={(expanded: boolean) =>
-          setStepsExpanded({ ...stepsExpanded, define: expanded })
-        }
+        isExpanded={currentStep === 'define'}
+        setIsExpanded={(expanded) => setCurrentStep(expanded ? 'define' : undefined)}
       >
         <DefineAssistantStep fields={fields} setFields={setFields} nameError={nameError} />
         <StepButtons
-          handleNext={() =>
-            setStepsExpanded({ ...stepsExpanded, define: false, dataSources: true })
-          }
+          handleNext={() => setCurrentStep('dataSources')}
           hide={source !== 'create'}
           disabled={!!nameError}
         />
@@ -152,10 +154,8 @@ export const AgentSettingsForm: React.FC<Props> = ({
         title="Add data sources"
         number={2}
         description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
-        isExpanded={stepsExpanded.dataSources}
-        setIsExpanded={(expanded: boolean) =>
-          setStepsExpanded({ ...stepsExpanded, dataSources: expanded })
-        }
+        isExpanded={currentStep === 'dataSources'}
+        setIsExpanded={(expanded) => setCurrentStep(expanded ? 'dataSources' : undefined)}
       >
         <DataSourcesStep
           googleDriveEnabled={
@@ -169,10 +169,8 @@ export const AgentSettingsForm: React.FC<Props> = ({
           setDefaultUploadFiles={setDefaultUploadFiles}
         />
         <StepButtons
-          handleNext={() => setStepsExpanded({ ...stepsExpanded, dataSources: false, tools: true })}
-          handleBack={() =>
-            setStepsExpanded({ ...stepsExpanded, dataSources: false, define: true })
-          }
+          handleNext={() => setCurrentStep('tools')}
+          handleBack={() => setCurrentStep('define')}
           hide={source !== 'create'}
         />
       </CollapsibleSection>
@@ -181,10 +179,8 @@ export const AgentSettingsForm: React.FC<Props> = ({
         title="Set default tools"
         number={3}
         description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
-        isExpanded={stepsExpanded.tools}
-        setIsExpanded={(expanded: boolean) =>
-          setStepsExpanded({ ...stepsExpanded, tools: expanded })
-        }
+        isExpanded={currentStep === 'tools'}
+        setIsExpanded={(expanded) => setCurrentStep(expanded ? 'tools' : undefined)}
       >
         <ToolsStep
           tools={listToolsData}
@@ -192,8 +188,8 @@ export const AgentSettingsForm: React.FC<Props> = ({
           setActiveTools={(tools: string[]) => setFields({ ...fields, tools })}
         />
         <StepButtons
-          handleNext={() => setStepsExpanded({ ...stepsExpanded, tools: false, visibility: true })}
-          handleBack={() => setStepsExpanded({ ...stepsExpanded, tools: false, dataSources: true })}
+          handleNext={() => setCurrentStep('visibility')}
+          handleBack={() => setCurrentStep('dataSources')}
           allowSkip
           hide={source !== 'create'}
         />
@@ -203,10 +199,8 @@ export const AgentSettingsForm: React.FC<Props> = ({
         title="Set visibility"
         number={4}
         description="Control who can access this assistant and its knowledge base."
-        isExpanded={stepsExpanded.visibility}
-        setIsExpanded={(expanded: boolean) =>
-          setStepsExpanded({ ...stepsExpanded, visibility: expanded })
-        }
+        isExpanded={currentStep === 'visibility'}
+        setIsExpanded={(expanded) => setCurrentStep(expanded ? 'visibility' : undefined)}
       >
         <VisibilityStep
           isPublic={true}
@@ -215,7 +209,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
         />
         <StepButtons
           handleNext={onSubmit}
-          handleBack={() => setStepsExpanded({ ...stepsExpanded, visibility: false, tools: true })}
+          handleBack={() => setCurrentStep('tools')}
           nextLabel="Create"
           disabled={!!nameError}
           isSubmit

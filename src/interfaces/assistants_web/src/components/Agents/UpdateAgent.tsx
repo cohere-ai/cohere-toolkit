@@ -113,7 +113,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         agentId={agentId}
       />
       <div className="space-y-5 px-8 pb-8">
-        <div className={'flex w-full items-center justify-between'}>
+        <div className="flex w-full max-w-screen-md items-center justify-between ">
           <Button label="Cancel" kind="secondary" href="/discover" />
           <Button
             label="Update"

@@ -1,3 +1,4 @@
+import { uniqBy } from 'lodash';
 import Link from 'next/link';
 import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
 
@@ -58,12 +59,18 @@ export const DataSourcesStep: React.FC<Props> = ({
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFileIds = await batchUploadFiles({ files: [...(e.target.files ?? [])] });
     if (!newFileIds) return;
-    setDefaultUploadFiles(
-      newFileIds.map(({ id, file_name }) => ({
-        id,
-        name: file_name,
-        type: 'file',
-      }))
+    setDefaultUploadFiles((prev) =>
+      uniqBy(
+        [
+          ...(prev ?? []),
+          ...newFileIds.map(({ id, file_name }) => ({
+            id,
+            name: file_name,
+            type: 'file',
+          })),
+        ],
+        'id'
+      )
     );
   };
 

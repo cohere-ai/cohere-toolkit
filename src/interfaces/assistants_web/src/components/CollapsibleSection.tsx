@@ -1,6 +1,5 @@
 'use client';
 
-import { Transition } from '@headlessui/react';
 import { ReactNode } from 'react';
 
 import { Icon, Text } from '@/components/Shared';
@@ -53,9 +52,12 @@ export const CollapsibleSection: React.FC<Props> = ({
             {title && typeof title === 'string' ? <Text className="text-lg">{title}</Text> : title}
           </div>
           <Icon
-            name={isExpanded ? 'chevron-up' : 'chevron-down'}
+            name="chevron-down"
             size="lg"
-            className={!setIsExpanded ? 'hidden' : ''}
+            className={cn('transition-transform duration-300', {
+              hidden: !setIsExpanded,
+              'rotate-180 transform': isExpanded,
+            })}
           />
         </div>
         {description && typeof description === 'string' ? (
@@ -64,18 +66,7 @@ export const CollapsibleSection: React.FC<Props> = ({
           description
         )}
       </button>
-      <Transition
-        show={isExpanded}
-        as="div"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        enter="transition-all transform duration-400 delay-100"
-        leave="transition-all transform duration-300"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        {children}
-      </Transition>
+      {isExpanded && children}
     </div>
   );
 };
