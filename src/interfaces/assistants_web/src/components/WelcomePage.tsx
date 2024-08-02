@@ -8,6 +8,7 @@ import { NavigationUserMenu } from '@/components/NavigationUserMenu';
 import { Text } from '@/components/Shared';
 import { CellBackground } from '@/components/Welcome/CellBackground';
 import { Navigation } from '@/components/Welcome/Navigation';
+import { useAuthStrategies } from '@/hooks/authStrategies';
 
 type Props = PropsWithChildren<{
   userEmail?: string;
@@ -21,12 +22,15 @@ export const WelcomePage: React.FC<Props> = ({
   videoStep = 0,
   showEmailInHeader,
 }) => {
+  const { data: authStrategies } = useAuthStrategies();
+
   const pathname = usePathname();
-  const navigationAction = pathname.includes('/login')
-    ? 'register'
-    : pathname.includes('/register')
-    ? 'login'
-    : undefined;
+  const navigationAction =
+    authStrategies.hasBasicAuth && pathname.includes('/login')
+      ? 'register'
+      : pathname.includes('/register')
+      ? 'login'
+      : undefined;
   return (
     <div className="relative flex h-full min-h-screen w-full bg-green-950 dark:bg-volcanic-150">
       <CellBackground step={videoStep} />

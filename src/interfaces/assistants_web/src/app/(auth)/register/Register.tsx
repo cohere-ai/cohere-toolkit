@@ -4,7 +4,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { AuthLink } from '@/components/AuthLink';
-import { Button, Input, Text } from '@/components/Shared';
+import { Button, Input, Spinner, Text } from '@/components/Shared';
+import { useAuthStrategies } from '@/hooks/authStrategies';
 import { useSession } from '@/hooks/session';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
@@ -22,6 +23,7 @@ type RegisterStatus = 'idle' | 'pending';
 const Register: React.FC = () => {
   const router = useRouter();
   const search = useSearchParams();
+  const { data: authStrategies, isFetching } = useAuthStrategies();
 
   const { registerMutation } = useSession();
 
@@ -43,6 +45,14 @@ const Register: React.FC = () => {
   const redirect = getQueryString(search.get('redirect_uri'));
 
   const errors: string[] = [];
+
+  if (isFetching) {
+    return <Spinner className="h-10 w-10" />;
+  }
+
+  if (!authStrategies.hasBasicAuth) {
+    router.push('/login');
+  }
 
   return (
     <div className="flex flex-col items-center justify-center">
