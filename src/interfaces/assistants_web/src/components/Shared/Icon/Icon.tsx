@@ -1,72 +1,76 @@
 import { Link } from '@/components/Shared/Icon/Link';
 import { cn } from '@/utils';
 
-export type IconKind = 'default' | 'outline';
-type LogoIconName = 'google-drive' | 'one-drive';
-export type IconName =
-  | LogoIconName
-  | 'add'
-  | 'arrow-clockwise'
-  | 'arrow-down'
-  | 'arrow-left'
-  | 'arrow-right'
-  | 'arrow-submit'
-  | 'arrow-up-right'
-  | 'arrow-up'
-  | 'book-open-text'
-  | 'calculator'
-  | 'chat-circle-dots'
-  | 'checkmark'
-  | 'chevron-down'
-  | 'chevron-left'
-  | 'chevron-right'
-  | 'chevron-up'
-  | 'circles-four'
-  | 'circles-three'
-  | 'close-drawer'
-  | 'close'
-  | 'code-simple'
-  | 'compass'
-  | 'copy'
-  | 'desktop'
-  | 'download'
-  | 'edit'
-  | 'file-search'
-  | 'file'
-  | 'folder'
-  | 'hide'
-  | 'information'
-  | 'kebab'
-  | 'link'
-  | 'list'
-  | 'menu'
-  | 'moon'
-  | 'new-message'
-  | 'paperclip'
-  | 'profile'
-  | 'search'
-  | 'settings'
-  | 'share'
-  | 'show'
-  | 'sign-out'
-  | 'sparkle'
-  | 'subtract'
-  | 'sun'
-  | 'thumbs-down'
-  | 'thumbs-up'
-  | 'trash'
-  | 'upload'
-  | 'users-three'
-  | 'warning'
-  | 'web';
+export const IconList = [
+  'add',
+  'arrow-clockwise',
+  'arrow-down',
+  'arrow-left',
+  'arrow-right',
+  'arrow-submit',
+  'arrow-up-right',
+  'arrow-up',
+  'book-open-text',
+  'calculator',
+  'chat-circle-dots',
+  'checkmark',
+  'chevron-down',
+  'chevron-left',
+  'chevron-right',
+  'chevron-up',
+  'circles-four',
+  'circles-three',
+  'close-drawer',
+  'close',
+  'code-simple',
+  'compass',
+  'copy',
+  'desktop',
+  'download',
+  'edit',
+  'file-search',
+  'file',
+  'folder',
+  'google-drive',
+  'hide',
+  'information',
+  'kebab',
+  'link',
+  'list',
+  'menu',
+  'moon',
+  'new-message',
+  'one-drive',
+  'paperclip',
+  'profile',
+  'search',
+  'settings',
+  'share',
+  'show',
+  'sign-out',
+  'sparkle',
+  'subtract',
+  'sun',
+  'thumbs-down',
+  'thumbs-up',
+  'trash',
+  'upload',
+  'users-three',
+  'warning',
+  'web',
+] as const;
 
-export const Icon: React.FC<{
-  name: IconName | LogoIconName;
+export type IconName = (typeof IconList)[number];
+export type IconKind = 'default' | 'outline';
+
+type Props = {
+  name: IconName;
   kind?: IconKind;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit';
   className?: string;
-  bgClassName?: string;
-}> = ({ name, kind = 'default', size = 'md', className }) => {
+};
+
+export const Icon: React.FC<Props> = ({ name, kind = 'default', size = 'md', className }) => {
   const sizeClass = cn({
     'h-inherit w-inherit': size == 'inherit',
     'h-icon-xs w-icon-xs': size === 'xs',
@@ -83,7 +87,7 @@ export const Icon: React.FC<{
   );
 };
 
-const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
+const getIcon = (name: IconName, kind: IconKind) => {
   switch (name) {
     case 'add':
       return (
