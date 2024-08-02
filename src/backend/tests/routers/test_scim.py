@@ -3,6 +3,10 @@ from sqlalchemy.orm import Session
 
 import backend.crud.group as group_repo
 import backend.crud.user as user_repo
+from backend.config.settings import Settings
+
+scim_secret = Settings().auth.scim_token
+scim_auth_header = {"Authorization": f"Basic {scim_secret}"}
 
 
 def create_user_request(
@@ -20,7 +24,9 @@ def create_user_request(
         "active": True,
     }
 
-    return session_client.post("/scim/v2/Users", json=user_data_req)
+    return session_client.post(
+        "/scim/v2/Users", json=user_data_req, headers=scim_auth_header
+    )
 
 
 def create_group_request(session_client: TestClient):
@@ -30,7 +36,9 @@ def create_group_request(session_client: TestClient):
         "members": [],
     }
 
-    return session_client.post("/scim/v2/Groups", json=request)
+    return session_client.post(
+        "/scim/v2/Groups", json=request, headers=scim_auth_header
+    )
 
 
 def test_create_user(session_client: TestClient, session: Session) -> None:
@@ -68,7 +76,9 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
 
 
 def test_get_user(session_client: TestClient, session: Session):
-    response = session_client.get("/scim/v2/Users/does-not-exist")
+    response = session_client.get(
+        "/scim/v2/Users/does-not-exist", headers=scim_auth_header
+    )
     error_response = response.json()
 
     assert response.status_code == 404
@@ -81,7 +91,9 @@ def test_get_user(session_client: TestClient, session: Session):
     response_user = response.json()
     assert response.status_code == 201
 
-    response = session_client.get(f"/scim/v2/Users/{response_user['id']}")
+    response = session_client.get(
+        f"/scim/v2/Users/{response_user['id']}", headers=scim_auth_header
+    )
     user_response = response.json()
 
     db_user = user_repo.get_user_by_external_id(session, response_user["externalId"])
@@ -104,7 +116,8 @@ def test_get_user(session_client: TestClient, session: Session):
     assert user_response == expected_user
 
     response = session_client.get(
-        "/scim/v2/Users?filter=userName%20eq%20%22testuser@company.com%22&startIndex=1&count=100"
+        "/scim/v2/Users?filter=userName%20eq%20%22testuser@company.com%22&startIndex=1&count=100",
+        headers=scim_auth_header,
     )
     list_user_response = response.json()
     user_response = list_user_response["Resources"][0]
@@ -127,7 +140,9 @@ def test_put_user(session_client: TestClient, session: Session):
         "meta": {"resourceType": "User"},
     }
 
-    response = session_client.put(f"/scim/v2/Users/{user_id}", json=put_data)
+    response = session_client.put(
+        f"/scim/v2/Users/{user_id}", json=put_data, headers=scim_auth_header
+    )
     response_user = response.json()
 
     db_user = user_repo.get_user(session, user_id)
@@ -161,7 +176,9 @@ def test_patch_user(session_client: TestClient, session: Session):
         "Operations": [{"op": "replace", "value": {"active": False}}],
     }
 
-    response = session_client.patch(f"/scim/v2/Users/{user_id}", json=patch_data)
+    response = session_client.patch(
+        f"/scim/v2/Users/{user_id}", json=patch_data, headers=scim_auth_header
+    )
     response_user = response.json()
 
     db_user = user_repo.get_user(session, user_id)
@@ -210,7 +227,9 @@ def test_create_group(session_client: TestClient, session: Session):
 
 
 def test_get_group(session_client: TestClient, session: Session):
-    response = session_client.get("/scim/v2/Groups/does-not-exist")
+    response = session_client.get(
+        "/scim/v2/Groups/does-not-exist", headers=scim_auth_header
+    )
     error_response = response.json()
 
     assert response.status_code == 404
@@ -223,7 +242,9 @@ def test_get_group(session_client: TestClient, session: Session):
     response_group = response.json()
     assert response.status_code == 201
 
-    response = session_client.get(f"/scim/v2/Groups/{response_group['id']}")
+    response = session_client.get(
+        f"/scim/v2/Groups/{response_group['id']}", headers=scim_auth_header
+    )
     group_response = response.json()
 
     db_group = group_repo.get_group(session, response_group["id"])
@@ -244,7 +265,8 @@ def test_get_group(session_client: TestClient, session: Session):
     assert group_response == expected_group
 
     response = session_client.get(
-        "/scim/v2/Groups?filter=displayName%20eq%20%22Test%20SCIMv2%22&startIndex=1&count=100"
+        "/scim/v2/Groups?filter=displayName%20eq%20%22Test%20SCIMv2%22&startIndex=1&count=100",
+        headers=scim_auth_header,
     )
     list_group_response = response.json()
     group_response = list_group_response["Resources"][0]
@@ -258,10 +280,14 @@ def test_delete_group(session_client: TestClient, session: Session):
     group_id = response_group["id"]
     assert response.status_code == 201
 
-    response = session_client.delete(f"/scim/v2/Groups/{group_id}")
+    response = session_client.delete(
+        f"/scim/v2/Groups/{group_id}", headers=scim_auth_header
+    )
     assert response.status_code == 204
 
-    response = session_client.get(f"/scim/v2/Groups/{group_id}")
+    response = session_client.get(
+        f"/scim/v2/Groups/{group_id}", headers=scim_auth_header
+    )
     error_response = response.json()
 
     assert response.status_code == 404
@@ -290,7 +316,9 @@ def test_update_group_name(session_client: TestClient, session: Session):
         ],
     }
 
-    response = session_client.patch(f"/scim/v2/Groups/{group_id}", json=patch_data)
+    response = session_client.patch(
+        f"/scim/v2/Groups/{group_id}", json=patch_data, headers=scim_auth_header
+    )
     response_group = response.json()
 
     db_group = group_repo.get_group(session, group_id)
@@ -338,7 +366,9 @@ def test_add_users_to_group(session_client: TestClient, session: Session):
         ],
     }
 
-    response = session_client.patch(f"/scim/v2/Groups/{group_id}", json=patch_data)
+    response = session_client.patch(
+        f"/scim/v2/Groups/{group_id}", json=patch_data, headers=scim_auth_header
+    )
     response_group = response.json()
 
     db_group = group_repo.get_group(session, group_id)
@@ -392,7 +422,9 @@ def test_replace_users_in_group(session_client: TestClient, session: Session):
         ],
     }
 
-    response = session_client.patch(f"/scim/v2/Groups/{group.id}", json=patch_data)
+    response = session_client.patch(
+        f"/scim/v2/Groups/{group.id}", json=patch_data, headers=scim_auth_header
+    )
     response_group = response.json()
 
     expected_response = {
@@ -413,3 +445,34 @@ def test_replace_users_in_group(session_client: TestClient, session: Session):
     }
 
     assert response_group == expected_response
+
+def test_scim_requests_are_authenticated(session_client: TestClient):
+    response = session_client.get("/scim/v2/Users")
+    assert response.status_code == 401
+    
+    response = session_client.post("/scim/v2/Users")
+    assert response.status_code == 401
+
+    response = session_client.patch("/scim/v2/Users")
+    assert response.status_code == 401
+
+    response = session_client.put("/scim/v2/Users")
+    assert response.status_code == 401
+    
+    response = session_client.delete("/scim/v2/Users")
+    assert response.status_code == 401
+
+    response = session_client.get("/scim/v2/Groups")
+    assert response.status_code == 401
+    
+    response = session_client.post("/scim/v2/Groups")
+    assert response.status_code == 401
+    
+    response = session_client.put("/scim/v2/Groups")
+    assert response.status_code == 401
+    
+    response = session_client.patch("/scim/v2/Groups")
+    assert response.status_code == 401
+    
+    response = session_client.delete("/scim/v2/Groups")
+    assert response.status_code == 401

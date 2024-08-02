@@ -60,6 +60,7 @@ class AuthSettings(BaseSettings, BaseModel):
     )
     oidc: Optional[OIDCSettings]
     google_oauth: Optional[GoogleOAuthSettings]
+    scim_token: Optional[str]
 
 
 class FeatureFlags(BaseSettings, BaseModel):

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter
-
+from fastapi.responses import JSONResponse
 import backend.crud.group as group_repo
 import backend.crud.user as user_repo
 from backend.config.routers import RouterName
@@ -24,9 +24,45 @@ from backend.schemas.scim import (
 )
 from backend.services.logger.utils import get_logger
 
-router = APIRouter(prefix="/scim/v2")
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from backend.config.settings import Settings
+
+SCIM_PREFIX = "/scim/v2"
+scim_secret = Settings().auth.scim_token
+
+router = APIRouter(prefix=SCIM_PREFIX)
 router.name = RouterName.SCIM
 logger = get_logger()
+
+
+class SCIMMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if not request.url.path.startswith(SCIM_PREFIX):
+            response = await call_next(request)
+            return response
+
+        if not scim_secret:
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "SCIM token not set in the environment"},
+            )
+
+        if not self.verify_token(request, "Basic"):
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Invalid SCIM token"},
+            )
+
+        response = await call_next(request)
+        return response
+
+    def verify_token(self, request: Request, token_type: str) -> bool:
+        auth_val = request.headers.get("Authorization")
+        if not auth_val:
+            return False
+        token = auth_val.replace(f"{token_type} ", "")
+        return token == scim_secret
 
 
 class SCIMException(Exception):
