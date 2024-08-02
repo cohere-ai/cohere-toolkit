@@ -130,7 +130,6 @@ export type ButtonProps = {
   rel?: string;
   target?: HTMLAttributeAnchorTarget;
   animate?: boolean;
-  danger?: boolean;
   stretch?: boolean;
 };
 
@@ -156,13 +155,6 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const labelStyles = getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
-  const animateStyles =
-    animate && !disabled
-      ? cn('duration-400 transition-spacing ease-in-out', {
-          'pl-3 group-hover:pl-1': iconPosition === 'start',
-          'pr-3 group-hover:pr-1': iconPosition === 'end',
-        })
-      : undefined;
 
   const iconElement = isLoading ? (
     <Spinner />
@@ -184,34 +176,21 @@ export const Button: React.FC<ButtonProps> = ({
     );
 
   const inner =
-    kind !== 'cell' ? (
-      <div
-        className={cn(
-          'group flex h-cell-button items-center justify-center rounded-md',
-          buttonStyles,
-          {
-            'h-fit justify-start': kind === 'secondary',
-            'space-x-3': !animateStyles,
-            'px-5': kind !== 'secondary',
-          }
-        )}
-      >
-        {iconPosition === 'start' && iconElement}
-        {labelElement && (
-          <div
-            className={cn(animateStyles, {
-              'px-2': kind === 'outline',
-              'w-full': stretch,
-            })}
-          >
-            {labelElement}
-          </div>
-        )}
-        {iconPosition === 'end' && iconElement}
-      </div>
-    ) : (
-      cellInner(theme, iconElement, labelElement, !disabled && animate, iconPosition, disabled)
-    );
+    kind !== 'cell'
+      ? simpleInner({
+          labelElement,
+          iconElement,
+          disabled,
+          animate,
+          iconPosition,
+        })
+      : cellInner(theme, iconElement, labelElement, !disabled && animate, iconPosition, disabled);
+
+  const commonStyles = cn('group select-none', { 'cursor-not-allowed': disabled });
+  const simpleButtonStyles =
+    kind !== 'cell'
+      ? cn(buttonStyles, { 'w-full': stretch, 'px-5': kind !== 'secondary' })
+      : undefined;
 
   return !disabled && href ? (
     <Link
@@ -220,14 +199,7 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       rel={rel}
       target={target}
-      className={cn(
-        'group select-none',
-        {
-          'cursor-not-allowed': disabled,
-          'w-full': stretch,
-        },
-        className
-      )}
+      className={cn(commonStyles, simpleButtonStyles, className)}
     >
       {inner}
     </Link>
@@ -237,17 +209,40 @@ export const Button: React.FC<ButtonProps> = ({
       type={buttonType}
       disabled={disabled}
       onClick={onClick}
-      className={cn(
-        'group select-none',
-        {
-          'cursor-not-allowed': disabled,
-          'w-full': stretch,
-        },
-        className
-      )}
+      className={cn(commonStyles, simpleButtonStyles, className)}
     >
       {inner}
     </button>
+  );
+};
+
+const simpleInner = ({
+  labelElement,
+  iconElement,
+  disabled,
+  animate,
+  iconPosition,
+}: {
+  labelElement: React.ReactNode;
+  iconElement?: React.ReactNode;
+  disabled: boolean;
+  animate: boolean;
+  iconPosition: 'start' | 'end';
+}) => {
+  const animateStyles =
+    animate && iconElement && !disabled
+      ? cn('duration-400 transition-spacing ease-in-out', {
+          'pl-4 group-hover:pl-2 group-hover:pr-2': iconPosition === 'start',
+          'pr-4 group-hover:pr-2 group-hover:pl-2': iconPosition === 'end',
+        })
+      : undefined;
+
+  return (
+    <>
+      {iconPosition === 'start' && iconElement}
+      <div className={cn(animateStyles)}>{labelElement}</div>
+      {iconPosition === 'end' && iconElement}
+    </>
   );
 };
 
