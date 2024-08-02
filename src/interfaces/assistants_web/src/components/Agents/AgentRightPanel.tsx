@@ -12,7 +12,7 @@ import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
 import { useParamsStore } from '@/stores';
-import { GoogleDriveToolArtifact } from '@/types/tools';
+import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 
 type Props = {};
@@ -44,7 +44,7 @@ const AgentRightPanel: React.FC<Props> = () => {
     const artifacts =
       (agent.tools_metadata?.find(
         (tool_metadata) => tool_metadata.tool_name === TOOL_GOOGLE_DRIVE_ID
-      )?.artifacts as GoogleDriveToolArtifact[]) ?? [];
+      )?.artifacts as DataSourceArtifact[]) ?? [];
 
     const files = artifacts.filter((artifact) => artifact.type === 'file');
     const folders = artifacts.filter((artifact) => artifact.type === 'folder');

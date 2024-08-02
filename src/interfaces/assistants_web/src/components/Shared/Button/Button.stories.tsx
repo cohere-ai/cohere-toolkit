@@ -14,7 +14,7 @@ export const AllStyles: StoryFn<typeof Button> = () => (
   <div className="flex flex-col gap-4">
     <div className="flex flex-col gap-2">
       <Text>Primary</Text>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4 xl:grid-cols-5">
         <Button kind="primary" icon="add" label="Primary" theme="evolved-green" />
         <Button kind="primary" icon="add" label="Primary" theme="blue" />
         <Button kind="primary" icon="add" label="Primary" theme="coral" />
@@ -30,7 +30,7 @@ export const AllStyles: StoryFn<typeof Button> = () => (
     </div>
     <div className="flex flex-col gap-2">
       <Text>Primary as Link</Text>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         <Button
           kind="primary"
           icon="add"
@@ -50,7 +50,7 @@ export const AllStyles: StoryFn<typeof Button> = () => (
     </div>
     <div className="flex flex-col gap-2">
       <Text>Secondary</Text>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4 xl:grid-cols-5">
         <Button kind="secondary" icon="add" label="Secondary" theme="evolved-green" />
         <Button kind="secondary" icon="add" label="Secondary" theme="blue" />
         <Button kind="secondary" icon="add" label="Secondary" theme="coral" />
@@ -66,7 +66,7 @@ export const AllStyles: StoryFn<typeof Button> = () => (
     </div>
     <div className="flex flex-col gap-2">
       <Text>Cell</Text>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4 xl:grid-cols-5">
         <Button kind="cell" icon="add" label="Cell" theme="evolved-green" />
         <Button kind="cell" icon="add" label="Cell" theme="blue" />
         <Button kind="cell" icon="add" label="Cell" theme="coral" />
@@ -82,7 +82,7 @@ export const AllStyles: StoryFn<typeof Button> = () => (
     </div>
     <div className="flex flex-col gap-2">
       <Text>Outline</Text>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4 xl:grid-cols-5">
         <Button kind="outline" icon="add" label="Outline" theme="evolved-green" />
         <Button kind="outline" icon="add" label="Outline" theme="blue" />
         <Button kind="outline" icon="add" label="Outline" theme="coral" />

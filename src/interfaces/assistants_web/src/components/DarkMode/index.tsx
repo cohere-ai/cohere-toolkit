@@ -36,7 +36,12 @@ export const DarkModeToggle = () => {
           })}
           onClick={() => handleSetTheme('light')}
         >
-          <Icon name="sun" className="fill-volcanic-150" kind="outline" size="lg" />
+          <Icon
+            name="sun"
+            className="fill-volcanic-150 dark:fill-volcanic-150"
+            kind="outline"
+            size="lg"
+          />
         </button>
         <Text className="text-center">Light</Text>
       </div>

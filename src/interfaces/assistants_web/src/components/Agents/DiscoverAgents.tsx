@@ -75,22 +75,16 @@ const Wrapper: React.FC<PropsWithChildren> = ({ children }) => (
   </div>
 );
 
-const CompanyAgents = () => (
-  <Wrapper>
-    <DiscoverAgentCard
-      isBaseAgent
-      name="Command R+"
-      description="Review, understand and ask questions about  internal financial documents."
-    />
-  </Wrapper>
-);
-
-const PrivateAgents = () => {
+const CompanyAgents = () => {
   const { data: agents = [] } = useListAgents();
-
   return (
     <Wrapper>
-      {agents?.map((agent) => (
+      <DiscoverAgentCard
+        isBaseAgent
+        name="Command R+"
+        description="Review, understand and ask questions about  internal financial documents."
+      />
+      {agents.map((agent) => (
         <DiscoverAgentCard
           key={agent.name}
           description={agent.description ?? undefined}
@@ -98,6 +92,24 @@ const PrivateAgents = () => {
           id={agent.id}
         />
       ))}
+    </Wrapper>
+  );
+};
+
+const PrivateAgents = () => {
+  // TODO: filter them when they are private
+  const { data: agents = [] } = useListAgents();
+
+  return (
+    <Wrapper>
+      {/* {agents?.map((agent) => (
+        <DiscoverAgentCard
+          key={agent.name}
+          description={agent.description ?? undefined}
+          name={agent.name}
+          id={agent.id}
+        />
+      ))} */}
     </Wrapper>
   );
 };
