@@ -31,14 +31,14 @@ def list_google_drive_artifacts_file_ids(
     session: Session, user_id: str, agent_artifacts: List[Dict[str, str]], verbose=False
 ):
     gdrive_auth = GoogleDriveAuth()
-    agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
-    if agent_creator_auth_token is None:
-        raise Exception("Sync GDrive Error: No agent creator credentials found")
-
     if gdrive_auth.is_auth_required(session, user_id=user_id):
         raise Exception(
             "Sync GDrive Error: Agent creator credentials need to re-authenticate"
         )
+
+    agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
+    if agent_creator_auth_token is None:
+        raise Exception("Sync GDrive Error: No agent creator credentials found")
 
     (service,) = (
         get_service(api="drive", user_id=user_id)[key] for key in ("service",)
