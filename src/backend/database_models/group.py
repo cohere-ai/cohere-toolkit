@@ -8,7 +8,9 @@ class Group(Base):
     __tablename__ = "groups"
 
     display_name: Mapped[str] = mapped_column(String, nullable=True)
-    members = relationship("UserGroup", back_populates="group")
+    members = relationship(
+        "UserGroup", back_populates="group", cascade="all, delete-orphan"
+    )
 
 
 class UserGroup(Base):

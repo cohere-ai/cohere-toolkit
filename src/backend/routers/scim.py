@@ -210,15 +210,22 @@ async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
                 )
                 db_group.members.append(user_group)
         if operation.op == "replace" and operation.path == "members":
-            for m in db_group.members:
-                session.delete(m)
-
-            db_group.members = []
+            group_members = {}
             for value in operation.value:
+                group_members[value["value"]] = value["display"]
+
+            for member in db_group.members:
+                if member.user_id in group_members:
+                    member.display = group_members[member.user_id]
+                    del group_members[member.user_id]
+                else:
+                    db_group.members.remove(member)
+
+            for user_id, display in group_members.items():
                 user_group = UserGroup(
                     group_id=db_group.id,
-                    user_id=value["value"],
-                    display=value["display"],
+                    user_id=user_id,
+                    display=display,
                 )
                 db_group.members.append(user_group)
 
