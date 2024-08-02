@@ -13,6 +13,7 @@ from backend.tools import (
     SearchFileTool,
     TavilyInternetSearch,
     WebScrapeTool,
+    FinanceParser
 )
 
 logger = LoggerFactory().get_logger()
@@ -38,9 +39,26 @@ class ToolName(StrEnum):
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
+    Finance_Parser = FinanceParser.NAME
 
 
 ALL_TOOLS = {
+    ToolName.Finance_Parser: ManagedTool(
+        display_name="Finance Doc Parser",
+        implementation=FinanceParser,
+        parameter_definitions={
+            "query": {
+                "description": "Query for searching a financial document.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=FinanceParser.is_available(),
+        error_message="FinanceParser not available, please make sure all relevant data is connected.",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for a textual query retrieved from a financial document.",
+    ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         display_name="Web Search",
         implementation=TavilyInternetSearch,

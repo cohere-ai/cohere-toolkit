@@ -55,30 +55,46 @@ class CustomChat(BaseChat):
 
         self.chat_request = chat_request
         self.is_first_start = True
+        
+        stream = self.call_chat(self.chat_request, deployment_model, ctx, **kwargs)
 
-        try:
-            stream = self.call_chat(self.chat_request, deployment_model, ctx, **kwargs)
+        async for event in stream:
+            result = self.handle_event(event, chat_request)
 
-            async for event in stream:
-                result = self.handle_event(event, chat_request)
+            if result:
+                yield result
 
-                if result:
-                    yield result
+            if event[
+                "event_type"
+            ] == StreamEvent.STREAM_END and self.is_final_event(
+                event, chat_request
+            ):
+                logger.debug(event=f"Final event: {event}")
+                break
 
-                if event[
-                    "event_type"
-                ] == StreamEvent.STREAM_END and self.is_final_event(
-                    event, chat_request
-                ):
-                    logger.debug(event=f"Final event: {event}")
-                    break
-        except Exception as e:
-            yield {
-                "event_type": StreamEvent.STREAM_END,
-                "finish_reason": "ERROR",
-                "error": str(e),
-                "status_code": 500,
-            }
+        # try:
+        #     stream = self.call_chat(self.chat_request, deployment_model, ctx, **kwargs)
+
+        #     async for event in stream:
+        #         result = self.handle_event(event, chat_request)
+
+        #         if result:
+        #             yield result
+
+        #         if event[
+        #             "event_type"
+        #         ] == StreamEvent.STREAM_END and self.is_final_event(
+        #             event, chat_request
+        #         ):
+        #             logger.debug(event=f"Final event: {event}")
+        #             break
+        # except Exception as e:
+        #     yield {
+        #         "event_type": StreamEvent.STREAM_END,
+        #         "finish_reason": "ERROR",
+        #         "error": str(e),
+        #         "status_code": 500,
+        #     }
 
     def is_final_event(
         self, event: Dict[str, Any], chat_request: CohereChatRequest

@@ -109,6 +109,12 @@ optional = true
 [tool.poetry.group.local-model.dependencies]
 llama-cpp-python = "^0.2.67"
 
+
+[tool.poetry.group.backend.dependencies]
+langchain-chroma = "^0.1.2"
+pdfminer = "^20191125"
+unstructured = {extras = ["all-docs"], version = "^0.15.0"}
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
