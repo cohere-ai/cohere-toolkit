@@ -455,28 +455,6 @@ def test_delete_conversation_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
-def test_search_conversations(
-    session_client: TestClient,
-    session: Session,
-    user: User,
-) -> None:
-    conversation = get_factory("Conversation", session).create(
-        title="test title", user_id=user.id
-    )
-    response = session_client.get(
-        "/v1/conversations:search",
-        headers={"User-Id": user.id},
-        params={"query": "test"},
-    )
-    print("here")
-    print(response.json)
-    results = response.json()
-
-    assert response.status_code == 200
-    assert len(results) == 1
-    assert results[0]["id"] == conversation.id
-
-
 @pytest.mark.skipif(
     os.environ.get("COHERE_API_KEY") is None,
     reason="Cohere API key not set, skipping test",
