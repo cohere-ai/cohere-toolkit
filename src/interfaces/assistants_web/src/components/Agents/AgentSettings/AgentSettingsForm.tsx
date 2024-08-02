@@ -64,11 +64,11 @@ export const AgentSettingsForm: React.FC<Props> = ({
       ?.artifacts as DataSourceArtifact[]
   );
 
-  const nameError = !fields.name.trim()
-    ? 'Assistant name is required'
-    : isAgentNameUnique(fields.name.trim(), agentId)
+  const nameError = isAgentNameUnique(fields.name.trim(), agentId)
     ? 'Assistant name must be unique'
     : undefined;
+
+  const canCreate = !nameError;
 
   const setToolsMetadata = () => {
     const tools_metadata = [
@@ -145,11 +145,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
         isExpanded={currentStep === 'define'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'define' : undefined)}
       >
-        <DefineAssistantStep
-          fields={fields}
-          setFields={setFields}
-          nameError={!!fields.name ? nameError : undefined}
-        />
+        <DefineAssistantStep fields={fields} setFields={setFields} nameError={nameError} />
         <StepButtons
           handleNext={() => setCurrentStep('dataSources')}
           hide={source !== 'create'}
@@ -218,7 +214,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
           handleNext={onSubmit}
           handleBack={() => setCurrentStep('tools')}
           nextLabel="Create"
-          disabled={!!nameError}
+          disabled={!canCreate}
           isSubmit
           hide={source !== 'create'}
         />

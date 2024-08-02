@@ -21,7 +21,6 @@ type Props = {};
 const AgentRightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // TODO: (khalil) configure this to use Google drive files
   const {
     agents: { disabledAssistantKnowledge },
     setUseAssistantKnowledge,
