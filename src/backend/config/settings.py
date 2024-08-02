@@ -46,6 +46,11 @@ class OIDCSettings(BaseSettings, BaseModel):
     )
 
 
+class SCIMAuth(BaseSettings, BaseModel):
+    username: str
+    password: str
+
+
 class AuthSettings(BaseSettings, BaseModel):
     model_config = setting_config
     enabled_auth: Optional[List[str]]
@@ -60,7 +65,7 @@ class AuthSettings(BaseSettings, BaseModel):
     )
     oidc: Optional[OIDCSettings]
     google_oauth: Optional[GoogleOAuthSettings]
-    scim_token: Optional[str]
+    scim: Optional[SCIMAuth]
 
 
 class FeatureFlags(BaseSettings, BaseModel):

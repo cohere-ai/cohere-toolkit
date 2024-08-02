@@ -1,3 +1,5 @@
+import base64
+
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -5,8 +7,13 @@ import backend.crud.group as group_repo
 import backend.crud.user as user_repo
 from backend.config.settings import Settings
 
-scim_secret = Settings().auth.scim_token
-scim_auth_header = {"Authorization": f"Basic {scim_secret}"}
+scim = Settings().auth.scim
+encoded_auth = base64.b64encode(
+    f"{scim.username}:{scim.password}".encode("utf-8")
+).decode("utf-8")
+scim_auth_header = {
+    "Authorization": f"Basic {encoded_auth}",
+}
 
 
 def create_user_request(
