@@ -105,4 +105,5 @@ def _format_permissions(permissions: List[Dict[str, str]]):
             if "emailAddress" in x
         ],
         *[{"id": x["domain"], "type": x["type"]} for x in permissions if "domain" in x],
+        *[{"id": x["group"], "type": x["type"]} for x in permissions if "group" in x],
     ]

@@ -45,8 +45,7 @@ def list_google_drive_artifacts_file_ids(
     )
 
     folder_artifacts = [x for x in agent_artifacts if x["type"] == "folder"]
-    # TODO handle this
-    # file_artifacts = [x for x in agent_artifacts if x["type"] == "file"]
+    file_artifacts = [x for x in agent_artifacts if x["type"] != "folder"]
 
     file_ids = []
     for folder_artifact in folder_artifacts:
@@ -57,7 +56,7 @@ def list_google_drive_artifacts_file_ids(
             verbose=verbose,
         )
 
-    return file_ids
+    return [*file_ids, *[x["id"] for x in file_artifacts]]
 
 
 def _recursively_list_google_drive_artifact_file_ids(

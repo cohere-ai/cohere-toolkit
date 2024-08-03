@@ -127,7 +127,7 @@ def query_google_drive_activity(
     activity_ts_filter = get_current_timestamp_in_ms(
         negative_offset=ACTIVITY_TRACKING_WINDOW
     )
-    activities = []
+    activities = {}
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
         futures_list = [
             executor.submit(_get_activity, service, artifact, activity_ts_filter)
@@ -135,14 +135,14 @@ def query_google_drive_activity(
         ]
         for future in futures.as_completed(futures_list):
             try:
-                activities.append(future.result())
+                (artifact_id, artifact_activities) = (
+                    future.result()[key] for key in ("id", "activities")
+                )
+                activities[artifact_id] = artifact_activities
             except Exception as e:
                 raise e
 
-    return {
-        agent_artifacts[index]["id"]: activities[index]
-        for index in range(len(activities))
-    }
+    return activities
 
 
 def _get_activity(
@@ -168,7 +168,7 @@ def _get_activity(
                 ),
                 **(
                     {"itemName": "items/{}".format(artifact_id)}
-                    if artifact_type == "file"
+                    if artifact_type != "folder"
                     else {}
                 ),
                 "pageToken": next_page_token,
@@ -187,9 +187,12 @@ def _get_activity(
                 artifact=artifact,
                 activity_ts_filter=activity_ts_filter,
                 next_page_token=response_next_page_token,
-            ),
+            )["activities"],
         ]
-    return response["activities"] if response else []
+    return {
+        "id": artifact_id,
+        "activities": response["activities"] if response else [],
+    }
 
 
 def _extract_file_ids_from_target(activity: Dict[str, str]):
