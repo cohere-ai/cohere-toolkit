@@ -43,6 +43,8 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
         // dark mode
         'dark:text-evolved-green-700 dark:fill-evolved-green-700 dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500':
           theme == 'evolved-green',
+        'dark:text-danger-500 dark:fill-danger-500 dark:group-hover:text-danger-350 dark:group-hover:fill-danger-350':
+          theme == 'danger',
       });
 
     default:
@@ -189,7 +191,10 @@ export const Button: React.FC<ButtonProps> = ({
   const commonStyles = cn('group select-none', { 'cursor-not-allowed': disabled });
   const simpleButtonStyles =
     kind !== 'cell'
-      ? cn(buttonStyles, { 'w-full': stretch, 'px-5': kind !== 'secondary' })
+      ? cn(buttonStyles, 'rounded-md items-center flex justify-center w-fit', {
+          'w-full': stretch,
+          'px-5 h-cell-button': kind !== 'secondary',
+        })
       : undefined;
 
   return !disabled && href ? (
@@ -235,7 +240,7 @@ const simpleInner = ({
           'pl-4 group-hover:pl-2 group-hover:pr-2': iconPosition === 'start',
           'pr-4 group-hover:pr-2 group-hover:pl-2': iconPosition === 'end',
         })
-      : undefined;
+      : cn({ 'pl-4': iconPosition === 'start', 'pr-4': iconPosition === 'end' });
 
   return (
     <>
@@ -255,25 +260,20 @@ const cellInner = (
   disabled: boolean
 ) => {
   const isEndIcon = iconPosition === 'end';
-  const buttonStyles = getButtonStyles('cell', theme, disabled);
-  const baseStyles = 'flex h-cell-button items-center group';
-  const elementStyles = cn(baseStyles, buttonStyles, '-mx-0.5', {
-    'duration-400 transition-spacing ease-in-out': animate,
-    'group-hover:pl-2': animate && isEndIcon,
-    'group-hover:pr-2': animate && !isEndIcon,
-  });
-
-  const cellTheme = getCellStyles(theme, disabled);
-  const cellElement = (
-    <>
-      <RightCell className={cellTheme} flip={isEndIcon} />
-      <LeftCell className={cellTheme} flip={isEndIcon} />
-    </>
+  const elementStyles = cn(
+    'flex h-cell-button items-center group',
+    getButtonStyles('cell', theme, disabled),
+    '-mx-0.5',
+    {
+      'duration-400 transition-spacing ease-in-out': animate,
+      'group-hover:pl-2': animate && isEndIcon,
+      'group-hover:pr-2': animate && !isEndIcon,
+    }
   );
 
   const iconCellElement = (
     <>
-      {isEndIcon && cellElement}
+      {isEndIcon && <CellElement flip className={getCellStyles(theme, disabled)} />}
       <div
         className={cn(elementStyles, {
           'rounded-l-md pl-2': !isEndIcon,
@@ -282,12 +282,12 @@ const cellInner = (
       >
         {icon}
       </div>
-      {!isEndIcon && cellElement}
+      {!isEndIcon && <CellElement className={getCellStyles(theme, disabled)} />}
     </>
   );
 
   return (
-    <div className={cn(baseStyles, 'ml-0.5')}>
+    <div className={cn('group flex h-cell-button items-center', 'ml-0.5')}>
       {!isEndIcon && iconCellElement}
       <div
         className={cn(elementStyles, 'px-1', {
@@ -299,6 +299,15 @@ const cellInner = (
       </div>
       {isEndIcon && iconCellElement}
     </div>
+  );
+};
+
+const CellElement = ({ flip, className }: { flip?: boolean; className: string }) => {
+  return (
+    <>
+      <RightCell className={className} flip={flip} />
+      <LeftCell className={className} flip={flip} />
+    </>
   );
 };
 
