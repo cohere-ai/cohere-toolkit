@@ -308,7 +308,6 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     elif model and deployment:
         deployment_config = body.get("deployment_config")
         # Validate
-        deployment, model = str(deployment), str(model)
         deployment_db, model_db = validate_deployment_model(deployment, model, session)
         if deployment_config:
             validate_deployment_config(deployment_config, deployment_db)

@@ -140,7 +140,10 @@ def test_delete_message_cascade(session, conversation, user):
     message = message_crud.get_message(session, message.id, user.id)
     assert message is None
     assert message_crud.get_messages(session, user.id) == []
-    assert message_crud.get_messages_by_conversation_id(session, conversation.id, user.id) == []
+    assert (
+        message_crud.get_messages_by_conversation_id(session, conversation.id, user.id)
+        == []
+    )
 
     citation = citation_crud.get_citation(session, citation_id)
     assert citation is None

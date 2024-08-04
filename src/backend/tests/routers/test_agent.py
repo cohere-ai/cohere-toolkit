@@ -67,8 +67,8 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert response_agent["description"] == request_json["description"]
     assert response_agent["preamble"] == request_json["preamble"]
     assert response_agent["temperature"] == request_json["temperature"]
-    assert response_agent["model"]["name"] == request_json["model"]
-    assert response_agent["deployment"]["name"] == request_json["deployment"]
+    assert response_agent["model"] == request_json["model"]
+    assert response_agent["deployment"] == request_json["deployment"]
     assert response_agent["tools"] == request_json["tools"]
 
     agent = session.get(Agent, response_agent["id"])
@@ -78,8 +78,8 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert agent.description == request_json["description"]
     assert agent.preamble == request_json["preamble"]
     assert agent.temperature == request_json["temperature"]
-    assert agent.model.name == request_json["model"]
-    assert agent.deployment.name == request_json["deployment"]
+    assert agent.model == request_json["model"]
+    assert agent.deployment == request_json["deployment"]
     assert agent.tools == request_json["tools"]
 
 
@@ -224,7 +224,7 @@ def test_create_agent_missing_non_required_fields(
     assert response_agent["description"] == ""
     assert response_agent["preamble"] == ""
     assert response_agent["temperature"] == 0.3
-    assert response_agent["model"]["name"] == request_json["model"]
+    assert response_agent["model"] == request_json["model"]
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None
@@ -233,7 +233,7 @@ def test_create_agent_missing_non_required_fields(
     assert agent.description == ""
     assert agent.preamble == ""
     assert agent.temperature == 0.3
-    assert agent.model.name == request_json["model"]
+    assert agent.model == request_json["model"]
 
 
 def test_create_agent_invalid_deployment(
@@ -496,8 +496,8 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
     assert updated_agent["description"] == "updated description"
     assert updated_agent["preamble"] == "updated preamble"
     assert updated_agent["temperature"] == 0.7
-    assert updated_agent["model"]["name"] == "command-r"
-    assert updated_agent["deployment"]["name"] == ModelDeploymentName.CoherePlatform
+    assert updated_agent["model"] == "command-r"
+    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
 
 
 def test_partial_update_agent(session_client: TestClient, session: Session) -> None:

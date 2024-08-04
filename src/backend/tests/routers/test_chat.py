@@ -35,11 +35,19 @@ def default_agent_copy(session_chat: Session, user: User) -> Agent:
     # to avoid agent related entities sessions conflicts(conversations created, ...)
     # during ROLLBACK we need to create a copy of the default db agent
     # and test the streaming chat with the new agent stored in the DB
+    agent_defaults = (
+        agent.default_model_association if agent.default_model_association else None
+    )
     new_deployment = get_factory("Deployment", session_chat).create(
-        default_deployment_config=agent.deployment.default_deployment_config
+        default_deployment_config=(
+            agent_defaults.deployment.default_deployment_config
+            if agent_defaults
+            else None
+        )
     )
     new_model = get_factory("Model", session_chat).create(
-        deployment=new_deployment, cohere_name=agent.model.cohere_name
+        deployment=new_deployment,
+        cohere_name=agent_defaults.model.cohere_name if agent_defaults else None,
     )
     new_agent = get_factory("Agent", session_chat).create(user=user, tools=[])
     new_agent_association = get_factory("AgentDeploymentModel", session_chat).create(
@@ -48,7 +56,11 @@ def default_agent_copy(session_chat: Session, user: User) -> Agent:
         model=new_model,
         is_default_deployment=True,
         is_default_model=True,
-        deployment_config=agent.deployment.default_deployment_config,
+        deployment_config=(
+            agent_defaults.deployment.default_deployment_config
+            if agent_defaults
+            else None
+        ),
     )
 
     return new_agent
@@ -87,7 +99,7 @@ def test_streaming_new_chat_metrics_with_agent(
             "/v1/chat-stream",
             headers={
                 "User-Id": default_agent_copy.user.id,
-                "Deployment-Name": default_agent_copy.deployment.name,
+                "Deployment-Name": default_agent_copy.deployment,
             },
             params={"agent_id": default_agent_copy.id},
             json={
@@ -118,7 +130,7 @@ def test_streaming_new_chat_with_agent(
         "/v1/chat-stream",
         headers={
             "User-Id": default_agent_copy.user.id,
-            "Deployment-Name": default_agent_copy.deployment.name,
+            "Deployment-Name": default_agent_copy.deployment,
         },
         params={"agent_id": default_agent_copy.id},
         json={"message": "Hello", "max_tokens": 10},
@@ -164,7 +176,7 @@ def test_streaming_new_chat_with_agent_existing_conversation(
         "/v1/chat-stream",
         headers={
             "User-Id": default_agent_copy.user.id,
-            "Deployment-Name": default_agent_copy.deployment.name,
+            "Deployment-Name": default_agent_copy.deployment,
         },
         params={"agent_id": default_agent_copy.id},
         json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
@@ -229,7 +241,7 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
         "/v1/chat-stream",
         headers={
             "User-Id": default_agent_copy.user.id,
-            "Deployment-Name": default_agent_copy.deployment.name,
+            "Deployment-Name": default_agent_copy.deployment,
         },
         json={
             "message": "Hello",

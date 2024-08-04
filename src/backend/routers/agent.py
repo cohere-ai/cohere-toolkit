@@ -1,4 +1,3 @@
-from backend.routers.utils import get_deployment_model_from_agent
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.config.routers import RouterName
@@ -9,6 +8,7 @@ from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
 )
 from backend.database_models.database import DBSessionDep
+from backend.routers.utils import get_deployment_model_from_agent
 from backend.schemas.agent import (
     Agent,
     AgentPublic,

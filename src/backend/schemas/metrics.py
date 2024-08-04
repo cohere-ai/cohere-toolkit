@@ -110,8 +110,8 @@ def agent_to_metrics_agent(agent: Agent | None) -> MetricsAgent:
         version=agent.version,
         name=agent.name,
         temperature=agent.temperature,
-        model=agent.model.name if agent.model else None,
-        deployment=agent.deployment.name if agent.deployment else None,
+        model=agent.model if agent.model else None,
+        deployment=agent.deployment if agent.deployment else None,
         preamble=agent.preamble,
         description=agent.description,
     )
