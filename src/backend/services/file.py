@@ -203,7 +203,11 @@ class FileService:
         conversation_crud.delete_conversation_file_association(
             session, conversation_id, file_id, user_id
         )
-        file_crud.delete_file(session, file_id, user_id)
+
+        if self.is_compass_enabled:
+            delete_file_in_compass(file_id, user_id)
+        else:
+            file_crud.delete_file(session, file_id, user_id)
         return
 
     def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
@@ -244,6 +248,7 @@ class FileService:
             files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
 
+    # TODO: compass
     def update_file(
         self, session: DBSessionDep, file: File, new_file: UpdateFileRequest
     ) -> File:
@@ -261,6 +266,7 @@ class FileService:
         updated_file = file_crud.update_file(session, file, new_file)
         return updated_file
 
+    # TODO: compass
     def bulk_delete_files(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
     ) -> None:
@@ -297,6 +303,13 @@ class FileService:
                 files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
 
+
+# Compass Operations
+def delete_file_in_compass(file_id: str, user_id: str) -> None:
+    get_compass().invoke(
+        action=Compass.ValidActions.DELETE_INDEX,
+        parameters={"index": file_id}
+    )
 
 def get_file_in_compass(file_id: str, user_id: str) -> File:
     fetched_doc = (
