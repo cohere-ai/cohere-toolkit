@@ -9,7 +9,6 @@ from backend.database_models import (
     DBSessionDep,
     User as DBUser,
     Group as DBGroup,
-    UserGroup,
 )
 from backend.schemas.scim import (
     ListUserResponse,
@@ -191,47 +190,46 @@ async def create_group(group: CreateGroup, session: DBSessionDep):
     return Group.from_db_group(g)
 
 
-@router.patch("/Groups/{group_id}")
-async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
-    db_group = group_repo.get_group(session, group_id)
-    if not db_group:
-        raise SCIMException(status_code=404, detail="Group not found")
-
-    for operation in patch.Operations:
-        if operation.op == "replace" and "displayName" in operation.value:
-            db_group.display_name = operation.value["displayName"]
-        if operation.op == "add" and operation.path == "members":
-            print("ADDING MEMBERS")
-            for value in operation.value:
-                user_group = UserGroup(
-                    group_id=db_group.id,
-                    user_id=value["value"],
-                    display=value["display"],
-                )
-                db_group.members.append(user_group)
-        if operation.op == "replace" and operation.path == "members":
-            group_members = {}
-            for value in operation.value:
-                group_members[value["value"]] = value["display"]
-
-            for member in db_group.members:
-                if member.user_id in group_members:
-                    member.display = group_members[member.user_id]
-                    del group_members[member.user_id]
-                else:
-                    db_group.members.remove(member)
-
-            for user_id, display in group_members.items():
-                user_group = UserGroup(
-                    group_id=db_group.id,
-                    user_id=user_id,
-                    display=display,
-                )
-                db_group.members.append(user_group)
-
-    session.commit()
-
-    return Group.from_db_group(db_group)
+# @router.patch("/Groups/{group_id}")
+# async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
+#     db_group = group_repo.get_group(session, group_id)
+#     if not db_group:
+#         raise SCIMException(status_code=404, detail="Group not found")
+#
+#     for operation in patch.Operations:
+#         if operation.op == "replace" and "displayName" in operation.value:
+#             db_group.display_name = operation.value["displayName"]
+#         if operation.op == "add" and operation.path == "members":
+#             for value in operation.value:
+#                 user_group = UserGroup(
+#                     group_id=db_group.id,
+#                     user_id=value["value"],
+#                     display=value["display"],
+#                 )
+#                 db_group.members.append(user_group)
+#         if operation.op == "replace" and operation.path == "members":
+#             group_members = {}
+#             for value in operation.value:
+#                 group_members[value["value"]] = value["display"]
+#
+#             for member in db_group.members:
+#                 if member.user_id in group_members:
+#                     member.display = group_members[member.user_id]
+#                     del group_members[member.user_id]
+#                 else:
+#                     db_group.members.remove(member)
+#
+#             for user_id, display in group_members.items():
+#                 user_group = UserGroup(
+#                     group_id=db_group.id,
+#                     user_id=user_id,
+#                     display=display,
+#                 )
+#                 db_group.members.append(user_group)
+#
+#     session.commit()
+#
+#     return Group.from_db_group(db_group)
 
 
 @router.delete("/Groups/{group_id}", status_code=204)

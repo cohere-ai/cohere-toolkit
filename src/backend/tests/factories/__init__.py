@@ -5,6 +5,7 @@ from backend.tests.factories.citation import CitationFactory
 from backend.tests.factories.conversation import ConversationFactory
 from backend.tests.factories.document import DocumentFactory
 from backend.tests.factories.file import FileFactory
+from backend.tests.factories.group import GroupFactory
 from backend.tests.factories.message import MessageFactory
 from backend.tests.factories.organization import OrganizationFactory
 from backend.tests.factories.snapshot import (
@@ -30,6 +31,7 @@ FACTORY_MAPPING = {
     "SnapshotLink": SnapshotLinkFactory,
     "SnapshotAccess": SnapshotAccessFactory,
     "AgentToolMetadata": AgentToolMetadataFactory,
+    "GroupFactory": GroupFactory,
 }
 
 
