@@ -125,7 +125,6 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 iconOptions={{ className: 'dark:fill-marble-800' }}
                 kind="secondary"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
-                animate={false}
                 onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
               />
             )}
