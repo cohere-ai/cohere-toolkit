@@ -111,7 +111,7 @@ class Compass:
                     return self.compass_client.create_index(
                         index_name=parameters["index"]
                     )
-                case self.ValidActions.CREATE_INDEX.value:
+                case self.ValidActions.DELETE_INDEX.value:
                     return self.compass_client.delete_index(
                         index_name=parameters["index"]
                     )

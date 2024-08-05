@@ -502,42 +502,6 @@ async def list_files(
     return files_with_conversation_id
 
 
-@router.put("/{conversation_id}/files/{file_id}", response_model=FilePublic)
-async def update_file(
-    conversation_id: str,
-    file_id: str,
-    new_file: UpdateFileRequest,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
-) -> FilePublic:
-    """
-    Update a file by ID.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        file_id (str): File ID.
-        new_file (UpdateFileRequest): New file data.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        FilePublic: Updated file.
-
-    Raises:
-        HTTPException: If the conversation with the given ID is not found.
-    """
-    user_id = ctx.get_user_id()
-    _ = validate_conversation(session, conversation_id, user_id)
-    _ = validate_file(session, file_id, user_id)
-
-    file = get_file_service().get_file_by_id(session, file_id, user_id)
-    file = get_file_service().update_file(session, file, new_file)
-    files_with_conversation_id = attach_conversation_id_to_files(
-        conversation_id, [file]
-    )
-    return files_with_conversation_id[0]
-
-
 @router.delete("/{conversation_id}/files/{file_id}")
 async def delete_file(
     conversation_id: str,
@@ -560,13 +524,11 @@ async def delete_file(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    _ = validate_conversation(session, conversation_id, user_id)
-    _ = validate_file(session, file_id, user_id)
-
-    file = get_file_service().get_file_by_id(session, file_id, user_id)
+    # _ = validate_conversation(session, conversation_id, user_id)
+    # _ = validate_file(session, file_id, user_id)
 
     # Delete the File DB object
-    get_file_service().delete_file_from_conversation(
+    get_file_service().delete_file_by_id(
         session, conversation_id, file_id, user_id
     )
 

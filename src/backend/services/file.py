@@ -188,7 +188,7 @@ class FileService:
 
         return files
 
-    def delete_file_from_conversation(
+    def delete_file_by_id(
         self, session: DBSessionDep, conversation_id: str, file_id: str, user_id: str
     ) -> None:
         """
@@ -208,6 +208,7 @@ class FileService:
             delete_file_in_compass(file_id, user_id)
         else:
             file_crud.delete_file(session, file_id, user_id)
+
         return
 
     def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
@@ -248,25 +249,7 @@ class FileService:
             files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
 
-    # TODO: compass
-    def update_file(
-        self, session: DBSessionDep, file: File, new_file: UpdateFileRequest
-    ) -> File:
-        """
-        Update file
 
-        Args:
-            session (DBSessionDep): The database session
-            file (File): The file to update
-            new_file (UpdateFileRequest): The new file data
-
-        Returns:
-            File: The updated file
-        """
-        updated_file = file_crud.update_file(session, file, new_file)
-        return updated_file
-
-    # TODO: compass
     def bulk_delete_files(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
     ) -> None:
@@ -278,7 +261,13 @@ class FileService:
             file_ids (list[str]): The file IDs
             user_id (str): The user ID
         """
-        file_crud.bulk_delete_files(session, file_ids, user_id)
+        if self.is_compass_enabled:
+            for file_id in file_ids:
+                delete_file_in_compass(file_id, user_id)
+        else:
+            file_crud.bulk_delete_files(session, file_ids, user_id)
+
+        return 
 
     def get_files_by_message_id(
         self, session: DBSessionDep, message_id: str, user_id: str
@@ -306,6 +295,7 @@ class FileService:
 
 # Compass Operations
 def delete_file_in_compass(file_id: str, user_id: str) -> None:
+    # todo: validate all files exists before deleting
     get_compass().invoke(
         action=Compass.ValidActions.DELETE_INDEX,
         parameters={"index": file_id}
