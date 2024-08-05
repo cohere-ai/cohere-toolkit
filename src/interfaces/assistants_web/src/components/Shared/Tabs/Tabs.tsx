@@ -3,12 +3,13 @@
 import { Tab, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import { ReactNode, useEffect, useRef } from 'react';
 
-import { Text } from '@/components/Shared';
+import { Skeleton, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type TabsProps = {
   tabs: ReactNode[];
   kind?: 'evolved-green' | 'blue';
+  isLoading?: boolean;
   hiddenTabs?: string[];
   subLabels?: string[];
   fitTabsContent?: boolean;
@@ -34,6 +35,7 @@ export const Tabs: React.FC<TabsProps> = ({
   tabs,
   hiddenTabs = [],
   subLabels = [],
+  isLoading = false,
   fitTabsContent = true,
   kind = 'evolved-green',
   selectedIndex,
@@ -134,7 +136,15 @@ export const Tabs: React.FC<TabsProps> = ({
         <TabPanels className={cn('w-full pt-10', panelsClassName)}>
           {children.filter(Boolean).map((child, i) => (
             <TabPanel key={i} className={tabPanelClassName}>
-              {child}
+              {isLoading ? (
+                <div className="flex flex-col gap-y-3">
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-full" />
+                </div>
+              ) : (
+                child
+              )}
             </TabPanel>
           ))}
         </TabPanels>

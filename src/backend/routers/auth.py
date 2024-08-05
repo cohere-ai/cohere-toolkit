@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Union
 from urllib.parse import quote
 
@@ -22,10 +21,8 @@ from backend.services.auth.utils import (
     get_or_create_user,
     is_enabled_authentication_strategy,
 )
+from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -88,6 +85,7 @@ async def login(
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
     """
+    logger = ctx.get_logger()
     strategy_name = login.strategy
     payload = login.payload
 
@@ -151,6 +149,8 @@ async def authorize(
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
     """
+    logger = ctx.get_logger()
+
     if not code:
         logger.error(
             event="[Auth] Error authorizing login: No code provided",
@@ -194,10 +194,10 @@ async def authorize(
 
     if not userinfo:
         logger.error(
-            event=f"[Auth] Error authorizing login: Invalid token {token}",
+            event="[Auth] Error authorizing login: Invalid token",
         )
         raise HTTPException(
-            status_code=401, detail=f"Could not get user from auth token: {token}."
+            status_code=401, detail="Could not get user from auth token."
         )
 
     # Get or create user, then set session user
@@ -258,6 +258,7 @@ async def login(
     Raises:
         HTTPException: If no redirect_uri set.
     """
+    logger = ctx.get_logger()
     redirect_uri = Settings().auth.frontend_hostname
 
     if not redirect_uri:
@@ -266,9 +267,29 @@ async def login(
             detail=f"FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
         )
 
-    # TODO: Store user id and tool id in the DB for state key
-    state = json.loads(request.query_params.get("state"))
-    tool_id = state["tool_id"]
+    def log_and_redirect_err(error_message: str):
+        logger.error(event=error_message)
+        redirect_err = f"{redirect_uri}?error={quote(error_message)}"
+        return RedirectResponse(redirect_err)
+
+    # Get key from state and retrieve cache
+    try:
+        state = json.loads(request.query_params.get("state"))
+        cache_key = state["key"]
+        tool_auth_cache = cache_get_dict(cache_key)
+    except Exception as e:
+        log_and_redirect_err(str(e))
+
+    user_id = tool_auth_cache.get("user_id")
+    tool_id = tool_auth_cache.get("tool_id")
+
+    if not tool_auth_cache:
+        err = f"Error retrieving cache for Tool Auth with key: {cache_key}"
+        log_and_redirect_err(err)
+
+    if user_id is None or tool_id is None:
+        err = f"Tool Auth cache {tool_auth_cache} does not contain user_id or tool_id."
+        log_and_redirect_err(err)
 
     if tool_id in AVAILABLE_TOOLS:
         tool = AVAILABLE_TOOLS.get(tool_id)
@@ -277,29 +298,21 @@ async def login(
         # Tool not found
         if not tool:
             err = f"Tool {tool_id} does not exist or is not available."
-            logger.error(event=err)
-            redirect_err = f"{redirect_uri}?error={quote(err)}"
-            return RedirectResponse(redirect_err)
+            log_and_redirect_err(err)
 
         # Tool does not have Auth implemented
         if tool.auth_implementation is None:
             err = f"Tool {tool.name} does not have an auth_implementation required for Tool Auth."
-            logger.error(event=err)
-            redirect_err = f"{redirect_uri}?error={quote(err)}"
-            return RedirectResponse(redirect_err)
+            log_and_redirect_err(err)
 
         try:
             tool_auth_service = tool.auth_implementation()
-            err = tool_auth_service.retrieve_auth_token(request, session)
+            err = tool_auth_service.retrieve_auth_token(request, session, user_id)
         except Exception as e:
-            redirect_err = f"{redirect_uri}?error={quote(str(e))}"
-            logger.error(event=e)
-            return RedirectResponse(redirect_err)
+            log_and_redirect_err(str(e))
 
         if err:
-            redirect_err = f"{redirect_uri}?error={quote(err)}"
-            logger.error(event=err)
-            return RedirectResponse(redirect_err)
+            log_and_redirect_err(err)
 
     response = RedirectResponse(redirect_uri)
 

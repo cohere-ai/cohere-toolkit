@@ -20,6 +20,7 @@ import {
   isStreamError,
 } from '@/cohere-client';
 import {
+  DEFAULT_AGENT_TOOLS,
   DEFAULT_TYPING_VELOCITY,
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
@@ -27,15 +28,21 @@ import {
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
-import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
+import {
+  useAgentsStore,
+  useCitationsStore,
+  useConversationStore,
+  useFilesStore,
+  useParamsStore,
+} from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
+import { useStreamingStore } from '@/stores/streaming';
 import {
   BotState,
   ChatMessage,
   ErrorMessage,
   FulfilledMessage,
   MessageType,
-  StreamingMessage,
   createAbortedMessage,
   createErrorMessage,
   createLoadingMessage,
@@ -96,12 +103,17 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     clearComposerFiles,
     clearUploadingErrors,
   } = useFilesStore();
+  const {
+    agents: { disabledAssistantKnowledge },
+  } = useAgentsStore();
   const queryClient = useQueryClient();
+
+  const currentConversationId = id || composerFiles[0]?.conversation_id;
 
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isStreamingToolEvents, setIsStreamingToolEvents] = useState(false);
-  const [streamingMessage, setStreamingMessage] = useState<StreamingMessage | null>(null);
+  const { streamingMessage, setStreamingMessage } = useStreamingStore();
   const { agentId } = useChatRoutes();
 
   useEffect(() => {
@@ -155,26 +167,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       },
       { documentsMap: {}, outputFilesMap: {} }
     );
-  };
-
-  const mapOutputFiles = (outputFiles: { output_file: string; text: string }[] | undefined) => {
-    return outputFiles?.reduce<OutputFiles>((outputFilesMap, outputFile) => {
-      try {
-        const outputFileObj: { filename: string; b64_data: string } = JSON.parse(
-          outputFile.output_file
-        );
-        return {
-          ...outputFilesMap,
-          [outputFileObj.filename]: {
-            name: outputFileObj.filename,
-            data: outputFileObj.b64_data,
-          },
-        };
-      } catch (e) {
-        console.error('Could not parse output_file', e);
-      }
-      return outputFilesMap;
-    }, {});
   };
 
   const handleUpdateConversationTitle = async (conversationId: string) => {
@@ -422,7 +414,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
               conversationId = data?.conversation_id ?? '';
 
-              if (id !== conversationId) {
+              if (currentConversationId !== conversationId) {
                 setConversation({ id: conversationId });
               }
               // Make sure our URL is up to date with the conversationId
@@ -567,8 +559,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
     return {
       message,
-      conversation_id: id,
-      tools: requestTools?.map((tool) => ({ name: tool.name })),
+      conversation_id: currentConversationId,
+      tools: requestTools
+        ?.map((tool) => ({ name: tool.name }))
+        .concat(DEFAULT_AGENT_TOOLS.map((defaultTool) => ({ name: defaultTool }))),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
       model,
@@ -595,6 +589,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       'Deployment-Config': deploymentConfig ?? '',
     };
     let newMessages: ChatMessage[] = currentMessages;
+
+    if (composerFiles.length > 0) {
+      await queryClient.invalidateQueries({ queryKey: ['listFiles'] });
+    }
 
     newMessages = newMessages.concat({
       type: MessageType.USER,

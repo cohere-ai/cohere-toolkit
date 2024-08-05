@@ -14,6 +14,7 @@ from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
+from backend.crud import deployment as deployment_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
@@ -21,7 +22,11 @@ from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
-from backend.database_models.message import Message, MessageAgent
+from backend.database_models.message import (
+    Message,
+    MessageAgent,
+    MessageFileAssociation,
+)
 from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
@@ -46,10 +51,9 @@ from backend.schemas.chat import (
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
-from backend.schemas.file import UpdateFileRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
-from backend.services.context import get_context
+from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
 
 
@@ -57,7 +61,7 @@ def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,
     request: Request,
-    ctx: Context = Context(),
+    ctx: Context,
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -76,15 +80,47 @@ def process_chat(
     user_id = ctx.get_user_id()
     ctx.with_deployment_config()
     agent_id = ctx.get_agent_id()
+    deployment_name = request.headers.get("Deployment-Name", "")
+    deployment_config = {}
+    # Deployment config is the settings for the model deployment per request
+    # It is a string of key value pairs separated by semicolons
+    # For example: "azure_key1=value1;azure_key2=value2"
+    # TODO Eugene: Confirm it with Scott - header deployment config has priority over the deployment config in the DB,
+    # but agent deployment config has priority over both if it is set
+    if request.headers.get("Deployment-Config", "") != "":
+        ctx.with_deployment_config()
+    else:
+        deployment = deployment_crud.get_deployment_by_name(session, deployment_name)
+        if deployment is not None and deployment.is_available:
+            ctx.with_deployment_config(deployment.default_deployment_config)
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
-        ctx.with_agent(agent)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
 
         if agent is None:
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
+        # TODO Eugene: Confirm it with Scott
+        # Check if the agent is associated with the deployment
+        if agent.deployment and agent.deployment != deployment_name:
+            # if agent's default deployment is not the same as the request's deployment
+            # we try to find that deployment in the agent's associated deployments and use it
+            deployment_config = agent_crud.get_association_by_deployment_name(
+                session, agent, deployment_name
+            ).deployment_config
+            if deployment_config is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Agent {agent_id} has deployment {agent.deployment.name} but request is for deployment {deployment_name}.",
+                )
+        else:
+            deployment_config = agent_crud.get_association_by_deployment_name(
+                session, agent, deployment_name
+            ).deployment_config
+            ctx.with_deployment_config(deployment_config)
 
         if chat_request.tools:
             for tool in chat_request.tools:
@@ -97,9 +133,14 @@ def process_chat(
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-        # NOTE TEMPORARY: we do not set a the model for now and just use the default model
-        chat_request.model = None
-        # chat_request.model = agent.model
+        # NOTE TEMPORARY: we do not set the model for now and just use the default model
+        # chat_request.model = None
+        model = (
+            agent.default_model_association.model
+            if agent.default_model_association
+            else None
+        )
+        chat_request.model = model.cohere_name if model else None
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -140,7 +181,10 @@ def process_chat(
         file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
-                session, user_id, user_message.id, chat_request.file_ids
+                session,
+                user_id,
+                user_message.id,
+                chat_request.file_ids,
             )
 
     chat_history = create_chat_history(
@@ -317,7 +361,7 @@ def handle_file_retrieval(
     file_paths = None
     # Use file_ids if provided
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
+        files = get_file_service().get_files_by_ids(session, file_ids, user_id)
         file_paths = [file.file_path for file in files]
 
     return file_paths
@@ -330,7 +374,7 @@ def attach_files_to_messages(
     file_ids: List[str] | None = None,
 ) -> None:
     """
-    Attach Files to Message if the File does not have a message_id foreign key.
+    Attach Files to Message if the message file association does not exists with the file ID
 
     Args:
         session (DBSessionDep): Database session.
@@ -342,11 +386,20 @@ def attach_files_to_messages(
         None
     """
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
-        for file in files:
-            if file.message_id is None:
-                file_crud.update_file(
-                    session, file, UpdateFileRequest(message_id=message_id)
+        for file_id in file_ids:
+            message_file_association = (
+                message_crud.get_message_file_association_by_file_id(
+                    session, file_id, user_id
+                )
+            )
+
+            # If the file is not associated with a file yet, create the association
+            if message_file_association is None:
+                message_crud.create_message_file_association(
+                    session,
+                    MessageFileAssociation(
+                        message_id=message_id, user_id=user_id, file_id=file_id
+                    ),
                 )
 
 
@@ -567,6 +620,7 @@ async def generate_chat_stream(
             conversation_id,
             stream_end_data,
             response_message,
+            ctx,
             document_ids_to_document,
             session=session,
             should_store=should_store,
@@ -594,12 +648,15 @@ def handle_stream_event(
     conversation_id: str,
     stream_end_data: dict[str, Any],
     response_message: Message,
+    ctx: Context,
     document_ids_to_document: dict[str, Document] = {},
     session: DBSessionDep = None,
     should_store: bool = True,
     user_id: str = "",
     next_message_position: int = 0,
 ) -> tuple[StreamEventType, dict[str, Any], Message, dict[str, Document]]:
+    logger = ctx.get_logger()
+
     handlers = {
         StreamEvent.STREAM_START: handle_stream_start,
         StreamEvent.TEXT_GENERATION: handle_stream_text_generation,
@@ -779,12 +836,15 @@ def handle_stream_citation_generation(
             user_id=response_message.user_id,
             start=event_citation.get("start"),
             end=event_citation.get("end"),
-            document_ids=event_citation.get("document_ids"),
         )
-        for document_id in citation.document_ids:
+
+        document_ids = event_citation.get("document_ids")
+        for document_id in document_ids:
             document = document_ids_to_document.get(document_id, None)
             if document is not None:
                 citation.documents.append(document)
+
+        # Populates CitationDocuments table
         citations.append(citation)
     stream_event = StreamCitationGeneration(**event | {"citations": citations})
     stream_end_data["citations"].extend(citations)

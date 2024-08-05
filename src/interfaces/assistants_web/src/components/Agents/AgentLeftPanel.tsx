@@ -26,7 +26,6 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-
   const navigateToNewChat = useNavigateToNewChat();
 
   return (
@@ -87,24 +86,35 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
         >
           <AgentsSidePanelButton
             label={
-              <div className="group flex items-center justify-between">
-                <Text className="dark:text-evolved-green-700">New chat</Text>
-                <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
+              <div className="group flex w-full items-center justify-between">
+                <Text className="text-coral-500 dark:text-evolved-green-700">New chat</Text>
+                <Shortcut sequence={['⌘', '↑', 'O']} className="hidden group-hover:flex" />
               </div>
             }
+            tooltip="New chat"
             iconName="add"
-            iconClassName="dark:fill-evolved-green-700"
+            theme="evolved-green"
             onClick={() => navigateToNewChat()}
             stretch
           />
 
-          <AgentsSidePanelButton label="See all assistants" href="/discover" iconName="compass" />
+          <AgentsSidePanelButton
+            label="See all assistants"
+            tooltip="See all assistants"
+            href="/discover"
+            iconName="compass"
+          />
         </div>
 
         {children}
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
-          <AgentsSidePanelButton label="Settings" href="/settings" iconName="settings" />
+          <AgentsSidePanelButton
+            label="Settings"
+            tooltip="Settings"
+            href="/settings"
+            iconName="settings"
+          />
           <section className="flex items-center justify-between">
             <div
               className={cn('flex items-center gap-2', {
@@ -156,13 +166,14 @@ const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ class
 
 const AgentsSidePanelButton: React.FC<{
   label?: React.ReactNode;
+  tooltip?: string;
   href?: string;
   iconName: IconName;
   onClick?: VoidFunction;
   theme?: ButtonTheme;
   iconClassName?: string;
   stretch?: boolean;
-}> = ({ label, iconName, iconClassName, href, theme, stretch, onClick }) => {
+}> = ({ label, tooltip, iconName, iconClassName, href, theme, stretch, onClick }) => {
   const {
     agents: { isAgentsLeftPanelOpen },
   } = useAgentsStore();
@@ -170,7 +181,7 @@ const AgentsSidePanelButton: React.FC<{
   if (!isAgentsLeftPanelOpen) {
     if (href) {
       return (
-        <Tooltip hover label={label} size="sm">
+        <Tooltip hover label={tooltip} size="sm">
           <Link href={href}>
             <Icon name={iconName} kind="outline" className={iconClassName} />
           </Link>
@@ -179,10 +190,17 @@ const AgentsSidePanelButton: React.FC<{
     }
 
     return (
-      <Tooltip hover label={label} size="sm">
-        <button onClick={onClick}>
-          <Icon name={iconName} kind="outline" className={iconClassName} />
-        </button>
+      <Tooltip hover label={tooltip} size="sm">
+        <Button
+          kind="secondary"
+          onClick={onClick}
+          theme={theme}
+          icon={iconName}
+          iconOptions={{
+            kind: 'outline',
+            className: iconClassName,
+          }}
+        />
       </Tooltip>
     );
   }

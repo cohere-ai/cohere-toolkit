@@ -12,14 +12,9 @@ import { ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
 import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
-import { useDefaultFileLoaderTool, useFileActions } from '@/hooks/files';
+import { useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
-import {
-  useCitationsStore,
-  useConversationStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 
@@ -56,12 +51,8 @@ const Conversation: React.FC<Props> = ({
     citations: { selectedCitation },
     selectCitation,
   } = useCitationsStore();
-  const {
-    params: { fileIds },
-  } = useParamsStore();
 
   const { addRecentAgentId } = useRecentAgents();
-  const { defaultFileLoaderTool, enableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
 
   const {
     userMessage,
@@ -119,24 +110,16 @@ const Conversation: React.FC<Props> = ({
   }, [handleClickOutside]);
 
   const handleUploadFile = async (files: File[]) => {
-    const newFileIds = await uploadFiles(files, conversationId);
-    if (!newFileIds) return;
-    enableDefaultFileLoaderTool();
+    await uploadFiles(files, conversationId);
   };
 
   const handleSend = (msg?: string, overrides?: Partial<ConfigurableParams>) => {
-    const areFilesSelected = fileIds && fileIds.length > 0;
-    const enableFileLoaderTool = areFilesSelected && !!defaultFileLoaderTool;
-
-    if (enableFileLoaderTool) {
-      enableDefaultFileLoaderTool();
-    }
     send({ suggestedMessage: msg }, overrides);
   };
 
   return (
     <div className="flex h-full w-full">
-      <div className="flex h-full w-full min-w-0 flex-col rounded-lg bg-marble-1000 dark:bg-volcanic-100">
+      <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-mushroom-800 bg-marble-1000 md:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
         <HotKeysProvider customHotKeys={chatHotKeys} />
         <Header agentId={agent?.id} />
 

@@ -13,6 +13,8 @@ deployments:
     url:
 database:
   url:
+redis:
+  url:
 tools:
   enabled_tools:
   python_interpreter:
@@ -31,5 +33,6 @@ auth:
   backend_hostname:
   frontend_hostname:
 logger:
-  log_level: INFO
-  log_strategy:
+  level: INFO
+  strategy: structlog
+  renderer: json

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useTheme } from 'next-themes';
 
 import { Icon, Text } from '@/components/Shared';
 import { cn } from '@/utils';
@@ -6,25 +6,13 @@ import { cn } from '@/utils';
 import './style.css';
 
 export const DarkModeToggle = () => {
-  const [isDarkMode, _setIsDarkMode] = useState(() =>
-    Boolean(document.querySelector('html')?.classList.contains('dark'))
-  );
+  const { theme, setTheme } = useTheme();
 
-  const setIsDarkMode = (darkMode: boolean) => {
-    _setIsDarkMode(darkMode);
+  const handleSetTheme = (theme: string) => {
     if (document.startViewTransition) {
-      document.startViewTransition(() => handleToggle(darkMode));
+      document.startViewTransition(() => setTheme(theme));
     } else {
-      handleToggle(darkMode);
-    }
-  };
-
-  const handleToggle = (darkMode: boolean) => {
-    const html = document.querySelector('html');
-    if (darkMode) {
-      html?.classList.add('dark');
-    } else {
-      html?.classList.remove('dark');
+      setTheme(theme);
     }
   };
 
@@ -33,9 +21,9 @@ export const DarkModeToggle = () => {
       <div className="flex flex-col gap-2">
         <button
           className={cn('grid h-24 w-28 place-items-center rounded-lg bg-volcanic-200', {
-            'border border-evolved-green-700': isDarkMode,
+            'border border-evolved-green-700': theme === 'dark',
           })}
-          onClick={() => setIsDarkMode(true)}
+          onClick={() => handleSetTheme('dark')}
         >
           <Icon name="moon" className="fill-mushroom-950" kind="outline" size="lg" />
         </button>
@@ -44,11 +32,16 @@ export const DarkModeToggle = () => {
       <div className="flex flex-col gap-2">
         <button
           className={cn('grid h-24 w-28 place-items-center rounded-lg bg-mushroom-950', {
-            'border border-evolved-green-700': !isDarkMode,
+            'border border-evolved-green-700': theme === 'light',
           })}
-          onClick={() => setIsDarkMode(false)}
+          onClick={() => handleSetTheme('light')}
         >
-          <Icon name="sun" className="fill-volcanic-150" kind="outline" size="lg" />
+          <Icon
+            name="sun"
+            className="fill-volcanic-150 dark:fill-volcanic-150"
+            kind="outline"
+            size="lg"
+          />
         </button>
         <Text className="text-center">Light</Text>
       </div>

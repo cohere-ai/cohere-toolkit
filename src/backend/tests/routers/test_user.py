@@ -11,14 +11,25 @@ from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
 
 
+def test_list_users_empty(session_client: TestClient, session: Session) -> None:
+    # Delete the default user
+    session.query(User).delete()
+    response = session_client.get("/v1/users")
+    results = response.json()
+
+    assert response.status_code == 200
+    assert len(results) == 0
+
+
 def test_list_users(session_client: TestClient, session: Session) -> None:
+    session.query(User).delete()
     _ = get_factory("User", session).create(fullname="John Doe")
 
     response = session_client.get("/v1/users")
     results = response.json()
 
     assert response.status_code == 200
-    assert len(results) == 2  # Default user is also included
+    assert len(results) == 1
 
 
 def test_get_user(session_client: TestClient, session: Session) -> None:
@@ -115,7 +126,7 @@ def test_fail_create_user_missing_fullname(
                 "loc": ["body", "fullname"],
                 "msg": "Field required",
                 "input": {},
-                "url": "https://errors.pydantic.dev/2.7/v/missing",
+                "url": "https://errors.pydantic.dev/2.8/v/missing",
             }
         ]
     }

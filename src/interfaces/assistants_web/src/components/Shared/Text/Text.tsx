@@ -68,7 +68,7 @@ export const Text = <T extends AsElement>({
   ...rest
 }: TextProps<T>) => {
   const renderAs: AsElement = as ?? 'p';
-  const classes = cn(getStyleLevelClasses(styleAs ?? renderAs), className);
+  const classes = cn(getStyleLevelClasses(styleAs ?? renderAs), 'dark:text-marble-950', className);
   const Element = React.createElement(renderAs, { className: classes, role, ...rest }, children);
 
   return Element;

@@ -2,38 +2,65 @@ import Link from 'next/link';
 import React, { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
 import { Icon, IconName, Spinner, Text } from '@/components/Shared';
+import { COHERE_BRANDED_COLORS } from '@/constants';
 import { cn } from '@/utils';
 
 export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';
-export type ButtonTheme = 'blue' | 'coral' | 'evolved-green' | 'quartz' | 'mushroom' | 'danger';
+export type ButtonTheme = COHERE_BRANDED_COLORS;
 
 const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (disabled) {
-    return cn('text-volcanic-700 fill-volcanic-700');
+    switch (kind) {
+      case 'primary':
+      case 'cell':
+      case 'outline':
+        return cn('dark:text-volcanic-200 dark:fill-volcanic-200');
+      case 'secondary':
+        return cn('dark:text-volcanic-700 dark:fill-volcanic-700');
+      default:
+        return cn('dark:text-volcanic-100 dark:fill-volcanic-100');
+    }
   }
 
   switch (kind) {
     case 'primary':
     case 'cell':
-      if (theme === 'evolved-green') {
-        return cn('text-volcanic-150 fill-volcanic-150');
-      }
+      return cn('dark:text-marble-950 dark:fill-marble-950', {
+        'text-marble-900  fill-marble-900':
+          theme === 'green' ||
+          theme === 'blue' ||
+          theme === 'quartz' ||
+          theme === 'evolved-blue' ||
+          theme === 'evolved-quartz',
+        // dark mode
+        'dark:text-volcanic-150 dark:fill-volcanic-150':
+          theme === 'evolved-green' || theme === 'evolved-mushroom' || theme === 'coral',
+      });
+
     case 'secondary':
-      if (theme === 'evolved-green') {
-        return cn(
-          'text-evolved-green-700 fill-evolved-green-700',
-          'group-hover:text-evolved-green-500 group-hover:fill-evolved-green-500'
-        );
-      } else if (theme === 'danger') {
-        return cn(
-          'text-danger-500 fill-danger-500',
-          'group-hover:text-danger-350 group-hover:fill-danger-350'
-        );
-      }
+      return cn('dark:text-marble-950 dark:fill-marble-950', {
+        // light mode
+        'text-coral-500 fill-coral-500 group-hover:text-coral-500 group-hover:fill-coral-500':
+          theme == 'evolved-green',
+        'text-danger-500 fill-danger-500 group-hover:text-danger-350 group-hover:fill-danger-350':
+          theme == 'danger',
+
+        // dark mode
+        'dark:text-evolved-green-700 dark:fill-evolved-green-700 dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500':
+          theme == 'evolved-green',
+        'dark:text-danger-500 dark:fill-danger-500 dark:group-hover:text-danger-350 dark:group-hover:fill-danger-350':
+          theme == 'danger',
+      });
+
     default:
       return cn(
-        'text-marble-950 fill-marble-950',
-        'group-hover:text-marble-1000 group-hover:fill-marble-1000'
+        // light mode
+        'text-volcanic-100 volcanic-100',
+        'group-hover:text-volcanic-150 group-hover:fill-volcanic-150',
+
+        // dark mode
+        'dark:text-marble-950 dark:fill-marble-950 dark:disabled:text-volcanic-700',
+        'dark:group-hover:text-marble-1000 dark:group-hover:fill-marble-1000'
       );
   }
 };
@@ -44,23 +71,32 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
 
   if (kind === 'outline') {
     return cn('border', {
-      'border-danger-500 group-hover:border-danger-350': theme === 'danger',
       'border-evolved-green-700 group-hover:border-evolved-green-500': theme === 'evolved-green',
       'border-blue-500 group-hover:border-blue-400': theme === 'blue',
       'border-coral-700 group-hover:border-coral-600': theme === 'coral',
       'border-quartz-500 group-hover:border-quartz-400': theme === 'quartz',
       'border-mushroom-500 group-hover:border-mushroom-400': theme === 'mushroom',
-    });
-  } else {
-    return cn({
-      'bg-danger-500 group-hover:bg-danger-350': theme === 'danger',
-      'bg-evolved-green-700 group-hover:bg-evolved-green-500': theme === 'evolved-green',
-      'bg-blue-500 group-hover:bg-blue-400': theme === 'blue',
-      'fill-coral-700 bg-coral-700 group-hover:bg-coral-600': theme === 'coral',
-      'bg-quartz-500 group-hover:bg-quartz-400': theme === 'quartz',
-      'bg-mushroom-500 group-hover:bg-mushroom-400': theme === 'mushroom',
+      'border-danger-500 group-hover:border-danger-350': theme === 'danger',
+      'border-evolved-blue-500 group-hover:border-blue-400': theme === 'evolved-blue',
+      'border-evolved-mushroom-500 group-hover:border-evolved-mushroom-600':
+        theme === 'evolved-mushroom',
+      'border-evolved-quartz-500 group-hover:border-evolved-quartz-700': theme === 'evolved-quartz',
+      'border-green-250 group-hover:border-green-200': theme === 'green',
     });
   }
+
+  return cn({
+    'bg-evolved-green-700 group-hover:bg-evolved-green-500': theme === 'evolved-green',
+    'bg-blue-500 group-hover:bg-blue-400': theme === 'blue',
+    'fill-coral-700 bg-coral-700 group-hover:bg-coral-600': theme === 'coral',
+    'bg-quartz-500 group-hover:bg-quartz-400': theme === 'quartz',
+    'bg-mushroom-500 group-hover:bg-mushroom-400': theme === 'mushroom',
+    'bg-danger-500 group-hover:bg-danger-350': theme === 'danger',
+    'bg-evolved-blue-500 group-hover:bg-blue-400': theme === 'evolved-blue',
+    'bg-evolved-mushroom-500 group-hover:bg-evolved-mushroom-600': theme === 'evolved-mushroom',
+    'bg-evolved-quartz-500 group-hover:bg-evolved-quartz-700': theme === 'evolved-quartz',
+    'bg-green-250 group-hover:bg-green-200': theme === 'green',
+  });
 };
 
 const getCellStyles = (theme: ButtonTheme, disabled: boolean) => {
@@ -73,6 +109,10 @@ const getCellStyles = (theme: ButtonTheme, disabled: boolean) => {
     'fill-coral-700 group-hover:fill-coral-600': theme === 'coral',
     'fill-quartz-500 group-hover:fill-quartz-400': theme === 'quartz',
     'fill-mushroom-500 group-hover:fill-mushroom-400': theme === 'mushroom',
+    'fill-evolved-blue-500 group-hover:fill-blue-400': theme === 'evolved-blue',
+    'fill-evolved-mushroom-500 group-hover:fill-evolved-mushroom-600': theme === 'evolved-mushroom',
+    'fill-evolved-quartz-500 group-hover:fill-evolved-quartz-700': theme === 'evolved-quartz',
+    'fill-green-250 group-hover:fill-green-200': theme === 'green',
   });
 };
 
@@ -97,7 +137,6 @@ export type ButtonProps = {
   href?: string;
   rel?: string;
   target?: HTMLAttributeAnchorTarget;
-  animate?: boolean;
   danger?: boolean;
   stretch?: boolean;
 };
@@ -118,19 +157,16 @@ export const Button: React.FC<ButtonProps> = ({
   href,
   rel,
   target,
-  animate = true,
   stretch = false,
   iconPosition = kind === 'cell' ? 'end' : 'start',
 }) => {
   const labelStyles = getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
-  const animateStyles =
-    animate && !disabled
-      ? cn('duration-400 transition-spacing ease-in-out', {
-          'pl-3 group-hover:pl-1': iconPosition === 'start',
-          'pr-3 group-hover:pr-1': iconPosition === 'end',
-        })
-      : undefined;
+  const animate = !!icon && (!!label || !!children); // we only want to animate if there is an icon and a label
+
+  const animateClasses = cn({
+    'duration-400 transform transition-transform ease-in-out group-hover:-translate-x-1.5': animate,
+  });
 
   const iconElement = isLoading ? (
     <Spinner />
@@ -138,7 +174,11 @@ export const Button: React.FC<ButtonProps> = ({
     <Icon
       name={icon ?? 'arrow-right'}
       kind={iconOptions?.kind ?? 'outline'}
-      className={cn(labelStyles, iconOptions?.className)}
+      className={cn(
+        { [animateClasses]: iconPosition === 'end' && kind !== 'cell' },
+        labelStyles,
+        iconOptions?.className
+      )}
     />
   ) : (
     iconOptions?.customIcon ?? undefined
@@ -155,18 +195,21 @@ export const Button: React.FC<ButtonProps> = ({
     kind !== 'cell' ? (
       <div
         className={cn(
-          'group flex h-cell-button items-center justify-center rounded-md',
+          'group flex h-cell-button items-center justify-center gap-x-3 rounded-md',
           buttonStyles,
-          className,
-          { 'h-fit justify-start': kind === 'secondary', 'space-x-3': !animateStyles }
+          {
+            'h-fit justify-start': kind === 'secondary',
+            'px-5': kind !== 'secondary',
+          }
         )}
       >
         {iconPosition === 'start' && iconElement}
         {labelElement && (
           <div
-            className={cn(animateStyles, {
-              'w-full': stretch,
+            className={cn({
+              [animateClasses]: iconPosition === 'start',
               'px-2': kind === 'outline',
+              'w-full': stretch,
             })}
           >
             {labelElement}
@@ -175,7 +218,7 @@ export const Button: React.FC<ButtonProps> = ({
         {iconPosition === 'end' && iconElement}
       </div>
     ) : (
-      cellInner(theme, iconElement, labelElement, !disabled && animate, iconPosition, disabled)
+      cellInner(theme, iconElement, labelElement, iconPosition, disabled, animate)
     );
 
   return !disabled && href ? (
@@ -185,7 +228,14 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       rel={rel}
       target={target}
-      className={cn({ 'cursor-not-allowed': disabled, 'w-full': stretch })}
+      className={cn(
+        'group select-none',
+        {
+          'cursor-not-allowed': disabled,
+          'w-full': stretch,
+        },
+        className
+      )}
     >
       {inner}
     </Link>
@@ -195,7 +245,14 @@ export const Button: React.FC<ButtonProps> = ({
       type={buttonType}
       disabled={disabled}
       onClick={onClick}
-      className={cn({ 'cursor-not-allowed': disabled, 'w-full': stretch })}
+      className={cn(
+        'group select-none',
+        {
+          'cursor-not-allowed': disabled,
+          'w-full': stretch,
+        },
+        className
+      )}
     >
       {inner}
     </button>
@@ -206,18 +263,24 @@ const cellInner = (
   theme: ButtonTheme,
   icon: ReactNode,
   label: ReactNode,
-  animate: boolean,
   iconPosition: 'start' | 'end',
-  disabled: boolean
+  disabled: boolean,
+  animate: boolean
 ) => {
   const isEndIcon = iconPosition === 'end';
   const buttonStyles = getButtonStyles('cell', theme, disabled);
   const baseStyles = 'flex h-cell-button items-center group';
-  const elementStyles = cn(baseStyles, buttonStyles, '-mx-0.5', {
-    'duration-400 transition-spacing ease-in-out': animate,
-    'group-hover:pl-2': animate && isEndIcon,
-    'group-hover:pr-2': animate && !isEndIcon,
-  });
+
+  const elementStyles = cn(
+    baseStyles,
+    buttonStyles,
+
+    {
+      'duration-400 transition-spacing ease-in-out': animate,
+      'group-hover:pl-2': isEndIcon && animate,
+      'group-hover:pr-2': !isEndIcon && animate,
+    }
+  );
 
   const cellTheme = getCellStyles(theme, disabled);
   const cellElement = (
@@ -246,7 +309,7 @@ const cellInner = (
     <div className={cn(baseStyles, 'ml-0.5')}>
       {!isEndIcon && iconCellElement}
       <div
-        className={cn(elementStyles, 'px-1', {
+        className={cn(elementStyles, 'flex-grow px-1', {
           'rounded-r-md pr-4': !isEndIcon,
           'rounded-l-md pl-4': isEndIcon,
         })}

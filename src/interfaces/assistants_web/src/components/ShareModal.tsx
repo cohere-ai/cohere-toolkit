@@ -110,18 +110,16 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
             target="_blank"
             icon="arrow-up-right"
             disabled={status === 'update-url-loading'}
-            animate={false}
           />
           {snapshotLinksExists && (
             <Button
               kind="secondary"
               label={status === 'update-url-loading' ? 'Generating link' : 'Update link'}
               onClick={updateSnapshotUrl}
-              icon="redo"
+              icon="arrow-clockwise"
               iconPosition="end"
               isLoading={status === 'update-url-loading'}
               disabled={status === 'update-url-loading'}
-              animate={false}
             />
           )}
         </div>

@@ -1,70 +1,76 @@
+import { Link } from '@/components/Shared/Icon/Link';
 import { cn } from '@/utils';
 
-export type IconKind = 'default' | 'outline';
-type LogoIconName = 'google-drive' | 'one-drive';
-export type IconName =
-  | LogoIconName
-  | 'add'
-  | 'arrow-clockwise'
-  | 'arrow-down'
-  | 'arrow-left'
-  | 'arrow-right'
-  | 'arrow-up'
-  | 'arrow-up-right'
-  | 'arrow-submit'
-  | 'book-open-text'
-  | 'calculator'
-  | 'close'
-  | 'chat-circle-dots'
-  | 'checkmark'
-  | 'chevron-down'
-  | 'chevron-left'
-  | 'chevron-right'
-  | 'chevron-up'
-  | 'circles-three'
-  | 'circles-four'
-  | 'close-drawer'
-  | 'code-simple'
-  | 'compass'
-  | 'copy'
-  | 'desktop'
-  | 'download'
-  | 'edit'
-  | 'file'
-  | 'file-search'
-  | 'folder'
-  | 'hide'
-  | 'information'
-  | 'kebab'
-  | 'list'
-  | 'menu'
-  | 'moon'
-  | 'new-message'
-  | 'paperclip'
-  | 'profile'
-  | 'search'
-  | 'settings'
-  | 'share'
-  | 'show'
-  | 'sign-out'
-  | 'sparkle'
-  | 'subtract'
-  | 'sun'
-  | 'thumbs-up'
-  | 'thumbs-down'
-  | 'trash'
-  | 'upload'
-  | 'users-three'
-  | 'warning'
-  | 'web';
+export const IconList = [
+  'add',
+  'arrow-clockwise',
+  'arrow-down',
+  'arrow-left',
+  'arrow-right',
+  'arrow-submit',
+  'arrow-up-right',
+  'arrow-up',
+  'book-open-text',
+  'calculator',
+  'chat-circle-dots',
+  'checkmark',
+  'chevron-down',
+  'chevron-left',
+  'chevron-right',
+  'chevron-up',
+  'circles-four',
+  'circles-three',
+  'close-drawer',
+  'close',
+  'code-simple',
+  'compass',
+  'copy',
+  'desktop',
+  'download',
+  'edit',
+  'file-search',
+  'file',
+  'folder',
+  'google-drive',
+  'hide',
+  'information',
+  'kebab',
+  'link',
+  'list',
+  'menu',
+  'moon',
+  'new-message',
+  'one-drive',
+  'paperclip',
+  'profile',
+  'search',
+  'settings',
+  'share',
+  'show',
+  'sign-out',
+  'sparkle',
+  'subtract',
+  'sun',
+  'thumbs-down',
+  'thumbs-up',
+  'trash',
+  'upload',
+  'users-three',
+  'warning',
+  'web',
+] as const;
 
-export const Icon: React.FC<{
-  name: IconName | LogoIconName;
+export type IconName = (typeof IconList)[number];
+export type IconKind = 'default' | 'outline';
+
+type Props = {
+  name: IconName;
   kind?: IconKind;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit';
-  fill?: string;
   className?: string;
-}> = ({ name, kind = 'default', size = 'md', className, fill }) => {
+};
+
+export const Icon: React.FC<Props> = ({ name, kind = 'default', size = 'md', className }) => {
   const sizeClass = cn({
     'h-inherit w-inherit': size == 'inherit',
     'h-icon-xs w-icon-xs': size === 'xs',
@@ -73,14 +79,15 @@ export const Icon: React.FC<{
     'h-icon-lg w-icon-lg': size === 'lg',
     'h-icon-xl w-icon-xl': size === 'xl',
   });
+
   return (
-    <div className={cn(sizeClass, className ?? 'fill-volcanic-100 dark:fill-marble-950')}>
+    <div className={cn(sizeClass, 'fill-volcanic-100 dark:fill-marble-950', className)}>
       {getIcon(name, kind)}
     </div>
   );
 };
 
-const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
+const getIcon = (name: IconName, kind: IconKind) => {
   switch (name) {
     case 'add':
       return (
@@ -446,6 +453,30 @@ const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
           />
         </svg>
       );
+    case 'link':
+      return kind === 'default' ? (
+        <svg
+          viewBox="0 0 16 16"
+          className="h-full w-full fill-inherit"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 8C2 8.66304 2.26339 9.29893 2.73223 9.76777C3.20107 10.2366 3.83696 10.5 4.5 10.5H7C7.13261 10.5 7.25979 10.5527 7.35355 10.6464C7.44732 10.7402 7.5 10.8674 7.5 11C7.5 11.1326 7.44732 11.2598 7.35355 11.3536C7.25979 11.4473 7.13261 11.5 7 11.5H4.5C3.57174 11.5 2.6815 11.1313 2.02513 10.4749C1.36875 9.8185 1 8.92826 1 8C1 7.07174 1.36875 6.1815 2.02513 5.52513C2.6815 4.86875 3.57174 4.5 4.5 4.5H7C7.13261 4.5 7.25979 4.55268 7.35355 4.64645C7.44732 4.74021 7.5 4.86739 7.5 5C7.5 5.13261 7.44732 5.25979 7.35355 5.35355C7.25979 5.44732 7.13261 5.5 7 5.5H4.5C3.83696 5.5 3.20107 5.76339 2.73223 6.23223C2.26339 6.70107 2 7.33696 2 8ZM12.5 4.5H10C9.86739 4.5 9.74021 4.55268 9.64645 4.64645C9.55268 4.74021 9.5 4.86739 9.5 5C9.5 5.13261 9.55268 5.25979 9.64645 5.35355C9.74021 5.44732 9.86739 5.5 10 5.5H12.5C13.163 5.5 13.7989 5.76339 14.2678 6.23223C14.7366 6.70107 15 7.33696 15 8C15 8.66304 14.7366 9.29893 14.2678 9.76777C13.7989 10.2366 13.163 10.5 12.5 10.5H10C9.86739 10.5 9.74021 10.5527 9.64645 10.6464C9.55268 10.7402 9.5 10.8674 9.5 11C9.5 11.1326 9.55268 11.2598 9.64645 11.3536C9.74021 11.4473 9.86739 11.5 10 11.5H12.5C13.4283 11.5 14.3185 11.1313 14.9749 10.4749C15.6313 9.8185 16 8.92826 16 8C16 7.07174 15.6313 6.1815 14.9749 5.52513C14.3185 4.86875 13.4283 4.5 12.5 4.5Z"
+            fill="inherit"
+          />
+        </svg>
+      ) : (
+        <svg
+          viewBox="0 0 16 16"
+          className="h-full w-full fill-inherit"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 8C2 8.66304 2.26339 9.29893 2.73223 9.76777C3.20107 10.2366 3.83696 10.5 4.5 10.5H7C7.13261 10.5 7.25979 10.5527 7.35355 10.6464C7.44732 10.7402 7.5 10.8674 7.5 11C7.5 11.1326 7.44732 11.2598 7.35355 11.3536C7.25979 11.4473 7.13261 11.5 7 11.5H4.5C3.57174 11.5 2.6815 11.1313 2.02513 10.4749C1.36875 9.8185 1 8.92826 1 8C1 7.07174 1.36875 6.1815 2.02513 5.52513C2.6815 4.86875 3.57174 4.5 4.5 4.5H7C7.13261 4.5 7.25979 4.55268 7.35355 4.64645C7.44732 4.74021 7.5 4.86739 7.5 5C7.5 5.13261 7.44732 5.25979 7.35355 5.35355C7.25979 5.44732 7.13261 5.5 7 5.5H4.5C3.83696 5.5 3.20107 5.76339 2.73223 6.23223C2.26339 6.70107 2 7.33696 2 8ZM12.5 4.5H10C9.86739 4.5 9.74021 4.55268 9.64645 4.64645C9.55268 4.74021 9.5 4.86739 9.5 5C9.5 5.13261 9.55268 5.25979 9.64645 5.35355C9.74021 5.44732 9.86739 5.5 10 5.5H12.5C13.163 5.5 13.7989 5.76339 14.2678 6.23223C14.7366 6.70107 15 7.33696 15 8C15 8.66304 14.7366 9.29893 14.2678 9.76777C13.7989 10.2366 13.163 10.5 12.5 10.5H10C9.86739 10.5 9.74021 10.5527 9.64645 10.6464C9.55268 10.7402 9.5 10.8674 9.5 11C9.5 11.1326 9.55268 11.2598 9.64645 11.3536C9.74021 11.4473 9.86739 11.5 10 11.5H12.5C13.4283 11.5 14.3185 11.1313 14.9749 10.4749C15.6313 9.8185 16 8.92826 16 8C16 7.07174 15.6313 6.1815 14.9749 5.52513C14.3185 4.86875 13.4283 4.5 12.5 4.5Z"
+            fill="inherit"
+          />
+        </svg>
+      );
     case 'list':
       return (
         <svg
@@ -530,7 +561,7 @@ const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
         </svg>
       );
     case 'information':
-      kind === 'default' ? (
+      return kind === 'default' ? (
         <svg
           viewBox="0 0 16 16"
           className="h-full w-full fill-inherit"
@@ -694,26 +725,23 @@ const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
         </svg>
       );
     case 'edit':
-      <svg
-        viewBox="0 0 16 16"
-        height="100%"
-        width="100%"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M13.9999 0.719082C13.9292 0.648327 13.8144 0.648327 13.7437 0.719081L10.6713 3.79149C10.5916 3.87119 10.5541 3.98376 10.57 4.09533L10.8277 5.8995C10.8695 6.1916 11.2268 6.3107 11.4354 6.10206L15.281 2.25643C15.3518 2.18568 15.3518 2.07096 15.281 2.00021L13.9999 0.719082Z"
-          fill="inherit"
-        />
-        <path
-          d="M9.84157 7.6959C9.92126 7.6162 9.95879 7.50363 9.94285 7.39206L9.68511 5.58789C9.64338 5.29579 9.28608 5.17669 9.07743 5.38534L2.08652 12.3762C2.01576 12.447 2.01576 12.5617 2.08652 12.6325L3.36764 13.9136C3.4384 13.9844 3.55311 13.9844 3.62387 13.9136L9.84157 7.6959Z"
-          fill="inherit"
-        />
-        <path
-          d="M2.65612 14.4841C2.74853 14.5765 2.71401 14.7336 2.59137 14.7787L1.14857 15.3099C0.86198 15.4154 0.58333 15.1367 0.688837 14.8501L1.21999 13.4073C1.26514 13.2847 1.4222 13.2502 1.51461 13.3426L2.65612 14.4841Z"
-          fill="inherit"
-        />
-      </svg>;
+      return (
+        <svg
+          viewBox="0 0 16 16"
+          className="h-full w-full fill-inherit"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path fill="inherit" />
+          <path
+            d="M9.84157 7.6959C9.92126 7.6162 9.95879 7.50363 9.94285 7.39206L9.68511 5.58789C9.64338 5.29579 9.28608 5.17669 9.07743 5.38534L2.08652 12.3762C2.01576 12.447 2.01576 12.5617 2.08652 12.6325L3.36764 13.9136C3.4384 13.9844 3.55311 13.9844 3.62387 13.9136L9.84157 7.6959Z"
+            fill="inherit"
+          />
+          <path
+            d="M2.65612 14.4841C2.74853 14.5765 2.71401 14.7336 2.59137 14.7787L1.14857 15.3099C0.86198 15.4154 0.58333 15.1367 0.688837 14.8501L1.21999 13.4073C1.26514 13.2847 1.4222 13.2502 1.51461 13.3426L2.65612 14.4841Z"
+            fill="inherit"
+          />
+        </svg>
+      );
     case 'file':
       return kind === 'default' ? (
         <svg
@@ -1278,7 +1306,18 @@ const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
         </svg>
       );
     case 'subtract':
-      return;
+      return (
+        <svg
+          viewBox="0 0 16 16"
+          className="h-full w-full fill-inherit"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2.00001 8.25001C2.00002 8.52615 2.22387 8.75 2.50001 8.75H13.5268C13.8029 8.75 14.0268 8.52614 14.0268 8.24999L14.0268 7.74999C14.0268 7.47385 13.8029 7.25 13.5268 7.25H2.5C2.22385 7.25 1.99999 7.47386 2 7.75001L2.00001 8.25001Z"
+            fill="inherit"
+          />
+        </svg>
+      );
     case 'google-drive':
       return (
         <svg
@@ -1315,29 +1354,33 @@ const getIcon = (name: IconName | LogoIconName, kind: IconKind) => {
         </svg>
       );
     case 'one-drive':
-      <svg
-        viewBox="0 5.5 32 20.5"
-        height="100%"
-        width="100%"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M12.20245,11.19292l.00031-.0011,6.71765,4.02379,4.00293-1.68451.00018.00068A6.4768,6.4768,0,0,1,25.5,13c.14764,0,.29358.0067.43878.01639a10.00075,10.00075,0,0,0-18.041-3.01381C7.932,10.00215,7.9657,10,8,10A7.96073,7.96073,0,0,1,12.20245,11.19292Z"
-          fill="#0364b8"
-        />
-        <path
-          d="M12.20276,11.19182l-.00031.0011A7.96073,7.96073,0,0,0,8,10c-.0343,0-.06805.00215-.10223.00258A7.99676,7.99676,0,0,0,1.43732,22.57277l5.924-2.49292,2.63342-1.10819,5.86353-2.46746,3.06213-1.28859Z"
-          fill="#0078d4"
-        />
-        <path
-          d="M25.93878,13.01639C25.79358,13.0067,25.64764,13,25.5,13a6.4768,6.4768,0,0,0-2.57648.53178l-.00018-.00068-4.00293,1.68451,1.16077.69528L23.88611,18.19l1.66009.99438,5.67633,3.40007a6.5002,6.5002,0,0,0-5.28375-9.56805Z"
-          fill="#1490df"
-        />
-        <path
-          d="M25.5462,19.18437,23.88611,18.19l-3.80493-2.2791-1.16077-.69528L15.85828,16.5042,9.99475,18.97166,7.36133,20.07985l-5.924,2.49292A7.98889,7.98889,0,0,0,8,26H25.5a6.49837,6.49837,0,0,0,5.72253-3.41556Z"
-          fill="#28a8ea"
-        />
-      </svg>;
+      return (
+        <svg
+          viewBox="0 5.5 32 20.5"
+          height="100%"
+          width="100%"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12.20245,11.19292l.00031-.0011,6.71765,4.02379,4.00293-1.68451.00018.00068A6.4768,6.4768,0,0,1,25.5,13c.14764,0,.29358.0067.43878.01639a10.00075,10.00075,0,0,0-18.041-3.01381C7.932,10.00215,7.9657,10,8,10A7.96073,7.96073,0,0,1,12.20245,11.19292Z"
+            fill="#0364b8"
+          />
+          <path
+            d="M12.20276,11.19182l-.00031.0011A7.96073,7.96073,0,0,0,8,10c-.0343,0-.06805.00215-.10223.00258A7.99676,7.99676,0,0,0,1.43732,22.57277l5.924-2.49292,2.63342-1.10819,5.86353-2.46746,3.06213-1.28859Z"
+            fill="#0078d4"
+          />
+          <path
+            d="M25.93878,13.01639C25.79358,13.0067,25.64764,13,25.5,13a6.4768,6.4768,0,0,0-2.57648.53178l-.00018-.00068-4.00293,1.68451,1.16077.69528L23.88611,18.19l1.66009.99438,5.67633,3.40007a6.5002,6.5002,0,0,0-5.28375-9.56805Z"
+            fill="#1490df"
+          />
+          <path
+            d="M25.5462,19.18437,23.88611,18.19l-3.80493-2.2791-1.16077-.69528L15.85828,16.5042,9.99475,18.97166,7.36133,20.07985l-5.924,2.49292A7.98889,7.98889,0,0,0,8,26H25.5a6.49837,6.49837,0,0,0,5.72253-3.41556Z"
+            fill="#28a8ea"
+          />
+        </svg>
+      );
+    case 'link':
+      return <Link />;
   }
 };

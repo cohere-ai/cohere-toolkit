@@ -1,79 +1,93 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useEffect, useMemo, useState } from 'react';
+import { uniqBy } from 'lodash';
+import { useMemo, useState } from 'react';
 
-import { ListFile } from '@/cohere-client';
-import { Banner, Button, Checkbox, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
-import { useFocusFileInput } from '@/hooks/actions';
+import { CitationsTab } from '@/components/Agents/CitationsTab';
+import { IconButton } from '@/components/IconButton';
+import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
+import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
+import { useAgent } from '@/hooks/agents';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useDefaultFileLoaderTool, useFilesInConversation } from '@/hooks/files';
-import { useParamsStore } from '@/stores';
-import { cn, formatFileSize } from '@/utils';
-
-interface UploadedFile extends ListFile {
-  checked: boolean;
-}
+import { useFileActions, useListFiles } from '@/hooks/files';
+import { useAgentsStore, useParamsStore } from '@/stores';
+import { DataSourceArtifact } from '@/types/tools';
+import { pluralize } from '@/utils';
 
 type Props = {};
 
-const RightPanel: React.FC<Props> = () => {
+const AgentRightPanel: React.FC<Props> = () => {
+  const [isDeletingFile, setIsDeletingFile] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // TODO: (khalil) configure this to use Google drive files
-  const [useAssistantKnowledge, setUseAssistantKnowledge] = useState(true);
-  const { agentId } = useChatRoutes();
+  const {
+    agents: { disabledAssistantKnowledge },
+    setUseAssistantKnowledge,
+  } = useAgentsStore();
+  const { agentId, conversationId } = useChatRoutes();
+  const { data: agent, isLoading: isAgentLoading } = useAgent({ agentId });
+  const { theme } = useBrandedColors(agentId);
 
   const {
     params: { fileIds },
     setParams,
   } = useParamsStore();
 
-  const { isFileInputQueuedToFocus, focusFileInput } = useFocusFileInput();
-  const { files } = useFilesInConversation();
-  const { enableDefaultFileLoaderTool, disableDefaultFileLoaderTool } = useDefaultFileLoaderTool();
+  const { data: files, isLoading: isFilesLoading } = useListFiles(conversationId);
+  const { deleteFile } = useFileActions();
 
-  useEffect(() => {
-    if (isFileInputQueuedToFocus) {
-      focusFileInput();
-    }
-  }, [isFileInputQueuedToFocus]);
-
-  const uploadedFiles: UploadedFile[] = useMemo(() => {
-    if (!files) return [];
-
-    return files
-      .map((document: ListFile) => ({
-        ...document,
-        checked: (fileIds ?? []).some((id) => id === document.id),
-      }))
-      .sort(
-        (a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
-      );
-  }, [files, fileIds]);
-
-  const handleToggle = (fileId?: string) => {
-    if (!fileId) return;
-
-    let newFileIds: string[] = [];
-    if (fileIds?.some((id) => id === fileId)) {
-      newFileIds = fileIds.filter((id) => id !== fileId);
-    } else {
-      newFileIds = [...(fileIds ?? []), fileId];
+  const agentToolMetadataArtifacts = useMemo(() => {
+    if (!agent) {
+      return {
+        files: [],
+        folders: [],
+      };
     }
 
-    if (newFileIds.length === 0) {
-      disableDefaultFileLoaderTool();
-    } else {
-      enableDefaultFileLoaderTool();
-    }
+    const fileArtifacts = uniqBy(
+      (
+        agent.tools_metadata?.filter((tool_metadata) =>
+          [TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID].includes(
+            tool_metadata.tool_name
+          )
+        ) ?? []
+      )
+        .map((tool_metadata) => tool_metadata.artifacts as DataSourceArtifact[])
+        .flat(),
+      'id'
+    );
 
-    setParams({ fileIds: newFileIds });
+    const files = fileArtifacts.filter((artifact) => artifact.type === 'file');
+    const folders = fileArtifacts.filter((artifact) => artifact.type === 'folder');
+    return {
+      files,
+      folders,
+    };
+  }, [agent]);
+
+  const agentKnowledgeFiles = [
+    ...agentToolMetadataArtifacts.files,
+    ...agentToolMetadataArtifacts.folders,
+  ];
+
+  const handleDeleteFile = async (fileId: string) => {
+    if (isDeletingFile || !conversationId) return;
+
+    setIsDeletingFile(true);
+    try {
+      await deleteFile({ conversationId, fileId });
+      setParams({ fileIds: (fileIds ?? []).filter((id) => id !== fileId) });
+    } finally {
+      setIsDeletingFile(false);
+    }
   };
 
   return (
     <Tabs
       selectedIndex={selectedIndex}
       onChange={setSelectedIndex}
+      isLoading={isAgentLoading || isFilesLoading}
       tabs={[
         <span className="flex items-center gap-x-2" key="knowledge">
           <Icon name="folder" kind="outline" />
@@ -85,6 +99,8 @@ const RightPanel: React.FC<Props> = () => {
         </span>,
       ]}
       tabGroupClassName="h-full"
+      tabPanelClassName="h-full"
+      panelsClassName="h-full"
       kind="blue"
     >
       <div className="flex flex-col gap-y-10">
@@ -104,13 +120,13 @@ const RightPanel: React.FC<Props> = () => {
                 />
               </span>
               <Switch
-                theme="blue"
-                checked={useAssistantKnowledge}
-                onChange={setUseAssistantKnowledge}
+                theme={theme}
+                checked={!disabledAssistantKnowledge.includes(agentId)}
+                onChange={(checked) => setUseAssistantKnowledge(checked, agentId)}
               />
             </div>
             <Transition
-              show={useAssistantKnowledge}
+              show={!disabledAssistantKnowledge.includes(agentId) ?? false}
               enter="duration-300 ease-in-out transition-all"
               enterFrom="opacity-0 scale-90"
               enterTo="opacity-100 scale-100"
@@ -119,14 +135,47 @@ const RightPanel: React.FC<Props> = () => {
               leaveTo="opacity-0 scale-90"
               as="div"
             >
-              <Banner className="flex flex-col">
-                Add a data source to expand the assistant’s knowledge.
-                <Button theme="blue" className="mt-4" label="Add Data Source" icon="add" />
-              </Banner>
+              {agentKnowledgeFiles.length === 0 ? (
+                <Banner className="flex flex-col">
+                  Add a data source to expand the assistant’s knowledge.
+                  <Button
+                    theme={theme}
+                    className="mt-4 w-full"
+                    label="Add Data Source"
+                    stretch
+                    icon="add"
+                    href={`/edit/${agentId}?datasources=1`}
+                  />
+                </Banner>
+              ) : (
+                <div className="flex flex-col gap-y-3">
+                  <Text as="div" className="flex items-center gap-x-3">
+                    <Icon name="folder" kind="outline" />
+                    {/*  This renders the number of folders and files in the agent's Google Drive.
+                    For example, if the agent has 2 folders and 3 files, it will render:
+                    - "2 folders and 3 files" */}
+                    {agentToolMetadataArtifacts.folders.length > 0 &&
+                      `${agentToolMetadataArtifacts.folders.length} ${pluralize(
+                        'folder',
+                        agentToolMetadataArtifacts.folders.length
+                      )} ${agentToolMetadataArtifacts.files.length > 0 ? 'and ' : ''}`}
+                    {agentToolMetadataArtifacts.files.length > 0 &&
+                      `${agentToolMetadataArtifacts.files.length} ${pluralize(
+                        'file',
+                        agentToolMetadataArtifacts.files.length
+                      )}`}
+                  </Text>
+                  {agentKnowledgeFiles.map((file) => (
+                    <Text as="div" key={file.id} className="ml-6 flex items-center gap-x-3">
+                      <Icon name={file.type === 'folder' ? 'folder' : 'file'} kind="outline" />
+                      {file.name}
+                    </Text>
+                  ))}
+                </div>
+              )}
             </Transition>
           </div>
         )}
-
         <section className="relative flex flex-col gap-y-6">
           <div className="flex gap-x-2">
             <Text styleAs="label" className="font-medium">
@@ -139,34 +188,31 @@ const RightPanel: React.FC<Props> = () => {
               label="To use uploaded files, at least 1 File Upload tool must be enabled"
             />
           </div>
-          {uploadedFiles.length > 0 && (
-            <div className="flex w-full flex-col gap-y-14 pb-2">
-              <div className="flex flex-col gap-y-4">
-                {uploadedFiles.map(({ file_name: name, file_size: size, id, checked }) => (
-                  <div key={id} className="group flex w-full flex-col gap-y-2">
-                    <div className="flex w-full items-center justify-between gap-x-2">
-                      <div className={cn('flex w-[60%] overflow-hidden lg:w-[70%]')}>
-                        <Checkbox
-                          checked={checked}
-                          onChange={() => handleToggle(id)}
-                          label={name}
-                          name={name}
-                          theme="evolved-green"
-                          className="w-full"
-                          labelClassName="ml-0 truncate w-full"
-                          labelSubContainerClassName="w-full"
-                          labelContainerClassName="w-full"
-                        />
-                      </div>
-                      <div className="flex h-5 w-32 grow items-center justify-end gap-x-1">
-                        <Text styleAs="caption" className="text-volcanic-400 dark:text-marble-800">
-                          {formatFileSize(size ?? 0)}
-                        </Text>
-                      </div>
+          {files && files.length > 0 && (
+            <div className="flex flex-col gap-y-4">
+              {files.map(({ file_name: name, id }) => (
+                <div
+                  key={id}
+                  className="group flex w-full flex-col gap-y-2 rounded-lg p-2 dark:hover:bg-volcanic-200"
+                >
+                  <div className="group flex w-full items-center justify-between gap-x-4">
+                    <div className="flex items-center gap-x-2 overflow-hidden">
+                      <Icon
+                        name="file"
+                        kind="outline"
+                        className="fill-mushroom-300 dark:fill-marble-950"
+                      />
+                      <Text className="truncate">{name}</Text>
                     </div>
+                    <IconButton
+                      onClick={() => handleDeleteFile(id)}
+                      disabled={isDeletingFile}
+                      iconName="close"
+                      className="hidden group-hover:flex"
+                    />
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
           <Text styleAs="caption" className="text-mushroom-300 dark:text-marble-800">
@@ -174,9 +220,9 @@ const RightPanel: React.FC<Props> = () => {
           </Text>
         </section>
       </div>
-      <div>Citations</div>
+      <CitationsTab />
     </Tabs>
   );
 };
 
-export default RightPanel;
+export default AgentRightPanel;

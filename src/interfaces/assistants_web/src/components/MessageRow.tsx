@@ -1,6 +1,5 @@
 'use client';
 
-import { usePreviousDistinct } from '@react-hookz/web';
 import { forwardRef, useEffect, useState } from 'react';
 import { useLongPress } from 'react-aria';
 
@@ -48,7 +47,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
   const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
   const {
-    citations: { selectedCitation, hoveredGenerationId },
+    citations: { hoveredGenerationId },
     hoverCitation,
   } = useCitationsStore();
   const hasSteps =
@@ -78,24 +77,6 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
       setTimeout(() => setIsShowing(true), 300);
     }
   }, []);
-
-  const [highlightMessage, setHighlightMessage] = useState(false);
-  const prevSelectedCitationGenId = usePreviousDistinct(selectedCitation?.generationId);
-
-  useEffect(() => {
-    if (isFulfilledOrTypingMessage(message) && message.citations && message.generationId) {
-      if (
-        selectedCitation?.generationId === message.generationId &&
-        prevSelectedCitationGenId !== message.generationId
-      ) {
-        setHighlightMessage(true);
-
-        setTimeout(() => {
-          setHighlightMessage(false);
-        }, 1000);
-      }
-    }
-  }, [selectedCitation?.generationId, prevSelectedCitationGenId]);
 
   if (delay && !isShowing) return null;
 
@@ -144,7 +125,6 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 iconOptions={{ className: 'dark:fill-marble-800' }}
                 kind="secondary"
                 aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
-                animate={false}
                 onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
               />
             )}
@@ -158,11 +138,10 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
           'hover:bg-mushroom-950 dark:hover:bg-mushroom-150',
 
           {
-            'bg-mushroom-950':
+            'bg-mushroom-950 dark:bg-mushroom-150':
               isFulfilledOrTypingMessage(message) &&
               message.generationId &&
               hoveredGenerationId === message.generationId,
-            'bg-coral-950 hover:bg-coral-950': highlightMessage,
           }
         )}
         {...(enableLongPress && longPressProps)}

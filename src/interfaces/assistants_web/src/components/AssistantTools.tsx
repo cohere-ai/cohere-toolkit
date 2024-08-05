@@ -6,10 +6,10 @@ import { Agent, ManagedTool } from '@/cohere-client';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
+import { getToolIcon } from '@/utils/tools';
 
 /**
  * @description Tools for the assistant to use in the conversation.
@@ -29,15 +29,11 @@ export const AssistantTools: React.FC<{
     managedTools: tools,
   });
 
+  if (availableTools.length === 0) return null;
+
   return (
     <section className={cn('relative flex flex-col gap-y-5', className)}>
       <article className={cn('flex flex-col gap-y-5')}>
-        {availableTools.length === 0 && (
-          <Text styleAs="p-sm" className="text-mushroom-300 dark:text-marble-800">
-            `${agent?.name} does not use any tools.`
-          </Text>
-        )}
-
         {unauthedTools.length > 0 && (
           <>
             <div className="flex items-center justify-between">
@@ -68,9 +64,10 @@ export const AssistantTools: React.FC<{
                   errorMessage={error_message}
                   checked={checked}
                   label={display_name ?? name ?? ''}
-                  icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
+                  icon={getToolIcon(name)}
                   description={description ?? ''}
                   onToggle={(checked) => handleToggle(name ?? '', checked)}
+                  agentId={agent?.id}
                 />
               );
             })}

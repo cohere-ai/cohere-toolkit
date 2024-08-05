@@ -3,24 +3,28 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
+from backend.schemas.deployment import ModelSimple as ModelSchema
+
 
 class AgentBase(BaseModel):
     user_id: str
     organization_id: Optional[str] = None
 
 
-# Agent Tool Metadata
-class AgentToolMetadata(AgentBase):
+class AgentToolMetadata(BaseModel):
     id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    user_id: Optional[str]
+    agent_id: str
     tool_name: str
     artifacts: list[dict]
 
-
-class AgentToolMetadataPublic(AgentToolMetadata):
-    user_id: Optional[str] = Field(exclude=True)
-
     class Config:
         from_attributes = True
+        use_enum_values = True
 
 
 class AgentToolMetadataPublic(AgentToolMetadata):
@@ -57,11 +61,11 @@ class Agent(AgentBase):
     description: Optional[str]
     preamble: Optional[str]
     temperature: float
-    tools: list[str]
-    tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
-
-    model: str
-    deployment: str
+    tools: Optional[list[str]]
+    tools_metadata: list[AgentToolMetadataPublic]
+    deployments: list[DeploymentSchema]
+    deployment: Optional[str]
+    model: Optional[str]
 
     class Config:
         from_attributes = True
@@ -80,10 +84,15 @@ class CreateAgentRequest(BaseModel):
     description: Optional[str] = None
     preamble: Optional[str] = None
     temperature: Optional[float] = None
-    model: str
-    deployment: str
     tools: Optional[list[str]] = None
     tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
+    deployment_config: Optional[dict[str, str]] = None
+    is_default_deployment: Optional[bool] = False
+    # model_id or model_name
+    model: str
+    # deployment_id or deployment_name
+    deployment: str
+    organization_id: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -102,6 +111,10 @@ class UpdateAgentRequest(BaseModel):
     temperature: Optional[float] = None
     model: Optional[str] = None
     deployment: Optional[str] = None
+    deployment_config: Optional[dict[str, str]] = None
+    is_default_deployment: Optional[bool] = False
+    is_default_model: Optional[bool] = False
+    organization_id: Optional[str] = None
     tools: Optional[list[str]] = None
     tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
 
