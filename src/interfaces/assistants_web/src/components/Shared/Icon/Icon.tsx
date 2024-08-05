@@ -65,12 +65,19 @@ export type IconKind = 'default' | 'outline';
 
 type Props = {
   name: IconName;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
   kind?: IconKind;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit';
   className?: string;
 };
 
-export const Icon: React.FC<Props> = ({ name, kind = 'default', size = 'md', className }) => {
+export const Icon: React.FC<Props> = ({
+  name,
+  kind = 'default',
+  size = 'md',
+  className,
+  onClick,
+}) => {
   const sizeClass = cn({
     'h-inherit w-inherit': size == 'inherit',
     'h-icon-xs w-icon-xs': size === 'xs',
@@ -81,7 +88,10 @@ export const Icon: React.FC<Props> = ({ name, kind = 'default', size = 'md', cla
   });
 
   return (
-    <div className={cn(sizeClass, 'fill-volcanic-100 dark:fill-marble-950', className)}>
+    <div
+      className={cn(sizeClass, 'fill-volcanic-100 dark:fill-marble-950', className)}
+      onClick={onClick}
+    >
       {getIcon(name, kind)}
     </div>
   );

@@ -6,7 +6,6 @@ import { Document, ManagedTool } from '@/cohere-client';
 import { ConnectDataModal } from '@/components/ConnectDataModal';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
-import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useContextStore } from '@/context';
 import { useAgent } from '@/hooks/agents';
@@ -124,11 +123,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     saveOutputFiles(outputFilesMap);
   }, [conversation?.id, conversation?.messages.length, setConversation]);
 
-  return isLoading ? (
-    <div className="flex h-full flex-grow flex-col items-center justify-center">
-      <Spinner />
-    </div>
-  ) : isError ? (
+  return isError ? (
     <ConversationError error={error} />
   ) : (
     <Conversation conversationId={conversationId} agent={agent} tools={tools} startOptionsEnabled />

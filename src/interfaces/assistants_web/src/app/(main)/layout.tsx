@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { AgentLeftPanel } from '@/components/Agents/AgentLeftPanel';
 import { AgentsList } from '@/components/Agents/AgentsList';
 import { MobileHeader } from '@/components/MobileHeader';
-import { COOKIE_KEYS } from '@/constants';
+import { COOKIE_KEYS, DEFAULT_AGENT_TOOLS } from '@/constants';
 import { getCohereServerClient } from '@/server/cohereClient';
 import { cn } from '@/utils';
 
@@ -24,13 +24,22 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
 
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ['listAgents'],
-    queryFn: async () => {
-      const agents = await cohereServerClient.listAgents({});
-      return agents;
-    },
-  });
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ['listAgents'],
+      queryFn: async () => {
+        const agents = await cohereServerClient.listAgents({});
+        return agents;
+      },
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['tools'],
+      queryFn: async () => {
+        const tools = await cohereServerClient.listTools({});
+        return tools.filter((tool) => !DEFAULT_AGENT_TOOLS.includes(tool.name ?? ''));
+      },
+    }),
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

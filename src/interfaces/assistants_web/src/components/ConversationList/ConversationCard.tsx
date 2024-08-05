@@ -6,6 +6,7 @@ import { Agent } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { DEFAULT_ASSISTANT_ID } from '@/constants';
 import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
@@ -128,9 +129,9 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     </div>
   );
 
-  const conversationUrl = conversation.agent
-    ? `/a/${conversation.agent.id}/c/${conversationId}`
-    : `/c/${conversationId}`;
+  const conversationUrl = `/a/${
+    conversation.agent?.id ?? DEFAULT_ASSISTANT_ID
+  }/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =

@@ -208,7 +208,7 @@ const AgentRightPanel: React.FC<Props> = () => {
                       onClick={() => handleDeleteFile(id)}
                       disabled={isDeletingFile}
                       iconName="close"
-                      className="hidden group-hover:flex"
+                      className="invisible group-hover:visible"
                     />
                   </div>
                 </div>
