@@ -3,6 +3,8 @@ name: Pytest
 on:
   push:
     branches: [main]
+    paths:
+      - src/backend/**
   pull_request: {}
 
 jobs:
