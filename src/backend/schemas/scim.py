@@ -19,7 +19,6 @@ class Name(BaseModel):
 
 class BaseUser(BaseModel):
     userName: str
-    name: Name
     active: bool
 
     schemas: list[str]
@@ -41,11 +40,12 @@ class CreateGroup(BaseGroup):
 
 
 class CreateUser(BaseUser):
+    name: Name
     externalId: str
 
 
 class UpdateUser(BaseUser):
-    pass
+    name: Name
 
 
 class Operation(BaseModel):
@@ -99,13 +99,9 @@ class User(BaseUser):
 
     @staticmethod
     def from_db_user(db_user: DBUser) -> "User":
-        names = db_user.fullname.split(" ")
-        given_name = names[0] if names[0] else ""
-        family_name = names[1] if names[1] else ""
         return User(
             id=db_user.id,
             userName=db_user.user_name,
-            name=Name(givenName=given_name, familyName=family_name),
             active=db_user.active,
             externalId=db_user.external_id,
             meta=Meta(
