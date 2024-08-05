@@ -13,9 +13,10 @@ export const env = createEnv({
     NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: z.string().optional(),
     NEXT_PUBLIC_HAS_CUSTOM_LOGO: z
       .string()
+      .optional()
+      .default('false')
       .refine((s) => s === 'true' || s === 'false')
-      .transform((s) => s === 'true')
-      .default(false),
+      .transform((s) => s === 'true'),
   },
   runtimeEnv: {
     API_HOSTNAME: process.env.API_HOSTNAME,
