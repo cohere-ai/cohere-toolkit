@@ -1,7 +1,8 @@
 import json
 import os
-from sqlalchemy import text
+
 from dotenv import load_dotenv
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
@@ -136,7 +137,8 @@ def deployments_models_seed(op):
         "clinical_trials",
     ]
     tools_json = json.dumps(tools)
-    sql_command = text("""
+    sql_command = text(
+        """
         INSERT INTO agents (
             id, version, name, description, preamble, temperature, tools, 
             user_id, organization_id, created_at, updated_at
@@ -146,12 +148,13 @@ def deployments_models_seed(op):
             :organization_id, now(), now()
         )
         ON CONFLICT (id) DO NOTHING;
-    """).bindparams(
+    """
+    ).bindparams(
         id=DEFAULT_AGENT_ID,
         name=DEFAULT_AGENT_NAME,
         tools=tools_json,
         user_id=default_user.id,
-        organization_id=default_organization.id
+        organization_id=default_organization.id,
     )
 
     op.execute(sql_command)
