@@ -1,4 +1,3 @@
-import json
 from collections import defaultdict
 from typing import Dict
 
@@ -52,15 +51,3 @@ def consolidate(activities: Dict[str, str]):
         print("After")
         print(after_actions)
         print("\n")
-
-    # print(json.dumps(consolidated_file_id_actions, indent=2))
-
-
-if __name__ == "__main__":
-    # Opening JSON file
-    f = open("/Users/giannis/Desktop/test.json")
-
-    # returns JSON object as
-    # a dictionary
-    activities = json.load(f)
-    consolidate(activities=activities)
