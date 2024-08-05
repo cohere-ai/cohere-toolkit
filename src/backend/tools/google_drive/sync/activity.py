@@ -184,15 +184,18 @@ def _get_activity(
         .execute()
     )
     if response_next_page_token := response.get("nextPageToken", None):
-        return [
-            *response.get("activities", []),
-            *_get_activity(
-                service=service,
-                artifact=artifact,
-                activity_ts_filter=activity_ts_filter,
-                next_page_token=response_next_page_token,
-            )["activities"],
-        ]
+        return {
+            "id": artifact_id,
+            "activities": [
+                *response.get("activities", []),
+                *_get_activity(
+                    service=service,
+                    artifact=artifact,
+                    activity_ts_filter=activity_ts_filter,
+                    next_page_token=response_next_page_token,
+                )["activities"],
+            ],
+        }
     return {
         "id": artifact_id,
         "activities": response["activities"] if response else [],
