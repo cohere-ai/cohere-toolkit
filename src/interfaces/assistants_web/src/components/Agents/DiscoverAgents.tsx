@@ -9,11 +9,11 @@ import { cn } from '@/utils';
 
 const tabs = [
   <div className="flex items-center gap-2" key="company">
-    <Icon name="users-three" kind="outline" className="text-volcanic-300 dark:text-mushroom-700" />
+    <Icon name="users-three" kind="outline" />
     <Text>Company</Text>
   </div>,
   <div className="flex items-center gap-2" key="private">
-    <Icon name="profile" kind="outline" className="text-volcanic-300 dark:text-mushroom-700" />
+    <Icon name="profile" kind="outline" />
     <Text>Private</Text>
   </div>,
 ];
@@ -25,7 +25,7 @@ export const DiscoverAgents = () => {
     <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-1000 md:ml-0 dark:border-volcanic-100 dark:bg-volcanic-100">
       <header
         className={cn(
-          'border-b border-marble-950 bg-cover dark:border-volcanic-150',
+          'border-b border-marble-950 bg-cover dark:border-volcanic-200',
           'bg-[url(/images/cellBackground.svg)] dark:bg-none',
           'px-4 py-6 md:px-9 md:py-10 lg:px-10',
           'flex items-center justify-between'
@@ -39,14 +39,14 @@ export const DiscoverAgents = () => {
             <Icon
               name="information"
               kind="outline"
-              className="text-volcanic-300 dark:text-mushroom-700"
+              className="fill-volcanic-300 dark:fill-mushroom-700"
             />
           </Tooltip>
         </div>
         <Button
           kind="secondary"
-          className="dark:[&_span]:text-evolved-green-700"
-          startIcon="add"
+          theme="evolved-green"
+          icon="add"
           label="Create Assistant"
           href="/new"
         />
@@ -75,22 +75,16 @@ const Wrapper: React.FC<PropsWithChildren> = ({ children }) => (
   </div>
 );
 
-const CompanyAgents = () => (
-  <Wrapper>
-    <DiscoverAgentCard
-      isBaseAgent
-      name="Command R+"
-      description="Review, understand and ask questions about  internal financial documents."
-    />
-  </Wrapper>
-);
-
-const PrivateAgents = () => {
+const CompanyAgents = () => {
   const { data: agents = [] } = useListAgents();
-
   return (
     <Wrapper>
-      {agents?.map((agent) => (
+      <DiscoverAgentCard
+        isBaseAgent
+        name="Command R+"
+        description="Review, understand and ask questions about  internal financial documents."
+      />
+      {agents.map((agent) => (
         <DiscoverAgentCard
           key={agent.name}
           description={agent.description ?? undefined}
@@ -98,6 +92,24 @@ const PrivateAgents = () => {
           id={agent.id}
         />
       ))}
+    </Wrapper>
+  );
+};
+
+const PrivateAgents = () => {
+  // TODO: filter them when they are private
+  const { data: agents = [] } = useListAgents();
+
+  return (
+    <Wrapper>
+      {/* {agents?.map((agent) => (
+        <DiscoverAgentCard
+          key={agent.name}
+          description={agent.description ?? undefined}
+          name={agent.name}
+          id={agent.id}
+        />
+      ))} */}
     </Wrapper>
   );
 };

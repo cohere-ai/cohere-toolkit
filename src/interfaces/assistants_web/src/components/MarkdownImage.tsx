@@ -44,9 +44,13 @@ export const MarkdownImage: React.FC<Props> = ({ node }) => {
 export const B64Image: React.FC<{ data: string; caption?: string }> = ({ data, caption }) => {
   return (
     <>
-      <img className="w-full" src={`data:image/png;base64,${data}`} alt={caption} />
+      <img className="w-full dark:invert" src={`data:image/png;base64,${data}`} alt={caption} />
       {caption && (
-        <Text as="span" styleAs="caption" className="mb-2 text-mushroom-300">
+        <Text
+          as="span"
+          styleAs="caption"
+          className="mb-2 text-mushroom-300 dark:bg-[#3D3B36] dark:text-mushroom-950"
+        >
           {caption}
         </Text>
       )}

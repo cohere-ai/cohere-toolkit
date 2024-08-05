@@ -1,8 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.base import Base
@@ -98,6 +97,25 @@ class Agent(Base):
     __table_args__ = (UniqueConstraint("name", "version", name="_name_version_uc"),)
 
     @property
+    def default_model_association(self):
+        default_association = next(
+            (
+                agent_deployment
+                for agent_deployment in self.agent_deployment_associations
+                if agent_deployment.is_default_deployment
+                and agent_deployment.is_default_model
+            ),
+            None,
+        )
+        if not default_association:
+            default_association = (
+                self.agent_deployment_associations[0]
+                if self.agent_deployment_associations
+                else None
+            )
+        return default_association
+
+    @property
     def deployment(self):
         default_model_association = next(
             (
@@ -114,9 +132,11 @@ class Agent(Base):
                 if self.agent_deployment_associations
                 else None
             )
-
+        # TODO Eugene - return the deployment object here when FE is ready Discuss with Scott
         return (
-            default_model_association.deployment if default_model_association else None
+            default_model_association.deployment.name
+            if default_model_association
+            else None
         )
 
     @property
@@ -136,7 +156,10 @@ class Agent(Base):
                 if self.agent_deployment_associations
                 else None
             )
-        return default_model_association.model if default_model_association else None
+        # TODO Eugene - return the model object here when FE is ready Discuss with Scott
+        return (
+            default_model_association.model.name if default_model_association else None
+        )
 
     @property
     def tools(self):

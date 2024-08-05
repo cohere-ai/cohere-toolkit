@@ -4,6 +4,7 @@ from enum import StrEnum
 
 from backend.config.settings import Settings
 from backend.schemas.tool import Category, ManagedTool
+from backend.services.logger.utils import LoggerFactory
 from backend.tools import (
     Calculator,
     GoogleDrive,
@@ -15,6 +16,8 @@ from backend.tools import (
     TavilyInternetSearch,
     WebScrapeTool,
 )
+
+logger = LoggerFactory().get_logger()
 
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 
@@ -203,7 +206,9 @@ def get_available_tools() -> dict[ToolName, dict]:
             community_tools = copy.deepcopy(COMMUNITY_TOOLS)
             tools.update(community_tools)
         except ImportError:
-            logging.warning("Community tools are not available. Skipping.")
+            logger.warning(
+                event="[Tools] Error loading tools: Community tools not available."
+            )
 
     for tool in tools.values():
         # Conditionally set error message

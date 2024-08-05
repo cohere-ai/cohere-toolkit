@@ -4,7 +4,9 @@ import { PropsWithChildren, useMemo, useRef } from 'react';
 
 import { Citation } from '@/components/Citations/Citation';
 import { useContextStore } from '@/context';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
+import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
 import { FulfilledMessage, TypingMessage, isFulfilledOrTypingMessage } from '@/types/message';
 import { cn } from '@/utils';
@@ -35,6 +37,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
   end,
   isCodeSnippet = false,
 }) => {
+  const { agentId } = useChatRoutes();
   const breakpoint = useBreakpoint();
   const { open } = useContextStore();
   const {
@@ -55,6 +58,8 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       isGenerationSelected && selectedCitation?.start === start && selectedCitation?.end === end
     );
   }, [end, selectedCitation, start, isGenerationSelected]);
+
+  const { text, bg, contrastText, hover } = useBrandedColors(agentId);
 
   const handleClick = () => {
     setSettings({ isConfigDrawerOpen: false });
@@ -86,7 +91,6 @@ export const CitationTextHighlighter: React.FC<Props> = ({
           />
         ),
         title: 'OUTPUT',
-        kind: 'coral-mobile-only',
       });
     }
   };
@@ -116,10 +120,11 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       ref={ref}
       onClick={handleClick}
       className={cn(
-        'bg-mushroom-600/[0.15] text-mushroom-150',
+        'bg-transparent',
+        text,
         {
-          'bg-coral-900 text-coral-300': isHighlighted,
-          'hover:bg-mushroom-600/[0.24]': !isHighlighted,
+          [`${bg} ${contrastText}`]: isHighlighted,
+          [`${hover(bg)} hover:bg-opacity-35 dark:hover:bg-opacity-35`]: !isHighlighted,
         },
         'cursor-pointer rounded'
       )}

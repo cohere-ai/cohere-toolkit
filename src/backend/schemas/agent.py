@@ -3,8 +3,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, Field, model_validator
 
-from backend.schemas.deployment import DeploymentSimple as DeploymentSchema
-from backend.schemas.deployment import DeploymentWithModels as DeploymentFull
+from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
 from backend.schemas.deployment import ModelSimple as ModelSchema
 
 DEFAULT_AGENT_ID = "default"
@@ -16,15 +15,20 @@ class AgentBase(BaseModel):
     organization_id: Optional[str] = None
 
 
-# Agent Tool Metadata
-class AgentToolMetadata(AgentBase):
+class AgentToolMetadata(BaseModel):
     id: str
     tool_id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    user_id: Optional[str]
+    agent_id: str
     tool_name: str
     artifacts: list[dict]
 
     class Config:
         from_attributes = True
+        use_enum_values = True
 
 
 class AgentToolMetadataPublic(AgentToolMetadata):
@@ -34,7 +38,7 @@ class AgentToolMetadataPublic(AgentToolMetadata):
         from_attributes = True
 
 
-class CreateAgentToolMetadata(BaseModel):
+class CreateAgentToolMetadataRequest(BaseModel):
     id: Optional[str] = None
     tool_id: Optional[str] = None
     tool_name: Optional[str] = None
@@ -48,7 +52,7 @@ class CreateAgentToolMetadata(BaseModel):
         return values
 
 
-class UpdateAgentToolMetadata(BaseModel):
+class UpdateAgentToolMetadataRequest(BaseModel):
     id: Optional[str] = None
     tool_id: Optional[str] = None
     tool_name: Optional[str] = None
@@ -108,14 +112,14 @@ class AgentPublic(Agent):
     tools_metadata: Optional[list[AgentToolMetadataPublic]] = None
 
 
-class CreateAgent(BaseModel):
+class CreateAgentRequest(BaseModel):
     name: str
     version: Optional[int] = None
     description: Optional[str] = None
     preamble: Optional[str] = None
     temperature: Optional[float] = None
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[CreateAgentToolMetadata]] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
     deployment_config: Optional[dict[str, str]] = None
     is_default_deployment: Optional[bool] = False
     # model_id or model_name
@@ -133,7 +137,7 @@ class ListAgentsResponse(BaseModel):
     agents: list[Agent]
 
 
-class UpdateAgent(BaseModel):
+class UpdateAgentRequest(BaseModel):
     name: Optional[str] = None
     version: Optional[int] = None
     description: Optional[str] = None
@@ -146,7 +150,7 @@ class UpdateAgent(BaseModel):
     is_default_model: Optional[bool] = False
     organization_id: Optional[str] = None
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[UpdateAgentToolMetadata]] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
 
     class Config:
         from_attributes = True

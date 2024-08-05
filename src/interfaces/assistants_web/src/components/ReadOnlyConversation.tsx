@@ -84,7 +84,7 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
         </div>
       </div>
       <div className="fixed bottom-0 left-0 z-read-only-conversation-footer flex w-full items-center justify-center bg-white py-4 shadow-top">
-        <Button label="Start a new conversation" href="/" splitIcon="arrow-right" kind="primary" />
+        <Button label="Start a new conversation" href="/" icon="arrow-right" kind="primary" />
       </div>
     </>
   );
@@ -171,7 +171,7 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
           {uniqueDocuments.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton
               className={cn(
-                'h-4 w-4 text-volcanic-300 transition delay-75 duration-200 ease-in-out',
+                'h-4 w-4 fill-volcanic-300 transition delay-75 duration-200 ease-in-out',
                 {
                   'rotate-180': isAllDocsVisible,
                 }

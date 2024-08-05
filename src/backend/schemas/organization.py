@@ -3,8 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from backend.services.auth import BasicAuthentication
-
 
 class OrganizationBase(BaseModel):
     name: str
@@ -24,7 +22,7 @@ class CreateOrganization(OrganizationBase):
 
 
 class UpdateOrganization(OrganizationBase):
-    pass
+    name: Optional[str]
 
 
 class DeleteOrganization(BaseModel):

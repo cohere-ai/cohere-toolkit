@@ -3,7 +3,7 @@ import pytest
 from backend.crud import citation as citation_crud
 from backend.crud import document as document_crud
 from backend.crud import message as message_crud
-from backend.database_models.message import Message
+from backend.database_models.message import Message, MessageFileAssociation
 from backend.schemas.message import UpdateMessage
 from backend.tests.factories import get_factory
 
@@ -135,13 +135,15 @@ def test_delete_message_cascade(session, conversation, user):
         message_id=message.id, conversation_id=conversation.id, user_id=user.id
     )
     document_id = document.id
-
     message_crud.delete_message(session, message.id, user.id)
 
     message = message_crud.get_message(session, message.id, user.id)
     assert message is None
     assert message_crud.get_messages(session, user.id) == []
-    assert message_crud.get_messages_by_conversation_id(session, "1", user.id) == []
+    assert (
+        message_crud.get_messages_by_conversation_id(session, conversation.id, user.id)
+        == []
+    )
 
     citation = citation_crud.get_citation(session, citation_id)
     assert citation is None
@@ -150,3 +152,58 @@ def test_delete_message_cascade(session, conversation, user):
     document = document_crud.get_document(session, document_id)
     assert document is None
     assert document_crud.get_documents(session) == []
+
+
+def test_create_message_file_association(session, conversation, user):
+    message = get_factory("Message", session).create(
+        text="Hello, World!", conversation_id=conversation.id, user_id=user.id
+    )
+    file = get_factory("File", session).create(user_id=user.id)
+
+    message_file_association = message_crud.create_message_file_association(
+        session,
+        MessageFileAssociation(message_id=message.id, file_id=file.id, user_id=user.id),
+    )
+    assert message_file_association.message_id == message.id
+    assert message_file_association.file_id == file.id
+    assert message_file_association.user_id == user.id
+
+    message = message_crud.get_message(session, message.id, user.id)
+    assert message.file_ids == [file.id]
+
+
+def test_get_message_file_association_by_file_id(session, conversation, user):
+    message = get_factory("Message", session).create(
+        text="Hello, World!", conversation_id=conversation.id, user_id=user.id
+    )
+    file = get_factory("File", session).create(user_id=user.id)
+    _ = get_factory("MessageFileAssociation", session).create(
+        message_id=message.id, file_id=file.id, user_id=user.id
+    )
+
+    message_file_association = message_crud.get_message_file_association_by_file_id(
+        session, file.id, user.id
+    )
+    assert message_file_association.message_id == message.id
+    assert message_file_association.file_id == file.id
+    assert message_file_association.user_id == user.id
+
+
+def test_delete_message_file_association(session, conversation, user):
+    message = get_factory("Message", session).create(
+        text="Hello, World!", conversation_id=conversation.id, user_id=user.id
+    )
+    file = get_factory("File", session).create(user_id=user.id)
+    _ = get_factory("MessageFileAssociation", session).create(
+        message_id=message.id, file_id=file.id, user_id=user.id
+    )
+
+    message_crud.delete_message_file_association(session, message.id, file.id, user.id)
+
+    message_file_association = message_crud.get_message_file_association_by_file_id(
+        session, file.id, user.id
+    )
+    assert message_file_association is None
+
+    message = message_crud.get_message(session, message.id, user.id)
+    assert message.file_ids == []

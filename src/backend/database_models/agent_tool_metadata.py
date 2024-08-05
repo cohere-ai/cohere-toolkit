@@ -1,7 +1,6 @@
-from typing import Optional
+from typing import List
 
-from sqlalchemy import ForeignKey, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy import JSON, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
@@ -25,7 +24,7 @@ class AgentToolMetadata(Base):
 
     tool = relationship("Tool", back_populates="tool_metadata")
 
-    artifacts: Mapped[list[dict]] = mapped_column(ARRAY(JSONB), nullable=True)
+    artifacts: Mapped[List[dict]] = mapped_column(JSON, default=[], nullable=False)
 
     __table_args__ = (
         UniqueConstraint(

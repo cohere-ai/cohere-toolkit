@@ -68,8 +68,9 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert response_agent["description"] == request_json["description"]
     assert response_agent["preamble"] == request_json["preamble"]
     assert response_agent["temperature"] == request_json["temperature"]
-    assert response_agent["model"]["name"] == request_json["model"]
-    assert response_agent["deployment"]["name"] == request_json["deployment"]
+    assert response_agent["model"] == request_json["model"]
+    assert response_agent["deployment"] == request_json["deployment"]
+    assert response_agent["tools"] == request_json["tools"]
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None
@@ -78,8 +79,8 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert agent.description == request_json["description"]
     assert agent.preamble == request_json["preamble"]
     assert agent.temperature == request_json["temperature"]
-    assert agent.model.name == request_json["model"]
-    assert agent.deployment.name == request_json["deployment"]
+    assert agent.model == request_json["model"]
+    assert agent.deployment == request_json["deployment"]
     assert len(agent.tools) == 3
 
 
@@ -224,7 +225,7 @@ def test_create_agent_missing_non_required_fields(
     assert response_agent["description"] == ""
     assert response_agent["preamble"] == ""
     assert response_agent["temperature"] == 0.3
-    assert response_agent["model"]["name"] == request_json["model"]
+    assert response_agent["model"] == request_json["model"]
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None
@@ -233,7 +234,7 @@ def test_create_agent_missing_non_required_fields(
     assert agent.description == ""
     assert agent.preamble == ""
     assert agent.temperature == 0.3
-    assert agent.model.name == request_json["model"]
+    assert agent.model == request_json["model"]
 
 
 def test_create_agent_invalid_deployment(
@@ -465,36 +466,6 @@ def test_get_nonexistent_agent(
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
-async def test_create_agent_mertic(
-    session_client: TestClient, session: Session
-) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
-    request_json = {
-        "name": "test agent",
-        "version": 1,
-        "description": "test description",
-        "preamble": "test preamble",
-        "temperature": 0.5,
-        "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.post(
-            "/v1/agents", json=request_json, headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.user_id == user.id
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
-
-
 def test_update_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -528,8 +499,8 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
     assert updated_agent["description"] == "updated description"
     assert updated_agent["preamble"] == "updated preamble"
     assert updated_agent["temperature"] == 0.7
-    assert updated_agent["model"]["name"] == "command-r"
-    assert updated_agent["deployment"]["name"] == ModelDeploymentName.CoherePlatform
+    assert updated_agent["model"] == "command-r"
+    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
 
 
 def test_partial_update_agent(session_client: TestClient, session: Session) -> None:
@@ -693,7 +664,6 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
     )
 
     assert response.status_code == 200
-    updated_agent = response.json()
 
     tool_metadata = (
         session.query(AgentToolMetadata)

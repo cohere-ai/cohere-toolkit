@@ -7,15 +7,13 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import tool as tool_crud
 from backend.database_models.database import DBSessionDep
+from backend.schemas.context import Context
+from backend.services.context import get_context
 from backend.schemas.tool import ManagedTool, ToolCreate, ToolDelete, ToolUpdate
-from backend.services.auth.utils import get_header_user_id
-from backend.services.logger import get_logger
 from backend.services.request_validators import (
     validate_create_tool_request,
     validate_update_tool_request,
 )
-
-logger = get_logger()
 
 router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL
@@ -111,6 +109,7 @@ def list_tools(
     request: Request,
     session: DBSessionDep,
     agent_id: str | None = None,
+    ctx: Context = Depends(get_context),
     all: bool = False,
 ) -> list[ManagedTool]:
     """
@@ -120,6 +119,7 @@ def list_tools(
         request (Request): Request object.
         session (DBSessionDep): Database session.
         agent_id (str): Agent ID.
+        ctx (Context): Context object.
         all (bool): Flag to list all tools not only available.
 
     Returns:
@@ -134,7 +134,15 @@ def list_tools(
         if not all_tools:
             all_tools = AVAILABLE_TOOLS.values()
     if agent_id:
-        # agent_tools = []
+        agent = agent_crud.get_agent_by_id(session, agent_id)
+
+    user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
+
+    all_tools = AVAILABLE_TOOLS.values()
+
+    if agent_id is not None:
+        agent_tools = []
         agent = agent_crud.get_agent_by_id(session, agent_id)
 
         if not agent:
@@ -149,7 +157,6 @@ def list_tools(
         #     agent_tools.append(AVAILABLE_TOOLS[tool])
         # all_tools = agent_tools
 
-    user_id = get_header_user_id(request)
     for tool in all_tools:
         if tool.is_available and tool.auth_implementation is not None:
             try:
@@ -161,6 +168,11 @@ def list_tools(
                 tool.auth_url = tool_auth_service.get_auth_url(user_id)
                 tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:
-                logger.error(f"Error while fetching Tool Auth: {str(e)}.")
+                logger.error(event=f"Error while fetching Tool Auth: {str(e)}")
+
+                tool.is_available = False
+                tool.error_message = (
+                    f"Error while calling Tool Auth implementation {str(e)}"
+                )
 
     return all_tools

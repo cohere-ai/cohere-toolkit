@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
-from backend.schemas.agent import UpdateAgent
+from backend.schemas.agent import UpdateAgentRequest
 from backend.tests.factories import get_factory
 
 
@@ -141,7 +141,7 @@ def test_update_agent(session, user):
         user=user,
     )
 
-    new_agent_data = UpdateAgent(
+    new_agent_data = UpdateAgentRequest(
         name="new_test_agent",
         description="This is a new test agent",
         version=2,

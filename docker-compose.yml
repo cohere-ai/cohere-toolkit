@@ -24,7 +24,7 @@ services:
       - PGUSER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - '5433:5432'
+      - "5433:5432"
     networks:
       - proxynet
 
@@ -32,12 +32,14 @@ services:
     image: redis:7.2-alpine
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
-      - '6379:6379'
+      - "6379:6379"
+    networks:
+      - proxynet
     command: redis-server --save 60 1 --loglevel warning --requirepass redis
     volumes:
       - ./data:/data
@@ -76,7 +78,7 @@ services:
       - ./src/backend/alembic:/workspace/src/backend/alembic
       # Mount data folder to sync uploaded files
       - ./src/backend/data:/workspace/src/backend/data
-      # Mount configurations 
+      # Mount configurations
       - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
       - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml
     # network_mode: host
@@ -90,6 +92,7 @@ services:
       dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file
     environment:
+      API_HOSTNAME: http://backend:8000
       NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
       NEXT_PUBLIC_FRONTEND_HOSTNAME: ${NEXT_PUBLIC_FRONTEND_HOSTNAME}
       NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}

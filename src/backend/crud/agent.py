@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from backend.database_models import Deployment
 from backend.database_models.agent import Agent, AgentDeploymentModel
-from backend.schemas.agent import UpdateAgent
+from backend.schemas.agent import UpdateAgentRequest
 from backend.services.transaction import validate_transaction
 
 
@@ -220,14 +220,14 @@ def assign_model_deployment_to_agent(
 
 
 @validate_transaction
-def update_agent(db: Session, agent: Agent, new_agent: UpdateAgent) -> Agent:
+def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Agent:
     """
     Update an agent.
 
     Args:
       db (Session): Database session.
       agent (Agent): Agent to be updated.
-      new_agent (UpdateAgent): New agent.
+      new_agent (UpdateAgentRequest): New agent.
 
     Returns:
       Agent: Updated agent.

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -7,7 +5,7 @@ from backend.config.tools import ToolName
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import tool as tool_crud
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
-from backend.schemas.agent import UpdateAgentToolMetadata
+from backend.schemas.agent import UpdateAgentToolMetadataRequest
 from backend.tests.factories import get_factory
 
 mock_artifact_1 = {
@@ -108,7 +106,7 @@ def test_update_agent_tool_metadata(session, user):
         artifacts=[mock_artifact_1],
     )
 
-    new_agent_tool_metadata_data = UpdateAgentToolMetadata(
+    new_agent_tool_metadata_data = UpdateAgentToolMetadataRequest(
         artifacts=[mock_artifact_1],
     )
 
