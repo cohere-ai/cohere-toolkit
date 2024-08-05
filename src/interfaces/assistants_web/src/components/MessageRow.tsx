@@ -9,17 +9,13 @@ import { LongPressMenu } from '@/components/LongPressMenu';
 import { MessageContent } from '@/components/MessageContent';
 import { Button, CopyToClipboardButton, CopyToClipboardIconButton } from '@/components/Shared';
 import { ToolEvents } from '@/components/ToolEvents';
-import { ReservedClasses } from '@/constants';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
-import { getMessageRowId } from '@/hooks/citations';
-import { useCitationsStore } from '@/stores';
 import {
   type ChatMessage,
   isAbortedMessage,
   isErroredMessage,
   isFulfilledMessage,
   isFulfilledOrTypingMessage,
-  isFulfilledOrTypingMessageWithCitations,
   isUserMessage,
 } from '@/types/message';
 import { cn } from '@/utils';
@@ -46,10 +42,6 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
   const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
-  const {
-    citations: { hoveredGenerationId },
-    hoverCitation,
-  } = useCitationsStore();
   const hasSteps =
     (isFulfilledOrTypingMessage(message) ||
       isErroredMessage(message) ||
@@ -80,30 +72,8 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
 
   if (delay && !isShowing) return null;
 
-  const handleOnMouseEnter = () => {
-    if (isFulfilledOrTypingMessageWithCitations(message)) {
-      hoverCitation(message.generationId);
-    }
-  };
-
-  const handleOnMouseLeave = () => {
-    if (isFulfilledOrTypingMessageWithCitations(message)) {
-      hoverCitation(null);
-    }
-  };
-
   return (
-    <div
-      id={
-        isFulfilledOrTypingMessage(message) && message.generationId
-          ? getMessageRowId(message.generationId)
-          : undefined
-      }
-      className={cn(ReservedClasses.MESSAGE, 'flex', className)}
-      onMouseEnter={handleOnMouseEnter}
-      onMouseLeave={handleOnMouseLeave}
-      ref={ref}
-    >
+    <div className={cn('flex', className)} ref={ref}>
       <LongPressMenu
         isOpen={isLongPressMenuOpen}
         close={() => setIsLongPressMenuOpen(false)}
@@ -139,9 +109,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
 
           {
             'bg-mushroom-950 dark:bg-mushroom-150':
-              isFulfilledOrTypingMessage(message) &&
-              message.generationId &&
-              hoveredGenerationId === message.generationId,
+              isFulfilledOrTypingMessage(message) && message.generationId,
           }
         )}
         {...(enableLongPress && longPressProps)}
