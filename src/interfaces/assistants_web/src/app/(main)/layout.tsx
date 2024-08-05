@@ -1,3 +1,4 @@
+import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query';
 import { NextPage } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -21,8 +22,18 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
     }
   }
 
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ['listAgents'],
+    queryFn: async () => {
+      const agents = await cohereServerClient.listAgents({});
+      return agents;
+    },
+  });
+
   return (
-    <>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3 dark:bg-volcanic-60">
         <div
           className={cn(
@@ -43,7 +54,7 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
       <AgentLeftPanel className="rounded-bl-none rounded-tl-none md:hidden">
         <AgentsList />
       </AgentLeftPanel>
-    </>
+    </HydrationBoundary>
   );
 };
 

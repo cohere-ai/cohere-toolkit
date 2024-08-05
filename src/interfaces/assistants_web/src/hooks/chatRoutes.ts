@@ -1,6 +1,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
+import { DEFAULT_ASSISTANT_ID } from '@/constants';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { getQueryString } from '@/utils';
 
@@ -35,5 +36,5 @@ export const useChatRoutes = () => {
     };
   }, [params]);
 
-  return { agentId, conversationId: conversationId || id };
+  return { agentId: agentId ?? DEFAULT_ASSISTANT_ID, conversationId: conversationId || id };
 };

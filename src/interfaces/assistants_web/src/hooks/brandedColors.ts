@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { COHERE_BRANDED_COLORS } from '@/constants';
+import { COHERE_BRANDED_COLORS, DEFAULT_ASSISTANT_ID } from '@/constants';
 import { cn } from '@/utils/cn';
 
 const COHERE_THEMES_MAP: { default: COHERE_BRANDED_COLORS; branded: COHERE_BRANDED_COLORS[] } = {
@@ -30,7 +30,7 @@ const DEFAULT_COLOR = 'evolved-blue-500';
 const DEFAULT_CONTRAST_COLOR = 'blue-800';
 
 const getAssistantColor = (assistantId: string | undefined): string => {
-  if (!assistantId) return DEFAULT_COLOR;
+  if (!assistantId || assistantId === DEFAULT_ASSISTANT_ID) return DEFAULT_COLOR;
 
   const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % ASSISTANT_COLORS.length;
@@ -39,7 +39,7 @@ const getAssistantColor = (assistantId: string | undefined): string => {
 };
 
 const getAssistantContrastColor = (assistantId: string | undefined): string => {
-  if (!assistantId) return DEFAULT_CONTRAST_COLOR;
+  if (!assistantId || assistantId === DEFAULT_ASSISTANT_ID) return DEFAULT_CONTRAST_COLOR;
 
   const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % ASSISTANT_CONTRAST_COLORS.length;
@@ -47,7 +47,7 @@ const getAssistantContrastColor = (assistantId: string | undefined): string => {
 };
 
 export const getCohereTheme = (assistantId?: string): COHERE_BRANDED_COLORS => {
-  if (assistantId === undefined) {
+  if (assistantId === undefined || assistantId === DEFAULT_ASSISTANT_ID) {
     return COHERE_THEMES_MAP.default;
   } else {
     const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);

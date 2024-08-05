@@ -1,6 +1,8 @@
 import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
 
+export const DEFAULT_ASSISTANT_ID = 'default';
+
 export const DEFAULT_CONVERSATION_NAME = 'New Conversation';
 export const DEFAULT_TYPING_VELOCITY = 35;
 

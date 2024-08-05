@@ -5,6 +5,7 @@ import React from 'react';
 
 import { AssistantTools } from '@/components/AssistantTools';
 import { CoralLogo, Icon, Text } from '@/components/Shared';
+import { DEFAULT_ASSISTANT_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useListTools } from '@/hooks/tools';
@@ -23,7 +24,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { data: tools = [], isLoading: isToolsLoading } = useListTools();
   const { contrastText, bg } = useBrandedColors(agentId);
 
-  const isAgent = agentId !== undefined && !isAgentsLoading && !!agent;
+  const isDefaultAssistant = agentId === DEFAULT_ASSISTANT_ID;
 
   return (
     <Transition
@@ -45,18 +46,18 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
               bg
             )}
           >
-            {!isAgent ? (
+            {isDefaultAssistant ? (
               <CoralLogo />
             ) : (
               <Text className="uppercase" styleAs="p-lg">
-                {agent.name[0]}
+                {agent?.name[0]}
               </Text>
             )}
           </div>
           <Text styleAs="h4" className="truncate">
-            {isAgent ? agent.name : 'Your Private Assistant'}
+            {agent?.name}
           </Text>
-          {!isAgent && (
+          {isDefaultAssistant && (
             <Text className="ml-auto" styleAs="caption">
               By Cohere
             </Text>
@@ -66,7 +67,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           {agent?.description || 'Ask questions and get answers based on your files.'}
         </Text>
 
-        {!isAgent && (
+        {isDefaultAssistant && (
           <div className="flex items-center gap-x-1">
             <Icon name="circles-four" kind="outline" />
             <Text className="font-medium">Toggle Tools On/Off</Text>

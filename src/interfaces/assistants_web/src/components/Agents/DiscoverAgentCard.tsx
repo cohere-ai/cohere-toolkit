@@ -1,20 +1,21 @@
 'use client';
 
 import { Button, CoralLogo, Text } from '@/components/Shared';
+import { DEFAULT_ASSISTANT_ID } from '@/constants';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { cn } from '@/utils';
 
 type Props = {
   name: string;
   description?: string;
-  isBaseAgent?: boolean;
   id?: string;
 };
 
 /**
  * @description renders a card for an agent with the agent's name, description
  */
-export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBaseAgent }) => {
+export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description }) => {
+  const isDefaultAssistant = id === DEFAULT_ASSISTANT_ID;
   const { bg, contrastText } = useBrandedColors(id);
 
   return (
@@ -28,7 +29,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               bg
             )}
           >
-            {isBaseAgent ? (
+            {isDefaultAssistant ? (
               <CoralLogo />
             ) : (
               <Text className={cn('uppercase text-white', contrastText)} styleAs="p-lg">
@@ -41,17 +42,17 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
           </Text>
         </div>
         <Text className="line-clamp-2 flex-grow dark:text-mushroom-800">{description}</Text>
-        <Text className="dark:text-volcanic-500">BY {isBaseAgent ? 'COHERE' : 'YOU'}</Text>
+        <Text className="dark:text-volcanic-500">BY {isDefaultAssistant ? 'COHERE' : 'YOU'}</Text>
         <div className="flex w-full items-center justify-between">
           <Button
-            href={isBaseAgent ? '/' : `/a/${id}`}
+            href={`/a/${id}`}
             label="Try now"
             kind="secondary"
             icon="arrow-up-right"
             iconPosition="end"
             theme="evolved-green"
           />
-          {!isBaseAgent && (
+          {!isDefaultAssistant && (
             <Button
               href={`/edit/${id}`}
               className="dark:[&_span]:text-evolved-green-700"

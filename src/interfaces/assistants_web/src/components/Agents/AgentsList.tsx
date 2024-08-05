@@ -30,6 +30,7 @@ export const AgentsList: React.FC = () => {
     agents: { isAgentsLeftPanelOpen },
     setAgentsLeftSidePanelOpen,
   } = useAgentsStore();
+
   const recentAgents = useMemo(
     () =>
       conversations
@@ -53,7 +54,7 @@ export const AgentsList: React.FC = () => {
           </Text>
           <div className="flex gap-1">
             {recentAgents.slice(0, 5).map((agent) => {
-              if (!agent) return <AgentCard key="commandR+" name="Command R+" isBaseAgent />;
+              if (!agent) return null;
               return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
             })}
           </div>

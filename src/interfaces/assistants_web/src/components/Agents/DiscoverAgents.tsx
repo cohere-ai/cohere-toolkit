@@ -79,11 +79,6 @@ const CompanyAgents = () => {
   const { data: agents = [] } = useListAgents();
   return (
     <Wrapper>
-      <DiscoverAgentCard
-        isBaseAgent
-        name="Command R+"
-        description="Review, understand and ask questions about  internal financial documents."
-      />
       {agents.map((agent) => (
         <DiscoverAgentCard
           key={agent.name}
