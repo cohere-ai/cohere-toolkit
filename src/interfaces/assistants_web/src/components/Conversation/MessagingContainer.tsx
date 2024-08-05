@@ -2,14 +2,12 @@
 
 import { Transition } from '@headlessui/react';
 import { usePrevious } from '@react-hookz/web';
-import React, { ReactNode, forwardRef, memo, useEffect, useMemo } from 'react';
+import React, { ReactNode, memo, useEffect, useMemo } from 'react';
 import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
 
 import MessageRow from '@/components/MessageRow';
 import { Button } from '@/components/Shared';
 import { Welcome } from '@/components/Welcome';
-import { COMPOSER_CONTAINER_ID, MESSAGES_CONTAINER_ID, ReservedClasses } from '@/constants';
-import { MESSAGE_LIST_CONTAINER_ID } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
@@ -37,11 +35,10 @@ const MessagingContainer: React.FC<Props> = (props) => {
     <ScrollToBottom
       mode={props.messages.length === 0 ? 'top' : 'bottom'}
       initialScrollBehavior="smooth"
-      className={cn(ReservedClasses.MESSAGES, 'relative flex h-0 flex-grow flex-col')}
+      className="relative flex h-0 flex-grow flex-col"
       scrollViewClassName={cn(
         '!h-full',
         'flex relative mt-auto overflow-x-hidden',
-        ReservedClasses.MESSAGES_SCROLL_VIEW,
         {
           // For vertically centering the content in @/components/Welcome.tsx
           'mt-0 md:mt-auto': props.messages.length === 0,
@@ -97,13 +94,10 @@ const Content: React.FC<Props> = (props) => {
 
   return (
     <div className="flex h-max min-h-full w-full" id="test-tomeu">
-      <div id={MESSAGE_LIST_CONTAINER_ID} className="flex h-auto min-w-0 flex-1 flex-col">
+      <div className="flex h-auto min-w-0 flex-1 flex-col">
         <Messages {...props} />
         {/* Composer container */}
-        <div
-          className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100"
-          id={COMPOSER_CONTAINER_ID}
-        >
+        <div className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100">
           <Transition
             show={showNewMessageButton}
             enter="duration-300 ease-out transition-all"
@@ -151,7 +145,7 @@ const Messages: React.FC<MessagesProps> = ({
   }
 
   return (
-    <div id={MESSAGES_CONTAINER_ID} className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6">
+    <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6">
       <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
         {messages.map((m, i) => {
           const isLastInList = i === messages.length - 1;
