@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { DocumentIcon, Icon, Text } from '@/components/Shared';
 import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';
 import { useCitationsStore } from '@/stores';
-import { cn, getSafeUrl, getWebDomain } from '@/utils';
+import { getSafeUrl, getWebDomain } from '@/utils';
 
 const getWebSourceName = (toolId?: string | null) => {
   if (!toolId) {
@@ -19,7 +19,7 @@ type Props = {
   citationKey: string;
 };
 
-export const NewCitation: React.FC<Props> = ({ generationId, citationKey }) => {
+export const Citation: React.FC<Props> = ({ generationId, citationKey }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { citations } = useCitationsStore();
   const citationsMap = citations.citationReferences[generationId];

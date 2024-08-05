@@ -3,7 +3,7 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 
-import { NewCitation } from '@/components/Citations/Citation';
+import { Citation } from '@/components/Citations/Citation';
 import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
@@ -52,7 +52,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
     setSettings({ isConfigDrawerOpen: false });
 
     open({
-      content: <NewCitation generationId={generationId} citationKey={startEndKey} />,
+      content: <Citation generationId={generationId} citationKey={startEndKey} />,
     });
   };
 
@@ -104,7 +104,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
         anchor="bottom"
         className="z-30 h-fit w-[466px] rounded border bg-white p-4 dark:border-volcanic-400 dark:bg-volcanic-200"
       >
-        <NewCitation generationId={generationId} citationKey={startEndKey} />
+        <Citation generationId={generationId} citationKey={startEndKey} />
       </PopoverPanel>
     </Popover>
   );
