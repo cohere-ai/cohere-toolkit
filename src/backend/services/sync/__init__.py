@@ -11,4 +11,3 @@ todo
 # Start celery.
 app = Celery("sync")
 app.config_from_object("src.backend.services.sync.celeryconfig")
-app.autodiscover_tasks()

@@ -56,5 +56,7 @@ install-web:
 	cd src/interfaces/coral_web && npm install
 build-web:
 	cd src/interfaces/coral_web && npm run build
-start-sync:
-	@docker compose up --build sync
+sync-worker:
+	@docker compose up --build sync_worker
+sync-publisher:
+	@docker compose up --build sync_publisher

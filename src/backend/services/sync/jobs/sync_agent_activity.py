@@ -2,6 +2,7 @@ from backend.config.tools import ToolName
 from backend.crud.agent import get_agent_by_id
 from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.database_models.database import get_session
+from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT
 from backend.tools.google_drive import (
@@ -9,6 +10,8 @@ from backend.tools.google_drive import (
     query_google_drive_activity,
 )
 from backend.tools.google_drive.sync.consolidation import consolidate
+
+logger = LoggerFactory().get_logger()
 
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
@@ -34,6 +37,9 @@ def sync_agent_activity(agent_id: str):
                     key: consolidate(activities=value)
                     for key, value in activities.items()
                 }
+                logger.info(
+                    f"Publishing {sum([len(x) for x in consolidated_activities.values()])} activity tasks for agent {agent_id}"
+                )
                 for artifact_id, activity in consolidated_activities.items():
                     for activity_item in activity:
                         event_type = list(activity_item["primaryActionDetail"].keys())[

@@ -85,7 +85,7 @@ services:
     networks:
       - proxynet
 
-  sync:
+  sync_worker:
     build:
       context: .
       args:
@@ -102,6 +102,21 @@ services:
             - __pycache__/
             - alembic/
             - data/
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+      - redis
+    networks:
+      - proxynet
+
+  sync_publisher:
+    build:
+      context: .
+      args:
+        DOCKER_BUILDKIT: 1
+      dockerfile: ./src/backend/services/sync/Dockerfile
+    restart: unless-stopped
     stdin_open: true
     tty: true
     depends_on:
