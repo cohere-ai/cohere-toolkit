@@ -22,7 +22,6 @@ type Props = {
   disabled?: boolean;
   className?: string;
   outline?: boolean;
-  animate?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
@@ -41,14 +40,12 @@ export const IconButton: React.FC<Props> = ({
   href,
   target,
   outline = false,
-  animate = false,
   onClick,
 }) => {
   const iconButton = (
     <Button
       kind={outline ? 'outline' : 'secondary'}
       disabled={disabled}
-      animate={animate}
       href={href}
       onClick={onClick}
       target={target}

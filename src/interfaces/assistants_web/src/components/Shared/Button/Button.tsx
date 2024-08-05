@@ -26,10 +26,15 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
     case 'primary':
     case 'cell':
       return cn('dark:text-marble-950 dark:fill-marble-950', {
+        'text-marble-900  fill-marble-900':
+          theme === 'green' ||
+          theme === 'blue' ||
+          theme === 'quartz' ||
+          theme === 'evolved-blue' ||
+          theme === 'evolved-quartz',
         // dark mode
-
         'dark:text-volcanic-150 dark:fill-volcanic-150':
-          theme === 'evolved-green' || theme === 'evolved-mushroom',
+          theme === 'evolved-green' || theme === 'evolved-mushroom' || theme === 'coral',
       });
 
     case 'secondary':
@@ -52,6 +57,7 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
         // light mode
         'text-volcanic-100 volcanic-100',
         'group-hover:text-volcanic-150 group-hover:fill-volcanic-150',
+
         // dark mode
         'dark:text-marble-950 dark:fill-marble-950 dark:disabled:text-volcanic-700',
         'dark:group-hover:text-marble-1000 dark:group-hover:fill-marble-1000'
@@ -131,7 +137,6 @@ export type ButtonProps = {
   href?: string;
   rel?: string;
   target?: HTMLAttributeAnchorTarget;
-  animate?: boolean;
   danger?: boolean;
   stretch?: boolean;
 };
@@ -152,12 +157,16 @@ export const Button: React.FC<ButtonProps> = ({
   href,
   rel,
   target,
-  animate = true,
   stretch = false,
   iconPosition = kind === 'cell' ? 'end' : 'start',
 }) => {
   const labelStyles = getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
+  const animate = !!icon && (!!label || !!children); // we only want to animate if there is an icon and a label
+
+  const animateClasses = cn({
+    'duration-400 transform transition-transform ease-in-out group-hover:-translate-x-1.5': animate,
+  });
 
   const iconElement = isLoading ? (
     <Spinner />
@@ -165,18 +174,15 @@ export const Button: React.FC<ButtonProps> = ({
     <Icon
       name={icon ?? 'arrow-right'}
       kind={iconOptions?.kind ?? 'outline'}
-      className={cn(labelStyles, iconOptions?.className)}
+      className={cn(
+        { [animateClasses]: iconPosition === 'end' && kind !== 'cell' },
+        labelStyles,
+        iconOptions?.className
+      )}
     />
   ) : (
     iconOptions?.customIcon ?? undefined
   );
-  const animateStyles =
-    animate && !disabled && iconElement
-      ? cn('duration-400 transition-spacing ease-in-out', {
-          'pl-3 group-hover:pl-1': iconPosition === 'start',
-          'pr-3 group-hover:pr-1': iconPosition === 'end',
-        })
-      : undefined;
 
   const labelElement =
     typeof label === 'string' ? (
@@ -189,11 +195,10 @@ export const Button: React.FC<ButtonProps> = ({
     kind !== 'cell' ? (
       <div
         className={cn(
-          'group flex h-cell-button w-fit items-center justify-center rounded-md',
+          'group flex h-cell-button items-center justify-center gap-x-3 rounded-md',
           buttonStyles,
           {
             'h-fit justify-start': kind === 'secondary',
-            'space-x-3': !animateStyles,
             'px-5': kind !== 'secondary',
           }
         )}
@@ -201,7 +206,8 @@ export const Button: React.FC<ButtonProps> = ({
         {iconPosition === 'start' && iconElement}
         {labelElement && (
           <div
-            className={cn(animateStyles, {
+            className={cn({
+              [animateClasses]: iconPosition === 'start',
               'px-2': kind === 'outline',
               'w-full': stretch,
             })}
@@ -212,7 +218,7 @@ export const Button: React.FC<ButtonProps> = ({
         {iconPosition === 'end' && iconElement}
       </div>
     ) : (
-      cellInner(theme, iconElement, labelElement, !disabled && animate, iconPosition, disabled)
+      cellInner(theme, iconElement, labelElement, iconPosition, disabled, animate)
     );
 
   return !disabled && href ? (
@@ -257,18 +263,24 @@ const cellInner = (
   theme: ButtonTheme,
   icon: ReactNode,
   label: ReactNode,
-  animate: boolean,
   iconPosition: 'start' | 'end',
-  disabled: boolean
+  disabled: boolean,
+  animate: boolean
 ) => {
   const isEndIcon = iconPosition === 'end';
   const buttonStyles = getButtonStyles('cell', theme, disabled);
   const baseStyles = 'flex h-cell-button items-center group';
-  const elementStyles = cn(baseStyles, buttonStyles, '-mx-0.5', {
-    'duration-400 transition-spacing ease-in-out': animate,
-    'group-hover:pl-2': animate && isEndIcon,
-    'group-hover:pr-2': animate && !isEndIcon,
-  });
+
+  const elementStyles = cn(
+    baseStyles,
+    buttonStyles,
+
+    {
+      'duration-400 transition-spacing ease-in-out': animate,
+      'group-hover:pl-2': isEndIcon && animate,
+      'group-hover:pr-2': !isEndIcon && animate,
+    }
+  );
 
   const cellTheme = getCellStyles(theme, disabled);
   const cellElement = (
@@ -297,7 +309,7 @@ const cellInner = (
     <div className={cn(baseStyles, 'ml-0.5')}>
       {!isEndIcon && iconCellElement}
       <div
-        className={cn(elementStyles, 'px-1', {
+        className={cn(elementStyles, 'flex-grow px-1', {
           'rounded-r-md pr-4': !isEndIcon,
           'rounded-l-md pl-4': isEndIcon,
         })}
