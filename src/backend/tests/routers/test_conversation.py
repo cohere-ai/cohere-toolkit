@@ -42,7 +42,7 @@ def test_list_conversations_with_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id=user.id
+        id="agent_id", name="test agent", user=user
     )
     conversation1 = get_factory("Conversation", session).create(
         agent_id=agent.id, user_id=user.id
@@ -65,7 +65,7 @@ def test_list_conversation_with_deleted_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id=user.id
+        id="agent_id", name="test agent", user=user
     )
     conversation = get_factory("Conversation", session).create(
         agent_id=agent.id, user_id=user.id
@@ -318,7 +318,7 @@ def test_delete_conversation_with_files(
 
     response = session_client.delete(
         f"/v1/conversations/{conversation.id}",
-        headers={"User-Id": user.id},
+        headers={"User-Id": conversation.user_id},
     )
 
     assert response.status_code == 200
