@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
@@ -8,8 +6,8 @@ from backend.crud import agent as agent_crud
 from backend.crud import tool as tool_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
-from backend.services.context import get_context
 from backend.schemas.tool import ManagedTool, ToolCreate, ToolDelete, ToolUpdate
+from backend.services.context import get_context
 from backend.services.request_validators import (
     validate_create_tool_request,
     validate_update_tool_request,
@@ -138,8 +136,6 @@ def list_tools(
 
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
-
-    all_tools = AVAILABLE_TOOLS.values()
 
     if agent_id is not None:
         agent_tools = []

@@ -8,8 +8,8 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import deployment as deployment_crud
-from backend.crud import tool as tool_crud
 from backend.crud import organization as organization_crud
+from backend.crud import tool as tool_crud
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.utils import class_name_validator
 from backend.services.auth.utils import get_header_user_id

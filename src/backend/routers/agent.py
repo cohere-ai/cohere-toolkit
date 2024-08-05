@@ -9,7 +9,7 @@ from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
 )
 from backend.database_models.database import DBSessionDep
-from backend.routers.utils import get_deployment_model_from_agent
+from backend.routers.utils import get_deployment_model_from_agent, get_tools_from_agent
 from backend.schemas.agent import (
     Agent,
     AgentPublic,
@@ -133,7 +133,6 @@ async def create_agent(
                 tool_crud.assign_tool_to_agent(
                     session, tool, created_agent, tool.default_tool_config
                 )
-
 
         agent_schema = Agent.model_validate(created_agent)
         ctx.with_agent(agent_schema)

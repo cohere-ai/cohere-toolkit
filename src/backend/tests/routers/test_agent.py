@@ -70,7 +70,9 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     assert response_agent["temperature"] == request_json["temperature"]
     assert response_agent["model"] == request_json["model"]
     assert response_agent["deployment"] == request_json["deployment"]
-    assert response_agent["tools"] == request_json["tools"]
+    assert set(response_agent["tools"]) == set(request_json["tools"]) and len(
+        response_agent["tools"]
+    ) == len(request_json["tools"])
 
     agent = session.get(Agent, response_agent["id"])
     assert agent is not None

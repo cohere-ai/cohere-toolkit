@@ -1,5 +1,4 @@
 import copy
-import logging
 from enum import StrEnum
 
 from backend.config.settings import Settings

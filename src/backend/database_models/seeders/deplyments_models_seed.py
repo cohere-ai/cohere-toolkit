@@ -1,5 +1,6 @@
+import json
 import os
-
+from sqlalchemy import text
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
@@ -137,13 +138,27 @@ def deployments_models_seed(op):
         "wolfram_alpha",
         "clinical_trials",
     ]
-    op.execute(
-        f"""
-            INSERT INTO agents (id, version, name, description, preamble, temperature, tools, user_id, organization_id, created_at, updated_at)
-            VALUES ('{DEFAULT_AGENT_ID}', 1, '{DEFAULT_AGENT_NAME}', 'Default agent', '', 0.3, ARRAY{tools}, '{default_user.id}', {default_organization.id}, now(), now())
-            ON CONFLICT (id) DO NOTHING;
-            """
+    tools_json = json.dumps(tools)
+    sql_command = text("""
+        INSERT INTO agents (
+            id, version, name, description, preamble, temperature, tools, 
+            user_id, organization_id, created_at, updated_at
+        )
+        VALUES (
+            :id, 1, :name, 'Default agent', '', 0.3, :tools, :user_id, 
+            :organization_id, now(), now()
+        )
+        ON CONFLICT (id) DO NOTHING;
+    """).bindparams(
+        id=DEFAULT_AGENT_ID,
+        name=DEFAULT_AGENT_NAME,
+        tools=tools_json,
+        user_id=default_user.id,
+        organization_id=default_organization.id
     )
+
+    op.execute(sql_command)
+
     # Seed deployments and models
     for deployment in MODELS_NAME_MAPPING.keys():
         new_deployment = Deployment(

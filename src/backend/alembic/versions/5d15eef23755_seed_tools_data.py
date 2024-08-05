@@ -1,8 +1,8 @@
 """seed tools data
 
-Revision ID: 55902d1e0db4
-Revises: f534a188bbf0
-Create Date: 2024-07-24 13:41:59.355914
+Revision ID: 5d15eef23755
+Revises: adcede7e18a5
+Create Date: 2024-07-23 12:50:09.337508
 
 """
 
@@ -17,8 +17,8 @@ from backend.database_models.seeders.tools_seed import (
 )
 
 # revision identifiers, used by Alembic.
-revision: str = "55902d1e0db4"
-down_revision: Union[str, None] = "f534a188bbf0"
+revision: str = "5d15eef23755"
+down_revision: Union[str, None] = "124d5b7b9932"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

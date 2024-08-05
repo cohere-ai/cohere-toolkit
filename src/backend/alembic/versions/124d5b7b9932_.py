@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f534a188bbf0
-Revises: 918f5fa136b3
-Create Date: 2024-07-24 13:41:45.323963
+Revision ID: 124d5b7b9932
+Revises: 117f0d9b1d3d
+Create Date: 2024-08-05 09:08:51.728854
 
 """
 
@@ -13,8 +13,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "f534a188bbf0"
-down_revision: Union[str, None] = "918f5fa136b3"
+revision: str = "124d5b7b9932"
+down_revision: Union[str, None] = "117f0d9b1d3d"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -107,8 +107,7 @@ def downgrade() -> None:
         "agents",
         sa.Column(
             "tools",
-            postgresql.ARRAY(sa.TEXT()),
-            server_default=sa.text("'{}'::text[]"),
+            postgresql.JSON(astext_type=sa.Text()),
             autoincrement=False,
             nullable=False,
         ),
