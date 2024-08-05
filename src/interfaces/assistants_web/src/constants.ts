@@ -26,17 +26,6 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
 ];
 export const MAX_NUM_FILES_PER_UPLOAD_BATCH = 50;
 
-/**
- * Special HTML ids and CSS classes
- */
-// Classes used to identify certain elements
-export enum ReservedClasses {
-  MESSAGES = 'messages',
-  CITATION_PANEL = 'side-panel',
-  MESSAGE = 'message',
-  CITATION = 'citation',
-  MESSAGES_SCROLL_VIEW = 'messages-scroll-view',
-}
 export const MESSAGES_CONTAINER_ID = 'messages-container';
 export const CHAT_COMPOSER_TEXTAREA_ID = 'composer';
 export const COMPOSER_CONTAINER_ID = 'composer-container';
