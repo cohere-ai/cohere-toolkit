@@ -29,7 +29,7 @@ from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
 from backend.services.metrics import MetricsMiddleware
-from backend.routers.scim import router as scim_router, SCIMException
+from backend.routers.scim import router as scim_router, SCIMException, SCIMMiddleware
 
 load_dotenv()
 
@@ -63,7 +63,7 @@ def create_app():
         snapshot_router,
         organization_router,
         model_router,
-        scim_router
+        scim_router,
     ]
 
     # Dynamically set router dependencies
@@ -93,6 +93,7 @@ def create_app():
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
+    app.add_middleware(SCIMMiddleware)
 
     app.add_exception_handler(SCIMException, scim_exception_handler)
 

@@ -64,6 +64,16 @@ class OIDCSettings(BaseSettings, BaseModel):
     )
 
 
+class SCIMAuth(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    username: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("SCIM_USER", "username")
+    )
+    password: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("SCIM_PASSWORD", "password")
+    )
+
+
 class AuthSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     enabled_auth: Optional[List[str]] = None
@@ -81,6 +91,7 @@ class AuthSettings(BaseSettings, BaseModel):
     )
     oidc: Optional[OIDCSettings] = Field(default=OIDCSettings())
     google_oauth: Optional[GoogleOAuthSettings] = Field(default=GoogleOAuthSettings())
+    scim: Optional[SCIMAuth] = Field(default=SCIMAuth())
 
 
 class FeatureFlags(BaseSettings, BaseModel):

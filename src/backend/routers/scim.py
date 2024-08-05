@@ -1,9 +1,14 @@
+import base64
 from typing import Optional
 
 from fastapi import APIRouter
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 import backend.crud.group as group_crud
 import backend.crud.user as user_crud
+from backend.config import Settings
 from backend.config.routers import RouterName
 from backend.database_models import (
     DBSessionDep,
@@ -23,8 +28,42 @@ from backend.schemas.scim import (
     ListGroupResponse,
 )
 
+SCIM_PREFIX = "/scim/v2"
+scim_auth = Settings().auth.scim
 router = APIRouter(prefix="/scim/v2")
 router.name = RouterName.SCIM
+
+
+class SCIMMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if not request.url.path.startswith(SCIM_PREFIX):
+            response = await call_next(request)
+            return response
+
+        if not scim_auth or not scim_auth.username or not scim_auth.password:
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "SCIM token not set in the environment"},
+            )
+
+        if not self.verify_token(request):
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Invalid SCIM token"},
+            )
+
+        response = await call_next(request)
+        return response
+
+    def verify_token(self, request: Request) -> bool:
+        auth_val = request.headers.get("Authorization")
+        if not auth_val:
+            return False
+        token = auth_val.replace("Basic ", "")
+        encoded_auth = base64.b64encode(
+            f"{scim_auth.username}:{scim_auth.password}".encode("utf-8")
+        )
+        return token == encoded_auth.decode("utf-8")
 
 
 class SCIMException(Exception):
