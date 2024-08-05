@@ -75,7 +75,7 @@ class Agent(AgentBase):
     preamble: Optional[str]
     temperature: float
     tools: Optional[list[str]]
-    tools_metadata: list[AgentToolMetadata]
+    tools_metadata: list[AgentToolMetadataPublic]
     deployments: list[DeploymentSchema]
     deployment: Optional[Union[DeploymentSchema, str]]
     model: Optional[Union[ModelSchema, str]]

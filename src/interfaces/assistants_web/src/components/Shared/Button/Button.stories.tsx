@@ -103,7 +103,6 @@ export const Selection: Story = {
   args: {
     kind: 'primary',
     icon: 'arrow-right',
-    animate: true,
     theme: 'evolved-green',
     label: 'Button',
     stretch: true,

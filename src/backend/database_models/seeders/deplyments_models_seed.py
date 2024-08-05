@@ -17,9 +17,6 @@ from backend.schemas.agent import DEFAULT_AGENT_ID, DEFAULT_AGENT_NAME
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
-from community.config.deployments import (
-    ModelDeploymentName as CommunityModelDeploymentsName,
-)
 
 load_dotenv()
 

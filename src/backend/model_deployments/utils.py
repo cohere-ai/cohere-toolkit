@@ -41,6 +41,19 @@ def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
     return config
 
 
+def get_module_class(module_name: str, class_name: str):
+    import importlib
+
+    try:
+        module = importlib.import_module(module_name)
+        cls = getattr(module, class_name)
+        return cls
+    except (ImportError, AttributeError) as e:
+        cls = None
+
+    return cls
+
+
 def add_rerank_model_to_request_state(
     model: str,
     **kwargs: Any,

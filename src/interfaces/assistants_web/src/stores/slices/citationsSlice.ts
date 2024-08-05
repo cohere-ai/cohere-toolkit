@@ -7,8 +7,6 @@ import { StoreState } from '..';
 const INITIAL_STATE: State = {
   citationReferences: {},
   hasCitations: false,
-  selectedCitation: null,
-  hoveredGenerationId: null,
   searchResults: {},
   outputFiles: {},
 };
@@ -37,8 +35,6 @@ export type OutputFiles = { [name: string]: { name: string; data: string; docume
 type State = {
   citationReferences: CitationReferences;
   hasCitations: boolean;
-  selectedCitation: Citation | null;
-  hoveredGenerationId: string | null;
   searchResults: SearchResults;
   outputFiles: OutputFiles;
 };
@@ -46,8 +42,6 @@ type State = {
 type Actions = {
   addSearchResults: (results: Record<string, any>) => void;
   addCitation: (generationId: string, startEndKey: string, documents: Document[]) => void;
-  selectCitation: (citation: Citation | null) => void;
-  hoverCitation: (generationId: string | null) => void;
   resetCitations: VoidFunction;
   saveOutputFiles: (outputFiles: OutputFiles) => void;
 };
@@ -85,22 +79,6 @@ export const createCitationsSlice: StateCreator<StoreState, [], [], CitationsSto
           },
         },
         hasCitations: true,
-      },
-    }));
-  },
-  selectCitation(citation) {
-    set((state) => ({
-      citations: {
-        ...state.citations,
-        selectedCitation: citation,
-      },
-    }));
-  },
-  hoverCitation(generationId) {
-    set((state) => ({
-      citations: {
-        ...state.citations,
-        hoveredGenerationId: generationId,
       },
     }));
   },

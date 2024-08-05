@@ -39,7 +39,6 @@ export const ComposerError: React.FC<Props> = ({ className = '' }) => {
           className="underline"
           label="here"
           theme="danger"
-          animate={false}
         />
         .
       </Text>

@@ -108,7 +108,7 @@ def validate_user_header(session: DBSessionDep, request: Request):
         raise HTTPException(status_code=401, detail="User not found.")
 
 
-def validate_deployment_header(session: DBSessionDep, request: Request):
+def validate_deployment_header(request: Request, session: DBSessionDep):
     """
     Validate that the request has the `Deployment-Name` header, used for chat requests
     that require a deployment (e.g: Cohere Platform, SageMaker).
