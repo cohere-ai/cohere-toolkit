@@ -47,7 +47,7 @@ def get_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     Returns:
         list[User]: List of users.
     """
-    return db.query(User).offset(offset).limit(limit).all()
+    return db.query(User).order_by(User.fullname).offset(offset).limit(limit).all()
 
 
 def update_user(db: Session, user: User, new_user: UpdateUser) -> User:
