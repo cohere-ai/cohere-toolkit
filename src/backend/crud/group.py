@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+
+from backend.database_models import User
 from backend.database_models.group import Group
 
 
@@ -73,3 +75,20 @@ def delete_group(db: Session, group_id: str) -> None:
     group = db.query(Group).filter(Group.id == group_id)
     group.delete()
     db.commit()
+
+
+def set_users(db: Session, group: Group, users: list[User]) -> Group:
+    """
+    Update a user.
+
+    Args:
+        db (Session): Database session.
+        group (Group): Group to be updated.
+        users (list[User]): Users to be added to the group.
+    Returns:
+        Group: Updated group.
+    """
+    group.users = users
+    db.commit()
+    db.refresh(group)
+    return group

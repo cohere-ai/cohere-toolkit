@@ -48,7 +48,7 @@ FACTORY_MAPPING = {
     "AgentDeploymentModel": AgentDeploymentModelFactory,
     "ConversationFileAssociation": ConversationFileAssociationFactory,
     "MessageFileAssociation": MessageFileAssociationFactory,
-    "GroupFactory": GroupFactory,
+    "Group": GroupFactory,
 }
 
 
