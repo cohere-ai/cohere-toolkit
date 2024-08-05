@@ -21,7 +21,11 @@ def handle_google_drive_sync(
     [
         create.apply_async(
             args=[file_id, index_name, user_id],
-            kwargs=kwargs,
+            kwargs={
+                "artifact_id": "",
+                "skip_file_exists": True,
+                **kwargs,
+            },
         )
         for file_id in file_ids
     ]

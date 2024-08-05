@@ -19,7 +19,15 @@ def permission_change(file_id: str, index_name: str, user_id: str, **kwargs):
     # check if file exists
     # NOTE Important when a file has a move and permission_change action
     artifact_id = kwargs["artifact_id"]
-    title = get_file_details(file_id=file_id, user_id=user_id, just_title=True)["title"]
+    file_details = get_file_details(file_id=file_id, user_id=user_id, just_title=True)
+    if file_details is None:
+        return {
+            "action": ACTION_NAME,
+            "status": Status.CANCELLED.value,
+            "file_id": file_id,
+        }
+
+    title = file_details["title"]
     exists = check_if_file_exists_in_artifact(
         file_id=file_id,
         artifact_id=artifact_id,

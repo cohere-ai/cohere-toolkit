@@ -25,9 +25,9 @@ def consolidate(activities: Dict[str, str]):
     for file_id, activities in file_id_actions.items():
         actions = [list(x["primaryActionDetail"].keys())[0] for x in activities]
         # NOTE Debugs below help with understanding the consolidation logic
-        print(file_id)
-        print("Before")
-        print(actions)
+        # print(file_id)
+        # print("Before")
+        # print(actions)
 
         if GoogleDriveActions.MOVE.value in actions:
             found_index = actions.index(GoogleDriveActions.MOVE.value)
@@ -44,10 +44,12 @@ def consolidate(activities: Dict[str, str]):
                 break
 
         # NOTE Debugs below help with understanding the consolidation logic
-        after_actions = [
-            list(x["primaryActionDetail"].keys())[0]
-            for x in consolidated_file_id_actions[file_id]
-        ]
-        print("After")
-        print(after_actions)
-        print("\n")
+        # after_actions = [list(x["primaryActionDetail"].keys())[0] for x in consolidated_file_id_actions[file_id]]
+        # print("After")
+        # print(after_actions)
+        # print("\n")
+    return [
+        x
+        for file_id in consolidated_file_id_actions
+        for x in consolidated_file_id_actions[file_id]
+    ]

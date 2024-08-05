@@ -12,7 +12,15 @@ logger = LoggerFactory().get_logger()
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def rename(file_id: str, index_name: str, user_id: str, **kwargs):
-    title = get_file_details(file_id=file_id, user_id=user_id, just_title=True)["title"]
+    file_details = get_file_details(file_id=file_id, user_id=user_id, just_title=True)
+    if file_details is None:
+        return {
+            "action": ACTION_NAME,
+            "status": Status.CANCELLED.value,
+            "file_id": file_id,
+        }
+
+    title = file_details["title"]
 
     # Modify title
     logger.info(
