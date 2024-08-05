@@ -7,7 +7,12 @@ import { useMemo, useState } from 'react';
 import { CitationsTab } from '@/components/Agents/CitationsTab';
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
-import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
+import {
+  DEFAULT_ASSISTANT_ID,
+  TOOL_GOOGLE_DRIVE_ID,
+  TOOL_READ_DOCUMENT_ID,
+  TOOL_SEARCH_FILE_ID,
+} from '@/constants';
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
@@ -104,7 +109,7 @@ const AgentRightPanel: React.FC<Props> = () => {
       kind="blue"
     >
       <div className="flex flex-col gap-y-10">
-        {agentId && (
+        {agentId !== DEFAULT_ASSISTANT_ID && (
           <div className="flex flex-col gap-y-4">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-x-2">

@@ -6,6 +6,7 @@ import { Agent, ManagedTool } from '@/cohere-client';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
+import { DEFAULT_ASSISTANT_ID } from '@/constants';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -55,7 +56,7 @@ export const AssistantTools: React.FC<{
             {availableTools.map(({ name, display_name, description, error_message }) => {
               const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
               const checked = !!enabledTool;
-              const disabled = !!requiredTools;
+              const disabled = !!requiredTools && agent.id !== DEFAULT_ASSISTANT_ID;
 
               return (
                 <ToggleCard
