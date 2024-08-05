@@ -26,20 +26,7 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
 ];
 export const MAX_NUM_FILES_PER_UPLOAD_BATCH = 50;
 
-/**
- * Special HTML ids and CSS classes
- */
-// Classes used to identify certain elements
-export enum ReservedClasses {
-  MESSAGES = 'messages',
-  CITATION_PANEL = 'side-panel',
-  MESSAGE = 'message',
-  CITATION = 'citation',
-  MESSAGES_SCROLL_VIEW = 'messages-scroll-view',
-}
-export const MESSAGES_CONTAINER_ID = 'messages-container';
 export const CHAT_COMPOSER_TEXTAREA_ID = 'composer';
-export const COMPOSER_CONTAINER_ID = 'composer-container';
 export const CONFIGURATION_FILE_UPLOAD_ID = 'file-upload';
 export const SETTINGS_DRAWER_ID = 'settings';
 
@@ -75,7 +62,7 @@ export const FILE_UPLOAD_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
 export const AGENT_SETTINGS_TOOLS = [TOOL_WEB_SEARCH_ID, TOOL_PYTHON_INTERPRETER_ID];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
-export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon?: IconName } } = {
+export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_WEB_SEARCH_ID]: { icon: 'web' },
   [TOOL_WEB_SCRAPE_ID]: { icon: 'web' },
   [TOOL_PYTHON_INTERPRETER_ID]: { icon: 'code-simple' },
