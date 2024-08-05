@@ -26,6 +26,9 @@ class UserGroupAssociation(Base):
     group_id: Mapped[str] = mapped_column(
         ForeignKey("groups.id", ondelete="CASCADE"), primary_key=True
     )
+    display: Mapped[str] = mapped_column()
+
+    group = relationship("Group", back_populates="user_associations")
 
 
 class User(Base):

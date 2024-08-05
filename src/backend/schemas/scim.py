@@ -80,8 +80,8 @@ class Group(BaseGroup):
             id=db_group.id,
             displayName=db_group.display_name,
             members=[
-                GroupMember(value=g.user_id, display=g.display)
-                for g in db_group.members
+                GroupMember(value=ua.user_id, display=ua.display)
+                for ua in db_group.user_associations
             ],
             meta=Meta(
                 resourceType="Group",

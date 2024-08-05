@@ -2,13 +2,14 @@ from typing import Optional
 
 from fastapi import APIRouter
 
-import backend.crud.group as group_repo
-import backend.crud.user as user_repo
+import backend.crud.group as group_crud
+import backend.crud.user as user_crud
 from backend.config.routers import RouterName
 from backend.database_models import (
     DBSessionDep,
     User as DBUser,
     Group as DBGroup,
+    UserGroupAssociation,
 )
 from backend.schemas.scim import (
     ListUserResponse,
@@ -21,11 +22,9 @@ from backend.schemas.scim import (
     CreateGroup,
     ListGroupResponse,
 )
-from backend.services.logger.utils import get_logger
 
 router = APIRouter(prefix="/scim/v2")
 router.name = RouterName.SCIM
-logger = get_logger()
 
 
 class SCIMException(Exception):
@@ -44,7 +43,7 @@ async def get_users(
     if filter:
         single_filter = filter.split(" ")
         filter_value = single_filter[2].strip('"')
-        db_user = user_repo.get_user_by_user_name(session, filter_value)
+        db_user = user_crud.get_user_by_user_name(session, filter_value)
         if not db_user:
             return ListUserResponse(
                 totalResults=0,
@@ -59,7 +58,7 @@ async def get_users(
             Resources=[User.from_db_user(db_user)],
         )
 
-    db_users = user_repo.get_external_users(
+    db_users = user_crud.get_external_users(
         session, offset=start_index - 1, limit=count
     )
     users = [User.from_db_user(db_user) for db_user in db_users]
@@ -73,7 +72,7 @@ async def get_users(
 
 @router.get("/Users/{user_id}")
 async def get_user(user_id: str, session: DBSessionDep):
-    db_user = user_repo.get_user(session, user_id)
+    db_user = user_crud.get_user(session, user_id)
     if not db_user:
         raise SCIMException(status_code=404, detail="User not found")
 
@@ -82,7 +81,7 @@ async def get_user(user_id: str, session: DBSessionDep):
 
 @router.post("/Users", status_code=201)
 async def create_user(user: CreateUser, session: DBSessionDep):
-    db_user = user_repo.get_user_by_external_id(session, user.externalId)
+    db_user = user_crud.get_user_by_external_id(session, user.externalId)
     if db_user:
         raise SCIMException(
             status_code=409, detail="User already exists in the database."
@@ -95,13 +94,13 @@ async def create_user(user: CreateUser, session: DBSessionDep):
         external_id=user.externalId,
     )
 
-    db_user = user_repo.create_user(session, db_user)
+    db_user = user_crud.create_user(session, db_user)
     return User.from_db_user(db_user)
 
 
 @router.put("/Users/{user_id}")
 async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
-    db_user = user_repo.get_user(session, user_id)
+    db_user = user_crud.get_user(session, user_id)
     if not db_user:
         raise SCIMException(status_code=404, detail="User not found")
 
@@ -116,7 +115,7 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
 
 @router.patch("/Users/{user_id}")
 async def patch_user(user_id: str, patch: PatchUser, session: DBSessionDep):
-    db_user = user_repo.get_user(session, user_id)
+    db_user = user_crud.get_user(session, user_id)
     if not db_user:
         raise SCIMException(status_code=404, detail="User not found")
 
@@ -139,7 +138,7 @@ async def get_groups(
     if filter:
         single_filter = filter.split(" ", maxsplit=2)
         filter_value = single_filter[2].strip('"')
-        db_group = group_repo.get_group_by_name(session, filter_value)
+        db_group = group_crud.get_group_by_name(session, filter_value)
         if not db_group:
             return ListGroupResponse(
                 totalResults=0,
@@ -154,7 +153,7 @@ async def get_groups(
             Resources=[Group.from_db_group(db_group)],
         )
 
-    db_groups = group_repo.get_groups(session, offset=start_index - 1, limit=count)
+    db_groups = group_crud.get_groups(session, offset=start_index - 1, limit=count)
     groups = [Group.from_db_group(db_group) for db_group in db_groups]
     return ListGroupResponse(
         totalResults=len(groups),
@@ -166,7 +165,7 @@ async def get_groups(
 
 @router.get("/Groups/{group_id}")
 async def get_group(group_id: str, session: DBSessionDep):
-    db_group = group_repo.get_group(session, group_id)
+    db_group = group_crud.get_group(session, group_id)
     if not db_group:
         raise SCIMException(status_code=404, detail="Group not found")
 
@@ -175,7 +174,7 @@ async def get_group(group_id: str, session: DBSessionDep):
 
 @router.post("/Groups", status_code=201)
 async def create_group(group: CreateGroup, session: DBSessionDep):
-    db_group = group_repo.get_group_by_name(session, group.displayName)
+    db_group = group_crud.get_group_by_name(session, group.displayName)
     if db_group:
         raise SCIMException(
             status_code=409, detail="Group already exists in the database."
@@ -183,58 +182,49 @@ async def create_group(group: CreateGroup, session: DBSessionDep):
 
     db_group = DBGroup(
         display_name=group.displayName,
-        members=[],
     )
 
-    g = group_repo.create_group(session, db_group)
-    return Group.from_db_group(g)
+    db_group = group_crud.create_group(session, db_group)
+    return Group.from_db_group(db_group)
 
 
-# @router.patch("/Groups/{group_id}")
-# async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
-#     db_group = group_repo.get_group(session, group_id)
-#     if not db_group:
-#         raise SCIMException(status_code=404, detail="Group not found")
-#
-#     for operation in patch.Operations:
-#         if operation.op == "replace" and "displayName" in operation.value:
-#             db_group.display_name = operation.value["displayName"]
-#         if operation.op == "add" and operation.path == "members":
-#             for value in operation.value:
-#                 user_group = UserGroup(
-#                     group_id=db_group.id,
-#                     user_id=value["value"],
-#                     display=value["display"],
-#                 )
-#                 db_group.members.append(user_group)
-#         if operation.op == "replace" and operation.path == "members":
-#             group_members = {}
-#             for value in operation.value:
-#                 group_members[value["value"]] = value["display"]
-#
-#             for member in db_group.members:
-#                 if member.user_id in group_members:
-#                     member.display = group_members[member.user_id]
-#                     del group_members[member.user_id]
-#                 else:
-#                     db_group.members.remove(member)
-#
-#             for user_id, display in group_members.items():
-#                 user_group = UserGroup(
-#                     group_id=db_group.id,
-#                     user_id=user_id,
-#                     display=display,
-#                 )
-#                 db_group.members.append(user_group)
-#
-#     session.commit()
-#
-#     return Group.from_db_group(db_group)
+@router.patch("/Groups/{group_id}")
+async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
+    db_group = group_crud.get_group(session, group_id)
+    if not db_group:
+        raise SCIMException(status_code=404, detail="Group not found")
+
+    for operation in patch.Operations:
+        if operation.op == "replace" and "displayName" in operation.value:
+            db_group.display_name = operation.value["displayName"]
+            db_group = group_crud.update_group(session, db_group)
+        if operation.op == "add" and operation.path == "members":
+            associations = []
+            for value in operation.value:
+                association = UserGroupAssociation(
+                    user_id=value["value"],
+                    group_id=db_group.id,
+                    display=value["display"],
+                )
+                associations.append(association)
+            db_group = group_crud.add_users(session, db_group, associations)
+        if operation.op == "replace" and operation.path == "members":
+            associations = []
+            for value in operation.value:
+                association = UserGroupAssociation(
+                    user_id=value["value"],
+                    group_id=db_group.id,
+                    display=value["display"],
+                )
+                associations.append(association)
+            db_group = group_crud.set_users(session, db_group, associations)
+
+    return Group.from_db_group(db_group)
 
 
 @router.delete("/Groups/{group_id}", status_code=204)
 async def delete_group(group_id: str, session: DBSessionDep):
-    db_group = group_repo.get_group(session, group_id)
+    db_group = group_crud.get_group(session, group_id)
     if not db_group:
         raise SCIMException(status_code=404, detail="Group not found")
-    group_repo.delete_group(session, group_id)
+    group_crud.delete_group(session, group_id)
