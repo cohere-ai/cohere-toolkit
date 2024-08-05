@@ -38,7 +38,7 @@ TOOLS_CONFIGS = {
     CommunityToolName.Connector: {},
     CommunityToolName.File_Upload_LlamaIndex: {},
     CommunityToolName.Wolfram_Alpha: {
-        "WOLFRAM_ALPHA_APP_ID": os.environ.get("WOLFRAM_ALPHA_APP_ID") or "",
+        "WOLFRAM_APP_ID": os.environ.get("WOLFRAM_APP_ID") or "",
     },
     CommunityToolName.ClinicalTrials: {},
 }
