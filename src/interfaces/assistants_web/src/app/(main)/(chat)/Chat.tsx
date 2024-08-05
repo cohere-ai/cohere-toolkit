@@ -30,7 +30,6 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
 
   const {
     data: conversation,
-    isLoading,
     isError,
     error,
   } = useConversation({
