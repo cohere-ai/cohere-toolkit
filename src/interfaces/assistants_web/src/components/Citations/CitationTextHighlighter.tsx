@@ -1,8 +1,10 @@
 'use client';
 
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { PropsWithChildren, useMemo, useRef } from 'react';
 
 import { Citation } from '@/components/Citations/Citation';
+import { NewCitation } from '@/components/Citations/NewCitation';
 import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
@@ -79,20 +81,18 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       yPosition: ref.current?.offsetTop ?? null,
     });
 
-    if (breakpoint === Breakpoint.sm) {
-      open({
-        content: (
-          <Citation
-            className="bg-coral-900"
-            generationId={generationId}
-            // Used to find the keyword to bold but since we don't have it yet here when the message is
-            // still streaming in we can just ignore it for now instead of not showing the popup at all
-            message={message?.originalText ?? ''}
-          />
-        ),
-        title: 'OUTPUT',
-      });
-    }
+    open({
+      content: (
+        <Citation
+          className="bg-coral-900"
+          generationId={generationId}
+          // Used to find the keyword to bold but since we don't have it yet here when the message is
+          // still streaming in we can just ignore it for now instead of not showing the popup at all
+          message={message?.originalText ?? ''}
+        />
+      ),
+      title: 'OUTPUT',
+    });
   };
 
   let content = children;
@@ -115,21 +115,45 @@ export const CitationTextHighlighter: React.FC<Props> = ({
     }
   }
 
+  if (breakpoint == Breakpoint.sm) {
+    return (
+      <mark
+        ref={ref}
+        onClick={handleClick}
+        className={cn(
+          'bg-transparent',
+          text,
+          {
+            [`${bg} ${contrastText}`]: isHighlighted,
+            [`${hover(bg)} hover:bg-opacity-35 dark:hover:bg-opacity-35`]: !isHighlighted,
+          },
+          'cursor-pointer rounded'
+        )}
+      >
+        {content}
+      </mark>
+    );
+  }
+
+  const startEndKey = createStartEndKey(start, end);
+
   return (
-    <mark
-      ref={ref}
-      onClick={handleClick}
-      className={cn(
-        'bg-transparent',
-        text,
-        {
+    <Popover className="group inline-block">
+      <PopoverButton
+        // ref={ref}
+        className={cn('cursor-pointer rounded bg-transparent', text, {
           [`${bg} ${contrastText}`]: isHighlighted,
           [`${hover(bg)} hover:bg-opacity-35 dark:hover:bg-opacity-35`]: !isHighlighted,
-        },
-        'cursor-pointer rounded'
-      )}
-    >
-      {content}
-    </mark>
+        })}
+      >
+        {content}
+      </PopoverButton>
+      <PopoverPanel
+        anchor="bottom"
+        className="z-30 h-fit w-[466px] rounded border border-volcanic-400 bg-volcanic-200 p-4"
+      >
+        <NewCitation generationId={generationId} citationKey={startEndKey} />
+      </PopoverPanel>
+    </Popover>
   );
 };

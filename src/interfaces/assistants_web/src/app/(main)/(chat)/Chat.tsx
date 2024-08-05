@@ -56,7 +56,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
 
   // Reset citations and file params when switching between conversations
   useEffect(() => {
-    resetCitations();
+    // resetCitations();
     resetFileParams();
 
     const agentTools = (agent?.tools

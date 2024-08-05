@@ -75,7 +75,7 @@ export const FILE_UPLOAD_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
 export const AGENT_SETTINGS_TOOLS = [TOOL_WEB_SEARCH_ID, TOOL_PYTHON_INTERPRETER_ID];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
-export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon?: IconName } } = {
+export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_WEB_SEARCH_ID]: { icon: 'web' },
   [TOOL_WEB_SCRAPE_ID]: { icon: 'web' },
   [TOOL_PYTHON_INTERPRETER_ID]: { icon: 'code-simple' },
