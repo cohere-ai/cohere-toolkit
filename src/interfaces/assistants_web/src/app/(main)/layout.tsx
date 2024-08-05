@@ -1,27 +1,17 @@
-import fetch from 'cross-fetch';
 import { NextPage } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { CohereClient, Fetch } from '@/cohere-client';
 import { AgentLeftPanel } from '@/components/Agents/AgentLeftPanel';
 import { AgentsList } from '@/components/Agents/AgentsList';
 import { MobileHeader } from '@/components/MobileHeader';
 import { COOKIE_KEYS } from '@/constants';
-import { env } from '@/env.mjs';
+import { getCohereServerClient } from '@/server/cohereClient';
 import { cn } from '@/utils';
 
-const makeCohereClient = () => {
-  const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
-  return new CohereClient({
-    hostname: env.API_HOSTNAME,
-    fetch: apiFetch,
-  });
-};
-
 const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
-  const cohereClient = makeCohereClient();
-  const strategies = await cohereClient.getAuthStrategies();
+  const cohereServerClient = getCohereServerClient();
+  const strategies = await cohereServerClient.getAuthStrategies();
   if (strategies.length !== 0) {
     const cookieStore = cookies();
     const authToken = cookieStore.get(COOKIE_KEYS.authToken);
