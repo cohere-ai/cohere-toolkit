@@ -8,7 +8,6 @@ import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bo
 import MessageRow from '@/components/MessageRow';
 import { Button } from '@/components/Shared';
 import { Welcome } from '@/components/Welcome';
-import { COMPOSER_CONTAINER_ID, MESSAGES_CONTAINER_ID } from '@/constants';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
@@ -98,10 +97,7 @@ const Content: React.FC<Props> = (props) => {
       <div className="flex h-auto min-w-0 flex-1 flex-col">
         <Messages {...props} />
         {/* Composer container */}
-        <div
-          className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100"
-          id={COMPOSER_CONTAINER_ID}
-        >
+        <div className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100">
           <Transition
             show={showNewMessageButton}
             enter="duration-300 ease-out transition-all"
@@ -149,7 +145,7 @@ const Messages: React.FC<MessagesProps> = ({
   }
 
   return (
-    <div id={MESSAGES_CONTAINER_ID} className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6">
+    <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6">
       <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
         {messages.map((m, i) => {
           const isLastInList = i === messages.length - 1;

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { DocumentIcon, Icon, Text } from '@/components/Shared';
 import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';
 import { useCitationsStore } from '@/stores';
-import { getSafeUrl, getWebDomain } from '@/utils';
+import { cn, getSafeUrl, getWebDomain } from '@/utils';
 
 const getWebSourceName = (toolId?: string | null) => {
   if (!toolId) {
@@ -33,7 +33,9 @@ export const NewCitation: React.FC<Props> = ({ generationId, citationKey }) => {
         <div className="flex gap-2">
           <div className="grid size-8 place-items-center rounded bg-white dark:bg-volcanic-150">
             {document.url ? (
-              <DocumentIcon url={safeUrl} />
+              <a href={safeUrl} target="_blank" data-connectorid={document.tool_name}>
+                <DocumentIcon url={safeUrl} />
+              </a>
             ) : document.tool_name ? (
               <Icon name={TOOL_ID_TO_DISPLAY_INFO[document.tool_name].icon} />
             ) : (
@@ -85,7 +87,7 @@ export const NewCitation: React.FC<Props> = ({ generationId, citationKey }) => {
         )}
       </header>
       <article className="max-h-64 overflow-y-auto">
-        <Text>{document.text}</Text>
+        <Text className="font-variable">{document.text}</Text>
       </article>
     </div>
   );

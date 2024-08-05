@@ -26,9 +26,7 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
 ];
 export const MAX_NUM_FILES_PER_UPLOAD_BATCH = 50;
 
-export const MESSAGES_CONTAINER_ID = 'messages-container';
 export const CHAT_COMPOSER_TEXTAREA_ID = 'composer';
-export const COMPOSER_CONTAINER_ID = 'composer-container';
 export const CONFIGURATION_FILE_UPLOAD_ID = 'file-upload';
 export const SETTINGS_DRAWER_ID = 'settings';
 
