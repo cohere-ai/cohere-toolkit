@@ -18,7 +18,9 @@ from backend.tools.google_drive.sync.utils import (
 from backend.tools.utils import download
 
 
-def get_file_details(file_id: str, user_id: str, include_permissions=False):
+def get_file_details(
+    file_id: str, user_id: str, include_permissions=False, just_title=False
+):
     """
     Return file bytes, web view link and title
     """
@@ -39,6 +41,9 @@ def get_file_details(file_id: str, user_id: str, include_permissions=False):
     extension = extract_file_extension(processed_file)
     web_view_link = extract_web_view_link(processed_file)
     title = extract_title(processed_file)
+
+    if just_title:
+        return {"title": title}
 
     # get file content bytes
     file_bytes = None
@@ -95,6 +100,29 @@ def list_permissions(file_id: str, user_id: str, next_page_token: Optional[str] 
             ),
         ]
     return _format_permissions(response.get("permissions", []))
+
+
+def check_if_file_exists_in_artifact(
+    file_id: str, artifact_id: str, user_id: str, title: str
+):
+    (service,) = (
+        get_service(api="drive", user_id=user_id)[key] for key in ("service",)
+    )
+    response = (
+        service.files()
+        .list(
+            q="'{}' in parents and name = '{}'".format(artifact_id, title),
+            includeItemsFromAllDrives=True,
+            supportsAllDrives=True,
+        )
+        .execute()
+    )
+
+    if files := response.get("files", None):
+        found_file = [x for x in files if x["id"] == file_id]
+        if found_file:
+            return True
+    return False
 
 
 def _format_permissions(permissions: List[Dict[str, str]]):

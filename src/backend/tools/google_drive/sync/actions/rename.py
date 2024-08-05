@@ -4,6 +4,7 @@ from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
+from backend.tools.google_drive.sync.actions.utils import get_file_details
 
 ACTION_NAME = "rename"
 logger = LoggerFactory().get_logger()
@@ -11,7 +12,7 @@ logger = LoggerFactory().get_logger()
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def rename(file_id: str, index_name: str, user_id: str, **kwargs):
-    title = kwargs["title"]
+    title = get_file_details(file_id=file_id, user_id=user_id, just_title=True)["title"]
 
     # Modify title
     logger.info(

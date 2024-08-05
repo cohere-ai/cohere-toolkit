@@ -2,7 +2,10 @@ from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.services.sync.env import env
-from backend.tools.google_drive.sync.utils import get_service
+from backend.tools.google_drive.sync.actions.utils import (
+    check_if_file_exists_in_artifact,
+    get_file_details,
+)
 
 ACTION_NAME = "move"
 logger = LoggerFactory().get_logger()
@@ -10,30 +13,17 @@ logger = LoggerFactory().get_logger()
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def move(file_id: str, index_name: str, user_id: str, **kwargs):
-    title = kwargs["title"]
     artifact_id = kwargs["artifact_id"]
-
-    (service,) = (
-        get_service(api="drive", user_id=user_id)[key] for key in ("service",)
+    title = get_file_details(file_id=file_id, user_id=user_id, just_title=True)["title"]
+    exists = check_if_file_exists_in_artifact(
+        file_id=file_id,
+        artifact_id=artifact_id,
+        user_id=user_id,
+        title=title,
     )
-    response = (
-        service.files()
-        .list(
-            q="'{}' in parents and name = '{}'".format(artifact_id, title),
-            includeItemsFromAllDrives=True,
-            supportsAllDrives=True,
-        )
-        .execute()
-    )
-
-    delete = True
-    if files := response.get("files", None):
-        found_file = [x for x in files if x["id"] == file_id]
-        if found_file:
-            delete = False
 
     # Delete file if moved out of agent's artifacts
-    if delete:
+    if not exists:
         # Delete document
         logger.info(
             event="[Google Drive Move] Initiating Compass delete action for file_id",

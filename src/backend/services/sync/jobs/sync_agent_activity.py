@@ -8,6 +8,7 @@ from backend.tools.google_drive import (
     handle_google_drive_activity_event,
     query_google_drive_activity,
 )
+from backend.tools.google_drive.sync.consolidation import consolidate
 
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
@@ -29,7 +30,11 @@ def sync_agent_activity(agent_id: str):
                 )
                 session.close()
 
-                for artifact_id, activity in activities.items():
+                consolidated_activities = {
+                    key: consolidate(activities=value)
+                    for key, value in activities.items()
+                }
+                for artifact_id, activity in consolidated_activities.items():
                     for activity_item in activity:
                         event_type = list(activity_item["primaryActionDetail"].keys())[
                             0

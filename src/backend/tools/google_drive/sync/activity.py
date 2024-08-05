@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import (
     ACTIVITY_TRACKING_WINDOW,
-    SEARCH_MIME_TYPES,
     GoogleDriveActions,
 )
 from backend.tools.google_drive.sync.actions import (
@@ -19,6 +18,7 @@ from backend.tools.google_drive.sync.actions import (
     restore,
 )
 from backend.tools.google_drive.sync.utils import (
+    extract_file_ids_from_target,
     get_current_timestamp_in_ms,
     get_service,
 )
@@ -31,10 +31,7 @@ def handle_google_drive_activity_event(
     index_name = "{}_{}".format(
         agent_id if agent_id is not None else user_id, GoogleDrive.NAME
     )
-    (file_ids, titles) = (
-        _extract_file_ids_from_target(activity=activity)[key]
-        for key in ("file_ids", "titles")
-    )
+    file_ids = extract_file_ids_from_target(activity=activity)
     if not file_ids:
         return
 
@@ -43,7 +40,10 @@ def handle_google_drive_activity_event(
             [
                 create.apply_async(
                     args=[file_id, index_name, user_id],
-                    kwargs=kwargs,
+                    kwargs={
+                        "artifact_id": kwargs["artifact_id"],
+                        **kwargs,
+                    },
                 )
                 for file_id in file_ids
             ]
@@ -51,7 +51,10 @@ def handle_google_drive_activity_event(
             [
                 edit.apply_async(
                     args=[file_id, index_name, user_id],
-                    kwargs=kwargs,
+                    kwargs={
+                        "artifact_id": kwargs["artifact_id"],
+                        **kwargs,
+                    },
                 )
                 for file_id in file_ids
             ]
@@ -60,8 +63,8 @@ def handle_google_drive_activity_event(
                 move.apply_async(
                     args=[file_id, index_name, user_id],
                     kwargs={
-                        "title": titles[file_id],
                         "artifact_id": kwargs["artifact_id"],
+                        **kwargs,
                     },
                 )
                 for file_id in file_ids
@@ -71,7 +74,7 @@ def handle_google_drive_activity_event(
                 rename.apply_async(
                     args=[file_id, index_name, user_id],
                     kwargs={
-                        "title": titles[file_id],
+                        **kwargs,
                     },
                 )
                 for file_id in file_ids
@@ -80,9 +83,7 @@ def handle_google_drive_activity_event(
             [
                 delete.apply_async(
                     args=[file_id, index_name, user_id],
-                    kwargs={
-                        "title": titles[file_id],
-                    },
+                    kwargs=kwargs,
                 )
                 for file_id in file_ids
             ]
@@ -98,7 +99,10 @@ def handle_google_drive_activity_event(
             [
                 permission_change.apply_async(
                     args=[file_id, index_name, user_id],
-                    kwargs=kwargs,
+                    kwargs={
+                        "artifact_id": kwargs["artifact_id"],
+                        **kwargs,
+                    },
                 )
                 for file_id in file_ids
             ]
@@ -193,20 +197,3 @@ def _get_activity(
         "id": artifact_id,
         "activities": response["activities"] if response else [],
     }
-
-
-def _extract_file_ids_from_target(activity: Dict[str, str]):
-    file_ids = set()
-    titles = {}
-    targets = activity["targets"]
-    for target in targets:
-        # NOTE: if not a drive item then skip
-        if driveItem := target["driveItem"]:
-            mimeType = driveItem["mimeType"]
-            # NOTE: if mime type not being tracked then skip
-            if mimeType in SEARCH_MIME_TYPES:
-                file_id = driveItem["name"].split("/")[1]
-                file_ids.add(file_id)
-                title = driveItem["title"]
-                titles[file_id] = title
-    return {"file_ids": file_ids, "titles": titles}

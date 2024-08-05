@@ -15,6 +15,7 @@ from backend.tools.google_drive.constants import (
     CSV_MIMETYPE,
     DOC_FIELDS,
     NATIVE_EXTENSION_MAPPINGS,
+    SEARCH_MIME_TYPES,
     TEXT_MIMETYPE,
 )
 
@@ -217,3 +218,17 @@ def extract_export_link(file: Dict[str, str]) -> Dict[str, str]:
     elif CSV_MIMETYPE in export_links:
         return export_links[CSV_MIMETYPE]
     return ""
+
+
+def extract_file_ids_from_target(activity: Dict[str, str]):
+    file_ids = set()
+    targets = activity["targets"]
+    for target in targets:
+        # NOTE: if not a drive item then skip
+        if driveItem := target["driveItem"]:
+            mimeType = driveItem["mimeType"]
+            # NOTE: if mime type not being tracked then skip
+            if mimeType in SEARCH_MIME_TYPES:
+                file_id = driveItem["name"].split("/")[1]
+                file_ids.add(file_id)
+    return file_ids
