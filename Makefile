@@ -11,6 +11,8 @@ run-tests:
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
 attach: 
+	@docker attach cohere-toolkit-backend-1
+logs: 
 	@docker compose logs -f backend
 exec-backend:
 	docker exec -ti cohere-toolkit-backend-1 bash 

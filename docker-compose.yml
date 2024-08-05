@@ -117,6 +117,7 @@ services:
       dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file
     environment:
+      API_HOSTNAME: http://backend:8000
       NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
       NEXT_PUBLIC_FRONTEND_HOSTNAME: ${NEXT_PUBLIC_FRONTEND_HOSTNAME}
       NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}

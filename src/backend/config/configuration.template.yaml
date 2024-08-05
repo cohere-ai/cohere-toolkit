@@ -5,8 +5,6 @@ deployments:
     - sagemaker
     - azure
     - bedrock
-  cohere_platform:
-    api_key:
   sagemaker:
     region_name: us-west-2
     endpoint_name: cohere-ai
@@ -37,6 +35,8 @@ tools:
   wolfram_alpha:
     app_id:
   google_drive:
+    client_id:
+    client_secret:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false

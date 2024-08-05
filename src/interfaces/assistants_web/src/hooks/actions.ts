@@ -1,5 +1,4 @@
 import { findLast } from 'lodash';
-import { useRouter } from 'next/navigation';
 
 import { CustomHotKey } from '@/components/Shared/HotKeys';
 import {
@@ -7,15 +6,10 @@ import {
   CONFIGURATION_FILE_UPLOAD_ID,
   SETTINGS_DRAWER_ID,
 } from '@/constants';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useNotify } from '@/hooks/toast';
-import {
-  useCitationsStore,
-  useConversationStore,
-  useFilesStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 import { MessageType, isFulfilledMessage } from '@/types/message';
 
 export const useFocusComposer = () => {
@@ -68,7 +62,6 @@ export const useFocusFileInput = () => {
 };
 
 export const useChatHotKeys = (): CustomHotKey[] => {
-  const router = useRouter();
   const {
     settings: { isConvListPanelOpen, isConfigDrawerOpen },
     setSettings,
@@ -76,24 +69,17 @@ export const useChatHotKeys = (): CustomHotKey[] => {
   } = useSettingsStore();
   const {
     conversation: { id, messages },
-    resetConversation,
   } = useConversationStore();
-  const { resetFileParams } = useParamsStore();
-  const { resetCitations } = useCitationsStore();
   const { deleteConversation } = useConversationActions();
   const { focusComposer } = useFocusComposer();
   const { error, info } = useNotify();
+  const navigateToNewChat = useNavigateToNewChat();
 
   return [
     {
       name: 'Start a new conversation',
       commands: ['ctrl+shift+o', 'meta+shift+o'],
-      action: async () => {
-        router.push('/', undefined);
-        resetConversation();
-        resetCitations();
-        resetFileParams();
-      },
+      action: navigateToNewChat,
     },
     {
       name: 'Delete current conversation',

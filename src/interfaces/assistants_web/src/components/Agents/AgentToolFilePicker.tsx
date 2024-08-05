@@ -2,10 +2,10 @@
 
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
-import { GoogleDriveToolArtifact } from '@/types/tools';
+import { DataSourceArtifact } from '@/types/tools';
 
 type Props = {
-  googleDriveFiles?: GoogleDriveToolArtifact[];
+  googleDriveFiles?: DataSourceArtifact[];
   disabled?: boolean;
   handleRemoveGoogleDriveFiles: (id: string) => void;
   handleOpenFilePicker: VoidFunction;
@@ -13,7 +13,7 @@ type Props = {
 
 /**
  * @description Component to display the selected files/folders from Google Drive
- * @param {GoogleDriveToolArtifact[]} googleDriveFiles - List of selected files/folders from Google Drive
+ * @param {DataSourceArtifact[]} googleDriveFiles - List of selected files/folders from Google Drive
  * @param {boolean} disabled - Flag to disable the file picker
  * @param {Function} handleRemoveGoogleDriveFiles - Function to remove a file/folder from the selected list
  * @param {Function} handleOpenFilePicker - Function to open the file picker

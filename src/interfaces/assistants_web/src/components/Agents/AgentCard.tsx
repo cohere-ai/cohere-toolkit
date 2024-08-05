@@ -3,12 +3,12 @@
 import { usePathname, useRouter } from 'next/navigation';
 
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversations } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
 
 type Props = {
   name: string;
@@ -34,6 +34,8 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
     : conversationId
     ? pathname === `/a/${id}/c/${conversationId}`
     : pathname === `/a/${id}`;
+
+  const { bg, contrastText } = useBrandedColors(id);
 
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
@@ -78,12 +80,12 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
         <div
           className={cn(
             'flex size-8 flex-shrink-0 items-center justify-center rounded duration-300',
-            getCohereColor(id, { background: true, contrastText: true })
+            bg
           )}
         >
           {isBaseAgent && <CoralLogo />}
           {!isBaseAgent && (
-            <Text className="uppercase" styleAs="p-lg">
+            <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
               {name[0]}
             </Text>
           )}

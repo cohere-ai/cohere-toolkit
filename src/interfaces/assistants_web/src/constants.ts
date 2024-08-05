@@ -71,6 +71,8 @@ export const TOOL_WIKIPEDIA_ID = 'wikipedia';
 export const TOOL_CALCULATOR_ID = 'toolkit_calculator';
 export const TOOL_WEB_SCRAPE_ID = 'web_scrape';
 export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
+export const FILE_UPLOAD_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
+export const AGENT_SETTINGS_TOOLS = [TOOL_WEB_SEARCH_ID, TOOL_PYTHON_INTERPRETER_ID];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
 export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon?: IconName } } = {
@@ -81,7 +83,22 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon?: IconName } } = {
   [TOOL_WIKIPEDIA_ID]: { icon: 'web' },
   [TOOL_SEARCH_FILE_ID]: { icon: 'search' },
   [TOOL_GOOGLE_DRIVE_ID]: { icon: 'google-drive' },
+  [TOOL_READ_DOCUMENT_ID]: { icon: 'desktop' },
 };
 
 export const MAX_TIMEOUT_PREFETCH = 5000;
 export const DEFAULT_AGENT_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
+
+export type COHERE_BRANDED_COLORS =
+  | 'blue'
+  | 'evolved-blue'
+  | 'coral'
+  | 'green'
+  | 'evolved-green'
+  | 'quartz'
+  | 'evolved-quartz'
+  | 'mushroom'
+  | 'evolved-mushroom'
+  | 'marble'
+  | 'volcanic'
+  | 'danger';
