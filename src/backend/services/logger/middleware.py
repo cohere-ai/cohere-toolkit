@@ -21,7 +21,6 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             path=request.url.path,
             status_code=response.status_code,
             duration=time.time() - start_time,
-            response=response,
             ctx=ctx,
         )
 
