@@ -37,14 +37,14 @@ def get_user(db: Session, user_id: str) -> User:
 
 def get_user_by_external_id(db: Session, external_id: str) -> User | None:
     """
-    Get a user by ID.
+    Get a user by external ID.
 
     Args:
         db (Session): Database session.
-        external_id (str): external.
+        external_id (str): external id.
 
     Returns:
-        User: User with the given external id.
+        User | None: User with the given external id or None if not found.
     """
     return (
         db.query(User)
@@ -62,7 +62,7 @@ def get_user_by_user_name(db: Session, user_name: str) -> User | None:
         user_name (str): username.
 
     Returns:
-        User: User with the given username.
+        User | None: User with the given username or None if not found.
     """
     return (
         db.query(User)
@@ -95,7 +95,7 @@ def get_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
 
 def get_external_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     """
-    List all external users create by the SCIM integration.
+    List all external users created by the SCIM integration.
 
     Args:
         db (Session): Database session.
