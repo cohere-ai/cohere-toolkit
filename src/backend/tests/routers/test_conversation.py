@@ -16,7 +16,7 @@ from backend.database_models import (
 )
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.user import User
-from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE
+from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE, get_file_service
 from backend.tests.factories import get_factory
 
 
@@ -587,9 +587,7 @@ def test_search_conversations_no_conversations(
 
 # FILES
 def test_list_files(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     file = get_factory("File", session).create(
         file_name="test_file.txt",
@@ -616,9 +614,7 @@ def test_list_files(
 
 
 def test_list_files_no_files(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get(
@@ -631,9 +627,7 @@ def test_list_files_no_files(
 
 
 def test_list_files_missing_user_id(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get(f"/v1/conversations/{conversation.id}/files")
@@ -643,12 +637,9 @@ def test_list_files_missing_user_id(
 
 
 def test_upload_file_existing_conversation(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
-    saved_file_path = "src/backend/data/Mariana_Trench.pdf"
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file_doc = {"file": open(file_path, "rb")}
 
@@ -660,29 +651,25 @@ def test_upload_file_existing_conversation(
     )
 
     file = response.json()
-
-    file_in_db = session.get(File, file.get("id"))
-    assert file_in_db is not None
     assert response.status_code == 200
+    files = get_file_service().get_files_by_conversation_id(
+        session, conversation.user_id, conversation.id
+    )
+    assert len(files) == 1
     assert "Mariana_Trench" in file["file_name"]
-    assert conversation.file_ids == [file_in_db.id]
-
-    # File should not exist in the directory
-    assert not os.path.exists(saved_file_path)
+    assert conversation.file_ids == [file["id"]]
 
 
 def test_upload_file_nonexistent_conversation_creates_new_conversation(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
-    saved_file_path = "src/backend/data/Mariana_Trench.pdf"
     file_doc = {"file": open(file_path, "rb")}
 
     response = session_client.post(
         "/v1/conversations/upload_file", files=file_doc, headers={"User-Id": user.id}
     )
+    assert response.status_code == 200
 
     file = response.json()
 
@@ -696,22 +683,20 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
         .filter_by(id=conversation_file_association.conversation_id)
         .first()
     )
-    file_in_db = session.get(File, file.get("id"))
-    assert file_in_db is not None
-    assert response.status_code == 200
+
+    files = get_file_service().get_files_by_conversation_id(
+        session, created_conversation.user_id, created_conversation.id
+    )
+    assert len(files) == 1
+    assert "Mariana_Trench" in file["file_name"]
+    assert created_conversation.file_ids == [file["id"]]
     assert created_conversation is not None
     assert created_conversation.user_id == user.id
     assert conversation_file_association is not None
-    assert "Mariana_Trench" in file.get("file_name")
-
-    # File should not exist in the directory
-    assert not os.path.exists(saved_file_path)
 
 
 def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
     file_doc = {"file": open(file_path, "rb")}
@@ -723,7 +708,7 @@ def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
 
 
 def test_batch_upload_file_existing_conversation(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user, mock_compass_settings
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
@@ -731,12 +716,6 @@ def test_batch_upload_file_existing_conversation(
         "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
         "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
     }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
     files = [
         ("files", (file_name, open(file_path, "rb")))
         for file_name, file_path in file_paths.items()
@@ -767,13 +746,14 @@ def test_batch_upload_file_existing_conversation(
         )
         assert conversation_file_association is not None
 
-    # File should not exist in the directory
-    for saved_file_path in saved_file_paths:
-        assert not os.path.exists(saved_file_path)
+    files_stored = get_file_service().get_files_by_conversation_id(
+        session, conversation.user_id, conversation.id
+    )
+    assert len(files_stored) == len(file_paths)
 
 
 def test_batch_upload_total_files_exceeds_limit(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user, mock_compass_settings
 ) -> None:
     _ = get_factory("Conversation", session).create(user_id=user.id)
     file_paths = {
@@ -810,7 +790,7 @@ def test_batch_upload_total_files_exceeds_limit(
 
 
 def test_batch_upload_single_file_exceeds_limit(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user, mock_compass_settings
 ) -> None:
     _ = get_factory("Conversation", session).create(user_id=user.id)
     file_paths = {
@@ -840,7 +820,7 @@ def test_batch_upload_single_file_exceeds_limit(
 
 
 def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user, mock_compass_settings
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
@@ -848,12 +828,6 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
         "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
         "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
     }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
     files = [
         ("files", (file_name, open(file_path, "rb")))
         for file_name, file_path in file_paths.items()
@@ -895,13 +869,14 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
         )
         assert conversation_file_association is not None
 
-    # File should not exist in the directory
-    for saved_file_path in saved_file_paths:
-        assert not os.path.exists(saved_file_path)
+    files_stored = get_file_service().get_files_by_conversation_id(
+        session, created_conversation.user_id, created_conversation.id
+    )
+    assert len(files_stored) == len(file_paths)
 
 
 def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/test_data/Mariana_Trench.pdf",
@@ -909,12 +884,6 @@ def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provide
         "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
         "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
     }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
     files = [
         ("files", (file_name, open(file_path, "rb")))
         for file_name, file_path in file_paths.items()
@@ -930,6 +899,7 @@ def test_delete_file(
     session_client: TestClient,
     session: Session,
     user: User,
+    mock_compass_settings,
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file = get_factory("File", session).create(
@@ -971,9 +941,7 @@ def test_delete_file(
 
 
 def test_fail_delete_nonexistent_file(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.delete(
@@ -986,9 +954,7 @@ def test_fail_delete_nonexistent_file(
 
 
 def test_fail_delete_file_missing_user_id(
-    session_client: TestClient,
-    session: Session,
-    user: User,
+    session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file = get_factory("File", session).create(

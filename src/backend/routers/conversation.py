@@ -42,6 +42,7 @@ from backend.services.file import (
     attach_conversation_id_to_files,
     get_file_service,
     validate_batch_file_size,
+    validate_file,
     validate_file_size,
 )
 from backend.services.logger.utils import get_logger
@@ -524,7 +525,7 @@ async def delete_file(
     """
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
-    get_file_service().validate_file(session, file_id, user_id)
+    validate_file(session, file_id, user_id)
 
     # Delete the File DB object
     get_file_service().delete_file_by_id(session, conversation_id, file_id, user_id)

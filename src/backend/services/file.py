@@ -60,6 +60,7 @@ def get_compass():
             compass = Compass()
         except Exception as e:
             logger.error(f"Error initializing Compass: {e}")
+            raise e
     return compass
 
 
@@ -92,9 +93,7 @@ class FileService:
         if self.is_compass_enabled:
             uploaded_files = await insert_files_in_compass(files, user_id)
         else:
-            uploaded_files = await insert_files_in_db(
-                session, files, user_id, conversation_id
-            )
+            uploaded_files = await insert_files_in_db(session, files, user_id)
 
         for file in uploaded_files:
             conversation_crud.create_conversation_file_association(
@@ -291,30 +290,31 @@ class FileService:
                 files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
 
-    def validate_file(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
-        """Validates if a file exists and belongs to the user
 
-        Args:
-            session (DBSessionDep): Database session
-            file_id (str): File ID
-            user_id (str): User ID
+def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:
+    """Validates if a file exists and belongs to the user
 
-        Returns:
-            File: File object
+    Args:
+        session (DBSessionDep): Database session
+        file_id (str): File ID
+        user_id (str): User ID
 
-        Raises:
-            HTTPException: If the file is not found
-        """
-        if self.is_compass_enabled:
-            file = get_file_in_compass(file_id, user_id)
-        else:
-            file = file_crud.get_file(session, file_id, user_id) 
+    Returns:
+        File: File object
 
-        if not file:
-            raise HTTPException(
-                status_code=404,
-                detail=f"File with ID: {file_id} not found.",
-            )
+    Raises:
+        HTTPException: If the file is not found
+    """
+    if Settings().feature_flags.use_compass_file_storage:
+        file = get_file_in_compass(file_id, user_id)
+    else:
+        file = file_crud.get_file(session, file_id, user_id)
+
+    if not file:
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} not found.",
+        )
 
 
 # Compass Operations
@@ -479,31 +479,6 @@ def attach_conversation_id_to_files(
             )
         )
     return results
-
-
-def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:
-    """Validates if a file exists and belongs to the user
-
-    Args:
-        session (DBSessionDep): Database session
-        file_id (str): File ID
-        user_id (str): User ID
-
-    Returns:
-        File: File object
-
-    Raises:
-        HTTPException: If the file is not found
-    """
-    file = file_crud.get_file(session, file_id, user_id)
-
-    if not file:
-        raise HTTPException(
-            status_code=404,
-            detail=f"File with ID: {file_id} not found.",
-        )
-
-    return file
 
 
 def get_file_extension(file_name: str) -> str:
