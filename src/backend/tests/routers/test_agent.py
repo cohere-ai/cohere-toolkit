@@ -812,7 +812,7 @@ def test_update_nonexistent_agent(
     response = session_client.put(
         "/v1/agents/456", json=request_json, headers={"User-Id": user.id}
     )
-    assert response.status_code == 40
+    assert response.status_code == 404
     assert response.json() == {"detail": "Agent with ID 456 not found."}
 
 
