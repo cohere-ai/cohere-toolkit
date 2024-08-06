@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import User, UserGroupAssociation
+from backend.database_models import UserGroupAssociation
 from backend.database_models.group import Group
 from backend.schemas.scim import GroupMember
 
