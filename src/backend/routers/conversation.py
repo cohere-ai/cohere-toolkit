@@ -528,9 +528,7 @@ async def delete_file(
     # _ = validate_file(session, file_id, user_id)
 
     # Delete the File DB object
-    get_file_service().delete_file_by_id(
-        session, conversation_id, file_id, user_id
-    )
+    get_file_service().delete_file_by_id(session, conversation_id, file_id, user_id)
 
     return DeleteFileResponse()
 

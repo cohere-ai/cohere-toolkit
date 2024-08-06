@@ -249,7 +249,6 @@ class FileService:
             files = file_crud.get_files_by_ids(session, file_ids, user_id)
         return files
 
-
     def bulk_delete_files(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
     ) -> None:
@@ -267,7 +266,7 @@ class FileService:
         else:
             file_crud.bulk_delete_files(session, file_ids, user_id)
 
-        return 
+        return
 
     def get_files_by_message_id(
         self, session: DBSessionDep, message_id: str, user_id: str
@@ -297,9 +296,9 @@ class FileService:
 def delete_file_in_compass(file_id: str, user_id: str) -> None:
     # todo: validate all files exists before deleting
     get_compass().invoke(
-        action=Compass.ValidActions.DELETE_INDEX,
-        parameters={"index": file_id}
+        action=Compass.ValidActions.DELETE_INDEX, parameters={"index": file_id}
     )
+
 
 def get_file_in_compass(file_id: str, user_id: str) -> File:
     fetched_doc = (
