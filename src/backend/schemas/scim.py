@@ -46,6 +46,7 @@ class CreateUser(BaseUser):
 
 
 class UpdateUser(BaseUser):
+    email: Optional[str]
     name: Name
 
 

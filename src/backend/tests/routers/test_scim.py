@@ -145,6 +145,7 @@ def test_put_user(session_client: TestClient, session: Session):
         "userName": "test.user@okta.local",
         "name": {"givenName": "Another", "familyName": "User"},
         "active": True,
+        "email": "plankton@krusty.com",
         "meta": {"resourceType": "User"},
     }
 
@@ -152,9 +153,9 @@ def test_put_user(session_client: TestClient, session: Session):
         f"/scim/v2/Users/{user_id}", json=put_data, headers=scim_auth_header
     )
     response_user = response.json()
-
     db_user = user_repo.get_user(session, user_id)
     assert db_user is not None
+    assert db_user.email == "plankton@krusty.com"
 
     expected_response = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],

@@ -158,6 +158,9 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
     db_user.user_name = user.userName
     db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
     db_user.active = user.active
+    if user.email:
+        db_user.email = user.email
+        
 
     db_user = user_crud.create_user(session, db_user)
 
