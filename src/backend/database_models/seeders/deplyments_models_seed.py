@@ -1,5 +1,5 @@
-import os
 import json
+import os
 from uuid import uuid4
 
 from dotenv import load_dotenv
@@ -7,11 +7,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
-from backend.database_models import (
-    Deployment,
-    Model,
-    Organization,
-)
+from backend.database_models import Deployment, Model, Organization
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
@@ -133,11 +129,15 @@ def deployments_models_seed(op):
             id=deployment_id,
             name=deployment,
             description="",
-            default_deployment_config=json.dumps({
-                env_var: os.environ.get(env_var, "")
-                for env_var in model_deployments[deployment].env_vars
-            }),
-            deployment_class_name=model_deployments[deployment].deployment_class.__name__,
+            default_deployment_config=json.dumps(
+                {
+                    env_var: os.environ.get(env_var, "")
+                    for env_var in model_deployments[deployment].env_vars
+                }
+            ),
+            deployment_class_name=model_deployments[
+                deployment
+            ].deployment_class.__name__,
             is_community=deployment in COMMUNITY_DEPLOYMENTS_SETUP,
         )
         op.execute(sql_command)
