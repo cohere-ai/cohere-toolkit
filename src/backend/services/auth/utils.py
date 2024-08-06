@@ -37,12 +37,16 @@ def get_or_create_user(session: Session, token_user: dict[str, str]) -> dict:
     """
     email = token_user.get("email")
     fullname = token_user.get("name")
+    external_id = token_user.get("sub")
 
-    user = session.query(User).filter(User.email == email).first()
+    if external_id:
+        user = user_crud.get_user_by_external_id(session, external_id)
+    else:
+        user = session.query(User).filter(User.email == email).first()
 
     # Create User if DNE
     if not user:
-        db_user = User(fullname=fullname, email=email)
+        db_user = User(fullname=fullname, email=email, external_id=external_id)
         user = user_crud.create_user(session, db_user)
 
     return {
