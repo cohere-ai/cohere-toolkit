@@ -36,7 +36,7 @@ export const Textarea: React.FC<Props> = forwardRef<HTMLTextAreaElement, Props>(
             ref={ref}
             value={value}
             className={cn(
-              'rounded-lg border border-volcanic-500',
+              'borderborder-volcanic-800 rounded-lg',
               'w-full px-3 py-[18px]',
               'outline-none',
               'bg-white focus:bg-marble-950 dark:bg-volcanic-100 dark:focus:bg-volcanic-150',

@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useAgentsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
-  const { text, fill, contrastText, bg } = useBrandedColors(agentId);
+  const { text, fill } = useBrandedColors(agentId);
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -59,9 +59,8 @@ export const Header: React.FC<Props> = ({ agentId }) => {
             <Text
               styleAs="label-sm"
               className={cn(
-                'rounded bg-volcanic-200 px-2 py-1 uppercase dark:text-mushroom-950',
-                contrastText,
-                bg
+                'rounded bg-mushroom-950 px-2  py-1 font-bold uppercase dark:bg-volcanic-200',
+                text
               )}
             >
               Private

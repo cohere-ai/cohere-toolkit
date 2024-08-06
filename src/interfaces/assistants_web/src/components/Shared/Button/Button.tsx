@@ -209,7 +209,6 @@ export const Button: React.FC<ButtonProps> = ({
             className={cn({
               [animateClasses]: iconPosition === 'start',
               'px-2': kind === 'outline',
-              'w-full': stretch,
             })}
           >
             {labelElement}

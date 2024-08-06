@@ -191,9 +191,8 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     <div
       {...flippedProps}
       className={cn('group relative flex w-full rounded-lg', 'flex items-start gap-x-1', {
-        'bg-marble-1000 transition-colors ease-in-out hover:bg-mushroom-900/20 dark:bg-transparent':
-          !isActive,
-        'bg-mushroom-900/40 dark:bg-volcanic-200': isActive,
+        'transition-colors ease-in-out hover:bg-white dark:bg-transparent': !isActive,
+        'bg-white dark:bg-volcanic-200': isActive,
       })}
     >
       {conversationLink}

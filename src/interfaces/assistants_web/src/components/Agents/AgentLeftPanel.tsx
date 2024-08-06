@@ -34,8 +34,8 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
       as="div"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
-        'h-full bg-marble-1000 dark:bg-volcanic-60',
-        'rounded-lg border border-marble-950 dark:border-volcanic-60',
+        'h-full dark:bg-volcanic-60',
+        'rounded-lg dark:border dark:border-volcanic-60',
         'dark:text-mushroom-950',
         {
           'right-1/4 md:right-auto': isAgentsLeftPanelOpen,
@@ -121,7 +121,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
                 hidden: !isAgentsLeftPanelOpen,
               })}
             >
-              <Text styleAs="label" className="dark:text-mushroom-800">
+              <Text styleAs="label" className="text-volcanic-500 dark:text-mushroom-800">
                 POWERED BY
               </Text>
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
