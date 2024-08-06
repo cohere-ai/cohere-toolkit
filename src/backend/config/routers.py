@@ -136,5 +136,8 @@ ROUTER_DEPENDENCIES = {
         "default": [
             Depends(get_session),
         ],
+        "auth": [
+            Depends(get_session),
+        ],
     },
 }

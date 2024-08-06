@@ -50,6 +50,7 @@ def create_group_request(session_client: TestClient):
 
 def test_create_user(session_client: TestClient, session: Session) -> None:
     response = create_user_request(session_client)
+    assert response.status_code == 201
     response_user = response.json()
 
     db_user = user_repo.get_user(session, response_user["id"])
@@ -457,13 +458,10 @@ def test_scim_requests_are_authenticated(session_client: TestClient):
     response = session_client.post("/scim/v2/Users")
     assert response.status_code == 401
 
-    response = session_client.patch("/scim/v2/Users")
+    response = session_client.patch("/scim/v2/Users/123")
     assert response.status_code == 401
 
-    response = session_client.put("/scim/v2/Users")
-    assert response.status_code == 401
-
-    response = session_client.delete("/scim/v2/Users")
+    response = session_client.put("/scim/v2/Users/123")
     assert response.status_code == 401
 
     response = session_client.get("/scim/v2/Groups")
@@ -472,11 +470,8 @@ def test_scim_requests_are_authenticated(session_client: TestClient):
     response = session_client.post("/scim/v2/Groups")
     assert response.status_code == 401
 
-    response = session_client.put("/scim/v2/Groups")
+    response = session_client.patch("/scim/v2/Groups/123")
     assert response.status_code == 401
 
-    response = session_client.patch("/scim/v2/Groups")
-    assert response.status_code == 401
-
-    response = session_client.delete("/scim/v2/Groups")
+    response = session_client.delete("/scim/v2/Groups/123")
     assert response.status_code == 401

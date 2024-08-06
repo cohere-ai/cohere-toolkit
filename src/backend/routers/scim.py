@@ -1,8 +1,9 @@
-import base64
-from typing import Optional
+import secrets
+from typing import Annotated, Optional
 
-from fastapi import APIRouter
-from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -26,9 +27,37 @@ from backend.schemas.scim import (
     User,
 )
 
+
+def _check_basic_auth(
+    credentials: Annotated[HTTPBasicCredentials, Depends(HTTPBasic())],
+) -> bool:
+    if not scim_auth or not scim_auth.username or not scim_auth.password:
+        raise HTTPException(
+            status_code=500,
+            detail="SCIM token not set in the environment",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    is_correct_username = _compare_secret(credentials.username, scim_auth.username)
+    is_correct_password = _compare_secret(credentials.password, scim_auth.password)
+
+    if not (is_correct_username and is_correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return True
+
+
+def _compare_secret(actual: str, expected: str) -> bool:
+    return secrets.compare_digest(actual.encode("utf8"), expected.encode("utf8"))
+
+
 SCIM_PREFIX = "/scim/v2"
 scim_auth = Settings().auth.scim
-router = APIRouter()
+router = APIRouter(prefix=SCIM_PREFIX, dependencies=[Depends(_check_basic_auth)])
 router.name = RouterName.SCIM
 
 
@@ -46,34 +75,6 @@ async def scim_exception_handler(request: Request, exc: SCIMException) -> Respon
             "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
         },
     )
-
-
-class SCIMMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        if not scim_auth or not scim_auth.username or not scim_auth.password:
-            return JSONResponse(
-                status_code=500,
-                content={"detail": "SCIM token not set in the environment"},
-            )
-
-        if not self.verify_token(request):
-            return JSONResponse(
-                status_code=401,
-                content={"detail": "Invalid SCIM token"},
-            )
-
-        response = await call_next(request)
-        return response
-
-    def verify_token(self, request: Request) -> bool:
-        auth_val = request.headers.get("Authorization")
-        if not auth_val:
-            return False
-        token = auth_val.replace("Basic ", "")
-        encoded_auth = base64.b64encode(
-            f"{scim_auth.username}:{scim_auth.password}".encode("utf-8")
-        )
-        return token == encoded_auth.decode("utf-8")
 
 
 @router.get("/Users")
@@ -114,7 +115,10 @@ async def get_users(
 
 
 @router.get("/Users/{user_id}")
-async def get_user(user_id: str, session: DBSessionDep):
+async def get_user(
+    user_id: str,
+    session: DBSessionDep,
+):
     db_user = user_crud.get_user(session, user_id)
     if not db_user:
         raise SCIMException(status_code=404, detail="User not found")
@@ -123,7 +127,10 @@ async def get_user(user_id: str, session: DBSessionDep):
 
 
 @router.post("/Users", status_code=201)
-async def create_user(user: CreateUser, session: DBSessionDep):
+async def create_user(
+    user: CreateUser,
+    session: DBSessionDep,
+):
     db_user = user_crud.get_user_by_external_id(session, user.externalId)
     if db_user:
         raise SCIMException(
@@ -151,7 +158,7 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
     db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
     db_user.active = user.active
 
-    session.commit()
+    db_user = user_crud.create_user(session, db_user)
 
     return User.from_db_user(db_user)
 
@@ -166,7 +173,7 @@ async def patch_user(user_id: str, patch: PatchUser, session: DBSessionDep):
         k, v = list(operation.value.items())[0]
         setattr(db_user, k, v)
 
-    session.commit()
+    db_user = user_crud.create_user(session, db_user)
 
     return User.from_db_user(db_user)
 

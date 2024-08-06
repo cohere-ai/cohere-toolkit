@@ -5,7 +5,6 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import Response
 
 from backend.config.auth import (
     get_auth_strategy_endpoints,
@@ -23,7 +22,7 @@ from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
 from backend.routers.model import router as model_router
 from backend.routers.organization import router as organization_router
-from backend.routers.scim import SCIM_PREFIX, SCIMException, SCIMMiddleware
+from backend.routers.scim import SCIMException
 from backend.routers.scim import router as scim_router
 from backend.routers.scim import scim_exception_handler
 from backend.routers.snapshot import router as snapshot_router
@@ -55,6 +54,7 @@ def create_app():
         snapshot_router,
         organization_router,
         model_router,
+        scim_router,
     ]
 
     # Dynamically set router dependencies
@@ -84,18 +84,6 @@ def create_app():
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
-
-    app.mount(SCIM_PREFIX, create_scim_app())
-
-    return app
-
-
-def create_scim_app() -> FastAPI:
-    app = FastAPI()
-
-    app.include_router(scim_router)
-
-    app.add_middleware(SCIMMiddleware)
     app.add_exception_handler(SCIMException, scim_exception_handler)
 
     return app
