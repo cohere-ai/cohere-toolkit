@@ -5,6 +5,8 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 
 from backend.schemas.context import Context
 
+_ignore_paths = {"/scim/v2"}
+
 
 class ContextMiddleware:
     def __init__(self, app: ASGIApp):
@@ -31,7 +33,8 @@ class ContextMiddleware:
         request = Request(scope)
         context.with_deployment_name(request.headers.get("Deployment-Name", ""))
 
-        if has_header_user_id(request):
+        ignore_path = any(request.url.path.startswith(p) for p in _ignore_paths)
+        if not ignore_path and has_header_user_id(request):
             user_id = get_header_user_id(request)
         else:
             user_id = DEFAULT_USER_ID

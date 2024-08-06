@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 import backend.crud.group as group_crud
 import backend.crud.user as user_crud
@@ -30,16 +30,28 @@ from backend.schemas.scim import (
 
 SCIM_PREFIX = "/scim/v2"
 scim_auth = Settings().auth.scim
-router = APIRouter(prefix="/scim/v2")
+router = APIRouter()
 router.name = RouterName.SCIM
+
+
+class SCIMException(Exception):
+    def __init__(self, status_code: int, detail: str):
+        self.status_code = status_code
+        self.detail = detail
+
+
+async def scim_exception_handler(request: Request, exc: SCIMException) -> Response:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+        },
+    )
 
 
 class SCIMMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        if not request.url.path.startswith(SCIM_PREFIX):
-            response = await call_next(request)
-            return response
-
         if not scim_auth or not scim_auth.username or not scim_auth.password:
             return JSONResponse(
                 status_code=500,
@@ -64,12 +76,6 @@ class SCIMMiddleware(BaseHTTPMiddleware):
             f"{scim_auth.username}:{scim_auth.password}".encode("utf-8")
         )
         return token == encoded_auth.decode("utf-8")
-
-
-class SCIMException(Exception):
-    def __init__(self, status_code: int, detail: str):
-        self.status_code = status_code
-        self.detail = detail
 
 
 @router.get("/Users")
