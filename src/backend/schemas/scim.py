@@ -41,6 +41,7 @@ class CreateGroup(BaseGroup):
 
 class CreateUser(BaseUser):
     name: Name
+    email: str
     externalId: str
 
 

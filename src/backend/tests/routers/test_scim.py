@@ -18,13 +18,15 @@ scim_auth_header = {
 
 def create_user_request(
     session_client: TestClient,
-    user_name: str = "testuser@company.com",
-    external_id: str = "23123123",
+    user_name="testuser@company.com",
+    external_id="23123123",
+    email="thisispatrick@gmail.com",
 ):
     user_data_req = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "userName": user_name,
         "name": {"givenName": "Test", "familyName": "User"},
+        "email": email,
         "externalId": external_id,
         "locale": "en-US",
         "groups": [],
@@ -403,7 +405,10 @@ def test_replace_users_in_group(session_client: TestClient, session: Session):
     group = group_repo.get_group_by_name(session, "Test SCIMv2")
 
     response = create_user_request(
-        session_client, user_name="test.user.new@okta.local", external_id="1234546"
+        session_client,
+        user_name="test.user.new@okta.local",
+        external_id="1234546",
+        email="sponge@krusty.com",
     )
     response_user = response.json()
     user_id = response_user["id"]

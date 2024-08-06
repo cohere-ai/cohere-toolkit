@@ -140,6 +140,7 @@ async def create_user(
     db_user = DBUser(
         user_name=user.userName,
         fullname=f"{user.name.givenName} {user.name.familyName}",
+        email=user.email,
         active=user.active,
         external_id=user.externalId,
     )
