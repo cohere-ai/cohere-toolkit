@@ -102,7 +102,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       </PopoverButton>
       <PopoverPanel
         anchor="bottom"
-        className="z-30 h-fit w-[466px] rounded border bg-white p-4 dark:border-volcanic-400 dark:bg-volcanic-200"
+        className="z-tooltip h-fit w-[466px] rounded border bg-white p-4 dark:border-volcanic-400 dark:bg-volcanic-200"
       >
         <Citation generationId={generationId} citationKey={startEndKey} />
       </PopoverPanel>
