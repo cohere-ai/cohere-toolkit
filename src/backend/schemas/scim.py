@@ -1,11 +1,9 @@
-from typing import ClassVar, Dict, Optional, Union
+from typing import ClassVar, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
 from backend.database_models import Group as DBGroup
 from backend.database_models import User as DBUser
-from typing import List, Optional
-from pydantic import BaseModel
 
 
 class Meta(BaseModel):
@@ -39,6 +37,7 @@ class BaseGroup(BaseModel):
 
 class CreateGroup(BaseGroup):
     pass
+
 
 class Email(BaseModel):
     primary: bool
