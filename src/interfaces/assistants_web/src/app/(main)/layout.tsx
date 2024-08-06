@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { CohereClient, Fetch } from '@/cohere-client';
 import { AgentLeftPanel } from '@/components/Agents/AgentLeftPanel';
 import { AgentsList } from '@/components/Agents/AgentsList';
+import { HotKeys } from '@/components/Shared/HotKeys';
 import { COOKIE_KEYS } from '@/constants';
 import { env } from '@/env.mjs';
 import { cn } from '@/utils';
@@ -44,6 +45,7 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
           <section
             className={cn('relative flex h-full min-w-0 flex-grow flex-col', 'overflow-hidden')}
           >
+            <HotKeys />
             {children}
           </section>
         </div>
