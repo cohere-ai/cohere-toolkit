@@ -117,6 +117,15 @@ services:
         DOCKER_BUILDKIT: 1
       dockerfile: ./src/backend/services/sync/Dockerfile
     restart: unless-stopped
+    develop:
+      watch:
+        - action: sync
+          path: ./src/backend
+          target: /workspace/src/backend
+          ignore:
+            - __pycache__/
+            - alembic/
+            - data/
     stdin_open: true
     tty: true
     depends_on:

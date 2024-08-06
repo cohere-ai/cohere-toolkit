@@ -3,7 +3,8 @@ from enum import Enum
 CSV_MIMETYPE = "text/csv"
 TEXT_MIMETYPE = "text/plain"
 SEARCH_LIMIT = 5
-ACTIVITY_TRACKING_WINDOW = 86400
+# 1 hour
+ACTIVITY_TRACKING_WINDOW = 86400 / 24
 SCOPES = [
     "https://www.googleapis.com/auth/drive.metadata.readonly",
     "https://www.googleapis.com/auth/drive.readonly",

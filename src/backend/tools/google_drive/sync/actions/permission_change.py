@@ -1,9 +1,10 @@
 import time
 
+from backend.config.settings import Settings
+from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
-from backend.services.sync.env import env
 from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
@@ -42,13 +43,20 @@ def permission_change(file_id: str, index_name: str, user_id: str, **kwargs):
         }
 
     permissions = list_permissions(file_id=file_id, user_id=user_id)
+    compass = Compass(
+        compass_api_url=Settings().compass.api_url,
+        compass_parser_url=Settings().compass.parser_url,
+        compass_username=Settings().compass.username,
+        compass_password=Settings().compass.password,
+    )
+
     # Update permissions array
     logger.info(
         event="[Google Drive Permission Change] Initiating Compass add_context action for file",
         file_id=file_id,
     )
-    env().COMPASS.invoke(
-        env().COMPASS.ValidActions.ADD_CONTEXT,
+    compass.invoke(
+        compass.ValidActions.ADD_CONTEXT,
         {
             "index": index_name,
             "file_id": file_id,

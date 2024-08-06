@@ -5,8 +5,8 @@ from backend.services.sync.jobs.sync_agent_activity import sync_agent_activity
 
 # NOTE Variable to limit the number of agents you are syncing at once
 # Helpful for first time setups
-# LIMIT = None
-LIMIT = 1
+LIMIT = None
+# LIMIT = 1
 
 
 def main():

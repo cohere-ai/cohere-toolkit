@@ -38,7 +38,7 @@ def sync_agent_activity(agent_id: str):
                     for key, value in activities.items()
                 }
                 logger.info(
-                    f"Publishing {sum([len(x) for x in consolidated_activities.values()])} activity tasks for agent {agent_id}"
+                    event=f"Publishing {sum([len(x) for x in consolidated_activities.values()])} activity tasks for agent {agent_id}"
                 )
                 for artifact_id, activity in consolidated_activities.items():
                     for activity_item in activity:

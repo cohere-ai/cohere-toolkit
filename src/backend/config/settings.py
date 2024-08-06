@@ -69,7 +69,7 @@ class AuthSettings(BaseSettings, BaseModel):
     enabled_auth: Optional[List[str]] = None
     secret_key: Optional[str] = Field(
         default=None,
-        validation_alias=AliasChoices("AUTH_SECRET_KEY", "frontend_hostname"),
+        validation_alias=AliasChoices("secret_key", "secret_key"),
     )
     frontend_hostname: Optional[str] = Field(
         default=None,

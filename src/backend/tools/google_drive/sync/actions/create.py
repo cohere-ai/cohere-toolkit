@@ -1,9 +1,10 @@
 import time
 
+from backend.config.settings import Settings
+from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
-from backend.services.sync.env import env
 from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
@@ -57,15 +58,20 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
             "file_id": file_id,
         }
 
-    # take compass action
+    compass = Compass(
+        compass_api_url=Settings().compass.api_url,
+        compass_parser_url=Settings().compass.parser_url,
+        compass_username=Settings().compass.username,
+        compass_password=Settings().compass.password,
+    )
     try:
         # idempotent create index
         logger.info(
             event="[Google Drive Create] Initiating Compass create_index action for index",
             index_name=index_name,
         )
-        env().COMPASS.invoke(
-            env().COMPASS.ValidActions.CREATE_INDEX,
+        compass.invoke(
+            compass.ValidActions.CREATE_INDEX,
             {
                 "index": index_name,
             },
@@ -79,8 +85,8 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
             event="[Google Drive Create] Initiating Compass create action for file",
             web_view_link=web_view_link,
         )
-        env().COMPASS.invoke(
-            env().COMPASS.ValidActions.CREATE,
+        compass.invoke(
+            compass.ValidActions.CREATE,
             {
                 "index": index_name,
                 "file_id": file_id,
@@ -97,8 +103,8 @@ def create(file_id: str, index_name: str, user_id: str, **kwargs):
             web_view_link=web_view_link,
         )
         # Add title and url context
-        env().COMPASS.invoke(
-            env().COMPASS.ValidActions.ADD_CONTEXT,
+        compass.invoke(
+            compass.ValidActions.ADD_CONTEXT,
             {
                 "index": index_name,
                 "file_id": file_id,
