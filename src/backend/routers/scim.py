@@ -10,22 +10,20 @@ import backend.crud.group as group_crud
 import backend.crud.user as user_crud
 from backend.config import Settings
 from backend.config.routers import RouterName
-from backend.database_models import (
-    DBSessionDep,
-    User as DBUser,
-    Group as DBGroup,
-    UserGroupAssociation,
-)
+from backend.database_models import DBSessionDep
+from backend.database_models import Group as DBGroup
+from backend.database_models import User as DBUser
+from backend.database_models import UserGroupAssociation
 from backend.schemas.scim import (
-    ListUserResponse,
-    User,
-    Group,
-    CreateUser,
-    UpdateUser,
-    PatchUser,
-    PatchGroup,
     CreateGroup,
+    CreateUser,
+    Group,
     ListGroupResponse,
+    ListUserResponse,
+    PatchGroup,
+    PatchUser,
+    UpdateUser,
+    User,
 )
 
 SCIM_PREFIX = "/scim/v2"

@@ -1,5 +1,5 @@
 from sqlalchemy import String
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models import User, UserGroupAssociation
 from backend.database_models.base import Base

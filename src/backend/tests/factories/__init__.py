@@ -12,6 +12,7 @@ from backend.tests.factories.conversation import (
 from backend.tests.factories.deployment import DeploymentFactory
 from backend.tests.factories.document import DocumentFactory
 from backend.tests.factories.file import FileFactory
+from backend.tests.factories.group import GroupFactory
 from backend.tests.factories.message import (
     MessageFactory,
     MessageFileAssociationFactory,
@@ -25,7 +26,6 @@ from backend.tests.factories.snapshot import (
 )
 from backend.tests.factories.tool_call import ToolCallFactory
 from backend.tests.factories.user import UserFactory
-from backend.tests.factories.group import GroupFactory
 
 FACTORY_MAPPING = {
     "User": UserFactory,
