@@ -204,7 +204,7 @@ const DataSourceFileList: React.FC<{
   const countCopy = [filesCount, foldersCount].filter((text) => !!text).join(', ');
 
   return (
-    <div className="borderborder-volcanic-800 flex flex-col space-y-6 rounded-md p-4">
+    <div className="flex flex-col space-y-6 rounded-md border border-volcanic-800 p-4">
       <div className="flex flex-col space-y-2">
         <div className="flex justify-between">
           <div className="flex items-center space-x-2">

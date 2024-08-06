@@ -49,7 +49,7 @@ export const Dropdown: React.FC<Props> = ({
           <>
             <ListboxButton
               className={cn(
-                'borderborder-volcanic-800 rounded-lg',
+                'rounded-lg border border-volcanic-800',
                 'w-full px-3 py-[18px]',
                 'outline-none',
                 'flex items-center justify-between',
@@ -81,7 +81,7 @@ export const Dropdown: React.FC<Props> = ({
               anchor="bottom start"
               className={cn(
                 'z-dropdown',
-                'borderborder-volcanic-800 mt-1 rounded-lg bg-white dark:bg-volcanic-100',
+                'mt-1 rounded-lg border border-volcanic-800 bg-white dark:bg-volcanic-100',
                 'cursor-pointer'
               )}
             >

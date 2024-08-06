@@ -1,6 +1,7 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import React from 'react';
 
@@ -26,6 +27,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
   } = useAgentsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
+  const { resolvedTheme } = useTheme();
   const navigateToNewChat = useNavigateToNewChat();
 
   return (
@@ -93,7 +95,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
             }
             tooltip="New chat"
             iconName="add"
-            theme="evolved-green"
+            theme={resolvedTheme === 'light' ? 'coral' : 'evolved-green'}
             onClick={() => navigateToNewChat()}
             stretch
           />

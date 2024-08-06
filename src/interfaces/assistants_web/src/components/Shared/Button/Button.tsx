@@ -41,7 +41,7 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
       return cn('dark:text-marble-950 dark:fill-marble-950', {
         // light mode
         'text-coral-500 fill-coral-500 group-hover:text-coral-500 group-hover:fill-coral-500':
-          theme == 'evolved-green',
+          theme == 'coral',
         'text-danger-500 fill-danger-500 group-hover:text-danger-350 group-hover:fill-danger-350':
           theme == 'danger',
 

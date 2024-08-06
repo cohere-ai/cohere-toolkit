@@ -10,7 +10,11 @@ type Props = {
 };
 
 const Page: NextPage<Props> = ({ params }) => {
-  return <UpdateAgent agentId={params.agentId} />;
+  return (
+    <div className="h-full w-full rounded-lg border border-marble-950 bg-marble-980">
+      <UpdateAgent agentId={params.agentId} />
+    </div>
+  );
 };
 
 export default Page;

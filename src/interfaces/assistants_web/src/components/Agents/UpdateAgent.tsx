@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocalStorageValue } from '@react-hookz/web';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
@@ -27,6 +28,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState<AgentSettingsFields>();
+  const { resolvedTheme } = useTheme();
 
   const { set: setPendingAssistant } = useLocalStorageValue<AgentSettingsFields>(
     'pending_assistant',
@@ -118,7 +120,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
             <Button label="Cancel" kind="secondary" href="/discover" />
             <Button
               label="Update"
-              theme="evolved-green"
+              theme={resolvedTheme === 'light' ? 'coral' : 'evolved-green'}
               kind="cell"
               icon={'checkmark'}
               iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}
