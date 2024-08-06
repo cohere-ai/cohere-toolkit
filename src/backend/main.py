@@ -29,22 +29,18 @@ from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
 from backend.services.metrics import MetricsMiddleware
-from backend.routers.scim import router as scim_router, SCIMException, SCIMMiddleware
+from backend.routers.scim import (
+    router as scim_router,
+    SCIMException,
+    SCIMMiddleware,
+    scim_exception_handler,
+    SCIM_PREFIX,
+)
 
 load_dotenv()
 
 # CORS Origins
 ORIGINS = ["*"]
-
-
-async def scim_exception_handler(request: Request, exc: SCIMException) -> Response:
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "detail": exc.detail,
-            "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-        },
-    )
 
 
 def create_app():
@@ -63,7 +59,6 @@ def create_app():
         snapshot_router,
         organization_router,
         model_router,
-        scim_router,
     ]
 
     # Dynamically set router dependencies
@@ -93,8 +88,18 @@ def create_app():
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
-    app.add_middleware(SCIMMiddleware)
 
+    app.mount(SCIM_PREFIX, create_scim_app())
+
+    return app
+
+
+def create_scim_app() -> FastAPI:
+    app = FastAPI()
+
+    app.include_router(scim_router)
+
+    app.add_middleware(SCIMMiddleware)
     app.add_exception_handler(SCIMException, scim_exception_handler)
 
     return app
