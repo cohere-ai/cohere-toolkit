@@ -1,7 +1,7 @@
 import asyncio
-from http.client import HTTPException
 from typing import Any, Dict, List
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from backend.chat.collate import rerank_and_chunk, to_dict
@@ -13,6 +13,7 @@ from backend.services.logger.utils import LoggerFactory
 TIMEOUT = 300
 
 logger = LoggerFactory().get_logger()
+
 
 async def async_call_tools(
     chat_history: List[Dict[str, Any]],
@@ -57,18 +58,21 @@ async def _call_all_tools_async(
         _call_tool_async(ctx, db, tool_call, deployment_model)
         for tool_call in tool_calls
     ]
-    combined =  asyncio.gather(*tasks)
+    combined = asyncio.gather(*tasks)
     try:
-       tool_results = await asyncio.wait_for(combined, timeout=TIMEOUT)
-       return flatten(tool_results)
+        tool_results = await asyncio.wait_for(combined, timeout=TIMEOUT)
+        return flatten(tool_results)
     except asyncio.TimeoutError:
         raise HTTPException(
-            status_code=500, detail=f"Timeout while calling tools with timeout: {str(TIMEOUT)}"
-        ) 
+            status_code=500,
+            detail=f"Timeout while calling tools with timeout: {str(TIMEOUT)}",
+        )
+
 
 # Flatten a list of lists
 def flatten(l):
     return [n for m in l for n in m]
+
 
 async def _call_tool_async(
     ctx: Context,
@@ -80,7 +84,7 @@ async def _call_tool_async(
     if not tool:
         return []
 
-    try: 
+    try:
         outputs = await tool.implementation().call(
             parameters=tool_call.get("parameters"),
             ctx=ctx,
@@ -98,7 +102,8 @@ async def _call_tool_async(
         )
         raise HTTPException(
             status_code=500,
-            detail=f"Error while calling tool {tool_call['name']}: {str(e)}")
+            detail=f"Error while calling tool {tool_call['name']}: {str(e)}",
+        )
 
     # If the tool returns a list of outputs, append each output to the tool_results list
     # Otherwise, append the single output to the tool_results list

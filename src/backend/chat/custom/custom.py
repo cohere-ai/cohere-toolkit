@@ -3,6 +3,7 @@ from typing import Any, AsyncGenerator, Dict, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
+from backend.chat.custom.tool_calls import async_call_tools
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
@@ -13,7 +14,6 @@ from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Tool
 from backend.services.file import get_file_service
-from backend.chat.custom.tool_calls import async_call_tools
 
 MAX_STEPS = 15
 
