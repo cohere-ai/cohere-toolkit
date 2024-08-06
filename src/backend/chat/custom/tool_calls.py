@@ -10,11 +10,6 @@ from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
 
-
-# Timeout and error handling
-# if all errors then don't continue loop
-
-# High timeout for now during development
 TIMEOUT = 300
 
 logger = LoggerFactory().get_logger()
@@ -85,16 +80,25 @@ async def _call_tool_async(
     if not tool:
         return []
 
-    outputs = await tool.implementation().call(
-        parameters=tool_call.get("parameters"),
-        ctx=ctx,
-        session=db,
-        model_deployment=deployment_model,
-        user_id=ctx.get_user_id(),
-        trace_id=ctx.get_trace_id(),
-        agent_id=ctx.get_agent_id(),
-        agent_tool_metadata=ctx.get_agent_tool_metadata(),
-    )
+    try: 
+        outputs = await tool.implementation().call(
+            parameters=tool_call.get("parameters"),
+            ctx=ctx,
+            session=db,
+            model_deployment=deployment_model,
+            user_id=ctx.get_user_id(),
+            trace_id=ctx.get_trace_id(),
+            agent_id=ctx.get_agent_id(),
+            agent_tool_metadata=ctx.get_agent_tool_metadata(),
+        )
+    except Exception as e:
+        logger.exception(
+            event="[Custom Chat] Tool call failed",
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error while calling tool {tool_call['name']}: {str(e)}")
 
     # If the tool returns a list of outputs, append each output to the tool_results list
     # Otherwise, append the single output to the tool_results list
