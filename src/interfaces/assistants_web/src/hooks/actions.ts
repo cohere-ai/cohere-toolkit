@@ -10,7 +10,7 @@ import {
 import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useNotify } from '@/hooks/toast';
-import { useAgentsStore, useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
+import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 import { MessageType, isFulfilledMessage } from '@/types/message';
 
 export const useFocusComposer = () => {
@@ -34,20 +34,8 @@ export const useFocusComposer = () => {
 export const useFocusFileInput = () => {
   const {
     files: { isFileInputQueuedToFocus },
-    queueFocusFileInput: queueFocus,
     clearFocusFileInput: clearFocus,
   } = useFilesStore();
-  const {
-    settings: { isConfigDrawerOpen },
-    setSettings,
-  } = useSettingsStore();
-
-  const queueFocusFileInput = () => {
-    if (!isConfigDrawerOpen) {
-      setSettings({ isConfigDrawerOpen: true });
-    }
-    setTimeout(() => queueFocus(), 300);
-  };
 
   const focusFileInput = () => {
     const fileInput = document.getElementById(CONFIGURATION_FILE_UPLOAD_ID) as HTMLInputElement;
@@ -59,14 +47,11 @@ export const useFocusFileInput = () => {
     clearFocus();
   };
 
-  return { isFileInputQueuedToFocus, queueFocusFileInput, focusFileInput };
+  return { isFileInputQueuedToFocus, focusFileInput };
 };
 
 export const useChatHotKeys = (): CustomHotKey[] => {
-  const {
-    setAgentsLeftSidePanelOpen,
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const {
     conversation: { id, messages },
   } = useConversationStore();

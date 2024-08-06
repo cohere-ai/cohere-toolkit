@@ -11,7 +11,7 @@ import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
-import { useAgentsStore, useParamsStore } from '@/stores';
+import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 
@@ -19,11 +19,8 @@ type Props = {};
 
 const AgentRightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
-  const {
-    agents: { disabledAssistantKnowledge },
-    setUseAssistantKnowledge,
-    setAgentsRightSidePanelOpen,
-  } = useAgentsStore();
+  const { disabledAssistantKnowledge, setUseAssistantKnowledge, setAgentsRightSidePanelOpen } =
+    useSettingsStore();
   const { agentId, conversationId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
   const { theme } = useBrandedColors(agentId);
