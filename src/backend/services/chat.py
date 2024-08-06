@@ -80,19 +80,6 @@ def process_chat(
     user_id = ctx.get_user_id()
     ctx.with_deployment_config()
     agent_id = ctx.get_agent_id()
-    deployment_name = request.headers.get("Deployment-Name", "")
-    deployment_config = {}
-    # Deployment config is the settings for the model deployment per request
-    # It is a string of key value pairs separated by semicolons
-    # For example: "azure_key1=value1;azure_key2=value2"
-    # TODO Eugene: Confirm it with Scott - header deployment config has priority over the deployment config in the DB,
-    # but agent deployment config has priority over both if it is set
-    if request.headers.get("Deployment-Config", "") != "":
-        ctx.with_deployment_config()
-    else:
-        deployment = deployment_crud.get_deployment_by_name(session, deployment_name)
-        if deployment is not None and deployment.is_available:
-            ctx.with_deployment_config(deployment.default_deployment_config)
 
     if agent_id is not None:
         agent = agent_crud.get_agent_by_id(session, agent_id)
@@ -103,24 +90,6 @@ def process_chat(
             raise HTTPException(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
-        # TODO Eugene: Confirm it with Scott
-        # Check if the agent is associated with the deployment
-        if agent.deployment and agent.deployment != deployment_name:
-            # if agent's default deployment is not the same as the request's deployment
-            # we try to find that deployment in the agent's associated deployments and use it
-            deployment_config = agent_crud.get_association_by_deployment_name(
-                session, agent, deployment_name
-            ).deployment_config
-            if deployment_config is None:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Agent {agent_id} has deployment {agent.deployment.name} but request is for deployment {deployment_name}.",
-                )
-        else:
-            deployment_config = agent_crud.get_association_by_deployment_name(
-                session, agent, deployment_name
-            ).deployment_config
-            ctx.with_deployment_config(deployment_config)
 
         if chat_request.tools:
             for tool in chat_request.tools:
@@ -133,14 +102,6 @@ def process_chat(
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-        # NOTE TEMPORARY: we do not set the model for now and just use the default model
-        # chat_request.model = None
-        model = (
-            agent.default_model_association.model
-            if agent.default_model_association
-            else None
-        )
-        chat_request.model = model.cohere_name if model else None
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
