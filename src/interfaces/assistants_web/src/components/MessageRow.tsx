@@ -79,7 +79,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         close={() => setIsLongPressMenuOpen(false)}
         className="md:hidden"
       >
-        <div className={cn('flex flex-col divide-y', 'divide-marble-950')}>
+        <div className="divide-marble-950' flex flex-col divide-y">
           <div className="flex flex-col gap-y-4 pt-4">
             <CopyToClipboardButton
               value={getMessageText()}
@@ -105,12 +105,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         className={cn(
           'group flex h-fit w-full flex-col gap-2 rounded-md p-2 text-left md:flex-row',
           'transition-colors ease-in-out',
-          'hover:bg-mushroom-950 dark:hover:bg-mushroom-150',
-
-          {
-            'bg-mushroom-950 dark:bg-mushroom-150':
-              isFulfilledOrTypingMessage(message) && message.generationId,
-          }
+          'hover:bg-mushroom-950 dark:hover:bg-volcanic-150'
         )}
         {...(enableLongPress && longPressProps)}
       >
@@ -140,7 +135,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                 <IconButton
                   tooltip={{ label: `${isStepsExpanded ? 'Hide' : 'Show'} steps`, size: 'sm' }}
                   iconName="list"
-                  className={cn('rounded hover:bg-mushroom-900')}
+                  className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
                   iconClassName={cn(
                     'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
                     'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
