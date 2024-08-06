@@ -37,20 +37,25 @@ export const NavigationUserMenu: React.FC<{
   );
 };
 
+
 export const NavigationUserMenuV2: React.FC<{
   displayName: string;
-}> = ({ displayName }) => {
+}> = ({ displayName}) => {
   return (
     <PopoverMenu email={displayName}>
       <div className="py-3">
         <Icon name="profile" className="mb-3 px-4 text-volcanic-400" />
-        <div className="flex justify-end border-t border-marble-950 px-4 pt-3">
-          <AuthLink action="logout" styleAs="button" kind="secondary" />
-        </div>
+          <>
+            <Text className="truncate px-4 pb-3 text-left text-volcanic-400">{displayName}</Text>
+            <div className="flex justify-end border-t border-marble-950 px-4 pt-3">
+              <AuthLink action="logout" styleAs="button" kind="secondary" />
+            </div>
+          </>
       </div>
     </PopoverMenu>
   );
 };
+
 
 /**
  * Popover menu that opens when the menu icon is clicked.
