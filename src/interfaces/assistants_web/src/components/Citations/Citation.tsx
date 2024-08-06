@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { DocumentIcon, Icon, Text } from '@/components/Shared';
-import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID } from '@/constants';
+import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID, TOOL_WIKIPEDIA_ID } from '@/constants';
 import { useCitationsStore } from '@/stores';
 import { getSafeUrl, getWebDomain } from '@/utils';
 
@@ -25,7 +25,7 @@ export const Citation: React.FC<Props> = ({ generationId, citationKey }) => {
   const citationsMap = citations.citationReferences[generationId];
   const documents = citationsMap[citationKey];
   const document = documents[selectedIndex];
-  const safeUrl = document.url ? getSafeUrl(document.url) : undefined;
+  const safeUrl = getSafeUrl(document.url);
 
   return (
     <div className="space-y-4">
@@ -43,10 +43,19 @@ export const Citation: React.FC<Props> = ({ generationId, citationKey }) => {
             )}
           </div>
           <div>
-            {document.url ? (
+            {document.tool_name === TOOL_WEB_SEARCH_ID ? (
               <>
                 <Text styleAs="p-xs" className="uppercase dark:text-marble-800">
                   {getWebDomain(safeUrl) + ' ' + getWebSourceName(document.tool_name)}
+                </Text>
+                <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
+                  {document.title || 'Untitled'}
+                </Text>
+              </>
+            ) : document.tool_name === TOOL_WIKIPEDIA_ID ? (
+              <>
+                <Text styleAs="p-xs" className="uppercase dark:text-marble-800">
+                  {getWebSourceName(document.tool_name)}
                 </Text>
                 <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
                   {document.title || 'Untitled'}
