@@ -45,9 +45,12 @@ const usePersistedStoresWithHydration = ((selector, compare) => {
 export const useSettingsStore = () => {
   return usePersistedStoresWithHydration(
     (state) => ({
-      settings: state.settings,
-      setSettings: state.setSettings,
-      setIsConvListPanelOpen: state.setIsConvListPanelOpen,
+      disabledAssistantKnowledge: state.disabledAssistantKnowledge,
+      isAgentsLeftPanelOpen: state.isAgentsLeftPanelOpen,
+      isAgentsRightPanelOpen: state.isAgentsRightPanelOpen,
+      setAgentsLeftSidePanelOpen: state.setAgentsLeftSidePanelOpen,
+      setAgentsRightSidePanelOpen: state.setAgentsRightSidePanelOpen,
+      setUseAssistantKnowledge: state.setUseAssistantKnowledge,
     }),
     shallow
   );

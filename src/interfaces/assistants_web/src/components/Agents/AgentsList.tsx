@@ -11,7 +11,7 @@ import { InputSearch } from '@/components/Shared/InputSearch';
 import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
-import { useAgentsStore } from '@/stores';
+import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const sortByDate = (a: Conversation, b: Conversation) => {
@@ -26,10 +26,7 @@ export const AgentsList: React.FC = () => {
   const { data: conversations } = useConversations({});
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
   const { data: agents = [] } = useListAgents();
-  const {
-    agents: { isAgentsLeftPanelOpen },
-    setAgentsLeftSidePanelOpen,
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const recentAgents = useMemo(
     () =>
       conversations
@@ -95,9 +92,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
   results,
 }) => {
   const { data: conversations, isLoading: isConversationsLoading, isError } = useConversations({});
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen } = useSettingsStore();
   const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
   const hasSearchQuery = search.length > 0;
   const hasSearchResults = results.length > 0;

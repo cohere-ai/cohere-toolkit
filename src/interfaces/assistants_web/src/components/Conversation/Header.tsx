@@ -7,7 +7,7 @@ import { useContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
-import { useAgentsStore, useConversationStore } from '@/stores';
+import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
@@ -18,7 +18,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   const {
     conversation: { id },
   } = useConversationStore();
-  const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useAgentsStore();
+  const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
   const { text, fill, contrastText, bg } = useBrandedColors(agentId);

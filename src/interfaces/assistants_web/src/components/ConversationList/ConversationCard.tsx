@@ -11,7 +11,7 @@ import { useBrandedColors } from '@/hooks/brandedColors';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
-import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
+import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
 
 export type ConversationListItem = {
@@ -66,14 +66,11 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId } = conversation;
-  const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
   const { clearComposerFiles } = useFileActions();
@@ -143,7 +140,6 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         shallow
         onClick={() => {
           setConversation({ id: conversationId, name });
-          setSettings({ isMobileConvListPanelOpen: false });
           clearComposerFiles();
         }}
         className={wrapperClassName}
@@ -176,7 +172,6 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
               shallow
               onClick={() => {
                 setConversation({ id: conversationId, name });
-                setSettings({ isMobileConvListPanelOpen: false });
               }}
             >
               {content}
