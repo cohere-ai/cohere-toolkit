@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 from backend.database_models import Group as DBGroup
 from backend.database_models import User as DBUser
+from typing import List, Optional
+from pydantic import BaseModel
 
 
 class Meta(BaseModel):
@@ -38,15 +40,20 @@ class BaseGroup(BaseModel):
 class CreateGroup(BaseGroup):
     pass
 
+class Email(BaseModel):
+    primary: bool
+    value: str
+    type: str
+
 
 class CreateUser(BaseUser):
     name: Name
-    email: str
+    emails: Optional[List[Email]] = None
     externalId: str
 
 
 class UpdateUser(BaseUser):
-    email: Optional[str]
+    emails: Optional[List[Email]] = None
     name: Name
 
 

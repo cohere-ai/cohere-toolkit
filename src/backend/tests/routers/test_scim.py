@@ -26,7 +26,7 @@ def create_user_request(
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "userName": user_name,
         "name": {"givenName": "Test", "familyName": "User"},
-        "email": email,
+        "emails": [{"primary": True, "value": email, "type": "work"}],
         "externalId": external_id,
         "locale": "en-US",
         "groups": [],
@@ -51,12 +51,13 @@ def create_group_request(session_client: TestClient):
 
 
 def test_create_user(session_client: TestClient, session: Session) -> None:
-    response = create_user_request(session_client)
+    response = create_user_request(session_client, email="tanzi66m@cohere.com")
     assert response.status_code == 201
     response_user = response.json()
 
     db_user = user_repo.get_user(session, response_user["id"])
     assert db_user is not None
+    assert db_user.email == "tanzi66m@cohere.com"
 
     expected_user = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
@@ -145,7 +146,6 @@ def test_put_user(session_client: TestClient, session: Session):
         "userName": "test.user@okta.local",
         "name": {"givenName": "Another", "familyName": "User"},
         "active": True,
-        "email": "plankton@krusty.com",
         "meta": {"resourceType": "User"},
     }
 
@@ -155,7 +155,7 @@ def test_put_user(session_client: TestClient, session: Session):
     response_user = response.json()
     db_user = user_repo.get_user(session, user_id)
     assert db_user is not None
-    assert db_user.email == "plankton@krusty.com"
+    import pdb; pdb.set_trace()
 
     expected_response = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],

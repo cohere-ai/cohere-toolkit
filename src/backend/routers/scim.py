@@ -137,10 +137,16 @@ async def create_user(
             status_code=409, detail="User already exists in the database."
         )
 
+    email = None
+    for email_obj in user.emails:
+        if email_obj.primary:
+            email = email_obj.value
+            break
+
     db_user = DBUser(
         user_name=user.userName,
         fullname=f"{user.name.givenName} {user.name.familyName}",
-        email=user.email,
+        email=email,
         active=user.active,
         external_id=user.externalId,
     )
@@ -158,9 +164,6 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
     db_user.user_name = user.userName
     db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
     db_user.active = user.active
-    if user.email:
-        db_user.email = user.email
-        
 
     db_user = user_crud.create_user(session, db_user)
 
