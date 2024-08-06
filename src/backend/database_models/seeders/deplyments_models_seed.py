@@ -105,12 +105,22 @@ def deployments_models_seed(op):
     """
     session = Session(op.get_bind())
 
-    default_organization = Organization(
-        name="Default Organization",
+    # Seed default organization
+    sql_command = text(
+        """
+        INSERT INTO organizations (
+            id, name, created_at, updated_at
+        )
+        VALUES (
+            :id, :name, now(), now() 
+        )
+        ON CONFLICT (id) DO NOTHING;
+    """
+    ).bindparams(
         id="default",
+        name="Default Organization",
     )
-    session.add(default_organization)
-    session.commit()
+    op.execute(sql_command)
 
     # Seed deployments and models
     for deployment in MODELS_NAME_MAPPING.keys():
