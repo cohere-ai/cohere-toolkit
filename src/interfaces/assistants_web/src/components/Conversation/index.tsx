@@ -6,9 +6,7 @@ import { Agent, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
-import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { useChatHotKeys } from '@/hooks/actions';
 import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useFileActions } from '@/hooks/files';
@@ -35,8 +33,6 @@ const Conversation: React.FC<Props> = ({
   tools,
   startOptionsEnabled = false,
 }) => {
-  const chatHotKeys = useChatHotKeys();
-
   const { uploadFiles } = useFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
   const {
@@ -83,9 +79,7 @@ const Conversation: React.FC<Props> = ({
   return (
     <div className="flex h-full w-full">
       <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-marble-950 bg-marble-980 md:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
-        <HotKeysProvider customHotKeys={chatHotKeys} />
         <Header agentId={agent?.id} />
-
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
           <MessagingContainer
             conversationId={conversationId}
