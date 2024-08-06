@@ -29,7 +29,7 @@ const navigationKeys: NavigationKey[] = [
 const DialogNavigationKeys = () => {
   return (
     <Text
-      className="flex flex-col items-start gap-5 bg-marble-950 px-3 py-2 md:flex-row md:items-center"
+      className="flex flex-col justify-between gap-5 bg-marble-950 px-3 py-2 md:flex-row md:items-center dark:bg-volcanic-300"
       as="div"
       styleAs="caption"
     >
@@ -38,7 +38,7 @@ const DialogNavigationKeys = () => {
           {navKey.keys.map((key) => (
             <kbd
               key={key}
-              className="mr-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-white px-1 font-semibold"
+              className="mr-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-white px-1 font-semibold dark:text-volcanic-60"
               dangerouslySetInnerHTML={{ __html: key }}
             />
           ))}
