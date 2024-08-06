@@ -7,7 +7,7 @@ import { AgentsSidePanel } from '@/components/Agents/AgentsSidePanel';
 import { DeploymentsDropdown } from '@/components/DeploymentsDropdown';
 import { EditEnvVariablesButton } from '@/components/EditEnvVariablesButton';
 import { MobileHeader } from '@/components/MobileHeader';
-import { NavigationUserMenu } from '@/components/NavigationUserMenu';
+import {  NavigationUserMenuV2 } from '@/components/NavigationUserMenu';
 import { SettingsDrawer } from '@/components/Settings/SettingsDrawer';
 import { Banner } from '@/components/Shared';
 import { NavigationBar } from '@/components/Shared/NavigationBar/NavigationBar';
@@ -38,8 +38,8 @@ export const Layout: React.FC<LayoutProps> = ({ leftDrawerElement, mainElement }
   const [userMenu, setUserMenu] = useState<React.ReactNode>(null);
 
   useEffect(() => {
-    if (session && session.email) {
-      setUserMenu(<NavigationUserMenu userEmail={session.email} />);
+    if (session && (session.email || session.fullname)) {
+      setUserMenu(<NavigationUserMenuV2 displayName={session.email || session.fullname} />);
     }
   }, [session]);
 
