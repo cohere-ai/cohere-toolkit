@@ -1,6 +1,7 @@
 import { findLast } from 'lodash';
+import { useTheme } from 'next-themes';
 
-import { CustomHotKey } from '@/components/Shared/HotKeys';
+import { CustomHotKey } from '@/components/Shared/HotKeys/HotKeysProvider';
 import {
   CHAT_COMPOSER_TEXTAREA_ID,
   CONFIGURATION_FILE_UPLOAD_ID,
@@ -9,7 +10,7 @@ import {
 import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useNotify } from '@/hooks/toast';
-import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
+import { useAgentsStore, useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 import { MessageType, isFulfilledMessage } from '@/types/message';
 
 export const useFocusComposer = () => {
@@ -63,10 +64,9 @@ export const useFocusFileInput = () => {
 
 export const useChatHotKeys = (): CustomHotKey[] => {
   const {
-    settings: { isConvListPanelOpen, isConfigDrawerOpen },
-    setSettings,
-    setIsConvListPanelOpen,
-  } = useSettingsStore();
+    setAgentsLeftSidePanelOpen,
+    agents: { isAgentsLeftPanelOpen },
+  } = useAgentsStore();
   const {
     conversation: { id, messages },
   } = useConversationStore();
@@ -74,6 +74,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
   const { focusComposer } = useFocusComposer();
   const { error, info } = useNotify();
   const navigateToNewChat = useNavigateToNewChat();
+  const { theme, setTheme } = useTheme();
 
   return [
     {
@@ -96,17 +97,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
       name: 'Toggle left sidebar',
       commands: ['ctrl+shift+s', 'meta+shift+s'],
       action: () => {
-        setIsConvListPanelOpen(!isConvListPanelOpen);
-      },
-      options: {
-        preventDefault: true,
-      },
-    },
-    {
-      name: 'Toggle grounding drawer',
-      commands: ['ctrl+shift+g', 'meta+shift+g'],
-      action: () => {
-        setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
+        setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
       },
       options: {
         preventDefault: true,
@@ -134,6 +125,20 @@ export const useChatHotKeys = (): CustomHotKey[] => {
           info('Copied last response to clipboard');
         } catch (e) {
           error('Unable to copy last response');
+        }
+      },
+      options: {
+        preventDefault: true,
+      },
+    },
+    {
+      name: 'Toggle dark mode',
+      commands: ['ctrl+shift+d', 'meta+shift+d'],
+      action: () => {
+        if (document.startViewTransition) {
+          document.startViewTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'));
+        } else {
+          setTheme(theme === 'dark' ? 'light' : 'dark');
         }
       },
       options: {

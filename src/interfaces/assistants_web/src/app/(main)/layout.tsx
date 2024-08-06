@@ -5,9 +5,9 @@ import { redirect } from 'next/navigation';
 
 import { AgentLeftPanel } from '@/components/Agents/AgentLeftPanel';
 import { AgentsList } from '@/components/Agents/AgentsList';
+import { HotKeys } from '@/components/Shared/HotKeys';
 import { COOKIE_KEYS, DEFAULT_AGENT_TOOLS } from '@/constants';
 import { getCohereServerClient } from '@/server/cohereServerClient';
-import { cn } from '@/utils';
 
 const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
   const cohereServerClient = getCohereServerClient();
@@ -43,17 +43,12 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex h-screen w-full flex-1 flex-col gap-3 bg-mushroom-900 p-3 dark:bg-volcanic-60">
-        <div
-          className={cn(
-            'relative flex h-full flex-grow flex-col flex-nowrap gap-3 overflow-hidden lg:flex-row'
-          )}
-        >
+        <div className="relative flex h-full flex-grow flex-col flex-nowrap gap-3 overflow-hidden lg:flex-row">
           <AgentLeftPanel className="hidden md:flex">
             <AgentsList />
           </AgentLeftPanel>
-          <section
-            className={cn('relative flex h-full min-w-0 flex-grow flex-col', 'overflow-hidden')}
-          >
+          <section className="relative flex h-full min-w-0 flex-grow flex-col overflow-hidden">
+            <HotKeys />
             {children}
           </section>
         </div>
