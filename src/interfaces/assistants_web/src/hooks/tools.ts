@@ -1,11 +1,10 @@
-import { useLocalStorageValue } from '@react-hookz/web';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
 import { Agent, ManagedTool, useCohereClient } from '@/cohere-client';
-import { DEFAULT_AGENT_TOOLS, LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks/toast';
 import { useParamsStore } from '@/stores';
@@ -32,21 +31,6 @@ export const useUnauthedTools = (enabled: boolean = true) => {
   const unauthedTools = tools?.filter((tool) => tool.is_auth_required) ?? [];
   const isToolAuthRequired = unauthedTools.length > 0;
   return { unauthedTools, isToolAuthRequired };
-};
-
-export const useShowUnauthedToolsModal = () => {
-  const { isToolAuthRequired } = useUnauthedTools();
-  const { value: hasDismissed, set } = useLocalStorageValue(
-    LOCAL_STORAGE_KEYS.unauthedToolsModalDismissed,
-    {
-      defaultValue: false,
-      initializeWithValue: true,
-    }
-  );
-  return {
-    show: !hasDismissed && isToolAuthRequired,
-    onDismissed: () => set(true),
-  };
 };
 
 export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback) => void) => {

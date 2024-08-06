@@ -11,8 +11,6 @@ import { DragDropFileUploadOverlay } from '@/components/Conversation/Composer/Dr
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useUnauthedTools } from '@/hooks/tools';
 import { useSettingsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
@@ -49,16 +47,13 @@ export const Composer: React.FC<Props> = ({
   const breakpoint = useBreakpoint();
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { isToolAuthRequired } = useUnauthedTools();
-  const { data: experimentalFeatures } = useExperimentalFeatures();
 
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
-  const isAgentsModeOn = !!experimentalFeatures?.USE_AGENTS_VIEW;
-  const isComposerDisabled = isToolAuthRequired && isAgentsModeOn;
-  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isComposerDisabled;
+
+  const canSend = isReadyToReceiveMessage && value.trim().length > 0;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
@@ -74,10 +69,6 @@ export const Composer: React.FC<Props> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (isComposerDisabled) {
-      return;
-    }
-
     onChange(e.target.value);
   };
 
@@ -124,10 +115,7 @@ export const Composer: React.FC<Props> = ({
           'relative flex w-full flex-col',
           'transition ease-in-out',
           'rounded border bg-marble-1000 dark:bg-volcanic-100',
-          'border-marble-800 dark:border-volcanic-200',
-          {
-            'bg-marble-950 dark:bg-volcanic-300': isComposerDisabled,
-          }
+          'border-marble-800 dark:border-volcanic-200'
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
         onDragOver={() => setIsDragDropInputActive(true)}
@@ -165,7 +153,6 @@ export const Composer: React.FC<Props> = ({
             rows={1}
             onKeyDown={handleKeyDown}
             onChange={handleChange}
-            disabled={isComposerDisabled}
           />
           <button
             className={cn(
