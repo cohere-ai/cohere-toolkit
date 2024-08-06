@@ -38,7 +38,7 @@ export const CollapsibleSection: React.FC<Props> = ({
       className={cn(
         'flex w-full max-w-screen-md flex-col rounded-md',
         'space-y-5 border p-6',
-        'border-marble-950 bg-marble-1000 dark:border-volcanic-200 dark:bg-volcanic-150'
+        'border-volcanic-800 bg-volcanic-950 dark:border-volcanic-200 dark:bg-volcanic-150'
       )}
     >
       {/* Visible portion */}
@@ -55,7 +55,7 @@ export const CollapsibleSection: React.FC<Props> = ({
                 className={cn(
                   'flex items-center justify-center',
                   'h-[18px] w-[18px] rounded-[4px] border',
-                  'dark:border-evolved-green-700 dark:text-evolved-green-700'
+                  'border-coral-700 text-coral-700 dark:border-evolved-green-700 dark:text-evolved-green-700'
                 )}
               >
                 {number}

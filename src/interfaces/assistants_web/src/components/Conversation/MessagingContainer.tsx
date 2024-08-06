@@ -97,7 +97,7 @@ const Content: React.FC<Props> = (props) => {
       <div className="flex h-auto min-w-0 flex-1 flex-col">
         <Messages {...props} />
         {/* Composer container */}
-        <div className="sticky bottom-0 rounded-b-lg bg-marble-1000 px-4 pb-4 dark:bg-volcanic-100">
+        <div className="sticky bottom-0 rounded-b-lg bg-marble-980 px-4 pb-4 dark:bg-volcanic-100">
           <Transition
             show={showNewMessageButton}
             enter="duration-300 ease-out transition-all"

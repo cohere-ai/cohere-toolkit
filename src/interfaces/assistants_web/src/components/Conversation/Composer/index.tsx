@@ -119,7 +119,7 @@ export const Composer: React.FC<Props> = ({
         className={cn(
           'relative flex w-full flex-col',
           'transition ease-in-out',
-          'rounded border bg-marble-1000 dark:bg-volcanic-100',
+          'rounded border bg-marble-980 dark:bg-volcanic-100',
           'border-marble-800 dark:border-volcanic-200',
           {
             'bg-marble-950 dark:bg-volcanic-300': isComposerDisabled,
