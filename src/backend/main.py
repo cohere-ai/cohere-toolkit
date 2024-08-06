@@ -9,7 +9,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from backend.config.auth import (
     get_auth_strategy_endpoints,
     is_authentication_enabled,
-    verify_migrate_token,
 )
 from backend.config.routers import ROUTER_DEPENDENCIES
 from backend.config.settings import Settings
@@ -128,7 +127,7 @@ async def health():
     return {"status": "OK"}
 
 
-@app.post("/migrate", dependencies=[Depends(verify_migrate_token)])
+@app.post("/migrate")
 async def apply_migrations():
     """
     Applies Alembic migrations - useful for serverless applications
