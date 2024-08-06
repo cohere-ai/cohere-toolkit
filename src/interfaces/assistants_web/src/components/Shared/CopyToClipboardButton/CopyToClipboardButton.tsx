@@ -11,7 +11,6 @@ type CopyToClipboardButtonProps = {
   label?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
   kind?: ButtonKind;
-  animate?: boolean;
   disabled?: boolean;
   className?: string;
   iconAtStart?: boolean;
@@ -37,7 +36,6 @@ export const CopyToClipboardButton = forwardRef<
     kind = 'primary',
     iconAtStart = false,
     onClick,
-    animate = true,
   },
   ref
 ) {
@@ -71,7 +69,6 @@ export const CopyToClipboardButton = forwardRef<
       label={copied ? 'Copied!' : label}
       icon="copy"
       iconPosition={iconAtStart ? 'start' : 'end'}
-      animate={animate}
       className={className}
       disabled={disabled}
       aria-label={copied ? 'copied' : 'copy'}
@@ -122,22 +119,20 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
         hover
         className="-translate-x-[40%]"
         buttonClassName={buttonClassName}
-        icon={
-          <IconButton
-            aria-disabled={disabled}
-            iconName={iconName}
-            iconKind={isCopied ? 'default' : 'outline'}
-            iconClassName={cn(
-              'flex rounded p-2',
-              'transition ease-in-out',
-              'fill-volcanic-300 hover:bg-mushroom-900 hover:fill-mushroom-300 dark:fill-mushroom-800 dark:hover:bg-inherit dark:hover:fill-mushroom-800',
-              iconClassName
-            )}
-            animate={false}
-            onClick={handleCopy}
-          />
-        }
-      />
+      >
+        <IconButton
+          aria-disabled={disabled}
+          iconName={iconName}
+          iconKind={isCopied ? 'default' : 'outline'}
+          className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
+          iconClassName={cn(
+            'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+            'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
+            iconClassName
+          )}
+          onClick={handleCopy}
+        />
+      </Tooltip>
     </div>
   );
 };

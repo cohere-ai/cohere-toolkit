@@ -75,7 +75,7 @@ def test_list_conversations_with_pagination(session, user):
 
 def test_list_converstions_with_agent_id_filter_and_pagination(session, user):
     agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id=user.id
+        id="agent_id", name="test agent", user=user
     )
     for i in range(10):
         get_factory("Conversation", session).create(

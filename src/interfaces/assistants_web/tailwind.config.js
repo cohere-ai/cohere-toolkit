@@ -4,6 +4,13 @@ module.exports = {
   content: ['src/**/*.{js,jsx,ts,tsx}'],
   plugins: [require('@tailwindcss/typography')],
   darkMode: 'selector',
+  safelist: [
+    {
+      pattern:
+        /(bg|text|border|fill)-(blue|evolved-blue|coral|green|evolved-green|quartz|evolved-quartz|mushroom|evolved-mushroom|marble|volcanic|danger)-\S+/,
+      variants: ['hover', 'dark', 'dark:hover'],
+    },
+  ],
   theme: {
     extend: {
       screens: {
@@ -88,8 +95,7 @@ module.exports = {
         'tag-suggestions': '10',
         'drag-drop-input-overlay': '10',
         'configuration-drawer': '20',
-        'selected-citation': '20',
-        'read-only-conversation-footer': '30',
+        'read-only-conversation-footer': '60',
         menu: '90',
         'guide-tooltip': '30',
         tooltip: '50',
@@ -104,7 +110,7 @@ module.exports = {
       typography: (theme) => ({
         DEFAULT: {
           css: {
-            color: theme('colors.volcanic.100'),
+            color: theme('colors.volcanic.300'),
           },
         },
       }),

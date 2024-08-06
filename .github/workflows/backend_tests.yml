@@ -3,6 +3,8 @@ name: Pytest
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - src/interfaces/**
   pull_request: {}
 
 jobs:

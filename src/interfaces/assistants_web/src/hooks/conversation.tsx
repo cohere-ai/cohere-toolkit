@@ -12,7 +12,7 @@ import {
 import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
-import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useNotify } from '@/hooks/toast';
 import { useConversationStore } from '@/stores';
 import { isAbortError } from '@/utils';
@@ -22,15 +22,7 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
 
   return useQuery<ConversationWithoutMessages[], ApiError>({
     queryKey: ['conversations', params.agentId],
-    queryFn: async () => {
-      const conversations = await client.listConversations(params);
-
-      if (params.agentId) {
-        return conversations;
-      }
-
-      return conversations;
-    },
+    queryFn: () => client.listConversations(params),
     retry: 0,
     refetchOnWindowFocus: false,
     initialData: [],
@@ -101,7 +93,6 @@ export const useDeleteConversation = () => {
 };
 
 export const useConversationActions = () => {
-  const { agentId } = useChatRoutes();
   const { open, close } = useContextStore();
   const {
     conversation: { id: conversationId },
@@ -122,7 +113,7 @@ export const useConversationActions = () => {
       onComplete?.();
 
       if (id === conversationId) {
-        navigateToNewChat(agentId);
+        navigateToNewChat();
       }
     };
 

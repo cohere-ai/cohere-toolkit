@@ -11,6 +11,8 @@ run-tests:
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
 attach: 
+	@docker attach cohere-toolkit-backend-1
+logs: 
 	@docker compose logs -f backend
 exec-backend:
 	docker exec -ti cohere-toolkit-backend-1 bash 
@@ -46,11 +48,11 @@ win-first-run:
 	make win-setup
 	make migrate
 	make dev
-format-web: 
-	cd src/interfaces/coral_web && npm run format:write 
+format-web:
+	cd src/interfaces/coral_web && npm run format:write
 generate-client-web:
-	cd src/interfaces/coral_web && npm run generate:client && npm run format:write 
-install-web: 
+	cd src/interfaces/coral_web && npm run generate:client && npm run format:write
+install-web:
 	cd src/interfaces/coral_web && npm install
 build-web:
 	cd src/interfaces/coral_web && npm run build
