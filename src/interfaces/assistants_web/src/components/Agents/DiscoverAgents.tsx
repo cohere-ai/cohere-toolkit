@@ -42,13 +42,7 @@ export const DiscoverAgents = () => {
             />
           </Tooltip>
         </div>
-        <Button
-          kind="secondary"
-          theme="evolved-green"
-          icon="add"
-          label="Create Assistant"
-          href="/new"
-        />
+        <Button kind="secondary" theme="default" icon="add" label="Create Assistant" href="/new" />
       </header>
       <section className="p-8">
         <Tabs

@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import React, { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
@@ -6,7 +8,7 @@ import { COHERE_BRANDED_COLORS } from '@/constants';
 import { cn } from '@/utils';
 
 export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';
-export type ButtonTheme = COHERE_BRANDED_COLORS;
+export type ButtonTheme = COHERE_BRANDED_COLORS | 'default';
 
 const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean) => {
   if (disabled) {
@@ -34,22 +36,21 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
           theme === 'evolved-quartz',
         // dark mode
         'dark:text-volcanic-150 dark:fill-volcanic-150':
-          theme === 'evolved-green' || theme === 'evolved-mushroom' || theme === 'coral',
+          theme === 'evolved-green' ||
+          theme === 'evolved-mushroom' ||
+          theme === 'coral' ||
+          theme === 'default',
       });
 
     case 'secondary':
       return cn('dark:text-marble-950 dark:fill-marble-950', {
         // light mode
-        'text-coral-500 fill-coral-500 group-hover:text-coral-500 group-hover:fill-coral-500':
-          theme == 'coral',
-        'text-danger-500 fill-danger-500 group-hover:text-danger-350 group-hover:fill-danger-350':
+        'text-coral-500 fill-coral-500 group-hover:text-coral-500 group-hover:fill-coral-500 dark:text-evolved-green-700 dark:fill-evolved-green-700 dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500':
+          theme == 'default',
+        'text-danger-500 fill-danger-500 group-hover:text-danger-350 group-hover:fill-danger-350 dark:text-danger-500 dark:fill-danger-500 dark:group-hover:text-danger-350 dark:group-hover:fill-danger-350':
           theme == 'danger',
-
-        // dark mode
-        'dark:text-evolved-green-700 dark:fill-evolved-green-700 dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500':
+        'text-evolved-green-500 fill-evolved-green-500 group-hover:text-evolved-green-700 group-hover:fill-evolved-green-700 dark:text-evolved-green-700 dark:fill-evolved-green-700 dark:group-hover:text-evolved-green-500 dark:group-hover:fill-evolved-green-500':
           theme == 'evolved-green',
-        'dark:text-danger-500 dark:fill-danger-500 dark:group-hover:text-danger-350 dark:group-hover:fill-danger-350':
-          theme == 'danger',
       });
 
     default:
@@ -71,6 +72,8 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
 
   if (kind === 'outline') {
     return cn('border', {
+      'border-coral-700 group-hover:border-coral-600 dark:border-evolved-green-700 dark:group-hover:border-evolved-green-500':
+        theme === 'default',
       'border-evolved-green-700 group-hover:border-evolved-green-500': theme === 'evolved-green',
       'border-blue-500 group-hover:border-blue-400': theme === 'blue',
       'border-coral-700 group-hover:border-coral-600': theme === 'coral',
@@ -86,6 +89,8 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
   }
 
   return cn({
+    'fill-coral-700 bg-coral-700 group-hover:bg-coral-600 dark:bg-evolved-green-700 dark:group-hover:bg-evolved-green-500':
+      theme === 'default',
     'bg-evolved-green-700 group-hover:bg-evolved-green-500': theme === 'evolved-green',
     'bg-blue-500 group-hover:bg-blue-400': theme === 'blue',
     'fill-coral-700 bg-coral-700 group-hover:bg-coral-600': theme === 'coral',
@@ -103,8 +108,10 @@ const getCellStyles = (theme: ButtonTheme, disabled: boolean) => {
   if (disabled) return 'fill-volcanic-600';
 
   return cn({
-    'fill-danger-500 group-hover:fill-danger-350': theme === 'danger',
+    'fill-coral-700 group-hover:fill-coral-600 dark:fill-evolved-green-700 dark:group-hover:fill-evolved-green-500':
+      theme === 'default',
     'fill-evolved-green-700 group-hover:fill-evolved-green-500': theme === 'evolved-green',
+    'fill-danger-500 group-hover:fill-danger-350': theme === 'danger',
     'fill-blue-500 group-hover:fill-blue-400': theme === 'blue',
     'fill-coral-700 group-hover:fill-coral-600': theme === 'coral',
     'fill-quartz-500 group-hover:fill-quartz-400': theme === 'quartz',

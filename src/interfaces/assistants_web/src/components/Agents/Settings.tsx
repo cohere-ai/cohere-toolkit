@@ -1,6 +1,5 @@
 'use client';
 
-import { useTheme } from 'next-themes';
 import { PropsWithChildren, useState } from 'react';
 
 import { DarkModeToggle } from '@/components/DarkMode';
@@ -83,16 +82,9 @@ const Connections = () => (
 );
 
 const Profile = () => {
-  const { resolvedTheme } = useTheme();
   return (
     <Wrapper>
-      <Button
-        label="Sign out"
-        href="/logout"
-        kind="secondary"
-        icon="sign-out"
-        theme={resolvedTheme === 'light' ? 'coral' : 'evolved-green'}
-      />
+      <Button label="Sign out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
     </Wrapper>
   );
 };

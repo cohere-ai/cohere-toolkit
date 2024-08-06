@@ -113,7 +113,9 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
           )}
         >
           {conversation.agent ? (
-            <Text styleAs="p-xs">{conversation.agent.name[0]}</Text>
+            <Text className={contrastText} styleAs="p-xs">
+              {conversation.agent.name[0]}
+            </Text>
           ) : (
             <CoralLogo className="scale-50" />
           )}

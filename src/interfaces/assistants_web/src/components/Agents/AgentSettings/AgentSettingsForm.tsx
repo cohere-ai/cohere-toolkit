@@ -1,7 +1,6 @@
 'use client';
 
 import { uniqBy } from 'lodash';
-import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -241,7 +240,6 @@ const StepButtons: React.FC<{
   disabled = false,
   hide = false,
 }) => {
-  const { resolvedTheme } = useTheme();
   return (
     <div
       className={cn('flex w-full items-center justify-between pt-5', {
@@ -264,7 +262,7 @@ const StepButtons: React.FC<{
         />
         <Button
           label={nextLabel}
-          theme={resolvedTheme === 'light' ? 'coral' : 'evolved-green'}
+          theme="default"
           kind="cell"
           icon={isSubmit ? 'checkmark' : 'arrow-right'}
           disabled={disabled}

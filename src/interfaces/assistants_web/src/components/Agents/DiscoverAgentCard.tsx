@@ -49,7 +49,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             kind="secondary"
             icon="arrow-up-right"
             iconPosition="end"
-            theme="evolved-green"
+            theme="default"
           />
           {!isBaseAgent && (
             <Button
@@ -58,7 +58,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               kind="secondary"
               icon="edit"
               iconPosition="end"
-              theme="evolved-green"
+              theme="default"
             />
           )}
         </div>
