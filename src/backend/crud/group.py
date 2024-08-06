@@ -7,40 +7,40 @@ from backend.schemas.scim import GroupMember
 
 def get_group_by_name(db: Session, name: str) -> Group | None:
     """
-    Get a user by ID.
+    Get a group by name.
 
     Args:
         db (Session): Database session.
-        user_name (str): username.
+        name (str): Group name.
 
     Returns:
-        User: User with the given username.
+        Group | None: Group with the given name or None if not found.
     """
     return db.query(Group).filter(Group.display_name == name).first()
 
 
-def get_group(db: Session, group_id: str) -> Group:
+def get_group(db: Session, group_id: str) -> Group | None:
     """
-    Get a user by ID.
+    Get a group by ID.
 
     Args:
         db (Session): Database session.
-        user_id (str): User ID.
+        group_id (str): Group ID.
 
     Returns:
-        User: User with the given ID.
+        Group | None: Group with the given name or None if not found.
     """
     return db.query(Group).filter(Group.id == group_id).first()
 
 
 def get_groups(db: Session, offset: int = 0, limit: int = 100) -> list[Group]:
     """
-    List all groups
+    Get a list of groups.
 
     Args:
         db (Session): Database session.
-        offset (int): Offset to start the list.
-        limit (int): Limit of users to be listed.
+        offset (int): Offset.
+        limit (int): Limit.
 
     Returns:
         list[Group]: List of groups.
@@ -49,15 +49,15 @@ def get_groups(db: Session, offset: int = 0, limit: int = 100) -> list[Group]:
 
 
 def create_group(db: Session, group: Group) -> Group:
-    """ "
-    Create a new user.
+    """
+    Create a group.
 
     Args:
         db (Session): Database session.
-        user (User): User data to be created.
+        group (Group): Group to be created.
 
     Returns:
-        User: Created user.
+        Group: Created group.
     """
     db.add(group)
     db.commit()
@@ -67,11 +67,11 @@ def create_group(db: Session, group: Group) -> Group:
 
 def delete_group(db: Session, group_id: str) -> None:
     """
-    Delete a user by ID.
+    Delete a group by ID.
 
     Args:
         db (Session): Database session.
-        user_id (str): User ID.
+        group_id (str): Group ID.
     """
     group = db.query(Group).filter(Group.id == group_id)
     group.delete()
@@ -98,12 +98,12 @@ def add_users(db: Session, group: Group, members: list[UserGroupAssociation]) ->
 
 def set_users(db: Session, group: Group, members: list[UserGroupAssociation]) -> Group:
     """
-    Set the users of a group.
+    Set the users of a group. Overwrites existing users.
 
     Args:
         db (Session): Database session.
         group (Group): Group to add the users.
-        users (list[User]): Users to be assigned to the group.
+        members (list[GroupMember]): Users to be added to the group.
 
     Returns:
         Group: Updated group.
