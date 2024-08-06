@@ -33,20 +33,8 @@ export const useFocusComposer = () => {
 export const useFocusFileInput = () => {
   const {
     files: { isFileInputQueuedToFocus },
-    queueFocusFileInput: queueFocus,
     clearFocusFileInput: clearFocus,
   } = useFilesStore();
-  const {
-    settings: { isConfigDrawerOpen },
-    setSettings,
-  } = useSettingsStore();
-
-  const queueFocusFileInput = () => {
-    if (!isConfigDrawerOpen) {
-      setSettings({ isConfigDrawerOpen: true });
-    }
-    setTimeout(() => queueFocus(), 300);
-  };
 
   const focusFileInput = () => {
     const fileInput = document.getElementById(CONFIGURATION_FILE_UPLOAD_ID) as HTMLInputElement;
@@ -58,15 +46,11 @@ export const useFocusFileInput = () => {
     clearFocus();
   };
 
-  return { isFileInputQueuedToFocus, queueFocusFileInput, focusFileInput };
+  return { isFileInputQueuedToFocus, focusFileInput };
 };
 
 export const useChatHotKeys = (): CustomHotKey[] => {
-  const {
-    settings: { isConvListPanelOpen, isConfigDrawerOpen },
-    setSettings,
-    setIsConvListPanelOpen,
-  } = useSettingsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const {
     conversation: { id, messages },
   } = useConversationStore();
@@ -96,17 +80,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
       name: 'Toggle left sidebar',
       commands: ['ctrl+shift+s', 'meta+shift+s'],
       action: () => {
-        setIsConvListPanelOpen(!isConvListPanelOpen);
-      },
-      options: {
-        preventDefault: true,
-      },
-    },
-    {
-      name: 'Toggle grounding drawer',
-      commands: ['ctrl+shift+g', 'meta+shift+g'],
-      action: () => {
-        setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
+        setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
       },
       options: {
         preventDefault: true,

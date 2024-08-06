@@ -9,7 +9,7 @@ import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useNavigateToNewChat } from '@/hooks/chatRoutes';
-import { useAgentsStore, useSettingsStore } from '@/stores';
+import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -21,9 +21,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
   className = '',
   children,
 }) => {
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
   const navigateToNewChat = useNavigateToNewChat();
@@ -135,15 +133,9 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
 };
 
 const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
-  const {
-    agents: { isAgentsLeftPanelOpen },
-    setAgentsLeftSidePanelOpen,
-  } = useAgentsStore();
-  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
 
   const handleToggleAgentsLeftPanel = () => {
-    setIsConvListPanelOpen(false);
-    setSettings({ isConfigDrawerOpen: false });
     setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
   };
 
@@ -174,9 +166,7 @@ const AgentsSidePanelButton: React.FC<{
   iconClassName?: string;
   stretch?: boolean;
 }> = ({ label, tooltip, iconName, iconClassName, href, theme, stretch, onClick }) => {
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen } = useSettingsStore();
 
   if (!isAgentsLeftPanelOpen) {
     if (href) {
