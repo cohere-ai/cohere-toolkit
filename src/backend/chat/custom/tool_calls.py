@@ -61,17 +61,13 @@ async def _call_all_tools_async(
     combined = asyncio.gather(*tasks)
     try:
         tool_results = await asyncio.wait_for(combined, timeout=TIMEOUT)
-        return flatten(tool_results)
+        # Flatten a list of list of tool results
+        return [n for m in tool_results for n in m]
     except asyncio.TimeoutError:
         raise HTTPException(
             status_code=500,
             detail=f"Timeout while calling tools with timeout: {str(TIMEOUT)}",
         )
-
-
-# Flatten a list of lists
-def flatten(l):
-    return [n for m in l for n in m]
 
 
 async def _call_tool_async(
