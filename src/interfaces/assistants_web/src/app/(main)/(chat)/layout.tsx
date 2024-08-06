@@ -8,7 +8,7 @@ import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useAgentsStore, useConversationStore, useParamsStore } from '@/stores';
+import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -20,9 +20,7 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
 
-  const {
-    agents: { isAgentsRightPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsRightPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
 
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;

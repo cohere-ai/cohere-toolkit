@@ -11,7 +11,7 @@ import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
-import { useConversationStore, useSettingsStore } from '@/stores';
+import { useConversationStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 
@@ -36,10 +36,6 @@ const Conversation: React.FC<Props> = ({
   const { uploadFiles } = useFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
   const {
-    settings: { isConfigDrawerOpen },
-    setSettings,
-  } = useSettingsStore();
-  const {
     conversation: { messages },
   } = useConversationStore();
 
@@ -59,7 +55,6 @@ const Conversation: React.FC<Props> = ({
       if (agent) {
         addRecentAgentId(agent.id);
       }
-      if (isConfigDrawerOpen) setSettings({ isConfigDrawerOpen: false });
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
         finishWelcomeGuide();
       }
