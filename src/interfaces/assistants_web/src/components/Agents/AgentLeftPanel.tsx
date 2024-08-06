@@ -101,6 +101,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
           <AgentsSidePanelButton
             label="See all assistants"
             tooltip="See all assistants"
+            theme="mushroom"
             href="/discover"
             iconName="compass"
           />
@@ -114,6 +115,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
             tooltip="Settings"
             href="/settings"
             iconName="settings"
+            theme="mushroom"
           />
           <section className="flex items-center justify-between">
             <div
@@ -151,6 +153,7 @@ const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ class
     <Tooltip hover label="Toggle agents side panel" size="sm">
       <AgentsSidePanelButton
         iconName="close-drawer"
+        theme="mushroom"
         iconClassName={cn(
           'transform transition delay-100 duration-200 ease-in-out dark:fill-marble-950',
           className,

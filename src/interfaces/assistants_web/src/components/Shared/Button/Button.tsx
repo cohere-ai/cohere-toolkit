@@ -151,7 +151,7 @@ export type ButtonProps = {
 export const Button: React.FC<ButtonProps> = ({
   id,
   kind = 'primary',
-  theme = kind === 'secondary' ? 'mushroom' : 'blue',
+  theme = 'default',
   label,
   children,
   icon,
