@@ -51,6 +51,7 @@ python-calamine = "^0.2.3"
 
 # Compass dependencies - To be removed once Compass is OSS
 structlog = "^24.4.0"
+pyyaml = "^6.0.1"
 [tool.poetry.group.compass]
 optional = false
 

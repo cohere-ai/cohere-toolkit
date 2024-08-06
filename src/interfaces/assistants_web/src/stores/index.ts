@@ -31,8 +31,6 @@ export const useCitationsStore = () => {
       citations: state.citations,
       addSearchResults: state.addSearchResults,
       addCitation: state.addCitation,
-      selectCitation: state.selectCitation,
-      hoverCitation: state.hoverCitation,
       resetCitations: state.resetCitations,
       saveOutputFiles: state.saveOutputFiles,
       agents: state.agents,
@@ -87,6 +85,7 @@ export const useAgentsStore = () => {
   return useStore(
     (state) => ({
       agents: state.agents,
+      setUseAssistantKnowledge: state.setUseAssistantKnowledge,
       setAgentsLeftSidePanelOpen: state.setAgentsLeftSidePanelOpen,
       setAgentsRightSidePanelOpen: state.setAgentsRightSidePanelOpen,
     }),

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
+from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.metrics import MetricsData, MetricsMessageType
@@ -253,7 +254,7 @@ def test_create_agent_invalid_deployment(
     )
     assert response.status_code == 400
     assert response.json() == {
-        "detail": "Deployment not a real deployment not found or is not available."
+        "detail": "Deployment not a real deployment not found or is not available in the Database."
     }
 
 
@@ -277,7 +278,7 @@ def test_create_agent_invalid_tool(
 def test_create_existing_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
+    agent = get_factory("Agent", session).create(name="test agent")
     request_json = {
         "name": agent.name,
     }
@@ -289,16 +290,19 @@ def test_create_existing_agent(
     assert response.json() == {"detail": "Agent test agent already exists."}
 
 
-def test_list_agents_empty(session_client: TestClient, session: Session, user) -> None:
-    response = session_client.get("/v1/agents", headers={"User-Id": user.id})
+def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
+    # Delete default agent
+    session.query(Agent).delete()
+    response = session_client.get("/v1/agents", headers={"User-Id": "123"})
     assert response.status_code == 200
     response_agents = response.json()
     assert len(response_agents) == 0
 
 
 def test_list_agents(session_client: TestClient, session: Session, user) -> None:
+    session.query(Agent).delete()
     for _ in range(3):
-        _ = get_factory("Agent", session).create(user_id=user.id)
+        _ = get_factory("Agent", session).create(user=user)
 
     response = session_client.get("/v1/agents", headers={"User-Id": user.id})
     assert response.status_code == 200
@@ -306,11 +310,48 @@ def test_list_agents(session_client: TestClient, session: Session, user) -> None
     assert len(response_agents) == 3
 
 
+def test_list_agent_deployments(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(user=user)
+    for i in range(3):
+        deployment = get_factory("Deployment", session).create(
+            name=f"test deployment {i}"
+        )
+        model = get_factory("Model", session).create(
+            deployment=deployment, name=f"test r+ ({i})", cohere_name="command-r-plus"
+        )
+        agent_crud.assign_model_deployment_to_agent(
+            session,
+            agent,
+            model.id,
+            deployment.id,
+            deployment_config=deployment.default_deployment_config,
+        )
+        model1 = get_factory("Model", session).create(
+            deployment=deployment, name=f"test r ({i})", cohere_name="command-r"
+        )
+        agent_crud.assign_model_deployment_to_agent(
+            session,
+            agent,
+            model1.id,
+            deployment.id,
+            deployment_config=deployment.default_deployment_config,
+        )
+
+    response = session_client.get(
+        f"/v1/agents/{agent.id}/deployments", headers={"User-Id": user.id}
+    )
+    assert response.status_code == 200
+    response_deployments = response.json()
+    assert len(response_deployments) == 3
+
+
 def test_list_agents_with_pagination(
     session_client: TestClient, session: Session, user
 ) -> None:
     for _ in range(5):
-        _ = get_factory("Agent", session).create(user_id=user.id)
+        _ = get_factory("Agent", session).create(user=user)
 
     response = session_client.get(
         "/v1/agents?limit=3&offset=2", headers={"User-Id": user.id}
@@ -324,7 +365,7 @@ def test_list_agents_with_pagination(
     )
     assert response.status_code == 200
     response_agents = response.json()
-    assert len(response_agents) == 1
+    assert len(response_agents) == 2
 
 
 @pytest.mark.asyncio
@@ -382,39 +423,6 @@ async def test_get_default_agent_mertic(
 
 
 def test_get_agent(session_client: TestClient, session: Session, user) -> None:
-    agent = get_factory("Agent", session).create(name="test agent")
-    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
-        user_id=user.id,
-        agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
-        artifacts=[
-            {
-                "name": "/folder1",
-                "ids": "folder1",
-                "type": "folder_id",
-            },
-            {
-                "name": "file1.txt",
-                "ids": "file1",
-                "type": "file_id",
-            },
-        ],
-    )
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.get(
-            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
-        assert m_args.assistant.name == agent.name
-
-
-def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
@@ -451,50 +459,10 @@ def test_get_nonexistent_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     response = session_client.get("/v1/agents/456", headers={"User-Id": user.id})
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Agent with ID: 456 not found."}
 
 
-def test_update_agent_metric(session_client: TestClient, session: Session) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
-    agent = get_factory("Agent", session).create(
-        name="test agent",
-        version=1,
-        description="test description",
-        preamble="test preamble",
-        temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
-    )
-
-    request_json = {
-        "name": "updated name",
-        "version": 2,
-        "description": "updated description",
-        "preamble": "updated preamble",
-        "temperature": 0.7,
-        "model": "command-r",
-        "deployment": ModelDeploymentName.CoherePlatform,
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.put(
-            f"/v1/agents/{agent.id}",
-            json=request_json,
-            headers={"User-Id": user.id},
-        )
-
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
-
-
 def test_update_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -502,48 +470,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
-    )
-
-    request_json = {
-        "name": "updated name",
-        "version": 2,
-        "description": "updated description",
-        "preamble": "updated preamble",
-        "temperature": 0.7,
-        "model": "command-r",
-        "deployment": ModelDeploymentName.CoherePlatform,
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.put(
-            f"/v1/agents/{agent.id}",
-            json=request_json,
-            headers={"User-Id": user.id},
-        )
-
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
-
-
-def test_update_agent(session_client: TestClient, session: Session, user) -> None:
-    agent = get_factory("Agent", session).create(
-        name="test agent",
-        version=1,
-        description="test description",
-        preamble="test preamble",
-        temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -573,19 +500,16 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
     assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
 
 
-def test_partial_update_agent(
-    session_client: TestClient, session: Session, user
-) -> None:
+def test_partial_update_agent(session_client: TestClient, session: Session) -> None:
+    user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
         tools=[ToolName.Calculator],
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -605,23 +529,20 @@ def test_partial_update_agent(
     assert updated_agent["description"] == "test description"
     assert updated_agent["preamble"] == "test preamble"
     assert updated_agent["temperature"] == 0.5
-    assert updated_agent["model"] == "command-r-plus"
-    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
     assert updated_agent["tools"] == [ToolName.Search_File, ToolName.Read_File]
 
 
 def test_update_agent_with_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session
 ) -> None:
+    user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
@@ -676,17 +597,16 @@ def test_update_agent_with_tool_metadata(
 
 
 def test_update_agent_with_tool_metadata_and_new_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session
 ) -> None:
+    user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
@@ -757,17 +677,16 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
 
 
 def test_update_agent_remove_existing_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session
 ) -> None:
+    user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
@@ -819,14 +738,13 @@ def test_update_nonexistent_agent(
 def test_update_agent_wrong_user(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
-    user2 = get_factory("User", session).create(id="456")
+    agent = get_factory("Agent", session).create(user=user)
     request_json = {
         "name": "updated name",
     }
 
     response = session_client.put(
-        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user2.id}
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": "user-id"}
     )
     assert response.status_code == 401
     assert response.json() == {
@@ -843,9 +761,7 @@ def test_update_agent_invalid_model(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -871,9 +787,7 @@ def test_update_agent_invalid_deployment(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -886,61 +800,7 @@ def test_update_agent_invalid_deployment(
     )
     assert response.status_code == 400
     assert response.json() == {
-        "detail": "Deployment not a real deployment not found or is not available."
-    }
-
-
-def test_update_agent_model_without_deployment(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(
-        name="test agent",
-        version=1,
-        description="test description",
-        preamble="test preamble",
-        temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
-    )
-
-    request_json = {
-        "model": "command-r",
-    }
-
-    response = session_client.put(
-        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
-    )
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": "If updating an agent's model, the deployment must also be provided."
-    }
-
-
-def test_update_agent_deployment_without_model(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(
-        name="test agent",
-        version=1,
-        description="test description",
-        preamble="test preamble",
-        temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
-    )
-
-    request_json = {
-        "deployment": ModelDeploymentName.CoherePlatform,
-    }
-
-    response = session_client.put(
-        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
-    )
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": "If updating an agent's deployment type, the model must also be provided."
+        "detail": "Deployment not a real deployment not found or is not available in the Database."
     }
 
 
@@ -953,9 +813,7 @@ def test_update_agent_invalid_tool(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -974,24 +832,7 @@ def test_update_agent_invalid_tool(
 def test_delete_agent_metric(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.delete(
-            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_DELETED
-        assert m_args.assistant_id == agent.id
-
-
-def test_delete_agent_metric(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     with patch(
         "backend.services.metrics.report_metrics",
         return_value=None,
@@ -1006,7 +847,7 @@ def test_delete_agent_metric(
 
 
 def test_delete_agent(session_client: TestClient, session: Session, user) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     response = session_client.delete(
         f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
     )
@@ -1029,7 +870,7 @@ def test_fail_delete_nonexistent_agent(
 def test_create_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     request_json = {
         "tool_name": ToolName.Google_Drive,
         "artifacts": [
@@ -1078,7 +919,7 @@ def test_create_agent_tool_metadata(
 def test_update_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
@@ -1139,7 +980,7 @@ def test_update_agent_tool_metadata(
 def test_get_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata_1 = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
@@ -1173,7 +1014,7 @@ def test_get_agent_tool_metadata(
 def test_delete_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id)
+    agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
@@ -1206,7 +1047,7 @@ def test_delete_agent_tool_metadata(
 def test_fail_delete_nonexistent_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user_id=user.id, id="456")
+    agent = get_factory("Agent", session).create(user=user, id="456")
     response = session_client.delete(
         "/v1/agents/456/tool-metadata/789", headers={"User-Id": user.id}
     )

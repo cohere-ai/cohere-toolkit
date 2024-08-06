@@ -23,6 +23,7 @@ class RouterName(StrEnum):
     AGENT = "agent"
     DEFAULT_AGENT = "default_agent"
     SNAPSHOT = "snapshot"
+    MODEL = "model"
 
 
 # Router dependency mappings
@@ -115,6 +116,15 @@ ROUTER_DEPENDENCIES = {
         "default": [
             Depends(get_session),
             Depends(validate_user_header),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
+        ],
+    },
+    RouterName.MODEL: {
+        "default": [
+            Depends(get_session),
         ],
         "auth": [
             Depends(get_session),

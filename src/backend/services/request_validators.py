@@ -7,9 +7,73 @@ from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
+from backend.crud import deployment as deployment_crud
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
+from backend.model_deployments.utils import class_name_validator
 from backend.services.auth.utils import get_header_user_id
+
+
+def validate_deployment_model(deployment: str, model: str, session: DBSessionDep):
+    """
+    Validate that the deployment and model are compatible.
+
+    Args:
+        deployment_name (str): The deployment name
+        model_name (str): The model name
+        session (DBSessionDep): The database session
+
+    Raises:
+        HTTPException: If the deployment and model are not compatible
+
+    """
+    deployment_db = deployment_crud.get_deployment_by_name(session, deployment)
+    if not deployment_db:
+        deployment_db = deployment_crud.get_deployment(session, deployment)
+    if not deployment_db:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Deployment {deployment} not found or is not available in the Database.",
+        )
+    # Validate model
+    deployment_model = next(
+        (
+            model_db
+            for model_db in deployment_db.models
+            if model_db.name == model or model_db.id == model
+        ),
+        None,
+    )
+    if not deployment_model:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Model {model} not found for deployment {deployment}.",
+        )
+
+    return deployment_db, deployment_model
+
+
+def validate_deployment_config(deployment_config, deployment_db):
+    """
+    Validate that the deployment config is valid for the deployment.
+
+    Args:
+        deployment_config (dict): The deployment config
+        deployment_db (Deployment): The deployment database model
+
+    Raises:
+        HTTPException: If the deployment config is not valid
+
+    """
+    for key in deployment_config:
+        if (
+            key not in deployment_db.default_deployment_config
+            or not deployment_config[key]
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Deployment config key {key} not valid for deployment {deployment_db.name} or is empty.",
+            )
 
 
 def validate_user_header(session: DBSessionDep, request: Request):
@@ -36,7 +100,7 @@ def validate_user_header(session: DBSessionDep, request: Request):
         raise HTTPException(status_code=401, detail="User not found.")
 
 
-def validate_deployment_header(request: Request):
+def validate_deployment_header(request: Request, session: DBSessionDep):
     """
     Validate that the request has the `Deployment-Name` header, used for chat requests
     that require a deployment (e.g: Cohere Platform, SageMaker).
@@ -48,12 +112,22 @@ def validate_deployment_header(request: Request):
         HTTPException: If no `Deployment-Name` header.
 
     """
+    # TODO Eugene: Discuss with Scott
     deployment_name = request.headers.get("Deployment-Name")
-    if deployment_name and not deployment_name in AVAILABLE_MODEL_DEPLOYMENTS.keys():
-        raise HTTPException(
-            status_code=404,
-            detail=f"Deployment {deployment_name} was not found, or is not available.",
+    if deployment_name:
+        available_db_deployments = deployment_crud.get_deployments(session)
+        is_deployment_in_db = any(
+            deployment.name == deployment_name
+            for deployment in available_db_deployments
         )
+        if (
+            not is_deployment_in_db
+            and not deployment_name in AVAILABLE_MODEL_DEPLOYMENTS.keys()
+        ):
+            raise HTTPException(
+                status_code=404,
+                detail=f"Deployment {deployment_name} was not found, or is not available.",
+            )
 
 
 async def validate_chat_request(session: DBSessionDep, request: Request):
@@ -69,7 +143,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
     # Validate that the agent_id is valid
     body = await request.json()
     user_id = request.headers.get("User-Id")
-
+    # TODO Eugene: refactor this to use the DB Agents. Discuss with Scott - It's not clear for me
     agent_id = request.query_params.get("agent_id")
     if agent_id:
         agent = agent_crud.get_agent_by_id(session, agent_id)
@@ -179,20 +253,11 @@ async def validate_create_agent_request(session: DBSessionDep, request: Request)
         raise HTTPException(
             status_code=400, detail="Name, model, and deployment are required."
         )
-
+    deployment_config = body.get("deployment_config")
     # Validate deployment
-    if deployment not in AVAILABLE_MODEL_DEPLOYMENTS.keys():
-        raise HTTPException(
-            status_code=400,
-            detail=f"Deployment {deployment} not found or is not available.",
-        )
-
-    # Validate model
-    if model not in AVAILABLE_MODEL_DEPLOYMENTS[deployment].models:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Model {model} not found for deployment {deployment}.",
-        )
+    deployment_db, model_db = validate_deployment_model(deployment, model, session)
+    if deployment_config:
+        validate_deployment_config(deployment_config, deployment_db)
 
 
 async def validate_update_agent_request(session: DBSessionDep, request: Request):
@@ -241,19 +306,63 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
             detail=f"If updating an agent's model, the deployment must also be provided.",
         )
     elif model and deployment:
-        # Validate deployment
-        if deployment not in AVAILABLE_MODEL_DEPLOYMENTS.keys():
+        deployment_config = body.get("deployment_config")
+        # Validate
+        deployment_db, model_db = validate_deployment_model(deployment, model, session)
+        if deployment_config:
+            validate_deployment_config(deployment_config, deployment_db)
+
+
+async def validate_create_update_model_request(session: DBSessionDep, request: Request):
+    """
+    Validate that the create model request has valid deployment.
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If the request does not have the appropriate values in the body
+    """
+    body = await request.json()
+    deployment_id = body.get("deployment_id")
+    if request.method == "POST" and not deployment_id:
+        raise HTTPException(status_code=400, detail="deployment_id is required.")
+
+    if deployment_id:
+        deployment_db = deployment_crud.get_deployment(session, deployment_id)
+        if not deployment_db:
             raise HTTPException(
                 status_code=400,
-                detail=f"Deployment {deployment} not found or is not available.",
+                detail=f"Deployment {deployment_id} not found or is not available in the Database.",
             )
 
-        # Validate model
-        if model not in AVAILABLE_MODEL_DEPLOYMENTS[deployment].models:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Model {model} not found for deployment {deployment}.",
-            )
+
+async def validate_create_deployment_request(session: DBSessionDep, request: Request):
+    """
+    Validate that the create deployment request is valid.
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If the request does not have the appropriate values in the body
+    """
+    body = await request.json()
+    name = body.get("name")
+    deployment = deployment_crud.get_deployment_by_name(session, name)
+    if deployment:
+        raise HTTPException(
+            status_code=400, detail=f"Deployment {name} already exists."
+        )
+
+    deployment_class_name = body.get("deployment_class_name")
+    try:
+        class_name_validator(deployment_class_name)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Deployment class name {deployment_class_name} not found.",
+        )
 
 
 async def validate_organization_request(session: DBSessionDep, request: Request):
