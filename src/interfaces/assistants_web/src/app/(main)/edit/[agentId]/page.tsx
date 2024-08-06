@@ -11,7 +11,7 @@ type Props = {
 
 const Page: NextPage<Props> = ({ params }) => {
   return (
-    <div className="h-full w-full rounded-lg border border-marble-950 bg-marble-980">
+    <div className="h-full w-full rounded-lg border border-marble-950 bg-marble-980 dark:border-volcanic-150 dark:bg-volcanic-100">
       <UpdateAgent agentId={params.agentId} />
     </div>
   );

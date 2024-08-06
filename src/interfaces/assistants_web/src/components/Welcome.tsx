@@ -48,7 +48,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
             {!isAgent ? (
               <CoralLogo />
             ) : (
-              <Text className="uppercase" styleAs="p-lg">
+              <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
                 {agent.name[0]}
               </Text>
             )}

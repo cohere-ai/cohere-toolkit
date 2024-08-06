@@ -32,7 +32,7 @@ export const DarkModeToggle = () => {
       <div className="flex flex-col gap-2">
         <button
           className={cn('grid h-24 w-28 place-items-center rounded-lg bg-mushroom-950', {
-            'border border-evolved-green-700': theme === 'light',
+            'border border-coral-700': theme === 'light',
           })}
           onClick={() => handleSetTheme('light')}
         >
