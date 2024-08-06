@@ -112,42 +112,12 @@ def deployments_models_seed(op):
     """
     session = Session(op.get_bind())
 
-    default_user = session.query(User).filter_by(id="user-id").first()
     default_organization = Organization(
         name="Default Organization",
         id="default",
     )
     session.add(default_organization)
     session.commit()
-    default_organization.users.append(default_user)
-    session.commit()
-
-    default_agent = Agent(
-        id="default",
-        version=1,
-        name="Command R+",
-        description="Default agent",
-        preamble="",
-        temperature=0.3,
-        tools=[
-            "web_search",
-            "search_file",
-            "read_document",
-            "toolkit_python_interpreter",
-            "toolkit_calculator",
-            "wikipedia",
-            "google_drive",
-            "arxiv",
-            "example_connector",
-            "pub_med",
-            "file_reader_llamaindex",
-            "wolfram_alpha",
-            "clinical_trials",
-        ],
-        user_id=default_user.id,
-        organization_id=default_organization.id,
-    )
-    session.add(default_agent)
     session.commit()
 
     # Seed deployments and models
@@ -174,24 +144,6 @@ def deployments_models_seed(op):
             )
             session.add(new_model)
             session.commit()
-            if model_mapping_name["is_default"]:
-                model_to_agent_id = new_model.id
-                is_default_for_agent = True
-
-        agent_deployment_association = AgentDeploymentModel(
-            deployment_id=new_deployment.id,
-            agent_id=default_agent.id,
-            model_id=model_to_agent_id,
-            deployment_config={
-                env_var: os.environ.get(env_var, "")
-                for env_var in model_deployments[deployment].env_vars
-            },
-            is_default_deployment=new_deployment.name
-            == ModelDeploymentName.CoherePlatform,
-            is_default_model=is_default_for_agent,
-        )
-        session.add(agent_deployment_association)
-        session.commit()
 
 
 def delete_default_models(op):

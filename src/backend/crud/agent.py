@@ -126,7 +126,7 @@ def get_agents(
     Returns:
       list[Agent]: List of agents.
     """
-    query = db.query(Agent).filter(Agent.id != "default")
+    query = db.query(Agent)
 
     if organization_id is not None:
         query = query.filter(Agent.organization_id == organization_id)
