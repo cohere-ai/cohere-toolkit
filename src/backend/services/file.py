@@ -291,6 +291,31 @@ class FileService:
                 files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
 
+    def validate_file(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
+        """Validates if a file exists and belongs to the user
+
+        Args:
+            session (DBSessionDep): Database session
+            file_id (str): File ID
+            user_id (str): User ID
+
+        Returns:
+            File: File object
+
+        Raises:
+            HTTPException: If the file is not found
+        """
+        if self.is_compass_enabled:
+            file = get_file_in_compass(file_id, user_id)
+        else:
+            file = file_crud.get_file(session, file_id, user_id) 
+
+        if not file:
+            raise HTTPException(
+                status_code=404,
+                detail=f"File with ID: {file_id} not found.",
+            )
+
 
 # Compass Operations
 def delete_file_in_compass(file_id: str, user_id: str) -> None:
@@ -605,7 +630,7 @@ def validate_batch_file_size(
         user_id (str): The user ID
         files (list[FastAPIUploadFile]): The files to validate
 
-    Raises:
+    Raises:p
         HTTPException: If the file size is too large
     """
     total_batch_size = 0
