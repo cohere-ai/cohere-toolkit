@@ -5,13 +5,13 @@ import { uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
+import { Banner, Button, Icon, Switch, Text, Tooltip } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
-import { useAgentsStore, useParamsStore } from '@/stores';
+import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 
@@ -19,13 +19,10 @@ type Props = {};
 
 const AgentRightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const {
-    agents: { disabledAssistantKnowledge },
-    setUseAssistantKnowledge,
-  } = useAgentsStore();
+  const { disabledAssistantKnowledge, setUseAssistantKnowledge, setAgentsRightSidePanelOpen } =
+    useSettingsStore();
   const { agentId, conversationId } = useChatRoutes();
-  const { data: agent, isLoading: isAgentLoading } = useAgent({ agentId });
+  const { data: agent } = useAgent({ agentId });
   const { theme } = useBrandedColors(agentId);
 
   const {
@@ -33,7 +30,7 @@ const AgentRightPanel: React.FC<Props> = () => {
     setParams,
   } = useParamsStore();
 
-  const { data: files, isLoading: isFilesLoading } = useListFiles(conversationId);
+  const { data: files } = useListFiles(conversationId);
   const { deleteFile } = useFileActions();
 
   const agentToolMetadataArtifacts = useMemo(() => {
@@ -83,21 +80,14 @@ const AgentRightPanel: React.FC<Props> = () => {
   };
 
   return (
-    <Tabs
-      selectedIndex={selectedIndex}
-      onChange={setSelectedIndex}
-      isLoading={isAgentLoading || isFilesLoading}
-      tabs={[
-        <span className="flex items-center gap-x-2" key="knowledge">
-          <Icon name="folder" kind="outline" />
-          Knowledge
-        </span>,
-      ]}
-      tabGroupClassName="h-full"
-      tabPanelClassName="h-full"
-      panelsClassName="h-full"
-      kind="blue"
-    >
+    <aside className="space-y-5 py-4">
+      <header>
+        <IconButton
+          onClick={() => setAgentsRightSidePanelOpen(false)}
+          iconName="arrow-right"
+          className="flex h-auto flex-shrink-0 self-center md:hidden"
+        />
+      </header>
       <div className="flex flex-col gap-y-10">
         {agentId && (
           <div className="flex flex-col gap-y-4">
@@ -203,7 +193,7 @@ const AgentRightPanel: React.FC<Props> = () => {
                       onClick={() => handleDeleteFile(id)}
                       disabled={isDeletingFile}
                       iconName="close"
-                      className="hidden group-hover:flex"
+                      className="invisible group-hover:visible"
                     />
                   </div>
                 </div>
@@ -215,8 +205,7 @@ const AgentRightPanel: React.FC<Props> = () => {
           </Text>
         </section>
       </div>
-      <></>
-    </Tabs>
+    </aside>
   );
 };
 

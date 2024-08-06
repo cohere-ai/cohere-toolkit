@@ -1,12 +1,10 @@
 'use client';
 
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { clearAuthToken } from '@/app/server.actions';
 import {
   CohereClient,
   CohereClientProvider,
@@ -19,6 +17,7 @@ import { ViewportFix } from '@/components/ViewportFix';
 import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useLazyRef } from '@/hooks/lazyRef';
+import { clearAuthToken } from '@/server/actions';
 
 const makeCohereClient = (authToken?: string) => {
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
@@ -66,7 +65,6 @@ export const LayoutProviders: React.FC<React.PropsWithChildren<{ authToken?: str
             <GlobalHead />
             <WebManifestHead />
             <ToastNotification />
-            <ReactQueryDevtools />
             {children}
           </ContextStore>
         </QueryClientProvider>
