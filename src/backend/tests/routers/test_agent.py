@@ -365,7 +365,7 @@ def test_list_agents_with_pagination(
     )
     assert response.status_code == 200
     response_agents = response.json()
-    assert len(response_agents) == 2
+    assert len(response_agents) == 1
 
 
 @pytest.mark.asyncio
