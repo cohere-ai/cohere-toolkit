@@ -81,15 +81,12 @@ const AgentRightPanel: React.FC<Props> = () => {
 
   return (
     <aside className="space-y-5 py-4">
-      <header className="flex items-center gap-2">
+      <header>
         <IconButton
           onClick={() => setAgentsRightSidePanelOpen(false)}
           iconName="arrow-right"
           className="flex h-auto flex-shrink-0 self-center md:hidden"
         />
-        <Text styleAs="p-sm" className="font-medium uppercase">
-          Knowledge
-        </Text>
       </header>
       <div className="flex flex-col gap-y-10">
         {agentId && (

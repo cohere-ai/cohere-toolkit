@@ -118,7 +118,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
             <Button label="Cancel" kind="secondary" href="/discover" />
             <Button
               label="Update"
-              theme="evolved-green"
+              theme="default"
               kind="cell"
               icon={'checkmark'}
               iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}

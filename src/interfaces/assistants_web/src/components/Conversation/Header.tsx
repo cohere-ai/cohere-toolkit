@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
-  const { text, fill, contrastText, bg } = useBrandedColors(agentId);
+  const { text, fill } = useBrandedColors(agentId);
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -43,7 +43,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
     <div className="flex h-header w-full min-w-0 items-center">
       <div className="flex w-full flex-1 items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <button onClick={handleOpenLeftSidePanel}>
+          <button onClick={handleOpenLeftSidePanel} className="flex items-center gap-4">
             {agentId ? (
               <Text className="uppercase" styleAs="p-lg">
                 {agent?.name[0]}
@@ -51,24 +51,23 @@ export const Header: React.FC<Props> = ({ agentId }) => {
             ) : (
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
             )}
+            <Text className="truncate dark:text-mushroom-950" styleAs="p-lg" as="span">
+              {isLoading ? '' : agent?.name ?? 'Cohere AI'}
+            </Text>
           </button>
-          <Text className="truncate dark:text-mushroom-950" styleAs="p-lg" as="span">
-            {isLoading ? '' : agent?.name ?? 'Cohere AI'}
-          </Text>
           {agentId && (
             <Text
               styleAs="label-sm"
               className={cn(
-                'rounded bg-volcanic-200 px-2 py-1 uppercase dark:text-mushroom-950',
-                contrastText,
-                bg
+                'rounded bg-mushroom-950 px-2  py-1 font-bold uppercase dark:bg-volcanic-200',
+                text
               )}
             >
               Private
             </Text>
           )}
         </div>
-        <section className="flex items-center gap-2">
+        <section className="flex items-center gap-4">
           {id && (
             <Button
               kind="secondary"
