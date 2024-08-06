@@ -158,9 +158,8 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
     db_user.user_name = user.userName
     db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
     db_user.active = user.active
-    email_update = _get_email_from_scim_user(user) if user.emails else None
-    if email_update:
-        db_user.email = email_update
+    email_update = _get_email_from_scim_user(user)
+    db_user.email = email_update
 
     db_user = user_crud.create_user(session, db_user)
 

@@ -41,18 +41,18 @@ class CreateGroup(BaseGroup):
 
 class Email(BaseModel):
     primary: bool
-    value: str
+    value: Optional[str] = None
     type: str
 
 
 class CreateUser(BaseUser):
     name: Name
-    emails: Optional[List[Email]] = None
+    emails: List[Email]
     externalId: str
 
 
 class UpdateUser(BaseUser):
-    emails: Optional[List[Email]] = None
+    emails: List[Email]
     name: Name
 
 
