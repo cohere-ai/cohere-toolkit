@@ -2,7 +2,8 @@
 
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
-import { Button, ButtonKind, Icon, IconName, Tooltip } from '@/components/Shared';
+import { IconButton } from '@/components/IconButton';
+import { Button, ButtonKind, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type CopyToClipboardButtonProps = {
@@ -118,22 +119,20 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
         hover
         className="-translate-x-[40%]"
         buttonClassName={buttonClassName}
-        icon={
-          <Icon
-            aria-disabled={disabled}
-            name={iconName}
-            kind={isCopied ? 'default' : 'outline'}
-            className={cn(
-              'flex rounded p-2',
-              'transition ease-in-out',
-              'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
-              'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
-              iconClassName
-            )}
-            onClick={handleCopy}
-          />
-        }
-      />
+      >
+        <IconButton
+          aria-disabled={disabled}
+          iconName={iconName}
+          iconKind={isCopied ? 'default' : 'outline'}
+          className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
+          iconClassName={cn(
+            'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+            'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
+            iconClassName
+          )}
+          onClick={handleCopy}
+        />
+      </Tooltip>
     </div>
   );
 };
