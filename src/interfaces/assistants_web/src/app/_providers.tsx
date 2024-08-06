@@ -66,7 +66,7 @@ export const LayoutProviders: React.FC<React.PropsWithChildren<{ authToken?: str
             <GlobalHead />
             <WebManifestHead />
             <ToastNotification />
-            <ReactQueryDevtools />
+            {/* <ReactQueryDevtools /> */}
             {children}
           </ContextStore>
         </QueryClientProvider>

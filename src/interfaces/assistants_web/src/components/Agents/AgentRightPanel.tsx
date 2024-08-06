@@ -5,7 +5,7 @@ import { uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
+import { Banner, Button, Icon, Switch, Text, Tooltip } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
@@ -19,13 +19,13 @@ type Props = {};
 
 const AgentRightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const {
     agents: { disabledAssistantKnowledge },
     setUseAssistantKnowledge,
+    setAgentsRightSidePanelOpen,
   } = useAgentsStore();
   const { agentId, conversationId } = useChatRoutes();
-  const { data: agent, isLoading: isAgentLoading } = useAgent({ agentId });
+  const { data: agent } = useAgent({ agentId });
   const { theme } = useBrandedColors(agentId);
 
   const {
@@ -33,7 +33,7 @@ const AgentRightPanel: React.FC<Props> = () => {
     setParams,
   } = useParamsStore();
 
-  const { data: files, isLoading: isFilesLoading } = useListFiles(conversationId);
+  const { data: files } = useListFiles(conversationId);
   const { deleteFile } = useFileActions();
 
   const agentToolMetadataArtifacts = useMemo(() => {
@@ -83,21 +83,17 @@ const AgentRightPanel: React.FC<Props> = () => {
   };
 
   return (
-    <Tabs
-      selectedIndex={selectedIndex}
-      onChange={setSelectedIndex}
-      isLoading={isAgentLoading || isFilesLoading}
-      tabs={[
-        <span className="flex items-center gap-x-2" key="knowledge">
-          <Icon name="folder" kind="outline" />
+    <aside className="space-y-5 py-4">
+      <header className="flex items-center gap-2">
+        <IconButton
+          onClick={() => setAgentsRightSidePanelOpen(false)}
+          iconName="arrow-right"
+          className="flex h-auto flex-shrink-0 self-center md:hidden"
+        />
+        <Text styleAs="p-sm" className="font-medium uppercase">
           Knowledge
-        </span>,
-      ]}
-      tabGroupClassName="h-full"
-      tabPanelClassName="h-full"
-      panelsClassName="h-full"
-      kind="blue"
-    >
+        </Text>
+      </header>
       <div className="flex flex-col gap-y-10">
         {agentId && (
           <div className="flex flex-col gap-y-4">
@@ -215,8 +211,7 @@ const AgentRightPanel: React.FC<Props> = () => {
           </Text>
         </section>
       </div>
-      <></>
-    </Tabs>
+    </aside>
   );
 };
 

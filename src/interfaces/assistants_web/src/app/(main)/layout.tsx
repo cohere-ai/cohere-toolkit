@@ -6,7 +6,6 @@ import { redirect } from 'next/navigation';
 import { CohereClient, Fetch } from '@/cohere-client';
 import { AgentLeftPanel } from '@/components/Agents/AgentLeftPanel';
 import { AgentsList } from '@/components/Agents/AgentsList';
-import { MobileHeader } from '@/components/MobileHeader';
 import { COOKIE_KEYS } from '@/constants';
 import { env } from '@/env.mjs';
 import { cn } from '@/utils';
@@ -39,7 +38,6 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
             'relative flex h-full flex-grow flex-col flex-nowrap gap-3 overflow-hidden lg:flex-row'
           )}
         >
-          <MobileHeader />
           <AgentLeftPanel className="hidden md:flex">
             <AgentsList />
           </AgentLeftPanel>
