@@ -1,24 +1,26 @@
 import asyncio
-import functools
+from http.client import HTTPException
 from typing import Any, Dict, List
-from backend.chat.collate import rerank_and_chunk, to_dict
 
-from backend.config.tools import AVAILABLE_TOOLS, ToolName
-from backend.schemas.context import Context
 from sqlalchemy.orm import Session
+
+from backend.chat.collate import rerank_and_chunk, to_dict
+from backend.config.tools import AVAILABLE_TOOLS
 from backend.model_deployments.base import BaseDeployment
-import aiohttp
-
-# Timeout and error handling 
-
+from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
 
-TIMEOUT = aiohttp.ClientTimeout(total=120)
+
+# Timeout and error handling
+# if all errors then don't continue loop
+
+# High timeout for now during development
+TIMEOUT = 300
 
 logger = LoggerFactory().get_logger()
 
 async def async_call_tools(
-   chat_history: List[Dict[str, Any]],
+    chat_history: List[Dict[str, Any]],
     deployment_model: BaseDeployment,
     ctx: Context,
     **kwargs: Any,
@@ -37,11 +39,11 @@ async def async_call_tools(
         tool_plan=to_dict(tool_plan),
     )
 
-    tool_results = await _call_all_tools_async(id_to_urls, access_token)
-
-    tool_results = await rerank_and_chunk(
-        tool_results, deployment_model, ctx, **kwargs
+    tool_results = await _call_all_tools_async(
+        kwargs.get("session"), tool_calls, deployment_model, ctx
     )
+
+    tool_results = await rerank_and_chunk(tool_results, deployment_model, ctx, **kwargs)
     logger.info(
         event="[Custom Chat] Tool results",
         tool_results=to_dict(tool_results),
@@ -60,9 +62,18 @@ async def _call_all_tools_async(
         _call_tool_async(ctx, db, tool_call, deployment_model)
         for tool_call in tool_calls
     ]
-    tool_results = await asyncio.gather(*tasks)
-    return functools.reduce(lambda x, y: x | y, id_to_ttool_resultsexts)
+    combined =  asyncio.gather(*tasks)
+    try:
+       tool_results = await asyncio.wait_for(combined, timeout=TIMEOUT)
+       return flatten(tool_results)
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=500, detail=f"Timeout while calling tools with timeout: {str(TIMEOUT)}"
+        ) 
 
+# Flatten a list of lists
+def flatten(l):
+    return [n for m in l for n in m]
 
 async def _call_tool_async(
     ctx: Context,
