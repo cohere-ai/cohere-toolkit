@@ -135,7 +135,7 @@ def test_get_user(session_client: TestClient, session: Session):
 
 
 def test_put_user(session_client: TestClient, session: Session):
-    response = create_user_request(session_client)
+    response = create_user_request(session_client, email="abcd@cc.com")
     response_user = response.json()
     user_id = response_user["id"]
     assert response.status_code == 201
@@ -146,6 +146,7 @@ def test_put_user(session_client: TestClient, session: Session):
         "userName": "test.user@okta.local",
         "name": {"givenName": "Another", "familyName": "User"},
         "active": True,
+        "emails": [{"primary": True, "value": "tanzi22m@cohere.com", "type": "work"}],
         "meta": {"resourceType": "User"},
     }
 
@@ -155,7 +156,7 @@ def test_put_user(session_client: TestClient, session: Session):
     response_user = response.json()
     db_user = user_repo.get_user(session, user_id)
     assert db_user is not None
-    import pdb; pdb.set_trace()
+    assert db_user.email == "tanzi22m@cohere.com"
 
     expected_response = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
