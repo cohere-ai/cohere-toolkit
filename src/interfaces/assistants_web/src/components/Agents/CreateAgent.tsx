@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocalStorageValue } from '@react-hookz/web';
+import { cloneDeep } from 'lodash';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -41,7 +42,7 @@ export const CreateAgent: React.FC = () => {
   const { mutateAsync: createAgent } = useCreateAgent();
 
   const { addRecentAgentId } = useRecentAgents();
-  const [fields, setFields] = useState<AgentSettingsFields>(DEFAULT_FIELD_VALUES);
+  const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
