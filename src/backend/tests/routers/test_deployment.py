@@ -55,7 +55,7 @@ def test_create_deployment_invalid_deployment_class(session_client: TestClient) 
     response = session_client.post(
         "/v1/deployments", json=request_json, headers={"User-Id": "1"}
     )
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert (
         "Deployment class name InvalidDeployment not found."
         in response.json()["detail"]

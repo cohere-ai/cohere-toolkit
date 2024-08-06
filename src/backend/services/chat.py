@@ -95,7 +95,7 @@ def process_chat(
             for tool in chat_request.tools:
                 if tool.name not in agent.tools:
                     raise HTTPException(
-                        status_code=400,
+                        status_code=404,
                         detail=f"Tool {tool.name} not found in agent {agent.id}",
                     )
 
