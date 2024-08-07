@@ -7,6 +7,11 @@ redis:
   auth:
     enabled: true
     password: &redis_password "redis"
+  commonConfiguration: |
+    save 60 1
+    loglevel warning
+  networkPolicy:
+    allowExternal: false
 
 postgresql:
   enabled: true
@@ -28,6 +33,10 @@ global:
     username: "postgres"
     password: *database_password
     connection_string: "" # overrides host, port, username, and password
+  redis:
+    host: *redis_name
+    port: 6379
+    password: *redis_password
 
 backend:
   replicaCounts: 1
