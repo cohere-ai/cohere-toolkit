@@ -59,7 +59,7 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         className={cn(
           'border-marble-950 bg-marble-980 px-6 dark:border-volcanic-200 dark:bg-volcanic-100',
           {
-            'w-[280px] flex-shrink-0 rounded-r-lg border-y border-r lg:w-[360px]': isDesktop,
+            'w-[360px] rounded-r-lg border-y border-r': isDesktop,
             'absolute inset-0 rounded-lg border': isAgentsRightPanelOpen || !isDesktop,
           }
         )}

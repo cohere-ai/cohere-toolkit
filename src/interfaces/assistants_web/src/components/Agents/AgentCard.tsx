@@ -33,7 +33,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
     ? pathname === `/a/${id}/c/${conversationId}`
     : pathname === `/a/${id}`;
 
-  const { bg, contrastText } = useBrandedColors(id);
+  const { bg, contrastText, contrastFill } = useBrandedColors(id);
 
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
@@ -74,7 +74,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
             bg
           )}
         >
-          {isBaseAgent && <CoralLogo />}
+          {isBaseAgent && <CoralLogo className={contrastFill} />}
           {!isBaseAgent && (
             <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
               {name[0]}

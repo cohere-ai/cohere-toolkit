@@ -74,7 +74,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
   const { clearComposerFiles } = useFileActions();
-  const { bg, contrastText } = useBrandedColors(conversation.agent?.id);
+  const { bg, contrastText, contrastFill } = useBrandedColors(conversation.agent?.id);
 
   // if the conversation card is for the selected conversation we use the `conversationName`
   // from the context store, otherwise we use the name from the conversation object
@@ -114,7 +114,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
               {conversation.agent.name[0]}
             </Text>
           ) : (
-            <CoralLogo className="scale-50" />
+            <CoralLogo className={cn('scale-50', contrastFill)} />
           )}
         </div>
         <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
@@ -159,7 +159,11 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
           contrastText
         )}
       >
-        {conversation.agent ? <Text>{conversation.agent.name[0]}</Text> : <CoralLogo />}
+        {conversation.agent ? (
+          <Text>{conversation.agent.name[0]}</Text>
+        ) : (
+          <CoralLogo className={contrastFill} />
+        )}
       </div>
     );
     return (
