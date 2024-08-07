@@ -9,6 +9,7 @@ from community.tools import (
     ManagedTool,
     PubMedRetriever,
     WolframAlpha,
+    VectorSearch,
 )
 
 
@@ -19,6 +20,7 @@ class CommunityToolName(StrEnum):
     File_Upload_LlamaIndex = LlamaIndexUploadPDFRetriever.NAME
     Wolfram_Alpha = WolframAlpha.NAME
     ClinicalTrials = ClinicalTrials.NAME
+    VectorSearch = VectorSearch.NAME
 
 
 COMMUNITY_TOOLS = {
@@ -111,6 +113,15 @@ COMMUNITY_TOOLS = {
                 "required": False,
             },
         },
+    ),
+    CommunityToolName.VectorSearch: ManagedTool(
+        display_name="Vector Search",
+        implementation=VectorSearch,
+        is_visible=True,
+        is_available=VectorSearch.is_available(),
+        error_message="VectorSearch is not available.",
+        category=Category.Function,
+        description="Searches for similar text.",
     ),
 }
 
