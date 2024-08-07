@@ -128,7 +128,7 @@ async def health():
 
 
 @app.post("/migrate")
-async def apply_migrations():
+async def apply_migrations(request: Request):
     """
     Applies Alembic migrations - useful for serverless applications
     """
@@ -136,6 +136,16 @@ async def apply_migrations():
         alembic_cfg = Config("src/backend/alembic.ini")
         upgrade(alembic_cfg, "head")
     except Exception as e:
+        ctx = get_context(request)
+        logger = ctx.get_logger()
+
+        logger.exception(
+            event="Error while applying Alembic migrations",
+            error=str(e),
+            method=request.method,
+            url=request.url,
+            ctx=ctx,
+        )
         raise HTTPException(
             status_code=500, detail=f"Error while applying Alembic migrations: {str(e)}"
         )
