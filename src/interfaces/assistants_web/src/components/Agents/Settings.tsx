@@ -2,7 +2,7 @@
 
 import { PropsWithChildren, useState } from 'react';
 
-import { DarkModeToggle } from '@/components/DarkMode';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { Button, Icon, Tabs, Text, Tooltip } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
