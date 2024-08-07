@@ -3,8 +3,6 @@ import { useTheme } from 'next-themes';
 import { Icon, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
-import './style.css';
-
 export const DarkModeToggle = () => {
   const { theme, setTheme } = useTheme();
 
