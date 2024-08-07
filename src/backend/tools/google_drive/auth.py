@@ -9,7 +9,7 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth as ToolAuthModel
-from backend.schemas.tool_auth import ToolAuth, UpdateToolAuth
+from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
@@ -135,10 +135,8 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     @classmethod
     def get_tool_auth(self, session: DBSessionDep, user_id: str) -> ToolAuthModel:
         tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
-        tool_auth_schema = ToolAuth.model_validate(tool_auth)
-        return tool_auth_schema
+        return tool_auth
 
     def get_token(self, session: DBSessionDep, user_id: str) -> str:
         tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
-        tool_auth_schema = ToolAuth.model_validate(tool_auth)
-        return tool_auth_schema.access_token if tool_auth_schema else None
+        return tool_auth.access_token if tool_auth else None

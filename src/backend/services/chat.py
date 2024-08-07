@@ -3,11 +3,10 @@ from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
-from pydantic import ValidationError
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
@@ -15,7 +14,6 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import deployment as deployment_crud
-from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
 from backend.database_models.citation import Citation
@@ -54,7 +52,6 @@ from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.file import get_file_service
-from backend.services.generators import AsyncGeneratorContextManager
 
 
 def process_chat(
@@ -80,7 +77,8 @@ def process_chat(
     user_id = ctx.get_user_id()
     ctx.with_deployment_config()
     agent_id = ctx.get_agent_id()
-    deployment_name = request.headers.get("Deployment-Name", "")
+    # deployment_name = request.headers.get("Deployment-Name", "")
+    deployment_name = "Cohere Platform"
     deployment_config = {}
     # Deployment config is the settings for the model deployment per request
     # It is a string of key value pairs separated by semicolons
