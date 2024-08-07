@@ -541,7 +541,7 @@ def test_get_public_agent(session_client: TestClient, session: Session, user) ->
 
 def test_get_private_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(
-        name="test agent", user_id=user.id, is_private=True
+        name="test agent", user=user, is_private=True
     )
 
     response = session_client.get(
@@ -947,7 +947,7 @@ def test_update_private_agent(
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
         is_private=True,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -975,7 +975,7 @@ def test_update_public_agent(
         model="command-r-plus",
         deployment=ModelDeploymentName.CoherePlatform,
         is_private=False,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {

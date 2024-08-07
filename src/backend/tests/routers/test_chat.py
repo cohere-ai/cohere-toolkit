@@ -647,7 +647,7 @@ def test_streaming_chat_private_agent(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
     agent = get_factory("Agent", session_chat).create(
-        user_id=user.id, is_private=True, tools=[]
+        user=user, is_private=True, tools=[]
     )
     response = session_client_chat.post(
         "/v1/chat-stream",

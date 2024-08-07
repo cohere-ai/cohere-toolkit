@@ -72,7 +72,9 @@ class Agent(Base):
 
     user = relationship("User", back_populates="agents")
     # TODO Eugene  - add the composite index here if needed
-    __table_args__ = (UniqueConstraint("name", "version", name="_name_version_uc"),)
+    __table_args__ = (
+        UniqueConstraint("name", "version", "user_id", name="_name_version_user_uc"),
+    )
 
     @property
     def default_model_association(self):
