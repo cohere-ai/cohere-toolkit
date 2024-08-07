@@ -3,7 +3,7 @@
 Cohere's open source web interface for users to have helpful conversations with our conversational models.
 
 > [!CAUTION]
-> This is a work in progress interface that will replace coral_web, for now refer to (coral_web)[../coral_web/README.md].
+> This is a work in progress interface that will replace assistants_web, for now refer to (assistants_web)[../assistants_web/README.md].
 
 ## Usage
 
