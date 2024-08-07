@@ -6,7 +6,6 @@ import { ThemeProvider } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { clearAuthToken } from '@/app/server.actions';
 import {
   CohereClient,
   CohereClientProvider,
@@ -19,6 +18,7 @@ import { ViewportFix } from '@/components/ViewportFix';
 import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useLazyRef } from '@/hooks/lazyRef';
+import { clearAuthToken } from '@/server/actions';
 
 const makeCohereClient = (authToken?: string) => {
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);

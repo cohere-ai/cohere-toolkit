@@ -262,7 +262,7 @@ const StepButtons: React.FC<{
         />
         <Button
           label={nextLabel}
-          theme="evolved-green"
+          theme="default"
           kind="cell"
           icon={isSubmit ? 'checkmark' : 'arrow-right'}
           disabled={disabled}

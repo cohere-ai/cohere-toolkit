@@ -3,7 +3,6 @@
 import { GuideTooltip } from '@/components/GuideTooltip';
 import { useFocusComposer } from '@/hooks/actions';
 import { useShowWelcomeGuide, useWelcomeGuideState } from '@/hooks/ftux';
-import { useSettingsStore } from '@/stores';
 
 type Props = {
   step: number;
@@ -16,7 +15,6 @@ type Props = {
 export const WelcomeGuideTooltip: React.FC<Props> = ({ className = '', step }) => {
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
-  const { setSettings } = useSettingsStore();
   const showWelcomeGuide = useShowWelcomeGuide();
   const { focusComposer } = useFocusComposer();
 
@@ -28,9 +26,7 @@ export const WelcomeGuideTooltip: React.FC<Props> = ({ className = '', step }) =
       description:
         'Say hi to the model! Open this sidebar to select tools and data sources the model should use in this conversation.',
       buttonLabel: 'Next',
-      onNext: () => {
-        setSettings({ isConfigDrawerOpen: true });
-      },
+      onNext: () => {},
     },
     {
       title: 'Configure your Tools',
@@ -39,7 +35,6 @@ export const WelcomeGuideTooltip: React.FC<Props> = ({ className = '', step }) =
       buttonLabel: 'Next',
       onNext: () => {
         focusComposer();
-        setSettings({ isConfigDrawerOpen: false });
       },
     },
     {

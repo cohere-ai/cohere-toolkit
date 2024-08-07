@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useConversations } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -25,7 +24,6 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const { conversationId } = useChatRoutes();
   const router = useRouter();
   const pathname = usePathname();
-  const { data: conversations } = useConversations({ agentId: id });
 
   const isActive = isBaseAgent
     ? conversationId
@@ -52,15 +50,8 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const handleClick = () => {
     if (isActive) return;
 
-    const newestConversationId =
-      conversations?.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))[0]?.id ??
-      '';
-    const conversationPath = newestConversationId ? `c/${newestConversationId}` : '';
-    const url = isBaseAgent
-      ? `/c/${newestConversationId}`
-      : id
-      ? `/a/${id}/${conversationPath}`
-      : '/';
+    const url = isBaseAgent ? '/' : `/a/${id}`;
+
     router.push(url);
 
     resetConversationSettings();
@@ -71,9 +62,9 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
       <div
         onClick={handleClick}
         className={cn(
-          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-mushroom-900/80 dark:hover:bg-volcanic-200',
+          'group flex w-full items-center justify-between gap-x-2 rounded-lg p-2 transition-colors hover:cursor-pointer hover:bg-mushroom-800 dark:hover:bg-volcanic-200',
           {
-            'bg-mushroom-900/80 dark:bg-volcanic-200': isActive,
+            'bg-mushroom-800 dark:bg-volcanic-200': isActive,
           }
         )}
       >

@@ -51,11 +51,15 @@ export const IconButton: React.FC<Props> = ({
       target={target}
       icon={iconName}
       iconOptions={{ kind: iconKind, className: iconClassName, customIcon: icon }}
-      className={cn(className, 'group/icon-button h-8 w-8 p-0', {
-        'h-8 w-8': size === 'md',
-        'h-7 w-7': size === 'sm',
-        'p-2': outline,
-      })}
+      className={cn(
+        'group/icon-button h-8 w-8 p-0',
+        {
+          'h-8 w-8': size === 'md',
+          'h-7 w-7': size === 'sm',
+          'p-2': outline,
+        },
+        className
+      )}
     />
   );
 
