@@ -1,6 +1,13 @@
 # Default values for cohere-toolkit.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+redis:
+  enabled: true
+  fullnameOverride: &redis_name "toolkit-redis"
+  auth:
+    enabled: true
+    password: &redis_password "redis"
+
 postgresql:
   enabled: true
   fullnameOverride: &database_name "toolkit-db"
