@@ -18,13 +18,15 @@ scim_auth_header = {
 
 def create_user_request(
     session_client: TestClient,
-    user_name: str = "testuser@company.com",
-    external_id: str = "23123123",
+    user_name="testuser@company.com",
+    external_id="23123123",
+    email="thisispatrick@gmail.com",
 ):
     user_data_req = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
         "userName": user_name,
         "name": {"givenName": "Test", "familyName": "User"},
+        "emails": [{"primary": True, "value": email, "type": "work"}],
         "externalId": external_id,
         "locale": "en-US",
         "groups": [],
@@ -49,12 +51,13 @@ def create_group_request(session_client: TestClient):
 
 
 def test_create_user(session_client: TestClient, session: Session) -> None:
-    response = create_user_request(session_client)
+    response = create_user_request(session_client, email="tanzi66m@cohere.com")
     assert response.status_code == 201
     response_user = response.json()
 
     db_user = user_repo.get_user(session, response_user["id"])
     assert db_user is not None
+    assert db_user.email == "tanzi66m@cohere.com"
 
     expected_user = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
@@ -132,7 +135,7 @@ def test_get_user(session_client: TestClient, session: Session):
 
 
 def test_put_user(session_client: TestClient, session: Session):
-    response = create_user_request(session_client)
+    response = create_user_request(session_client, email="abcd@cc.com")
     response_user = response.json()
     user_id = response_user["id"]
     assert response.status_code == 201
@@ -143,6 +146,7 @@ def test_put_user(session_client: TestClient, session: Session):
         "userName": "test.user@okta.local",
         "name": {"givenName": "Another", "familyName": "User"},
         "active": True,
+        "emails": [{"primary": True, "value": "tanzi22m@cohere.com", "type": "work"}],
         "meta": {"resourceType": "User"},
     }
 
@@ -150,9 +154,9 @@ def test_put_user(session_client: TestClient, session: Session):
         f"/scim/v2/Users/{user_id}", json=put_data, headers=scim_auth_header
     )
     response_user = response.json()
-
     db_user = user_repo.get_user(session, user_id)
     assert db_user is not None
+    assert db_user.email == "tanzi22m@cohere.com"
 
     expected_response = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
@@ -403,7 +407,10 @@ def test_replace_users_in_group(session_client: TestClient, session: Session):
     group = group_repo.get_group_by_name(session, "Test SCIMv2")
 
     response = create_user_request(
-        session_client, user_name="test.user.new@okta.local", external_id="1234546"
+        session_client,
+        user_name="test.user.new@okta.local",
+        external_id="1234546",
+        email="sponge@krusty.com",
     )
     response_user = response.json()
     user_id = response_user["id"]

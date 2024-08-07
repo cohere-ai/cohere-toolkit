@@ -1,4 +1,4 @@
-from typing import ClassVar, Dict, Optional, Union
+from typing import ClassVar, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -39,12 +39,20 @@ class CreateGroup(BaseGroup):
     pass
 
 
+class Email(BaseModel):
+    primary: bool
+    value: Optional[str] = None
+    type: str
+
+
 class CreateUser(BaseUser):
     name: Name
+    emails: List[Email]
     externalId: str
 
 
 class UpdateUser(BaseUser):
+    emails: List[Email]
     name: Name
 
 

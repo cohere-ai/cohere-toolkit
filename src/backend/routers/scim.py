@@ -140,6 +140,7 @@ async def create_user(
     db_user = DBUser(
         user_name=user.userName,
         fullname=f"{user.name.givenName} {user.name.familyName}",
+        email=_get_email_from_scim_user(user),
         active=user.active,
         external_id=user.externalId,
     )
@@ -157,6 +158,8 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
     db_user.user_name = user.userName
     db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
     db_user.active = user.active
+    email_update = _get_email_from_scim_user(user)
+    db_user.email = email_update
 
     db_user = user_crud.create_user(session, db_user)
 
@@ -278,3 +281,10 @@ async def delete_group(group_id: str, session: DBSessionDep):
     if not db_group:
         raise SCIMException(status_code=404, detail="Group not found")
     group_crud.delete_group(session, group_id)
+
+
+def _get_email_from_scim_user(user: CreateUser | UpdateUser) -> str | None:
+    for email_obj in user.emails:
+        if email_obj.primary:
+            return email_obj.value
+    return None
