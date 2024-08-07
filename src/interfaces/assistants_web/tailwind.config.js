@@ -22,7 +22,7 @@ module.exports = {
         'citation-panel-xl': '349px', // subtract 10px for scrollbar and 1px for border
         menu: '174px',
         'agents-panel-collapsed': '82px',
-        'agents-panel-expanded': '288px',
+        'agents-panel-expanded': '240px',
         'agents-panel-expanded-lg': '320px',
         'left-panel-lg': '242px',
         'left-panel-2xl': '300px',
@@ -52,7 +52,7 @@ module.exports = {
       maxWidth: {
         message: '976px',
         'agents-panel-collapsed': '82px',
-        'agents-panel-expanded': '288px',
+        'agents-panel-expanded': '240px',
         'agents-panel-expanded-lg': '320px',
         drawer: '288px',
         'drawer-lg': '360px',
