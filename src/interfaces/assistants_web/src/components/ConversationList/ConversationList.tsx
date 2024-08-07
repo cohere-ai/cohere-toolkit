@@ -22,7 +22,7 @@ const sortByDate = (a: Conversation, b: Conversation) => {
  * @description This component renders a list of agents.
  * It shows the most recent agents and the base agents.
  */
-export const AgentsList: React.FC = () => {
+export const ConversationList: React.FC = () => {
   const { data: conversations } = useConversations({});
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
   const { data: agents = [] } = useListAgents();
@@ -72,7 +72,11 @@ export const AgentsList: React.FC = () => {
           )}
         </section>
       </div>
-      <div className="flex-grow space-y-4 overflow-y-auto">
+      <div
+        className={cn('flex-grow', {
+          'space-y-4 overflow-y-auto': conversations.length > 0,
+        })}
+      >
         <Text
           styleAs="label"
           className={cn('truncate dark:text-mushroom-800', {

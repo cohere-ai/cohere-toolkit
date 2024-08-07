@@ -4,6 +4,7 @@ import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 import React from 'react';
 
+import { ConversationList } from '@/components/ConversationList/ConversationList';
 import { Button, ButtonTheme, Icon, IconName, Logo, Text, Tooltip } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
@@ -17,10 +18,7 @@ import { cn } from '@/utils';
  * It contains the logo and a button to expand or collapse the panel.
  * It also renders the children components that are passed to it.
  */
-export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
-  className = '',
-  children,
-}) => {
+export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { isAgentsLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -29,7 +27,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
   return (
     <Transition
       show={isAgentsLeftPanelOpen || isDesktop}
-      as="div"
+      as="aside"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
         'h-full bg-mushroom-900 dark:bg-volcanic-60',
@@ -105,7 +103,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
           />
         </div>
 
-        {children}
+        <ConversationList />
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
           <AgentsSidePanelButton

@@ -89,7 +89,7 @@ const getButtonStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean
   }
 
   return cn({
-    'fill-coral-700 bg-coral-700 group-hover:bg-coral-600 dark:bg-evolved-green-700 dark:group-hover:bg-evolved-green-500':
+    'fill-coral-700 bg-coral-700 dark:text-volcanic-150 group-hover:bg-coral-600 dark:bg-evolved-green-700 dark:group-hover:bg-evolved-green-500':
       theme === 'default',
     'bg-evolved-green-700 group-hover:bg-evolved-green-500': theme === 'evolved-green',
     'bg-blue-500 group-hover:bg-blue-400': theme === 'blue',
@@ -169,7 +169,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const labelStyles = getLabelStyles(kind, theme, disabled);
   const buttonStyles = getButtonStyles(kind, theme, disabled);
-  const animate = !!icon && (!!label || !!children); // we only want to animate if there is an icon and a label
+  const animate = (!!icon || !!iconOptions?.customIcon) && (!!label || !!children); // we only want to animate if there is an icon and a label
 
   const animateClasses = cn({
     'duration-400 transform transition-transform ease-in-out group-hover:-translate-x-1.5': animate,
@@ -216,6 +216,7 @@ export const Button: React.FC<ButtonProps> = ({
             className={cn({
               [animateClasses]: iconPosition === 'start',
               'px-2': kind === 'outline',
+              'w-full': stretch && kind === 'secondary',
             })}
           >
             {labelElement}
