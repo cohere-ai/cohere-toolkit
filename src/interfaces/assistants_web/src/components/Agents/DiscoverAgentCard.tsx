@@ -6,7 +6,7 @@ import { cn } from '@/utils';
 
 type Props = {
   name: string;
-  description?: string;
+  description?: string | null;
   isBaseAgent?: boolean;
   id?: string;
 };

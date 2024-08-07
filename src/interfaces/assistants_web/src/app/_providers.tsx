@@ -1,6 +1,7 @@
 'use client';
 
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -65,6 +66,7 @@ export const LayoutProviders: React.FC<React.PropsWithChildren<{ authToken?: str
             <GlobalHead />
             <WebManifestHead />
             <ToastNotification />
+            <ReactQueryDevtools />
             {children}
           </ContextStore>
         </QueryClientProvider>
