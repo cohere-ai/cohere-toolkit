@@ -3,17 +3,15 @@ dev:
 watch:
 	@docker compose watch --no-up
 up:
-	@docker compose up --build
+	@docker compose up --build -d
 down:
 	@docker compose down
 run-tests:
 	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
-attach: 
-	@docker attach cohere-toolkit-backend-1
 logs: 
-	@docker compose logs -f backend
+	@docker-compose logs --follow --tail 100 $(service)
 exec-backend:
 	docker exec -ti cohere-toolkit-backend-1 bash 
 exec-db:
@@ -56,7 +54,5 @@ install-web:
 	cd src/interfaces/coral_web && npm install
 build-web:
 	cd src/interfaces/coral_web && npm run build
-sync-worker:
-	@docker compose up --build sync_worker
-sync-publisher:
-	@docker compose up --build sync_publisher
+dev-sync:
+	@docker compose up --build sync_worker sync_publisher flower -d

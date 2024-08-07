@@ -93,6 +93,8 @@ services:
       dockerfile: ./src/backend/Dockerfile
     command: ["./src/backend/services/sync/executor.sh", "${ENVIRONMENT}"]
     restart: unless-stopped
+    profiles:
+      - sync
     develop:
       watch:
         - action: sync
@@ -117,6 +119,8 @@ services:
         DOCKER_BUILDKIT: 1
       dockerfile: ./src/backend/services/sync/Dockerfile
     restart: unless-stopped
+    profiles:
+      - sync
     develop:
       watch:
         - action: sync
@@ -171,6 +175,8 @@ services:
 
   flower:
     image: mher/flower
+    profiles:
+      - sync
     environment:
       - CELERY_BROKER_URL=redis://:redis@redis:6379
       - FLOWER_PORT=5555
