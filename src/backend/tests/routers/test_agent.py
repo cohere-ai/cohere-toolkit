@@ -314,11 +314,11 @@ def test_list_private_agents(
     session_client: TestClient, session: Session, user
 ) -> None:
     for _ in range(3):
-        _ = get_factory("Agent", session).create(user_id=user.id, is_private=True)
+        _ = get_factory("Agent", session).create(user=user, is_private=True)
 
     user2 = get_factory("User", session).create(id="456")
     for _ in range(2):
-        _ = get_factory("Agent", session).create(user_id=user2.id, is_private=True)
+        _ = get_factory("Agent", session).create(user=user2, is_private=True)
 
     response = session_client.get(
         "/v1/agents?visibility=private", headers={"User-Id": user.id}
@@ -333,11 +333,11 @@ def test_list_private_agents(
 
 def test_list_public_agents(session_client: TestClient, session: Session, user) -> None:
     for _ in range(3):
-        _ = get_factory("Agent", session).create(user_id=user.id, is_private=True)
+        _ = get_factory("Agent", session).create(user=user, is_private=True)
 
     user2 = get_factory("User", session).create(id="456")
     for _ in range(2):
-        _ = get_factory("Agent", session).create(user_id=user2.id, is_private=False)
+        _ = get_factory("Agent", session).create(user=user2, is_private=False)
 
     response = session_client.get(
         "/v1/agents?visibility=public", headers={"User-Id": user.id}
@@ -354,11 +354,11 @@ def list_public_and_private_agents(
     session_client: TestClient, session: Session, user
 ) -> None:
     for _ in range(3):
-        _ = get_factory("Agent", session).create(user_id=user.id, is_private=True)
+        _ = get_factory("Agent", session).create(user=user, is_private=True)
 
     user2 = get_factory("User", session).create(id="456")
     for _ in range(2):
-        _ = get_factory("Agent", session).create(user_id=user2.id, is_private=False)
+        _ = get_factory("Agent", session).create(user=user2, is_private=False)
 
     response = session_client.get(
         "/v1/agents?visibility=all", headers={"User-Id": user.id}

@@ -156,7 +156,13 @@ def test_list_private_agents(session, user):
     length = 3
     for i in range(length):
         _ = get_factory("Agent", session).create(
-            id=i, name=f"test_agent_{i}", user_id=user.id, is_private=True
+            id=i, name=f"test_agent_{i}", user=user, is_private=True
+        )
+
+    user2 = get_factory("User", session).create()
+    for i in range(length, length * 2):
+        _ = get_factory("Agent", session).create(
+            id=i, name=f"test_agent_{i}", user=user2, is_private=True
         )
 
     agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.PRIVATE)
@@ -170,12 +176,12 @@ def test_list_public_and_private_agents(session, user):
     length = 3
     for i in range(length):
         _ = get_factory("Agent", session).create(
-            id=i, name=f"test_agent_{i}", user_id=user.id, is_private=True
+            id=i, name=f"test_agent_{i}", user=user, is_private=True
         )
 
     for i in range(length, length * 2):
         _ = get_factory("Agent", session).create(
-            id=i, name=f"test_agent_{i}", user_id=user.id, is_private=False
+            id=i, name=f"test_agent_{i}", user=user, is_private=False
         )
 
     agents = agent_crud.get_agents(session, user.id, visibility=AgentVisibility.ALL)
