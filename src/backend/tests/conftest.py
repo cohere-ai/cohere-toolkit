@@ -221,13 +221,3 @@ def mock_compass_settings():
         mock_settings.tools.compass.username = os.getenv("COHERE_COMPASS_USERNAME")
         mock_settings.tools.compass.password = os.getenv("COHERE_COMPASS_PASSWORD")
         yield mock_settings
-
-
-@pytest.fixture
-def mock_compass():
-    with patch("backend.services.file.get_compass") as mock:
-        try:
-            compass = Compass()
-        except Exception as e:
-            raise e
-        yield compass

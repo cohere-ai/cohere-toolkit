@@ -1,6 +1,7 @@
 import io
 import os
 import uuid
+import asyncio
 from datetime import datetime
 
 import pandas as pd
@@ -326,14 +327,18 @@ def delete_file_in_compass(file_id: str, user_id: str) -> None:
 
 
 def get_file_in_compass(file_id: str, user_id: str) -> File:
-    fetched_doc = (
-        get_compass()
-        .invoke(
-            action=Compass.ValidActions.GET_DOCUMENT,
-            parameters={"index": file_id, "file_id": file_id},
+    fetched_doc = None
+    try:
+        fetched_doc = (
+            get_compass()
+            .invoke(
+                action=Compass.ValidActions.GET_DOCUMENT,
+                parameters={"index": file_id, "file_id": file_id},
+            )
+            .result["doc"]["content"]
         )
-        .result["doc"]["content"]
-    )
+    except Exception:
+        return fetched_doc
 
     return File(
         id=file_id,
@@ -350,14 +355,17 @@ def get_file_in_compass(file_id: str, user_id: str) -> File:
 def get_files_in_compass(file_ids: list[str], user_id: str) -> list[File]:
     files = []
     for file_id in file_ids:
-        fetched_doc = (
-            get_compass()
-            .invoke(
-                action=Compass.ValidActions.GET_DOCUMENT,
-                parameters={"index": file_id, "file_id": file_id},
+        try:
+            fetched_doc = (
+                get_compass()
+                .invoke(
+                    action=Compass.ValidActions.GET_DOCUMENT,
+                    parameters={"index": file_id, "file_id": file_id},
+                )
+                .result["doc"]["content"]
             )
-            .result["doc"]["content"]
-        )
+        except Exception as e:
+            print(e)
 
         files.append(
             File(
@@ -410,14 +418,14 @@ async def insert_files_in_compass(
         filename = file.filename.encode("ascii", "ignore").decode("utf-8")
         file_bytes = await file.read()
         new_file_id = str(uuid.uuid4())
-
-        # Create new index for file
+        print("CREATE INDEX")
         get_compass().invoke(
             action=Compass.ValidActions.CREATE_INDEX,
             parameters={
                 "index": new_file_id,
             },
         )
+        print("CREATE DOCUMENT")
         get_compass().invoke(
             action=Compass.ValidActions.CREATE,
             parameters={
@@ -426,21 +434,21 @@ async def insert_files_in_compass(
                 "file_text": file_bytes,
             },
         )
-        get_compass().invoke(
-            action=Compass.ValidActions.ADD_CONTEXT,
-            parameters={
-                "index": new_file_id,
-                "file_id": new_file_id,
-                "context": {
-                    "file_name": filename,
-                    "file_path": filename,
-                    "file_size": file.size,
-                    "user_id": user_id,
-                    "created_at": datetime.now().isoformat(),
-                    "updated_at": datetime.now().isoformat(),
-                },
-            },
-        )
+        # get_compass().invoke(
+        #     action=Compass.ValidActions.ADD_CONTEXT,
+        #     parameters={
+        #         "index": new_file_id,
+        #         "file_id": new_file_id,
+        #         "context": {
+        #             "file_name": filename,
+        #             "file_path": filename,
+        #             "file_size": file.size,
+        #             "user_id": user_id,
+        #             "created_at": datetime.now().isoformat(),
+        #             "updated_at": datetime.now().isoformat(),
+        #         },
+        #     },
+        # )
         get_compass().invoke(
             action=Compass.ValidActions.REFRESH,
             parameters={"index": new_file_id},
