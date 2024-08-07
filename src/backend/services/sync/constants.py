@@ -6,6 +6,7 @@ from backend.config.settings import Settings
 
 load_dotenv()
 
+# Very high, extreme fallback in case Compass is busy
 DEFAULT_TIME_OUT = 10 * 60
 SYNC_BROKER_URL = Settings().sync.broker_url
 SYNC_DATABASE_URL = Settings().database.url
