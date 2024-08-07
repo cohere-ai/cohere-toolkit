@@ -18,7 +18,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
   const { bg, contrastText, contrastFill } = useBrandedColors(id);
 
   return (
-    <article className="flex overflow-x-hidden rounded-lg border border-volcanic-800 bg-volcanic-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
+    <article className="flex overflow-x-hidden rounded-lg border border-volcanic-800 bg-volcanic-950 p-4 transition-colors dark:border-volcanic-300 dark:bg-volcanic-150 dark:hover:bg-volcanic-200">
       <div className="flex h-full flex-grow flex-col items-start gap-y-2 overflow-x-hidden">
         <div className="flex w-full items-center gap-x-2">
           <div
