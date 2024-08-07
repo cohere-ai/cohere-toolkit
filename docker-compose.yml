@@ -88,7 +88,7 @@ services:
   frontend:
     build:
       target: ${BUILD_TARGET:-prod}
-      context: ./src/interfaces/coral_web
+      context: ./src/interfaces/assistants_web
       dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file
     environment:
@@ -97,7 +97,6 @@ services:
       NEXT_PUBLIC_FRONTEND_HOSTNAME: ${NEXT_PUBLIC_FRONTEND_HOSTNAME}
       NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}
       NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: ${NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY}
-      NEXT_PUBLIC_DARK_MODE: ${NEXT_PUBLIC_DARK_MODE}
     restart: always
     networks:
       - proxynet
@@ -106,7 +105,7 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./src/interfaces/coral_web
+          path: ./src/interfaces/assistants_web
           target: /app
           ignore:
             - node_modules/
