@@ -1,10 +1,17 @@
 import datetime
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
 from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
 from backend.schemas.deployment import ModelSimple as ModelSchema
+
+
+class AgentVisibility(str, Enum):
+    PRIVATE = "private"
+    PUBLIC = "public"
+    ALL = "all"
 
 
 class AgentBase(BaseModel):
@@ -93,6 +100,7 @@ class CreateAgentRequest(BaseModel):
     # deployment_id or deployment_name
     deployment: str
     organization_id: Optional[str] = None
+    is_private: Optional[bool] = False
 
     class Config:
         from_attributes = True

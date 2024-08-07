@@ -1,8 +1,10 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from backend.database_models import Deployment
 from backend.database_models.agent import Agent, AgentDeploymentModel
-from backend.schemas.agent import UpdateAgentRequest
+from backend.schemas.agent import AgentVisibility, UpdateAgentRequest
 from backend.services.transaction import validate_transaction
 
 
@@ -27,9 +29,10 @@ def create_agent(db: Session, agent: Agent) -> Agent:
 
 
 @validate_transaction
-def get_agent_by_id(db: Session, agent_id: str) -> Agent:
+def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
     """
     Get an agent by its ID.
+    Anyone can get a public agent, but only the owner can get a private agent.
 
     Args:
       db (Session): Database session.
@@ -38,12 +41,19 @@ def get_agent_by_id(db: Session, agent_id: str) -> Agent:
     Returns:
       Agent: Agent with the given ID.
     """
-    return db.query(Agent).filter(Agent.id == agent_id).first()
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+
+    if agent and agent.is_private and agent.user_id != user_id:
+        return None
+
+    return agent
 
 
-def get_agent_by_name(db: Session, agent_name: str) -> Agent:
+@validate_transaction
+def get_agent_by_name(db: Session, agent_name: str, user_id: str) -> Agent:
     """
     Get an agent by its name.
+    Anyone can get a public agent, but only the owner can get a private agent.
 
     Args:
       db (Session): Database session.
@@ -52,9 +62,15 @@ def get_agent_by_name(db: Session, agent_name: str) -> Agent:
     Returns:
       Agent: Agent with the given name.
     """
-    return db.query(Agent).filter(Agent.name == agent_name).first()
+    agent = db.query(Agent).filter(Agent.name == agent_name).first()
+
+    if agent and agent.is_private and agent.user_id != user_id:
+        return None
+
+    return agent
 
 
+@validate_transaction
 def get_association_by_deployment_name(
     db: Session, agent: Agent, deployment_name: str
 ) -> AgentDeploymentModel:
@@ -80,6 +96,7 @@ def get_association_by_deployment_name(
     )
 
 
+@validate_transaction
 def get_association_by_deployment_id(
     db: Session, agent: Agent, deployment_id: str
 ) -> AgentDeploymentModel:
@@ -106,15 +123,18 @@ def get_association_by_deployment_id(
     )
 
 
+@validate_transaction
 def get_agents(
     db: Session,
+    user_id: str,
     offset: int = 0,
     limit: int = 100,
-    organization_id: str = None,
-    user_id: str = None,
+    organization_id: Optional[str] = None,
+    visibility: AgentVisibility = AgentVisibility.ALL,
 ) -> list[Agent]:
     """
     Get all agents for a user.
+    Public agents are visible to everyone, private agents are only visible to the owner.
 
     Args:
         db (Session): Database session.
@@ -128,14 +148,21 @@ def get_agents(
     """
     query = db.query(Agent)
 
+    # Filter by visibility
+    if visibility == AgentVisibility.PUBLIC:
+        query = query.filter(Agent.is_private == False)
+    elif visibility == AgentVisibility.PRIVATE:
+        query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
+
+    # Filter by organization and user
     if organization_id is not None:
         query = query.filter(Agent.organization_id == organization_id)
-    if user_id is not None:
-        query = query.filter(Agent.user_id == user_id)
+
     query = query.offset(offset).limit(limit)
     return query.all()
 
 
+@validate_transaction
 def get_agent_model_deployment_association(
     db: Session, agent: Agent, model_id: str, deployment_id: str
 ) -> AgentDeploymentModel:
@@ -220,7 +247,9 @@ def assign_model_deployment_to_agent(
 
 
 @validate_transaction
-def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Agent:
+def update_agent(
+    db: Session, agent: Agent, new_agent: UpdateAgentRequest, user_id: str
+) -> Agent:
     """
     Update an agent.
 
@@ -232,6 +261,9 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Ag
     Returns:
       Agent: Updated agent.
     """
+    if agent.is_private and agent.user_id != user_id:
+        return None
+
     for attr, value in new_agent.model_dump(exclude_none=True).items():
         setattr(agent, attr, value)
 
@@ -241,15 +273,27 @@ def update_agent(db: Session, agent: Agent, new_agent: UpdateAgentRequest) -> Ag
 
 
 @validate_transaction
-def delete_agent(db: Session, agent_id: str) -> None:
+def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     """
     Delete an agent by ID.
+    Anyone can delete a public agent, but only the owner can delete a private agent.
 
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
+
+    Returns:
+      bool: True if the agent was deleted, False otherwise
     """
-    agent = db.query(Agent).filter(Agent.id == agent_id)
-    agent.delete()
+    agent_query = db.query(Agent).filter(Agent.id == agent_id)
+    agent = agent_query.first()
+
+    if not agent:
+        return False
+
+    if agent and agent.is_private and agent.user_id != user_id:
+        return False
+
+    agent_query.delete()
     db.commit()
-    return None
+    return True

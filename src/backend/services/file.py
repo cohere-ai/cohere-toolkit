@@ -16,6 +16,7 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.file import File, UpdateFileRequest
 from backend.services import utils
+from backend.services.agent import validate_agent_exists
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -120,12 +121,7 @@ class FileService:
         Returns:
             list[File]: The files that were created
         """
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        if agent is None:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Agent with ID: {agent_id} not found.",
-            )
+        agent = validate_agent_exists(session, agent_id, user_id)
 
         files = []
         agent_tool_metadata = agent.tools_metadata

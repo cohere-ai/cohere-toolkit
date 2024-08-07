@@ -52,6 +52,7 @@ class Agent(Base):
             "organizations.id", name="agents_organization_id_fkey", ondelete="CASCADE"
         )
     )
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False)
 
     deployments = relationship(
         "Deployment",
