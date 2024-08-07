@@ -39,6 +39,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          context: ./src/interfaces/coral_web
+          context: ./src/interfaces/assistants_web
           tags: ${{ steps.meta.outputs.tags }}
           push: true
