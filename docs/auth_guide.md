@@ -48,8 +48,11 @@ OAuth strategies should implement the `authorize` method to verify an authorizat
 * This only works if you already set up SSO via OIDC beforehand. We do not support password syncing.
 
 SCIM allows you organization to synchronize your users and groups from your identity provider to the Toolkit. This has the benefit of:
-  * Automatically creating / deactivating users in the Toolkit when they are created / deactivated in your identity provider.
-  * Automatically assigning users to groups in the Toolkit when they are assigned to groups in your identity provider for access management.
+* Automatically creating / deactivating users in the Toolkit when they are created / deactivated in your identity provider.
+* Automatically assigning users to groups in the Toolkit when they are assigned to groups in your identity provider for access management.
+
+### Create a username and password for SCIM
+1. Fill in the following values in your configuration: SCIM_USER, SCIM_PASSWORD. Make sure to generate a secure secret for SCIM_PASSWORD
 
 ### Create a new SCIM application in OKTA.
 1. Login to Okta as an Admin
@@ -61,13 +64,14 @@ SCIM allows you organization to synchronize your users and groups from your iden
 7. On the next screen leave the default configuration and click "Done"
 
 ### Configure the SCIM application in OKTA
-1. Navigate to the tab "Provisioning"
+1. 
+2. Navigate to the tab "Provisioning"
 2. Click "Configure API Integration"
 3. Activate "Enable API integration"
 4. Enter the following values:
    * SCIM 2.0 Base Url: `https://your-domain/scim/v2`
-   * Username: Get this value from the dashboard
-   * Password: Get this value from the dashboard
+   * Username: Set this to the value of SCIM_USER
+   * Password: Set this to the value of SCIM_PASSWORD
 5. Click "Test API Credentials" to verify the credentials
 6. Click "Save"
 7. Select "To App" on the left side
