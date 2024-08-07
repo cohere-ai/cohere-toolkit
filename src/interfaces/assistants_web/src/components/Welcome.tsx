@@ -21,7 +21,7 @@ type Props = {
 export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { data: agent, isLoading: isAgentsLoading } = useAgent({ agentId });
   const { data: tools = [], isLoading: isToolsLoading } = useListTools();
-  const { contrastText, bg } = useBrandedColors(agentId);
+  const { contrastText, bg, contrastFill } = useBrandedColors(agentId);
 
   const isAgent = agentId !== undefined && !isAgentsLoading && !!agent;
 
@@ -46,7 +46,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
             )}
           >
             {!isAgent ? (
-              <CoralLogo />
+              <CoralLogo className={contrastFill} />
             ) : (
               <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
                 {agent.name[0]}

@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
-  const { text, fill } = useBrandedColors(agentId);
+  const { text, lightText, fill, lightFill, dark, light } = useBrandedColors(agentId);
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -72,9 +72,13 @@ export const Header: React.FC<Props> = ({ agentId }) => {
             <Button
               kind="secondary"
               className="[&>div]:gap-x-0 md:[&>div]:gap-x-3"
-              label={<Text className={cn(text, 'hidden md:flex')}>Share</Text>}
+              label={
+                <Text className={cn(dark(lightText), light(text), 'hidden md:flex')}>Share</Text>
+              }
               iconOptions={{
-                customIcon: <Icon name="share" kind="outline" className={fill} />,
+                customIcon: (
+                  <Icon name="share" kind="outline" className={cn(light(fill), dark(lightFill))} />
+                ),
               }}
               iconPosition="start"
               onClick={handleOpenShareModal}

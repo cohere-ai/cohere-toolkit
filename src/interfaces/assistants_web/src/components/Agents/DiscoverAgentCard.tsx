@@ -15,7 +15,7 @@ type Props = {
  * @description renders a card for an agent with the agent's name, description
  */
 export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBaseAgent }) => {
-  const { bg, contrastText } = useBrandedColors(id);
+  const { bg, contrastText, contrastFill } = useBrandedColors(id);
 
   return (
     <article className="flex overflow-x-hidden rounded-lg border border-volcanic-800 bg-volcanic-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
@@ -29,7 +29,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             )}
           >
             {isBaseAgent ? (
-              <CoralLogo />
+              <CoralLogo className={contrastFill} />
             ) : (
               <Text className={cn('uppercase text-white', contrastText)} styleAs="p-lg">
                 {name[0]}
