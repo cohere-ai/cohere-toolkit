@@ -2,7 +2,7 @@
 
 import { PropsWithChildren, useState } from 'react';
 
-import { DarkModeToggle } from '@/components/DarkMode';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { Button, Icon, Tabs, Text, Tooltip } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
@@ -26,11 +26,10 @@ export const Settings = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-1000 md:ml-0 dark:border-volcanic-100 dark:bg-volcanic-100">
+    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 md:ml-0 dark:border-volcanic-100 dark:bg-volcanic-100">
       <header
         className={cn(
           'border-b border-marble-950 bg-cover dark:border-volcanic-200',
-          'bg-[url(/images/cellBackground.svg)] dark:bg-none',
           'px-4 py-6 md:px-9 md:py-10 lg:px-10',
           'flex items-center justify-between'
         )}
@@ -55,7 +54,7 @@ export const Settings = () => {
           onChange={setSelectedTabIndex}
           tabGroupClassName="h-full"
           tabClassName="pt-2.5"
-          panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-1000 dark:bg-volcanic-100 md:rounded-b-none"
+          panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg md:rounded-b-none"
           fitTabsContent
         >
           <Connections />
@@ -85,13 +84,7 @@ const Connections = () => (
 const Profile = () => {
   return (
     <Wrapper>
-      <Button
-        label="Sign out"
-        href="/logout"
-        kind="secondary"
-        icon="sign-out"
-        theme="evolved-green"
-      />
+      <Button label="Sign out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
     </Wrapper>
   );
 };
@@ -116,6 +109,7 @@ const GoogleDriveConnection = () => {
   }
 
   const isGoogleDriveConnected = !googleDriveTool.is_auth_required ?? false;
+  const authUrl = googleDriveTool.auth_url;
 
   return (
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
@@ -145,7 +139,7 @@ const GoogleDriveConnection = () => {
                 label="Sync now"
                 kind="secondary"
                 icon="arrow-clockwise"
-                onClick={() => alert('not implemented')}
+                href={authUrl ?? ''}
               />
               <Button
                 label="Delete connection"

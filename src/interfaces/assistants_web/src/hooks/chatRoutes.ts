@@ -6,11 +6,12 @@ import { getQueryString } from '@/utils';
 
 export const useNavigateToNewChat = () => {
   const router = useRouter();
+  const { agentId } = useChatRoutes();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
 
-  const handleNavigate = (agentId?: string) => {
+  const handleNavigate = () => {
     const url = agentId ? `/a/${agentId}` : '/';
     resetConversation();
     resetCitations();

@@ -10,7 +10,9 @@ export const metadata: Metadata = {
 const NewAssistantPage: React.FC = () => {
   return (
     <Suspense>
-      <CreateAgent />
+      <div className="h-full w-full rounded-lg border border-marble-950 bg-marble-980 dark:border-volcanic-150 dark:bg-volcanic-100">
+        <CreateAgent />
+      </div>
     </Suspense>
   );
 };

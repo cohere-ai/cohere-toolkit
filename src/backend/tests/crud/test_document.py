@@ -19,10 +19,10 @@ def message(session, conversation, user):
     )
 
 
-def test_create_document(session):
+def test_create_document(session, user):
     document_data = Document(
         text="Hello, World!",
-        user_id="1",
+        user_id=user.id,
         conversation_id="1",
         url="https://www.example.com",
         document_id="1",

@@ -3,8 +3,6 @@ import { useTheme } from 'next-themes';
 import { Icon, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
-import './style.css';
-
 export const DarkModeToggle = () => {
   const { theme, setTheme } = useTheme();
 
@@ -32,11 +30,16 @@ export const DarkModeToggle = () => {
       <div className="flex flex-col gap-2">
         <button
           className={cn('grid h-24 w-28 place-items-center rounded-lg bg-mushroom-950', {
-            'border border-evolved-green-700': theme === 'light',
+            'border border-coral-700': theme === 'light',
           })}
           onClick={() => handleSetTheme('light')}
         >
-          <Icon name="sun" className="fill-volcanic-150" kind="outline" size="lg" />
+          <Icon
+            name="sun"
+            className="fill-volcanic-150 dark:fill-volcanic-150"
+            kind="outline"
+            size="lg"
+          />
         </button>
         <Text className="text-center">Light</Text>
       </div>

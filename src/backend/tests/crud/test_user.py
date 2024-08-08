@@ -32,17 +32,25 @@ def test_fail_get_nonexistent_user(session):
 
 
 def test_list_users(session):
+    # Delete default users
+    session.query(User).delete()
     _ = get_factory("User", session).create(fullname="John Doe")
 
     users = user_crud.get_users(session)
-    assert len(users) == 2
+    assert len(users) == 1
+    assert users[0].fullname == "John Doe"
 
-    user_names = [user.fullname for user in users]
-    assert "John Doe" in user_names
-    assert DEFAULT_USER_NAME in user_names
+
+def test_list_users_empty(session):
+    # Delete default users
+    session.query(User).delete()
+    users = user_crud.get_users(session)
+    assert len(users) == 0
 
 
 def test_list_users_with_pagination(session):
+    # Delete default users
+    session.query(User).delete()
     for i in range(10):
         _ = get_factory("User", session).create(fullname=f"John Doe {i}")
 

@@ -104,8 +104,11 @@ class Context(BaseModel):
         self.model = model
         return self
 
-    def with_deployment_config(self) -> "Context":
-        self.deployment_config = get_deployment_config(self.request)
+    def with_deployment_config(self, deployment_config=None) -> "Context":
+        if deployment_config:
+            self.deployment_config = deployment_config
+        else:
+            self.deployment_config = get_deployment_config(self.request)
         return self
 
     def with_conversation_id(self, conversation_id: str) -> "Context":
