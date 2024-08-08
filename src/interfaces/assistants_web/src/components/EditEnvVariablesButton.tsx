@@ -36,7 +36,7 @@ export const EditEnvVariablesModal: React.FC<{
   const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === defaultDeployment);
     return (
-      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+      selectedDeployment?.env_vars?.reduce<Record<string, string>>((acc, envVar) => {
         acc[envVar] = '';
         return acc;
       }, {}) ?? {}
@@ -60,7 +60,7 @@ export const EditEnvVariablesModal: React.FC<{
     setDeployment(newDeployment);
     const selectedDeployment = deployments?.find(({ name }) => name === newDeployment);
     const emptyEnvVariables =
-      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+      selectedDeployment?.env_vars?.reduce<Record<string, string>>((acc, envVar) => {
         acc[envVar] = '';
         return acc;
       }, {}) ?? {};
