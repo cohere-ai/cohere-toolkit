@@ -1,5 +1,6 @@
 import asyncio
 import functools
+from typing import List
 
 import aiohttp
 
@@ -10,13 +11,11 @@ TIMEOUT = aiohttp.ClientTimeout(total=120)
 logger = LoggerFactory().get_logger()
 
 
-def sync_perform(id_to_urls: dict[str, str], access_token: str) -> dict[str, str]:
+def sync_perform(id_to_urls: List[str], access_token: str) -> dict[str, str]:
     return asyncio.run(_download_files(id_to_urls, access_token))
 
 
-async def async_perform(
-    id_to_urls: dict[str, str], access_token: str
-) -> dict[str, str]:
+async def async_perform(id_to_urls: List[str], access_token: str) -> dict[str, str]:
     return await _download_files(id_to_urls, access_token)
 
 

@@ -2,7 +2,7 @@ from enum import Enum
 
 CSV_MIMETYPE = "text/csv"
 TEXT_MIMETYPE = "text/plain"
-SEARCH_LIMIT = 5
+SEARCH_LIMIT = 10
 # 1 hour
 ACTIVITY_TRACKING_WINDOW = 86400 / 24
 SCOPES = [
