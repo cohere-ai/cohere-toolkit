@@ -3,10 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ApiError,
   CohereNetworkError,
-  Conversation,
+  ConversationPublic,
   ConversationWithoutMessages,
-  DeleteConversation,
-  UpdateConversation,
+  DeleteConversationResponse,
+  UpdateConversationRequest,
   useCohereClient,
 } from '@/cohere-client';
 import { DeleteConversations } from '@/components/Modals/DeleteConversations';
@@ -37,7 +37,7 @@ export const useConversation = ({
 }) => {
   const client = useCohereClient();
 
-  return useQuery<Conversation | undefined, Error>({
+  return useQuery<ConversationPublic | undefined, Error>({
     queryKey: ['conversation', conversationId],
     enabled: !!conversationId && !disabledOnMount,
     queryFn: async () => {
@@ -62,9 +62,9 @@ export const useEditConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation<
-    Conversation,
+    ConversationPublic,
     CohereNetworkError,
-    { request: UpdateConversation; conversationId: string }
+    { request: UpdateConversationRequest; conversationId: string }
   >({
     mutationFn: ({ request, conversationId }) => client.editConversation(request, conversationId),
     onSettled: () => {
@@ -76,11 +76,11 @@ export const useEditConversation = () => {
 export const useDeleteConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<DeleteConversation, CohereNetworkError, { conversationId: string }>({
+  return useMutation<DeleteConversationResponse, CohereNetworkError, { conversationId: string }>({
     mutationFn: ({ conversationId }: { conversationId: string }) =>
       client.deleteConversation({ conversationId }),
     onSettled: (_, _err, { conversationId }: { conversationId: string }) => {
-      queryClient.setQueriesData<Conversation[]>(
+      queryClient.setQueriesData<ConversationPublic[]>(
         { queryKey: ['conversations'] },
         (oldConversations) => {
           return oldConversations?.filter((c) => c.id === conversationId);

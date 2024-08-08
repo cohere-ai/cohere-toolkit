@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from 'react';
 
-import { Agent, ConversationWithoutMessages } from '@/cohere-client';
+import { AgentPublic, ConversationWithoutMessages } from '@/cohere-client';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
 import { Button, Icon, Input, Text, Tooltip } from '@/components/Shared';
 import { useListAgents } from '@/hooks/agents';
@@ -12,12 +12,12 @@ import { cn } from '@/utils';
 
 const GROUPED_ASSISTANTS_LIMIT = 15;
 
-const BASE_AGENTS: Array<Agent & { isBaseAgent: boolean }> = [
+const BASE_AGENTS: Array<AgentPublic & { isBaseAgent: boolean }> = [
   {
     id: '',
+    deployments: [],
     name: 'Command R+',
     description: 'Review, understand and ask questions about internal financial documents.',
-    user_id: 'xxxx',
     created_at: '2021-09-01T00:00:00Z',
     updated_at: '2021-09-01T00:00:00Z',
     preamble: '',
@@ -64,7 +64,7 @@ export const DiscoverAgents = () => {
   );
 };
 
-const GroupAgents: React.FC<{ agents: Agent[]; title: string; subTitle: string }> = ({
+const GroupAgents: React.FC<{ agents: AgentPublic[]; title: string; subTitle: string }> = ({
   agents,
   title,
   subTitle,
@@ -107,7 +107,7 @@ const GroupAgents: React.FC<{ agents: Agent[]; title: string; subTitle: string }
 };
 
 const CompanyAgents: React.FC<{
-  agents: Agent[];
+  agents: AgentPublic[];
   conversations: ConversationWithoutMessages[];
 }> = ({ agents, conversations }) => {
   const [query, setQuery] = useState('');
@@ -115,17 +115,17 @@ const CompanyAgents: React.FC<{
   const deferredQuery = useDeferredValue(query);
   const session = useSession();
 
-  const createdByMeAgents = useMemo(
-    () =>
-      agents
-        .filter(
-          (agent) =>
-            agent.user_id === session.userId &&
-            agent.name.toLowerCase().includes(deferredQuery.toLowerCase())
-        )
-        .sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
-    [agents, session.userId, deferredQuery]
-  );
+  // const createdByMeAgents = useMemo(
+  //   () =>
+  //     agents
+  //       .filter(
+  //         (agent) =>
+  //           agent.user_id === session.userId &&
+  //           agent.name.toLowerCase().includes(deferredQuery.toLowerCase())
+  //       )
+  //       .sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
+  //   [agents, session.userId, deferredQuery]
+  // );
 
   const filteredAgents = useMemo(
     () =>
@@ -161,13 +161,13 @@ const CompanyAgents: React.FC<{
     [conversations]
   );
 
-  const trendingAgents: Agent[] = useMemo(
+  const trendingAgents: AgentPublic[] = useMemo(
     () =>
       Object.keys(mostUsedAgents)
         .sort((a, b) => mostUsedAgents[b] - mostUsedAgents[a])
         .map((id) => filteredAgents.find((a) => a.id === id))
-        .filter((agent) => !!agent)
-        .filter((agent) => agent.user_id !== session.userId),
+        .filter((agent) => !!agent),
+    // .filter((agent) => agent.user_id !== session.userId),
     [mostUsedAgents, filteredAgents, session.userId]
   );
 
@@ -180,11 +180,11 @@ const CompanyAgents: React.FC<{
           onChange={handleOnChange}
           value={query}
         />
-        <GroupAgents
+        {/* <GroupAgents
           title="Created by me"
           subTitle="Assistants that you regularly use"
           agents={createdByMeAgents}
-        />
+        /> */}
         {agents.length >= GROUPED_ASSISTANTS_LIMIT && (
           <>
             <GroupAgents
