@@ -25,7 +25,6 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
     queryFn: () => client.listConversations(params),
     retry: 0,
     refetchOnWindowFocus: false,
-    initialData: [],
   });
 };
 
