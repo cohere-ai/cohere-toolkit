@@ -4,8 +4,8 @@ import React from 'react';
 
 import { DragDropFileInput } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
-import { cn } from '@/utils';
 import { useFocusFileInput } from '@/hooks/actions';
+import { cn } from '@/utils';
 
 export const DragDropFileUploadOverlay: React.FC<{
   active: boolean;
@@ -14,7 +14,7 @@ export const DragDropFileUploadOverlay: React.FC<{
   const { focusFileInput } = useFocusFileInput();
 
   const handleUploadFile = async (files: File[]) => {
-      focusFileInput();
+    focusFileInput();
     onUploadFile(files);
   };
 
