@@ -15,6 +15,13 @@ logger = LoggerFactory().get_logger()
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def move(file_id: str, index_name: str, user_id: str, **kwargs):
     artifact_id = kwargs["artifact_id"]
+    if artifact_id == file_id:
+        return {
+            "action": ACTION_NAME,
+            "status": Status.CANCELLED.value,
+            "file_id": file_id,
+        }
+
     file_details = get_file_details(file_id=file_id, user_id=user_id, just_title=True)
     if file_details is None:
         return {
