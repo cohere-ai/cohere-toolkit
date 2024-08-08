@@ -100,7 +100,7 @@ def has_header_user_id(request: Request) -> bool:
 
     if is_authentication_enabled():
         authorization = request.headers.get("Authorization")
-        return authorization is not None
+        return authorization is not None and authorization.startswith("Bearer")
     else:
         user_id = request.headers.get("User-Id")
         return user_id is not None
