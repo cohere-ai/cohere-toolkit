@@ -6,8 +6,8 @@ from backend.database_models.agent import Agent, AgentToolMetadata
 from backend.database_models.database import DBSessionDep
 
 
-def validate_agent_exists(session: DBSessionDep, agent_id: str) -> Agent:
-    agent = agent_crud.get_agent_by_id(session, agent_id)
+def validate_agent_exists(session: DBSessionDep, agent_id: str, user_id: str) -> Agent:
+    agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
 
     if not agent:
         raise HTTPException(
