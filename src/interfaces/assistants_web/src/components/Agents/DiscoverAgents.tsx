@@ -4,7 +4,7 @@ import { useDeferredValue, useMemo, useState } from 'react';
 
 import { AgentPublic, ConversationWithoutMessages } from '@/cohere-client';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
-import { Button, Icon, Input, Text, Tooltip } from '@/components/Shared';
+import { Button, Input, Text } from '@/components/Shared';
 import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSession } from '@/hooks/session';
@@ -46,13 +46,6 @@ export const DiscoverAgents = () => {
           <Text styleAs="h4" className="text-volcanic-400 dark:text-mushroom-950">
             All Assistants
           </Text>
-          <Tooltip label="tbd" hover size="sm">
-            <Icon
-              name="information"
-              kind="outline"
-              className="fill-volcanic-300 dark:fill-mushroom-700"
-            />
-          </Tooltip>
         </div>
         <Button kind="secondary" theme="default" icon="add" label="Create Assistant" href="/new" />
       </header>
@@ -63,11 +56,7 @@ export const DiscoverAgents = () => {
   );
 };
 
-const GroupAgents: React.FC<{ agents: AgentPublic[]; title: string; subTitle: string }> = ({
-  agents,
-  title,
-  subTitle,
-}) => {
+const GroupAgents: React.FC<{ agents: AgentPublic[]; title: string }> = ({ agents, title }) => {
   const hasShowMore = agents.length > 3;
   const [showMore, setShowMore] = useState(false);
   const handleShowMore = () => setShowMore((prev) => !prev);
@@ -79,7 +68,6 @@ const GroupAgents: React.FC<{ agents: AgentPublic[]; title: string; subTitle: st
         <Text styleAs="h5" className="dark:text-marble-1000">
           {title}
         </Text>
-        <Text className="dark:text-marble-800">{subTitle}</Text>
       </header>
       <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-3 xl:grid-cols-4">
         {visibleAgents.map((agent) => (
@@ -173,30 +161,14 @@ const CompanyAgents: React.FC<{
           onChange={handleOnChange}
           value={query}
         />
-        <GroupAgents
-          title="Created by me"
-          subTitle="Assistants that you regularly use"
-          agents={createdByMeAgents}
-        />
+        <GroupAgents title="Created by me" agents={createdByMeAgents} />
         {agents.length >= GROUPED_ASSISTANTS_LIMIT && (
           <>
-            <GroupAgents
-              title="Recently used"
-              subTitle="Assistants that you regularly use"
-              agents={recentlyUsedAgents}
-            />
-            <GroupAgents
-              title="Trending"
-              subTitle="Most popular assistants from your company"
-              agents={trendingAgents}
-            />
+            <GroupAgents title="Recently used" agents={recentlyUsedAgents} />
+            <GroupAgents title="Trending" agents={trendingAgents} />
           </>
         )}
-        <GroupAgents
-          title="All assistants"
-          subTitle="All available assistants"
-          agents={filteredAgents}
-        />
+        <GroupAgents title="All assistants" agents={filteredAgents} />
       </div>
     </div>
   );
