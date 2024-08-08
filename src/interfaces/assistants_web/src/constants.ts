@@ -36,7 +36,6 @@ export const SETTINGS_DRAWER_ID = 'settings';
 export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
-  recentAgents: 'recentAgents',
 };
 
 /**

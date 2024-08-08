@@ -1,15 +1,16 @@
-import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { uniqBy } from 'lodash';
 import { useMemo } from 'react';
 
 import {
   AgentPublic,
   ApiError,
+  ConversationPublic,
   CreateAgentRequest,
   UpdateAgentRequest,
   useCohereClient,
 } from '@/cohere-client';
-import { LOCAL_STORAGE_KEYS } from '@/constants';
+import { useConversations } from '@/hooks/conversation';
 
 export const useListAgents = () => {
   const cohereClient = useCohereClient();
@@ -103,29 +104,23 @@ export const useUpdateAgent = () => {
 /**
  * @description Returns the most recently used agents.
  */
-export const useRecentAgents = () => {
-  const { data: agents } = useListAgents();
+export const useRecentAgents = (limit: number = 5) => {
+  const { data: agents = [] } = useListAgents();
+  const { data: conversations = [] } = useConversations({});
 
-  const { set, value: recentAgentsIds } = useLocalStorageValue(LOCAL_STORAGE_KEYS.recentAgents, {
-    defaultValue: [] as string[],
-  });
-
-  const addRecentAgentId = (agentId: string) => {
-    if (!recentAgentsIds) return;
-    set([...recentAgentsIds.filter((id) => id !== agentId), agentId]);
+  const sortByDate = (a: { updated_at: string }, b: { updated_at: string }) => {
+    return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');
   };
 
-  const removeRecentAgentId = (agentId: string) => {
-    if (!recentAgentsIds) return;
-    set(recentAgentsIds.filter((id) => id !== agentId));
-  };
-
-  const recentAgents = useMemo<AgentPublic[]>(() => {
-    if (!recentAgentsIds) return [];
-    return recentAgentsIds
-      .map((id) => agents?.find((agent) => agent.id === id))
-      .filter((agent) => agent !== undefined);
-  }, [agents, recentAgentsIds]);
-
-  return { recentAgents, addRecentAgentId, removeRecentAgentId };
+  const recentAgents = useMemo(
+    () =>
+      uniqBy(
+        conversations.sort(sortByDate).map((conversation) => conversation.agent_id),
+        'agent_id'
+      )
+        .map((agentId) => agents.find((agent) => agent.id === agentId))
+        .filter((agent) => agent)
+        .slice(0, limit),
+    [conversations, agents]
+  );
 };
