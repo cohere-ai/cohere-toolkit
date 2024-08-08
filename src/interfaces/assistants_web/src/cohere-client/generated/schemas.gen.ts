@@ -66,17 +66,10 @@ export const $Agent = {
       title: 'Temperature',
     },
     tools: {
-      items: {
-        type: 'string',
-      },
-      type: 'array',
-      title: 'Tools',
-    },
-    tools_metadata: {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/AgentToolMetadataPublic',
+            type: 'string',
           },
           type: 'array',
         },
@@ -84,15 +77,43 @@ export const $Agent = {
           type: 'null',
         },
       ],
+      title: 'Tools',
+    },
+    tools_metadata: {
+      items: {
+        $ref: '#/components/schemas/AgentToolMetadataPublic',
+      },
+      type: 'array',
       title: 'Tools Metadata',
     },
-    model: {
-      type: 'string',
-      title: 'Model',
+    deployments: {
+      items: {
+        $ref: '#/components/schemas/DeploymentWithModels',
+      },
+      type: 'array',
+      title: 'Deployments',
     },
     deployment: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Deployment',
+    },
+    model: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Model',
     },
   },
   type: 'object',
@@ -107,18 +128,16 @@ export const $Agent = {
     'preamble',
     'temperature',
     'tools',
-    'model',
+    'tools_metadata',
+    'deployments',
     'deployment',
+    'model',
   ],
   title: 'Agent',
 } as const;
 
 export const $AgentPublic = {
   properties: {
-    user_id: {
-      type: 'string',
-      title: 'User Id',
-    },
     id: {
       type: 'string',
       title: 'Id',
@@ -168,10 +187,17 @@ export const $AgentPublic = {
       title: 'Temperature',
     },
     tools: {
-      items: {
-        type: 'string',
-      },
-      type: 'array',
+      anyOf: [
+        {
+          items: {
+            type: 'string',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Tools',
     },
     tools_metadata: {
@@ -188,18 +214,38 @@ export const $AgentPublic = {
       ],
       title: 'Tools Metadata',
     },
-    model: {
-      type: 'string',
-      title: 'Model',
+    deployments: {
+      items: {
+        $ref: '#/components/schemas/DeploymentWithModels',
+      },
+      type: 'array',
+      title: 'Deployments',
     },
     deployment: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Deployment',
+    },
+    model: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Model',
     },
   },
   type: 'object',
   required: [
-    'user_id',
     'id',
     'created_at',
     'updated_at',
@@ -209,19 +255,30 @@ export const $AgentPublic = {
     'preamble',
     'temperature',
     'tools',
-    'model',
+    'deployments',
     'deployment',
+    'model',
   ],
   title: 'AgentPublic',
 } as const;
 
 export const $AgentToolMetadata = {
   properties: {
-    user_id: {
+    id: {
       type: 'string',
-      title: 'User Id',
+      title: 'Id',
     },
-    organization_id: {
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    user_id: {
       anyOf: [
         {
           type: 'string',
@@ -230,11 +287,11 @@ export const $AgentToolMetadata = {
           type: 'null',
         },
       ],
-      title: 'Organization Id',
+      title: 'User Id',
     },
-    id: {
+    agent_id: {
       type: 'string',
-      title: 'Id',
+      title: 'Agent Id',
     },
     tool_name: {
       type: 'string',
@@ -249,26 +306,29 @@ export const $AgentToolMetadata = {
     },
   },
   type: 'object',
-  required: ['user_id', 'id', 'tool_name', 'artifacts'],
+  required: ['id', 'created_at', 'updated_at', 'user_id', 'agent_id', 'tool_name', 'artifacts'],
   title: 'AgentToolMetadata',
 } as const;
 
 export const $AgentToolMetadataPublic = {
   properties: {
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
-    },
     id: {
       type: 'string',
       title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    agent_id: {
+      type: 'string',
+      title: 'Agent Id',
     },
     tool_name: {
       type: 'string',
@@ -283,7 +343,7 @@ export const $AgentToolMetadataPublic = {
     },
   },
   type: 'object',
-  required: ['id', 'tool_name', 'artifacts'],
+  required: ['id', 'created_at', 'updated_at', 'agent_id', 'tool_name', 'artifacts'],
   title: 'AgentToolMetadataPublic',
 } as const;
 
@@ -822,23 +882,8 @@ export const $CohereChatRequest = {
 See: https://github.com/cohere-ai/cohere-python/blob/main/src/cohere/base_client.py#L1629`,
 } as const;
 
-export const $Conversation = {
+export const $ConversationPublic = {
   properties: {
-    user_id: {
-      type: 'string',
-      title: 'User Id',
-    },
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
-    },
     id: {
       type: 'string',
       title: 'Id',
@@ -901,7 +946,6 @@ export const $Conversation = {
   },
   type: 'object',
   required: [
-    'user_id',
     'id',
     'created_at',
     'updated_at',
@@ -912,26 +956,11 @@ export const $Conversation = {
     'agent_id',
     'total_file_size',
   ],
-  title: 'Conversation',
+  title: 'ConversationPublic',
 } as const;
 
 export const $ConversationWithoutMessages = {
   properties: {
-    user_id: {
-      type: 'string',
-      title: 'User Id',
-    },
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
-    },
     id: {
       type: 'string',
       title: 'Id',
@@ -987,7 +1016,6 @@ export const $ConversationWithoutMessages = {
   },
   type: 'object',
   required: [
-    'user_id',
     'id',
     'created_at',
     'updated_at',
@@ -1000,7 +1028,7 @@ export const $ConversationWithoutMessages = {
   title: 'ConversationWithoutMessages',
 } as const;
 
-export const $CreateAgent = {
+export const $CreateAgentRequest = {
   properties: {
     name: {
       type: 'string',
@@ -1050,14 +1078,6 @@ export const $CreateAgent = {
       ],
       title: 'Temperature',
     },
-    model: {
-      type: 'string',
-      title: 'Model',
-    },
-    deployment: {
-      type: 'string',
-      title: 'Deployment',
-    },
     tools: {
       anyOf: [
         {
@@ -1076,7 +1096,7 @@ export const $CreateAgent = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/CreateAgentToolMetadata',
+            $ref: '#/components/schemas/CreateAgentToolMetadataRequest',
           },
           type: 'array',
         },
@@ -1086,13 +1106,58 @@ export const $CreateAgent = {
       ],
       title: 'Tools Metadata',
     },
+    deployment_config: {
+      anyOf: [
+        {
+          additionalProperties: {
+            type: 'string',
+          },
+          type: 'object',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Deployment Config',
+    },
+    is_default_deployment: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Default Deployment',
+      default: false,
+    },
+    model: {
+      type: 'string',
+      title: 'Model',
+    },
+    deployment: {
+      type: 'string',
+      title: 'Deployment',
+    },
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
   },
   type: 'object',
   required: ['name', 'model', 'deployment'],
-  title: 'CreateAgent',
+  title: 'CreateAgentRequest',
 } as const;
 
-export const $CreateAgentToolMetadata = {
+export const $CreateAgentToolMetadataRequest = {
   properties: {
     id: {
       anyOf: [
@@ -1119,10 +1184,22 @@ export const $CreateAgentToolMetadata = {
   },
   type: 'object',
   required: ['tool_name', 'artifacts'],
-  title: 'CreateAgentToolMetadata',
+  title: 'CreateAgentToolMetadataRequest',
 } as const;
 
-export const $CreateSnapshot = {
+export const $CreateOrganization = {
+  properties: {
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+  },
+  type: 'object',
+  required: ['name'],
+  title: 'CreateOrganization',
+} as const;
+
+export const $CreateSnapshotRequest = {
   properties: {
     conversation_id: {
       type: 'string',
@@ -1131,7 +1208,7 @@ export const $CreateSnapshot = {
   },
   type: 'object',
   required: ['conversation_id'],
-  title: 'CreateSnapshot',
+  title: 'CreateSnapshotRequest',
 } as const;
 
 export const $CreateSnapshotResponse = {
@@ -1139,10 +1216,6 @@ export const $CreateSnapshotResponse = {
     snapshot_id: {
       type: 'string',
       title: 'Snapshot Id',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
     },
     link_id: {
       type: 'string',
@@ -1157,7 +1230,7 @@ export const $CreateSnapshotResponse = {
     },
   },
   type: 'object',
-  required: ['snapshot_id', 'user_id', 'link_id', 'messages'],
+  required: ['snapshot_id', 'link_id', 'messages'],
   title: 'CreateSnapshotResponse',
 } as const;
 
@@ -1219,16 +1292,46 @@ export const $DeleteAgentToolMetadata = {
   title: 'DeleteAgentToolMetadata',
 } as const;
 
-export const $DeleteConversation = {
+export const $DeleteConversationResponse = {
   properties: {},
   type: 'object',
-  title: 'DeleteConversation',
+  title: 'DeleteConversationResponse',
 } as const;
 
-export const $DeleteFile = {
+export const $DeleteDeployment = {
   properties: {},
   type: 'object',
-  title: 'DeleteFile',
+  title: 'DeleteDeployment',
+} as const;
+
+export const $DeleteFileResponse = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteFileResponse',
+} as const;
+
+export const $DeleteModel = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteModel',
+} as const;
+
+export const $DeleteOrganization = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteOrganization',
+} as const;
+
+export const $DeleteSnapshotLinkResponse = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteSnapshotLinkResponse',
+} as const;
+
+export const $DeleteSnapshotResponse = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteSnapshotResponse',
 } as const;
 
 export const $DeleteUser = {
@@ -1239,6 +1342,17 @@ export const $DeleteUser = {
 
 export const $Deployment = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Id',
+    },
     name: {
       type: 'string',
       title: 'Name',
@@ -1253,18 +1367,236 @@ export const $Deployment = {
     is_available: {
       type: 'boolean',
       title: 'Is Available',
+      default: false,
     },
     env_vars: {
-      items: {
-        type: 'string',
-      },
-      type: 'array',
+      anyOf: [
+        {
+          items: {
+            type: 'string',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Env Vars',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    is_community: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Community',
+      default: false,
     },
   },
   type: 'object',
-  required: ['name', 'models', 'is_available', 'env_vars'],
+  required: ['name', 'models', 'env_vars'],
   title: 'Deployment',
+} as const;
+
+export const $DeploymentCreate = {
+  properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    deployment_class_name: {
+      type: 'string',
+      title: 'Deployment Class Name',
+    },
+    is_community: {
+      type: 'boolean',
+      title: 'Is Community',
+      default: false,
+    },
+    default_deployment_config: {
+      additionalProperties: {
+        type: 'string',
+      },
+      type: 'object',
+      title: 'Default Deployment Config',
+    },
+  },
+  type: 'object',
+  required: ['name', 'deployment_class_name', 'default_deployment_config'],
+  title: 'DeploymentCreate',
+} as const;
+
+export const $DeploymentUpdate = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    deployment_class_name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Deployment Class Name',
+    },
+    is_community: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Community',
+    },
+    default_deployment_config: {
+      anyOf: [
+        {
+          additionalProperties: {
+            type: 'string',
+          },
+          type: 'object',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Default Deployment Config',
+    },
+  },
+  type: 'object',
+  title: 'DeploymentUpdate',
+} as const;
+
+export const $DeploymentWithModels = {
+  properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    is_available: {
+      type: 'boolean',
+      title: 'Is Available',
+      default: false,
+    },
+    is_community: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Community',
+      default: false,
+    },
+    env_vars: {
+      anyOf: [
+        {
+          items: {
+            type: 'string',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Env Vars',
+    },
+    models: {
+      items: {
+        $ref: '#/components/schemas/ModelSimple',
+      },
+      type: 'array',
+      title: 'Models',
+    },
+  },
+  type: 'object',
+  required: ['name', 'env_vars', 'models'],
+  title: 'DeploymentWithModels',
 } as const;
 
 export const $Document = {
@@ -1379,7 +1711,47 @@ export const $File = {
   title: 'File',
 } as const;
 
-export const $GenerateTitle = {
+export const $FilePublic = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation Id',
+    },
+    file_name: {
+      type: 'string',
+      title: 'File Name',
+    },
+    file_path: {
+      type: 'string',
+      title: 'File Path',
+    },
+    file_size: {
+      type: 'integer',
+      minimum: 0,
+      title: 'File Size',
+      default: 0,
+    },
+  },
+  type: 'object',
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  title: 'FilePublic',
+} as const;
+
+export const $GenerateTitleResponse = {
   properties: {
     title: {
       type: 'string',
@@ -1388,7 +1760,7 @@ export const $GenerateTitle = {
   },
   type: 'object',
   required: ['title'],
-  title: 'GenerateTitle',
+  title: 'GenerateTitleResponse',
 } as const;
 
 export const $GenericResponseMessage = {
@@ -1580,10 +1952,6 @@ export const $ListFile = {
       format: 'date-time',
       title: 'Updated At',
     },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
-    },
     conversation_id: {
       type: 'string',
       title: 'Conversation Id',
@@ -1604,15 +1972,7 @@ export const $ListFile = {
     },
   },
   type: 'object',
-  required: [
-    'id',
-    'created_at',
-    'updated_at',
-    'user_id',
-    'conversation_id',
-    'file_name',
-    'file_path',
-  ],
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
   title: 'ListFile',
 } as const;
 
@@ -1867,6 +2227,175 @@ export const $MessageAgent = {
   title: 'MessageAgent',
 } as const;
 
+export const $Model = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    deployment_id: {
+      type: 'string',
+      title: 'Deployment Id',
+    },
+    cohere_name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Cohere Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+  },
+  type: 'object',
+  required: ['id', 'name', 'deployment_id', 'cohere_name', 'description'],
+  title: 'Model',
+} as const;
+
+export const $ModelCreate = {
+  properties: {
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    cohere_name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Cohere Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    deployment_id: {
+      type: 'string',
+      title: 'Deployment Id',
+    },
+  },
+  type: 'object',
+  required: ['name', 'cohere_name', 'description', 'deployment_id'],
+  title: 'ModelCreate',
+} as const;
+
+export const $ModelSimple = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    cohere_name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Cohere Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+  },
+  type: 'object',
+  required: ['id', 'name', 'cohere_name', 'description'],
+  title: 'ModelSimple',
+} as const;
+
+export const $ModelUpdate = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Name',
+    },
+    cohere_name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Cohere Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    deployment_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Deployment Id',
+    },
+  },
+  type: 'object',
+  title: 'ModelUpdate',
+} as const;
+
 export const $NonStreamedChatResponse = {
   properties: {
     response_id: {
@@ -2014,6 +2543,32 @@ export const $NonStreamedChatResponse = {
   title: 'NonStreamedChatResponse',
 } as const;
 
+export const $Organization = {
+  properties: {
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+  },
+  type: 'object',
+  required: ['name', 'id', 'created_at', 'updated_at'],
+  title: 'Organization',
+} as const;
+
 export const $SearchQuery = {
   properties: {
     text: {
@@ -2030,7 +2585,30 @@ export const $SearchQuery = {
   title: 'SearchQuery',
 } as const;
 
-export const $Snapshot = {
+export const $SnapshotData = {
+  properties: {
+    title: {
+      type: 'string',
+      title: 'Title',
+    },
+    description: {
+      type: 'string',
+      title: 'Description',
+    },
+    messages: {
+      items: {
+        $ref: '#/components/schemas/Message',
+      },
+      type: 'array',
+      title: 'Messages',
+    },
+  },
+  type: 'object',
+  required: ['title', 'description', 'messages'],
+  title: 'SnapshotData',
+} as const;
+
+export const $SnapshotPublic = {
   properties: {
     conversation_id: {
       type: 'string',
@@ -2043,21 +2621,6 @@ export const $Snapshot = {
     last_message_id: {
       type: 'string',
       title: 'Last Message Id',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
-    },
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
     },
     version: {
       type: 'integer',
@@ -2082,99 +2645,12 @@ export const $Snapshot = {
     'conversation_id',
     'id',
     'last_message_id',
-    'user_id',
-    'organization_id',
     'version',
     'created_at',
     'updated_at',
     'snapshot',
   ],
-  title: 'Snapshot',
-} as const;
-
-export const $SnapshotAgent = {
-  properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
-    name: {
-      type: 'string',
-      title: 'Name',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-    },
-    preamble: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Preamble',
-    },
-    tools_metadata: {
-      anyOf: [
-        {
-          items: {
-            $ref: '#/components/schemas/AgentToolMetadata',
-          },
-          type: 'array',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Tools Metadata',
-    },
-  },
-  type: 'object',
-  required: ['id', 'name', 'description', 'preamble', 'tools_metadata'],
-  title: 'SnapshotAgent',
-} as const;
-
-export const $SnapshotData = {
-  properties: {
-    title: {
-      type: 'string',
-      title: 'Title',
-    },
-    description: {
-      type: 'string',
-      title: 'Description',
-    },
-    messages: {
-      items: {
-        $ref: '#/components/schemas/Message',
-      },
-      type: 'array',
-      title: 'Messages',
-    },
-    agent: {
-      anyOf: [
-        {
-          $ref: '#/components/schemas/SnapshotAgent',
-        },
-        {
-          type: 'null',
-        },
-      ],
-    },
-  },
-  type: 'object',
-  required: ['title', 'description', 'messages', 'agent'],
-  title: 'SnapshotData',
+  title: 'SnapshotPublic',
 } as const;
 
 export const $SnapshotWithLinks = {
@@ -2190,21 +2666,6 @@ export const $SnapshotWithLinks = {
     last_message_id: {
       type: 'string',
       title: 'Last Message Id',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
-    },
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
     },
     version: {
       type: 'integer',
@@ -2236,8 +2697,6 @@ export const $SnapshotWithLinks = {
     'conversation_id',
     'id',
     'last_message_id',
-    'user_id',
-    'organization_id',
     'version',
     'created_at',
     'updated_at',
@@ -2736,7 +3195,7 @@ export const $ToolInputType = {
   description: 'Type of input passed to the tool',
 } as const;
 
-export const $UpdateAgent = {
+export const $UpdateAgentRequest = {
   properties: {
     name: {
       anyOf: [
@@ -2815,6 +3274,55 @@ export const $UpdateAgent = {
       ],
       title: 'Deployment',
     },
+    deployment_config: {
+      anyOf: [
+        {
+          additionalProperties: {
+            type: 'string',
+          },
+          type: 'object',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Deployment Config',
+    },
+    is_default_deployment: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Default Deployment',
+      default: false,
+    },
+    is_default_model: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Default Model',
+      default: false,
+    },
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
     tools: {
       anyOf: [
         {
@@ -2833,7 +3341,7 @@ export const $UpdateAgent = {
       anyOf: [
         {
           items: {
-            $ref: '#/components/schemas/CreateAgentToolMetadata',
+            $ref: '#/components/schemas/CreateAgentToolMetadataRequest',
           },
           type: 'array',
         },
@@ -2845,10 +3353,10 @@ export const $UpdateAgent = {
     },
   },
   type: 'object',
-  title: 'UpdateAgent',
+  title: 'UpdateAgentRequest',
 } as const;
 
-export const $UpdateAgentToolMetadata = {
+export const $UpdateAgentToolMetadataRequest = {
   properties: {
     id: {
       anyOf: [
@@ -2888,10 +3396,10 @@ export const $UpdateAgentToolMetadata = {
     },
   },
   type: 'object',
-  title: 'UpdateAgentToolMetadata',
+  title: 'UpdateAgentToolMetadataRequest',
 } as const;
 
-export const $UpdateConversation = {
+export const $UpdateConversationRequest = {
   properties: {
     title: {
       anyOf: [
@@ -2917,7 +3425,7 @@ export const $UpdateConversation = {
     },
   },
   type: 'object',
-  title: 'UpdateConversation',
+  title: 'UpdateConversationRequest',
 } as const;
 
 export const $UpdateDeploymentEnv = {
@@ -2935,7 +3443,7 @@ export const $UpdateDeploymentEnv = {
   title: 'UpdateDeploymentEnv',
 } as const;
 
-export const $UpdateFile = {
+export const $UpdateFileRequest = {
   properties: {
     file_name: {
       anyOf: [
@@ -2961,7 +3469,26 @@ export const $UpdateFile = {
     },
   },
   type: 'object',
-  title: 'UpdateFile',
+  title: 'UpdateFileRequest',
+} as const;
+
+export const $UpdateOrganization = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Name',
+    },
+  },
+  type: 'object',
+  required: ['name'],
+  title: 'UpdateOrganization',
 } as const;
 
 export const $UpdateUser = {
@@ -3016,7 +3543,7 @@ export const $UpdateUser = {
   title: 'UpdateUser',
 } as const;
 
-export const $UploadFile = {
+export const $UploadFileResponse = {
   properties: {
     id: {
       type: 'string',
@@ -3031,10 +3558,6 @@ export const $UploadFile = {
       type: 'string',
       format: 'date-time',
       title: 'Updated At',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
     },
     conversation_id: {
       type: 'string',
@@ -3056,16 +3579,8 @@ export const $UploadFile = {
     },
   },
   type: 'object',
-  required: [
-    'id',
-    'created_at',
-    'updated_at',
-    'user_id',
-    'conversation_id',
-    'file_name',
-    'file_path',
-  ],
-  title: 'UploadFile',
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  title: 'UploadFileResponse',
 } as const;
 
 export const $User = {
