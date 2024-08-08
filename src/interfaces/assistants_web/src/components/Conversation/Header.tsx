@@ -21,7 +21,8 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
   const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
-  const { text, fill } = useBrandedColors(agentId);
+  const { text, bg, contrastText, lightText, fill, lightFill, dark, light } =
+    useBrandedColors(agentId);
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -43,9 +44,19 @@ export const Header: React.FC<Props> = ({ agentId }) => {
     <div className="flex h-header w-full min-w-0 items-center">
       <div className="flex w-full flex-1 items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <button onClick={handleOpenLeftSidePanel} className="flex items-center gap-4">
+          <button
+            onClick={handleOpenLeftSidePanel}
+            className="flex h-full items-center gap-4 md:hidden"
+          >
             {agentId ? (
-              <Text className="uppercase" styleAs="p-lg">
+              <Text
+                className={cn(
+                  'size-5 rounded text-center align-middle uppercase',
+                  bg,
+                  contrastText
+                )}
+                styleAs="p"
+              >
                 {agent?.name[0]}
               </Text>
             ) : (
@@ -72,9 +83,13 @@ export const Header: React.FC<Props> = ({ agentId }) => {
             <Button
               kind="secondary"
               className="[&>div]:gap-x-0 md:[&>div]:gap-x-3"
-              label={<Text className={cn(text, 'hidden md:flex')}>Share</Text>}
+              label={
+                <Text className={cn(dark(lightText), light(text), 'hidden md:flex')}>Share</Text>
+              }
               iconOptions={{
-                customIcon: <Icon name="share" kind="outline" className={fill} />,
+                customIcon: (
+                  <Icon name="share" kind="outline" className={cn(light(fill), dark(lightFill))} />
+                ),
               }}
               iconPosition="start"
               onClick={handleOpenShareModal}

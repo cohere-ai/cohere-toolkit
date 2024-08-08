@@ -2,7 +2,7 @@
 
 import { PropsWithChildren, useState } from 'react';
 
-import { DarkModeToggle } from '@/components/DarkMode';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { Button, Icon, Tabs, Text, Tooltip } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
@@ -109,6 +109,7 @@ const GoogleDriveConnection = () => {
   }
 
   const isGoogleDriveConnected = !googleDriveTool.is_auth_required ?? false;
+  const authUrl = googleDriveTool.auth_url;
 
   return (
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
@@ -138,7 +139,7 @@ const GoogleDriveConnection = () => {
                 label="Sync now"
                 kind="secondary"
                 icon="arrow-clockwise"
-                onClick={() => alert('not implemented')}
+                href={authUrl ?? ''}
               />
               <Button
                 label="Delete connection"

@@ -4,6 +4,7 @@ import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 import React from 'react';
 
+import { ConversationList } from '@/components/ConversationList/ConversationList';
 import { Button, ButtonTheme, Icon, IconName, Logo, Text, Tooltip } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
@@ -17,10 +18,7 @@ import { cn } from '@/utils';
  * It contains the logo and a button to expand or collapse the panel.
  * It also renders the children components that are passed to it.
  */
-export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
-  className = '',
-  children,
-}) => {
+export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { isAgentsLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -29,10 +27,10 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
   return (
     <Transition
       show={isAgentsLeftPanelOpen || isDesktop}
-      as="div"
+      as="aside"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
-        'h-full bg-marble-980 md:bg-transparent dark:bg-volcanic-60',
+        'h-full bg-mushroom-900 dark:bg-volcanic-60',
         'rounded-lg border border-marble-950 md:border-none dark:border-volcanic-60',
         'dark:text-mushroom-950',
         {
@@ -52,9 +50,9 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
           'md:transition-[min-width,max-width]',
           {
-            'gap-y-8 md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
+            'gap-y-8 lg:min-w-agents-panel-collapsed lg:max-w-agents-panel-collapsed':
               !isAgentsLeftPanelOpen,
-            'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
+            'lg:min-w-agents-panel-expanded lg:max-w-agents-panel-expanded xl:min-w-agents-panel-expanded-lg xl:max-w-agents-panel-expanded-lg':
               isAgentsLeftPanelOpen,
           }
         )}
@@ -105,7 +103,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
           />
         </div>
 
-        {children}
+        <ConversationList />
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
           <AgentsSidePanelButton

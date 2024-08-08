@@ -2,7 +2,7 @@
 
 import { PropsWithChildren, useDeferredValue, useState } from 'react';
 
-import { Agent, Conversation, ConversationWithoutMessages } from '@/cohere-client';
+import { Agent, ConversationWithoutMessages } from '@/cohere-client';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
 import { Button, Icon, Input, Tabs, Text, Tooltip } from '@/components/Shared';
 import { useListAgents } from '@/hooks/agents';
@@ -18,6 +18,24 @@ const tabs = [
     <Icon name="profile" kind="outline" />
     <Text>Private</Text>
   </div>,
+];
+
+const BASE_AGENTS: Array<Agent & { isBaseAgent: boolean }> = [
+  {
+    id: '',
+    name: 'Command R+',
+    description: 'Review, understand and ask questions about internal financial documents.',
+    user_id: 'xxxx',
+    created_at: '2021-09-01T00:00:00Z',
+    updated_at: '2021-09-01T00:00:00Z',
+    preamble: '',
+    version: 1,
+    temperature: 0.3,
+    tools: [],
+    model: '',
+    deployment: '',
+    isBaseAgent: true,
+  },
 ];
 
 export const DiscoverAgents = () => {
@@ -90,7 +108,7 @@ const GroupAgents: React.FC<{ agents: Agent[]; title: string; subTitle: string }
       </header>
       <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-3 xl:grid-cols-4">
         {visibleAgents.map((agent) => (
-          <DiscoverAgentCard key={agent.id} {...agent} isBaseAgent={agent.id === 'default'} />
+          <DiscoverAgentCard key={agent.id} {...agent} />
         ))}
       </div>
       {hasShowMore && (
@@ -120,6 +138,11 @@ const CompanyAgents: React.FC<{
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value);
   const deferredQuery = useDeferredValue(query);
 
+  // TODO(tomeu): verify with design
+  if (!agents.length) {
+    return null;
+  }
+
   const filteredAgents = agents
     .filter((agent) => agent.name.toLowerCase().includes(deferredQuery.toLowerCase()))
     .sort((a, b) => b.name.toLowerCase().localeCompare(a.name.toLowerCase()));
@@ -146,7 +169,9 @@ const CompanyAgents: React.FC<{
     .map((id) => filteredAgents.find((a) => a.id === id))
     .filter((agent) => !!agent);
 
-  const featuredAgents = filteredAgents.filter((agent) => agent.id === 'default');
+  const featuredAgents = BASE_AGENTS.filter((agent) =>
+    agent.name.toLowerCase().includes(deferredQuery.toLowerCase())
+  );
 
   return (
     <Wrapper>
