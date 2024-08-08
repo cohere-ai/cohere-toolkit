@@ -11,14 +11,6 @@ const INITIAL_STATE: State = {
   outputFiles: {},
 };
 
-type Citation = {
-  generationId: string;
-  start: string;
-  end: string;
-  /** Used to scroll to highlight position */
-  yPosition: number | null;
-};
-
 type CitationReferences = {
   [generationId: string]: {
     /** In the format: {startIndex}-{endIndex} */
