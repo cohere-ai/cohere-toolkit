@@ -73,6 +73,7 @@ class Agent(AgentBase):
     deployments: list[DeploymentSchema]
     deployment: Optional[str]
     model: Optional[str]
+    is_private: Optional[bool]
 
     class Config:
         from_attributes = True
