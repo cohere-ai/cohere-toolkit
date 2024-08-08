@@ -26,6 +26,7 @@ const BASE_AGENTS: Array<AgentPublic> = [
     tools: [],
     model: '',
     deployment: '',
+    user_id: '',
   },
 ];
 
@@ -111,8 +112,7 @@ const CompanyAgents: React.FC<{
   );
 
   const createdByMeAgents = useMemo(
-    () => filteredAgents,
-    // .filter((agent) => agent.user_id === session.userId)
+    () => filteredAgents.filter((agent) => agent.user_id === session.userId),
     [filteredAgents, session.userId]
   );
 
@@ -147,8 +147,8 @@ const CompanyAgents: React.FC<{
       Object.keys(mostUsedAgents)
         .sort((a, b) => mostUsedAgents[b] - mostUsedAgents[a])
         .map((id) => filteredAgents.find((a) => a.id === id))
-        .filter((agent) => !!agent),
-    // .filter((agent) => agent.user_id !== session.userId),
+        .filter((agent) => !!agent)
+        .filter((agent) => agent.user_id !== session.userId),
     [mostUsedAgents, filteredAgents, session.userId]
   );
 

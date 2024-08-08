@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { AgentPublic } from '@/cohere-client';
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
-import { CoralLogo, Text } from '@/components/Shared';
+import { CoralLogo, Icon, Text } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useSession } from '@/hooks/session';
@@ -22,10 +22,9 @@ export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
   const isBaseAgent = agent?.id === 'default';
   const { bg, contrastText, contrastFill } = useBrandedColors(agent?.id);
   const session = useSession();
-  // const isCreator = agent?.user_id === session.userId;
-  // const createdBy = isBaseAgent ? 'COHERE' : isCreator ? 'YOU' : 'TEAM';
-  const createdBy = 'COHERE';
-  const isCreator = true;
+  const isCreator = agent?.user_id === session.userId;
+  const isPrivate = isCreator && false; // agent.is_private TODO - add this field to the agent
+  const createdBy = isBaseAgent ? 'COHERE' : isCreator ? 'YOU' : 'TEAM';
 
   const { open, close } = useContextStore();
 
@@ -46,8 +45,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
         <div className="flex w-full items-center gap-x-2">
           <div
             className={cn(
-              'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
-              'truncate',
+              'relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
               bg
             )}
           >
@@ -57,6 +55,15 @@ export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
               <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
                 {agent?.name[0]}
               </Text>
+            )}
+            {isPrivate && (
+              <span className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 transform">
+                <Icon
+                  name="lock"
+                  className="fill-volcanic-300 dark:fill-marble-950"
+                  kind="default"
+                />
+              </span>
             )}
           </div>
           <Text as="h5" className="truncate dark:text-mushroom-950" title={agent?.name}>

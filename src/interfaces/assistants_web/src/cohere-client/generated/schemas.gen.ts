@@ -138,6 +138,10 @@ export const $Agent = {
 
 export const $AgentPublic = {
   properties: {
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     id: {
       type: 'string',
       title: 'Id',
@@ -246,6 +250,7 @@ export const $AgentPublic = {
   },
   type: 'object',
   required: [
+    'user_id',
     'id',
     'created_at',
     'updated_at',
