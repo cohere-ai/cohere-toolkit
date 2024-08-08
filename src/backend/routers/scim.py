@@ -1,9 +1,6 @@
-import secrets
-from typing import Annotated, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from starlette import status
+from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -27,37 +24,9 @@ from backend.schemas.scim import (
     User,
 )
 
-
-def _check_basic_auth(
-    credentials: Annotated[HTTPBasicCredentials, Depends(HTTPBasic())],
-) -> bool:
-    if not scim_auth or not scim_auth.username or not scim_auth.password:
-        raise HTTPException(
-            status_code=500,
-            detail="SCIM token not set in the environment",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
-    is_correct_username = _compare_secret(credentials.username, scim_auth.username)
-    is_correct_password = _compare_secret(credentials.password, scim_auth.password)
-
-    if not (is_correct_username and is_correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="incorrect username or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
-    return True
-
-
-def _compare_secret(actual: str, expected: str) -> bool:
-    return secrets.compare_digest(actual.encode("utf8"), expected.encode("utf8"))
-
-
 SCIM_PREFIX = "/scim/v2"
 scim_auth = Settings().auth.scim
-router = APIRouter(prefix=SCIM_PREFIX, dependencies=[Depends(_check_basic_auth)])
+router = APIRouter(prefix=SCIM_PREFIX)
 router.name = RouterName.SCIM
 
 
