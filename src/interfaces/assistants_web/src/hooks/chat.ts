@@ -616,6 +616,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   };
 
   const handleStop = () => {
+    if (!isStreaming) return;
     abortController.current?.abort(ABORT_REASON_USER);
     setIsStreaming(false);
     setConversation({
