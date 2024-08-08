@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.config.routers import RouterName
@@ -14,6 +16,7 @@ from backend.schemas.agent import (
     AgentPublic,
     AgentToolMetadata,
     AgentToolMetadataPublic,
+    AgentVisibility,
     CreateAgentRequest,
     CreateAgentToolMetadataRequest,
     DeleteAgent,
@@ -85,6 +88,7 @@ async def create_agent(
         user_id=user_id,
         organization_id=agent.organization_id,
         tools=agent.tools,
+        is_private=agent.is_private,
     )
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
     try:
@@ -125,6 +129,8 @@ async def list_agents(
     offset: int = 0,
     limit: int = 100,
     session: DBSessionDep,
+    visibility: AgentVisibility = AgentVisibility.ALL,
+    organization_id: Optional[str] = None,
     ctx: Context = Depends(get_context),
 ) -> list[AgentPublic]:
     """
@@ -139,105 +145,26 @@ async def list_agents(
     Returns:
         list[AgentPublic]: List of agents with no user ID or organization ID.
     """
+    # TODO: get organization_id from user
+    user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
+
     try:
-        return agent_crud.get_agents(session, offset=offset, limit=limit)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/user/{user_id}", response_model=list[Agent])
-async def list_user_agents(
-    *,
-    user_id: str,
-    offset: int = 0,
-    limit: int = 100,
-    session: DBSessionDep,
-) -> list[Agent]:
-    """
-    List all agents.
-
-    Args:
-        user_id (str): User ID.
-        offset (int): Offset to start the list.
-        limit (int): Limit of agents to be listed.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        list[Agent]: List of agents.
-    """
-    try:
-        return agent_crud.get_agents(
-            session, offset=offset, limit=limit, user_id=user_id
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/organization/{organization_id}", response_model=list[Agent])
-async def list_organization_agents(
-    *,
-    organization_id: str,
-    offset: int = 0,
-    limit: int = 100,
-    session: DBSessionDep,
-) -> list[Agent]:
-    """
-    List all agents.
-
-    Args:
-        organization_id (str): Organization ID.
-        offset (int): Offset to start the list.
-        limit (int): Limit of agents to be listed.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        list[Agent]: List of agents.
-    """
-    try:
-        return agent_crud.get_agents(
-            session, offset=offset, limit=limit, organization_id=organization_id
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get(
-    "/organization/{organization_id}/user/{user_id}", response_model=list[Agent]
-)
-async def list_organization_user_agents(
-    *,
-    organization_id: str,
-    user_id: str,
-    offset: int = 0,
-    limit: int = 100,
-    session: DBSessionDep,
-) -> list[Agent]:
-    """
-    List all agents.
-
-    Args:
-        organization_id (str): Organization ID.
-        user_id (str): User ID.
-        offset (int): Offset to start the list.
-        limit (int): Limit of agents to be listed.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        list[Agent]: List of agents.
-    """
-    try:
-        return agent_crud.get_agents(
+        agents = agent_crud.get_agents(
             session,
+            user_id=user_id,
             offset=offset,
             limit=limit,
+            visibility=visibility,
             organization_id=organization_id,
-            user_id=user_id,
         )
+        return agents
     except Exception as e:
+        logger.exception(event=e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/{agent_id}", response_model=Agent)
+@router.get("/{agent_id}", response_model=AgentPublic)
 async def get_agent_by_id(
     agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
 ) -> Agent:
@@ -254,16 +181,18 @@ async def get_agent_by_id(
         HTTPException: If the agent with the given ID is not found.
     """
     ctx.with_event_type(MetricsMessageType.ASSISTANT_ACCESSED)
+    user_id = ctx.get_user_id()
+    agent = None
 
     try:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
+        agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     if not agent:
         raise HTTPException(
             status_code=404,
-            detail=f"Agent with ID: {agent_id} not found.",
+            detail=f"Agent with ID {agent_id} not found.",
         )
 
     agent_schema = Agent.model_validate(agent)
@@ -289,19 +218,12 @@ async def get_agent_deployments(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    try:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    if not agent:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Agent with ID: {agent_id} not found.",
-        )
+    user_id = ctx.get_user_id()
+    agent = validate_agent_exists(session, agent_id, user_id)
 
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
+
     return [
         DeploymentSchema.custom_transform(deployment)
         for deployment in agent.deployments
@@ -337,9 +259,10 @@ async def update_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    user_id = ctx.get_user_id()
     ctx.with_user(session)
     ctx.with_event_type(MetricsMessageType.ASSISTANT_UPDATED)
-    agent = validate_agent_exists(session, agent_id)
+    agent = validate_agent_exists(session, agent_id, user_id)
 
     if new_agent.tools_metadata is not None:
         agent = await handle_tool_metadata_update(agent, new_agent, session, ctx)
@@ -394,7 +317,7 @@ async def update_agent(
                 )
 
         agent = agent_crud.update_agent(
-            session, agent, UpdateAgentRequest(**new_agent_cleaned)
+            session, agent, UpdateAgentRequest(**new_agent_cleaned), user_id
         )
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
@@ -422,6 +345,9 @@ async def handle_tool_metadata_update(
     Returns:
         Agent: Agent.
     """
+    user_id = ctx.get_user_id()
+    validate_agent_exists(session, agent.id, user_id)
+
     # Delete tool metadata that are not in the request
     new_tools_names = [metadata.tool_name for metadata in new_agent.tools_metadata]
     for tool_metadata in agent.tools_metadata:
@@ -439,7 +365,7 @@ async def handle_tool_metadata_update(
 
     # Remove tools_metadata from new_agent to avoid updating it in the agent
     new_agent.tools_metadata = None
-    agent = agent_crud.get_agent_by_id(session, agent.id)
+    agent = agent_crud.get_agent_by_id(session, agent.id, user_id)
     return agent
 
 
@@ -491,14 +417,15 @@ async def delete_agent(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
+    user_id = ctx.get_user_id()
     ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
-    agent = validate_agent_exists(session, agent_id)
+    agent = validate_agent_exists(session, agent_id, user_id)
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
     try:
-        agent_crud.delete_agent(session, agent_id)
+        agent_crud.delete_agent(session, agent_id, user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -526,6 +453,9 @@ async def list_agent_tool_metadata(
     Raises:
         HTTPException: If the agent tool metadata retrieval fails.
     """
+    user_id = ctx.get_user_id()
+    validate_agent_exists(session, agent_id, user_id)
+
     try:
         return agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
             session, agent_id
@@ -560,7 +490,7 @@ def create_agent_tool_metadata(
         HTTPException: If the agent tool metadata creation fails.
     """
     user_id = ctx.get_user_id()
-    agent = validate_agent_exists(session, agent_id)
+    agent = validate_agent_exists(session, agent_id, user_id)
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
 
@@ -611,6 +541,9 @@ async def update_agent_tool_metadata(
         HTTPException: If the agent tool metadata with the given ID is not found.
         HTTPException: If the agent tool metadata update fails.
     """
+    user_id = ctx.get_user_id()
+    validate_agent_exists(session, agent_id, user_id)
+
     agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id
     )
@@ -650,6 +583,9 @@ async def delete_agent_tool_metadata(
         HTTPException: If the agent tool metadata with the given ID is not found.
         HTTPException: If the agent tool metadata deletion fails.
     """
+    user_id = ctx.get_user_id()
+    validate_agent_exists(session, agent_id, user_id)
+
     agent_tool_metadata = validate_agent_tool_metadata_exists(
         session, agent_tool_metadata_id
     )
