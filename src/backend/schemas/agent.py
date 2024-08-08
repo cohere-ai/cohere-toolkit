@@ -1,5 +1,5 @@
 import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -8,7 +8,7 @@ from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
 from backend.schemas.deployment import ModelSimple as ModelSchema
 
 
-class AgentVisibility(str, Enum):
+class AgentVisibility(StrEnum):
     PRIVATE = "private"
     PUBLIC = "public"
     ALL = "all"
