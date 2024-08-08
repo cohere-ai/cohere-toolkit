@@ -11,7 +11,6 @@ type Props = {
 
 const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
   return options.map((action) => {
-    if (action.quickActions.length === 0) return null;
     return (
       <section key={action.group}>
         <Text styleAs="p-sm" className="mx-3 p-4 uppercase dark:text-marble-800">
