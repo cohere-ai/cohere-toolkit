@@ -155,7 +155,7 @@ class FileService:
         if self.is_compass_enabled:
             """
             Since agents are created after the files are upload we index files into dummy indices first
-            We later consolidate them in index_agent_files() to a singular index when an agent is created.
+            We later consolidate them in consolidate_agent_files_in_compass() to a singular index when an agent is created.
             """
             uploaded_files = await insert_files_in_compass(files, user_id)
         else:
@@ -186,21 +186,26 @@ class FileService:
                 detail=f"Agent with ID: {agent_id} not found.",
             )
 
-        agent_tool_metadata = agent.tools_metadata
-        if agent_tool_metadata is not None:
+        agent_tools_metadata = agent.tools_metadata
+        if agent_tools_metadata is not None:
             artifacts = next(
-                tool_metadata.artifacts
-                for tool_metadata in agent_tool_metadata
-                if tool_metadata.tool_name == ToolName.READ_DOCUMENT
-                or tool_metadata.tool_name == ToolName.SEARCH_FILE
+                (
+                    tool_metadata.artifacts
+                    for tool_metadata in agent_tools_metadata
+                    if tool_metadata.tool_name == ToolName.Read_File
+                    or tool_metadata.tool_name == ToolName.Search_File
+                ),
+                [],  # Default value if the generator is empty
             )
 
-            # TODO scott: enumerate type names (?), different types for local vs. compass?
-            file_ids = [
-                artifact.get("id")
-                for artifact in artifacts
-                if artifact.get("type") == "local_file"
-            ]
+            # Remove duplicates, since file can be associated to both read document and search file tools
+            file_ids = list(
+                set(
+                    artifact.get("id")
+                    for artifact in artifacts
+                    if artifact.get("type") == "local_file"
+                )
+            )
 
             if self.is_compass_enabled:
                 files = get_files_in_compass(agent_id, file_ids, user_id)
@@ -246,7 +251,7 @@ class FileService:
         self, session: DBSessionDep, conversation_id: str, file_id: str, user_id: str
     ) -> None:
         """
-        Delete file from conversation
+        Delete a file asociated with a conversation
 
         Args:
             session (DBSessionDep): The database session
@@ -260,6 +265,25 @@ class FileService:
 
         if self.is_compass_enabled:
             delete_file_in_compass(conversation_id, file_id, user_id)
+        else:
+            file_crud.delete_file(session, file_id, user_id)
+
+        return
+
+    def delete_agent_file_by_id(
+        self, session: DBSessionDep, agent_id: str, file_id: str, user_id: str
+    ) -> None:
+        """
+        Delete a file asociated with an agent
+
+        Args:
+            session (DBSessionDep): The database session
+            agent_id (str): The agent ID
+            file_id (str): The file ID
+            user_id (str): The user ID
+        """
+        if self.is_compass_enabled:
+            delete_file_in_compass(agent_id, file_id, user_id)
         else:
             file_crud.delete_file(session, file_id, user_id)
 
@@ -322,44 +346,42 @@ class FileService:
         return files
 
 
-def validate_file(
-    session: DBSessionDep, file_id: str, user_id: str, index: str = None
-) -> File:
-    """Validates if a file exists and belongs to the user
+# Compass Operations
+def delete_file_in_compass(index: str, file_id: str, user_id: str) -> None:
+    """
+    Delete a file from Compass
 
     Args:
-        session (DBSessionDep): Database session
-        file_id (str): File ID
-        user_id (str): User ID
-
-    Returns:
-        File: File object
+        index (str): The index
+        file_id (str): The file ID
+        user_id (str): The user ID
 
     Raises:
         HTTPException: If the file is not found
     """
-    if Settings().feature_flags.use_compass_file_storage:
-        file = get_files_in_compass(index, file_id, user_id)[0]
-    else:
-        file = file_crud.get_file(session, file_id, user_id)
-
-    if not file:
-        raise HTTPException(
-            status_code=404,
-            detail=f"File with ID: {file_id} not found.",
+    try:
+        get_compass().invoke(
+            action=Compass.ValidActions.DELETE,
+            parameters={"index": index, "file_id": file_id},
+        )
+    except Exception as e:
+        logger.error(
+            f"[Compass File] Error deleting file {file_id} on index {index} from Compass: {e}"
         )
 
 
-# Compass Operations
-def delete_file_in_compass(index: str, file_id: str, user_id: str) -> None:
-    # todo: validate all files exists before deleting
-    get_compass().invoke(
-        action=Compass.ValidActions.DELETE,
-        parameters={"index": index, "file_id": file_id},
-    )
-
-
 def get_files_in_compass(index: str, file_ids: list[str], user_id: str) -> list[File]:
+    """
+    Get files from Compass
+
+    Args:
+        index (str): The index
+        file_ids (list[str]): The file IDs
+        user_id (str): The user ID
+
+    Returns:
+        list[File]: The files that were created
+    """
     files = []
     for file_id in file_ids:
         try:
@@ -392,35 +414,19 @@ def get_files_in_compass(index: str, file_ids: list[str], user_id: str) -> list[
     return files
 
 
-async def insert_files_in_db(
-    session: DBSessionDep,
-    files: list[FastAPIUploadFile],
-    user_id: str,
-) -> list[File]:
-    files_to_upload = []
-    for file in files:
-        content = await get_file_content(file)
-        cleaned_content = content.replace("\x00", "")
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-
-        files_to_upload.append(
-            FileModel(
-                file_name=filename,
-                file_size=file.size,
-                file_path=filename,
-                file_content=cleaned_content,
-                user_id=user_id,
-            )
-        )
-
-    uploaded_files = file_crud.batch_create_files(session, files_to_upload)
-    return uploaded_files
-
-
-async def index_agent_files(
+async def consolidate_agent_files_in_compass(
     file_ids,
     agent_id,
 ) -> None:
+    """
+    Consolidate files into a single index (agent ID) in Compass.
+    We do this because when agents are created after a file is uploaded, the file is not associated with the agent.
+    We consolidate them in a single index to under one agent ID when an agent is created.
+
+    Args:
+        file_ids (list[str]): The file IDs
+        agent_id (str): The agent ID
+    """
     try:
         get_compass().invoke(
             action=Compass.ValidActions.CREATE_INDEX,
@@ -429,7 +435,9 @@ async def index_agent_files(
             },
         )
     except Exception as e:
-        logger.Error(f"Fail")
+        logger.Error(
+            f"[Compass File] Error creating index for agent files: {agent_id}, error: {e}"
+        )
 
     for file_id in file_ids:
         try:
@@ -463,11 +471,13 @@ async def index_agent_files(
                 parameters={"index": agent_id},
             )
             # Remove the temporary file index entry
-            get_compass.invoke(
+            get_compass().invoke(
                 action=Compass.ValidActions.DELETE_INDEX, parameters={"index": file_id}
             )
         except Exception as e:
-            print(e)
+            logger.error(
+                f"[Compass File] Error consolidating file {file_id} into agent {agent_id}, error: {e}"
+            )
 
 
 async def insert_files_in_compass(
@@ -546,6 +556,71 @@ async def insert_files_in_compass(
             )
         )
 
+    return uploaded_files
+
+
+# Misc
+def validate_file(
+    session: DBSessionDep, file_id: str, user_id: str, index: str = None
+) -> File:
+    """Validates if a file exists and belongs to the user
+
+    Args:
+        session (DBSessionDep): Database session
+        file_id (str): File ID
+        user_id (str): User ID
+
+    Returns:
+        File: File object
+
+    Raises:
+        HTTPException: If the file is not found
+    """
+    if Settings().feature_flags.use_compass_file_storage:
+        file = get_files_in_compass(index, file_id, user_id)[0]
+    else:
+        file = file_crud.get_file(session, file_id, user_id)
+
+    if not file:
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} not found.",
+        )
+
+
+async def insert_files_in_db(
+    session: DBSessionDep,
+    files: list[FastAPIUploadFile],
+    user_id: str,
+) -> list[File]:
+    """
+    Insert files into the database
+
+    Args:
+        session (DBSessionDep): The database session
+        files (list[FastAPIUploadFile]): The files to upload
+        user_id (str): The user ID
+
+    Returns:
+        list[File]: The files that were created
+    """
+    files_to_upload = []
+    for file in files:
+        content = await get_file_content(file)
+        cleaned_content = content.replace("\x00", "")
+        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+
+        files_to_upload.append(
+            FileModel(
+                file_name=filename,
+                file_size=file.size,
+                file_path=filename,
+                file_content=cleaned_content,
+                user_id=user_id,
+            )
+        )
+
+    uploaded_files = file_crud.batch_create_files(session, files_to_upload)
     return uploaded_files
 
 

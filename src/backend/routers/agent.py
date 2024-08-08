@@ -5,6 +5,7 @@ from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
+from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent import Agent as AgentModel
@@ -25,13 +26,7 @@ from backend.schemas.agent import (
     UpdateAgentToolMetadataRequest,
 )
 from backend.schemas.context import Context
-from backend.schemas.file import (
-    DeleteFileResponse,
-    FilePublic,
-    ListFile,
-    UpdateFileRequest,
-    UploadFileResponse,
-)
+from backend.schemas.file import DeleteFileResponse, UploadFileResponse
 from backend.schemas.metrics import (
     DEFAULT_METRICS_AGENT,
     GenericResponseMessage,
@@ -45,8 +40,8 @@ from backend.services.agent import (
 )
 from backend.services.context import get_context
 from backend.services.file import (
+    consolidate_agent_files_in_compass,
     get_file_service,
-    index_agent_files,
     validate_batch_file_size,
 )
 from backend.services.request_validators import (
@@ -115,24 +110,26 @@ async def create_agent(
                     created_agent, tool_metadata, session, ctx
                 )
 
-            # Consolidate agent files into one index in compass
-            if get_file_service().is_compass_enabled:
-                if agent_tool_metadata is not None:
-                    artifacts = next(
-                        tool_metadata.artifacts
-                        for tool_metadata in agent_tool_metadata
-                        if tool_metadata.tool_name == ToolName.READ_DOCUMENT
-                        or tool_metadata.tool_name == ToolName.SEARCH_FILE
-                    )
-
-                    file_ids = [
-                        artifact.get("id")
-                        for artifact in artifacts
-                        if artifact.get("type") == "local_file"
-                    ]
-
-                    if len(file_ids) > 0:
-                        await index_agent_files(file_ids, create_agent.id)
+        # Consolidate agent files into one index in compass
+        if get_file_service().is_compass_enabled and created_agent.tools_metadata:
+            artifacts = next(
+                (
+                    tool_metadata.artifacts
+                    for tool_metadata in created_agent.tools_metadata
+                    if tool_metadata.tool_name == ToolName.Read_File
+                    or tool_metadata.tool_name == ToolName.Search_File
+                ),
+                [],
+            )
+            file_ids = list(
+                set(
+                    artifact.get("id")
+                    for artifact in artifacts
+                    if artifact.get("type") == "local_file"
+                )
+            )
+            if len(file_ids) > 0:
+                await consolidate_agent_files_in_compass(file_ids, created_agent.id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -530,10 +527,41 @@ async def batch_upload_file(
         )
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error while uploading file(s): {e}."
+            status_code=500, detail=f"Error while uploading agent file(s): {e}."
         )
 
     return uploaded_files
+
+
+@router.delete("/{agent_id}/files/{file_id}")
+async def delete_file(
+    agent_id: str,
+    file_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> DeleteFileResponse:
+    """
+    Delete a file by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        file_id (str): File ID.
+        session (DBSessionDep): Database session.
+
+    Returns:
+        DeleteFile: Empty response.
+
+    Raises:
+        HTTPException: If the agent with the given ID is not found.
+    """
+    user_id = ctx.get_user_id()
+    _ = validate_agent_exists(session, agent_id)
+    validate_file(session, file_id, user_id, agent_id)
+
+    # Delete the File DB object
+    get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id)
+
+    return DeleteFileResponse()
 
 
 # Default Agent Router
