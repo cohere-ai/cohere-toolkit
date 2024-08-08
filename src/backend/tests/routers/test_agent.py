@@ -944,7 +944,6 @@ def test_update_private_agent(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        deployment=ModelDeploymentName.CoherePlatform,
         is_private=True,
         user=user,
     )
@@ -971,7 +970,6 @@ def test_update_public_agent(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        deployment=ModelDeploymentName.CoherePlatform,
         is_private=False,
         user=user,
     )
