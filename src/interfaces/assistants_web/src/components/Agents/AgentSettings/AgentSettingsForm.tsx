@@ -4,7 +4,7 @@ import { uniqBy } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { CreateAgent, UpdateAgent } from '@/cohere-client';
+import { CreateAgentRequest, UpdateAgentRequest } from '@/cohere-client';
 import { DataSourcesStep } from '@/components/Agents/AgentSettings/DataSourcesStep';
 import { DefineAssistantStep } from '@/components/Agents/AgentSettings/DefineStep';
 import { ToolsStep } from '@/components/Agents/AgentSettings/ToolsStep';
@@ -24,7 +24,8 @@ type RequiredAndNotNull<T> = {
 type RequireAndNotNullSome<T, K extends keyof T> = RequiredAndNotNull<Pick<T, K>> & Omit<T, K>;
 
 export type AgentSettingsFields = RequireAndNotNullSome<
-  Omit<UpdateAgent, 'version' | 'temperature'> | Omit<CreateAgent, 'version' | 'temperature'>,
+  | Omit<UpdateAgentRequest, 'version' | 'temperature'>
+  | Omit<CreateAgentRequest, 'version' | 'temperature'>,
   'name' | 'model' | 'deployment'
 >;
 
