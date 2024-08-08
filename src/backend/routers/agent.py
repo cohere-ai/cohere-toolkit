@@ -45,12 +45,9 @@ from backend.services.agent import (
 )
 from backend.services.context import get_context
 from backend.services.file import (
-    attach_conversation_id_to_files,
     get_file_service,
     index_agent_files,
     validate_batch_file_size,
-    validate_file,
-    validate_file_size,
 )
 from backend.services.request_validators import (
     validate_create_agent_request,
@@ -134,7 +131,8 @@ async def create_agent(
                         if artifact.get("type") == "local_file"
                     ]
 
-                await index_agent_files(file_ids, create_agent.id)
+                    if len(file_ids) > 0:
+                        await index_agent_files(file_ids, create_agent.id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

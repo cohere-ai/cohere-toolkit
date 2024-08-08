@@ -259,7 +259,7 @@ class CustomChat(BaseChat):
                 trace_id=ctx.get_trace_id(),
                 agent_tool_metadata=ctx.get_agent_tool_metadata(),
                 agent_id=ctx.get_agent_id(),
-                conversation_id=ctx.get_conversation_id()
+                conversation_id=ctx.get_conversation_id(),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list

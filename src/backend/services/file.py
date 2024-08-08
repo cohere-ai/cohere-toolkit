@@ -48,6 +48,12 @@ compass = None
 
 
 def get_file_service():
+    """
+    Initialize a singular instance of FileService if not initialized yet
+
+    Returns:
+        FileService: The singleton FileService instance
+    """
     global file_service
     if file_service is None:
         file_service = FileService()
@@ -55,6 +61,12 @@ def get_file_service():
 
 
 def get_compass():
+    """
+    Initialize a singular instance of Compass if not initialized yet
+
+    Returns:
+        Compass: The singleton Compass instance
+    """
     global compass
     if compass is None:
         try:
@@ -66,8 +78,20 @@ def get_compass():
 
 
 class FileService:
+    """
+    FileService class
+
+    This class manages interfacing with different file storage solutions. Currently it supports storing files in the Postgres DB and or using Compass.
+    By default Toolkit will run with Postgres DB as the storage solution for files.
+    To enable Compass as the storage solution, set the `use_compass_file_storage` feature flag to `true` in the .env or .configuration file.
+    Also be sure to add the appropriate Compass environment variables to the .env or .configuration file.
+    """
+
     @property
     def is_compass_enabled(self) -> bool:
+        """
+        Returns whether Compass is enabled as the file storage solution
+        """
         return Settings().feature_flags.use_compass_file_storage
 
     async def create_conversation_files(
@@ -79,13 +103,14 @@ class FileService:
         ctx: Context = Depends(get_context),
     ) -> list[File]:
         """
-        Create files and associations with conversation
+        Create files and associations with a conversation
 
         Args:
             session (DBSessionDep): The database session
             files (list[FastAPIUploadFile]): The files to upload
             user_id (str): The user ID
             conversation_id (str): The conversation ID
+            ctx (Context): Context object
 
         Returns:
             list[File]: The files that were created
@@ -117,19 +142,21 @@ class FileService:
         ctx: Context = Depends(get_context),
     ) -> list[File]:
         """
-        Create files and associations with conversation
+        Create files and associations with an agent
 
         Args:
             session (DBSessionDep): The database session
             files (list[FastAPIUploadFile]): The files to upload
             user_id (str): The user ID
-            conversation_id (str): The conversation ID
-
         Returns:
             list[File]: The files that were created
         """
         uploaded_files = []
         if self.is_compass_enabled:
+            """
+            Since agents are created after the files are upload we index files into dummy indices first
+            We later consolidate them in index_agent_files() to a singular index when an agent is created.
+            """
             uploaded_files = await insert_files_in_compass(files, user_id)
         else:
             uploaded_files = await insert_files_in_db(session, files, user_id)
@@ -215,7 +242,7 @@ class FileService:
 
         return files
 
-    def delete_file_by_id(
+    def delete_conversation_file_by_id(
         self, session: DBSessionDep, conversation_id: str, file_id: str, user_id: str
     ) -> None:
         """
@@ -232,44 +259,38 @@ class FileService:
         )
 
         if self.is_compass_enabled:
-            delete_file_in_compass(file_id, user_id)
+            delete_file_in_compass(conversation_id, file_id, user_id)
         else:
             file_crud.delete_file(session, file_id, user_id)
 
         return
 
-    def get_file_by_id(self, session: DBSessionDep, file_id: str, user_id: str) -> File:
-        """
-        Get file by ID
-
-        Args:
-            session (DBSessionDep): The database session
-            file_id (str): The file ID
-            user_id (str): The user ID
-
-        Returns:
-            File: The file that was created
-        """
-        if self.is_compass_enabled:
-            file = get_file_in_compass(file_id, user_id)
-        else:
-            file = file_crud.get_file(session, file_id, user_id)
-        return file
-
-    def bulk_delete_files(
-        self, session: DBSessionDep, file_ids: list[str], user_id: str
+    def delete_all_conversation_files(
+        self,
+        session: DBSessionDep,
+        conversation_id: str,
+        file_ids: list[str],
+        user_id: str,
     ) -> None:
         """
-        Bulk delete files
+        Delete all files associated with a conversation
 
         Args:
             session (DBSessionDep): The database session
+            conversation_id (str): The conversation ID
             file_ids (list[str]): The file IDs
             user_id (str): The user ID
         """
         if self.is_compass_enabled:
-            for file_id in file_ids:
-                delete_file_in_compass(file_id, user_id)
+            try:
+                get_compass().invoke(
+                    action=Compass.ValidActions.DELETE_INDEX,
+                    parameters={"index": conversation_id},
+                )
+            except Exception as e:
+                logger.error(
+                    f"Error deleting conversation {conversation_id} files from Compass: {e}"
+                )
         else:
             file_crud.bulk_delete_files(session, file_ids, user_id)
 
@@ -293,13 +314,17 @@ class FileService:
         files = []
         if message.file_ids is not None:
             if self.is_compass_enabled:
-                files = get_files_in_compass(message.file_ids, user_id)
+                files = get_files_in_compass(
+                    message.conversation_id, message.file_ids, user_id
+                )
             else:
                 files = file_crud.get_files_by_ids(session, message.file_ids, user_id)
         return files
 
 
-def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:
+def validate_file(
+    session: DBSessionDep, file_id: str, user_id: str, index: str = None
+) -> File:
     """Validates if a file exists and belongs to the user
 
     Args:
@@ -314,7 +339,7 @@ def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:
         HTTPException: If the file is not found
     """
     if Settings().feature_flags.use_compass_file_storage:
-        file = get_file_in_compass(file_id, user_id)
+        file = get_files_in_compass(index, file_id, user_id)[0]
     else:
         file = file_crud.get_file(session, file_id, user_id)
 
@@ -326,36 +351,11 @@ def validate_file(session: DBSessionDep, file_id: str, user_id: str) -> File:
 
 
 # Compass Operations
-def delete_file_in_compass(file_id: str, user_id: str) -> None:
+def delete_file_in_compass(index: str, file_id: str, user_id: str) -> None:
     # todo: validate all files exists before deleting
     get_compass().invoke(
-        action=Compass.ValidActions.DELETE_INDEX, parameters={"index": file_id}
-    )
-
-
-def get_file_in_compass(file_id: str, user_id: str) -> File:
-    fetched_doc = None
-    try:
-        fetched_doc = (
-            get_compass()
-            .invoke(
-                action=Compass.ValidActions.GET_DOCUMENT,
-                parameters={"index": file_id, "file_id": file_id},
-            )
-            .result["doc"]["content"]
-        )
-    except Exception:
-        return fetched_doc
-
-    return File(
-        id=file_id,
-        file_name=fetched_doc["file_name"],
-        file_size=fetched_doc["file_size"],
-        file_path=fetched_doc["file_path"],
-        file_content=fetched_doc["text"],
-        user_id=user_id,
-        created_at=datetime.fromisoformat(fetched_doc["created_at"]),
-        updated_at=datetime.fromisoformat(fetched_doc["updated_at"]),
+        action=Compass.ValidActions.DELETE,
+        parameters={"index": index, "file_id": file_id},
     )
 
 
@@ -421,12 +421,15 @@ async def index_agent_files(
     file_ids,
     agent_id,
 ) -> None:
-    get_compass().invoke(
-        action=Compass.ValidActions.CREATE_INDEX,
-        parameters={
-            "index": agent_id,
-        },
-    )
+    try:
+        get_compass().invoke(
+            action=Compass.ValidActions.CREATE_INDEX,
+            parameters={
+                "index": agent_id,
+            },
+        )
+    except Exception as e:
+        logger.Error(f"Fail")
 
     for file_id in file_ids:
         try:
@@ -445,16 +448,7 @@ async def index_agent_files(
                     "file_id": file_id,
                     "file_text": fetched_doc["text"],
                     "custom_context": {
-                        "file_id": file_id
-                    }
-                },
-            )
-            get_compass().invoke(
-                action=Compass.ValidActions.ADD_CONTEXT,
-                parameters={
-                    "index": agent_id,
-                    "file_id": file_id,
-                    "context": {
+                        "file_id": file_id,
                         "file_name": fetched_doc["file_name"],
                         "file_path": fetched_doc["file_path"],
                         "file_size": fetched_doc["file_size"],
@@ -482,12 +476,15 @@ async def insert_files_in_compass(
     index: str = None,
 ) -> list[File]:
     if index is not None:
-        get_compass().invoke(
-            action=Compass.ValidActions.CREATE_INDEX,
-            parameters={
-                "index": index,
-            },
-        )
+        try:
+            get_compass().invoke(
+                action=Compass.ValidActions.CREATE_INDEX,
+                parameters={
+                    "index": index,
+                },
+            )
+        except Exception as e:
+            logger.error(f"[Compass File] Failed to create index: {index}, error: {e}")
 
     uploaded_files = []
     for file in files:
@@ -495,46 +492,47 @@ async def insert_files_in_compass(
         file_bytes = await file.read()
         new_file_id = str(uuid.uuid4())
 
-        # Create temporary index for individual file.
+        # Create temporary index for individual file (files not associated with conversations)
         # Consolidate them under one agent index during agent creation
         if index is None:
+            try:
+                get_compass().invoke(
+                    action=Compass.ValidActions.CREATE_INDEX,
+                    parameters={
+                        "index": new_file_id,
+                    },
+                )
+            except Exception as e:
+                logger.error(
+                    f"[Compass File] Failed to create index: {index}, error: {e}"
+                )
+
+        try:
             get_compass().invoke(
-                action=Compass.ValidActions.CREATE_INDEX,
+                action=Compass.ValidActions.CREATE,
                 parameters={
-                    "index": new_file_id,
+                    "index": new_file_id if index is None else index,
+                    "file_id": new_file_id,
+                    "file_text": file_bytes,
+                    "custom_context": {
+                        "file_id": new_file_id,
+                        "file_name": filename,
+                        "file_path": filename,
+                        "file_size": file.size,
+                        "user_id": user_id,
+                        "created_at": datetime.now().isoformat(),
+                        "updated_at": datetime.now().isoformat(),
+                    },
                 },
             )
-
-        get_compass().invoke(
-            action=Compass.ValidActions.CREATE,
-            parameters={
-                "index": new_file_id if index is None else index,
-                "file_id": new_file_id,
-                "file_text": file_bytes,
-                "custom_context": {
-                    "file_id": new_file_id
-                }
-            },
-        )
-        get_compass().invoke(
-            action=Compass.ValidActions.ADD_CONTEXT,
-            parameters={
-                "index": new_file_id if index is None else index,
-                "file_id": new_file_id,
-                "context": {
-                    "file_name": filename,
-                    "file_path": filename,
-                    "file_size": file.size,
-                    "user_id": user_id,
-                    "created_at": datetime.now().isoformat(),
-                    "updated_at": datetime.now().isoformat(),
-                },
-            },
-        )
-        get_compass().invoke(
-            action=Compass.ValidActions.REFRESH,
-            parameters={"index": new_file_id if index is None else index},
-        )
+            get_compass().invoke(
+                action=Compass.ValidActions.REFRESH,
+                parameters={"index": new_file_id if index is None else index},
+            )
+        except Exception as e:
+            logger.error(
+                f"[Compass File] Failed to create document on index: {index}, error: {e}"
+            )
 
         uploaded_files.append(
             File(

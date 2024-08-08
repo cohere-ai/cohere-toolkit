@@ -231,12 +231,11 @@ async def delete_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    _ = validate_conversation(session, conversation_id, user_id)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    conversation = validate_conversation(session, conversation_id, user_id)
 
-    if conversation.file_ids:
-        get_file_service().bulk_delete_files(session, conversation.file_ids, user_id)
-
+    get_file_service().delete_all_conversation_files(
+        session, conversation.id, conversation.file_ids, user_id
+    )
     conversation_crud.delete_conversation(session, conversation_id, user_id)
 
     return DeleteConversationResponse()
@@ -525,10 +524,12 @@ async def delete_file(
     """
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
-    validate_file(session, file_id, user_id)
+    validate_file(session, file_id, user_id, conversation_id)
 
     # Delete the File DB object
-    get_file_service().delete_file_by_id(session, conversation_id, file_id, user_id)
+    get_file_service().delete_conversation_file_by_id(
+        session, conversation_id, file_id, user_id
+    )
 
     return DeleteFileResponse()
 

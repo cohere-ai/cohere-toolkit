@@ -271,9 +271,12 @@ class Compass:
                 text=file_text,
                 file_id=file_id,
                 bytes_content=isinstance(file_text, bytes),
+                custom_context=parameters.get("custom_context", {}),
             )
 
-    def _raw_parsing(self, text: str, file_id: str, bytes_content: bool):
+    def _raw_parsing(
+        self, text: str, file_id: str, bytes_content: bool, custom_context: dict
+    ):
         text_bytes = str.encode(text) if not bytes_content else text
         if len(text_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
@@ -300,7 +303,9 @@ class Compass:
         if res.ok:
             docs = [CompassDocument(**doc) for doc in res.json()["docs"]]
             for doc in docs:
-                additional_metadata = CompassParserClient._get_metadata(doc=doc)
+                additional_metadata = CompassParserClient._get_metadata(
+                    doc=doc, custom_context=custom_context
+                )
                 doc.content = {**doc.content, **additional_metadata}
         else:
             docs = []
