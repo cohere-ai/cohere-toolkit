@@ -590,7 +590,15 @@ def test_list_files(
     session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
-    files = [("files", ("Mariana_Trench.pdf", open("src/backend/tests/test_data/Mariana_Trench.pdf", "rb")))]
+    files = [
+        (
+            "files",
+            (
+                "Mariana_Trench.pdf",
+                open("src/backend/tests/test_data/Mariana_Trench.pdf", "rb"),
+            ),
+        )
+    ]
 
     response = session_client.post(
         "/v1/conversations/batch_upload_file",
@@ -904,7 +912,15 @@ def test_delete_file(
     mock_compass_settings,
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
-    files = [("files", ("Mariana_Trench.pdf", open("src/backend/tests/test_data/Mariana_Trench.pdf", "rb")))]
+    files = [
+        (
+            "files",
+            (
+                "Mariana_Trench.pdf",
+                open("src/backend/tests/test_data/Mariana_Trench.pdf", "rb"),
+            ),
+        )
+    ]
 
     response = session_client.post(
         "/v1/conversations/batch_upload_file",

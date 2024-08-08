@@ -1,6 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
+from fastapi import File as RequestFile
+from fastapi import HTTPException
+from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent import Agent as AgentModel
@@ -21,6 +25,13 @@ from backend.schemas.agent import (
     UpdateAgentToolMetadataRequest,
 )
 from backend.schemas.context import Context
+from backend.schemas.file import (
+    DeleteFileResponse,
+    FilePublic,
+    ListFile,
+    UpdateFileRequest,
+    UploadFileResponse,
+)
 from backend.schemas.metrics import (
     DEFAULT_METRICS_AGENT,
     GenericResponseMessage,
@@ -33,6 +44,14 @@ from backend.services.agent import (
     validate_agent_tool_metadata_exists,
 )
 from backend.services.context import get_context
+from backend.services.file import (
+    attach_conversation_id_to_files,
+    get_file_service,
+    index_agent_files,
+    validate_batch_file_size,
+    validate_file,
+    validate_file_size,
+)
 from backend.services.request_validators import (
     validate_create_agent_request,
     validate_update_agent_request,
@@ -98,6 +117,24 @@ async def create_agent(
                 await update_or_create_tool_metadata(
                     created_agent, tool_metadata, session, ctx
                 )
+
+            # Consolidate agent files into one index in compass
+            if get_file_service().is_compass_enabled:
+                if agent_tool_metadata is not None:
+                    artifacts = next(
+                        tool_metadata.artifacts
+                        for tool_metadata in agent_tool_metadata
+                        if tool_metadata.tool_name == ToolName.READ_DOCUMENT
+                        or tool_metadata.tool_name == ToolName.SEARCH_FILE
+                    )
+
+                    file_ids = [
+                        artifact.get("id")
+                        for artifact in artifacts
+                        if artifact.get("type") == "local_file"
+                    ]
+
+                await index_agent_files(file_ids, create_agent.id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -474,6 +511,31 @@ async def delete_agent_tool_metadata(
         raise HTTPException(status_code=500, detail=str(e))
 
     return DeleteAgentToolMetadata()
+
+
+@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
+async def batch_upload_file(
+    session: DBSessionDep,
+    files: list[FastAPIUploadFile] = RequestFile(...),
+    ctx: Context = Depends(get_context),
+) -> UploadFileResponse:
+    user_id = ctx.get_user_id()
+    validate_batch_file_size(session, user_id, files)
+
+    uploaded_files = []
+    try:
+        uploaded_files = await get_file_service().create_agent_files(
+            session,
+            files,
+            user_id,
+            ctx,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error while uploading file(s): {e}."
+        )
+
+    return uploaded_files
 
 
 # Default Agent Router

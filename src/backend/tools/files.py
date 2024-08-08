@@ -6,18 +6,50 @@ from backend.schemas.file import File
 from backend.services.compass import Compass
 from backend.services.file import get_compass, get_file_service
 from backend.tools.base import BaseTool
+from backend.compass_sdk import SearchFilter
 
 
 def compass_file_search(
-    file_ids: List[str], query: str, search_limit: int = 5
+    file_ids: List[str], conversation_id: str, agent_id: str, query: str, search_limit: int = 5
 ) -> List[Dict[str, Any]]:
     results = []
-    for file_id in file_ids:
+
+    search_filters = [
+        SearchFilter(
+            field="content.file_id",
+            type=SearchFilter.FilterType.EQ,
+            value=file_id
+        ) for file_id in file_ids
+    ]
+    # Search conversation ID index
+    hits = (
+        get_compass()
+        .invoke(
+            action=Compass.ValidActions.SEARCH,
+            parameters={
+                "index": conversation_id, 
+                "query": query, 
+                "top_k": search_limit,
+                "filters": search_filters
+            },
+        )
+        .result["hits"]
+    )
+    print("HITS", hits)
+    results.extend(hits)
+
+    # Search agent ID index
+    if agent_id:
         hits = (
             get_compass()
             .invoke(
                 action=Compass.ValidActions.SEARCH,
-                parameters={"index": file_id, "query": query, "top_k": search_limit},
+                parameters={
+                    "index": agent_id, 
+                    "query": query, 
+                    "top_k": search_limit,
+                    "filters": search_filters
+                },
             )
             .result["hits"]
         )
@@ -97,15 +129,21 @@ class SearchFileTool(BaseTool):
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("search_query")
         files = parameters.get("files")
+
+        agent_id = kwargs.get("agent_id")
+        conversation_id = kwargs.get("conversation_id")
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
 
+        print("AGENT ID DEBUG", agent_id)
+        print("CONVERSATION ID DEBUG", conversation_id)
+        print("FILES DEBUG", files)
         if not query or not files:
             return []
 
         if Settings().feature_flags.use_compass_file_storage:
             file_ids = [file_id for _, file_id in files]
-            return compass_file_search(file_ids, query, search_limit=self.SEARCH_LIMIT)
+            return compass_file_search(file_ids, conversation_id, agent_id, query, search_limit=self.SEARCH_LIMIT)
         else:
             retrieved_files = get_file_service().get_files_by_ids(
                 session, file_ids, user_id
