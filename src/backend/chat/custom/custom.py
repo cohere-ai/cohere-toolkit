@@ -3,7 +3,7 @@ from typing import Any, AsyncGenerator, Dict, List
 from fastapi import HTTPException
 
 from backend.chat.base import BaseChat
-from backend.chat.collate import rerank_and_chunk, to_dict
+from backend.chat.custom.tool_calls import async_call_tools
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
@@ -204,7 +204,7 @@ class CustomChat(BaseChat):
             # Check for new tool calls in the chat history
             if has_tool_calls:
                 # Handle tool calls
-                tool_results = await self.call_tools(
+                tool_results = await async_call_tools(
                     chat_request.chat_history, deployment_model, ctx, **kwargs
                 )
 
@@ -225,60 +225,6 @@ class CustomChat(BaseChat):
             chat_request.chat_history = []
 
         chat_request.chat_history.extend(tool_results)
-
-    async def call_tools(
-        self,
-        chat_history: List[Dict[str, Any]],
-        deployment_model: BaseDeployment,
-        ctx: Context,
-        **kwargs: Any,
-    ):
-        logger = ctx.get_logger()
-
-        tool_results = []
-        if "tool_calls" not in chat_history[-1]:
-            return tool_results
-
-        tool_calls = chat_history[-1]["tool_calls"]
-        tool_plan = chat_history[-1].get("message", None)
-        logger.info(
-            event="[Custom Chat] Using tools",
-            tool_calls=to_dict(tool_calls),
-            tool_plan=to_dict(tool_plan),
-        )
-
-        # TODO: Call tools in parallel
-        for tool_call in tool_calls:
-            tool = AVAILABLE_TOOLS.get(tool_call["name"])
-            if not tool:
-                continue
-
-            outputs = await tool.implementation().call(
-                parameters=tool_call.get("parameters"),
-                ctx=ctx,
-                session=kwargs.get("session"),
-                model_deployment=deployment_model,
-                user_id=ctx.get_user_id(),
-                trace_id=ctx.get_trace_id(),
-                agent_id=ctx.get_agent_id(),
-                agent_tool_metadata=ctx.get_agent_tool_metadata(),
-            )
-
-            # If the tool returns a list of outputs, append each output to the tool_results list
-            # Otherwise, append the single output to the tool_results list
-            outputs = outputs if isinstance(outputs, list) else [outputs]
-            for output in outputs:
-                tool_results.append({"call": tool_call, "outputs": [output]})
-
-        tool_results = await rerank_and_chunk(
-            tool_results, deployment_model, ctx, **kwargs
-        )
-        logger.info(
-            event="[Custom Chat] Tool results",
-            tool_results=to_dict(tool_results),
-        )
-
-        return tool_results
 
     def get_managed_tools(self, chat_request: CohereChatRequest):
         return [
