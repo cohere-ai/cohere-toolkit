@@ -64,8 +64,7 @@ SCIM allows you organization to synchronize your users and groups from your iden
 7. On the next screen leave the default configuration and click "Done"
 
 ### Configure the SCIM application in OKTA
-1. 
-2. Navigate to the tab "Provisioning"
+1. Navigate to the tab "Provisioning"
 2. Click "Configure API Integration"
 3. Activate "Enable API integration"
 4. Enter the following values:
