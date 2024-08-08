@@ -1,6 +1,6 @@
 'use client';
 
-import { Tab, TabList, TabPanel, TabPanels } from '@headlessui/react';
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import { ReactNode, useEffect, useRef } from 'react';
 
 import { Skeleton, Text } from '@/components/Shared';
@@ -62,7 +62,7 @@ export const Tabs: React.FC<TabsProps> = ({
   const hiddenIndexes = hiddenTabs.map((tab) => tabs.indexOf(tab));
 
   return (
-    <Tab.Group
+    <TabGroup
       as="div"
       className={tabGroupClassName}
       manual
@@ -149,6 +149,6 @@ export const Tabs: React.FC<TabsProps> = ({
           ))}
         </TabPanels>
       )}
-    </Tab.Group>
+    </TabGroup>
   );
 };
