@@ -1,5 +1,21 @@
-import os
 from typing import Any
+
+from backend.database_models import (
+    COMMUNITY_MODEL_DEPLOYMENTS_MODULE,
+    DEFAULT_MODEL_DEPLOYMENTS_MODULE,
+)
+
+
+def class_name_validator(v: str):
+    from backend.model_deployments.utils import get_module_class
+
+    deployment_class = get_module_class(DEFAULT_MODEL_DEPLOYMENTS_MODULE, v)
+    if not deployment_class:
+        deployment_class = get_module_class(COMMUNITY_MODEL_DEPLOYMENTS_MODULE, v)
+    if not deployment_class:
+        raise ValueError(f"Deployment class not found: {v}")
+
+    return v
 
 
 def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
@@ -13,7 +29,8 @@ def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
         str: Model config variable value.
 
     """
-    model_config = kwargs.get("deployment_config")
+    ctx = kwargs.get("ctx")
+    model_config = ctx.model_config if ctx else None
     config = (
         model_config[var_name]
         if model_config and model_config.get(var_name)
@@ -22,6 +39,19 @@ def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
     if not config:
         raise ValueError(f"Missing model config variable: {var_name}")
     return config
+
+
+def get_module_class(module_name: str, class_name: str):
+    import importlib
+
+    try:
+        module = importlib.import_module(module_name)
+        cls = getattr(module, class_name)
+        return cls
+    except (ImportError, AttributeError) as e:
+        cls = None
+
+    return cls
 
 
 def add_rerank_model_to_request_state(

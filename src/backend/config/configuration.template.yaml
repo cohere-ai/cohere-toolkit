@@ -5,20 +5,21 @@ deployments:
     - sagemaker
     - azure
     - bedrock
-  cohere_platform:
   sagemaker:
     region_name: us-west-2
     endpoint_name: cohere-ai
-  azure: 
+  azure:
     endpoint_url: https://cohere-ai.azurewebsites.net
   bedrock:
     region_name: us-west-2
   single_container:
-    model: 
+    model:
     url:
 database:
   url: postgresql+psycopg2://postgres:postgres@db:5432
-tools: 
+redis:
+  url: redis://:redis@redis:6379
+tools:
   enabled_tools:
     - wikipedia
     - search_file
@@ -27,16 +28,20 @@ tools:
     - toolkit_calculator
     - web_search
     - web_scrape
-  python_interpreter: 
+  python_interpreter:
     url: http://terrarium:8080
-  tavily: 
+  web_search:
+    api_key:
   wolfram_alpha:
+    app_id:
   compass:
-    api_url: 
+    api_url:
     parser_url:
-  gdrive:
-feature_flags: 
-  # Experimental features 
+  google_drive:
+    client_id:
+    client_secret:
+feature_flags:
+  # Experimental features
   use_experimental_langchain: false
   use_agents_view: false
   # Community features
@@ -46,5 +51,9 @@ auth:
     - basic
   backend_hostname: http://localhost:8000
   frontend_hostname: http://localhost:4000
-  google_oauth: 
-  oidc: 
+  google_oauth:
+  oidc:
+logger:
+  strategy: structlog
+  renderer: console
+  level: info

@@ -57,7 +57,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
             enterFrom="opacity-0"
             enterTo="opacity-100"
             className={cn(
-              'z-menu divide-y divide-marble-950 rounded-md bg-marble-1000 p-2 dark:divide-volcanic-300 dark:bg-volcanic-150 dark:text-marble-950',
+              'z-menu divide-y divide-marble-950 rounded-md bg-marble-980 p-2 dark:divide-volcanic-300 dark:bg-volcanic-150',
               'min-w-menu shadow-menu dark:shadow-none',
               'transition-opacity ease-in-out',
               { hidden: !open }
@@ -91,10 +91,7 @@ export const KebabMenu: React.FC<Props> = ({ items, anchor, className = '' }) =>
                       {!!iconName && (
                         <Icon
                           name={iconName}
-                          className={cn(
-                            'text-mushroom-400 group-hover/menu-item:!font-iconDefault dark:text-marble-950',
-                            iconClassName
-                          )}
+                          className={cn('fill-mushroom-400 dark:fill-marble-950', iconClassName)}
                           kind="outline"
                         />
                       )}

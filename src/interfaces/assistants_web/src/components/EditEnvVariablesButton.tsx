@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { BasicButton, Button, Dropdown, Input } from '@/components/Shared';
-import { ModalContext } from '@/context/ModalContext';
+import { Button, Dropdown, Input } from '@/components/Shared';
+import { useContextStore } from '@/context';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
 
@@ -11,7 +11,7 @@ import { useParamsStore } from '@/stores';
  * @description Button to trigger a modal to edit .env variables.
  */
 export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
-  const { open, close } = useContext(ModalContext);
+  const { open, close } = useContextStore();
 
   const handleClick = () => {
     open({
@@ -20,15 +20,7 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
     });
   };
 
-  return (
-    <BasicButton
-      label="Configure"
-      size="sm"
-      kind="minimal"
-      className="py-0"
-      onClick={handleClick}
-    />
-  );
+  return <Button label="Configure" kind="secondary" onClick={handleClick} />;
 };
 
 /**
@@ -44,7 +36,7 @@ export const EditEnvVariablesModal: React.FC<{
   const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === defaultDeployment);
     return (
-      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+      selectedDeployment?.env_vars?.reduce<Record<string, string>>((acc, envVar) => {
         acc[envVar] = '';
         return acc;
       }, {}) ?? {}
@@ -68,7 +60,7 @@ export const EditEnvVariablesModal: React.FC<{
     setDeployment(newDeployment);
     const selectedDeployment = deployments?.find(({ name }) => name === newDeployment);
     const emptyEnvVariables =
-      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
+      selectedDeployment?.env_vars?.reduce<Record<string, string>>((acc, envVar) => {
         acc[envVar] = '';
         return acc;
       }, {}) ?? {};
@@ -108,11 +100,10 @@ export const EditEnvVariablesModal: React.FC<{
       ))}
 
       <span className="mt-10 flex items-center justify-between">
-        <BasicButton kind="minimal" size="sm" label="Cancel" onClick={onClose} />
+        <Button label="Cancel" kind="secondary" onClick={onClose} />
         <Button
           label={isSubmitting ? 'Saving...' : 'Save'}
           onClick={handleSubmit}
-          splitIcon="arrow-right"
           disabled={isSubmitting}
         />
       </span>

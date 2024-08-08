@@ -3,11 +3,12 @@
 import { Tab, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import { ReactNode, useEffect, useRef } from 'react';
 
-import { Text } from '@/components/Shared';
+import { Skeleton, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type TabsProps = {
   tabs: ReactNode[];
+  isLoading?: boolean;
   hiddenTabs?: string[];
   subLabels?: string[];
   fitTabsContent?: boolean;
@@ -33,6 +34,7 @@ export const Tabs: React.FC<TabsProps> = ({
   tabs,
   hiddenTabs = [],
   subLabels = [],
+  isLoading = false,
   fitTabsContent = true,
   selectedIndex,
   className = '',
@@ -81,18 +83,22 @@ export const Tabs: React.FC<TabsProps> = ({
           {tabs.map((label, i) => (
             <Tab
               key={i}
-              className={cn('flex w-full flex-1 flex-col focus:outline-none md:flex-initial', {
-                [`border-b-4 border-coral-700 dark:border-evolved-green-700`]: i === selectedIndex,
-                'border-b border-marble-950 dark:border-volcanic-300': i !== selectedIndex,
-                hidden: hiddenIndexes.includes(i),
-              })}
+              className={cn(
+                'flex w-full flex-1 flex-col focus:outline-none md:flex-initial',
+                'border-coral-700 dark:border-evolved-green-700',
+                {
+                  'border-b-4': i === selectedIndex,
+                  'border-b border-marble-950 dark:border-volcanic-150': i !== selectedIndex,
+                  hidden: hiddenIndexes.includes(i),
+                }
+              )}
             >
               {({ selected }) => {
                 // If the label is a React node, we want the node to handle their own margins.
                 return (
                   <div
                     className={cn(
-                      'group flex w-full items-center justify-center gap-x-3 px-10',
+                      'group flex w-full items-center justify-center gap-x-3 px-6',
                       tabClassName
                     )}
                   >
@@ -103,7 +109,7 @@ export const Tabs: React.FC<TabsProps> = ({
                         'my-3 whitespace-nowrap group-hover:text-volcanic-100 dark:group-hover:text-mushroom-950',
                         {
                           'font-medium text-volcanic-100 dark:text-mushroom-950': selected,
-                          'text-volcanic-400 dark:text-mushroom-800': !selected,
+                          'text-volcanic-400 dark:text-volcanic-500': !selected,
                         }
                       )}
                     >
@@ -124,13 +130,21 @@ export const Tabs: React.FC<TabsProps> = ({
             </Tab>
           ))}
         </TabList>
-        <div className="hidden flex-1 border-b border-marble-950 md:block dark:border-volcanic-300" />
+        <div className="hidden flex-1 border-b border-marble-950 md:block dark:border-volcanic-150" />
       </div>
       {children && (
-        <TabPanels className={cn('w-full pt-10 lg:pt-14', panelsClassName)}>
+        <TabPanels className={cn('w-full pt-10', panelsClassName)}>
           {children.filter(Boolean).map((child, i) => (
             <TabPanel key={i} className={tabPanelClassName}>
-              {child}
+              {isLoading ? (
+                <div className="flex flex-col gap-y-3">
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-full" />
+                </div>
+              ) : (
+                child
+              )}
             </TabPanel>
           ))}
         </TabPanels>

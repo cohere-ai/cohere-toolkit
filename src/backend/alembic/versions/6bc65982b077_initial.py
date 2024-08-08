@@ -73,7 +73,6 @@ def upgrade() -> None:
         sa.Column("start", sa.Integer(), nullable=False),
         sa.Column("end", sa.Integer(), nullable=False),
         sa.Column("message_id", sa.String(), nullable=False),
-        sa.Column("document_ids", postgresql.ARRAY(sa.String()), nullable=False),
         sa.Column("id", sa.String(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
@@ -117,12 +116,14 @@ def upgrade() -> None:
     )
     op.create_table(
         "citation_documents",
-        sa.Column("left_id", sa.String(), nullable=True),
-        sa.Column("right_id", sa.String(), nullable=True),
+        sa.Column("left_id", sa.String(), nullable=False),
+        sa.Column("right_id", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(["left_id"], ["documents.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["right_id"], ["citations.id"], ondelete="CASCADE"),
+        sa.Column("id", sa.String(), nullable=False),
+        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("updated_at", sa.DateTime(), nullable=True),
     )
-    # ### end Alembic commands ###
 
 
 def downgrade() -> None:

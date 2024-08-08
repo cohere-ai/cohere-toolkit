@@ -1,4 +1,3 @@
-import os
 from typing import Any, Dict, List
 
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
@@ -26,7 +25,9 @@ class WolframAlpha(BaseTool):
     def is_available(cls) -> bool:
         return cls.wolfram_app_id is not None
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         to_evaluate = parameters.get("expression", "")
         result = self.tool.run(to_evaluate)
         return {"result": result, "text": result}

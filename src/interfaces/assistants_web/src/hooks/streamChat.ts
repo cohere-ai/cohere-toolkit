@@ -6,7 +6,7 @@ import {
   ChatResponseEvent as ChatResponse,
   CohereChatRequest,
   CohereNetworkError,
-  Conversation,
+  ConversationPublic as Conversation,
   FinishReason,
   StreamEnd,
   StreamEvent,

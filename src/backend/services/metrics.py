@@ -1,11 +1,10 @@
 import asyncio
 import json
-import logging
 import os
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, Optional
 
 from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
@@ -17,15 +16,16 @@ from starlette.responses import Response
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
+from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.schemas.metrics import (
-    MetricsAgent,
     MetricsData,
     MetricsMessageType,
     MetricsModelAttrs,
     MetricsSignal,
-    MetricsUser,
 )
-from backend.services.auth.utils import get_header_user_id
+from backend.services.context import get_context
+from backend.services.logger.utils import LoggerFactory
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)
@@ -35,8 +35,6 @@ HEALTH_ENDPOINT = "health"
 HEALTH_ENDPOINT_USER_ID = "health"
 # TODO: fix this hack eventually
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
-
-logger = logging.getLogger(__name__)
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
@@ -62,59 +60,80 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next: Callable):
-
         self._confirm_env()
-        self._init_req_state(request)
 
         start_time = time.perf_counter()
         response = await call_next(request)
         duration_ms = time.perf_counter() - start_time
-        self._send_signal(request, response, duration_ms)
+
+        ctx = get_context(request)
+        self._send_signal(request, response, duration_ms, ctx)
 
         return response
 
-    def _init_req_state(self, request: Request) -> None:
-        request.state.trace_id = str(uuid.uuid4())
-        request.state.agent = None
-        request.state.model = None
-        request.state.rerank_model = None
-        request.state.stream_start = None
-        request.state.user = None
-        request.state.event_type = None
-
     def _confirm_env(self):
+        logger = LoggerFactory().get_logger()
         if not REPORT_SECRET:
-            logger.warning("No report secret set")
+            logger.warning(event="[Metrics] No report secret set")
         if not REPORT_ENDPOINT:
-            logger.warning("No report endpoint set")
+            logger.warning(event="[Metrics] No report endpoint set")
+
+    def _should_send_signal(
+        self,
+        signal: Optional[MetricsSignal],
+        event_type: Optional[MetricsMessageType],
+        response: Response,
+    ) -> bool:
+        middleware_allowed_signals = {
+            MetricsMessageType.USER_CREATED,
+            MetricsMessageType.USER_UPDATED,
+            MetricsMessageType.USER_DELETED,
+            MetricsMessageType.ASSISTANT_CREATED,
+            MetricsMessageType.ASSISTANT_UPDATED,
+            MetricsMessageType.ASSISTANT_DELETED,
+            MetricsMessageType.ASSISTANT_ACCESSED,
+        }
+
+        return (
+            True
+            if (
+                event_type in middleware_allowed_signals
+                and signal
+                # TODO: we may want to log failing reqeusts as well in the future
+                # right now we only track failures from chat streams and rerank
+                # through the decorators
+                and response.status_code >= 200
+                and response.status_code < 300
+            )
+            else False
+        )
 
     def _send_signal(
-        self, request: Request, response: Response, duration_ms: float
+        self, request: Request, response: Response, duration_ms: float, ctx: Context
     ) -> None:
-        signal = self._get_event_signal(request, response, duration_ms)
-        should_send_event = request.state.event_type and signal
-        if should_send_event:
-            response.background = BackgroundTask(report_metrics, signal)
+        signal = self._get_event_signal(request, duration_ms, ctx)
+        event_type = ctx.get_event_type()
+        if self._should_send_signal(signal, event_type, response):
+            # signal is being checked in the condition above
+            response.background = BackgroundTask(report_metrics, signal, ctx)  # type: ignore
 
     def _get_event_signal(
-        self, request: Request, response: Response, duration_ms: float
+        self, request: Request, duration_ms: float, ctx: Context
     ) -> MetricsSignal | None:
-
         if request.scope["type"] != "http":
             return None
 
-        message_type = request.state.event_type
+        message_type = ctx.get_event_type()
         if not message_type:
             return None
 
-        user = self._get_user(request)
+        logger = ctx.get_logger()
+
+        user = ctx.get_metrics_user()
         # when user is created, user_id is not in the header
-        user_id = (
-            user.id
-            if message_type == MetricsMessageType.USER_CREATED
-            else get_header_user_id(request)
-        )
-        agent = MetricsHelper.get_agent(request)
+        trace_id = ctx.get_trace_id()
+        user_id = ctx.get_user_id()
+        agent = ctx.get_metrics_agent()
         agent_id = agent.id if agent else None
         event_id = str(uuid.uuid4())
         now_unix_seconds = time.time()
@@ -126,7 +145,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 timestamp=now_unix_seconds,
                 user=user,
                 message_type=message_type,
-                trace_id=request.state.trace_id,
+                trace_id=trace_id,
                 assistant=agent,
                 assistant_id=agent_id,
                 duration_ms=duration_ms,
@@ -135,21 +154,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             signal = MetricsSignal(signal=data)
             return signal
         except Exception as e:
-            logger.warning(f"Failed to process event data: {e}")
-            return None
-
-    def _get_user(self, request: Request) -> Union[MetricsUser, None]:
-        if not hasattr(request.state, "user") or not request.state.user:
-            return None
-
-        try:
-            return MetricsUser(
-                id=request.state.user.id,
-                fullname=request.state.user.fullname,
-                email=request.state.user.email,
-            )
-        except Exception as e:
-            logger.warning(f"Failed to get user: {e}")
+            logger.warning(event=f"[Metrics] Failed to process event data: {e}")
             return None
 
     def _attach_secret(self, data: MetricsData) -> MetricsData:
@@ -159,7 +164,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         return data
 
 
-async def report_metrics(signal: MetricsSignal) -> None:
+async def report_metrics(signal: MetricsSignal, ctx: Context) -> None:
     """
     Reports the given metrics signal to the specified endpoint.
     This is the key function for reporting metrics. It should never throw exceptions but log them.
@@ -170,8 +175,10 @@ async def report_metrics(signal: MetricsSignal) -> None:
     Returns:
         None
     """
+    logger = ctx.get_logger()
+
     if METRICS_LOGS_CURLS == "true":
-        MetricsHelper.log_signal_curl(signal)
+        MetricsHelper.log_signal_curl(signal, ctx)
     if not REPORT_SECRET:
         return
     if not REPORT_ENDPOINT:
@@ -183,7 +190,7 @@ async def report_metrics(signal: MetricsSignal) -> None:
         async with AsyncClient(transport=transport) as client:
             await client.post(REPORT_ENDPOINT, json=signal)
     except Exception as e:
-        logger.error(f"Failed to report metrics: {e}")
+        logger.error(event=f"[Metrics] Error posting report: {e}")
 
 
 def collect_metrics_chat_stream(func: Callable) -> Callable:
@@ -201,10 +208,12 @@ def collect_metrics_chat_stream(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    async def wrapper(*args, **kwargs: Any) -> Any:
-        stream = func(*args, **kwargs)
+    async def wrapper(
+        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+    ) -> Any:
+        stream = func(self, chat_request, ctx, **kwargs)
         async for v in stream:
-            ChatMetricHelper.report_streaming_chat_event(v, **kwargs)
+            ChatMetricHelper.report_streaming_chat_event(v, ctx, **kwargs)
             yield v
 
     return wrapper
@@ -226,18 +235,20 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 
     @wraps(func)
     async def wrapper(
-        self, query: str, documents: Dict[str, Any], **kwargs: Any
+        self, query: str, documents: Dict[str, Any], ctx: Context, **kwargs: Any
     ) -> Any:
         start_time = time.perf_counter()
         try:
-            response = await func(self, query, documents, **kwargs)
+            response = await func(self, query, documents, ctx, **kwargs)
             duration_ms = time.perf_counter() - start_time
-            RerankMetricsHelper.report_rerank_metrics(response, duration_ms, **kwargs)
+            RerankMetricsHelper.report_rerank_metrics(
+                response, duration_ms, ctx, **kwargs
+            )
             return response
         except Exception as e:
             duration_ms = time.perf_counter() - start_time
-            metrics_data = RerankMetricsHelper.report_rerank_failed_metrics(
-                duration_ms, e, **kwargs
+            RerankMetricsHelper.report_rerank_failed_metrics(
+                duration_ms, e, ctx, **kwargs
             )
             raise e
 
@@ -247,47 +258,41 @@ def collect_metrics_rerank(func: Callable) -> Callable:
 class MetricsHelper:
     # TODO: remove the logging once metrics are configured correctly
     @staticmethod
-    def log_signal_curl(signal: MetricsSignal) -> None:
+    def log_signal_curl(signal: MetricsSignal, ctx: Context) -> None:
+        logger = ctx.get_logger()
         s = to_dict(signal)
         s["signal"]["secret"] = "'$SECRET'"
         json_signal = json.dumps(s)
         # just general curl commands to test the endpoint for now
         logger.info(
-            f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
+            event=f"\n\ncurl -X POST -H \"Content-Type: application/json\" -d '{json_signal}' $ENDPOINT\n\n"
         )
-
-    @staticmethod
-    def get_agent(request: Request) -> Union[MetricsAgent, None]:
-        if not hasattr(request.state, "agent") or not request.state.agent:
-            return None
-        return request.state.agent
 
 
 # DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
 class ChatMetricHelper:
     @staticmethod
-    def report_streaming_chat_event(event: dict[str, Any], **kwargs: Any) -> None:
+    def report_streaming_chat_event(
+        event: dict[str, Any], ctx: Context, **kwargs: Any
+    ) -> None:
+        logger = ctx.get_logger()
+
         try:
-            request = kwargs.get("request", None)
-            if not request:
-                raise ValueError("request not set")
             event_type = event["event_type"]
             if event_type == StreamEvent.STREAM_START:
-                request.state.stream_start = time.perf_counter()
+                ctx.with_stream_start_ms(time.perf_counter())
 
             if event_type != StreamEvent.STREAM_END:
                 return
 
-            start_time = request.state.stream_start
-            duration_ms = (
-                None
-                if not start_time
-                else time.perf_counter() - request.state.stream_start
-            )
-            trace_id = request.state.trace_id
-            model = request.state.model
-            user_id = get_header_user_id(request)
-            agent = MetricsHelper.get_agent(request)
+            duration_ms = None
+            time_start = ctx.get_stream_start_ms()
+            if time_start:
+                duration_ms = time.perf_counter() - time_start
+            trace_id = ctx.get_trace_id()
+            model = ctx.get_model()
+            user_id = ctx.get_user_id()
+            agent = ctx.get_metrics_agent()
             agent_id = agent.id if agent else None
             event_dict = to_dict(event).get("response", {})
             input_tokens = (
@@ -317,14 +322,14 @@ class ChatMetricHelper:
                 if is_error
                 else MetricsMessageType.CHAT_API_SUCCESS
             )
-            # validate successful event metrics
+            # validate successful event metrics, ignore type errors to rely on pydantic exceptions
             if not is_error:
-                chat_metrics = MetricsModelAttrs(
+                MetricsModelAttrs(
                     input_nb_tokens=input_tokens,
                     output_nb_tokens=output_tokens,
                     search_units=search_units,
-                    model=model,
-                    assistant_id=agent_id,
+                    model=model,  # type: ignore
+                    assistant_id=agent_id,  # type: ignore
                 )
 
             metrics = MetricsData(
@@ -344,22 +349,23 @@ class ChatMetricHelper:
             )
             signal = MetricsSignal(signal=metrics)
             # do not await, fire and forget
-            asyncio.create_task(report_metrics(signal))
+            asyncio.create_task(report_metrics(signal, ctx))
 
         except Exception as e:
-            logger.error(f"Failed to report streaming event: {e}")
+            logger.error(event=f"Failed to report streaming event: {e}")
 
 
 class RerankMetricsHelper:
     # DO NOT THROW EXPCEPTIONS IN THIS FUNCTION
     @staticmethod
-    def report_rerank_metrics(response: Any, duration_ms: float, **kwargs: Any):
+    def report_rerank_metrics(
+        response: Any, duration_ms: float, ctx: Context, **kwargs: Any
+    ):
+        logger = ctx.get_logger()
+
         try:
-            request = kwargs.get("request", None)
-            if not request:
-                raise ValueError("request not set")
             (trace_id, model, user_id, agent, agent_id) = (
-                RerankMetricsHelper._get_init_data(request)
+                RerankMetricsHelper._get_init_data(ctx)
             )
             response_dict = to_dict(response)
             search_units = (
@@ -391,22 +397,20 @@ class RerankMetricsHelper:
                 timestamp=time.time(),
                 duration_ms=duration_ms,
             )
-
             signal = MetricsSignal(signal=metrics_data)
-            asyncio.create_task(report_metrics(signal))
+            asyncio.create_task(report_metrics(signal, ctx))
         except Exception as e:
-            logger.error(f"Failed to report rerank metrics: {e}")
+            logger.error(event=f"[Metrics] Error reporting rerank metrics: {e}")
 
     @staticmethod
     def report_rerank_failed_metrics(
-        duration_ms: float, error: Exception, **kwargs: Any
+        duration_ms: float, error: Exception, ctx: Context, **kwargs: Any
     ):
+        logger = ctx.get_logger()
+
         try:
-            request = kwargs.get("request", None)
-            if not request:
-                raise ValueError("request not set")
             (trace_id, model, user_id, agent, agent_id) = (
-                RerankMetricsHelper._get_init_data(request)
+                RerankMetricsHelper._get_init_data(ctx)
             )
             message_type = MetricsMessageType.RERANK_API_FAIL
             error_message = str(error)
@@ -423,15 +427,15 @@ class RerankMetricsHelper:
                 error=error_message,
             )
             signal = MetricsSignal(signal=metrics_data)
-            asyncio.create_task(report_metrics(signal))
+            asyncio.create_task(report_metrics(signal, ctx))
         except Exception as e:
-            logger.error(f"Failed to report rerank metrics: {e}")
+            logger.error(event=f"Failed to report rerank metrics: {e}")
 
     @staticmethod
-    def _get_init_data(request: Request) -> tuple:
-        trace_id = request.state.trace_id
+    def _get_init_data(ctx: Context) -> tuple:
+        trace_id = ctx.get_trace_id()
         model = DEFAULT_RERANK_MODEL
-        user_id = get_header_user_id(request)
-        agent = MetricsHelper.get_agent(request)
-        agent_id = agent.id if agent else None
+        user_id = ctx.get_user_id()
+        agent = ctx.get_metrics_agent()
+        agent_id = agent.id if agent else ctx.get_agent_id()
         return (trace_id, model, user_id, agent, agent_id)

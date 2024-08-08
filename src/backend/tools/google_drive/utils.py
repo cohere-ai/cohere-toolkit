@@ -6,11 +6,11 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
 from backend.services.compass import Compass
-from backend.services.logger import get_logger
+from backend.services.logger.utils import LoggerFactory
 
 from .constants import CSV_MIMETYPE, DOC_FIELDS, TEXT_MIMETYPE
 
-logger = get_logger()
+logger = LoggerFactory().get_logger()
 
 
 def extract_links(files: List[Dict[str, str]]) -> Dict[str, str]:
@@ -98,7 +98,7 @@ async def _download_non_native_file(service: Any, compass: Compass, file_id: str
         while done is False:
             _status, done = downloader.next_chunk()
     except HttpError as error:
-        logger.error("An error occurred: {}".format(error))
+        logger.error(f"[Google Drive] Error downloading file: {str(error)}")
         file = None
 
     if file is None:

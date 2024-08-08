@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { Button, Icon, Input, Spinner, Text } from '@/components/Shared';
+import { Button, Input, Spinner, Text } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useCreateSnapshotLinkId, useSnapshots } from '@/hooks/snapshots';
 
@@ -104,22 +104,22 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
         />
         <div className="flex justify-between">
           <Button
-            kind="secondary"
+            kind="cell"
             label="See preview"
             href={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
             target="_blank"
-            endIcon="arrow-up-right"
+            icon="arrow-up-right"
             disabled={status === 'update-url-loading'}
-            animate={false}
           />
           {snapshotLinksExists && (
             <Button
               kind="secondary"
               label={status === 'update-url-loading' ? 'Generating link' : 'Update link'}
               onClick={updateSnapshotUrl}
-              endIcon={status === 'update-url-loading' ? <Spinner /> : <Icon name="redo" />}
+              icon="arrow-clockwise"
+              iconPosition="end"
+              isLoading={status === 'update-url-loading'}
               disabled={status === 'update-url-loading'}
-              animate={false}
             />
           )}
         </div>
@@ -131,7 +131,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
       )}
       <div className="flex flex-col gap-y-2">
         <Text styleAs="label">Permissions & visibility</Text>
-        <Text styleAs="caption" className="text-volcanic-400">
+        <Text styleAs="caption" className="text-volcanic-400 dark:text-volcanic-600">
           Anyone with the link will see the full contents of this conversation history. You will be
           sharing the title, messages, and citations.
         </Text>

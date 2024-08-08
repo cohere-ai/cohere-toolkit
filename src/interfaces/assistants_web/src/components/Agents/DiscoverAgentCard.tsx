@@ -1,15 +1,12 @@
 'use client';
 
-import { DeleteAgent } from '@/components/Agents/DeleteAgent';
-import { KebabMenu } from '@/components/KebabMenu';
-import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
-import { useContextStore } from '@/context';
+import { Button, CoralLogo, Text } from '@/components/Shared';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
 
 type Props = {
   name: string;
-  description?: string;
+  description?: string | null;
   isBaseAgent?: boolean;
   id?: string;
 };
@@ -18,24 +15,23 @@ type Props = {
  * @description renders a card for an agent with the agent's name, description
  */
 export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBaseAgent }) => {
+  const { bg, contrastText, contrastFill } = useBrandedColors(id);
+
   return (
-    <article className="flex overflow-x-hidden rounded-lg border border-marble-950 bg-marble-980 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
+    <article className="flex overflow-x-hidden rounded-lg border border-volcanic-800 bg-volcanic-950 p-4 transition-colors dark:border-volcanic-300 dark:bg-volcanic-150 dark:hover:bg-volcanic-200">
       <div className="flex h-full flex-grow flex-col items-start gap-y-2 overflow-x-hidden">
         <div className="flex w-full items-center gap-x-2">
           <div
             className={cn(
               'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
               'truncate',
-              id && getCohereColor(id),
-              {
-                'bg-mushroom-700': isBaseAgent,
-              }
+              bg
             )}
           >
             {isBaseAgent ? (
-              <CoralLogo style="secondary" />
+              <CoralLogo className={contrastFill} />
             ) : (
-              <Text className="uppercase text-white" styleAs="p-lg">
+              <Text className={cn('uppercase text-white', contrastText)} styleAs="p-lg">
                 {name[0]}
               </Text>
             )}
@@ -49,18 +45,20 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <div className="flex w-full items-center justify-between">
           <Button
             href={isBaseAgent ? '/' : `/a/${id}`}
-            className="dark:[&_span]:text-evolved-green-700"
             label="Try now"
             kind="secondary"
-            endIcon="arrow-up-right"
+            icon="arrow-up-right"
+            iconPosition="end"
+            theme="default"
           />
           {!isBaseAgent && (
             <Button
               href={`/edit/${id}`}
-              className="dark:[&_span]:text-evolved-green-700"
               label="Edit"
               kind="secondary"
-              endIcon="edit"
+              icon="edit"
+              iconPosition="end"
+              theme="default"
             />
           )}
         </div>

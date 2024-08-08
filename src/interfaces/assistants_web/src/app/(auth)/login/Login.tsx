@@ -117,7 +117,7 @@ const Login: React.FC = () => {
           <form
             onSubmit={handleSubmit(onSubmit)}
             onChange={() => setErrors([])}
-            className="mt-10 flex w-full flex-col"
+            className="mt-10 flex w-full flex-col gap-4"
           >
             <Input
               className="w-full"
@@ -155,21 +155,23 @@ const Login: React.FC = () => {
             <Button
               disabled={loginStatus === 'pending' || !formState.isValid}
               label={loginStatus === 'pending' ? 'Logging in...' : 'Log in'}
-              type="submit"
+              buttonType="submit"
+              kind="cell"
+              theme="evolved-green"
+              iconPosition="end"
               className="mt-10 w-full self-center md:w-fit"
-              splitIcon="arrow-right"
             />
           </form>
 
           <Text
             as="div"
-            className="mt-10 flex w-full items-center justify-between text-volcanic-700"
+            className="mt-10 flex w-full items-center justify-center gap-2 text-volcanic-700"
           >
             New user?
             <AuthLink
               redirect={redirect !== '/' ? redirect : undefined}
               action="register"
-              className="text-green-700 no-underline"
+              theme="evolved-green"
             />
           </Text>
         </>

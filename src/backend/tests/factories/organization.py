@@ -9,4 +9,4 @@ class OrganizationFactory(BaseFactory):
     class Meta:
         model = Organization
 
-    name = factory.Faker("name")
+    name = factory.Faker("company")

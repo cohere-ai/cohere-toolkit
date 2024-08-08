@@ -2,7 +2,13 @@ import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { Agent, ApiError, CreateAgent, UpdateAgent, useCohereClient } from '@/cohere-client';
+import {
+  AgentPublic,
+  ApiError,
+  CreateAgentRequest,
+  UpdateAgentRequest,
+  useCohereClient,
+} from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 
 export const useListAgents = () => {
@@ -17,7 +23,7 @@ export const useCreateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (request: CreateAgent) => cohereClient.createAgent(request),
+    mutationFn: (request: CreateAgentRequest) => cohereClient.createAgent(request),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['listAgents'] });
     },
@@ -75,14 +81,17 @@ export const useDefaultAgent = (enabled?: boolean) => {
  */
 export const useIsAgentNameUnique = () => {
   const { data: agents } = useListAgents();
-  return (name: string, omittedAgentId?: string) =>
-    agents?.every((agent) => agent.name !== name || agent.id === omittedAgentId);
+  return (name: string, omittedAgentId?: string) => {
+    return agents
+      ?.filter((agent) => agent.id !== omittedAgentId)
+      .some((agent) => agent.name === name);
+  };
 };
 
 export const useUpdateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<Agent, ApiError, { request: UpdateAgent; agentId: string }>({
+  return useMutation<AgentPublic, ApiError, { request: UpdateAgentRequest; agentId: string }>({
     mutationFn: ({ request, agentId }) => cohereClient.updateAgent(request, agentId),
     onSettled: (agent) => {
       queryClient.invalidateQueries({ queryKey: ['agent', agent?.id] });
@@ -111,7 +120,7 @@ export const useRecentAgents = () => {
     set(recentAgentsIds.filter((id) => id !== agentId));
   };
 
-  const recentAgents = useMemo<Agent[]>(() => {
+  const recentAgents = useMemo<AgentPublic[]>(() => {
     if (!recentAgentsIds) return [];
     return recentAgentsIds
       .map((id) => agents?.find((agent) => agent.id === id))
