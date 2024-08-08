@@ -1,22 +1,15 @@
+import json
 import os
+from uuid import uuid4
 
 from dotenv import load_dotenv
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
-from backend.database_models import (
-    Agent,
-    AgentDeploymentModel,
-    Deployment,
-    Model,
-    Organization,
-    User,
-)
+from backend.database_models import Deployment, Model, Organization
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
-)
-from community.config.deployments import (
-    ModelDeploymentName as CommunityModelDeploymentsName,
 )
 
 load_dotenv()
@@ -112,86 +105,73 @@ def deployments_models_seed(op):
     """
     session = Session(op.get_bind())
 
-    default_user = session.query(User).filter_by(id="user-id").first()
-    default_organization = Organization(
+    # Seed default organization
+    sql_command = text(
+        """
+        INSERT INTO organizations (
+            id, name, created_at, updated_at
+        )
+        VALUES (
+            :id, :name, now(), now() 
+        )
+        ON CONFLICT (id) DO NOTHING;
+    """
+    ).bindparams(
+        id="default",
         name="Default Organization",
-        id="default",
     )
-    session.add(default_organization)
-    session.commit()
-    default_organization.users.append(default_user)
-    session.commit()
-
-    default_agent = Agent(
-        id="default",
-        version=1,
-        name="Command R+",
-        description="Default agent",
-        preamble="",
-        temperature=0.3,
-        tools=[
-            "web_search",
-            "search_file",
-            "read_document",
-            "toolkit_python_interpreter",
-            "toolkit_calculator",
-            "wikipedia",
-            "google_drive",
-            "arxiv",
-            "example_connector",
-            "pub_med",
-            "file_reader_llamaindex",
-            "wolfram_alpha",
-            "clinical_trials",
-        ],
-        user_id=default_user.id,
-        organization_id=default_organization.id,
-    )
-    session.add(default_agent)
-    session.commit()
+    op.execute(sql_command)
 
     # Seed deployments and models
     for deployment in MODELS_NAME_MAPPING.keys():
-        new_deployment = Deployment(
+        deployment_id = str(uuid4())
+        sql_command = text(
+            """
+            INSERT INTO deployments (
+                id, name, description, default_deployment_config, deployment_class_name, is_community, created_at, updated_at
+            )
+            VALUES (
+                :id, :name, :description, :default_deployment_config, :deployment_class_name, :is_community, now(), now() 
+            )
+            ON CONFLICT (id) DO NOTHING;
+        """
+        ).bindparams(
+            id=deployment_id,
             name=deployment,
-            default_deployment_config={
-                env_var: os.environ.get(env_var, "")
-                for env_var in model_deployments[deployment].env_vars
-            },
+            description="",
+            default_deployment_config=json.dumps(
+                {
+                    env_var: os.environ.get(env_var, "")
+                    for env_var in model_deployments[deployment].env_vars
+                }
+            ),
             deployment_class_name=model_deployments[
                 deployment
             ].deployment_class.__name__,
             is_community=deployment in COMMUNITY_DEPLOYMENTS_SETUP,
         )
-        session.add(new_deployment)
-        session.commit()
-        is_default_for_agent = False
+        op.execute(sql_command)
+
         for model_name, model_mapping_name in MODELS_NAME_MAPPING[deployment].items():
-            new_model = Model(
+            model_id = str(uuid4())
+            sql_command = text(
+                """
+                INSERT INTO models (
+                    id, name, cohere_name, description, deployment_id, created_at, updated_at
+                )
+                VALUES (
+                    :id, :name, :cohere_name, :description, :deployment_id, now(), now() 
+                )
+                ON CONFLICT (id) DO NOTHING;
+            """
+            ).bindparams(
+                id=model_id,
                 name=model_name,
                 cohere_name=model_mapping_name["cohere_name"],
-                deployment_id=new_deployment.id,
+                description="",
+                deployment_id=deployment_id,
             )
-            session.add(new_model)
-            session.commit()
-            if model_mapping_name["is_default"]:
-                model_to_agent_id = new_model.id
-                is_default_for_agent = True
-
-        agent_deployment_association = AgentDeploymentModel(
-            deployment_id=new_deployment.id,
-            agent_id=default_agent.id,
-            model_id=model_to_agent_id,
-            deployment_config={
-                env_var: os.environ.get(env_var, "")
-                for env_var in model_deployments[deployment].env_vars
-            },
-            is_default_deployment=new_deployment.name
-            == ModelDeploymentName.CoherePlatform,
-            is_default_model=is_default_for_agent,
-        )
-        session.add(agent_deployment_association)
-        session.commit()
+            op.execute(sql_command)
 
 
 def delete_default_models(op):
@@ -202,5 +182,4 @@ def delete_default_models(op):
     session.query(Deployment).delete()
     session.query(Model).delete()
     session.query(Organization).filter_by(id="default").delete()
-    session.query(AgentDeploymentModel).delete()
     session.commit()

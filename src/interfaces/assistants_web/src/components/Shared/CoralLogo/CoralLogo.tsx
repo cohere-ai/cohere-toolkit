@@ -3,22 +3,13 @@
 import { cn } from '@/utils';
 
 export const CoralLogo: React.FC<{
-  style?: 'grayscale' | 'primary' | 'secondary';
   className?: string;
-}> = ({ className, style = 'primary' }) => (
+}> = ({ className }) => (
   <svg
     viewBox="0 0 22 23"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={cn(
-      'size-5',
-      {
-        'fill-blue-900': style === 'primary',
-        'fill-marble-950': style === 'grayscale',
-        'fill-mushroom-300': style === 'secondary',
-      },
-      className
-    )}
+    className={cn('size-5', 'fill-mushroom-300', className)}
   >
     <path d="M10.0641 4.03514L10.0709 12.8718C10.0709 15.381 7.03945 16.6424 5.25585 14.8656L1.77682 11.3933C0.644266 10.2608 0.00678112 8.72132 0.00678112 7.12083L0 4.02836C0 1.80394 1.80394 0 4.02836 0H6.03575C8.26017 0.00678175 10.0641 1.81073 10.0641 4.03514Z" />
     <path d="M14.3434 0.888489H17.7207C19.1042 0.888489 19.7959 2.5568 18.8261 3.54015L16.1134 6.27998C14.5536 7.86012 11.8613 6.7547 11.8613 4.53029V3.37739C11.8545 2.00069 12.9667 0.888489 14.3434 0.888489Z" />

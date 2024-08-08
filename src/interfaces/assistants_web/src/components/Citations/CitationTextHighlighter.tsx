@@ -8,7 +8,7 @@ import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useCitationsStore, useSettingsStore } from '@/stores';
+import { useCitationsStore } from '@/stores';
 import { cn } from '@/utils';
 import { createStartEndKey } from '@/utils';
 
@@ -43,14 +43,11 @@ export const CitationTextHighlighter: React.FC<Props> = ({
   const {
     citations: { citationReferences },
   } = useCitationsStore();
-  const { setSettings } = useSettingsStore();
   const startEndKey = createStartEndKey(start, end);
 
-  const { text, bg, hover } = useBrandedColors(agentId);
+  const { text, lightText, bg, contrastText, hover, dark, light } = useBrandedColors(agentId);
 
   const handleClick = () => {
-    setSettings({ isConfigDrawerOpen: false });
-
     open({
       content: <Citation generationId={generationId} citationKey={startEndKey} />,
     });
@@ -82,7 +79,10 @@ export const CitationTextHighlighter: React.FC<Props> = ({
         onClick={handleClick}
         className={cn(
           'cursor-pointer rounded bg-transparent',
-          `${hover(bg)} ${text} hover:bg-opacity-35 dark:hover:bg-opacity-35`
+          light(text),
+          dark(lightText),
+          hover(bg),
+          hover(contrastText)
         )}
       >
         {content}
@@ -95,7 +95,10 @@ export const CitationTextHighlighter: React.FC<Props> = ({
       <PopoverButton
         className={cn(
           'cursor-pointer rounded bg-transparent',
-          `${hover(bg)} ${text} hover:bg-opacity-35 dark:hover:bg-opacity-35`
+          light(text),
+          dark(lightText),
+          hover(bg),
+          hover(contrastText)
         )}
       >
         {content}

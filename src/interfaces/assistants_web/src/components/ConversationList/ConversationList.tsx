@@ -11,7 +11,7 @@ import { InputSearch } from '@/components/Shared/InputSearch';
 import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
-import { useAgentsStore } from '@/stores';
+import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const sortByDate = (a: Conversation, b: Conversation) => {
@@ -22,14 +22,11 @@ const sortByDate = (a: Conversation, b: Conversation) => {
  * @description This component renders a list of agents.
  * It shows the most recent agents and the base agents.
  */
-export const AgentsList: React.FC = () => {
+export const ConversationList: React.FC = () => {
   const { data: conversations } = useConversations({});
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
   const { data: agents = [] } = useListAgents();
-  const {
-    agents: { isAgentsLeftPanelOpen },
-    setAgentsLeftSidePanelOpen,
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const recentAgents = useMemo(
     () =>
       conversations
@@ -75,7 +72,11 @@ export const AgentsList: React.FC = () => {
           )}
         </section>
       </div>
-      <div className="flex-grow space-y-4 overflow-y-auto">
+      <div
+        className={cn('flex-grow', {
+          'space-y-4 overflow-y-auto': conversations.length > 0,
+        })}
+      >
         <Text
           styleAs="label"
           className={cn('truncate dark:text-mushroom-800', {
@@ -95,9 +96,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
   results,
 }) => {
   const { data: conversations, isLoading: isConversationsLoading, isError } = useConversations({});
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen } = useSettingsStore();
   const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
   const hasSearchQuery = search.length > 0;
   const hasSearchResults = results.length > 0;

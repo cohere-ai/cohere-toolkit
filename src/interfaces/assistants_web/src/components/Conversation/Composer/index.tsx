@@ -12,8 +12,7 @@ import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { useUnauthedTools } from '@/hooks/tools';
-import { useSettingsStore } from '@/stores';
+import { useAvailableTools } from '@/hooks/tools';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
@@ -42,14 +41,12 @@ export const Composer: React.FC<Props> = ({
   onUploadFile,
   chatWindowRef,
 }) => {
-  const {
-    settings: { isMobileConvListPanelOpen },
-  } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const breakpoint = useBreakpoint();
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { isToolAuthRequired } = useUnauthedTools();
+  const { unauthedTools } = useAvailableTools({ agent, managedTools: tools });
+  const isToolAuthRequired = unauthedTools.length > 0;
   const { data: experimentalFeatures } = useExperimentalFeatures();
 
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
@@ -99,7 +96,7 @@ export const Composer: React.FC<Props> = ({
   useEffect(() => {
     if (!textareaRef.current) return;
     let timer: NodeJS.Timeout;
-    if (!isMobileConvListPanelOpen || isDesktop) {
+    if (isDesktop) {
       /**
        * The textarea focus state is delayed so that the slide in transition can finish on smaller screens
        * See `chat/src/components/Layout.tsx` for the transition duration and details
@@ -111,7 +108,7 @@ export const Composer: React.FC<Props> = ({
       textareaRef.current?.blur();
     }
     return () => clearTimeout(timer);
-  }, [isMobileConvListPanelOpen, isDesktop]);
+  }, [isDesktop]);
 
   useResizeObserver(chatWindowRef || null, (e) => {
     setChatWindowHeight(e.target.clientHeight);
@@ -123,10 +120,10 @@ export const Composer: React.FC<Props> = ({
         className={cn(
           'relative flex w-full flex-col',
           'transition ease-in-out',
-          'rounded border bg-marble-1000 dark:bg-volcanic-100',
+          'rounded border bg-marble-980 dark:bg-volcanic-100',
           'border-marble-800 dark:border-volcanic-200',
           {
-            'bg-marble-950 dark:bg-volcanic-300': isComposerDisabled,
+            'bg-marble-950 dark:bg-mushroom-150': isComposerDisabled,
           }
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}

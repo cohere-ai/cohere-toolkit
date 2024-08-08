@@ -28,13 +28,7 @@ import {
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
-import {
-  useAgentsStore,
-  useCitationsStore,
-  useConversationStore,
-  useFilesStore,
-  useParamsStore,
-} from '@/stores';
+import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { useStreamingStore } from '@/stores/streaming';
 import {
@@ -103,9 +97,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     clearComposerFiles,
     clearUploadingErrors,
   } = useFilesStore();
-  const {
-    agents: { disabledAssistantKnowledge },
-  } = useAgentsStore();
   const queryClient = useQueryClient();
 
   const currentConversationId = id || composerFiles[0]?.conversation_id;
@@ -625,6 +616,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   };
 
   const handleStop = () => {
+    if (!isStreaming) return;
     abortController.current?.abort(ABORT_REASON_USER);
     setIsStreaming(false);
     setConversation({
