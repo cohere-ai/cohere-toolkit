@@ -131,10 +131,13 @@ class FileService:
         agent_tool_metadata = agent.tools_metadata
         if agent_tool_metadata is not None and len(agent_tool_metadata) > 0:
             artifacts = next(
-                tool_metadata.artifacts
-                for tool_metadata in agent_tool_metadata
-                if tool_metadata.tool_name == ToolName.Read_File
-                or tool_metadata.tool_name == ToolName.Search_File
+                (
+                    tool_metadata.artifacts
+                    for tool_metadata in agent_tool_metadata
+                    if tool_metadata.tool_name == ToolName.Read_File
+                    or tool_metadata.tool_name == ToolName.Search_File
+                ),
+                [],  # Default value if the generator is empty
             )
 
             # TODO scott: enumerate type names (?), different types for local vs. compass?
