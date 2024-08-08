@@ -12,9 +12,9 @@ import { cn } from '@/utils';
 
 const GROUPED_ASSISTANTS_LIMIT = 15;
 
-const BASE_AGENTS: Array<AgentPublic & { isBaseAgent: boolean }> = [
+const BASE_AGENTS: Array<AgentPublic> = [
   {
-    id: '',
+    id: 'default',
     deployments: [],
     name: 'Command R+',
     description: 'Review, understand and ask questions about internal financial documents.',
@@ -26,7 +26,6 @@ const BASE_AGENTS: Array<AgentPublic & { isBaseAgent: boolean }> = [
     tools: [],
     model: '',
     deployment: '',
-    isBaseAgent: true,
   },
 ];
 
@@ -84,7 +83,7 @@ const GroupAgents: React.FC<{ agents: AgentPublic[]; title: string; subTitle: st
       </header>
       <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-3 xl:grid-cols-4">
         {visibleAgents.map((agent) => (
-          <DiscoverAgentCard key={agent.id} {...agent} />
+          <DiscoverAgentCard key={agent.id} agent={agent} />
         ))}
       </div>
       {hasShowMore && (
@@ -115,24 +114,18 @@ const CompanyAgents: React.FC<{
   const deferredQuery = useDeferredValue(query);
   const session = useSession();
 
-  // const createdByMeAgents = useMemo(
-  //   () =>
-  //     agents
-  //       .filter(
-  //         (agent) =>
-  //           agent.user_id === session.userId &&
-  //           agent.name.toLowerCase().includes(deferredQuery.toLowerCase())
-  //       )
-  //       .sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
-  //   [agents, session.userId, deferredQuery]
-  // );
-
   const filteredAgents = useMemo(
     () =>
       agents
         .filter((agent) => agent.name.toLowerCase().includes(deferredQuery.toLowerCase()))
         .sort((a, b) => b.name.toLowerCase().localeCompare(a.name.toLowerCase())),
     [agents, deferredQuery]
+  );
+
+  const createdByMeAgents = useMemo(
+    () => filteredAgents,
+    // .filter((agent) => agent.user_id === session.userId)
+    [filteredAgents, session.userId]
   );
 
   const recentlyUsedAgents = useMemo(
@@ -180,11 +173,11 @@ const CompanyAgents: React.FC<{
           onChange={handleOnChange}
           value={query}
         />
-        {/* <GroupAgents
+        <GroupAgents
           title="Created by me"
           subTitle="Assistants that you regularly use"
           agents={createdByMeAgents}
-        /> */}
+        />
         {agents.length >= GROUPED_ASSISTANTS_LIMIT && (
           <>
             <GroupAgents
