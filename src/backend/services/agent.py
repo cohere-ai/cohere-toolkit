@@ -11,7 +11,7 @@ def validate_agent_exists(session: DBSessionDep, agent_id: str) -> Agent:
 
     if not agent:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Agent with ID {agent_id} not found.",
         )
 
@@ -27,7 +27,7 @@ def validate_agent_tool_metadata_exists(
 
     if not agent_tool_metadata:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Agent tool metadata with ID {agent_tool_metadata_id} not found.",
         )
 

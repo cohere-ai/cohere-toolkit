@@ -46,7 +46,7 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
     )
     if not deployment_model:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Model {model} not found for deployment {deployment}.",
         )
 
@@ -149,7 +149,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
         agent = agent_crud.get_agent_by_id(session, agent_id)
         if agent is None:
             raise HTTPException(
-                status_code=400, detail=f"Agent with ID {agent_id} not found."
+                status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
     # If conversation_id is passed in with agent_id, then make sure that conversation exists with the agent_id
@@ -160,7 +160,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
         )
         if conversation is None or conversation.agent_id != agent_id:
             raise HTTPException(
-                status_code=400,
+                status_code=404,
                 detail=f"Conversation ID {conversation_id} not found for specified agent.",
             )
 
@@ -244,7 +244,7 @@ async def validate_create_agent_request(session: DBSessionDep, request: Request)
     if tools:
         for tool in tools:
             if tool not in AVAILABLE_TOOLS:
-                raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
+                raise HTTPException(status_code=404, detail=f"Tool {tool} not found.")
 
     name = body.get("name")
     model = body.get("model")
@@ -277,7 +277,7 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     agent = agent_crud.get_agent_by_id(session, agent_id)
     if not agent:
         raise HTTPException(
-            status_code=400, detail=f"Agent with ID {agent_id} not found."
+            status_code=404, detail=f"Agent with ID {agent_id} not found."
         )
 
     if agent.user_id != get_header_user_id(request):
@@ -291,7 +291,7 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     if tools:
         for tool in tools:
             if tool not in AVAILABLE_TOOLS:
-                raise HTTPException(status_code=400, detail=f"Tool {tool} not found.")
+                raise HTTPException(status_code=404, detail=f"Tool {tool} not found.")
 
     model, deployment = body.get("model"), body.get("deployment")
     # Model and deployment must be updated together to ensure compatibility
@@ -360,7 +360,7 @@ async def validate_create_deployment_request(session: DBSessionDep, request: Req
         class_name_validator(deployment_class_name)
     except ValueError as e:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=f"Deployment class name {deployment_class_name} not found.",
         )
 
@@ -385,7 +385,7 @@ async def validate_organization_request(session: DBSessionDep, request: Request)
             session, organization_id
         ):
             raise HTTPException(
-                status_code=400,
+                status_code=404,
                 detail=f"Organization with ID: {organization_id} not found.",
             )
     body = await request.json()

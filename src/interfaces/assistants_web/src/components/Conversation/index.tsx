@@ -6,14 +6,12 @@ import { Agent, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
-import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { useChatHotKeys } from '@/hooks/actions';
 import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
-import { useConversationStore, useSettingsStore } from '@/stores';
+import { useConversationStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 
@@ -35,14 +33,8 @@ const Conversation: React.FC<Props> = ({
   tools,
   startOptionsEnabled = false,
 }) => {
-  const chatHotKeys = useChatHotKeys();
-
   const { uploadFiles } = useFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
-  const {
-    settings: { isConfigDrawerOpen },
-    setSettings,
-  } = useSettingsStore();
   const {
     conversation: { messages },
   } = useConversationStore();
@@ -63,7 +55,6 @@ const Conversation: React.FC<Props> = ({
       if (agent) {
         addRecentAgentId(agent.id);
       }
-      if (isConfigDrawerOpen) setSettings({ isConfigDrawerOpen: false });
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
         finishWelcomeGuide();
       }
@@ -81,11 +72,9 @@ const Conversation: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex h-full w-full">
-      <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-mushroom-800 bg-marble-1000 md:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
-        <HotKeysProvider customHotKeys={chatHotKeys} />
+    <div className="flex h-full flex-grow">
+      <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-marble-950 bg-marble-980 lg:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
         <Header agentId={agent?.id} />
-
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
           <MessagingContainer
             conversationId={conversationId}

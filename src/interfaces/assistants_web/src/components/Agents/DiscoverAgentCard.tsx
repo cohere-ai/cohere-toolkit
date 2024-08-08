@@ -6,7 +6,7 @@ import { cn } from '@/utils';
 
 type Props = {
   name: string;
-  description?: string;
+  description?: string | null;
   isBaseAgent?: boolean;
   id?: string;
 };
@@ -15,10 +15,10 @@ type Props = {
  * @description renders a card for an agent with the agent's name, description
  */
 export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBaseAgent }) => {
-  const { bg, contrastText } = useBrandedColors(id);
+  const { bg, contrastText, contrastFill } = useBrandedColors(id);
 
   return (
-    <article className="flex overflow-x-hidden rounded-lg border border-marble-950 bg-marble-980 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
+    <article className="flex overflow-x-hidden rounded-lg border border-volcanic-800 bg-volcanic-950 p-4 transition-colors dark:border-volcanic-300 dark:bg-volcanic-150 dark:hover:bg-volcanic-200">
       <div className="flex h-full flex-grow flex-col items-start gap-y-2 overflow-x-hidden">
         <div className="flex w-full items-center gap-x-2">
           <div
@@ -29,7 +29,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             )}
           >
             {isBaseAgent ? (
-              <CoralLogo />
+              <CoralLogo className={contrastFill} />
             ) : (
               <Text className={cn('uppercase text-white', contrastText)} styleAs="p-lg">
                 {name[0]}
@@ -49,17 +49,16 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
             kind="secondary"
             icon="arrow-up-right"
             iconPosition="end"
-            theme="evolved-green"
+            theme="default"
           />
           {!isBaseAgent && (
             <Button
               href={`/edit/${id}`}
-              className="dark:[&_span]:text-evolved-green-700"
               label="Edit"
               kind="secondary"
               icon="edit"
               iconPosition="end"
-              theme="evolved-green"
+              theme="default"
             />
           )}
         </div>

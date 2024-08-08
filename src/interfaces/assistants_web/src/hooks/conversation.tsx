@@ -22,15 +22,7 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
 
   return useQuery<ConversationWithoutMessages[], ApiError>({
     queryKey: ['conversations', params.agentId],
-    queryFn: async () => {
-      const conversations = await client.listConversations(params);
-
-      if (params.agentId) {
-        return conversations;
-      }
-
-      return conversations;
-    },
+    queryFn: () => client.listConversations(params),
     retry: 0,
     refetchOnWindowFocus: false,
     initialData: [],
