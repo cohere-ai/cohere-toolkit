@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Flipped, Flipper } from 'react-flip-toolkit';
 
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import { AgentCard } from '@/components/Agents/AgentCard';
@@ -27,6 +28,7 @@ export const ConversationList: React.FC = () => {
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
   const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const recentAgents = useRecentAgents();
+  const flipKey = recentAgents.map((agent) => agent?.id || agent?.name).join(',');
 
   return (
     <>
@@ -39,16 +41,18 @@ export const ConversationList: React.FC = () => {
           <Text styleAs="label" className="truncate dark:text-mushroom-800">
             Recent Assistants
           </Text>
-          <div className="flex gap-1 overflow-y-auto">
+
+          <Flipper flipKey={flipKey} className="flex gap-1 overflow-y-auto">
             {recentAgents.map((agent) => (
-              <AgentCard
-                key={agent.id || agent.name}
-                name={agent.name}
-                id={agent.id}
-                isBaseAgent={!agent.id}
-              />
+              <Flipped key={agent?.id || agent?.name} flipId={agent?.id || agent?.name}>
+                {(flippedProps) => (
+                  <div {...flippedProps} key={agent.id || agent.name}>
+                    <AgentCard name={agent.name} id={agent.id} isBaseAgent={!agent.id} />
+                  </div>
+                )}
+              </Flipped>
             ))}
-          </div>
+          </Flipper>
         </section>
         <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
           {isAgentsLeftPanelOpen ? (
