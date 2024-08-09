@@ -48,7 +48,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
         <div className="flex items-center gap-4">
           <button
             onClick={handleOpenLeftSidePanel}
-            className="flex h-full items-center gap-4 md:hidden"
+            className="flex h-full items-center gap-4 lg:hidden"
           >
             {agentId ? (
               <Text
@@ -84,9 +84,9 @@ export const Header: React.FC<Props> = ({ agentId }) => {
           {id && (
             <Button
               kind="secondary"
-              className="[&>div]:gap-x-0 md:[&>div]:gap-x-3"
+              className="[&>div]:gap-x-0 lg:[&>div]:gap-x-3"
               label={
-                <Text className={cn(dark(lightText), light(text), 'hidden md:flex')}>Share</Text>
+                <Text className={cn(dark(lightText), light(text), 'hidden lg:flex')}>Share</Text>
               }
               iconOptions={{
                 customIcon: (
@@ -99,9 +99,9 @@ export const Header: React.FC<Props> = ({ agentId }) => {
           )}
           <IconButton
             iconName="kebab"
-            iconClassName={fill}
+            iconClassName="dark:fill-marble-950 fill-volcanic-100"
             onClick={handleOpenRightSidePanel}
-            className="flex h-auto w-auto md:hidden"
+            className="flex h-auto w-auto lg:hidden"
           />
         </section>
       </div>
