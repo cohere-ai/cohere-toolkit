@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { LeftPanel } from '@/components/Agents/LeftPanel';
 import { HotKeys } from '@/components/Shared/HotKeys';
+import { Swipeable } from '@/components/Swipeable';
 import { COOKIE_KEYS, DEFAULT_AGENT_TOOLS } from '@/constants';
 import { getCohereServerClient } from '@/server/cohereServerClient';
 
@@ -46,6 +47,7 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
           <LeftPanel className="hidden md:flex" />
           <section className="relative flex h-full min-w-0 flex-grow flex-col overflow-hidden">
             <HotKeys />
+            <Swipeable />
             {children}
           </section>
         </div>
