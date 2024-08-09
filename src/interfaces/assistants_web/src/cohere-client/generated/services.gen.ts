@@ -81,16 +81,10 @@ import type {
   ListFilesV1ConversationsConversationIdFilesGetResponse,
   ListModelsV1ModelsGetData,
   ListModelsV1ModelsGetResponse,
-  ListOrganizationAgentsV1AgentsOrganizationOrganizationIdGetData,
-  ListOrganizationAgentsV1AgentsOrganizationOrganizationIdGetResponse,
-  ListOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGetData,
-  ListOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGetResponse,
   ListOrganizationsV1OrganizationsGetResponse,
   ListSnapshotsV1SnapshotsGetResponse,
   ListToolsV1ToolsGetData,
   ListToolsV1ToolsGetResponse,
-  ListUserAgentsV1AgentsUserUserIdGetData,
-  ListUserAgentsV1AgentsUserUserIdGetResponse,
   ListUsersV1UsersGetData,
   ListUsersV1UsersGetResponse,
   LoginV1LoginPostData,
@@ -1215,6 +1209,8 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.offset
    * @param data.limit
+   * @param data.visibility
+   * @param data.organizationId
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1227,123 +1223,8 @@ export class DefaultService {
       query: {
         offset: data.offset,
         limit: data.limit,
-      },
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
-   * List User Agents
-   * List all agents.
-   *
-   * Args:
-   * user_id (str): User ID.
-   * offset (int): Offset to start the list.
-   * limit (int): Limit of agents to be listed.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * list[Agent]: List of agents.
-   * @param data The data for the request.
-   * @param data.userId
-   * @param data.offset
-   * @param data.limit
-   * @returns Agent Successful Response
-   * @throws ApiError
-   */
-  public listUserAgentsV1AgentsUserUserIdGet(
-    data: ListUserAgentsV1AgentsUserUserIdGetData
-  ): CancelablePromise<ListUserAgentsV1AgentsUserUserIdGetResponse> {
-    return this.httpRequest.request({
-      method: 'GET',
-      url: '/v1/agents/user/{user_id}',
-      path: {
-        user_id: data.userId,
-      },
-      query: {
-        offset: data.offset,
-        limit: data.limit,
-      },
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
-   * List Organization Agents
-   * List all agents.
-   *
-   * Args:
-   * organization_id (str): Organization ID.
-   * offset (int): Offset to start the list.
-   * limit (int): Limit of agents to be listed.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * list[Agent]: List of agents.
-   * @param data The data for the request.
-   * @param data.organizationId
-   * @param data.offset
-   * @param data.limit
-   * @returns Agent Successful Response
-   * @throws ApiError
-   */
-  public listOrganizationAgentsV1AgentsOrganizationOrganizationIdGet(
-    data: ListOrganizationAgentsV1AgentsOrganizationOrganizationIdGetData
-  ): CancelablePromise<ListOrganizationAgentsV1AgentsOrganizationOrganizationIdGetResponse> {
-    return this.httpRequest.request({
-      method: 'GET',
-      url: '/v1/agents/organization/{organization_id}',
-      path: {
+        visibility: data.visibility,
         organization_id: data.organizationId,
-      },
-      query: {
-        offset: data.offset,
-        limit: data.limit,
-      },
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
-   * List Organization User Agents
-   * List all agents.
-   *
-   * Args:
-   * organization_id (str): Organization ID.
-   * user_id (str): User ID.
-   * offset (int): Offset to start the list.
-   * limit (int): Limit of agents to be listed.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * list[Agent]: List of agents.
-   * @param data The data for the request.
-   * @param data.organizationId
-   * @param data.userId
-   * @param data.offset
-   * @param data.limit
-   * @returns Agent Successful Response
-   * @throws ApiError
-   */
-  public listOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGet(
-    data: ListOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGetData
-  ): CancelablePromise<ListOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGetResponse> {
-    return this.httpRequest.request({
-      method: 'GET',
-      url: '/v1/agents/organization/{organization_id}/user/{user_id}',
-      path: {
-        organization_id: data.organizationId,
-        user_id: data.userId,
-      },
-      query: {
-        offset: data.offset,
-        limit: data.limit,
       },
       errors: {
         422: 'Validation Error',
@@ -1365,7 +1246,7 @@ export class DefaultService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId
-   * @returns Agent Successful Response
+   * @returns AgentPublic Successful Response
    * @throws ApiError
    */
   public getAgentByIdV1AgentsAgentIdGet(

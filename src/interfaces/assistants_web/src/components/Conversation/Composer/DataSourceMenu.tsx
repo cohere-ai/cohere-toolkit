@@ -3,7 +3,7 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import React from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/Shared';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useAvailableTools } from '@/hooks/tools';
@@ -12,7 +12,7 @@ import { cn } from '@/utils';
 import { getToolIcon } from '@/utils/tools';
 
 export type Props = {
-  agent?: Agent;
+  agent?: AgentPublic;
   tools?: ManagedTool[];
 };
 

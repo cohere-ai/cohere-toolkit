@@ -3,7 +3,8 @@
 import { PropsWithChildren, useState } from 'react';
 
 import { DarkModeToggle } from '@/components/DarkModeToggle';
-import { Button, Icon, Tabs, Text, Tooltip } from '@/components/Shared';
+import { MobileHeader } from '@/components/MobileHeader';
+import { Button, Icon, Tabs, Text } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
@@ -30,21 +31,15 @@ export const Settings = () => {
       <header
         className={cn(
           'border-b border-marble-950 bg-cover dark:border-volcanic-200',
-          'px-4 py-6 md:px-9 md:py-10 lg:px-10',
-          'flex items-center justify-between'
+          'px-4 py-6 lg:px-10 lg:py-10',
+          'flex flex-col gap-y-3'
         )}
       >
+        <MobileHeader />
         <div className="flex items-center gap-2">
           <Text styleAs="h4" className="text-volcanic-400 dark:text-mushroom-950">
             Settings
           </Text>
-          <Tooltip label="tbd" hover size="sm">
-            <Icon
-              name="information"
-              kind="outline"
-              className="fill-volcanic-300 dark:fill-mushroom-700"
-            />
-          </Tooltip>
         </div>
       </header>
       <section className="p-8">
