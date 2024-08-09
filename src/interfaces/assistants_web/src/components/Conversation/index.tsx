@@ -7,7 +7,6 @@ import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { useRecentAgents } from '@/hooks/agents';
 import { useChat } from '@/hooks/chat';
 import { useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
@@ -39,8 +38,6 @@ const Conversation: React.FC<Props> = ({
     conversation: { messages },
   } = useConversationStore();
 
-  const { addRecentAgentId } = useRecentAgents();
-
   const {
     userMessage,
     isStreaming,
@@ -52,9 +49,6 @@ const Conversation: React.FC<Props> = ({
     handleRetry,
   } = useChat({
     onSend: () => {
-      if (agent) {
-        addRecentAgentId(agent.id);
-      }
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
         finishWelcomeGuide();
       }

@@ -5,6 +5,7 @@ import { useDeferredValue, useMemo, useState } from 'react';
 import { AgentPublic, ConversationWithoutMessages } from '@/cohere-client';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
 import { Button, Input, Text } from '@/components/Shared';
+import { BASE_AGENT } from '@/constants';
 import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSession } from '@/hooks/session';
@@ -12,31 +13,12 @@ import { cn } from '@/utils';
 
 const GROUPED_ASSISTANTS_LIMIT = 15;
 
-const BASE_AGENTS: Array<AgentPublic> = [
-  {
-    id: '',
-    deployments: [],
-    name: 'Command R+',
-    description: 'Review, understand and ask questions about internal financial documents.',
-    created_at: '2021-09-01T00:00:00Z',
-    updated_at: '2021-09-01T00:00:00Z',
-    preamble: '',
-    version: 1,
-    temperature: 0.3,
-    tools: [],
-    model: '',
-    deployment: '',
-    user_id: '',
-    is_private: false,
-  },
-];
-
 export const DiscoverAgents = () => {
   const { data: agents = [] } = useListAgents();
   const { data: conversations = [] } = useConversations({});
 
   return (
-    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 md:ml-0 dark:border-volcanic-100 dark:bg-volcanic-100">
+    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 dark:border-volcanic-100 dark:bg-volcanic-100 md:ml-0">
       <header
         className={cn(
           'border-b border-marble-950 bg-cover dark:border-volcanic-200',
@@ -52,7 +34,7 @@ export const DiscoverAgents = () => {
         <Button kind="secondary" theme="default" icon="add" label="Create Assistant" href="/new" />
       </header>
       <section className="p-8">
-        <CompanyAgents agents={agents.concat(BASE_AGENTS)} conversations={conversations} />
+        <CompanyAgents agents={agents.concat(BASE_AGENT)} conversations={conversations} />
       </section>
     </div>
   );

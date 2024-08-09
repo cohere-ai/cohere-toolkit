@@ -8,7 +8,7 @@ import { ConversationListLoading } from '@/components/ConversationList/Conversat
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
 import { Icon, Text, Tooltip } from '@/components/Shared';
 import { InputSearch } from '@/components/Shared/InputSearch';
-import { useListAgents } from '@/hooks/agents';
+import { useRecentAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 import { useSettingsStore } from '@/stores';
@@ -25,17 +25,8 @@ const sortByDate = (a: Conversation, b: Conversation) => {
 export const ConversationList: React.FC = () => {
   const { data: conversations = [] } = useConversations({});
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
-  const { data: agents = [] } = useListAgents();
   const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
-  const recentAgents = useMemo(
-    () =>
-      conversations
-        .sort(sortByDate)
-        .map((conversation) => agents.find((agent) => agent.id === conversation.agent_id))
-        .concat(agents.sort((a, b) => b.created_at.localeCompare(a.created_at)))
-        .filter((agent, index, self) => self.indexOf(agent) === index),
-    [agents, conversations]
-  );
+  const recentAgents = useRecentAgents();
 
   return (
     <>
@@ -48,11 +39,15 @@ export const ConversationList: React.FC = () => {
           <Text styleAs="label" className="truncate dark:text-mushroom-800">
             Recent Assistants
           </Text>
-          <div className="flex gap-1">
-            {recentAgents.slice(0, 5).map((agent) => {
-              if (!agent) return <AgentCard key="commandR+" name="Command R+" isBaseAgent />;
-              return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
-            })}
+          <div className="flex gap-1 overflow-y-auto">
+            {recentAgents.map((agent) => (
+              <AgentCard
+                key={agent.id || agent.name}
+                name={agent.name}
+                id={agent.id}
+                isBaseAgent={!agent.id}
+              />
+            ))}
           </div>
         </section>
         <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
