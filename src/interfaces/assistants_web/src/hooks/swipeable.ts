@@ -11,8 +11,8 @@ export const useSwipeable = () => {
       setAgentsRightSidePanelOpen(true);
     },
     onSwipedRight: ({}) => {
-      setAgentsRightSidePanelOpen(false);
       setAgentsLeftSidePanelOpen(true);
+      setAgentsRightSidePanelOpen(false);
     },
   });
 
