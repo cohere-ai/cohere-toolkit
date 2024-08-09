@@ -18,6 +18,8 @@ def compass_file_search(
 ) -> List[Dict[str, Any]]:
     results = []
 
+    # Note: Compass search currently has an issue where the type of the context is not directly referenced
+    # Temporarily add `.keyword` to workaround this issue.
     search_filters = [
         SearchFilter(
             field="content.file_id.keyword",
