@@ -58,7 +58,7 @@ export const LayoutProviders: React.FC<React.PropsWithChildren<{ authToken?: str
   );
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
       <CohereClientProvider client={cohereClient}>
         <QueryClientProvider client={queryClient}>
           <ContextStore>
