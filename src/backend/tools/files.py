@@ -157,8 +157,8 @@ class SearchFileTool(BaseTool):
         if not query or not files:
             return []
 
+        file_ids = [file_id for _, file_id in files]
         if Settings().feature_flags.use_compass_file_storage:
-            file_ids = [file_id for _, file_id in files]
             return compass_file_search(
                 file_ids,
                 conversation_id,
@@ -172,7 +172,7 @@ class SearchFileTool(BaseTool):
                 return []
 
             results = []
-            for file in files:
+            for file in retrieved_files:
                 results.append(
                     {
                         "text": file.file_content,

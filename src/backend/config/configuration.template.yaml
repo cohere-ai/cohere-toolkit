@@ -44,6 +44,7 @@ feature_flags:
   # Experimental features
   use_experimental_langchain: false
   use_agents_view: false
+  use_compass_file_storage: false
   # Community features
   use_community_features: true
 auth:
