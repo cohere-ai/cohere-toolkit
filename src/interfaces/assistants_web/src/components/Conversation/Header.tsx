@@ -68,7 +68,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
               {isLoading ? '' : agent?.name ?? 'Cohere AI'}
             </Text>
           </button>
-          {agentId && (
+          {agentId && agent?.is_private && (
             <Text
               styleAs="label-sm"
               className={cn(
