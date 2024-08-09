@@ -110,39 +110,39 @@ ALL_TOOLS = {
         category=Category.Function,
         description="Runs python code in a sandbox.",
     ),
-    ToolName.Wiki_Retriever_LangChain: ManagedTool(
-        display_name="Wikipedia",
-        implementation=LangChainWikiRetriever,
-        parameter_definitions={
-            "query": {
-                "description": "Query for retrieval.",
-                "type": "str",
-                "required": True,
-            }
-        },
-        kwargs={"chunk_size": 300, "chunk_overlap": 0},
-        is_visible=True,
-        is_available=LangChainWikiRetriever.is_available(),
-        error_message="LangChainWikiRetriever not available.",
-        category=Category.DataLoader,
-        description="Retrieves documents from Wikipedia using LangChain.",
-    ),
-    ToolName.Calculator: ManagedTool(
-        display_name="Calculator",
-        implementation=Calculator,
-        parameter_definitions={
-            "code": {
-                "description": "The expression for the calculator to evaluate, it should be a valid mathematical expression.",
-                "type": "str",
-                "required": True,
-            }
-        },
-        is_visible=True,
-        is_available=Calculator.is_available(),
-        error_message="Calculator tool not available.",
-        category=Category.Function,
-        description="This is a powerful multi-purpose calculator which is capable of a wide array of math calculations.",
-    ),
+    # ToolName.Wiki_Retriever_LangChain: ManagedTool(
+    #     display_name="Wikipedia",
+    #     implementation=LangChainWikiRetriever,
+    #     parameter_definitions={
+    #         "query": {
+    #             "description": "Query for retrieval.",
+    #             "type": "str",
+    #             "required": True,
+    #         }
+    #     },
+    #     kwargs={"chunk_size": 300, "chunk_overlap": 0},
+    #     is_visible=True,
+    #     is_available=LangChainWikiRetriever.is_available(),
+    #     error_message="LangChainWikiRetriever not available.",
+    #     category=Category.DataLoader,
+    #     description="Retrieves documents from Wikipedia using LangChain.",
+    # ),
+    # ToolName.Calculator: ManagedTool(
+    #     display_name="Calculator",
+    #     implementation=Calculator,
+    #     parameter_definitions={
+    #         "code": {
+    #             "description": "The expression for the calculator to evaluate, it should be a valid mathematical expression.",
+    #             "type": "str",
+    #             "required": True,
+    #         }
+    #     },
+    #     is_visible=True,
+    #     is_available=Calculator.is_available(),
+    #     error_message="Calculator tool not available.",
+    #     category=Category.Function,
+    #     description="This is a powerful multi-purpose calculator which is capable of a wide array of math calculations.",
+    # ),
     ToolName.Google_Drive: ManagedTool(
         display_name="Google Drive",
         implementation=GoogleDrive,
