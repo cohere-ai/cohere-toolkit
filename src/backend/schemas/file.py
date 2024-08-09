@@ -11,7 +11,7 @@ class File(BaseModel):
 
     user_id: str
     conversation_id: Optional[str] = None
-    file_content: Optional[str] = None # Used interally
+    file_content: Optional[str] = None  # Used interally
     file_name: str
     file_path: str
     file_size: int = Field(default=0, ge=0)
