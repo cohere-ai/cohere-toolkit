@@ -31,5 +31,5 @@ Database connection string
 
 {{- define "cohere-toolkit.redis-url" -}}
 {{- $redis := .Values.global.redis }}
-{{- printf "redis://:%s@%s:%.0f" $redis.password $redis.host $redis.port -}}
+{{- printf "redis://:%s-master@%s:%.0f" $redis.password $redis.host $redis.port -}}
 {{- end -}}
