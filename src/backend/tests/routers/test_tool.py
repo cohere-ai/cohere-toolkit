@@ -63,4 +63,4 @@ def test_list_tools_with_agent_that_doesnt_exist(
 ) -> None:
     response = session_client.get("/v1/tools", params={"agent_id": "fake_id"})
     assert response.status_code == 404
-    assert response.json() == {"detail": "Agent with ID: fake_id not found."}
+    assert response.json() == {"detail": "Agent with ID fake_id not found."}

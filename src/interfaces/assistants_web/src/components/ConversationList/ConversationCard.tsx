@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Agent } from '@/cohere-client';
+import { AgentPublic } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
@@ -20,7 +20,7 @@ export type ConversationListItem = {
   title: string;
   description: string | null;
   weekHeading?: string;
-  agent?: Agent;
+  agent?: AgentPublic;
 };
 
 type Props = {
