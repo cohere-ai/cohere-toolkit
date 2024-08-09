@@ -194,7 +194,6 @@ export const AgentSettingsForm: React.FC<Props> = ({
         <StepButtons
           handleNext={() => setCurrentStep('visibility')}
           handleBack={() => setCurrentStep('dataSources')}
-          allowSkip
           hide={source !== 'create'}
         />
       </CollapsibleSection>
@@ -228,7 +227,6 @@ const StepButtons: React.FC<{
   handleNext: VoidFunction;
   handleBack?: VoidFunction;
   nextLabel?: string;
-  allowSkip?: boolean;
   isSubmit?: boolean;
   disabled?: boolean;
   hide?: boolean;
@@ -236,7 +234,6 @@ const StepButtons: React.FC<{
   handleNext,
   handleBack,
   nextLabel = 'Next',
-  allowSkip = false,
   isSubmit = false,
   disabled = false,
   hide = false,
@@ -255,12 +252,6 @@ const StepButtons: React.FC<{
         className={cn({ hidden: !handleBack })}
       />
       <div className="flex items-center gap-4">
-        <Button
-          label="Skip"
-          kind="secondary"
-          onClick={handleNext}
-          className={cn({ hidden: !allowSkip })}
-        />
         <Button
           label={nextLabel}
           theme="default"
