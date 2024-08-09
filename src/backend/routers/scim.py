@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -12,6 +12,7 @@ from backend.database_models import DBSessionDep
 from backend.database_models import Group as DBGroup
 from backend.database_models import User as DBUser
 from backend.database_models import UserGroupAssociation
+from backend.schemas.context import Context
 from backend.schemas.scim import (
     CreateGroup,
     CreateUser,
@@ -23,6 +24,7 @@ from backend.schemas.scim import (
     UpdateUser,
     User,
 )
+from backend.services.context import get_context
 
 SCIM_PREFIX = "/scim/v2"
 scim_auth = Settings().auth.scim
@@ -54,9 +56,11 @@ async def get_users(
     filter: Optional[str] = None,
 ) -> ListUserResponse:
     if filter:
-        single_filter = filter.split(" ")
-        filter_value = single_filter[2].strip('"')
-        db_user = user_crud.get_user_by_user_name(session, filter_value)
+        try:
+            display_name = _parse_filter(filter)
+        except ValueError:
+            raise SCIMException(status_code=400, detail="filter not supported")
+        db_user = user_crud.get_user_by_user_name(session, display_name)
         if not db_user:
             return ListUserResponse(
                 totalResults=0,
@@ -85,11 +89,12 @@ async def get_users(
 
 @router.get("/Users/{user_id}")
 async def get_user(
-    user_id: str,
-    session: DBSessionDep,
+    user_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
 ):
+    logger = ctx.get_logger()
     db_user = user_crud.get_user(session, user_id)
     if not db_user:
+        logger.error(event="[SCIM] user not found", user_id=user_id)
         raise SCIMException(status_code=404, detail="User not found")
 
     return User.from_db_user(db_user)
@@ -97,11 +102,12 @@ async def get_user(
 
 @router.post("/Users", status_code=201)
 async def create_user(
-    user: CreateUser,
-    session: DBSessionDep,
+    user: CreateUser, session: DBSessionDep, ctx: Context = Depends(get_context)
 ):
+    logger = ctx.get_logger()
     db_user = user_crud.get_user_by_external_id(session, user.externalId)
     if db_user:
+        logger.error(event="[SCIM] user already exists", external_id=user.externalId)
         raise SCIMException(
             status_code=409, detail="User already exists in the database."
         )
@@ -119,9 +125,16 @@ async def create_user(
 
 
 @router.put("/Users/{user_id}")
-async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
+async def update_user(
+    user_id: str,
+    user: UpdateUser,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+):
+    logger = ctx.get_logger()
     db_user = user_crud.get_user(session, user_id)
     if not db_user:
+        logger.error(event="[SCIM] user not found", user_id=user_id)
         raise SCIMException(status_code=404, detail="User not found")
 
     db_user.user_name = user.userName
@@ -136,9 +149,16 @@ async def update_user(user_id: str, user: UpdateUser, session: DBSessionDep):
 
 
 @router.patch("/Users/{user_id}")
-async def patch_user(user_id: str, patch: PatchUser, session: DBSessionDep):
+async def patch_user(
+    user_id: str,
+    patch: PatchUser,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+):
+    logger = ctx.get_logger()
     db_user = user_crud.get_user(session, user_id)
     if not db_user:
+        logger.error(event="[SCIM] user not found", user_id=user_id)
         raise SCIMException(status_code=404, detail="User not found")
 
     for operation in patch.Operations:
@@ -158,9 +178,11 @@ async def get_groups(
     filter: Optional[str] = None,
 ) -> ListGroupResponse:
     if filter:
-        single_filter = filter.split(" ", maxsplit=2)
-        filter_value = single_filter[2].strip('"')
-        db_group = group_crud.get_group_by_name(session, filter_value)
+        try:
+            display_name = _parse_filter(filter)
+        except ValueError:
+            raise SCIMException(status_code=400, detail="filter not supported")
+        db_group = group_crud.get_group_by_name(session, display_name)
         if not db_group:
             return ListGroupResponse(
                 totalResults=0,
@@ -186,18 +208,26 @@ async def get_groups(
 
 
 @router.get("/Groups/{group_id}")
-async def get_group(group_id: str, session: DBSessionDep):
+async def get_group(
+    group_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+):
+    logger = ctx.get_logger()
     db_group = group_crud.get_group(session, group_id)
     if not db_group:
+        logger.error(event="[SCIM] group not found", group_id=group_id)
         raise SCIMException(status_code=404, detail="Group not found")
 
     return Group.from_db_group(db_group)
 
 
 @router.post("/Groups", status_code=201)
-async def create_group(group: CreateGroup, session: DBSessionDep):
+async def create_group(
+    group: CreateGroup, session: DBSessionDep, ctx: Context = Depends(get_context)
+):
+    logger = ctx.get_logger()
     db_group = group_crud.get_group_by_name(session, group.displayName)
     if db_group:
+        logger.error(event="[SCIM] group already exists", group_name=group.displayName)
         raise SCIMException(
             status_code=409, detail="Group already exists in the database."
         )
@@ -211,9 +241,16 @@ async def create_group(group: CreateGroup, session: DBSessionDep):
 
 
 @router.patch("/Groups/{group_id}")
-async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
+async def patch_group(
+    group_id: str,
+    patch: PatchGroup,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+):
+    logger = ctx.get_logger()
     db_group = group_crud.get_group(session, group_id)
     if not db_group:
+        logger.error(event="[SCIM] group not found", group_id=group_id)
         raise SCIMException(status_code=404, detail="Group not found")
 
     for operation in patch.Operations:
@@ -245,9 +282,13 @@ async def patch_group(group_id: str, patch: PatchGroup, session: DBSessionDep):
 
 
 @router.delete("/Groups/{group_id}", status_code=204)
-async def delete_group(group_id: str, session: DBSessionDep):
+async def delete_group(
+    group_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+):
+    logger = ctx.get_logger()
     db_group = group_crud.get_group(session, group_id)
     if not db_group:
+        logger.error(event="[SCIM] group not found", group_id=group_id)
         raise SCIMException(status_code=404, detail="Group not found")
     group_crud.delete_group(session, group_id)
 
@@ -257,3 +298,19 @@ def _get_email_from_scim_user(user: CreateUser | UpdateUser) -> str | None:
         if email_obj.primary:
             return email_obj.value
     return None
+
+
+def _parse_filter(filter: str) -> str:
+    """
+    Parse a filter like `displayName eq "test"` into a value. Raises a ValueError if the filter is not valid.
+    """
+    try:
+        filter_column, operator, value = filter.split(" ", maxsplit=2)
+        if filter_column not in ["displayName", "userName"]:
+            raise ValueError(f"filter not supported: {filter}")
+        if operator != "eq":
+            raise ValueError(f"filter not supported: {filter}")
+        filter_value = value.strip('"')
+        return filter_value
+    except Exception as e:
+        raise ValueError(f"Invalid filter: {filter}") from e

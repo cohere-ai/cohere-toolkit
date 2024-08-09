@@ -128,6 +128,7 @@ def test_get_user(session_client: TestClient, session: Session):
         "/scim/v2/Users?filter=userName%20eq%20%22testuser@company.com%22&startIndex=1&count=100",
         headers=scim_auth_header,
     )
+    assert response.status_code == 200
     list_user_response = response.json()
     user_response = list_user_response["Resources"][0]
 
@@ -276,6 +277,7 @@ def test_get_group(session_client: TestClient, session: Session):
         "/scim/v2/Groups?filter=displayName%20eq%20%22Test%20SCIMv2%22&startIndex=1&count=100",
         headers=scim_auth_header,
     )
+    assert response.status_code == 200
     list_group_response = response.json()
     group_response = list_group_response["Resources"][0]
 
