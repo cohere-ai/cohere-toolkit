@@ -51,17 +51,14 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, [isLangchainModeOn]);
 
   return (
-    <div className="flex h-full">
+    <div className="relative flex h-full">
       {children}
       <Transition
         show={isAgentsRightPanelOpen || isDesktop}
         as="div"
         className={cn(
           'border-marble-950 bg-marble-980 px-6 dark:border-volcanic-200 dark:bg-volcanic-100',
-          {
-            'w-[360px] rounded-r-lg border-y border-r': isDesktop,
-            'absolute inset-0 rounded-lg border': isAgentsRightPanelOpen || !isDesktop,
-          }
+          'absolute inset-0 rounded-lg border lg:static lg:w-[360px] lg:rounded-none lg:rounded-r-lg lg:border-y lg:border-l-0 lg:border-r'
         )}
         enter="transition-all transform ease-in-out duration-300"
         enterFrom="translate-x-full"

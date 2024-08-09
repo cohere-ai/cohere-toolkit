@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
-import { Agent, ManagedTool, useCohereClient } from '@/cohere-client';
+import { AgentPublic, ManagedTool, useCohereClient } from '@/cohere-client';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks/toast';
@@ -75,7 +75,7 @@ export const useAvailableTools = ({
   agent,
   managedTools,
 }: {
-  agent?: Agent;
+  agent?: AgentPublic;
   managedTools?: ManagedTool[];
 }) => {
   const requiredTools = agent?.tools;

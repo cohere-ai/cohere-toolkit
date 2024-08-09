@@ -4,6 +4,7 @@ import { useDeferredValue, useMemo, useState } from 'react';
 
 import { AgentPublic, ConversationWithoutMessages } from '@/cohere-client';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
+import { MobileHeader } from '@/components/MobileHeader';
 import { Button, Input, Text } from '@/components/Shared';
 import { BASE_AGENT } from '@/constants';
 import { useListAgents } from '@/hooks/agents';
@@ -18,20 +19,31 @@ export const DiscoverAgents = () => {
   const { data: conversations = [] } = useConversations({});
 
   return (
-    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 md:ml-0 dark:border-volcanic-100 dark:bg-volcanic-100">
+    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 dark:border-volcanic-100 dark:bg-volcanic-100 md:ml-0">
       <header
         className={cn(
           'border-b border-marble-950 bg-cover dark:border-volcanic-200',
-          'px-4 py-6 md:px-9 md:py-10 lg:px-10',
-          'flex items-center justify-between'
+          'px-4 py-6 lg:px-10 lg:py-10',
+          'flex flex-col gap-y-3'
         )}
       >
-        <div className="flex items-center gap-2">
-          <Text styleAs="h4" className="text-volcanic-400 dark:text-mushroom-950">
-            All Assistants
-          </Text>
+        <MobileHeader />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Text styleAs="h4" className="text-volcanic-400 dark:text-mushroom-950">
+              All Assistants
+            </Text>
+          </div>
+          <Button
+            kind="secondary"
+            theme="default"
+            icon="add"
+            label="Create Assistant"
+            href="/new"
+            className="hidden md:block"
+          />
+          <Button kind="secondary" theme="default" icon="add" href="/new" className="md:hidden" />
         </div>
-        <Button kind="secondary" theme="default" icon="add" label="Create Assistant" href="/new" />
       </header>
       <section className="p-8">
         <CompanyAgents agents={agents.concat(BASE_AGENT)} conversations={conversations} />

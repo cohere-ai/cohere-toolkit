@@ -27,4 +27,5 @@ CMD npm run dev
 
 # Production specifc tareget
 FROM base AS prod
+RUN npm run build
 CMD npm run start

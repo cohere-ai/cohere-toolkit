@@ -3,7 +3,7 @@
 import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { ComposerError } from '@/components/Conversation/Composer/ComposerError';
 import { ComposerFiles } from '@/components/Conversation/Composer/ComposerFiles';
 import { ComposerToolbar } from '@/components/Conversation/Composer/ComposerToolbar';
@@ -25,7 +25,7 @@ type Props = {
   onSend: (message?: string, overrides?: Partial<ConfigurableParams>) => void;
   onChange: (message: string) => void;
   onUploadFile: (files: File[]) => void;
-  agent?: Agent;
+  agent?: AgentPublic;
   tools?: ManagedTool[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
 };
