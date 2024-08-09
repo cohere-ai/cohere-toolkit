@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
@@ -17,7 +17,7 @@ import { ChatMessage } from '@/types/message';
 type Props = {
   startOptionsEnabled?: boolean;
   conversationId?: string;
-  agent?: Agent;
+  agent?: AgentPublic;
   tools?: ManagedTool[];
   history?: ChatMessage[];
 };
@@ -68,7 +68,7 @@ const Conversation: React.FC<Props> = ({
   return (
     <div className="flex h-full flex-grow">
       <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-marble-950 bg-marble-980 lg:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
-        <Header agentId={agent?.id} />
+        <Header agent={agent} />
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
           <MessagingContainer
             conversationId={conversationId}
