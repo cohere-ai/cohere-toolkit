@@ -19,6 +19,7 @@ import { cn } from '@/utils';
  * It also renders the children components that are passed to it.
  */
 export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const asideRef = React.useRef<HTMLDivElement>(null);
   const { isAgentsLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
@@ -26,6 +27,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
 
   return (
     <Transition
+      ref={asideRef}
       show={isAgentsLeftPanelOpen || isDesktop}
       as="aside"
       className={cn(

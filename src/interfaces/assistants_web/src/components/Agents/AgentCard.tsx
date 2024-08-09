@@ -6,7 +6,12 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions } from '@/hooks/files';
-import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
@@ -24,6 +29,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const { conversationId } = useChatRoutes();
   const router = useRouter();
   const pathname = usePathname();
+  const { setAgentsLeftSidePanelOpen } = useSettingsStore();
 
   const isActive = isBaseAgent
     ? conversationId
@@ -55,6 +61,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
     router.push(url);
 
     resetConversationSettings();
+    setAgentsLeftSidePanelOpen(false);
   };
 
   return (
