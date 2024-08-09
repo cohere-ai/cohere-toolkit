@@ -42,6 +42,9 @@ class User(Base):
     email: Mapped[Optional[str]] = mapped_column()
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
 
-    __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)
+    __table_args__ = (
+        UniqueConstraint("email", name="unique_user_email"),
+        UniqueConstraint("user_name", name="unique_user_name"),
+    )
 
     agents = relationship("Agent", back_populates="user")

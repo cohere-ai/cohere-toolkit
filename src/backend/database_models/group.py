@@ -1,4 +1,4 @@
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
@@ -11,3 +11,5 @@ class Group(Base):
 
     users = relationship("User", secondary="user_group", backref="groups")
     user_associations = relationship("UserGroupAssociation", back_populates="group")
+
+    __table_args__ = (UniqueConstraint("display_name", name="unique_display_name"),)
