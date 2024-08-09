@@ -2,8 +2,8 @@ import factory
 
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
-from backend.tests.factories.base import BaseFactory
-from backend.tests.factories.user import UserFactory
+from backend.tests.unit.factories.base import BaseFactory
+from backend.tests.unit.factories.user import UserFactory
 
 
 class AgentFactory(BaseFactory):
