@@ -208,6 +208,9 @@ class FileService:
             )
 
             if self.is_compass_enabled:
+                print(
+                    f"Getting files in compass for agent {agent_id}, {len(file_ids)} files"
+                )
                 files = get_files_in_compass(agent_id, file_ids, user_id)
             else:
                 files = file_crud.get_files_by_ids(session, file_ids, user_id)
@@ -395,7 +398,7 @@ def get_files_in_compass(index: str, file_ids: list[str], user_id: str) -> list[
             )
         except Exception as e:
             raise HTTPException(
-                status_code=404, detail=f"File: {file_id} not found in Compass."
+                status_code=404, detail=f"File with ID: {file_id} not found."
             )
 
         files.append(
@@ -438,6 +441,10 @@ async def consolidate_agent_files_in_compass(
         logger.Error(
             f"[Compass File] Error creating index for agent files: {agent_id}, error: {e}"
         )
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error creating index for agent files: {agent_id}, error: {e}",
+        )
 
     for file_id in file_ids:
         try:
@@ -477,6 +484,10 @@ async def consolidate_agent_files_in_compass(
         except Exception as e:
             logger.error(
                 f"[Compass File] Error consolidating file {file_id} into agent {agent_id}, error: {e}"
+            )
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error consolidating file {file_id} into agent {agent_id}, error: {e}",
             )
 
 
@@ -577,7 +588,7 @@ def validate_file(
         HTTPException: If the file is not found
     """
     if Settings().feature_flags.use_compass_file_storage:
-        file = get_files_in_compass(index, file_id, user_id)[0]
+        file = get_files_in_compass(index, [file_id], user_id)[0]
     else:
         file = file_crud.get_file(session, file_id, user_id)
 

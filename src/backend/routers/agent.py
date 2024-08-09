@@ -111,7 +111,10 @@ async def create_agent(
                 )
 
         # Consolidate agent files into one index in compass
-        if get_file_service().is_compass_enabled and created_agent.tools_metadata:
+        if (
+            Settings().feature_flags.use_compass_file_storage
+            and created_agent.tools_metadata
+        ):
             artifacts = next(
                 (
                     tool_metadata.artifacts
@@ -508,7 +511,7 @@ async def delete_agent_tool_metadata(
     return DeleteAgentToolMetadata()
 
 
-@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
+@router.post("/batch_upload_files", response_model=list[UploadFileResponse])
 async def batch_upload_file(
     session: DBSessionDep,
     files: list[FastAPIUploadFile] = RequestFile(...),

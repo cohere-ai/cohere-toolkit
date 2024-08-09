@@ -6,6 +6,7 @@ from fastapi import UploadFile as FastAPIUploadFile
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.database_models import Conversation as ConversationModel
@@ -351,7 +352,9 @@ async def upload_file(
     """
 
     user_id = ctx.get_user_id()
-    validate_file_size(session, user_id, file)
+    # Currently do not limit file size for Compass
+    if Settings().feature_flags.use_compass_file_storage is False:
+        validate_file_size(session, user_id, file)
 
     # Create new conversation
     if not conversation_id:

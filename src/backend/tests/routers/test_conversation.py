@@ -266,7 +266,7 @@ def test_delete_conversation(
     user: User,
 ) -> None:
     conversation = get_factory("Conversation", session).create(
-        title="test title", user_id=user.id
+        title="test title", user_id=user.id, id="conversation_id"
     )
     response = session_client.delete(
         f"/v1/conversations/{conversation.id}",
@@ -279,7 +279,7 @@ def test_delete_conversation(
     # Check if the conversation was deleted
     conversation = (
         session.query(Conversation)
-        .filter_by(id=conversation.id, user_id=conversation.user_id)
+        .filter_by(id="conversation_id", user_id=user.id)
         .first()
     )
     assert conversation is None
@@ -343,7 +343,7 @@ def test_delete_conversation_with_messages(
     user: User,
 ) -> None:
     conversation = get_factory("Conversation", session).create(
-        title="test title", user_id=user.id
+        title="test title", user_id=user.id, id="conversation_id"
     )
     _ = get_factory("Message", session).create(
         text="test message",
@@ -362,7 +362,7 @@ def test_delete_conversation_with_messages(
     # Check if the conversation was deleted
     conversation = (
         session.query(Conversation)
-        .filter_by(id=conversation.id, user_id=user.id)
+        .filter_by(id="conversation_id", user_id=user.id)
         .first()
     )
     assert conversation is None
@@ -939,23 +939,23 @@ def test_delete_file(
     assert response.status_code == 200
     assert response.json() == {}
 
-    # # Check if File
-    # file = get_file_service().get_file_by_id(
-    #     session, uploaded_file["id"], conversation.user_id
-    # )
-    # assert file is None
+    # Check if File
+    files = get_file_service().get_files_by_conversation_id(
+        session, conversation.user_id, conversation.id
+    )
+    assert files == []
 
-    # conversation_file_association = (
-    #     session.query(ConversationFileAssociation)
-    #     .filter(File.id == uploaded_file["id"], File.user_id == user.id)
-    #     .first()
-    # )
-    # assert conversation_file_association is None
+    conversation_file_association = (
+        session.query(ConversationFileAssociation)
+        .filter(File.id == uploaded_file["id"], File.user_id == user.id)
+        .first()
+    )
+    assert conversation_file_association is None
 
-    # conversation = (
-    #     session.query(Conversation).filter(Conversation.id == conversation.id).first()
-    # )
-    # assert conversation.file_ids == []
+    conversation = (
+        session.query(Conversation).filter(Conversation.id == conversation.id).first()
+    )
+    assert conversation.file_ids == []
 
 
 def test_fail_delete_nonexistent_file(
