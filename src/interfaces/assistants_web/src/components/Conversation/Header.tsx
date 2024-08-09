@@ -33,10 +33,12 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   };
 
   const handleOpenLeftSidePanel = () => {
+    setAgentsRightSidePanelOpen(false);
     setAgentsLeftSidePanelOpen(true);
   };
 
   const handleOpenRightSidePanel = () => {
+    setAgentsLeftSidePanelOpen(false);
     setAgentsRightSidePanelOpen(true);
   };
 
