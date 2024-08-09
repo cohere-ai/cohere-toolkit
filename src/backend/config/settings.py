@@ -161,7 +161,7 @@ class GDriveSettings(BaseSettings, BaseModel):
     )
 
 class GoogleSearchSettings(BaseSettings, BaseModel):
-    model_config = setting_config
+    model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
         validation_alias=AliasChoices("GOOGLE_SEARCH_API_KEY", "api_key")
     )
