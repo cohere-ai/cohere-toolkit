@@ -9,6 +9,7 @@ import {
   UpdateAgentRequest,
   useCohereClient,
 } from '@/cohere-client';
+import { BASE_AGENT } from '@/constants';
 import { useConversations } from '@/hooks/conversation';
 
 export const useListAgents = () => {
@@ -112,27 +113,27 @@ export const useRecentAgents = (limit: number = 5) => {
   }, []);
 
   const recentAgents = useMemo(() => {
-    const recentAgentsFromConversations = uniq(
-      conversations.sort(sortByDate).map((conversation) => conversation.agent_id)
-    )
+    let recent = uniq(conversations.sort(sortByDate).map((conversation) => conversation.agent_id))
       .map((agentId) => agents.find((agent) => agent.id === agentId))
-      .filter((agent) => agent)
+      .map((agent) => (!agent ? BASE_AGENT : agent))
       .slice(0, limit);
 
     // if there are less than `limit` recent agents, fill with the latest created agents
-    if (recentAgentsFromConversations.length < limit) {
-      const remainingAgents = agents.filter(
-        (agent) => !recentAgentsFromConversations.includes(agent)
-      );
+    if (recent.length < limit) {
+      const recentIds = recent.map((agent) => agent?.id);
+      const remainingAgents = agents.filter((agent) => !recentIds.includes(agent.id));
       const remainingRecentAgents = remainingAgents
         .sort(sortByDate)
-        .slice(0, limit - recentAgentsFromConversations.length);
-      return recentAgentsFromConversations.concat(remainingRecentAgents);
+        .slice(0, limit - recent.length);
+      recent = recent.concat(remainingRecentAgents);
     }
 
-    // if there are still remaining agents, add the base agent
+    // if still there are less than `limit` recent agents, fill with base agent
+    if (recent.length < limit && recent.every((agent) => agent?.id !== BASE_AGENT.id)) {
+      recent = recent.concat(BASE_AGENT);
+    }
 
-    return recentAgentsFromConversations;
+    return recent;
   }, [conversations, agents, sortByDate, limit]);
 
   return recentAgents;

@@ -40,10 +40,14 @@ export const ConversationList: React.FC = () => {
             Recent Assistants
           </Text>
           <div className="flex gap-1">
-            {recentAgents.map((agent) => {
-              if (!agent) return <AgentCard key="commandR+" name="Command R+" isBaseAgent />;
-              return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
-            })}
+            {recentAgents.map((agent) => (
+              <AgentCard
+                key={agent.id || agent.name}
+                name={agent.name}
+                id={agent.id}
+                isBaseAgent={!agent.id}
+              />
+            ))}
           </div>
         </section>
         <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
