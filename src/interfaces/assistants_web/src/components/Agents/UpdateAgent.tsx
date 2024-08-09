@@ -10,6 +10,7 @@ import {
 } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { Button, Icon, Spinner, Text } from '@/components/Shared';
+import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useContextStore } from '@/context';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -41,8 +42,8 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
       setFields({
         name: agent.name,
         description: agent.description,
-        deployment: agent.deployment,
-        model: agent.model,
+        deployment: agent.deployment ?? DEPLOYMENT_COHERE_PLATFORM,
+        model: agent.model ?? DEFAULT_AGENT_MODEL,
         tools: agent.tools,
         preamble: agent.preamble,
         tools_metadata: agent.tools_metadata,

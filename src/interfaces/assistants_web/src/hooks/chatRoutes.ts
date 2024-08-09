@@ -1,7 +1,12 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { getQueryString } from '@/utils';
 
 export const useNavigateToNewChat = () => {
@@ -10,12 +15,14 @@ export const useNavigateToNewChat = () => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
+  const { setAgentsLeftSidePanelOpen } = useSettingsStore();
 
   const handleNavigate = () => {
     const url = agentId ? `/a/${agentId}` : '/';
     resetConversation();
     resetCitations();
     resetFileParams();
+    setAgentsLeftSidePanelOpen(false);
     router.push(url);
   };
 

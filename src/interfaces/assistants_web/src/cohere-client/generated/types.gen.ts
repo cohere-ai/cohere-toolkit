@@ -11,10 +11,11 @@ export type Agent = {
   description: string | null;
   preamble: string | null;
   temperature: number;
-  tools: Array<string>;
-  tools_metadata?: Array<AgentToolMetadataPublic> | null;
-  model: string;
-  deployment: string;
+  tools: Array<string> | null;
+  tools_metadata: Array<AgentToolMetadataPublic>;
+  deployments: Array<DeploymentWithModels>;
+  deployment: string | null;
+  model: string | null;
 };
 
 export type AgentPublic = {
@@ -27,16 +28,19 @@ export type AgentPublic = {
   description: string | null;
   preamble: string | null;
   temperature: number;
-  tools: Array<string>;
+  tools: Array<string> | null;
   tools_metadata?: Array<AgentToolMetadataPublic> | null;
-  model: string;
-  deployment: string;
+  deployments: Array<DeploymentWithModels>;
+  deployment: string | null;
+  model: string | null;
 };
 
 export type AgentToolMetadata = {
-  user_id: string;
-  organization_id?: string | null;
   id: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string | null;
+  agent_id: string;
   tool_name: string;
   artifacts: Array<{
     [key: string]: unknown;
@@ -44,8 +48,10 @@ export type AgentToolMetadata = {
 };
 
 export type AgentToolMetadataPublic = {
-  organization_id?: string | null;
   id: string;
+  created_at: string;
+  updated_at: string;
+  agent_id: string;
   tool_name: string;
   artifacts: Array<{
     [key: string]: unknown;
@@ -157,9 +163,7 @@ export type CohereChatRequest = {
   agent_id?: string | null;
 };
 
-export type Conversation = {
-  user_id: string;
-  organization_id?: string | null;
+export type ConversationPublic = {
   id: string;
   created_at: string;
   updated_at: string;
@@ -172,8 +176,6 @@ export type Conversation = {
 };
 
 export type ConversationWithoutMessages = {
-  user_id: string;
-  organization_id?: string | null;
   id: string;
   created_at: string;
   updated_at: string;
@@ -184,19 +186,24 @@ export type ConversationWithoutMessages = {
   readonly total_file_size: number;
 };
 
-export type CreateAgent = {
+export type CreateAgentRequest = {
   name: string;
   version?: number | null;
   description?: string | null;
   preamble?: string | null;
   temperature?: number | null;
+  tools?: Array<string> | null;
+  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
+  deployment_config?: {
+    [key: string]: string;
+  } | null;
+  is_default_deployment?: boolean | null;
   model: string;
   deployment: string;
-  tools?: Array<string> | null;
-  tools_metadata?: Array<CreateAgentToolMetadata> | null;
+  organization_id?: string | null;
 };
 
-export type CreateAgentToolMetadata = {
+export type CreateAgentToolMetadataRequest = {
   id?: string | null;
   tool_name: string;
   artifacts: Array<{
@@ -204,13 +211,16 @@ export type CreateAgentToolMetadata = {
   }>;
 };
 
-export type CreateSnapshot = {
+export type CreateOrganization = {
+  name: string;
+};
+
+export type CreateSnapshotRequest = {
   conversation_id: string;
 };
 
 export type CreateSnapshotResponse = {
   snapshot_id: string;
-  user_id: string;
   link_id: string;
   messages: Array<Message>;
 };
@@ -226,17 +236,61 @@ export type DeleteAgent = unknown;
 
 export type DeleteAgentToolMetadata = unknown;
 
-export type DeleteConversation = unknown;
+export type DeleteConversationResponse = unknown;
 
-export type DeleteFile = unknown;
+export type DeleteDeployment = unknown;
+
+export type DeleteFileResponse = unknown;
+
+export type DeleteModel = unknown;
+
+export type DeleteOrganization = unknown;
+
+export type DeleteSnapshotLinkResponse = unknown;
+
+export type DeleteSnapshotResponse = unknown;
 
 export type DeleteUser = unknown;
 
 export type Deployment = {
+  id?: string | null;
   name: string;
   models: Array<string>;
-  is_available: boolean;
-  env_vars: Array<string>;
+  is_available?: boolean;
+  env_vars: Array<string> | null;
+  description?: string | null;
+  is_community?: boolean | null;
+};
+
+export type DeploymentCreate = {
+  id?: string | null;
+  name: string;
+  description?: string | null;
+  deployment_class_name: string;
+  is_community?: boolean;
+  default_deployment_config: {
+    [key: string]: string;
+  };
+};
+
+export type DeploymentUpdate = {
+  name?: string | null;
+  description?: string | null;
+  deployment_class_name?: string | null;
+  is_community?: boolean | null;
+  default_deployment_config?: {
+    [key: string]: string;
+  } | null;
+};
+
+export type DeploymentWithModels = {
+  id?: string | null;
+  name: string;
+  description?: string | null;
+  is_available?: boolean;
+  is_community?: boolean | null;
+  env_vars: Array<string> | null;
+  models: Array<ModelSimple>;
 };
 
 export type Document = {
@@ -261,7 +315,17 @@ export type File = {
   file_size?: number;
 };
 
-export type GenerateTitle = {
+export type FilePublic = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  conversation_id: string;
+  file_name: string;
+  file_path: string;
+  file_size?: number;
+};
+
+export type GenerateTitleResponse = {
   title: string;
 };
 
@@ -298,7 +362,6 @@ export type ListFile = {
   id: string;
   created_at: string;
   updated_at: string;
-  user_id: string;
   conversation_id: string;
   file_name: string;
   file_path: string;
@@ -354,6 +417,35 @@ export enum MessageAgent {
   CHATBOT = 'CHATBOT',
 }
 
+export type Model = {
+  id: string;
+  name: string;
+  deployment_id: string;
+  cohere_name: string | null;
+  description: string | null;
+};
+
+export type ModelCreate = {
+  name: string;
+  cohere_name: string | null;
+  description: string | null;
+  deployment_id: string;
+};
+
+export type ModelSimple = {
+  id: string;
+  name: string;
+  cohere_name: string | null;
+  description: string | null;
+};
+
+export type ModelUpdate = {
+  name?: string | null;
+  cohere_name?: string | null;
+  description?: string | null;
+  deployment_id?: string | null;
+};
+
 export type NonStreamedChatResponse = {
   response_id: string | null;
   generation_id: string | null;
@@ -370,44 +462,38 @@ export type NonStreamedChatResponse = {
   tool_calls?: Array<ToolCall> | null;
 };
 
+export type Organization = {
+  name: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type SearchQuery = {
   text: string;
   generation_id: string;
-};
-
-export type Snapshot = {
-  conversation_id: string;
-  id: string;
-  last_message_id: string;
-  user_id: string;
-  organization_id: string | null;
-  version: number;
-  created_at: string;
-  updated_at: string;
-  snapshot: SnapshotData;
-};
-
-export type SnapshotAgent = {
-  id: string;
-  name: string;
-  description: string | null;
-  preamble: string | null;
-  tools_metadata: Array<AgentToolMetadata> | null;
 };
 
 export type SnapshotData = {
   title: string;
   description: string;
   messages: Array<Message>;
-  agent: SnapshotAgent | null;
+};
+
+export type SnapshotPublic = {
+  conversation_id: string;
+  id: string;
+  last_message_id: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+  snapshot: SnapshotData;
 };
 
 export type SnapshotWithLinks = {
   conversation_id: string;
   id: string;
   last_message_id: string;
-  user_id: string;
-  organization_id: string | null;
   version: number;
   created_at: string;
   updated_at: string;
@@ -549,7 +635,7 @@ export enum ToolInputType {
   CODE = 'CODE',
 }
 
-export type UpdateAgent = {
+export type UpdateAgentRequest = {
   name?: string | null;
   version?: number | null;
   description?: string | null;
@@ -557,11 +643,17 @@ export type UpdateAgent = {
   temperature?: number | null;
   model?: string | null;
   deployment?: string | null;
+  deployment_config?: {
+    [key: string]: string;
+  } | null;
+  is_default_deployment?: boolean | null;
+  is_default_model?: boolean | null;
+  organization_id?: string | null;
   tools?: Array<string> | null;
-  tools_metadata?: Array<CreateAgentToolMetadata> | null;
+  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
 };
 
-export type UpdateAgentToolMetadata = {
+export type UpdateAgentToolMetadataRequest = {
   id?: string | null;
   tool_name?: string | null;
   artifacts?: Array<{
@@ -569,7 +661,7 @@ export type UpdateAgentToolMetadata = {
   }> | null;
 };
 
-export type UpdateConversation = {
+export type UpdateConversationRequest = {
   title?: string | null;
   description?: string | null;
 };
@@ -580,9 +672,13 @@ export type UpdateDeploymentEnv = {
   };
 };
 
-export type UpdateFile = {
+export type UpdateFileRequest = {
   file_name?: string | null;
   message_id?: string | null;
+};
+
+export type UpdateOrganization = {
+  name: string | null;
 };
 
 export type UpdateUser = {
@@ -592,11 +688,10 @@ export type UpdateUser = {
   email?: string | null;
 };
 
-export type UploadFile = {
+export type UploadFileResponse = {
   id: string;
   created_at: string;
   updated_at: string;
-  user_id: string;
   conversation_id: string;
   file_name: string;
   file_path: string;
@@ -690,20 +785,21 @@ export type GetConversationV1ConversationsConversationIdGetData = {
   conversationId: string;
 };
 
-export type GetConversationV1ConversationsConversationIdGetResponse = Conversation;
+export type GetConversationV1ConversationsConversationIdGetResponse = ConversationPublic;
 
 export type UpdateConversationV1ConversationsConversationIdPutData = {
   conversationId: string;
-  requestBody: UpdateConversation;
+  requestBody: UpdateConversationRequest;
 };
 
-export type UpdateConversationV1ConversationsConversationIdPutResponse = Conversation;
+export type UpdateConversationV1ConversationsConversationIdPutResponse = ConversationPublic;
 
 export type DeleteConversationV1ConversationsConversationIdDeleteData = {
   conversationId: string;
 };
 
-export type DeleteConversationV1ConversationsConversationIdDeleteResponse = DeleteConversation;
+export type DeleteConversationV1ConversationsConversationIdDeleteResponse =
+  DeleteConversationResponse;
 
 export type ListConversationsV1ConversationsGetData = {
   agentId?: string;
@@ -727,13 +823,13 @@ export type UploadFileV1ConversationsUploadFilePostData = {
   formData: Body_upload_file_v1_conversations_upload_file_post;
 };
 
-export type UploadFileV1ConversationsUploadFilePostResponse = UploadFile;
+export type UploadFileV1ConversationsUploadFilePostResponse = UploadFileResponse;
 
 export type BatchUploadFileV1ConversationsBatchUploadFilePostData = {
   formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post;
 };
 
-export type BatchUploadFileV1ConversationsBatchUploadFilePostResponse = Array<UploadFile>;
+export type BatchUploadFileV1ConversationsBatchUploadFilePostResponse = Array<UploadFileResponse>;
 
 export type ListFilesV1ConversationsConversationIdFilesGetData = {
   conversationId: string;
@@ -744,23 +840,24 @@ export type ListFilesV1ConversationsConversationIdFilesGetResponse = Array<ListF
 export type UpdateFileV1ConversationsConversationIdFilesFileIdPutData = {
   conversationId: string;
   fileId: string;
-  requestBody: UpdateFile;
+  requestBody: UpdateFileRequest;
 };
 
-export type UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse = File;
+export type UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse = FilePublic;
 
 export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData = {
   conversationId: string;
   fileId: string;
 };
 
-export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse = DeleteFile;
+export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse = DeleteFileResponse;
 
 export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostData = {
   conversationId: string;
 };
 
-export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse = GenerateTitle;
+export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse =
+  GenerateTitleResponse;
 
 export type ListToolsV1ToolsGetData = {
   agentId?: string | null;
@@ -768,11 +865,36 @@ export type ListToolsV1ToolsGetData = {
 
 export type ListToolsV1ToolsGetResponse = Array<ManagedTool>;
 
+export type CreateDeploymentV1DeploymentsPostData = {
+  requestBody: DeploymentCreate;
+};
+
+export type CreateDeploymentV1DeploymentsPostResponse = Deployment;
+
 export type ListDeploymentsV1DeploymentsGetData = {
   all?: boolean;
 };
 
 export type ListDeploymentsV1DeploymentsGetResponse = Array<Deployment>;
+
+export type UpdateDeploymentV1DeploymentsDeploymentIdPutData = {
+  deploymentId: string;
+  requestBody: DeploymentUpdate;
+};
+
+export type UpdateDeploymentV1DeploymentsDeploymentIdPutResponse = Deployment;
+
+export type GetDeploymentV1DeploymentsDeploymentIdGetData = {
+  deploymentId: string;
+};
+
+export type GetDeploymentV1DeploymentsDeploymentIdGetResponse = Deployment;
+
+export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteData = {
+  deploymentId: string;
+};
+
+export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteResponse = DeleteDeployment;
 
 export type SetEnvVarsV1DeploymentsNameSetEnvVarsPostData = {
   name: string;
@@ -784,7 +906,7 @@ export type SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse = unknown;
 export type ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse = unknown;
 
 export type CreateAgentV1AgentsPostData = {
-  requestBody: CreateAgent;
+  requestBody: CreateAgentRequest;
 };
 
 export type CreateAgentV1AgentsPostResponse = AgentPublic;
@@ -796,6 +918,32 @@ export type ListAgentsV1AgentsGetData = {
 
 export type ListAgentsV1AgentsGetResponse = Array<AgentPublic>;
 
+export type ListUserAgentsV1AgentsUserUserIdGetData = {
+  limit?: number;
+  offset?: number;
+  userId: string;
+};
+
+export type ListUserAgentsV1AgentsUserUserIdGetResponse = Array<Agent>;
+
+export type ListOrganizationAgentsV1AgentsOrganizationOrganizationIdGetData = {
+  limit?: number;
+  offset?: number;
+  organizationId: string;
+};
+
+export type ListOrganizationAgentsV1AgentsOrganizationOrganizationIdGetResponse = Array<Agent>;
+
+export type ListOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGetData = {
+  limit?: number;
+  offset?: number;
+  organizationId: string;
+  userId: string;
+};
+
+export type ListOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGetResponse =
+  Array<Agent>;
+
 export type GetAgentByIdV1AgentsAgentIdGetData = {
   agentId: string;
 };
@@ -804,7 +952,7 @@ export type GetAgentByIdV1AgentsAgentIdGetResponse = Agent;
 
 export type UpdateAgentV1AgentsAgentIdPutData = {
   agentId: string;
-  requestBody: UpdateAgent;
+  requestBody: UpdateAgentRequest;
 };
 
 export type UpdateAgentV1AgentsAgentIdPutResponse = AgentPublic;
@@ -815,6 +963,12 @@ export type DeleteAgentV1AgentsAgentIdDeleteData = {
 
 export type DeleteAgentV1AgentsAgentIdDeleteResponse = DeleteAgent;
 
+export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData = {
+  agentId: string;
+};
+
+export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<Deployment>;
+
 export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   agentId: string;
 };
@@ -824,7 +978,7 @@ export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse =
 
 export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostData = {
   agentId: string;
-  requestBody: CreateAgentToolMetadata;
+  requestBody: CreateAgentToolMetadataRequest;
 };
 
 export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse =
@@ -833,7 +987,7 @@ export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse =
 export type UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData = {
   agentId: string;
   agentToolMetadataId: string;
-  requestBody: UpdateAgentToolMetadata;
+  requestBody: UpdateAgentToolMetadataRequest;
 };
 
 export type UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse =
@@ -852,7 +1006,7 @@ export type GetDefaultAgentV1DefaultAgentGetResponse = GenericResponseMessage;
 export type ListSnapshotsV1SnapshotsGetResponse = Array<SnapshotWithLinks>;
 
 export type CreateSnapshotV1SnapshotsPostData = {
-  requestBody: CreateSnapshot;
+  requestBody: CreateSnapshotRequest;
 };
 
 export type CreateSnapshotV1SnapshotsPostResponse = CreateSnapshotResponse;
@@ -861,19 +1015,78 @@ export type GetSnapshotV1SnapshotsLinkLinkIdGetData = {
   linkId: string;
 };
 
-export type GetSnapshotV1SnapshotsLinkLinkIdGetResponse = Snapshot;
+export type GetSnapshotV1SnapshotsLinkLinkIdGetResponse = SnapshotPublic;
 
 export type DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteData = {
   linkId: string;
 };
 
-export type DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse = unknown;
+export type DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse = DeleteSnapshotLinkResponse;
 
 export type DeleteSnapshotV1SnapshotsSnapshotIdDeleteData = {
   snapshotId: string;
 };
 
-export type DeleteSnapshotV1SnapshotsSnapshotIdDeleteResponse = unknown;
+export type DeleteSnapshotV1SnapshotsSnapshotIdDeleteResponse = DeleteSnapshotResponse;
+
+export type ListOrganizationsV1OrganizationsGetResponse = Array<Organization>;
+
+export type CreateOrganizationV1OrganizationsPostData = {
+  requestBody: CreateOrganization;
+};
+
+export type CreateOrganizationV1OrganizationsPostResponse = Organization;
+
+export type UpdateOrganizationV1OrganizationsOrganizationIdPutData = {
+  organizationId: string;
+  requestBody: UpdateOrganization;
+};
+
+export type UpdateOrganizationV1OrganizationsOrganizationIdPutResponse = Organization;
+
+export type GetOrganizationV1OrganizationsOrganizationIdGetData = {
+  organizationId: string;
+};
+
+export type GetOrganizationV1OrganizationsOrganizationIdGetResponse = Organization;
+
+export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteData = {
+  organizationId: string;
+};
+
+export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse = DeleteOrganization;
+
+export type CreateModelV1ModelsPostData = {
+  requestBody: ModelCreate;
+};
+
+export type CreateModelV1ModelsPostResponse = Model;
+
+export type ListModelsV1ModelsGetData = {
+  limit?: number;
+  offset?: number;
+};
+
+export type ListModelsV1ModelsGetResponse = Array<Model>;
+
+export type UpdateModelV1ModelsModelIdPutData = {
+  modelId: string;
+  requestBody: ModelUpdate;
+};
+
+export type UpdateModelV1ModelsModelIdPutResponse = Model;
+
+export type GetModelV1ModelsModelIdGetData = {
+  modelId: string;
+};
+
+export type GetModelV1ModelsModelIdGetResponse = Model;
+
+export type DeleteModelV1ModelsModelIdDeleteData = {
+  modelId: string;
+};
+
+export type DeleteModelV1ModelsModelIdDeleteResponse = DeleteModel;
 
 export type HealthHealthGetResponse = unknown;
 
@@ -1061,7 +1274,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Conversation;
+        200: ConversationPublic;
         /**
          * Validation Error
          */
@@ -1074,7 +1287,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Conversation;
+        200: ConversationPublic;
         /**
          * Validation Error
          */
@@ -1087,7 +1300,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: DeleteConversation;
+        200: DeleteConversationResponse;
         /**
          * Validation Error
          */
@@ -1132,7 +1345,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: UploadFile;
+        200: UploadFileResponse;
         /**
          * Validation Error
          */
@@ -1147,7 +1360,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<UploadFile>;
+        200: Array<UploadFileResponse>;
         /**
          * Validation Error
          */
@@ -1177,7 +1390,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: File;
+        200: FilePublic;
         /**
          * Validation Error
          */
@@ -1190,7 +1403,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: DeleteFile;
+        200: DeleteFileResponse;
         /**
          * Validation Error
          */
@@ -1205,7 +1418,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: GenerateTitle;
+        200: GenerateTitleResponse;
         /**
          * Validation Error
          */
@@ -1229,6 +1442,19 @@ export type $OpenApiTs = {
     };
   };
   '/v1/deployments': {
+    post: {
+      req: CreateDeploymentV1DeploymentsPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Deployment;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
     get: {
       req: ListDeploymentsV1DeploymentsGetData;
       res: {
@@ -1236,6 +1462,47 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<Deployment>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/deployments/{deployment_id}': {
+    put: {
+      req: UpdateDeploymentV1DeploymentsDeploymentIdPutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Deployment;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    get: {
+      req: GetDeploymentV1DeploymentsDeploymentIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Deployment;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    delete: {
+      req: DeleteDeploymentV1DeploymentsDeploymentIdDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: DeleteDeployment;
         /**
          * Validation Error
          */
@@ -1296,6 +1563,51 @@ export type $OpenApiTs = {
       };
     };
   };
+  '/v1/agents/user/{user_id}': {
+    get: {
+      req: ListUserAgentsV1AgentsUserUserIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<Agent>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/agents/organization/{organization_id}': {
+    get: {
+      req: ListOrganizationAgentsV1AgentsOrganizationOrganizationIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<Agent>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/agents/organization/{organization_id}/user/{user_id}': {
+    get: {
+      req: ListOrganizationUserAgentsV1AgentsOrganizationOrganizationIdUserUserIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<Agent>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
   '/v1/agents/{agent_id}': {
     get: {
       req: GetAgentByIdV1AgentsAgentIdGetData;
@@ -1330,6 +1642,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: DeleteAgent;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/agents/{agent_id}/deployments': {
+    get: {
+      req: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<Deployment>;
         /**
          * Validation Error
          */
@@ -1433,7 +1760,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Snapshot;
+        200: SnapshotPublic;
         /**
          * Validation Error
          */
@@ -1446,7 +1773,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: unknown;
+        200: DeleteSnapshotLinkResponse;
         /**
          * Validation Error
          */
@@ -1461,7 +1788,140 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: unknown;
+        200: DeleteSnapshotResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/organizations': {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<Organization>;
+      };
+    };
+    post: {
+      req: CreateOrganizationV1OrganizationsPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Organization;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/organizations/{organization_id}': {
+    put: {
+      req: UpdateOrganizationV1OrganizationsOrganizationIdPutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Organization;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    get: {
+      req: GetOrganizationV1OrganizationsOrganizationIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Organization;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    delete: {
+      req: DeleteOrganizationV1OrganizationsOrganizationIdDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: DeleteOrganization;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/models': {
+    post: {
+      req: CreateModelV1ModelsPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Model;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    get: {
+      req: ListModelsV1ModelsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<Model>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/models/{model_id}': {
+    put: {
+      req: UpdateModelV1ModelsModelIdPutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Model;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    get: {
+      req: GetModelV1ModelsModelIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Model;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    delete: {
+      req: DeleteModelV1ModelsModelIdDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: DeleteModel;
         /**
          * Validation Error
          */

@@ -43,7 +43,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
               'disabled:bg-volcanic-800 disabled:text-volcanic-300 dark:disabled:bg-volcanic-300 dark:disabled:text-volcanic-600',
               {
                 'pr-8': actionType,
-                'dark:border-danger-500 dark:text-danger-500': errorText,
+                'border-danger-500 text-danger-500 dark:border-danger-500': errorText,
               },
               STYLE_LEVEL_TO_CLASSES.p,
               className
@@ -78,7 +78,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
           )}
         </div>
         {errorText && (
-          <Text styleAs="label-sm" className="dark:text-danger-500">
+          <Text styleAs="label-sm" className="text-danger-500 dark:text-danger-500">
             {errorText}
           </Text>
         )}
