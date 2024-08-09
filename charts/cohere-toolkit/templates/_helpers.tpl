@@ -28,3 +28,8 @@ Database connection string
 {{- printf "postgresql+psycopg2://%s:%s@%s:%.0f/%s" $db.username $db.password $db.host $db.port $db.name }}
 {{- end}}
 {{- end}}
+
+{{- define "cohere-toolkit.redis-url" -}}
+{{- $redis := .Values.global.redis }}
+{{- printf "redis://:%s@%s:%.0f" $redis.password $redis.host $redis.port -}}
+{{- end -}}
