@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { uniqBy } from 'lodash';
-import { useMemo } from 'react';
+import { uniq } from 'lodash';
+import { useCallback, useMemo } from 'react';
 
 import {
   AgentPublic,
   ApiError,
-  ConversationPublic,
   CreateAgentRequest,
   UpdateAgentRequest,
   useCohereClient,
@@ -108,19 +107,33 @@ export const useRecentAgents = (limit: number = 5) => {
   const { data: agents = [] } = useListAgents();
   const { data: conversations = [] } = useConversations({});
 
-  const sortByDate = (a: { updated_at: string }, b: { updated_at: string }) => {
+  const sortByDate = useCallback((a: { updated_at: string }, b: { updated_at: string }) => {
     return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');
-  };
+  }, []);
 
-  const recentAgents = useMemo(
-    () =>
-      uniqBy(
-        conversations.sort(sortByDate).map((conversation) => conversation.agent_id),
-        'agent_id'
-      )
-        .map((agentId) => agents.find((agent) => agent.id === agentId))
-        .filter((agent) => agent)
-        .slice(0, limit),
-    [conversations, agents]
-  );
+  const recentAgents = useMemo(() => {
+    const recentAgentsFromConversations = uniq(
+      conversations.sort(sortByDate).map((conversation) => conversation.agent_id)
+    )
+      .map((agentId) => agents.find((agent) => agent.id === agentId))
+      .filter((agent) => agent)
+      .slice(0, limit);
+
+    // if there are less than `limit` recent agents, fill with the latest created agents
+    if (recentAgentsFromConversations.length < limit) {
+      const remainingAgents = agents.filter(
+        (agent) => !recentAgentsFromConversations.includes(agent)
+      );
+      const remainingRecentAgents = remainingAgents
+        .sort(sortByDate)
+        .slice(0, limit - recentAgentsFromConversations.length);
+      return recentAgentsFromConversations.concat(remainingRecentAgents);
+    }
+
+    // if there are still remaining agents, add the base agent
+
+    return recentAgentsFromConversations;
+  }, [conversations, agents, sortByDate, limit]);
+
+  return recentAgents;
 };
