@@ -270,8 +270,9 @@ async def update_agent(
         agent = await handle_tool_metadata_update(agent, new_agent, session, ctx)
 
     # If the agent was public and is now private, we need to delete all snapshots associated with it
+    snapshot_deletion_task = None
     if not agent.is_private and new_agent.is_private:
-        asyncio.create_task(
+        snapshot_deletion_task = asyncio.create_task(
             snapshot_crud.delete_snapshots_by_agent_id(session, agent_id)
         )
 
@@ -332,6 +333,10 @@ async def update_agent(
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # Wait for snapshot deletion task to finish
+        if snapshot_deletion_task:
+            await snapshot_deletion_task
 
     return agent
 
