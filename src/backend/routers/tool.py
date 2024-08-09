@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
@@ -43,6 +44,9 @@ def list_tools(
         for tool in agent.tools:
             agent_tools.append(AVAILABLE_TOOLS[tool])
         all_tools = agent_tools
+
+    redis_url = Settings().redis.url
+    logger.info(event=f"Redis URL: {redis_url}")
 
     for tool in all_tools:
         if tool.is_available and tool.auth_implementation is not None:
