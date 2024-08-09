@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -5,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.crud import snapshot as snapshot_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
@@ -266,6 +268,12 @@ async def update_agent(
 
     if new_agent.tools_metadata is not None:
         agent = await handle_tool_metadata_update(agent, new_agent, session, ctx)
+
+    # If the agent was public and is now private, we need to delete all snapshots associated with it
+    if not agent.is_private and new_agent.is_private:
+        asyncio.create_task(
+            snapshot_crud.delete_snapshots_by_agent_id(session, agent_id)
+        )
 
     try:
         db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)

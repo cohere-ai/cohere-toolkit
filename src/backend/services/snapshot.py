@@ -88,6 +88,7 @@ def wrap_create_snapshot(
         last_message_id=last_message_id,
         version=SNAPSHOT_VERSION,
         snapshot=snapshot,
+        agent_id=conversation.agent_id,
     )
     return snapshot_crud.create_snapshot(session, snapshot_model)
 
