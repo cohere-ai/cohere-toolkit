@@ -85,7 +85,7 @@ const AgentRightPanel: React.FC<Props> = () => {
         <IconButton
           onClick={() => setAgentsRightSidePanelOpen(false)}
           iconName="arrow-right"
-          className="flex h-auto flex-shrink-0 self-center md:hidden"
+          className="flex h-auto flex-shrink-0 self-center lg:hidden"
         />
         <Text styleAs="p-sm" className="font-medium uppercase">
           Knowledge

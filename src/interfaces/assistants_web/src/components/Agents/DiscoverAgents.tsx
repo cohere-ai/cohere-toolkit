@@ -5,30 +5,13 @@ import { useDeferredValue, useMemo, useState } from 'react';
 import { AgentPublic, ConversationWithoutMessages } from '@/cohere-client';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
 import { Button, Input, Text } from '@/components/Shared';
+import { BASE_AGENT } from '@/constants';
 import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSession } from '@/hooks/session';
 import { cn } from '@/utils';
 
 const GROUPED_ASSISTANTS_LIMIT = 15;
-
-const BASE_AGENTS: Array<AgentPublic> = [
-  {
-    id: '',
-    deployments: [],
-    name: 'Command R+',
-    description: 'Review, understand and ask questions about internal financial documents.',
-    created_at: '2021-09-01T00:00:00Z',
-    updated_at: '2021-09-01T00:00:00Z',
-    preamble: '',
-    version: 1,
-    temperature: 0.3,
-    tools: [],
-    model: '',
-    deployment: '',
-    user_id: '',
-  },
-];
 
 export const DiscoverAgents = () => {
   const { data: agents = [] } = useListAgents();
@@ -51,7 +34,7 @@ export const DiscoverAgents = () => {
         <Button kind="secondary" theme="default" icon="add" label="Create Assistant" href="/new" />
       </header>
       <section className="p-8">
-        <CompanyAgents agents={agents.concat(BASE_AGENTS)} conversations={conversations} />
+        <CompanyAgents agents={agents.concat(BASE_AGENT)} conversations={conversations} />
       </section>
     </div>
   );
