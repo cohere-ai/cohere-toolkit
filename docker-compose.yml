@@ -110,14 +110,14 @@ services:
           ignore:
             - node_modules/
 
-  # terrarium:
-  #   image: ghcr.io/cohere-ai/terrarium:latest
-    # ports:
-    #   - "8080:8080"
-    # expose:
-    #   - "8080"
-    # networks:
-    #   - proxynet
+  terrarium:
+    image: ghcr.io/cohere-ai/terrarium:latest
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    networks:
+      - proxynet
 
 volumes:
   db:

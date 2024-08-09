@@ -511,7 +511,7 @@ async def delete_agent_tool_metadata(
     return DeleteAgentToolMetadata()
 
 
-@router.post("/batch_upload_files", response_model=list[UploadFileResponse])
+@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
 async def batch_upload_file(
     session: DBSessionDep,
     files: list[FastAPIUploadFile] = RequestFile(...),

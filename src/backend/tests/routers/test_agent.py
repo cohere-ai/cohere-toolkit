@@ -9,8 +9,6 @@ from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.metrics import MetricsData, MetricsMessageType
-from backend.services.file import get_file_service
-from backend.services.metrics import report_metrics
 from backend.tests.factories import get_factory
 
 

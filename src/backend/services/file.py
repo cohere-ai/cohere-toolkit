@@ -1,6 +1,4 @@
-import asyncio
 import io
-import os
 import uuid
 from datetime import datetime
 
@@ -14,15 +12,13 @@ from python_calamine.pandas import pandas_monkeypatch
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
 from backend.config.settings import Settings
-
-# from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import message as message_crud
 from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.context import Context
-from backend.schemas.file import File, UpdateFileRequest
+from backend.schemas.file import File
 from backend.services.compass import Compass
 from backend.services.context import get_context
 from backend.services.logger.utils import get_logger
@@ -208,9 +204,6 @@ class FileService:
             )
 
             if self.is_compass_enabled:
-                print(
-                    f"Getting files in compass for agent {agent_id}, {len(file_ids)} files"
-                )
                 files = get_files_in_compass(agent_id, file_ids, user_id)
             else:
                 files = file_crud.get_files_by_ids(session, file_ids, user_id)

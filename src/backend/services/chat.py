@@ -217,10 +217,7 @@ def get_or_create_conversation(
     """
     conversation_id = chat_request.conversation_id or ""
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-    print("CONVERSATION DEBUG", conversation_id)
-    print(conversation)
     if conversation is None:
-        print("HERE DEBUG")
         # Get the first 5 words of the user message as the title
         title = " ".join(user_message.split()[:5])
 
