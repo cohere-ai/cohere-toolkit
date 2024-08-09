@@ -16,6 +16,9 @@ redis:
 postgresql:
   enabled: true
   fullnameOverride: &database_name "toolkit-db"
+  commonAnnotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-2"
   auth:
     enablePostgresUser: true
     postgresPassword: &database_password "postgres"
