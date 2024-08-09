@@ -310,6 +310,67 @@ def test_list_agents(session_client: TestClient, session: Session, user) -> None
     assert len(response_agents) == 3
 
 
+def test_list_private_agents(
+    session_client: TestClient, session: Session, user
+) -> None:
+    for _ in range(3):
+        _ = get_factory("Agent", session).create(user=user, is_private=True)
+
+    user2 = get_factory("User", session).create(id="456")
+    for _ in range(2):
+        _ = get_factory("Agent", session).create(user=user2, is_private=True)
+
+    response = session_client.get(
+        "/v1/agents?visibility=private", headers={"User-Id": user.id}
+    )
+
+    assert response.status_code == 200
+    response_agents = response.json()
+
+    # Only the agents created by user should be returned
+    assert len(response_agents) == 3
+
+
+def test_list_public_agents(session_client: TestClient, session: Session, user) -> None:
+    for _ in range(3):
+        _ = get_factory("Agent", session).create(user=user, is_private=True)
+
+    user2 = get_factory("User", session).create(id="456")
+    for _ in range(2):
+        _ = get_factory("Agent", session).create(user=user2, is_private=False)
+
+    response = session_client.get(
+        "/v1/agents?visibility=public", headers={"User-Id": user.id}
+    )
+
+    assert response.status_code == 200
+    response_agents = response.json()
+
+    # Only the agents created by user should be returned
+    assert len(response_agents) == 2
+
+
+def list_public_and_private_agents(
+    session_client: TestClient, session: Session, user
+) -> None:
+    for _ in range(3):
+        _ = get_factory("Agent", session).create(user=user, is_private=True)
+
+    user2 = get_factory("User", session).create(id="456")
+    for _ in range(2):
+        _ = get_factory("Agent", session).create(user=user2, is_private=False)
+
+    response = session_client.get(
+        "/v1/agents?visibility=all", headers={"User-Id": user.id}
+    )
+
+    assert response.status_code == 200
+    response_agents = response.json()
+
+    # Only the agents created by user should be returned
+    assert len(response_agents) == 5
+
+
 def test_list_agent_deployments(
     session_client: TestClient, session: Session, user
 ) -> None:
@@ -460,7 +521,52 @@ def test_get_nonexistent_agent(
 ) -> None:
     response = session_client.get("/v1/agents/456", headers={"User-Id": user.id})
     assert response.status_code == 404
-    assert response.json() == {"detail": "Agent with ID: 456 not found."}
+    assert response.json() == {"detail": "Agent with ID 456 not found."}
+
+
+def test_get_public_agent(session_client: TestClient, session: Session, user) -> None:
+    user2 = get_factory("User", session).create(id="456")
+    agent = get_factory("Agent", session).create(
+        name="test agent", user_id=user2.id, is_private=False
+    )
+
+    response = session_client.get(
+        f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+    )
+
+    assert response.status_code == 200
+    response_agent = response.json()
+    assert response_agent["name"] == agent.name
+
+
+def test_get_private_agent(session_client: TestClient, session: Session, user) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent", user=user, is_private=True
+    )
+
+    response = session_client.get(
+        f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+    )
+
+    assert response.status_code == 200
+    response_agent = response.json()
+    assert response_agent["name"] == agent.name
+
+
+def test_get_private_agent_by_another_user(
+    session_client: TestClient, session: Session, user
+) -> None:
+    user2 = get_factory("User", session).create(id="456")
+    agent = get_factory("Agent", session).create(
+        name="test agent", user_id=user2.id, is_private=True
+    )
+
+    response = session_client.get(
+        f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Agent with ID {agent.id} not found."}
 
 
 def test_update_agent(session_client: TestClient, session: Session, user) -> None:
@@ -827,6 +933,58 @@ def test_update_agent_invalid_tool(
     )
     assert response.status_code == 404
     assert response.json() == {"detail": "Tool not a real tool not found."}
+
+
+def test_update_private_agent(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        is_private=True,
+        user=user,
+    )
+
+    request_json = {
+        "name": "updated name",
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
+    )
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["name"] == "updated name"
+    assert updated_agent["is_private"] == True
+
+
+def test_update_public_agent(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(
+        name="test agent",
+        version=1,
+        description="test description",
+        preamble="test preamble",
+        temperature=0.5,
+        is_private=False,
+        user=user,
+    )
+
+    request_json = {
+        "name": "updated name",
+    }
+
+    response = session_client.put(
+        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
+    )
+    assert response.status_code == 200
+    updated_agent = response.json()
+    assert updated_agent["name"] == "updated name"
+    assert updated_agent["is_private"] == False
 
 
 def test_delete_agent_metric(
