@@ -70,7 +70,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
-  const { isAgentsLeftPanelOpen } = useSettingsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isTouchDevice = getIsTouchDevice();
   const { clearComposerFiles } = useFileActions();
@@ -142,6 +142,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         shallow
         onClick={() => {
           setConversation({ id: conversationId, name });
+          setAgentsLeftSidePanelOpen(false);
           clearComposerFiles();
         }}
         className={wrapperClassName}
@@ -178,6 +179,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
               shallow
               onClick={() => {
                 setConversation({ id: conversationId, name });
+                setAgentsLeftSidePanelOpen(false);
               }}
             >
               {content}
