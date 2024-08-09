@@ -27,6 +27,7 @@ const BASE_AGENTS: Array<AgentPublic> = [
     model: '',
     deployment: '',
     user_id: '',
+    is_private: false,
   },
 ];
 
