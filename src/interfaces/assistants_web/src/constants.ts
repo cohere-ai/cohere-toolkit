@@ -1,3 +1,4 @@
+import { AgentPublic } from '@/cohere-client';
 import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
 
@@ -36,7 +37,6 @@ export const SETTINGS_DRAWER_ID = 'settings';
 export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
-  recentAgents: 'recentAgents',
 };
 
 /**
@@ -88,3 +88,20 @@ export type COHERE_BRANDED_COLORS =
   | 'marble'
   | 'volcanic'
   | 'danger';
+
+export const BASE_AGENT: AgentPublic = {
+  id: '',
+  deployments: [],
+  name: 'Command R+',
+  description: 'Review, understand and ask questions about internal financial documents.',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  preamble: '',
+  version: 1,
+  temperature: 0.3,
+  tools: [],
+  model: DEFAULT_AGENT_MODEL,
+  deployment: DEPLOYMENT_COHERE_PLATFORM,
+  user_id: '',
+  is_private: false,
+};

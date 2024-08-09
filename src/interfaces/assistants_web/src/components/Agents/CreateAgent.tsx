@@ -10,6 +10,7 @@ import {
   AgentSettingsFields,
   AgentSettingsForm,
 } from '@/components/Agents//AgentSettings/AgentSettingsForm';
+import { MobileHeader } from '@/components/MobileHeader';
 import { Button, Icon, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
@@ -18,7 +19,7 @@ import {
   DEPLOYMENT_COHERE_PLATFORM,
 } from '@/constants';
 import { useContextStore } from '@/context';
-import { useCreateAgent, useRecentAgents } from '@/hooks/agents';
+import { useCreateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 
 const DEFAULT_FIELD_VALUES = {
@@ -28,6 +29,7 @@ const DEFAULT_FIELD_VALUES = {
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
   tools: DEFAULT_AGENT_TOOLS,
+  is_private: false,
 };
 /**
  * @description Form to create a new agent.
@@ -41,7 +43,6 @@ export const CreateAgent: React.FC = () => {
   const { error } = useNotify();
   const { mutateAsync: createAgent } = useCreateAgent();
 
-  const { addRecentAgentId } = useRecentAgents();
   const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -67,6 +68,11 @@ export const CreateAgent: React.FC = () => {
   }, [queryString, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
+    if (fields.is_private) {
+      handleSubmit();
+      return;
+    }
+
     open({
       title: `Create ${fields.name}?`,
       content: (
@@ -84,7 +90,6 @@ export const CreateAgent: React.FC = () => {
     try {
       setIsSubmitting(true);
       const agent = await createAgent(fields);
-      addRecentAgentId(agent.id);
       close();
       setIsSubmitting(false);
       router.push(`/a/${agent.id}`);
@@ -98,7 +103,8 @@ export const CreateAgent: React.FC = () => {
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-y-auto">
-      <header className="flex flex-col space-y-5 border-b px-12 py-10 dark:border-volcanic-150">
+      <header className="flex flex-col gap-y-3 border-b px-4 py-6 lg:px-10 lg:py-10 dark:border-volcanic-150">
+        <MobileHeader />
         <div className="flex items-center space-x-2">
           <Link href="/discover">
             <Text className="dark:text-volcanic-600">Explore assistants</Text>
@@ -110,6 +116,7 @@ export const CreateAgent: React.FC = () => {
       </header>
       <div className="overflow-y-auto">
         <AgentSettingsForm
+          source="create"
           fields={fields}
           setFields={setFields}
           onSubmit={handleOpenSubmitModal}

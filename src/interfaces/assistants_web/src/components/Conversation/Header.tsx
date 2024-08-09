@@ -1,28 +1,28 @@
 'use client';
 
+import { AgentPublic } from '@/cohere-client';
 import { IconButton } from '@/components/IconButton';
 import { ShareModal } from '@/components/ShareModal';
 import { Button, Icon, Logo, Text } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { env } from '@/env.mjs';
-import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 type Props = {
-  agentId?: string;
+  agent?: AgentPublic;
 };
 
-export const Header: React.FC<Props> = ({ agentId }) => {
+export const Header: React.FC<Props> = ({ agent }) => {
   const {
     conversation: { id },
   } = useConversationStore();
   const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
-  const { data: agent, isLoading } = useAgent({ agentId });
   const { open } = useContextStore();
-  const { text, bg, contrastText, lightText, fill, lightFill, dark, light } =
-    useBrandedColors(agentId);
+  const { text, bg, contrastText, lightText, fill, lightFill, dark, light } = useBrandedColors(
+    agent?.id
+  );
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -33,10 +33,12 @@ export const Header: React.FC<Props> = ({ agentId }) => {
   };
 
   const handleOpenLeftSidePanel = () => {
+    setAgentsRightSidePanelOpen(false);
     setAgentsLeftSidePanelOpen(true);
   };
 
   const handleOpenRightSidePanel = () => {
+    setAgentsLeftSidePanelOpen(false);
     setAgentsRightSidePanelOpen(true);
   };
 
@@ -46,9 +48,9 @@ export const Header: React.FC<Props> = ({ agentId }) => {
         <div className="flex items-center gap-4">
           <button
             onClick={handleOpenLeftSidePanel}
-            className="flex h-full items-center gap-4 md:hidden"
+            className="flex h-full items-center gap-4 lg:hidden"
           >
-            {agentId ? (
+            {agent ? (
               <Text
                 className={cn(
                   'size-5 rounded text-center align-middle uppercase',
@@ -63,10 +65,10 @@ export const Header: React.FC<Props> = ({ agentId }) => {
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
             )}
             <Text className="truncate dark:text-mushroom-950" styleAs="p-lg" as="span">
-              {isLoading ? '' : agent?.name ?? 'Cohere AI'}
+              {agent?.name ?? 'Cohere AI'}
             </Text>
           </button>
-          {agentId && (
+          {agent && (
             <Text
               styleAs="label-sm"
               className={cn(
@@ -74,7 +76,7 @@ export const Header: React.FC<Props> = ({ agentId }) => {
                 text
               )}
             >
-              Private
+              {agent.is_private ? 'Private' : 'Public'}
             </Text>
           )}
         </div>
@@ -82,9 +84,9 @@ export const Header: React.FC<Props> = ({ agentId }) => {
           {id && (
             <Button
               kind="secondary"
-              className="[&>div]:gap-x-0 md:[&>div]:gap-x-3"
+              className="[&>div]:gap-x-0 lg:[&>div]:gap-x-3"
               label={
-                <Text className={cn(dark(lightText), light(text), 'hidden md:flex')}>Share</Text>
+                <Text className={cn(dark(lightText), light(text), 'hidden lg:flex')}>Share</Text>
               }
               iconOptions={{
                 customIcon: (
@@ -97,9 +99,9 @@ export const Header: React.FC<Props> = ({ agentId }) => {
           )}
           <IconButton
             iconName="kebab"
-            iconClassName={fill}
+            iconClassName="dark:fill-marble-950 fill-volcanic-100"
             onClick={handleOpenRightSidePanel}
-            className="flex h-auto w-auto md:hidden"
+            className="flex h-auto w-auto lg:hidden"
           />
         </section>
       </div>

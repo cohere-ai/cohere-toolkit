@@ -81,12 +81,15 @@ const AgentRightPanel: React.FC<Props> = () => {
 
   return (
     <aside className="space-y-5 py-4">
-      <header>
+      <header className="flex items-center gap-2">
         <IconButton
           onClick={() => setAgentsRightSidePanelOpen(false)}
           iconName="arrow-right"
-          className="flex h-auto flex-shrink-0 self-center md:hidden"
+          className="flex h-auto flex-shrink-0 self-center lg:hidden"
         />
+        <Text styleAs="p-sm" className="font-medium uppercase">
+          Knowledge
+        </Text>
       </header>
       <div className="flex flex-col gap-y-10">
         {agentId && (
@@ -135,7 +138,7 @@ const AgentRightPanel: React.FC<Props> = () => {
               ) : (
                 <div className="flex flex-col gap-y-3">
                   <Text as="div" className="flex items-center gap-x-3">
-                    <Icon name="folder" kind="outline" />
+                    <Icon name="folder" kind="outline" className="flex-shrink-0" />
                     {/*  This renders the number of folders and files in the agent's Google Drive.
                     For example, if the agent has 2 folders and 3 files, it will render:
                     - "2 folders and 3 files" */}
@@ -150,12 +153,18 @@ const AgentRightPanel: React.FC<Props> = () => {
                         agentToolMetadataArtifacts.files.length
                       )}`}
                   </Text>
-                  {agentKnowledgeFiles.map((file) => (
-                    <Text as="div" key={file.id} className="ml-6 flex items-center gap-x-3">
-                      <Icon name={file.type === 'folder' ? 'folder' : 'file'} kind="outline" />
-                      {file.name}
-                    </Text>
-                  ))}
+                  <ol className="space-y-2">
+                    {agentKnowledgeFiles.map((file) => (
+                      <li key={file.id} className="ml-6 flex items-center gap-x-3">
+                        <Icon
+                          name={file.type === 'folder' ? 'folder' : 'file'}
+                          kind="outline"
+                          className="flex-shrink-0"
+                        />
+                        <Text>{file.name}</Text>
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               )}
             </Transition>

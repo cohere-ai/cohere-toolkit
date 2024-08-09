@@ -1,6 +1,18 @@
 # Default values for cohere-toolkit.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+redis:
+  enabled: true
+  fullnameOverride: &redis_name "toolkit-redis"
+  auth:
+    enabled: true
+    password: &redis_password "redis"
+  commonConfiguration: |
+    save 60 1
+    loglevel warning
+  networkPolicy:
+    allowExternal: false
+
 postgresql:
   enabled: true
   fullnameOverride: &database_name "toolkit-db"
@@ -21,6 +33,10 @@ global:
     username: "postgres"
     password: *database_password
     connection_string: "" # overrides host, port, username, and password
+  redis:
+    host: *redis_name
+    port: 6379
+    password: *redis_password
 
 backend:
   replicaCounts: 1
@@ -73,15 +89,15 @@ backend:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
-  livenessProbe:
-    httpGet:
-      path: "/health"
-      port: http
-
-  readinessProbe:
-    httpGet:
-      path: "/health"
-      port: http
+#  livenessProbe:
+#    httpGet:
+#      path: "/health"
+#      port: http
+#
+#  readinessProbe:
+#    httpGet:
+#      path: "/health"
+#      port: http
 
   nodeSelector: {}
 
@@ -146,15 +162,15 @@ frontend:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
 
-  livenessProbe:
-    httpGet:
-      path: "/"
-      port: http
-
-  readinessProbe:
-    httpGet:
-      path: "/"
-      port: http
+#  livenessProbe:
+#    httpGet:
+#      path: "/"
+#      port: http
+#
+#  readinessProbe:
+#    httpGet:
+#      path: "/"
+#      port: http
 
   nodeSelector: {}
 
@@ -221,15 +237,15 @@ terrarium:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
 
-  livenessProbe:
-    httpGet:
-      path: "/health"
-      port: http
+#  livenessProbe:
+#    httpGet:
+#      path: "/health"
+#      port: http
 
-  readinessProbe:
-    httpGet:
-      path: "/health"
-      port: http
+#  readinessProbe:
+#    httpGet:
+#      path: "/health"
+#      port: http
 
   nodeSelector: { }
 

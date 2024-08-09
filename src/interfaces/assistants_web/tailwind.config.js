@@ -3,7 +3,7 @@ module.exports = {
   presets: [require('./src/themes/cohereTheme')],
   content: ['src/**/*.{js,jsx,ts,tsx}'],
   plugins: [require('@tailwindcss/typography')],
-  darkMode: 'selector',
+  darkMode: 'class',
   safelist: [
     {
       pattern:
