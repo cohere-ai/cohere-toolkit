@@ -1,5 +1,7 @@
 from backend.tests.unit.factories.agent import AgentFactory
-from backend.tests.unit.factories.agent_deployment_model import AgentDeploymentModelFactory
+from backend.tests.unit.factories.agent_deployment_model import (
+    AgentDeploymentModelFactory,
+)
 from backend.tests.unit.factories.agent_tool_metadata import AgentToolMetadataFactory
 from backend.tests.unit.factories.base import BaseFactory
 from backend.tests.unit.factories.blacklist import BlacklistFactory

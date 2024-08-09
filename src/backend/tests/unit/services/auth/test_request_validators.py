@@ -44,7 +44,7 @@ def test_validate_authorization_invalid_auth_header():
 def test_validate_invalid_jwt():
     request = Mock(spec=Request)
     request.headers.get.return_value = "Bearer fake_token"
-    
+
     with patch(
         "backend.services.auth.jwt.JWTService.decode_jwt",
         return_value=None,
@@ -52,6 +52,7 @@ def test_validate_invalid_jwt():
         with pytest.raises(HTTPException) as exc:
             validate_authorization(request)
             assert exc.status_code == 401
+
 
 def test_validate_blacklisted_token():
     request = Mock(spec=Request)
