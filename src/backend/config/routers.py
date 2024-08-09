@@ -140,6 +140,8 @@ ROUTER_DEPENDENCIES = {
             Depends(get_session),
             Depends(ScimAuthValidation()),
         ],
-        "auth": [],
+        "auth": [
+            Depends(ScimAuthValidation()),
+        ],
     },
 }
