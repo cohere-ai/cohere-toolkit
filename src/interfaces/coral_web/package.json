@@ -22,6 +22,7 @@
     "generate:client": "openapi-ts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.2.8",
     "@floating-ui/react": "^0.26.9",
     "@headlessui/react": "^2.0.4",
     "@microsoft/fetch-event-source": "^2.0.1",
