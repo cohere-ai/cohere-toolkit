@@ -58,7 +58,6 @@ export const IconList = [
   'users-three',
   'warning',
   'web',
-  'lock',
 ] as const;
 
 export type IconName = (typeof IconList)[number];
@@ -800,46 +799,6 @@ const getIcon = (name: IconName, kind: IconKind) => {
             clipRule="evenodd"
             d="M2.96875 3C2.4152 3 1.96696 3.4497 1.96876 4.00325L1.99473 12.0033C1.99651 12.5543 2.4437 13 2.99472 13H12.9933C13.5472 13 13.9956 12.5497 13.9933 11.9958L13.9702 6.4958C13.9678 5.94516 13.5208 5.5 12.9702 5.5H7.70732C7.09261 5.5 6.52298 5.17748 6.20671 4.65037C6.19473 4.63039 6.1832 4.61033 6.17211 4.59018C6.15903 4.57006 6.14629 4.54966 6.13389 4.52899L5.50779 3.4855C5.32707 3.1843 5.00156 3 4.6503 3H2.96875ZM6.24346 2.7909C5.86795 2.29596 5.27981 2 4.6503 2H2.96875C1.86164 2 0.965167 2.89939 0.968761 4.00649L0.994731 12.0065C0.998309 13.1085 1.89269 14 2.99472 14H12.9933C14.1011 14 14.9979 13.0995 14.9932 11.9916L14.9701 6.4916C14.9655 5.39032 14.0715 4.5 12.9702 4.5H12.7827L11.8653 2.97101C11.5038 2.3686 10.8528 2 10.1503 2H7.70732C7.0705 2 6.54766 2.32525 6.24346 2.7909ZM7.84887 4.5C7.52274 4.5 7.21882 4.34113 7.03235 4.07733C6.79244 3.58776 7.14689 3 7.70732 3H10.1503C10.5016 3 10.8271 3.1843 11.0078 3.4855L11.6165 4.5H7.84887Z"
             fill="inherit"
-          />
-        </svg>
-      );
-    case 'lock':
-      return kind === 'default' ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 256 256"
-          className="h-full w-full fill-inherit"
-        >
-          <rect width="256" height="256" fill="none" />
-          <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80Zm-80,84a12,12,0,1,1,12-12A12,12,0,0,1,128,164Zm32-84H96V56a32,32,0,0,1,64,0Z" />
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 256 256"
-          className="h-full w-full fill-inherit"
-        >
-          <rect width="256" height="256" fill="none" />
-          <rect
-            x="40"
-            y="88"
-            width="176"
-            height="128"
-            rx="8"
-            fill="inherit"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
-          />
-          <circle cx="128" cy="152" r="12" />
-          <path
-            d="M88,88V56a40,40,0,0,1,80,0V88"
-            fill="inherit"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="16"
           />
         </svg>
       );
