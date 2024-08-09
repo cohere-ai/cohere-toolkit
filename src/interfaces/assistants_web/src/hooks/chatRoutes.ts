@@ -1,6 +1,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
+import { useIsDesktop } from '@/hooks/breakpoint';
 import {
   useCitationsStore,
   useConversationStore,
@@ -11,6 +12,8 @@ import { getQueryString } from '@/utils';
 
 export const useNavigateToNewChat = () => {
   const router = useRouter();
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
   const { agentId } = useChatRoutes();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
@@ -22,7 +25,7 @@ export const useNavigateToNewChat = () => {
     resetConversation();
     resetCitations();
     resetFileParams();
-    setAgentsLeftSidePanelOpen(false);
+    isMobile && setAgentsLeftSidePanelOpen(false);
     router.push(url);
   };
 

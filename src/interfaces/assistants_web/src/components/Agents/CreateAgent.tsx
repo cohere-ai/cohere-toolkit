@@ -18,7 +18,7 @@ import {
   DEPLOYMENT_COHERE_PLATFORM,
 } from '@/constants';
 import { useContextStore } from '@/context';
-import { useCreateAgent, useRecentAgents } from '@/hooks/agents';
+import { useCreateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 
 const DEFAULT_FIELD_VALUES = {
@@ -41,7 +41,6 @@ export const CreateAgent: React.FC = () => {
   const { error } = useNotify();
   const { mutateAsync: createAgent } = useCreateAgent();
 
-  const { addRecentAgentId } = useRecentAgents();
   const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -84,7 +83,6 @@ export const CreateAgent: React.FC = () => {
     try {
       setIsSubmitting(true);
       const agent = await createAgent(fields);
-      addRecentAgentId(agent.id);
       close();
       setIsSubmitting(false);
       router.push(`/a/${agent.id}`);
