@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
@@ -16,7 +16,7 @@ import { getToolIcon } from '@/utils/tools';
  */
 export const AssistantTools: React.FC<{
   tools: ManagedTool[];
-  agent?: Agent;
+  agent?: AgentPublic;
   className?: string;
 }> = ({ tools, agent, className = '' }) => {
   const requiredTools = agent?.tools;

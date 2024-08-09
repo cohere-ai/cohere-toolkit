@@ -29,6 +29,7 @@ const DEFAULT_FIELD_VALUES = {
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
   tools: DEFAULT_AGENT_TOOLS,
+  is_private: false,
 };
 /**
  * @description Form to create a new agent.
@@ -67,6 +68,11 @@ export const CreateAgent: React.FC = () => {
   }, [queryString, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
+    if (fields.is_private) {
+      handleSubmit();
+      return;
+    }
+
     open({
       title: `Create ${fields.name}?`,
       content: (
@@ -110,6 +116,7 @@ export const CreateAgent: React.FC = () => {
       </header>
       <div className="overflow-y-auto">
         <AgentSettingsForm
+          source="create"
           fields={fields}
           setFields={setFields}
           onSubmit={handleOpenSubmitModal}

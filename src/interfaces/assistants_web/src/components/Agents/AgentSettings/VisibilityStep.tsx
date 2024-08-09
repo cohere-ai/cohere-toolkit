@@ -2,28 +2,33 @@ import { Icon, RadioGroup, Text } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type Props = {
-  isPublic: boolean;
-  setIsPublic: (isPublic: boolean) => void;
+  isPrivate: boolean;
+  setIsPrivate: (isPrivate: boolean) => void;
+  disabled?: boolean;
 };
 
-export const VisibilityStep: React.FC<Props> = ({ isPublic, setIsPublic }) => {
+export const VisibilityStep: React.FC<Props> = ({ isPrivate, setIsPrivate, disabled }) => {
+  const handleVisibilityChange = (val: string) => {
+    setIsPrivate(val === 'private');
+  };
   return (
     <div className="flex flex-col space-y-4">
       <RadioGroup
-        value={isPublic ? 'public' : 'private'}
+        value={isPrivate ? 'private' : 'public'}
+        disabled={disabled}
         options={[
           {
             value: 'public',
             label: 'Company (Everyone in your organization can access)',
           },
-          // { value: 'private', label: 'Private (Only you can access)' },
+          { value: 'private', label: 'Private (Only you can access)' },
         ]}
-        onChange={(val) => setIsPublic(val === 'public')}
+        onChange={handleVisibilityChange}
       />
       <div
         className={cn(
           'flex space-x-2 rounded-lg border border-dashed p-4 dark:border-volcanic-500 dark:bg-volcanic-300',
-          { hidden: !isPublic }
+          { hidden: isPrivate }
         )}
       >
         <Icon
