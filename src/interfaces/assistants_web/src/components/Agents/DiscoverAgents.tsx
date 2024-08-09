@@ -14,7 +14,7 @@ const GROUPED_ASSISTANTS_LIMIT = 15;
 
 const BASE_AGENTS: Array<AgentPublic> = [
   {
-    id: 'default',
+    id: '',
     deployments: [],
     name: 'Command R+',
     description: 'Review, understand and ask questions about internal financial documents.',
