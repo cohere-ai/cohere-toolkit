@@ -39,7 +39,7 @@ export const ConversationList: React.FC = () => {
           <Text styleAs="label" className="truncate dark:text-mushroom-800">
             Recent Assistants
           </Text>
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-y-auto">
             {recentAgents.map((agent) => (
               <AgentCard
                 key={agent.id || agent.name}
