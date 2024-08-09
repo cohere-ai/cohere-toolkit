@@ -61,7 +61,7 @@ def wrap_create_snapshot(
 ) -> SnapshotModel:
     snapshot_agent = None
     if conversation.agent_id:
-        agent = agent_crud.get_agent_by_id(session, conversation.agent_id)
+        agent = agent_crud.get_agent_by_id(session, conversation.agent_id, user_id)
         tools_metadata = [to_dict(metadata) for metadata in agent.tools_metadata]
 
         snapshot_agent = SnapshotAgent(
@@ -88,6 +88,7 @@ def wrap_create_snapshot(
         last_message_id=last_message_id,
         version=SNAPSHOT_VERSION,
         snapshot=snapshot,
+        agent_id=conversation.agent_id,
     )
     return snapshot_crud.create_snapshot(session, snapshot_model)
 

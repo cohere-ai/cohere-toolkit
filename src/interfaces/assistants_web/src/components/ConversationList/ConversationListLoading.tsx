@@ -9,7 +9,7 @@ type Props = { numBars?: number };
 /**
  * Simple component to render the loading state of the conversation list panel.
  */
-export const ConversationListLoading: React.FC<Props> = ({ numBars = 6 }) => {
+export const ConversationListLoading: React.FC<Props> = ({ numBars = 4 }) => {
   return (
     <>
       {Array.from({ length: numBars }).map((_, index) => (

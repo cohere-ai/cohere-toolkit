@@ -39,6 +39,7 @@ class Snapshot(BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
     snapshot: SnapshotData
+    agent_id: Optional[str] = Field(exclude=True)
 
     class Config:
         from_attributes = True

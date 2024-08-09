@@ -3,7 +3,9 @@ name: Backend unit tests
 on:
   push:
     branches: [main]
-  pull_request: {}
+  pull_request:
+    paths-ignore:
+      - src/interfaces/**
 
 jobs:
   pytest:

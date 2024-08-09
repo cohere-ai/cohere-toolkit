@@ -4,7 +4,7 @@ import { Toaster } from 'sonner';
 
 import { cn } from '@/utils';
 
-import { STYLE_LEVEL_TO_CLASSES, Spinner } from '..';
+import { Icon, STYLE_LEVEL_TO_CLASSES, Spinner } from '..';
 
 type Props = {
   position?:
@@ -31,17 +31,29 @@ export const ToastNotification: React.FC<Props> = ({ position = 'bottom-right' }
           backgroundColor: 'transparent',
           margin: '0',
           padding: '0',
+          alignItems: 'center',
         },
         classNames: {
-          cancelButton: '!text-volcanic-100 !text-p !ml-auto',
-          loading: 'border-quartz-700 border bg-quartz-950 text-volcanic-100',
-          success: 'border-success-200 border bg-success-950 text-success-200',
-          error: '<border-danger-5></border-danger-5>00 border bg-danger-950 text-danger-500',
-          info: 'border-mushroom-800 border bg-mushroom-950 text-mushroom-150',
+          cancelButton: '!text-volcanic-60 !text-p-lg !ml-auto',
+          loading: 'bg-quartz-600 text-volcanic-60',
+          success: 'bg-success-300 text-volcanic-60',
+          error: 'bg-danger-350 text-volcanic-60',
+          info: 'bg-mushroom-600 text-volcanic-60',
         },
       }}
       pauseWhenPageIsHidden
-      loadingIcon={<Spinner className="h-4 w-4 text-quartz-600" />}
+      icons={{
+        success: (
+          <Icon name="thumbs-up" className="h-4 w-4 fill-volcanic-60 dark:fill-volcanic-60" />
+        ),
+        error: (
+          <Icon name="thumbs-down" className="h-4 w-4 fill-volcanic-60 dark:fill-volcanic-60" />
+        ),
+        loading: <Spinner className="h-4 w-4 text-volcanic-60" />,
+        info: (
+          <Icon name="information" className="h-4 w-4 fill-volcanic-60 dark:fill-volcanic-60" />
+        ),
+      }}
     />
   );
 };

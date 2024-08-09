@@ -1,9 +1,16 @@
-import { useLocalStorageValue } from '@react-hookz/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { uniq } from 'lodash';
+import { useCallback, useMemo } from 'react';
 
-import { Agent, ApiError, CreateAgent, UpdateAgent, useCohereClient } from '@/cohere-client';
-import { LOCAL_STORAGE_KEYS } from '@/constants';
+import {
+  AgentPublic,
+  ApiError,
+  CreateAgentRequest,
+  UpdateAgentRequest,
+  useCohereClient,
+} from '@/cohere-client';
+import { BASE_AGENT } from '@/constants';
+import { useConversations } from '@/hooks/conversation';
 
 export const useListAgents = () => {
   const cohereClient = useCohereClient();
@@ -17,7 +24,7 @@ export const useCreateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (request: CreateAgent) => cohereClient.createAgent(request),
+    mutationFn: (request: CreateAgentRequest) => cohereClient.createAgent(request),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['listAgents'] });
     },
@@ -85,7 +92,7 @@ export const useIsAgentNameUnique = () => {
 export const useUpdateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<Agent, ApiError, { request: UpdateAgent; agentId: string }>({
+  return useMutation<AgentPublic, ApiError, { request: UpdateAgentRequest; agentId: string }>({
     mutationFn: ({ request, agentId }) => cohereClient.updateAgent(request, agentId),
     onSettled: (agent) => {
       queryClient.invalidateQueries({ queryKey: ['agent', agent?.id] });
@@ -97,29 +104,37 @@ export const useUpdateAgent = () => {
 /**
  * @description Returns the most recently used agents.
  */
-export const useRecentAgents = () => {
-  const { data: agents } = useListAgents();
+export const useRecentAgents = (limit: number = 5) => {
+  const { data: agents = [] } = useListAgents();
+  const { data: conversations = [] } = useConversations({});
 
-  const { set, value: recentAgentsIds } = useLocalStorageValue(LOCAL_STORAGE_KEYS.recentAgents, {
-    defaultValue: [] as string[],
-  });
+  const sortByDate = useCallback((a: { updated_at: string }, b: { updated_at: string }) => {
+    return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');
+  }, []);
 
-  const addRecentAgentId = (agentId: string) => {
-    if (!recentAgentsIds) return;
-    set([...recentAgentsIds.filter((id) => id !== agentId), agentId]);
-  };
+  const recentAgents = useMemo(() => {
+    let recent = uniq(conversations.sort(sortByDate).map((conversation) => conversation.agent_id))
+      .map((agentId) => agents.find((agent) => agent.id === agentId))
+      .map((agent) => (!agent ? BASE_AGENT : agent))
+      .slice(0, limit);
 
-  const removeRecentAgentId = (agentId: string) => {
-    if (!recentAgentsIds) return;
-    set(recentAgentsIds.filter((id) => id !== agentId));
-  };
+    // if there are less than `limit` recent agents, fill with the latest created agents
+    if (recent.length < limit) {
+      const recentIds = recent.map((agent) => agent?.id);
+      const remainingAgents = agents.filter((agent) => !recentIds.includes(agent.id));
+      const remainingRecentAgents = remainingAgents
+        .sort(sortByDate)
+        .slice(0, limit - recent.length);
+      recent = recent.concat(remainingRecentAgents);
+    }
 
-  const recentAgents = useMemo<Agent[]>(() => {
-    if (!recentAgentsIds) return [];
-    return recentAgentsIds
-      .map((id) => agents?.find((agent) => agent.id === id))
-      .filter((agent) => agent !== undefined);
-  }, [agents, recentAgentsIds]);
+    // if still there are less than `limit` recent agents, fill with base agent
+    if (recent.length < limit && recent.every((agent) => agent?.id !== BASE_AGENT.id)) {
+      recent = recent.concat(BASE_AGENT);
+    }
 
-  return { recentAgents, addRecentAgentId, removeRecentAgentId };
+    return recent;
+  }, [conversations, agents, sortByDate, limit]);
+
+  return recentAgents;
 };

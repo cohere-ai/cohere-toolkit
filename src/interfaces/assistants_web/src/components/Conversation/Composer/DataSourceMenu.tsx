@@ -3,7 +3,7 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import React from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/Shared';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useAvailableTools } from '@/hooks/tools';
@@ -12,7 +12,7 @@ import { cn } from '@/utils';
 import { getToolIcon } from '@/utils/tools';
 
 export type Props = {
-  agent?: Agent;
+  agent?: AgentPublic;
   tools?: ManagedTool[];
 };
 
@@ -37,16 +37,20 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
         className={({ open }) =>
           cn(
             'flex items-center justify-center rounded border px-1.5 py-1 outline-none transition-colors',
-            text,
             border,
-            { [contrastText]: open },
             { [bg]: open }
           )
         }
       >
-        <Text styleAs="label" as="span" className="font-medium">
-          Tools: {paramsTools?.length ?? 0}
-        </Text>
+        {({ open }) => (
+          <Text
+            styleAs="label"
+            as="span"
+            className={cn('font-medium', text, { [contrastText]: open })}
+          >
+            Tools: {paramsTools?.length ?? 0}
+          </Text>
+        )}
       </PopoverButton>
       <PopoverPanel
         className="flex origin-top -translate-y-2 flex-col transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"

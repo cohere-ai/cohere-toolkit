@@ -40,7 +40,7 @@ def test_update_not_existing_organization(
 ) -> None:
     new_organization = UpdateOrganization(name="new organization")
     response = session_client.put("/v1/organizations/123", json=new_organization.dict())
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json() == {"detail": "Organization with ID: 123 not found."}
 
 

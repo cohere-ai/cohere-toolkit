@@ -4,12 +4,13 @@ import { Transition } from '@headlessui/react';
 import Link from 'next/link';
 import React from 'react';
 
+import { ConversationList } from '@/components/ConversationList/ConversationList';
 import { Button, ButtonTheme, Icon, IconName, Logo, Text, Tooltip } from '@/components/Shared';
 import { Shortcut } from '@/components/Shortcut';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
-import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
-import { useAgentsStore, useSettingsStore } from '@/stores';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 /**
@@ -17,26 +18,22 @@ import { cn } from '@/utils';
  * It contains the logo and a button to expand or collapse the panel.
  * It also renders the children components that are passed to it.
  */
-export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
-  className = '',
-  children,
-}) => {
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const asideRef = React.useRef<HTMLDivElement>(null);
+  const { isAgentsLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
-  const { agentId } = useChatRoutes();
   const navigateToNewChat = useNavigateToNewChat();
 
   return (
     <Transition
+      ref={asideRef}
       show={isAgentsLeftPanelOpen || isDesktop}
-      as="div"
+      as="aside"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
-        'h-full bg-marble-1000 dark:bg-volcanic-60',
-        'rounded-lg border border-marble-950 dark:border-volcanic-60',
+        'h-full bg-mushroom-900 dark:bg-volcanic-60',
+        'rounded-lg border border-marble-950 md:border-none dark:border-volcanic-60',
         'dark:text-mushroom-950',
         {
           'right-1/4 md:right-auto': isAgentsLeftPanelOpen,
@@ -55,9 +52,9 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
           'md:transition-[min-width,max-width]',
           {
-            'gap-y-8 md:min-w-agents-panel-collapsed md:max-w-agents-panel-collapsed':
+            'gap-y-8 lg:min-w-agents-panel-collapsed lg:max-w-agents-panel-collapsed':
               !isAgentsLeftPanelOpen,
-            'md:min-w-agents-panel-expanded md:max-w-agents-panel-expanded lg:min-w-agents-panel-expanded-lg lg:max-w-agents-panel-expanded-lg':
+            'lg:min-w-agents-panel-expanded lg:max-w-agents-panel-expanded xl:min-w-agents-panel-expanded-lg xl:max-w-agents-panel-expanded-lg':
               isAgentsLeftPanelOpen,
           }
         )}
@@ -89,25 +86,26 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
             label={
               <div className="group flex w-full items-center justify-between">
                 <Text className="text-coral-500 dark:text-evolved-green-700">New chat</Text>
-                <Shortcut sequence={['⌘', '↑', 'N']} className="hidden group-hover:flex" />
+                <Shortcut sequence={['⌘', '↑', 'O']} className="hidden group-hover:flex" />
               </div>
             }
             tooltip="New chat"
             iconName="add"
-            theme="evolved-green"
-            onClick={() => navigateToNewChat(agentId)}
+            theme="default"
+            onClick={() => navigateToNewChat()}
             stretch
           />
 
           <AgentsSidePanelButton
             label="See all assistants"
             tooltip="See all assistants"
+            theme="mushroom"
             href="/discover"
             iconName="compass"
           />
         </div>
 
-        {children}
+        <ConversationList />
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
           <AgentsSidePanelButton
@@ -115,6 +113,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
             tooltip="Settings"
             href="/settings"
             iconName="settings"
+            theme="mushroom"
           />
           <section className="flex items-center justify-between">
             <div
@@ -122,7 +121,7 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
                 hidden: !isAgentsLeftPanelOpen,
               })}
             >
-              <Text styleAs="label" className="dark:text-mushroom-800">
+              <Text styleAs="label" className="text-volcanic-500 dark:text-mushroom-800">
                 POWERED BY
               </Text>
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
@@ -136,15 +135,9 @@ export const AgentLeftPanel: React.FC<React.PropsWithChildren<{ className?: stri
 };
 
 const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
-  const {
-    agents: { isAgentsLeftPanelOpen },
-    setAgentsLeftSidePanelOpen,
-  } = useAgentsStore();
-  const { setSettings, setIsConvListPanelOpen } = useSettingsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
 
   const handleToggleAgentsLeftPanel = () => {
-    setIsConvListPanelOpen(false);
-    setSettings({ isConfigDrawerOpen: false });
     setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
   };
 
@@ -152,6 +145,7 @@ const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ class
     <Tooltip hover label="Toggle agents side panel" size="sm">
       <AgentsSidePanelButton
         iconName="close-drawer"
+        theme="mushroom"
         iconClassName={cn(
           'transform transition delay-100 duration-200 ease-in-out dark:fill-marble-950',
           className,
@@ -175,9 +169,7 @@ const AgentsSidePanelButton: React.FC<{
   iconClassName?: string;
   stretch?: boolean;
 }> = ({ label, tooltip, iconName, iconClassName, href, theme, stretch, onClick }) => {
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen } = useSettingsStore();
 
   if (!isAgentsLeftPanelOpen) {
     if (href) {

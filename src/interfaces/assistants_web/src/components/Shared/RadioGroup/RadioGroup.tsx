@@ -3,6 +3,7 @@
 import { Field, Label, Radio, RadioGroup as _RadioGroup } from '@headlessui/react';
 
 import { Text } from '@/components/Shared/Text';
+import { cn } from '@/utils';
 
 type Option<K> = {
   value: K;
@@ -12,22 +13,31 @@ type Option<K> = {
 type Props<K extends string> = {
   value: K;
   options: Option<K>[];
+  disabled?: boolean;
   onChange?: (value: K) => void;
 };
 
-export function RadioGroup<K extends string>({ options, value, onChange }: Props<K>) {
+export function RadioGroup<K extends string>({ options, value, onChange, disabled }: Props<K>) {
   return (
-    <_RadioGroup value={value} onChange={onChange} className="flex flex-col gap-y-5">
+    <_RadioGroup
+      value={value}
+      onChange={onChange}
+      className="flex flex-col gap-y-5"
+      disabled={disabled}
+    >
       {options.map((option) => (
         <Field key={option.value} className="flex items-center gap-4">
           <Radio
             value={option.value}
-            className="group flex size-5 items-center justify-center rounded-full border border-evolved-green-700"
+            className={cn(
+              'group flex size-5 items-center justify-center rounded-full border border-coral-700 transition-colors duration-300',
+              'data-[disabled]:border-volcanic-600 dark:border-evolved-green-700'
+            )}
           >
-            <span className="size-3 rounded-full bg-evolved-green-700 opacity-0 transition-opacity duration-300 group-data-[checked]:opacity-100" />
+            <span className="size-3 rounded-full bg-coral-700 opacity-0 transition-opacity duration-300 group-data-[disabled]:bg-volcanic-600 group-data-[checked]:opacity-100 dark:bg-evolved-green-700" />
           </Radio>
-          <Label>
-            <Text className="dark:text-marble-950">{option.label ?? option.value}</Text>
+          <Label as={Text} className="data-[disabled]:text-volcanic-600">
+            {option.label ?? option.value}
           </Label>
         </Field>
       ))}

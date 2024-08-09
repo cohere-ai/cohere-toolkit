@@ -28,10 +28,10 @@ def document(session, conversation, message, user):
     )
 
 
-def test_create_citation(session, document):
+def test_create_citation(session, document, user):
     citation_data = Citation(
         text="Hello, World!",
-        user_id="1",
+        user_id=user.id,
         start=1,
         end=2,
         message_id="1",
@@ -57,9 +57,12 @@ def test_create_citation(session, document):
     assert citation.document_ids == ["hello"]
 
 
-def test_get_citation(session):
+def test_get_citation(session, user):
     _ = get_factory("Citation", session).create(
-        id="1", text="Hello, World!", user_id="1", message_id="1"
+        id="1",
+        text="Hello, World!",
+        user_id=user.id,
+        message_id="1",
     )
 
     citation = citation_crud.get_citation(session, "1")
@@ -72,9 +75,9 @@ def test_fail_get_nonexistent_citation(session):
     assert citation is None
 
 
-def test_list_citations(session):
+def test_list_citations(session, user):
     _ = get_factory("Citation", session).create(
-        text="Hello, World!", user_id="1", message_id="1"
+        text="Hello, World!", user_id=user.id, message_id="1"
     )
 
     citations = citation_crud.get_citations(session)
@@ -87,10 +90,10 @@ def test_list_citations_empty(session):
     assert len(citations) == 0
 
 
-def test_list_citations_with_pagination(session):
+def test_list_citations_with_pagination(session, user):
     for i in range(10):
         get_factory("Citation", session).create(
-            text=f"Citation {i}", user_id="1", message_id="1"
+            text=f"Citation {i}", user_id=user.id, message_id="1"
         )
 
     citations = citation_crud.get_citations(session, offset=5, limit=5)
@@ -100,10 +103,10 @@ def test_list_citations_with_pagination(session):
         assert citation.text == f"Citation {i + 5}"
 
 
-def test_list_citations_by_message_id(session):
+def test_list_citations_by_message_id(session, user):
     for i in range(10):
         get_factory("Citation", session).create(
-            text=f"Citation {i}", user_id="1", message_id="1"
+            text=f"Citation {i}", user_id=user.id, message_id="1"
         )
 
     citations = citation_crud.get_citations_by_message_id(session, "1")
@@ -118,9 +121,9 @@ def test_list_citations_by_message_id_empty(session):
     assert len(citations) == 0
 
 
-def test_delete_citation(session):
+def test_delete_citation(session, user):
     citation = get_factory("Citation", session).create(
-        id="1", text="Hello, World!", user_id="1", message_id="1"
+        id="1", text="Hello, World!", user_id=user.id, message_id="1"
     )
 
     citation_crud.delete_citation(session, "1")

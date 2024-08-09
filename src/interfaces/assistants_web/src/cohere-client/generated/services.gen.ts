@@ -15,6 +15,12 @@ import type {
   CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostResponse,
   CreateAgentV1AgentsPostData,
   CreateAgentV1AgentsPostResponse,
+  CreateDeploymentV1DeploymentsPostData,
+  CreateDeploymentV1DeploymentsPostResponse,
+  CreateModelV1ModelsPostData,
+  CreateModelV1ModelsPostResponse,
+  CreateOrganizationV1OrganizationsPostData,
+  CreateOrganizationV1OrganizationsPostResponse,
   CreateSnapshotV1SnapshotsPostData,
   CreateSnapshotV1SnapshotsPostResponse,
   CreateUserV1UsersPostData,
@@ -25,8 +31,14 @@ import type {
   DeleteAgentV1AgentsAgentIdDeleteResponse,
   DeleteConversationV1ConversationsConversationIdDeleteData,
   DeleteConversationV1ConversationsConversationIdDeleteResponse,
+  DeleteDeploymentV1DeploymentsDeploymentIdDeleteData,
+  DeleteDeploymentV1DeploymentsDeploymentIdDeleteResponse,
   DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData,
   DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse,
+  DeleteModelV1ModelsModelIdDeleteData,
+  DeleteModelV1ModelsModelIdDeleteResponse,
+  DeleteOrganizationV1OrganizationsOrganizationIdDeleteData,
+  DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse,
   DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteData,
   DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse,
   DeleteSnapshotV1SnapshotsSnapshotIdDeleteData,
@@ -37,9 +49,17 @@ import type {
   GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse,
   GetAgentByIdV1AgentsAgentIdGetData,
   GetAgentByIdV1AgentsAgentIdGetResponse,
+  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData,
+  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
   GetConversationV1ConversationsConversationIdGetResponse,
   GetDefaultAgentV1DefaultAgentGetResponse,
+  GetDeploymentV1DeploymentsDeploymentIdGetData,
+  GetDeploymentV1DeploymentsDeploymentIdGetResponse,
+  GetModelV1ModelsModelIdGetData,
+  GetModelV1ModelsModelIdGetResponse,
+  GetOrganizationV1OrganizationsOrganizationIdGetData,
+  GetOrganizationV1OrganizationsOrganizationIdGetResponse,
   GetSnapshotV1SnapshotsLinkLinkIdGetData,
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
   GetStrategiesV1AuthStrategiesGetResponse,
@@ -59,6 +79,9 @@ import type {
   ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse,
   ListFilesV1ConversationsConversationIdFilesGetData,
   ListFilesV1ConversationsConversationIdFilesGetResponse,
+  ListModelsV1ModelsGetData,
+  ListModelsV1ModelsGetResponse,
+  ListOrganizationsV1OrganizationsGetResponse,
   ListSnapshotsV1SnapshotsGetResponse,
   ListToolsV1ToolsGetData,
   ListToolsV1ToolsGetResponse,
@@ -78,8 +101,14 @@ import type {
   UpdateAgentV1AgentsAgentIdPutResponse,
   UpdateConversationV1ConversationsConversationIdPutData,
   UpdateConversationV1ConversationsConversationIdPutResponse,
+  UpdateDeploymentV1DeploymentsDeploymentIdPutData,
+  UpdateDeploymentV1DeploymentsDeploymentIdPutResponse,
   UpdateFileV1ConversationsConversationIdFilesFileIdPutData,
   UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse,
+  UpdateModelV1ModelsModelIdPutData,
+  UpdateModelV1ModelsModelIdPutResponse,
+  UpdateOrganizationV1OrganizationsOrganizationIdPutData,
+  UpdateOrganizationV1OrganizationsOrganizationIdPutResponse,
   UpdateUserV1UsersUserIdPutData,
   UpdateUserV1UsersUserIdPutResponse,
   UploadFileV1ConversationsUploadFilePostData,
@@ -93,7 +122,8 @@ export class DefaultService {
    * Get Strategies
    * Retrieves the currently enabled list of Authentication strategies.
    *
-   *
+   * Args:
+   * ctx (Context): Context object.
    * Returns:
    * List[dict]: List of dictionaries containing the enabled auth strategy names.
    * @returns ListAuthStrategy Successful Response
@@ -112,9 +142,9 @@ export class DefaultService {
    * Verifies their credentials, retrieves the user and returns a JWT token.
    *
    * Args:
-   * request (Request): current Request object.
    * login (Login): Login payload.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
    * dict: JWT token on Basic auth success
@@ -146,6 +176,8 @@ export class DefaultService {
    * strategy (str): Current strategy name.
    * request (Request): Current Request object.
    * session (Session): DB session.
+   * code (str): OAuth code.
+   * ctx (Context): Context object.
    *
    * Returns:
    * dict: Containing "token" key, on success.
@@ -182,6 +214,9 @@ export class DefaultService {
    *
    * Args:
    * request (Request): current Request object.
+   * session (DBSessionDep): Database session.
+   * token (dict): JWT token payload.
+   * ctx (Context): Context object.
    *
    * Returns:
    * dict: Empty on success
@@ -197,19 +232,23 @@ export class DefaultService {
 
   /**
    * Login
-   * Logs user in, performing basic email/password auth.
-   * Verifies their credentials, retrieves the user and returns a JWT token.
+   * Endpoint for Tool Authentication. Note: The flow is different from
+   * the regular login OAuth flow, the backend initiates it and redirects to the frontend
+   * after completion.
+   *
+   * If completed, a ToolAuth is stored in the DB containing the access token for the tool.
    *
    * Args:
    * request (Request): current Request object.
-   * login (Login): Login payload.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * dict: JWT token on Basic auth success
+   * RedirectResponse: A redirect pointing to the frontend, contains an error query parameter if
+   * an unexpected error happens during the authentication.
    *
    * Raises:
-   * HTTPException: If the strategy or payload are invalid, or if the login fails.
+   * HTTPException: If no redirect_uri set.
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -228,6 +267,7 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    * chat_request (CohereChatRequest): Chat request data.
    * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * EventSourceResponse: Server-sent event response with chatbot responses.
@@ -258,6 +298,7 @@ export class DefaultService {
    * chat_request (CohereChatRequest): Chat request data.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * NonStreamedChatResponse: Chatbot response.
@@ -280,6 +321,16 @@ export class DefaultService {
 
   /**
    * Langchain Chat Stream
+   * Stream chat endpoint to handle user messages and return chatbot responses using langchain.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * chat_request (LangchainChatRequest): Chat request data.
+   * request (Request): Request object.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * EventSourceResponse: Server-sent event response with chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns unknown Successful Response
@@ -306,6 +357,7 @@ export class DefaultService {
    * Args:
    * user (CreateUser): User data to be created.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
    * User: Created user.
@@ -336,6 +388,7 @@ export class DefaultService {
    * offset (int): Offset to start the list.
    * limit (int): Limit of users to be listed.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
    * list[User]: List of users.
@@ -368,6 +421,7 @@ export class DefaultService {
    * Args:
    * user_id (str): User ID.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
    * User: User with the given ID.
@@ -402,6 +456,8 @@ export class DefaultService {
    * user_id (str): User ID.
    * new_user (UpdateUser): New user data.
    * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   * ctx (Context): Context object
    *
    * Returns:
    * User: Updated user.
@@ -439,6 +495,7 @@ export class DefaultService {
    * Args:
    * user_id (str): User ID.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
    * DeleteUser: Empty response.
@@ -467,7 +524,6 @@ export class DefaultService {
 
   /**
    * Get Conversation
-   * "
    * Get a conversation by ID.
    *
    * Args:
@@ -476,13 +532,13 @@ export class DefaultService {
    * request (Request): Request object.
    *
    * Returns:
-   * Conversation: Conversation with the given ID.
+   * ConversationPublic: Conversation with the given ID.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
-   * @returns Conversation Successful Response
+   * @returns ConversationPublic Successful Response
    * @throws ApiError
    */
   public getConversationV1ConversationsConversationIdGet(
@@ -506,19 +562,19 @@ export class DefaultService {
    *
    * Args:
    * conversation_id (str): Conversation ID.
-   * new_conversation (UpdateConversation): New conversation data.
+   * new_conversation (UpdateConversationRequest): New conversation data.
    * session (DBSessionDep): Database session.
-   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * Conversation: Updated conversation.
+   * ConversationPublic: Updated conversation.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
    * @param data.requestBody
-   * @returns Conversation Successful Response
+   * @returns ConversationPublic Successful Response
    * @throws ApiError
    */
   public updateConversationV1ConversationsConversationIdPut(
@@ -545,16 +601,16 @@ export class DefaultService {
    * Args:
    * conversation_id (str): Conversation ID.
    * session (DBSessionDep): Database session.
-   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * DeleteConversation: Empty response.
+   * DeleteConversationResponse: Empty response.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
-   * @returns DeleteConversation Successful Response
+   * @returns DeleteConversationResponse Successful Response
    * @throws ApiError
    */
   public deleteConversationV1ConversationsConversationIdDelete(
@@ -617,6 +673,10 @@ export class DefaultService {
    * query (str): Query string to search for in conversation titles.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
+   * offset (int): Offset to start the list.
+   * limit (int): Limit of conversations to be listed.
+   * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
+   * ctx (Context): Context object.
    *
    * Returns:
    * list[ConversationWithoutMessages]: List of conversations that match the query.
@@ -653,18 +713,19 @@ export class DefaultService {
    *
    * Args:
    * session (DBSessionDep): Database session.
-   * file (FastAPIUploadFile): File to be uploaded.
    * conversation_id (Optional[str]): Conversation ID passed from request query parameter.
+   * file (FastAPIUploadFile): File to be uploaded.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * UploadFile: Uploaded file.
+   * UploadFileResponse: Uploaded file.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found. Status code 404.
    * HTTPException: If the file wasn't uploaded correctly. Status code 500.
    * @param data The data for the request.
    * @param data.formData
-   * @returns UploadFile Successful Response
+   * @returns UploadFileResponse Successful Response
    * @throws ApiError
    */
   public uploadFileV1ConversationsUploadFilePost(
@@ -688,18 +749,19 @@ export class DefaultService {
    *
    * Args:
    * session (DBSessionDep): Database session.
-   * file (list[FastAPIUploadFile]): List of files to be uploaded.
    * conversation_id (Optional[str]): Conversation ID passed from request query parameter.
+   * files (list[FastAPIUploadFile]): List of files to be uploaded.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * list[UploadFile]: List of uploaded files.
+   * list[UploadFileResponse]: List of uploaded files.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found. Status code 404.
    * HTTPException: If the file wasn't uploaded correctly. Status code 500.
    * @param data The data for the request.
    * @param data.formData
-   * @returns UploadFile Successful Response
+   * @returns UploadFileResponse Successful Response
    * @throws ApiError
    */
   public batchUploadFileV1ConversationsBatchUploadFilePost(
@@ -723,6 +785,7 @@ export class DefaultService {
    * Args:
    * conversation_id (str): Conversation ID.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
    * list[ListFile]: List of files from the conversation.
@@ -756,11 +819,12 @@ export class DefaultService {
    * Args:
    * conversation_id (str): Conversation ID.
    * file_id (str): File ID.
-   * new_file (UpdateFile): New file data.
+   * new_file (UpdateFileRequest): New file data.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * File: Updated file.
+   * FilePublic: Updated file.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
@@ -768,7 +832,7 @@ export class DefaultService {
    * @param data.conversationId
    * @param data.fileId
    * @param data.requestBody
-   * @returns File Successful Response
+   * @returns FilePublic Successful Response
    * @throws ApiError
    */
   public updateFileV1ConversationsConversationIdFilesFileIdPut(
@@ -806,7 +870,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.conversationId
    * @param data.fileId
-   * @returns DeleteFile Successful Response
+   * @returns DeleteFileResponse Successful Response
    * @throws ApiError
    */
   public deleteFileV1ConversationsConversationIdFilesFileIdDelete(
@@ -832,6 +896,8 @@ export class DefaultService {
    * Args:
    * conversation_id (str): Conversation ID.
    * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * str: Generated title for the conversation.
@@ -840,7 +906,7 @@ export class DefaultService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
-   * @returns GenerateTitle Successful Response
+   * @returns GenerateTitleResponse Successful Response
    * @throws ApiError
    */
   public generateTitleV1ConversationsConversationIdGenerateTitlePost(
@@ -862,6 +928,11 @@ export class DefaultService {
    * List Tools
    * List all available tools.
    *
+   * Args:
+   * request (Request): The request to validate
+   * session (DBSessionDep): Database session.
+   * agent_id (str): Agent ID.
+   * ctx (Context): Context object.
    * Returns:
    * list[ManagedTool]: List of available tools.
    * @param data The data for the request.
@@ -885,9 +956,42 @@ export class DefaultService {
   }
 
   /**
+   * Create Deployment
+   * Create a new deployment.
+   *
+   * Args:
+   * deployment (DeploymentCreate): Deployment data to be created.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * DeploymentSchema: Created deployment.
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns Deployment Successful Response
+   * @throws ApiError
+   */
+  public createDeploymentV1DeploymentsPost(
+    data: CreateDeploymentV1DeploymentsPostData
+  ): CancelablePromise<CreateDeploymentV1DeploymentsPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/deployments',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
    * List Deployments
    * List all available deployments and their models.
    *
+   * Args:
+   * session (DBSessionDep)
+   * all (bool): Include all deployments, regardless of availability.
+   * ctx (Context): Context object.
    * Returns:
    * list[Deployment]: List of available deployment options.
    * @param data The data for the request.
@@ -911,9 +1015,111 @@ export class DefaultService {
   }
 
   /**
+   * Update Deployment
+   * Update a deployment.
+   *
+   * Args:
+   * deployment_id (str): Deployment ID.
+   * new_deployment (DeploymentUpdate): Deployment data to be updated.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * Deployment: Updated deployment.
+   *
+   * Raises:
+   * HTTPException: If deployment not found.
+   * @param data The data for the request.
+   * @param data.deploymentId
+   * @param data.requestBody
+   * @returns Deployment Successful Response
+   * @throws ApiError
+   */
+  public updateDeploymentV1DeploymentsDeploymentIdPut(
+    data: UpdateDeploymentV1DeploymentsDeploymentIdPutData
+  ): CancelablePromise<UpdateDeploymentV1DeploymentsDeploymentIdPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v1/deployments/{deployment_id}',
+      path: {
+        deployment_id: data.deploymentId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Deployment
+   * Get a deployment by ID.
+   *
+   * Returns:
+   * Deployment: Deployment with the given ID.
+   * @param data The data for the request.
+   * @param data.deploymentId
+   * @returns Deployment Successful Response
+   * @throws ApiError
+   */
+  public getDeploymentV1DeploymentsDeploymentIdGet(
+    data: GetDeploymentV1DeploymentsDeploymentIdGetData
+  ): CancelablePromise<GetDeploymentV1DeploymentsDeploymentIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/deployments/{deployment_id}',
+      path: {
+        deployment_id: data.deploymentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Deployment
+   * Delete a deployment by ID.
+   *
+   * Args:
+   * deployment_id (str): Deployment ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * DeleteDeployment: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the deployment with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.deploymentId
+   * @returns DeleteDeployment Successful Response
+   * @throws ApiError
+   */
+  public deleteDeploymentV1DeploymentsDeploymentIdDelete(
+    data: DeleteDeploymentV1DeploymentsDeploymentIdDeleteData
+  ): CancelablePromise<DeleteDeploymentV1DeploymentsDeploymentIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/deployments/{deployment_id}',
+      path: {
+        deployment_id: data.deploymentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
    * Set Env Vars
    * Set environment variables for the deployment.
    *
+   * Args:
+   * name (str): Deployment name.
+   * env_vars (UpdateDeploymentEnv): Environment variables to set.
+   * valid_env_vars (str): Validated environment variables.
+   * ctx (Context): Context object.
    * Returns:
    * str: Empty string.
    * @param data The data for the request.
@@ -943,6 +1149,8 @@ export class DefaultService {
    * List Experimental Features
    * List all experimental features and if they are enabled
    *
+   * Args:
+   * ctx (Context): Context object.
    * Returns:
    * Dict[str, bool]: Experimental feature and their isEnabled state
    * @returns unknown Successful Response
@@ -958,10 +1166,11 @@ export class DefaultService {
   /**
    * Create Agent
    * Create an agent.
+   *
    * Args:
    * session (DBSessionDep): Database session.
-   * agent (CreateAgent): Agent data.
-   * request (Request): Request object.
+   * agent (CreateAgentRequest): Agent data.
+   * ctx (Context): Context object.
    * Returns:
    * AgentPublic: Created agent with no user ID or organization ID.
    * Raises:
@@ -993,13 +1202,15 @@ export class DefaultService {
    * offset (int): Offset to start the list.
    * limit (int): Limit of agents to be listed.
    * session (DBSessionDep): Database session.
-   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * list[AgentPublic]: List of agents with no user ID or organization ID.
    * @param data The data for the request.
    * @param data.offset
    * @param data.limit
+   * @param data.visibility
+   * @param data.organizationId
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1012,6 +1223,8 @@ export class DefaultService {
       query: {
         offset: data.offset,
         limit: data.limit,
+        visibility: data.visibility,
+        organization_id: data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1024,6 +1237,7 @@ export class DefaultService {
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
    *
    * Returns:
    * Agent: Agent.
@@ -1032,7 +1246,7 @@ export class DefaultService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId
-   * @returns Agent Successful Response
+   * @returns AgentPublic Successful Response
    * @throws ApiError
    */
   public getAgentByIdV1AgentsAgentIdGet(
@@ -1056,9 +1270,9 @@ export class DefaultService {
    *
    * Args:
    * agent_id (str): Agent ID.
-   * new_agent (UpdateAgent): New agent data.
+   * new_agent (UpdateAgentRequest): New agent data.
    * session (DBSessionDep): Database session.
-   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * AgentPublic: Updated agent with no user ID or organization ID.
@@ -1095,7 +1309,7 @@ export class DefaultService {
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
-   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * DeleteAgent: Empty response.
@@ -1123,13 +1337,45 @@ export class DefaultService {
   }
 
   /**
+   * Get Agent Deployments
+   * Args:
+   * agent_id (str): Agent ID.
+   * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * Agent: Agent.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @returns Deployment Successful Response
+   * @throws ApiError
+   */
+  public getAgentDeploymentsV1AgentsAgentIdDeploymentsGet(
+    data: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData
+  ): CancelablePromise<GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/agents/{agent_id}/deployments',
+      path: {
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
    * List Agent Tool Metadata
    * List all agent tool metadata by agent ID.
    *
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
-   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * list[AgentToolMetadataPublic]: List of agent tool metadata with no user ID or organization ID.
@@ -1163,8 +1409,8 @@ export class DefaultService {
    * Args:
    * session (DBSessionDep): Database session.
    * agent_id (str): Agent ID.
-   * agent_tool_metadata (CreateAgentToolMetadata): Agent tool metadata data.
-   * request (Request): Request object.
+   * agent_tool_metadata (CreateAgentToolMetadataRequest): Agent tool metadata data.
+   * ctx (Context): Context object.
    *
    * Returns:
    * AgentToolMetadata: Created agent tool metadata.
@@ -1202,8 +1448,8 @@ export class DefaultService {
    * agent_id (str): Agent ID.
    * agent_tool_metadata_id (str): Agent tool metadata ID.
    * session (DBSessionDep): Database session.
-   * new_agent_tool_metadata (UpdateAgentToolMetadata): New agent tool metadata data.
-   * request (Request): Request object.
+   * new_agent_tool_metadata (UpdateAgentToolMetadataRequest): New agent tool metadata data.
+   * ctx (Context): Context object.
    *
    * Returns:
    * AgentToolMetadata: Updated agent tool metadata.
@@ -1244,7 +1490,7 @@ export class DefaultService {
    * agent_id (str): Agent ID.
    * agent_tool_metadata_id (str): Agent tool metadata ID.
    * session (DBSessionDep): Database session.
-   * request (Request): Request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * DeleteAgentToolMetadata: Empty response.
@@ -1276,6 +1522,14 @@ export class DefaultService {
 
   /**
    * Get Default Agent
+   * Get the default agent - used for logging purposes.
+   *
+   * Args:
+   * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * GenericResponseMessage: OK message.
    * @returns GenericResponseMessage Successful Response
    * @throws ApiError
    */
@@ -1292,10 +1546,10 @@ export class DefaultService {
    *
    * Args:
    * session (DBSessionDep): Database session.
-   * request (Request): HTTP request object.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * list[Snapshot]: List of all snapshots.
+   * list[SnapshotWithLinks]: List of all snapshots with their links.
    * @returns SnapshotWithLinks Successful Response
    * @throws ApiError
    */
@@ -1311,9 +1565,9 @@ export class DefaultService {
    * Create a new snapshot and snapshot link to share the conversation.
    *
    * Args:
-   * snapshot_request (CreateSnapshot): Snapshot creation request.
+   * snapshot_request (CreateSnapshotRequest): Snapshot creation request.
    * session (DBSessionDep): Database session.
-   * request (Request): HTTP request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * CreateSnapshotResponse: Snapshot creation response.
@@ -1343,13 +1597,13 @@ export class DefaultService {
    * Args:
    * link_id (str): Snapshot link ID.
    * session (DBSessionDep): Database session.
-   * request (Request): HTTP request object.
+   * ctx (Context): Context object.
    *
    * Returns:
    * Snapshot: Snapshot with the given link ID.
    * @param data The data for the request.
    * @param data.linkId
-   * @returns Snapshot Successful Response
+   * @returns SnapshotPublic Successful Response
    * @throws ApiError
    */
   public getSnapshotV1SnapshotsLinkLinkIdGet(
@@ -1374,13 +1628,13 @@ export class DefaultService {
    * Args:
    * link_id (str): Snapshot link ID.
    * session (DBSessionDep): Database session.
-   * request (Request): HTTP request object.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * Any: Empty response.
+   * DeleteSnapshotLinkResponse: Empty response.
    * @param data The data for the request.
    * @param data.linkId
-   * @returns unknown Successful Response
+   * @returns DeleteSnapshotLinkResponse Successful Response
    * @throws ApiError
    */
   public deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete(
@@ -1405,13 +1659,13 @@ export class DefaultService {
    * Args:
    * snapshot_id (str): Snapshot ID.
    * session (DBSessionDep): Database session.
-   * request (Request): HTTP request object.
+   * ctx (Context): Context object.
    *
    * Returns:
-   * Any: Empty response.
+   * DeleteSnapshotResponse: Empty response.
    * @param data The data for the request.
    * @param data.snapshotId
-   * @returns unknown Successful Response
+   * @returns DeleteSnapshotResponse Successful Response
    * @throws ApiError
    */
   public deleteSnapshotV1SnapshotsSnapshotIdDelete(
@@ -1422,6 +1676,303 @@ export class DefaultService {
       url: '/v1/snapshots/{snapshot_id}',
       path: {
         snapshot_id: data.snapshotId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * List Organizations
+   * List all available organizations.
+   *
+   * Args:
+   * request (Request): Request object.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * list[ManagedTool]: List of available organizations.
+   * @returns Organization Successful Response
+   * @throws ApiError
+   */
+  public listOrganizationsV1OrganizationsGet(): CancelablePromise<ListOrganizationsV1OrganizationsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/organizations',
+    });
+  }
+
+  /**
+   * Create Organization
+   * Create a new organization.
+   *
+   * Args:
+   * organization (CreateOrganization): Organization data
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * Organization: Created organization.
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns Organization Successful Response
+   * @throws ApiError
+   */
+  public createOrganizationV1OrganizationsPost(
+    data: CreateOrganizationV1OrganizationsPostData
+  ): CancelablePromise<CreateOrganizationV1OrganizationsPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/organizations',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Update Organization
+   * Update organization by ID.
+   *
+   * Args:
+   * organization_id (str): Tool ID.
+   * new_organization (ToolUpdate): New organization data.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * Organization: Updated organization.
+   * @param data The data for the request.
+   * @param data.organizationId
+   * @param data.requestBody
+   * @returns Organization Successful Response
+   * @throws ApiError
+   */
+  public updateOrganizationV1OrganizationsOrganizationIdPut(
+    data: UpdateOrganizationV1OrganizationsOrganizationIdPutData
+  ): CancelablePromise<UpdateOrganizationV1OrganizationsOrganizationIdPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v1/organizations/{organization_id}',
+      path: {
+        organization_id: data.organizationId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Organization
+   * Get a organization by ID.
+   *
+   * Args:
+   * organization_id (str): Tool ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * ManagedTool: Tool with the given ID.
+   * @param data The data for the request.
+   * @param data.organizationId
+   * @returns Organization Successful Response
+   * @throws ApiError
+   */
+  public getOrganizationV1OrganizationsOrganizationIdGet(
+    data: GetOrganizationV1OrganizationsOrganizationIdGetData
+  ): CancelablePromise<GetOrganizationV1OrganizationsOrganizationIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/organizations/{organization_id}',
+      path: {
+        organization_id: data.organizationId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Organization
+   * Delete a organization by ID.
+   *
+   * Args:
+   * organization_id (str): Tool ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * DeleteOrganization: Organization deleted.
+   * @param data The data for the request.
+   * @param data.organizationId
+   * @returns DeleteOrganization Successful Response
+   * @throws ApiError
+   */
+  public deleteOrganizationV1OrganizationsOrganizationIdDelete(
+    data: DeleteOrganizationV1OrganizationsOrganizationIdDeleteData
+  ): CancelablePromise<DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/organizations/{organization_id}',
+      path: {
+        organization_id: data.organizationId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Create Model
+   * Create a new model.
+   *
+   * Args:
+   * model (ModelCreate): Model data to be created.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * ModelSchema: Created model.
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns Model Successful Response
+   * @throws ApiError
+   */
+  public createModelV1ModelsPost(
+    data: CreateModelV1ModelsPostData
+  ): CancelablePromise<CreateModelV1ModelsPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/models',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * List Models
+   * List all available models
+   *
+   * Returns:
+   * list[Model]: List of available models.
+   * @param data The data for the request.
+   * @param data.offset
+   * @param data.limit
+   * @returns Model Successful Response
+   * @throws ApiError
+   */
+  public listModelsV1ModelsGet(
+    data: ListModelsV1ModelsGetData = {}
+  ): CancelablePromise<ListModelsV1ModelsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/models',
+      query: {
+        offset: data.offset,
+        limit: data.limit,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Update Model
+   * Update a model by ID.
+   *
+   * Args:
+   * model_id (str): Model ID.
+   * new_model (ModelCreateUpdate): New model data.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * ModelSchema: Updated model.
+   *
+   * Raises:
+   * HTTPException: If the model with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.modelId
+   * @param data.requestBody
+   * @returns Model Successful Response
+   * @throws ApiError
+   */
+  public updateModelV1ModelsModelIdPut(
+    data: UpdateModelV1ModelsModelIdPutData
+  ): CancelablePromise<UpdateModelV1ModelsModelIdPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v1/models/{model_id}',
+      path: {
+        model_id: data.modelId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Model
+   * Get a model by ID.
+   *
+   * Returns:
+   * Model: Model with the given ID.
+   * @param data The data for the request.
+   * @param data.modelId
+   * @returns Model Successful Response
+   * @throws ApiError
+   */
+  public getModelV1ModelsModelIdGet(
+    data: GetModelV1ModelsModelIdGetData
+  ): CancelablePromise<GetModelV1ModelsModelIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/models/{model_id}',
+      path: {
+        model_id: data.modelId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Model
+   * Delete a model by ID.
+   *
+   * Args:
+   * model_id (str): Model ID.
+   * session (DBSessionDep): Database session.
+   * request (Request): Request object.
+   *
+   * Returns:
+   * DeleteModel: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the model with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.modelId
+   * @returns DeleteModel Successful Response
+   * @throws ApiError
+   */
+  public deleteModelV1ModelsModelIdDelete(
+    data: DeleteModelV1ModelsModelIdDeleteData
+  ): CancelablePromise<DeleteModelV1ModelsModelIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/models/{model_id}',
+      path: {
+        model_id: data.modelId,
       },
       errors: {
         422: 'Validation Error',

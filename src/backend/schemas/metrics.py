@@ -57,7 +57,7 @@ class MetricsAgent(BaseModel):
     version: int
     name: str
     temperature: float
-    model: str
+    model: str | None
     deployment: str | None
     preamble: str | None
     description: str | None
@@ -103,14 +103,15 @@ DEFAULT_METRICS_AGENT = MetricsAgent(
 def agent_to_metrics_agent(agent: Agent | None) -> MetricsAgent:
     if not agent:
         return None
-
+    # TODO Eugene: Check agent.model and agent.deployment after the refactor Agent deployment
+    #  and model to object(if needed)
     return MetricsAgent(
         id=agent.id,
         version=agent.version,
         name=agent.name,
         temperature=agent.temperature,
-        model=agent.model,
-        deployment=agent.deployment,
+        model=agent.model if agent.model else None,
+        deployment=agent.deployment if agent.deployment else None,
         preamble=agent.preamble,
         description=agent.description,
     )

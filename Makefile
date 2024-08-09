@@ -30,6 +30,8 @@ run-tests: run-unit-tests
 
 .PHONY: attach
 attach: 
+	@docker attach cohere-toolkit-backend-1
+logs: 
 	@docker compose logs -f backend
 
 .PHONY: exec-backend
@@ -91,7 +93,7 @@ win-first-run:
 	make dev
 
 .PHONY: format-web
-format-web: 
+format-web:
 	cd src/interfaces/coral_web && npm run format:write
 
 .PHONY: generate-client-web
@@ -99,7 +101,7 @@ generate-client-web:
 	cd src/interfaces/coral_web && npm run generate:client && npm run format:write
 
 .PHONY: install-web
-install-web: 
+install-web:
 	cd src/interfaces/coral_web && npm install
 
 .PHONY: build-web

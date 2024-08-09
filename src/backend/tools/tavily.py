@@ -55,7 +55,7 @@ class TavilyInternetSearch(BaseTool):
         )
 
         return [
-            {"url": result["url"], "text": result["content"]}
+            {"url": result["url"], "text": result["content"], "title": result["title"]}
             for result in reranked_results
         ]
 

@@ -16,6 +16,7 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.file import File, UpdateFileRequest
 from backend.services import utils
+from backend.services.agent import validate_agent_exists
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -120,21 +121,19 @@ class FileService:
         Returns:
             list[File]: The files that were created
         """
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        if agent is None:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Agent with ID: {agent_id} not found.",
-            )
+        agent = validate_agent_exists(session, agent_id, user_id)
 
         files = []
         agent_tool_metadata = agent.tools_metadata
         if agent_tool_metadata is not None and len(agent_tool_metadata) > 0:
             artifacts = next(
-                tool_metadata.artifacts
-                for tool_metadata in agent_tool_metadata
-                if tool_metadata.tool_name == ToolName.Read_File
-                or tool_metadata.tool_name == ToolName.Search_File
+                (
+                    tool_metadata.artifacts
+                    for tool_metadata in agent_tool_metadata
+                    if tool_metadata.tool_name == ToolName.Read_File
+                    or tool_metadata.tool_name == ToolName.Search_File
+                ),
+                [],  # Default value if the generator is empty
             )
 
             # TODO scott: enumerate type names (?), different types for local vs. compass?

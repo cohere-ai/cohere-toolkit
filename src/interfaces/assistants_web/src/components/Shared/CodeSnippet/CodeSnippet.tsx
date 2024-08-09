@@ -72,7 +72,6 @@ export const CodeSnippet: React.FC<Props> = ({
         ref={copyBtnRef}
         value={codeSnippet}
         size="md"
-        animate={false}
         kind="secondary"
         className="absolute right-3 top-3 rounded-lg bg-mushroom-800 px-2 py-1 group-hover:bg-mushroom-800"
       />

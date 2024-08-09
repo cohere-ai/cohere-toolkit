@@ -65,16 +65,16 @@ def test_validate_authorization_invalid_token():
     assert exception.detail == "Bearer token is invalid or expired."
 
 
-def test_validate_authorization_expired_token():
+def test_validate_authorization_expired_token(session):
     user = {"user_id": "test"}
     with freezegun.freeze_time("2023-01-01 00:00:00"):
         token = JWTService().create_and_encode_jwt(user)
 
     request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
 
-    with freezegun.freeze_time("2024-02-01 00:00:00"):
+    with freezegun.freeze_time("2024-05-01 00:00:00"):
         with pytest.raises(HTTPException) as exc:
-            _ = validate_authorization(request_mock)
+            _ = validate_authorization(request_mock, session)
 
     exception = exc.value
     assert exception.status_code == 401
