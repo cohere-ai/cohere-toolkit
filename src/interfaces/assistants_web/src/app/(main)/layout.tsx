@@ -38,6 +38,10 @@ const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {
         return tools.filter((tool) => !DEFAULT_AGENT_TOOLS.includes(tool.name ?? ''));
       },
     }),
+    queryClient.prefetchQuery({
+      queryKey: ['conversations', null], // we use null to indicate that we want to fetch all conversations
+      queryFn: async () => cohereServerClient.listConversations({ limit: 20 }),
+    }),
   ]);
 
   return (
