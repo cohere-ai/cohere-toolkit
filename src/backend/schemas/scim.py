@@ -18,8 +18,8 @@ class Name(BaseModel):
 
 
 class BaseUser(BaseModel):
-    userName: str
-    active: bool
+    userName: Optional[str]
+    active: Optional[bool]
 
     schemas: list[str]
 

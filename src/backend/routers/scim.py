@@ -101,24 +101,16 @@ async def get_user(
 
 
 @router.post("/Users", status_code=201)
-async def create_user(
-    user: CreateUser, session: DBSessionDep, ctx: Context = Depends(get_context)
-):
-    logger = ctx.get_logger()
+async def create_user(user: CreateUser, session: DBSessionDep):
     db_user = user_crud.get_user_by_external_id(session, user.externalId)
-    if db_user:
-        logger.error(event="[SCIM] user already exists", external_id=user.externalId)
-        raise SCIMException(
-            status_code=409, detail="User already exists in the database."
-        )
+    if not db_user:
+        db_user = DBUser()
 
-    db_user = DBUser(
-        user_name=user.userName,
-        fullname=f"{user.name.givenName} {user.name.familyName}",
-        email=_get_email_from_scim_user(user),
-        active=user.active,
-        external_id=user.externalId,
-    )
+    db_user.user_name = user.userName
+    db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
+    db_user.email = _get_email_from_scim_user(user)
+    db_user.active = user.active
+    db_user.external_id = user.externalId
 
     db_user = user_crud.create_user(session, db_user)
     return User.from_db_user(db_user)
@@ -221,20 +213,12 @@ async def get_group(
 
 
 @router.post("/Groups", status_code=201)
-async def create_group(
-    group: CreateGroup, session: DBSessionDep, ctx: Context = Depends(get_context)
-):
-    logger = ctx.get_logger()
+async def create_group(group: CreateGroup, session: DBSessionDep):
     db_group = group_crud.get_group_by_name(session, group.displayName)
-    if db_group:
-        logger.error(event="[SCIM] group already exists", group_name=group.displayName)
-        raise SCIMException(
-            status_code=409, detail="Group already exists in the database."
-        )
+    if not db_group:
+        db_group = DBGroup()
 
-    db_group = DBGroup(
-        display_name=group.displayName,
-    )
+    db_group.display_name = group.displayName
 
     db_group = group_crud.create_group(session, db_group)
     return Group.from_db_group(db_group)

@@ -75,15 +75,6 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
     assert response.status_code == 201
     assert response_user == expected_user
 
-    response = create_user_request(session_client)
-    error_response = response.json()
-
-    assert response.status_code == 409
-    assert error_response == {
-        "detail": "User already exists in the database.",
-        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
-    }
-
 
 def test_get_user(session_client: TestClient, session: Session):
     response = session_client.get(
@@ -230,9 +221,6 @@ def test_create_group(session_client: TestClient, session: Session):
             "lastModified": group.updated_at.isoformat(),
         },
     }
-
-    response = create_group_request(session_client)
-    assert response.status_code == 409
 
 
 def test_get_group(session_client: TestClient, session: Session):
