@@ -16,9 +16,9 @@
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
     "next:build": "next build",
-    "start": "next build && next start --port 4444",
-    "start:single-docker": "next build && next start --port 4444",
-    "start:single-docker-proxy": "next build && next start --port 8090",
+    "start": "next start --port 4444",
+    "start:single-docker": "next start --port 4444",
+    "start:single-docker-proxy": "next start --port 8090",
     "generate:client": "openapi-ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
