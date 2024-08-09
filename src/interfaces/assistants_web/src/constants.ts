@@ -92,6 +92,7 @@ export type COHERE_BRANDED_COLORS =
 export const BASE_AGENT: AgentPublic = {
   id: '',
   deployments: [],
+  is_private: false,
   name: 'Command R+',
   description: 'Review, understand and ask questions about internal financial documents.',
   created_at: new Date().toISOString(),
