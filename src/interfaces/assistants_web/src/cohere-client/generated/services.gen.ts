@@ -105,6 +105,8 @@ import type {
   UpdateDeploymentV1DeploymentsDeploymentIdPutResponse,
   UpdateFileV1ConversationsConversationIdFilesFileIdPutData,
   UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse,
+  UpdateMessageV1MessagesMessageIdPostData,
+  UpdateMessageV1MessagesMessageIdPostResponse,
   UpdateModelV1ModelsModelIdPutData,
   UpdateModelV1ModelsModelIdPutResponse,
   UpdateOrganizationV1OrganizationsOrganizationIdPutData,
@@ -906,6 +908,7 @@ export class DefaultService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
+   * @param data.model
    * @returns GenerateTitleResponse Successful Response
    * @throws ApiError
    */
@@ -917,6 +920,9 @@ export class DefaultService {
       url: '/v1/conversations/{conversation_id}/generate-title',
       path: {
         conversation_id: data.conversationId,
+      },
+      query: {
+        model: data.model,
       },
       errors: {
         422: 'Validation Error',
@@ -1820,6 +1826,31 @@ export class DefaultService {
       path: {
         organization_id: data.organizationId,
       },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Update Message
+   * @param data The data for the request.
+   * @param data.messageId
+   * @param data.requestBody
+   * @returns UpdateMessageResponse Successful Response
+   * @throws ApiError
+   */
+  public updateMessageV1MessagesMessageIdPost(
+    data: UpdateMessageV1MessagesMessageIdPostData
+  ): CancelablePromise<UpdateMessageV1MessagesMessageIdPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/messages/{message_id}',
+      path: {
+        message_id: data.messageId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
       errors: {
         422: 'Validation Error',
       },

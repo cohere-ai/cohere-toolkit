@@ -31,21 +31,22 @@ type Props = {
   onCopy?: VoidFunction;
   onRetry?: VoidFunction;
   onUpdateMessage: HandleUpdateConversation
+  conversationId: string;
 };
 
 /**
  * Renders a single message row from the user or from our models.
  */
 const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal(
-  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry, onUpdateMessage },
+  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry, onUpdateMessage, conversationId },
   ref
 ) {
-  console.log("raaa", onUpdateMessage)
   const breakpoint = useBreakpoint();
 
   const [isEditing, setIsEditing] = useState(false);
   const [edittedMessage, _setEdittedMessage] = useState<ChatMessage>(message);
   const setEdittedMessage = React.useCallback((partialMessage: Partial<FulfilledMessage>) => {
+    console.log('editted message', edittedMessage);
     if (isFulfilledMessage(edittedMessage)) {
       _setEdittedMessage(({ ...edittedMessage, ...partialMessage }));
     } else {
@@ -157,7 +158,13 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                     'hidden md:invisible md:flex': !isFulfilledMessage(edittedMessage),
                   }
                 )}
-                onClick={() => setIsEditing((prevIsEditing) => !prevIsEditing)}
+                onClick={() => {
+                  setIsEditing((prevIsEditing) => !prevIsEditing)
+                  if (isEditing && isFulfilledMessage(edittedMessage)) {
+                    console.log('Updating message', edittedMessage);
+                    onUpdateMessage(conversationId, edittedMessage);
+                  }
+                }}
               />
               {hasSteps && (
                 <IconButton

@@ -32,15 +32,18 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events,
   const finalEvent = events?.[events.length - 1];
 
   const setJsonData = React.useCallback((toolEvents: JsonData) => {
+    console.log("rraaa", toolEvents, setEdittedMessage);
     setEdittedMessage?.({
       toolEvents: toolEvents as StreamToolCallsGeneration[],
     });
-  }, [])
+  }, [setEdittedMessage])
 
   if (isEditing && finalEvent) {
     return <JsonEditor
       data={events}
-      setData={setJsonData} />
+      setData={setJsonData}
+      onEdit={setJsonData}
+    />
   }
 
   return (

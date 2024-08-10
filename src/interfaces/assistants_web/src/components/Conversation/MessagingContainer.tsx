@@ -135,7 +135,8 @@ const Messages: React.FC<MessagesProps> = ({
   streamingMessage,
   agentId,
   isStreamingToolEvents,
-  onUpdateMessage
+  onUpdateMessage,
+  conversationId
 }) => {
   const isChatEmpty = messages.length === 0;
 
@@ -154,6 +155,7 @@ const Messages: React.FC<MessagesProps> = ({
           const isLastInList = i === messages.length - 1;
           return (
             <MessageRow
+              conversationId={conversationId!}
               onUpdateMessage={onUpdateMessage}
               key={i}
               message={m}
@@ -177,6 +179,8 @@ const Messages: React.FC<MessagesProps> = ({
 
       {streamingMessage && (
         <MessageRow
+          conversationId={conversationId!}
+          onUpdateMessage={onUpdateMessage}
           isLast
           isStreamingToolEvents={isStreamingToolEvents}
           message={streamingMessage}

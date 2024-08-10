@@ -125,7 +125,7 @@ export enum CohereChatPromptTruncation {
  * See: https://github.com/cohere-ai/cohere-python/blob/main/src/cohere/base_client.py#L1629
  */
 export type CohereChatRequest = {
-  message: string;
+  message?: string | null;
   chat_history?: Array<ChatMessage> | null;
   conversation_id?: string;
   tools?: Array<Tool> | null;
@@ -317,6 +317,7 @@ export type FilePublic = {
 
 export type GenerateTitleResponse = {
   title: string;
+  error?: string | null;
 };
 
 export type GenericResponseMessage = {
@@ -335,7 +336,7 @@ export type JWTResponse = {
  * Request shape for Langchain Streamed Chat.
  */
 export type LangchainChatRequest = {
-  message: string;
+  message?: string | null;
   chat_history?: Array<ChatMessage> | null;
   conversation_id?: string;
   tools?: Array<Tool> | null;
@@ -437,6 +438,7 @@ export type ModelUpdate = {
 };
 
 export type NonStreamedChatResponse = {
+  id?: string | null;
   response_id: string | null;
   generation_id: string | null;
   chat_history: Array<ChatMessage> | null;
@@ -450,6 +452,7 @@ export type NonStreamedChatResponse = {
   search_queries?: Array<SearchQuery> | null;
   conversation_id: string | null;
   tool_calls?: Array<ToolCall> | null;
+  error?: string | null;
 };
 
 export type Organization = {
@@ -495,10 +498,12 @@ export type SnapshotWithLinks = {
  * Stream citation generation event.
  */
 export type StreamCitationGeneration = {
+  id?: string | null;
   citations?: Array<Citation>;
 };
 
 export type StreamEnd = {
+  id?: string | null;
   response_id?: string | null;
   generation_id?: string | null;
   conversation_id?: string | null;
@@ -536,6 +541,7 @@ export enum StreamEvent {
  * Stream query generation event.
  */
 export type StreamQueryGeneration = {
+  id?: string | null;
   query: string;
 };
 
@@ -543,10 +549,12 @@ export type StreamQueryGeneration = {
  * Stream queries generation event.
  */
 export type StreamSearchQueriesGeneration = {
+  id?: string | null;
   search_queries?: Array<SearchQuery>;
 };
 
 export type StreamSearchResults = {
+  id?: string | null;
   search_results?: Array<{
     [key: string]: unknown;
   }>;
@@ -557,6 +565,7 @@ export type StreamSearchResults = {
  * Stream start event.
  */
 export type StreamStart = {
+  id?: string | null;
   generation_id?: string | null;
   conversation_id?: string | null;
 };
@@ -565,10 +574,12 @@ export type StreamStart = {
  * Stream text generation event.
  */
 export type StreamTextGeneration = {
+  id?: string | null;
   text: string;
 };
 
 export type StreamToolCallsChunk = {
+  id?: string | null;
   tool_call_delta?: ToolCallDelta | null;
   text: string | null;
 };
@@ -577,12 +588,14 @@ export type StreamToolCallsChunk = {
  * Stream tool calls generation event.
  */
 export type StreamToolCallsGeneration = {
+  id?: string | null;
   stream_search_results?: StreamSearchResults | null;
   tool_calls?: Array<ToolCall> | null;
   text: string | null;
 };
 
 export type StreamToolInput = {
+  id?: string | null;
   input_type: ToolInputType;
   tool_name: string;
   input: string;
@@ -590,6 +603,7 @@ export type StreamToolInput = {
 };
 
 export type StreamToolResult = {
+  id?: string | null;
   result: unknown;
   tool_name: string;
   documents?: Array<Document>;
@@ -641,6 +655,7 @@ export type UpdateAgentRequest = {
   organization_id?: string | null;
   tools?: Array<string> | null;
   tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
+  is_private?: boolean | null;
 };
 
 export type UpdateAgentToolMetadataRequest = {
@@ -666,6 +681,14 @@ export type UpdateFileRequest = {
   file_name?: string | null;
   message_id?: string | null;
 };
+
+export type UpdateMessage = {
+  tool_calls?: Array<ToolCall> | null;
+  tool_plan?: string | null;
+  text?: string | null;
+};
+
+export type UpdateMessageResponse = unknown;
 
 export type UpdateOrganization = {
   name: string | null;
@@ -844,6 +867,7 @@ export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse = D
 
 export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostData = {
   conversationId: string;
+  model?: string | null;
 };
 
 export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse =
@@ -1021,6 +1045,13 @@ export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteData = {
 };
 
 export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse = DeleteOrganization;
+
+export type UpdateMessageV1MessagesMessageIdPostData = {
+  messageId: string;
+  requestBody: UpdateMessage;
+};
+
+export type UpdateMessageV1MessagesMessageIdPostResponse = UpdateMessageResponse;
 
 export type CreateModelV1ModelsPostData = {
   requestBody: ModelCreate;
@@ -1774,6 +1805,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: DeleteOrganization;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/messages/{message_id}': {
+    post: {
+      req: UpdateMessageV1MessagesMessageIdPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: UpdateMessageResponse;
         /**
          * Validation Error
          */

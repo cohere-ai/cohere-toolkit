@@ -446,7 +446,14 @@ export const $CohereChatPromptTruncation = {
 export const $CohereChatRequest = {
   properties: {
     message: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'The message to send to the chatbot.',
     },
     chat_history: {
@@ -763,7 +770,6 @@ export const $CohereChatRequest = {
     },
   },
   type: 'object',
-  required: ['message'],
   title: 'CohereChatRequest',
   description: `Request shape for Cohere Python SDK Streamed Chat.
 See: https://github.com/cohere-ai/cohere-python/blob/main/src/cohere/base_client.py#L1629`,
@@ -1656,6 +1662,17 @@ export const $GenerateTitleResponse = {
       type: 'string',
       title: 'Title',
     },
+    error: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Error',
+    },
   },
   type: 'object',
   required: ['title'],
@@ -1703,7 +1720,14 @@ export const $JWTResponse = {
 export const $LangchainChatRequest = {
   properties: {
     message: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'The message to send to the chatbot.',
     },
     chat_history: {
@@ -1792,7 +1816,6 @@ export const $LangchainChatRequest = {
     },
   },
   type: 'object',
-  required: ['message'],
   title: 'LangchainChatRequest',
   description: 'Request shape for Langchain Streamed Chat.',
 } as const;
@@ -2297,6 +2320,17 @@ export const $ModelUpdate = {
 
 export const $NonStreamedChatResponse = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     response_id: {
       anyOf: [
         {
@@ -2428,6 +2462,17 @@ export const $NonStreamedChatResponse = {
       ],
       title: 'List of tool calls generated for custom tools',
       default: [],
+    },
+    error: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Error message if the response is an error.',
     },
   },
   type: 'object',
@@ -2607,6 +2652,17 @@ export const $SnapshotWithLinks = {
 
 export const $StreamCitationGeneration = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     citations: {
       items: {
         $ref: '#/components/schemas/Citation',
@@ -2623,6 +2679,17 @@ export const $StreamCitationGeneration = {
 
 export const $StreamEnd = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     response_id: {
       anyOf: [
         {
@@ -2764,6 +2831,17 @@ export const $StreamEvent = {
 
 export const $StreamQueryGeneration = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     query: {
       type: 'string',
       title: 'Search query used to generate grounded response with citations.',
@@ -2777,6 +2855,17 @@ export const $StreamQueryGeneration = {
 
 export const $StreamSearchQueriesGeneration = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     search_queries: {
       items: {
         $ref: '#/components/schemas/SearchQuery',
@@ -2793,6 +2882,17 @@ export const $StreamSearchQueriesGeneration = {
 
 export const $StreamSearchResults = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     search_results: {
       items: {
         type: 'object',
@@ -2816,6 +2916,17 @@ export const $StreamSearchResults = {
 
 export const $StreamStart = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     generation_id: {
       anyOf: [
         {
@@ -2846,6 +2957,17 @@ export const $StreamStart = {
 
 export const $StreamTextGeneration = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     text: {
       type: 'string',
       title: 'Contents of the chat message.',
@@ -2859,6 +2981,17 @@ export const $StreamTextGeneration = {
 
 export const $StreamToolCallsChunk = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     tool_call_delta: {
       anyOf: [
         {
@@ -2890,6 +3023,17 @@ export const $StreamToolCallsChunk = {
 
 export const $StreamToolCallsGeneration = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     stream_search_results: {
       anyOf: [
         {
@@ -2937,6 +3081,17 @@ export const $StreamToolCallsGeneration = {
 
 export const $StreamToolInput = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     input_type: {
       $ref: '#/components/schemas/ToolInputType',
     },
@@ -2960,6 +3115,17 @@ export const $StreamToolInput = {
 
 export const $StreamToolResult = {
   properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Unique identifier for the response.',
+    },
     result: {
       title: 'Result',
     },
@@ -3250,6 +3416,17 @@ export const $UpdateAgentRequest = {
       ],
       title: 'Tools Metadata',
     },
+    is_private: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Private',
+    },
   },
   type: 'object',
   title: 'UpdateAgentRequest',
@@ -3369,6 +3546,55 @@ export const $UpdateFileRequest = {
   },
   type: 'object',
   title: 'UpdateFileRequest',
+} as const;
+
+export const $UpdateMessage = {
+  properties: {
+    tool_calls: {
+      anyOf: [
+        {
+          items: {
+            $ref: '#/components/schemas/ToolCall',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tool Calls',
+    },
+    tool_plan: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Tool Plan',
+    },
+    text: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Text',
+    },
+  },
+  type: 'object',
+  title: 'UpdateMessage',
+} as const;
+
+export const $UpdateMessageResponse = {
+  properties: {},
+  type: 'object',
+  title: 'UpdateMessageResponse',
 } as const;
 
 export const $UpdateOrganization = {

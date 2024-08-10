@@ -17,6 +17,7 @@ import {
   UpdateConversationRequest,
   UpdateDeploymentEnv,
 } from '@/cohere-client';
+import { FulfilledMessage } from '@/types/message';
 
 import { mapToChatRequest } from './mappings';
 
@@ -271,6 +272,23 @@ export class CohereClient {
 
   public getAgent(agentId: string) {
     return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
+  }
+
+  public async updateMessage(conversationId: string, message: FulfilledMessage) {
+    await Promise.all(
+      message.toolEvents?.map((event) => {
+        if (event.id) {
+          this.cohereService.default.updateMessageV1MessagesMessageIdPost({
+            messageId: event.id,
+            requestBody: { tool_calls: event.tool_calls },
+          });
+        }
+      }) || []
+    );
+
+    return {
+      conversationId
+    }
   }
 
   public getDefaultAgent() {

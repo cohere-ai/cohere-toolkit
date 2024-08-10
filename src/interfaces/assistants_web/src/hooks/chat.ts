@@ -50,6 +50,7 @@ import {
 } from '@/utils';
 import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import { useUpdateMessage } from './updateConversation';
 
 const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
 const ABORT_REASON_USER = 'USER_ABORTED';
@@ -73,7 +74,7 @@ export type HandleSendChat = (
   regenerating?: boolean
 ) => Promise<void>;
 
-export type HandleUpdateConversation = (message: FulfilledMessage) => Promise<void>;
+export type HandleUpdateConversation = (conversationId: string, message: FulfilledMessage) => Promise<void>;
 
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { chatMutation, abortController } = useStreamChat();
@@ -87,6 +88,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     setConversation,
     setPendingMessage,
   } = useConversationStore();
+  const { mutateAsync: updateMessage } = useUpdateMessage();
   const { mutateAsync: updateConversationTitle } = useUpdateConversationTitle();
   const {
     citations: { outputFiles: savedOutputFiles },
@@ -602,9 +604,16 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   };
 
   const handleUpdateConversation: HandleUpdateConversation = async (
+    conversationId,
     message
   ) => {
-    // update conversation and trigger reload!
+    await updateMessage({ conversationId, message });
+    setConversation({
+      // drop last message
+      messages: messages.slice(0, -1),
+    });
+    debugger;
+    await handleChat({ currentMessages: [message], suggestedMessage: '_' });
   };
 
   const handleRetry = () => {
