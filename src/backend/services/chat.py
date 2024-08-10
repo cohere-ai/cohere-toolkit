@@ -22,6 +22,7 @@ from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
+from backend.database_models.tool_call import UpdateToolCall
 from backend.database_models.message import (
     Message,
     MessageAgent,
@@ -48,15 +49,120 @@ from backend.schemas.chat import (
     StreamToolResult,
     ToolInputType,
 )
-from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.cohere_chat import CohereChatRequest, RegenerateChatStreamRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
 from backend.services.file import get_file_service
+from backend.schemas.message import UpdateMessage
 from backend.services.generators import AsyncGeneratorContextManager
+from backend.crud.message import delete_messages_after_message, get_message, update_message
 
+
+def edit_chat_history(
+    ctx: Context,
+    session: DBSessionDep,
+    update_message: UpdateMessage,
+) -> None:
+    user_id = ctx.get_user_id()
+    message = get_message(session, update_message.id, user_id)
+    delete_messages_after_message(session, update_message.id)
+    update_message(session, message, update_message)
+
+def process_regen_chat(
+    session: DBSessionDep,
+    chat_request: RegenerateChatStreamRequest,
+    ctx: Context,
+) -> tuple[
+    DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
+]:
+    user_id = ctx.get_user_id()
+    ctx.with_deployment_config()
+    agent_id = ctx.get_agent_id()
+
+    if agent_id is not None:
+        agent = validate_agent_exists(session, agent_id, user_id)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
+
+        if agent is None:
+            raise HTTPException(
+                status_code=404, detail=f"Agent with ID {agent_id} not found."
+            )
+
+        if chat_request.tools:
+            for tool in chat_request.tools:
+                if tool.name not in agent.tools:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"Tool {tool.name} not found in agent {agent.id}",
+                    )
+
+        # Set the agent settings in the chat request
+        chat_request.preamble = agent.preamble
+        chat_request.tools = [Tool(name=tool) for tool in agent.tools]
+
+    should_store = chat_request.chat_history is None and not is_custom_tool_call(
+        chat_request
+    )
+    update_message(ctx, session, chat_request)
+    conversation = conversation_crud.get_conversation(session, chat_request.conversation_id, user_id)
+
+    ctx.with_conversation_id(conversation.id)
+
+    # Get position to put next message in
+    next_message_position = get_next_message_position(conversation)
+    chatbot_message = create_message(
+        session,
+        chat_request,
+        conversation.id,
+        user_id,
+        next_message_position,
+        "",
+        MessageAgent.CHATBOT,
+        False,
+        id=str(uuid4()),
+    )
+
+    chat_history = create_chat_history(
+        conversation, next_message_position, chat_request
+    )
+
+    # co.chat expects either chat_history or conversation_id, not both
+    chat_request.chat_history = chat_history
+    chat_request.conversation_id = ""
+
+    tools = chat_request.tools
+    managed_tools = (
+        len([tool.name for tool in tools if tool.name in AVAILABLE_TOOLS]) > 0
+    )
+
+    return (
+        session,
+        chat_request,
+        None,
+        chatbot_message,
+        should_store,
+        managed_tools,
+        next_message_position,
+        ctx,
+    )
+
+def update_message(ctx: Context, session: DBSessionDep, chat_request: RegenerateChatStreamRequest):
+    user_id = ctx.get_user_id()
+    message = get_message(session, chat_request.message_id, user_id)
+    delete_messages_after_message(session, message, user_id)
+    if chat_request.tool_calls:
+        tool_call_crud.delete_tool_calls_by_message_id(session, chat_request.message_id)
+        for tool_call in chat_request.tool_calls:
+            tool_call = ToolCallModel(
+                name=tool_call.name,
+                parameters=to_dict(tool_call.parameters),
+                message_id=message.id,
+            )
+            tool_call_crud.create_tool_call(session, tool_call)
 
 def process_chat(
     session: DBSessionDep,
@@ -115,17 +221,18 @@ def process_chat(
 
     # Get position to put next message in
     next_message_position = get_next_message_position(conversation)
-    user_message = create_message(
-        session,
-        chat_request,
-        conversation.id,
-        user_id,
-        next_message_position,
-        chat_request.message,
-        MessageAgent.USER,
-        should_store,
-        id=str(uuid4()),
-    )
+    if chat_request.message is not None and chat_request.message != "":
+        user_message = create_message(
+            session,
+            chat_request,
+            conversation.id,
+            user_id,
+            next_message_position,
+            chat_request.message,
+            MessageAgent.USER,
+            should_store,
+            id=str(uuid4()),
+        )
     chatbot_message = create_message(
         session,
         chat_request,
@@ -139,7 +246,7 @@ def process_chat(
     )
 
     file_paths = None
-    if isinstance(chat_request, CohereChatRequest):
+    if isinstance(chat_request, CohereChatRequest) and chat_request.message is not None:
         file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
@@ -152,6 +259,14 @@ def process_chat(
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request
     )
+    print ("conversation_id: ", chat_request.conversation_id)
+    for m in conversation.messages:
+        print ("message: ", m.text)
+        print ("position: ", m.position)
+        print (m)
+    print ("conversation: ", len(conversation.messages))
+    print ("next_message_position: ", next_message_position)
+    print ("CHAT HISTORY: ", chat_history)
 
     # co.chat expects either chat_history or conversation_id, not both
     chat_request.chat_history = chat_history
@@ -220,7 +335,10 @@ def get_or_create_conversation(
 
     if conversation is None:
         # Get the first 5 words of the user message as the title
-        title = " ".join(user_message.split()[:5])
+        if user_message is not None and len(user_message.split()) > 5:
+            title = " ".join(user_message.split()[:5])
+        else: 
+            title = user_message
 
         conversation = Conversation(
             user_id=user_id,
@@ -393,10 +511,15 @@ def create_chat_history(
         for message in conversation.messages
         if message.position < user_message_position
     ]
+        
     return [
         ChatMessage(
             role=ChatRole(message.agent.value.upper()),
             message=message.text,
+            tool_calls=[{
+                "name": tool_call.name,
+                "parameters": tool_call.parameters
+            } for tool_call in message.tool_calls],
         )
         for message in text_messages
     ]
@@ -418,6 +541,9 @@ def update_conversation_after_turn(
         conversation_id (str): Conversation ID.
         final_message_text (str): Final message text.
     """
+    # If an error occurs delete it
+    if response_message.text == "":
+        message_crud.delete_message(session, response_message.id, user_id)
     message_crud.create_message(session, response_message)
 
     # Update conversation description with final message
@@ -436,7 +562,7 @@ def save_tool_calls_message(
     user_id: str,
     position: int,
     conversation_id: str,
-) -> None:
+) -> Message:
     """
     Save tool calls to the database.
 
@@ -467,6 +593,7 @@ def save_tool_calls_message(
             message_id=message.id,
         )
         tool_call_crud.create_tool_call(session, tool_call)
+    return message
 
 
 async def generate_chat_response(
@@ -772,7 +899,7 @@ def handle_stream_tool_calls_generation(
     stream_end_data["tool_calls"].extend(tool_calls)
 
     if should_store:
-        save_tool_calls_message(
+        message = save_tool_calls_message(
             session,
             tool_calls,
             event.get("text", ""),
@@ -780,6 +907,7 @@ def handle_stream_tool_calls_generation(
             next_message_position,
             conversation_id,
         )
+        stream_event.id = message.id
 
     return stream_event, stream_end_data, response_message, document_ids_to_document
 

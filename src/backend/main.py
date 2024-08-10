@@ -19,6 +19,7 @@ from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
+from backend.routers.message import router as message_router
 from backend.routers.experimental_features import router as experimental_feature_router
 from backend.routers.model import router as model_router
 from backend.routers.organization import router as organization_router
@@ -50,6 +51,7 @@ def create_app():
         default_agent_router,
         snapshot_router,
         organization_router,
+        message_router,
         model_router,
     ]
 
