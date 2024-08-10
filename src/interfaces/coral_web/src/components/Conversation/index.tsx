@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { UpdateAgent } from '@/components/Agents/UpdateAgent';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
-import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ReservedClasses } from '@/constants';
@@ -25,6 +24,7 @@ import {
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
+import MessagingTree from './MessagingTree';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -146,7 +146,7 @@ const Conversation: React.FC<Props> = ({
         <Header conversationId={conversationId} agentId={agentId} isStreaming={isStreaming} />
 
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
-          <MessagingContainer
+          <MessagingTree
             conversationId={conversationId}
             startOptionsEnabled={startOptionsEnabled}
             isStreaming={isStreaming}
