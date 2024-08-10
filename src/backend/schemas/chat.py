@@ -69,6 +69,10 @@ class ChatMessage(BaseModel):
 # TODO: fix titles of these types
 class ChatResponse(BaseModel):
     event_type: ClassVar[StreamEvent] = Field()
+    id: str | None = Field(
+        default=None,
+        title="Unique identifier for the response.",
+    )
 
 
 class StreamStart(ChatResponse):
@@ -302,7 +306,8 @@ class BaseChatRequest(BaseModel):
     # user_id: str = Field(
     #     title="A user id to store to store the conversation under.", exclude=True
     # )
-    message: str = Field(
+    message: str | None = Field(
+        default=None,
         title="The message to send to the chatbot.",
     )
     chat_history: List[ChatMessage] | None = Field(

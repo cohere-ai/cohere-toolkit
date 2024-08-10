@@ -37,8 +37,11 @@ class Message(MessageBase):
 
 
 class UpdateMessage(BaseModel):
-    text: Optional[str] = None
-    title: Optional[str] = None
+    tool_calls: Optional[List[ToolCall]] = None
 
     class Config:
         from_attributes = True
+
+
+class UpdateMessageResponse(BaseModel):
+    pass

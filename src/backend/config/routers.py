@@ -29,6 +29,7 @@ class RouterName(StrEnum):
     SNAPSHOT = "snapshot"
     MODEL = "model"
     SCIM = "scim"
+    MESSAGE = "message"
 
 
 # Router dependency mappings
@@ -67,6 +68,16 @@ ROUTER_DEPENDENCIES = {
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
+        ],
+    },
+    RouterName.MESSAGE: {
+        "default": [
+            Depends(get_session),
+            Depends(validate_user_header),
+        ],
+        "auth": [
+            Depends(get_session),
+            Depends(validate_authorization),
         ],
     },
     RouterName.DEPLOYMENT: {

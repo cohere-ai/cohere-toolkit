@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from pydantic import Field
 
 from backend.schemas.chat import BaseChatRequest
+from backend.schemas.tool import ToolCall
 
 
 class CohereChatPromptTruncation(StrEnum):
@@ -11,7 +12,6 @@ class CohereChatPromptTruncation(StrEnum):
 
     OFF = "OFF"
     AUTO_PRESERVE_ORDER = "AUTO_PRESERVE_ORDER"
-
 
 class CohereChatRequest(BaseChatRequest):
     """
@@ -113,3 +113,7 @@ class CohereChatRequest(BaseChatRequest):
         default=None,
         title="The agent ID to use for the chat.",
     )
+
+class RegenerateChatStreamRequest(CohereChatRequest):
+    message_id: str
+    tool_calls: List[ToolCall]

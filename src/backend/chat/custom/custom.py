@@ -183,7 +183,11 @@ class CustomChat(BaseChat):
                 if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
             ]
 
+        chat_request.chat_history = [c.to_dict() for c in chat_request.chat_history]
+        has_tool_calls = len(chat_request.chat_history) > 0 and chat_request.chat_history[-1]["tool_calls"] is not None
         # Loop until there are no new tool calls
+        print("here <=====================================")
+        print(has_tool_calls)
         for step in range(MAX_STEPS):
             logger.debug(
                 event=f"[Custom Chat] Chat request: {chat_request.model_dump()}",
@@ -191,26 +195,33 @@ class CustomChat(BaseChat):
             )
 
             # Invoke chat stream
-            has_tool_calls = False
-            async for event in deployment_model.invoke_chat_stream(
-                chat_request,
-                ctx,
-            ):
-                if event["event_type"] == StreamEvent.STREAM_END:
-                    chat_request.chat_history = event["response"].get(
-                        "chat_history", []
-                    )
-                elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
-                    has_tool_calls = True
+            # check if the last value of chat_history has tool calls
+             
+            print("here2 <=====================================")
+            print(has_tool_calls)
+            print(chat_request.chat_history)
+            if not has_tool_calls:
+                print("here2.1 <=====================================")
+                async for event in deployment_model.invoke_chat_stream(
+                    chat_request,
+                    ctx,
+                ):
+                    if event["event_type"] == StreamEvent.STREAM_END:
+                        chat_request.chat_history = event["response"].get(
+                            "chat_history", []
+                        )
+                    elif event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
+                        has_tool_calls = True
 
-                yield event
+                    yield event
 
-            logger.info(
-                event=f"[Custom Chat] Chat stream completed: Has tool calls {has_tool_calls}",
-            )
+                logger.info(
+                    event=f"[Custom Chat] Chat stream completed: Has tool calls {has_tool_calls}",
+                )
 
             # Check for new tool calls in the chat history
             if has_tool_calls:
+                print("here3 <=====================================")
                 # Handle tool calls
                 tool_results = await async_call_tools(
                     chat_request.chat_history, deployment_model, ctx, **kwargs
@@ -220,6 +231,10 @@ class CustomChat(BaseChat):
                 if tool_results:
                     chat_request.tool_results = list(tool_results)
                     chat_request.message = ""
+                for result in tool_results:
+                    print(result)
+                print("here4 <=====================================")
+                has_tool_calls = False
             else:
                 break  # Exit loop if there are no new tool calls
 
