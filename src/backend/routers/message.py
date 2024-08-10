@@ -40,5 +40,5 @@ async def update_message(
         new_message.tool_calls = None
     if new_message.tool_plan:
         new_message.text = new_message.tool_plan
-        message_crud.update_message(session, message, new_message)
+    message_crud.update_message(session, message, new_message)
     return message
