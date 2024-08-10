@@ -112,6 +112,7 @@ def update_message(
     db.refresh(message)
     return message
 
+
 @validate_transaction
 def delete_messages_after_message(db: Session, message: Message, user_id: str) -> None:
     """
@@ -122,9 +123,14 @@ def delete_messages_after_message(db: Session, message: Message, user_id: str) -
         message_id (str): Message ID.
         user_id (str): User ID.
     """
-    messages = db.query(Message).filter(Message.created_at > message.created_at, Message.user_id == user_id, Message.conversation_id == message.conversation_id)
+    messages = db.query(Message).filter(
+        Message.created_at > message.created_at,
+        Message.user_id == user_id,
+        Message.conversation_id == message.conversation_id,
+    )
     messages.delete()
     db.commit()
+
 
 @validate_transaction
 def delete_message(db: Session, message_id: str, user_id: str) -> None:

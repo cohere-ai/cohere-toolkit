@@ -183,8 +183,13 @@ class CustomChat(BaseChat):
                 if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
             ]
 
-        chat_request.chat_history = [c.to_dict() for c in chat_request.chat_history]
-        has_tool_calls = len(chat_request.chat_history) > 0 and chat_request.chat_history[-1]["tool_calls"] is not None
+        chat_request.chat_history = [c.to_dict() for c in chat_request.chat_history] if chat_request.chat_history else []
+        has_tool_calls = (
+            len(chat_request.chat_history) > 0
+            and chat_request.chat_history[-1]["tool_calls"] is not None
+        )
+        print("tool results")
+        print(chat_request.tool_results)
         # Loop until there are no new tool calls
         print("here <=====================================")
         print(has_tool_calls)
@@ -196,12 +201,12 @@ class CustomChat(BaseChat):
 
             # Invoke chat stream
             # check if the last value of chat_history has tool calls
-             
-            print("here2 <=====================================")
+
+            print("in loop <=====================================")
             print(has_tool_calls)
             print(chat_request.chat_history)
             if not has_tool_calls:
-                print("here2.1 <=====================================")
+                print("calling chat <=====================================")
                 async for event in deployment_model.invoke_chat_stream(
                     chat_request,
                     ctx,

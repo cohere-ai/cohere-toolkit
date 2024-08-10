@@ -47,6 +47,7 @@ def list_tool_calls_by_message_id(db: Session, message_id: str) -> list[ToolCall
     """
     return db.query(ToolCall).filter(ToolCall.message_id == message_id).all()
 
+
 def delete_tool_calls_by_message_id(db: Session, message_id: str):
     """
     Delete all tool calls by message ID.
@@ -58,7 +59,10 @@ def delete_tool_calls_by_message_id(db: Session, message_id: str):
     db.query(ToolCall).filter(ToolCall.message_id == message_id).delete()
     db.commit()
 
-def update_tool_call(db: Session, tool_call: ToolCall, new_tool_call: UpdateToolCall) -> ToolCall:
+
+def update_tool_call(
+    db: Session, tool_call: ToolCall, new_tool_call: UpdateToolCall
+) -> ToolCall:
     """
     Update a tool call.
 

@@ -40,6 +40,7 @@ class UpdateMessage(BaseModel):
     tool_calls: Optional[List[ToolCall]] = None
     tool_plan: Optional[str] = None
     text: Optional[str] = None
+    documents: Optional[List[Document]] = None
 
     class Config:
         from_attributes = True

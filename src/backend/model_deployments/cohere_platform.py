@@ -78,7 +78,7 @@ class CohereDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
         logger = ctx.get_logger()
-
+        print("chat_request",  chat_request)
         stream = self.client.chat_stream(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
@@ -93,7 +93,7 @@ class CohereDeployment(BaseDeployment):
                 **event_dict_log,
                 conversation_id=ctx.get_conversation_id(),
             )
-
+            print("event_dict", event_dict)
             yield event_dict
 
     @collect_metrics_rerank

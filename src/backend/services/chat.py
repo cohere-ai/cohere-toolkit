@@ -55,7 +55,6 @@ from backend.services.agent import validate_agent_exists
 from backend.services.file import get_file_service
 from backend.schemas.message import UpdateMessage
 from backend.services.generators import AsyncGeneratorContextManager
-from backend.crud.message import delete_messages_after_message, get_message, update_message
 
 
 def process_chat(
@@ -142,17 +141,39 @@ def process_chat(
             chat_request.file_ids
         )
 
-    chat_history = create_chat_history(
-        conversation, next_message_position, chat_request
-    )
-    print ("conversation_id: ", chat_request.conversation_id)
+    chat_history = create_chat_history(conversation, next_message_position, chat_request)
+
+    if len(conversation.messages) > 0 and conversation.messages[-1].documents is not None and conversation.messages[-1].text == "":
+        last_message = conversation.messages[-1]
+        tool_results = []
+        for document in last_message.documents:
+            output = document.fields
+            output["text"] = document.text
+            output["id"] = document.document_id
+            tool_results.append(
+                {
+                    "call": {"name": document.tool_name, "parameters": {}},
+                    "outputs": [output],
+                }
+            )
+        chat_request.tool_results = tool_results
+        chat_history.append(
+            ChatMessage(
+                role=ChatRole.CHATBOT,
+                message="",
+                tool_results=tool_results,
+            )
+        )
+        message_crud.delete_message(session, last_message.id, user_id)
+
+    print("conversation_id: ", chat_request.conversation_id)
     for m in conversation.messages:
-        print ("message: ", m.text)
-        print ("position: ", m.position)
-        print (m)
-    print ("conversation: ", len(conversation.messages))
-    print ("next_message_position: ", next_message_position)
-    print ("CHAT HISTORY: ", chat_history)
+        print("message: ", m.text)
+        print("position: ", m.position)
+        print(m)
+    print("conversation: ", len(conversation.messages))
+    print("next_message_position: ", next_message_position)
+    print("CHAT HISTORY: ", chat_history)
 
     # co.chat expects either chat_history or conversation_id, not both
     chat_request.chat_history = chat_history
@@ -221,7 +242,7 @@ def get_or_create_conversation(
         # Get the first 5 words of the user message as the title
         if user_message is not None and len(user_message.split()) > 5:
             title = " ".join(user_message.split()[:5])
-        else: 
+        else:
             title = user_message
 
         conversation = Conversation(
@@ -360,6 +381,7 @@ def create_chat_history(
     Returns:
         list[ChatMessage]: List of chat messages.
     """
+
     if chat_request.chat_history is not None:
         return chat_request.chat_history
 
@@ -372,18 +394,21 @@ def create_chat_history(
         for message in conversation.messages
         if message.position < user_message_position
     ]
-        
-    return [
-        ChatMessage(
+
+    chat_history = []
+    for message in text_messages:
+        if message.text == "":
+            continue
+        history_message = ChatMessage(
             role=ChatRole(message.agent.value.upper()),
             message=message.text,
-            tool_calls=[{
-                "name": tool_call.name,
-                "parameters": tool_call.parameters
-            } for tool_call in message.tool_calls],
+            tool_calls=[
+                {"name": tool_call.name, "parameters": tool_call.parameters}
+                for tool_call in message.tool_calls
+            ],
         )
-        for message in text_messages
-    ]
+        chat_history.append(history_message)
+    return chat_history
 
 
 def update_conversation_after_turn(

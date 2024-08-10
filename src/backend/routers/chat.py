@@ -20,7 +20,7 @@ from backend.services.chat import (
     generate_chat_response,
     generate_chat_stream,
     generate_langchain_chat_stream,
-    process_chat
+    process_chat,
 )
 from backend.services.context import get_context
 from backend.services.request_validators import validate_deployment_header
@@ -29,6 +29,7 @@ router = APIRouter(
     prefix="/v1",
 )
 router.name = RouterName.CHAT
+
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
 async def chat_stream(

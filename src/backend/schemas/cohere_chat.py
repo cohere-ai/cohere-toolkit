@@ -13,6 +13,7 @@ class CohereChatPromptTruncation(StrEnum):
     OFF = "OFF"
     AUTO_PRESERVE_ORDER = "AUTO_PRESERVE_ORDER"
 
+
 class CohereChatRequest(BaseChatRequest):
     """
     Request shape for Cohere Python SDK Streamed Chat.
@@ -113,6 +114,7 @@ class CohereChatRequest(BaseChatRequest):
         default=None,
         title="The agent ID to use for the chat.",
     )
+
 
 class RegenerateChatStreamRequest(CohereChatRequest):
     message_id: str

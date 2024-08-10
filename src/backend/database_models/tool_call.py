@@ -1,6 +1,8 @@
 from sqlalchemy import JSON, ForeignKey, Index
-from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
+
+from sqlalchemy import JSON, ForeignKey, Index, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base
 
@@ -20,8 +22,10 @@ class ToolCall(Base):
 
     __table_args__ = (Index("tool_call_message_id", message_id),)
 
-class UpdateToolCall():
+
+class UpdateToolCall:
     """
     UpdateToolCall schema.
     """
+
     parameters: Optional[Mapped[dict]] = None
