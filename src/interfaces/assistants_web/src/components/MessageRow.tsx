@@ -10,6 +10,7 @@ import { MessageContent } from '@/components/MessageContent';
 import { Button, CopyToClipboardButton, CopyToClipboardIconButton } from '@/components/Shared';
 import { ToolEvents } from '@/components/ToolEvents';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
+import { HandleUpdateConversation } from '@/hooks/chat';
 import {
   type ChatMessage,
   FulfilledMessage,
@@ -29,16 +30,17 @@ type Props = {
   className?: string;
   onCopy?: VoidFunction;
   onRetry?: VoidFunction;
-  onEdit?: (message: ChatMessage) => void;
+  onUpdateMessage: HandleUpdateConversation
 };
 
 /**
  * Renders a single message row from the user or from our models.
  */
 const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal(
-  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry, onEdit },
+  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry, onUpdateMessage },
   ref
 ) {
+  console.log("raaa", onUpdateMessage)
   const breakpoint = useBreakpoint();
 
   const [isEditing, setIsEditing] = useState(false);

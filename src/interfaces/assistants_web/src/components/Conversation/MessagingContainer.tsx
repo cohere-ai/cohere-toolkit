@@ -8,6 +8,7 @@ import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bo
 import MessageRow from '@/components/MessageRow';
 import { Button } from '@/components/Shared';
 import { Welcome } from '@/components/Welcome';
+import { HandleUpdateConversation } from '@/hooks/chat';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
@@ -23,6 +24,7 @@ type Props = {
   composer: ReactNode;
   conversationId?: string;
   scrollViewClassName?: string;
+  onUpdateMessage: HandleUpdateConversation
 };
 
 /**
@@ -133,6 +135,7 @@ const Messages: React.FC<MessagesProps> = ({
   streamingMessage,
   agentId,
   isStreamingToolEvents,
+  onUpdateMessage
 }) => {
   const isChatEmpty = messages.length === 0;
 
@@ -151,6 +154,7 @@ const Messages: React.FC<MessagesProps> = ({
           const isLastInList = i === messages.length - 1;
           return (
             <MessageRow
+              onUpdateMessage={onUpdateMessage}
               key={i}
               message={m}
               isLast={isLastInList && !streamingMessage}

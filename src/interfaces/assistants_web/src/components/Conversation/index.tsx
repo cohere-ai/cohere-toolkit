@@ -47,6 +47,7 @@ const Conversation: React.FC<Props> = ({
     handleSend: send,
     handleStop,
     handleRetry,
+    handleUpdateConversation
   } = useChat({
     onSend: () => {
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
@@ -79,6 +80,7 @@ const Conversation: React.FC<Props> = ({
             messages={messages}
             streamingMessage={streamingMessage}
             agentId={agent?.id}
+            onUpdateMessage={handleUpdateConversation}
             composer={
               <>
                 <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />

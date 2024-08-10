@@ -73,6 +73,8 @@ export type HandleSendChat = (
   regenerating?: boolean
 ) => Promise<void>;
 
+export type HandleUpdateConversation = (message: FulfilledMessage) => Promise<void>;
+
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
@@ -441,13 +443,13 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
               const finalText = isRAGOn
                 ? replaceTextWithCitations(
-                    // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
-                    // because the final response doesn't give us the full text yet. Note - this means that
-                    // citations will only appear for the first 'block' of text generated.
-                    transformedText,
-                    citations,
-                    generationId
-                  )
+                  // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
+                  // because the final response doesn't give us the full text yet. Note - this means that
+                  // citations will only appear for the first 'block' of text generated.
+                  transformedText,
+                  citations,
+                  generationId
+                )
                 : botResponse;
 
               const finalMessage: FulfilledMessage = {
@@ -475,7 +477,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
           }
         },
-        onHeaders: () => {},
+        onHeaders: () => { },
         onFinish: () => {
           setIsStreaming(false);
         },
@@ -599,6 +601,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     });
   };
 
+  const handleUpdateConversation: HandleUpdateConversation = async (
+    message
+  ) => {
+    // update conversation and trigger reload!
+  };
+
   const handleRetry = () => {
     const latestMessage = messages[messages.length - 1];
 
@@ -640,5 +648,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     streamingMessage,
     setPendingMessage,
     setUserMessage,
+    handleUpdateConversation
   };
 };
