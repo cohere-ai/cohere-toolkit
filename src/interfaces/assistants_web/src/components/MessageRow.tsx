@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { useLongPress } from 'react-aria';
 
 import { Avatar } from '@/components/Avatar';
@@ -12,6 +12,7 @@ import { ToolEvents } from '@/components/ToolEvents';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
 import {
   type ChatMessage,
+  FulfilledMessage,
   isAbortedMessage,
   isErroredMessage,
   isFulfilledMessage,
@@ -28,37 +29,48 @@ type Props = {
   className?: string;
   onCopy?: VoidFunction;
   onRetry?: VoidFunction;
+  onEdit?: (message: ChatMessage) => void;
 };
 
 /**
  * Renders a single message row from the user or from our models.
  */
 const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal(
-  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry },
+  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry, onEdit },
   ref
 ) {
   const breakpoint = useBreakpoint();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [edittedMessage, _setEdittedMessage] = useState<ChatMessage>(message);
+  const setEdittedMessage = React.useCallback((partialMessage: Partial<FulfilledMessage>) => {
+    if (isFulfilledMessage(edittedMessage)) {
+      _setEdittedMessage(({ ...edittedMessage, ...partialMessage }));
+    } else {
+      console.error('Cannot edit a message that is not fulfilled.');
+    }
+  }, [edittedMessage]);
 
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
   const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
   const hasSteps =
-    (isFulfilledOrTypingMessage(message) ||
-      isErroredMessage(message) ||
-      isAbortedMessage(message)) &&
-    !!message.toolEvents &&
-    message.toolEvents.length > 0;
+    (isFulfilledOrTypingMessage(edittedMessage) ||
+      isErroredMessage(edittedMessage) ||
+      isAbortedMessage(edittedMessage)) &&
+    !!edittedMessage.toolEvents &&
+    edittedMessage.toolEvents.length > 0;
 
   const getMessageText = () => {
-    if (isFulfilledMessage(message)) {
-      return message.originalText;
+    if (isFulfilledMessage(edittedMessage)) {
+      return edittedMessage.originalText;
     }
 
-    return message.text;
+    return edittedMessage.text;
   };
 
   const enableLongPress =
-    (isFulfilledMessage(message) || isUserMessage(message)) && breakpoint === Breakpoint.sm;
+    (isFulfilledMessage(edittedMessage) || isUserMessage(edittedMessage)) && breakpoint === Breakpoint.sm;
   const { longPressProps } = useLongPress({
     onLongPress: () => setIsLongPressMenuOpen(true),
   });
@@ -110,27 +122,41 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
         {...(enableLongPress && longPressProps)}
       >
         <div className="flex w-full gap-x-2">
-          <Avatar message={message} />
+          <Avatar message={edittedMessage} />
           <div className="flex w-full min-w-0 max-w-message flex-1 flex-col items-center gap-x-3 md:flex-row">
             <div className="w-full">
               {hasSteps && (
                 <ToolEvents
                   show={isStepsExpanded}
-                  events={message.toolEvents}
+                  events={edittedMessage.toolEvents}
                   isStreaming={isStreamingToolEvents}
                   isLast={isLast}
+                  setEdittedMessage={isEditing ? setEdittedMessage : undefined}
                 />
               )}
 
-              <MessageContent isLast={isLast} message={message} onRetry={onRetry} />
+              <MessageContent isLast={isLast} message={edittedMessage} onRetry={onRetry} setEdittedMessage={isEditing ? setEdittedMessage : undefined} />
             </div>
             <div
               className={cn('flex h-full items-end justify-end self-end', {
                 'hidden md:invisible md:flex':
-                  !isFulfilledMessage(message) && !isUserMessage(message),
+                  !isFulfilledMessage(edittedMessage) && !isUserMessage(edittedMessage),
                 'hidden md:invisible md:flex md:group-hover:visible': !isLast,
               })}
             >
+              <IconButton
+                tooltip={{ label: `${isEditing ? 'Save' : 'Edit'} message`, size: 'sm' }}
+                iconName={isEditing ? 'checkmark' : 'edit'}
+                className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
+                iconClassName={cn(
+                  'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+                  'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
+                  {
+                    'hidden md:invisible md:flex': !isFulfilledMessage(edittedMessage),
+                  }
+                )}
+                onClick={() => setIsEditing((prevIsEditing) => !prevIsEditing)}
+              />
               {hasSteps && (
                 <IconButton
                   tooltip={{ label: `${isStepsExpanded ? 'Hide' : 'Show'} steps`, size: 'sm' }}
@@ -140,7 +166,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                     'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
                     'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
                     {
-                      'hidden md:invisible md:flex': !isFulfilledMessage(message),
+                      'hidden md:invisible md:flex': !isFulfilledMessage(edittedMessage),
                     }
                   )}
                   onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}

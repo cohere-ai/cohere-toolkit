@@ -1,7 +1,7 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { Fragment, PropsWithChildren } from 'react';
+import React, { Fragment, PropsWithChildren } from 'react';
 
 import { StreamSearchResults, StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
 import { Icon, IconName, Markdown, Text } from '@/components/Shared';
@@ -11,20 +11,38 @@ import {
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
 } from '@/constants';
+import { FulfilledMessage } from '@/types/message';
 import { cn, getValidURL } from '@/utils';
 import { getToolIcon } from '@/utils/tools';
+import { JsonData, JsonEditor } from 'json-edit-react';
 
 type Props = {
   show: boolean;
   isStreaming: boolean;
   isLast: boolean;
   events: StreamToolCallsGeneration[] | undefined;
+  setEdittedMessage?: (message: Pick<FulfilledMessage, "toolEvents">) => void;
 };
 
 /**
  * @description Renders a list of events depending on the model's plan and tool inputs.
  */
-export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events }) => {
+export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events, setEdittedMessage }) => {
+  const isEditing = Boolean(setEdittedMessage) && isLast;
+  const finalEvent = events?.[events.length - 1];
+
+  const setJsonData = React.useCallback((toolEvents: JsonData) => {
+    setEdittedMessage?.({
+      toolEvents: toolEvents as StreamToolCallsGeneration[],
+    });
+  }, [])
+
+  if (isEditing && finalEvent) {
+    return <JsonEditor
+      data={events}
+      setData={setJsonData} />
+  }
+
   return (
     <Transition
       show={show}

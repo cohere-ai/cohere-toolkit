@@ -47,6 +47,7 @@
     "form-data": "^4.0.0",
     "hast-util-to-jsx-runtime": "^2.3.0",
     "js-cookie": "^3.0.5",
+    "json-edit-react": "^1.15.4",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.1",

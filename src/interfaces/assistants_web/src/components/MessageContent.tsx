@@ -7,10 +7,10 @@ import { CitationTextHighlighter } from '@/components/Citations/CitationTextHigh
 import { DataTable } from '@/components/DataTable';
 import { MarkdownImage } from '@/components/MarkdownImage';
 import { MessageFile } from '@/components/MessageFile';
-import { Icon } from '@/components/Shared';
-import { Markdown, Text } from '@/components/Shared';
+import { Icon, Markdown, Text } from '@/components/Shared';
 import {
   type ChatMessage,
+  FulfilledMessage,
   MessageType,
   isAbortedMessage,
   isErroredMessage,
@@ -23,11 +23,13 @@ type Props = {
   isLast: boolean;
   message: ChatMessage;
   onRetry?: VoidFunction;
+  setEdittedMessage?: (message: Partial<FulfilledMessage>) => void;
 };
 
 const BOT_ERROR_MESSAGE = 'Unable to generate a response since an error was encountered. ';
 
-export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) => {
+export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry, setEdittedMessage }) => {
+  const isEditing = Boolean(setEdittedMessage);
   const isUser = message.type === MessageType.USER;
   const isLoading = isLoadingMessage(message);
   const isBotError = isErroredMessage(message);
@@ -116,6 +118,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
             table: DataTable as any,
           }}
           renderLaTex={!hasCitations}
+          contentEditable={isEditing}
         />
         {isAborted && (
           <MessageInfo>
