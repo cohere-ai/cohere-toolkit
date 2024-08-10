@@ -15,7 +15,7 @@ import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { useAgentsStore, useCitationsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
-import { ReactFlow } from '@xyflow/react';
+import { Handle, Position, ReactFlow } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 
@@ -184,24 +184,69 @@ const MessageNode = ({ data: {
     i: number,
   }
 }) => {
-  console.log(message)
-  return <MessageRow
-    key={i}
-    message={message}
-    isLast={isLastInList && !streamingMessage}
-    isStreamingToolEvents={isStreamingToolEvents}
-    className={cn({
-      // Hide the last message if it is the same as the separate streamed message
-      // to avoid a flash of duplicate messages.
-      hidden:
-        isLastInList &&
-        streamingMessage &&
-        isFulfilledMessage(streamingMessage) &&
-        isFulfilledMessage(message) &&
-        streamingMessage.generationId === message.generationId,
-    })}
-    onRetry={onRetry}
-  />
+  return <>
+    <Handle
+      type="target"
+      position={Position.Top}
+      style={{ visibility: 'hidden' }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      style={{ visibility: 'hidden' }}
+    />
+    <MessageRow
+      key={i}
+      message={message}
+      isLast={isLastInList && !streamingMessage}
+      isStreamingToolEvents={isStreamingToolEvents}
+      className={cn({
+        // Hide the last message if it is the same as the separate streamed message
+        // to avoid a flash of duplicate messages.
+        hidden:
+          isLastInList &&
+          streamingMessage &&
+          isFulfilledMessage(streamingMessage) &&
+          isFulfilledMessage(message) &&
+          streamingMessage.generationId === message.generationId,
+      })}
+      onRetry={onRetry}
+    /></>
+}
+
+const StreamingMessageNode = ({ data: {
+  isStreamingToolEvents,
+  streamingMessage,
+  onRetry,
+  i,
+} }: {
+  data: {
+    message: any,
+    isLastInList: boolean,
+    isStreamingToolEvents: boolean,
+    streamingMessage: any,
+    onRetry: VoidFunction,
+    i: number,
+  }
+}) => {
+  return <>
+    <Handle
+      type="target"
+      position={Position.Top}
+      style={{ background: '#555' }}
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      style={{ background: '#555' }}
+    />
+    <MessageRow
+      isLast
+      isStreamingToolEvents={isStreamingToolEvents}
+      message={streamingMessage}
+      onRetry={onRetry}
+    />
+  </>
 }
 
 type MessagesProps = Props;
@@ -222,7 +267,7 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
     );
   }
 
-  const nodeTypes = useMemo(() => ({ message: MessageNode }), []);
+  const nodeTypes = useMemo(() => ({ message: MessageNode, streamingMessage: StreamingMessageNode }), []);
 
   const nodes = messages.map((message, i) => {
     const isLastInList = i === messages.length - 1;
@@ -230,6 +275,9 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
       id: 'node-' + i,
       type: 'message',
       position: { x: 250, y: 5 + i * 100 },
+      isConnectable: true,
+      targetPosition: Position.Top,
+      sourcePosition: Position.Bottom,
       data: {
         message,
         isLastInList,
@@ -240,16 +288,36 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
       },
     };
   })
-  const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+
+  if (streamingMessage) {
+    nodes.push({
+      id: 'streaming-message',
+      type: 'streamingMessage',
+      position: { x: 250, y: 5 + messages.length * 100 },
+      isConnectable: true,
+      targetPosition: Position.Top,
+      sourcePosition: Position.Bottom,
+      data: {
+        isStreamingToolEvents,
+        streamingMessage,
+        onRetry,
+        i: messages.length,
+      }
+    })
+  }
+
+  const initialEdges = nodes.flatMap((_, i) => {
+    if (i === 0) return [];
+    return { id: `e${i}`, source: `node-${i - 1}`, target: `node-${i}` };
+  })
 
   return (
     <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
-      <div className="mt-auto flex flex-col gap-y-4 md:gap-y-6">
-        <div style={{ width: '100vw', height: '100vh' }}>
-          <ReactFlow nodes={nodes} nodeTypes={nodeTypes} edges={initialEdges} />
-        </div>
+      <div style={{ width: '100%', height: '100%' }}>
+        <ReactFlow nodes={nodes} nodeTypes={nodeTypes} edges={initialEdges} />
+      </div>
 
-        {/* {messages.map((m, i) => {
+      {/* {messages.map((m, i) => {
           const isLastInList = i === messages.length - 1;
           return (
             <MessageRow
@@ -271,16 +339,6 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
             />
           );
         })} */}
-      </div>
-
-      {streamingMessage && (
-        <MessageRow
-          isLast
-          isStreamingToolEvents={isStreamingToolEvents}
-          message={streamingMessage}
-          onRetry={onRetry}
-        />
-      )}
     </div>
   );
 });
