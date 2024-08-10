@@ -6,6 +6,7 @@ from backend.schemas.context import Context
 from backend.services.context import get_context
 from backend.chat.collate import to_dict
 from backend.crud import tool_call as tool_call_crud
+from backend.crud import message as message_crud
 from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.schemas.message import UpdateMessage, UpdateMessageResponse
 from backend.crud.message import delete_messages_after_message, get_message
@@ -36,4 +37,8 @@ async def update_message(
                 message_id=message.id,
             )
             tool_call_crud.create_tool_call(session, tool_call)
+        new_message.tool_calls = None
+    if new_message.tool_plan:
+        new_message.text = new_message.tool_plan
+        message_crud.update_message(session, message, new_message)
     return message
