@@ -5,7 +5,6 @@ import React, { useRef } from 'react';
 import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Conversation/Composer';
 import { Header } from '@/components/Conversation/Header';
-import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { useChat } from '@/hooks/chat';
 import { useFileActions } from '@/hooks/files';
@@ -13,6 +12,7 @@ import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useConversationStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
+import MessagingTree from './MessagingTree';
 
 type Props = {
   startOptionsEnabled?: boolean;
@@ -70,7 +70,7 @@ const Conversation: React.FC<Props> = ({
       <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-marble-950 bg-marble-980 lg:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
         <Header agent={agent} />
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
-          <MessagingContainer
+          <MessagingTree
             conversationId={conversationId}
             startOptionsEnabled={startOptionsEnabled}
             isStreaming={isStreaming}
