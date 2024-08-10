@@ -15,9 +15,11 @@ import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { useAgentsStore, useCitationsStore } from '@/stores';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
-import { Handle, Position, ReactFlow } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
+import { ReactFlowProvider } from 'reactflow';
+import LayoutFlow from './LayouttedGraph';
 
 type Props = {
   isStreaming: boolean;
@@ -313,9 +315,13 @@ const Messages = forwardRef<HTMLDivElement, MessagesProps>(function MessagesInte
 
   return (
     <div className="flex h-full flex-col gap-y-4 px-4 py-6 md:gap-y-6" ref={ref}>
-      <div style={{ width: '100%', height: '100%' }}>
+      <ReactFlowProvider>
+        <LayoutFlow initNodes={nodes} initEdges={initialEdges} nodeTypes={nodeTypes} />
+      </ReactFlowProvider>
+
+      {/* <div style={{ width: '100%', height: '100%' }}>
         <ReactFlow nodes={nodes} nodeTypes={nodeTypes} edges={initialEdges} />
-      </div>
+      </div> */}
 
       {/* {messages.map((m, i) => {
           const isLastInList = i === messages.length - 1;
