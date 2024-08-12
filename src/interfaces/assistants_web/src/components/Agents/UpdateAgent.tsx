@@ -48,6 +48,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         tools: agent.tools,
         preamble: agent.preamble,
         tools_metadata: agent.tools_metadata,
+        is_private: agent.is_private,
       });
     }
   }, [agent]);
