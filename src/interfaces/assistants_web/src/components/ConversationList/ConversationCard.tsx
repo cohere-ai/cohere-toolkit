@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Agent } from '@/cohere-client';
+import { AgentPublic } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
@@ -11,7 +11,7 @@ import { useBrandedColors } from '@/hooks/brandedColors';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useFileActions } from '@/hooks/files';
-import { useAgentsStore, useConversationStore, useSettingsStore } from '@/stores';
+import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
 
 export type ConversationListItem = {
@@ -20,7 +20,7 @@ export type ConversationListItem = {
   title: string;
   description: string | null;
   weekHeading?: string;
-  agent?: Agent;
+  agent?: AgentPublic;
 };
 
 type Props = {
@@ -66,18 +66,16 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
   const { title, conversationId } = conversation;
-  const { setSettings } = useSettingsStore();
   const {
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
-  const {
-    agents: { isAgentsLeftPanelOpen },
-  } = useAgentsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
   const isTouchDevice = getIsTouchDevice();
   const { clearComposerFiles } = useFileActions();
-  const { bg, contrastText } = useBrandedColors(conversation.agent?.id);
+  const { bg, contrastText, contrastFill } = useBrandedColors(conversation.agent?.id);
 
   // if the conversation card is for the selected conversation we use the `conversationName`
   // from the context store, otherwise we use the name from the conversation object
@@ -113,9 +111,11 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
           )}
         >
           {conversation.agent ? (
-            <Text styleAs="p-xs">{conversation.agent.name[0]}</Text>
+            <Text className={contrastText} styleAs="p-xs">
+              {conversation.agent.name[0]}
+            </Text>
           ) : (
-            <CoralLogo className="scale-50" />
+            <CoralLogo className={cn('scale-50', contrastFill)} />
           )}
         </div>
         <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
@@ -143,7 +143,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         shallow
         onClick={() => {
           setConversation({ id: conversationId, name });
-          setSettings({ isMobileConvListPanelOpen: false });
+          isMobile && setAgentsLeftSidePanelOpen(false);
           clearComposerFiles();
         }}
         className={wrapperClassName}
@@ -161,7 +161,11 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
           contrastText
         )}
       >
-        {conversation.agent ? <Text>{conversation.agent.name[0]}</Text> : <CoralLogo />}
+        {conversation.agent ? (
+          <Text>{conversation.agent.name[0]}</Text>
+        ) : (
+          <CoralLogo className={contrastFill} />
+        )}
       </div>
     );
     return (
@@ -176,7 +180,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
               shallow
               onClick={() => {
                 setConversation({ id: conversationId, name });
-                setSettings({ isMobileConvListPanelOpen: false });
+                isMobile && setAgentsLeftSidePanelOpen(false);
               }}
             >
               {content}
@@ -191,9 +195,8 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     <div
       {...flippedProps}
       className={cn('group relative flex w-full rounded-lg', 'flex items-start gap-x-1', {
-        'bg-marble-1000 transition-colors ease-in-out hover:bg-mushroom-900/20 dark:bg-transparent':
-          !isActive,
-        'bg-mushroom-900/40 dark:bg-volcanic-200': isActive,
+        'transition-colors ease-in-out hover:bg-white dark:hover:bg-volcanic-200': !isActive,
+        'bg-white dark:bg-volcanic-200': isActive,
       })}
     >
       {conversationLink}

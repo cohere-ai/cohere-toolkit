@@ -4,15 +4,15 @@ import { Transition } from '@headlessui/react';
 import { uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
-import { CitationsTab } from '@/components/Agents/CitationsTab';
 import { IconButton } from '@/components/IconButton';
-import { Banner, Button, Icon, Switch, Tabs, Text, Tooltip } from '@/components/Shared';
+import { Banner, Button, Icon, Switch, Text, Tooltip } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
-import { useAgentsStore, useParamsStore } from '@/stores';
+import { useSession } from '@/hooks/session';
+import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 
@@ -20,21 +20,18 @@ type Props = {};
 
 const AgentRightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const {
-    agents: { disabledAssistantKnowledge },
-    setUseAssistantKnowledge,
-  } = useAgentsStore();
+  const { disabledAssistantKnowledge, setUseAssistantKnowledge, setAgentsRightSidePanelOpen } =
+    useSettingsStore();
   const { agentId, conversationId } = useChatRoutes();
-  const { data: agent, isLoading: isAgentLoading } = useAgent({ agentId });
+  const { data: agent } = useAgent({ agentId });
   const { theme } = useBrandedColors(agentId);
 
   const {
     params: { fileIds },
     setParams,
   } = useParamsStore();
-
-  const { data: files, isLoading: isFilesLoading } = useListFiles(conversationId);
+  const session = useSession();
+  const { data: files } = useListFiles(conversationId);
   const { deleteFile } = useFileActions();
 
   const agentToolMetadataArtifacts = useMemo(() => {
@@ -84,25 +81,17 @@ const AgentRightPanel: React.FC<Props> = () => {
   };
 
   return (
-    <Tabs
-      selectedIndex={selectedIndex}
-      onChange={setSelectedIndex}
-      isLoading={isAgentLoading || isFilesLoading}
-      tabs={[
-        <span className="flex items-center gap-x-2" key="knowledge">
-          <Icon name="folder" kind="outline" />
+    <aside className="space-y-5 py-4">
+      <header className="flex items-center gap-2">
+        <IconButton
+          onClick={() => setAgentsRightSidePanelOpen(false)}
+          iconName="arrow-right"
+          className="flex h-auto flex-shrink-0 self-center lg:hidden"
+        />
+        <Text styleAs="p-sm" className="font-medium uppercase">
           Knowledge
-        </span>,
-        <span className="flex items-center gap-x-2" key="citations">
-          <Icon name="link" kind="outline" />
-          Citations
-        </span>,
-      ]}
-      tabGroupClassName="h-full"
-      tabPanelClassName="h-full"
-      panelsClassName="h-full"
-      kind="blue"
-    >
+        </Text>
+      </header>
       <div className="flex flex-col gap-y-10">
         {agentId && (
           <div className="flex flex-col gap-y-4">
@@ -119,11 +108,12 @@ const AgentRightPanel: React.FC<Props> = () => {
                   label="Enables assistant knowledge to provide more accurate responses."
                 />
               </span>
-              <Switch
+              {/* @DEV_NOTE: This is disabled while we add the ability in BE to enable/disable assistant knowledge */}
+              {/* <Switch
                 theme={theme}
                 checked={!disabledAssistantKnowledge.includes(agentId)}
                 onChange={(checked) => setUseAssistantKnowledge(checked, agentId)}
-              />
+              /> */}
             </div>
             <Transition
               show={!disabledAssistantKnowledge.includes(agentId) ?? false}
@@ -135,7 +125,7 @@ const AgentRightPanel: React.FC<Props> = () => {
               leaveTo="opacity-0 scale-90"
               as="div"
             >
-              {agentKnowledgeFiles.length === 0 ? (
+              {agentKnowledgeFiles.length === 0 && session.userId === agent?.user_id ? (
                 <Banner className="flex flex-col">
                   Add a data source to expand the assistant’s knowledge.
                   <Button
@@ -150,7 +140,7 @@ const AgentRightPanel: React.FC<Props> = () => {
               ) : (
                 <div className="flex flex-col gap-y-3">
                   <Text as="div" className="flex items-center gap-x-3">
-                    <Icon name="folder" kind="outline" />
+                    <Icon name="folder" kind="outline" className="flex-shrink-0" />
                     {/*  This renders the number of folders and files in the agent's Google Drive.
                     For example, if the agent has 2 folders and 3 files, it will render:
                     - "2 folders and 3 files" */}
@@ -165,12 +155,18 @@ const AgentRightPanel: React.FC<Props> = () => {
                         agentToolMetadataArtifacts.files.length
                       )}`}
                   </Text>
-                  {agentKnowledgeFiles.map((file) => (
-                    <Text as="div" key={file.id} className="ml-6 flex items-center gap-x-3">
-                      <Icon name={file.type === 'folder' ? 'folder' : 'file'} kind="outline" />
-                      {file.name}
-                    </Text>
-                  ))}
+                  <ol className="space-y-2">
+                    {agentKnowledgeFiles.map((file) => (
+                      <li key={file.id} className="ml-6 flex items-center gap-x-3">
+                        <Icon
+                          name={file.type === 'folder' ? 'folder' : 'file'}
+                          kind="outline"
+                          className="flex-shrink-0"
+                        />
+                        <Text>{file.name}</Text>
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               )}
             </Transition>
@@ -208,7 +204,7 @@ const AgentRightPanel: React.FC<Props> = () => {
                       onClick={() => handleDeleteFile(id)}
                       disabled={isDeletingFile}
                       iconName="close"
-                      className="hidden group-hover:flex"
+                      className="invisible group-hover:visible"
                     />
                   </div>
                 </div>
@@ -220,8 +216,7 @@ const AgentRightPanel: React.FC<Props> = () => {
           </Text>
         </section>
       </div>
-      <CitationsTab />
-    </Tabs>
+    </aside>
   );
 };
 

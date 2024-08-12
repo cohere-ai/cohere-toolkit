@@ -14,6 +14,7 @@ from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
+from backend.crud import deployment as deployment_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
@@ -52,6 +53,7 @@ from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
+from backend.services.agent import validate_agent_exists
 from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
 
@@ -81,7 +83,7 @@ def process_chat(
     agent_id = ctx.get_agent_id()
 
     if agent_id is not None:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
+        agent = validate_agent_exists(session, agent_id, user_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
 
@@ -94,16 +96,13 @@ def process_chat(
             for tool in chat_request.tools:
                 if tool.name not in agent.tools:
                     raise HTTPException(
-                        status_code=400,
+                        status_code=404,
                         detail=f"Tool {tool.name} not found in agent {agent.id}",
                     )
 
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-        # NOTE TEMPORARY: we do not set a the model for now and just use the default model
-        chat_request.model = None
-        # chat_request.model = agent.model
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -524,6 +523,7 @@ async def generate_chat_response(
                 event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
                 conversation_id=ctx.get_conversation_id(),
                 tool_calls=data.get("tool_calls", []),
+                error=data.get("error", None),
             )
 
     return non_streamed_chat_response

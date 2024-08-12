@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { ApiError, DeleteFile, ListFile, useCohereClient } from '@/cohere-client';
+import { ApiError, DeleteFileResponse, ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
 import { useNotify } from '@/hooks/toast';
 import { useFilesStore, useParamsStore } from '@/stores';
@@ -47,7 +47,7 @@ export const useDeleteUploadedFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
-  return useMutation<DeleteFile, ApiError, { conversationId: string; fileId: string }>({
+  return useMutation<DeleteFileResponse, ApiError, { conversationId: string; fileId: string }>({
     mutationFn: async ({ conversationId, fileId }) =>
       cohereClient.deletefile({ conversationId, fileId }),
     onSettled: () => {

@@ -1,14 +1,14 @@
 'use client';
 
-import { PropsWithChildren, useMemo, useRef } from 'react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { PropsWithChildren } from 'react';
 
 import { Citation } from '@/components/Citations/Citation';
 import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
-import { FulfilledMessage, TypingMessage, isFulfilledOrTypingMessage } from '@/types/message';
+import { useCitationsStore } from '@/stores';
 import { cn } from '@/utils';
 import { createStartEndKey } from '@/utils';
 
@@ -41,58 +41,16 @@ export const CitationTextHighlighter: React.FC<Props> = ({
   const breakpoint = useBreakpoint();
   const { open } = useContextStore();
   const {
-    conversation: { messages },
-  } = useConversationStore();
-  const {
-    citations: { citationReferences, selectedCitation },
-    selectCitation,
+    citations: { citationReferences },
   } = useCitationsStore();
-  const { setSettings } = useSettingsStore();
-  const ref = useRef<HTMLElement>(null);
-  const isGenerationSelected = selectedCitation?.generationId === generationId;
-  const message = messages.find((m) => {
-    return isFulfilledOrTypingMessage(m) && m.generationId === generationId;
-  }) as FulfilledMessage | TypingMessage | undefined;
-  const isHighlighted = useMemo(() => {
-    return (
-      isGenerationSelected && selectedCitation?.start === start && selectedCitation?.end === end
-    );
-  }, [end, selectedCitation, start, isGenerationSelected]);
+  const startEndKey = createStartEndKey(start, end);
 
-  const { text, bg, contrastText, hover } = useBrandedColors(agentId);
+  const { text, lightText, bg, contrastText, hover, dark, light } = useBrandedColors(agentId);
 
   const handleClick = () => {
-    setSettings({ isConfigDrawerOpen: false });
-
-    if (
-      isGenerationSelected &&
-      selectedCitation?.start === start &&
-      selectedCitation?.end === end
-    ) {
-      selectCitation(null);
-      return;
-    }
-    selectCitation({
-      generationId,
-      start,
-      end,
-      yPosition: ref.current?.offsetTop ?? null,
+    open({
+      content: <Citation generationId={generationId} citationKey={startEndKey} />,
     });
-
-    if (breakpoint === Breakpoint.sm) {
-      open({
-        content: (
-          <Citation
-            className="bg-coral-900"
-            generationId={generationId}
-            // Used to find the keyword to bold but since we don't have it yet here when the message is
-            // still streaming in we can just ignore it for now instead of not showing the popup at all
-            message={message?.originalText ?? ''}
-          />
-        ),
-        title: 'OUTPUT',
-      });
-    }
   };
 
   let content = children;
@@ -115,21 +73,42 @@ export const CitationTextHighlighter: React.FC<Props> = ({
     }
   }
 
+  if (breakpoint == Breakpoint.sm) {
+    return (
+      <mark
+        onClick={handleClick}
+        className={cn(
+          'cursor-pointer rounded bg-transparent',
+          light(text),
+          dark(lightText),
+          hover(bg),
+          hover(contrastText)
+        )}
+      >
+        {content}
+      </mark>
+    );
+  }
+
   return (
-    <mark
-      ref={ref}
-      onClick={handleClick}
-      className={cn(
-        'bg-transparent',
-        text,
-        {
-          [`${bg} ${contrastText}`]: isHighlighted,
-          [`${hover(bg)} hover:bg-opacity-35 dark:hover:bg-opacity-35`]: !isHighlighted,
-        },
-        'cursor-pointer rounded'
-      )}
-    >
-      {content}
-    </mark>
+    <Popover className="group inline-block">
+      <PopoverButton
+        className={cn(
+          'cursor-pointer rounded bg-transparent',
+          light(text),
+          dark(lightText),
+          hover(bg),
+          hover(contrastText)
+        )}
+      >
+        {content}
+      </PopoverButton>
+      <PopoverPanel
+        anchor="bottom"
+        className="z-tooltip h-fit w-[466px] rounded border bg-white p-4 dark:border-volcanic-400 dark:bg-volcanic-200"
+      >
+        <Citation generationId={generationId} citationKey={startEndKey} />
+      </PopoverPanel>
+    </Popover>
   );
 };

@@ -60,12 +60,12 @@ export const THEME_CLASSES: CellThemes = {
       stroke: 'stroke-volcanic-100',
       outlineFill: 'fill-volcanic-100',
       fill: 'fill-marble-1000',
-      bg: 'bg-marble-1000',
+      bg: 'bg-marble-980',
     },
   },
   volcanicAlt: {
     default: {
-      bg: 'bg-marble-1000',
+      bg: 'bg-marble-980',
       fill: 'fill-marble-1000',
       text: 'text-volcanic-100',
     },
@@ -158,7 +158,7 @@ export const THEME_CLASSES: CellThemes = {
       stroke: 'stroke-green-250',
       outlineFill: 'fill-green-250',
       fill: 'fill-marble-1000',
-      bg: 'bg-marble-1000',
+      bg: 'bg-marble-980',
     },
   },
   gray: {
@@ -200,7 +200,7 @@ export const THEME_CLASSES: CellThemes = {
       stroke: 'stroke-marble-950',
       outlineFill: 'fill-marble-950',
       fill: 'fill-marble-1000',
-      bg: 'bg-marble-1000',
+      bg: 'bg-marble-980',
     },
   },
   marbleDark: {
@@ -298,7 +298,7 @@ export const THEME_CLASSES: CellThemes = {
       stroke: 'stroke-volcanic-300',
       outlineFill: 'fill-volcanic-300',
       fill: 'fill-marble-1000',
-      bg: 'bg-marble-1000',
+      bg: 'bg-marble-980',
     },
   },
   blue: {
@@ -354,7 +354,7 @@ export const THEME_CLASSES: CellThemes = {
       stroke: 'stroke-quartz-700',
       outlineFill: 'fill-quartz-700',
       fill: 'fill-marble-1000',
-      bg: 'bg-marble-1000',
+      bg: 'bg-marble-980',
     },
   },
 };

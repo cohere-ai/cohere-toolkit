@@ -1,7 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import ForeignKey, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
 
@@ -25,3 +25,5 @@ class User(Base):
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
 
     __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)
+
+    agents = relationship("Agent", back_populates="user")

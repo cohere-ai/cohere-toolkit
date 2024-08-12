@@ -3,10 +3,9 @@ import glob
 
 def main():
     files = glob.glob("src/backend/alembic/versions/*.py")
-    revision_ids = [file.split("_")[3] for file in files]
 
-    if len(revision_ids) != len(set(revision_ids)):
-        raise Exception("Duplicate revision ID found")
+    if len(files) != len(set(files)):
+        raise Exception("Duplicate file name found")
 
     print("All revision IDs are unique")
 

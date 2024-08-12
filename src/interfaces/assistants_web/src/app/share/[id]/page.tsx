@@ -46,7 +46,7 @@ const ShareConversationPage: NextPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[100vh] w-full items-center justify-center">
+      <div className="flex min-h-[100vh] w-full items-center justify-center dark:bg-volcanic-100">
         <Spinner />
       </div>
     );
@@ -92,7 +92,7 @@ const ShareConversationPage: NextPage = () => {
   }
 
   return (
-    <div className="flex min-h-[100vh] w-full flex-col items-center justify-center gap-2 px-6 md:px-0">
+    <div className="flex min-h-[100vh] w-full flex-col items-center justify-center gap-2 px-6 dark:bg-volcanic-100 md:px-0">
       {content}
     </div>
   );

@@ -1,6 +1,9 @@
 def validate_transaction(func):
     def wrapper(*args, **kwargs):
-        db = args[0]
+        if "db" in kwargs:
+            db = kwargs["db"]
+        else:
+            db = args[0]
 
         try:
             return func(*args, **kwargs)

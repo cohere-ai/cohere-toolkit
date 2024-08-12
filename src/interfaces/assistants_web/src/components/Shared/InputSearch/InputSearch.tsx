@@ -41,7 +41,7 @@ export const InputSearch: React.FC<Props> = ({ value, onChange, className, ...re
         onChange={(e) => onChange(e.target.value)}
         className={cn(
           'bg-white placeholder:text-volcanic-700 dark:bg-volcanic-100 dark:focus:bg-volcanic-150',
-          'rounded-lg border border-volcanic-500 py-[10px] pl-2 pr-8',
+          'rounded-lg border border-volcanic-800 py-[10px] pl-2 pr-8',
           'w-full outline-none',
           STYLE_LEVEL_TO_CLASSES.p
         )}

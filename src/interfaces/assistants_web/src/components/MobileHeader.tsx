@@ -1,33 +1,19 @@
 'use client';
 
-import { IconButton } from '@/components/IconButton';
-import { Button, Logo } from '@/components/Shared';
-import { useAgentsStore } from '@/stores';
+import { Logo } from '@/components/Shared';
+import { env } from '@/env.mjs';
+import { useSettingsStore } from '@/stores';
 
 export const MobileHeader: React.FC = () => {
-  const {
-    setAgentsRightSidePanelOpen,
-    agents: { isAgentsRightPanelOpen },
-  } = useAgentsStore();
-
-  const open = () => {
-    setAgentsRightSidePanelOpen(true);
-  };
-
-  const close = () => {
+  const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
+  const handleOpenLeftSidePanel = () => {
     setAgentsRightSidePanelOpen(false);
+    setAgentsLeftSidePanelOpen(true);
   };
 
   return (
-    <header className="flex h-11 w-full items-center justify-between pl-5 pr-3 lg:hidden">
-      {isAgentsRightPanelOpen ? (
-        <Button onClick={close} label="Knowledge" icon="close-drawer" kind="secondary" />
-      ) : (
-        <>
-          <Logo />
-          <IconButton iconName="menu" onClick={open} />
-        </>
-      )}
-    </header>
+    <button onClick={handleOpenLeftSidePanel} className="flex h-full items-center gap-4 lg:hidden">
+      <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
+    </button>
   );
 };
