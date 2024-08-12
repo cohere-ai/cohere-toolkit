@@ -20,7 +20,7 @@ async def async_call_tools(
     deployment_model: BaseDeployment,
     ctx: Context,
     **kwargs: Any,
-) -> dict[str, str]:
+) -> list[dict[str, str]]:
     logger = ctx.get_logger()
 
     tool_results = []
