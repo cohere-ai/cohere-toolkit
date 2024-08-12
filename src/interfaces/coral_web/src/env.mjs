@@ -16,8 +16,7 @@ export const env = createEnv({
     NEXT_PUBLIC_FRONTEND_HOSTNAME: z.string().optional().default('http://localhost:4000'),
     NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: z.string().optional(),
     NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: z.string().optional(),
-    NEXT_PUBLIC_HAS_CUSTOM_LOGO: z.string().optional().default('false'),
-    NEXT_PUBLIC_DARK_MODE: z
+    NEXT_PUBLIC_HAS_CUSTOM_LOGO: z
       .string()
       .optional()
       .default('false')
@@ -31,7 +30,6 @@ export const env = createEnv({
     NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: readVariable('NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID'),
     NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: readVariable('NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY'),
     NEXT_PUBLIC_HAS_CUSTOM_LOGO: readVariable('NEXT_PUBLIC_HAS_CUSTOM_LOGO'),
-    NEXT_PUBLIC_DARK_MODE: readVariable('NEXT_PUBLIC_DARK_MODE'),
   },
   emptyStringAsUndefined: true,
   skipValidation: ['lint', 'format', 'test', 'test:coverage', 'test:watch', 'build'].includes(
