@@ -1,5 +1,5 @@
 import os
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -663,7 +663,7 @@ def test_upload_file_existing_conversation(
     file = response.json()
     assert response.status_code == 200
     files = get_file_service().get_files_by_conversation_id(
-        session, conversation.user_id, conversation.id
+        session, conversation.user_id, conversation.id, MagicMock()
     )
     assert len(files) == 1
     assert "Mariana_Trench" in file["file_name"]
@@ -695,7 +695,7 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
     )
 
     files = get_file_service().get_files_by_conversation_id(
-        session, created_conversation.user_id, created_conversation.id
+        session, created_conversation.user_id, created_conversation.id, MagicMock()
     )
     assert len(files) == 1
     assert "Mariana_Trench" in file["file_name"]
@@ -757,7 +757,7 @@ def test_batch_upload_file_existing_conversation(
         assert conversation_file_association is not None
 
     files_stored = get_file_service().get_files_by_conversation_id(
-        session, conversation.user_id, conversation.id
+        session, conversation.user_id, conversation.id, MagicMock()
     )
     assert len(files_stored) == len(file_paths)
 
@@ -880,7 +880,7 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
         assert conversation_file_association is not None
 
     files_stored = get_file_service().get_files_by_conversation_id(
-        session, created_conversation.user_id, created_conversation.id
+        session, created_conversation.user_id, created_conversation.id, MagicMock()
     )
     assert len(files_stored) == len(file_paths)
 
@@ -941,7 +941,7 @@ def test_delete_file(
 
     # Check if File
     files = get_file_service().get_files_by_conversation_id(
-        session, conversation.user_id, conversation.id
+        session, conversation.user_id, conversation.id, MagicMock()
     )
     assert files == []
 

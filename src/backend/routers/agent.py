@@ -702,7 +702,7 @@ async def delete_file(
     validate_file(session, file_id, user_id, agent_id)
 
     # Delete the File DB object
-    get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id)
+    get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id, ctx)
 
     return DeleteFileResponse()
 

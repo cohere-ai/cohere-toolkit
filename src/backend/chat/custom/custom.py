@@ -157,13 +157,13 @@ class CustomChat(BaseChat):
         if chat_request.file_ids or chat_request.agent_id:
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
                 files = get_file_service().get_files_by_conversation_id(
-                    session, user_id, ctx.get_conversation_id()
+                    session, user_id, ctx.get_conversation_id(), ctx
                 )
 
                 agent_files = []
                 if agent_id:
                     agent_files = get_file_service().get_files_by_agent_id(
-                        session, user_id, agent_id
+                        session, user_id, agent_id, ctx
                     )
 
                 all_files = files + agent_files

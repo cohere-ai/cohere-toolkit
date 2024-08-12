@@ -88,10 +88,10 @@ async def get_conversation(
         )
 
     files = get_file_service().get_files_by_conversation_id(
-        session, user_id, conversation.id
+        session, user_id, conversation.id, ctx
     )
     files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
-    messages = get_messages_with_files(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
     _ = validate_conversation(session, conversation_id, user_id)
 
     conversation = ConversationPublic(
@@ -143,7 +143,7 @@ async def list_conversations(
     results = []
     for conversation in conversations:
         files = get_file_service().get_files_by_conversation_id(
-            session, user_id, conversation.id
+            session, user_id, conversation.id, ctx
         )
         files_with_conversation_id = attach_conversation_id_to_files(
             conversation.id, files
@@ -195,9 +195,9 @@ async def update_conversation(
     )
 
     files = get_file_service().get_files_by_conversation_id(
-        session, user_id, conversation.id
+        session, user_id, conversation.id, ctx
     )
-    messages = get_messages_with_files(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
     files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
     return ConversationPublic(
         id=conversation.id,
@@ -235,7 +235,7 @@ async def delete_conversation(
     conversation = validate_conversation(session, conversation_id, user_id)
 
     get_file_service().delete_all_conversation_files(
-        session, conversation.id, conversation.file_ids, user_id
+        session, conversation.id, conversation.file_ids, user_id, ctx
     )
     conversation_crud.delete_conversation(session, conversation_id, user_id)
 
@@ -301,7 +301,7 @@ async def search_conversations(
     results = []
     for conversation in filtered_documents:
         files = get_file_service().get_files_by_conversation_id(
-            session, user_id, conversation.id
+            session, user_id, conversation.id, ctx
         )
         files_with_conversation_id = attach_conversation_id_to_files(
             conversation.id, files
@@ -386,7 +386,7 @@ async def upload_file(
     # Handle uploading File
     try:
         upload_file = await get_file_service().create_conversation_files(
-            session, [file], user_id, conversation.id
+            session, [file], user_id, conversation.id, ctx
         )
     except Exception as e:
         raise HTTPException(
@@ -497,7 +497,7 @@ async def list_files(
     _ = validate_conversation(session, conversation_id, user_id)
 
     files = get_file_service().get_files_by_conversation_id(
-        session, user_id, conversation_id
+        session, user_id, conversation_id, ctx
     )
     files_with_conversation_id = attach_conversation_id_to_files(conversation_id, files)
     return files_with_conversation_id
@@ -530,7 +530,7 @@ async def delete_file(
 
     # Delete the File DB object
     get_file_service().delete_conversation_file_by_id(
-        session, conversation_id, file_id, user_id
+        session, conversation_id, file_id, user_id, ctx
     )
 
     return DeleteFileResponse()
