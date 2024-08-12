@@ -2,8 +2,10 @@ from sqlalchemy.orm import Session
 
 from backend.database_models.user import User
 from backend.schemas.user import UpdateUser
+from backend.services.transaction import validate_transaction
 
 
+@validate_transaction
 def create_user(db: Session, user: User) -> User:
     """ "
     Create a new user.
@@ -50,6 +52,21 @@ def get_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     return db.query(User).order_by(User.fullname).offset(offset).limit(limit).all()
 
 
+def get_user_by_email(db: Session, email: str) -> User:
+    """
+    Get a user by email.
+
+    Args:
+        db (Session): Database session.
+        email (str): User email.
+
+    Returns:
+        User: User with the given email.
+    """
+    return db.query(User).filter(User.email == email).first()
+
+
+@validate_transaction
 def update_user(db: Session, user: User, new_user: UpdateUser) -> User:
     """
     Update a user by ID.
