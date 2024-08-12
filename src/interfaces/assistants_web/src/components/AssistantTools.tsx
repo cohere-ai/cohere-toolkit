@@ -44,7 +44,7 @@ export const AssistantTools: React.FC<{
             {availableTools.map(({ name, display_name, description, error_message }) => {
               const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
               const checked = !!enabledTool;
-              const disabled = !!requiredTools;
+              const disabled = agent?.id !== '';
 
               return (
                 <ToggleCard
