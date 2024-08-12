@@ -27,7 +27,7 @@ export const env = createEnv({
     NEXT_PUBLIC_HAS_CUSTOM_LOGO: process.env.NEXT_PUBLIC_HAS_CUSTOM_LOGO,
   },
   emptyStringAsUndefined: true,
-  skipValidation: ['lint', 'format', 'test', 'test:coverage', 'test:watch'].includes(
+  skipValidation: ['lint', 'format', 'test', 'test:coverage', 'test:watch', 'build'].includes(
     process.env.npm_lifecycle_event
   ),
 });
