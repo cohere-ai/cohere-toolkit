@@ -16,7 +16,7 @@ type Props = {
 export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
   return (
     <>
-      <div className="flex w-full max-w-share-content flex-col gap-2 pb-28 pt-12 md:px-5 dark:bg-volcanic-100">
+      <div className="flex w-full max-w-share-content flex-col gap-2 pb-28 pt-12 dark:bg-volcanic-100 md:px-5">
         <Text styleAs="h3" className="text-center text-volcanic-300">
           {title}
         </Text>

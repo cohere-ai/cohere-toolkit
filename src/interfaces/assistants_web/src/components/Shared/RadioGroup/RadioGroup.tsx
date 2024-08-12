@@ -30,7 +30,7 @@ export function RadioGroup<K extends string>({ options, value, onChange, disable
           <Radio
             value={option.value}
             className={cn(
-              'group flex size-5 items-center justify-center rounded-full border border-coral-700 transition-colors duration-300',
+              'group flex size-5 cursor-pointer items-center justify-center rounded-full border border-coral-700 transition-colors duration-300',
               'data-[disabled]:border-volcanic-600 dark:border-evolved-green-700'
             )}
           >
