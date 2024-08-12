@@ -27,7 +27,7 @@ export const Settings = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 md:ml-0 dark:border-volcanic-100 dark:bg-volcanic-100">
+    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 dark:border-volcanic-100 dark:bg-volcanic-100 md:ml-0">
       <header
         className={cn(
           'border-b border-marble-950 bg-cover dark:border-volcanic-200',
