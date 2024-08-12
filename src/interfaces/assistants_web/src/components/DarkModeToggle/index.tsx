@@ -18,7 +18,7 @@ export const DarkModeToggle = () => {
     <section className="flex gap-6">
       <div className="flex flex-col gap-2">
         <button
-          className={cn('grid h-24 w-28 place-items-center rounded-lg bg-volcanic-200', {
+          className={cn('grid h-24 w-[144px] place-items-center rounded-lg bg-volcanic-200', {
             'border border-evolved-green-700': theme === 'dark',
           })}
           onClick={() => handleSetTheme('dark')}
@@ -29,7 +29,7 @@ export const DarkModeToggle = () => {
       </div>
       <div className="flex flex-col gap-2">
         <button
-          className={cn('grid h-24 w-28 place-items-center rounded-lg bg-mushroom-950', {
+          className={cn('grid h-24 w-[144px] place-items-center rounded-lg bg-mushroom-950', {
             'border border-coral-700': theme === 'light',
           })}
           onClick={() => handleSetTheme('light')}
@@ -45,7 +45,7 @@ export const DarkModeToggle = () => {
       </div>
       <div className="flex flex-col gap-2">
         <button
-          className={cn('flex h-24 w-28 rounded-lg', {
+          className={cn('flex h-24 w-[144px] rounded-lg', {
             'border border-coral-700 dark:border-evolved-green-700': theme === 'system',
           })}
           onClick={() => handleSetTheme('system')}
