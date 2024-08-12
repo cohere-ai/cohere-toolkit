@@ -93,13 +93,23 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                       size="sm"
                       className="flex items-center fill-mushroom-300 dark:fill-marble-800"
                     />
-                    <div className="absolute -bottom-0.5 -right-0.5  size-2 rounded-full bg-success-300" />
+                    <div
+                      className={cn(
+                        'absolute -bottom-0.5 -right-0.5  size-2 rounded-full transition-colors duration-300',
+                        {
+                          'bg-success-300': !!paramsTools?.find((t) => t.name === tool.name),
+                          'bg-mushroom-400 dark:bg-volcanic-600': !paramsTools?.find(
+                            (t) => t.name === tool.name
+                          ),
+                        }
+                      )}
+                    />
                   </div>
                   <div className="flex flex-col text-left">
                     <Text as="span">{tool.display_name}</Text>
                   </div>
                 </div>
-                {!agent && (
+                {!agent?.id && (
                   <Switch
                     theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}

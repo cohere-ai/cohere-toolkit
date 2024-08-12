@@ -180,7 +180,7 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   children,
 }) => {
   return (
-    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900 dark:bg-volcanic-200 dark:group-hover:bg-inherit">
+    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900 dark:bg-volcanic-200 dark:group-hover:bg-volcanic-200">
       <Icon
         name={icon}
         kind="outline"
