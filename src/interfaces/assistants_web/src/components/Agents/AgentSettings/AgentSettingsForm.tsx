@@ -219,7 +219,6 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
         <VisibilityStep
           isPrivate={Boolean(fields.is_private)}
           setIsPrivate={(isPrivate) => setFields({ ...fields, is_private: isPrivate })}
-          disabled={source === 'update'}
         />
         <StepButtons
           handleNext={onSubmit}

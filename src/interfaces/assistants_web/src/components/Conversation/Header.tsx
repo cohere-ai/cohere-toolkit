@@ -73,7 +73,8 @@ export const Header: React.FC<Props> = ({ agent }) => {
               styleAs="label-sm"
               className={cn(
                 'rounded bg-mushroom-950 px-2  py-1 font-bold uppercase dark:bg-volcanic-200',
-                text
+                text,
+                dark(lightText)
               )}
             >
               {agent.is_private ? 'Private' : 'Public'}

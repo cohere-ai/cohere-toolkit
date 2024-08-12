@@ -74,7 +74,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <DialogPanel className="relative flex w-full flex-col rounded-lg bg-marble-1000 md:w-modal dark:bg-volcanic-200">
+            <DialogPanel className="relative flex w-full flex-col rounded-lg bg-marble-1000 dark:bg-volcanic-200 md:w-modal">
               <Combobox as="div" onChange={handleOnChange}>
                 <div className="mb-4 px-6 pt-6">
                   <ComboboxInput
