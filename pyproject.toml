@@ -108,6 +108,8 @@ llama-cpp-python = "^0.2.67"
 
 [tool.poetry.group.backend.dependencies]
 faiss-cpu = "^1.8.0.post1"
+unstructured = {extras = ["all-docs"], version = "^0.15.1"}
+langchain-chroma = "^0.1.2"
 
 [build-system]
 requires = ["poetry-core"]
