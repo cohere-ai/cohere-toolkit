@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { CookiesProvider } from 'next-client-cookies/server';
+import { PublicEnvScript } from 'next-runtime-env';
 import { cookies } from 'next/headers';
 
 import { LayoutProviders } from '@/app/_providers';
@@ -20,6 +21,7 @@ const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const authToken = cookieStore.get(COOKIE_KEYS.authToken)?.value;
   return (
     <html lang="en" className={cn({ dark: env.NEXT_PUBLIC_DARK_MODE })}>
+      <PublicEnvScript />
       <body>
         <CookiesProvider>
           <LayoutProviders authToken={authToken}>{children}</LayoutProviders>

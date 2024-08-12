@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { CookiesProvider } from 'next-client-cookies/server';
+import { PublicEnvScript } from 'next-runtime-env';
 import { cookies } from 'next/headers';
 
 import { LayoutProviders } from '@/app/_providers';
@@ -19,6 +20,7 @@ const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <PublicEnvScript />
       <body className="text-volcanic-300 selection:bg-coral-900 selection:text-volcanic-300 dark:text-marble-950 dark:selection:bg-green-250 dark:selection:text-marble-950">
         <CookiesProvider>
           <LayoutProviders authToken={authToken}>{children}</LayoutProviders>
