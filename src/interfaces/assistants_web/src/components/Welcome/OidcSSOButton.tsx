@@ -80,14 +80,11 @@ export const OidcSSOButton: React.FC<ButtonProps> = ({ className, service, onCli
     <Button
       iconOptions={{ customIcon: service === 'Google' ? googleLogo : oidLogo }}
       iconPosition="start"
+      theme="evolved-green"
       onClick={onClick}
       label={`Continue with ${service ? service : 'OpenID'}`}
-      kind="secondary"
-      className={cn(
-        // align with the max-width of the OIDC SSO button, which is 400px
-        'h-10 !max-w-[400px] !rounded border-[#dadce0] bg-[#ffffff]',
-        className
-      )}
+      kind="outline"
+      className="w-full md:w-fit"
     />
   );
 };

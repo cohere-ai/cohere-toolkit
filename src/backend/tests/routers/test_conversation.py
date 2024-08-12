@@ -42,7 +42,7 @@ def test_list_conversations_with_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id=user.id
+        id="agent_id", name="test agent", user=user
     )
     conversation1 = get_factory("Conversation", session).create(
         agent_id=agent.id, user_id=user.id
@@ -65,7 +65,7 @@ def test_list_conversation_with_deleted_agent(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(
-        id="agent_id", name="test agent", user_id=user.id
+        id="agent_id", name="test agent", user=user
     )
     conversation = get_factory("Conversation", session).create(
         agent_id=agent.id, user_id=user.id
@@ -318,7 +318,7 @@ def test_delete_conversation_with_files(
 
     response = session_client.delete(
         f"/v1/conversations/{conversation.id}",
-        headers={"User-Id": user.id},
+        headers={"User-Id": conversation.user_id},
     )
 
     assert response.status_code == 200
@@ -999,10 +999,10 @@ def test_generate_title(
         f"/v1/conversations/{conversation.id}/generate-title",
         headers={"User-Id": conversation.user_id},
     )
-    title = response.json()
+    response_json = response.json()
 
     assert response.status_code == 200
-    assert title["title"] is not None
+    assert response_json["title"] is not None
 
     # Check if the conversation was updated
     conversation = (
@@ -1011,7 +1011,8 @@ def test_generate_title(
         .first()
     )
     assert conversation is not None
-    assert conversation.title == title["title"]
+    assert conversation.title == response_json["title"]
+    assert response_json["error"] is None
 
 
 def test_fail_generate_title_missing_user_id(
@@ -1037,3 +1038,26 @@ def test_fail_generate_title_nonexistent_conversation(
     )
     assert response.status_code == 404
     assert response.json() == {"detail": f"Conversation with ID: 123 not found."}
+
+
+def test_generate_title_error_invalid_model(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    response = session_client.post(
+        f"/v1/conversations/{conversation.id}/generate-title?model=invalid",
+        headers={"User-Id": conversation.user_id},
+    )
+
+    assert response.status_code == 200
+    response = response.json()
+
+    # Since it's a streaming endpoint, the error is silent
+    # The response code is 200 but there's an error message
+    assert (
+        response["error"]
+        == "status_code: 404, body: {'message': \"model 'invalid' not found, make sure the correct model ID was used and that you have access to the model.\"}"
+    )
+    assert response["title"] == ""

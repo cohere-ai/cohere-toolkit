@@ -1,6 +1,5 @@
 'use client';
 
-import { useLocalStorageValue } from '@react-hookz/web';
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from 'next-themes';
@@ -16,10 +15,10 @@ import {
 import { ToastNotification, WebManifestHead } from '@/components/Shared';
 import { GlobalHead } from '@/components/Shared/GlobalHead';
 import { ViewportFix } from '@/components/ViewportFix';
-import { LOCAL_STORAGE_KEYS } from '@/constants';
 import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useLazyRef } from '@/hooks/lazyRef';
+import { clearAuthToken } from '@/server/actions';
 
 const makeCohereClient = (authToken?: string) => {
   const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
@@ -30,13 +29,10 @@ const makeCohereClient = (authToken?: string) => {
   });
 };
 
-export const LayoutProviders: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { value: authToken, remove: clearAuthToken } = useLocalStorageValue<string>(
-    LOCAL_STORAGE_KEYS.authToken,
-    {
-      defaultValue: undefined,
-    }
-  );
+export const LayoutProviders: React.FC<React.PropsWithChildren<{ authToken?: string }>> = ({
+  children,
+  authToken,
+}) => {
   const router = useRouter();
 
   const cohereClient = useMemo(() => makeCohereClient(authToken), [authToken]);
@@ -62,7 +58,7 @@ export const LayoutProviders: React.FC<React.PropsWithChildren> = ({ children })
   );
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
       <CohereClientProvider client={cohereClient}>
         <QueryClientProvider client={queryClient}>
           <ContextStore>

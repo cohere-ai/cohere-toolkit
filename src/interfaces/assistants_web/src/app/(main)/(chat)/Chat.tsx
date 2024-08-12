@@ -3,15 +3,12 @@
 import { useEffect } from 'react';
 
 import { Document, ManagedTool } from '@/cohere-client';
-import { ConnectDataModal } from '@/components/ConnectDataModal';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
-import { Spinner } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { useContextStore } from '@/context';
 import { useAgent } from '@/hooks/agents';
 import { useConversation } from '@/hooks/conversation';
-import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
+import { useListTools } from '@/hooks/tools';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { createStartEndKey, mapHistoryToMessages } from '@/utils';
@@ -21,48 +18,29 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   agentId,
   conversationId,
 }) => {
-  const { show: showUnauthedToolsModal, onDismissed } = useShowUnauthedToolsModal();
   const { data: agent } = useAgent({ agentId });
   const { data: tools } = useListTools();
   const { setConversation } = useConversationStore();
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
   const { setParams, resetFileParams } = useParamsStore();
 
-  const { open, close } = useContextStore();
-
   const {
     data: conversation,
-    isLoading,
     isError,
     error,
   } = useConversation({
     conversationId: conversationId,
   });
 
-  useEffect(() => {
-    if (showUnauthedToolsModal) {
-      open({
-        title: 'Connect your data',
-        content: (
-          <ConnectDataModal
-            onClose={() => {
-              onDismissed();
-              close();
-            }}
-          />
-        ),
-      });
-    }
-  }, [showUnauthedToolsModal]);
-
   // Reset citations and file params when switching between conversations
   useEffect(() => {
-    resetCitations();
     resetFileParams();
 
-    const agentTools = (agent?.tools
-      .map((name) => (tools ?? [])?.find((t) => t.name === name))
-      .filter((t) => t !== undefined) ?? []) as ManagedTool[];
+    const agentTools =
+      agent?.tools &&
+      ((agent.tools
+        .map((name) => (tools ?? [])?.find((t) => t.name === name))
+        .filter((t) => t !== undefined) ?? []) as ManagedTool[]);
 
     const fileIds = conversation?.files.map((file) => file.id);
 
@@ -126,11 +104,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     saveOutputFiles(outputFilesMap);
   }, [conversation?.id, conversation?.messages.length, setConversation]);
 
-  return isLoading ? (
-    <div className="flex h-full flex-grow flex-col items-center justify-center">
-      <Spinner />
-    </div>
-  ) : isError ? (
+  return isError ? (
     <ConversationError error={error} />
   ) : (
     <Conversation conversationId={conversationId} agent={agent} tools={tools} startOptionsEnabled />

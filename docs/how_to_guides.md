@@ -3,10 +3,10 @@
 
 ## How to use community features
 
-By default, the toolkit runs without community tools or deployments. If you want to enable them, add the following to the .env file or use `make setup` to set this variable:
+By default, the toolkit runs without community tools or deployments. If you want to enable them, add the following to the `configuration.yaml` file or use `make setup` to set this variable:
 
 ```bash
-USE_COMMUNITY_FEATURES=True
+feature_flags.use_community_features: true
 ```
 
 ## How to add your own model deployment
@@ -41,11 +41,11 @@ If you have already created a [connector](https://docs.cohere.com/docs/connector
 
 ## How to set up web search with the Toolkit
 
-To use Coral with web search, simply use the `Tavily_Internet_Search` tool by adding your API key to the env file. Alternatively you can use any search provider of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](custom_tool_guides/tool_guide.md).
+To use Coral with web search, simply use the `Tavily_Internet_Search` tool by adding your API key to the configuration file. Alternatively you can use any search provider of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](custom_tool_guides/tool_guide.md).
 
 ## How to set up PDF Upload with the Toolkit
 
-To use Coral with document upload, simply use the `File_Upload_LlamaIndex` or `File_Upload_Langchain` (this needs a cohere API key in the .env file) tool or by adding your API key to the env file. Alternatively you can use any document uploader of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](custom_tool_guides/tool_guide.md).
+To use Coral with document upload, simply use the `File_Upload_LlamaIndex` or `File_Upload_Langchain` (this needs a Cohere API key in the configuration file) tool or by adding your API key to the config file. Alternatively you can use any document uploader of your choosing, either with your own implementation or an integration implementation (such as LangChain) by following these [steps below](custom_tool_guides/tool_guide.md).
 
 ## How to create your own tools and retrieval sources
 
@@ -67,11 +67,14 @@ To customize the Coral frontend, you can modify the theme, color scheme, font, a
 
 ## LangChain MultiHop
 
-Chatting with multi hop tool usage through LangChain is enabled by setting experimental feature flag to True in `.env`. 
+Chatting with multi hop tool usage through LangChain is enabled by setting:
 
-```bash
-USE_EXPERIMENTAL_LANGCHAIN=True
 ```
+feature_flags:
+  use_experimental_langchain: true
+```
+
+in the `configuration.yaml` file.
 
 By setting this flag to true, only tools that have a LangChain implementation can be utilized. 
 These exist under `LANGCHAIN_TOOLS` and require a `to_lanchain_tool()` function on the tool implementation which returns a LangChain compatible tool. 

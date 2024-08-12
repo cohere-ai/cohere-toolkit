@@ -28,7 +28,7 @@ export const WelcomePage: React.FC<Props> = ({
     ? 'login'
     : undefined;
   return (
-    <div className="relative flex h-full min-h-screen w-full bg-green-950">
+    <div className="relative flex h-full min-h-screen w-full bg-green-950 dark:bg-volcanic-150">
       <CellBackground step={videoStep} />
 
       <div className="max-w-page relative mx-auto flex h-full min-h-screen w-full flex-col overflow-y-auto">
@@ -42,7 +42,7 @@ export const WelcomePage: React.FC<Props> = ({
         </Navigation>
 
         <div className="my-auto w-full px-6 pb-6 md:mx-auto md:w-fit md:px-0 md:py-4">
-          <div className="flex w-full flex-col rounded-lg border border-marble-950 bg-white p-6 md:w-modal md:p-10">
+          <div className="flex w-full flex-col rounded-lg border border-marble-950 bg-white p-6 dark:border-volcanic-300 dark:bg-volcanic-200 md:w-modal md:p-10">
             {children}
           </div>
         </div>

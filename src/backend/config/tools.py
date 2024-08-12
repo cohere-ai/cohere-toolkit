@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from backend.config.settings import Settings
 from backend.schemas.tool import Category, ManagedTool
-from backend.services.logger.utils import get_logger
+from backend.services.logger.utils import LoggerFactory
 from backend.tools import (
     Calculator,
     GoogleDrive,
@@ -15,6 +15,8 @@ from backend.tools import (
     WebScrapeTool,
 )
 
+logger = LoggerFactory().get_logger()
+
 """
 List of available tools. Each tool should have a name, implementation, is_visible and category. 
 They can also have kwargs if necessary.
@@ -25,8 +27,6 @@ If a tool is not visible, it will not be shown in the frontend.
 If you want to add a new tool, check the instructions on how to implement a retriever in the documentation.
 Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 """
-
-logger = get_logger()
 
 
 class ToolName(StrEnum):

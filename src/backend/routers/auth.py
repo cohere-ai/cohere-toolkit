@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Union
 from urllib.parse import quote
 
@@ -24,9 +23,6 @@ from backend.services.auth.utils import (
 )
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
-from backend.services.logger.utils import get_logger
-
-logger = get_logger()
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -89,6 +85,7 @@ async def login(
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
     """
+    logger = ctx.get_logger()
     strategy_name = login.strategy
     payload = login.payload
 
@@ -152,6 +149,8 @@ async def authorize(
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
     """
+    logger = ctx.get_logger()
+
     if not code:
         logger.error(
             event="[Auth] Error authorizing login: No code provided",
@@ -195,10 +194,10 @@ async def authorize(
 
     if not userinfo:
         logger.error(
-            event=f"[Auth] Error authorizing login: Invalid token {token}",
+            event="[Auth] Error authorizing login: Invalid token",
         )
         raise HTTPException(
-            status_code=401, detail=f"Could not get user from auth token: {token}."
+            status_code=401, detail="Could not get user from auth token."
         )
 
     # Get or create user, then set session user
@@ -259,6 +258,7 @@ async def login(
     Raises:
         HTTPException: If no redirect_uri set.
     """
+    logger = ctx.get_logger()
     redirect_uri = Settings().auth.frontend_hostname
 
     if not redirect_uri:
@@ -273,9 +273,12 @@ async def login(
         return RedirectResponse(redirect_err)
 
     # Get key from state and retrieve cache
-    state = json.loads(request.query_params.get("state"))
-    cache_key = state["key"]
-    tool_auth_cache = cache_get_dict(cache_key)
+    try:
+        state = json.loads(request.query_params.get("state"))
+        cache_key = state["key"]
+        tool_auth_cache = cache_get_dict(cache_key)
+    except Exception as e:
+        log_and_redirect_err(str(e))
 
     user_id = tool_auth_cache.get("user_id")
     tool_id = tool_auth_cache.get("tool_id")

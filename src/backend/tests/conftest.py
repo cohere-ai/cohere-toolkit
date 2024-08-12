@@ -11,8 +11,11 @@ from sqlalchemy.orm import Session
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import get_session
+from backend.database_models.agent import Agent
+from backend.database_models.deployment import Deployment
+from backend.database_models.model import Model
 from backend.main import app, create_app
-from backend.schemas.deployment import Deployment
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.services.compass import Compass
@@ -148,12 +151,29 @@ def session_client_chat(session_chat: Session) -> Generator[TestClient, None, No
 
 @pytest.fixture
 def user(session: Session) -> User:
-    return get_factory("User", session).create(id="1")
+    return get_factory("User", session).create()
 
 
 @pytest.fixture
 def organization(session: Session) -> Organization:
     return get_factory("Organization", session).create()
+
+
+@pytest.fixture
+def deployment(session: Session) -> Deployment:
+    return get_factory("Deployment", session).create(
+        deployment_class_name="CohereDeployment"
+    )
+
+
+@pytest.fixture
+def model(session: Session) -> Model:
+    return get_factory("Model", session).create()
+
+
+@pytest.fixture
+def agent(session: Session) -> Agent:
+    return get_factory("Agent", session).create()
 
 
 @pytest.fixture
@@ -167,7 +187,7 @@ def mock_available_model_deployments(request):
 
     is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
-        ModelDeploymentName.CoherePlatform: Deployment(
+        ModelDeploymentName.CoherePlatform: DeploymentSchema(
             id="cohere_platform",
             name=ModelDeploymentName.CoherePlatform,
             models=MockCohereDeployment.list_models(),
@@ -177,7 +197,7 @@ def mock_available_model_deployments(request):
             deployment_class=MockCohereDeployment,
             env_vars=["COHERE_VAR_1", "COHERE_VAR_2"],
         ),
-        ModelDeploymentName.SageMaker: Deployment(
+        ModelDeploymentName.SageMaker: DeploymentSchema(
             id="sagemaker",
             name=ModelDeploymentName.SageMaker,
             models=MockSageMakerDeployment.list_models(),
@@ -185,7 +205,7 @@ def mock_available_model_deployments(request):
             deployment_class=MockSageMakerDeployment,
             env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
         ),
-        ModelDeploymentName.Azure: Deployment(
+        ModelDeploymentName.Azure: DeploymentSchema(
             id="azure",
             name=ModelDeploymentName.Azure,
             models=MockAzureDeployment.list_models(),
@@ -193,7 +213,7 @@ def mock_available_model_deployments(request):
             deployment_class=MockAzureDeployment,
             env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
         ),
-        ModelDeploymentName.Bedrock: Deployment(
+        ModelDeploymentName.Bedrock: DeploymentSchema(
             id="bedrock",
             name=ModelDeploymentName.Bedrock,
             models=MockBedrockDeployment.list_models(),

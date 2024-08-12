@@ -1,11 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import { PropsWithChildren, useState } from 'react';
 
-import GoogleDriveIconSVG from '@/assets/svg/google-drive-icon.svg';
-import { DarkModeToggle } from '@/components/DarkMode';
-import { Button, Icon, Tabs, Text, Tooltip } from '@/components/Shared';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
+import { MobileHeader } from '@/components/MobileHeader';
+import { Button, Icon, Tabs, Text } from '@/components/Shared';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
@@ -28,26 +27,19 @@ export const Settings = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-1000 md:ml-0 dark:border-volcanic-100 dark:bg-volcanic-100">
+    <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 dark:border-volcanic-100 dark:bg-volcanic-100 md:ml-0">
       <header
         className={cn(
           'border-b border-marble-950 bg-cover dark:border-volcanic-200',
-          'bg-[url(/images/cellBackground.svg)] dark:bg-none',
-          'px-4 py-6 md:px-9 md:py-10 lg:px-10',
-          'flex items-center justify-between'
+          'px-4 py-6 lg:px-10 lg:py-10',
+          'flex flex-col gap-y-3'
         )}
       >
+        <MobileHeader />
         <div className="flex items-center gap-2">
           <Text styleAs="h4" className="text-volcanic-400 dark:text-mushroom-950">
             Settings
           </Text>
-          <Tooltip label="tbd" hover size="sm">
-            <Icon
-              name="information"
-              kind="outline"
-              className="fill-volcanic-300 dark:fill-mushroom-700"
-            />
-          </Tooltip>
         </div>
       </header>
       <section className="p-8">
@@ -57,7 +49,7 @@ export const Settings = () => {
           onChange={setSelectedTabIndex}
           tabGroupClassName="h-full"
           tabClassName="pt-2.5"
-          panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg bg-marble-1000 dark:bg-volcanic-100 md:rounded-b-none"
+          panelsClassName="pt-7 lg:pt-7 px-0 flex flex-col rounded-b-lg md:rounded-b-none"
           fitTabsContent
         >
           <Connections />
@@ -87,13 +79,7 @@ const Connections = () => (
 const Profile = () => {
   return (
     <Wrapper>
-      <Button
-        label="Sign out"
-        href="/logout"
-        kind="secondary"
-        icon="sign-out"
-        theme="evolved-green"
-      />
+      <Button label="Sign out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
     </Wrapper>
   );
 };
@@ -118,12 +104,13 @@ const GoogleDriveConnection = () => {
   }
 
   const isGoogleDriveConnected = !googleDriveTool.is_auth_required ?? false;
+  const authUrl = googleDriveTool.auth_url;
 
   return (
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
       <header className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Image src={GoogleDriveIconSVG} alt={`Icon for Google Drive`} width={32} height={32} />
+          <Icon name="google-drive" size="xl" />
           <Text className="text-volcanic-400 dark:text-mushroom-950">Google Drive</Text>
         </div>
         <StatusConnection connected={isGoogleDriveConnected} />
@@ -147,7 +134,7 @@ const GoogleDriveConnection = () => {
                 label="Sync now"
                 kind="secondary"
                 icon="arrow-clockwise"
-                onClick={() => alert('not implemented')}
+                href={authUrl ?? ''}
               />
               <Button
                 label="Delete connection"

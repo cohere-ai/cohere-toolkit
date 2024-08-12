@@ -6,7 +6,6 @@ import pandas as pd
 from docx import Document
 from fastapi import Depends, HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
-from pypdf import PdfReader
 from python_calamine.pandas import pandas_monkeypatch
 
 import backend.crud.conversation as conversation_crud
@@ -19,6 +18,8 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.context import Context
 from backend.schemas.file import File
+from backend.services import utils
+from backend.services.agent import validate_agent_exists
 from backend.services.compass import Compass
 from backend.services.context import get_context
 from backend.services.logger.utils import get_logger
@@ -175,19 +176,15 @@ class FileService:
         """
         from backend.config.tools import ToolName
 
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        if agent is None:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Agent with ID: {agent_id} not found.",
-            )
+        agent = validate_agent_exists(session, agent_id, user_id)
 
-        agent_tools_metadata = agent.tools_metadata
-        if agent_tools_metadata is not None:
+        files = []
+        agent_tool_metadata = agent.tools_metadata
+        if agent_tool_metadata is not None and len(agent_tool_metadata) > 0:
             artifacts = next(
                 (
                     tool_metadata.artifacts
-                    for tool_metadata in agent_tools_metadata
+                    for tool_metadata in agent_tool_metadata
                     if tool_metadata.tool_name == ToolName.Read_File
                     or tool_metadata.tool_name == ToolName.Search_File
                 ),
@@ -676,7 +673,7 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
     file_extension = get_file_extension(file.filename)
 
     if file_extension == PDF_EXTENSION:
-        return read_pdf(file_contents)
+        return utils.read_pdf(file_contents)
     elif file_extension == DOCX_EXTENSION:
         return read_docx(file_contents)
     elif file_extension in [
@@ -690,26 +687,6 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
         return read_excel(file_contents)
 
     raise ValueError(f"File extension {file_extension} is not supported")
-
-
-def read_pdf(file_contents: bytes) -> str:
-    """Reads the text from a PDF file using PyPDF2
-
-    Args:
-        file_contents (bytes): The file contents
-
-    Returns:
-        str: The text extracted from the PDF
-    """
-    pdf_reader = PdfReader(io.BytesIO(file_contents))
-    text = ""
-
-    # Extract text from each page
-    for page in pdf_reader.pages:
-        page_text = page.extract_text()
-        text += page_text
-
-    return text
 
 
 def read_excel(file_contents: bytes) -> str:

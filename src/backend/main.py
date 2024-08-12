@@ -1,5 +1,3 @@
-import os
-
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
@@ -22,16 +20,14 @@ from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
+from backend.routers.model import router as model_router
 from backend.routers.organization import router as organization_router
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.services.context import ContextMiddleware
+from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
-from backend.services.logger.utils import get_logger
 from backend.services.metrics import MetricsMiddleware
-
-logger = get_logger()
 
 load_dotenv()
 
@@ -54,6 +50,7 @@ def create_app():
         default_agent_router,
         snapshot_router,
         organization_router,
+        model_router,
     ]
 
     # Dynamically set router dependencies
@@ -80,9 +77,9 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.add_middleware(ContextMiddleware)  # This should be the first middleware
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
+    app.add_middleware(ContextMiddleware)  # This should be the first middleware
 
     return app
 
@@ -92,8 +89,15 @@ app = create_app()
 
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
+    ctx = get_context(request)
+    logger = ctx.get_logger()
+
     logger.exception(
-        event=f"[Validation] Error during request: {exc!r}, {request.method} {request.url}"
+        event="Unhandled exception",
+        error=str(exc),
+        method=request.method,
+        url=request.url,
+        ctx=ctx,
     )
 
     return JSONResponse(

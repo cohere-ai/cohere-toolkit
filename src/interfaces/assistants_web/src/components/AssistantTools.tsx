@@ -2,24 +2,24 @@
 
 import React from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
+import { checkIsBaseAgent } from '@/utils/agents';
+import { getToolIcon } from '@/utils/tools';
 
 /**
  * @description Tools for the assistant to use in the conversation.
  */
 export const AssistantTools: React.FC<{
   tools: ManagedTool[];
-  agent?: Agent;
+  agent?: AgentPublic;
   className?: string;
 }> = ({ tools, agent, className = '' }) => {
-  const requiredTools = agent?.tools;
   const {
     params: { tools: paramTools },
   } = useParamsStore();
@@ -29,27 +29,12 @@ export const AssistantTools: React.FC<{
     managedTools: tools,
   });
 
+  if (availableTools.length === 0) return null;
+
   return (
     <section className={cn('relative flex flex-col gap-y-5', className)}>
       <article className={cn('flex flex-col gap-y-5')}>
-        {availableTools.length === 0 && (
-          <Text styleAs="p-sm" className="text-mushroom-300 dark:text-marble-800">
-            `${agent?.name} does not use any tools.`
-          </Text>
-        )}
-
-        {unauthedTools.length > 0 && (
-          <>
-            <div className="flex items-center justify-between">
-              <Text as="span" styleAs="label" className="font-medium">
-                Action Required
-              </Text>
-              <Icon name="warning" kind="outline" />
-            </div>
-            <ConnectDataBox tools={unauthedTools} />
-          </>
-        )}
-
+        {unauthedTools.length > 0 && <ConnectDataBox />}
         {unauthedTools.length > 0 && availableTools.length > 0 && (
           <hr className="border-t border-marble-950 dark:border-volcanic-300" />
         )}
@@ -59,7 +44,7 @@ export const AssistantTools: React.FC<{
             {availableTools.map(({ name, display_name, description, error_message }) => {
               const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
               const checked = !!enabledTool;
-              const disabled = !!requiredTools;
+              const disabled = checkIsBaseAgent(agent);
 
               return (
                 <ToggleCard
@@ -68,9 +53,10 @@ export const AssistantTools: React.FC<{
                   errorMessage={error_message}
                   checked={checked}
                   label={display_name ?? name ?? ''}
-                  icon={TOOL_ID_TO_DISPLAY_INFO[name ?? '']?.icon ?? TOOL_FALLBACK_ICON}
+                  icon={getToolIcon(name)}
                   description={description ?? ''}
                   onToggle={(checked) => handleToggle(name ?? '', checked)}
+                  agentId={agent?.id}
                 />
               );
             })}
@@ -85,27 +71,29 @@ export const AssistantTools: React.FC<{
 /**
  * @description Info box that prompts the user to connect their data to enable tools
  */
-const ConnectDataBox: React.FC<{
-  tools: ManagedTool[];
-}> = ({ tools }) => {
+const ConnectDataBox: React.FC = () => {
   return (
-    <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-800 bg-coral-800 p-4 dark:border-blue-300 dark:bg-evolved-blue-500">
-      <div className="flex flex-col gap-y-3">
-        <Text styleAs="h5">Connect your data</Text>
-        <Text>
-          In order to get the most accurate answers grounded on your data, connect the following:
+    <div className="flex flex-col gap-y-2">
+      <div className="flex items-center justify-between">
+        <Text as="span" styleAs="label" className="font-medium">
+          Action Required
         </Text>
+        <Icon name="warning" kind="outline" />
       </div>
-      <div className="flex flex-col gap-y-1">
-        {tools.map((tool) => (
-          <Button
-            key={tool.name}
-            kind="secondary"
-            href={tool.auth_url ?? ''}
-            label={tool.display_name}
-            icon="arrow-up-right"
-          />
-        ))}
+      <div
+        className={cn(
+          'flex flex-col gap-y-4 rounded border border-coral-700 p-4 dark:border-evolved-green-500'
+        )}
+      >
+        <div className="flex flex-col gap-y-3">
+          <Text styleAs="h5">Connect your data</Text>
+          <Text>
+            In order to get the most accurate answers grounded on your data, connect the following:
+          </Text>
+          <Button href="/settings" icon="arrow-up-right">
+            Connect data
+          </Button>
+        </div>
       </div>
     </div>
   );

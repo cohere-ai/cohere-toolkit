@@ -7,13 +7,12 @@ import { StreamSearchResults, StreamToolCallsGeneration, ToolCall } from '@/cohe
 import { Icon, IconName, Markdown, Text } from '@/components/Shared';
 import {
   TOOL_CALCULATOR_ID,
-  TOOL_FALLBACK_ICON,
   TOOL_GOOGLE_DRIVE_ID,
-  TOOL_ID_TO_DISPLAY_INFO,
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
 } from '@/constants';
 import { cn, getValidURL } from '@/utils';
+import { getToolIcon } from '@/utils/tools';
 
 type Props = {
   show: boolean;
@@ -113,7 +112,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
   }
 
   const toolName = event?.name || '';
-  const icon = TOOL_ID_TO_DISPLAY_INFO[toolName]?.icon ?? TOOL_FALLBACK_ICON;
+  const icon = getToolIcon(toolName);
 
   switch (toolName) {
     case TOOL_PYTHON_INTERPRETER_ID: {
@@ -181,7 +180,7 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   children,
 }) => {
   return (
-    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900 dark:bg-volcanic-200 dark:group-hover:bg-inherit">
+    <div className="flex w-full gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900 dark:bg-volcanic-200 dark:group-hover:bg-volcanic-200">
       <Icon
         name={icon}
         kind="outline"

@@ -3,16 +3,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ApiError,
   CohereNetworkError,
-  Conversation,
+  ConversationPublic,
   ConversationWithoutMessages,
-  DeleteConversation,
-  UpdateConversation,
+  DeleteConversationResponse,
+  UpdateConversationRequest,
   useCohereClient,
 } from '@/cohere-client';
 import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
-import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useNotify } from '@/hooks/toast';
 import { useConversationStore } from '@/stores';
 import { isAbortError } from '@/utils';
@@ -22,18 +22,9 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
 
   return useQuery<ConversationWithoutMessages[], ApiError>({
     queryKey: ['conversations', params.agentId],
-    queryFn: async () => {
-      const conversations = await client.listConversations(params);
-
-      if (params.agentId) {
-        return conversations;
-      }
-
-      return conversations;
-    },
+    queryFn: () => client.listConversations(params),
     retry: 0,
     refetchOnWindowFocus: false,
-    initialData: [],
   });
 };
 
@@ -46,7 +37,7 @@ export const useConversation = ({
 }) => {
   const client = useCohereClient();
 
-  return useQuery<Conversation | undefined, Error>({
+  return useQuery<ConversationPublic | undefined, Error>({
     queryKey: ['conversation', conversationId],
     enabled: !!conversationId && !disabledOnMount,
     queryFn: async () => {
@@ -71,9 +62,9 @@ export const useEditConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation<
-    Conversation,
+    ConversationPublic,
     CohereNetworkError,
-    { request: UpdateConversation; conversationId: string }
+    { request: UpdateConversationRequest; conversationId: string }
   >({
     mutationFn: ({ request, conversationId }) => client.editConversation(request, conversationId),
     onSettled: () => {
@@ -85,11 +76,11 @@ export const useEditConversation = () => {
 export const useDeleteConversation = () => {
   const client = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<DeleteConversation, CohereNetworkError, { conversationId: string }>({
+  return useMutation<DeleteConversationResponse, CohereNetworkError, { conversationId: string }>({
     mutationFn: ({ conversationId }: { conversationId: string }) =>
       client.deleteConversation({ conversationId }),
     onSettled: (_, _err, { conversationId }: { conversationId: string }) => {
-      queryClient.setQueriesData<Conversation[]>(
+      queryClient.setQueriesData<ConversationPublic[]>(
         { queryKey: ['conversations'] },
         (oldConversations) => {
           return oldConversations?.filter((c) => c.id === conversationId);
@@ -101,7 +92,6 @@ export const useDeleteConversation = () => {
 };
 
 export const useConversationActions = () => {
-  const { agentId } = useChatRoutes();
   const { open, close } = useContextStore();
   const {
     conversation: { id: conversationId },
@@ -122,7 +112,7 @@ export const useConversationActions = () => {
       onComplete?.();
 
       if (id === conversationId) {
-        navigateToNewChat(agentId);
+        navigateToNewChat();
       }
     };
 

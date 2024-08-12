@@ -145,7 +145,9 @@ class SearchFileTool(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         query = parameters.get("search_query")
         files = parameters.get("files")
 

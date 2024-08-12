@@ -1,19 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { uniqBy } from 'lodash';
-import { useMemo } from 'react';
 
-import { ApiError, DeleteFile, ListFile, useCohereClient } from '@/cohere-client';
+import { ApiError, DeleteFileResponse, ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
 import { useNotify } from '@/hooks/toast';
-import { useListTools } from '@/hooks/tools';
 import { useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
-import {
-  fileSizeToBytes,
-  formatFileSize,
-  getFileExtension,
-  isDefaultFileLoaderTool,
-} from '@/utils';
+import { fileSizeToBytes, formatFileSize, getFileExtension } from '@/utils';
 
 export const useListFiles = (conversationId?: string, options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
@@ -55,7 +47,7 @@ export const useDeleteUploadedFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
-  return useMutation<DeleteFile, ApiError, { conversationId: string; fileId: string }>({
+  return useMutation<DeleteFileResponse, ApiError, { conversationId: string; fileId: string }>({
     mutationFn: async ({ conversationId, fileId }) =>
       cohereClient.deletefile({ conversationId, fileId }),
     onSettled: () => {
@@ -179,48 +171,4 @@ export const useFileActions = () => {
     deleteComposerFile,
     clearComposerFiles,
   };
-};
-
-/**
- * @description Hook to fetch and enable the default file loader tool.
- * This tool must be on for files to work in the conversation.
- */
-export const useDefaultFileLoaderTool = () => {
-  const { data: tools } = useListTools();
-  const { params, setParams } = useParamsStore();
-  // Returns the first visible file loader tool from tools list
-  const defaultFileLoaderTool = useMemo(
-    () => tools?.find(isDefaultFileLoaderTool),
-    [tools?.length]
-  );
-
-  const enableDefaultFileLoaderTool = () => {
-    if (!defaultFileLoaderTool) return;
-
-    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
-    const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
-      params.tools?.some((tool) => tool.name === name)
-    );
-
-    if (isDefaultFileLoaderToolEnabled) return;
-
-    const newTools = uniqBy([...(params.tools ?? []), defaultFileLoaderTool], 'name');
-    setParams({ tools: newTools });
-  };
-
-  const disableDefaultFileLoaderTool = () => {
-    if (!defaultFileLoaderTool) return;
-
-    const visibleFileToolNames = tools?.filter(isDefaultFileLoaderTool).map((t) => t.name) ?? [];
-    const isDefaultFileLoaderToolEnabled = visibleFileToolNames.some((name) =>
-      params.tools?.some((tool) => tool.name === name)
-    );
-
-    if (!isDefaultFileLoaderToolEnabled) return;
-
-    const newTools = (params.tools ?? []).filter((t) => t.name !== defaultFileLoaderTool.name);
-    setParams({ tools: newTools });
-  };
-
-  return { defaultFileLoaderTool, enableDefaultFileLoaderTool, disableDefaultFileLoaderTool };
 };
