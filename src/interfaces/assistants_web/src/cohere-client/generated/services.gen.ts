@@ -906,6 +906,7 @@ export class DefaultService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
+   * @param data.model
    * @returns GenerateTitleResponse Successful Response
    * @throws ApiError
    */
@@ -917,6 +918,9 @@ export class DefaultService {
       url: '/v1/conversations/{conversation_id}/generate-title',
       path: {
         conversation_id: data.conversationId,
+      },
+      query: {
+        model: data.model,
       },
       errors: {
         422: 'Validation Error',
