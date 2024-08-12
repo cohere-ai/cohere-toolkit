@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Any, ClassVar, Dict, List, Union
+from typing import Any, ClassVar, Dict, List, Union, Optional
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -9,7 +9,7 @@ from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
-
+from backend.schemas.agent import CreateAgentToolMetadataRequest
 
 class ChatRole(StrEnum):
     """One of CHATBOT|USER|SYSTEM to identify who the message is coming from."""
@@ -364,3 +364,4 @@ class BaseChatRequest(BaseModel):
             ]
         """,
     )
+    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
