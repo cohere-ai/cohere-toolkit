@@ -79,7 +79,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                 'flex w-full items-start justify-between gap-x-2 px-1.5 py-3',
                 'focus:outline focus:outline-volcanic-300',
                 {
-                  'border-b border-mushroom-800 md:w-[300px] dark:border-volcanic-300':
+                  'border-b border-mushroom-800 dark:border-volcanic-300 md:w-[300px]':
                     i !== availableTools.length - 1,
                 }
               )}

@@ -67,7 +67,7 @@ const Conversation: React.FC<Props> = ({
 
   return (
     <div className="flex h-full flex-grow">
-      <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-marble-950 bg-marble-980 lg:rounded-r-none dark:border-volcanic-200 dark:bg-volcanic-100">
+      <div className="flex h-full w-full min-w-0 flex-col rounded-l-lg rounded-r-lg border border-marble-950 bg-marble-980 dark:border-volcanic-200 dark:bg-volcanic-100 lg:rounded-r-none">
         <Header agent={agent} />
         <div className="relative flex h-full w-full flex-col" ref={chatWindowRef}>
           <MessagingContainer

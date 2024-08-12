@@ -1656,6 +1656,17 @@ export const $GenerateTitleResponse = {
       type: 'string',
       title: 'Title',
     },
+    error: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Error',
+    },
   },
   type: 'object',
   required: ['title'],
@@ -2428,6 +2439,17 @@ export const $NonStreamedChatResponse = {
       ],
       title: 'List of tool calls generated for custom tools',
       default: [],
+    },
+    error: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Error message if the response is an error.',
     },
   },
   type: 'object',
@@ -3249,6 +3271,17 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Tools Metadata',
+    },
+    is_private: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Private',
     },
   },
   type: 'object',

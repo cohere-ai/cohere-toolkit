@@ -317,6 +317,7 @@ export type FilePublic = {
 
 export type GenerateTitleResponse = {
   title: string;
+  error?: string | null;
 };
 
 export type GenericResponseMessage = {
@@ -450,6 +451,7 @@ export type NonStreamedChatResponse = {
   search_queries?: Array<SearchQuery> | null;
   conversation_id: string | null;
   tool_calls?: Array<ToolCall> | null;
+  error?: string | null;
 };
 
 export type Organization = {
@@ -641,6 +643,7 @@ export type UpdateAgentRequest = {
   organization_id?: string | null;
   tools?: Array<string> | null;
   tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
+  is_private?: boolean | null;
 };
 
 export type UpdateAgentToolMetadataRequest = {
@@ -844,6 +847,7 @@ export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse = D
 
 export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostData = {
   conversationId: string;
+  model?: string | null;
 };
 
 export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse =
