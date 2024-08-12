@@ -144,343 +144,287 @@ export const Icon: React.FC<Props> = ({ name, kind = 'default', size = 'md', cla
   );
 };
 
-const getIcon = (name: IconName, kind: IconKind) => {
-  switch (name) {
-    case 'add':
-      return (
-        <AccessibleIcon label="add">
-          <Add />
-        </AccessibleIcon>
-      );
-    case 'close':
-      return (
-        <AccessibleIcon label="close">
-          <Close />
-        </AccessibleIcon>
-      );
-    case 'checkmark':
-      return (
-        <AccessibleIcon label="checkmark">
-          <Checkmark />
-        </AccessibleIcon>
-      );
-    case 'arrow-down':
-      return (
-        <AccessibleIcon label="arrow down">
-          <ArrowDown />
-        </AccessibleIcon>
-      );
-    case 'arrow-left':
-      return (
-        <AccessibleIcon label="arrow left">
-          <ArrowLeft />
-        </AccessibleIcon>
-      );
-    case 'arrow-right':
-      return (
-        <AccessibleIcon label="arrow right">
-          <ArrowRight />
-        </AccessibleIcon>
-      );
-    case 'arrow-up':
-      return (
-        <AccessibleIcon label="arrow up">
-          <ArrowUp />
-        </AccessibleIcon>
-      );
-    case 'arrow-up-right':
-      return (
-        <AccessibleIcon label="arrow up right">
-          <ArrowUpRight />
-        </AccessibleIcon>
-      );
-    case 'chevron-down':
-      return (
-        <AccessibleIcon label="chevron down">
-          <ChevronDown />
-        </AccessibleIcon>
-      );
-    case 'chevron-left':
-      return (
-        <AccessibleIcon label="chevron left">
-          <ChevronLeft />
-        </AccessibleIcon>
-      );
-    case 'chevron-right':
-      return (
-        <AccessibleIcon label="chevron right">
-          <ChevronRight />
-        </AccessibleIcon>
-      );
-    case 'chevron-up':
-      return (
-        <AccessibleIcon label="chevron up">
-          <ChevronRight />
-        </AccessibleIcon>
-      );
-    case 'menu':
-      return (
-        <AccessibleIcon label="menu">
-          <Menu />
-        </AccessibleIcon>
-      );
-    case 'search':
-      return (
-        <AccessibleIcon label="search">
-          <Search kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'kebab':
-      return (
-        <AccessibleIcon label="kebab">
-          <Kebab />
-        </AccessibleIcon>
-      );
-    case 'copy':
-      return (
-        <AccessibleIcon label="copy">
-          <Copy kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'link':
-      return (
-        <AccessibleIcon label="link">
-          <Link />
-        </AccessibleIcon>
-      );
-    case 'list':
-      return (
-        <AccessibleIcon label="list">
-          <List />
-        </AccessibleIcon>
-      );
-    case 'profile':
-      return (
-        <AccessibleIcon label="profile">
-          <Profile />
-        </AccessibleIcon>
-      );
-    case 'warning':
-      return (
-        <AccessibleIcon label="warning">
-          <Warning kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'information':
-      return (
-        <AccessibleIcon label="information">
-          <Information kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'upload':
-      return (
-        <AccessibleIcon label="upload">
-          <Upload />
-        </AccessibleIcon>
-      );
-    case 'close-drawer':
-      return (
-        <AccessibleIcon label="close drawer">
-          <CloseDrawer />
-        </AccessibleIcon>
-      );
-    case 'trash':
-      return (
-        <AccessibleIcon label="trash">
-          <Trash />
-        </AccessibleIcon>
-      );
-    case 'show':
-      return (
-        <AccessibleIcon label="show">
-          <Show />
-        </AccessibleIcon>
-      );
-    case 'hide':
-      return (
-        <AccessibleIcon label="hide">
-          <Hide />
-        </AccessibleIcon>
-      );
-    case 'edit':
-      return (
-        <AccessibleIcon label="edit">
-          <Edit />
-        </AccessibleIcon>
-      );
-    case 'file':
-      return (
-        <AccessibleIcon label="file">
-          <File kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'folder':
-      return (
-        <AccessibleIcon label="folder">
-          <Folder kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'thumbs-up':
-      return (
-        <AccessibleIcon label="thumbs up">
-          <ThumbsUp kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'thumbs-down':
-      return (
-        <AccessibleIcon label="thumbs down">
-          <ThumbsDown kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'new-message':
-      return (
-        <AccessibleIcon label="new message">
-          <NewMessage />
-        </AccessibleIcon>
-      );
-    case 'web':
-      return (
-        <AccessibleIcon label="web">
-          <Web kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'download':
-      return (
-        <AccessibleIcon label="download">
-          <Download />
-        </AccessibleIcon>
-      );
-    case 'share':
-      return (
-        <AccessibleIcon label="share">
-          <Share />
-        </AccessibleIcon>
-      );
-    case 'calculator':
-      return (
-        <AccessibleIcon label="calculator">
-          <Calculator />
-        </AccessibleIcon>
-      );
-    case 'file-search':
-      return (
-        <AccessibleIcon label="calculator">
-          <FileSearch />
-        </AccessibleIcon>
-      );
-    case 'code-simple':
-      return (
-        <AccessibleIcon label="code simple">
-          <CodeSimple />
-        </AccessibleIcon>
-      );
-    case 'desktop':
-      return (
-        <AccessibleIcon label="desktop">
-          <Desktop />
-        </AccessibleIcon>
-      );
-    case 'paperclip':
-      return (
-        <AccessibleIcon label="paperclip">
-          <Paperclip />
-        </AccessibleIcon>
-      );
-    case 'circles-three':
-      return (
-        <AccessibleIcon label="circles three">
-          <CirclesThree />
-        </AccessibleIcon>
-      );
-    case 'circles-four':
-      return (
-        <AccessibleIcon label="circles four">
-          <CirclesFour />
-        </AccessibleIcon>
-      );
-    case 'users-three':
-      return (
-        <AccessibleIcon label="circles four">
-          <UsersThree />
-        </AccessibleIcon>
-      );
-    case 'arrow-clockwise':
-      return (
-        <AccessibleIcon label="arrow clockwise">
-          <ArrowClockwise />
-        </AccessibleIcon>
-      );
-    case 'arrow-submit':
-      return (
-        <AccessibleIcon label="arrow submit">
-          <ArrowSubmit />
-        </AccessibleIcon>
-      );
-    case 'chat-circle-dots':
-      return (
-        <AccessibleIcon label="arrow submit">
-          <ChatCircleDots kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'settings':
-      return (
-        <AccessibleIcon label="settings">
-          <Setttings kind={kind} />
-        </AccessibleIcon>
-      );
-    case 'compass':
-      return (
-        <AccessibleIcon label="compass">
-          <Compass />
-        </AccessibleIcon>
-      );
-    case 'sparkle':
-      return (
-        <AccessibleIcon label="sparkle">
-          <Sparkle />
-        </AccessibleIcon>
-      );
-    case 'book-open-text':
-      return (
-        <AccessibleIcon label="book open text">
-          <BookOpenText />
-        </AccessibleIcon>
-      );
-    case 'sun':
-      return (
-        <AccessibleIcon label="sun">
-          <Sun />
-        </AccessibleIcon>
-      );
-    case 'moon':
-      return (
-        <AccessibleIcon label="moon">
-          <Moon />
-        </AccessibleIcon>
-      );
-    case 'sign-out':
-      return (
-        <AccessibleIcon label="moon">
-          <SignOut />
-        </AccessibleIcon>
-      );
-    case 'subtract':
-      return (
-        <AccessibleIcon label="subtract">
-          <Subtract />
-        </AccessibleIcon>
-      );
-    case 'google-drive':
-      return (
-        <AccessibleIcon label="Google Drive">
-          <GoogleDrive />
-        </AccessibleIcon>
-      );
-    case 'one-drive':
-      return (
-        <AccessibleIcon label="One Drive">
-          <OneDrive />
-        </AccessibleIcon>
-      );
-  }
+const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
+  return {
+    ['add']: (
+      <AccessibleIcon label="Add">
+        <Add />
+      </AccessibleIcon>
+    ),
+    ['arrow-clockwise']: (
+      <AccessibleIcon label="Arrow Clockwise">
+        <ArrowClockwise />
+      </AccessibleIcon>
+    ),
+    ['arrow-down']: (
+      <AccessibleIcon label="Arrow Down">
+        <ArrowDown />
+      </AccessibleIcon>
+    ),
+    ['arrow-left']: (
+      <AccessibleIcon label="Arrow Left">
+        <ArrowLeft />
+      </AccessibleIcon>
+    ),
+    ['arrow-right']: (
+      <AccessibleIcon label="Arrow Right">
+        <ArrowRight />
+      </AccessibleIcon>
+    ),
+    ['arrow-submit']: (
+      <AccessibleIcon label="Arrow Submit">
+        <ArrowSubmit />
+      </AccessibleIcon>
+    ),
+    ['arrow-up-right']: (
+      <AccessibleIcon label="Arrow Up Right">
+        <ArrowUpRight />
+      </AccessibleIcon>
+    ),
+    ['arrow-up']: (
+      <AccessibleIcon label="Arrow Up">
+        <ArrowUp />
+      </AccessibleIcon>
+    ),
+    ['book-open-text']: (
+      <AccessibleIcon label="Book Open Text">
+        <BookOpenText kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['calculator']: (
+      <AccessibleIcon label="Calculator">
+        <Calculator />
+      </AccessibleIcon>
+    ),
+    ['chat-circle-dots']: (
+      <AccessibleIcon label="Chat Circle Dots">
+        <ChatCircleDots kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['checkmark']: (
+      <AccessibleIcon label="Checkmark">
+        <Checkmark />
+      </AccessibleIcon>
+    ),
+    ['chevron-down']: (
+      <AccessibleIcon label="Chevron Down">
+        <ChevronDown />
+      </AccessibleIcon>
+    ),
+    ['chevron-left']: (
+      <AccessibleIcon label="Chevron Left">
+        <ChevronLeft />
+      </AccessibleIcon>
+    ),
+    ['chevron-right']: (
+      <AccessibleIcon label="Chevron Right">
+        <ChevronRight />
+      </AccessibleIcon>
+    ),
+    ['chevron-up']: (
+      <AccessibleIcon label="Chevron Up">
+        <ChevronDown />
+      </AccessibleIcon>
+    ),
+    ['circles-four']: (
+      <AccessibleIcon label="Circles Four">
+        <CirclesFour />
+      </AccessibleIcon>
+    ),
+    ['circles-three']: (
+      <AccessibleIcon label="Circles Three">
+        <CirclesThree />
+      </AccessibleIcon>
+    ),
+    ['close-drawer']: (
+      <AccessibleIcon label="Close Drawer">
+        <CloseDrawer />
+      </AccessibleIcon>
+    ),
+    ['close']: (
+      <AccessibleIcon label="Close">
+        <Close />
+      </AccessibleIcon>
+    ),
+    ['code-simple']: (
+      <AccessibleIcon label="Code Simple">
+        <CodeSimple />
+      </AccessibleIcon>
+    ),
+    ['compass']: (
+      <AccessibleIcon label="Compass">
+        <Compass />
+      </AccessibleIcon>
+    ),
+    ['copy']: (
+      <AccessibleIcon label="Copy">
+        <Copy kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['desktop']: (
+      <AccessibleIcon label="Desktop">
+        <Desktop />
+      </AccessibleIcon>
+    ),
+    ['download']: (
+      <AccessibleIcon label="Download">
+        <Download />
+      </AccessibleIcon>
+    ),
+    ['edit']: (
+      <AccessibleIcon label="Edit">
+        <Edit />
+      </AccessibleIcon>
+    ),
+    ['file-search']: (
+      <AccessibleIcon label="File Search">
+        <FileSearch />
+      </AccessibleIcon>
+    ),
+    ['file']: (
+      <AccessibleIcon label="File">
+        <File kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['folder']: (
+      <AccessibleIcon label="Folder">
+        <Folder kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['google-drive']: (
+      <AccessibleIcon label="Google Drive">
+        <GoogleDrive />
+      </AccessibleIcon>
+    ),
+    ['hide']: (
+      <AccessibleIcon label="Hide">
+        <Hide />
+      </AccessibleIcon>
+    ),
+    ['information']: (
+      <AccessibleIcon label="Information">
+        <Information kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['kebab']: (
+      <AccessibleIcon label="Kebab">
+        <Kebab />
+      </AccessibleIcon>
+    ),
+    ['link']: (
+      <AccessibleIcon label="Link">
+        <Link />
+      </AccessibleIcon>
+    ),
+    ['list']: (
+      <AccessibleIcon label="List">
+        <List />
+      </AccessibleIcon>
+    ),
+    ['menu']: (
+      <AccessibleIcon label="Menu">
+        <Menu />
+      </AccessibleIcon>
+    ),
+    ['moon']: (
+      <AccessibleIcon label="Moon">
+        <Moon kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['new-message']: (
+      <AccessibleIcon label="New Message">
+        <NewMessage />
+      </AccessibleIcon>
+    ),
+    ['one-drive']: (
+      <AccessibleIcon label="One Drive">
+        <OneDrive />
+      </AccessibleIcon>
+    ),
+    ['paperclip']: (
+      <AccessibleIcon label="Paperclip">
+        <Paperclip />
+      </AccessibleIcon>
+    ),
+    ['profile']: (
+      <AccessibleIcon label="Profile">
+        <Profile />
+      </AccessibleIcon>
+    ),
+    ['search']: (
+      <AccessibleIcon label="Search">
+        <Search kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['settings']: (
+      <AccessibleIcon label="Settings">
+        <Setttings kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['share']: (
+      <AccessibleIcon label="Share">
+        <Share />
+      </AccessibleIcon>
+    ),
+    ['show']: (
+      <AccessibleIcon label="Show">
+        <Show />
+      </AccessibleIcon>
+    ),
+    ['sign-out']: (
+      <AccessibleIcon label="Sign Out">
+        <SignOut />
+      </AccessibleIcon>
+    ),
+    ['sparkle']: (
+      <AccessibleIcon label="Sparkle">
+        <Sparkle kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['subtract']: (
+      <AccessibleIcon label="Subtract">
+        <Subtract />
+      </AccessibleIcon>
+    ),
+    ['sun']: (
+      <AccessibleIcon label="Sun">
+        <Sun kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['thumbs-down']: (
+      <AccessibleIcon label="Thumbs Down">
+        <ThumbsDown kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['thumbs-up']: (
+      <AccessibleIcon label="Thumbs Up">
+        <ThumbsUp kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['trash']: (
+      <AccessibleIcon label="Trash">
+        <Trash kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['upload']: (
+      <AccessibleIcon label="Upload">
+        <Upload />
+      </AccessibleIcon>
+    ),
+    ['users-three']: (
+      <AccessibleIcon label="Users Three">
+        <UsersThree />
+      </AccessibleIcon>
+    ),
+    ['warning']: (
+      <AccessibleIcon label="Warning">
+        <Warning kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['web']: (
+      <AccessibleIcon label="Web">
+        <Web kind={kind} />
+      </AccessibleIcon>
+    ),
+  }[name];
 };
