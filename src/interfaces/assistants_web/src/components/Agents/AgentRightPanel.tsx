@@ -11,6 +11,7 @@ import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
+import { useSession } from '@/hooks/session';
 import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
@@ -29,7 +30,7 @@ const AgentRightPanel: React.FC<Props> = () => {
     params: { fileIds },
     setParams,
   } = useParamsStore();
-
+  const session = useSession();
   const { data: files } = useListFiles(conversationId);
   const { deleteFile } = useFileActions();
 
@@ -107,11 +108,12 @@ const AgentRightPanel: React.FC<Props> = () => {
                   label="Enables assistant knowledge to provide more accurate responses."
                 />
               </span>
-              <Switch
+              {/* @DEV_NOTE: This is disabled while we add the ability in BE to enable/disable assistant knowledge */}
+              {/* <Switch
                 theme={theme}
                 checked={!disabledAssistantKnowledge.includes(agentId)}
                 onChange={(checked) => setUseAssistantKnowledge(checked, agentId)}
-              />
+              /> */}
             </div>
             <Transition
               show={!disabledAssistantKnowledge.includes(agentId) ?? false}
@@ -123,7 +125,7 @@ const AgentRightPanel: React.FC<Props> = () => {
               leaveTo="opacity-0 scale-90"
               as="div"
             >
-              {agentKnowledgeFiles.length === 0 ? (
+              {agentKnowledgeFiles.length === 0 && session.userId === agent?.user_id ? (
                 <Banner className="flex flex-col">
                   Add a data source to expand the assistant’s knowledge.
                   <Button
