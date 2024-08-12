@@ -9,6 +9,7 @@ import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
+import { checkIsBaseAgent } from '@/utils/agents';
 
 type Props = {
   show: boolean;
@@ -23,7 +24,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { data: tools = [], isLoading: isToolsLoading } = useListTools();
   const { contrastText, bg, contrastFill } = useBrandedColors(agentId);
 
-  const isBaseAgent = agent?.id === '';
+  const isBaseAgent = checkIsBaseAgent(agent);
 
   return (
     <Transition

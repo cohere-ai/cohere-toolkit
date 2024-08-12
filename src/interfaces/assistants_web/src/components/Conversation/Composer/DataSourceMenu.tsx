@@ -9,6 +9,7 @@ import { useBrandedColors } from '@/hooks/brandedColors';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
+import { checkIsBaseAgent } from '@/utils/agents';
 import { getToolIcon } from '@/utils/tools';
 
 export type Props = {
@@ -109,7 +110,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                     <Text as="span">{tool.display_name}</Text>
                   </div>
                 </div>
-                {!agent?.id && (
+                {!checkIsBaseAgent(agent) && (
                   <Switch
                     theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}
