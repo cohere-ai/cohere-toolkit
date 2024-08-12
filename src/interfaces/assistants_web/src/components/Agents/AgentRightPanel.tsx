@@ -108,11 +108,12 @@ const AgentRightPanel: React.FC<Props> = () => {
                   label="Enables assistant knowledge to provide more accurate responses."
                 />
               </span>
-              <Switch
+              {/* @DEV_NOTE: This is disabled while we add the ability in BE to enable/disable assistant knowledge */}
+              {/* <Switch
                 theme={theme}
                 checked={!disabledAssistantKnowledge.includes(agentId)}
                 onChange={(checked) => setUseAssistantKnowledge(checked, agentId)}
-              />
+              /> */}
             </div>
             <Transition
               show={!disabledAssistantKnowledge.includes(agentId) ?? false}
