@@ -1,4 +1,4 @@
-"""empty message
+"""Migration merge
 
 Revision ID: c15b848babe3
 Revises: 6553b76de6ca, b88f00283a27

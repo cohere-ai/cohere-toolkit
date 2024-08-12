@@ -1,4 +1,4 @@
-"""empty message
+"""Add Tool Auth
 
 Revision ID: a6efd9f047b4
 Revises: 8bc604e45f2d

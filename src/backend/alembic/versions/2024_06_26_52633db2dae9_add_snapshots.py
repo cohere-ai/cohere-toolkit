@@ -1,4 +1,4 @@
-"""empty message
+"""Add snapshots tables
 
 Revision ID: 52633db2dae9
 Revises: 658924a376dd

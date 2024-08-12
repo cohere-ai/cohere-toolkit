@@ -1,4 +1,4 @@
-"""empty message
+"""Adds several QOL indices
 
 Revision ID: 2853273872ca
 Revises: 6bc65982b077

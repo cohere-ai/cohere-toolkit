@@ -1,4 +1,4 @@
-"""empty message
+"""Add tools column to Agents
 
 Revision ID: 922e874930bf
 Revises: 28763d200b29

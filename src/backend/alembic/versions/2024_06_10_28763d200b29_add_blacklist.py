@@ -1,4 +1,4 @@
-"""empty message
+"""Add Blacklist
 
 Revision ID: 28763d200b29
 Revises: a9b07acef4e8

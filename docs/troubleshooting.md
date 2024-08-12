@@ -86,5 +86,5 @@ Then delete <my_migration_id>.py for your existing changes, and run:
 make migrate
 To sync with main, then:
 
-make migration
+make migration message="Your migration changes"
 to regenerate your migrations.

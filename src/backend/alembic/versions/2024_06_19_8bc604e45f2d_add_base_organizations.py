@@ -1,4 +1,4 @@
-"""empty message
+"""Add base Organization tables
 
 Revision ID: 8bc604e45f2d
 Revises: 982bbef24559

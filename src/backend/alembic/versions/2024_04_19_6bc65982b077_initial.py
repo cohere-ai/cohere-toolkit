@@ -1,4 +1,4 @@
-"""Initial
+"""Initial migration, adding base tables to enable conversations
 
 Revision ID: 6bc65982b077
 Revises: 
