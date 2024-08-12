@@ -104,5 +104,4 @@ export const BASE_AGENT: AgentPublic = {
   model: DEFAULT_AGENT_MODEL,
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   user_id: '',
-  is_private: false,
 };
