@@ -4,10 +4,9 @@ import { cn } from '@/utils';
 type Props = {
   isPrivate: boolean;
   setIsPrivate: (isPrivate: boolean) => void;
-  disabled?: boolean;
 };
 
-export const VisibilityStep: React.FC<Props> = ({ isPrivate, setIsPrivate, disabled }) => {
+export const VisibilityStep: React.FC<Props> = ({ isPrivate, setIsPrivate }) => {
   const handleVisibilityChange = (val: string) => {
     setIsPrivate(val === 'private');
   };
@@ -15,7 +14,6 @@ export const VisibilityStep: React.FC<Props> = ({ isPrivate, setIsPrivate, disab
     <div className="flex flex-col space-y-4">
       <RadioGroup
         value={isPrivate ? 'private' : 'public'}
-        disabled={disabled}
         options={[
           {
             value: 'public',

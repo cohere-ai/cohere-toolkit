@@ -130,7 +130,7 @@ export const Tabs: React.FC<TabsProps> = ({
             </Tab>
           ))}
         </TabList>
-        <div className="hidden flex-1 border-b border-marble-950 md:block dark:border-volcanic-150" />
+        <div className="hidden flex-1 border-b border-marble-950 dark:border-volcanic-150 md:block" />
       </div>
       {children && (
         <TabPanels className={cn('w-full pt-10', panelsClassName)}>
