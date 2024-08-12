@@ -1,4 +1,3 @@
-import logging
 from typing import Any, Dict, List
 
 from backend.config.settings import Settings

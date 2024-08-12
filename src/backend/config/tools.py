@@ -13,8 +13,8 @@ from backend.tools import (
     SearchFileTool,
     TavilyInternetSearch,
     WebScrapeTool,
+    GoogleSearch
 )
-from backend.tools.google_search import GoogleSearch
 
 logger = LoggerFactory().get_logger()
 
