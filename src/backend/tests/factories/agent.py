@@ -1,17 +1,17 @@
 import factory
 
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
-
-from .base import BaseFactory
+from backend.tests.factories.base import BaseFactory
+from backend.tests.factories.user import UserFactory
 
 
 class AgentFactory(BaseFactory):
     class Meta:
         model = Agent
 
-    user_id = factory.Faker("uuid4")
+    user = factory.SubFactory(UserFactory)
+    user_id = factory.SelfAttribute("user.id")
     name = factory.Faker("sentence")
     description = factory.Faker("sentence")
     preamble = factory.Faker("sentence")
@@ -34,5 +34,4 @@ class AgentFactory(BaseFactory):
             )
         ]
     )
-    model = "command-r-plus"
-    deployment = ModelDeploymentName.CoherePlatform
+    is_private = factory.Faker("boolean", chance_of_getting_true=0)

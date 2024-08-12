@@ -2,13 +2,13 @@
 
 import React from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { DataSourceMenu } from '@/components/Conversation/Composer/DataSourceMenu';
 import { FilesMenu } from '@/components/Conversation/Composer/FilesMenu';
 import { cn } from '@/utils';
 
 type Props = {
-  agent?: Agent;
+  agent?: AgentPublic;
   tools?: ManagedTool[];
   onUploadFile: (files: File[]) => void;
 };

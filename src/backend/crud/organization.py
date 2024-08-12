@@ -190,7 +190,10 @@ def remove_user_from_organization(
     """
     user_organization_association = (
         db.query(UserOrganizationAssociation)
-        .filter(user_id == user_id, organization_id == organization_id)
+        .filter(
+            UserOrganizationAssociation.user_id == user_id,
+            UserOrganizationAssociation.organization_id == organization_id,
+        )
         .first()
     )
     if user_organization_association:

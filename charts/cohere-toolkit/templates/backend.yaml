@@ -36,6 +36,7 @@ spec:
       name: toolkit-backend
       labels:
         app.kubernetes.io/name: toolkit-backend
+        {{ printf "%s-client" .Values.global.redis.host }}: "true"
         {{- include "cohere-toolkit.labels" . | nindent 8 }}
       {{- with $values.podAnnotations }}
       annotations:
@@ -161,6 +162,7 @@ metadata:
     {{- include "cohere-toolkit.labels" . | nindent 4 }}
 stringData:
   DATABASE_URL: "{{ template "cohere-toolkit.database-url" $ }}"
+  REDIS_URL: "{{ template "cohere-toolkit.redis-url" $ }}"
   {{- if .Values.global.cohere.api_key }}
   COHERE_API_KEY: "{{ .Values.global.cohere.api_key }}"
   {{- end }}

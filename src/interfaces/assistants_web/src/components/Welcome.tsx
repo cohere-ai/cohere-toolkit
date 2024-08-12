@@ -9,6 +9,7 @@ import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
+import { checkIsBaseAgent } from '@/utils/agents';
 
 type Props = {
   show: boolean;
@@ -21,9 +22,9 @@ type Props = {
 export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { data: agent, isLoading: isAgentsLoading } = useAgent({ agentId });
   const { data: tools = [], isLoading: isToolsLoading } = useListTools();
-  const { contrastText, bg } = useBrandedColors(agentId);
+  const { contrastText, bg, contrastFill } = useBrandedColors(agentId);
 
-  const isAgent = agentId !== undefined && !isAgentsLoading && !!agent;
+  const isBaseAgent = checkIsBaseAgent(agent);
 
   return (
     <Transition
@@ -45,18 +46,18 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
               bg
             )}
           >
-            {!isAgent ? (
-              <CoralLogo />
+            {isBaseAgent ? (
+              <CoralLogo className={contrastFill} />
             ) : (
-              <Text className="uppercase" styleAs="p-lg">
-                {agent.name[0]}
+              <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
+                {agent?.name[0]}
               </Text>
             )}
           </div>
           <Text styleAs="h4" className="truncate">
-            {isAgent ? agent.name : 'Your Private Assistant'}
+            {!isBaseAgent ? agent?.name : 'Your Private Assistant'}
           </Text>
-          {!isAgent && (
+          {isBaseAgent && (
             <Text className="ml-auto" styleAs="caption">
               By Cohere
             </Text>
@@ -66,7 +67,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           {agent?.description || 'Ask questions and get answers based on your files.'}
         </Text>
 
-        {!isAgent && (
+        {isBaseAgent && (
           <div className="flex items-center gap-x-1">
             <Icon name="circles-four" kind="outline" />
             <Text className="font-medium">Toggle Tools On/Off</Text>

@@ -15,7 +15,7 @@ export const Banner: React.FC<Props> = ({ className = '', children }) => {
       className={cn(
         'rounded-lg border p-4',
         'dark:border-volcanic-300 dark:bg-volcanic-150 dark:text-marble-800',
-        'border-mushroom-500 bg-mushroom-800 text-mushroom-200',
+        'border-volcanic-700 bg-marble-980 text-volcanic-300',
         className
       )}
     >

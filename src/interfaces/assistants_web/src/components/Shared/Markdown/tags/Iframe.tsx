@@ -66,7 +66,7 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
           <iframe
             srcDoc={code}
             ref={iframeRef}
-            className="max-h-[450px] min-h-[450px] w-full overflow-y-auto rounded-lg border border-mushroom-800 bg-white"
+            className="max-h-[450px] min-h-[450px] w-full overflow-y-auto rounded-lg border border-mushroom-800 bg-white dark:border-volcanic-300 dark:bg-volcanic-150"
           />
         </TabPanel>
         <TabPanel>
@@ -78,14 +78,15 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
           />
         </TabPanel>
       </TabPanels>
-      <TabList className="ml-auto mt-2 flex w-fit gap-x-2 rounded bg-mushroom-900 p-1">
+      <TabList className="ml-auto mt-2 flex w-fit gap-x-2 rounded bg-mushroom-900 p-1 dark:bg-volcanic-200">
         <Tab as={Fragment}>
           {({ selected }) => (
             <button
               className={cn(
-                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-mushroom-800',
+                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-mushroom-800 dark:hover:bg-volcanic-60',
                 {
-                  'bg-mushroom-800 shadow hover:bg-mushroom-800': selected,
+                  'bg-mushroom-800 shadow hover:bg-mushroom-800 dark:bg-volcanic-60 dark:hover:bg-volcanic-60':
+                    selected,
                 }
               )}
             >
@@ -97,9 +98,10 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
           {({ selected }) => (
             <button
               className={cn(
-                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-mushroom-800',
+                'w-[60px] rounded p-1 outline-none transition-colors hover:bg-mushroom-800 dark:hover:bg-volcanic-60',
                 {
-                  'bg-mushroom-800 shadow hover:bg-mushroom-800': selected,
+                  'bg-mushroom-800 shadow hover:bg-mushroom-800 dark:bg-volcanic-60 dark:hover:bg-volcanic-60':
+                    selected,
                 }
               )}
             >

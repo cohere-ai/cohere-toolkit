@@ -9,7 +9,9 @@ import {
   AgentSettingsForm,
 } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
+import { MobileHeader } from '@/components/MobileHeader';
 import { Button, Icon, Spinner, Text } from '@/components/Shared';
+import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useContextStore } from '@/context';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -41,11 +43,12 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
       setFields({
         name: agent.name,
         description: agent.description,
-        deployment: agent.deployment,
-        model: agent.model,
+        deployment: agent.deployment ?? DEPLOYMENT_COHERE_PLATFORM,
+        model: agent.model ?? DEFAULT_AGENT_MODEL,
         tools: agent.tools,
         preamble: agent.preamble,
         tools_metadata: agent.tools_metadata,
+        is_private: agent.is_private,
       });
     }
   }, [agent]);
@@ -94,7 +97,8 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-y-auto">
-      <header className="flex flex-col space-y-5 border-b px-12 py-10 dark:border-volcanic-150">
+      <header className="flex flex-col gap-y-3 border-b px-4 py-6 dark:border-volcanic-150 lg:px-10 lg:py-10">
+        <MobileHeader />
         <div className="flex items-center space-x-2">
           <Link href="/discover">
             <Text className="dark:text-volcanic-600">Explore assistants</Text>
@@ -118,7 +122,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
             <Button label="Cancel" kind="secondary" href="/discover" />
             <Button
               label="Update"
-              theme="evolved-green"
+              theme="default"
               kind="cell"
               icon={'checkmark'}
               iconOptions={{ customIcon: isSubmitting ? <Spinner /> : undefined }}
