@@ -129,6 +129,7 @@ def test_search_conversations_with_reranking_sends_metrics(
 
 # MISC
 
+
 def test_generate_title(
     session_client: TestClient,
     session: Session,
@@ -153,6 +154,7 @@ def test_generate_title(
     assert conversation is not None
     assert conversation.title == response_json["title"]
     assert response_json["error"] is None
+
 
 def test_fail_generate_title_missing_user_id(
     session_client: TestClient,
