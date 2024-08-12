@@ -6,7 +6,6 @@ import { AgentPublic, ConversationWithoutMessages } from '@/cohere-client';
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
 import { MobileHeader } from '@/components/MobileHeader';
 import { Button, Input, Text } from '@/components/Shared';
-import { BASE_AGENT } from '@/constants';
 import { useListAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSession } from '@/hooks/session';
@@ -46,7 +45,7 @@ export const DiscoverAgents = () => {
         </div>
       </header>
       <section className="p-8">
-        <CompanyAgents agents={agents.concat(BASE_AGENT)} conversations={conversations} />
+        <CompanyAgents agents={agents} conversations={conversations} />
       </section>
     </div>
   );
