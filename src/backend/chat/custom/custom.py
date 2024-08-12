@@ -204,6 +204,8 @@ class CustomChat(BaseChat):
             # Check for new tool calls in the chat history
             if has_tool_calls:
                 # Handle tool calls
+                print("HERE <----------------")
+                print(chat_request.tools_metadata)
                 tool_results = await async_call_tools(
                     chat_request.chat_history, deployment_model, ctx, **kwargs
                 )

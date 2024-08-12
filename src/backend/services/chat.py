@@ -5,10 +5,14 @@ from uuid import uuid4
 from cohere.types import StreamedChatResponse
 from fastapi import Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
+from backend.schemas.agent import Agent, AgentToolMetadata
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
 from pydantic import ValidationError
 
+from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
+from backend.crud import agent as agent_crud
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
@@ -82,27 +86,11 @@ def process_chat(
     agent_id = ctx.get_agent_id()
 
     if agent_id is not None:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        agent_schema = Agent.model_validate(agent)
-        ctx.with_agent(agent_schema)
+        chat_request = process_agent(ctx, session, chat_request)
+    else: 
+        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
-        if agent is None:
-            raise HTTPException(
-                status_code=404, detail=f"Agent with ID {agent_id} not found."
-            )
-
-        if chat_request.tools:
-            for tool in chat_request.tools:
-                if tool.name not in agent.tools:
-                    raise HTTPException(
-                        status_code=404,
-                        detail=f"Tool {tool.name} not found in agent {agent.id}",
-                    )
-
-        # Set the agent settings in the chat request
-        chat_request.preamble = agent.preamble
-        chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-        chat_request.tools_metadata = agent.tools_metadata
+    chat_request.tools_metadata = None
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -173,6 +161,47 @@ def process_chat(
         ctx,
     )
 
+def process_agent(
+    ctx: Context,
+    chat_request: BaseChatRequest,
+    session: DBSessionDep):
+    agent_id = ctx.get_agent_id()
+
+    agent = agent_crud.get_agent_by_id(session, agent_id)
+    agent_schema = Agent.model_validate(agent)
+    ctx.with_agent(agent_schema)
+    agent_tool_metadata = (
+        agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
+            session, agent_id
+        )
+    )
+    agent_tool_metadata_schema = [
+        AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
+    ]
+    ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
+
+    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+    agent = agent_crud.get_agent_by_id(session, agent_id)
+    agent_schema = Agent.model_validate(agent)
+    ctx.with_agent(agent_schema)
+
+    if agent is None:
+        raise HTTPException(
+            status_code=404, detail=f"Agent with ID {agent_id} not found."
+        )
+
+    if chat_request.tools:
+        for tool in chat_request.tools:
+            if tool.name not in agent.tools:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Tool {tool.name} not found in agent {agent.id}",
+                )
+
+    # Set the agent settings in the chat request
+    chat_request.preamble = agent.preamble
+    chat_request.tools = [Tool(name=tool) for tool in agent.tools]
+    return chat_request
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
     """

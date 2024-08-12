@@ -54,24 +54,6 @@ async def chat_stream(
     agent_id = chat_request.agent_id
     ctx.with_agent_id(agent_id)
 
-    if agent_id:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-        agent_schema = Agent.model_validate(agent)
-        ctx.with_agent(agent_schema)
-        agent_tool_metadata = (
-            agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
-                session, agent_id
-            )
-        )
-        agent_tool_metadata_schema = [
-            AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
-        ]
-        ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
-
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-    else:
-        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
-
     (
         session,
         chat_request,
