@@ -8,7 +8,7 @@ import { cn } from '@/utils';
 export const metadata: Metadata = {
   title: {
     template: '%s | Cohere',
-    default: 'Okta | Oktobot',
+    default: 'Clover | Cloverbot',
   },
 };
 

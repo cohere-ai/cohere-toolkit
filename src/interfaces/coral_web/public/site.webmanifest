@@ -1,7 +1,7 @@
 {
-  "name": "Oktobot",
-  "description": "A helpful Okta documentation chatbot.",
-  "short_name": "Oktobot",
+  "name": "Cloverbot",
+  "description": "A helpful Clover documentation chatbot.",
+  "short_name": "Cloverbot",
   "start_url": "/",
   "scope": "/",
   "orientation": "portrait",

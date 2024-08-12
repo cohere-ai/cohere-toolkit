@@ -14,7 +14,7 @@ from backend.tools import (
     SearchFileTool,
     WebScrapeTool,
     TavilyInternetSearch,
-    OktaDocumentRetriever
+    CloverDocumentRetriever
 )
 
 """
@@ -30,7 +30,7 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
-    Okta_Retriever = OktaDocumentRetriever.NAME
+    Clover_Retriever = CloverDocumentRetriever.NAME
     Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Search_File = SearchFileTool.NAME
@@ -42,21 +42,21 @@ class ToolName(StrEnum):
 
 
 ALL_TOOLS = {
-    ToolName.Okta_Retriever: ManagedTool(
-        display_name="Okta Retriever",
-        implementation=OktaDocumentRetriever,
+    ToolName.Clover_Retriever: ManagedTool(
+        display_name="Clover Docs",
+        implementation=CloverDocumentRetriever,
         parameter_definitions={
             "query": {
-                "description": "Query for retrieval from Okta documentation.",
+                "description": "Query for retrieval from Clover documentation.",
                 "type": "str",
                 "required": True,
             }
         },
         is_visible=True,
-        is_available=OktaDocumentRetriever.is_available(),
-        error_message="OktaDocumentRetriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
+        is_available=CloverDocumentRetriever.is_available(),
+        error_message="Clover Retriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
         category=Category.DataLoader,
-        description="Returns documentation from the Okta product documentation website.",
+        description="Returns documentation from the Clover documentation website.",
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         display_name="Web Search",

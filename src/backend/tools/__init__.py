@@ -4,7 +4,7 @@ from backend.tools.google_drive import GoogleDrive, GoogleDriveAuth
 from backend.tools.lang_chain import LangChainVectorDBRetriever, LangChainWikiRetriever
 from backend.tools.python_interpreter import PythonInterpreter
 from backend.tools.web_scrape import WebScrapeTool
-from backend.tools.okta import OktaDocumentRetriever
+from backend.tools.clover import CloverDocumentRetriever
 from backend.tools.tavily import TavilyInternetSearch
 
 __all__ = [
@@ -17,6 +17,6 @@ __all__ = [
     "GoogleDrive",
     "GoogleDriveAuth",
     "WebScrapeTool",
-    "OktaDocumentRetriever",
+    "CloverDocumentRetriever",
     "TavilyInternetSearch"
 ]
