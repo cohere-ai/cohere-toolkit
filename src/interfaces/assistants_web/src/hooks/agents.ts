@@ -16,7 +16,10 @@ export const useListAgents = () => {
   const cohereClient = useCohereClient();
   return useQuery({
     queryKey: ['listAgents'],
-    queryFn: () => cohereClient.listAgents({}),
+    queryFn: async () => {
+      const agents = await cohereClient.listAgents({});
+      return agents.concat(BASE_AGENT);
+    },
   });
 };
 
