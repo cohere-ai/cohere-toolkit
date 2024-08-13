@@ -2,14 +2,14 @@ import json
 from typing import Union
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
-from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
@@ -317,3 +317,69 @@ async def login(
     response = RedirectResponse(redirect_uri)
 
     return response
+
+
+@router.delete("/tool/auth")
+async def delete_tool_auth(
+    request: Request, session: DBSessionDep, ctx: Context = Depends(get_context)
+):
+    """
+    Endpoint to delete Tool Authentication.
+
+    If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
+
+    Args:
+        request (Request): current Request object. Note that the request body should contain the tool_id parameter as the tool to delete.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        {"status": "success"} on successful deletion.
+
+    Raises:
+        HTTPException: If there was an error deleting the tool auth.
+    """
+
+    logger = ctx.get_logger()
+    logger.error(event=f"CHANTELLE TEST request body {request.body}")
+
+    def log_and_return_error(error_message: str):
+        logger.error(event=error_message)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{error_message}",
+        )
+
+    user_id = ctx.get_user_id()
+    request_body = await request.json()
+    tool_id = request_body["tool_id"]
+
+    logger.error(event=f"CHANTELLE TEST tool_id {tool_id}, user_id {user_id}")
+
+    if user_id is None or user_id == "" or user_id == "default":
+        log_and_return_error("User ID not found.")
+    
+    if not isinstance(tool_id, str):
+        log_and_return_error("tool_id must be present in the request body and must be a string.")
+
+    if tool_id != ToolName.Google_Drive:
+        log_and_return_error(f"Deletion for {tool_id} not implemented.")
+
+    tool = AVAILABLE_TOOLS.get(tool_id)
+
+    if tool.auth_implementation is None:
+        log_and_return_error(f"Tool {tool.name} does not have an auth_implementation required for Tool Auth Deletion.")
+
+    try:
+        tool_auth_service = tool.auth_implementation()
+        tool_auth_service.delete_tool_auth(session, user_id)
+        is_delete_tool_auth_successful = tool_auth_service.delete_tool_auth(session, user_id)
+
+        if not is_delete_tool_auth_successful:
+            log_and_return_error("Error deleting Tool Auth.")
+    
+    except Exception as e:
+        log_and_return_error(str(e))
+
+
+    return {"status": "success"}

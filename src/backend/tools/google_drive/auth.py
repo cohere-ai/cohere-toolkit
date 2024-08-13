@@ -140,3 +140,11 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     def get_token(self, session: DBSessionDep, user_id: str) -> str:
         tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
         return tool_auth.access_token if tool_auth else None
+
+    def delete_tool_auth(self, session: DBSessionDep, user_id: str) -> bool:
+        try:
+            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
+            return true
+        except Exception as e:
+            logger.error(event=f"Error while deleting Tool Auth: {str(e)}")
+            return False
