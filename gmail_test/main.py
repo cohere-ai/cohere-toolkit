@@ -2,7 +2,7 @@ import base64
 import os.path
 from pprint import pprint
 import re
-from typing import Any, List
+from typing import Any, Dict, List
 
 from bs4 import BeautifulSoup
 from google.auth.transport.requests import Request
@@ -10,6 +10,8 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from pydantic import BaseModel
+
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
@@ -18,7 +20,7 @@ LABEL_IDS = ["STARRED"]
 # LABEL_IDS = ["IMPORTANT", "STARRED"]
 # https://developers.google.com/gmail/api/reference/rest/v1/Format
 EMAIL_FORMAT = "full"
-MAX_RESULTS = 10
+MAX_RESULTS = 3
 
 
 def main():
@@ -57,32 +59,47 @@ def main():
         if not messages:
             print("No messages found.")
             return
-        for message in messages:
-            print("\nID")
-            message_id = message["id"]
-            print("\n=================EMAIL=====================\n")
-            print(message_id)
-            email = (
-                service.users()
-                .messages()
-                .get(userId="me", id=message_id, format=EMAIL_FORMAT)
-                .execute()
-            )
 
-            all_parts = process_email_payload(email["payload"])
-            important_headers = process_email_headers(email["payload"]["headers"])
-            print("\nHEADERS")
-            pprint(important_headers)
-            print("\nSNIPPET")
-            print(email["snippet"])
-            print("\nCONTENT")
-            for i, p in enumerate(all_parts):
-                print(f"\nPART {i}")
-                print(p)
-                print("\n")
+        docs: List[GmailDocument] = [
+            process_message(message, service) for message in messages
+        ]
 
     except HttpError as error:
         print(f"An error occurred: {error}")
+
+
+class GmailDocument(BaseModel):
+    title: str
+    content: str
+    metadata: Dict[str, Any] = {}
+
+
+def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument]:
+    message_id = message["id"]
+    email = (
+        service.users()
+        .messages()
+        .get(userId="me", id=message_id, format=EMAIL_FORMAT)
+        .execute()
+    )
+    important_headers = process_email_headers(email["payload"]["headers"])
+    title = f"""
+    Subject:{important_headers['Subject']}
+    From:{important_headers['From']}
+    Date:{important_headers['Date']}
+    Snippet:{email['snippet']}"""
+
+    # parallelize this
+    all_parts = process_email_payload(email["payload"])
+    content = "\n".join(all_parts)
+    metadata = {
+        "message_id": message_id,
+    }
+    print("====================================")
+    print("Id:", message_id)
+    print("Title:", title)
+    print("Content\n", content)
+    return GmailDocument(title=title, content=content, metadata=metadata)
 
 
 def decode_base64(data: bytes) -> str:
@@ -107,17 +124,17 @@ def process_email_payload(payload: Any) -> List[str]:
     all_parts = []
     match payload["mimeType"]:
         case "text/plain":
-            textb64 = payload.get("body", {}).get("data", None)
-            if textb64:
-                all_parts.append(decode_base64(textb64))
+            text_b64 = payload.get("body", {}).get("data", None)
+            all_parts.append(decode_base64(text_b64)) if text_b64 else None
+        # TODO, what to do with images?
         case "image/jpeg":
-            # TODO, what to do with images?
             pass
         case "text/html":
             html_content_b64 = payload.get("body", {}).get("data", None)
             if html_content_b64:
                 soup = BeautifulSoup(decode_base64(html_content_b64), "html.parser")
                 text = soup.get_text(separator="\n")
+                # remove redundant newlines
                 text = re.sub(r"\n+", "\n", text)
                 all_parts.append(text)
         case "multipart/alternative" | "multipart/related":
