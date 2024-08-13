@@ -18,9 +18,9 @@ import { pluralize } from '@/utils';
 
 type Props = {};
 
-const AgentRightPanel: React.FC<Props> = () => {
+const RightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
-  const { disabledAssistantKnowledge, setUseAssistantKnowledge, setRightPanelOpen } =
+  const { disabledAssistantKnowledge, setRightPanelOpen } =
     useSettingsStore();
   const { agentId, conversationId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
@@ -220,4 +220,4 @@ const AgentRightPanel: React.FC<Props> = () => {
   );
 };
 
-export default AgentRightPanel;
+export default RightPanel;
