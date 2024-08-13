@@ -12,7 +12,6 @@ import {
   isUnauthorizedError,
   useCohereClient,
 } from '@/cohere-client';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { ChatResponseEvent } from '@/domain/chat';
 
 interface StreamingParams {
@@ -45,7 +44,6 @@ export const useStreamChat = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
-  const { data: experimentalFeatures } = useExperimentalFeatures();
 
   useEffect(() => {
     return () => {
@@ -122,11 +120,7 @@ export const useStreamChat = () => {
           },
         };
 
-        if (experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN) {
-          await cohereClient.langchainChat(chatStreamParams);
-        } else {
           await cohereClient.chat({ ...chatStreamParams });
-        }
       } catch (e) {
         if (isUnauthorizedError(e)) {
           await queryClient.invalidateQueries({ queryKey: ['defaultAPIKey'] });
