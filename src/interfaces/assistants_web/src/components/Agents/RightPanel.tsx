@@ -55,7 +55,7 @@ const RightPanel: React.FC<Props> = () => {
       'id'
     );
 
-    const files = fileArtifacts.filter((artifact) => artifact.type === 'file');
+    const files = fileArtifacts.filter((artifact) => artifact.type !== 'folder'); // can be file, document, pdf, etc.
     const folders = fileArtifacts.filter((artifact) => artifact.type === 'folder');
     return {
       files,
