@@ -116,7 +116,7 @@ export const useChatHotKeys = (): HotKeyGroupOption[] => {
 };
 
 export const useLayoutHotKeys = (): HotKeyGroupOption[] => {
-  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
+  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
   const { theme, setTheme } = useTheme();
   return [
     {
@@ -126,7 +126,7 @@ export const useLayoutHotKeys = (): HotKeyGroupOption[] => {
           name: 'Toggle left sidebar',
           commands: ['ctrl+shift+s', 'meta+shift+s'],
           action: () => {
-            setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
+            setLeftPanelOpen(!isLeftPanelOpen);
           },
           options: {
             preventDefault: true,

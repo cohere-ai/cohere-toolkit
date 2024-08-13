@@ -1,18 +1,15 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 
-import AgentRightPanel from '@/components/Agents/AgentRightPanel';
-import { BannerContext } from '@/context/BannerContext';
+import RightPanel from '@/components/Agents/RightPanel';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useListAllDeployments } from '@/hooks/deployments';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { data: experimentalFeatures } = useExperimentalFeatures();
   const { resetConversation } = useConversationStore();
   const {
     params: { deployment },
@@ -20,11 +17,8 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
 
-  const { isAgentsRightPanelOpen } = useSettingsStore();
+  const { isRightPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
-
-  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const { setMessage } = useContext(BannerContext);
 
   // Reset conversation when unmounting
   useEffect(() => {
@@ -44,17 +38,11 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployment, allDeployments]);
 
-  useEffect(() => {
-    if (!isLangchainModeOn) return;
-    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLangchainModeOn]);
-
   return (
     <div className="relative flex h-full">
       {children}
       <Transition
-        show={isAgentsRightPanelOpen || isDesktop}
+        show={isRightPanelOpen || isDesktop}
         as="div"
         className={cn(
           'border-marble-950 bg-marble-980 px-6 dark:border-volcanic-200 dark:bg-volcanic-100',
@@ -67,7 +55,7 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         leaveFrom="translate-x-0 opacity-100"
         leaveTo="translate-x-full opacity-0"
       >
-        <AgentRightPanel />
+        <RightPanel />
       </Transition>
     </div>
   );
