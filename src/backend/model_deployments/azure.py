@@ -5,7 +5,7 @@ import cohere
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_model_config_var, get_chat_request, DEFAULT_RERANK_MODEL
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
@@ -64,18 +64,14 @@ class AzureDeployment(BaseDeployment):
         )
 
     async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
-        response = self.client.chat(
-            **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-        )
+        response = self.client.chat(**get_chat_request(chat_request) )
         yield to_dict(response)
 
     @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs
     ) -> AsyncGenerator[Any, Any]:
-        stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-        )
+        stream = self.client.chat_stream(**get_chat_request(chat_request))
 
         for event in stream:
             yield to_dict(event)
@@ -84,4 +80,7 @@ class AzureDeployment(BaseDeployment):
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], ctx: Context
     ) -> Any:
-        return None
+        response = self.client.rerank(
+            query=query, documents=documents, model=DEFAULT_RERANK_MODEL
+        )
+        return to_dict(response)
