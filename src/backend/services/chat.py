@@ -90,8 +90,6 @@ def process_chat(
     else: 
         ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
-    chat_request.tools_metadata = None
-
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
     )
