@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.model_deployments.base import BaseDeployment
+from backend.schemas.agent import CreateAgentToolMetadataRequest
+from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
 
@@ -16,7 +18,7 @@ logger = LoggerFactory().get_logger()
 
 
 async def async_call_tools(
-    chat_history: List[Dict[str, Any]],
+    request: CohereChatRequest,
     deployment_model: BaseDeployment,
     ctx: Context,
     **kwargs: Any,
@@ -24,11 +26,12 @@ async def async_call_tools(
     logger = ctx.get_logger()
 
     tool_results = []
-    if "tool_calls" not in chat_history[-1]:
+    if "tool_calls" not in request.chat_history[-1]:
         return tool_results
 
-    tool_calls = chat_history[-1]["tool_calls"]
-    tool_plan = chat_history[-1].get("message", None)
+    # Get the tool calls and plan
+    tool_calls = request.chat_history[-1]["tool_calls"]
+    tool_plan = request.chat_history[-1].get("message", None)
     logger.info(
         event="[Custom Chat] Using tools",
         tool_calls=to_dict(tool_calls),
@@ -36,7 +39,7 @@ async def async_call_tools(
     )
 
     tool_results = await _call_all_tools_async(
-        kwargs.get("session"), tool_calls, deployment_model, ctx
+        kwargs.get("session"), request.tools_metadata, tool_calls, deployment_model, ctx
     )
 
     tool_results = await rerank_and_chunk(tool_results, deployment_model, ctx, **kwargs)

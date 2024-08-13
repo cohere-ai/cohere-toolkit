@@ -7,13 +7,13 @@ from backend.tools import (
     Calculator,
     GoogleDrive,
     GoogleDriveAuth,
+    GoogleSearch,
     LangChainWikiRetriever,
     PythonInterpreter,
     ReadFileTool,
     SearchFileTool,
     TavilyInternetSearch,
     WebScrapeTool,
-    GoogleSearch
 )
 
 logger = LoggerFactory().get_logger()

@@ -6,7 +6,11 @@ from cohere.types import StreamedChatResponse
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var, get_chat_request, DEFAULT_RERANK_MODEL
+from backend.model_deployments.utils import (
+    DEFAULT_RERANK_MODEL,
+    get_chat_request,
+    get_model_config_var,
+)
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank

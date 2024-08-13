@@ -94,12 +94,6 @@ class Context(BaseModel):
         self.metrics_agent = metrics_agent
         return self
 
-    def with_agent_tool_metadata(
-        self, agent_tool_metadata: AgentToolMetadata
-    ) -> "Context":
-        self.agent_tool_metadata = agent_tool_metadata
-        return self
-
     def with_model(self, model: str) -> "Context":
         self.model = model
         return self
@@ -169,6 +163,3 @@ class Context(BaseModel):
 
     def get_logger(self) -> Any:
         return self.logger
-
-    def get_agent_tool_metadata(self):
-        return self.agent_tool_metadata

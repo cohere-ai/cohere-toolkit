@@ -66,7 +66,7 @@ class GoogleDrive(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         agent_id = kwargs["agent_id"]
-        agent_tool_metadata = kwargs["agent_tool_metadata"]
+        agent_tool_metadata = kwargs["tool_metadata"]
         index_name = "{}_{}".format(
             agent_id if agent_id is not None else user_id, GOOGLE_DRIVE_TOOL_ID
         )

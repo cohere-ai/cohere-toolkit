@@ -5,7 +5,7 @@ import cohere
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var, get_chat_request
+from backend.model_deployments.utils import get_chat_request, get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
@@ -75,7 +75,9 @@ class BedrockDeployment(BaseDeployment):
 
     async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
         # bedrock accepts a subset of the chat request fields
-        bedrock_chat_req = get_chat_request(chat_request, {"tools", "conversation_id", "model"})
+        bedrock_chat_req = get_chat_request(
+            chat_request, {"tools", "conversation_id", "model"}
+        )
 
         response = self.client.chat(
             **bedrock_chat_req,
@@ -87,7 +89,9 @@ class BedrockDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> AsyncGenerator[Any, Any]:
         # bedrock accepts a subset of the chat request fields
-        bedrock_chat_req = get_chat_request(chat_request, {"tools", "conversation_id", "model"})
+        bedrock_chat_req = get_chat_request(
+            chat_request, {"tools", "conversation_id", "model"}
+        )
 
         stream = self.client.chat_stream(
             **bedrock_chat_req,

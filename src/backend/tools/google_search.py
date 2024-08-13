@@ -1,20 +1,16 @@
 from typing import Any, Dict, List
 
-from backend.config.settings import Settings
+import requests
 from py_expression_eval import Parser
 
+from backend.config.settings import Settings
 from backend.tools.base import BaseTool
-
-import math
-import os
-from typing import Dict, List, Optional, Union
-
-import requests
 
 GOOGLE_SEARCH_ENGINE_ID = "b079658ab7adf4ba9"
 GOOGLE_ENDPOINT = "https://customsearch.googleapis.com/customsearch/v1"
 MAX_RESULTS = 6
 GOOGLE_MAX_DELAY = 10
+
 
 class GoogleSearch(BaseTool):
     """
@@ -29,16 +25,16 @@ class GoogleSearch(BaseTool):
         return GoogleSearch.API_KEY is not None
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        #if site is not None:
+        # if site is not None:
         #    query = f"site:{site} {query}"
         query = parameters.get("query", "")
         req = {
-                "filter": "1",
-                "num": MAX_RESULTS,
-                "q": query,
-                "key": GoogleSearch.API_KEY,
-                "cx": GOOGLE_SEARCH_ENGINE_ID,
-            }
+            "filter": "1",
+            "num": MAX_RESULTS,
+            "q": query,
+            "key": GoogleSearch.API_KEY,
+            "cx": GOOGLE_SEARCH_ENGINE_ID,
+        }
         header = {"Accept": "application/json"}
         response = requests.get(GOOGLE_ENDPOINT, params=req, headers=header)
         result = response.json()

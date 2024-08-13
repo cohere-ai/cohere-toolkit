@@ -5,18 +5,15 @@ from uuid import uuid4
 from cohere.types import StreamedChatResponse
 from fastapi import Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
-from backend.schemas.agent import Agent, AgentToolMetadata
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
 from pydantic import ValidationError
 
-from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
-from backend.crud import agent as agent_crud
-from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import deployment as deployment_crud
 from backend.crud import file as file_crud
@@ -32,7 +29,11 @@ from backend.database_models.message import (
     MessageFileAssociation,
 )
 from backend.database_models.tool_call import ToolCall as ToolCallModel
-from backend.schemas.agent import Agent
+from backend.schemas.agent import (
+    Agent,
+    AgentToolMetadata,
+    CreateAgentToolMetadataRequest,
+)
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
@@ -55,6 +56,7 @@ from backend.schemas.chat import (
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
+from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
@@ -86,10 +88,15 @@ def process_chat(
     ctx.with_deployment_config()
     agent_id = ctx.get_agent_id()
 
+    # todo make sure you copied over the correct logic
     if agent_id is not None:
         chat_request = process_agent(ctx, session, chat_request)
-    else: 
+    else:
         ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
+
+    chat_request.tools_metadata = get_tool_call_metadata(
+        ctx, session, chat_request.tools_metadata
+    )
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -160,13 +167,33 @@ def process_chat(
         ctx,
     )
 
-def process_agent(
-    ctx: Context,
-    chat_request: BaseChatRequest,
-    session: DBSessionDep):
+
+def get_tool_call_metadata(
+    ctx: Context, db: DBSessionDep, tools_metadata: list[CreateAgentToolMetadataRequest]
+) -> dict[str, AgentToolMetadata]:
+    metadata = {}
+    # Get metadata per request
+    if tools_metadata:
+        for request_md in tools_metadata:
+            metadata[request_md.tool_name] = request_md.artifacts
+
+    # Get metadata for the agent
+    agent_id = ctx.get_agent_id()
+    agent_tool_metadata = (
+        agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(db, agent_id)
+    )
+    if agent_tool_metadata:
+        for agent_md in agent_tool_metadata:
+            # Request metadata overrides agent metadata
+            if agent_md.tool_name not in metadata:
+                metadata[agent_md.tool_name] = agent_md.artifacts
+    return metadata
+
+
+def process_agent(ctx: Context, chat_request: BaseChatRequest, session: DBSessionDep):
 
     agent_id = ctx.get_agent_id()
-    user_id = ctx.get_user_id() 
+    user_id = ctx.get_user_id()
 
     agent = agent_crud.get_agent_by_id(session, agent_id)
     agent_schema = Agent.model_validate(agent)
@@ -203,6 +230,7 @@ def process_agent(
     chat_request.preamble = agent.preamble
     chat_request.tools = [Tool(name=tool) for tool in agent.tools]
     return chat_request
+
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
     """
