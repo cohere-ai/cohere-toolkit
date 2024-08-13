@@ -20,7 +20,7 @@ import { cn } from '@/utils';
  */
 export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) => {
   const asideRef = React.useRef<HTMLDivElement>(null);
-  const { isAgentsLeftPanelOpen } = useSettingsStore();
+  const { isLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
   const navigateToNewChat = useNavigateToNewChat();
@@ -28,7 +28,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
   return (
     <Transition
       ref={asideRef}
-      show={isAgentsLeftPanelOpen || isDesktop}
+      show={isLeftPanelOpen || isDesktop}
       as="aside"
       className={cn(
         'absolute bottom-0 left-0 top-0 z-30 lg:static',
@@ -36,7 +36,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
         'rounded-lg border border-marble-950 dark:border-volcanic-60 md:border-none',
         'dark:text-mushroom-950',
         {
-          'right-1/4 md:right-auto': isAgentsLeftPanelOpen,
+          'right-1/4 md:right-auto': isLeftPanelOpen,
         },
         className
       )}
@@ -53,22 +53,22 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
           'md:transition-[min-width,max-width]',
           {
             'gap-y-8 lg:min-w-agents-panel-collapsed lg:max-w-agents-panel-collapsed':
-              !isAgentsLeftPanelOpen,
+              !isLeftPanelOpen,
             'lg:min-w-agents-panel-expanded lg:max-w-agents-panel-expanded xl:min-w-agents-panel-expanded-lg xl:max-w-agents-panel-expanded-lg':
-              isAgentsLeftPanelOpen,
+              isLeftPanelOpen,
           }
         )}
       >
         <div
           className={cn('flex flex-shrink-0 items-center', {
-            'justify-center': !isAgentsLeftPanelOpen,
-            'justify-between gap-x-3': isMobile && isAgentsLeftPanelOpen,
+            'justify-center': !isLeftPanelOpen,
+            'justify-between gap-x-3': isMobile && isLeftPanelOpen,
           })}
         >
           <button onClick={() => navigateToNewChat()}>
             <Logo
               hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO}
-              includeBrandName={isAgentsLeftPanelOpen}
+              includeBrandName={isLeftPanelOpen}
             />
           </button>
 
@@ -79,7 +79,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
 
         <div
           className={cn('flex flex-shrink-0 flex-col gap-y-4', {
-            'items-center': !isAgentsLeftPanelOpen,
+            'items-center': !isLeftPanelOpen,
           })}
         >
           <AgentsSidePanelButton
@@ -107,7 +107,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
 
         <ConversationList />
 
-        <footer className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
+        <footer className={cn('flex flex-col gap-4', { 'items-center': !isLeftPanelOpen })}>
           <AgentsSidePanelButton
             label="Settings"
             tooltip="Settings"
@@ -118,7 +118,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
           <section className="flex items-center justify-between">
             <div
               className={cn('flex items-center gap-2', {
-                hidden: !isAgentsLeftPanelOpen,
+                hidden: !isLeftPanelOpen,
               })}
             >
               <Text styleAs="label" className="text-volcanic-500 dark:text-mushroom-800">
@@ -135,10 +135,10 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
 };
 
 const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
+  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
 
   const handleToggleAgentsLeftPanel = () => {
-    setAgentsLeftSidePanelOpen(!isAgentsLeftPanelOpen);
+    setLeftPanelOpen(!isLeftPanelOpen);
   };
 
   return (
@@ -150,7 +150,7 @@ const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ class
           'transform transition delay-100 duration-200 ease-in-out dark:fill-marble-950',
           className,
           {
-            'rotate-180 ': isAgentsLeftPanelOpen,
+            'rotate-180 ': isLeftPanelOpen,
           }
         )}
         onClick={handleToggleAgentsLeftPanel}
@@ -169,9 +169,9 @@ const AgentsSidePanelButton: React.FC<{
   iconClassName?: string;
   stretch?: boolean;
 }> = ({ label, tooltip, iconName, iconClassName, href, theme, stretch, onClick }) => {
-  const { isAgentsLeftPanelOpen } = useSettingsStore();
+  const { isLeftPanelOpen } = useSettingsStore();
 
-  if (!isAgentsLeftPanelOpen) {
+  if (!isLeftPanelOpen) {
     if (href) {
       return (
         <Tooltip hover label={tooltip} size="sm">
