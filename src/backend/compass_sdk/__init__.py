@@ -6,9 +6,9 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from backend.compass_sdk.constants import (
+    COHERE_API_ENV_VAR,
     DEFAULT_COMMANDR_EXTRACTABLE_ATTRIBUTES,
     DEFAULT_COMMANDR_PROMPT,
-    DEFAULT_MAX_TOKENS_METADATA,
     DEFAULT_MIN_CHARS_PER_ELEMENT,
     DEFAULT_MIN_NUM_CHUNKS_IN_TITLE,
     DEFAULT_MIN_NUM_TOKENS_CHUNK,
@@ -17,7 +17,6 @@ from backend.compass_sdk.constants import (
     METADATA_HEURISTICS_ATTRIBUTES,
     SKIP_INFER_TABLE_TYPES,
 )
-from backend.model_deployments.cohere_platform import CohereDeployment
 
 
 class Logger:
@@ -237,7 +236,7 @@ class MetadataConfig(ValidatedModel):
 
     pre_build_detectors: bool = False
     metadata_strategy: MetadataStrategy = MetadataStrategy.No_Metadata
-    cohere_api_key: Optional[str] = CohereDeployment.api_key
+    cohere_api_key: Optional[str] = getenv(COHERE_API_ENV_VAR, None)
     commandr_model_name: str = "command-r"
     commandr_prompt: str = DEFAULT_COMMANDR_PROMPT
     commandr_max_tokens: int = 500
@@ -313,7 +312,7 @@ class ParserConfig(ValidatedModel):
     num_tokens_overlap: int = DEFAULT_NUM_TOKENS_CHUNK_OVERLAP
     min_chunk_tokens: int = DEFAULT_MIN_NUM_TOKENS_CHUNK
     num_chunks_in_title: int = DEFAULT_MIN_NUM_CHUNKS_IN_TITLE
-    max_tokens_metadata: int = DEFAULT_MAX_TOKENS_METADATA
+    max_tokens_metadata: int = 1000
     include_tables: bool = True
 
     # Formatting configuration

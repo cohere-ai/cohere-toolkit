@@ -168,7 +168,6 @@ class ToolSettings(BaseSettings, BaseModel):
     python_interpreter: Optional[PythonToolSettings] = Field(
         default=PythonToolSettings()
     )
-    compass: Optional[CompassSettings] = Field(default=CompassSettings())
     web_search: Optional[WebSearchSettings] = Field(default=WebSearchSettings())
     wolfram_alpha: Optional[WolframAlphaSettings] = Field(
         default=WolframAlphaSettings()
@@ -292,6 +291,17 @@ class LoggerSettings(BaseSettings, BaseModel):
     )
 
 
+class SyncSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    broker_url: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("BROKER_URL", "broker_url")
+    )
+    worker_concurrency: Optional[int] = Field(
+        default=4,
+        validation_alias=AliasChoices("WORKER_CONCURRENCY", "worker_concurrency"),
+    )
+
+
 class Settings(BaseSettings):
     """
     Settings class used to grab environment variables from .env file.
@@ -306,6 +316,8 @@ class Settings(BaseSettings):
     redis: Optional[RedisSettings] = Field(default=RedisSettings())
     deployments: Optional[DeploymentSettings] = Field(default=DeploymentSettings())
     logger: Optional[LoggerSettings] = Field(default=LoggerSettings())
+    compass: Optional[CompassSettings] = Field(default=CompassSettings())
+    sync: Optional[SyncSettings] = Field(default=SyncSettings())
 
     @classmethod
     def settings_customise_sources(

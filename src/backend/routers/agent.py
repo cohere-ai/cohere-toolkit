@@ -45,6 +45,7 @@ from backend.services.request_validators import (
     validate_update_agent_request,
     validate_user_header,
 )
+from backend.services.sync.jobs.sync_agent import sync_agent
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -119,6 +120,9 @@ async def create_agent(
         agent_schema = Agent.model_validate(created_agent)
         ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
+
+        # initiate agent sync job
+        sync_agent.apply_async(args=[created_agent.id])
 
         return created_agent
     except Exception as e:

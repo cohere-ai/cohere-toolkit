@@ -2,8 +2,7 @@ import factory
 
 from backend.database_models import User
 from backend.services.auth import BasicAuthentication
-
-from .base import BaseFactory
+from backend.tests.factories.base import BaseFactory
 
 
 class UserFactory(BaseFactory):
