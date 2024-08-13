@@ -6,7 +6,7 @@ import requests
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_model_config_var, get_chat_request
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
@@ -68,9 +68,7 @@ class CohereDeployment(BaseDeployment):
     async def invoke_chat(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
-        response = self.client.chat(
-            **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-        )
+        response = self.client.chat(**get_chat_request(chat_request))
         yield to_dict(response)
 
     @collect_metrics_chat_stream
@@ -79,9 +77,7 @@ class CohereDeployment(BaseDeployment):
     ) -> Any:
         logger = ctx.get_logger()
 
-        stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-        )
+        stream = self.client.chat_stream(**get_chat_request(chat_request))
 
         for event in stream:
             event_dict = to_dict(event)

@@ -5,6 +5,8 @@ from backend.database_models import (
     DEFAULT_MODEL_DEPLOYMENTS_MODULE,
 )
 
+from backend.schemas.cohere_chat import CohereChatRequest
+
 
 def class_name_validator(v: str):
     from backend.model_deployments.utils import get_module_class
@@ -62,3 +64,9 @@ def add_rerank_model_to_request_state(
     if not request:
         return
     request.state.rerank_model = model
+
+def get_chat_request(request: CohereChatRequest, exclude: set[str]) -> dict[str, Any]: 
+    return request.model_dump(exclude={
+        "stream",
+        "file_ids",
+        "agent_id"}.union(exclude))
