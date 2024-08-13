@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Any, Dict, List
 
 import backend.crud.file as file_crud
@@ -7,6 +8,10 @@ from backend.schemas.file import File
 from backend.services.compass import Compass
 from backend.services.file import get_compass, get_file_service
 from backend.tools.base import BaseTool
+
+
+class FileToolsArtifactTypes(StrEnum):
+    local_file = "local_file"
 
 
 def compass_file_search(

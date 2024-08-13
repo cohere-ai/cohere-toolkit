@@ -56,6 +56,7 @@ from backend.services.request_validators import (
     validate_update_agent_request,
     validate_user_header,
 )
+from backend.tools.files import FileToolsArtifactTypes
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -114,6 +115,7 @@ async def create_agent(
                 )
 
         # Consolidate agent files into one index in compass
+        file_tools = [ToolName.Read_File, ToolName.Search_File]
         if (
             Settings().feature_flags.use_compass_file_storage
             and created_agent.tools_metadata
@@ -122,8 +124,7 @@ async def create_agent(
                 (
                     tool_metadata.artifacts
                     for tool_metadata in created_agent.tools_metadata
-                    if tool_metadata.tool_name == ToolName.Read_File
-                    or tool_metadata.tool_name == ToolName.Search_File
+                    if tool_metadata.tool_name in file_tools
                 ),
                 [],
             )
@@ -131,10 +132,10 @@ async def create_agent(
                 set(
                     artifact.get("id")
                     for artifact in artifacts
-                    if artifact.get("type") == "local_file"
+                    if artifact.get("type") == FileToolsArtifactTypes.local_file
                 )
             )
-            if len(file_ids) > 0:
+            if file_ids:
                 await consolidate_agent_files_in_compass(file_ids, created_agent.id)
 
         if deployment_db and model_db:
@@ -677,14 +678,14 @@ async def batch_upload_file(
 
 
 @router.delete("/{agent_id}/files/{file_id}")
-async def delete_file(
+async def delete_agent_file(
     agent_id: str,
     file_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteFileResponse:
     """
-    Delete a file by ID.
+    Delete an agent file by ID.
 
     Args:
         agent_id (str): Agent ID.

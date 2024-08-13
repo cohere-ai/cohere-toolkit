@@ -11,7 +11,6 @@ from python_calamine.pandas import pandas_monkeypatch
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
 from backend.config.settings import Settings
-from backend.crud import agent as agent_crud
 from backend.crud import message as message_crud
 from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
@@ -23,6 +22,7 @@ from backend.services.agent import validate_agent_exists
 from backend.services.compass import Compass
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
+from backend.tools.files import FileToolsArtifactTypes
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -195,12 +195,11 @@ class FileService:
                 [],  # Default value if the generator is empty
             )
 
-            # Remove duplicates, since file can be associated to both read document and search file tools
             file_ids = list(
                 set(
                     artifact.get("id")
                     for artifact in artifacts
-                    if artifact.get("type") == "local_file"
+                    if artifact.get("type") == FileToolsArtifactTypes.local_file
                 )
             )
 
