@@ -526,7 +526,7 @@ async def delete_file(
     """
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
-    validate_file(session, file_id, user_id, conversation_id)
+    validate_file(session, file_id, user_id, conversation_id, ctx)
 
     # Delete the File DB object
     get_file_service().delete_conversation_file_by_id(

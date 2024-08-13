@@ -993,7 +993,7 @@ def test_streaming_chat_with_files(
             "files",
             (
                 "Mariana_Trench.pdf",
-                open("src/backend/tests/test_data/Mariana_Trench.pdf", "rb"),
+                open("src/backend/tests/unit/test_data/Mariana_Trench.pdf", "rb"),
             ),
         )
     ]

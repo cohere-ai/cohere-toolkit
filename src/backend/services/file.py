@@ -402,6 +402,7 @@ def get_files_in_compass(
         list[File]: The files that were created
     """
     compass = get_compass()
+    logger = ctx.get_logger()
 
     files = []
     for file_id in file_ids:
@@ -411,6 +412,9 @@ def get_files_in_compass(
                 parameters={"index": index, "file_id": file_id},
             ).result["doc"]["content"]
         except Exception as e:
+            logger.error(
+                event=f"[Compass File Service] Error fetching file {file_id} on index {index} from Compass: {e}"
+            )
             raise HTTPException(
                 status_code=404, detail=f"File with ID: {file_id} not found."
             )
@@ -593,7 +597,7 @@ async def insert_files_in_compass(
 
 # Misc
 def validate_file(
-    session: DBSessionDep, file_id: str, user_id: str, ctx: Context, index: str = None
+    session: DBSessionDep, file_id: str, user_id: str, index: str, ctx: Context
 ) -> File:
     """Validates if a file exists and belongs to the user
 

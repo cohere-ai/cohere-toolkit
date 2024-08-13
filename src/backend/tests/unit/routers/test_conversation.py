@@ -476,11 +476,10 @@ def test_list_files(
             "files",
             (
                 "Mariana_Trench.pdf",
-                open("src/backend/tests/test_data/Mariana_Trench.pdf", "rb"),
+                open("src/backend/tests/unit/test_data/Mariana_Trench.pdf", "rb"),
             ),
         )
     ]
-
     response = session_client.post(
         "/v1/conversations/batch_upload_file",
         headers={"User-Id": conversation.user_id},
@@ -531,7 +530,6 @@ def test_upload_file_existing_conversation(
     session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
-    saved_file_path = "src/backend/data/Mariana_Trench.pdf"
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file_doc = {"file": open(file_path, "rb")}
 
@@ -556,7 +554,6 @@ def test_upload_file_nonexistent_conversation_creates_new_conversation(
     session_client: TestClient, session: Session, user: User, mock_compass_settings
 ) -> None:
     file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
-    saved_file_path = "src/backend/data/Mariana_Trench.pdf"
     file_doc = {"file": open(file_path, "rb")}
 
     response = session_client.post(
@@ -606,8 +603,6 @@ def test_batch_upload_file_existing_conversation(
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
         "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
     }
     files = [
         ("files", (file_name, open(file_path, "rb")))
@@ -800,7 +795,7 @@ def test_delete_file(
             "files",
             (
                 "Mariana_Trench.pdf",
-                open("src/backend/tests/test_data/Mariana_Trench.pdf", "rb"),
+                open("src/backend/tests/unit/test_data/Mariana_Trench.pdf", "rb"),
             ),
         )
     ]
