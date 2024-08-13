@@ -594,7 +594,7 @@ async def insert_files_in_compass(
 
 # Misc
 def validate_file(
-    session: DBSessionDep, file_id: str, user_id: str, index: str = None
+    session: DBSessionDep, file_id: str, user_id: str, ctx: Context, index: str = None
 ) -> File:
     """Validates if a file exists and belongs to the user
 
@@ -610,7 +610,7 @@ def validate_file(
         HTTPException: If the file is not found
     """
     if Settings().feature_flags.use_compass_file_storage:
-        file = get_files_in_compass(index, [file_id], user_id)[0]
+        file = get_files_in_compass(index, [file_id], user_id, ctx)[0]
     else:
         file = file_crud.get_file(session, file_id, user_id)
 
