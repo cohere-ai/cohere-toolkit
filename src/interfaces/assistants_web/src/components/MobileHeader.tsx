@@ -5,10 +5,10 @@ import { env } from '@/env.mjs';
 import { useSettingsStore } from '@/stores';
 
 export const MobileHeader: React.FC = () => {
-  const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
+  const { setLeftPanelOpen, setRightPanelOpen } = useSettingsStore();
   const handleOpenLeftSidePanel = () => {
-    setAgentsRightSidePanelOpen(false);
-    setAgentsLeftSidePanelOpen(true);
+    setRightPanelOpen(false);
+    setLeftPanelOpen(true);
   };
 
   return (

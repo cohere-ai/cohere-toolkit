@@ -52,16 +52,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     if (conversationId) {
       setConversation({ id: conversationId });
     }
-  }, [
-    agent,
-    conversation,
-    tools,
-    conversationId,
-    setConversation,
-    resetCitations,
-    resetFileParams,
-    setParams,
-  ]);
+  }, []);
 
   useEffect(() => {
     if (!conversation) return;

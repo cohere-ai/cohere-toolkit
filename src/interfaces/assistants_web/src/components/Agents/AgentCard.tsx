@@ -32,7 +32,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
   const pathname = usePathname();
-  const { setAgentsLeftSidePanelOpen } = useSettingsStore();
+  const { setLeftPanelOpen } = useSettingsStore();
 
   const isActive = isBaseAgent
     ? conversationId
@@ -64,7 +64,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
     router.push(url);
 
     resetConversationSettings();
-    isMobile && setAgentsLeftSidePanelOpen(false);
+    isMobile && setLeftPanelOpen(false);
   };
 
   return (

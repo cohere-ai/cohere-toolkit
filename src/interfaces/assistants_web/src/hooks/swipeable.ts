@@ -4,15 +4,15 @@ import { useSwipeable as useSwipe } from 'react-swipeable';
 import { useSettingsStore } from '@/stores';
 
 export const useSwipeable = () => {
-  const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
+  const { setLeftPanelOpen, setRightPanelOpen } = useSettingsStore();
   const { ref } = useSwipe({
     onSwipedLeft: ({}) => {
-      setAgentsLeftSidePanelOpen(false);
-      setAgentsRightSidePanelOpen(true);
+      setLeftPanelOpen(false);
+      setRightPanelOpen(true);
     },
     onSwipedRight: ({}) => {
-      setAgentsLeftSidePanelOpen(true);
-      setAgentsRightSidePanelOpen(false);
+      setLeftPanelOpen(true);
+      setRightPanelOpen(false);
     },
   });
 
