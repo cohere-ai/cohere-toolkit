@@ -54,7 +54,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
         )}
       </PopoverButton>
       <PopoverPanel
-        className="flex origin-top -translate-y-2 flex-col transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        className="flex min-w-[200px] origin-top -translate-y-2 flex-col transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
         anchor="top start"
         transition
       >
@@ -110,7 +110,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                     <Text as="span">{tool.display_name}</Text>
                   </div>
                 </div>
-                {!checkIsBaseAgent(agent) && (
+                {checkIsBaseAgent(agent) && (
                   <Switch
                     theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}
