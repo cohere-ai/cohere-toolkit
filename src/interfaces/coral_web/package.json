@@ -16,7 +16,7 @@
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
     "next:build": "next build",
-    "start": "next build && next start --port 4000",
+    "start": "next start --port 4000",
     "start:single-docker": "next build && next start --port 4000",
     "start:single-docker-proxy": "next build && next start --port 8090",
     "generate:client": "openapi-ts"
@@ -49,6 +49,7 @@
     "mdast-util-to-string": "^4.0.0",
     "next": "^14.2.5",
     "next-client-cookies": "^1.1.1",
+    "next-runtime-env": "^3.2.2",
     "node-html-parser": "^6.1.4",
     "parse-domain": "^8.0.1",
     "postcss": "^8.4.31",

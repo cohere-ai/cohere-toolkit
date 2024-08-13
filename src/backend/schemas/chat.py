@@ -249,6 +249,10 @@ class NonStreamedChatResponse(ChatResponse):
         title="List of tool calls generated for custom tools",
         default=[],
     )
+    error: str | None = Field(
+        title="Error message if the response is an error.",
+        default=None,
+    )
 
 
 class StreamToolCallsChunk(ChatResponse):

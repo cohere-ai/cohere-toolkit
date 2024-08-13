@@ -11,6 +11,7 @@ import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions, useListFiles } from '@/hooks/files';
+import { useSession } from '@/hooks/session';
 import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
@@ -29,7 +30,7 @@ const AgentRightPanel: React.FC<Props> = () => {
     params: { fileIds },
     setParams,
   } = useParamsStore();
-
+  const session = useSession();
   const { data: files } = useListFiles(conversationId);
   const { deleteFile } = useFileActions();
 
@@ -54,7 +55,7 @@ const AgentRightPanel: React.FC<Props> = () => {
       'id'
     );
 
-    const files = fileArtifacts.filter((artifact) => artifact.type === 'file');
+    const files = fileArtifacts.filter((artifact) => artifact.type !== 'folder'); // can be file, document, pdf, etc.
     const folders = fileArtifacts.filter((artifact) => artifact.type === 'folder');
     return {
       files,
@@ -81,12 +82,15 @@ const AgentRightPanel: React.FC<Props> = () => {
 
   return (
     <aside className="space-y-5 py-4">
-      <header>
+      <header className="flex items-center gap-2">
         <IconButton
           onClick={() => setAgentsRightSidePanelOpen(false)}
           iconName="arrow-right"
-          className="flex h-auto flex-shrink-0 self-center md:hidden"
+          className="flex h-auto flex-shrink-0 self-center lg:hidden"
         />
+        <Text styleAs="p-sm" className="font-medium uppercase">
+          Knowledge
+        </Text>
       </header>
       <div className="flex flex-col gap-y-10">
         {agentId && (
@@ -104,11 +108,12 @@ const AgentRightPanel: React.FC<Props> = () => {
                   label="Enables assistant knowledge to provide more accurate responses."
                 />
               </span>
-              <Switch
+              {/* @DEV_NOTE: This is disabled while we add the ability in BE to enable/disable assistant knowledge */}
+              {/* <Switch
                 theme={theme}
                 checked={!disabledAssistantKnowledge.includes(agentId)}
                 onChange={(checked) => setUseAssistantKnowledge(checked, agentId)}
-              />
+              /> */}
             </div>
             <Transition
               show={!disabledAssistantKnowledge.includes(agentId) ?? false}
@@ -120,7 +125,7 @@ const AgentRightPanel: React.FC<Props> = () => {
               leaveTo="opacity-0 scale-90"
               as="div"
             >
-              {agentKnowledgeFiles.length === 0 ? (
+              {agentKnowledgeFiles.length === 0 && session.userId === agent?.user_id ? (
                 <Banner className="flex flex-col">
                   Add a data source to expand the assistant’s knowledge.
                   <Button
@@ -135,7 +140,7 @@ const AgentRightPanel: React.FC<Props> = () => {
               ) : (
                 <div className="flex flex-col gap-y-3">
                   <Text as="div" className="flex items-center gap-x-3">
-                    <Icon name="folder" kind="outline" />
+                    <Icon name="folder" kind="outline" className="flex-shrink-0" />
                     {/*  This renders the number of folders and files in the agent's Google Drive.
                     For example, if the agent has 2 folders and 3 files, it will render:
                     - "2 folders and 3 files" */}
@@ -150,12 +155,18 @@ const AgentRightPanel: React.FC<Props> = () => {
                         agentToolMetadataArtifacts.files.length
                       )}`}
                   </Text>
-                  {agentKnowledgeFiles.map((file) => (
-                    <Text as="div" key={file.id} className="ml-6 flex items-center gap-x-3">
-                      <Icon name={file.type === 'folder' ? 'folder' : 'file'} kind="outline" />
-                      {file.name}
-                    </Text>
-                  ))}
+                  <ol className="space-y-2">
+                    {agentKnowledgeFiles.map((file) => (
+                      <li key={file.id} className="ml-6 flex items-center gap-x-3">
+                        <Icon
+                          name={file.type === 'folder' ? 'folder' : 'file'}
+                          kind="outline"
+                          className="flex-shrink-0"
+                        />
+                        <Text>{file.name}</Text>
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               )}
             </Transition>

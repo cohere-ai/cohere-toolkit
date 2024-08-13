@@ -19,7 +19,7 @@ SETTINGS_CONFIG = SettingsConfigDict(
 )
 
 CONFIG_PATH = "src/backend/config"
-PYTEST_CONFIG_PATH = "src/backend/tests"
+PYTEST_CONFIG_PATH = "src/backend/tests/unit"
 CONFIG_FILE_PATH = (
     f"{CONFIG_PATH}/configuration.yaml"
     if "pytest" not in sys.modules

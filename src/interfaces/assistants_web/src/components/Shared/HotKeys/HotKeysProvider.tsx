@@ -1,26 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Options, useHotkeys } from 'react-hotkeys-hook';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 import { HotKeysDialog } from '@/components/Shared/HotKeys/HotKeysDialog';
-import { QuickAction } from '@/components/Shared/HotKeys/QuickActions';
-
-/**
- * taken from the type OptionsOrDependencyArray in react-hotkeys-hook
- */
-type OptionsOrDependencyArray = Options | ReadonlyArray<unknown>;
-
-export interface CustomHotKey extends QuickAction {
-  options?: OptionsOrDependencyArray;
-  dependencies?: OptionsOrDependencyArray;
-}
+import { type HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
 
 type HotKeysProviderProps = {
-  customHotKeys?: CustomHotKey[];
+  hotKeys?: HotKeyGroupOption[];
 };
 
-export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ customHotKeys = [] }) => {
+export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ hotKeys = [] }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const open = () => {
     setIsDialogOpen(true);
@@ -45,26 +35,23 @@ export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ customHotKeys 
     [isDialogOpen, close, open]
   );
 
-  customHotKeys.forEach(({ commands, action, options, dependencies }) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useHotkeys(
-      commands,
-      () => {
-        if (isDialogOpen) {
-          close();
-        }
-        action();
-      },
-      { enableOnFormTags: true, ...options },
-      dependencies
-    );
-  });
+  hotKeys
+    .map((hk) => hk.quickActions)
+    .flat()
+    .forEach(({ commands, action, options, dependencies }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useHotkeys(
+        commands,
+        () => {
+          if (isDialogOpen) {
+            close();
+          }
+          action();
+        },
+        { enableOnFormTags: true, ...options },
+        dependencies
+      );
+    });
 
-  const dialogCustomActions: QuickAction[] = customHotKeys.map(({ name, commands, action }) => ({
-    name,
-    commands,
-    action,
-  }));
-
-  return <HotKeysDialog isOpen={isDialogOpen} close={close} customActions={dialogCustomActions} />;
+  return <HotKeysDialog isOpen={isDialogOpen} close={close} options={hotKeys} />;
 };

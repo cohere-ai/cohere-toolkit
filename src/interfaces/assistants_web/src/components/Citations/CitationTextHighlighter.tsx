@@ -91,8 +91,9 @@ export const CitationTextHighlighter: React.FC<Props> = ({
   }
 
   return (
-    <Popover className="group inline-block">
+    <Popover className="group contents" as="span">
       <PopoverButton
+        as="span"
         className={cn(
           'cursor-pointer rounded bg-transparent',
           light(text),

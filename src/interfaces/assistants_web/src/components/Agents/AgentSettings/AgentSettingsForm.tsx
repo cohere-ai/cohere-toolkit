@@ -23,29 +23,40 @@ type RequiredAndNotNull<T> = {
 
 type RequireAndNotNullSome<T, K extends keyof T> = RequiredAndNotNull<Pick<T, K>> & Omit<T, K>;
 
-export type AgentSettingsFields = RequireAndNotNullSome<
-  | Omit<UpdateAgentRequest, 'version' | 'temperature'>
-  | Omit<CreateAgentRequest, 'version' | 'temperature'>,
+type CreateAgentSettingsFields = RequireAndNotNullSome<
+  Omit<CreateAgentRequest, 'version' | 'temperature'>,
   'name' | 'model' | 'deployment'
 >;
 
-type Props = {
-  source?: 'update' | 'create';
+type UpdateAgentSettingsFields = RequireAndNotNullSome<
+  Omit<UpdateAgentRequest, 'version' | 'temperature'>,
+  'name' | 'model' | 'deployment'
+> & { is_private?: boolean };
+
+export type AgentSettingsFields = CreateAgentSettingsFields | UpdateAgentSettingsFields;
+
+type BaseProps = {
   fields: AgentSettingsFields;
   savePendingAssistant: VoidFunction;
   setFields: (fields: AgentSettingsFields) => void;
   onSubmit: VoidFunction;
-  agentId?: string;
 };
 
-export const AgentSettingsForm: React.FC<Props> = ({
-  source = 'create',
-  fields,
-  savePendingAssistant,
-  setFields,
-  onSubmit,
-  agentId,
-}) => {
+type CreateProps = BaseProps & {
+  source: 'create';
+};
+
+type UpdateProps = BaseProps & {
+  source: 'update';
+  agentId: string;
+};
+
+export type Props = CreateProps | UpdateProps;
+
+export const AgentSettingsForm: React.FC<Props> = (props) => {
+  const { source = 'create', fields, savePendingAssistant, setFields, onSubmit } = props;
+  const agentId = 'agentId' in props ? props.agentId : undefined;
+
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
   const params = useSearchParams();
@@ -194,7 +205,6 @@ export const AgentSettingsForm: React.FC<Props> = ({
         <StepButtons
           handleNext={() => setCurrentStep('visibility')}
           handleBack={() => setCurrentStep('dataSources')}
-          allowSkip
           hide={source !== 'create'}
         />
       </CollapsibleSection>
@@ -207,9 +217,8 @@ export const AgentSettingsForm: React.FC<Props> = ({
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'visibility' : undefined)}
       >
         <VisibilityStep
-          isPublic={true}
-          // TODO: add visibility when available
-          setIsPublic={(_: boolean) => alert('to be developed!')}
+          isPrivate={Boolean(fields.is_private)}
+          setIsPrivate={(isPrivate) => setFields({ ...fields, is_private: isPrivate })}
         />
         <StepButtons
           handleNext={onSubmit}
@@ -228,7 +237,6 @@ const StepButtons: React.FC<{
   handleNext: VoidFunction;
   handleBack?: VoidFunction;
   nextLabel?: string;
-  allowSkip?: boolean;
   isSubmit?: boolean;
   disabled?: boolean;
   hide?: boolean;
@@ -236,7 +244,6 @@ const StepButtons: React.FC<{
   handleNext,
   handleBack,
   nextLabel = 'Next',
-  allowSkip = false,
   isSubmit = false,
   disabled = false,
   hide = false,
@@ -255,12 +262,6 @@ const StepButtons: React.FC<{
         className={cn({ hidden: !handleBack })}
       />
       <div className="flex items-center gap-4">
-        <Button
-          label="Skip"
-          kind="secondary"
-          onClick={handleNext}
-          className={cn({ hidden: !allowSkip })}
-        />
         <Button
           label={nextLabel}
           theme="default"

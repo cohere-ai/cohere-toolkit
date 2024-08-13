@@ -74,6 +74,10 @@ class CustomChat(BaseChat):
                     logger.debug(event=f"Final event: {event}")
                     break
         except Exception as e:
+            logger.exception(
+                event="[Custom Chat] Error occurred during chat stream",
+                error=str(e),
+            )
             yield {
                 "event_type": StreamEvent.STREAM_END,
                 "finish_reason": "ERROR",
@@ -148,7 +152,8 @@ class CustomChat(BaseChat):
             chat_request.tools = managed_tools
             tool_names = [tool.name for tool in managed_tools]
 
-        # Add files to chat history if the tool requires it and files are provided
+        # Get files if available
+        all_files = []
         if chat_request.file_ids or chat_request.agent_id:
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
                 files = get_file_service().get_files_by_conversation_id(
@@ -161,14 +166,17 @@ class CustomChat(BaseChat):
                         session, user_id, agent_id
                     )
 
-                chat_request.chat_history = self.add_files_to_chat_history(
-                    chat_request.chat_history,
-                    session,
-                    files + agent_files,
-                )
+                all_files = files + agent_files
+
+        # Add files to chat history if there are any
+        # Otherwise, remove the Read_File and Search_File tools
+        if all_files:
+            chat_request.chat_history = self.add_files_to_chat_history(
+                chat_request.chat_history,
+                session,
+                files + agent_files,
+            )
         else:
-            # TODO: remove this workaround
-            # For now we're removing the Read_File and Search_File tools if no files are provided
             chat_request.tools = [
                 tool
                 for tool in chat_request.tools
