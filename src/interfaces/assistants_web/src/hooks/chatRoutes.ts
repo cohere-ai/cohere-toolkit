@@ -18,14 +18,14 @@ export const useNavigateToNewChat = () => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
-  const { setAgentsLeftSidePanelOpen } = useSettingsStore();
+  const { setLeftPanelOpen } = useSettingsStore();
 
   const handleNavigate = () => {
     const url = agentId ? `/a/${agentId}` : '/';
     resetConversation();
     resetCitations();
     resetFileParams();
-    isMobile && setAgentsLeftSidePanelOpen(false);
+    isMobile && setLeftPanelOpen(false);
     router.push(url);
   };
 

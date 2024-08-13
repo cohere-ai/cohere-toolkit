@@ -5,7 +5,7 @@ import { uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/IconButton';
-import { Banner, Button, Icon, Switch, Text, Tooltip } from '@/components/Shared';
+import { Banner, Button, Icon, Text, Tooltip } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
@@ -20,7 +20,7 @@ type Props = {};
 
 const AgentRightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
-  const { disabledAssistantKnowledge, setUseAssistantKnowledge, setAgentsRightSidePanelOpen } =
+  const { disabledAssistantKnowledge, setUseAssistantKnowledge, setRightPanelOpen } =
     useSettingsStore();
   const { agentId, conversationId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
@@ -84,7 +84,7 @@ const AgentRightPanel: React.FC<Props> = () => {
     <aside className="space-y-5 py-4">
       <header className="flex items-center gap-2">
         <IconButton
-          onClick={() => setAgentsRightSidePanelOpen(false)}
+          onClick={() => setRightPanelOpen(false)}
           iconName="arrow-right"
           className="flex h-auto flex-shrink-0 self-center lg:hidden"
         />

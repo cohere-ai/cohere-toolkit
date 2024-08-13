@@ -20,7 +20,7 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
 
-  const { isAgentsRightPanelOpen } = useSettingsStore();
+  const { isRightPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
 
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
@@ -54,7 +54,7 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
     <div className="relative flex h-full">
       {children}
       <Transition
-        show={isAgentsRightPanelOpen || isDesktop}
+        show={isRightPanelOpen || isDesktop}
         as="div"
         className={cn(
           'border-marble-950 bg-marble-980 px-6 dark:border-volcanic-200 dark:bg-volcanic-100',
