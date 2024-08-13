@@ -22,7 +22,6 @@ from backend.services.agent import validate_agent_exists
 from backend.services.compass import Compass
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.files import FileToolsArtifactTypes
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
@@ -179,6 +178,7 @@ class FileService:
             list[File]: The files that were created
         """
         from backend.config.tools import ToolName
+        from backend.tools.files import FileToolsArtifactTypes
 
         agent = validate_agent_exists(session, agent_id, user_id)
 
