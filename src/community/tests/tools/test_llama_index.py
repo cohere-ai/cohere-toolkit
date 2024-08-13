@@ -2,7 +2,7 @@ from community.tools import LlamaIndexUploadPDFRetriever
 
 
 def test_pdf_retriever() -> None:
-    file_path = "src/backend/tests/test_data/Mariana_Trench.pdf"
+    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
     retriever = LlamaIndexUploadPDFRetriever(file_path)
     query = "What is the mariana trench?"
     expected_docs = [
