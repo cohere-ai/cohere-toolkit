@@ -1,6 +1,6 @@
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-import { Button, Text } from '@/components/Shared';
+import { Button, IconList, Text } from '@/components/Shared';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
@@ -106,9 +106,32 @@ export const AllStyles: StoryFn<typeof Button> = () => (
 export const Selection: Story = {
   args: {
     kind: 'primary',
-    icon: 'arrow-right',
+    icon: 'add',
     theme: 'evolved-green',
     label: 'Button',
     stretch: true,
+  },
+  argTypes: {
+    icon: {
+      options: IconList,
+      control: { type: 'select' },
+      defaultValue: 'add',
+    },
+    theme: {
+      options: [
+        'default',
+        'evolved-green',
+        'blue',
+        'coral',
+        'quartz',
+        'mushroom',
+        'danger',
+        'evolved-blue',
+        'evolved-mushroom',
+        'evolved-quartz',
+        'green',
+      ],
+      control: { type: 'select' },
+    },
   },
 };
