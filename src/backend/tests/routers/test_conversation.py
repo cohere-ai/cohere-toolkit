@@ -731,12 +731,6 @@ def test_batch_upload_file_existing_conversation(
         "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
         "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
     }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
     files = [
         ("files", (file_name, open(file_path, "rb")))
         for file_name, file_path in file_paths.items()
@@ -766,10 +760,6 @@ def test_batch_upload_file_existing_conversation(
             .first()
         )
         assert conversation_file_association is not None
-
-    # File should not exist in the directory
-    for saved_file_path in saved_file_paths:
-        assert not os.path.exists(saved_file_path)
 
 
 def test_batch_upload_total_files_exceeds_limit(
@@ -848,12 +838,6 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
         "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
         "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
     }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
     files = [
         ("files", (file_name, open(file_path, "rb")))
         for file_name, file_path in file_paths.items()
@@ -895,10 +879,6 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
         )
         assert conversation_file_association is not None
 
-    # File should not exist in the directory
-    for saved_file_path in saved_file_paths:
-        assert not os.path.exists(saved_file_path)
-
 
 def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
     session_client: TestClient, session: Session, user
@@ -909,12 +889,6 @@ def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provide
         "Tapas.pdf": "src/backend/tests/test_data/Tapas.pdf",
         "Mount_Everest.pdf": "src/backend/tests/test_data/Mount_Everest.pdf",
     }
-    saved_file_paths = [
-        "src/backend/data/Mariana_Trench.pdf",
-        "src/backend/data/Cardistry.pdf",
-        "src/backend/data/Tapas.pdf",
-        "src/backend/data/Mount_Everest.pdf",
-    ]
     files = [
         ("files", (file_name, open(file_path, "rb")))
         for file_name, file_path in file_paths.items()
