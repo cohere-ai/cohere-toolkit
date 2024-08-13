@@ -1,5 +1,5 @@
 from backend.config.tools import ToolName
-from backend.crud.agent import get_agent_by_id
+from backend.crud.agent import get_agent_by_id_sync
 from backend.crud.agent_tool_metadata import get_all_agent_tool_metadata_by_agent_id
 from backend.database_models.database import get_session
 from backend.services.logger.utils import LoggerFactory
@@ -21,7 +21,7 @@ def sync_agent_activity(agent_id: str):
     """
     agent_tool_metadata = []
     session = next(get_session())
-    agent = get_agent_by_id(session, agent_id)
+    agent = get_agent_by_id_sync(session, agent_id)
     agent_tool_metadata = get_all_agent_tool_metadata_by_agent_id(session, agent_id)
     for metadata in agent_tool_metadata:
         match metadata.tool_name:

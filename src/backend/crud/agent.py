@@ -48,6 +48,21 @@ def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
 
     return agent
 
+@validate_transaction
+def get_agent_by_id_sync(db: Session, agent_id: str) -> Agent:
+    """
+    Get an agent by its ID.
+    Anyone can get a public agent, but only the owner can get a private agent.
+
+    Args:
+      db (Session): Database session.
+      agent_id (str): Agent ID.
+
+    Returns:
+      Agent: Agent with the given ID.
+    """
+    return db.query(Agent).filter(Agent.id == agent_id).first()
+
 
 @validate_transaction
 def get_agent_by_name(db: Session, agent_name: str, user_id: str) -> Agent:
@@ -126,11 +141,12 @@ def get_association_by_deployment_id(
 @validate_transaction
 def get_agents(
     db: Session,
-    user_id: str,
+    user_id: str = "",
     offset: int = 0,
     limit: int = 100,
     organization_id: Optional[str] = None,
     visibility: AgentVisibility = AgentVisibility.ALL,
+    is_sync = False,
 ) -> list[Agent]:
     """
     Get all agents for a user.
@@ -153,7 +169,7 @@ def get_agents(
         query = query.filter(Agent.is_private == False)
     elif visibility == AgentVisibility.PRIVATE:
         query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
-    else:
+    elif not is_sync: 
         query = query.filter((Agent.is_private == False) | (Agent.user_id == user_id))
 
     # Filter by organization and user

@@ -11,7 +11,7 @@ LIMIT = None
 
 def main():
     session = next(get_session())
-    agents = [Agent.model_validate(x) for x in get_agents(session)]
+    agents = [Agent.model_validate(x) for x in get_agents(session, is_sync=True)]
     if LIMIT:
         agents = agents[:LIMIT]
     session.close()

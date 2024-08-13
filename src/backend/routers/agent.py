@@ -82,6 +82,7 @@ async def create_agent(
     ctx.with_event_type(MetricsMessageType.ASSISTANT_CREATED)
     ctx.with_user(session)
     user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
 
     agent_data = AgentModel(
         name=agent.name,
@@ -126,6 +127,7 @@ async def create_agent(
 
         return created_agent
     except Exception as e:
+        logger.exception(event=e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
