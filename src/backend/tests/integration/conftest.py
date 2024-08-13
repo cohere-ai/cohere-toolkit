@@ -19,7 +19,6 @@ from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.services.compass import Compass
-from backend.tests.factories import get_factory
 from backend.tests.unit.factories import get_factory
 
 DATABASE_URL = os.environ["DATABASE_URL"]

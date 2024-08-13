@@ -11,7 +11,6 @@ from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.snapshot import Snapshot
 from backend.schemas.metrics import MetricsData, MetricsMessageType
-from backend.tests.factories import get_factory
 from backend.tests.unit.factories import get_factory
 
 

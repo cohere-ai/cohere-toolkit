@@ -13,7 +13,6 @@ from backend.database_models import (
 )
 from backend.schemas.user import User
 from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE, get_file_service
-from backend.tests.factories import get_factory
 from backend.tests.unit.factories import get_factory
 
 
