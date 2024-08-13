@@ -50,6 +50,7 @@ from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
+from backend.services.agent import validate_agent_exists
 from backend.services.file import get_file_service
 
 
@@ -78,7 +79,7 @@ def process_chat(
     agent_id = ctx.get_agent_id()
 
     if agent_id is not None:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
+        agent = validate_agent_exists(session, agent_id, user_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
 
@@ -518,6 +519,7 @@ async def generate_chat_response(
                 event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
                 conversation_id=ctx.get_conversation_id(),
                 tool_calls=data.get("tool_calls", []),
+                error=data.get("error", None),
             )
 
     return non_streamed_chat_response

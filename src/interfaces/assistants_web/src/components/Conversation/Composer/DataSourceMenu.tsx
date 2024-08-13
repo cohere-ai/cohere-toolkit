@@ -3,16 +3,17 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import React from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/Shared';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
+import { checkIsBaseAgent } from '@/utils/agents';
 import { getToolIcon } from '@/utils/tools';
 
 export type Props = {
-  agent?: Agent;
+  agent?: AgentPublic;
   tools?: ManagedTool[];
 };
 
@@ -79,7 +80,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                 'flex w-full items-start justify-between gap-x-2 px-1.5 py-3',
                 'focus:outline focus:outline-volcanic-300',
                 {
-                  'border-b border-mushroom-800 md:w-[300px] dark:border-volcanic-300':
+                  'border-b border-mushroom-800 dark:border-volcanic-300 md:w-[300px]':
                     i !== availableTools.length - 1,
                 }
               )}
@@ -93,13 +94,23 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                       size="sm"
                       className="flex items-center fill-mushroom-300 dark:fill-marble-800"
                     />
-                    <div className="absolute -bottom-0.5 -right-0.5  size-2 rounded-full bg-success-300" />
+                    <div
+                      className={cn(
+                        'absolute -bottom-0.5 -right-0.5  size-2 rounded-full transition-colors duration-300',
+                        {
+                          'bg-success-300': !!paramsTools?.find((t) => t.name === tool.name),
+                          'bg-mushroom-400 dark:bg-volcanic-600': !paramsTools?.find(
+                            (t) => t.name === tool.name
+                          ),
+                        }
+                      )}
+                    />
                   </div>
                   <div className="flex flex-col text-left">
                     <Text as="span">{tool.display_name}</Text>
                   </div>
                 </div>
-                {!agent && (
+                {!checkIsBaseAgent(agent) && (
                   <Switch
                     theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}

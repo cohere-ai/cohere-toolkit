@@ -24,7 +24,7 @@ export const NavigationBar: React.FC<PropsWithChildren<{ className?: string }>> 
     >
       <Link href="/">
         <div className="mr-3 flex items-baseline">
-          <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
+          <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} />
         </div>
       </Link>
       {children}

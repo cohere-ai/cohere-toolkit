@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Agent } from '@/cohere-client';
+import { AgentPublic } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
@@ -20,7 +20,7 @@ export type ConversationListItem = {
   title: string;
   description: string | null;
   weekHeading?: string;
-  agent?: Agent;
+  agent?: AgentPublic;
 };
 
 type Props = {
@@ -70,8 +70,9 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
-  const { isAgentsLeftPanelOpen } = useSettingsStore();
+  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
   const isTouchDevice = getIsTouchDevice();
   const { clearComposerFiles } = useFileActions();
   const { bg, contrastText, contrastFill } = useBrandedColors(conversation.agent?.id);
@@ -142,6 +143,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         shallow
         onClick={() => {
           setConversation({ id: conversationId, name });
+          isMobile && setAgentsLeftSidePanelOpen(false);
           clearComposerFiles();
         }}
         className={wrapperClassName}
@@ -178,6 +180,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
               shallow
               onClick={() => {
                 setConversation({ id: conversationId, name });
+                isMobile && setAgentsLeftSidePanelOpen(false);
               }}
             >
               {content}

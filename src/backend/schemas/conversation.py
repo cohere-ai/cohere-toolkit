@@ -54,3 +54,4 @@ class DeleteConversationResponse(BaseModel):
 
 class GenerateTitleResponse(BaseModel):
     title: str
+    error: Optional[str] = None

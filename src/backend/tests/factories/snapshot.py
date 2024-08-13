@@ -9,6 +9,7 @@ class SnapshotFactory(BaseFactory):
     class Meta:
         model = Snapshot
 
+    agent_id = None
     user_id = factory.Faker("uuid4")
     organization_id = factory.Faker("uuid4")
     conversation_id = factory.Faker("uuid4")

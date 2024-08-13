@@ -34,3 +34,4 @@ class AgentFactory(BaseFactory):
             )
         ]
     )
+    is_private = factory.Faker("boolean", chance_of_getting_true=0)
