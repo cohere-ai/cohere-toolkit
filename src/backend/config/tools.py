@@ -6,7 +6,9 @@ from backend.services.logger.utils import LoggerFactory
 from backend.tools import (
     Calculator,
     GoogleDrive,
+    GoogleMail,
     GoogleDriveAuth,
+    GoogleMailAuth,
     LangChainWikiRetriever,
     PythonInterpreter,
     ReadFileTool,
@@ -37,6 +39,7 @@ class ToolName(StrEnum):
     Calculator = Calculator.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
+    Google_Mail = GoogleMail.NAME
     Web_Scrape = WebScrapeTool.NAME
 
 
@@ -159,6 +162,23 @@ ALL_TOOLS = {
         error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
+    ),
+    ToolName.Google_Mail: ManagedTool(
+        display_name="Google Mail",
+        implementation=GoogleMail,
+        parameter_definitions={
+            "query": {
+                "description": "Query to search Google Mail emails with.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=GoogleMail.is_available(),
+        auth_implementation=GoogleMailAuth,
+        error_message="Google Mail not available, please enable it in the GooleMail tool class.",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for the user's google mail.",
     ),
     ToolName.Web_Scrape: ManagedTool(
         name=ToolName.Web_Scrape,
