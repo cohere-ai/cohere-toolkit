@@ -138,6 +138,14 @@ def process_chat(
         id=str(uuid4()),
     )
 
+    if should_store:
+        attach_files_to_messages(
+            session,
+            user_id,
+            user_message.id,
+            chat_request.file_ids
+        )
+
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request
     )
@@ -319,9 +327,6 @@ def attach_files_to_messages(
                     session, file_id, user_id
                 )
             )
-
-            import pdb 
-            pdb.set_trace()
 
             # If the file is not associated with a file yet, create the association
             if message_file_association is None:

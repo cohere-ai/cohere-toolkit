@@ -7,7 +7,7 @@ up:
 down:
 	@docker compose down
 run-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/routers/test_chat.py::test_streaming_existing_chat_with_files_attaches_to_user_message
+	docker compose run --build backend poetry run pytest src/backend/tests/$(file)
 run-community-tests:
 	docker compose run --build backend poetry run pytest src/community/tests/$(file)
 attach: 
