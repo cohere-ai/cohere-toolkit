@@ -341,7 +341,6 @@ async def delete_tool_auth(
     """
 
     logger = ctx.get_logger()
-    logger.error(event=f"CHANTELLE TEST request body {request.body}")
 
     def log_and_return_error(error_message: str):
         logger.error(event=error_message)
@@ -351,10 +350,12 @@ async def delete_tool_auth(
         )
 
     user_id = ctx.get_user_id()
-    request_body = await request.json()
-    tool_id = request_body["tool_id"]
 
-    logger.error(event=f"CHANTELLE TEST tool_id {tool_id}, user_id {user_id}")
+    try:
+        request_body = await request.json()
+        tool_id = request_body["tool_id"]
+    except Exception as e:
+        log_and_return_error("Error parsing tool_id from request body.")
 
     if user_id is None or user_id == "" or user_id == "default":
         log_and_return_error("User ID not found.")
@@ -365,7 +366,7 @@ async def delete_tool_auth(
         )
 
     if tool_id != ToolName.Google_Drive:
-        log_and_return_error(f"Deletion for {tool_id} not implemented.")
+        log_and_return_error(f"Tool auth deletion for {tool_id} not implemented.")
 
     tool = AVAILABLE_TOOLS.get(tool_id)
 
@@ -376,7 +377,6 @@ async def delete_tool_auth(
 
     try:
         tool_auth_service = tool.auth_implementation()
-        tool_auth_service.delete_tool_auth(session, user_id)
         is_delete_tool_auth_successful = tool_auth_service.delete_tool_auth(
             session, user_id
         )
