@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
 import {
-  ChatResponseEvent as ChatResponse,
   CohereChatRequest,
   CohereNetworkError,
   ConversationPublic as Conversation,
@@ -14,9 +13,10 @@ import {
   useCohereClient,
 } from '@/cohere-client';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { ChatResponseEvent } from '@/domain/chat';
 
 interface StreamingParams {
-  onRead: (data: ChatResponse) => void;
+  onRead: (data: ChatResponseEvent) => void;
   onHeaders: (headers: Headers) => void;
   onFinish: () => void;
   onError: (error: unknown) => void;
@@ -87,6 +87,7 @@ export const useStreamChat = () => {
           headers,
           signal: abortControllerRef.current.signal,
           onMessage: (event: EventSourceMessage) => {
+            console.log({ event })
             try {
               if (!event.data) return;
               const data = JSON.parse(event.data);
