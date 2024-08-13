@@ -116,8 +116,6 @@ module.exports = {
         },
         DEFAULT: {
           css: {
-            'code::before': { content: '""' },
-            'code::after': { content: '""' },
             color: theme('colors.volcanic.300'),
           },
         },

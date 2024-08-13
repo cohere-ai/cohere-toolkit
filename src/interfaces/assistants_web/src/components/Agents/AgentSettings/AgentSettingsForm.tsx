@@ -84,7 +84,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
 
   const setToolsMetadata = () => {
     const tools_metadata = [
-      ...(googleFiles && !!googleFiles.length
+      ...(googleFiles && googleFiles.length > 0
         ? [
             {
               tool_name: TOOL_GOOGLE_DRIVE_ID,
@@ -92,7 +92,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
             },
           ]
         : []),
-      ...(defaultUploadFiles && !!defaultUploadFiles.length
+      ...(defaultUploadFiles && defaultUploadFiles.length > 0
         ? [
             {
               tool_name: TOOL_READ_DOCUMENT_ID,
@@ -105,12 +105,12 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           ]
         : []),
     ];
-    const tools = fields.tools ?? [];
-    tools_metadata.forEach((tool) => {
-      if (!tools.includes(tool.tool_name)) {
-        tools.push(tool.tool_name);
-      }
-    });
+    let tools = fields.tools ?? [];
+    if (tools_metadata.some((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)) {
+      tools = tools.concat(TOOL_GOOGLE_DRIVE_ID);
+    } else {
+      tools = tools.filter((tool) => tool !== TOOL_GOOGLE_DRIVE_ID);
+    }
 
     setFields({ ...fields, tools, tools_metadata });
   };
@@ -176,6 +176,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           googleDriveEnabled={
             !!listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID)?.is_available
           }
+          setFields={setFields}
           googleFiles={googleFiles}
           defaultUploadFiles={defaultUploadFiles}
           isLoading={listToolsStatus === 'pending'}
