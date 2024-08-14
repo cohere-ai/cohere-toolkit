@@ -144,7 +144,17 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
 
   const handleGoogleFilePicker = () => {
     savePendingAssistant();
-    openGoogleFilePicker();
+    const googleDriveTool = listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID);
+    if (!googleDriveTool?.is_available) {
+      return;
+    }
+
+    // If auth is required and token is not present, redirect to auth url
+    if (googleDriveTool?.is_auth_required && googleDriveTool.auth_url) {
+      window.open(googleDriveTool.auth_url, '_self');
+    } else {
+      openGoogleFilePicker();
+    }
   };
 
   return (
@@ -176,7 +186,6 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           googleDriveEnabled={
             !!listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID)?.is_available
           }
-          setFields={setFields}
           googleFiles={googleFiles}
           defaultUploadFiles={defaultUploadFiles}
           isLoading={listToolsStatus === 'pending'}
