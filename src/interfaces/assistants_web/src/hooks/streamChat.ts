@@ -85,7 +85,6 @@ export const useStreamChat = () => {
           headers,
           signal: abortControllerRef.current.signal,
           onMessage: (event: EventSourceMessage) => {
-            console.log({ event })
             try {
               if (!event.data) return;
               const data = JSON.parse(event.data);
