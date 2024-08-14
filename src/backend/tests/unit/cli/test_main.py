@@ -7,8 +7,8 @@ They are only used to avoid breaking the codebase due to import errors.
 
 
 def test_show_examples():
-    assert show_examples() == None
+    assert show_examples() is None
 
 
 def test_wrap_up():
-    assert wrap_up(["test"]) == None
+    assert wrap_up(["test"]) is None
