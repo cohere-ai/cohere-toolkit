@@ -2,7 +2,7 @@ import json
 from typing import Union
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
@@ -15,6 +15,7 @@ from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
 from backend.schemas.context import Context
+from backend.schemas.tool_auth import DeleteToolAuth
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
 from backend.services.auth.utils import (
@@ -23,6 +24,7 @@ from backend.services.auth.utils import (
 )
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
+from backend.services.logger.utils import log_and_raise_http_exception
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -325,20 +327,20 @@ async def delete_tool_auth(
     request: Request,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-):
+) -> DeleteToolAuth:
     """
     Endpoint to delete Tool Authentication.
 
     If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
 
     Args:
-        tool_id (str): ToolID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
+        tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
         request (Request): current Request object.
         session (DBSessionDep): Database session.
         ctx (Context): Context object.
 
     Returns:
-        {"status": "success"} on successful deletion.
+        DeleteToolAuth: Empty response.
 
     Raises:
         HTTPException: If there was an error deleting the tool auth.
@@ -346,45 +348,39 @@ async def delete_tool_auth(
 
     logger = ctx.get_logger()
 
-    def log_and_return_error(error_message: str):
-        logger.error(event=error_message)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"{error_message}",
-        )
-
     user_id = ctx.get_user_id()
-
     tool_id = tool_id.lower()
 
     if user_id is None or user_id == "" or user_id == "default":
-        log_and_return_error("User ID not found.")
+        log_and_raise_http_exception("User ID not found.")
 
     if tool_id not in [tool_name.value for tool_name in ToolName]:
-        log_and_return_error(
-            "tool_id must be present in the path of the request and must be a member of the ToolName string enum class."
+        log_and_raise_http_exception(
+            logger,
+            "tool_id must be present in the path of the request and must be a member of the ToolName string enum class.",
         )
 
     tool = AVAILABLE_TOOLS.get(tool_id)
 
     if tool is None:
-        log_and_return_error(f"Tool {tool_id} is not available in AVAILABLE_TOOLS.")
+        log_and_raise_http_exception(
+            logger, f"Tool {tool_id} is not available in AVAILABLE_TOOLS."
+        )
 
     if tool.auth_implementation is None:
-        log_and_return_error(
-            f"Tool {tool.name} does not have an auth_implementation required for Tool Auth Deletion."
+        log_and_raise_http_exception(
+            logger,
+            f"Tool {tool.name} does not have an auth_implementation required for Tool Auth Deletion.",
         )
 
     try:
         tool_auth_service = tool.auth_implementation()
-        is_delete_tool_auth_successful = tool_auth_service.delete_tool_auth(
-            session, user_id
-        )
+        is_deleted = tool_auth_service.delete_tool_auth(session, user_id)
 
-        if not is_delete_tool_auth_successful:
-            log_and_return_error("Error deleting Tool Auth.")
+        if not is_deleted:
+            log_and_raise_http_exception(logger, "Error deleting Tool Auth.")
 
     except Exception as e:
-        log_and_return_error(str(e))
+        log_and_raise_http_exception(logger, str(e))
 
-    return {"status": "success"}
+    return DeleteToolAuth()
