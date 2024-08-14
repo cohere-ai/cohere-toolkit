@@ -19,7 +19,7 @@ class JWTService:
 
         if not secret_key:
             raise ValueError(
-                "AUTH_SECRET_KEY environment variable is missing, and is required to enable authentication."
+                "auth.secret_key in secrets.yaml is missing, and is required to enable authentication."
             )
 
         self.secret_key = secret_key

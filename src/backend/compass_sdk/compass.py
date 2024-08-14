@@ -52,9 +52,9 @@ class CompassAuthError(Exception):
         self,
         message=(
             "Unauthorized. Please check your username and password, "
-            "which can be passed into CompassClient or set with "
-            "COHERE_COMPASS_USERNAME and COHERE_COMPASS_PASSWORD "
-            "environment variables."
+            "which can be passed into CompassClient or set in the "
+            "secrets.yaml, in the tools.compass.username and tools.compass.password "
+            "config variables."
         ),
     ):
         self.message = message
