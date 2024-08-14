@@ -8,6 +8,7 @@ from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models.agent import Agent as AgentModel
+from backend.config.settings import Settings
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
 )
@@ -123,6 +124,8 @@ async def create_agent(
         ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
 
         # initiate agent sync job
+        logger.info(f"broker_url { Settings().sync.broker_url}")
+        logger.info(f"worker_concurrency { Settings().sync.worker_concurrency}")
         sync_agent.apply_async(args=[created_agent.id])
 
         return created_agent
