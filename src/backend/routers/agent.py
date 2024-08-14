@@ -124,8 +124,8 @@ async def create_agent(
         ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
 
         # initiate agent sync job
-        logger.info(f"broker_url { Settings().sync.broker_url}")
-        logger.info(f"worker_concurrency { Settings().sync.worker_concurrency}")
+        logger.info(event=f"broker_url { Settings().sync.broker_url}")
+        logger.info(event=f"worker_concurrency { Settings().sync.worker_concurrency}")
         sync_agent.apply_async(args=[created_agent.id])
 
         return created_agent
