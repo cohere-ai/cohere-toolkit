@@ -95,7 +95,7 @@ async def _download_non_native_file(service: Any, compass: Compass, file_id: str
         file = io.BytesIO()
         downloader = MediaIoBaseDownload(file, request)
         done = False
-        while done is False:
+        while not done:
             _status, done = downloader.next_chunk()
     except HttpError as error:
         logger.error(f"[Google Drive] Error downloading file: {str(error)}")
