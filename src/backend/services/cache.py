@@ -16,9 +16,7 @@ def get_client() -> Redis:
         logger.error(event=error)
         raise ValueError(error)
 
-    client = Redis.from_url(redis_url, decode_responses=True)
-
-    return client
+    return Redis.from_url(redis_url, decode_responses=True)
 
 
 def cache_put(key: str, value: Any) -> None:
