@@ -267,7 +267,7 @@ def create_message(
     text: str | None = None,
     agent: MessageAgent = MessageAgent.USER,
     should_store: bool = True,
-    id: str | None = None,
+    _id: str | None = None,
     tool_plan: str | None = None,
 ) -> Message:
     """
@@ -287,11 +287,11 @@ def create_message(
     Returns:
         Message: Message object.
     """
-    if not id:
-        id = str(uuid4())
+    if not _id:
+        _id = str(uuid4())
 
     message = Message(
-        id=id,
+        id=_id,
         user_id=user_id,
         conversation_id=conversation_id,
         text=text,
