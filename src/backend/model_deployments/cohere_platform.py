@@ -89,9 +89,9 @@ class CohereDeployment(BaseDeployment):
             event_dict_log = event_dict.copy()
             event_dict_log.pop("conversation_id", None)
             logger.debug(
-                event=f"Chat event",
+                event="Chat event",
                 **event_dict_log,
-                conversation_id=ctx.get_conversation_id(),
+                conversation_id=ctx.get_conversation_id()
             )
 
             yield event_dict
