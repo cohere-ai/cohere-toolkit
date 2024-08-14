@@ -27,16 +27,16 @@ class GoogleMailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
     def __init__(self):
         super().__init__()
-        self.GOOGLE_DRIVE_CLIENT_ID = Settings().tools.google_drive.client_id
-        self.GOOGLE_DRIVE_CLIENT_SECRET = Settings().tools.google_drive.client_secret
+        self.CLIENT_ID = Settings().tools.google_mail.client_id
+        self.CLIENT_SECRET = Settings().tools.google_mail.client_secret
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
         if (
-            self.GOOGLE_DRIVE_CLIENT_ID is None
-            or self.GOOGLE_DRIVE_CLIENT_SECRET is None
+            self.CLIENT_ID is None
+            or self.CLIENT_SECRET is None
         ):
             raise ValueError(
-                "GOOGLE_DRIVE_CLIENT_ID and GOOGLE_DRIVE_CLIENT_SECRET must be set to use Google Drive Tool Auth."
+                "CLIENT_ID and CLIENT_SECRET must be set to use Google Mail Tool Auth."
             )
 
     def get_auth_url(self, user_id: str) -> str:
@@ -45,7 +45,7 @@ class GoogleMailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         params = {
             "response_type": "code",
-            "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
+            "client_id": self.CLIENT_ID,
             "scope": " ".join(SCOPES),
             "redirect_uri": self.REDIRECT_URL,
             "prompt": "select_account consent",
@@ -60,8 +60,8 @@ class GoogleMailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
     ) -> bool:
         body = {
-            "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
-            "client_secret": self.GOOGLE_DRIVE_CLIENT_SECRET,
+            "client_id": self.CLIENT_ID,
+            "client_secret": self.CLIENT_SECRET,
             "refresh_token": tool_auth.refresh_token,
             "grant_type": "refresh_token",
         }
@@ -99,13 +99,13 @@ class GoogleMailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     ) -> str:
         if request.query_params.get("error"):
             error = request.query_params.get("error")
-            logger.error(event=f"[Google Drive] Auth token error: {error}.")
+            logger.error(event=f"[Google Mail] Auth token error: {error}.")
             return error
 
         body = {
             "code": request.query_params.get("code"),
-            "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
-            "client_secret": self.GOOGLE_DRIVE_CLIENT_SECRET,
+            "client_id": self.CLIENT_ID,
+            "client_secret": self.CLIENT_SECRET,
             "redirect_uri": self.REDIRECT_URL,
             "grant_type": "authorization_code",
         }
@@ -115,7 +115,7 @@ class GoogleMailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         if response.status_code != 200:
             logger.error(
-                event=f"[Google Drive] Error retrieving auth token: {response_body}"
+                event=f"[Google Mail] Error retrieving auth token: {response_body}"
             )
             return response
 

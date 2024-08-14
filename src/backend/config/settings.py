@@ -161,6 +161,23 @@ class GDriveSettings(BaseSettings, BaseModel):
     )
 
 
+class GMailSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    client_id: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("GOOGLE_DRIVE_CLIENT_ID", "client_id"),
+    )
+    client_secret: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("GOOGLE_DRIVE_CLIENT_SECRET", "client_secret"),
+    )
+    developer_key: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY", "developer_key"
+        ),
+    )
+
 class ToolSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     enabled_tools: Optional[List[str]] = None
@@ -174,6 +191,7 @@ class ToolSettings(BaseSettings, BaseModel):
         default=WolframAlphaSettings()
     )
     google_drive: Optional[GDriveSettings] = Field(default=GDriveSettings())
+    google_mail: Optional[GMailSettings] = Field(default=GMailSettings())
 
 
 class DatabaseSettings(BaseSettings, BaseModel):

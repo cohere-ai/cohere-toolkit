@@ -35,6 +35,7 @@ def list_tools(
     logger = ctx.get_logger()
 
     all_tools = AVAILABLE_TOOLS.values()
+    logger.info(event="Listed all available tools", tools=all_tools)
 
     if agent_id is not None:
         agent_tools = []
@@ -44,6 +45,7 @@ def list_tools(
             agent_tools.append(AVAILABLE_TOOLS[tool])
         all_tools = agent_tools
 
+    logger.info(event="Listed all available agent tools", tools=all_tools)
     for tool in all_tools:
         if tool.is_available and tool.auth_implementation is not None:
             try:

@@ -22,13 +22,7 @@ from .constants import (
     SEARCH_LIMIT,
     SEARCH_MIME_TYPES,
 )
-from .utils import (
-    extract_links,
-    extract_titles,
-    extract_web_view_links,
-    non_native_files_perform,
-    process_shortcut_files,
-)
+
 
 logger = LoggerFactory().get_logger()
 
