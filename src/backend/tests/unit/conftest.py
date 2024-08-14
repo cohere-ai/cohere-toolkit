@@ -74,7 +74,7 @@ def session_client(session: Session) -> Generator[TestClient, None, None]:
 
     app.dependency_overrides[get_session] = override_get_session
 
-    print("Session at fixture " + str(session))
+    print(f"Session at fixture {str(session)}")
 
     with TestClient(app) as client:
         yield client
@@ -137,7 +137,7 @@ def session_client_chat(session_chat: Session) -> Generator[TestClient, None, No
     app = create_app()
     app.dependency_overrides[get_session] = override_get_session
 
-    print("Session at fixture " + str(session_chat))
+    print(f"Session at fixture {str(session_chat)}")
 
     with TestClient(app) as client:
         yield client

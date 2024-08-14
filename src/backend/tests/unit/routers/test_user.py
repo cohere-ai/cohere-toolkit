@@ -49,7 +49,7 @@ def test_fail_get_nonexistent_user(
     response = session_client.get("/v1/users/123")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": f"User with ID: 123 not found."}
+    assert response.json() == {"detail": "User with ID: 123 not found."}
 
 
 @pytest.mark.asyncio
@@ -184,7 +184,7 @@ def test_fail_update_nonexistent_user(
     response = session_client.put("/v1/users/123", json={"fullname": "new name"})
 
     assert response.status_code == 404
-    assert response.json() == {"detail": f"User with ID: 123 not found."}
+    assert response.json() == {"detail": "User with ID: 123 not found."}
 
 
 def test_delete_user_metric(session_client: TestClient, session: Session) -> None:
@@ -221,4 +221,4 @@ def test_fail_delete_nonexistent_user(
     response = session_client.delete("/v1/users/123")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": f"User with ID: 123 not found."}
+    assert response.json() == {"detail": "User with ID: 123 not found."}
