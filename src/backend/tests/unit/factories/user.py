@@ -2,7 +2,7 @@ import factory
 
 from backend.database_models import User
 from backend.services.auth import BasicAuthentication
-
+from backend.config.tools import ToolName
 from .base import BaseFactory
 
 
@@ -13,6 +13,7 @@ class UserFactory(BaseFactory):
 
     fullname = factory.Faker("name")
     email = factory.Faker("email")
+    tools = []
     password = factory.Faker("password")
     hashed_password = factory.LazyAttribute(
         lambda o: BasicAuthentication.hash_and_salt_password(o.password)
