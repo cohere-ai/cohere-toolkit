@@ -35,11 +35,9 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
   const isAborted = isAbortedMessage(message);
   const isTypingOrFulfilledMessage = isFulfilledOrTypingMessage(message);
 
-  let content: React.ReactNode = null;
-
   if (isUserError) {
-    content = (
-      <>
+    return (
+      <MessageWrapper>
         <Text>{message.text}</Text>
         <MessageInfo type="error">
           {message.error}
@@ -49,11 +47,13 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
             </button>
           )}
         </MessageInfo>
-      </>
+      </MessageWrapper>
     );
-  } else if (isUser) {
-    content = (
-      <>
+  }
+
+  if (isUser) {
+    return (
+      <MessageWrapper>
         <Markdown text={message.text} renderRawHtml={false} />
         {message.files && message.files.length > 0 && (
           <div className="flex flex-wrap gap-2 py-2">
@@ -62,84 +62,79 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
             ))}
           </div>
         )}
-      </>
+      </MessageWrapper>
     );
-  } else if (isLoading) {
+  }
+
+  if (isLoading) {
     const hasLoadingMessage = message.text.length > 0;
-    content = (
-      <Text className={cn('flex min-w-0 text-volcanic-400')} as="span">
-        {hasLoadingMessage && (
-          <Transition
-            as="div"
-            appear={true}
-            show={true}
-            enterFrom="opacity-0"
-            enterTo="opacity-full"
-            enter="transition-opacity ease-in-out duration-500"
-          >
-            {message.text}
-          </Transition>
-        )}
-        {!hasLoadingMessage && (
-          <span className="w-max">
-            <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
-              ...
-            </div>
-          </span>
-        )}
-      </Text>
+    return (
+      <MessageWrapper>
+        <Text className={cn('flex min-w-0 text-volcanic-400')} as="span">
+          {hasLoadingMessage && (
+            <Transition
+              as="div"
+              appear={true}
+              show={true}
+              enterFrom="opacity-0"
+              enterTo="opacity-full"
+              enter="transition-opacity ease-in-out duration-500"
+            >
+              {message.text}
+            </Transition>
+          )}
+          {!hasLoadingMessage && (
+            <span className="w-max">
+              <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
+                ...
+              </div>
+            </span>
+          )}
+        </Text>
+      </MessageWrapper>
     );
-  } else if (isBotError) {
-    content = (
-      <>
+  }
+
+  if (isBotError) {
+    return (
+      <MessageWrapper>
         {message.text.length > 0 ? (
           <Markdown text={message.text} />
         ) : (
           <Text className={cn('text-volcanic-400')}>{BOT_ERROR_MESSAGE}</Text>
         )}
         <MessageInfo type="error">{message.error}</MessageInfo>
-      </>
-    );
-  } else {
-    const hasCitations =
-      isTypingOrFulfilledMessage && message.citations && message.citations.length > 0;
-    content = (
-      <>
-        <Markdown
-          className={cn({
-            'text-volcanic-400': isAborted,
-          })}
-          text={message.text}
-          customComponents={{
-            img: MarkdownImage as any,
-            cite: CitationTextHighlighter as any,
-            table: DataTable as any,
-          }}
-          renderLaTex={!hasCitations}
-        />
-        {isAborted && (
-          <MessageInfo>
-            This generation was stopped.{' '}
-            {isLast && isAborted && (
-              <button className="underline underline-offset-1" type="button" onClick={onRetry}>
-                Retry?
-              </button>
-            )}
-          </MessageInfo>
-        )}
-      </>
+      </MessageWrapper>
     );
   }
 
+  const hasCitations =
+    isTypingOrFulfilledMessage && message.citations && message.citations.length > 0;
   return (
-    <div className="flex w-full flex-col justify-center gap-y-1 py-1">
-      <Text
-        as="div"
-        className="flex flex-col gap-y-1 whitespace-pre-wrap [overflow-wrap:anywhere] md:max-w-4xl"
-      >
-        {content}
-      </Text>
-    </div>
+    <MessageWrapper>
+      <Markdown
+        className={cn({
+          'text-volcanic-400': isAborted,
+        })}
+        text={message.text}
+        customComponents={{
+          img: MarkdownImage as any,
+          cite: CitationTextHighlighter as any,
+          table: DataTable as any,
+        }}
+        renderLaTex={!hasCitations}
+      />
+      {isAborted && (
+        <MessageInfo>
+          This generation was stopped.{' '}
+          {isLast && isAborted && (
+            <button className="underline underline-offset-1" type="button" onClick={onRetry}>
+              Retry?
+            </button>
+          )}
+        </MessageInfo>
+      )}
+    </MessageWrapper>
   );
 };
 
@@ -155,5 +150,16 @@ const MessageInfo = ({
   >
     <Icon name="warning" size="sm" className="mt-1 flex flex-shrink-0 items-center" />
     <Text as="span">{children}</Text>
+  </div>
+);
+
+const MessageWrapper = ({ children }: PropsWithChildren) => (
+  <div className="flex w-full flex-col justify-center gap-y-1 py-1">
+    <Text
+      as="div"
+      className="flex flex-col gap-y-1 whitespace-pre-wrap [overflow-wrap:anywhere] md:max-w-4xl"
+    >
+      {children}
+    </Text>
   </div>
 );
