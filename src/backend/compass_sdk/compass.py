@@ -464,10 +464,10 @@ class CompassClient:
         """
 
         @retry(
-            stop=stop_after_attempt(max_retries),
-            wait=wait_fixed(sleep_retry_seconds),
-            retry=retry_if_not_exception_type((CompassAuthError, InvalidSchema)),
-        )
+                stop=stop_after_attempt(max_retries),
+                wait=wait_fixed(sleep_retry_seconds),
+                retry=retry_if_not_exception_type((CompassAuthError, InvalidSchema)),
+            )
         def _send_request_with_retry():
             nonlocal error
             try:
