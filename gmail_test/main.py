@@ -3,7 +3,9 @@ import base64
 import os.path
 from pprint import pprint
 import re
+import time
 from typing import Any, Dict, List
+from dotenv import load_dotenv
 
 from bs4 import BeautifulSoup
 from google.auth.transport.requests import Request
@@ -17,9 +19,14 @@ from backend.schemas.cohere_chat import CohereChatRequest
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
+load_dotenv()
+
+
 from backend.config.settings import Settings
+from backend.services.compass import Compass
 
 api_key = Settings().deployments.cohere_platform.api_key
+compass = Compass()
 
 
 class SimpleCohere:
@@ -96,11 +103,16 @@ def main():
         docs: List[GmailDocument] = [
             process_message(message, service) for message in messages
         ]
-
+        compass_index_name = "gmail_tanzim_test"
+        place_on_compass(docs, compass_index_name)
+        compass_docs = query_compass(compass_index_name, "what did rod say?", 5)
+        cleaned_docs = [d.copy() for d in compass_docs]
+        for d in cleaned_docs:
+            del d["score"]
         cohere_client = SimpleCohere()
         asyncio.run(
             cohere_client.invoke_chat_stream(
-                docs=docs, message="summarize what rod said"
+                docs=cleaned_docs, message="summarize what rod said"
             )
         )
 
@@ -111,7 +123,72 @@ def main():
 class GmailDocument(BaseModel):
     id: str
     title: str
+    email_from: str
+    email_to: str
+    subject: str
+    snippet: str
     content: str
+
+
+def query_compass(index_name: str, query: str, top_k: int) -> List[Dict[str, Any]]:
+    hits = compass.invoke(
+        action=Compass.ValidActions.SEARCH,
+        parameters={
+            "index": index_name,
+            "query": query,
+            "top_k": top_k,
+        },
+    ).result["hits"]
+    chunks = sorted(
+        [
+            {
+                "text": chunk["content"]["text"],
+                "score": chunk["score"],
+                "title": hit["content"].get("title", ""),
+            }
+            for hit in hits
+            for chunk in hit["chunks"]
+        ],
+        key=lambda x: x["score"],
+        reverse=True,
+    )[:top_k]
+
+    return chunks
+
+
+def place_on_compass(docs: List[GmailDocument], index_name: str):
+    # idempotent create index
+    compass.invoke(
+        action=Compass.ValidActions.CREATE_INDEX,
+        parameters={"index": index_name},
+    )
+    for d in docs:
+        compass.invoke(
+            action=Compass.ValidActions.CREATE,
+            parameters={
+                "index": index_name,
+                "file_id": d.id,
+                "file_text": d.content,
+            },
+        )
+        compass.invoke(
+            action=Compass.ValidActions.ADD_CONTEXT,
+            parameters={
+                "index": index_name,
+                "file_id": d.id,
+                "context": {
+                    "title": d.title,
+                    "snippet": d.snippet,
+                    "email_from": d.email_from,
+                    "email_to": d.email_to,
+                    "last_updated": int(time.time()),
+                },
+            },
+        )
+        compass.invoke(
+            action=Compass.ValidActions.REFRESH,
+            parameters={"index": index_name},
+        )
 
 
 def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument]:
@@ -125,8 +202,6 @@ def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument
     important_headers = process_email_headers(email["payload"]["headers"])
     title = f"""
     Subject:{important_headers['Subject']}
-    From:{important_headers['From']}
-    Date:{important_headers['Date']}
     Snippet:{email['snippet']}"""
 
     # parallelize this
@@ -136,7 +211,15 @@ def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument
     print("Id:", message_id)
     print("Title:", title)
     print("Content\n", content)
-    return GmailDocument(title=title, content=content, id=message_id)
+    return GmailDocument(
+        title=title,
+        content=content,
+        id=message_id,
+        snippet=email["snippet"],
+        email_from=important_headers["From"],
+        email_to=important_headers["To"],
+        subject=important_headers["Subject"],
+    )
 
 
 def decode_base64(data: bytes) -> str:
