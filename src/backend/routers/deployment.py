@@ -130,9 +130,7 @@ def list_deployments(
 
     # No available deployments
     if not available_deployments:
-        logger.warning(
-            event=f"[Deployment] No deployments available to list.",
-        )
+        logger.warning(event="[Deployment] No deployments available to list.")
         raise HTTPException(
             status_code=404,
             detail=(
