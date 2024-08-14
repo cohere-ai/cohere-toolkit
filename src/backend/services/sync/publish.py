@@ -1,4 +1,4 @@
-from backend.crud.agent import get_agents
+from backend.crud.agent import get_all_agents
 from backend.database_models.database import get_session
 from backend.schemas.agent import Agent
 from backend.services.sync.jobs.sync_agent_activity import sync_agent_activity
@@ -11,7 +11,7 @@ LIMIT = None
 
 def main():
     session = next(get_session())
-    agents = [Agent.model_validate(x) for x in get_agents(session, is_sync=True)]
+    agents = [Agent.model_validate(x) for x in get_all_agents(session)]
     if LIMIT:
         agents = agents[:LIMIT]
     session.close()

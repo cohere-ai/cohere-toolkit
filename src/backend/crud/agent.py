@@ -137,16 +137,21 @@ def get_association_by_deployment_id(
         .first()
     )
 
+@validate_transaction
+def get_all_agents(
+    db: Session,
+) -> list[Agent]:
+    query = db.query(Agent)
+    return query.all()
 
 @validate_transaction
 def get_agents(
     db: Session,
-    user_id: str = "",
+    user_id: str ,
     offset: int = 0,
     limit: int = 100,
     organization_id: Optional[str] = None,
     visibility: AgentVisibility = AgentVisibility.ALL,
-    is_sync = False,
 ) -> list[Agent]:
     """
     Get all agents for a user.
@@ -169,7 +174,7 @@ def get_agents(
         query = query.filter(Agent.is_private == False)
     elif visibility == AgentVisibility.PRIVATE:
         query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
-    elif not is_sync: 
+    else: 
         query = query.filter((Agent.is_private == False) | (Agent.user_id == user_id))
 
     # Filter by organization and user

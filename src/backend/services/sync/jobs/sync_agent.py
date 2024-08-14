@@ -9,8 +9,7 @@ from backend.tools.google_drive import (
     handle_google_drive_sync,
     list_google_drive_artifacts_file_ids,
 )
-from backend.services.logger.utils import LoggerFactory
-
+from structlog import get_logger
 
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def sync_agent(agent_id: str):
@@ -18,7 +17,7 @@ def sync_agent(agent_id: str):
     sync_agent is a job that aims to one time sync the remote artifact with Compass
     Once that job is complete, future jobs will be purely about recent activity (sync_agent_activity)
     """
-    logger = LoggerFactory().get_logger()
+    logger = get_logger()
     logger.info(f"Syncing agent {agent_id}")
     agent_tool_metadata = []
     session = next(get_session())
