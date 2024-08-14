@@ -67,7 +67,7 @@ class TavilyInternetSearch(BaseTool):
         ctx: Any,
         **kwargs: Any,
     ) -> List[Dict[str, Any]]:
-        if len(snippets) == 0:
+        if not snippets:
             return []
 
         rerank_batch_size = 500
