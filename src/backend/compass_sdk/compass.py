@@ -496,7 +496,7 @@ class CompassClient:
                     error = "Unauthorized. Please check your username and password."
                     raise CompassAuthError()
                 else:
-                    error = str(e) + " " + e.response.text
+                    error = f"{str(e)} {e.response.text}"
                     logger.error(
                         f"[Thread {threading.get_native_id()}] Failed to send request to "
                         f"{function} {target_path}: {type(e)} {error}. Going to sleep for "
