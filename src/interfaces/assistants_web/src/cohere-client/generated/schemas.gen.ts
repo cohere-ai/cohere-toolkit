@@ -234,6 +234,22 @@ export const $AgentVisibility = {
   title: 'AgentVisibility',
 } as const;
 
+export const $Body_batch_upload_file_v1_agents_batch_upload_file_post = {
+  properties: {
+    files: {
+      items: {
+        type: 'string',
+        format: 'binary',
+      },
+      type: 'array',
+      title: 'Files',
+    },
+  },
+  type: 'object',
+  required: ['files'],
+  title: 'Body_batch_upload_file_v1_agents_batch_upload_file_post',
+} as const;
+
 export const $Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   properties: {
     conversation_id: {
@@ -1579,8 +1595,26 @@ export const $File = {
       title: 'User Id',
     },
     conversation_id: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Conversation Id',
+    },
+    file_content: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'File Content',
     },
     file_name: {
       type: 'string',
@@ -1598,56 +1632,8 @@ export const $File = {
     },
   },
   type: 'object',
-  required: [
-    'id',
-    'created_at',
-    'updated_at',
-    'user_id',
-    'conversation_id',
-    'file_name',
-    'file_path',
-  ],
+  required: ['id', 'created_at', 'updated_at', 'user_id', 'file_name', 'file_path'],
   title: 'File',
-} as const;
-
-export const $FilePublic = {
-  properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
-    created_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Created At',
-    },
-    updated_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Updated At',
-    },
-    conversation_id: {
-      type: 'string',
-      title: 'Conversation Id',
-    },
-    file_name: {
-      type: 'string',
-      title: 'File Name',
-    },
-    file_path: {
-      type: 'string',
-      title: 'File Path',
-    },
-    file_size: {
-      type: 'integer',
-      minimum: 0,
-      title: 'File Size',
-      default: 0,
-    },
-  },
-  type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
-  title: 'FilePublic',
 } as const;
 
 export const $GenerateTitleResponse = {
@@ -1863,8 +1849,26 @@ export const $ListFile = {
       title: 'Updated At',
     },
     conversation_id: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Conversation Id',
+    },
+    file_content: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'File Content',
     },
     file_name: {
       type: 'string',
@@ -1882,7 +1886,7 @@ export const $ListFile = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  required: ['id', 'created_at', 'updated_at', 'file_name', 'file_path'],
   title: 'ListFile',
 } as const;
 
@@ -3375,35 +3379,6 @@ export const $UpdateDeploymentEnv = {
   title: 'UpdateDeploymentEnv',
 } as const;
 
-export const $UpdateFileRequest = {
-  properties: {
-    file_name: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'File Name',
-    },
-    message_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Message Id',
-    },
-  },
-  type: 'object',
-  title: 'UpdateFileRequest',
-} as const;
-
 export const $UpdateOrganization = {
   properties: {
     name: {
@@ -3492,8 +3467,26 @@ export const $UploadFileResponse = {
       title: 'Updated At',
     },
     conversation_id: {
-      type: 'string',
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Conversation Id',
+    },
+    file_content: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'File Content',
     },
     file_name: {
       type: 'string',
@@ -3511,7 +3504,7 @@ export const $UploadFileResponse = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  required: ['id', 'created_at', 'updated_at', 'file_name', 'file_path'],
   title: 'UploadFileResponse',
 } as const;
 

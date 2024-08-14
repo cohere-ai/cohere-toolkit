@@ -5,6 +5,8 @@ import type {
   ApplyMigrationsMigratePostResponse,
   AuthorizeV1StrategyAuthPostData,
   AuthorizeV1StrategyAuthPostResponse,
+  BatchUploadFileV1AgentsBatchUploadFilePostData,
+  BatchUploadFileV1AgentsBatchUploadFilePostResponse,
   BatchUploadFileV1ConversationsBatchUploadFilePostData,
   BatchUploadFileV1ConversationsBatchUploadFilePostResponse,
   ChatStreamV1ChatStreamPostData,
@@ -25,6 +27,8 @@ import type {
   CreateSnapshotV1SnapshotsPostResponse,
   CreateUserV1UsersPostData,
   CreateUserV1UsersPostResponse,
+  DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData,
+  DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse,
   DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteData,
   DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteResponse,
   DeleteAgentV1AgentsAgentIdDeleteData,
@@ -103,8 +107,6 @@ import type {
   UpdateConversationV1ConversationsConversationIdPutResponse,
   UpdateDeploymentV1DeploymentsDeploymentIdPutData,
   UpdateDeploymentV1DeploymentsDeploymentIdPutResponse,
-  UpdateFileV1ConversationsConversationIdFilesFileIdPutData,
-  UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse,
   UpdateModelV1ModelsModelIdPutData,
   UpdateModelV1ModelsModelIdPutResponse,
   UpdateOrganizationV1OrganizationsOrganizationIdPutData,
@@ -813,47 +815,6 @@ export class DefaultService {
   }
 
   /**
-   * Update File
-   * Update a file by ID.
-   *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * file_id (str): File ID.
-   * new_file (UpdateFileRequest): New file data.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * FilePublic: Updated file.
-   *
-   * Raises:
-   * HTTPException: If the conversation with the given ID is not found.
-   * @param data The data for the request.
-   * @param data.conversationId
-   * @param data.fileId
-   * @param data.requestBody
-   * @returns FilePublic Successful Response
-   * @throws ApiError
-   */
-  public updateFileV1ConversationsConversationIdFilesFileIdPut(
-    data: UpdateFileV1ConversationsConversationIdFilesFileIdPutData
-  ): CancelablePromise<UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse> {
-    return this.httpRequest.request({
-      method: 'PUT',
-      url: '/v1/conversations/{conversation_id}/files/{file_id}',
-      path: {
-        conversation_id: data.conversationId,
-        file_id: data.fileId,
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
    * Delete File
    * Delete a file by ID.
    *
@@ -1517,6 +1478,63 @@ export class DefaultService {
       path: {
         agent_id: data.agentId,
         agent_tool_metadata_id: data.agentToolMetadataId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Batch Upload File
+   * @param data The data for the request.
+   * @param data.formData
+   * @returns UploadFileResponse Successful Response
+   * @throws ApiError
+   */
+  public batchUploadFileV1AgentsBatchUploadFilePost(
+    data: BatchUploadFileV1AgentsBatchUploadFilePostData
+  ): CancelablePromise<BatchUploadFileV1AgentsBatchUploadFilePostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/agents/batch_upload_file',
+      formData: data.formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Agent File
+   * Delete an agent file by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * file_id (str): File ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * DeleteFile: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @param data.fileId
+   * @returns DeleteFileResponse Successful Response
+   * @throws ApiError
+   */
+  public deleteAgentFileV1AgentsAgentIdFilesFileIdDelete(
+    data: DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData
+  ): CancelablePromise<DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/agents/{agent_id}/files/{file_id}',
+      path: {
+        agent_id: data.agentId,
+        file_id: data.fileId,
       },
       errors: {
         422: 'Validation Error',

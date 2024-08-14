@@ -47,6 +47,10 @@ export enum AgentVisibility {
   ALL = 'all',
 }
 
+export type Body_batch_upload_file_v1_agents_batch_upload_file_post = {
+  files: Array<Blob | File>;
+};
+
 export type Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   conversation_id?: string;
   files: Array<Blob | File>;
@@ -299,17 +303,8 @@ export type File = {
   created_at: string;
   updated_at: string;
   user_id: string;
-  conversation_id: string;
-  file_name: string;
-  file_path: string;
-  file_size?: number;
-};
-
-export type FilePublic = {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  conversation_id: string;
+  conversation_id?: string | null;
+  file_content?: string | null;
   file_name: string;
   file_path: string;
   file_size?: number;
@@ -353,7 +348,8 @@ export type ListFile = {
   id: string;
   created_at: string;
   updated_at: string;
-  conversation_id: string;
+  conversation_id?: string | null;
+  file_content?: string | null;
   file_name: string;
   file_path: string;
   file_size?: number;
@@ -665,11 +661,6 @@ export type UpdateDeploymentEnv = {
   };
 };
 
-export type UpdateFileRequest = {
-  file_name?: string | null;
-  message_id?: string | null;
-};
-
 export type UpdateOrganization = {
   name: string | null;
 };
@@ -685,7 +676,8 @@ export type UploadFileResponse = {
   id: string;
   created_at: string;
   updated_at: string;
-  conversation_id: string;
+  conversation_id?: string | null;
+  file_content?: string | null;
   file_name: string;
   file_path: string;
   file_size?: number;
@@ -830,14 +822,6 @@ export type ListFilesV1ConversationsConversationIdFilesGetData = {
 
 export type ListFilesV1ConversationsConversationIdFilesGetResponse = Array<ListFile>;
 
-export type UpdateFileV1ConversationsConversationIdFilesFileIdPutData = {
-  conversationId: string;
-  fileId: string;
-  requestBody: UpdateFileRequest;
-};
-
-export type UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse = FilePublic;
-
 export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData = {
   conversationId: string;
   fileId: string;
@@ -970,6 +954,19 @@ export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataI
 
 export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteResponse =
   DeleteAgentToolMetadata;
+
+export type BatchUploadFileV1AgentsBatchUploadFilePostData = {
+  formData: Body_batch_upload_file_v1_agents_batch_upload_file_post;
+};
+
+export type BatchUploadFileV1AgentsBatchUploadFilePostResponse = Array<UploadFileResponse>;
+
+export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData = {
+  agentId: string;
+  fileId: string;
+};
+
+export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse = DeleteFileResponse;
 
 export type GetDefaultAgentV1DefaultAgentGetResponse = GenericResponseMessage;
 
@@ -1354,19 +1351,6 @@ export type $OpenApiTs = {
     };
   };
   '/v1/conversations/{conversation_id}/files/{file_id}': {
-    put: {
-      req: UpdateFileV1ConversationsConversationIdFilesFileIdPutData;
-      res: {
-        /**
-         * Successful Response
-         */
-        200: FilePublic;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
     delete: {
       req: DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData;
       res: {
@@ -1638,6 +1622,36 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: DeleteAgentToolMetadata;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/agents/batch_upload_file': {
+    post: {
+      req: BatchUploadFileV1AgentsBatchUploadFilePostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<UploadFileResponse>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/agents/{agent_id}/files/{file_id}': {
+    delete: {
+      req: DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: DeleteFileResponse;
         /**
          * Validation Error
          */
