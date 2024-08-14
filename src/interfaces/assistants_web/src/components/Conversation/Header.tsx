@@ -18,7 +18,7 @@ export const Header: React.FC<Props> = ({ agent }) => {
   const {
     conversation: { id },
   } = useConversationStore();
-  const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
+  const { setLeftPanelOpen, setRightPanelOpen } = useSettingsStore();
   const { open } = useContextStore();
   const { text, bg, contrastText, lightText, fill, lightFill, dark, light } = useBrandedColors(
     agent?.id
@@ -33,13 +33,13 @@ export const Header: React.FC<Props> = ({ agent }) => {
   };
 
   const handleOpenLeftSidePanel = () => {
-    setAgentsRightSidePanelOpen(false);
-    setAgentsLeftSidePanelOpen(true);
+    setRightPanelOpen(false);
+    setLeftPanelOpen(true);
   };
 
   const handleOpenRightSidePanel = () => {
-    setAgentsLeftSidePanelOpen(false);
-    setAgentsRightSidePanelOpen(true);
+    setLeftPanelOpen(false);
+    setRightPanelOpen(true);
   };
 
   return (

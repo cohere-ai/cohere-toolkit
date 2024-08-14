@@ -1,0 +1,35 @@
+name: Backend unit tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths-ignore:
+      - src/interfaces/**
+
+jobs:
+  pytest:
+    permissions: write-all
+    # environment: development
+    runs-on: ubuntu-latest
+    env:
+      COHERE_API_KEY: fake-test-key
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXT_PUBLIC_API_HOSTNAME: ${{ secrets.NEXT_PUBLIC_API_HOSTNAME }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup Docker
+        run: docker compose up test_db -d
+      - name: Run unit tests
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          mkdir -p coverage
+          docker compose build --build-arg INSTALL_COMMUNITY_DEPS=true backend
+          docker compose run --name backend-container -v $(pwd)/coverage:/app/coverage backend poetry run pytest --cov=src/backend --cov-report=xml:/app/coverage/coverage.xml src/backend/tests/unit
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage/coverage.xml

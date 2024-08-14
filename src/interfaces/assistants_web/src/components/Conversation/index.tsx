@@ -16,7 +16,6 @@ import { ChatMessage } from '@/types/message';
 
 type Props = {
   startOptionsEnabled?: boolean;
-  conversationId?: string;
   agent?: AgentPublic;
   tools?: ManagedTool[];
   history?: ChatMessage[];
@@ -26,16 +25,11 @@ type Props = {
  * @description Renders the entire conversation pane, which includes the header, messages,
  * composer, and the citation panel.
  */
-const Conversation: React.FC<Props> = ({
-  conversationId,
-  agent,
-  tools,
-  startOptionsEnabled = false,
-}) => {
+const Conversation: React.FC<Props> = ({ agent, tools, startOptionsEnabled = false }) => {
   const { uploadFiles } = useFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
   const {
-    conversation: { messages },
+    conversation: { messages, id: conversationId },
   } = useConversationStore();
 
   const {

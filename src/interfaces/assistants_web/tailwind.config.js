@@ -108,6 +108,12 @@ module.exports = {
         top: '4px 0px 12px 0px rgba(197, 188, 172, 0.48)', // secondary-400
       },
       typography: (theme) => ({
+        quoteless: {
+          css: {
+            'blockquote p:first-of-type::before': { content: 'none' },
+            'blockquote p:first-of-type::after': { content: 'none' },
+          },
+        },
         DEFAULT: {
           css: {
             color: theme('colors.volcanic.300'),
@@ -173,7 +179,6 @@ module.exports = {
       variants: {
         extend: {},
       },
-      plugins: [],
     },
   },
 };

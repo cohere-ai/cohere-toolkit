@@ -9,7 +9,7 @@
     "yarn": "9999"
   },
   "scripts": {
-    "dev": "next dev --port 4444",
+    "dev": "next dev --port 4444 --turbo",
     "build": "next build",
     "lint": "next lint",
     "ts-lint": "tsc -noEmit -incremental -watch",

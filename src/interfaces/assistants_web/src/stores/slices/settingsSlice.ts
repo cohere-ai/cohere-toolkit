@@ -2,20 +2,20 @@ import { StateCreator } from 'zustand';
 
 const INITIAL_STATE = {
   disabledAssistantKnowledge: [],
-  isAgentsLeftPanelOpen: true,
-  isAgentsRightPanelOpen: false,
+  isLeftPanelOpen: true,
+  isRightPanelOpen: false,
 };
 
 type State = {
   disabledAssistantKnowledge: string[];
-  isAgentsLeftPanelOpen: boolean;
-  isAgentsRightPanelOpen: boolean;
+  isLeftPanelOpen: boolean;
+  isRightPanelOpen: boolean;
 };
 
 type Actions = {
   setUseAssistantKnowledge: (useKnowledge: boolean, agentId: string) => void;
-  setAgentsLeftSidePanelOpen: (isOpen: boolean) => void;
-  setAgentsRightSidePanelOpen: (isOpen: boolean) => void;
+  setLeftPanelOpen: (isOpen: boolean) => void;
+  setRightPanelOpen: (isOpen: boolean) => void;
 };
 
 export type SettingsStore = State & Actions;
@@ -29,16 +29,16 @@ export const createSettingsSlice: StateCreator<SettingsStore, [], [], SettingsSt
         : [...state.disabledAssistantKnowledge, agentId],
     }));
   },
-  setAgentsLeftSidePanelOpen(isOpen) {
+  setLeftPanelOpen(isOpen) {
     set((state) => ({
       ...state,
-      isAgentsLeftPanelOpen: isOpen,
+      isLeftPanelOpen: isOpen,
     }));
   },
-  setAgentsRightSidePanelOpen(isOpen) {
+  setRightPanelOpen(isOpen) {
     set((state) => ({
       ...state,
-      isAgentsRightPanelOpen: isOpen,
+      isRightPanelOpen: isOpen,
     }));
   },
   ...INITIAL_STATE,
