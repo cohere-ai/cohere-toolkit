@@ -117,7 +117,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             logger.error(
                 event=f"[Google Drive] Error retrieving auth token: {response_body}"
             )
-            return response
+            return str(response)
 
         tool_auth_crud.create_tool_auth(
             session,
