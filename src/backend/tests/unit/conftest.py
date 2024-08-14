@@ -49,7 +49,7 @@ def session(engine: Any) -> Generator[Session, None, None]:
     # Use connection within the started transaction
     session = Session(bind=connection)
     # Run Alembic migrations
-    alembic_cfg = Config("src/backend/alembic.ini")
+    alembic_cfg = Config("src/backend/alembic-test.ini")
     upgrade(alembic_cfg, "head")
 
     yield session
@@ -109,7 +109,7 @@ def session_chat(engine_chat: Any) -> Generator[Session, None, None]:
     # Use connection within the started transaction
     session = Session(bind=connection)
     # Run Alembic migrations
-    alembic_cfg = Config("src/backend/alembic.ini")
+    alembic_cfg = Config("src/backend/alembic-test.ini")
     upgrade(alembic_cfg, "head")
 
     yield session

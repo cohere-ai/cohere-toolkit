@@ -15,9 +15,6 @@ load_dotenv()
 # Alembic Config object, which provides access to the values inside the alembic.ini file
 config = context.config
 
-# Overwrite alembic.file `sqlachemy.url` value
-config.set_main_option("sqlalchemy.url", Settings().database.url)
-
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

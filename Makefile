@@ -16,7 +16,7 @@ down:
 
 .PHONY: run-unit-tests
 run-unit-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/unit/$(file)
+	poetry run pytest src/backend/tests/unit --cov=src/backend --cov-report=xml
 
 .PHONY: run-community-tests
 run-community-tests:
@@ -107,3 +107,9 @@ install-web:
 .PHONY: build-web
 build-web:
 	cd src/interfaces/coral_web && npm run build
+migrate-test:
+	alembic -c src/backend/alembic-test.ini upgrade head
+test-db:
+	docker compose stop test_db
+	docker compose rm -f test_db
+	docker compose up test_db -d
