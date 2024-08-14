@@ -53,9 +53,11 @@ from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
+from backend.schemas.user import User
 from backend.services.agent import validate_agent_exists
 from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
+from backend.services.user import validate_user_exists
 
 
 def process_chat(
@@ -82,27 +84,7 @@ def process_chat(
     ctx.with_deployment_config()
     agent_id = ctx.get_agent_id()
 
-    if agent_id is not None:
-        agent = validate_agent_exists(session, agent_id, user_id)
-        agent_schema = Agent.model_validate(agent)
-        ctx.with_agent(agent_schema)
-
-        if agent is None:
-            raise HTTPException(
-                status_code=404, detail=f"Agent with ID {agent_id} not found."
-            )
-
-        if chat_request.tools:
-            for tool in chat_request.tools:
-                if tool.name not in agent.tools:
-                    raise HTTPException(
-                        status_code=404,
-                        detail=f"Tool {tool.name} not found in agent {agent.id}",
-                    )
-
-        # Set the agent settings in the chat request
-        chat_request.preamble = agent.preamble
-        chat_request.tools = [Tool(name=tool) for tool in agent.tools]
+    process_user_agents_tools(session, chat_request, ctx)
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -172,6 +154,60 @@ def process_chat(
         next_message_position,
         ctx,
     )
+
+
+def check_chat_request_tools(chat_request: BaseChatRequest, entity: Agent | User) -> None:
+    if chat_request.tools:
+        entity_type = "agent" if isinstance(entity, Agent) else "user"
+        for tool in chat_request.tools:
+            if tool.name not in entity.tools:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Tool {tool.name} not found in {entity_type} {entity.id}",
+                )
+
+def process_user_agents_tools(session: DBSessionDep, chat_request: BaseChatRequest, ctx: Context) -> None:
+    """
+    Process user's, agent's tools for a chat request.
+
+    Args:
+        chat_request (BaseChatRequest): Chat request data.
+        ctx (Context): Context object.
+
+    Returns:
+        dict: Dictionary containing the processed tools.
+    """
+    user_id = ctx.get_user_id()
+    agent_id = ctx.get_agent_id()
+
+    if agent_id is not None:
+        agent = validate_agent_exists(session, agent_id, user_id)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
+
+        if agent is None:
+            raise HTTPException(
+                status_code=404, detail=f"Agent with ID {agent_id} not found."
+            )
+
+        check_chat_request_tools(chat_request, agent)
+        # Set the agent settings in the chat request
+        chat_request.preamble = agent.preamble
+        chat_request.tools = [Tool(name=tool) for tool in agent.tools]
+
+    if user_id is not None:
+        ctx.with_user(session)
+        user = ctx.get_user()
+
+        if user is None:
+            raise HTTPException(
+                status_code=404, detail=f"User with ID {user_id} not found."
+            )
+
+        # User tools override agent tools
+        if user.tools:
+            check_chat_request_tools(chat_request, user)
+            chat_request.tools = [Tool(name=tool) for tool in user.tools]
 
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
