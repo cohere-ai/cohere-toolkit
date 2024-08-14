@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError, DeleteFileResponse, ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
 import { useNotify } from '@/hooks/toast';
-import { useFilesStore, useParamsStore } from '@/stores';
+import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
 import { fileSizeToBytes, formatFileSize, getFileExtension } from '@/utils';
 
@@ -73,6 +73,7 @@ export const useFileActions = () => {
   const { mutateAsync: uploadFiles } = useBatchUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
+  const { setConversation } = useConversationStore();
 
   const handleUploadFiles = async (files?: File[], conversationId?: string) => {
     // cleanup uploadingFiles with errors
@@ -141,6 +142,10 @@ export const useFileActions = () => {
         setParams({ fileIds: newFileIds });
         addComposerFile(uploadedFile);
       });
+
+      if (!conversationId) {
+        setConversation({ id: uploadedFiles[0].conversation_id });
+      }
 
       return newFileIds;
     } catch (e: any) {

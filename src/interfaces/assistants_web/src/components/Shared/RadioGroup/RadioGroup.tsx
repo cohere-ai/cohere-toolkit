@@ -1,6 +1,6 @@
 'use client';
 
-import { Field, Label, Radio, RadioGroup as _RadioGroup } from '@headlessui/react';
+import { Label, Radio, RadioGroup as _RadioGroup } from '@headlessui/react';
 
 import { Text } from '@/components/Shared/Text';
 import { cn } from '@/utils';
@@ -26,20 +26,36 @@ export function RadioGroup<K extends string>({ options, value, onChange, disable
       disabled={disabled}
     >
       {options.map((option) => (
-        <Field key={option.value} className="flex items-center gap-4">
-          <Radio
-            value={option.value}
-            className={cn(
-              'group flex size-5 cursor-pointer items-center justify-center rounded-full border border-coral-700 transition-colors duration-300',
-              'data-[disabled]:border-volcanic-600 dark:border-evolved-green-700'
-            )}
-          >
-            <span className="size-3 rounded-full bg-coral-700 opacity-0 transition-opacity duration-300 group-data-[disabled]:bg-volcanic-600 group-data-[checked]:opacity-100 dark:bg-evolved-green-700" />
-          </Radio>
-          <Label as={Text} className="data-[disabled]:text-volcanic-600">
-            {option.label ?? option.value}
-          </Label>
-        </Field>
+        <Radio
+          key={option.value}
+          value={option.value}
+          className="flex cursor-pointer items-center gap-4"
+        >
+          {({ disabled, checked }) => (
+            <>
+              <div
+                className={cn(
+                  'group flex size-5 cursor-pointer items-center justify-center rounded-full border border-coral-700 transition-colors duration-300',
+                  'dark:border-evolved-green-700',
+                  { 'border-volcanic-600': disabled }
+                )}
+              >
+                <span
+                  className={cn(
+                    'size-3 rounded-full bg-coral-700 opacity-0 transition-opacity duration-300 dark:bg-evolved-green-700',
+                    {
+                      'bg-volcanic-600': disabled,
+                      'opacity-100': checked,
+                    }
+                  )}
+                />
+              </div>
+              <Label as={Text} className={cn({ 'text-volcanic-600': disabled })}>
+                {option.label ?? option.value}
+              </Label>
+            </>
+          )}
+        </Radio>
       ))}
     </_RadioGroup>
   );
