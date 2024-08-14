@@ -140,9 +140,7 @@ async def create_agent(
 
         if deployment_db and model_db:
             deployment_config = (
-                agent.deployment_config
-                if agent.deployment_config
-                else deployment_db.default_deployment_config
+                agent.deployment_config or deployment_db.default_deployment_config
             )
             agent_crud.assign_model_deployment_to_agent(
                 session,
