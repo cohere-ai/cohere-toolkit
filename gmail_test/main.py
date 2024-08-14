@@ -6,8 +6,8 @@ import time
 from pprint import pprint
 from typing import Any, Dict, List, Tuple
 
-from bs4 import BeautifulSoup
 import cohere
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -16,14 +16,13 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pydantic import BaseModel
 
+from backend.config.settings import Settings
+from backend.services.compass import Compass
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 load_dotenv()
 
-
-from backend.config.settings import Settings
-from backend.services.compass import Compass
 
 api_key = Settings().deployments.cohere_platform.api_key
 compass = Compass()
