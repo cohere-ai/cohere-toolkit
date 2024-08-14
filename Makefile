@@ -59,9 +59,13 @@ reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db
 
+.PHONY: install
+install:
+	poetry install --verbose --with dev
+
 .PHONY: setup
 setup:
-	poetry install --with setup --verbose
+	poetry install --with setup,dev --verbose
 	poetry run python3 src/backend/cli/main.py
 
 .PHONY: setup-use-community
