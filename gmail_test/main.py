@@ -4,7 +4,7 @@ import os.path
 import re
 import time
 from pprint import pprint
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from bs4 import BeautifulSoup
 import cohere
@@ -90,7 +90,7 @@ def main():
                 userId="me",
                 maxResults=MAX_RESULTS,
                 # labelIds=LABEL_IDS,
-                q="from:rod@cohere.ai label:inbox",
+                q="label:inbox has:attachment ",
             )
             .execute()
         )
@@ -122,12 +122,14 @@ def main():
 
 class GmailDocument(BaseModel):
     id: str
+    thread_id: str
     title: str
     email_from: str
     email_to: str
     subject: str
     snippet: str
     content: str
+    attachment_ids: List[str] = []
 
 
 def query_compass(index_name: str, query: str, top_k: int) -> List[Dict[str, Any]]:
@@ -193,6 +195,7 @@ def place_on_compass(docs: List[GmailDocument], index_name: str):
 
 def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument]:
     message_id = message["id"]
+    thread_id = message["threadId"]
     email = (
         service.users()
         .messages()
@@ -205,20 +208,22 @@ def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument
     Snippet:{email['snippet']}"""
 
     # parallelize this
-    all_parts = process_email_payload(email["payload"])
+    all_parts, attachment_ids = process_email_payload(email["payload"])
     content = "\n".join(all_parts)
     print("====================================")
     print("Id:", message_id)
     print("Title:", title)
     print("Content\n", content)
     return GmailDocument(
+        id=message_id,
+        thread_id=thread_id,
         title=title,
         content=content,
-        id=message_id,
         snippet=email["snippet"],
         email_from=important_headers["From"],
         email_to=important_headers["To"],
         subject=important_headers["Subject"],
+        attachment_ids=attachment_ids,
     )
 
 
@@ -239,8 +244,11 @@ def process_email_headers(headers: List[dict]) -> dict:
     }
 
 
-def process_email_payload(payload: Any) -> List[str]:
+def process_email_payload(payload: Any) -> Tuple[List[str], List[str]]:
     all_parts = []
+    attachment_ids = []
+    if payload.get("body", {}).get("attachmentId", None):
+        attachment_ids.append(payload["body"]["attachmentId"])
     match payload["mimeType"]:
         # TODO: allow compass to handle the parsing of html
         case "text/plain":
@@ -259,12 +267,13 @@ def process_email_payload(payload: Any) -> List[str]:
                 all_parts.append(text)
         case "multipart/alternative" | "multipart/related":
             for p in payload.get("parts", []):
-                inner_parts = process_email_payload(p)
+                inner_parts, inner_attachment_ids = process_email_payload(p)
                 all_parts.extend(inner_parts)
+                attachment_ids.extend(inner_attachment_ids)
         case _:
             pass
     cleaned_parts = [p for p in all_parts if p]
-    return cleaned_parts
+    return (cleaned_parts, attachment_ids)
 
 
 if __name__ == "__main__":
