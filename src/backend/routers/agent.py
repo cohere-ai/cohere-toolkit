@@ -439,9 +439,7 @@ async def delete_agent(
 
     deleted = agent_crud.delete_agent(session, agent_id, user_id)
     if not deleted:
-        raise HTTPException(
-            status_code=401, detail="Could not delete Agent."
-        )
+        raise HTTPException(status_code=401, detail="Could not delete Agent.")
 
     return DeleteAgent()
 
