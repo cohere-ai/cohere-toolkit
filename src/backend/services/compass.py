@@ -1,7 +1,7 @@
 import json
 import os
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from backend.compass_sdk import (
     CompassDocument,
@@ -20,6 +20,8 @@ logger = LoggerFactory().get_logger()
 
 class Compass:
     """Interface to interact with a Compass instance."""
+
+    index_cache: Set[str] = set()
 
     class ValidActions(Enum):
         LIST_INDEXES = "list_indexes"
@@ -72,10 +74,17 @@ class Compass:
                 username=self.username,
                 password=self.password,
             )
-            self.compass_client.list_indexes()
+            index_res = self.compass_client.list_indexes().result
+            if index_res is not None:
+                for index in index_res.get("indexes", []):
+                    self.index_cache.add(index["name"])
+
         except Exception as e:
             logger.exception(event=f"[Compass] Error initializing Compass client: {e}")
             raise e
+
+    def has_index(self, index_name: str) -> bool:
+        return index_name in self.index_cache
 
     def invoke(
         self,
