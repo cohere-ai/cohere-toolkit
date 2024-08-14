@@ -8,7 +8,7 @@ load_dotenv()
 
 # Very high, extreme fallback in case Compass is busy
 DEFAULT_TIME_OUT = 10 * 60
-SYNC_BROKER_URL = Settings().sync.broker_url
+SYNC_BROKER_URL = Settings().redis.url
 SYNC_DATABASE_URL = Settings().database.url
 SYNC_WORKER_CONCURRENCY = int(Settings().sync.worker_concurrency)
 

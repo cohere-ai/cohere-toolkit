@@ -125,6 +125,7 @@ async def create_agent(
 
         # initiate agent sync job
         logger.info(event=f"broker_url { Settings().sync.broker_url}")
+        logger.info(event=f"broker_url { Settings().redis.url}")
         logger.info(event=f"worker_concurrency { Settings().sync.worker_concurrency}")
         sync_agent.apply_async(args=[created_agent.id])
 
