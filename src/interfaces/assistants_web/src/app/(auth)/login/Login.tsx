@@ -117,16 +117,16 @@ const Login: React.FC = () => {
           <form
             onSubmit={handleSubmit(onSubmit)}
             onChange={() => setErrors([])}
-            className="mt-10 flex w-full flex-col"
+            className="mt-10 flex w-full flex-col gap-4"
           >
             <Input
               className="w-full"
               label="Email"
               placeholder="yourname@email.com"
               type="email"
-              stackPosition="start"
-              hasError={!!formState.errors.email}
-              errorText="Please enter a valid email address"
+              errorText={
+                !!formState.errors.email ? 'Please enter a valid email address' : undefined
+              }
               {...register('email', {
                 required: true,
                 validate: (value) => simpleEmailValidation(value),
@@ -138,10 +138,8 @@ const Login: React.FC = () => {
               label="Password"
               placeholder="••••••••••••"
               type="password"
-              actionType="revealable"
-              stackPosition="end"
-              hasError={!!formState.errors.password}
-              errorText="Please enter a valid password"
+              actionType="reveal"
+              errorText={!!formState.errors.password ? 'Please enter a valid password' : undefined}
               {...register('password', { required: true })}
             />
 
@@ -157,21 +155,23 @@ const Login: React.FC = () => {
             <Button
               disabled={loginStatus === 'pending' || !formState.isValid}
               label={loginStatus === 'pending' ? 'Logging in...' : 'Log in'}
-              type="submit"
+              buttonType="submit"
+              kind="cell"
+              theme="evolved-green"
+              iconPosition="end"
               className="mt-10 w-full self-center md:w-fit"
-              splitIcon="arrow-right"
             />
           </form>
 
           <Text
             as="div"
-            className="mt-10 flex w-full items-center justify-between text-volcanic-700"
+            className="mt-10 flex w-full items-center justify-center gap-2 text-volcanic-700"
           >
             New user?
             <AuthLink
               redirect={redirect !== '/' ? redirect : undefined}
               action="register"
-              className="text-green-700 no-underline"
+              theme="evolved-green"
             />
           </Text>
         </>

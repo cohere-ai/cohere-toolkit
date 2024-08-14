@@ -2,15 +2,15 @@
 
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
-import { Button, Icon, IconName, Tooltip } from '@/components/Shared';
+import { IconButton } from '@/components/IconButton';
+import { Button, ButtonKind, IconName, Tooltip } from '@/components/Shared';
 import { cn } from '@/utils';
 
 type CopyToClipboardButtonProps = {
   value: string;
   label?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
-  kind?: 'primary' | 'secondary';
-  animate?: boolean;
+  kind?: ButtonKind;
   disabled?: boolean;
   className?: string;
   iconAtStart?: boolean;
@@ -33,11 +33,9 @@ export const CopyToClipboardButton = forwardRef<
     value,
     disabled = false,
     className = '',
-    size = 'md',
     kind = 'primary',
     iconAtStart = false,
     onClick,
-    animate = true,
   },
   ref
 ) {
@@ -64,21 +62,13 @@ export const CopyToClipboardButton = forwardRef<
     },
   }));
 
-  const icon =
-    kind === 'secondary' ? (
-      <Icon name="copy" kind="outline" className="leading-normal" />
-    ) : undefined;
-
   return (
     <Button
       kind={kind}
-      size={size}
       onClick={handleCopy}
       label={copied ? 'Copied!' : label}
-      animate={animate}
-      {...(kind === 'primary' ? { splitIcon: 'copy' } : {})}
-      startIcon={iconAtStart ? icon : undefined}
-      endIcon={!iconAtStart ? icon : undefined}
+      icon="copy"
+      iconPosition={iconAtStart ? 'start' : 'end'}
       className={className}
       disabled={disabled}
       aria-label={copied ? 'copied' : 'copy'}
@@ -124,25 +114,25 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
       <Tooltip
         label={isCopied ? 'Copied!' : 'Copy'}
         duration={1000}
+        size="sm"
         showOutline={false}
         hover
         className="-translate-x-[40%]"
         buttonClassName={buttonClassName}
-        icon={
-          <Icon
-            aria-disabled={disabled}
-            className={cn(
-              'flex rounded p-2',
-              'transition ease-in-out',
-              'text-volcanic-300 hover:bg-mushroom-900 hover:text-mushroom-300',
-              iconClassName
-            )}
-            name={iconName}
-            kind="outline"
-            onClick={handleCopy}
-          />
-        }
-      />
+      >
+        <IconButton
+          aria-disabled={disabled}
+          iconName={iconName}
+          iconKind={isCopied ? 'default' : 'outline'}
+          className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
+          iconClassName={cn(
+            'text-volcanic-300 fill-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+            'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
+            iconClassName
+          )}
+          onClick={handleCopy}
+        />
+      </Tooltip>
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Any, Dict, Mapping
 
 import requests
@@ -7,6 +6,7 @@ from dotenv import load_dotenv
 from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
+from backend.config.settings import Settings
 from backend.tools.base import BaseTool
 
 load_dotenv()
@@ -23,13 +23,13 @@ class PythonInterpreter(BaseTool):
     """
 
     NAME = "toolkit_python_interpreter"
-    INTERPRETER_URL = os.environ.get("PYTHON_INTERPRETER_URL")
+    INTERPRETER_URL = Settings().tools.python_interpreter.url
 
     @classmethod
     def is_available(cls) -> bool:
         return cls.INTERPRETER_URL is not None
 
-    async def call(self, parameters: dict, **kwargs: Any):
+    async def call(self, parameters: dict, ctx: Any, **kwargs: Any):
         if not self.INTERPRETER_URL:
             raise Exception("Python Interpreter tool called while URL not set")
 
@@ -77,7 +77,7 @@ class PythonInterpreter(BaseTool):
 
     # langchain does not return a dict as a parameter, only a code string
     def langchain_call(self, code: str):
-        return self.call({"code": code})
+        return self.call({"code": code}, ctx=None)
 
     def to_langchain_tool(self) -> LangchainTool:
         tool = LangchainTool(

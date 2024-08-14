@@ -4,7 +4,19 @@ import React, { ComponentPropsWithoutRef } from 'react';
 
 import { cn } from '@/utils';
 
-type AsElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'span' | 'p' | 'div' | 'li' | 'label' | 'pre';
+type AsElement =
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'h4'
+  | 'h5'
+  | 'span'
+  | 'p'
+  | 'div'
+  | 'li'
+  | 'label'
+  | 'pre'
+  | 'kbd';
 type StyleAs = keyof typeof STYLE_LEVEL_TO_CLASSES;
 
 type TextProps<T extends AsElement> = {
@@ -56,7 +68,7 @@ export const Text = <T extends AsElement>({
   ...rest
 }: TextProps<T>) => {
   const renderAs: AsElement = as ?? 'p';
-  const classes = cn(getStyleLevelClasses(styleAs ?? renderAs), className);
+  const classes = cn(getStyleLevelClasses(styleAs ?? renderAs), 'dark:text-marble-950', className);
   const Element = React.createElement(renderAs, { className: classes, role, ...rest }, children);
 
   return Element;

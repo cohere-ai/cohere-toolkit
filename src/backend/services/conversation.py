@@ -1,16 +1,22 @@
-import logging
-from typing import List
+from typing import List, Optional
 
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException, Request
 
 from backend.chat.custom.custom import CustomChat
 from backend.crud import conversation as conversation_crud
-from backend.database_models.conversation import Conversation
+from backend.database_models import File as FileModel
+from backend.database_models import Message as MessageModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
+from backend.schemas.conversation import Conversation
+from backend.schemas.file import File
+from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
+from backend.services.context import get_context
+from backend.services.file import attach_conversation_id_to_files, get_file_service
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK
@@ -27,7 +33,7 @@ SEARCH_RELEVANCE_THRESHOLD = 0.3
 
 def validate_conversation(
     session: DBSessionDep, conversation_id: str, user_id: str
-) -> ConversationModel:
+) -> Conversation:
     """Validates if a conversation exists and belongs to the user
 
     Args:
@@ -56,7 +62,8 @@ def extract_details_from_conversation(
     ignore_system: str = True,
     ignore_tool: str = True,
 ) -> str:
-    """Extracts the last num_turns from a conversation, ignoring system and tool messages
+    """
+    Extracts the last num_turns from a conversation, ignoring system and tool messages
 
     Args:
         convo (Conversation): The conversation object
@@ -91,6 +98,48 @@ def extract_details_from_conversation(
     return chatlog
 
 
+def get_messages_with_files(
+    session: DBSessionDep, user_id: str, messages: list[MessageModel]
+) -> list[Message]:
+    """
+    Get messages and use the file service to get the files associated with each message
+
+    Args:
+        session (DBSessionDep): The database session
+        user_id (str): The user ID
+        messages (list[MessageModel]): The messages to get files for
+
+    Returns:
+        list[Message]: The messages with files
+    """
+    messages_with_file = []
+
+    for message in messages:
+        files = get_file_service().get_files_by_message_id(session, message.id, user_id)
+        files_with_conversation_id = attach_conversation_id_to_files(
+            message.conversation_id, files
+        )
+        messages_with_file.append(
+            Message(
+                id=message.id,
+                text=message.text,
+                created_at=message.created_at,
+                updated_at=message.updated_at,
+                generation_id=message.generation_id,
+                position=message.position,
+                is_active=message.is_active,
+                files=files_with_conversation_id,
+                documents=message.documents,
+                citations=message.citations,
+                tool_calls=message.tool_calls,
+                tool_plan=message.tool_plan,
+                agent=message.agent,
+            )
+        )
+
+    return messages_with_file
+
+
 def get_documents_to_rerank(conversations: List[Conversation]) -> List[str]:
     """Get documents (strings) to rerank from a list of conversations
 
@@ -118,9 +167,7 @@ async def filter_conversations(
     conversations: List[Conversation],
     rerank_documents: List[str],
     model_deployment,
-    user_id: str,
-    agent_id: str,
-    trace_id: str,
+    ctx: Context,
 ) -> List[Conversation]:
     """Filter conversations based on the rerank score
 
@@ -129,9 +176,7 @@ async def filter_conversations(
         conversations (List[Conversation]): List of conversations
         rerank_documents (List[str]): List of documents to rerank
         model_deployment: Model deployment object
-        user_id (str): User ID
-        agent_id (str): Agent ID
-        trace_id (str): Trace ID
+        ctx (Context): Context object
 
     Returns:
         List[Conversation]: List of filtered conversations
@@ -150,9 +195,7 @@ async def filter_conversations(
     res = await model_deployment.invoke_rerank(
         query=query,
         documents=rerank_documents,
-        user_id=user_id,
-        agent_id=agent_id,
-        trace_id=trace_id,
+        ctx=ctx,
     )
 
     # Sort conversations by rerank score
@@ -169,28 +212,38 @@ async def filter_conversations(
 
 
 async def generate_conversation_title(
-    session, conversation, deployment_name, model_config, trace_id, user_id, agent_id
-):
+    session: DBSessionDep,
+    conversation: ConversationModel,
+    agent_id: str,
+    ctx: Context,
+    model: Optional[str] = None,
+) -> tuple[str, str]:
     """Generate a title for a conversation
 
     Args:
+        request: Request object
         session: Database session
         conversation: Conversation object
-        deployment_name: Deployment name
         model_config: Model configuration
-        trace_id: Trace ID
-        user_id: User ID
         agent_id: Agent ID
+        ctx: Context object
+        model: Model name
 
     Returns:
         str: Generated title
+        str: Error message
     """
+    user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
     title = ""
+    error = None
+
     try:
         chatlog = extract_details_from_conversation(conversation)
         prompt = GENERATE_TITLE_PROMPT % chatlog
         chat_request = CohereChatRequest(
             message=prompt,
+            model=model,
         )
 
         response = await generate_chat_response(
@@ -198,21 +251,23 @@ async def generate_conversation_title(
             CustomChat().chat(
                 chat_request,
                 stream=False,
-                deployment_name=deployment_name,
-                deployment_config=model_config,
-                trace_id=trace_id,
-                user_id=user_id,
                 agent_id=agent_id,
+                ctx=ctx,
             ),
             response_message=None,
             conversation_id=None,
             user_id=user_id,
             should_store=False,
+            ctx=ctx,
         )
 
         title = response.text
+        error = response.error
     except Exception as e:
         title = DEFAULT_TITLE
-        logging.error(f"Error generating title for conversation {conversation.id}: {e}")
+        error = str(e)
+        logger.error(
+            event=f"[Conversation] Error generating title: Conversation ID {conversation.id}, {e}",
+        )
 
-    return title
+    return title, error

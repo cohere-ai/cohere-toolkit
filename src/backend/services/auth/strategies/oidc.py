@@ -1,19 +1,13 @@
-import logging
-
 import requests
 from authlib.integrations.requests_client import OAuth2Session
 from fastapi import HTTPException
 from starlette.requests import Request
 
+from backend.config.settings import Settings
 from backend.services.auth.strategies.base import BaseOAuthStrategy
-from backend.services.auth.strategies.settings import Settings
+from backend.services.logger.utils import LoggerFactory
 
-
-class OIDCSettings(Settings):
-    oidc_client_id: str
-    oidc_client_secret: str
-    oidc_well_known_endpoint: str
-    frontend_hostname: str
+logger = LoggerFactory().get_logger()
 
 
 class OpenIDConnect(BaseOAuthStrategy):
@@ -26,21 +20,23 @@ class OpenIDConnect(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            self.settings = OIDCSettings()
+            self.settings = Settings().auth.oidc
             self.REDIRECT_URI = (
-                f"{self.settings.frontend_hostname}/auth/{self.NAME.lower()}"
+                f"{Settings().auth.frontend_hostname}/auth/{self.NAME.lower()}"
             )
-            self.WELL_KNOWN_ENDPOINT = self.settings.oidc_well_known_endpoint
+            self.WELL_KNOWN_ENDPOINT = self.settings.well_known_endpoint
             self.client = OAuth2Session(
-                client_id=self.settings.oidc_client_id,
-                client_secret=self.settings.oidc_client_secret,
+                client_id=self.settings.client_id,
+                client_secret=self.settings.client_secret,
             )
         except Exception as e:
-            logging.error(f"Error during initializing of OpenIDConnect class: {str(e)}")
+            logger.error(
+                event=f"[OpenIDConnect] Error initializing OpenIDConnect: {str(e)}"
+            )
             raise
 
     def get_client_id(self):
-        return self.settings.oidc_client_id
+        return self.settings.client_id
 
     def get_authorization_endpoint(self):
         if hasattr(self, "AUTHORIZATION_ENDPOINT"):
@@ -60,8 +56,8 @@ class OpenIDConnect(BaseOAuthStrategy):
             self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
             self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
         except Exception as e:
-            logging.error(
-                f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
+            logger.error(
+                event=f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
             )
             raise
 

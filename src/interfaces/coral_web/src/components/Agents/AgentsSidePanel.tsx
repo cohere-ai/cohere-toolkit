@@ -1,12 +1,12 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import Link from 'next/link';
 
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, IconProps, Logo, Tooltip } from '@/components/Shared';
 import { env } from '@/env.mjs';
 import { useIsDesktop } from '@/hooks/breakpoint';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useAgentsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -32,6 +32,8 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
     setSettings({ isConfigDrawerOpen: false });
     setAgentsSidePanelOpen(!isAgentsSidePanelOpen);
   };
+
+  const navigateToNewChat = useNavigateToNewChat();
 
   const navigationItems: {
     label: string;
@@ -88,11 +90,11 @@ export const AgentsSidePanel: React.FC<React.PropsWithChildren<{ className?: str
             enterFrom="-translate-x-full"
             enterTo="translate-x-0"
           >
-            <Link href="/" shallow>
+            <button onClick={() => navigateToNewChat()}>
               <div className="mr-3 flex items-baseline">
-                <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO === 'true'} />
+                <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} />
               </div>
-            </Link>
+            </button>
           </Transition>
 
           <IconButton

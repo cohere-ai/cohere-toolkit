@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { shallow } from 'zustand/shallow';
 
 import { Tool } from '@/cohere-client';
-import { AgentsStore, createAgentsSlice } from '@/stores/slices/agentsSlice';
 import { CitationsStore, createCitationsSlice } from '@/stores/slices/citationsSlice';
 import { ConversationStore, createConversationSlice } from '@/stores/slices/conversationSlice';
 import { FilesStore, createFilesSlice } from '@/stores/slices/filesSlice';
@@ -15,14 +14,13 @@ export type ChatSettingsDefaultsValue = {
   tools?: Tool[];
 };
 
-export type StoreState = CitationsStore & ConversationStore & FilesStore & ParamStore & AgentsStore;
+export type StoreState = CitationsStore & ConversationStore & FilesStore & ParamStore;
 
 const useStore = create<StoreState>((...a) => ({
   ...createCitationsSlice(...a),
   ...createConversationSlice(...a),
   ...createFilesSlice(...a),
   ...createParamsSlice(...a),
-  ...createAgentsSlice(...a),
 }));
 
 export const useCitationsStore = () => {
@@ -31,11 +29,8 @@ export const useCitationsStore = () => {
       citations: state.citations,
       addSearchResults: state.addSearchResults,
       addCitation: state.addCitation,
-      selectCitation: state.selectCitation,
-      hoverCitation: state.hoverCitation,
       resetCitations: state.resetCitations,
       saveOutputFiles: state.saveOutputFiles,
-      agents: state.agents,
     }),
     shallow
   );
@@ -60,6 +55,7 @@ export const useFilesStore = () => {
       queueFocusFileInput: state.queueFocusFileInput,
       clearFocusFileInput: state.clearFocusFileInput,
       addUploadingFile: state.addUploadingFile,
+      addUploadingFiles: state.addUploadingFiles,
       deleteUploadingFile: state.deleteUploadingFile,
       addComposerFile: state.addComposerFile,
       deleteComposerFile: state.deleteComposerFile,
@@ -77,17 +73,6 @@ export const useParamsStore = () => {
       params: state.params,
       setParams: state.setParams,
       resetFileParams: state.resetFileParams,
-    }),
-    shallow
-  );
-};
-
-export const useAgentsStore = () => {
-  return useStore(
-    (state) => ({
-      agents: state.agents,
-      setAgentsSidePanelOpen: state.setAgentsSidePanelOpen,
-      setEditAgentPanelOpen: state.setEditAgentPanelOpen,
     }),
     shallow
   );

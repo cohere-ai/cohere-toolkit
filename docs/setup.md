@@ -24,7 +24,7 @@ Clone the repo and run
 make first-run
 ```
 
-Follow the instructions to configure the model - either AWS Sagemaker, Bedrock, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
+Follow the instructions to configure the model - either AWS Sagemaker, Bedrock, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `configuration.yaml` file and copying the contents of the provided `configuration.template.yaml`. Then replacing the values with the correct ones.
 For Windows systems see the detailed setup below.
 
 #### Detailed environment setup
@@ -35,46 +35,61 @@ For Windows systems see the detailed setup below.
 1. Install [docker](https://docs.docker.com/desktop/install/windows-install/)
 2. Install [git]https://git-scm.com/download/win
 3. In PowerShell (Terminal), install [scoop](https://scoop.sh/). After installing, run the following commands:
+
 ```bash
 scoop bucket add extras
 ```
+
 4. Install miniconda using
+
 ```bash
 scoop install miniconda3
 conda init cmd.exe
 ```
+
 5. Restart PowerShell
 6. Install the following:
+
 ```bash
 scoop install postgresql
 scoop install make
 ```
+
 7. Create a new virtual environment with Python 3.11 using CMD terminal
+
 ```bash
 conda create -n toolkit python=3.11
 conda activate toolkit
 ```
-8. Install poetry == 1.7.1 using 
+
+8. Install poetry == 1.7.1 using
+
 ```bash
 pip install poetry==1.7.1
 ```
+
 9. Clone the repo
 10. Alternatively to `make win-first-run` or `make win-setup`, run
+
 ```bash
 poetry install --with setup,community --verbose
 poetry run python src/backend/cli/main.py
 make migrate
 make dev
 ```
+
 11. Navigate to https://localhost:4000 in your browser
 
 ### Possible issues
+
 - If you encounter on error on running `poetry install` related to `llama-cpp-python`, please run the following command:
+
 ```bash
 poetry source add llama-cpp-python https://abetlen.github.io/llama-cpp-python/whl/cpu
 poetry source add pypi
 poetry lock
 ```
+
 and then run the commands in step 10 again.
 For more information and additional installation instructions, see [llama-cpp-python documentation](https://github.com/abetlen/llama-cpp-python)
 
@@ -83,39 +98,49 @@ For more information and additional installation instructions, see [llama-cpp-py
 <details>
   <summary>MacOS</summary>
 
-1. Install Xcode. This can be done from the App Store or terminal 
+1. Install Xcode. This can be done from the App Store or terminal
+
 ```bash
 xcode-select --install
 ```
+
 2. Install [docker desktop](https://docs.docker.com/desktop/install/mac-install/)
 3. Install [homebrew](https://brew.sh/)
 4. Install [pipx](https://github.com/pypa/pipx). This is useful for installing poetry later.
+
 ```bash
 brew install pipx
 pipx ensurepath
 ```
+
 5. Install [postgres](brew install postgresql)
 6. Install conda using [miniconda](https://docs.anaconda.com/free/miniconda/index.html)
 7. Use your environment manager to create a new virtual environment with Python 3.11
+
 ```bash
 conda create -n toolkit python=3.11
 ```
+
 8. Install [poetry >= 1.7.1](https://python-poetry.org/docs/#installing-with-pipx)
+
 ```bash
 pipx install poetry
 ```
+
 To test if poetry has been installed correctly,
+
 ```bash
 conda activate toolkit
 poetry --version
 ```
+
 You should see the version of poetry (e.g. 1.8.2). If poetry is not found, try
+
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
-And then retry `poetry --version`
-9. Clone the repo and run `make first-run`
-10. Navigate to https://localhost:4000 in your browser
+
+And then retry `poetry --version` 9. Clone the repo and run `make first-run` 10. Navigate to https://localhost:4000 in your browser
 
 </details>
 
@@ -129,6 +154,7 @@ And then retry `poetry --version`
 - `NEXT_PUBLIC_API_HOSTNAME`: The backend URL which the frontend will communicate with. Defaults to http://backend:8000 for use with `docker compose`
 - `FRONTEND_HOSTNAME`: The URL for the frontend client. Defaults to http://localhost:4000
 - `DATABASE_URL`: Your PostgreSQL database connection string for SQLAlchemy, should follow the format `postgresql+psycopg2://USER:PASSWORD@HOST:PORT`.
+- `REDIS_URL`: Your Redis connection string, should follow the format `redis://USER:PASSWORD@HOST:PORT`.
 
 ### AWS Sagemaker
 
@@ -185,7 +211,7 @@ docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key her
 
 ##### Option 2.1 - Run everything at once
 
-Run `make first-run` to start the CLI, that will generate a `.env` file for you. This will also run all the DB migrations and run the containers
+Run `make first-run` to start the CLI, that will generate the `configuration.yaml` and `secrets.yaml` files for you. This will also run all the DB migrations and run the containers
 
 ```bash
 make first-run
@@ -193,7 +219,7 @@ make first-run
 
 ##### Option 2.1 - Run each command separately
 
-Run `make setup` to start the CLI, that will generate a `.env` file for you:
+Run `make setup` to start the CLI, that will generate the `configuration.yaml` and `secrets.yaml` files for you:
 
 ```bash
 make setup
@@ -208,37 +234,45 @@ make dev
 
 If you did not change the default port, visit http://localhost:4000/ in your browser to chat with the model.
 
-
 ## Setup for Development
 
 ### Setting up Poetry
 
 Use for configuring and adding new retrieval chains.
 
-Install your dependencies:
+Install your development dependencies:
 
 ```bash
-poetry install
+poetry install --with dev
 ```
 
-if you need to install the community features, run:
+If you also need to install the community features, run:
+
 ```bash
 poetry install --with community
 ```
 
-Run linters:
+To run linters, you can use `make lint` or separate commands:
 
 ```bash
 poetry run black .
 poetry run isort .
 ```
 
+Run type checker:
+
+- See docs for [pyright](https://microsoft.github.io/pyright/)
+- Install with `conda install pyright`
+- Run with `pyright`
+- Configure in [pyproject.toml](../pyproject.toml) under `[tool.pyright]`
+
 ## Setting up the Environment Variables
+
 **Please confirm that you have at least one configuration of the Cohere Platform, SageMaker, Bedrock or Azure.**
 
 You have two methods to set up the environment variables:
 1. Run `make setup` and follow the instructions to configure it.
-2. Run `cp .env-template .env` and adjust the values in the `.env` file according to your situation.
+2. Copy the contents of `configuration.template.yaml` and `secrets.template.yaml` files to new `configuration.yaml` and `secrets.yaml` files.
 
 ### Setting up Your Local Database
 
@@ -279,7 +313,7 @@ make run-tests
 When making changes to any of the database models, such as adding new tables, modifying or removing columns, you will need to create a new Alembic migration. You can use the following Make command:
 
 ```bash
-make migration
+make migration message="Your migration message"
 ```
 
 Important: If adding a new table, make sure to add the import to the `model/__init__.py` file! This will allow Alembic to import the models and generate migrations accordingly.

@@ -1,40 +1,34 @@
-'use client';
-
+import fetch from 'cross-fetch';
 import { NextPage } from 'next';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-import { AgentsList } from '@/components/Agents/AgentsList';
-import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
-import { AgentsLayout, Layout, LeftSection, MainSection } from '@/components/Layout';
-import { ProtectedPage } from '@/components/ProtectedPage';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { MainLayout } from '@/app/(main)/MainLayout';
+import { CohereClient, Fetch } from '@/cohere-client';
+import { COOKIE_KEYS } from '@/constants';
+import { env } from '@/env.mjs';
 
-const MainLayout: NextPage<React.PropsWithChildren> = ({ children }) => {
-  const { data: experimentalFeatures } = useExperimentalFeatures();
-  const isAgentsModeOn = !!experimentalFeatures?.USE_AGENTS_VIEW;
-
-  if (isAgentsModeOn) {
-    return (
-      <ProtectedPage>
-        <AgentsLayout showSettingsDrawer>
-          <LeftSection>
-            <AgentsList />
-          </LeftSection>
-          <MainSection>{children}</MainSection>
-        </AgentsLayout>
-      </ProtectedPage>
-    );
-  }
-
-  return (
-    <ProtectedPage>
-      <Layout>
-        <LeftSection>
-          <ConversationListPanel />
-        </LeftSection>
-        <MainSection>{children}</MainSection>
-      </Layout>
-    </ProtectedPage>
-  );
+const makeCohereClient = () => {
+  const apiFetch: Fetch = async (resource, config) => await fetch(resource, config);
+  return new CohereClient({
+    hostname: env.API_HOSTNAME,
+    fetch: apiFetch,
+  });
 };
 
-export default MainLayout;
+const Layout: NextPage<React.PropsWithChildren> = async ({ children }) => {
+  const cohereClient = makeCohereClient();
+  const strategies = await cohereClient.getAuthStrategies();
+  if (strategies.length !== 0) {
+    const cookieStore = cookies();
+    const authToken = cookieStore.get(COOKIE_KEYS.authToken);
+
+    if (!authToken) {
+      return redirect('/login');
+    }
+  }
+
+  return <MainLayout>{children}</MainLayout>;
+};
+
+export default Layout;

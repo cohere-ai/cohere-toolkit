@@ -19,17 +19,17 @@ export const NavigationUserMenu: React.FC<{
   return (
     <PopoverMenu email={showEmail && userEmail ? userEmail : undefined}>
       <div className="py-3">
-        <Icon name="profile" className="mb-3 px-4 text-volcanic-400" />
+        <Icon name="profile" className="mb-3 px-4" />
         {userEmail ? (
           <>
             <Text className="truncate px-4 pb-3 text-left text-volcanic-400">{userEmail}</Text>
             <div className="flex justify-end border-t border-marble-950 px-4 pt-3">
-              <AuthLink action="logout" styleAs="button" kind="secondary" />
+              <AuthLink action="logout" theme="mushroom" cellButton />
             </div>
           </>
         ) : (
           <div className="mt-3 flex justify-end border-t border-marble-950 px-4 pt-3">
-            <AuthLink action="login" styleAs="button" kind="secondary" />
+            <AuthLink action="login" theme="mushroom" cellButton />
           </div>
         )}
       </div>
@@ -56,7 +56,7 @@ const PopoverMenu: React.FC<{
           { 'dark:focus:outline-marble-800': darkModeEnabled }
         )}
       >
-        <Icon name="profile" size="md" />
+        <Icon name="profile" />
         {email && <Text className="hidden md:block">{email}</Text>}
       </Popover.Button>
       <Transition
@@ -71,7 +71,7 @@ const PopoverMenu: React.FC<{
         <Popover.Panel
           className={cn(
             'absolute right-0 top-11 z-navigation w-60 rounded-lg border',
-            'border-marble-950 bg-marble-1000',
+            'border-marble-950 bg-marble-980',
             { 'dark:border-dark-border dark:bg-dark-white-2-solid': darkModeEnabled }
           )}
         >

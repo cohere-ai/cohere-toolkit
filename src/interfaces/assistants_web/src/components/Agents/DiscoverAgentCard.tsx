@@ -1,82 +1,89 @@
 'use client';
 
+import Link from 'next/link';
+
+import { AgentPublic } from '@/cohere-client';
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
-import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
+import { CoralLogo, Text } from '@/components/Shared';
 import { useContextStore } from '@/context';
+import { useBrandedColors } from '@/hooks/brandedColors';
+import { useSession } from '@/hooks/session';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { checkIsBaseAgent } from '@/utils/agents';
 
 type Props = {
-  name: string;
-  description?: string;
-  isBaseAgent?: boolean;
-  id?: string;
+  agent?: AgentPublic;
 };
 
 /**
  * @description renders a card for an agent with the agent's name, description
  */
-export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBaseAgent }) => {
+export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
+  const isBaseAgent = checkIsBaseAgent(agent);
+  const { bg, contrastText, contrastFill } = useBrandedColors(agent?.id);
+  const session = useSession();
+  const isCreator = agent?.user_id === session.userId;
+  const createdBy = isBaseAgent ? 'COHERE' : isCreator ? 'YOU' : 'TEAM';
+
   const { open, close } = useContextStore();
 
-  const handleDeleteAssistant = () => {
-    if (!id) return;
+  const handleOpenDeleteModal = () => {
+    if (!agent) return;
     open({
-      content: <DeleteAgent name={name} agentId={id} onClose={close} />,
-      title: 'Delete assistant',
+      title: `Delete ${agent.name}`,
+      content: <DeleteAgent name={agent.name} agentId={agent.id} onClose={close} />,
     });
   };
 
   return (
-    <article className="flex overflow-x-hidden rounded-lg border border-marble-950 bg-marble-980 p-4">
+    <Link
+      className="flex overflow-x-hidden rounded-lg border border-volcanic-800 bg-volcanic-950 p-4 transition-colors duration-300 hover:bg-marble-950 dark:border-volcanic-300 dark:bg-volcanic-150 dark:hover:bg-volcanic-100"
+      href={isBaseAgent ? '/' : `/a/${agent?.id}`}
+    >
       <div className="flex h-full flex-grow flex-col items-start gap-y-2 overflow-x-hidden">
         <div className="flex w-full items-center gap-x-2">
           <div
             className={cn(
-              'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
-              'truncate',
-              id && getCohereColor(id),
-              {
-                'bg-mushroom-700': isBaseAgent,
-              }
+              'relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
+              bg
             )}
           >
             {isBaseAgent ? (
-              <CoralLogo style="secondary" />
+              <CoralLogo className={contrastFill} />
             ) : (
-              <Text className="uppercase text-white" styleAs="p-lg">
-                {name[0]}
+              <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
+                {agent?.name[0]}
               </Text>
             )}
           </div>
-          <Text as="h5" className="truncate">
-            {name}
+          <Text as="h5" className="truncate dark:text-mushroom-950" title={agent?.name}>
+            {agent?.name}
           </Text>
-          {!isBaseAgent && (
+          {isCreator && (
             <div className="ml-auto">
               <KebabMenu
-                anchor="bottom end"
+                anchor="right start"
                 items={[
                   {
-                    label: 'Delete assistant',
+                    iconName: 'edit',
+                    label: 'Edit assistant',
+                    href: `/edit/${agent?.id}`,
+                  },
+                  {
                     iconName: 'trash',
-                    onClick: handleDeleteAssistant,
+                    label: 'Delete assistant',
+                    iconClassName: 'fill-danger-500 dark:fill-danger-500',
+                    onClick: handleOpenDeleteModal,
                   },
                 ]}
               />
             </div>
           )}
         </div>
-        <Text className="line-clamp-2 flex-grow">{description}</Text>
-        <Button
-          className="ml-auto"
-          href={isBaseAgent ? '/' : `/a/${id}`}
-          label={<Text className="text-green-250">Try now</Text>}
-          kind="secondary"
-          endIcon={<Icon name="arrow-up-right" className="text-green-250" />}
-        />
+        <Text className="line-clamp-2 flex-grow dark:text-mushroom-800">{agent?.description}</Text>
+        <Text className="dark:text-volcanic-500">BY {createdBy}</Text>
       </div>
-    </article>
+    </Link>
   );
 };

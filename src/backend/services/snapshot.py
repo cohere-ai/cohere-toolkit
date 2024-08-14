@@ -1,4 +1,3 @@
-import logging
 from typing import Any
 
 from fastapi import HTTPException
@@ -13,8 +12,10 @@ from backend.database_models import SnapshotLink as SnapshotLinkModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentToolMetadata
+from backend.schemas.context import Context
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
+from backend.services.conversation import get_messages_with_files
 
 SNAPSHOT_VERSION = 1
 
@@ -45,15 +46,6 @@ def validate_snapshot_link(session: DBSessionDep, link_id: str) -> SnapshotLinkM
     return snapshot
 
 
-def create_conversation_dict(conversation: ConversationModel) -> dict[str, Any]:
-    try:
-        conversation_schema = Conversation.model_validate(conversation)
-        return to_dict(conversation_schema)
-    except Exception as e:
-        logging.error(f"Error creating snapshot: {e}")
-        raise HTTPException(status_code=500, detail=f"Error creating snapshot - {e}")
-
-
 def wrap_create_snapshot_link(
     session: DBSessionDep, snapshot_id: str, user_id: str
 ) -> SnapshotLinkModel:
@@ -69,7 +61,7 @@ def wrap_create_snapshot(
 ) -> SnapshotModel:
     snapshot_agent = None
     if conversation.agent_id:
-        agent = agent_crud.get_agent_by_id(session, conversation.agent_id)
+        agent = agent_crud.get_agent_by_id(session, conversation.agent_id, user_id)
         tools_metadata = [to_dict(metadata) for metadata in agent.tools_metadata]
 
         snapshot_agent = SnapshotAgent(
@@ -80,10 +72,11 @@ def wrap_create_snapshot(
             tools_metadata=tools_metadata,
         )
 
+    messages = get_messages_with_files(session, user_id, conversation.messages)
     snapshot_data = SnapshotData(
         title=conversation.title,
         description=conversation.description,
-        messages=conversation.messages,
+        messages=messages,
         agent=snapshot_agent,
     )
     snapshot = to_dict(snapshot_data)
@@ -95,13 +88,20 @@ def wrap_create_snapshot(
         last_message_id=last_message_id,
         version=SNAPSHOT_VERSION,
         snapshot=snapshot,
+        agent_id=conversation.agent_id,
     )
     return snapshot_crud.create_snapshot(session, snapshot_model)
 
 
 def wrap_create_snapshot_access(
-    session: DBSessionDep, snapshot_id: str, user_id: str, link_id: str
+    session: DBSessionDep,
+    snapshot_id: str,
+    user_id: str,
+    link_id: str,
+    ctx: Context,
 ) -> SnapshotAccessModel:
+    logger = ctx.get_logger()
+
     try:
         snapshot_access = SnapshotAccessModel(
             user_id=user_id, snapshot_id=snapshot_id, link_id=link_id
@@ -110,7 +110,7 @@ def wrap_create_snapshot_access(
     except Exception as e:
         # Do not raise exception if snapshot access creation fails
         session.rollback()
-        logging.error(f"Error creating snapshot access: {e}")
+        logger.error(event=f"[Snapshot] Error creating snapshot access: {e}")
 
 
 def remove_private_keys(

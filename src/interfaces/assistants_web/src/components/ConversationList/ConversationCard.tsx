@@ -2,13 +2,17 @@
 
 import Link from 'next/link';
 
+import { AgentPublic } from '@/cohere-client';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
-import { Text } from '@/components/Shared';
+import { ShareModal } from '@/components/ShareModal';
+import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { useContextStore } from '@/context';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
-import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
+import { useFileActions } from '@/hooks/files';
 import { useConversationStore, useSettingsStore } from '@/stores';
-import { cn } from '@/utils';
+import { cn, formatDateToShortDate } from '@/utils';
 
 export type ConversationListItem = {
   conversationId: string;
@@ -16,6 +20,7 @@ export type ConversationListItem = {
   title: string;
   description: string | null;
   weekHeading?: string;
+  agent?: AgentPublic;
 };
 
 type Props = {
@@ -28,20 +33,28 @@ type Props = {
   onCheck: (id: string) => void;
 };
 
-const useMenuItems = ({ conversationId, name }: { conversationId: string; name: string }) => {
-  const { deleteConversation, editConversationTitle } = useConversationActions();
+const useMenuItems = ({ conversationId }: { conversationId: string }) => {
+  const { deleteConversation } = useConversationActions();
+  const { open } = useContextStore();
+
+  const handleOpenShareModal = () => {
+    if (!conversationId) return;
+    open({
+      title: 'Share link to conversation',
+      content: <ShareModal conversationId={conversationId} />,
+    });
+  };
 
   const menuItems: KebabMenuItem[] = [
     {
-      label: 'Edit title',
-      iconName: 'edit',
-      onClick: () => {
-        editConversationTitle({ id: conversationId, title: name });
-      },
+      label: 'Share Chat',
+      iconName: 'share',
+      onClick: handleOpenShareModal,
     },
     {
       label: 'Delete chat',
       iconName: 'trash',
+      iconClassName: 'dark:text-danger-500',
       onClick: () => {
         deleteConversation({ id: conversationId });
       },
@@ -52,15 +65,17 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 };
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
-  const { title, conversationId, description } = conversation;
-  const { agentId } = useChatRoutes();
-  const { setSettings } = useSettingsStore();
+  const { title, conversationId } = conversation;
   const {
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
   } = useConversationStore();
+  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
   const isTouchDevice = getIsTouchDevice();
+  const { clearComposerFiles } = useFileActions();
+  const { bg, contrastText, contrastFill } = useBrandedColors(conversation.agent?.id);
 
   // if the conversation card is for the selected conversation we use the `conversationName`
   // from the context store, otherwise we use the name from the conversation object
@@ -68,7 +83,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   // @see "handleUpdateConversationTitle" in hooks/chat.ts
   const name = conversationId === selectedConversationId ? conversationName : title;
 
-  const menuItems = useMenuItems({ conversationId, name: name! });
+  const menuItems = useMenuItems({ conversationId });
 
   const info = (
     <div className="flex flex-col gap-y-1 pl-3">
@@ -76,7 +91,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         <span className="flex items-center gap-x-1 truncate">
           <Text
             as="span"
-            className={cn('h-[21px] truncate text-volcanic-300', {
+            className={cn('h-[21px] truncate text-volcanic-300 dark:text-mushroom-950', {
               'font-medium': isActive,
             })}
           >
@@ -87,13 +102,35 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         {/* Placeholder for the kebab menu */}
         <div className="flex h-4 w-4 flex-shrink-0" />
       </div>
-      <Text styleAs="p-sm" className={cn('h-[18px] w-full truncate text-volcanic-500')}>
-        {description}
-      </Text>
+      <div className="flex h-[18px] w-full items-center gap-2">
+        <div
+          className={cn(
+            'flex size-4 flex-shrink-0 items-center justify-center rounded',
+            bg,
+            contrastText
+          )}
+        >
+          {conversation.agent ? (
+            <Text className={contrastText} styleAs="p-xs">
+              {conversation.agent.name[0]}
+            </Text>
+          ) : (
+            <CoralLogo className={cn('scale-50', contrastFill)} />
+          )}
+        </div>
+        <Text styleAs="p-sm" className="truncate text-volcanic-500 dark:text-mushroom-800">
+          {conversation.agent?.name ?? 'Cohere AI'}
+        </Text>
+        <Text styleAs="code-sm" className="ml-auto mt-0.5 uppercase dark:text-mushroom-800">
+          {formatDateToShortDate(conversation.updatedAt)}
+        </Text>
+      </div>
     </div>
   );
 
-  const conversationUrl = agentId ? `/a/${agentId}/c/${conversationId}` : `/c/${conversationId}`;
+  const conversationUrl = conversation.agent
+    ? `/a/${conversation.agent.id}/c/${conversationId}`
+    : `/c/${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
@@ -106,7 +143,8 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         shallow
         onClick={() => {
           setConversation({ id: conversationId, name });
-          setSettings({ isMobileConvListPanelOpen: false });
+          isMobile && setLeftPanelOpen(false);
+          clearComposerFiles();
         }}
         className={wrapperClassName}
       >
@@ -114,18 +152,57 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       </Link>
     );
 
+  if (!isLeftPanelOpen) {
+    const content = (
+      <div
+        className={cn(
+          'flex size-8 flex-shrink-0 items-center justify-center rounded',
+          bg,
+          contrastText
+        )}
+      >
+        {conversation.agent ? (
+          <Text>{conversation.agent.name[0]}</Text>
+        ) : (
+          <CoralLogo className={contrastFill} />
+        )}
+      </div>
+    );
+    return (
+      <div {...flippedProps}>
+        <Tooltip label={conversation.title} placement={'bottom-end'} hover size="sm">
+          {isActive && isDesktop ? (
+            <div className="select-none">{content}</div>
+          ) : (
+            <Link
+              href={conversationUrl}
+              key={conversationId}
+              shallow
+              onClick={() => {
+                setConversation({ id: conversationId, name });
+                isMobile && setLeftPanelOpen(false);
+              }}
+            >
+              {content}
+            </Link>
+          )}
+        </Tooltip>
+      </div>
+    );
+  }
+
   return (
     <div
       {...flippedProps}
       className={cn('group relative flex w-full rounded-lg', 'flex items-start gap-x-1', {
-        'bg-marble-1000 transition-colors ease-in-out hover:bg-mushroom-900/20': !isActive,
-        'bg-mushroom-900/40': isActive,
+        'transition-colors ease-in-out hover:bg-white dark:hover:bg-volcanic-200': !isActive,
+        'bg-white dark:bg-volcanic-200': isActive,
       })}
     >
       {conversationLink}
       <div className="absolute right-3 top-3.5 flex">
         <KebabMenu
-          anchor="left start"
+          anchor="right start"
           items={menuItems}
           className={cn('flex', {
             'hidden group-hover:flex': !isTouchDevice,

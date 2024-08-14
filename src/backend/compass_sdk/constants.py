@@ -16,7 +16,6 @@ NUM_ADDITIONAL_CHARS_FOR_METADATA = 100
 SKIP_INFER_TABLE_TYPES = ["jpg", "png", "xls", "xlsx", "heic"]
 
 # Metadata detection constants
-COHERE_API_ENV_VAR = "COHERE_API_KEY"
 DEFAULT_COMMANDR_EXTRACTABLE_ATTRIBUTES = ["title", "authors", "date"]
 DEFAULT_COMMANDR_PROMPT = """
         Given the following document:

@@ -1,5 +1,3 @@
-import os
-
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
@@ -14,6 +12,7 @@ from backend.config.auth import (
     verify_migrate_token,
 )
 from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.config.settings import Settings
 from backend.routers.agent import default_agent_router
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -21,14 +20,19 @@ from backend.routers.chat import router as chat_router
 from backend.routers.conversation import router as conversation_router
 from backend.routers.deployment import router as deployment_router
 from backend.routers.experimental_features import router as experimental_feature_router
+from backend.routers.model import router as model_router
+from backend.routers.organization import router as organization_router
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
+<<<<<<< HEAD
 from backend.services.auth.request_validators import UPDATE_TOKEN_HEADER
 from backend.services.logger import LoggingMiddleware, get_logger
+=======
+from backend.services.context import ContextMiddleware, get_context
+from backend.services.logger.middleware import LoggingMiddleware
+>>>>>>> main
 from backend.services.metrics import MetricsMiddleware
-
-logger = get_logger()
 
 load_dotenv()
 
@@ -50,6 +54,8 @@ def create_app():
         agent_router,
         default_agent_router,
         snapshot_router,
+        organization_router,
+        model_router,
     ]
 
     # Dynamically set router dependencies
@@ -57,9 +63,8 @@ def create_app():
     dependencies_type = "default"
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
-        app.add_middleware(
-            SessionMiddleware, secret_key=os.environ.get("AUTH_SECRET_KEY")
-        )
+        auth_secret = Settings().auth.secret_key
+        app.add_middleware(SessionMiddleware, secret_key=auth_secret)
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():
@@ -80,6 +85,7 @@ def create_app():
     )
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(MetricsMiddleware)
+    app.add_middleware(ContextMiddleware)  # This should be the first middleware
 
     return app
 
@@ -89,8 +95,15 @@ app = create_app()
 
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
-    logger.info(
-        f"Error occurred: {exc!r} during request: {request.method}, {request.url}"
+    ctx = get_context(request)
+    logger = ctx.get_logger()
+
+    logger.exception(
+        event="Unhandled exception",
+        error=str(exc),
+        method=request.method,
+        url=request.url,
+        ctx=ctx,
     )
 
     return JSONResponse(

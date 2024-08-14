@@ -1,4 +1,3 @@
-import os
 from typing import Any, Dict, List
 
 from langchain.text_splitter import CharacterTextSplitter
@@ -7,6 +6,8 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
+from backend.config.settings import Settings
+from backend.model_deployments.cohere_platform import COHERE_API_KEY_ENV_VAR
 from backend.tools.base import BaseTool
 
 """
@@ -33,7 +34,9 @@ class LangChainWikiRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         wiki_retriever = WikipediaRetriever()
         query = parameters.get("query", "")
         docs = wiki_retriever.get_relevant_documents(query)
@@ -58,7 +61,7 @@ class LangChainVectorDBRetriever(BaseTool):
     """
 
     NAME = "vector_retriever"
-    COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
+    COHERE_API_KEY = Settings().deployments.cohere_platform.api_key
 
     def __init__(self, filepath: str):
         self.filepath = filepath
@@ -67,7 +70,9 @@ class LangChainVectorDBRetriever(BaseTool):
     def is_available(cls) -> bool:
         return cls.COHERE_API_KEY is not None
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         cohere_embeddings = CohereEmbeddings(cohere_api_key=self.COHERE_API_KEY)
 
         # Load text files and split into chunks

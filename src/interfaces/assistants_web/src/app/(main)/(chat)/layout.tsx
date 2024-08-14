@@ -1,21 +1,15 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 
-import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
-import { BannerContext } from '@/context/BannerContext';
+import RightPanel from '@/components/Agents/RightPanel';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useListAllDeployments } from '@/hooks/deployments';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
 const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { data: experimentalFeatures } = useExperimentalFeatures();
-  const {
-    settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
-  } = useSettingsStore();
   const { resetConversation } = useConversationStore();
   const {
     params: { deployment },
@@ -23,17 +17,15 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
 
-  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const { setMessage } = useContext(BannerContext);
-
+  const { isRightPanelOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
-  const isMobile = !isDesktop;
 
   // Reset conversation when unmounting
   useEffect(() => {
     return () => {
       resetConversation();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -43,45 +35,27 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         setParams({ deployment: firstAvailableDeployment.name });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployment, allDeployments]);
 
-  useEffect(() => {
-    if (!isLangchainModeOn) return;
-    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isLangchainModeOn]);
-
   return (
-    <div className="flex h-full">
+    <div className="relative flex h-full">
+      {children}
       <Transition
-        as="section"
-        appear
-        show={(isMobileConvListPanelOpen && isMobile) || (isConvListPanelOpen && isDesktop)}
-        enterFrom="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
-        enterTo="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
-        leaveFrom="translate-x-0 lg:min-w-[300px] lg:max-w-[300px]"
-        leaveTo="translate-x-full lg:translate-x-0 lg:min-w-0 lg:max-w-0"
+        show={isRightPanelOpen || isDesktop}
+        as="div"
         className={cn(
-          'z-main-section flex lg:min-w-0',
-          'absolute h-full w-full lg:static lg:h-auto',
-          'border-0 border-marble-950 md:border-r',
-          'transition-[transform,min-width,max-width] duration-300 ease-in-out'
+          'border-marble-950 bg-marble-980 px-6 dark:border-volcanic-200 dark:bg-volcanic-100',
+          'absolute inset-0 rounded-lg border lg:static lg:w-[360px] lg:rounded-none lg:rounded-r-lg lg:border-y lg:border-l-0 lg:border-r'
         )}
-      >
-        <ConversationListPanel />
-      </Transition>
-      <Transition
-        as="main"
-        show={isDesktop || !isMobileConvListPanelOpen}
-        enterFrom="-translate-x-full"
+        enter="transition-all transform ease-in-out duration-300"
+        enterFrom="translate-x-full"
         enterTo="translate-x-0"
-        leaveFrom="translate-x-0"
-        leaveTo="-translate-x-full"
-        className={cn(
-          'flex min-w-0 flex-grow flex-col',
-          'transition-transform duration-500 ease-in-out'
-        )}
+        leave="transition-all transform ease-in-out duration-300"
+        leaveFrom="translate-x-0 opacity-100"
+        leaveTo="translate-x-full opacity-0"
       >
-        {children}
+        <RightPanel />
       </Transition>
     </div>
   );

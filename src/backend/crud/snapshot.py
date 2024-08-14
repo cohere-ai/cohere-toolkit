@@ -4,9 +4,11 @@ from backend.database_models.snapshot import Snapshot, SnapshotAccess, SnapshotL
 from backend.schemas.snapshot import Snapshot as SnapshotSchema
 from backend.schemas.snapshot import SnapshotAccess as SnapshotAccessSchema
 from backend.schemas.snapshot import SnapshotLink as SnapshotLinkSchema
+from backend.services.transaction import validate_transaction
 
 
 # Snapshot
+@validate_transaction
 def create_snapshot(db: Session, snapshot: SnapshotSchema) -> Snapshot:
     """
     Create a new snapshot.
@@ -24,6 +26,7 @@ def create_snapshot(db: Session, snapshot: SnapshotSchema) -> Snapshot:
     return snapshot
 
 
+@validate_transaction
 def get_snapshot(db: Session, snapshot_id: str) -> SnapshotSchema | None:
     """
     Get a snapshot by ID.
@@ -38,6 +41,7 @@ def get_snapshot(db: Session, snapshot_id: str) -> SnapshotSchema | None:
     return db.query(Snapshot).filter(Snapshot.id == snapshot_id).first()
 
 
+@validate_transaction
 def get_snapshot_by_last_message_id(
     db: Session, last_message_id: str
 ) -> SnapshotSchema | None:
@@ -56,6 +60,7 @@ def get_snapshot_by_last_message_id(
     )
 
 
+@validate_transaction
 def list_snapshots(db: Session, user_id: str) -> list[SnapshotSchema]:
     """
     List all snapshots.
@@ -70,6 +75,7 @@ def list_snapshots(db: Session, user_id: str) -> list[SnapshotSchema]:
     return db.query(Snapshot).filter(Snapshot.user_id == user_id).all()
 
 
+@validate_transaction
 def delete_snapshot(db: Session, snapshot_id: str, user_id: str) -> None:
     """
     Delete a snapshot by ID.
@@ -85,7 +91,21 @@ def delete_snapshot(db: Session, snapshot_id: str, user_id: str) -> None:
     db.commit()
 
 
+@validate_transaction
+async def delete_snapshots_by_agent_id(db: Session, agent_id: str) -> None:
+    """
+    Delete snapshots by agent ID.
+
+    Args:
+        db (Session): Database session.
+        agent_id (str): Agent ID.
+    """
+    db.query(Snapshot).filter(Snapshot.agent_id == agent_id).delete()
+    db.commit()
+
+
 # SnapshotLink
+@validate_transaction
 def create_snapshot_link(
     db: Session, snapshot_link: SnapshotLinkSchema
 ) -> SnapshotLink:
@@ -105,6 +125,7 @@ def create_snapshot_link(
     return snapshot_link
 
 
+@validate_transaction
 def get_snapshot_link(db: Session, snapshot_link_id: str) -> SnapshotLinkSchema | None:
     """
     Get a snapshot link by ID.
@@ -119,6 +140,7 @@ def get_snapshot_link(db: Session, snapshot_link_id: str) -> SnapshotLinkSchema 
     return db.query(SnapshotLink).filter(SnapshotLink.id == snapshot_link_id).first()
 
 
+@validate_transaction
 def list_snapshot_links(db: Session, snapshot_id: str) -> list[SnapshotLinkSchema]:
     """
     List all snapshot links.
@@ -133,6 +155,7 @@ def list_snapshot_links(db: Session, snapshot_id: str) -> list[SnapshotLinkSchem
     return db.query(SnapshotLink).filter(SnapshotLink.snapshot_id == snapshot_id).all()
 
 
+@validate_transaction
 def delete_snapshot_link(db: Session, snapshot_link_id: str, user_id: str) -> None:
     """
     Delete a snapshot link by ID.
@@ -149,6 +172,7 @@ def delete_snapshot_link(db: Session, snapshot_link_id: str, user_id: str) -> No
 
 
 # SnapshotAccess
+@validate_transaction
 def create_snapshot_access(
     db: Session, snapshot_access: SnapshotAccessSchema
 ) -> SnapshotAccess:
@@ -168,6 +192,7 @@ def create_snapshot_access(
     return snapshot_access
 
 
+@validate_transaction
 def get_snapshot_access(
     db: Session, snapshot_access_id: str
 ) -> SnapshotAccessSchema | None:

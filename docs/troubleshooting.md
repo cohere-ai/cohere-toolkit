@@ -16,14 +16,6 @@ Make sure you run the following command before running make dev:
 make migrate
 ```
 
-## Error using with Codespaces 
-
-When using with codespaces you need to change the location of the backend: 
-- Next to the "terminal" tab, go to the "port" tab ([info on ports](https://docs.github.com/en/codespaces/developing-in-a-codespace/forwarding-ports-in-your-codespace))
-- Go to the port 8000 for the backend
-- Right-click and make the port visibility public.
-- Then set in the .env file the NEXT_PUBLIC_API_HOSTNAME value to the forwarded address for port 8000
-
 ## Error installing psycopg2
 
 If you see the following error 
@@ -94,5 +86,5 @@ Then delete <my_migration_id>.py for your existing changes, and run:
 make migrate
 To sync with main, then:
 
-make migration
+make migration message="Your migration changes"
 to regenerate your migrations.

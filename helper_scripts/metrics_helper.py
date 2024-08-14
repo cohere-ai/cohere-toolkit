@@ -1,4 +1,3 @@
-import json
 import re
 from uuid import uuid4
 
@@ -20,7 +19,12 @@ def agents():
             "temperature": 0.5,
             "model": "command-r-plus",
             "deployment": "Cohere Platform",
-            "tools": ["toolkit_calculator"],
+            "tools": [
+                "search_file",
+                "read_document",
+                "toolkit_calculator",
+                "wikipedia",
+            ],
         },
     )
     print("create agent")
@@ -71,10 +75,7 @@ def chat(agent_id):
     response = requests.post(
         f"http://localhost:8000/v1/chat-stream?agent_id={agent_id}",
         headers=headers,
-        json={
-            "message": "who is bo burnham?",
-            "tools": [{"name": "web_search"}],
-        },
+        json={"message": "who is bo burnham?", "tools": [{"name": "web_search"}]},
     )
 
     print(response.status_code)

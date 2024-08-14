@@ -50,15 +50,13 @@ const Register: React.FC = () => {
         Create your account
       </Text>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex w-full flex-col">
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex w-full flex-col gap-4">
         <Input
           className="w-full"
           label="name"
           placeholder="Your Name"
           type="text"
-          stackPosition="start"
-          hasError={!!formState.errors.name}
-          errorText="Please enter a name"
+          errorText={!!formState.errors.name ? 'Please enter a name' : undefined}
           {...register('name', {
             required: true,
             validate: (value) => !!value.trim(),
@@ -70,9 +68,7 @@ const Register: React.FC = () => {
           label="Email"
           placeholder="yourname@email.com"
           type="email"
-          stackPosition="center"
-          hasError={!!formState.errors.email}
-          errorText="Please enter a valid email address"
+          errorText={!!formState.errors.email ? 'Please enter a valid email address' : undefined}
           {...register('email', {
             required: true,
             validate: (value) => simpleEmailValidation(value),
@@ -84,10 +80,8 @@ const Register: React.FC = () => {
           label="Password"
           placeholder="••••••••••••"
           type="password"
-          actionType="revealable"
-          stackPosition="end"
-          hasError={!!formState.errors.password}
-          errorText="Please enter a valid password"
+          actionType="reveal"
+          errorText={!!formState.errors.password ? 'Please enter a valid password' : undefined}
           {...register('password', { required: true })}
         />
 
@@ -103,18 +97,23 @@ const Register: React.FC = () => {
         <Button
           disabled={registerStatus === 'pending' || !formState.isValid}
           label={registerStatus === 'pending' ? 'Logging in...' : 'Sign up'}
-          type="submit"
-          className="mt-10 w-full self-center md:w-fit"
-          splitIcon="arrow-right"
+          buttonType="submit"
+          theme="evolved-green"
+          kind="cell"
+          iconPosition="end"
+          className="w-full self-center md:w-fit"
         />
       </form>
 
-      <Text as="div" className="mt-10 flex w-full items-center justify-between text-volcanic-400">
+      <Text
+        as="div"
+        className="mt-10 flex w-full items-center justify-center gap-2 text-volcanic-400 dark:text-marble-950"
+      >
         Already have an account?
         <AuthLink
           redirect={redirect !== '/' ? redirect : undefined}
           action="login"
-          className="text-green-250 no-underline"
+          theme="evolved-green"
         />
       </Text>
     </div>

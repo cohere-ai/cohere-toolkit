@@ -14,14 +14,16 @@ class ModelDeploymentName(StrEnum):
 
 AVAILABLE_MODEL_DEPLOYMENTS = {
     # ModelDeploymentName.HuggingFace: Deployment(
+    #     id = "hugging_face",
     #     name=ModelDeploymentName.HuggingFace,
     #     deployment_class=HuggingFaceDeployment,
     #     models=HuggingFaceDeployment.list_models(),
     #     is_available=HuggingFaceDeployment.is_available(),
     #     env_vars=[],
     # ),
-    # Add the below for local model deployments
+    # # Add the below for local model deployments
     # ModelDeploymentName.LocalModel: Deployment(
+    #     id = "local_model",
     #     name=ModelDeploymentName.LocalModel,
     #     deployment_class=LocalModelDeployment,
     #     models=LocalModelDeployment.list_models(),

@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
+import { CookiesProvider } from 'next-client-cookies/server';
+import { PublicEnvScript } from 'next-runtime-env';
+import { cookies } from 'next/headers';
 
 import { LayoutProviders } from '@/app/_providers';
-import { env } from '@/env.mjs';
+import { COOKIE_KEYS } from '@/constants';
 import '@/styles/main.css';
-import { cn } from '@/utils';
 
 export const metadata: Metadata = {
   title: {
@@ -13,10 +15,15 @@ export const metadata: Metadata = {
 };
 
 const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get(COOKIE_KEYS.authToken)?.value;
   return (
-    <html lang="en" className={cn({ dark: env.NEXT_PUBLIC_DARK_MODE })}>
+    <html lang="en">
+      <PublicEnvScript />
       <body>
-        <LayoutProviders>{children}</LayoutProviders>
+        <CookiesProvider>
+          <LayoutProviders authToken={authToken}>{children}</LayoutProviders>
+        </CookiesProvider>
       </body>
     </html>
   );

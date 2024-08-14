@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
 
 import {
   ApiError,
@@ -13,8 +12,9 @@ import {
 import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
+import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useNotify } from '@/hooks/toast';
-import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import { useConversationStore } from '@/stores';
 import { isAbortError } from '@/utils';
 
 export const useConversations = (params: { offset?: number; limit?: number; agentId?: string }) => {
@@ -29,7 +29,7 @@ export const useConversations = (params: { offset?: number; limit?: number; agen
         return conversations;
       }
 
-      return conversations.filter((c) => c.agent_id === null);
+      return conversations;
     },
     retry: 0,
     refetchOnWindowFocus: false,
@@ -101,16 +101,13 @@ export const useDeleteConversation = () => {
 };
 
 export const useConversationActions = () => {
-  const router = useRouter();
-  const pathname = usePathname();
+  const { agentId } = useChatRoutes();
   const { open, close } = useContextStore();
   const {
-    resetConversation,
     conversation: { id: conversationId },
   } = useConversationStore();
-  const { resetCitations } = useCitationsStore();
-  const { resetFileParams } = useParamsStore();
   const notify = useNotify();
+  const navigateToNewChat = useNavigateToNewChat();
   const { mutateAsync: deleteConversation, isPending } = useDeleteConversation();
 
   const handleDeleteConversation = async ({
@@ -125,11 +122,7 @@ export const useConversationActions = () => {
       onComplete?.();
 
       if (id === conversationId) {
-        resetConversation();
-        resetCitations();
-        resetFileParams();
-        const newUrl = pathname.replace(`/c/${id}`, '');
-        router.push(newUrl, undefined); // go to new chat
+        navigateToNewChat(agentId);
       }
     };
 

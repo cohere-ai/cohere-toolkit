@@ -1,19 +1,18 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
+  Body_batch_upload_file_v1_conversations_batch_upload_file_post,
   Body_upload_file_v1_conversations_upload_file_post,
-  CancelablePromise,
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
   CohereUnauthorizedError,
-  CreateAgent,
-  CreateSnapshot,
+  CreateAgentRequest,
+  CreateSnapshotRequest,
   CreateUser,
-  ExperimentalFeatures,
   Fetch,
-  UpdateAgent,
-  UpdateConversation,
+  UpdateAgentRequest,
+  UpdateConversationRequest,
   UpdateDeploymentEnv,
 } from '@/cohere-client';
 
@@ -54,6 +53,12 @@ export class CohereClient {
 
   public uploadFile(formData: Body_upload_file_v1_conversations_upload_file_post) {
     return this.cohereService.default.uploadFileV1ConversationsUploadFilePost({
+      formData,
+    });
+  }
+
+  public batchUploadFile(formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post) {
+    return this.cohereService.default.batchUploadFileV1ConversationsBatchUploadFilePost({
       formData,
     });
   }
@@ -158,7 +163,7 @@ export class CohereClient {
     });
   }
 
-  public editConversation(requestBody: UpdateConversation, conversationId: string) {
+  public editConversation(requestBody: UpdateConversationRequest, conversationId: string) {
     return this.cohereService.default.updateConversationV1ConversationsConversationIdPut({
       conversationId: conversationId,
       requestBody,
@@ -178,10 +183,6 @@ export class CohereClient {
       name: name,
       requestBody,
     });
-  }
-
-  public getExperimentalFeatures() {
-    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet() as CancelablePromise<ExperimentalFeatures>;
   }
 
   public login({ email, password }: { email: string; password: string }) {
@@ -270,7 +271,7 @@ export class CohereClient {
     return this.cohereService.default.getDefaultAgentV1DefaultAgentGet();
   }
 
-  public createAgent(requestBody: CreateAgent) {
+  public createAgent(requestBody: CreateAgentRequest) {
     return this.cohereService.default.createAgentV1AgentsPost({ requestBody });
   }
 
@@ -278,7 +279,7 @@ export class CohereClient {
     return this.cohereService.default.listAgentsV1AgentsGet({ offset, limit });
   }
 
-  public updateAgent(requestBody: UpdateAgent, agentId: string) {
+  public updateAgent(requestBody: UpdateAgentRequest, agentId: string) {
     return this.cohereService.default.updateAgentV1AgentsAgentIdPut({
       agentId: agentId,
       requestBody,
@@ -299,7 +300,7 @@ export class CohereClient {
     return this.cohereService.default.listSnapshotsV1SnapshotsGet();
   }
 
-  public createSnapshot(requestBody: CreateSnapshot) {
+  public createSnapshot(requestBody: CreateSnapshotRequest) {
     return this.cohereService.default.createSnapshotV1SnapshotsPost({ requestBody });
   }
 
@@ -325,6 +326,7 @@ export class CohereClient {
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
       Connection: 'keep-alive',
+      'X-Date': new Date().getTime().toString(),
     };
     return headers;
   }

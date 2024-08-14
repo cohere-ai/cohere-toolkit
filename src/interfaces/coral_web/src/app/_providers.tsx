@@ -1,11 +1,11 @@
 'use client';
 
-import { useLocalStorageValue } from '@react-hookz/web';
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
+import { setAuthToken, clearAuthToken } from '@/app/server.actions';
 import {
   CohereClient,
   CohereClientProvider,
@@ -15,7 +15,6 @@ import {
 import { ToastNotification, WebManifestHead } from '@/components/Shared';
 import { GlobalHead } from '@/components/Shared/GlobalHead';
 import { ViewportFix } from '@/components/ViewportFix';
-import { LOCAL_STORAGE_KEYS } from '@/constants';
 import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useLazyRef } from '@/hooks/lazyRef';
@@ -30,13 +29,11 @@ const makeCohereClient = (authToken?: string, onAuthTokenUpdate?: (authToken?: s
   });
 };
 
-export const LayoutProviders: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { value: authToken, set: setAuthToken, remove: clearAuthToken } = useLocalStorageValue<string>(
-    LOCAL_STORAGE_KEYS.authToken,
-    {
-      defaultValue: undefined,
-    }
-  );
+
+export const LayoutProviders: React.FC<React.PropsWithChildren<{ authToken?: string }>> = ({
+  children,
+  authToken,
+}) => {
 
   const onAuthTokenUpdate = useCallback((newAuthToken: string | undefined) => {
     if (newAuthToken) {
@@ -44,7 +41,7 @@ export const LayoutProviders: React.FC<React.PropsWithChildren> = ({ children })
     } else {
       clearAuthToken();
     }
-  }, [setAuthToken, clearAuthToken]);
+  }, []);
 
   const router = useRouter();
 

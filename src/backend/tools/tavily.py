@@ -1,17 +1,16 @@
-import copy
-import os
 from typing import Any, Dict, List
 
 from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
+from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.tools.base import BaseTool
 
 
 class TavilyInternetSearch(BaseTool):
     NAME = "web_search"
-    TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
+    TAVILY_API_KEY = Settings().tools.web_search.api_key
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
@@ -21,7 +20,9 @@ class TavilyInternetSearch(BaseTool):
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
         result = self.client.search(
             query=query, search_depth="advanced", include_raw_content=True
@@ -50,11 +51,11 @@ class TavilyInternetSearch(BaseTool):
                     expanded.append(new_result)
 
         reranked_results = await self.rerank_page_snippets(
-            query, expanded, model=kwargs.get("model_deployment"), **kwargs
+            query, expanded, model=kwargs.get("model_deployment"), ctx=ctx, **kwargs
         )
 
         return [
-            {"url": result["url"], "text": result["content"]}
+            {"url": result["url"], "text": result["content"], "title": result["title"]}
             for result in reranked_results
         ]
 
@@ -63,6 +64,7 @@ class TavilyInternetSearch(BaseTool):
         query: str,
         snippets: List[Dict[str, Any]],
         model: BaseDeployment,
+        ctx: Any,
         **kwargs: Any,
     ) -> List[Dict[str, Any]]:
         if len(snippets) == 0:
@@ -78,7 +80,7 @@ class TavilyInternetSearch(BaseTool):
                     f"{snippet['title']} {snippet['content']}"
                     for snippet in snippet_batch
                 ],
-                **kwargs,
+                ctx=ctx,
             )
             for b in batch_output.get("results", []):
                 index = b.get("index", None)

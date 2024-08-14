@@ -1,10 +1,9 @@
 import json
-import logging
 from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
@@ -15,6 +14,7 @@ from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
+from backend.crud import deployment as deployment_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
@@ -22,12 +22,12 @@ from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
-from backend.database_models.message import Message, MessageAgent
-from backend.database_models.tool_call import ToolCall as ToolCallModel
-from backend.routers.utils import (
-    add_agent_to_request_state,
-    add_session_user_to_request_state,
+from backend.database_models.message import (
+    Message,
+    MessageAgent,
+    MessageFileAssociation,
 )
+from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -49,11 +49,12 @@ from backend.schemas.chat import (
     ToolInputType,
 )
 from backend.schemas.cohere_chat import CohereChatRequest
+from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
-from backend.schemas.file import UpdateFileRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
-from backend.services.auth.utils import get_header_user_id
+from backend.services.agent import validate_agent_exists
+from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
 
 
@@ -61,7 +62,7 @@ def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,
     request: Request,
-    agent_id: str | None = None,
+    ctx: Context,
 ) -> tuple[
     DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
 ]:
@@ -72,31 +73,19 @@ def process_chat(
         chat_request (BaseChatRequest): Chat request data.
         session (DBSessionDep): Database session.
         request (Request): Request object.
+        ctx (Context): Context object.
 
     Returns:
         Tuple: Tuple containing necessary data to construct the responses.
     """
-    user_id = get_header_user_id(request)
-    deployment_name = request.headers.get("Deployment-Name", "")
-    model_config = {}
-    # Deployment config is the settings for the model deployment per request
-    # It is a string of key value pairs separated by semicolons
-    # For example: "azure_key1=value1;azure_key2=value2"
-    if not request.headers.get("Deployment-Config", "") == "":
-        model_config = get_deployment_config(request)
+    user_id = ctx.get_user_id()
+    ctx.with_deployment_config()
+    agent_id = ctx.get_agent_id()
 
     if agent_id is not None:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-
-        # TODO: @Scott Validation error still needs to be fixed here
-        # ROD: error count: <built-in method error_count of pydantic_core._pydantic_core.ValidationError object at 0xffff703f08b0>
-
-        try:
-            add_agent_to_request_state(request, agent)
-        except ValidationError as exc:
-            print(f"Validation error count: {exc.error_count()}")
-            for err in exc.errors():
-                print(f"ROD: error: {repr(err)}")
+        agent = validate_agent_exists(session, agent_id, user_id)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
 
         if agent is None:
             raise HTTPException(
@@ -107,16 +96,13 @@ def process_chat(
             for tool in chat_request.tools:
                 if tool.name not in agent.tools:
                     raise HTTPException(
-                        status_code=400,
+                        status_code=404,
                         detail=f"Tool {tool.name} not found in agent {agent.id}",
                     )
 
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-        # NOTE TEMPORARY: we do not set a the model for now and just use the default model
-        chat_request.model = None
-        # chat_request.model = agent.model
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -124,6 +110,8 @@ def process_chat(
     conversation = get_or_create_conversation(
         session, chat_request, user_id, should_store, agent_id, chat_request.message
     )
+
+    ctx.with_conversation_id(conversation.id)
 
     # Get position to put next message in
     next_message_position = get_next_message_position(conversation)
@@ -155,7 +143,10 @@ def process_chat(
         file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
-                session, user_id, user_message.id, chat_request.file_ids
+                session,
+                user_id,
+                user_message.id,
+                chat_request.file_ids,
             )
 
     chat_history = create_chat_history(
@@ -176,25 +167,11 @@ def process_chat(
         chat_request,
         file_paths,
         chatbot_message,
-        conversation.id,
-        user_id,
-        deployment_name,
         should_store,
         managed_tools,
-        model_config,
         next_message_position,
+        ctx,
     )
-
-
-def get_deployment_config(request: Request) -> dict:
-    header = request.headers.get("Deployment-Config", "")
-    config = {}
-    for c in header.split(";"):
-        kv = c.split("=")
-        if len(kv) < 2:
-            continue
-        config[kv[0]] = "".join(kv[1:])
-    return config
 
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
@@ -346,7 +323,7 @@ def handle_file_retrieval(
     file_paths = None
     # Use file_ids if provided
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
+        files = get_file_service().get_files_by_ids(session, file_ids, user_id)
         file_paths = [file.file_path for file in files]
 
     return file_paths
@@ -359,7 +336,7 @@ def attach_files_to_messages(
     file_ids: List[str] | None = None,
 ) -> None:
     """
-    Attach Files to Message if the File does not have a message_id foreign key.
+    Attach Files to Message if the message file association does not exists with the file ID
 
     Args:
         session (DBSessionDep): Database session.
@@ -371,11 +348,20 @@ def attach_files_to_messages(
         None
     """
     if file_ids is not None:
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
-        for file in files:
-            if file.message_id is None:
-                file_crud.update_file(
-                    session, file, UpdateFileRequest(message_id=message_id)
+        for file_id in file_ids:
+            message_file_association = (
+                message_crud.get_message_file_association_by_file_id(
+                    session, file_id, user_id
+                )
+            )
+
+            # If the file is not associated with a file yet, create the association
+            if message_file_association is None:
+                message_crud.create_message_file_association(
+                    session,
+                    MessageFileAssociation(
+                        message_id=message_id, user_id=user_id, file_id=file_id
+                    ),
                 )
 
 
@@ -487,9 +473,8 @@ async def generate_chat_response(
     session: DBSessionDep,
     model_deployment_stream: Generator[StreamedChatResponse, None, None],
     response_message: Message,
-    conversation_id: str,
-    user_id: str,
     should_store: bool = True,
+    ctx: Context = Context(),
     **kwargs: Any,
 ) -> NonStreamedChatResponse:
     """
@@ -501,9 +486,8 @@ async def generate_chat_response(
         session (DBSessionDep): Database session.
         model_deployment_stream (Generator[StreamResponse, None, None]): Model deployment stream.
         response_message (Message): Response message object.
-        conversation_id (str): Conversation ID.
-        user_id (str): User ID.
         should_store (bool): Whether to store the conversation in the database.
+        ctx (Context): Context object.
         **kwargs (Any): Additional keyword arguments.
 
     Yields:
@@ -513,9 +497,8 @@ async def generate_chat_response(
         session,
         model_deployment_stream,
         response_message,
-        conversation_id,
-        user_id,
         should_store,
+        ctx,
         **kwargs,
     )
 
@@ -524,7 +507,7 @@ async def generate_chat_response(
         event = json.loads(event)
         if event["event"] == StreamEvent.STREAM_END:
             data = event["data"]
-            response_id = response_message.id if response_message else None
+            response_id = ctx.get_trace_id()
             generation_id = response_message.generation_id if response_message else None
 
             non_streamed_chat_response = NonStreamedChatResponse(
@@ -538,8 +521,9 @@ async def generate_chat_response(
                 documents=data.get("documents", []),
                 search_results=data.get("search_results", []),
                 event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
-                conversation_id=conversation_id,
+                conversation_id=ctx.get_conversation_id(),
                 tool_calls=data.get("tool_calls", []),
+                error=data.get("error", None),
             )
 
     return non_streamed_chat_response
@@ -549,9 +533,8 @@ async def generate_chat_stream(
     session: DBSessionDep,
     model_deployment_stream: AsyncGenerator[Any, Any],
     response_message: Message,
-    conversation_id: str,
-    user_id: str,
     should_store: bool = True,
+    ctx: Context = Context(),
     **kwargs: Any,
 ) -> AsyncGenerator[Any, Any]:
     """
@@ -564,14 +547,18 @@ async def generate_chat_stream(
         conversation_id (str): Conversation ID.
         user_id (str): User ID.
         should_store (bool): Whether to store the conversation in the database.
+        ctx (Context): Context object.
         **kwargs (Any): Additional keyword arguments.
 
     Yields:
         bytes: Byte representation of chat response event.
     """
+    conversation_id = ctx.get_conversation_id()
+    user_id = ctx.get_user_id()
+
     stream_end_data = {
         "conversation_id": conversation_id,
-        "response_id": response_message.id if response_message else None,
+        "response_id": ctx.get_trace_id(),
         "text": "",
         "citations": [],
         "documents": [],
@@ -596,6 +583,7 @@ async def generate_chat_stream(
             conversation_id,
             stream_end_data,
             response_message,
+            ctx,
             document_ids_to_document,
             session=session,
             should_store=should_store,
@@ -623,12 +611,15 @@ def handle_stream_event(
     conversation_id: str,
     stream_end_data: dict[str, Any],
     response_message: Message,
+    ctx: Context,
     document_ids_to_document: dict[str, Document] = {},
     session: DBSessionDep = None,
     should_store: bool = True,
     user_id: str = "",
     next_message_position: int = 0,
 ) -> tuple[StreamEventType, dict[str, Any], Message, dict[str, Document]]:
+    logger = ctx.get_logger()
+
     handlers = {
         StreamEvent.STREAM_START: handle_stream_start,
         StreamEvent.TEXT_GENERATION: handle_stream_text_generation,
@@ -642,7 +633,9 @@ def handle_stream_event(
     event_type = event["event_type"]
 
     if event_type not in handlers.keys():
-        logging.warning(f"Event type {event_type} not supported")
+        logger.warning(
+            event=f"[Chat] Error handling stream event: Event type {event_type} not supported"
+        )
         return None, stream_end_data, response_message, document_ids_to_document
 
     return handlers[event_type](
@@ -806,12 +799,15 @@ def handle_stream_citation_generation(
             user_id=response_message.user_id,
             start=event_citation.get("start"),
             end=event_citation.get("end"),
-            document_ids=event_citation.get("document_ids"),
         )
-        for document_id in citation.document_ids:
+
+        document_ids = event_citation.get("document_ids")
+        for document_id in document_ids:
             document = document_ids_to_document.get(document_id, None)
             if document is not None:
                 citation.documents.append(document)
+
+        # Populates CitationDocuments table
         citations.append(citation)
     stream_event = StreamCitationGeneration(**event | {"citations": citations})
     stream_end_data["citations"].extend(citations)

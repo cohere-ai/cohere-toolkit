@@ -17,6 +17,7 @@ dist
 .env.development.local
 .env.test.local
 .env.production.local
+.env.local
 
 # typescript
 *.tsbuildinfo
@@ -24,3 +25,4 @@ dist
 # package manager lock files not supported
 yarn.lock
 pnpm-lock.yaml
+*storybook.log

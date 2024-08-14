@@ -1,239 +1,110 @@
 'use client';
 
-import { Transition } from '@headlessui/react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useContext } from 'react';
-
+import { AgentPublic } from '@/cohere-client';
 import { IconButton } from '@/components/IconButton';
-import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
-import { Text } from '@/components/Shared';
-import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
-import { ModalContext } from '@/context/ModalContext';
-import { useAgent } from '@/hooks/agents';
-import { useIsDesktop } from '@/hooks/breakpoint';
-import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
-import { useSession } from '@/hooks/session';
-import {
-  useAgentsStore,
-  useCitationsStore,
-  useConversationStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { Button, Icon, Logo, Text } from '@/components/Shared';
+import { useContextStore } from '@/context';
+import { env } from '@/env.mjs';
+import { useBrandedColors } from '@/hooks/brandedColors';
+import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
-const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
-  const { open } = useContext(ModalContext);
+type Props = {
+  agent?: AgentPublic;
+};
+
+export const Header: React.FC<Props> = ({ agent }) => {
   const {
-    conversation: { id: conversationId },
-    resetConversation,
+    conversation: { id },
   } = useConversationStore();
-  const { resetCitations } = useCitationsStore();
-  const { userId } = useSession();
-  const { data: agent } = useAgent({ agentId });
-  const isAgentCreator = userId === agent?.user_id;
-
-  const {
-    setSettings,
-    settings: { isConfigDrawerOpen },
-  } = useSettingsStore();
-  const {
-    agents: { isEditAgentPanelOpen },
-    setEditAgentPanelOpen,
-  } = useAgentsStore();
-  const { resetFileParams } = useParamsStore();
-  const router = useRouter();
-  const pathname = usePathname();
-  const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
-    useWelcomeGuideState();
-
-  const handleNewChat = () => {
-    const url = agentId ? `/a/${agentId}` : pathname.includes('/a') ? '/a' : '/';
-    router.push(url, undefined);
-    resetConversation();
-    resetCitations();
-    resetFileParams();
-  };
+  const { setLeftPanelOpen, setRightPanelOpen } = useSettingsStore();
+  const { open } = useContextStore();
+  const { text, bg, contrastText, lightText, fill, lightFill, dark, light } = useBrandedColors(
+    agent?.id
+  );
 
   const handleOpenShareModal = () => {
-    if (!conversationId) return;
+    if (!id) return;
     open({
       title: 'Share link to conversation',
-      content: <ShareModal conversationId={conversationId} />,
+      content: <ShareModal conversationId={id} />,
     });
   };
 
-  const handleToggleConfigSettings = () => {
-    setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
-
-    if (welcomeGuideState === WelcomeGuideStep.ONE && pathname === '/') {
-      progressWelcomeGuideStep();
-    } else if (welcomeGuideState !== WelcomeGuideStep.DONE) {
-      finishWelcomeGuide();
-    }
+  const handleOpenLeftSidePanel = () => {
+    setRightPanelOpen(false);
+    setLeftPanelOpen(true);
   };
 
-  const handleOpenAgentDrawer = () => {
-    setEditAgentPanelOpen(!isEditAgentPanelOpen);
-    setSettings({ isConvListPanelOpen: false });
+  const handleOpenRightSidePanel = () => {
+    setLeftPanelOpen(false);
+    setRightPanelOpen(true);
   };
-
-  const menuItems: KebabMenuItem[] = [
-    ...(!!agent
-      ? [
-          {
-            label: isAgentCreator ? 'Edit assistant' : 'About assistant',
-            iconName: isAgentCreator ? 'edit' : 'information',
-            onClick: handleOpenAgentDrawer,
-          } as KebabMenuItem,
-        ]
-      : []),
-    {
-      label: 'Settings',
-      iconName: 'settings',
-      onClick: handleToggleConfigSettings,
-    },
-    {
-      label: 'Share',
-      iconName: 'share',
-      onClick: handleOpenShareModal,
-    },
-    {
-      label: 'New chat',
-      iconName: 'new-message',
-      onClick: handleNewChat,
-    },
-  ];
-
-  return {
-    menuItems,
-    isAgentCreator,
-    handleNewChat,
-    handleOpenShareModal,
-    handleToggleConfigSettings,
-    handleOpenAgentDrawer,
-  };
-};
-
-type Props = {
-  isStreaming?: boolean;
-  conversationId?: string;
-  agentId?: string;
-};
-
-export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
-  const {
-    conversation: { id, name },
-  } = useConversationStore();
-  const {
-    settings: { isConvListPanelOpen, isConfigDrawerOpen },
-    setSettings,
-    setIsConvListPanelOpen,
-  } = useSettingsStore();
-  const {
-    setAgentsSidePanelOpen,
-    agents: { isEditAgentPanelOpen },
-  } = useAgentsStore();
-
-  const { welcomeGuideState } = useWelcomeGuideState();
-
-  const isDesktop = useIsDesktop();
-  const isMobile = !isDesktop;
-  const {
-    menuItems,
-    isAgentCreator,
-    handleNewChat,
-    handleOpenShareModal,
-    handleToggleConfigSettings,
-    handleOpenAgentDrawer,
-  } = useHeaderMenu({
-    agentId,
-  });
 
   return (
-    <div className={cn('flex h-header w-full min-w-0 items-center border-b', 'border-marble-950')}>
-      <div
-        className={cn('flex w-full flex-1 items-center justify-between px-5', { truncate: !!id })}
-      >
-        <span
-          className={cn(
-            'relative flex min-w-0 flex-grow items-center gap-x-1 overflow-hidden py-4'
-          )}
-        >
-          {(isMobile || !isConvListPanelOpen) && (
-            <Transition
-              show={true}
-              appear
-              enter="delay-300 transition ease-in-out duration-300"
-              enterFrom="-translate-x-full"
-              enterTo="translate-x-0"
-              leave="delay-300 transition ease-in-out duration-300"
-              leaveFrom="translate-x-0"
-              leaveTo="-translate-x-full"
-              as="div"
+    <div className="flex h-header w-full min-w-0 items-center">
+      <div className="flex w-full flex-1 items-center justify-between px-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleOpenLeftSidePanel}
+            className="flex h-full items-center gap-4 lg:hidden"
+          >
+            {agent ? (
+              <Text
+                className={cn(
+                  'size-5 rounded text-center align-middle uppercase',
+                  bg,
+                  contrastText
+                )}
+                styleAs="p"
+              >
+                {agent?.name[0]}
+              </Text>
+            ) : (
+              <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
+            )}
+            <Text className="truncate dark:text-mushroom-950" styleAs="p-lg" as="span">
+              {agent?.name ?? 'Cohere AI'}
+            </Text>
+          </button>
+          {agent && (
+            <Text
+              styleAs="label-sm"
+              className={cn(
+                'rounded bg-mushroom-950 px-2  py-1 font-bold uppercase dark:bg-volcanic-200',
+                text,
+                dark(lightText)
+              )}
             >
-              <IconButton
-                iconName="side-panel"
-                tooltip={{ label: 'Toggle chat list', placement: 'bottom-start', size: 'md' }}
-                onClick={() => {
-                  setSettings({ isConfigDrawerOpen: false });
-                  setAgentsSidePanelOpen(false);
-                  setIsConvListPanelOpen(true);
-                }}
-              />
-            </Transition>
+              {agent.is_private ? 'Private' : 'Public'}
+            </Text>
           )}
-
-          <Text className="truncate" styleAs="p-lg" as="span">
-            {name}
-          </Text>
-        </span>
-        <span className="flex items-center gap-x-2 py-4 pl-4 md:pl-0">
-          <KebabMenu className="md:hidden" items={menuItems} anchor="left start" />
-          <IconButton
-            tooltip={{ label: 'New chat', placement: 'bottom-end', size: 'md' }}
-            className="hidden md:flex"
-            iconName="new-message"
-            onClick={handleNewChat}
-          />
+        </div>
+        <section className="flex items-center gap-4">
           {id && (
-            <IconButton
-              tooltip={{ label: 'Share', placement: 'bottom-end', size: 'md' }}
-              className="hidden md:flex"
-              iconName="share"
+            <Button
+              kind="secondary"
+              className="[&>div]:gap-x-0 lg:[&>div]:gap-x-3"
+              label={
+                <Text className={cn(dark(lightText), light(text), 'hidden lg:flex')}>Share</Text>
+              }
+              iconOptions={{
+                customIcon: (
+                  <Icon name="share" kind="outline" className={cn(light(fill), dark(lightFill))} />
+                ),
+              }}
+              iconPosition="start"
               onClick={handleOpenShareModal}
             />
           )}
-          <div className="relative">
-            <IconButton
-              tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
-              className={cn('hidden md:flex', { 'bg-mushroom-900': isConfigDrawerOpen })}
-              onClick={handleToggleConfigSettings}
-              iconName="settings"
-              disabled={isStreaming}
-            />
-            <WelcomeGuideTooltip
-              step={1}
-              className={cn('right-0 top-full mt-9', {
-                'delay-1000': !welcomeGuideState || welcomeGuideState === WelcomeGuideStep.ONE,
-              })}
-            />
-          </div>
           <IconButton
-            tooltip={{
-              label: isAgentCreator ? 'Edit assistant' : 'About assistant',
-              placement: 'bottom-end',
-              size: 'md',
-            }}
-            iconName={isAgentCreator ? 'edit' : 'information'}
-            onClick={handleOpenAgentDrawer}
-            className={cn('hidden', {
-              'md:flex': !!agentId,
-              'bg-mushroom-900': isEditAgentPanelOpen,
-            })}
+            iconName="kebab"
+            iconClassName="dark:fill-marble-950 fill-volcanic-100"
+            onClick={handleOpenRightSidePanel}
+            className="flex h-auto w-auto lg:hidden"
           />
-        </span>
+        </section>
       </div>
     </div>
   );

@@ -1,6 +1,4 @@
 import datetime
-import logging
-import os
 import uuid
 
 import jwt
@@ -10,9 +8,10 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from backend.database_models import Blacklist, get_session
-from backend.services.logger import get_logger
+from backend.config.settings import Settings
+from backend.services.logger.utils import LoggerFactory
 
-logger = get_logger()
+logger = LoggerFactory().get_logger()
 
 
 class Validity(Enum):
@@ -34,7 +33,7 @@ class JWTService:
     ALGORITHM = "HS256"
 
     def __init__(self):
-        secret_key = os.environ.get("AUTH_SECRET_KEY")
+        secret_key = Settings().auth.secret_key
 
         if not secret_key:
             raise ValueError(
@@ -109,7 +108,7 @@ class JWTService:
             )
             return decoded_payload
         except jwt.ExpiredSignatureError:
-            logger.warning("JWT Token has expired.")
+            logger.warning(event="[Auth] JWT Token has expired.")
             decoded_payload = jwt.decode(
                 token,
                 self.secret_key,
@@ -118,7 +117,7 @@ class JWTService:
             )
             return decoded_payload
         except jwt.InvalidTokenError:
-            logger.warning("JWT Token is invalid.")
+            logger.warning(event="[Auth] JWT Token is invalid.")
             return None
 
     @staticmethod

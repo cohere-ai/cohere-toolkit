@@ -364,6 +364,7 @@ export class CohereClient {
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       'User-Id': 'user-id',
       Connection: 'keep-alive',
+      'X-Date': new Date().getTime().toString(),
     };
     return headers;
   }
