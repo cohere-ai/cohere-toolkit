@@ -56,9 +56,9 @@ class Deployment(BaseModel):
             "id": obj.id,
             "name": obj.name,
             "description": obj.description,
-            "deployment_class": obj.deployment_class if obj.deployment_class else None,
+            "deployment_class": obj.deployment_class or None,
             "deployment_class_name": (
-                obj.deployment_class_name if obj.deployment_class_name else None
+                obj.deployment_class_name or None
             ),
             "models": [model.name for model in obj.models],
             "is_community": obj.is_community,
