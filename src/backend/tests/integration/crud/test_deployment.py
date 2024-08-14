@@ -39,7 +39,7 @@ def test_list_deployments(session_client: TestClient, session: Session) -> None:
     available_deployments = [
         deployment for deployment in db_deployments if deployment.is_available
     ]
-    if len(available_deployments) == 0:
+    if not available_deployments:
         available_deployments = [
             deployment
             for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
