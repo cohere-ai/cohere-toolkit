@@ -107,8 +107,8 @@ install-web:
 .PHONY: build-web
 build-web:
 	cd src/interfaces/coral_web && npm run build
-migrate-test:
-	alembic -c src/backend/alembic-test.ini upgrade head
+
+.PHONY: test-db
 test-db:
 	docker compose stop test_db
 	docker compose rm -f test_db
