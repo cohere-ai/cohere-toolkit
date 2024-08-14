@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import os.path
 from pprint import pprint
@@ -11,6 +12,33 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pydantic import BaseModel
+import cohere
+from backend.schemas.cohere_chat import CohereChatRequest
+
+COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
+DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
+from backend.config.settings import Settings
+
+api_key = Settings().deployments.cohere_platform.api_key
+
+
+class SimpleCohere:
+    client_name = "cohere-toolkit"
+
+    def __init__(self) -> None:
+        self.client = cohere.Client(api_key, client_name=self.client_name)
+
+    async def invoke_chat_stream(self, docs, message) -> Any:
+        stream = self.client.chat_stream(
+            model="command-r-plus",
+            documents=docs,
+            message=message,
+        )
+        for event in stream:
+            if event.event_type == "text-generation":
+                print(event.text)
+            elif event.event_type == "stream-end":
+                print(event.finish_reason)
 
 
 # If modifying these scopes, delete the file token.json.
@@ -20,7 +48,7 @@ LABEL_IDS = ["STARRED"]
 # LABEL_IDS = ["IMPORTANT", "STARRED"]
 # https://developers.google.com/gmail/api/reference/rest/v1/Format
 EMAIL_FORMAT = "full"
-MAX_RESULTS = 3
+MAX_RESULTS = 10
 
 
 def main():
@@ -51,7 +79,12 @@ def main():
         results = (
             service.users()
             .messages()
-            .list(userId="me", maxResults=MAX_RESULTS, labelIds=LABEL_IDS)
+            .list(
+                userId="me",
+                maxResults=MAX_RESULTS,
+                # labelIds=LABEL_IDS,
+                q="from:rod@cohere.ai label:inbox",
+            )
             .execute()
         )
         messages = results.get("messages", [])
@@ -64,14 +97,21 @@ def main():
             process_message(message, service) for message in messages
         ]
 
+        cohere_client = SimpleCohere()
+        asyncio.run(
+            cohere_client.invoke_chat_stream(
+                docs=docs, message="summarize what rod said"
+            )
+        )
+
     except HttpError as error:
         print(f"An error occurred: {error}")
 
 
 class GmailDocument(BaseModel):
+    id: str
     title: str
     content: str
-    metadata: Dict[str, Any] = {}
 
 
 def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument]:
@@ -92,14 +132,11 @@ def process_message(message: Dict[str, Any], service: Any) -> List[GmailDocument
     # parallelize this
     all_parts = process_email_payload(email["payload"])
     content = "\n".join(all_parts)
-    metadata = {
-        "message_id": message_id,
-    }
     print("====================================")
     print("Id:", message_id)
     print("Title:", title)
     print("Content\n", content)
-    return GmailDocument(title=title, content=content, metadata=metadata)
+    return GmailDocument(title=title, content=content, id=message_id)
 
 
 def decode_base64(data: bytes) -> str:
@@ -119,7 +156,6 @@ def process_email_headers(headers: List[dict]) -> dict:
     }
 
 
-# if not "raw" in message["payload"]:
 def process_email_payload(payload: Any) -> List[str]:
     all_parts = []
     match payload["mimeType"]:
