@@ -13,6 +13,7 @@ from backend.tools import (
     SearchFileTool,
     TavilyInternetSearch,
     WebScrapeTool,
+    CloverDocumentRetriever
 )
 
 logger = LoggerFactory().get_logger()
@@ -30,6 +31,7 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
+    Clover_Retriever = CloverDocumentRetriever.NAME
     Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
     Search_File = SearchFileTool.NAME
     Read_File = ReadFileTool.NAME
@@ -41,6 +43,22 @@ class ToolName(StrEnum):
 
 
 ALL_TOOLS = {
+    ToolName.Clover_Retriever: ManagedTool(
+        display_name="Clover Docs",
+        implementation=CloverDocumentRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval from Clover documentation.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=CloverDocumentRetriever.is_available(),
+        error_message="Clover Retriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
+        category=Category.DataLoader,
+        description="Returns documentation from the Clover documentation website.",
+    ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         display_name="Web Search",
         implementation=TavilyInternetSearch,
