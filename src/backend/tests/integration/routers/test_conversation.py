@@ -178,7 +178,7 @@ def test_fail_generate_title_nonexistent_conversation(
         "/v1/conversations/123/generate-title", headers={"User-Id": user.id}
     )
     assert response.status_code == 404
-    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}
+    assert response.json() == {"detail": "Conversation with ID: 123 not found."}
 
 
 def test_generate_title_error_invalid_model(
