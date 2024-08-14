@@ -27,33 +27,33 @@ export const MarkdownImage: React.FC<Props> = ({ node }) => {
 
   if (outputFiles[fileName]) {
     return <B64Image data={outputFiles[fileName].data} caption={caption} />;
-  } else {
-    return (
-      <>
-        <img className="w-full" src={fileName} alt={caption} />
-        {caption && (
-          <Text as="span" styleAs="caption" className="mb-2 text-mushroom-300">
-            {caption}
-          </Text>
-        )}
-      </>
-    );
   }
+
+  return (
+    <figure>
+      <img className="w-full" src={fileName} alt={caption} />
+      {caption && (
+        <Text as="figcaption" styleAs="caption" className="mb-2 text-mushroom-300">
+          {caption}
+        </Text>
+      )}
+    </figure>
+  );
 };
 
 export const B64Image: React.FC<{ data: string; caption?: string }> = ({ data, caption }) => {
   return (
-    <>
+    <figure>
       <img className="w-full dark:invert" src={`data:image/png;base64,${data}`} alt={caption} />
       {caption && (
         <Text
-          as="span"
+          as="figcaption"
           styleAs="caption"
           className="mb-2 text-mushroom-300 dark:bg-[#3D3B36] dark:text-mushroom-950"
         >
           {caption}
         </Text>
       )}
-    </>
+    </figure>
   );
 };
