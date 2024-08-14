@@ -16,7 +16,8 @@ type AsElement =
   | 'li'
   | 'label'
   | 'pre'
-  | 'kbd';
+  | 'kbd'
+  | 'figcaption';
 type StyleAs = keyof typeof STYLE_LEVEL_TO_CLASSES;
 
 type TextProps<T extends AsElement> = {
