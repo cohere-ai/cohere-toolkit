@@ -85,7 +85,7 @@ def test_get_model(session_client: TestClient, session: Session, deployment) -> 
 
 
 def test_get_model_non_existing(session_client: TestClient, session: Session) -> None:
-    response = session_client.get(f"/v1/models/non-existing-id")
+    response = session_client.get("/v1/models/non-existing-id")
     assert response.status_code == 404
     response_json = response.json()
     assert "Model not found" in response_json["detail"]
