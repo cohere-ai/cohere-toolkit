@@ -116,8 +116,7 @@ def wrap_create_snapshot_access(
 def remove_private_keys(
     snapshot: dict[str, Any], keys_to_remove: list[str]
 ) -> dict[str, Any]:
-    new_snapshot = remove_keys_nested_dict(snapshot, keys_to_remove)
-    return new_snapshot
+    return remove_keys_nested_dict(snapshot, keys_to_remove)
 
 
 def remove_keys_nested_dict(d: dict[str, Any], keys_to_remove: list[str]) -> dict:
