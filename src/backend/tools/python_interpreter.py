@@ -35,9 +35,7 @@ class PythonInterpreter(BaseTool):
 
         code = parameters.get("code", "")
         res = requests.post(self.INTERPRETER_URL, json={"code": code})
-        clean_res = self._clean_response(res.json())
-
-        return clean_res
+        return self._clean_response(res.json())
 
     def _clean_response(self, result: Any) -> Dict[str, str]:
         if "final_expression" in result:
@@ -47,9 +45,7 @@ class PythonInterpreter(BaseTool):
         result_list = [result]
 
         output_files = result.pop("output_files", [])
-        for f in output_files:
-            result_list.append({"output_file": f})
-
+        result_list.extend({"output_file": f} for f in output_files)
         for r in result_list:
             if r.get("sucess") is not None:
                 r.update({"success": r.get("sucess")})
@@ -68,11 +64,7 @@ class PythonInterpreter(BaseTool):
 
             # cast all values to strings, if it's a json object use double quotes
             for key, value in r.items():
-                if isinstance(value, Mapping):
-                    r[key] = json.dumps(value)
-                else:
-                    r[key] = str(value)
-
+                r[key] = json.dumps(value) if isinstance(value, Mapping) else str(value)
         return result_list
 
     # langchain does not return a dict as a parameter, only a code string
