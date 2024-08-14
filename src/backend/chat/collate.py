@@ -122,7 +122,7 @@ def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=
 
         if word_count + len(word.split()) > soft_word_cut_off and word.endswith("."):
             # If adding the next word exceeds the soft limit and the word ends with a period, finalize the current chunk
-            current_chunk += " " + word
+            current_chunk += f" {word}"
             chunks.append(current_chunk.strip())
             current_chunk = ""
             word_count = 0
@@ -131,7 +131,7 @@ def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=
             if current_chunk == "":
                 current_chunk = word
             else:
-                current_chunk += " " + word
+                current_chunk += f" {word}"
             word_count += len(word.split())
 
     # Add any remaining content as the last chunk
