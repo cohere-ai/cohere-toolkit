@@ -22,7 +22,9 @@ class User(Base):
 
     fullname: Mapped[str] = mapped_column()
     email: Mapped[Optional[str]] = mapped_column()
-    tools: Mapped[list[str]] = mapped_column(JSON, default=[], nullable=False, server_default="[]")
+    tools: Mapped[list[str]] = mapped_column(
+        JSON, default=[], nullable=False, server_default="[]"
+    )
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
 
     __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)

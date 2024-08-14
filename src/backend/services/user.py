@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 
 from backend.crud import user as user_crud
-from backend.database_models.user import User
 from backend.database_models.database import DBSessionDep
+from backend.database_models.user import User
 
 
 def validate_user_exists(session: DBSessionDep, user_id: str) -> User:

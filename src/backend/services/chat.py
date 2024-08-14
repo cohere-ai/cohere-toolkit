@@ -18,6 +18,7 @@ from backend.crud import deployment as deployment_crud
 from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
+from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
@@ -29,7 +30,6 @@ from backend.database_models.message import (
 )
 from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.database_models.user import User as UserModel
-from backend.database_models.agent import Agent as AgentModel
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -158,7 +158,9 @@ def process_chat(
     )
 
 
-def check_chat_request_tools(chat_request: BaseChatRequest, entity: Agent | User) -> None:
+def check_chat_request_tools(
+    chat_request: BaseChatRequest, entity: Agent | User
+) -> None:
     if chat_request.tools:
         entity_type = "agent" if isinstance(entity, Agent) else "user"
         for tool in chat_request.tools:
@@ -168,7 +170,10 @@ def check_chat_request_tools(chat_request: BaseChatRequest, entity: Agent | User
                     detail=f"Tool {tool.name} not found in {entity_type} {entity.id}",
                 )
 
-def process_user_agents_tools(session: DBSessionDep, chat_request: BaseChatRequest, ctx: Context) -> None:
+
+def process_user_agents_tools(
+    session: DBSessionDep, chat_request: BaseChatRequest, ctx: Context
+) -> None:
     """
     Process user's, agent's tools for a chat request.
 
@@ -207,10 +212,9 @@ def process_user_agents_tools(session: DBSessionDep, chat_request: BaseChatReque
     if user.tools:
         check_chat_request_tools(chat_request, user)
         chat_request.tools = [Tool(name=tool) for tool in user.tools]
-    elif agent: # Agent tools if no user tools
+    elif agent:  # Agent tools if no user tools
         check_chat_request_tools(chat_request, agent_schema)
         chat_request.tools = [Tool(name=tool) for tool in agent.tools]
-
 
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:

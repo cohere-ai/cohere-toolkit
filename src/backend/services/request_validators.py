@@ -420,4 +420,6 @@ async def validate_user_request(session: DBSessionDep, request: Request):
     if tools:
         for tool in tools:
             if tool not in AVAILABLE_TOOLS:
-                raise HTTPException(status_code=404, detail=f"Tool {tool} is not available.")
+                raise HTTPException(
+                    status_code=404, detail=f"Tool {tool} is not available."
+                )

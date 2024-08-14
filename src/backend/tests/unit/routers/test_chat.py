@@ -714,7 +714,9 @@ def test_streaming_chat_user_tools_override_agent_tools(
     session_client_chat: TestClient, session_chat: Session
 ):
     user = get_factory("User", session_chat).create(tools=["wikipedia"])
-    agent = get_factory("Agent", session_chat).create(user=user, tools=["toolkit_calculator"])
+    agent = get_factory("Agent", session_chat).create(
+        user=user, tools=["toolkit_calculator"]
+    )
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     agent_association = get_factory("AgentDeploymentModel", session_chat).create(
@@ -732,7 +734,7 @@ def test_streaming_chat_user_tools_override_agent_tools(
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         params={"agent_id": agent.id},
-        json={"message": "Who is a tallest nba player", "agent_id": agent.id}
+        json={"message": "Who is a tallest nba player", "agent_id": agent.id},
     )
 
     assert response.status_code == 200
@@ -1084,6 +1086,7 @@ def is_valid_uuid(id: str) -> bool:
     except ValueError:
         return False
 
+
 def validate_chat_streaming_tool_cals_response(response: Any, tools: list) -> None:
     data = []
     for line in response.iter_lines():
@@ -1098,7 +1101,7 @@ def validate_chat_streaming_tool_cals_response(response: Any, tools: list) -> No
             if response_json["event"] == StreamEvent.TOOL_CALLS_GENERATION:
                 data.append(response_json["data"])
 
-    tool_calls_names = [tool['name'] for entry in data for tool in entry['tool_calls']]
+    tool_calls_names = [tool["name"] for entry in data for tool in entry["tool_calls"]]
 
     # Check if all required tools are in the tool_names
     assert all(tool in tool_calls_names for tool in tools)

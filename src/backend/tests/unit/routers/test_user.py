@@ -93,7 +93,7 @@ def test_create_user_with_tools(session_client: TestClient, session: Session) ->
     user_data_req = {
         "fullname": "John Doe",
         "email": "john.doe@example.com",
-        "tools": ["web_search", "toolkit_calculator"]
+        "tools": ["web_search", "toolkit_calculator"],
     }
     response = session_client.post("/v1/users", json=user_data_req)
     response_user = response.json()
@@ -109,11 +109,13 @@ def test_create_user_with_tools(session_client: TestClient, session: Session) ->
     assert user.tools == user_data_req["tools"]
 
 
-def test_create_user_with_no_existing_tools(session_client: TestClient, session: Session) -> None:
+def test_create_user_with_no_existing_tools(
+    session_client: TestClient, session: Session
+) -> None:
     user_data_req = {
         "fullname": "John Doe",
         "email": "john.doe@example.com",
-        "tools": ["web_search", "non_existing_tool"]
+        "tools": ["web_search", "non_existing_tool"],
     }
     response = session_client.post("/v1/users", json=user_data_req)
 
@@ -213,7 +215,9 @@ def test_update_user_with_tools(session_client: TestClient, session: Session) ->
     assert updated_user.tools == ["web_search", "toolkit_calculator"]
 
 
-def test_update_user_with_no_existing_tools(session_client: TestClient, session: Session) -> None:
+def test_update_user_with_no_existing_tools(
+    session_client: TestClient, session: Session
+) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
 
     response = session_client.put(
