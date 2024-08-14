@@ -28,7 +28,7 @@ def test_validate_authorization_no_auth_header():
 
     with pytest.raises(HTTPException) as exc:
         validate_authorization(request, session=session)
-        assert exc.status_code == 401
+    assert exc.status_code == 401
 
 
 def test_validate_authorization_invalid_auth_header():
@@ -38,7 +38,7 @@ def test_validate_authorization_invalid_auth_header():
 
     with pytest.raises(HTTPException) as exc:
         validate_authorization(request, session=session)
-        assert exc.status_code == 401
+    assert exc.status_code == 401
 
 
 def test_validate_invalid_jwt():
@@ -51,7 +51,7 @@ def test_validate_invalid_jwt():
     ) as mock_decode_jwt:
         with pytest.raises(HTTPException) as exc:
             validate_authorization(request)
-            assert exc.status_code == 401
+        assert exc.status_code == 401
 
 
 def test_validate_blacklisted_token():
@@ -66,4 +66,4 @@ def test_validate_blacklisted_token():
     ) as mock_decode_jwt:
         with pytest.raises(HTTPException) as exc:
             validate_authorization(request, session=session)
-            assert exc.status_code == 401
+        assert exc.status_code == 401
