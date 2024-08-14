@@ -75,19 +75,16 @@ class SearchFileTool(BaseTool):
             for file_name in file_names
         ]
 
-        files = file_crud.get_files_by_file_names(session, file_names, user_id)
-
-        if not files:
-            return []
-
-        results = []
-        for file in files:
-            results.append(
+        if files := file_crud.get_files_by_file_names(
+            session, file_names, user_id
+        ):
+            return [
                 {
                     "text": file.file_content,
                     "title": file.file_name,
                     "url": file.file_path,
                 }
-            )
-
-        return results
+                for file in files
+            ]
+        else:
+            return []
