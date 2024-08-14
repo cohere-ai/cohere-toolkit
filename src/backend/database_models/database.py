@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 
 from backend.config.settings import Settings
 
+from backend.services.logger.utils import LoggerFactory
+
 load_dotenv()
 
 SQLALCHEMY_DATABASE_URL = Settings().database.url
@@ -16,6 +18,8 @@ engine = create_engine(
 
 
 def get_session() -> Generator[Session, Any, None]:
+    logger = LoggerFactory().get_logger()
+    logger.info(f"get_session SQLALCHEMY_DATABASE_URL: {SQLALCHEMY_DATABASE_URL}")
     with Session(engine) as session:
         yield session
 
