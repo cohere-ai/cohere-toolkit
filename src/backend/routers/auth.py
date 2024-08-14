@@ -157,7 +157,7 @@ async def authorize(
         )
         raise HTTPException(
             status_code=400,
-            detail=f"Error calling /auth with invalid code query parameter.",
+            detail="Error calling /auth with invalid code query parameter.",
         )
 
     strategy_name = None
@@ -264,7 +264,7 @@ async def login(
     if not redirect_uri:
         raise HTTPException(
             status_code=400,
-            detail=f"FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
+            detail="FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
         )
 
     def log_and_redirect_err(error_message: str):
