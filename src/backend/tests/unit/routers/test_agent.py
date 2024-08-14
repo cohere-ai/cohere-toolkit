@@ -1020,7 +1020,7 @@ def test_cannot_delete_public_agent_not_belonging_to_user_id(
         f"/v1/agents/{agent.id}", headers={"User-Id": other_user.id}
     )
     assert response.status_code == 401
-    assert response.json() == {"detail": "Cannot delete Agent not belonging to user."}
+    assert response.json() == {"detail": "Could not delete Agent."}
 
     agent = session.get(Agent, agent.id)
     assert agent is not None

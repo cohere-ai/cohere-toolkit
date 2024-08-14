@@ -290,6 +290,9 @@ def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     agent_query = db.query(Agent).filter(Agent.id == agent_id)
     agent = agent_query.first()
 
+    if not agent:
+      return False
+
     # Can only delete Agent created by user_id
     if agent.user_id != user_id:
         return False
