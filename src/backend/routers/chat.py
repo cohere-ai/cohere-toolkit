@@ -77,7 +77,6 @@ async def chat_stream(
     (
         session,
         chat_request,
-        file_paths,
         response_message,
         should_store,
         managed_tools,
@@ -91,7 +90,6 @@ async def chat_stream(
             CustomChat().chat(
                 chat_request,
                 stream=True,
-                file_paths=file_paths,
                 managed_tools=managed_tools,
                 session=session,
                 ctx=ctx,
@@ -152,7 +150,6 @@ async def chat(
     (
         session,
         chat_request,
-        file_paths,
         response_message,
         should_store,
         managed_tools,
@@ -165,7 +162,6 @@ async def chat(
         CustomChat().chat(
             chat_request,
             stream=False,
-            file_paths=file_paths,
             managed_tools=managed_tools,
             ctx=ctx,
         ),

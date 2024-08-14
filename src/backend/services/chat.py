@@ -54,7 +54,6 @@ from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
-from backend.services.file import get_file_service
 from backend.services.generators import AsyncGeneratorContextManager
 
 
@@ -138,9 +137,7 @@ def process_chat(
         id=str(uuid4()),
     )
 
-    file_paths = None
     if isinstance(chat_request, CohereChatRequest):
-        file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
                 session,
@@ -165,7 +162,6 @@ def process_chat(
     return (
         session,
         chat_request,
-        file_paths,
         chatbot_message,
         should_store,
         managed_tools,
@@ -217,7 +213,6 @@ def get_or_create_conversation(
     """
     conversation_id = chat_request.conversation_id or ""
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
     if conversation is None:
         # Get the first 5 words of the user message as the title
         title = " ".join(user_message.split()[:5])
@@ -304,29 +299,6 @@ def create_message(
     if should_store:
         return message_crud.create_message(session, message)
     return message
-
-
-def handle_file_retrieval(
-    session: DBSessionDep, user_id: str, file_ids: List[str] | None = None
-) -> list[str] | None:
-    """
-    Retrieve file paths from the database.
-
-    Args:
-        session (DBSessionDep): Database session.
-        user_id (str): User ID.
-        file_ids (List): List of File IDs.
-
-    Returns:
-        list[str] | None: List of file paths or None.
-    """
-    file_paths = None
-    # Use file_ids if provided
-    if file_ids is not None:
-        files = get_file_service().get_files_by_ids(session, file_ids, user_id)
-        file_paths = [file.file_path for file in files]
-
-    return file_paths
 
 
 def attach_files_to_messages(
