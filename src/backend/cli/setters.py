@@ -89,14 +89,14 @@ def convert_secrets_to_yaml(secrets: dict) -> dict:
     for key, value in secrets.items():
         if key in ENV_YAML_CONFIG_MAPPING.keys():
             mapper = ENV_YAML_CONFIG_MAPPING[key]
-            type = mapper.get("type")
+            _type = mapper.get("type")
             path = mapper.get("path")
-            if type is None or path is None:
+            if _type is None or path is None:
                 print(f"Error with YAML config mapping for key {key}.")
 
-            if type == "secret":
+            if _type == "secret":
                 secrets_changes[path] = value
-            elif type == "config":
+            elif _type == "config":
                 config_changes[path] = value
 
     return config_changes, secrets_changes
