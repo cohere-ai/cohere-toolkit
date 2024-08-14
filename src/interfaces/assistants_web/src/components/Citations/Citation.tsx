@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { useState } from 'react';
 
-import { DocumentIcon, Icon, Text } from '@/components/Shared';
+import { DocumentIcon, Icon, Markdown, Text } from '@/components/Shared';
 import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID, TOOL_WIKIPEDIA_ID } from '@/constants';
 import { useCitationsStore } from '@/stores';
 import { getSafeUrl, getWebDomain } from '@/utils';
@@ -48,18 +49,42 @@ export const Citation: React.FC<Props> = ({ generationId, citationKey }) => {
                 <Text styleAs="p-xs" className="uppercase dark:text-marble-800">
                   {getWebDomain(safeUrl) + ' ' + getWebSourceName(document.tool_name)}
                 </Text>
-                <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
-                  {document.title || 'Untitled'}
-                </Text>
+                {document.url ? (
+                  <Link href={document.url} target="_blank">
+                    <Text styleAs="p-sm" className="uppercase underline dark:text-marble-950">
+                      {document.title || 'Untitled'}
+                      <Icon
+                        name="arrow-up-right"
+                        className="ml-1 inline-block h-4 w-4 [&_svg]:mt-1"
+                      />
+                    </Text>
+                  </Link>
+                ) : (
+                  <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
+                    {document.title || 'Untitled'}
+                  </Text>
+                )}
               </>
             ) : document.tool_name === TOOL_WIKIPEDIA_ID ? (
               <>
                 <Text styleAs="p-xs" className="uppercase dark:text-marble-800">
                   {getWebSourceName(document.tool_name)}
                 </Text>
-                <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
-                  {document.title || 'Untitled'}
-                </Text>
+                {document.url ? (
+                  <Link href={document.url} target="_blank">
+                    <Text styleAs="p-sm" className="uppercase underline dark:text-marble-950">
+                      {document.title || 'Untitled'}
+                      <Icon
+                        name="arrow-up-right"
+                        className="ml-1 inline-block h-4 w-4 [&_svg]:mt-1"
+                      />
+                    </Text>
+                  </Link>
+                ) : (
+                  <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
+                    {document.title || 'Untitled'}
+                  </Text>
+                )}
               </>
             ) : (
               <>
@@ -96,7 +121,7 @@ export const Citation: React.FC<Props> = ({ generationId, citationKey }) => {
         )}
       </header>
       <article className="max-h-64 overflow-y-auto">
-        <Text className="font-variable">{document.text}</Text>
+        <Markdown className="font-variable" text={document.text} />
       </article>
     </div>
   );
