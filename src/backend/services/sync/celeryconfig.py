@@ -64,4 +64,5 @@ CELERY_enable_utc = True
 include = [
     "backend.tools.google_drive",
     "backend.services.sync.jobs.sync_agent",
+    "backend.services.sync.jobs.sync_agent_activity",
 ]
