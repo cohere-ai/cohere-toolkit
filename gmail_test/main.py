@@ -1,21 +1,21 @@
 import asyncio
 import base64
 import os.path
-from pprint import pprint
 import re
 import time
+from pprint import pprint
 from typing import Any, Dict, List
-from dotenv import load_dotenv
 
 from bs4 import BeautifulSoup
+import cohere
+from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pydantic import BaseModel
-import cohere
-from backend.schemas.cohere_chat import CohereChatRequest
+
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
@@ -242,6 +242,7 @@ def process_email_headers(headers: List[dict]) -> dict:
 def process_email_payload(payload: Any) -> List[str]:
     all_parts = []
     match payload["mimeType"]:
+        # TODO: allow compass to handle the parsing of html
         case "text/plain":
             text_b64 = payload.get("body", {}).get("data", None)
             all_parts.append(decode_base64(text_b64)) if text_b64 else None
