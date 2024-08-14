@@ -209,7 +209,7 @@ def get_available_tools() -> dict[ToolName, dict]:
 
     for tool in tools.values():
         # Conditionally set error message
-        tool.error_message = tool.error_message if not tool.is_available else None
+        tool.error_message = None if tool.is_available else tool.error_message
         # Retrieve name
         tool.name = tool.implementation.NAME
 

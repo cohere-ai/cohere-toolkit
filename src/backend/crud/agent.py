@@ -293,7 +293,7 @@ def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     if not agent:
         return False
 
-    if agent and agent.is_private and agent.user_id != user_id:
+    if agent.is_private and agent.user_id != user_id:
         return False
 
     agent_query.delete()
