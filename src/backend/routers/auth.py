@@ -319,9 +319,12 @@ async def login(
     return response
 
 
-@router.delete("/tool/auth")
+@router.delete("/tool/auth/{tool_id}")
 async def delete_tool_auth(
-    request: Request, session: DBSessionDep, ctx: Context = Depends(get_context)
+    tool_id: str,
+    request: Request,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ):
     """
     Endpoint to delete Tool Authentication.
@@ -329,7 +332,8 @@ async def delete_tool_auth(
     If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
 
     Args:
-        request (Request): current Request object. Note that the request body should contain the tool_id parameter as the tool to delete.
+        tool_id (str): ToolID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
+        request (Request): current Request object.
         session (DBSessionDep): Database session.
         ctx (Context): Context object.
 
@@ -351,24 +355,20 @@ async def delete_tool_auth(
 
     user_id = ctx.get_user_id()
 
-    try:
-        request_body = await request.json()
-        tool_id = request_body["tool_id"]
-    except Exception as e:
-        log_and_return_error("Error parsing tool_id from request body.")
+    tool_id = tool_id.lower()
 
     if user_id is None or user_id == "" or user_id == "default":
         log_and_return_error("User ID not found.")
 
-    if not isinstance(tool_id, str):
+    if tool_id not in [tool_name.value for tool_name in ToolName]:
         log_and_return_error(
-            "tool_id must be present in the request body and must be a string."
+            "tool_id must be present in the path of the request and must be a member of the ToolName string enum class."
         )
 
-    if tool_id != ToolName.Google_Drive:
-        log_and_return_error(f"Tool auth deletion for {tool_id} not implemented.")
-
     tool = AVAILABLE_TOOLS.get(tool_id)
+
+    if tool is None:
+        log_and_return_error(f"Tool {tool_id} is not available in AVAILABLE_TOOLS.")
 
     if tool.auth_implementation is None:
         log_and_return_error(
