@@ -437,10 +437,11 @@ async def delete_agent(
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
-    try:
-        agent_crud.delete_agent(session, agent_id, user_id)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    deleted = agent_crud.delete_agent(session, agent_id, user_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=401, detail="Cannot delete Agent not belonging to user."
+        )
 
     return DeleteAgent()
 

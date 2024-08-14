@@ -43,6 +43,7 @@ def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
     """
     agent = db.query(Agent).filter(Agent.id == agent_id).first()
 
+    # Cannot GET privates Agents not belonging to you
     if agent and agent.is_private and agent.user_id != user_id:
         return None
 
@@ -277,23 +278,20 @@ def update_agent(
 @validate_transaction
 def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     """
-    Delete an agent by ID.
-    Anyone can delete a public agent, but only the owner can delete a private agent.
+    Delete an Agent by ID if the Agent was created by the user_id given.
 
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
 
     Returns:
-      bool: True if the agent was deleted, False otherwise
+      bool: True if the Agent was deleted, False otherwise
     """
     agent_query = db.query(Agent).filter(Agent.id == agent_id)
     agent = agent_query.first()
 
-    if not agent:
-        return False
-
-    if agent and agent.is_private and agent.user_id != user_id:
+    # Can only delete Agent created by user_id
+    if agent.user_id != user_id:
         return False
 
     agent_query.delete()
