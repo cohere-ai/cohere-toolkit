@@ -310,7 +310,7 @@ class ChatMetricHelper:
                 .get("billed_units", {})
                 .get("search_units", 0)
             )
-            search_units = search_units if search_units else 0
+            search_units = search_units or 0
             is_error = (
                 event_dict.get("event_type") == StreamEvent.STREAM_END
                 and event_dict.get("finish_reason") != "COMPLETE"

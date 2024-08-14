@@ -207,8 +207,7 @@ class FileService:
         Returns:
             File: The file that was created
         """
-        file = file_crud.get_file(session, file_id, user_id)
-        return file
+        return file_crud.get_file(session, file_id, user_id)
 
     def get_files_by_ids(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
@@ -224,8 +223,7 @@ class FileService:
         Returns:
             list[File]: The files that were created
         """
-        files = file_crud.get_files_by_ids(session, file_ids, user_id)
-        return files
+        return file_crud.get_files_by_ids(session, file_ids, user_id)
 
     def update_file(
         self, session: DBSessionDep, file: File, new_file: UpdateFileRequest
@@ -241,8 +239,7 @@ class FileService:
         Returns:
             File: The updated file
         """
-        updated_file = file_crud.update_file(session, file, new_file)
-        return updated_file
+        return file_crud.update_file(session, file, new_file)
 
     def bulk_delete_files(
         self, session: DBSessionDep, file_ids: list[str], user_id: str
@@ -382,12 +379,7 @@ def read_excel(file_contents: bytes) -> str:
 
 def read_docx(file_contents: bytes) -> str:
     document = Document(io.BytesIO(file_contents))
-    text = ""
-
-    for paragraph in document.paragraphs:
-        text += paragraph.text + "\n"
-
-    return text
+    return "".join(paragraph.text + "\n" for paragraph in document.paragraphs)
 
 
 def validate_file_size(
