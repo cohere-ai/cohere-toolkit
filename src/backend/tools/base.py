@@ -127,7 +127,7 @@ class BaseToolAuthentication:
             logger.error(
                 event=f"BaseToolAuthentication: Error while deleting Tool Auth: {str(e)}"
             )
-            raise Exception(e)
+            raise
 
 
 class ToolAuthenticationCacheMixin:
