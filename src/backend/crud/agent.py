@@ -29,7 +29,9 @@ def create_agent(db: Session, agent: Agent) -> Agent:
 
 
 @validate_transaction
-def get_agent_by_id(db: Session, agent_id: str, user_id: str = "", override_user_id: bool = False) -> Agent:
+def get_agent_by_id(
+    db: Session, agent_id: str, user_id: str = "", override_user_id: bool = False
+) -> Agent:
     """
     Get an agent by its ID.
     Anyone can get a public agent, but only the owner can get a private agent.
@@ -43,7 +45,7 @@ def get_agent_by_id(db: Session, agent_id: str, user_id: str = "", override_user
       Agent: Agent with the given ID.
     """
     if override_user_id:
-      return db.query(Agent).filter(Agent.id == agent_id).first()
+        return db.query(Agent).filter(Agent.id == agent_id).first()
 
     agent = db.query(Agent).filter(Agent.id == agent_id).first()
 

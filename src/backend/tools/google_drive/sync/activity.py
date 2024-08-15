@@ -116,7 +116,9 @@ def query_google_drive_activity(
     gdrive_auth = GoogleDriveAuth()
     agent_creator_auth_token = gdrive_auth.get_token(session=session, user_id=user_id)
     if agent_creator_auth_token is None:
-        raise Exception(f"Sync GDrive Error: No agent creator credentials found user id: {user_id}")
+        raise Exception(
+            f"Sync GDrive Error: No agent creator credentials found user id: {user_id}"
+        )
 
     if gdrive_auth.is_auth_required(session, user_id=user_id):
         raise Exception(

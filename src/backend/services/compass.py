@@ -281,7 +281,9 @@ class Compass:
                 custom_context=parameters.get("custom_context", {}),
             )
 
-    def _raw_parsing(self, file_id: str, file_bytes: str, file_extension: str, custom_context: dict):
+    def _raw_parsing(
+        self, file_id: str, file_bytes: str, file_extension: str, custom_context: dict
+    ):
         if len(file_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
                 event="[Compass] Error parsing file: File Size is too large",

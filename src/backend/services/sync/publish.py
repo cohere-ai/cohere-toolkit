@@ -11,7 +11,9 @@ LIMIT = None
 
 def main():
     session = next(get_session())
-    agents = [Agent.model_validate(x) for x in get_agents(session, override_user_id=True)]
+    agents = [
+        Agent.model_validate(x) for x in get_agents(session, override_user_id=True)
+    ]
     if LIMIT:
         agents = agents[:LIMIT]
     session.close()
