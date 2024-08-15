@@ -1,7 +1,8 @@
 import factory
 
 from backend.database_models import Snapshot, SnapshotAccess, SnapshotLink
-from backend.tests.factories.base import BaseFactory
+
+from .base import BaseFactory
 
 
 # Snapshot

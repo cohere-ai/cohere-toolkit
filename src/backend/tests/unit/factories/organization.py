@@ -1,7 +1,8 @@
 import factory
 
 from backend.database_models import Organization
-from backend.tests.factories.base import BaseFactory
+
+from .base import BaseFactory
 
 
 class OrganizationFactory(BaseFactory):
