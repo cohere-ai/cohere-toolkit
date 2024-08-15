@@ -18,7 +18,7 @@ auth_map = {
 
 SKIP_AUTH = os.getenv("SKIP_AUTH", None)
 # Ex: [BasicAuthentication]
-ENABLED_AUTH_STRATEGIES = []
+ENABLED_AUTH_STRATEGIES = [OpenIDConnect]
 if ENABLED_AUTH_STRATEGIES == [] and Settings().auth.enabled_auth is not None:
     ENABLED_AUTH_STRATEGIES = [auth_map[auth] for auth in Settings().auth.enabled_auth]
 if "pytest" in sys.modules or SKIP_AUTH == "true":
