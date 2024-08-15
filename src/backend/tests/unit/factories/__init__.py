@@ -25,6 +25,7 @@ from backend.tests.unit.factories.snapshot import (
     SnapshotFactory,
     SnapshotLinkFactory,
 )
+from backend.tests.unit.factories.tool_auth import ToolAuthFactory
 from backend.tests.unit.factories.tool_call import ToolCallFactory
 from backend.tests.unit.factories.user import UserFactory
 
@@ -40,6 +41,7 @@ FACTORY_MAPPING = {
     "Agent": AgentFactory,
     "Organization": OrganizationFactory,
     "ToolCall": ToolCallFactory,
+    "ToolAuth": ToolAuthFactory,
     "Snapshot": SnapshotFactory,
     "SnapshotLink": SnapshotLinkFactory,
     "SnapshotAccess": SnapshotAccessFactory,
