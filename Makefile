@@ -76,9 +76,11 @@ win-setup:
 
 .PHONY: lint
 lint:
-	poetry run autoflake --in-place --recursive --ignore-init-module-imports .
-	poetry run black .
-	poetry run isort .
+	poetry run ruff check
+
+.PHONY: lint-fix
+lint-fix:
+	poetry run ruff check --fix
 
 .PHONY: first-run
 first-run:
