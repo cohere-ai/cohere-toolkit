@@ -20,8 +20,7 @@ type Props = {};
 
 const RightPanel: React.FC<Props> = () => {
   const [isDeletingFile, setIsDeletingFile] = useState(false);
-  const { disabledAssistantKnowledge, setRightPanelOpen } =
-    useSettingsStore();
+  const { disabledAssistantKnowledge, setRightPanelOpen } = useSettingsStore();
   const { agentId, conversationId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
   const { theme } = useBrandedColors(agentId);
