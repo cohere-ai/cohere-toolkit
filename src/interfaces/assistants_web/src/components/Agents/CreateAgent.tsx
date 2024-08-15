@@ -114,14 +114,16 @@ export const CreateAgent: React.FC = () => {
         </div>
         <Text styleAs="h4">Create assistant</Text>
       </header>
-      <div className="overflow-y-auto px-8 pt-8">
-        <AgentSettingsForm
-          source="create"
-          fields={fields}
-          setFields={setFields}
-          onSubmit={handleOpenSubmitModal}
-          savePendingAssistant={() => setPendingAssistant(fields)}
-        />
+      <div className="flex flex-grow flex-col gap-y-8 overflow-y-hidden px-8 pt-8">
+        <div className="flex-grow overflow-y-auto">
+          <AgentSettingsForm
+            source="create"
+            fields={fields}
+            setFields={setFields}
+            onSubmit={handleOpenSubmitModal}
+            savePendingAssistant={() => setPendingAssistant(fields)}
+          />
+        </div>
       </div>
     </div>
   );
