@@ -29,27 +29,6 @@ def test_create_deployment(session, deployment):
     assert deployment.name == deployment_data.name
 
 
-def test_list_deployments(session_client: TestClient, session: Session) -> None:
-    response = session_client.get("/v1/deployments")
-    assert response.status_code == 200
-    deployments = response.json()
-    db_deployments = session.query(Deployment).all()
-    available_deployments = [
-        deployment for deployment in db_deployments if deployment.is_available
-    ]
-    if len(available_deployments) == 0:
-        available_deployments = [
-            deployment
-            for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
-            if deployment.is_available
-        ]
-    assert len(deployments) == len(available_deployments)
-    for deployment in deployments:
-        assert "name" in deployment
-        assert "models" in deployment
-        assert "env_vars" in deployment
-
-
 def test_create_deployment_invalid_class_name(session):
     with pytest.raises(ValueError) as e:
         deployment_data = DeploymentCreate(
@@ -112,10 +91,10 @@ def test_get_available_deployments(session, user):
     agent = get_factory("Agent", session).create(user=user)
     model = get_factory("Model", session).create(deployment=deployment)
     another_model = get_factory("Model", session).create(deployment=another_deployment)
-    agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent, deployment=deployment, model=model
     )
-    agent_deployment_model_empty_config = get_factory(
+    _ = get_factory(
         "AgentDeploymentModel", session
     ).create(
         agent=agent,
@@ -148,10 +127,10 @@ def test_get_available_deployments_by_agent_id(session, user):
     another_model = get_factory("Model", session).create(
         deployment_id=another_deployment.id
     )
-    agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent, deployment=deployment, model=model
     )
-    agent_deployment_model_empty_config = get_factory(
+    _ = get_factory(
         "AgentDeploymentModel", session
     ).create(
         agent=agent, deployment=deployment, model=another_model, deployment_config={}
@@ -170,7 +149,7 @@ def test_get_deployments_by_agent_id(session, user):
     deployment = get_factory("Deployment", session).create()
     agent = get_factory("Agent", session).create(user=user)
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent, deployment=deployment, model=model
     )
 

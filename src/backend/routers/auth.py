@@ -236,7 +236,7 @@ async def logout(
 
 # NOTE: Tool Auth is experimental and in development
 @router.get("/tool/auth")
-async def login(
+async def tool_auth(
     request: Request, session: DBSessionDep, ctx: Context = Depends(get_context)
 ):
     """

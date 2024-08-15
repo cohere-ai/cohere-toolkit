@@ -103,7 +103,7 @@ def deployments_models_seed(op):
     """
     Seed default deployments, models, organization, user and agent.
     """
-    session = Session(op.get_bind())
+    _ = Session(op.get_bind())
 
     # Seed default organization
     sql_command = text(

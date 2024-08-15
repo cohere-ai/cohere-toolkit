@@ -29,9 +29,8 @@ def test_non_streamed_chat(
     session_client_chat: TestClient,
     user: User,
     mock_bedrock_deployment,
-    mock_available_model_deployments,
 ):
-    deployment = mock_bedrock_deployment.return_value
+    mock_bedrock_deployment.return_value
     response = session_client_chat.post(
         "/v1/chat",
         headers={"User-Id": user.id, "Deployment-Name": ModelDeploymentName.Bedrock},

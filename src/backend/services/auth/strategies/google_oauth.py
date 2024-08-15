@@ -69,7 +69,7 @@ class GoogleOAuth(BaseOAuthStrategy):
         Returns:
             Access token.
         """
-        token = self.client.fetch_token(
+        _ = self.client.fetch_token(
             url=self.TOKEN_ENDPOINT,
             authorization_response=str(request.url),
             redirect_uri=self.REDIRECT_URI,

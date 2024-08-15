@@ -7,7 +7,7 @@ from sqlalchemy import engine_from_config, pool
 from backend.config.settings import Settings
 
 # Need to import Models - note they will be unused but are required for Alembic to detect
-from backend.database_models import *
+from backend.database_models import * # noqa
 from backend.database_models.base import Base
 
 load_dotenv()

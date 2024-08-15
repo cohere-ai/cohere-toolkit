@@ -50,6 +50,7 @@ from backend.services.file import (
     consolidate_agent_files_in_compass,
     get_file_service,
     validate_batch_file_size,
+    validate_file
 )
 from backend.services.request_validators import (
     validate_create_agent_request,

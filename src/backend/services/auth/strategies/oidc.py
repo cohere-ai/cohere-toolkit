@@ -89,7 +89,7 @@ class OpenIDConnect(BaseOAuthStrategy):
 
             params["code_verifier"] = code_verifier
 
-        token = self.client.fetch_token(**params)
+        _ = self.client.fetch_token(**params)
 
         user_info = self.client.get(self.USERINFO_ENDPOINT)
 

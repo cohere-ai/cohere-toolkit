@@ -97,7 +97,7 @@ class BaseToolAuthentication:
         try:
             auth.access_token
             auth.refresh_token
-        except:
+        except Exception():
             # Retrieval failed, delete existing Auth
             tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
             return True

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import false, true
 
 from backend.database_models import Deployment
 from backend.database_models.agent import Agent, AgentDeploymentModel
@@ -122,8 +123,8 @@ def get_association_by_deployment_id(
         .filter(
             AgentDeploymentModel.deployment_id == deployment_id,
             AgentDeploymentModel.agent_id == agent.id,
-            AgentDeploymentModel.is_default_deployment == True,
-            AgentDeploymentModel.is_default_model == True,
+            AgentDeploymentModel.is_default_deployment == true(),
+            AgentDeploymentModel.is_default_model == true(),
         )
         .first()
     )
@@ -160,11 +161,11 @@ def get_agents(
 
     # Filter by visibility
     if visibility == AgentVisibility.PUBLIC:
-        query = query.filter(Agent.is_private == False)
+        query = query.filter(Agent.is_private == false())
     elif visibility == AgentVisibility.PRIVATE:
-        query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
+        query = query.filter(Agent.is_private == true(), Agent.user_id == user_id)
     else:
-        query = query.filter((Agent.is_private == False) | (Agent.user_id == user_id))
+        query = query.filter((Agent.is_private == false()) | (Agent.user_id == user_id))
 
     # Filter by organization and user
     if organization_id is not None:

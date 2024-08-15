@@ -29,7 +29,6 @@ def test_non_streamed_chat(
     session_client_chat: TestClient,
     user: User,
     mock_azure_deployment,
-    mock_available_model_deployments,
 ):
     deployment = mock_azure_deployment.return_value
     response = session_client_chat.post(
