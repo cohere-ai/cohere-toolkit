@@ -102,7 +102,7 @@ export const CreateAgent: React.FC = () => {
   };
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-y-auto">
+    <div className="flex h-full w-full flex-col overflow-y-auto">
       <header className="flex flex-col gap-y-3 border-b px-4 py-6 dark:border-volcanic-150 lg:px-10 lg:py-10">
         <MobileHeader />
         <div className="flex items-center space-x-2">
@@ -114,7 +114,7 @@ export const CreateAgent: React.FC = () => {
         </div>
         <Text styleAs="h4">Create assistant</Text>
       </header>
-      <div className="overflow-y-auto">
+      <div className="overflow-y-auto px-8 pt-8">
         <AgentSettingsForm
           source="create"
           fields={fields}
