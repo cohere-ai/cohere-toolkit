@@ -189,6 +189,12 @@ class DatabaseSettings(BaseSettings, BaseModel):
     migrate_token: Optional[str] = Field(
         default=None, validation_alias=AliasChoices("MIGRATE_TOKEN", "migrate_token")
     )
+    use_global_filtering: Optional[bool] = Field(
+        default=False,
+        validation_alias=AliasChoices(
+            "USE_GLOBAL_FILTERING", "use_global_filtering"
+        ),
+    )
 
 
 class RedisSettings(BaseSettings, BaseModel):

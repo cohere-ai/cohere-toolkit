@@ -1,9 +1,13 @@
+import contextvars
 import uuid
 
 from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
+from backend.config.settings import Settings
 from backend.schemas.context import Context
+
+GLOBAL_REQUEST_CTX = contextvars.ContextVar('GLOBAL_REQUEST_CTX', default=None)
 
 
 class ContextMiddleware:
@@ -15,6 +19,7 @@ class ContextMiddleware:
         from backend.schemas.user import DEFAULT_USER_ID
         from backend.services.auth.utils import get_header_user_id, has_header_user_id
 
+        settings = Settings()
         trace_id = str(uuid.uuid4())
 
         if scope["type"] != "http":
@@ -41,13 +46,23 @@ class ContextMiddleware:
         agent_id = request.headers.get("Agent-Id")
         context.with_agent_id(agent_id)
 
+        organization_id = request.headers.get("Organization-Id")
+        context.with_organization_id(organization_id)
+
+        context.without_global_filtering()
+        if settings.database.use_global_filtering:
+            context.with_global_filtering()
+
         context.with_logger()
 
         # Set the context on the scope
         scope["context"] = context
+        GLOBAL_REQUEST_CTX.set(context)
 
         await self.app(scope, receive, send)
 
+        # Clear the organization ID from the global context
+        GLOBAL_REQUEST_CTX.set(None)
         # Clear the context after the request is complete
         del scope["context"]
 
