@@ -61,13 +61,10 @@ const getAssistantContrastColor = (assistantId: string | undefined): string => {
 };
 
 export const getCohereTheme = (assistantId?: string): COHERE_BRANDED_COLORS => {
-  if (assistantId === undefined) {
-    return COHERE_THEMES_MAP.default;
-  } else {
-    const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const index = idNumber % COHERE_THEMES_MAP.branded.length;
-    return COHERE_THEMES_MAP.branded[index];
-  }
+  if (!assistantId) return COHERE_THEMES_MAP.default;
+  const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const index = idNumber % COHERE_THEMES_MAP.branded.length;
+  return COHERE_THEMES_MAP.branded[index];
 };
 
 const getDarkMode = (color: string) => `dark:${color}`;
