@@ -54,9 +54,7 @@ def test_get_organization(session_client: TestClient, session: Session) -> None:
 def test_list_organizations(session_client: TestClient, session: Session) -> None:
     session.query(OrganizationModel).delete()
     for i in range(5):
-        get_factory("Organization", session).create(
-            name=f"test organization {i}"
-        )
+        get_factory("Organization", session).create(name=f"test organization {i}")
 
     response = session_client.get("/v1/organizations")
     results = response.json()

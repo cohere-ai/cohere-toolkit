@@ -27,9 +27,8 @@ def test_streamed_chat(
 
 @pytest.mark.skip("Non-streamed chat is not supported for SageMaker yet")
 def test_non_streamed_chat(
-    session_client_chat: TestClient,
-    user: User,
-    mock_sagemaker_deployment):
+    session_client_chat: TestClient, user: User, mock_sagemaker_deployment
+):
     mock_sagemaker_deployment.return_value
     response = session_client_chat.post(
         "/v1/chat",

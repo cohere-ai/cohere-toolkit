@@ -12,7 +12,7 @@ async def rerank_and_chunk(
     tool_results: List[Dict[str, Any]],
     model: BaseDeployment,
     ctx: Context,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> List[Dict[str, Any]]:
     """
     Takes a list of tool_results and internally reranks the documents for each query, if there's one e.g:

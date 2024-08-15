@@ -456,9 +456,7 @@ def test_search_conversations_missing_user_id(
     session: Session,
     user: User,
 ) -> None:
-    get_factory("Conversation", session).create(
-        title="test title", user_id=user.id
-    )
+    get_factory("Conversation", session).create(title="test title", user_id=user.id)
     response = session_client.get("/v1/conversations:search", params={"query": "test"})
     results = response.json()
 

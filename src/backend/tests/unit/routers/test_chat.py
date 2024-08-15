@@ -833,7 +833,6 @@ def test_non_streaming_chat_with_search_queries_only(
 def test_non_streaming_chat_with_chat_history(
     session_client_chat: TestClient, session_chat: Session, user: User
 ) -> None:
-
     response = session_client_chat.post(
         "/v1/chat",
         json={

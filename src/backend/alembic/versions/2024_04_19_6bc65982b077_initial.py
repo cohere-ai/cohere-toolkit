@@ -1,7 +1,7 @@
 """Initial migration, adding base tables to enable conversations
 
 Revision ID: 6bc65982b077
-Revises: 
+Revises:
 Create Date: 2024-04-19 15:56:20.184899
 
 """

@@ -340,14 +340,11 @@ async def test_get_agent_mertic(
 async def test_get_default_agent_mertic(
     session_client: TestClient, session: Session, user
 ) -> None:
-
     with patch(
         "backend.services.metrics.report_metrics",
         return_value=None,
     ) as mock_metrics:
-        response = session_client.get(
-            "/v1/default_agent", headers={"User-Id": user.id}
-        )
+        response = session_client.get("/v1/default_agent", headers={"User-Id": user.id})
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
@@ -856,6 +853,7 @@ def test_update_public_agent(
     updated_agent = response.json()
     assert updated_agent["name"] == "updated name"
     assert not updated_agent["is_private"]
+
 
 def test_update_agent_change_visibility_to_public(
     session_client: TestClient, session: Session, user

@@ -94,9 +94,7 @@ def test_get_available_deployments(session, user):
     _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent, deployment=deployment, model=model
     )
-    _ = get_factory(
-        "AgentDeploymentModel", session
-    ).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=another_deployment,
         model=another_model,
@@ -130,9 +128,7 @@ def test_get_available_deployments_by_agent_id(session, user):
     _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent, deployment=deployment, model=model
     )
-    _ = get_factory(
-        "AgentDeploymentModel", session
-    ).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent, deployment=deployment, model=another_model, deployment_config={}
     )
 
@@ -180,7 +176,6 @@ def test_update_deployment(session, deployment):
 
 
 def test_update_deployment_partial(session, deployment):
-
     new_deployment_data = DeploymentUpdate(name="Cohere")
 
     updated_deployment = deployment_crud.update_deployment(

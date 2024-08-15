@@ -240,7 +240,6 @@ class Compass:
             not parameters.get("file_bytes", None)
             or not parameters.get("file_extension", None)
         ):
-
             logger.error(
                 event=f"[Compass] Error processing file: No filename or file_text or file_extension specified in parameters {parameters.keys()}"
             )
