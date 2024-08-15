@@ -54,7 +54,6 @@ export const createParamsSlice: StateCreator<StoreState, [], [], ParamStore> = (
         params: {
           ...state.params,
           fileIds: [],
-          tools: [],
         },
       };
     });

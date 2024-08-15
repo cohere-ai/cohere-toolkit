@@ -19,7 +19,7 @@ SETTINGS_CONFIG = SettingsConfigDict(
 )
 
 CONFIG_PATH = "src/backend/config"
-PYTEST_CONFIG_PATH = "src/backend/tests"
+PYTEST_CONFIG_PATH = "src/backend/tests/unit"
 CONFIG_FILE_PATH = (
     f"{CONFIG_PATH}/configuration.yaml"
     if "pytest" not in sys.modules
@@ -99,6 +99,12 @@ class FeatureFlags(BaseSettings, BaseModel):
         default=False,
         validation_alias=AliasChoices(
             "USE_COMMUNITY_FEATURES", "use_community_features"
+        ),
+    )
+    use_compass_file_storage: Optional[bool] = Field(
+        default=False,
+        validation_alias=AliasChoices(
+            "USE_COMPASS_FILE_STORAGE", "use_compass_file_storage"
         ),
     )
 

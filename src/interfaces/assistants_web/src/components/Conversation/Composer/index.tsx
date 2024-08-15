@@ -11,7 +11,6 @@ import { DragDropFileUploadOverlay } from '@/components/Conversation/Composer/Dr
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useAvailableTools } from '@/hooks/tools';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
@@ -47,14 +46,12 @@ export const Composer: React.FC<Props> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { unauthedTools } = useAvailableTools({ agent, managedTools: tools });
   const isToolAuthRequired = unauthedTools.length > 0;
-  const { data: experimentalFeatures } = useExperimentalFeatures();
 
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
-  const isAgentsModeOn = !!experimentalFeatures?.USE_AGENTS_VIEW;
-  const isComposerDisabled = isToolAuthRequired && isAgentsModeOn;
+  const isComposerDisabled = isToolAuthRequired;
   const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isComposerDisabled;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

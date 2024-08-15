@@ -9,6 +9,7 @@ import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
+import { checkIsBaseAgent } from '@/utils/agents';
 import { getToolIcon } from '@/utils/tools';
 
 /**
@@ -19,7 +20,6 @@ export const AssistantTools: React.FC<{
   agent?: AgentPublic;
   className?: string;
 }> = ({ tools, agent, className = '' }) => {
-  const requiredTools = agent?.tools;
   const {
     params: { tools: paramTools },
   } = useParamsStore();
@@ -44,7 +44,7 @@ export const AssistantTools: React.FC<{
             {availableTools.map(({ name, display_name, description, error_message }) => {
               const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
               const checked = !!enabledTool;
-              const disabled = !!requiredTools;
+              const disabled = !checkIsBaseAgent(agent);
 
               return (
                 <ToggleCard

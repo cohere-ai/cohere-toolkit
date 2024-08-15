@@ -65,15 +65,20 @@ def test_async_call_tools_failure() -> None:
     ]
     MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
     with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS) as mock:
-        with pytest.raises(HTTPException) as excinfo:
-            results = asyncio.run(
-                async_call_tools(chat_history, MockCohereDeployment(), ctx)
-            )
-        assert str(excinfo.value.status_code) == "500"
-        assert (
-            str(excinfo.value.detail)
-            == "Error while calling tool toolkit_calculator: Calculator failed"
+        results = asyncio.run(
+            async_call_tools(chat_history, MockCohereDeployment(), ctx)
         )
+        assert results == [
+            {
+                "call": {
+                    "name": "toolkit_calculator",
+                    "parameters": {"expression": "6*7"},
+                },
+                "outputs": [
+                    {"error": "Calculator failed", "status_code": 500, "success": False}
+                ],
+            },
+        ]
 
 
 @patch("backend.chat.custom.tool_calls.TIMEOUT", 1)
@@ -136,10 +141,16 @@ def test_async_call_tools_failure_and_success() -> None:
         ToolName.Web_Scrape: ManagedTool(implementation=MockWebScrape),
     }
     with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS) as mock:
-        with pytest.raises(HTTPException) as excinfo:
-            asyncio.run(async_call_tools(chat_history, MockCohereDeployment(), ctx))
-        assert str(excinfo.value.status_code) == "500"
-        assert (
-            str(excinfo.value.detail)
-            == "Error while calling tool web_scrape: Web scrape failed"
+        results = asyncio.run(
+            async_call_tools(chat_history, MockCohereDeployment(), ctx)
         )
+        assert {
+            "call": {"name": "web_scrape", "parameters": {"expression": "6*7"}},
+            "outputs": [
+                {"error": "Web scrape failed", "status_code": 500, "success": False}
+            ],
+        } in results
+        assert {
+            "call": {"name": "toolkit_calculator", "parameters": {"expression": "6*7"}},
+            "outputs": [{"result": 42}],
+        } in results

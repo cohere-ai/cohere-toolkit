@@ -18,7 +18,7 @@ export const Header: React.FC<Props> = ({ agent }) => {
   const {
     conversation: { id },
   } = useConversationStore();
-  const { setAgentsLeftSidePanelOpen, setAgentsRightSidePanelOpen } = useSettingsStore();
+  const { setLeftPanelOpen, setRightPanelOpen } = useSettingsStore();
   const { open } = useContextStore();
   const { text, bg, contrastText, lightText, fill, lightFill, dark, light } = useBrandedColors(
     agent?.id
@@ -33,13 +33,13 @@ export const Header: React.FC<Props> = ({ agent }) => {
   };
 
   const handleOpenLeftSidePanel = () => {
-    setAgentsRightSidePanelOpen(false);
-    setAgentsLeftSidePanelOpen(true);
+    setRightPanelOpen(false);
+    setLeftPanelOpen(true);
   };
 
   const handleOpenRightSidePanel = () => {
-    setAgentsLeftSidePanelOpen(false);
-    setAgentsRightSidePanelOpen(true);
+    setLeftPanelOpen(false);
+    setRightPanelOpen(true);
   };
 
   return (
@@ -73,7 +73,8 @@ export const Header: React.FC<Props> = ({ agent }) => {
               styleAs="label-sm"
               className={cn(
                 'rounded bg-mushroom-950 px-2  py-1 font-bold uppercase dark:bg-volcanic-200',
-                text
+                text,
+                dark(lightText)
               )}
             >
               {agent.is_private ? 'Private' : 'Public'}

@@ -137,11 +137,8 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
                   iconName="list"
                   className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
                   iconClassName={cn(
-                    'text-volcanic-300 group-hover/icon-button:fill-mushroom-300',
-                    'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800',
-                    {
-                      'hidden md:invisible md:flex': !isFulfilledMessage(message),
-                    }
+                    'text-volcanic-300 fill-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+                    'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800'
                   )}
                   onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
                 />

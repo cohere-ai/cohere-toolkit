@@ -20,7 +20,7 @@ async def async_call_tools(
     deployment_model: BaseDeployment,
     ctx: Context,
     **kwargs: Any,
-) -> dict[str, str]:
+) -> list[dict[str, str]]:
     logger = ctx.get_logger()
 
     tool_results = []
@@ -89,17 +89,21 @@ async def _call_tool_async(
             user_id=ctx.get_user_id(),
             trace_id=ctx.get_trace_id(),
             agent_id=ctx.get_agent_id(),
+            conversation_id=ctx.get_conversation_id(),
             agent_tool_metadata=ctx.get_agent_tool_metadata(),
         )
     except Exception as e:
         logger.exception(
-            event="[Custom Chat] Tool call failed",
+            event=f"[Custom Chat] Error while calling tool {tool_call['name']}: {str(e)}",
             error=str(e),
         )
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error while calling tool {tool_call['name']}: {str(e)}",
-        )
+        outputs = [
+            {
+                "call": tool_call,
+                "outputs": [{"error": str(e), "status_code": 500, "success": False}],
+            }
+        ]
+        return outputs
 
     # If the tool returns a list of outputs, append each output to the tool_results list
     # Otherwise, append the single output to the tool_results list

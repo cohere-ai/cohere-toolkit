@@ -16,7 +16,10 @@ export const useListAgents = () => {
   const cohereClient = useCohereClient();
   return useQuery({
     queryKey: ['listAgents'],
-    queryFn: () => cohereClient.listAgents({}),
+    queryFn: async () => {
+      const agents = await cohereClient.listAgents({});
+      return agents.concat(BASE_AGENT);
+    },
   });
 };
 
@@ -53,10 +56,11 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
   const cohereClient = useCohereClient();
   return useQuery({
     queryKey: ['agent', agentId],
-    enabled: !!agentId,
     queryFn: async () => {
       try {
-        if (!agentId) throw new Error('Agent ID not found');
+        if (!agentId) {
+          return BASE_AGENT;
+        }
         return await cohereClient.getAgent(agentId);
       } catch (e) {
         console.error(e);
