@@ -318,6 +318,9 @@ class FileService:
         if self.is_compass_enabled:
             compass = get_compass()
             try:
+                logger.info(
+                    event=f"[Compass File Service] Deleting conversation {conversation_id} files from Compass"
+                )
                 compass.invoke(
                     action=Compass.ValidActions.DELETE_INDEX,
                     parameters={"index": conversation_id},
@@ -377,6 +380,9 @@ def delete_file_in_compass(
     compass = get_compass()
 
     try:
+        logger.info(
+            event=f"[Compass File Service] Deleting file {file_id} from Compass {index}"
+        )
         compass.invoke(
             action=Compass.ValidActions.DELETE,
             parameters={"index": index, "file_id": file_id},
@@ -496,9 +502,12 @@ async def consolidate_agent_files_in_compass(
                 action=Compass.ValidActions.REFRESH,
                 parameters={"index": agent_id},
             )
+            logger.info(
+                event=f"[Compass File Service] Delete temporary file index: {file_id}"
+            )
             # Remove the temporary file index entry
             compass.invoke(
-                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": file_id}
+                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": agent_id}
             )
         except Exception as e:
             logger.error(
