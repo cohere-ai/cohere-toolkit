@@ -24,7 +24,6 @@ from backend.services.auth.utils import (
 )
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
-from backend.services.logger.utils import log_and_raise_http_exception
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
@@ -352,25 +351,23 @@ async def delete_tool_auth(
     tool_id = tool_id.lower()
 
     if user_id is None or user_id == "" or user_id == "default":
-        log_and_raise_http_exception("User ID not found.")
+        logger.error_and_raise_http_exception(event="User ID not found.")
 
     if tool_id not in [tool_name.value for tool_name in ToolName]:
-        log_and_raise_http_exception(
-            logger,
-            "tool_id must be present in the path of the request and must be a member of the ToolName string enum class.",
+        logger.error_and_raise_http_exception(
+            event="tool_id must be present in the path of the request and must be a member of the ToolName string enum class.",
         )
 
     tool = AVAILABLE_TOOLS.get(tool_id)
 
     if tool is None:
-        log_and_raise_http_exception(
-            logger, f"Tool {tool_id} is not available in AVAILABLE_TOOLS."
+        logger.error_and_raise_http_exception(
+            event=f"Tool {tool_id} is not available in AVAILABLE_TOOLS."
         )
 
     if tool.auth_implementation is None:
-        log_and_raise_http_exception(
-            logger,
-            f"Tool {tool.name} does not have an auth_implementation required for Tool Auth Deletion.",
+        logger.error_and_raise_http_exception(
+            event=f"Tool {tool.name} does not have an auth_implementation required for Tool Auth Deletion.",
         )
 
     try:
@@ -378,9 +375,9 @@ async def delete_tool_auth(
         is_deleted = tool_auth_service.delete_tool_auth(session, user_id)
 
         if not is_deleted:
-            log_and_raise_http_exception(logger, "Error deleting Tool Auth.")
+            logger.error_and_raise_http_exception(event="Error deleting Tool Auth.")
 
     except Exception as e:
-        log_and_raise_http_exception(logger, str(e))
+        logger.error_and_raise_http_exception(event=str(e))
 
     return DeleteToolAuth()

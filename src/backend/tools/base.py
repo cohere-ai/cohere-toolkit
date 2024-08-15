@@ -124,8 +124,10 @@ class BaseToolAuthentication:
             tool_auth_crud.delete_tool_auth(session, user_id, self.TOOL_ID)
             return True
         except Exception as e:
-            logger.error(event=f"Error while deleting Tool Auth: {str(e)}")
-            return False
+            logger.error(
+                event=f"BaseToolAuthentication: Error while deleting Tool Auth: {str(e)}"
+            )
+            raise Exception(e)
 
 
 class ToolAuthenticationCacheMixin:
