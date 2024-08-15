@@ -254,7 +254,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               documentsMap = { ...documentsMap, ...newDocumentsMap };
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
               saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
-              
+
               // we are only interested in web_search results
               // ignore search results of pyhton interpreter tool
               if (
