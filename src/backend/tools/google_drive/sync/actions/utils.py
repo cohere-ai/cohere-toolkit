@@ -18,7 +18,7 @@ from backend.tools.google_drive.sync.utils import (
 )
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.utils import download
-from backend.crud.agent_tasks import create_agent_task
+from backend.crud.agent_task import create_agent_task
 from backend.database_models.database import get_session
 
 logger = LoggerFactory().get_logger()

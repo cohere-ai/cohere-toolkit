@@ -57,6 +57,7 @@ from backend.services.request_validators import (
     validate_user_header,
 )
 from backend.services.sync.jobs.sync_agent import sync_agent
+from backend.crud.agent_task import get_agent_tasks_by_agent_id
 from backend.tools.files import FileToolsArtifactTypes
 
 router = APIRouter(
@@ -243,6 +244,8 @@ async def get_agent_by_id(
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+    
+    get_agent_tasks_by_agent_id(session, agent_id)
 
     return agent
 
@@ -273,6 +276,24 @@ async def get_agent_deployments(
         DeploymentSchema.custom_transform(deployment)
         for deployment in agent.deployments
     ]
+
+
+@router.get(
+    "/{agent_id}/tasks",
+    dependencies=[
+        Depends(validate_user_header),
+        Depends(validate_update_agent_request),
+    ],
+)
+async def update_agent(
+    agent_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+):
+    ls = get_agent_tasks_by_agent_id(session, agent_id)
+    logger = ctx.get_logger()
+    logger.exception(event=ls)
+    return ls
 
 
 @router.put(
