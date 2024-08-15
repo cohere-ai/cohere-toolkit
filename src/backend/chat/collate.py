@@ -68,7 +68,9 @@ async def rerank_and_chunk(
             text = output.get("text")
 
             if not text:
-                chunked_outputs.append([output])
+                # If one doesn't have text, skip it
+                chunked_outputs = None
+                reranked_results[tool_call_hashable] = tool_result
                 continue
 
             chunks = chunk(text)
