@@ -111,7 +111,7 @@ class Compass:
                     return self.compass_client.create_index(
                         index_name=parameters["index"]
                     )
-                case self.ValidActions.CREATE_INDEX.value:
+                case self.ValidActions.DELETE_INDEX.value:
                     return self.compass_client.delete_index(
                         index_name=parameters["index"]
                     )
@@ -159,7 +159,7 @@ class Compass:
             docs=compass_docs,
         )
         if error is not None:
-            message = ("[Compass] Error inserting document: {error}",)
+            message = (f"[Compass] Error inserting document: {error}",)
             logger.error(event=message)
             raise Exception(message)
 
@@ -278,9 +278,10 @@ class Compass:
                 file_id=file_id,
                 file_bytes=file_bytes,
                 file_extension=file_extension,
+                custom_context=parameters.get("custom_context", {}),
             )
 
-    def _raw_parsing(self, file_id: str, file_bytes: str, file_extension: str):
+    def _raw_parsing(self, file_id: str, file_bytes: str, file_extension: str, custom_context: dict):
         if len(file_bytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
                 event="[Compass] Error parsing file: File Size is too large",
@@ -307,7 +308,9 @@ class Compass:
         if res.ok:
             docs = [CompassDocument(**doc) for doc in res.json()["docs"]]
             for doc in docs:
-                additional_metadata = CompassParserClient._get_metadata(doc=doc)
+                additional_metadata = CompassParserClient._get_metadata(
+                    doc=doc, custom_context=custom_context
+                )
                 doc.content = {**doc.content, **additional_metadata}
         else:
             docs = []

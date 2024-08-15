@@ -13,7 +13,7 @@ def create_agent(db: Session, agent: Agent) -> Agent:
     """
     Create a new agent.
 
-    Agents are configurable entities that can be specified to use specfic tools and have specific preambles for better task completion.
+    Agents are configurable entities that can be specified to use specific tools and have specific preambles for better task completion.
 
     Args:
       db (Session): Database session.

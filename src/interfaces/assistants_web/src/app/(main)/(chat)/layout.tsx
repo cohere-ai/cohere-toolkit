@@ -46,7 +46,7 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         as="div"
         className={cn(
           'border-marble-950 bg-marble-980 px-6 dark:border-volcanic-200 dark:bg-volcanic-100',
-          'absolute inset-0 flex-shrink-0 rounded-lg border lg:static lg:w-[360px] lg:rounded-none lg:rounded-r-lg lg:border-y lg:border-l-0 lg:border-r'
+          'absolute inset-0 rounded-lg border lg:static lg:w-[360px] lg:rounded-none lg:rounded-r-lg lg:border-y lg:border-l-0 lg:border-r'
         )}
         enter="transition-all transform ease-in-out duration-300"
         enterFrom="translate-x-full"
