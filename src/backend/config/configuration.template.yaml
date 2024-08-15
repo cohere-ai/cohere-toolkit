@@ -34,9 +34,6 @@ tools:
     api_key:
   wolfram_alpha:
     app_id:
-  compass:
-    api_url:
-    parser_url:
   google_drive:
     client_id:
     client_secret:
@@ -58,3 +55,6 @@ logger:
   strategy: structlog
   renderer: console
   level: info
+sync:
+  broker_url: redis://:redis@redis:6379
+  worker_concurrency: 4
