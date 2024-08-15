@@ -10,7 +10,7 @@ import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
-import { useFileActions } from '@/hooks/files';
+import { useConversationFileActions } from '@/hooks/files';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
 
@@ -74,7 +74,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
   const isTouchDevice = getIsTouchDevice();
-  const { clearComposerFiles } = useFileActions();
+  const { clearComposerFiles } = useConversationFileActions();
   const { bg, contrastText, contrastFill } = useBrandedColors(conversation.agent?.id);
 
   // if the conversation card is for the selected conversation we use the `conversationName`

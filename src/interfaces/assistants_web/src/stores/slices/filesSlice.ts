@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
 
-import { FilePublic as CohereFile } from '@/cohere-client';
+import { ListFile as CohereFile } from '@/cohere-client';
 
 import { StoreState } from '..';
 
