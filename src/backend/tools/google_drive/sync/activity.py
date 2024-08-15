@@ -50,7 +50,7 @@ def handle_google_drive_activity_event(
         case GoogleDriveActions.EDIT.value:
             [
                 edit.apply_async(
-                    args=[file_id, index_name, user_id],
+                    args=[file_id, index_name, user_id, agent_id],
                     kwargs={
                         "artifact_id": kwargs["artifact_id"],
                         **kwargs,
@@ -61,7 +61,7 @@ def handle_google_drive_activity_event(
         case GoogleDriveActions.MOVE.value:
             [
                 move.apply_async(
-                    args=[file_id, index_name, user_id],
+                    args=[file_id, index_name, user_id, agent_id],
                     kwargs={
                         "artifact_id": kwargs["artifact_id"],
                         **kwargs,
@@ -72,7 +72,7 @@ def handle_google_drive_activity_event(
         case GoogleDriveActions.RENAME.value:
             [
                 rename.apply_async(
-                    args=[file_id, index_name, user_id],
+                    args=[file_id, index_name, user_id, agent_id],
                     kwargs={
                         **kwargs,
                     },
@@ -82,7 +82,7 @@ def handle_google_drive_activity_event(
         case GoogleDriveActions.DELETE.value:
             [
                 delete.apply_async(
-                    args=[file_id, index_name, user_id],
+                    args=[file_id, index_name, user_id, agent_id],
                     kwargs=kwargs,
                 )
                 for file_id in file_ids
@@ -98,7 +98,7 @@ def handle_google_drive_activity_event(
         case GoogleDriveActions.PERMISSION_CHANGE.value:
             [
                 permission_change.apply_async(
-                    args=[file_id, index_name, user_id],
+                    args=[file_id, index_name, user_id, agent_id],
                     kwargs={
                         "artifact_id": kwargs["artifact_id"],
                         **kwargs,
