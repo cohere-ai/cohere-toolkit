@@ -27,6 +27,7 @@ type Props = {
   agent?: AgentPublic;
   tools?: ManagedTool[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
+  lastUserMessage?: ChatMessage;
 };
 
 export const Composer: React.FC<Props> = ({
@@ -39,6 +40,7 @@ export const Composer: React.FC<Props> = ({
   onStop,
   onUploadFile,
   chatWindowRef,
+  lastUserMessage,
 }) => {
   const isDesktop = useIsDesktop();
   const breakpoint = useBreakpoint();
@@ -64,6 +66,16 @@ export const Composer: React.FC<Props> = ({
         onSend(value);
         onChange('');
       }
+    }
+
+    if (e.key === 'ArrowUp' && value.trim() === '' && !isStreaming) {
+      onChange(lastUserMessage?.text || '');
+      setTimeout(() => {
+        textareaRef.current?.setSelectionRange(
+          textareaRef.current?.value.length,
+          textareaRef.current?.value.length
+        );
+      }, 0);
     }
   };
 
