@@ -7,12 +7,14 @@ from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
 )
+from .utils import persist_agent_task
 
 ACTION_NAME = "move"
 logger = LoggerFactory().get_logger()
 
 
-@app.task(time_limit=DEFAULT_TIME_OUT)
+@app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
+@persist_agent_task
 def move(file_id: str, index_name: str, user_id: str, **kwargs):
     artifact_id = kwargs["artifact_id"]
     if artifact_id == file_id:

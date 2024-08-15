@@ -1,3 +1,4 @@
+from functools import wraps
 from typing import Dict, List, Optional
 
 from backend.services.sync.env import env
@@ -15,7 +16,30 @@ from backend.tools.google_drive.sync.utils import (
     perform_non_native_single,
     process_shortcut_file,
 )
+from backend.services.logger.utils import LoggerFactory
 from backend.tools.utils import download
+from backend.crud.agent_tasks import create_agent_task
+from backend.database_models.database import get_session
+
+logger = LoggerFactory().get_logger()
+
+
+def persist_agent_task(method):
+    @wraps(method)
+    def wrapper(
+        self, file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs
+    ):
+        task_id = self.request.id
+        logger.info(
+            event=f"Executing task id {self.request.id}, args: {self.request.args} kwargs: {self.request.kwargs}",
+            agent_id=agent_id,
+        )
+        session = next(get_session())
+        create_agent_task(session, agent_id=agent_id, task_id=task_id)
+        session.close()
+        return method(self, file_id, index_name, user_id, agent_id, **kwargs)
+
+    return wrapper
 
 
 def get_file_details(

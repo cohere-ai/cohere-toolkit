@@ -10,13 +10,14 @@ from backend.tools.google_drive.sync.actions.utils import (
     get_file_details,
     list_permissions,
 )
+from .utils import persist_agent_task
 
 ACTION_NAME = "permission_change"
 logger = LoggerFactory().get_logger()
 
-
-@app.task(time_limit=DEFAULT_TIME_OUT)
-def permission_change(file_id: str, index_name: str, user_id: str, **kwargs):
+@app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
+@persist_agent_task
+def permission_change(file_id: str, index_name: str, user_id: str, agent_id:str, **kwargs):
     # check if file exists
     # NOTE Important when a file has a move and permission_change action
     artifact_id = kwargs["artifact_id"]

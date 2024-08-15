@@ -12,10 +12,12 @@ from backend.tools.google_drive.sync.actions.utils import (
 
 ACTION_NAME = "edit"
 logger = LoggerFactory().get_logger()
+from .utils import persist_agent_task
 
 
-@app.task(time_limit=DEFAULT_TIME_OUT)
-def edit(file_id: str, index_name: str, user_id: str, **kwargs):
+@app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
+@persist_agent_task
+def edit(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
     # check if file exists
     # NOTE Important when a file has a move and create action
     artifact_id = kwargs["artifact_id"]
