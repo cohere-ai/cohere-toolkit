@@ -56,6 +56,7 @@ from backend.services.request_validators import (
     validate_update_agent_request,
     validate_user_header,
 )
+from backend.services.sync.jobs.sync_agent import sync_agent
 from backend.tools.files import FileToolsArtifactTypes
 
 router = APIRouter(
@@ -93,6 +94,7 @@ async def create_agent(
     ctx.with_event_type(MetricsMessageType.ASSISTANT_CREATED)
     ctx.with_user(session)
     user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
 
     agent_data = AgentModel(
         name=agent.name,
@@ -157,8 +159,12 @@ async def create_agent(
         ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
 
+        # initiate agent sync job
+        sync_agent.apply_async(args=[created_agent.id])
+
         return created_agent
     except Exception as e:
+        logger.exception(event=e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
