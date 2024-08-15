@@ -364,7 +364,9 @@ async def validate_create_deployment_request(session: DBSessionDep, request: Req
         )
 
 
-async def validate_organization_request(session: DBSessionDep, request: Request):
+async def validate_create_update_organization_request(
+    session: DBSessionDep, request: Request
+):
     """
     Validate create/update organization request.
 
@@ -398,7 +400,7 @@ async def validate_organization_request(session: DBSessionDep, request: Request)
         )
 
 
-async def validate_user_request(session: DBSessionDep, request: Request):
+async def validate_create_update_user_request(session: DBSessionDep, request: Request):
     """
     Validate that the create user request is valid.
 

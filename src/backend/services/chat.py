@@ -157,8 +157,28 @@ def process_chat(
 def check_chat_request_tools(
     chat_request: BaseChatRequest, entity: Agent | User
 ) -> None:
+    """
+    Check if the chat request tools are available in the entity.
+
+    Args:
+        chat_request (BaseChatRequest): Chat request data.
+        entity (Agent | User): Entity object.
+
+    Raises:
+        ValueError: If the entity is not Agent or User object.
+        HTTPException: If any of the tools are not found in the entity.
+
+    Returns:
+        None
+    """
     if chat_request.tools:
-        entity_type = "agent" if isinstance(entity, Agent) else "user"
+        if isinstance(entity, Agent):
+            entity_type = "agent"
+        elif isinstance(entity, User):
+            entity_type = "user"
+        else:
+            raise ValueError("Entity must be either Agent or User object")
+
         for tool in chat_request.tools:
             if tool.name not in entity.tools:
                 raise HTTPException(

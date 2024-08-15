@@ -6,6 +6,19 @@ from backend.database_models.user import User
 
 
 def validate_user_exists(session: DBSessionDep, user_id: str) -> User:
+    """
+    Validate if a user exists.
+
+    Args:
+        session (DBSessionDep): Database session.
+        user_id (str): User ID.
+
+    Returns:
+        User: User with the given ID.
+
+    Raises:
+        HTTPException: If the user with the given ID is not found.
+    """
     user = user_crud.get_user(session, user_id)
 
     if not user:

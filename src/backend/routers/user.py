@@ -10,7 +10,7 @@ from backend.schemas.user import CreateUser, DeleteUser, UpdateUser
 from backend.schemas.user import User
 from backend.schemas.user import User as UserSchema
 from backend.services.context import get_context
-from backend.services.request_validators import validate_user_request
+from backend.services.request_validators import validate_create_update_user_request
 
 router = APIRouter(prefix="/v1/users")
 router.name = RouterName.USER
@@ -20,7 +20,7 @@ router.name = RouterName.USER
     "",
     response_model=User,
     dependencies=[
-        Depends(validate_user_request),
+        Depends(validate_create_update_user_request),
     ],
 )
 async def create_user(
@@ -112,7 +112,7 @@ async def get_user(
     "/{user_id}",
     response_model=User,
     dependencies=[
-        Depends(validate_user_request),
+        Depends(validate_create_update_user_request),
     ],
 )
 async def update_user(
