@@ -23,11 +23,9 @@ from backend.schemas.conversation import (
     UpdateConversationRequest,
 )
 from backend.schemas.file import (
-    DeleteFileResponse,
-    FilePublic,
-    ListFile,
-    UpdateFileRequest,
-    UploadFileResponse,
+    DeleteConversationFileResponse,
+    ListConversationFile,
+    UploadConversationFileResponse,
 )
 from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.services.agent import validate_agent_exists
@@ -324,89 +322,13 @@ async def search_conversations(
 
 
 # FILES
-# TODO: Deprecate singular file upload once client uses batch upload endpoint
-@router.post("/upload_file", response_model=UploadFileResponse)
-async def upload_file(
-    session: DBSessionDep,
-    conversation_id: str = Form(None),
-    file: FastAPIUploadFile = RequestFile(...),
-    ctx: Context = Depends(get_context),
-) -> UploadFileResponse:
-    """
-    Uploads and creates a File object.
-    If no conversation_id is provided, a new Conversation is created as well.
-
-    Args:
-        session (DBSessionDep): Database session.
-        conversation_id (Optional[str]): Conversation ID passed from request query parameter.
-        file (FastAPIUploadFile): File to be uploaded.
-        ctx (Context): Context object.
-
-    Returns:
-        UploadFileResponse: Uploaded file.
-
-    Raises:
-        HTTPException: If the conversation with the given ID is not found. Status code 404.
-        HTTPException: If the file wasn't uploaded correctly. Status code 500.
-    """
-
-    user_id = ctx.get_user_id()
-    # Currently do not limit file size for Compass
-    if Settings().feature_flags.use_compass_file_storage is False:
-        validate_file_size(session, user_id, file)
-
-    # Create new conversation
-    if not conversation_id:
-        conversation = conversation_crud.create_conversation(
-            session,
-            ConversationModel(user_id=user_id),
-        )
-    # Check for existing conversation
-    else:
-        conversation = conversation_crud.get_conversation(
-            session, conversation_id, user_id
-        )
-
-        # Fail if user_id is not provided when conversation DNE
-        if not conversation:
-            if not user_id:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
-                )
-
-            # Create new conversation
-            conversation = conversation_crud.create_conversation(
-                session,
-                ConversationModel(user_id=user_id),
-            )
-
-    # TODO: check if file already exists in DB once we have files per agents
-
-    # Handle uploading File
-    try:
-        upload_file = await get_file_service().create_conversation_files(
-            session, [file], user_id, conversation.id, ctx
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error while uploading file {file.filename}: {e}."
-        )
-
-    # TODO scott: clean this up, just use one endpoint for both single and batch
-    files_with_conversation_id = attach_conversation_id_to_files(
-        conversation.id, upload_file
-    )
-    return files_with_conversation_id[0]
-
-
-@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
+@router.post("/batch_upload_file", response_model=list[UploadConversationFileResponse])
 async def batch_upload_file(
     session: DBSessionDep,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
     ctx: Context = Depends(get_context),
-) -> UploadFileResponse:
+) -> UploadConversationFileResponse:
     """
     Uploads and creates a batch of File object.
     If no conversation_id is provided, a new Conversation is created as well.
@@ -418,7 +340,7 @@ async def batch_upload_file(
         ctx (Context): Context object.
 
     Returns:
-        list[UploadFileResponse]: List of uploaded files.
+        list[UploadConversationFileResponse]: List of uploaded files.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found. Status code 404.
@@ -475,10 +397,10 @@ async def batch_upload_file(
     return files_with_conversation_id
 
 
-@router.get("/{conversation_id}/files", response_model=list[ListFile])
+@router.get("/{conversation_id}/files", response_model=list[ListConversationFile])
 async def list_files(
     conversation_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
-) -> list[ListFile]:
+) -> list[ListConversationFile]:
     """
     List all files from a conversation. Important - no pagination support yet.
 
@@ -488,7 +410,7 @@ async def list_files(
         ctx (Context): Context object.
 
     Returns:
-        list[ListFile]: List of files from the conversation.
+        list[ListConversationFile]: List of files from the conversation.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found.
@@ -509,7 +431,7 @@ async def delete_file(
     file_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-) -> DeleteFileResponse:
+) -> DeleteConversationFileResponse:
     """
     Delete a file by ID.
 
@@ -533,7 +455,7 @@ async def delete_file(
         session, conversation_id, file_id, user_id, ctx
     )
 
-    return DeleteFileResponse()
+    return DeleteConversationFileResponse()
 
 
 # MISC
