@@ -5,6 +5,7 @@ from backend.database_models.agent_tool_metadata import AgentToolMetadata
 
 from .base import BaseFactory
 
+
 class AgentToolMetadataFactory(BaseFactory):
     class Meta:
         model = AgentToolMetadata
