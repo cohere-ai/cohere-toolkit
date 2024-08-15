@@ -1,5 +1,3 @@
-import logging
-
 from backend.config.settings import Settings
 from backend.services.logger.strategies.base import BaseLogger
 from backend.services.logger.strategies.structured_log import StructuredLogging

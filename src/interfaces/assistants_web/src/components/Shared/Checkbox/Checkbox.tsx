@@ -76,7 +76,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
             'bg-coral-600 group-hover:bg-coral-500': checked && theme === 'coral',
             'bg-evolved-green-700 group-hover:bg-evolved-green-500':
               checked && theme === 'evolved-green',
-            'cursor-not-allowed border border-volcanic-500 bg-volcanic-800 group-hover:bg-volcanic-700 dark:bg-volcanic-300 dark:group-hover:bg-volcanic-400':
+            'cursor-not-allowed border border-volcanic-800 bg-volcanic-800 group-hover:bg-volcanic-700 dark:bg-volcanic-300 dark:group-hover:bg-volcanic-400':
               disabled,
             'border border-marble-800 bg-white group-hover:bg-marble-980 dark:bg-volcanic-150 dark:group-hover:bg-volcanic-300':
               !checked && !disabled,

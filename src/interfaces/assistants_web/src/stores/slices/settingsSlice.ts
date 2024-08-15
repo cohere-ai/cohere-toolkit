@@ -1,45 +1,45 @@
 import { StateCreator } from 'zustand';
 
-const INITIAL_STATE: Required<State> = {
-  isConfigDrawerOpen: false,
-  activeConfigDrawerTab: '',
-  isConvListPanelOpen: true,
-  isMobileConvListPanelOpen: false,
+const INITIAL_STATE = {
+  disabledAssistantKnowledge: [],
+  isLeftPanelOpen: true,
+  isRightPanelOpen: false,
 };
 
 type State = {
-  isConfigDrawerOpen: boolean;
-  activeConfigDrawerTab: string;
-  isConvListPanelOpen: boolean;
-  isMobileConvListPanelOpen: boolean;
+  disabledAssistantKnowledge: string[];
+  isLeftPanelOpen: boolean;
+  isRightPanelOpen: boolean;
 };
 
 type Actions = {
-  setSettings: (settings: Partial<State>) => void;
-  setIsConvListPanelOpen: (isOpen: boolean) => void;
+  setUseAssistantKnowledge: (useKnowledge: boolean, agentId: string) => void;
+  setLeftPanelOpen: (isOpen: boolean) => void;
+  setRightPanelOpen: (isOpen: boolean) => void;
 };
 
-export type SettingsStore = {
-  settings: State;
-} & Actions;
+export type SettingsStore = State & Actions;
 
 export const createSettingsSlice: StateCreator<SettingsStore, [], [], SettingsStore> = (set) => ({
-  setSettings(settings) {
+  setUseAssistantKnowledge(useKnowledge, agentId) {
     set((state) => ({
-      settings: {
-        ...state.settings,
-        ...settings,
-      },
+      ...state,
+      disabledAssistantKnowledge: useKnowledge
+        ? state.disabledAssistantKnowledge.filter((id) => id !== agentId)
+        : [...state.disabledAssistantKnowledge, agentId],
     }));
   },
-  setIsConvListPanelOpen(isOpen) {
+  setLeftPanelOpen(isOpen) {
     set((state) => ({
-      settings: {
-        ...state.settings,
-        isConvListPanelOpen: isOpen,
-        isMobileConvListPanelOpen: isOpen,
-      },
+      ...state,
+      isLeftPanelOpen: isOpen,
     }));
   },
-  settings: INITIAL_STATE,
+  setRightPanelOpen(isOpen) {
+    set((state) => ({
+      ...state,
+      isRightPanelOpen: isOpen,
+    }));
+  },
+  ...INITIAL_STATE,
 });

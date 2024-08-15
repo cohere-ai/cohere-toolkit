@@ -6,9 +6,10 @@ import React from 'react';
 import { AssistantTools } from '@/components/AssistantTools';
 import { CoralLogo, Icon, Text } from '@/components/Shared';
 import { useAgent } from '@/hooks/agents';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { checkIsBaseAgent } from '@/utils/agents';
 
 type Props = {
   show: boolean;
@@ -21,7 +22,9 @@ type Props = {
 export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { data: agent, isLoading: isAgentsLoading } = useAgent({ agentId });
   const { data: tools = [], isLoading: isToolsLoading } = useListTools();
-  const isAgent = agentId !== undefined && !isAgentsLoading && !!agent;
+  const { contrastText, bg, contrastFill } = useBrandedColors(agentId);
+
+  const isBaseAgent = checkIsBaseAgent(agent);
 
   return (
     <Transition
@@ -39,21 +42,22 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           <div
             className={cn(
               'flex h-7 w-7 items-center justify-center rounded md:h-9 md:w-9',
-              getCohereColor(agent?.id, { background: true, contrastText: true })
+              contrastText,
+              bg
             )}
           >
-            {!isAgent ? (
-              <CoralLogo />
+            {isBaseAgent ? (
+              <CoralLogo className={contrastFill} />
             ) : (
-              <Text className="uppercase" styleAs="p-lg">
-                {agent.name[0]}
+              <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
+                {agent?.name[0]}
               </Text>
             )}
           </div>
           <Text styleAs="h4" className="truncate">
-            {isAgent ? agent.name : 'Your Private Assistant'}
+            {!isBaseAgent ? agent?.name : 'Your Private Assistant'}
           </Text>
-          {!isAgent && (
+          {isBaseAgent && (
             <Text className="ml-auto" styleAs="caption">
               By Cohere
             </Text>
@@ -63,7 +67,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           {agent?.description || 'Ask questions and get answers based on your files.'}
         </Text>
 
-        {!isAgent && (
+        {isBaseAgent && (
           <div className="flex items-center gap-x-1">
             <Icon name="circles-four" kind="outline" />
             <Text className="font-medium">Toggle Tools On/Off</Text>

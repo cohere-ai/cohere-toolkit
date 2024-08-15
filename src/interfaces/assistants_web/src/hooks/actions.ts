@@ -1,21 +1,16 @@
 import { findLast } from 'lodash';
-import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
-import { CustomHotKey } from '@/components/Shared/HotKeys';
+import { HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
 import {
   CHAT_COMPOSER_TEXTAREA_ID,
   CONFIGURATION_FILE_UPLOAD_ID,
   SETTINGS_DRAWER_ID,
 } from '@/constants';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useNotify } from '@/hooks/toast';
-import {
-  useCitationsStore,
-  useConversationStore,
-  useFilesStore,
-  useParamsStore,
-  useSettingsStore,
-} from '@/stores';
+import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 import { MessageType, isFulfilledMessage } from '@/types/message';
 
 export const useFocusComposer = () => {
@@ -39,20 +34,8 @@ export const useFocusComposer = () => {
 export const useFocusFileInput = () => {
   const {
     files: { isFileInputQueuedToFocus },
-    queueFocusFileInput: queueFocus,
     clearFocusFileInput: clearFocus,
   } = useFilesStore();
-  const {
-    settings: { isConfigDrawerOpen },
-    setSettings,
-  } = useSettingsStore();
-
-  const queueFocusFileInput = () => {
-    if (!isConfigDrawerOpen) {
-      setSettings({ isConfigDrawerOpen: true });
-    }
-    setTimeout(() => queueFocus(), 300);
-  };
 
   const focusFileInput = () => {
     const fileInput = document.getElementById(CONFIGURATION_FILE_UPLOAD_ID) as HTMLInputElement;
@@ -64,95 +47,106 @@ export const useFocusFileInput = () => {
     clearFocus();
   };
 
-  return { isFileInputQueuedToFocus, queueFocusFileInput, focusFileInput };
+  return { isFileInputQueuedToFocus, focusFileInput };
 };
 
-export const useChatHotKeys = (): CustomHotKey[] => {
-  const router = useRouter();
-  const {
-    settings: { isConvListPanelOpen, isConfigDrawerOpen },
-    setSettings,
-    setIsConvListPanelOpen,
-  } = useSettingsStore();
+export const useChatHotKeys = (): HotKeyGroupOption[] => {
   const {
     conversation: { id, messages },
-    resetConversation,
   } = useConversationStore();
-  const { resetFileParams } = useParamsStore();
-  const { resetCitations } = useCitationsStore();
   const { deleteConversation } = useConversationActions();
   const { focusComposer } = useFocusComposer();
   const { error, info } = useNotify();
+  const navigateToNewChat = useNavigateToNewChat();
 
   return [
     {
-      name: 'Start a new conversation',
-      commands: ['ctrl+shift+o', 'meta+shift+o'],
-      action: async () => {
-        router.push('/', undefined);
-        resetConversation();
-        resetCitations();
-        resetFileParams();
-      },
-    },
-    {
-      name: 'Delete current conversation',
-      commands: ['ctrl+shift+backspace', 'meta+shift+backspace'],
-      action: () => {
-        if (!id) return;
-        deleteConversation({ id });
-      },
-      options: {
-        preventDefault: true,
-      },
-    },
-    {
-      name: 'Toggle left sidebar',
-      commands: ['ctrl+shift+s', 'meta+shift+s'],
-      action: () => {
-        setIsConvListPanelOpen(!isConvListPanelOpen);
-      },
-      options: {
-        preventDefault: true,
-      },
-    },
-    {
-      name: 'Toggle grounding drawer',
-      commands: ['ctrl+shift+g', 'meta+shift+g'],
-      action: () => {
-        setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
-      },
-      options: {
-        preventDefault: true,
-      },
-    },
-    {
-      name: 'Focus on chat input',
-      commands: ['shift+esc'],
-      action: () => {
-        focusComposer();
-      },
-    },
-    {
-      name: 'Copy last response',
-      commands: ['ctrl+shift+c', 'meta+shift+c'],
-      action: async () => {
-        const lastBotMessage = findLast(messages, (message) => message.type === MessageType.BOT);
-        if (!lastBotMessage) return;
-        const lastBotMessageText = isFulfilledMessage(lastBotMessage)
-          ? lastBotMessage.originalText
-          : lastBotMessage.text;
+      group: 'Conversation',
+      quickActions: [
+        {
+          name: 'Start a new conversation',
+          commands: ['ctrl+shift+o', 'meta+shift+o'],
+          action: navigateToNewChat,
+        },
+        {
+          name: 'Delete current conversation',
+          commands: ['ctrl+shift+backspace', 'meta+shift+backspace'],
+          action: () => {
+            if (!id) return;
+            deleteConversation({ id });
+          },
+          options: {
+            preventDefault: true,
+          },
+        },
+        {
+          name: 'Copy last response',
+          commands: ['ctrl+shift+c', 'meta+shift+c'],
+          action: async () => {
+            const lastBotMessage = findLast(
+              messages,
+              (message) => message.type === MessageType.BOT
+            );
+            if (!lastBotMessage) return;
+            const lastBotMessageText = isFulfilledMessage(lastBotMessage)
+              ? lastBotMessage.originalText
+              : lastBotMessage.text;
 
-        try {
-          await window?.navigator?.clipboard.writeText(lastBotMessageText);
-          info('Copied last response to clipboard');
-        } catch (e) {
-          error('Unable to copy last response');
-        }
-      },
-      options: {
-        preventDefault: true,
-      },
+            try {
+              await window?.navigator?.clipboard.writeText(lastBotMessageText);
+              info('Copied last response to clipboard');
+            } catch (e) {
+              error('Unable to copy last response');
+            }
+          },
+          options: {
+            preventDefault: true,
+          },
+        },
+        {
+          name: 'Focus on chat input',
+          commands: ['shift+esc'],
+          action: () => {
+            focusComposer();
+          },
+        },
+      ],
+    },
+  ];
+};
+
+export const useLayoutHotKeys = (): HotKeyGroupOption[] => {
+  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
+  const { theme, setTheme } = useTheme();
+  return [
+    {
+      group: 'Layout',
+      quickActions: [
+        {
+          name: 'Toggle left sidebar',
+          commands: ['ctrl+shift+s', 'meta+shift+s'],
+          action: () => {
+            setLeftPanelOpen(!isLeftPanelOpen);
+          },
+          options: {
+            preventDefault: true,
+          },
+        },
+        {
+          name: 'Toggle dark mode',
+          commands: ['ctrl+shift+d', 'meta+shift+d'],
+          action: () => {
+            if (document.startViewTransition) {
+              document.startViewTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'));
+            } else {
+              setTheme(theme === 'dark' ? 'light' : 'dark');
+            }
+          },
+          options: {
+            preventDefault: true,
+          },
+        },
+      ],
     },
   ];
 };

@@ -3,20 +3,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
 import {
-  ChatResponseEvent as ChatResponse,
   CohereChatRequest,
   CohereNetworkError,
-  Conversation,
+  ConversationPublic as Conversation,
   FinishReason,
   StreamEnd,
   StreamEvent,
   isUnauthorizedError,
   useCohereClient,
 } from '@/cohere-client';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
+import { ChatResponseEvent } from '@/domain/chat';
 
 interface StreamingParams {
-  onRead: (data: ChatResponse) => void;
+  onRead: (data: ChatResponseEvent) => void;
   onHeaders: (headers: Headers) => void;
   onFinish: () => void;
   onError: (error: unknown) => void;
@@ -45,7 +44,6 @@ export const useStreamChat = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
-  const { data: experimentalFeatures } = useExperimentalFeatures();
 
   useEffect(() => {
     return () => {
@@ -121,11 +119,7 @@ export const useStreamChat = () => {
           },
         };
 
-        if (experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN) {
-          await cohereClient.langchainChat(chatStreamParams);
-        } else {
-          await cohereClient.chat({ ...chatStreamParams });
-        }
+        await cohereClient.chat({ ...chatStreamParams });
       } catch (e) {
         if (isUnauthorizedError(e)) {
           await queryClient.invalidateQueries({ queryKey: ['defaultAPIKey'] });

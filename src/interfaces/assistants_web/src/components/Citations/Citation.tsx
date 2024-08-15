@@ -1,208 +1,128 @@
-'use client';
+import Link from 'next/link';
+import { useState } from 'react';
 
-import { Transition } from '@headlessui/react';
-import { flatten, sortBy, uniqBy } from 'lodash';
-import React, { useRef } from 'react';
-import { useMemo, useState } from 'react';
-
-import { Document } from '@/cohere-client';
-import { CitationDocument } from '@/components/Citations/CitationDocument';
-import { IconButton } from '@/components/IconButton';
-import { Text } from '@/components/Shared/Text';
-import { ReservedClasses } from '@/constants';
-import { CitationStyles, useCalculateCitationTranslateY } from '@/hooks/citations';
+import { DocumentIcon, Icon, Markdown, Text } from '@/components/Shared';
+import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID, TOOL_WIKIPEDIA_ID } from '@/constants';
 import { useCitationsStore } from '@/stores';
-import { cn, pluralize } from '@/utils';
+import { getSafeUrl, getWebDomain } from '@/utils';
+
+const getWebSourceName = (toolId?: string | null) => {
+  if (!toolId) {
+    return '';
+  } else if (toolId === TOOL_WEB_SEARCH_ID) {
+    return 'from the web';
+  }
+  return `from ${toolId}`;
+};
 
 type Props = {
   generationId: string;
-  message: string;
-  isLastStreamed?: boolean;
-  styles?: CitationStyles;
-  className?: string;
+  citationKey: string;
 };
 
-export const DEFAULT_NUM_VISIBLE_DOCS = 3;
-
-/**
- * Placeholder component for a citation.
- * This component is in charge of rendering the citations for a given generation.
- * @params {string} generationId - the id of the generation
- * @params {string} message - the message that was sent
- * @params {boolean} isLastStreamed - if the citation is for the last streamed message
- * @params {number} styles - top and bottom styling, depending on the associated message row
- * @params {string} className - additional class names to add to the citation
- */
-export const Citation = React.forwardRef<HTMLDivElement, Props>(function CitationInternal(
-  { generationId, message, className = '', styles, isLastStreamed = false },
-  ref
-) {
-  const {
-    citations: { citationReferences, selectedCitation, hoveredGenerationId },
-    hoverCitation,
-  } = useCitationsStore();
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [keyword, setKeyword] = useState('');
-  const isSelected = selectedCitation?.generationId === generationId;
-  const isSomeSelected = !!selectedCitation?.generationId;
-  const isHovered = hoveredGenerationId === generationId;
-  const [isAllDocsVisible, setIsAllDocsVisible] = useState(false);
-
-  const startEndKeyToDocs = citationReferences[generationId];
-  const documents: Document[] = useMemo(() => {
-    if (!startEndKeyToDocs) {
-      return [];
-    }
-
-    if (selectedCitation && generationId === selectedCitation.generationId) {
-      setKeyword(message.slice(Number(selectedCitation.start), Number(selectedCitation.end)));
-      return startEndKeyToDocs[`${selectedCitation.start}-${selectedCitation.end}`];
-    } else {
-      const firstCitedTextKey = Object.keys(startEndKeyToDocs)[0];
-      const [start, end] = firstCitedTextKey.split('-');
-      setKeyword(message.slice(Number(start), Number(end)));
-      return startEndKeyToDocs[firstCitedTextKey];
-    }
-  }, [startEndKeyToDocs, selectedCitation, generationId, message]);
-
-  const translateY = useCalculateCitationTranslateY({
-    generationId,
-    citationRef: containerRef,
-  });
-
-  if (!startEndKeyToDocs || documents.length === 0 || (!isSelected && !!selectedCitation)) {
-    return null;
-  }
-
-  const highlightedDocumentIds = documents
-    .slice(0, DEFAULT_NUM_VISIBLE_DOCS)
-    .map((doc) => doc.document_id);
-
-  const uniqueDocuments = sortBy(
-    uniqBy(flatten(Object.values(startEndKeyToDocs)), 'document_id'),
-    'document_id'
-  );
-  const uniqueDocumentsUrls = uniqBy(uniqueDocuments, 'url');
-
-  const handleMouseEnter = () => {
-    hoverCitation(generationId);
-  };
-
-  const handleMouseLeave = () => {
-    hoverCitation(null);
-  };
-
-  const handleToggleAllDocsVisible = () => {
-    setIsAllDocsVisible(!isAllDocsVisible);
-  };
+export const Citation: React.FC<Props> = ({ generationId, citationKey }) => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const { citations } = useCitationsStore();
+  const citationsMap = citations.citationReferences[generationId];
+  const documents = citationsMap[citationKey];
+  const document = documents[selectedIndex];
+  const safeUrl = getSafeUrl(document.url);
 
   return (
-    <Transition
-      as="div"
-      id={generationId ? `citation-${generationId}` : undefined}
-      show={true}
-      enter="delay-300 duration-300 ease-out transition-[transform,opacity]" // delay to wait for the citation side panel to open
-      enterFrom="translate-x-2 opacity-0"
-      enterTo="translate-x-0 opacity-100"
-      leave="duration-300 ease-in transition-[transform,opacity]"
-      leaveFrom="translate-x-0 opacity-100"
-      leaveTo="translate-x-2 opacity-0"
-      ref={containerRef}
-      style={{
-        ...styles,
-        ...(translateY !== 0 && isSelected
-          ? {
-              '--selectedTranslateY': `${translateY}px`,
-            }
-          : {}),
-      }}
-      className={cn(
-        'w-[260px] max-w-[260px] rounded',
-        'bg-marble-1000 transition-[transform,top] duration-300 ease-in-out dark:bg-volcanic-200',
-        'md:absolute',
-        {
-          'md:-translate-x-1': isHovered,
-          'md:z-selected-citation': isSelected || isAllDocsVisible || isHovered,
-          'md:translate-y-[var(--selectedTranslateY)] md:shadow-lg': isSelected,
-        }
-      )}
-    >
-      <div
-        ref={ref}
-        className={cn(
-          ReservedClasses.CITATION,
-          'rounded md:p-3',
-          'transition-[colors,opacity] duration-300 ease-in-out',
-          {
-            'opacity-60 dark:opacity-100':
-              !isSelected && !isHovered && (!isLastStreamed || isSomeSelected),
-            'opacity-90 dark:opacity-100': !isSelected && isHovered,
-            'bg-mushroom-400/[0.08 dark:bg-volcanic-200': !isSelected,
-            'bg-coral-700/[0.08] dark:bg-volcanic-200': isSelected,
-            'flex flex-col gap-y-4 lg:gap-y-6': isSelected,
-          },
-          className
+    <div className="space-y-4">
+      <header className="flex items-center justify-between">
+        <div className="flex gap-2">
+          <div className="grid size-8 place-items-center rounded bg-white dark:bg-volcanic-150">
+            {document.url ? (
+              <a href={safeUrl} target="_blank" data-connectorid={document.tool_name}>
+                <DocumentIcon url={safeUrl} />
+              </a>
+            ) : document.tool_name ? (
+              <Icon name={TOOL_ID_TO_DISPLAY_INFO[document.tool_name].icon} />
+            ) : (
+              <Icon name="file" />
+            )}
+          </div>
+          <div>
+            {document.tool_name === TOOL_WEB_SEARCH_ID ? (
+              <>
+                <Text styleAs="p-xs" className="uppercase dark:text-marble-800">
+                  {getWebDomain(safeUrl) + ' ' + getWebSourceName(document.tool_name)}
+                </Text>
+                {document.url ? (
+                  <Link href={document.url} target="_blank">
+                    <Text styleAs="p-sm" className="uppercase underline dark:text-marble-950">
+                      {document.title || 'Untitled'}
+                      <Icon
+                        name="arrow-up-right"
+                        className="ml-1 inline-block h-4 w-4 [&_svg]:mt-1"
+                      />
+                    </Text>
+                  </Link>
+                ) : (
+                  <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
+                    {document.title || 'Untitled'}
+                  </Text>
+                )}
+              </>
+            ) : document.tool_name === TOOL_WIKIPEDIA_ID ? (
+              <>
+                <Text styleAs="p-xs" className="uppercase dark:text-marble-800">
+                  {getWebSourceName(document.tool_name)}
+                </Text>
+                {document.url ? (
+                  <Link href={document.url} target="_blank">
+                    <Text styleAs="p-sm" className="uppercase underline dark:text-marble-950">
+                      {document.title || 'Untitled'}
+                      <Icon
+                        name="arrow-up-right"
+                        className="ml-1 inline-block h-4 w-4 [&_svg]:mt-1"
+                      />
+                    </Text>
+                  </Link>
+                ) : (
+                  <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
+                    {document.title || 'Untitled'}
+                  </Text>
+                )}
+              </>
+            ) : (
+              <>
+                <Text styleAs="p-xs" className="uppercase dark:text-marble-800">
+                  Tool
+                </Text>
+                <Text styleAs="p-sm" className="uppercase dark:text-marble-950">
+                  {document.tool_name}
+                </Text>
+              </>
+            )}
+          </div>
+        </div>
+        {documents.length > 1 && (
+          <div className="flex flex-shrink-0 items-center">
+            <button
+              className="py-[3px] pr-2"
+              onClick={() =>
+                setSelectedIndex((prev) => (prev - 1 + documents.length) % documents.length)
+              }
+            >
+              <Icon name="chevron-left" />
+            </button>
+            <Text className="text-p-sm">
+              {selectedIndex + 1} of {documents.length}
+            </Text>
+            <button
+              className="py-[3px] pl-2"
+              onClick={() => setSelectedIndex((prev) => (prev + 1) % documents.length)}
+            >
+              <Icon name="chevron-right" />
+            </button>
+          </div>
         )}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <Text className="text-coral-300 md:hidden dark:text-marble-950">{keyword}</Text>
-
-        <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
-          <Text as="span" styleAs="caption" className="text-volcanic-300 dark:text-marble-800">
-            {uniqueDocumentsUrls.length} {pluralize('reference', uniqueDocumentsUrls.length)}
-          </Text>
-          {uniqueDocumentsUrls.length > DEFAULT_NUM_VISIBLE_DOCS && (
-            <IconButton
-              className={cn(
-                'h-4 w-4 fill-volcanic-300 transition delay-75 duration-200 ease-in-out dark:fill-marble-800',
-                {
-                  'rotate-180': isAllDocsVisible,
-                }
-              )}
-              onClick={handleToggleAllDocsVisible}
-              iconName="chevron-down"
-            />
-          )}
-        </div>
-
-        <div className="flex w-full flex-col gap-y-4">
-          {isSelected
-            ? uniqueDocuments.map((doc) => {
-                const isVisible = highlightedDocumentIds.includes(doc.document_id);
-
-                if (!isVisible) {
-                  return null;
-                }
-
-                return (
-                  <CitationDocument
-                    key={doc.document_id}
-                    isExpandable={isSelected}
-                    document={doc}
-                    keyword={keyword}
-                  />
-                );
-              })
-            : uniqueDocumentsUrls.map((doc, index) => {
-                const isVisible = isAllDocsVisible || index < DEFAULT_NUM_VISIBLE_DOCS;
-
-                if (!isVisible) {
-                  return null;
-                }
-
-                return (
-                  <CitationDocument
-                    key={doc.url}
-                    isExpandable={isSelected}
-                    document={doc}
-                    keyword={keyword}
-                  />
-                );
-              })}
-        </div>
-      </div>
-    </Transition>
+      </header>
+      <article className="max-h-64 overflow-y-auto">
+        <Markdown className="font-variable" text={document.text} />
+      </article>
+    </div>
   );
-});
+};

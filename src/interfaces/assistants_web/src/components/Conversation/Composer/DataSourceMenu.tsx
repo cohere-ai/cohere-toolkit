@@ -3,16 +3,17 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import React from 'react';
 
-import { Agent, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/Shared';
+import { useBrandedColors } from '@/hooks/brandedColors';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
-import { getCohereColor } from '@/utils/getCohereColor';
+import { checkIsBaseAgent } from '@/utils/agents';
 import { getToolIcon } from '@/utils/tools';
 
 export type Props = {
-  agent?: Agent;
+  agent?: AgentPublic;
   tools?: ManagedTool[];
 };
 
@@ -28,6 +29,8 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
     managedTools: tools,
   });
 
+  const { text, contrastText, border, bg } = useBrandedColors(agent?.id);
+
   return (
     <Popover className="relative">
       <PopoverButton
@@ -35,21 +38,23 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
         className={({ open }) =>
           cn(
             'flex items-center justify-center rounded border px-1.5 py-1 outline-none transition-colors',
-            getCohereColor(agent?.id, {
-              text: true,
-              contrastText: open,
-              border: true,
-              background: open,
-            })
+            border,
+            { [bg]: open }
           )
         }
       >
-        <Text styleAs="label" as="span" className="font-medium">
-          Tools: {paramsTools?.length ?? 0}
-        </Text>
+        {({ open }) => (
+          <Text
+            styleAs="label"
+            as="span"
+            className={cn('font-medium', text, { [contrastText]: open })}
+          >
+            Tools: {paramsTools?.length ?? 0}
+          </Text>
+        )}
       </PopoverButton>
       <PopoverPanel
-        className="flex origin-top -translate-y-2 flex-col transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        className="flex min-w-[200px] origin-top -translate-y-2 flex-col transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
         anchor="top start"
         transition
       >
@@ -75,7 +80,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                 'flex w-full items-start justify-between gap-x-2 px-1.5 py-3',
                 'focus:outline focus:outline-volcanic-300',
                 {
-                  'border-b border-mushroom-800 md:w-[300px] dark:border-volcanic-300':
+                  'border-b border-mushroom-800 dark:border-volcanic-300 md:w-[300px]':
                     i !== availableTools.length - 1,
                 }
               )}
@@ -89,15 +94,25 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                       size="sm"
                       className="flex items-center fill-mushroom-300 dark:fill-marble-800"
                     />
-                    <div className="absolute -bottom-0.5 -right-0.5  size-2 rounded-full bg-success-300" />
+                    <div
+                      className={cn(
+                        'absolute -bottom-0.5 -right-0.5  size-2 rounded-full transition-colors duration-300',
+                        {
+                          'bg-success-300': !!paramsTools?.find((t) => t.name === tool.name),
+                          'bg-mushroom-400 dark:bg-volcanic-600': !paramsTools?.find(
+                            (t) => t.name === tool.name
+                          ),
+                        }
+                      )}
+                    />
                   </div>
                   <div className="flex flex-col text-left">
                     <Text as="span">{tool.display_name}</Text>
                   </div>
                 </div>
-                {!agent && (
+                {checkIsBaseAgent(agent) && (
                   <Switch
-                    theme="evolved-green"
+                    theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}
                     onChange={(checked) => handleToggle(tool.name!, checked)}
                   />

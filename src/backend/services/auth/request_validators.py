@@ -29,7 +29,14 @@ def validate_authorization(
             detail="Authorization: Bearer <token> required in request headers.",
         )
 
-    scheme, token = authorization.split(" ")
+    try:
+        scheme, token = authorization.split(" ")
+    except ValueError:
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization: Bearer <token> required in request headers.",
+        )
+
     if scheme.lower() != "bearer":
         raise HTTPException(
             status_code=401,

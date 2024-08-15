@@ -3,7 +3,14 @@ module.exports = {
   presets: [require('./src/themes/cohereTheme')],
   content: ['src/**/*.{js,jsx,ts,tsx}'],
   plugins: [require('@tailwindcss/typography')],
-  darkMode: 'selector',
+  darkMode: 'class',
+  safelist: [
+    {
+      pattern:
+        /(bg|text|border|fill)-(blue|evolved-blue|coral|green|evolved-green|quartz|evolved-quartz|mushroom|evolved-mushroom|marble|volcanic|danger)-\S+/,
+      variants: ['hover', 'dark', 'dark:hover'],
+    },
+  ],
   theme: {
     extend: {
       screens: {
@@ -15,7 +22,7 @@ module.exports = {
         'citation-panel-xl': '349px', // subtract 10px for scrollbar and 1px for border
         menu: '174px',
         'agents-panel-collapsed': '82px',
-        'agents-panel-expanded': '288px',
+        'agents-panel-expanded': '240px',
         'agents-panel-expanded-lg': '320px',
         'left-panel-lg': '242px',
         'left-panel-2xl': '300px',
@@ -45,7 +52,7 @@ module.exports = {
       maxWidth: {
         message: '976px',
         'agents-panel-collapsed': '82px',
-        'agents-panel-expanded': '288px',
+        'agents-panel-expanded': '240px',
         'agents-panel-expanded-lg': '320px',
         drawer: '288px',
         'drawer-lg': '360px',
@@ -88,8 +95,7 @@ module.exports = {
         'tag-suggestions': '10',
         'drag-drop-input-overlay': '10',
         'configuration-drawer': '20',
-        'selected-citation': '20',
-        'read-only-conversation-footer': '30',
+        'read-only-conversation-footer': '60',
         menu: '90',
         'guide-tooltip': '30',
         tooltip: '50',
@@ -102,9 +108,15 @@ module.exports = {
         top: '4px 0px 12px 0px rgba(197, 188, 172, 0.48)', // secondary-400
       },
       typography: (theme) => ({
+        quoteless: {
+          css: {
+            'blockquote p:first-of-type::before': { content: 'none' },
+            'blockquote p:first-of-type::after': { content: 'none' },
+          },
+        },
         DEFAULT: {
           css: {
-            color: theme('colors.volcanic.100'),
+            color: theme('colors.volcanic.300'),
           },
         },
       }),
@@ -167,7 +179,6 @@ module.exports = {
       variants: {
         extend: {},
       },
-      plugins: [],
     },
   },
 };

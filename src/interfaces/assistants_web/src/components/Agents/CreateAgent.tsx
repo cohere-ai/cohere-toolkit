@@ -1,24 +1,26 @@
 'use client';
 
 import { useLocalStorageValue } from '@react-hookz/web';
-import { uniqBy } from 'lodash';
+import { cloneDeep } from 'lodash';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
-import { Button, Text } from '@/components/Shared';
+import {
+  AgentSettingsFields,
+  AgentSettingsForm,
+} from '@/components/Agents//AgentSettings/AgentSettingsForm';
+import { MobileHeader } from '@/components/MobileHeader';
+import { Button, Icon, Text } from '@/components/Shared';
 import {
   DEFAULT_AGENT_MODEL,
   DEFAULT_AGENT_TOOLS,
   DEFAULT_PREAMBLE,
   DEPLOYMENT_COHERE_PLATFORM,
-  TOOL_GOOGLE_DRIVE_ID,
 } from '@/constants';
 import { useContextStore } from '@/context';
-import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
+import { useCreateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
-import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
-import { GoogleDriveToolArtifact } from '@/types/tools';
 
 const DEFAULT_FIELD_VALUES = {
   name: '',
@@ -27,6 +29,7 @@ const DEFAULT_FIELD_VALUES = {
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
   tools: DEFAULT_AGENT_TOOLS,
+  is_private: false,
 };
 /**
  * @description Form to create a new agent.
@@ -37,100 +40,20 @@ export const CreateAgent: React.FC = () => {
   const searchParams = useSearchParams();
   const { open, close } = useContextStore();
 
+  const { error } = useNotify();
+  const { mutateAsync: createAgent } = useCreateAgent();
+
+  const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     value: pendingAssistant,
     set: setPendingAssistant,
     remove: removePendingAssistant,
-  } = useLocalStorageValue<CreateAgentFormFields>('pending_assistant', {
+  } = useLocalStorageValue<AgentSettingsFields>('pending_assistant', {
     initializeWithValue: false,
     defaultValue: undefined,
   });
-
-  const { data: toolsData } = useListTools();
-  const { error } = useNotify();
-  const { mutateAsync: createAgent } = useCreateAgent();
-  const { addRecentAgentId } = useRecentAgents();
-  const isAgentNameUnique = useIsAgentNameUnique();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<CreateAgentFormFields>(DEFAULT_FIELD_VALUES);
-
-  const openFilePicker = useOpenGoogleDrivePicker((data) => {
-    if (data.docs) {
-      setFields((prev) => {
-        const updatedArtifacts = [
-          ...(prev.tools_metadata?.find((tool) => tool.tool_name === TOOL_GOOGLE_DRIVE_ID)
-            ?.artifacts ?? []),
-          ...data.docs.map(
-            (doc) =>
-              ({
-                id: doc.id,
-                name: doc.name,
-                type: doc.type,
-                url: doc.url,
-              } as GoogleDriveToolArtifact)
-          ),
-        ];
-
-        return {
-          ...prev,
-          tools_metadata: [
-            ...(prev.tools_metadata?.filter((tool) => tool.tool_name !== TOOL_GOOGLE_DRIVE_ID) ??
-              []),
-            ...[
-              {
-                tool_name: TOOL_GOOGLE_DRIVE_ID,
-                artifacts: uniqBy(updatedArtifacts, 'id'),
-              },
-            ],
-          ],
-        };
-      });
-    }
-  });
-
-  const fieldErrors = {
-    ...(isAgentNameUnique(fields.name) ? {} : { name: 'Assistant name must be unique' }),
-  };
-
-  const canSubmit = (() => {
-    const { name, deployment, model } = fields;
-    const requredFields = { name, deployment, model };
-    return Object.values(requredFields).every(Boolean) && !Object.keys(fieldErrors).length;
-  })();
-
-  const handleToolToggle = (toolName: string, checked: boolean, authUrl?: string) => {
-    const enabledTools = [...(fields.tools ? fields.tools : [])];
-
-    if (toolName === TOOL_GOOGLE_DRIVE_ID) {
-      handleGoogleDriveToggle(checked, authUrl);
-    }
-
-    setFields((prev) => ({
-      ...prev,
-      tools: checked ? [...enabledTools, toolName] : enabledTools.filter((t) => t !== toolName),
-    }));
-  };
-
-  const handleGoogleDriveToggle = (checked: boolean, authUrl?: string) => {
-    const driveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
-    if (checked) {
-      if (driveTool?.is_auth_required && authUrl) {
-        setPendingAssistant({
-          ...fields,
-          tools: [...(fields.tools ?? []), TOOL_GOOGLE_DRIVE_ID],
-        });
-        authUrl && window.open(authUrl, '_self');
-      } else {
-        openFilePicker();
-      }
-    } else {
-      setFields((prev) => ({
-        ...prev,
-        tools: (fields.tools ?? []).filter((t) => t !== TOOL_GOOGLE_DRIVE_ID),
-        tools_metadata: fields.tools_metadata?.filter((t) => t.tool_name !== TOOL_GOOGLE_DRIVE_ID),
-      }));
-    }
-  };
 
   const queryString = searchParams.get('p');
   useEffect(() => {
@@ -145,6 +68,11 @@ export const CreateAgent: React.FC = () => {
   }, [queryString, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
+    if (fields.is_private) {
+      handleSubmit();
+      return;
+    }
+
     open({
       title: `Create ${fields.name}?`,
       content: (
@@ -157,15 +85,11 @@ export const CreateAgent: React.FC = () => {
       ),
     });
   };
-  const handleSubmit = async () => {
-    if (!canSubmit) return;
 
+  const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-
       const agent = await createAgent(fields);
-      addRecentAgentId(agent.id);
-      setFields(DEFAULT_FIELD_VALUES);
       close();
       setIsSubmitting(false);
       router.push(`/a/${agent.id}`);
@@ -179,31 +103,24 @@ export const CreateAgent: React.FC = () => {
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-y-auto">
-      <div className="flex-grow overflow-y-scroll">
-        <div className="flex max-w-[650px] flex-col gap-y-2 p-10">
-          <Text styleAs="h4">Create an Assistant</Text>
-          <Text className="text-volcanic-400">
-            Create an unique assistant and share with your org
-          </Text>
-          <AgentForm<CreateAgentFormFields>
-            fields={fields}
-            setFields={setFields}
-            onToolToggle={handleToolToggle}
-            handleOpenFilePicker={openFilePicker}
-            errors={fieldErrors}
-            className="mt-6"
-            isAgentCreator
-          />
+      <header className="flex flex-col gap-y-3 border-b px-4 py-6 dark:border-volcanic-150 lg:px-10 lg:py-10">
+        <MobileHeader />
+        <div className="flex items-center space-x-2">
+          <Link href="/discover">
+            <Text className="dark:text-volcanic-600">Explore assistants</Text>
+          </Link>
+          <Icon name="chevron-right" className="dark:text-volcanic-600" />
+          <Text className="dark:text-volcanic-600">Create assistant</Text>
         </div>
-      </div>
-      <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-950 bg-white px-4 py-4 md:py-8">
-        <Button
-          label="Create"
-          kind="secondary"
-          theme="evolved-green"
-          icon="add"
-          onClick={handleOpenSubmitModal}
-          disabled={!canSubmit}
+        <Text styleAs="h4">Create assistant</Text>
+      </header>
+      <div className="overflow-y-auto">
+        <AgentSettingsForm
+          source="create"
+          fields={fields}
+          setFields={setFields}
+          onSubmit={handleOpenSubmitModal}
+          savePendingAssistant={() => setPendingAssistant(fields)}
         />
       </div>
     </div>

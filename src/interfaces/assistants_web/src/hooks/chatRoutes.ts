@@ -1,20 +1,31 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import { useIsDesktop } from '@/hooks/breakpoint';
+import {
+  useCitationsStore,
+  useConversationStore,
+  useParamsStore,
+  useSettingsStore,
+} from '@/stores';
 import { getQueryString } from '@/utils';
 
 export const useNavigateToNewChat = () => {
   const router = useRouter();
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
+  const { agentId } = useChatRoutes();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
+  const { setLeftPanelOpen } = useSettingsStore();
 
-  const handleNavigate = (agentId?: string) => {
+  const handleNavigate = () => {
     const url = agentId ? `/a/${agentId}` : '/';
     resetConversation();
     resetCitations();
     resetFileParams();
+    isMobile && setLeftPanelOpen(false);
     router.push(url);
   };
 

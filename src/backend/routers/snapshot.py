@@ -60,7 +60,9 @@ async def create_snapshot(
     snapshot = snapshot_crud.get_snapshot_by_last_message_id(session, last_message_id)
 
     if not snapshot:
-        snapshot = wrap_create_snapshot(session, last_message_id, user_id, conversation)
+        snapshot = wrap_create_snapshot(
+            session, last_message_id, user_id, conversation, ctx
+        )
 
     snapshot_link = wrap_create_snapshot_link(session, snapshot.id, user_id)
 

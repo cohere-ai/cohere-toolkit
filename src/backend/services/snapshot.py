@@ -58,10 +58,11 @@ def wrap_create_snapshot(
     last_message_id: str,
     user_id: str,
     conversation: Conversation,
+    ctx: Context,
 ) -> SnapshotModel:
     snapshot_agent = None
     if conversation.agent_id:
-        agent = agent_crud.get_agent_by_id(session, conversation.agent_id)
+        agent = agent_crud.get_agent_by_id(session, conversation.agent_id, user_id)
         tools_metadata = [to_dict(metadata) for metadata in agent.tools_metadata]
 
         snapshot_agent = SnapshotAgent(
@@ -72,7 +73,7 @@ def wrap_create_snapshot(
             tools_metadata=tools_metadata,
         )
 
-    messages = get_messages_with_files(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
     snapshot_data = SnapshotData(
         title=conversation.title,
         description=conversation.description,
@@ -88,6 +89,7 @@ def wrap_create_snapshot(
         last_message_id=last_message_id,
         version=SNAPSHOT_VERSION,
         snapshot=snapshot,
+        agent_id=conversation.agent_id,
     )
     return snapshot_crud.create_snapshot(session, snapshot_model)
 

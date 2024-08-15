@@ -6,6 +6,7 @@ from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool
+from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 
 router = APIRouter(prefix="/v1/tools")
@@ -37,13 +38,7 @@ def list_tools(
 
     if agent_id is not None:
         agent_tools = []
-        agent = agent_crud.get_agent_by_id(session, agent_id)
-
-        if not agent:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Agent with ID: {agent_id} not found.",
-            )
+        agent = validate_agent_exists(session, agent_id, user_id)
 
         for tool in agent.tools:
             agent_tools.append(AVAILABLE_TOOLS[tool])
@@ -60,7 +55,7 @@ def list_tools(
                 tool.auth_url = tool_auth_service.get_auth_url(user_id)
                 tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:
-                logger.error(f"Error while fetching Tool Auth: {str(e)}")
+                logger.error(event=f"Error while fetching Tool Auth: {str(e)}")
 
                 tool.is_available = False
                 tool.error_message = (

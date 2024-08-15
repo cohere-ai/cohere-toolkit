@@ -71,7 +71,7 @@ const PopoverMenu: React.FC<{
         <Popover.Panel
           className={cn(
             'absolute right-0 top-11 z-navigation w-60 rounded-lg border',
-            'border-marble-950 bg-marble-1000',
+            'border-marble-950 bg-marble-980',
             { 'dark:border-dark-border dark:bg-dark-white-2-solid': darkModeEnabled }
           )}
         >
