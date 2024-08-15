@@ -66,9 +66,9 @@ ALL_TOOLS = {
                 "type": "str",
                 "required": True,
             },
-            "filenames": {
-                "description": "A list of one or more uploaded filename strings to search over",
-                "type": "list",
+            "files": {
+                "description": "A list of files represented as tuples of (filename, file ID) to search over",
+                "type": "list[tuple[str, str]]",
                 "required": True,
             },
         },
@@ -82,9 +82,9 @@ ALL_TOOLS = {
         display_name="Read Document",
         implementation=ReadFileTool,
         parameter_definitions={
-            "filename": {
-                "description": "The name of the attached file to read.",
-                "type": "str",
+            "file": {
+                "description": "A file represented as a tuple (filename, file ID) to read over",
+                "type": "tuple[str, str]",
                 "required": True,
             }
         },

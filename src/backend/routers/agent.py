@@ -1,9 +1,14 @@
 import asyncio
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
+from fastapi import File as RequestFile
+from fastapi import HTTPException
+from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
+from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import snapshot as snapshot_crud
@@ -28,6 +33,7 @@ from backend.schemas.agent import (
 )
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
+from backend.schemas.file import DeleteFileResponse, UploadFileResponse
 from backend.schemas.metrics import (
     DEFAULT_METRICS_AGENT,
     GenericResponseMessage,
@@ -40,11 +46,17 @@ from backend.services.agent import (
     validate_agent_tool_metadata_exists,
 )
 from backend.services.context import get_context
+from backend.services.file import (
+    consolidate_agent_files_in_compass,
+    get_file_service,
+    validate_batch_file_size,
+)
 from backend.services.request_validators import (
     validate_create_agent_request,
     validate_update_agent_request,
     validate_user_header,
 )
+from backend.tools.files import FileToolsArtifactTypes
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -101,6 +113,31 @@ async def create_agent(
                 await update_or_create_tool_metadata(
                     created_agent, tool_metadata, session, ctx
                 )
+
+        # Consolidate agent files into one index in compass
+        file_tools = [ToolName.Read_File, ToolName.Search_File]
+        if (
+            Settings().feature_flags.use_compass_file_storage
+            and created_agent.tools_metadata
+        ):
+            artifacts = next(
+                (
+                    tool_metadata.artifacts
+                    for tool_metadata in created_agent.tools_metadata
+                    if tool_metadata.tool_name in file_tools
+                ),
+                [],
+            )
+            file_ids = list(
+                set(
+                    artifact.get("id")
+                    for artifact in artifacts
+                    if artifact.get("type") == FileToolsArtifactTypes.local_file
+                )
+            )
+            if file_ids:
+                await consolidate_agent_files_in_compass(file_ids, created_agent.id)
+
         if deployment_db and model_db:
             deployment_config = (
                 agent.deployment_config
@@ -613,6 +650,62 @@ async def delete_agent_tool_metadata(
         raise HTTPException(status_code=500, detail=str(e))
 
     return DeleteAgentToolMetadata()
+
+
+@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
+async def batch_upload_file(
+    session: DBSessionDep,
+    files: list[FastAPIUploadFile] = RequestFile(...),
+    ctx: Context = Depends(get_context),
+) -> UploadFileResponse:
+    user_id = ctx.get_user_id()
+    validate_batch_file_size(session, user_id, files)
+
+    uploaded_files = []
+    try:
+        uploaded_files = await get_file_service().create_agent_files(
+            session,
+            files,
+            user_id,
+            ctx,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error while uploading agent file(s): {e}."
+        )
+
+    return uploaded_files
+
+
+@router.delete("/{agent_id}/files/{file_id}")
+async def delete_agent_file(
+    agent_id: str,
+    file_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> DeleteFileResponse:
+    """
+    Delete an agent file by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        file_id (str): File ID.
+        session (DBSessionDep): Database session.
+
+    Returns:
+        DeleteFile: Empty response.
+
+    Raises:
+        HTTPException: If the agent with the given ID is not found.
+    """
+    user_id = ctx.get_user_id()
+    _ = validate_agent_exists(session, agent_id)
+    validate_file(session, file_id, user_id, agent_id)
+
+    # Delete the File DB object
+    get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id, ctx)
+
+    return DeleteFileResponse()
 
 
 # Default Agent Router
