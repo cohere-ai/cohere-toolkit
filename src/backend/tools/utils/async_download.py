@@ -3,7 +3,6 @@ import functools
 from typing import List
 
 import aiohttp
-
 from backend.services.logger.utils import LoggerFactory
 
 TIMEOUT = aiohttp.ClientTimeout(total=120)

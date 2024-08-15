@@ -3,12 +3,6 @@ from typing import Any, Generator
 from unittest.mock import patch
 
 import pytest
-from alembic.command import upgrade
-from alembic.config import Config
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import get_session
 from backend.main import app, create_app
@@ -16,6 +10,12 @@ from backend.schemas.deployment import Deployment
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+
+from alembic.command import upgrade
+from alembic.config import Config
 
 DATABASE_URL = os.environ["DATABASE_URL"]
 

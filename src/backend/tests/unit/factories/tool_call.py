@@ -1,5 +1,4 @@
 import factory
-
 from backend.database_models.tool_call import ToolCall
 
 from .base import BaseFactory

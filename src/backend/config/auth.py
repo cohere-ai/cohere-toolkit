@@ -1,12 +1,11 @@
 import os
 import sys
 
+from backend.config.settings import Settings
+from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
-from backend.config.settings import Settings
-from backend.services.auth import BasicAuthentication, GoogleOAuth, OpenIDConnect
 
 load_dotenv()
 

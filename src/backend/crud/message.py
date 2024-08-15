@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Session
-
 from backend.database_models.message import Message, MessageFileAssociation
 from backend.schemas.message import UpdateMessage
 from backend.services.transaction import validate_transaction
+from sqlalchemy.orm import Session
 
 
 @validate_transaction

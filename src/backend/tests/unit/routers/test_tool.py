@@ -1,9 +1,8 @@
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
-
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 
 def test_list_tools(session_client: TestClient, session: Session) -> None:

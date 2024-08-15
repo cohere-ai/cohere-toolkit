@@ -1,7 +1,5 @@
 from typing import Any, Optional
 
-from pydantic import BaseModel
-
 from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, AgentToolMetadata
@@ -9,6 +7,7 @@ from backend.schemas.metrics import MetricsAgent, MetricsMessageType, MetricsUse
 from backend.schemas.user import User
 from backend.services.logger.utils import LoggerFactory
 from backend.services.utils import get_deployment_config
+from pydantic import BaseModel
 
 
 class Context(BaseModel):

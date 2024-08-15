@@ -1,5 +1,4 @@
 import factory
-
 from backend.database_models import CitationDocuments
 
 from .base import BaseFactory

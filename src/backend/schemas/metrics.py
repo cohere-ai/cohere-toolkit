@@ -1,9 +1,8 @@
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel
-
 from backend.schemas.agent import Agent
+from pydantic import BaseModel
 
 
 class GenericResponseMessage(BaseModel):

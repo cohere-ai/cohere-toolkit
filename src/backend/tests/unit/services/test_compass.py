@@ -1,7 +1,6 @@
 import os
 
 import pytest
-
 from backend.services.compass import Compass
 
 is_compass_env_set = all(

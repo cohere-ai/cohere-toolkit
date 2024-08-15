@@ -1,8 +1,6 @@
 from concurrent import futures
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy.orm import Session
-
 from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import (
     ACTIVITY_TRACKING_WINDOW,
@@ -23,6 +21,7 @@ from backend.tools.google_drive.sync.utils import (
     get_service,
 )
 from backend.tools.google_drive.tool import GoogleDrive
+from sqlalchemy.orm import Session
 
 
 def handle_google_drive_activity_event(

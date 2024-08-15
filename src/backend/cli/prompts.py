@@ -1,5 +1,4 @@
 import inquirer
-
 from backend.cli.constants import (
     DATABASE_URL_DEFAULT,
     FRONTEND_HOSTNAME_DEFAULT,

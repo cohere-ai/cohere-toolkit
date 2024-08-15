@@ -1,11 +1,3 @@
-from alembic.command import upgrade
-from alembic.config import Config
-from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from starlette.middleware.sessions import SessionMiddleware
-
 from backend.config.auth import (
     get_auth_strategy_endpoints,
     is_authentication_enabled,
@@ -28,6 +20,14 @@ from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
 from backend.services.metrics import MetricsMiddleware
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.middleware.sessions import SessionMiddleware
+
+from alembic.command import upgrade
+from alembic.config import Config
 
 load_dotenv()
 

@@ -1,8 +1,7 @@
 from enum import Enum
 
-from dotenv import load_dotenv
-
 from backend.config.settings import Settings
+from dotenv import load_dotenv
 
 load_dotenv()
 

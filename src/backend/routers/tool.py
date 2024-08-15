@@ -1,5 +1,3 @@
-from fastapi import APIRouter, Depends, Request
-
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.database_models.database import DBSessionDep
@@ -7,6 +5,7 @@ from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
+from fastapi import APIRouter, Depends, Request
 
 router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL

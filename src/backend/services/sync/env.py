@@ -1,8 +1,7 @@
 from functools import lru_cache
 
-from pydantic import ValidationError
-
 from backend.services.sync.config import Configuration
+from pydantic import ValidationError
 
 
 @lru_cache(maxsize=1)

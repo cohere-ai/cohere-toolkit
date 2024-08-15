@@ -1,7 +1,6 @@
+from backend.database_models.base import Base
 from sqlalchemy import Index, String
 from sqlalchemy.orm import Mapped, mapped_column
-
-from backend.database_models.base import Base
 
 
 class Blacklist(Base):

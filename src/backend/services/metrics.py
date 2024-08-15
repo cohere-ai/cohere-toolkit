@@ -6,13 +6,6 @@ import uuid
 from functools import wraps
 from typing import Any, Callable, Dict, Optional
 
-from httpx import AsyncHTTPTransport
-from httpx._client import AsyncClient
-from starlette.background import BackgroundTask
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
-
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -25,6 +18,12 @@ from backend.schemas.metrics import (
 )
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
+from httpx import AsyncHTTPTransport
+from httpx._client import AsyncClient
+from starlette.background import BackgroundTask
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 REPORT_ENDPOINT = os.getenv("REPORT_ENDPOINT", None)
 REPORT_SECRET = os.getenv("REPORT_SECRET", None)

@@ -1,5 +1,4 @@
 import factory
-
 from backend.database_models import Model
 from backend.tests.unit.factories.base import BaseFactory
 from backend.tests.unit.factories.deployment import DeploymentFactory

@@ -1,7 +1,6 @@
 import os
 
 import pytest
-
 from backend.chat import collate
 from backend.model_deployments import CohereDeployment
 

@@ -2,12 +2,6 @@ import json
 from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
-from cohere.types import StreamedChatResponse
-from fastapi import HTTPException, Request
-from fastapi.encoders import jsonable_encoder
-from langchain_core.agents import AgentActionMessageLog
-from langchain_core.runnables.utils import AddableDict
-
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
@@ -50,6 +44,11 @@ from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
+from cohere.types import StreamedChatResponse
+from fastapi import HTTPException, Request
+from fastapi.encoders import jsonable_encoder
+from langchain_core.agents import AgentActionMessageLog
+from langchain_core.runnables.utils import AddableDict
 
 
 def process_chat(

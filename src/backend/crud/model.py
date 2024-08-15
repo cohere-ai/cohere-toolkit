@@ -1,9 +1,8 @@
-from sqlalchemy.orm import Session
-
 from backend.database_models import AgentDeploymentModel
 from backend.database_models.model import Model
 from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.services.transaction import validate_transaction
+from sqlalchemy.orm import Session
 
 
 @validate_transaction

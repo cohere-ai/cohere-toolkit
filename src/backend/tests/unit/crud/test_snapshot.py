@@ -1,5 +1,4 @@
 import pytest
-
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models.snapshot import Snapshot, SnapshotAccess, SnapshotLink
 from backend.tests.unit.factories import get_factory

@@ -1,10 +1,9 @@
 from typing import Optional
 
-from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.base import Base
+from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class AgentDeploymentModel(Base):

@@ -2,14 +2,9 @@ import io
 import uuid
 from datetime import datetime
 
-import pandas as pd
-from docx import Document
-from fastapi import Depends, HTTPException
-from fastapi import UploadFile as FastAPIUploadFile
-from python_calamine.pandas import pandas_monkeypatch
-
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
+import pandas as pd
 from backend.config.settings import Settings
 from backend.crud import message as message_crud
 from backend.database_models.conversation import ConversationFileAssociation
@@ -22,6 +17,10 @@ from backend.services.agent import validate_agent_exists
 from backend.services.compass import Compass
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
+from docx import Document
+from fastapi import Depends, HTTPException
+from fastapi import UploadFile as FastAPIUploadFile
+from python_calamine.pandas import pandas_monkeypatch
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB

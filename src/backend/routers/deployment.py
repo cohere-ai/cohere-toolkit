@@ -1,23 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
-
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.routers import RouterName
 from backend.crud import deployment as deployment_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
-from backend.schemas.deployment import DeleteDeployment
-from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.deployment import (
+    DeleteDeployment,
     DeploymentCreate,
     DeploymentUpdate,
     UpdateDeploymentEnv,
 )
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.services.context import get_context
 from backend.services.env import update_env_file
 from backend.services.request_validators import (
     validate_create_deployment_request,
     validate_env_vars,
 )
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 router = APIRouter(
     prefix="/v1/deployments",

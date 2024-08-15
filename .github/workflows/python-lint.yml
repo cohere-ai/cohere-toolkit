@@ -9,22 +9,7 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@24.3.0
-      - uses: isort/isort-action@v1
+      - uses: actions/checkout@v4
+      - uses: chartboost/ruff-action@v1
         with:
-          isort-version: "5.12.0"
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      - name: Upgrade pip
-        run: |
-          pip install --upgrade --user pip
-      - name: Install code quality packages
-        run: |
-          pip install poetry
-          poetry env use 3.11
-          poetry install --only=dev
-      - name: Remove unused standard library imports from non-`__init__.py` files
-        run:
-          poetry run autoflake --in-place --recursive --ignore-init-module-imports .
+          src: './src/'

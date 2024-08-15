@@ -1,11 +1,10 @@
 from typing import List, Optional
 from uuid import uuid4
 
-from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from backend.database_models.base import Base
 from backend.database_models.message import Message
+from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class ConversationFileAssociation(Base):

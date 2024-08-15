@@ -1,8 +1,7 @@
-from fastapi import Depends, HTTPException, Request
-from sqlalchemy.orm import Session
-
 from backend.database_models import Blacklist, get_session
 from backend.services.auth.jwt import JWTService
+from fastapi import Depends, HTTPException, Request
+from sqlalchemy.orm import Session
 
 
 def validate_authorization(

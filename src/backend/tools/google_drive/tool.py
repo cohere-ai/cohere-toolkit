@@ -1,13 +1,12 @@
 from typing import Any, Dict, List
 
-from google.auth.exceptions import RefreshError
-
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
 from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
+from google.auth.exceptions import RefreshError
 
 logger = LoggerFactory().get_logger()
 

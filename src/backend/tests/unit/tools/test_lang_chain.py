@@ -2,10 +2,9 @@ import os
 from unittest.mock import MagicMock, patch
 
 import pytest
-from langchain_core.documents.base import Document
-
 from backend.services.context import Context
 from backend.tools import LangChainVectorDBRetriever, LangChainWikiRetriever
+from langchain_core.documents.base import Document
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None

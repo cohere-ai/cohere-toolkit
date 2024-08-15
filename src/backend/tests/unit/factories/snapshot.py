@@ -1,5 +1,4 @@
 import factory
-
 from backend.database_models import Snapshot, SnapshotAccess, SnapshotLink
 
 from .base import BaseFactory

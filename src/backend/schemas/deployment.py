@@ -1,9 +1,8 @@
 from typing import Any, Dict, List, Optional, Type
 
-from pydantic import BaseModel, Field
-
 # from backend.model_deployments.base import BaseDeployment
 from backend.schemas.model import ModelSimple
+from pydantic import BaseModel, Field
 
 
 class DeploymentSimple(BaseModel):

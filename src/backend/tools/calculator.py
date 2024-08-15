@@ -1,8 +1,7 @@
 from typing import Any, Dict, List
 
-from py_expression_eval import Parser
-
 from backend.tools.base import BaseTool
+from py_expression_eval import Parser
 
 
 class Calculator(BaseTool):

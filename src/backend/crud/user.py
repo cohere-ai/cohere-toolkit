@@ -1,7 +1,6 @@
-from sqlalchemy.orm import Session
-
 from backend.database_models.user import User
 from backend.schemas.user import UpdateUser
+from sqlalchemy.orm import Session
 
 
 def create_user(db: Session, user: User) -> User:

@@ -2,10 +2,6 @@ import json
 from typing import Union
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import RedirectResponse
-from starlette.requests import Request
-
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
@@ -23,6 +19,9 @@ from backend.services.auth.utils import (
 )
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
+from starlette.requests import Request
 
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH

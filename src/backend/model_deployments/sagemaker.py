@@ -3,7 +3,6 @@ import json
 from typing import Any, AsyncGenerator, Dict, List
 
 import boto3
-
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var

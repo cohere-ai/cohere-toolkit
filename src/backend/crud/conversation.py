@@ -1,11 +1,10 @@
-from sqlalchemy.orm import Session
-
 from backend.database_models.conversation import (
     Conversation,
     ConversationFileAssociation,
 )
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.services.transaction import validate_transaction
+from sqlalchemy.orm import Session
 
 
 @validate_transaction

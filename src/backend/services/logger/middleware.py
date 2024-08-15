@@ -1,9 +1,8 @@
 import time
 
+from backend.services.context import get_context
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-
-from backend.services.context import get_context
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):

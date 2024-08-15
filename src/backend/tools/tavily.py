@@ -1,11 +1,10 @@
 from typing import Any, Dict, List
 
-from langchain_community.tools.tavily_search import TavilySearchResults
-from tavily import TavilyClient
-
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
 from backend.tools.base import BaseTool
+from langchain_community.tools.tavily_search import TavilySearchResults
+from tavily import TavilyClient
 
 
 class TavilyInternetSearch(BaseTool):

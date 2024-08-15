@@ -1,15 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-
 from backend.config.routers import RouterName
 from backend.crud import user as user_crud
 from backend.database_models import User as UserModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.metrics import MetricsMessageType
-from backend.schemas.user import CreateUser, DeleteUser, UpdateUser
-from backend.schemas.user import User
+from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 from backend.schemas.user import User as UserSchema
 from backend.services.context import get_context
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 router = APIRouter(prefix="/v1/users")
 router.name = RouterName.USER

@@ -1,5 +1,3 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-
 from backend.config.routers import RouterName
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
@@ -13,6 +11,7 @@ from backend.schemas import (
 from backend.schemas.context import Context
 from backend.services.context import get_context
 from backend.services.request_validators import validate_organization_request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 router = APIRouter(prefix="/v1/organizations")
 router.name = RouterName.TOOL

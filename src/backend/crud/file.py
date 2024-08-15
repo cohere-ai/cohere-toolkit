@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Session
-
 from backend.database_models.file import File
 from backend.schemas.file import UpdateFileRequest
 from backend.services.transaction import validate_transaction
+from sqlalchemy.orm import Session
 
 
 @validate_transaction

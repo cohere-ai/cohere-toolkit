@@ -2,7 +2,6 @@ from typing import Any, Dict, List
 
 import cohere
 import requests
-
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment

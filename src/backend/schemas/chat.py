@@ -2,13 +2,12 @@ from enum import StrEnum
 from typing import Any, ClassVar, Dict, List, Union
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
-
 from backend.chat.enums import StreamEvent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
+from pydantic import BaseModel, Field
 
 
 class ChatRole(StrEnum):

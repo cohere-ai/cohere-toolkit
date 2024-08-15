@@ -3,8 +3,6 @@ import json
 import urllib.parse
 
 import requests
-from fastapi import Request
-
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
@@ -14,6 +12,7 @@ from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
 from backend.tools.google_drive.tool import GoogleDrive
+from fastapi import Request
 
 from .constants import SCOPES
 

@@ -1,5 +1,4 @@
 import factory
-
 from backend.database_models import Deployment
 
 from .base import BaseFactory

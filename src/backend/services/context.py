@@ -1,9 +1,8 @@
 import uuid
 
+from backend.schemas.context import Context
 from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
-
-from backend.schemas.context import Context
 
 
 class ContextMiddleware:

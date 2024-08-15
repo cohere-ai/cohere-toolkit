@@ -2,15 +2,14 @@ import json
 import os
 from uuid import uuid4
 
-from dotenv import load_dotenv
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import Deployment, Model, Organization
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
+from dotenv import load_dotenv
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 load_dotenv()
 

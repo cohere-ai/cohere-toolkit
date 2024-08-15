@@ -1,9 +1,8 @@
 from typing import Any
 
-from redis import Redis
-
 from backend.config.settings import Settings
 from backend.services.logger.utils import LoggerFactory
+from redis import Redis
 
 logger = LoggerFactory().get_logger()
 

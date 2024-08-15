@@ -1,11 +1,6 @@
 import asyncio
 from typing import Optional
 
-from fastapi import APIRouter, Depends
-from fastapi import File as RequestFile
-from fastapi import HTTPException
-from fastapi import UploadFile as FastAPIUploadFile
-
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
 from backend.config.tools import ToolName
@@ -59,6 +54,9 @@ from backend.services.request_validators import (
 )
 from backend.services.sync.jobs.sync_agent import sync_agent
 from backend.tools.files import FileToolsArtifactTypes
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi import File as RequestFile
+from fastapi import UploadFile as FastAPIUploadFile
 
 router = APIRouter(
     prefix="/v1/agents",

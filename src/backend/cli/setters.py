@@ -1,8 +1,6 @@
 import os
 
 import yaml
-from dotenv import set_key
-
 from backend.cli.constants import (
     CONFIG_FILE_PATH,
     CONFIG_TEMPLATE_PATH,
@@ -11,6 +9,7 @@ from backend.cli.constants import (
     SECRETS_FILE_PATH,
     SECRETS_TEMPLATE_PATH,
 )
+from dotenv import set_key
 
 # Use representer to allow writing literal empty value
 # https://stackoverflow.com/questions/30134110/how-can-i-output-blank-value-in-python-yaml-file

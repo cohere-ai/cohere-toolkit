@@ -2,7 +2,6 @@ import logging
 from typing import Any, Dict
 
 import structlog
-
 from backend.services.logger.strategies.base import BaseLogger
 
 

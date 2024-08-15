@@ -2,14 +2,13 @@ import os
 from unittest.mock import patch
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
-
 from backend.config.deployments import ModelDeploymentName
 from backend.database_models import Conversation
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 
 def test_search_conversations(

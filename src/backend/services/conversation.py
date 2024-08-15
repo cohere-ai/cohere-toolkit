@@ -1,7 +1,5 @@
 from typing import List, Optional
 
-from fastapi import HTTPException
-
 from backend.chat.custom.custom import CustomChat
 from backend.crud import conversation as conversation_crud
 from backend.database_models import Message as MessageModel
@@ -14,6 +12,7 @@ from backend.schemas.conversation import Conversation
 from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
 from backend.services.file import attach_conversation_id_to_files, get_file_service
+from fastapi import HTTPException
 
 DEFAULT_TITLE = "New Conversation"
 GENERATE_TITLE_PROMPT = """# TASK

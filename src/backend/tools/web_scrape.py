@@ -1,10 +1,9 @@
 from typing import Any, Dict, List
 
-from bs4 import BeautifulSoup
-from requests import get
-
 from backend.services.utils import read_pdf
 from backend.tools.base import BaseTool
+from bs4 import BeautifulSoup
+from requests import get
 
 
 class WebScrapeTool(BaseTool):

@@ -1,5 +1,4 @@
 import factory
-
 from backend.config.tools import ToolName
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 

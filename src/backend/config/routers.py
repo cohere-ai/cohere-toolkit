@@ -1,13 +1,12 @@
 from enum import StrEnum
 
-from fastapi import Depends
-
 from backend.database_models import get_session
 from backend.services.auth.request_validators import validate_authorization
 from backend.services.request_validators import (
     validate_chat_request,
     validate_user_header,
 )
+from fastapi import Depends
 
 
 # Important! Any new routers must have a corresponding RouterName entry and Router dependencies
