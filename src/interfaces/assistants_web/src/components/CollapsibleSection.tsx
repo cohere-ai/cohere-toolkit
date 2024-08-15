@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode } from 'react';
 
 import { Icon, Text } from '@/components/Shared';
 import { cn } from '@/utils';
@@ -21,20 +21,8 @@ export const CollapsibleSection: React.FC<Props> = ({
   isExpanded = false,
   setIsExpanded,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (isExpanded) {
-      ref.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest',
-      });
-    }
-  }, [isExpanded]);
-
   return (
     <div
-      ref={ref}
       className={cn(
         'flex w-full max-w-screen-md flex-col rounded-md',
         'space-y-5 border p-6',

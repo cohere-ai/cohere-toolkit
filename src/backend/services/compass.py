@@ -116,19 +116,19 @@ class Compass:
                         index_name=parameters["index"]
                     )
                 case self.ValidActions.CREATE.value:
-                    self._create(parameters, **kwargs)
+                    return self._create(parameters, **kwargs)
                 case self.ValidActions.SEARCH.value:
                     return self._search(parameters, **kwargs)
                 case self.ValidActions.UPDATE.value:
-                    self._update(parameters, **kwargs)
+                    return self._update(parameters, **kwargs)
                 case self.ValidActions.DELETE.value:
-                    self._delete(parameters, **kwargs)
+                    return self._delete(parameters, **kwargs)
                 case self.ValidActions.GET_DOCUMENT.value:
                     return self._get_document(parameters, **kwargs)
                 case self.ValidActions.ADD_CONTEXT.value:
-                    self._add_context(parameters, **kwargs)
+                    return self._add_context(parameters, **kwargs)
                 case self.ValidActions.REFRESH.value:
-                    self._refresh(parameters, **kwargs)
+                    return self._refresh(parameters, **kwargs)
                 case self.ValidActions.PROCESS_FILE.value:
                     return self._process_file(parameters, **kwargs)
                 case _:
