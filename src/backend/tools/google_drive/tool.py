@@ -45,7 +45,7 @@ class GoogleDrive(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.CLIENT_ID is not None and cls.CLIENT_ID is not None
+        return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
 
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))
