@@ -1,7 +1,6 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent

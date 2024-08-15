@@ -1,8 +1,6 @@
-import pytest
 
 from backend.crud import model as model_crud
 from backend.database_models.model import Model
-from backend.schemas.model import Model as ModelSchema
 from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.tests.unit.factories import get_factory
 

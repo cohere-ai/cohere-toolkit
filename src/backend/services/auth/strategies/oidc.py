@@ -55,7 +55,7 @@ class OpenIDConnect(BaseOAuthStrategy):
             self.TOKEN_ENDPOINT = endpoints["token_endpoint"]
             self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
             self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
-        except Exception as e:
+        except Exception:
             logger.error(
                 event=f"Error fetching `token_endpoint` and `userinfo_endpoint` from {endpoints}."
             )

@@ -6,7 +6,6 @@ import uuid
 from functools import wraps
 from typing import Any, Callable, Dict, Optional
 
-from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
 from starlette.background import BackgroundTask

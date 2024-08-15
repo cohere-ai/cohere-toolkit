@@ -1,11 +1,9 @@
 import json
 from typing import Any, Dict, List
 
-from fastapi import Depends
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
-from backend.services.context import get_context
 
 RELEVANCE_THRESHOLD = 0.1
 

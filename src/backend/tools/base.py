@@ -69,7 +69,7 @@ class BaseToolAuthentication:
             ]
         ):
             raise ValueError(
-                f"Tool Authentication requires auth.backend_hostname, auth.frontend_hostname in configuration.yaml, "
+                "Tool Authentication requires auth.backend_hostname, auth.frontend_hostname in configuration.yaml, "
                 "and auth.secret_key in the secrets.yaml configuration files."
             )
 

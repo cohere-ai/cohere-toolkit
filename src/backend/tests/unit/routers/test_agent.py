@@ -346,7 +346,7 @@ async def test_get_default_agent_mertic(
         return_value=None,
     ) as mock_metrics:
         response = session_client.get(
-            f"/v1/default_agent", headers={"User-Id": user.id}
+            "/v1/default_agent", headers={"User-Id": user.id}
         )
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0].signal

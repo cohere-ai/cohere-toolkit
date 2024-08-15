@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.routers import RouterName
 from backend.crud import deployment as deployment_crud
-from backend.database_models import Deployment
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.deployment import DeleteDeployment
@@ -131,7 +130,7 @@ def list_deployments(
     # No available deployments
     if not available_deployments:
         logger.warning(
-            event=f"[Deployment] No deployments available to list.",
+            event="[Deployment] No deployments available to list.",
         )
         raise HTTPException(
             status_code=404,

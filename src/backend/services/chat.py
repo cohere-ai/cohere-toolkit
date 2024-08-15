@@ -11,7 +11,6 @@ from langchain_core.runnables.utils import AddableDict
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
@@ -51,8 +50,6 @@ from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
-from backend.services.file import get_file_service
-from backend.services.generators import AsyncGeneratorContextManager
 
 
 def process_chat(

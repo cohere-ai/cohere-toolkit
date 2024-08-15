@@ -1,8 +1,6 @@
 import pytest
-from pydantic import ValidationError
 
 from backend.crud import deployment as deployment_crud
-from backend.database_models import AgentDeploymentModel, Model
 from backend.database_models.deployment import Deployment
 from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
 from backend.tests.unit.factories import get_factory

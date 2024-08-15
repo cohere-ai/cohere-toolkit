@@ -5,7 +5,6 @@ from fastapi import File as RequestFile
 from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
-from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
@@ -24,18 +23,13 @@ from backend.schemas.conversation import (
 )
 from backend.schemas.file import (
     DeleteFileResponse,
-    FilePublic,
     ListFile,
-    UpdateFileRequest,
     UploadFileResponse,
 )
 from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 from backend.services.conversation import (
-    DEFAULT_TITLE,
-    GENERATE_TITLE_PROMPT,
-    extract_details_from_conversation,
     filter_conversations,
     generate_conversation_title,
     get_documents_to_rerank,
@@ -372,7 +366,7 @@ async def upload_file(
             if not user_id:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
+                    detail="user_id is required if no valid conversation is provided.",
                 )
 
             # Create new conversation
@@ -445,7 +439,7 @@ async def batch_upload_file(
             if not user_id:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
+                    detail="user_id is required if no valid conversation is provided.",
                 )
 
             # Create new conversation

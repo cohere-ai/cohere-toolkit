@@ -7,7 +7,6 @@ from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
 from backend.config.settings import Settings
-from backend.model_deployments.cohere_platform import COHERE_API_KEY_ENV_VAR
 from backend.tools.base import BaseTool
 
 """
