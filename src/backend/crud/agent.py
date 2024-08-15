@@ -29,7 +29,7 @@ def create_agent(db: Session, agent: Agent) -> Agent:
 
 
 @validate_transaction
-def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
+def get_agent_by_id(db: Session, agent_id: str, user_id: str = "", override_user_id: bool = False) -> Agent:
     """
     Get an agent by its ID.
     Anyone can get a public agent, but only the owner can get a private agent.
@@ -37,10 +37,14 @@ def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
     Args:
       db (Session): Database session.
       agent_id (str): Agent ID.
+      override_user_id (bool): Override user ID check. Should only be used for internal operations.
 
     Returns:
       Agent: Agent with the given ID.
     """
+    if override_user_id:
+      return db.query(Agent).filter(Agent.id == agent_id).first()
+
     agent = db.query(Agent).filter(Agent.id == agent_id).first()
 
     if agent and agent.is_private and agent.user_id != user_id:
@@ -126,11 +130,12 @@ def get_association_by_deployment_id(
 @validate_transaction
 def get_agents(
     db: Session,
-    user_id: str,
+    user_id: str = "",
     offset: int = 0,
     limit: int = 100,
     organization_id: Optional[str] = None,
     visibility: AgentVisibility = AgentVisibility.ALL,
+    override_user_id: bool = False,
 ) -> list[Agent]:
     """
     Get all agents for a user.
@@ -142,11 +147,14 @@ def get_agents(
         limit (int): Limit of the results.
         organization_id (str): Organization ID.
         user_id (str): User ID.
+        override_user_id (bool): Override user ID check. Should only be used for internal operations.
 
     Returns:
       list[Agent]: List of agents.
     """
     query = db.query(Agent)
+    if override_user_id:
+        return query.all()
 
     # Filter by visibility
     if visibility == AgentVisibility.PUBLIC:

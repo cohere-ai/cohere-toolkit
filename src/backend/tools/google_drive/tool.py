@@ -73,7 +73,7 @@ class GoogleDrive(BaseTool):
                 },
             )
             if documents.error:
-                documents = []
+                raise Exception(f"Compass no documents found for search query {query}")
 
             hits = documents.result["hits"]
             chunks = sorted(
@@ -90,7 +90,8 @@ class GoogleDrive(BaseTool):
                 key=lambda x: x["score"],
                 reverse=True,
             )[:SEARCH_LIMIT]
-
+            if chunks == []:
+                raise Exception(f"Compass no documents found for search query {query}")
             return chunks
         else:
             # No compass setup

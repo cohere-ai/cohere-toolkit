@@ -19,7 +19,7 @@ def sync_agent(agent_id: str):
     """
     agent_tool_metadata = []
     session = next(get_session())
-    agent = get_agent_by_id(session, agent_id)
+    agent = get_agent_by_id(session, agent_id, override_user_id=True)
     agent_schema = Agent.model_validate(agent)
     agent_tool_metadata = get_all_agent_tool_metadata_by_agent_id(session, agent_id)
     agent_tool_metadata_schema = [

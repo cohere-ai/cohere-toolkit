@@ -599,7 +599,7 @@ async def generate_title(
     agent_id = conversation.agent_id if conversation.agent_id else None
 
     if agent_id:
-        agent = agent_crud.get_agent_by_id(session, agent_id)
+        agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent))
