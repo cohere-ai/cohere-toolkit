@@ -26,6 +26,12 @@ if config.config_file_name is not None:
 # IMPORTANT: Sets target for migration generation
 target_metadata = Base.metadata
 
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table" and reflected and compare_to is None:
+        return False
+    else:
+        return True
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -45,6 +51,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object
     )
 
     with context.begin_transaction():
@@ -77,6 +84,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
+            include_object=include_object
         )
 
         with context.begin_transaction():
