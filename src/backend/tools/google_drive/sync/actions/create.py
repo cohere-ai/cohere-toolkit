@@ -14,8 +14,14 @@ ACTION_NAME = "create"
 logger = LoggerFactory().get_logger()
 
 
-@app.task(time_limit=DEFAULT_TIME_OUT)
-def create(file_id: str, index_name: str, user_id: str, **kwargs):
+@app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
+def create(self, file_id: str, index_name: str, user_id: str, agent_id:str, **kwargs):
+    
+    logger.warning(
+        event=f"Executing task id {self.request.id}, args: {self.request.args} kwargs: {self.request.kwargs}",
+        agent_id=agent_id,
+    )
+    
     # check if file exists
     # NOTE Important when a file has a move and create action
     artifact_id = kwargs["artifact_id"]

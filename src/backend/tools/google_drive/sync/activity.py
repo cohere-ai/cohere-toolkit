@@ -39,7 +39,7 @@ def handle_google_drive_activity_event(
         case GoogleDriveActions.CREATE.value:
             [
                 create.apply_async(
-                    args=[file_id, index_name, user_id],
+                    args=[file_id, index_name, user_id, agent_id],
                     kwargs={
                         "artifact_id": kwargs["artifact_id"],
                         **kwargs,
@@ -90,7 +90,7 @@ def handle_google_drive_activity_event(
         case GoogleDriveActions.RESTORE.value:
             [
                 restore.apply_async(
-                    args=[file_id, index_name, user_id],
+                    args=[file_id, index_name, user_id, agent_id],
                     kwargs=kwargs,
                 )
                 for file_id in file_ids
