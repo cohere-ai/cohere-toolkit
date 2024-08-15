@@ -1039,6 +1039,55 @@ def validate_chat_streaming_response(
     validate_conversation(session, user, conversation_id, expected_num_messages)
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_with_files(
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_compass_settings,
+):
+    # Create convo
+    conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
+
+    # Upload the files
+    files = [
+        (
+            "files",
+            (
+                "Mariana_Trench.pdf",
+                open("src/backend/tests/unit/test_data/Mariana_Trench.pdf", "rb"),
+            ),
+        )
+    ]
+
+    response = session_client_chat.post(
+        "/v1/conversations/batch_upload_file",
+        headers={"User-Id": conversation.user_id},
+        files=files,
+        data={"conversation_id": conversation.id},
+    )
+
+    assert response.status_code == 200
+    file_id = response.json()[0]["id"]
+
+    # Send the chat request
+    response = session_client_chat.post(
+        "/v1/chat",
+        json={
+            "message": "Hello",
+            "max_tokens": 10,
+            "file_ids": [file_id],
+            "tools": [{"name": "search_file"}],
+        },
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+    )
+
+    assert response.status_code == 200
+
+
 def validate_conversation(
     session: Session, user: User, conversation_id: str, expected_num_messages: int
 ) -> None:
