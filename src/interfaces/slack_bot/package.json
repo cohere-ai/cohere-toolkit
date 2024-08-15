@@ -31,7 +31,7 @@
     "@types/offscreencanvas": "^2019.7.3",
     "@types/word-extractor": "^1.0.2",
     "@vitest/ui": "^1.6.0",
-    "axios": "^1.7.2",
+    "axios": "^1.7.4",
     "dotenv": "^16.0.3",
     "eslint": "^9.3.0",
     "form-data": "^4.0.0",
