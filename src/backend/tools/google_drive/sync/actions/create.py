@@ -4,24 +4,28 @@ from backend.config.settings import Settings
 from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
+from backend.crud.agent_tasks import create_agent_task
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
 )
+from backend.database_models.database import get_session
 
 ACTION_NAME = "create"
 logger = LoggerFactory().get_logger()
 
 
 @app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
-def create(self, file_id: str, index_name: str, user_id: str, agent_id:str, **kwargs):
-    
-    logger.warning(
+def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
+    logger.info(
         event=f"Executing task id {self.request.id}, args: {self.request.args} kwargs: {self.request.kwargs}",
         agent_id=agent_id,
     )
-    
+    session = next(get_session())
+    create_agent_task(session, agent_id=agent_id, task_id=self.request.id)
+    session.close()
+
     # check if file exists
     # NOTE Important when a file has a move and create action
     artifact_id = kwargs["artifact_id"]
@@ -56,12 +60,16 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id:str, **kw
         file_details[key]
         for key in ("file_bytes", "web_view_link", "extension", "permissions")
     )
+    file_meta = file_details.copy()
+    del file_meta["file_bytes"]
+
     if not file_bytes:
         return {
             "action": ACTION_NAME,
             "status": Status.FAIL.value,
             "message": "File bytes could not be parsed.",
             "file_id": file_id,
+            "file_meta": file_meta,
         }
 
     compass = Compass(
@@ -136,6 +144,12 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id:str, **kw
             "status": Status.FAIL.value,
             "file_id": file_id,
             "message": str(error),
+            **file_meta,
         }
 
-    return {"action": ACTION_NAME, "status": Status.SUCCESS.value, "file_id": file_id}
+    return {
+        "action": ACTION_NAME,
+        "status": Status.SUCCESS.value,
+        "file_id": file_id,
+        **file_meta,
+    }
