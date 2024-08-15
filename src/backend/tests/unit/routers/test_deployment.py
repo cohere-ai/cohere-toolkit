@@ -85,10 +85,7 @@ def test_list_deployments_no_available_models_404(
     assert response.status_code == 404
     assert response.json() == {
         "detail": [
-            (
-                "No available deployments found. Please ensure that the required environment variables are set up correctly. "
-                "Refer to the README.md for detailed instructions."
-            )
+            "No available deployments found. Please ensure that the required variables in your configuration.yaml and secrets.yaml are set up correctly. Refer to the README.md for detailed instructions."
         ]
     }
 

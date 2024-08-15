@@ -69,7 +69,8 @@ class BaseToolAuthentication:
             ]
         ):
             raise ValueError(
-                f"Tool Authentication requires NEXT_PUBLIC_API_HOSTNAME, FRONTEND_HOSTNAME, and AUTH_SECRET_KEY environment variables."
+                f"Tool Authentication requires auth.backend_hostname, auth.frontend_hostname in configuration.yaml, "
+                "and auth.secret_key in the secrets.yaml configuration files."
             )
 
     @abstractmethod

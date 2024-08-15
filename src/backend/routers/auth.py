@@ -264,7 +264,7 @@ async def login(
     if not redirect_uri:
         raise HTTPException(
             status_code=400,
-            detail=f"FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
+            detail=f"auth.frontend_hostname in configuration.yaml is required for Tool Auth.",
         )
 
     def log_and_redirect_err(error_message: str):
