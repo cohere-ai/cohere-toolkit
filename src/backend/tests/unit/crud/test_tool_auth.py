@@ -8,7 +8,6 @@ from backend.tests.unit.factories import get_factory
 
 
 def test_create_tool_auth(session, user):
-
     tool_auth_data = ToolAuth(
         user_id=user.id,
         tool_id=ToolName.Google_Drive,

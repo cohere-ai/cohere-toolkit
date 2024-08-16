@@ -80,11 +80,11 @@ win-setup:
 
 .PHONY: lint
 lint:
-	poetry run ruff check
+	poetry run ruff check && poetry run ruff format --check
 
 .PHONY: lint-fix
 lint-fix:
-	poetry run ruff check --fix
+	poetry run ruff check --fix && poetry run ruff format
 
 .PHONY: first-run
 first-run:

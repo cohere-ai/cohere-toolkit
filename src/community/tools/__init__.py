@@ -16,5 +16,5 @@ __all__ = [
     "PubMedRetriever",
     "Category",
     "ManagedTool",
-    "BaseTool"
+    "BaseTool",
 ]

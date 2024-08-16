@@ -13,6 +13,7 @@ from fastapi import Request
 
 logger = LoggerFactory().get_logger()
 
+
 class BaseTool:
     """
     Abstract base class for all Tools.
