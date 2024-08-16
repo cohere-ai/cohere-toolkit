@@ -576,6 +576,26 @@
 			]
 		},
 		{
+			"name": "Tool Auth",
+			"item": [
+				{
+					"name": "Delete Tool Auth",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{auth_token}}"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8000/v1/tool/auth/{{tool_id}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Health",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true

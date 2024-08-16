@@ -133,8 +133,8 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         )
 
     @classmethod
-    def get_tool_auth(self, session: DBSessionDep, user_id: str) -> ToolAuthModel:
-        tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
+    def get_tool_auth(cls, session: DBSessionDep, user_id: str) -> ToolAuthModel:
+        tool_auth = tool_auth_crud.get_tool_auth(session, cls.TOOL_ID, user_id)
         return tool_auth
 
     def get_token(self, session: DBSessionDep, user_id: str) -> str:

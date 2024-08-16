@@ -196,11 +196,11 @@ class FileService:
             )
 
             file_ids = list(
-                set(
+                {
                     artifact.get("id")
                     for artifact in artifacts
                     if artifact.get("type") == FileToolsArtifactTypes.local_file
-                )
+                }
             )
 
             if self.is_compass_enabled:

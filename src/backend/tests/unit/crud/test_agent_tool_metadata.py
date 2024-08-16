@@ -151,7 +151,7 @@ def test_get_all_agent_tool_metadata_by_agent_id(session, user):
     i = 0
     for tool in ToolName:
         i += 1
-        agent = get_factory("Agent", session).create(user_id=user.id)
+        _ = get_factory("Agent", session).create(user_id=user.id)
         _ = get_factory("AgentToolMetadata", session).create(
             id=f"{i}",
             tool_name=tool.value,

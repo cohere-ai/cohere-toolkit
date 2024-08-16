@@ -6,8 +6,7 @@ from backend.database_models import User as UserModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.metrics import MetricsMessageType
-from backend.schemas.user import CreateUser, DeleteUser, UpdateUser
-from backend.schemas.user import User
+from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 from backend.schemas.user import User as UserSchema
 from backend.services.context import get_context
 from backend.services.request_validators import validate_create_update_user_request

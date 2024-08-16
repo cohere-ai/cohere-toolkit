@@ -11,11 +11,9 @@ from langchain_core.runnables.utils import AddableDict
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
-from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
@@ -26,7 +24,6 @@ from backend.database_models.message import (
     MessageFileAssociation,
 )
 from backend.database_models.tool_call import ToolCall as ToolCallModel
-from backend.database_models.user import User as UserModel
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -54,9 +51,6 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.schemas.user import User
 from backend.services.agent import validate_agent_exists
-from backend.services.file import get_file_service
-from backend.services.generators import AsyncGeneratorContextManager
-from backend.services.user import validate_user_exists
 
 
 def process_chat(

@@ -1,7 +1,6 @@
 from typing import Any, AsyncGenerator, Dict, List
 
 import cohere
-from cohere.types import StreamedChatResponse
 
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings

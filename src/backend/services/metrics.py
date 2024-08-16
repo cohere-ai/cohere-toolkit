@@ -6,7 +6,6 @@ import uuid
 from functools import wraps
 from typing import Any, Callable, Dict, Optional
 
-from fastapi import BackgroundTasks
 from httpx import AsyncHTTPTransport
 from httpx._client import AsyncClient
 from starlette.background import BackgroundTask
@@ -375,7 +374,7 @@ class RerankMetricsHelper:
             )
             message_type = MetricsMessageType.RERANK_API_SUCCESS
             # ensure valid MetricsChat object
-            chat_metrics = MetricsModelAttrs(
+            _ = MetricsModelAttrs(
                 input_nb_tokens=0,
                 output_nb_tokens=0,
                 search_units=search_units,

@@ -25,7 +25,7 @@ tools:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false
-  use_agents_view: false
+  use_agents_view: true
   # Community features
   use_community_features: true
 auth:

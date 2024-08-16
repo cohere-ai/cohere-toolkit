@@ -7,11 +7,10 @@ from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
 from backend.config.settings import Settings
-from backend.model_deployments.cohere_platform import COHERE_API_KEY_ENV_VAR
 from backend.tools.base import BaseTool
 
 """
-Plug in your lang chain retrieval implementation here. 
+Plug in your lang chain retrieval implementation here.
 We have an example flows with wikipedia and vector DBs.
 
 More details: https://python.langchain.com/docs/integrations/retrievers
@@ -85,4 +84,4 @@ class LangChainVectorDBRetriever(BaseTool):
         query = parameters.get("query", "")
         input_docs = db.as_retriever().get_relevant_documents(query)
 
-        return [dict({"text": doc.page_content}) for doc in input_docs]
+        return [{"text": doc.page_content} for doc in input_docs]

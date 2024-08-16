@@ -18,10 +18,10 @@ from backend.tools import (
 logger = LoggerFactory().get_logger()
 
 """
-List of available tools. Each tool should have a name, implementation, is_visible and category. 
+List of available tools. Each tool should have a name, implementation, is_visible and category.
 They can also have kwargs if necessary.
 
-You can switch the visibility of a tool by changing the is_visible parameter to True or False. 
+You can switch the visibility of a tool by changing the is_visible parameter to True or False.
 If a tool is not visible, it will not be shown in the frontend.
 
 If you want to add a new tool, check the instructions on how to implement a retriever in the documentation.
@@ -53,7 +53,7 @@ ALL_TOOLS = {
         },
         is_visible=True,
         is_available=TavilyInternetSearch.is_available(),
-        error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
+        error_message="TavilyInternetSearch not available, please make sure to set the tools.tavily.api_key variable in your secrets.yaml",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
     ),
@@ -106,7 +106,7 @@ ALL_TOOLS = {
         },
         is_visible=True,
         is_available=PythonInterpreter.is_available(),
-        error_message="PythonInterpreterFunctionTool not available, please make sure to set the PYTHON_INTERPRETER_URL environment variable.",
+        error_message="PythonInterpreterFunctionTool not available, please make sure to set the tools.python_interpreter.url variable in your configuration.yaml",
         category=Category.Function,
         description="Runs python code in a sandbox.",
     ),

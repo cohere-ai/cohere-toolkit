@@ -123,7 +123,7 @@ def validate_deployment_header(request: Request, session: DBSessionDep):
         )
         if (
             not is_deployment_in_db
-            and not deployment_name in AVAILABLE_MODEL_DEPLOYMENTS.keys()
+            and deployment_name not in AVAILABLE_MODEL_DEPLOYMENTS.keys()
         ):
             raise HTTPException(
                 status_code=404,
@@ -210,7 +210,7 @@ async def validate_env_vars(request: Request):
         raise HTTPException(
             status_code=400,
             detail=(
-                f"Environment variables not valid for deployment: "
+                "Environment variables not valid for deployment: "
                 + ",".join(invalid_keys)
             ),
         )
@@ -302,7 +302,7 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     elif model and not deployment:
         raise HTTPException(
             status_code=400,
-            detail=f"If updating an agent's model, the deployment must also be provided.",
+            detail="If updating an agent's model, the deployment must also be provided.",
         )
     elif model and deployment:
         deployment_config = body.get("deployment_config")
@@ -357,7 +357,7 @@ async def validate_create_deployment_request(session: DBSessionDep, request: Req
     deployment_class_name = body.get("deployment_class_name")
     try:
         class_name_validator(deployment_class_name)
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=404,
             detail=f"Deployment class name {deployment_class_name} not found.",
