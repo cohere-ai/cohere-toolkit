@@ -120,8 +120,9 @@ defineConstant = { DEBUG = true }
 reportMissingImports = true
 reportMissingTypeStubs = false
 
-[tool.ruff.lint.flake8-type-checking]
-strict = true
+[tool.ruff]
+lint.select = ["F", "I", "E", "W", "I"]
+lint.ignore = ["E501", "N806"]
 
 [tool.pytest.ini_options]
 pythonpath = [

@@ -1,11 +1,12 @@
 from typing import Optional
 
+from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import false, true
+
 from backend.database_models import Deployment
 from backend.database_models.agent import Agent, AgentDeploymentModel
 from backend.schemas.agent import AgentVisibility, UpdateAgentRequest
 from backend.services.transaction import validate_transaction
-from sqlalchemy.orm import Session
-from sqlalchemy.sql.expression import false, true
 
 
 @validate_transaction

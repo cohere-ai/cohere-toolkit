@@ -1,13 +1,14 @@
 import asyncio
 from typing import Any, Dict, List
 
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
 from backend.chat.collate import rerank_and_chunk, to_dict
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
 
 TIMEOUT = 300
 

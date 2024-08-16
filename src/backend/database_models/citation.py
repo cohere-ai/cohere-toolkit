@@ -1,9 +1,10 @@
 from typing import List
 
-from backend.database_models.base import Base
-from backend.database_models.document import Document
 from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from backend.database_models.base import Base
+from backend.database_models.document import Document
 
 
 class CitationDocuments(Base):

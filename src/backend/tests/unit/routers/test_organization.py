@@ -1,8 +1,9 @@
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from backend.database_models.organization import Organization as OrganizationModel
 from backend.schemas.organization import CreateOrganization, UpdateOrganization
 from backend.tests.unit.factories import get_factory
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 
 def test_create_organization(session_client: TestClient, session: Session) -> None:

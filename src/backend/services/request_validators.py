@@ -1,5 +1,7 @@
 from urllib.parse import unquote_plus
 
+from fastapi import HTTPException, Request
+
 import backend.crud.user as user_crud
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import AVAILABLE_TOOLS
@@ -11,7 +13,6 @@ from backend.database_models.database import DBSessionDep
 from backend.model_deployments.utils import class_name_validator
 from backend.services.agent import validate_agent_exists
 from backend.services.auth.utils import get_header_user_id
-from fastapi import HTTPException, Request
 
 
 def validate_deployment_model(deployment: str, model: str, session: DBSessionDep):

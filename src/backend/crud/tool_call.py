@@ -1,5 +1,6 @@
-from backend.database_models.tool_call import ToolCall
 from sqlalchemy.orm import Session
+
+from backend.database_models.tool_call import ToolCall
 
 
 def create_tool_call(db: Session, tool_call: ToolCall) -> ToolCall:

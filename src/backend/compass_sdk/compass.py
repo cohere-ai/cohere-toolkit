@@ -6,6 +6,18 @@ from statistics import mean
 from typing import Dict, Iterator, List, Optional, Tuple, Union
 
 import requests
+from joblib import Parallel, delayed
+from pydantic import BaseModel
+from requests.exceptions import InvalidSchema
+from tenacity import (
+    RetryError,
+    retry,
+    retry_if_not_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
+from tqdm import tqdm
+
 from backend.compass_sdk import (
     BatchPutDocumentsInput,
     Chunk,
@@ -25,17 +37,6 @@ from backend.compass_sdk.constants import (
     DEFAULT_SLEEP_RETRY_SECONDS,
 )
 from backend.services.logger.utils import LoggerFactory
-from joblib import Parallel, delayed
-from pydantic import BaseModel
-from requests.exceptions import InvalidSchema
-from tenacity import (
-    RetryError,
-    retry,
-    retry_if_not_exception_type,
-    stop_after_attempt,
-    wait_fixed,
-)
-from tqdm import tqdm
 
 logger = LoggerFactory().get_logger()
 

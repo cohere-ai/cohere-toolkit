@@ -3,6 +3,11 @@ import time
 from concurrent import futures
 from typing import Any, Dict, List
 
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaIoBaseDownload
+
 from backend.database_models.database import get_session
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.google_drive.auth import GoogleDriveAuth
@@ -13,10 +18,6 @@ from backend.tools.google_drive.constants import (
     SEARCH_MIME_TYPES,
     TEXT_MIMETYPE,
 )
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaIoBaseDownload
 
 """
 Get service

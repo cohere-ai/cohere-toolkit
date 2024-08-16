@@ -1,6 +1,7 @@
+from sqlalchemy.orm import Session
+
 from backend.database_models.tool_auth import ToolAuth
 from backend.schemas.tool_auth import UpdateToolAuth
-from sqlalchemy.orm import Session
 
 
 def create_tool_auth(db: Session, tool_auth: ToolAuth) -> ToolAuth:

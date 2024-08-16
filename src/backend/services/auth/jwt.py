@@ -2,6 +2,7 @@ import datetime
 import uuid
 
 import jwt
+
 from backend.config.settings import Settings
 from backend.services.logger.utils import LoggerFactory
 

@@ -1,4 +1,5 @@
 import pytest
+
 from backend.crud import organization as organization_crud
 from backend.database_models.organization import Organization
 from backend.schemas.organization import UpdateOrganization

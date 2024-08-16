@@ -1,8 +1,9 @@
 from typing import Optional
 
-from backend.database_models.base import Base
 from sqlalchemy import JSON, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column
+
+from backend.database_models.base import Base
 
 
 class Tool(Base):

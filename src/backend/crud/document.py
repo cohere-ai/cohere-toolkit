@@ -1,6 +1,7 @@
+from sqlalchemy.orm import Session
+
 from backend.database_models.document import Document
 from backend.services.transaction import validate_transaction
-from sqlalchemy.orm import Session
 
 
 @validate_transaction

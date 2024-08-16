@@ -1,12 +1,13 @@
 import datetime
 from typing import List, Optional, Union
 
+from pydantic import BaseModel
+
 from backend.database_models.message import MessageAgent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.file import File
 from backend.schemas.tool import ToolCall
-from pydantic import BaseModel
 
 
 class MessageBase(BaseModel):

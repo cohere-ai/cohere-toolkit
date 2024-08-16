@@ -1,6 +1,7 @@
 from typing import Any, AsyncGenerator, Dict, List
 
 import cohere
+
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment

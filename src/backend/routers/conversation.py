@@ -1,5 +1,9 @@
 from typing import Optional
 
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import File as RequestFile
+from fastapi import UploadFile as FastAPIUploadFile
+
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
@@ -38,9 +42,6 @@ from backend.services.file import (
     validate_file,
     validate_file_size,
 )
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi import File as RequestFile
-from fastapi import UploadFile as FastAPIUploadFile
 
 router = APIRouter(
     prefix="/v1/conversations",

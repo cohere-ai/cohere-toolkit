@@ -1,9 +1,10 @@
 from unittest.mock import Mock, patch
 
 import pytest
-from backend.services.auth.request_validators import validate_authorization
 from fastapi import HTTPException, Request
 from sqlalchemy.orm import Session
+
+from backend.services.auth.request_validators import validate_authorization
 
 
 def test_validate_authorization_with_valid_request():

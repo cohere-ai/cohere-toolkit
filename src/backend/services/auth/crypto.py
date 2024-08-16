@@ -1,8 +1,9 @@
 import base64
 import hashlib
 
-from backend.config.settings import Settings
 from cryptography.fernet import Fernet
+
+from backend.config.settings import Settings
 
 
 def get_cipher() -> Fernet:

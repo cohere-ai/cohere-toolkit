@@ -2,14 +2,15 @@ import json
 import os
 from uuid import uuid4
 
+from dotenv import load_dotenv
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import Deployment, Model, Organization
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
-from dotenv import load_dotenv
-from sqlalchemy import text
-from sqlalchemy.orm import Session
 
 load_dotenv()
 
@@ -111,7 +112,7 @@ def deployments_models_seed(op):
             id, name, created_at, updated_at
         )
         VALUES (
-            :id, :name, now(), now() 
+            :id, :name, now(), now()
         )
         ON CONFLICT (id) DO NOTHING;
     """
@@ -130,7 +131,7 @@ def deployments_models_seed(op):
                 id, name, description, default_deployment_config, deployment_class_name, is_community, created_at, updated_at
             )
             VALUES (
-                :id, :name, :description, :default_deployment_config, :deployment_class_name, :is_community, now(), now() 
+                :id, :name, :description, :default_deployment_config, :deployment_class_name, :is_community, now(), now()
             )
             ON CONFLICT (id) DO NOTHING;
         """
@@ -159,7 +160,7 @@ def deployments_models_seed(op):
                     id, name, cohere_name, description, deployment_id, created_at, updated_at
                 )
                 VALUES (
-                    :id, :name, :cohere_name, :description, :deployment_id, now(), now() 
+                    :id, :name, :cohere_name, :description, :deployment_id, now(), now()
                 )
                 ON CONFLICT (id) DO NOTHING;
             """

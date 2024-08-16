@@ -1,4 +1,5 @@
 import factory
+
 from backend.database_models import User
 from backend.services.auth import BasicAuthentication
 

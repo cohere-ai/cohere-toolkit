@@ -2,6 +2,8 @@ import datetime
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional
 
+from fastapi import Request
+
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
@@ -9,7 +11,6 @@ from backend.database_models.tool_auth import ToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.cache import cache_get_dict, cache_put
 from backend.services.logger.utils import LoggerFactory
-from fastapi import Request
 
 logger = LoggerFactory().get_logger()
 

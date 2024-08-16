@@ -3,6 +3,8 @@ from enum import Enum
 from os import getenv
 from typing import Any, Dict, List, Optional, Union
 
+from pydantic import BaseModel
+
 from backend.compass_sdk.constants import (
     COHERE_API_ENV_VAR,
     DEFAULT_COMMANDR_EXTRACTABLE_ATTRIBUTES,
@@ -15,7 +17,6 @@ from backend.compass_sdk.constants import (
     METADATA_HEURISTICS_ATTRIBUTES,
     SKIP_INFER_TABLE_TYPES,
 )
-from pydantic import BaseModel
 
 
 class Logger:

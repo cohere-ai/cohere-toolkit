@@ -1,5 +1,7 @@
 from typing import Any
 
+from fastapi import HTTPException
+
 from backend.chat.collate import to_dict
 from backend.crud import agent as agent_crud
 from backend.crud import snapshot as snapshot_crud
@@ -11,7 +13,6 @@ from backend.schemas.context import Context
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
 from backend.services.conversation import get_messages_with_files
-from fastapi import HTTPException
 
 SNAPSHOT_VERSION = 1
 

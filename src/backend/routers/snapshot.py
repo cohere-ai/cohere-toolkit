@@ -1,3 +1,5 @@
+from fastapi import APIRouter, Depends, HTTPException
+
 from backend.chat.collate import to_dict
 from backend.config.routers import RouterName
 from backend.crud import snapshot as snapshot_crud
@@ -22,7 +24,6 @@ from backend.services.snapshot import (
     wrap_create_snapshot_access,
     wrap_create_snapshot_link,
 )
-from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter(prefix="/v1/snapshots")
 router.name = RouterName.SNAPSHOT

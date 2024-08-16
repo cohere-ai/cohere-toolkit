@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
 import requests
+
 from backend.compass_sdk import (
     BatchProcessFilesParameters,
     CompassDocument,

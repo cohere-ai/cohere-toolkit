@@ -3,13 +3,14 @@ from typing import Any, Dict, List
 from unittest.mock import patch
 
 import pytest
+from fastapi import HTTPException
+
 from backend.chat.custom.tool_calls import async_call_tools
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.schemas.tool import ManagedTool
 from backend.services.context import Context
 from backend.tests.model_deployments.mock_deployments import MockCohereDeployment
 from backend.tools.base import BaseTool
-from fastapi import HTTPException
 
 
 def test_async_call_tools_success() -> None:

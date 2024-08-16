@@ -2,6 +2,7 @@ from concurrent import futures
 from typing import Dict
 
 import httpx
+
 from backend.services.logger.utils import LoggerFactory
 
 logger = LoggerFactory().get_logger()

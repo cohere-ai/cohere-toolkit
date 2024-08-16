@@ -1,6 +1,9 @@
 from unittest.mock import patch
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
@@ -9,8 +12,6 @@ from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.snapshot import Snapshot
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.tests.unit.factories import get_factory
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 
 async def test_create_agent_mertic(

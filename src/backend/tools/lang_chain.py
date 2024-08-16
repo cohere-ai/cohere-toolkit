@@ -1,15 +1,16 @@
 from typing import Any, Dict, List
 
-from backend.config.settings import Settings
-from backend.tools.base import BaseTool
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_cohere import CohereEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
+from backend.config.settings import Settings
+from backend.tools.base import BaseTool
+
 """
-Plug in your lang chain retrieval implementation here. 
+Plug in your lang chain retrieval implementation here.
 We have an example flows with wikipedia and vector DBs.
 
 More details: https://python.langchain.com/docs/integrations/retrievers
@@ -83,4 +84,4 @@ class LangChainVectorDBRetriever(BaseTool):
         query = parameters.get("query", "")
         input_docs = db.as_retriever().get_relevant_documents(query)
 
-        return [dict({"text": doc.page_content}) for doc in input_docs]
+        return [{"text": doc.page_content} for doc in input_docs]

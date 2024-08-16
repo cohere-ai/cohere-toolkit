@@ -1,9 +1,10 @@
 import datetime
 from typing import List, Optional
 
+from pydantic import BaseModel, Field, computed_field
+
 from backend.schemas.file import File
 from backend.schemas.message import Message
-from pydantic import BaseModel, Field, computed_field
 
 
 class ConversationBase(BaseModel):

@@ -1,5 +1,8 @@
 from unittest.mock import MagicMock
 
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from backend.database_models import (
     Citation,
     Conversation,
@@ -11,8 +14,6 @@ from backend.database_models import (
 from backend.schemas.user import User
 from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE, get_file_service
 from backend.tests.unit.factories import get_factory
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 
 # CONVERSATIONS

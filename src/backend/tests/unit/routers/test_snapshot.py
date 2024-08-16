@@ -1,7 +1,8 @@
 import pytest
-from backend.tests.unit.factories import get_factory
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+
+from backend.tests.unit.factories import get_factory
 
 
 @pytest.fixture(autouse=True)

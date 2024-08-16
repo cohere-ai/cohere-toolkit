@@ -1,4 +1,5 @@
 import factory
+
 from backend.database_models import Document
 
 from .base import BaseFactory

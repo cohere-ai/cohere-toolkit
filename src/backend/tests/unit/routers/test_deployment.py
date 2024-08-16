@@ -1,10 +1,11 @@
 import re
 from unittest.mock import Mock, patch
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
-from backend.database_models import Deployment
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+
+from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.database_models import Deployment
 
 
 def test_create_deployment(session_client: TestClient) -> None:

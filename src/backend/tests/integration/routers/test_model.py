@@ -1,7 +1,8 @@
-from backend.database_models import Model
-from backend.tests.unit.factories import get_factory
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+
+from backend.database_models import Model
+from backend.tests.unit.factories import get_factory
 
 
 def test_create_model(session_client: TestClient, session: Session, deployment) -> None:

@@ -1,6 +1,7 @@
+from sqlalchemy.orm import Session
+
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.agent import UpdateAgentToolMetadataRequest
-from sqlalchemy.orm import Session
 
 
 def create_agent_tool_metadata(

@@ -1,10 +1,6 @@
 from enum import StrEnum
 from typing import List
 
-from backend.database_models.base import Base
-from backend.database_models.citation import Citation
-from backend.database_models.document import Document
-from backend.database_models.tool_call import ToolCall
 from sqlalchemy import (
     Boolean,
     Enum,
@@ -15,6 +11,11 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from backend.database_models.base import Base
+from backend.database_models.citation import Citation
+from backend.database_models.document import Document
+from backend.database_models.tool_call import ToolCall
 
 
 class MessageAgent(StrEnum):

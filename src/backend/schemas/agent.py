@@ -2,8 +2,9 @@ import datetime
 from enum import StrEnum
 from typing import Optional
 
-from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
 from pydantic import BaseModel, Field
+
+from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
 
 
 class AgentVisibility(StrEnum):

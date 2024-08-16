@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 
 

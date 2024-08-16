@@ -1,12 +1,13 @@
 from unittest.mock import patch
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from backend.database_models.user import User
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.services.auth import BasicAuthentication
 from backend.tests.unit.factories import get_factory
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 
 def test_list_users_empty(session_client: TestClient, session: Session) -> None:

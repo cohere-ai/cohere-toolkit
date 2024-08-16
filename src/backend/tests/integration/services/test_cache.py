@@ -1,4 +1,5 @@
 import pytest
+
 from backend.config.settings import Settings
 from backend.services.cache import get_client
 

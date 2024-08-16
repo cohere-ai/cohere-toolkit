@@ -1,8 +1,9 @@
+from fastapi import APIRouter, Depends
+
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
 from backend.schemas.context import Context
 from backend.services.context import get_context
-from fastapi import APIRouter, Depends
 
 router = APIRouter(
     prefix="/v1/experimental_features",

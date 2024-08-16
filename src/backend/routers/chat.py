@@ -1,5 +1,8 @@
 from typing import Any, Generator
 
+from fastapi import APIRouter, Depends, Request
+from sse_starlette.sse import EventSourceResponse
+
 from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
@@ -21,8 +24,6 @@ from backend.services.chat import (
 )
 from backend.services.context import get_context
 from backend.services.request_validators import validate_deployment_header
-from fastapi import APIRouter, Depends, Request
-from sse_starlette.sse import EventSourceResponse
 
 router = APIRouter(
     prefix="/v1",

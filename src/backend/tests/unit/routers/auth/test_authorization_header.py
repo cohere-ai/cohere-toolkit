@@ -2,12 +2,13 @@ from unittest.mock import MagicMock
 
 import freezegun
 import pytest
-from backend.services.auth.jwt import JWTService
-from backend.services.auth.request_validators import validate_authorization
-from backend.tests.unit.factories import get_factory
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+
+from backend.services.auth.jwt import JWTService
+from backend.services.auth.request_validators import validate_authorization
+from backend.tests.unit.factories import get_factory
 
 # Weird issue with freezegun, see: https://stackoverflow.com/questions/73007409/freezeguns-freeze-time-throws-odd-transformers-error-when-used
 freezegun.configure(extend_ignore_list=["transformers"])

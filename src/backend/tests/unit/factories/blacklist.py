@@ -1,4 +1,5 @@
 import factory
+
 from backend.database_models import Blacklist
 
 from .base import BaseFactory

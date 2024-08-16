@@ -1,8 +1,9 @@
 from typing import List, Optional
 
-from backend.database_models.base import Base
 from sqlalchemy import JSON, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from backend.database_models.base import Base
 
 DEFAULT_MODEL_DEPLOYMENTS_MODULE = "backend.model_deployments"
 COMMUNITY_MODEL_DEPLOYMENTS_MODULE = "community.model_deployments"

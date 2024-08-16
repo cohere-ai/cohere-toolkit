@@ -5,6 +5,9 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from backend.chat.enums import StreamEvent
 from backend.config.deployments import ModelDeploymentName
 from backend.database_models import Agent
@@ -14,8 +17,6 @@ from backend.database_models.user import User
 from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.schemas.tool import Category
 from backend.tests.unit.factories import get_factory
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None

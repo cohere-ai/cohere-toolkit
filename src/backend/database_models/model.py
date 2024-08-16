@@ -1,8 +1,9 @@
 from typing import Optional
 
-from backend.database_models.base import Base
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from backend.database_models.base import Base
 
 
 class Model(Base):

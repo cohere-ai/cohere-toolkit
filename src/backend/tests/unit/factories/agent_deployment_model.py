@@ -1,4 +1,5 @@
 import factory
+
 from backend.database_models.agent import AgentDeploymentModel
 from backend.tests.unit.factories.agent import AgentFactory
 from backend.tests.unit.factories.base import BaseFactory

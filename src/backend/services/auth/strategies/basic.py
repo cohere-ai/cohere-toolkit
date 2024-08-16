@@ -1,9 +1,10 @@
 from typing import List
 
 import bcrypt
+from sqlalchemy.orm import Session
+
 from backend.database_models.user import User
 from backend.services.auth.strategies.base import BaseAuthenticationStrategy
-from sqlalchemy.orm import Session
 
 
 class BasicAuthentication(BaseAuthenticationStrategy):

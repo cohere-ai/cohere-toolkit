@@ -1,8 +1,9 @@
+from fastapi import Request
+from sqlalchemy.orm import Session
+
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING, is_authentication_enabled
 from backend.crud import user as user_crud
 from backend.database_models import User
-from fastapi import Request
-from sqlalchemy.orm import Session
 
 
 def is_enabled_authentication_strategy(strategy_name: str) -> bool:

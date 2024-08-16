@@ -1,8 +1,9 @@
 from enum import StrEnum
 from typing import Any, Dict, List
 
-from backend.schemas.chat import BaseChatRequest
 from pydantic import Field
+
+from backend.schemas.chat import BaseChatRequest
 
 
 class CohereChatPromptTruncation(StrEnum):

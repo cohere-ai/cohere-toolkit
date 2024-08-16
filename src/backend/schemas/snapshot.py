@@ -1,9 +1,10 @@
 import datetime
 from typing import Optional, Union
 
+from pydantic import BaseModel, Field
+
 from backend.schemas.agent import AgentToolMetadata
 from backend.schemas.message import Message
-from pydantic import BaseModel, Field
 
 
 class SnapshotAgent(BaseModel):

@@ -1,11 +1,12 @@
 import pytest
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql.expression import false
+
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
 from backend.schemas.agent import AgentVisibility, UpdateAgentRequest
 from backend.tests.unit.factories import get_factory
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql.expression import false
 
 
 def test_create_agent(session, user):

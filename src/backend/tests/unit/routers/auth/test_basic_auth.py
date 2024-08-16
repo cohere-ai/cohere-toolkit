@@ -1,8 +1,9 @@
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from backend.database_models import Blacklist
 from backend.services.auth.jwt import JWTService
 from backend.tests.unit.factories import get_factory
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 
 def test_login_success(session_client: TestClient, session: Session):

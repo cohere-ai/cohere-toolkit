@@ -1,7 +1,8 @@
-from backend.database_models.base import Base
-from backend.services.auth.crypto import decrypt
 from sqlalchemy import DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
+
+from backend.database_models.base import Base
+from backend.services.auth.crypto import decrypt
 
 
 class ToolAuth(Base):

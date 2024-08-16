@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import jwt
+
 from backend.services.auth.jwt import JWTService
 
 

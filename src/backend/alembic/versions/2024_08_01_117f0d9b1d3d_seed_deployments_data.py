@@ -8,12 +8,12 @@ Create Date: 2024-08-01 15:15:25.446575
 
 from typing import Sequence, Union
 
+from alembic import op
+
 from backend.database_models.seeders.deplyments_models_seed import (
     delete_default_models,
     deployments_models_seed,
 )
-
-from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "117f0d9b1d3d"

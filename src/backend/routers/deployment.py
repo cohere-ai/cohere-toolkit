@@ -1,3 +1,5 @@
+from fastapi import APIRouter, Depends, HTTPException, Response
+
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.routers import RouterName
 from backend.crud import deployment as deployment_crud
@@ -16,7 +18,6 @@ from backend.services.request_validators import (
     validate_create_deployment_request,
     validate_env_vars,
 )
-from fastapi import APIRouter, Depends, HTTPException, Response
 
 router = APIRouter(
     prefix="/v1/deployments",

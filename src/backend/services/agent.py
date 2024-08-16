@@ -1,8 +1,9 @@
+from fastapi import HTTPException
+
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent import Agent, AgentToolMetadata
 from backend.database_models.database import DBSessionDep
-from fastapi import HTTPException
 
 
 def validate_agent_exists(session: DBSessionDep, agent_id: str, user_id: str) -> Agent:

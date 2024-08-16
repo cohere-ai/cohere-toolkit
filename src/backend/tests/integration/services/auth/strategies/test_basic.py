@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 import bcrypt
+
 from backend.database_models.user import User
 from backend.services.auth.strategies.basic import BasicAuthentication
 

@@ -3,6 +3,8 @@ import json
 import urllib.parse
 
 import requests
+from fastapi import Request
+
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
@@ -12,7 +14,6 @@ from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
 from backend.tools.google_drive.tool import GoogleDrive
-from fastapi import Request
 
 from .constants import SCOPES
 
@@ -132,8 +133,8 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         )
 
     @classmethod
-    def get_tool_auth(self, session: DBSessionDep, user_id: str) -> ToolAuthModel:
-        tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
+    def get_tool_auth(cls, session: DBSessionDep, user_id: str) -> ToolAuthModel:
+        tool_auth = tool_auth_crud.get_tool_auth(session, cls.TOOL_ID, user_id)
         return tool_auth
 
     def get_token(self, session: DBSessionDep, user_id: str) -> str:
