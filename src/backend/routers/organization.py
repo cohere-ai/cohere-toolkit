@@ -12,7 +12,9 @@ from backend.schemas import (
 )
 from backend.schemas.context import Context
 from backend.services.context import get_context
-from backend.services.request_validators import validate_organization_request
+from backend.services.request_validators import (
+    validate_create_update_organization_request,
+)
 
 router = APIRouter(prefix="/v1/organizations")
 router.name = RouterName.TOOL
@@ -22,7 +24,7 @@ router.name = RouterName.TOOL
     "",
     response_model=Organization,
     dependencies=[
-        Depends(validate_organization_request),
+        Depends(validate_create_update_organization_request),
     ],
 )
 def create_organization(
@@ -49,7 +51,7 @@ def create_organization(
     "/{organization_id}",
     response_model=Organization,
     dependencies=[
-        Depends(validate_organization_request),
+        Depends(validate_create_update_organization_request),
     ],
 )
 def update_organization(
