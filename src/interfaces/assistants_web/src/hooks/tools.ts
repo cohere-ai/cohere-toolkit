@@ -28,22 +28,14 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
   const { data: toolsData } = useListTools();
   const { info } = useNotify();
 
+  if (window.google?.picker === undefined) {
+    return;
+  }
+
   const googleDriveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
 
   const handleCallback = (data: PickerCallback) => {
     if (!data.docs) return;
-
-    const folders = data.docs.filter((doc) => doc.type === 'folder');
-    const files = data.docs.filter((doc) => doc.type !== 'folder');
-
-    if (folders.length > 0 && files.length > 0) {
-      info('Please select either files or folders.');
-      return;
-    }
-    if (files.length > 5) {
-      info('You can only select a maximum of 5 files.');
-      return;
-    }
 
     callbackFunction(data);
   };
@@ -56,18 +48,34 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
     };
   }
 
+  const defaultView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(true)
+    .setMode(google.picker.DocsViewMode.LIST);
+
+  const myFilesView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+    .setOwnedByMe(true)
+    .setSelectFolderEnabled(true)
+    .setIncludeFolders(true)
+    .setMode(google.picker.DocsViewMode.LIST);
+
+  const sharedView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+    .setEnableDrives(true)
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(true)
+    .setMode(google.picker.DocsViewMode.LIST);
+
+  const customViewsArray = [defaultView, myFilesView, sharedView];
+
   return () =>
     openPicker({
       clientId: googleDriveClientId,
       developerKey: googleDriveDeveloperKey,
       token: googleDriveTool?.token || '',
-      setIncludeFolders: true,
-      setSelectFolderEnabled: true,
-      showUploadView: false,
-      showUploadFolders: false,
-      supportDrives: true,
-      multiselect: true,
+      disableDefaultView: true,
       callbackFunction: handleCallback,
+      multiselect: true,
+      customViews: customViewsArray,
     });
 };
 
