@@ -31,7 +31,7 @@ feature_flags:
 auth:
   enabled_auth:
   backend_hostname:
-  frontend_hostname: http://localhost:4000
+  frontend_hostname:
 logger:
   level: INFO
   strategy: structlog
