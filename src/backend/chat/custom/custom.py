@@ -218,7 +218,7 @@ class CustomChat(BaseChat):
 
                 # Remove the message if tool results are present
                 if tool_results:
-                    chat_request.tool_results = [result for result in tool_results]
+                    chat_request.tool_results = list(tool_results)
                     chat_request.message = ""
             else:
                 break  # Exit loop if there are no new tool calls

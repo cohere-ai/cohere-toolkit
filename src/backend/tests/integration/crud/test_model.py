@@ -1,8 +1,5 @@
-import pytest
-
 from backend.crud import model as model_crud
 from backend.database_models.model import Model
-from backend.schemas.model import Model as ModelSchema
 from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.tests.unit.factories import get_factory
 
@@ -184,7 +181,7 @@ def test_get_models_by_agent_id(session, user, deployment):
             name=f"Test Model {i}", deployment=deployment
         )
 
-        agent_deployment_model = get_factory("AgentDeploymentModel", session).create(
+        _ = get_factory("AgentDeploymentModel", session).create(
             agent=agent, deployment=deployment, model=model
         )
 

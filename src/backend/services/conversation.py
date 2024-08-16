@@ -1,10 +1,9 @@
 from typing import List, Optional
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException
 
 from backend.chat.custom.custom import CustomChat
 from backend.crud import conversation as conversation_crud
-from backend.database_models import File as FileModel
 from backend.database_models import Message as MessageModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
@@ -12,11 +11,8 @@ from backend.schemas.chat import ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import Conversation
-from backend.schemas.file import File
 from backend.schemas.message import Message
 from backend.services.chat import generate_chat_response
-from backend.services.compass import Compass
-from backend.services.context import get_context
 from backend.services.file import attach_conversation_id_to_files, get_file_service
 
 DEFAULT_TITLE = "New Conversation"
