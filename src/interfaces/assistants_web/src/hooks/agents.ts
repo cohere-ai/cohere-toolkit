@@ -70,6 +70,24 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
   });
 };
 
+export const useAgentTasks = ({ agentId }: { agentId?: string }) => {
+  const cohereClient = useCohereClient();
+  return useQuery({
+    queryKey: ['agentTasks', agentId],
+    queryFn: async () => {
+      try {
+        if (!agentId) {
+          throw new Error('must have agent id');
+        }
+        return await cohereClient.getAgentTasks(agentId);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+  });
+};
+
 export const useDefaultAgent = (enabled?: boolean) => {
   const cohereClient = useCohereClient();
   return useQuery({

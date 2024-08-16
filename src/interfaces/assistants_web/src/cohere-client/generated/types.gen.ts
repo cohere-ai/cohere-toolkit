@@ -18,6 +18,18 @@ export type AgentPublic = {
   is_private: boolean | null;
 };
 
+export type AgentTaskResponse = {
+  task_id: string;
+  status: string;
+  result?: {
+    [key: string]: unknown;
+  } | null;
+  date_done: string;
+  exception_snippet?: string | null;
+  name: string;
+  retries: number;
+};
+
 export type AgentToolMetadata = {
   id: string;
   created_at: string;
@@ -931,6 +943,12 @@ export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData = {
 
 export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<Deployment>;
 
+export type GetAgentTasksV1AgentsAgentIdTasksGetData = {
+  agentId: string;
+};
+
+export type GetAgentTasksV1AgentsAgentIdTasksGetResponse = Array<AgentTaskResponse>;
+
 export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   agentId: string;
 };
@@ -1589,6 +1607,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<Deployment>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/agents/{agent_id}/tasks': {
+    get: {
+      req: GetAgentTasksV1AgentsAgentIdTasksGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<AgentTaskResponse>;
         /**
          * Validation Error
          */
