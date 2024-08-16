@@ -12,6 +12,7 @@ DEFAULT_USER_NAME = "Default User"
 class UserBase(BaseModel):
     fullname: str
     email: Optional[str] = None
+    tools: Optional[list[str]] = []
 
 
 class User(UserBase):
@@ -44,6 +45,7 @@ class CreateUser(UserBase, UserPassword):
 
 class UpdateUser(UserPassword):
     fullname: Optional[str] = None
+    tools: Optional[list[str]] = None
     email: Optional[str] = None
 
 

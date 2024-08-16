@@ -18,10 +18,10 @@ from backend.tools import (
 logger = LoggerFactory().get_logger()
 
 """
-List of available tools. Each tool should have a name, implementation, is_visible and category. 
+List of available tools. Each tool should have a name, implementation, is_visible and category.
 They can also have kwargs if necessary.
 
-You can switch the visibility of a tool by changing the is_visible parameter to True or False. 
+You can switch the visibility of a tool by changing the is_visible parameter to True or False.
 If a tool is not visible, it will not be shown in the frontend.
 
 If you want to add a new tool, check the instructions on how to implement a retriever in the documentation.

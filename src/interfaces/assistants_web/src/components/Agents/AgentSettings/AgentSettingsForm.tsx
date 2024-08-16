@@ -153,7 +153,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     if (googleDriveTool?.is_auth_required && googleDriveTool.auth_url) {
       window.open(googleDriveTool.auth_url, '_self');
     } else {
-      openGoogleFilePicker();
+      openGoogleFilePicker?.();
     }
   };
 

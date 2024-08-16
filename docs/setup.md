@@ -252,11 +252,16 @@ If you also need to install the community features, run:
 poetry install --with community
 ```
 
-To run linters, you can use `make lint` or separate commands:
+The codebase is formatted and linted using [Ruff](https://docs.astral.sh/ruff/). 
 
-```bash
-poetry run black .
-poetry run isort .
+To check for linter and formatter errors, run
+```
+make lint
+```
+
+To apply automatic fixes, run
+```
+make lint-fix
 ```
 
 Run type checker:

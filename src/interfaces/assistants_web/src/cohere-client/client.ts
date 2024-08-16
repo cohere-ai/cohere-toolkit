@@ -174,6 +174,10 @@ export class CohereClient {
     return this.cohereService.default.listToolsV1ToolsGet({ agentId });
   }
 
+  public deleteAuthTool({ toolId }: { toolId: string }) {
+    return this.cohereService.default.deleteToolAuthV1ToolAuthToolIdDelete({ toolId });
+  }
+
   public listDeployments({ all }: { all?: boolean }) {
     return this.cohereService.default.listDeploymentsV1DeploymentsGet({ all });
   }
