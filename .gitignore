@@ -137,6 +137,7 @@ secrets.toml
 
 # VScode settings
 .vscode/*
+!.vscode/extensions.json
 !.vscode/settings.default.json
 
 .DS_Store
