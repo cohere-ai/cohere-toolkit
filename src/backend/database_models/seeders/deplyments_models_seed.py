@@ -103,7 +103,7 @@ def deployments_models_seed(op):
     """
     Seed default deployments, models, organization, user and agent.
     """
-    session = Session(op.get_bind())
+    _ = Session(op.get_bind())
 
     # Seed default organization
     sql_command = text(
@@ -112,7 +112,7 @@ def deployments_models_seed(op):
             id, name, created_at, updated_at
         )
         VALUES (
-            :id, :name, now(), now() 
+            :id, :name, now(), now()
         )
         ON CONFLICT (id) DO NOTHING;
     """
@@ -131,7 +131,7 @@ def deployments_models_seed(op):
                 id, name, description, default_deployment_config, deployment_class_name, is_community, created_at, updated_at
             )
             VALUES (
-                :id, :name, :description, :default_deployment_config, :deployment_class_name, :is_community, now(), now() 
+                :id, :name, :description, :default_deployment_config, :deployment_class_name, :is_community, now(), now()
             )
             ON CONFLICT (id) DO NOTHING;
         """
@@ -160,7 +160,7 @@ def deployments_models_seed(op):
                     id, name, cohere_name, description, deployment_id, created_at, updated_at
                 )
                 VALUES (
-                    :id, :name, :cohere_name, :description, :deployment_id, now(), now() 
+                    :id, :name, :cohere_name, :description, :deployment_id, now(), now()
                 )
                 ON CONFLICT (id) DO NOTHING;
             """

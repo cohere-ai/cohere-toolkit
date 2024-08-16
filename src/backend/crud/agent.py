@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import false, true
 
 from backend.database_models import Deployment
 from backend.database_models.agent import Agent, AgentDeploymentModel
@@ -49,6 +50,7 @@ def get_agent_by_id(
 
     agent = db.query(Agent).filter(Agent.id == agent_id).first()
 
+    # Cannot GET privates Agents not belonging to you
     if agent and agent.is_private and agent.user_id != user_id:
         return None
 
@@ -122,8 +124,8 @@ def get_association_by_deployment_id(
         .filter(
             AgentDeploymentModel.deployment_id == deployment_id,
             AgentDeploymentModel.agent_id == agent.id,
-            AgentDeploymentModel.is_default_deployment == True,
-            AgentDeploymentModel.is_default_model == True,
+            AgentDeploymentModel.is_default_deployment == true(),
+            AgentDeploymentModel.is_default_model == true(),
         )
         .first()
     )
@@ -160,11 +162,11 @@ def get_agents(
 
     # Filter by visibility
     if visibility == AgentVisibility.PUBLIC:
-        query = query.filter(Agent.is_private == False)
+        query = query.filter(Agent.is_private == false())
     elif visibility == AgentVisibility.PRIVATE:
-        query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
+        query = query.filter(Agent.is_private == true(), Agent.user_id == user_id)
     else:
-        query = query.filter((Agent.is_private == False) | (Agent.user_id == user_id))
+        query = query.filter((Agent.is_private == false()) | (Agent.user_id == user_id))
 
     # Filter by organization and user
     if organization_id is not None:
@@ -287,23 +289,19 @@ def update_agent(
 @validate_transaction
 def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     """
-    Delete an agent by ID.
-    Anyone can delete a public agent, but only the owner can delete a private agent.
+    Delete an Agent by ID if the Agent was created by the user_id given.
 
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
 
     Returns:
-      bool: True if the agent was deleted, False otherwise
+      bool: True if the Agent was deleted, False otherwise
     """
-    agent_query = db.query(Agent).filter(Agent.id == agent_id)
+    agent_query = db.query(Agent).filter(Agent.id == agent_id, Agent.user_id == user_id)
     agent = agent_query.first()
 
     if not agent:
-        return False
-
-    if agent and agent.is_private and agent.user_id != user_id:
         return False
 
     agent_query.delete()

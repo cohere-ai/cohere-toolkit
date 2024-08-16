@@ -1,4 +1,4 @@
-"""Add is_private column to agents, 
+"""Add is_private column to agents,
    Update unique constraint on agents. Name, version -> name, version, user_id
 
 Revision ID: 71d7b35c8a44

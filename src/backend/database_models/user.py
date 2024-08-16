@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import JSON, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
@@ -22,6 +22,9 @@ class User(Base):
 
     fullname: Mapped[str] = mapped_column()
     email: Mapped[Optional[str]] = mapped_column()
+    tools: Mapped[list[str]] = mapped_column(
+        JSON, default=[], nullable=False, server_default="[]"
+    )
     hashed_password: Mapped[Optional[bytes]] = mapped_column()
 
     __table_args__ = (UniqueConstraint("email", name="unique_user_email"),)

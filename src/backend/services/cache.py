@@ -12,7 +12,7 @@ def get_client() -> Redis:
     redis_url = Settings().redis.url
 
     if not redis_url:
-        error = "Tried retrieving Redis client but REDIS_URL environment variable is not set."
+        error = "Tried retrieving Redis client but redis.url in configuration.yaml is not set."
         logger.error(event=error)
         raise ValueError(error)
 

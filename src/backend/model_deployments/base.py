@@ -1,8 +1,6 @@
 from abc import abstractmethod
 from typing import Any, AsyncGenerator, Dict, List
 
-from cohere.types import StreamedChatResponse
-
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 

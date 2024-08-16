@@ -50,7 +50,7 @@ def default_agent_copy(session_chat: Session, user: User) -> Agent:
         cohere_name=agent_defaults.model.cohere_name if agent_defaults else None,
     )
     new_agent = get_factory("Agent", session_chat).create(user=user, tools=[])
-    new_agent_association = get_factory("AgentDeploymentModel", session_chat).create(
+    get_factory("AgentDeploymentModel", session_chat).create(
         agent=new_agent,
         deployment=new_deployment,
         model=new_model,
@@ -94,7 +94,7 @@ def test_streaming_new_chat_metrics_with_agent(
     agent = get_factory("Agent", session_chat).create(user=user)
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    agent_association = get_factory("AgentDeploymentModel", session_chat).create(
+    get_factory("AgentDeploymentModel", session_chat).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -139,7 +139,7 @@ def test_streaming_new_chat_with_agent(
     agent = get_factory("Agent", session_chat).create(user=user)
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    agent_association = get_factory("AgentDeploymentModel", session_chat).create(
+    get_factory("AgentDeploymentModel", session_chat).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -168,7 +168,7 @@ def test_streaming_new_chat_with_agent_existing_conversation(
     agent = get_factory("Agent", session_chat).create(user=user)
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    agent_association = get_factory("AgentDeploymentModel", session_chat).create(
+    get_factory("AgentDeploymentModel", session_chat).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -266,10 +266,10 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
 def test_streaming_chat_with_tools_not_in_agent_tools(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user)
+    agent = get_factory("Agent", session_chat).create(user=user, tools=["wikipedia"])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    agent_association = get_factory("AgentDeploymentModel", session_chat).create(
+    get_factory("AgentDeploymentModel", session_chat).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -578,8 +578,8 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     message = conversation.messages[0]
     assert message is not None
     assert message.agent == MessageAgent.USER
-    assert (file1.id in message.file_ids) == True
-    assert (file2.id in message.file_ids) == True
+    assert file1.id in message.file_ids
+    assert file2.id in message.file_ids
     validate_chat_streaming_response(
         response, user, session_chat, session_client_chat, 2
     )
@@ -709,6 +709,68 @@ def test_streaming_chat_private_agent_by_another_user(
     assert response.json() == {"detail": f"Agent with ID {agent.id} not found."}
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_user_tools_override_agent_tools(
+    session_client_chat: TestClient, session_chat: Session
+):
+    user = get_factory("User", session_chat).create(tools=["wikipedia"])
+    agent = get_factory("Agent", session_chat).create(
+        user=user, tools=["toolkit_calculator"]
+    )
+    deployment = get_factory("Deployment", session_chat).create()
+    model = get_factory("Model", session_chat).create(deployment=deployment)
+    _ = get_factory("AgentDeploymentModel", session_chat).create(
+        agent=agent,
+        deployment=deployment,
+        model=model,
+        is_default_deployment=True,
+        is_default_model=True,
+    )
+
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Who is a tallest nba player", "agent_id": agent.id},
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_tool_cals_response(response, ["wikipedia"])
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_agent_tools_user_tools_empty(
+    session_client_chat: TestClient, session_chat: Session
+):
+    user = get_factory("User", session_chat).create()
+    agent = get_factory("Agent", session_chat).create(user=user, tools=["web_search"])
+    deployment = get_factory("Deployment", session_chat).create()
+    model = get_factory("Model", session_chat).create(deployment=deployment)
+    _ = get_factory("AgentDeploymentModel", session_chat).create(
+        agent=agent,
+        deployment=deployment,
+        model=model,
+        is_default_deployment=True,
+        is_default_model=True,
+    )
+
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        json={"message": "Who is a tallest nba player", "agent_id": agent.id},
+        params={"agent_id": agent.id},
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_tool_cals_response(response, ["web_search"])
+
+
 # NON-STREAMING CHAT TESTS
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat(
@@ -833,7 +895,6 @@ def test_non_streaming_chat_with_search_queries_only(
 def test_non_streaming_chat_with_chat_history(
     session_client_chat: TestClient, session_chat: Session, user: User
 ) -> None:
-
     response = session_client_chat.post(
         "/v1/chat",
         json={
@@ -886,8 +947,8 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     # Files now linked to same user message
     message = conversation.messages[0]
     assert message.agent == MessageAgent.USER
-    assert (file1.id in message.file_ids) == True
-    assert (file2.id in message.file_ids) == True
+    assert file1.id in message.file_ids
+    assert file2.id in message.file_ids
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -1072,3 +1133,23 @@ def is_valid_uuid(id: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def validate_chat_streaming_tool_cals_response(response: Any, tools: list) -> None:
+    data = []
+    for line in response.iter_lines():
+        if not line or ":ping" in line or ": ping" in line:
+            continue
+
+        # remove the 'data' prefix to make it a valid JSON
+        line = line.replace("data: ", "")
+        if "event" in line:
+            response_json = json.loads(line)
+            assert response_json["event"] in [e.value for e in StreamEvent]
+            if response_json["event"] == StreamEvent.TOOL_CALLS_GENERATION:
+                data.append(response_json["data"])
+
+    tool_calls_names = [tool["name"] for entry in data for tool in entry["tool_calls"]]
+
+    # Check if all required tools are in the tool_names
+    assert all(tool in tool_calls_names for tool in tools)

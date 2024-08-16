@@ -1,9 +1,8 @@
 import asyncio
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
-from fastapi import HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.config.routers import RouterName
@@ -50,6 +49,7 @@ from backend.services.file import (
     consolidate_agent_files_in_compass,
     get_file_service,
     validate_batch_file_size,
+    validate_file,
 )
 from backend.services.request_validators import (
     validate_create_agent_request,
@@ -131,11 +131,11 @@ async def create_agent(
                 [],
             )
             file_ids = list(
-                set(
+                {
                     artifact.get("id")
                     for artifact in artifacts
                     if artifact.get("type") == FileToolsArtifactTypes.local_file
-                )
+                }
             )
             if file_ids:
                 await consolidate_agent_files_in_compass(file_ids, created_agent.id)
@@ -480,10 +480,9 @@ async def delete_agent(
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
-    try:
-        agent_crud.delete_agent(session, agent_id, user_id)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    deleted = agent_crud.delete_agent(session, agent_id, user_id)
+    if not deleted:
+        raise HTTPException(status_code=401, detail="Could not delete Agent.")
 
     return DeleteAgent()
 

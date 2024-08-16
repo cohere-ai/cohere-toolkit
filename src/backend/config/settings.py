@@ -310,8 +310,10 @@ class SyncSettings(BaseSettings, BaseModel):
 
 class Settings(BaseSettings):
     """
-    Settings class used to grab environment variables from .env file.
-    Uppercase env variables converted to class parameters.
+    Settings class used to grab environment variables from configuration.yaml
+    and secrets.yaml files. Backwards compatible with .env setup.
+
+    Uppercase env variables are converted to class parameters.
     """
 
     model_config = SETTINGS_CONFIG
