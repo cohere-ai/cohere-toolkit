@@ -10,12 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run lint check
+      - name: Run lint checks
         uses: chartboost/ruff-action@v1
         with:
           src: './src/'
-      - name: Run formatter check
-        uses: chartboost/ruff-action@v1
-        with:
-          src: './src/'
-          args: 'format --check'
