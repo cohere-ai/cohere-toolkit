@@ -15,6 +15,9 @@ class BaseLogger:
     def error(self, **kwargs: Any) -> Any: ...
 
     @abstractmethod
+    def error_and_raise_http_exception(self, **kwargs: Any) -> Any: ...
+
+    @abstractmethod
     def warning(self, **kwargs: Any) -> Any: ...
 
     @abstractmethod
