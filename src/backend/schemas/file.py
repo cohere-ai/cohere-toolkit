@@ -49,11 +49,3 @@ class DeleteConversationFileResponse(BaseModel):
 
 class DeleteAgentFileResponse(BaseModel):
     pass
-
-
-class UpdateFileRequest(BaseModel):
-    file_name: Optional[str] = None
-    message_id: Optional[str] = None
-
-    class Config:
-        from_attributes = True
