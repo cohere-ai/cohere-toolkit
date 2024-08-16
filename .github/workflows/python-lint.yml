@@ -14,3 +14,4 @@ jobs:
         uses: chartboost/ruff-action@v1
         with:
           src: './src/'
+          version: 0.6.0
