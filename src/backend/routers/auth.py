@@ -273,15 +273,15 @@ async def tool_auth(
         redirect_err = f"{redirect_uri}?error={quote(error_message)}"
         return RedirectResponse(redirect_err)
 
-    # Get any redirect suffix injected by frontend
-    frontend_redirect = request.query_params.get("frontend_redirect", "")
-    redirect_uri = f"{redirect_uri}{frontend_redirect}"
-
     # Get key from state and retrieve cache for user_id and tool_id
     try:
         state = json.loads(request.query_params.get("state"))
         cache_key = state["key"]
         tool_auth_cache = cache_get_dict(cache_key)
+
+        # Get optional frontend redirect suffix
+        frontend_redirect = state.get("frontend_redirect", "")
+        redirect_uri = f"{redirect_uri}{frontend_redirect}"
     except Exception as e:
         log_and_redirect_err(str(e))
 

@@ -48,6 +48,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
             "scope": " ".join(SCOPES),
             "redirect_uri": self.REDIRECT_URL,
+            "frontend_redirect": "test",
             "prompt": "select_account consent",
             "state": json.dumps(state),
             "access_type": "offline",
