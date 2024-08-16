@@ -305,7 +305,7 @@ async def test_get_agent_mertic(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
-    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+    get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
@@ -340,14 +340,11 @@ async def test_get_agent_mertic(
 async def test_get_default_agent_mertic(
     session_client: TestClient, session: Session, user
 ) -> None:
-
     with patch(
         "backend.services.metrics.report_metrics",
         return_value=None,
     ) as mock_metrics:
-        response = session_client.get(
-            f"/v1/default_agent", headers={"User-Id": user.id}
-        )
+        response = session_client.get("/v1/default_agent", headers={"User-Id": user.id})
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
@@ -559,7 +556,7 @@ def test_update_agent_with_tool_metadata(
     )
 
     assert response.status_code == 200
-    updated_agent = response.json()
+    response.json()
 
     tool_metadata = (
         session.query(AgentToolMetadata)
@@ -665,7 +662,7 @@ def test_update_agent_remove_existing_tool_metadata(
         temperature=0.5,
         user=user,
     )
-    agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
+    get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
         tool_name=ToolName.Google_Drive,
@@ -689,7 +686,7 @@ def test_update_agent_remove_existing_tool_metadata(
     )
 
     assert response.status_code == 200
-    updated_agent = response.json()
+    response.json()
 
     tool_metadata = (
         session.query(AgentToolMetadata)
@@ -829,7 +826,7 @@ def test_update_private_agent(
     assert response.status_code == 200
     updated_agent = response.json()
     assert updated_agent["name"] == "updated name"
-    assert updated_agent["is_private"] == True
+    assert updated_agent["is_private"]
 
 
 def test_update_public_agent(
@@ -855,7 +852,7 @@ def test_update_public_agent(
     assert response.status_code == 200
     updated_agent = response.json()
     assert updated_agent["name"] == "updated name"
-    assert updated_agent["is_private"] == False
+    assert not updated_agent["is_private"]
 
 
 def test_update_agent_change_visibility_to_public(
@@ -880,7 +877,7 @@ def test_update_agent_change_visibility_to_public(
     )
     assert response.status_code == 200
     updated_agent = response.json()
-    assert updated_agent["is_private"] == False
+    assert not updated_agent["is_private"]
 
 
 def test_update_agent_change_visibility_to_private(
@@ -905,7 +902,7 @@ def test_update_agent_change_visibility_to_private(
     )
     assert response.status_code == 200
     updated_agent = response.json()
-    assert updated_agent["is_private"] == True
+    assert updated_agent["is_private"]
 
 
 def test_update_agent_change_visibility_to_private_delete_snapshot(
@@ -945,7 +942,7 @@ def test_update_agent_change_visibility_to_private_delete_snapshot(
 
     assert response.status_code == 200
     updated_agent = response.json()
-    assert updated_agent["is_private"] == True
+    assert updated_agent["is_private"]
 
     snapshot = session.get(Snapshot, snapshot_id)
     assert snapshot is None
@@ -1169,7 +1166,7 @@ def test_delete_agent_tool_metadata(
 def test_fail_delete_nonexistent_agent_tool_metadata(
     session_client: TestClient, session: Session, user
 ) -> None:
-    agent = get_factory("Agent", session).create(user=user, id="456")
+    get_factory("Agent", session).create(user=user, id="456")
     response = session_client.delete(
         "/v1/agents/456/tool-metadata/789", headers={"User-Id": user.id}
     )

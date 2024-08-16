@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 
 from backend.database_models import AgentDeploymentModel, Deployment
 from backend.model_deployments.utils import class_name_validator
-from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
 from backend.services.transaction import validate_transaction
 

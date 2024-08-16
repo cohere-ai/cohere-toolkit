@@ -4,7 +4,6 @@ from typing import Any, Dict, List
 import backend.crud.file as file_crud
 from backend.compass_sdk import SearchFilter
 from backend.config.settings import Settings
-from backend.schemas.file import File
 from backend.services.compass import Compass
 from backend.services.file import get_compass
 from backend.tools.base import BaseTool

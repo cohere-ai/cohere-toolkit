@@ -10,6 +10,9 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.cache import cache_get_dict, cache_put
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 class BaseTool:
@@ -69,7 +72,7 @@ class BaseToolAuthentication:
             ]
         ):
             raise ValueError(
-                f"Tool Authentication requires auth.backend_hostname, auth.frontend_hostname in configuration.yaml, "
+                "Tool Authentication requires auth.backend_hostname, auth.frontend_hostname in configuration.yaml, "
                 "and auth.secret_key in the secrets.yaml configuration files."
             )
 
@@ -97,7 +100,7 @@ class BaseToolAuthentication:
         try:
             auth.access_token
             auth.refresh_token
-        except:
+        except Exception():
             # Retrieval failed, delete existing Auth
             tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
             return True

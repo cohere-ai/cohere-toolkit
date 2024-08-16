@@ -8,7 +8,6 @@ from backend.tests.unit.factories.model import ModelFactory
 
 
 class AgentDeploymentModelFactory(BaseFactory):
-
     class Meta:
         model = AgentDeploymentModel
 
