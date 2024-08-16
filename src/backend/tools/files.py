@@ -10,7 +10,7 @@ from backend.tools.base import BaseTool
 
 
 class FileToolsArtifactTypes(StrEnum):
-    local_file = "local_file"
+    local_file = "file"
 
 
 def compass_file_search(
