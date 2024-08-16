@@ -16,7 +16,7 @@ from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.context import Context
-from backend.schemas.file import File
+from backend.schemas.file import File, ConversationFilePublic
 from backend.services import utils
 from backend.services.agent import validate_agent_exists
 from backend.services.compass import Compass
@@ -662,11 +662,11 @@ async def insert_files_in_db(
 
 def attach_conversation_id_to_files(
     conversation_id: str, files: list[FileModel]
-) -> list[File]:
+) -> list[ConversationFilePublic]:
     results = []
     for file in files:
         results.append(
-            File(
+            ConversationFilePublic(
                 id=file.id,
                 conversation_id=conversation_id,
                 file_name=file.file_name,

@@ -20,16 +20,26 @@ class File(BaseModel):
         from_attributes = True
 
 
-class ConversationFilePublic(File):
-    user_id: Optional[str] = Field(exclude=True)
-    file_content: Optional[str] = Field(exclude=True)
+class ConversationFilePublic(BaseModel):
+    id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    conversation_id: str
+    file_name: str
+    file_path: str
+    file_size: int = Field(default=0, ge=0)
 
 
-class AgentFilePublic(File):
-    user_id: Optional[str] = Field(exclude=True)
-    file_content: Optional[str] = Field(exclude=True)
-    conversation_id: Optional[str] = Field(exclude=True)
 
+class AgentFilePublic(BaseModel):
+    id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    file_name: str
+    file_path: str
+    file_size: int = Field(default=0, ge=0)
 
 class ListConversationFile(ConversationFilePublic):
     pass

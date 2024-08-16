@@ -526,77 +526,6 @@ def test_list_files_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
-def test_upload_file_existing_conversation(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
-) -> None:
-    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
-    conversation = get_factory("Conversation", session).create(user_id=user.id)
-    file_doc = {"file": open(file_path, "rb")}
-
-    response = session_client.post(
-        "/v1/conversations/upload_file",
-        headers={"User-Id": conversation.user_id},
-        files=file_doc,
-        data={"conversation_id": conversation.id},
-    )
-
-    file = response.json()
-    assert response.status_code == 200
-    files = get_file_service().get_files_by_conversation_id(
-        session, conversation.user_id, conversation.id, MagicMock()
-    )
-    assert len(files) == 1
-    assert "Mariana_Trench" in file["file_name"]
-    assert conversation.file_ids == [file["id"]]
-
-
-def test_upload_file_nonexistent_conversation_creates_new_conversation(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
-) -> None:
-    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
-    file_doc = {"file": open(file_path, "rb")}
-
-    response = session_client.post(
-        "/v1/conversations/upload_file", files=file_doc, headers={"User-Id": user.id}
-    )
-    assert response.status_code == 200
-
-    file = response.json()
-
-    conversation_file_association = (
-        session.query(ConversationFileAssociation)
-        .filter_by(file_id=file.get("id"))
-        .first()
-    )
-    created_conversation = (
-        session.query(Conversation)
-        .filter_by(id=conversation_file_association.conversation_id)
-        .first()
-    )
-
-    files = get_file_service().get_files_by_conversation_id(
-        session, created_conversation.user_id, created_conversation.id, MagicMock()
-    )
-    assert len(files) == 1
-    assert "Mariana_Trench" in file["file_name"]
-    assert created_conversation.file_ids == [file["id"]]
-    assert created_conversation is not None
-    assert created_conversation.user_id == user.id
-    assert conversation_file_association is not None
-
-
-def test_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
-) -> None:
-    file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
-    file_doc = {"file": open(file_path, "rb")}
-
-    response = session_client.post("/v1/conversations/upload_file", files=file_doc)
-
-    assert response.status_code == 401
-    assert response.json() == {"detail": "User-Id required in request headers."}
-
-
 def test_batch_upload_file_existing_conversation(
     session_client: TestClient, session: Session, user, mock_compass_settings
 ) -> None:
@@ -777,7 +706,7 @@ def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provide
         for file_name, file_path in file_paths.items()
     ]
 
-    response = session_client.post("/v1/conversations/upload_file", files=files)
+    response = session_client.post("/v1/conversations/batch_upload_file", files=files)
 
     assert response.status_code == 401
     assert response.json() == {"detail": "User-Id required in request headers."}
