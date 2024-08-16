@@ -123,3 +123,7 @@ test-db:
 .PHONY: dev-sync
 dev-sync:
 	@docker compose up --build sync_worker sync_publisher flower -d
+
+.PHONY: generate-openapi
+generate-openapi:
+	poetry run python src/backend/scripts/openapi.py
