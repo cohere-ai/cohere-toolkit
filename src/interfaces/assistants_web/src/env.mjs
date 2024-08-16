@@ -10,6 +10,7 @@ const readVariable = (key) => {
 export const env = createEnv({
   server: {
     API_HOSTNAME: z.string().default('http://backend:8000'),
+    CABRON_AI_API_KEY: z.string(),
   },
   client: {
     NEXT_PUBLIC_API_HOSTNAME: z.string().default('http://localhost:8000'),
@@ -25,6 +26,7 @@ export const env = createEnv({
   },
   runtimeEnv: {
     API_HOSTNAME: process.env.API_HOSTNAME,
+    CABRON_AI_API_KEY: process.env.CABRON_AI_API_KEY,
     NEXT_PUBLIC_API_HOSTNAME: readVariable('NEXT_PUBLIC_API_HOSTNAME'),
     NEXT_PUBLIC_FRONTEND_HOSTNAME: readVariable('NEXT_PUBLIC_FRONTEND_HOSTNAME'),
     NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: readVariable('NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID'),

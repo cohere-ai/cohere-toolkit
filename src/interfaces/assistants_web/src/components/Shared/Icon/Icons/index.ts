@@ -8,6 +8,7 @@ export * from './ArrowUp';
 export * from './ArrowUpRight';
 export * from './BookOpenText';
 export * from './Calculator';
+export * from './Carbon';
 export * from './ChatCircleDots';
 export * from './Checkmark';
 export * from './ChevronDown';

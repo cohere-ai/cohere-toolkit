@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   BookOpenText,
   Calculator,
+  Carbon,
   ChatCircleDots,
   Checkmark,
   ChevronDown,
@@ -69,6 +70,7 @@ export const IconList = [
   'arrow-up',
   'book-open-text',
   'calculator',
+  'carbon',
   'chat-circle-dots',
   'checkmark',
   'chevron-down',
@@ -194,6 +196,11 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
     ['calculator']: (
       <AccessibleIcon label="Calculator">
         <Calculator />
+      </AccessibleIcon>
+    ),
+    ['carbon']: (
+      <AccessibleIcon label="Carbon">
+        <Carbon />
       </AccessibleIcon>
     ),
     ['chat-circle-dots']: (

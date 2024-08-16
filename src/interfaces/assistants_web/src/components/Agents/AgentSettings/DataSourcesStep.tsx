@@ -1,10 +1,13 @@
+import { CarbonConnect, IntegrationName } from 'carbon-connect';
 import { uniqBy } from 'lodash';
 import Link from 'next/link';
 import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
 
+import { createTokenFetcher } from '@/api/carbon';
 import { Button, Icon, IconName, Spinner, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useBatchUploadFile } from '@/hooks/files';
+import { useSession } from '@/hooks/session';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 
@@ -27,6 +30,8 @@ export const DataSourcesStep: React.FC<Props> = ({
   setGoogleFiles,
   setDefaultUploadFiles,
 }) => {
+  const { userId } = useSession();
+  const tokenFetcher = createTokenFetcher(userId);
   const { mutateAsync: batchUploadFiles, status: batchUploadStatus } = useBatchUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -126,6 +131,35 @@ export const DataSourcesStep: React.FC<Props> = ({
             batchUploadStatus,
             handleOpenFileExplorer
           )}
+        <CarbonConnect
+          orgName="Cohere"
+          brandIcon="https://cdn.sanity.io/images/rjtqmwfu/production/ae020d94b599cc453cc09ebc80be06d35d953c23-102x18.svg"
+          loadingIconColor="#ffffff"
+          tokenFetcher={tokenFetcher}
+          allowMultipleFiles={true}
+          enabledIntegrations={[
+            {
+              id: IntegrationName.GOOGLE_DRIVE,
+            },
+            {
+              id: IntegrationName.ONEDRIVE,
+            },
+            {
+              id: IntegrationName.DROPBOX,
+            },
+            {
+              id: IntegrationName.SHAREPOINT,
+            },
+          ]}
+          onSuccess={(data) => {
+            console.log('CarbonConnect success', data);
+          }}
+          onError={(error) => {
+            console.error('CarbonConnect error', error);
+          }}
+        >
+          <Button kind="outline" theme="mushroom" icon="carbon" label="Carbon" />
+        </CarbonConnect>
       </div>
       <Text styleAs="caption" className="dark:text-marble-800">
         Don&lsquo;t see the data source you need? {/* TODO: get tool request link from Elaine */}
