@@ -56,13 +56,13 @@ def agents():
 def users():
     print("running users")
     # # List Users
-    res = requests.get(f"{base_url}/users", headers=headers)
+    response = requests.get(f"{base_url}/users", headers=headers)
     print(response.status_code)
     # # Get User
-    res = requests.get(f"{base_url}/users/{user_id}", headers=headers)
+    response = requests.get(f"{base_url}/users/{user_id}", headers=headers)
     print(response.status_code)
     # # Update User
-    res = requests.put(
+    response = requests.put(
         f"{base_url}/users/{user_id}", headers=headers, json={"fullname": "new name"}
     )
     print(response.status_code)

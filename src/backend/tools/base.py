@@ -8,8 +8,10 @@ from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.cache import cache_get_dict, cache_put
+from backend.services.logger.utils import LoggerFactory
 from fastapi import Request
 
+logger = LoggerFactory().get_logger()
 
 class BaseTool:
     """
