@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.config.routers import RouterName
 from backend.crud import user as user_crud
@@ -9,19 +9,12 @@ from backend.schemas.metrics import MetricsMessageType
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 from backend.schemas.user import User as UserSchema
 from backend.services.context import get_context
-from backend.services.request_validators import validate_create_update_user_request
 
 router = APIRouter(prefix="/v1/users")
 router.name = RouterName.USER
 
 
-@router.post(
-    "",
-    response_model=User,
-    dependencies=[
-        Depends(validate_create_update_user_request),
-    ],
-)
+@router.post("", response_model=User)
 async def create_user(
     user: CreateUser,
     session: DBSessionDep,
@@ -49,10 +42,7 @@ async def create_user(
     return db_user
 
 
-@router.get(
-    "",
-    response_model=list[User],
-)
+@router.get("", response_model=list[User])
 async def list_users(
     *,
     offset: int = 0,
@@ -107,17 +97,12 @@ async def get_user(
     return user
 
 
-@router.put(
-    "/{user_id}",
-    response_model=User,
-    dependencies=[
-        Depends(validate_create_update_user_request),
-    ],
-)
+@router.put("/{user_id}", response_model=User)
 async def update_user(
     user_id: str,
     new_user: UpdateUser,
     session: DBSessionDep,
+    request: Request,
     ctx: Context = Depends(get_context),
 ) -> User:
     """
@@ -127,6 +112,7 @@ async def update_user(
         user_id (str): User ID.
         new_user (UpdateUser): New user data.
         session (DBSessionDep): Database session.
+        request (Request): Request object.
         ctx (Context): Context object
 
     Returns:
