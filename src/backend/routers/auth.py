@@ -279,9 +279,9 @@ async def tool_auth(
         cache_key = state["key"]
         tool_auth_cache = cache_get_dict(cache_key)
 
-        # Get optional frontend redirect suffix
-        frontend_redirect = state.get("frontend_redirect", "")
-        redirect_uri = f"{redirect_uri}{frontend_redirect}"
+        # Get optional frontend redirect
+        if "frontend_redirect" in state:
+            redirect_uri = state["frontend_redirect"]
     except Exception as e:
         log_and_redirect_err(str(e))
 
