@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.config.deployments import ModelDeploymentName
+
 from backend.database_models.user import User
 from backend.tests.unit.model_deployments.mock_deployments import (
     MockSageMakerDeployment,
