@@ -296,13 +296,19 @@ This will delete the existing `db` container volumes, restart the containers and
 
 ### Testing the Toolkit
 
-Run:
+Install the Python dependencies:
 
 ```bash
-make dev
+make install
 ```
 
-To spin the `test_db` service for you. After, you can run:
+Spin up the Test DB required by the tests:
+
+```bash
+make test-db
+```
+
+Run the tests:
 
 ```bash
 make run-tests

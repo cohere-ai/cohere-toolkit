@@ -16,7 +16,7 @@ down:
 
 .PHONY: run-unit-tests
 run-unit-tests:
-	docker compose run --build backend poetry run pytest src/backend/tests/unit/$(file)
+	poetry run pytest src/backend/tests/unit --cov=src/backend --cov-report=xml
 
 .PHONY: run-community-tests
 run-community-tests:
@@ -59,9 +59,13 @@ reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db
 
+.PHONY: install
+install:
+	poetry install --verbose --with dev
+
 .PHONY: setup
 setup:
-	poetry install --with setup --verbose
+	poetry install --with setup,dev --verbose
 	poetry run python3 src/backend/cli/main.py
 
 .PHONY: setup-use-community
@@ -109,6 +113,12 @@ install-web:
 .PHONY: build-web
 build-web:
 	cd src/interfaces/coral_web && npm run build
+
+.PHONY: test-db
+test-db:
+	docker compose stop test_db
+	docker compose rm -f test_db
+	docker compose up test_db -d
 
 .PHONY: dev-sync
 dev-sync:
