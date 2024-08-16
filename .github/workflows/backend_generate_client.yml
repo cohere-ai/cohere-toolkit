@@ -39,7 +39,7 @@ jobs:
         run: make generate-openapi-schema
       - name: Set up Node.js and install dependencies
         uses: ./.github/actions/js-install
-      - name: Check assistants_web is formatted
-        run: npm run format
+      - name: Generate web client
+        run: make generate-client-web
       - name: Check if there are changes
         run: git diff --exit-code
