@@ -63,14 +63,7 @@ export const useGetSnapshotByLinkId = (linkId: string) => {
   const client = useCohereClient();
   return useQuery<GetSnapshotV1SnapshotsLinkLinkIdGetResponse, Error>({
     queryKey: ['getSnapshotByLinkId', linkId],
-    queryFn: async () => {
-      try {
-        return await client.getSnapshot({ linkId });
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
-    },
+    queryFn: () => client.getSnapshot({ linkId }),
   });
 };
 

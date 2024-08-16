@@ -9,7 +9,6 @@ import {
   FinishReason,
   StreamEnd,
   StreamEvent,
-  StreamToolCallsChunk,
   StreamToolCallsGeneration,
   isCohereNetworkError,
   isStreamError,
@@ -94,7 +93,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   } = useFilesStore();
   const queryClient = useQueryClient();
 
-  const currentConversationId = id || composerFiles[0]?.conversation_id;
+  const currentConversationId = id || composerFiles[0]?.conversation_id || '';
 
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -254,6 +253,8 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 mapDocuments(documents);
               documentsMap = { ...documentsMap, ...newDocumentsMap };
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
+              saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
+
               // we are only interested in web_search results
               // ignore search results of pyhton interpreter tool
               if (
@@ -272,7 +273,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
             case StreamEvent.TOOL_CALLS_CHUNK: {
               setIsStreamingToolEvents(true);
-              const data = eventData.data as StreamToolCallsChunk;
+              const data = eventData.data;
 
               // Initiate an empty tool event if one doesn't already exist at the current index
               const toolEvent: StreamToolCallsGeneration = toolEvents[currentToolEventIndex] ?? {
@@ -338,7 +339,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
 
             case StreamEvent.TOOL_CALLS_GENERATION: {
-              const data = eventData.data as StreamToolCallsGeneration;
+              const data = eventData.data;
 
               if (toolEvents[currentToolEventIndex]) {
                 toolEvents[currentToolEventIndex] = data;

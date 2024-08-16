@@ -204,3 +204,19 @@ def mock_available_model_deployments(request):
 
     with patch.dict(AVAILABLE_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
         yield mock
+
+
+@pytest.fixture
+def mock_compass_settings():
+    with patch("backend.services.file.Settings") as MockSettings:
+        mock_settings = MockSettings.return_value
+        mock_settings.feature_flags.use_compass_file_storage = os.getenv(
+            "ENABLE_COMPASS_FILE_STORAGE", "False"
+        ).lower() in ("true", "1")
+        mock_settings.tools.compass.api_url = os.getenv("COHERE_COMPASS_API_URL")
+        mock_settings.tools.compass.api_parser_url = os.getenv(
+            "COHERE_COMPASS_API_PARSER_URL"
+        )
+        mock_settings.tools.compass.username = os.getenv("COHERE_COMPASS_USERNAME")
+        mock_settings.tools.compass.password = os.getenv("COHERE_COMPASS_PASSWORD")
+        yield mock_settings

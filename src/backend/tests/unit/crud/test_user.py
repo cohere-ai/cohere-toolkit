@@ -1,6 +1,6 @@
 from backend.crud import user as user_crud
 from backend.database_models.user import User
-from backend.schemas.user import DEFAULT_USER_NAME, UpdateUser
+from backend.schemas.user import UpdateUser
 from backend.tests.unit.factories import get_factory
 
 

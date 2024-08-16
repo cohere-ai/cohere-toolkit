@@ -82,9 +82,7 @@ export const useDeleteConversation = () => {
     onSettled: (_, _err, { conversationId }: { conversationId: string }) => {
       queryClient.setQueriesData<ConversationPublic[]>(
         { queryKey: ['conversations'] },
-        (oldConversations) => {
-          return oldConversations?.filter((c) => c.id === conversationId);
-        }
+        (oldConversations) => oldConversations?.filter((c) => c.id !== conversationId)
       );
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },

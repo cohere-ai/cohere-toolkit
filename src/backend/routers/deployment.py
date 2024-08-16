@@ -3,16 +3,15 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.routers import RouterName
 from backend.crud import deployment as deployment_crud
-from backend.database_models import Deployment
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
-from backend.schemas.deployment import DeleteDeployment
-from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.deployment import (
+    DeleteDeployment,
     DeploymentCreate,
     DeploymentUpdate,
     UpdateDeploymentEnv,
 )
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.services.context import get_context
 from backend.services.env import update_env_file
 from backend.services.request_validators import (
@@ -131,13 +130,14 @@ def list_deployments(
     # No available deployments
     if not available_deployments:
         logger.warning(
-            event=f"[Deployment] No deployments available to list.",
+            event="[Deployment] No deployments available to list.",
         )
         raise HTTPException(
             status_code=404,
             detail=(
-                "No available deployments found. Please ensure that the required environment variables are set up correctly."
-                " Refer to the README.md for detailed instructions.",
+                "No available deployments found. Please ensure that the required variables in your configuration.yaml "
+                "and secrets.yaml are set up correctly. "
+                "Refer to the README.md for detailed instructions.",
             ),
         )
 

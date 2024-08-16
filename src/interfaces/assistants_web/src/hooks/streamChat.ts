@@ -85,7 +85,6 @@ export const useStreamChat = () => {
           headers,
           signal: abortControllerRef.current.signal,
           onMessage: (event: EventSourceMessage) => {
-            console.log({ event })
             try {
               if (!event.data) return;
               const data = JSON.parse(event.data);
@@ -120,7 +119,7 @@ export const useStreamChat = () => {
           },
         };
 
-          await cohereClient.chat({ ...chatStreamParams });
+        await cohereClient.chat({ ...chatStreamParams });
       } catch (e) {
         if (isUnauthorizedError(e)) {
           await queryClient.invalidateQueries({ queryKey: ['defaultAPIKey'] });

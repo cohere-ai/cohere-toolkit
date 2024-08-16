@@ -1,8 +1,6 @@
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import Model
 from backend.tests.unit.factories import get_factory
 
@@ -85,7 +83,7 @@ def test_get_model(session_client: TestClient, session: Session, deployment) -> 
 
 
 def test_get_model_non_existing(session_client: TestClient, session: Session) -> None:
-    response = session_client.get(f"/v1/models/non-existing-id")
+    response = session_client.get("/v1/models/non-existing-id")
     assert response.status_code == 404
     response_json = response.json()
     assert "Model not found" in response_json["detail"]
