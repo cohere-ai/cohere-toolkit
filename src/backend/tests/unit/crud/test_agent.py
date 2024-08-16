@@ -5,6 +5,7 @@ from backend.database_models.agent import Agent
 from backend.schemas.agent import AgentVisibility, UpdateAgentRequest
 from backend.tests.unit.factories import get_factory
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql.expression import false
 
 
 def test_create_agent(session, user):
@@ -53,7 +54,7 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.preamble == ""
     assert agent.temperature == 0.3
     assert agent.tools == []
-    assert agent.is_private
+    assert agent.is_private == false()
     agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
     assert agent.user_id == user.id
     assert agent.version == 1

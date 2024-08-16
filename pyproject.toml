@@ -122,3 +122,8 @@ reportMissingTypeStubs = false
 
 [tool.ruff.lint.flake8-type-checking]
 strict = true
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
