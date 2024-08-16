@@ -1,5 +1,7 @@
 import asyncio
-from typing import Optional
+import json
+import pickle
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
@@ -29,6 +31,7 @@ from backend.schemas.agent import (
     DeleteAgentToolMetadata,
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
+    AgentTaskResponse,
 )
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
@@ -244,9 +247,6 @@ async def get_agent_by_id(
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-    
-    get_agent_tasks_by_agent_id(session, agent_id)
-
     return agent
 
 
@@ -278,22 +278,37 @@ async def get_agent_deployments(
     ]
 
 
+def parse_task(t) -> AgentTaskResponse:
+    result = None
+    try:
+        result = pickle.loads(t.result)
+    except Exception as e:
+        pass
+    return AgentTaskResponse(
+        task_id=t.task_id,
+        status=t.status,
+        name=t.name,
+        retries=t.retries,
+        result=result,
+        # date_done=t.date_done
+    )
+
+
 @router.get(
     "/{agent_id}/tasks",
+    response_model=List[AgentTaskResponse],
     dependencies=[
         Depends(validate_user_header),
-        Depends(validate_update_agent_request),
     ],
 )
-async def update_agent(
+async def get_agent_tasks(
     agent_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-):
-    ls = get_agent_tasks_by_agent_id(session, agent_id)
-    logger = ctx.get_logger()
-    logger.exception(event=ls)
-    return ls
+) -> List[AgentTaskResponse]:
+    raw_tasks = get_agent_tasks_by_agent_id(session, agent_id)
+    tasks = [parse_task(t) for t in raw_tasks]
+    return tasks
 
 
 @router.put(
