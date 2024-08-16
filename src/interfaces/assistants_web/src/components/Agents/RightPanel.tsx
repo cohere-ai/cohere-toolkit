@@ -10,7 +10,7 @@ import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useFileActions, useListFiles } from '@/hooks/files';
+import { useConversationFileActions, useListFiles } from '@/hooks/files';
 import { useSession } from '@/hooks/session';
 import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
@@ -31,7 +31,7 @@ const RightPanel: React.FC<Props> = () => {
   } = useParamsStore();
   const session = useSession();
   const { data: files } = useListFiles(conversationId);
-  const { deleteFile } = useFileActions();
+  const { deleteFile } = useConversationFileActions();
 
   const agentToolMetadataArtifacts = useMemo(() => {
     if (!agent) {

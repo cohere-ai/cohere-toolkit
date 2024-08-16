@@ -26,24 +26,23 @@ export const useListFiles = (conversationId?: string, options?: { enabled?: bool
   });
 };
 
-export const useUploadFile = () => {
+export const useBatchUploadAgentFile = () => {
   const cohereClient = useCohereClient();
 
   return useMutation({
-    mutationFn: ({ file, conversationId }: { file: File; conversationId?: string }) =>
-      cohereClient.uploadFile({ file, conversation_id: conversationId }),
+    mutationFn: ({ files }: { files: File[] }) => cohereClient.batchUploadAgentFile({ files }),
   });
 };
 
-export const useBatchUploadFile = () => {
+export const useBatchUploadConversationFile = () => {
   const cohereClient = useCohereClient();
   return useMutation({
     mutationFn: ({ files, conversationId }: { files: File[]; conversationId?: string }) =>
-      cohereClient.batchUploadFile({ files, conversation_id: conversationId }),
+      cohereClient.batchUploadConversationFile({ files, conversation_id: conversationId }),
   });
 };
 
-export const useDeleteUploadedFile = () => {
+export const useDeleteUploadedConversationFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
@@ -56,7 +55,7 @@ export const useDeleteUploadedFile = () => {
   });
 };
 
-export const useFileActions = () => {
+export const useConversationFileActions = () => {
   const {
     files: { uploadingFiles, composerFiles },
     addUploadingFiles,
@@ -70,8 +69,8 @@ export const useFileActions = () => {
     params: { fileIds },
     setParams,
   } = useParamsStore();
-  const { mutateAsync: uploadFiles } = useBatchUploadFile();
-  const { mutateAsync: deleteFile } = useDeleteUploadedFile();
+  const { mutateAsync: uploadFiles } = useBatchUploadConversationFile();
+  const { mutateAsync: deleteFile } = useDeleteUploadedConversationFile();
   const { error } = useNotify();
   const { setConversation } = useConversationStore();
 
@@ -143,7 +142,7 @@ export const useFileActions = () => {
         addComposerFile(uploadedFile);
       });
 
-      if (!conversationId) {
+      if (!conversationId && uploadedFiles[0].conversation_id) {
         setConversation({ id: uploadedFiles[0].conversation_id });
       }
 

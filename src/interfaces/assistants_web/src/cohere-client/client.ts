@@ -1,6 +1,7 @@
 import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import {
+  Body_batch_upload_file_v1_agents_batch_upload_file_post,
   Body_batch_upload_file_v1_conversations_batch_upload_file_post,
   Body_upload_file_v1_conversations_upload_file_post,
   CohereChatRequest,
@@ -57,8 +58,16 @@ export class CohereClient {
     });
   }
 
-  public batchUploadFile(formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post) {
+  public batchUploadConversationFile(
+    formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post
+  ) {
     return this.cohereService.default.batchUploadFileV1ConversationsBatchUploadFilePost({
+      formData,
+    });
+  }
+
+  public batchUploadAgentFile(formData: Body_batch_upload_file_v1_agents_batch_upload_file_post) {
+    return this.cohereService.default.batchUploadFileV1AgentsBatchUploadFilePost({
       formData,
     });
   }

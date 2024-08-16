@@ -4,7 +4,7 @@ import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
 
 import { Button, Icon, IconName, Spinner, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
-import { useBatchUploadFile } from '@/hooks/files';
+import { useBatchUploadAgentFile } from '@/hooks/files';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 
@@ -27,7 +27,7 @@ export const DataSourcesStep: React.FC<Props> = ({
   setGoogleFiles,
   setDefaultUploadFiles,
 }) => {
-  const { mutateAsync: batchUploadFiles, status: batchUploadStatus } = useBatchUploadFile();
+  const { mutateAsync: batchUploadFiles, status: batchUploadStatus } = useBatchUploadAgentFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleRemoveGoogleDriveFile = (id: string) => {

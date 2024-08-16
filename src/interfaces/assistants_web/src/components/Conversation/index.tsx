@@ -8,7 +8,7 @@ import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { useChat } from '@/hooks/chat';
-import { useFileActions } from '@/hooks/files';
+import { useConversationFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useConversationStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -26,7 +26,7 @@ type Props = {
  * composer, and the citation panel.
  */
 const Conversation: React.FC<Props> = ({ agent, tools, startOptionsEnabled = false }) => {
-  const { uploadFiles } = useFileActions();
+  const { uploadFiles } = useConversationFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
   const {
     conversation: { messages, id: conversationId },
