@@ -136,7 +136,8 @@ wandb/
 secrets.toml
 
 # VScode settings
-.vscode/
+.vscode/*
+!.vscode/settings.default.json
 
 .DS_Store
 
