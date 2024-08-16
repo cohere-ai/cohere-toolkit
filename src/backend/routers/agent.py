@@ -279,18 +279,13 @@ async def get_agent_deployments(
 
 
 def parse_task(t) -> AgentTaskResponse:
-    result = None
-    try:
-        result = pickle.loads(t.result)
-    except Exception as e:
-        pass
     return AgentTaskResponse(
         task_id=t.task_id,
         status=t.status,
         name=t.name,
         retries=t.retries,
-        result=result,
-        # date_done=t.date_done
+        result=pickle.loads(t.result) if t.result else None,
+        date_done=str(t.date_done)
     )
 
 

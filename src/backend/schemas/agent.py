@@ -114,7 +114,7 @@ class AgentTaskResponse(BaseModel):
     task_id: str
     status: str
     result: Optional[Dict[str, Any]] = None
-    # date_done: str
+    date_done: str
     # traceback: str
     name: str
     # args: bytes
