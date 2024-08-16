@@ -26,7 +26,7 @@ def test_list_conversations_empty(session_client: TestClient, user) -> None:
 
 
 def test_list_conversations(session_client: TestClient, session: Session, user) -> None:
-    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get("/v1/conversations", headers={"User-Id": user.id})
     results = response.json()
 
@@ -169,7 +169,7 @@ def test_fail_get_nonexistent_conversation(
     response = session_client.get("/v1/conversations/123", headers={"User-Id": user.id})
 
     assert response.status_code == 404
-    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}
+    assert response.json() == {"detail": "Conversation with ID: 123 not found."}
 
 
 def test_update_conversation_title(
@@ -240,7 +240,7 @@ def test_fail_update_nonexistent_conversation(
     )
 
     assert response.status_code == 404
-    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}
+    assert response.json() == {"detail": "Conversation with ID: 123 not found."}
 
 
 def test_update_conversations_missing_user_id(
@@ -248,7 +248,7 @@ def test_update_conversations_missing_user_id(
     session: Session,
     user: User,
 ) -> None:
-    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get("/v1/conversations")
     results = response.json()
 
@@ -291,7 +291,7 @@ def test_fail_delete_nonexistent_conversation(
     )
 
     assert response.status_code == 404
-    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}
+    assert response.json() == {"detail": "Conversation with ID: 123 not found."}
 
 
 def test_delete_conversation_with_files(
@@ -456,9 +456,7 @@ def test_search_conversations_missing_user_id(
     session: Session,
     user: User,
 ) -> None:
-    conversation = get_factory("Conversation", session).create(
-        title="test title", user_id=user.id
-    )
+    get_factory("Conversation", session).create(title="test title", user_id=user.id)
     response = session_client.get("/v1/conversations:search", params={"query": "test"})
     results = response.json()
 
@@ -623,9 +621,7 @@ def test_batch_upload_file_existing_conversation(
     assert response.status_code == 200
     assert len(files) == len(file_paths)
     uploaded_file_names = [file["file_name"] for file in files]
-    assert (
-        all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
-    )
+    assert all(file_name in uploaded_file_names for file_name in file_paths.keys())
     for file in files:
         conversation_file_association = (
             session.query(ConversationFileAssociation)
@@ -745,9 +741,7 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
     assert created_conversation is not None
     assert len(files) == len(file_paths)
     uploaded_file_names = [file["file_name"] for file in uploaded_files]
-    assert (
-        all(file_name in uploaded_file_names for file_name in file_paths.keys()) == True
-    )
+    assert all(file_name in uploaded_file_names for file_name in file_paths.keys())
 
     for file in uploaded_files:
         conversation_file_association = (
@@ -846,7 +840,7 @@ def test_fail_delete_nonexistent_file(
     )
 
     assert response.status_code == 404
-    assert response.json() == {"detail": f"File with ID: 123 not found."}
+    assert response.json() == {"detail": "File with ID: 123 not found."}
 
 
 def test_fail_delete_file_missing_user_id(

@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException
 
 from backend.config.routers import RouterName
 from backend.crud import model as model_crud
 from backend.database_models import Model
 from backend.database_models.database import DBSessionDep
-from backend.schemas.model import DeleteModel
+from backend.schemas.model import DeleteModel, ModelCreate, ModelUpdate
 from backend.schemas.model import Model as ModelSchema
-from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.services.request_validators import validate_create_update_model_request
 
 router = APIRouter(

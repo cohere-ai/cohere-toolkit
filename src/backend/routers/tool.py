@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Request
 
 from backend.config.routers import RouterName
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.crud import agent as agent_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
 from backend.schemas.tool import ManagedTool

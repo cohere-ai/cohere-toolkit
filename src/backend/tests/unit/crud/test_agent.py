@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql.expression import false
 
-from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
@@ -29,7 +29,7 @@ def test_create_agent(session, user):
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
     assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
-    assert agent.is_private == True
+    assert agent.is_private
 
     agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
     assert agent.user_id == user.id
@@ -55,8 +55,7 @@ def test_create_agent_empty_non_required_fields(session, user):
     assert agent.preamble == ""
     assert agent.temperature == 0.3
     assert agent.tools == []
-    assert agent.is_private == False
-
+    assert agent.is_private == false()
     agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
     assert agent.user_id == user.id
     assert agent.version == 1
@@ -289,7 +288,7 @@ def test_get_agents_by_user_id(session, user):
     agent = get_factory("Agent", session).create(user=user)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModel", session).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -309,7 +308,7 @@ def test_get_agents_by_organization_id(session):
     agent = get_factory("Agent", session).create(user=user, organization=organization)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModel", session).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -350,7 +349,7 @@ def test_delete_agent_model_deployment_association(session):
     agent = get_factory("Agent", session).create(user=user, organization=organization)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModel", session).create(
+    _ = get_factory("AgentDeploymentModel", session).create(
         agent=agent,
         deployment=deployment,
         model=model,

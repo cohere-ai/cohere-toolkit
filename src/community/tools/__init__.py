@@ -14,4 +14,7 @@ __all__ = [
     "ConnectorRetriever",
     "LlamaIndexUploadPDFRetriever",
     "PubMedRetriever",
+    "Category",
+    "ManagedTool",
+    "BaseTool",
 ]
