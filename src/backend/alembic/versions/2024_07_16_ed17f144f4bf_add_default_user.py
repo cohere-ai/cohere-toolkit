@@ -11,7 +11,8 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-from src.backend.schemas.user import DEFAULT_USER_ID, DEFAULT_USER_NAME
+DEFAULT_USER_ID = "user-id"
+DEFAULT_USER_NAME = "Default User"
 
 # revision identifiers, used by Alembic.
 revision: str = "ed17f144f4bf"
