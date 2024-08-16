@@ -28,7 +28,9 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
   const { data: toolsData } = useListTools();
   const { info } = useNotify();
 
-  if (window.google?.picker === undefined) {
+  const googlePicker = window.google?.picker;
+
+  if (googlePicker === undefined) {
     return;
   }
 
@@ -48,18 +50,18 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
     };
   }
 
-  const defaultView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+  const defaultView = new googlePicker.DocsView(googlePicker.ViewId.DOCS)
     .setIncludeFolders(true)
     .setSelectFolderEnabled(true)
-    .setMode(google.picker.DocsViewMode.LIST);
+    .setMode(googlePicker.DocsViewMode.LIST);
 
-  const myFilesView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+  const myFilesView = new googlePicker.DocsView(googlePicker.ViewId.DOCS)
     .setOwnedByMe(true)
     .setSelectFolderEnabled(true)
     .setIncludeFolders(true)
-    .setMode(google.picker.DocsViewMode.LIST);
+    .setMode(googlePicker.DocsViewMode.LIST);
 
-  const sharedView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+  const sharedView = new googlePicker.DocsView(googlePicker.ViewId.DOCS)
     .setEnableDrives(true)
     .setIncludeFolders(true)
     .setSelectFolderEnabled(true)
