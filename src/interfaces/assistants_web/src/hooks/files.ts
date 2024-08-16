@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ApiError, DeleteFileResponse, ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
-import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
@@ -71,7 +70,6 @@ export const useFileActions = () => {
     params: { fileIds },
     setParams,
   } = useParamsStore();
-  const { userId } = useSession();
   const { mutateAsync: uploadFiles } = useBatchUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
@@ -142,14 +140,11 @@ export const useFileActions = () => {
       uploadedFiles.forEach((uploadedFile) => {
         newFileIds.push(uploadedFile.id);
         setParams({ fileIds: newFileIds });
-        addComposerFile({ ...uploadedFile, user_id: userId });
+        addComposerFile(uploadedFile);
       });
 
       if (!conversationId) {
-        const newConversationId = uploadedFiles[0].conversation_id;
-        if (newConversationId) {
-          setConversation({ id: newConversationId });
-        }
+        setConversation({ id: uploadedFiles[0].conversation_id });
       }
 
       return newFileIds;

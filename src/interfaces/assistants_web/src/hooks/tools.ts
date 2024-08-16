@@ -1,9 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
-import { AgentPublic, ApiError, ManagedTool, useCohereClient } from '@/cohere-client';
+import { AgentPublic, ManagedTool, useCohereClient } from '@/cohere-client';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks/toast';
@@ -123,17 +123,4 @@ export const useAvailableTools = ({
     unauthedTools,
     handleToggle,
   };
-};
-
-export const useDeleteAuthTool = () => {
-  const client = useCohereClient();
-  const queryClient = useQueryClient();
-  return useMutation<void, ApiError, string>({
-    mutationFn: async (toolId) => {
-      await client.deleteAuthTool({ toolId });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tools'] });
-    }
-  });
 };

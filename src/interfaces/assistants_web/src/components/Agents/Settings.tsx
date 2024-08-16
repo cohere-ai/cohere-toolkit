@@ -5,8 +5,7 @@ import { PropsWithChildren, useState } from 'react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { MobileHeader } from '@/components/MobileHeader';
 import { Button, Icon, Tabs, Text } from '@/components/Shared';
-import { useNotify } from '@/hooks/toast';
-import { useDeleteAuthTool, useListTools } from '@/hooks/tools';
+import { useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
 
 const tabs = [
@@ -98,21 +97,11 @@ const Appearance = () => {
 
 const GoogleDriveConnection = () => {
   const { data } = useListTools();
-  const { mutateAsync: deleteAuthTool } = useDeleteAuthTool();
-  const notify = useNotify();
   const googleDriveTool = data?.find((tool) => tool.name === 'google_drive');
 
   if (!googleDriveTool) {
     return null;
   }
-
-  const handleDeleteAuthTool = async () => {
-    try {
-      await deleteAuthTool(googleDriveTool.name!);
-    } catch (e) {
-      notify.error('Failed to delete Google Drive connection');
-    }
-  };
 
   const isGoogleDriveConnected = !googleDriveTool.is_auth_required ?? false;
   const authUrl = googleDriveTool.auth_url;
@@ -152,7 +141,7 @@ const GoogleDriveConnection = () => {
                 kind="secondary"
                 icon="trash"
                 theme="danger"
-                onClick={handleDeleteAuthTool}
+                onClick={() => alert('not implemented')}
               />
             </div>
           </div>
