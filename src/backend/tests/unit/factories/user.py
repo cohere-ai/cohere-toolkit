@@ -1,6 +1,5 @@
 import factory
 
-from backend.config.tools import ToolName
 from backend.database_models import User
 from backend.services.auth import BasicAuthentication
 

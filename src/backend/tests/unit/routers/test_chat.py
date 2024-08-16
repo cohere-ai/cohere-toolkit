@@ -719,7 +719,7 @@ def test_streaming_chat_user_tools_override_agent_tools(
     )
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    agent_association = get_factory("AgentDeploymentModel", session_chat).create(
+    _ = get_factory("AgentDeploymentModel", session_chat).create(
         agent=agent,
         deployment=deployment,
         model=model,
@@ -749,7 +749,7 @@ def test_streaming_chat_agent_tools_user_tools_empty(
     agent = get_factory("Agent", session_chat).create(user=user, tools=["web_search"])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    agent_association = get_factory("AgentDeploymentModel", session_chat).create(
+    _ = get_factory("AgentDeploymentModel", session_chat).create(
         agent=agent,
         deployment=deployment,
         model=model,
