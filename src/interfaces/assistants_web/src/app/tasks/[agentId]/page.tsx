@@ -26,10 +26,19 @@ const Page = ({ params }: Props) => {
     return <div>Loading...</div>;
   }
 
+  if (!agentTasks || agentTasks.length === 0) {
+    return (
+      <div className="m-12">
+        <h1 className="mb-4 mt-4 bg-slate-800 p-16 text-2xl">Tasks report for {agent?.name} </h1>
+        <h1 className="mb-4 mt-4 bg-slate-800 p-16 text-xl">No tasks yet </h1>
+      </div>
+    );
+  }
+
   return (
     <div className="m-12">
-      <h1 className="mb-4 mt-4 text-2xl bg-slate-400 p-16">Tasks report for {agent?.name}</h1>
-      <table className="table-fixed bg-slate-400 p-16 text-balance border-separate border-spacing-2 border border-slate-500 ">
+      <h1 className="mb-4 mt-4 bg-slate-800 p-16 text-2xl">Tasks report for {agent?.name} </h1>
+      <table className="table-fixed border-separate border-spacing-2  border border-r-4 border-slate-500 bg-slate-800 p-8">
         <thead className="text-xl">
           <tr>
             <th>Task ID</th>
@@ -41,11 +50,14 @@ const Page = ({ params }: Props) => {
         </thead>
         <tbody className="text">
           {(agentTasks || []).map((task) => (
-            <tr key={task.task_id}>
+            <tr
+              key={task.task_id}
+              className={task.status === 'SUCCESS' ? 'bg-inherit' : 'bg-orange-800'}
+            >
               <td>{task.task_id}</td>
               <td>{task.name}</td>
               <td>{task.status}</td>
-              <td>{JSON.stringify(task.result, null, 2)}</td>
+              <td>{task?.result ? JSON.stringify(task.result, null, 2) : ''}</td>
               <td>{task?.exception_snippet || ''}</td>
             </tr>
           ))}

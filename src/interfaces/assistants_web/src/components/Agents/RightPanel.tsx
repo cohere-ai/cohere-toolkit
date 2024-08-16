@@ -15,6 +15,7 @@ import { useSession } from '@/hooks/session';
 import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
+import Link from 'next/link';
 
 type Props = {};
 
@@ -81,6 +82,26 @@ const RightPanel: React.FC<Props> = () => {
 
   return (
     <aside className="space-y-5 py-4">
+      <Link href={`/tasks/${agentId}`}>
+        Dashboard
+        <header className="flex items-center gap-2">
+          <IconButton
+            onClick={() => setRightPanelOpen(false)}
+            iconName="arrow-right"
+            className="flex h-auto flex-shrink-0 self-center lg:hidden"
+          />
+          <Text styleAs="p-sm" className="font-medium uppercase">
+            Indexing status
+          </Text>
+          <Tooltip
+            hover
+            size="sm"
+            placement="top-start"
+            hoverDelay={250}
+            label="Check status of indexing for the current agent."
+          />
+        </header>
+      </Link>
       <header className="flex items-center gap-2">
         <IconButton
           onClick={() => setRightPanelOpen(false)}
