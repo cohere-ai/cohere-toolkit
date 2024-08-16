@@ -1,4 +1,6 @@
 import time
+from tokenize import Ignore
+import traceback
 
 from backend.config.settings import Settings
 
@@ -24,11 +26,8 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
     artifact_id = kwargs["artifact_id"]
     file_details = get_file_details(file_id=file_id, user_id=user_id, just_title=True)
     if file_details is None:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.CANCELLED.value,
-            "file_id": file_id,
-        }
+        err_msg = f"empty file details for file_id: {file_id}, agent_id: {agent_id}"
+        raise Exception(err_msg)
 
     title = file_details["title"]
     if not kwargs.get("skip_file_exists"):
@@ -39,11 +38,8 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
             title=title,
         )
         if not exists:
-            return {
-                "action": ACTION_NAME,
-                "status": Status.CANCELLED.value,
-                "file_id": file_id,
-            }
+            err_msg = f"{file_id} does not exist agent_id: {agent_id}"
+            raise Exception(err_msg)
 
     # Get file bytes, web view link, title
     file_details = get_file_details(
@@ -128,17 +124,13 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
             web_view_link=web_view_link,
         )
     except Exception as error:
-        logger.error(
-            event="Failed to create document in Compass for file",
+        logger.info(
+            event="[Google Drive Create] Errors indexing on compass",
             web_view_link=web_view_link,
+            error=str(error),
         )
-        return {
-            "action": ACTION_NAME,
-            "status": Status.FAIL.value,
-            "file_id": file_id,
-            "message": str(error),
-            **file_meta,
-        }
+        err_msg = f"Error creating file {file_id} with link: {web_view_link} on Compass: {error}"
+        raise Exception(err_msg)
 
     return {
         "action": ACTION_NAME,

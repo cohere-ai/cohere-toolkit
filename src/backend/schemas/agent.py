@@ -115,13 +115,9 @@ class AgentTaskResponse(BaseModel):
     status: str
     result: Optional[Dict[str, Any]] = None
     date_done: str
-    # traceback: str
+    exception_snippet: Optional[str] = None 
     name: str
-    # args: bytes
-    # kwargs: bytes
-    # worker: str
     retries: int
-    # queue: str
 
 
 class UpdateAgentRequest(BaseModel):
