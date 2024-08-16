@@ -9,7 +9,7 @@
     "yarn": "9999"
   },
   "scripts": {
-    "dev": "next dev --port 4444 --turbo",
+    "dev": "next dev --port 4444",
     "build": "next build",
     "lint": "next lint",
     "ts-lint": "tsc -noEmit -incremental -watch",
@@ -55,7 +55,7 @@
     "next-themes": "^0.3.0",
     "node-html-parser": "^6.1.4",
     "parse-domain": "^8.0.1",
-    "postcss": "^8.4.31",
+    "postcss": "^8.4.39",
     "postcss-viewport-height-correction": "^1.1.1",
     "react": "^18.2.0",
     "react-aria": "^3.24.0",

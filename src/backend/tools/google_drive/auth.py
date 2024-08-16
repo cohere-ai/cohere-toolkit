@@ -8,7 +8,7 @@ from fastapi import Request
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
-from backend.database_models.tool_auth import ToolAuth
+from backend.database_models.tool_auth import ToolAuth as ToolAuthModel
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
@@ -57,7 +57,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         return f"{self.AUTH_ENDPOINT}?{urllib.parse.urlencode(params)}"
 
     def try_refresh_token(
-        self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
+        self, session: DBSessionDep, user_id: str, tool_auth: ToolAuthModel
     ) -> bool:
         body = {
             "client_id": self.GOOGLE_DRIVE_CLIENT_ID,
@@ -121,7 +121,7 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         tool_auth_crud.create_tool_auth(
             session,
-            ToolAuth(
+            ToolAuthModel(
                 user_id=user_id,
                 tool_id=self.TOOL_ID,
                 token_type=response_body["token_type"],
@@ -131,6 +131,11 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
                 + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
         )
+
+    @classmethod
+    def get_tool_auth(self, session: DBSessionDep, user_id: str) -> ToolAuthModel:
+        tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
+        return tool_auth
 
     def get_token(self, session: DBSessionDep, user_id: str) -> str:
         tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)

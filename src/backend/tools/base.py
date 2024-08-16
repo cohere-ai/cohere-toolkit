@@ -69,7 +69,8 @@ class BaseToolAuthentication:
             ]
         ):
             raise ValueError(
-                f"Tool Authentication requires NEXT_PUBLIC_API_HOSTNAME, FRONTEND_HOSTNAME, and AUTH_SECRET_KEY environment variables."
+                f"Tool Authentication requires auth.backend_hostname, auth.frontend_hostname in configuration.yaml, "
+                "and auth.secret_key in the secrets.yaml configuration files."
             )
 
     @abstractmethod
@@ -117,6 +118,16 @@ class BaseToolAuthentication:
     @abstractmethod
     def get_token(self, user_id: str, session: DBSessionDep) -> Optional[str]:
         return None
+
+    def delete_tool_auth(self, session: DBSessionDep, user_id: str) -> bool:
+        try:
+            tool_auth_crud.delete_tool_auth(session, user_id, self.TOOL_ID)
+            return True
+        except Exception as e:
+            logger.error(
+                event=f"BaseToolAuthentication: Error while deleting Tool Auth: {str(e)}"
+            )
+            raise
 
 
 class ToolAuthenticationCacheMixin:

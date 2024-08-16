@@ -8,7 +8,7 @@ watch:
 
 .PHONY: up
 up:
-	@docker compose up --build
+	@docker compose up --build -d
 
 .PHONY: down
 down:
@@ -32,7 +32,7 @@ run-tests: run-unit-tests
 attach: 
 	@docker attach cohere-toolkit-backend-1
 logs: 
-	@docker compose logs -f backend
+	@@docker-compose logs --follow --tail 100 $(service)
 
 .PHONY: exec-backend
 exec-backend:
@@ -117,3 +117,7 @@ test-db:
 	docker compose stop test_db
 	docker compose rm -f test_db
 	docker compose up test_db -d
+
+.PHONY: dev-sync
+dev-sync:
+	@docker compose up --build sync_worker sync_publisher flower -d

@@ -136,8 +136,9 @@ def list_deployments(
         raise HTTPException(
             status_code=404,
             detail=(
-                "No available deployments found. Please ensure that the required environment variables are set up correctly."
-                " Refer to the README.md for detailed instructions.",
+                "No available deployments found. Please ensure that the required variables in your configuration.yaml "
+                "and secrets.yaml are set up correctly. "
+                "Refer to the README.md for detailed instructions.",
             ),
         )
 
