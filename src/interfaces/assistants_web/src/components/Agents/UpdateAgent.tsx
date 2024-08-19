@@ -1,6 +1,5 @@
 'use client';
 
-import { useLocalStorageValue } from '@react-hookz/web';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
@@ -39,14 +38,6 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
     is_private: agent.is_private,
   });
 
-  const { set: setPendingAssistant } = useLocalStorageValue<AgentSettingsFields>(
-    'pending_assistant',
-    {
-      defaultValue: fields,
-      initializeWithValue: false,
-    }
-  );
-
   const handleOpenDeleteModal = () => {
     open({
       title: `Delete ${agent.name}`,
@@ -65,7 +56,6 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
         request: { ...fields, tools_metadata },
         agentId: agent.id,
       });
-      setIsSubmitting(false);
       success(`Updated ${newAgent?.name}`);
     } catch (e) {
       setIsSubmitting(false);
@@ -94,7 +84,6 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
             fields={fields}
             setFields={setFields}
             onSubmit={handleSubmit}
-            savePendingAssistant={() => setPendingAssistant(fields)}
             agentId={agent.id}
           />
         </div>

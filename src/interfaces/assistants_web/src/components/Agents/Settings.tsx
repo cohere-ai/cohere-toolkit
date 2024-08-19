@@ -8,6 +8,7 @@ import { Button, Icon, Tabs, Text } from '@/components/Shared';
 import { useNotify } from '@/hooks/toast';
 import { useDeleteAuthTool, useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
+import { getToolAuthUrl } from '@/utils/getToolAuthUrl';
 
 const tabs = [
   <div className="flex items-center gap-2" key="company">
@@ -115,7 +116,7 @@ const GoogleDriveConnection = () => {
   };
 
   const isGoogleDriveConnected = !googleDriveTool.is_auth_required ?? false;
-  const authUrl = googleDriveTool.auth_url;
+  const authUrl = getToolAuthUrl(googleDriveTool.auth_url);
 
   return (
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
@@ -159,7 +160,7 @@ const GoogleDriveConnection = () => {
         ) : (
           <Button
             label="Authenticate"
-            href={googleDriveTool.auth_url ?? ''}
+            href={getToolAuthUrl(googleDriveTool.auth_url)}
             kind="secondary"
             theme="evolved-green"
             icon="arrow-up-right"
