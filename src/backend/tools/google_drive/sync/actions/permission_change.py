@@ -15,19 +15,19 @@ from .utils import persist_agent_task
 ACTION_NAME = "permission_change"
 logger = LoggerFactory().get_logger()
 
+
 @app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
 @persist_agent_task
-def permission_change(file_id: str, index_name: str, user_id: str, agent_id:str, **kwargs):
+def permission_change(
+    file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs
+):
     # check if file exists
     # NOTE Important when a file has a move and permission_change action
     artifact_id = kwargs["artifact_id"]
     file_details = get_file_details(file_id=file_id, user_id=user_id, just_title=True)
     if file_details is None:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.CANCELLED.value,
-            "file_id": file_id,
-        }
+        err_msg = f"empty file details for file_id: {file_id}"
+        raise Exception(err_msg)
 
     title = file_details["title"]
     exists = check_if_file_exists_in_artifact(
@@ -37,11 +37,8 @@ def permission_change(file_id: str, index_name: str, user_id: str, agent_id:str,
         title=title,
     )
     if not exists:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.CANCELLED.value,
-            "file_id": file_id,
-        }
+        err_msg = f"{file_id} does not exist agent_id"
+        raise Exception(err_msg)
 
     permissions = list_permissions(file_id=file_id, user_id=user_id)
     compass = Compass(
@@ -56,19 +53,34 @@ def permission_change(file_id: str, index_name: str, user_id: str, agent_id:str,
         event="[Google Drive Permission Change] Initiating Compass add_context action for file",
         file_id=file_id,
     )
-    compass.invoke(
-        compass.ValidActions.ADD_CONTEXT,
-        {
-            "index": index_name,
-            "file_id": file_id,
-            "context": {
-                "last_updated": int(time.time()),
-                "permissions": permissions,
+    try:
+        compass.invoke(
+            compass.ValidActions.ADD_CONTEXT,
+            {
+                "index": index_name,
+                "file_id": file_id,
+                "context": {
+                    "last_updated": int(time.time()),
+                    "permissions": permissions,
+                },
             },
-        },
-    )
-    logger.info(
-        event="[Google Drive Permission Change] Finished Compass add_context action for file",
-        file_id=file_id,
-    )
-    return {"action": ACTION_NAME, "status": Status.SUCCESS.value, "file_id": file_id}
+        )
+        logger.info(
+            event="[Google Drive Permission Change] Finished Compass add_context action for file",
+            file_id=file_id,
+        )
+        return {
+            "action": ACTION_NAME,
+            "status": Status.SUCCESS.value,
+            "file_id": file_id,
+        }
+    except Exception as error:
+        logger.error(
+            event="Failed to update permissions in Compass for file",
+            user_id=user_id,
+            agent_id=agent_id,
+            index_name=index_name,
+            file_id=file_id,
+        )
+        err_msg = f"Error updating permissions for file {file_id} on Compass: {error}"
+        raise Exception(err_msg)

@@ -5,8 +5,6 @@ from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from .utils import persist_agent_task
-from celery import states as celery_states
-from celery.exceptions import Ignore
 
 ACTION_NAME = "delete"
 logger = LoggerFactory().get_logger()
@@ -46,21 +44,13 @@ def delete(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
         }
     except Exception as error:
         logger.error(
-            event="Failed to create document in Compass for file",
-            web_view_link=file_id,
+            event="Failed to delete document in Compass for file",
+            user_id=user_id,
+            agent_id=agent_id,
+            index_name=index_name,
+            file_id=file_id,
         )
-        failure_meta = {
-            "action": ACTION_NAME,
-            "status": Status.FAIL.value,
-            "file_id": file_id,
-            "message": str(error),
-        }
-        self.update_state(
-            state=celery_states.FAILURE,
-            meta={
-                "exc_type": type(error).__name__,
-                "exc_message": traceback.format_exc().split("\n"),
-                failure_meta: failure_meta,
-            },
+        err_msg = (
+            f"Error deleting file {file_id} for agent {agent_id} on Compass: {error}"
         )
-        raise Ignore()
+        raise Exception(err_msg)

@@ -26,7 +26,7 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
     artifact_id = kwargs["artifact_id"]
     file_details = get_file_details(file_id=file_id, user_id=user_id, just_title=True)
     if file_details is None:
-        err_msg = f"empty file details for file_id: {file_id}, agent_id: {agent_id}"
+        err_msg = f"empty file details for file_id: {file_id}"
         raise Exception(err_msg)
 
     title = file_details["title"]
@@ -38,7 +38,7 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
             title=title,
         )
         if not exists:
-            err_msg = f"{file_id} does not exist agent_id: {agent_id}"
+            err_msg = f"{file_id} does not exist agent_id"
             raise Exception(err_msg)
 
     # Get file bytes, web view link, title
@@ -49,17 +49,12 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
         file_details[key]
         for key in ("file_bytes", "web_view_link", "extension", "permissions")
     )
+    if not file_bytes:
+        err_msg = f"Error creating file {file_id} with link: {web_view_link} on Compass. File bytes could not be parsed"
+        raise Exception(err_msg)
+
     file_meta = file_details.copy()
     del file_meta["file_bytes"]
-
-    if not file_bytes:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.FAIL.value,
-            "message": "File bytes could not be parsed.",
-            "file_id": file_id,
-            "file_meta": file_meta,
-        }
 
     compass = Compass(
         compass_api_url=Settings().compass.api_url,
