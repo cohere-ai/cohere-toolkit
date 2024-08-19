@@ -1,6 +1,11 @@
 from functools import wraps
 from typing import Dict, List, Optional
 
+from backend.config.settings import Settings
+from backend.crud.agent_task import create_agent_task
+from backend.database_models.database import get_session
+from backend.services.compass import Compass
+from backend.services.logger.utils import LoggerFactory
 from backend.services.sync.env import env
 from backend.tools.google_drive.constants import (
     NATIVE_SEARCH_MIME_TYPES,
@@ -16,12 +21,18 @@ from backend.tools.google_drive.sync.utils import (
     perform_non_native_single,
     process_shortcut_file,
 )
-from backend.services.logger.utils import LoggerFactory
 from backend.tools.utils import download
-from backend.crud.agent_task import create_agent_task
-from backend.database_models.database import get_session
 
 logger = LoggerFactory().get_logger()
+
+
+def init_compass():
+    return Compass(
+        compass_api_url=Settings().compass.api_url,  # type: ignore
+        compass_parser_url=Settings().compass.parser_url,  # type: ignore
+        compass_username=Settings().compass.username,  # type: ignore
+        compass_password=Settings().compass.password,  # type: ignore
+    )
 
 
 def persist_agent_task(method):

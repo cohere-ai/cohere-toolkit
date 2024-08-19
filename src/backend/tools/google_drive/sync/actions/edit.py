@@ -12,7 +12,7 @@ from backend.tools.google_drive.sync.actions.utils import (
 
 ACTION_NAME = "edit"
 logger = LoggerFactory().get_logger()
-from .utils import persist_agent_task
+from .utils import init_compass, persist_agent_task
 
 
 @app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
@@ -39,6 +39,9 @@ def edit(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
 
     # Get file bytes, web view link, title
     file_details = get_file_details(file_id=file_id, user_id=user_id)
+    if file_details is None:
+        err_msg = f"empty file details for file_id: {file_id}"
+        raise Exception(err_msg)
     file_bytes, web_view_link, extension, permissions = (
         file_details[key]
         for key in ("file_bytes", "web_view_link", "extension", "permissions")
@@ -47,12 +50,7 @@ def edit(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
         err_msg = f"Error creating file {file_id} with link: {web_view_link} on Compass. File bytes could not be parsed."
         raise Exception(err_msg)
 
-    compass = Compass(
-        compass_api_url=Settings().compass.api_url,
-        compass_parser_url=Settings().compass.parser_url,
-        compass_username=Settings().compass.username,
-        compass_password=Settings().compass.password,
-    )
+    compass = init_compass()
     try:
         # Update doc
         logger.info(

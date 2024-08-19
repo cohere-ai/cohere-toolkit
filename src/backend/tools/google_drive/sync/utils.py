@@ -211,7 +211,7 @@ def extract_title(file: Dict[str, str]) -> str:
     return file.pop("name", "")
 
 
-def extract_export_link(file: Dict[str, str]) -> Dict[str, str]:
+def extract_export_link(file: Dict[str, str]) -> str:
     export_links = file.pop("exportLinks", {})
     if TEXT_MIMETYPE in export_links:
         return export_links[TEXT_MIMETYPE]

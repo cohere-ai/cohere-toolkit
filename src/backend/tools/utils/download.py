@@ -28,7 +28,7 @@ def perform_batch(
 
 def perform_single(
     httpx_client: httpx.Client, url: str, access_token: str
-) -> Dict[str, str]:
+) -> str:
     return _download(httpx_client=httpx_client, url=url, access_token=access_token)
 
 

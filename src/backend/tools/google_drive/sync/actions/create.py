@@ -2,17 +2,16 @@ import time
 from tokenize import Ignore
 import traceback
 
-from backend.config.settings import Settings
 
-from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
+    
 )
-from .utils import persist_agent_task
+from .utils import persist_agent_task, init_compass
 
 ACTION_NAME = "create"
 logger = LoggerFactory().get_logger()
@@ -45,9 +44,12 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
     file_details = get_file_details(
         file_id=file_id, user_id=user_id, include_permissions=True
     )
+    if not file_details:
+        err_msg = f"Error creating file {file_id} with link on Compass. File details could not be parsed"
+        raise Exception(err_msg)
     file_bytes, web_view_link, extension, permissions = (
         file_details[key]
-        for key in ("file_bytes", "web_view_link", "extension", "permissions")
+        for key in ("file_bytes", "web_view_link", "extension", "permissions") 
     )
     if not file_bytes:
         err_msg = f"Error creating file {file_id} with link: {web_view_link} on Compass. File bytes could not be parsed"
@@ -56,12 +58,7 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
     file_meta = file_details.copy()
     del file_meta["file_bytes"]
 
-    compass = Compass(
-        compass_api_url=Settings().compass.api_url,
-        compass_parser_url=Settings().compass.parser_url,
-        compass_username=Settings().compass.username,
-        compass_password=Settings().compass.password,
-    )
+    compass = init_compass()
     try:
         # idempotent create index
         logger.info(

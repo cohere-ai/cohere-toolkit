@@ -4,7 +4,7 @@ from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
-from .utils import persist_agent_task
+from .utils import init_compass, persist_agent_task
 
 ACTION_NAME = "delete"
 logger = LoggerFactory().get_logger()
@@ -13,12 +13,7 @@ logger = LoggerFactory().get_logger()
 @app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
 @persist_agent_task
 def delete(self, file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
-    compass = Compass(
-        compass_api_url=Settings().compass.api_url,
-        compass_parser_url=Settings().compass.parser_url,
-        compass_username=Settings().compass.username,
-        compass_password=Settings().compass.password,
-    )
+    compass = init_compass()
 
     try:
         # Delete document

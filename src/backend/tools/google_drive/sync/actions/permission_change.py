@@ -10,7 +10,7 @@ from backend.tools.google_drive.sync.actions.utils import (
     get_file_details,
     list_permissions,
 )
-from .utils import persist_agent_task
+from .utils import init_compass, persist_agent_task
 
 ACTION_NAME = "permission_change"
 logger = LoggerFactory().get_logger()
@@ -41,12 +41,7 @@ def permission_change(
         raise Exception(err_msg)
 
     permissions = list_permissions(file_id=file_id, user_id=user_id)
-    compass = Compass(
-        compass_api_url=Settings().compass.api_url,
-        compass_parser_url=Settings().compass.parser_url,
-        compass_username=Settings().compass.username,
-        compass_password=Settings().compass.password,
-    )
+    compass = init_compass()
 
     # Update permissions array
     logger.info(

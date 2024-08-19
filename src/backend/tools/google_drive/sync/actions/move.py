@@ -7,7 +7,7 @@ from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
 )
-from .utils import persist_agent_task
+from .utils import init_compass, persist_agent_task
 
 ACTION_NAME = "move"
 logger = LoggerFactory().get_logger()
@@ -39,12 +39,7 @@ def move(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
         user_id=user_id,
         title=title,
     )
-    compass = Compass(
-        compass_api_url=Settings().compass.api_url,
-        compass_parser_url=Settings().compass.parser_url,
-        compass_username=Settings().compass.username,
-        compass_password=Settings().compass.password,
-    )
+    compass = init_compass()
     if exists:
         return {
             "action": ACTION_NAME,
