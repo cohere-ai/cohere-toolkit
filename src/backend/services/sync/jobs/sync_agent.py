@@ -7,6 +7,7 @@ from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT
 from backend.tools.google_drive import GoogleDrive
 
+
 @app.task(time_limit=DEFAULT_TIME_OUT)
 def sync_agent(agent_id: str):
     """

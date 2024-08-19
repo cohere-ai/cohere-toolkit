@@ -1,23 +1,23 @@
 from typing import Any, Dict, List
 
 from google.auth.exceptions import RefreshError
+from sqlalchemy.orm import Session
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
+from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
-from backend.schemas.agent import Agent, AgentToolMetadata
-from sqlalchemy.orm import Session
 from backend.tools.base import BaseTool
-from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
 from backend.tools.google_drive import (
-    handle_google_drive_sync,
     handle_google_drive_activity_event,
+    handle_google_drive_sync,
     list_google_drive_artifacts_file_ids,
     query_google_drive_activity,
 )
-
+from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
 from backend.tools.google_drive.sync.consolidation import consolidate
+
 logger = LoggerFactory().get_logger()
 
 
@@ -152,7 +152,6 @@ class GoogleDrive(BaseTool):
             agent_artifacts=metadata.artifacts,
             verbose=True,
         )
-        session.close()
         handle_google_drive_sync(
             file_ids=file_ids, agent_id=agent.id, user_id=agent.user_id
         )
