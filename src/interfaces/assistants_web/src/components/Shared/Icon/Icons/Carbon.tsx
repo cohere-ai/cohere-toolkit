@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SVGProps } from 'react';
 
-export const Carbon: React.FC<SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
+export const Carbon: React.FC<SVGProps<SVGSVGElement>> = ({ ...props }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={16}
