@@ -4,13 +4,14 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
 from backend.config.settings import Settings
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.model_deployments.base import BaseDeployment
 from backend.tools.base import BaseTool
 
 
 class TavilyInternetSearch(BaseTool):
     NAME = "web_search"
-    TAVILY_API_KEY = Settings().tools.web_search.api_key
+    TAVILY_API_KEY = Settings().tools.tavily.api_key
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
@@ -20,10 +21,33 @@ class TavilyInternetSearch(BaseTool):
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
+    def get_filtered_domains(self, ctx: Any):
+        agent_id = ctx.get_agent_id()
+        user_id = ctx.get_user_id()
+
+        if agent_id is None or user_id is None:
+            return []
+
+        agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata(
+            agent_id=agent_id,
+            tool_name=self.NAME,
+            user_id=user_id,
+        )
+
+        if not agent_tool_metadata:
+            return []
+
+        return [
+            artifact["domain"]
+            for artifact in agent_tool_metadata.artifacts
+            if "domain" in artifact
+        ]
+
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any
     ) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
+        domains = self.get_filtered_domains()
         result = self.client.search(
             query=query, search_depth="advanced", include_raw_content=True
         )
