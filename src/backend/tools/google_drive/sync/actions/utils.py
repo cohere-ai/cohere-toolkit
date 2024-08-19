@@ -26,6 +26,7 @@ from backend.tools.utils import download
 logger = LoggerFactory().get_logger()
 
 
+# TODO: fix type errors here
 def init_compass():
     return Compass(
         compass_api_url=Settings().compass.api_url,  # type: ignore

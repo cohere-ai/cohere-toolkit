@@ -121,8 +121,9 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
         err_msg = f"Error creating file {file_id} with link: {web_view_link} on Compass: {error}"
         raise Exception(err_msg)
 
+    action_name = kwargs.get("action_name_override", ACTION_NAME)
     return {
-        "action": ACTION_NAME,
+        "action": action_name,
         "status": Status.SUCCESS.value,
         "file_id": file_id,
         **file_meta,

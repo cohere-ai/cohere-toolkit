@@ -15,7 +15,6 @@ from backend.tools.google_drive.sync.actions import (
     move,
     permission_change,
     rename,
-    restore,
 )
 from backend.tools.google_drive.sync.utils import (
     extract_file_ids_from_target,
@@ -24,6 +23,7 @@ from backend.tools.google_drive.sync.utils import (
 )
 from backend.tools.google_drive.tool import GoogleDrive
 
+RESTORE_ACTION_NAME="restore"
 
 def handle_google_drive_activity_event(
     event_type: str, activity: Dict[str, str], agent_id: str, user_id: str, **kwargs
@@ -89,9 +89,10 @@ def handle_google_drive_activity_event(
             ]
         case GoogleDriveActions.RESTORE.value:
             [
-                restore.apply_async(
+                create.apply_async(
                     args=[file_id, index_name, user_id, agent_id],
-                    kwargs=kwargs,
+                    action_name_override=RESTORE_ACTION_NAME,
+                    **kwargs,
                 )
                 for file_id in file_ids
             ]
