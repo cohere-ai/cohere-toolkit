@@ -221,11 +221,3 @@ def mock_compass_settings():
         mock_settings.tools.compass.username = os.getenv("COHERE_COMPASS_USERNAME")
         mock_settings.tools.compass.password = os.getenv("COHERE_COMPASS_PASSWORD")
         yield mock_settings
-
-
-@pytest.fixture
-def mock_db_filtering_enabled_settings():
-    with patch("backend.services.context.Settings") as MockSettings:
-        mock_settings = MockSettings.return_value
-        mock_settings.database.use_global_filtering = True
-        yield mock_settings

@@ -184,7 +184,6 @@ def test_list_agents(session_client: TestClient, session: Session, user) -> None
 def test_list_organization_agents(
     session_client: TestClient,
     session: Session,
-    mock_db_filtering_enabled_settings,
     user,
 ) -> None:
     session.query(Agent).delete()
@@ -213,7 +212,6 @@ def test_list_organization_agents(
 def test_list_organization_agents_query_param(
     session_client: TestClient,
     session: Session,
-    mock_db_filtering_enabled_settings,
     user,
 ) -> None:
     session.query(Agent).delete()

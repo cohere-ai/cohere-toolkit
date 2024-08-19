@@ -4,10 +4,9 @@ import uuid
 from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from backend.config.settings import Settings
 from backend.schemas.context import Context
 
-GLOBAL_REQUEST_CONTEXT = contextvars.ContextVar('GLOBAL_REQUEST_CONTEXT', default=None)
+GLOBAL_REQUEST_CONTEXT = contextvars.ContextVar("GLOBAL_REQUEST_CONTEXT", default=None)
 
 
 class ContextMiddleware:
@@ -19,7 +18,6 @@ class ContextMiddleware:
         from backend.schemas.user import DEFAULT_USER_ID
         from backend.services.auth.utils import get_header_user_id, has_header_user_id
 
-        settings = Settings()
         trace_id = str(uuid.uuid4())
 
         if scope["type"] != "http":
@@ -46,11 +44,11 @@ class ContextMiddleware:
         agent_id = request.headers.get("Agent-Id")
         context.with_agent_id(agent_id)
 
-        organization_id = request.headers.get("Organization-Id")
+        organization_id = request.headers.get("Organization-Id", None)
         context.with_organization_id(organization_id)
 
         context.without_global_filtering()
-        if settings.database.use_global_filtering:
+        if organization_id:
             context.with_global_filtering()
 
         context.with_logger()

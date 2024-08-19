@@ -164,7 +164,6 @@ def test_get_conversation_lists_message_files(
 def test_get_organization_conversation_list(
     session_client: TestClient,
     session: Session,
-    mock_db_filtering_enabled_settings,
     user: User,
 ) -> None:
     organization = get_factory("Organization", session).create(name="test org")

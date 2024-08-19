@@ -24,7 +24,12 @@ class CustomFilterQuery(Query):
         if request_ctx and request_ctx.use_global_filtering:
             query = None
             for field in cls.ALLOWED_FILTER_FIELDS:
-                if args and hasattr(args[0][0], field) and hasattr(request_ctx, field) and getattr(request_ctx, field):
+                if (
+                    args
+                    and hasattr(args[0][0], field)
+                    and hasattr(request_ctx, field)
+                    and getattr(request_ctx, field)
+                ):
                     if query:
                         query = query.filter_by(**{field: getattr(request_ctx, field)})
                     else:

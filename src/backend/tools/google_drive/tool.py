@@ -74,7 +74,9 @@ class GoogleDrive(BaseTool):
                 },
             )
             if documents.error:
-                raise Exception(f"Error getting documents for {query} with {documents.error}")
+                raise Exception(
+                    f"Error getting documents for {query} with {documents.error}"
+                )
 
             hits = documents.result["hits"]
             chunks = sorted(
