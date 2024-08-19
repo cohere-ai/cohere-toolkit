@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict
 
 import structlog
+from fastapi import HTTPException, status
 
 from backend.services.logger.strategies.base import BaseLogger
 
@@ -83,6 +84,14 @@ class StructuredLogging(BaseLogger):
     @log_context
     def error(self, **kwargs):
         self.logger.error(**kwargs)
+
+    @log_context
+    def error_and_raise_http_exception(self, **kwargs):
+        self.logger.error(**kwargs)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{kwargs}",
+        )
 
     @log_context
     def warning(self, **kwargs):

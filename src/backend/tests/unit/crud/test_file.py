@@ -50,7 +50,7 @@ def test_batch_create_files(session, user):
 
     files = file_crud.get_files(session, user.id)
     assert len(files) == 2
-    assert all(file.file_name in ["test.txt", "test2.txt"] for file in files) == True
+    assert all(file.file_name in ["test.txt", "test2.txt"] for file in files)
     assert files[0].user_id == user.id
     assert files[1].user_id == user.id
 

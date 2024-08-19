@@ -484,7 +484,7 @@ export const $CohereChatRequest = {
             List of custom or managed tools to use for the response.
             If passing in managed tools, you only need to provide the name of the tool.
             If passing in custom tools, you need to provide the name, description, and optionally parameter defintions of the tool.
-            Passing a mix of custom and managed tools is not supported. 
+            Passing a mix of custom and managed tools is not supported.
 
             Managed Tools Examples:
             tools=[
@@ -523,7 +523,7 @@ export const $CohereChatRequest = {
                             "type": "int",
                             "required": true
                         }
-                    }  
+                    }
                 },
                 {
                     "name": "joke_generator",
@@ -1278,6 +1278,12 @@ export const $DeleteSnapshotResponse = {
   title: 'DeleteSnapshotResponse',
 } as const;
 
+export const $DeleteToolAuth = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteToolAuth',
+} as const;
+
 export const $DeleteUser = {
   properties: {},
   type: 'object',
@@ -1706,7 +1712,7 @@ export const $LangchainChatRequest = {
             List of custom or managed tools to use for the response.
             If passing in managed tools, you only need to provide the name of the tool.
             If passing in custom tools, you need to provide the name, description, and optionally parameter defintions of the tool.
-            Passing a mix of custom and managed tools is not supported. 
+            Passing a mix of custom and managed tools is not supported.
 
             Managed Tools Examples:
             tools=[
@@ -1745,7 +1751,7 @@ export const $LangchainChatRequest = {
                             "type": "int",
                             "required": true
                         }
-                    }  
+                    }
                 },
                 {
                     "name": "joke_generator",

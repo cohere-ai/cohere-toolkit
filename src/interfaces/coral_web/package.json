@@ -35,7 +35,7 @@
     "@types/mdast": "^4.0.3",
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.7",
-    "axios": "^1.6.7",
+    "axios": "^1.7.4",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "cross-fetch": "^4.0.0",

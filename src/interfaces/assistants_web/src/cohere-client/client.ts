@@ -3,7 +3,6 @@ import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-s
 import {
   Body_batch_upload_file_v1_agents_batch_upload_file_post,
   Body_batch_upload_file_v1_conversations_batch_upload_file_post,
-  Body_upload_file_v1_conversations_upload_file_post,
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
@@ -49,12 +48,6 @@ export class CohereClient {
         throw new CohereUnauthorizedError();
       }
       return response;
-    });
-  }
-
-  public uploadFile(formData: Body_upload_file_v1_conversations_upload_file_post) {
-    return this.cohereService.default.uploadFileV1ConversationsUploadFilePost({
-      formData,
     });
   }
 
@@ -181,6 +174,10 @@ export class CohereClient {
 
   public listTools({ agentId }: { agentId?: string | null }) {
     return this.cohereService.default.listToolsV1ToolsGet({ agentId });
+  }
+
+  public deleteAuthTool({ toolId }: { toolId: string }) {
+    return this.cohereService.default.deleteToolAuthV1ToolAuthToolIdDelete({ toolId });
   }
 
   public listDeployments({ all }: { all?: boolean }) {

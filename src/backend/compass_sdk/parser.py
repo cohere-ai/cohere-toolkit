@@ -11,10 +11,12 @@ from backend.compass_sdk import (
     MetadataConfig,
     ParserConfig,
     ProcessFileParameters,
-    logger,
 )
 from backend.compass_sdk.constants import DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES
 from backend.compass_sdk.utils import imap_queued, open_document, scan_folder
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 Fn_or_Dict = Union[Dict[str, Any], Callable[[CompassDocument], Dict[str, Any]]]
 
@@ -37,7 +39,8 @@ class CompassParserClient:
 
     def __init__(
         self,
-        parser_url: str = "http://localhost:8080",
+        *,
+        parser_url: str,
         parser_config: ParserConfig = ParserConfig(),
         metadata_config: MetadataConfig = MetadataConfig(),
         username: Optional[str] = None,
@@ -46,10 +49,9 @@ class CompassParserClient:
     ):
         """
         Initializes the CompassParserClient with the specified parser_url, parser_config, and metadata_config.
-        The default parser_url is "http://localhost:8080". The parser_config and metadata_config are optional,
-        and if not provided, the default configurations will be used. If the parser/metadata configs are provided,
-        they will be used for all subsequent files processed by the client unless specific configs are passed
-        when calling the process_file or process_files methods.
+        The parser_config and metadata_config are optional, and if not provided, the default configurations will be used.
+        If the parser/metadata configs are provided, they will be used for all subsequent files processed by the client
+        unless specific configs are passed when calling the process_file or process_files methods.
 
         :param parser_url: the URL of the CompassParser API
         :param parser_config: the parser configuration to use when processing files if no parser configuration
@@ -66,14 +68,11 @@ class CompassParserClient:
         self.session = requests.Session()
         self.thread_pool = ThreadPoolExecutor(num_workers)
         self.num_workers = num_workers
-
         self.metadata_config = metadata_config
-        logger.info(
-            f"CompassParserClient initialized with parser_url: {self.parser_url}"
-        )
 
     def process_folder(
         self,
+        *,
         folder_path: str,
         allowed_extensions: Optional[List[str]] = None,
         recursive: bool = False,
@@ -112,6 +111,7 @@ class CompassParserClient:
 
     def process_files(
         self,
+        *,
         filenames: List[str],
         file_ids: Optional[List[str]] = None,
         parser_config: Optional[ParserConfig] = None,
@@ -173,6 +173,7 @@ class CompassParserClient:
 
     def process_file(
         self,
+        *,
         filename: str,
         file_id: Optional[str] = None,
         parser_config: Optional[ParserConfig] = None,
@@ -201,12 +202,16 @@ class CompassParserClient:
         """
         doc = open_document(filename)
         if doc.errors:
-            logger.error(f"Error opening document: {doc.errors}")
+            logger.error(
+                event="Error opening document",
+                errors=doc.errors,
+            )
             return []
         if len(doc.filebytes) > DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES:
             logger.error(
-                f"File too large, supported file size is {DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_1000} "
-                f"mb, filename {doc.metadata.filename}"
+                event="File too large, supported file size in mb",
+                supported_file_size={DEFAULT_MAX_ACCEPTED_FILE_SIZE_BYTES / 1000_000},
+                filename=doc.metadata.filename,
             )
             return []
 
@@ -238,11 +243,14 @@ class CompassParserClient:
                 doc.content = {**doc.content, **additional_metadata}
         else:
             docs = []
-            logger.error(f"Error processing file: {res.text}")
+            logger.error(
+                event="Error processing file",
+                error=res.text,
+            )
 
         return docs
 
-    def batch_upload(self, zip_file_path: str) -> str:
+    def batch_upload(self, *, zip_file_path: str) -> str:
         """
         Uploads a zip file to the for offline processing. The zip file should contain the files to process.
         The zip file is sent to the server, and the server will process each file in the zip file using the default
@@ -269,7 +277,10 @@ class CompassParserClient:
         if res.ok:
             return res.json()
         else:
-            logger.error(f"Error uploading file: {res.text}")
+            logger.error(
+                event="Error uploading file",
+                error=res.text,
+            )
             raise Exception(f"Error uploading zip file: {res.text}")
 
     def batch_status(self, uuid: str) -> str:
@@ -294,11 +305,12 @@ class CompassParserClient:
         if res.ok:
             return res.json()
         else:
-            logger.error(f"Error getting batch status: {res.text}")
+            logger.error(event="Error getting batch status", error=res.text)
             raise Exception(f"Error getting batch status: {res.text}")
 
     def batch_run(
         self,
+        *,
         uuid: str,
         file_name_to_doc_ids: Optional[Dict[str, str]] = None,
         parser_config: Optional[ParserConfig] = None,
@@ -328,7 +340,10 @@ class CompassParserClient:
             return res.json()
         else:
             docs = []
-            logger.error(f"Error processing file: {res.text}")
+            logger.error(
+                event="Error processing file",
+                error=res.text,
+            )
 
         # # Run metadata detection locally if a metadata detector was provided.
         # # This overrides the metadata generated by the server using the metadata_config provided in the method call

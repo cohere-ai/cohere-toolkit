@@ -1,9 +1,8 @@
 import asyncio
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
-from fastapi import HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.config.routers import RouterName
@@ -50,12 +49,14 @@ from backend.services.file import (
     consolidate_agent_files_in_compass,
     get_file_service,
     validate_batch_file_size,
+    validate_file,
 )
 from backend.services.request_validators import (
     validate_create_agent_request,
     validate_update_agent_request,
     validate_user_header,
 )
+from backend.services.sync.jobs.sync_agent import sync_agent
 from backend.tools.files import FileToolsArtifactTypes
 
 router = APIRouter(
@@ -93,6 +94,7 @@ async def create_agent(
     ctx.with_event_type(MetricsMessageType.ASSISTANT_CREATED)
     ctx.with_user(session)
     user_id = ctx.get_user_id()
+    logger = ctx.get_logger()
 
     agent_data = AgentModel(
         name=agent.name,
@@ -129,11 +131,11 @@ async def create_agent(
                 [],
             )
             file_ids = list(
-                set(
+                {
                     artifact.get("id")
                     for artifact in artifacts
                     if artifact.get("type") == FileToolsArtifactTypes.local_file
-                )
+                }
             )
             if file_ids:
                 await consolidate_agent_files_in_compass(file_ids, created_agent.id)
@@ -157,8 +159,12 @@ async def create_agent(
         ctx.with_agent(agent_schema)
         ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
 
+        # initiate agent sync job
+        sync_agent.apply_async(args=[created_agent.id])
+
         return created_agent
     except Exception as e:
+        logger.exception(event=e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -474,10 +480,9 @@ async def delete_agent(
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
-    try:
-        agent_crud.delete_agent(session, agent_id, user_id)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    deleted = agent_crud.delete_agent(session, agent_id, user_id)
+    if not deleted:
+        raise HTTPException(status_code=401, detail="Could not delete Agent.")
 
     return DeleteAgent()
 

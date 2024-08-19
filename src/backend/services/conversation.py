@@ -1,10 +1,9 @@
 from typing import List, Optional
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException
 
 from backend.chat.custom.custom import CustomChat
 from backend.crud import conversation as conversation_crud
-from backend.database_models import File as FileModel
 from backend.database_models import Message as MessageModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep

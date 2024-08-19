@@ -1,7 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import JSON, ForeignKey, ForeignKeyConstraint, Index, String
-from sqlalchemy.orm import Mapped, mapped_column, validates
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base
 

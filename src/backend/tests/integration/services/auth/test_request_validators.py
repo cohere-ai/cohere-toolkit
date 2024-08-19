@@ -16,7 +16,7 @@ def test_validate_authorization_with_valid_request():
     with patch(
         "backend.services.auth.jwt.JWTService.decode_jwt",
         return_value={"context": "test_context", "jti": "test_jti"},
-    ) as mock_decode_jwt:
+    ):
         result = validate_authorization(request, session=session)
         assert isinstance(result, dict)
 
@@ -48,7 +48,7 @@ def test_validate_invalid_jwt():
     with patch(
         "backend.services.auth.jwt.JWTService.decode_jwt",
         return_value=None,
-    ) as mock_decode_jwt:
+    ):
         with pytest.raises(HTTPException) as exc:
             validate_authorization(request)
             assert exc.status_code == 401
@@ -63,7 +63,7 @@ def test_validate_blacklisted_token():
     with patch(
         "backend.services.auth.jwt.JWTService.decode_jwt",
         return_value={"context": "test_context", "jti": "test_jti"},
-    ) as mock_decode_jwt:
+    ):
         with pytest.raises(HTTPException) as exc:
             validate_authorization(request, session=session)
             assert exc.status_code == 401

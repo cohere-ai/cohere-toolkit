@@ -47,6 +47,8 @@ import type {
   DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse,
   DeleteSnapshotV1SnapshotsSnapshotIdDeleteData,
   DeleteSnapshotV1SnapshotsSnapshotIdDeleteResponse,
+  DeleteToolAuthV1ToolAuthToolIdDeleteData,
+  DeleteToolAuthV1ToolAuthToolIdDeleteResponse,
   DeleteUserV1UsersUserIdDeleteData,
   DeleteUserV1UsersUserIdDeleteResponse,
   GenerateTitleV1ConversationsConversationIdGenerateTitlePostData,
@@ -93,12 +95,12 @@ import type {
   ListUsersV1UsersGetResponse,
   LoginV1LoginPostData,
   LoginV1LoginPostResponse,
-  LoginV1ToolAuthGetResponse,
   LogoutV1LogoutGetResponse,
   SearchConversationsV1ConversationsSearchGetData,
   SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
+  ToolAuthV1ToolAuthGetResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
   UpdateAgentV1AgentsAgentIdPutData,
@@ -231,7 +233,7 @@ export class DefaultService {
   }
 
   /**
-   * Login
+   * Tool Auth
    * Endpoint for Tool Authentication. Note: The flow is different from
    * the regular login OAuth flow, the backend initiates it and redirects to the frontend
    * after completion.
@@ -252,10 +254,47 @@ export class DefaultService {
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public loginV1ToolAuthGet(): CancelablePromise<LoginV1ToolAuthGetResponse> {
+  public toolAuthV1ToolAuthGet(): CancelablePromise<ToolAuthV1ToolAuthGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tool/auth',
+    });
+  }
+
+  /**
+   * Delete Tool Auth
+   * Endpoint to delete Tool Authentication.
+   *
+   * If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
+   *
+   * Args:
+   * tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
+   * request (Request): current Request object.
+   * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * DeleteToolAuth: Empty response.
+   *
+   * Raises:
+   * HTTPException: If there was an error deleting the tool auth.
+   * @param data The data for the request.
+   * @param data.toolId
+   * @returns DeleteToolAuth Successful Response
+   * @throws ApiError
+   */
+  public deleteToolAuthV1ToolAuthToolIdDelete(
+    data: DeleteToolAuthV1ToolAuthToolIdDeleteData
+  ): CancelablePromise<DeleteToolAuthV1ToolAuthToolIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/tool/auth/{tool_id}',
+      path: {
+        tool_id: data.toolId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 

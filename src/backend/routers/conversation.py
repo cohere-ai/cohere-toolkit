@@ -1,14 +1,11 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi import File as RequestFile
-from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
-from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
-from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.database_models import Conversation as ConversationModel
@@ -31,9 +28,6 @@ from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agen
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 from backend.services.conversation import (
-    DEFAULT_TITLE,
-    GENERATE_TITLE_PROMPT,
-    extract_details_from_conversation,
     filter_conversations,
     generate_conversation_title,
     get_documents_to_rerank,
@@ -45,7 +39,6 @@ from backend.services.file import (
     get_file_service,
     validate_batch_file_size,
     validate_file,
-    validate_file_size,
 )
 
 router = APIRouter(
@@ -77,7 +70,8 @@ async def get_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    conversation = conversation_crud.get_conversation(
+        session, conversation_id, user_id)
 
     if not conversation:
         raise HTTPException(
@@ -88,8 +82,10 @@ async def get_conversation(
     files = get_file_service().get_files_by_conversation_id(
         session, user_id, conversation.id, ctx
     )
-    files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
-    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation.id, files)
+    messages = get_messages_with_files(
+        session, user_id, conversation.messages, ctx)
     _ = validate_conversation(session, conversation_id, user_id)
 
     conversation = ConversationPublic(
@@ -195,8 +191,10 @@ async def update_conversation(
     files = get_file_service().get_files_by_conversation_id(
         session, user_id, conversation.id, ctx
     )
-    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
-    files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
+    messages = get_messages_with_files(
+        session, user_id, conversation.messages, ctx)
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation.id, files)
     return ConversationPublic(
         id=conversation.id,
         user_id=user_id,
@@ -367,7 +365,7 @@ async def batch_upload_file(
             if not user_id:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
+                    detail="user_id is required if no valid conversation is provided.",
                 )
 
             # Create new conversation
@@ -421,7 +419,8 @@ async def list_files(
     files = get_file_service().get_files_by_conversation_id(
         session, user_id, conversation_id, ctx
     )
-    files_with_conversation_id = attach_conversation_id_to_files(conversation_id, files)
+    files_with_conversation_id = attach_conversation_id_to_files(
+        conversation_id, files)
     return files_with_conversation_id
 
 

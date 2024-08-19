@@ -5,7 +5,6 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
-from backend.schemas.deployment import ModelSimple as ModelSchema
 
 
 class AgentVisibility(StrEnum):

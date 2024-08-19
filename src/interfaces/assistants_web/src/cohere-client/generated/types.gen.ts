@@ -251,6 +251,8 @@ export type DeleteSnapshotLinkResponse = unknown;
 
 export type DeleteSnapshotResponse = unknown;
 
+export type DeleteToolAuth = unknown;
+
 export type DeleteUser = unknown;
 
 export type Deployment = {
@@ -716,7 +718,13 @@ export type AuthorizeV1StrategyAuthPostResponse = JWTResponse;
 
 export type LogoutV1LogoutGetResponse = Logout;
 
-export type LoginV1ToolAuthGetResponse = unknown;
+export type ToolAuthV1ToolAuthGetResponse = unknown;
+
+export type DeleteToolAuthV1ToolAuthToolIdDeleteData = {
+  toolId: string;
+};
+
+export type DeleteToolAuthV1ToolAuthToolIdDeleteResponse = DeleteToolAuth;
 
 export type ChatStreamV1ChatStreamPostData = {
   requestBody: CohereChatRequest;
@@ -1115,6 +1123,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: unknown;
+      };
+    };
+  };
+  '/v1/tool/auth/{tool_id}': {
+    delete: {
+      req: DeleteToolAuthV1ToolAuthToolIdDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: DeleteToolAuth;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
       };
     };
   };

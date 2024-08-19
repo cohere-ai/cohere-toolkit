@@ -87,6 +87,7 @@ const Conversation: React.FC<Props> = ({ agent, tools, startOptionsEnabled = fal
                   onSend={handleSend}
                   onStop={handleStop}
                   onUploadFile={handleUploadFile}
+                  lastUserMessage={messages.findLast((m) => m.type === 'user')}
                 />
               </>
             }

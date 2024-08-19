@@ -2,7 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.database_models import SnapshotLink
 from backend.tests.unit.factories import get_factory
 
 

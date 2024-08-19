@@ -3,33 +3,48 @@ name: Backend unit tests
 on:
   push:
     branches: [main]
-  pull_request:
-    paths-ignore:
-      - src/interfaces/**
+  pull_request: {}
+  merge_group: {}
 
 jobs:
   pytest:
     permissions: write-all
     # environment: development
     runs-on: ubuntu-latest
-    env:
-      COHERE_API_KEY: fake-test-key
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      NEXT_PUBLIC_API_HOSTNAME: ${{ secrets.NEXT_PUBLIC_API_HOSTNAME }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Setup Docker
-        run: docker compose up test_db -d
-      - name: Run unit tests
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          virtualenvs-path: .venv
+          installer-parallel: true
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --with dev --no-interaction --no-root
+      - name: Setup test DB container
+        run: make test-db
+      - name: Test with pytest
         if: github.actor != 'dependabot[bot]'
         run: |
-          mkdir -p coverage
-          docker compose build --build-arg INSTALL_COMMUNITY_DEPS=true backend
-          docker compose run --name backend-container -v $(pwd)/coverage:/app/coverage backend poetry run pytest --cov=src/backend --cov-report=xml:/app/coverage/coverage.xml src/backend/tests/unit
+          make run-unit-tests
+        env:
+          PYTHONPATH: src
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage/coverage.xml
+          file: coverage.xml

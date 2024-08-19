@@ -8,7 +8,6 @@ Create Date: 2024-08-01 15:15:25.446575
 
 from typing import Sequence, Union
 
-import sqlalchemy as sa
 from alembic import op
 
 from backend.database_models.seeders.deplyments_models_seed import (

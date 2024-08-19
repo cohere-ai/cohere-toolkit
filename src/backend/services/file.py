@@ -16,7 +16,7 @@ from backend.database_models.conversation import ConversationFileAssociation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.file import File as FileModel
 from backend.schemas.context import Context
-from backend.schemas.file import File, ConversationFilePublic
+from backend.schemas.file import ConversationFilePublic, File
 from backend.services import utils
 from backend.services.agent import validate_agent_exists
 from backend.services.compass import Compass
@@ -196,11 +196,11 @@ class FileService:
             )
 
             file_ids = list(
-                set(
+                {
                     artifact.get("id")
                     for artifact in artifacts
                     if artifact.get("type") == FileToolsArtifactTypes.local_file
-                )
+                }
             )
 
             if self.is_compass_enabled:
@@ -318,6 +318,9 @@ class FileService:
         if self.is_compass_enabled:
             compass = get_compass()
             try:
+                logger.info(
+                    event=f"[Compass File Service] Deleting conversation {conversation_id} files from Compass"
+                )
                 compass.invoke(
                     action=Compass.ValidActions.DELETE_INDEX,
                     parameters={"index": conversation_id},
@@ -377,6 +380,9 @@ def delete_file_in_compass(
     compass = get_compass()
 
     try:
+        logger.info(
+            event=f"[Compass File Service] Deleting file {file_id} from Compass {index}"
+        )
         compass.invoke(
             action=Compass.ValidActions.DELETE,
             parameters={"index": index, "file_id": file_id},
@@ -480,7 +486,7 @@ async def consolidate_agent_files_in_compass(
                 parameters={
                     "index": agent_id,
                     "file_id": file_id,
-                    "file_text": fetched_doc["text"],
+                    "file_bytes": fetched_doc["text"],
                     "custom_context": {
                         "file_id": file_id,
                         "file_name": fetched_doc["file_name"],
@@ -496,9 +502,12 @@ async def consolidate_agent_files_in_compass(
                 action=Compass.ValidActions.REFRESH,
                 parameters={"index": agent_id},
             )
+            logger.info(
+                event=f"[Compass File Service] Delete temporary file index: {file_id}"
+            )
             # Remove the temporary file index entry
             compass.invoke(
-                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": file_id}
+                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": agent_id}
             )
         except Exception as e:
             logger.error(
@@ -559,7 +568,7 @@ async def insert_files_in_compass(
                 parameters={
                     "index": new_file_id if index is None else index,
                     "file_id": new_file_id,
-                    "file_text": file_bytes,
+                    "file_bytes": file_bytes,
                     "custom_context": {
                         "file_id": new_file_id,
                         "file_name": filename,

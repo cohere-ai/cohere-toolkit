@@ -77,7 +77,7 @@ COMMUNITY_TOOLS = {
         implementation=WolframAlpha,
         is_visible=False,
         is_available=WolframAlpha.is_available(),
-        error_message="WolframAlphaFunctionTool is not available, please set the WOLFRAM_APP_ID environment variable.",
+        error_message="WolframAlphaFunctionTool is not available, please set tools.wolfram_alpha.app_id in secrets.yaml",
         category=Category.Function,
         description="Evaluate arithmetic expressions.",
     ),

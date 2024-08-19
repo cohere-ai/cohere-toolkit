@@ -9,12 +9,13 @@ from starlette.requests import Request
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
-from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
 from backend.schemas.context import Context
+from backend.schemas.tool_auth import DeleteToolAuth
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
 from backend.services.auth.utils import (
@@ -157,7 +158,7 @@ async def authorize(
         )
         raise HTTPException(
             status_code=400,
-            detail=f"Error calling /auth with invalid code query parameter.",
+            detail="Error calling /auth with invalid code query parameter.",
         )
 
     strategy_name = None
@@ -236,7 +237,7 @@ async def logout(
 
 # NOTE: Tool Auth is experimental and in development
 @router.get("/tool/auth")
-async def login(
+async def tool_auth(
     request: Request, session: DBSessionDep, ctx: Context = Depends(get_context)
 ):
     """
@@ -264,7 +265,7 @@ async def login(
     if not redirect_uri:
         raise HTTPException(
             status_code=400,
-            detail=f"FRONTEND_HOSTNAME environment variable is required for Tool Auth.",
+            detail="auth.frontend_hostname in configuration.yaml is required for Tool Auth.",
         )
 
     def log_and_redirect_err(error_message: str):
@@ -317,3 +318,66 @@ async def login(
     response = RedirectResponse(redirect_uri)
 
     return response
+
+
+@router.delete("/tool/auth/{tool_id}")
+async def delete_tool_auth(
+    tool_id: str,
+    request: Request,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> DeleteToolAuth:
+    """
+    Endpoint to delete Tool Authentication.
+
+    If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
+
+    Args:
+        tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
+        request (Request): current Request object.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        DeleteToolAuth: Empty response.
+
+    Raises:
+        HTTPException: If there was an error deleting the tool auth.
+    """
+
+    logger = ctx.get_logger()
+
+    user_id = ctx.get_user_id()
+    tool_id = tool_id.lower()
+
+    if user_id is None or user_id == "" or user_id == "default":
+        logger.error_and_raise_http_exception(event="User ID not found.")
+
+    if tool_id not in [tool_name.value for tool_name in ToolName]:
+        logger.error_and_raise_http_exception(
+            event="tool_id must be present in the path of the request and must be a member of the ToolName string enum class.",
+        )
+
+    tool = AVAILABLE_TOOLS.get(tool_id)
+
+    if tool is None:
+        logger.error_and_raise_http_exception(
+            event=f"Tool {tool_id} is not available in AVAILABLE_TOOLS."
+        )
+
+    if tool.auth_implementation is None:
+        logger.error_and_raise_http_exception(
+            event=f"Tool {tool.name} does not have an auth_implementation required for Tool Auth Deletion.",
+        )
+
+    try:
+        tool_auth_service = tool.auth_implementation()
+        is_deleted = tool_auth_service.delete_tool_auth(session, user_id)
+
+        if not is_deleted:
+            logger.error_and_raise_http_exception(event="Error deleting Tool Auth.")
+
+    except Exception as e:
+        logger.error_and_raise_http_exception(event=str(e))
+
+    return DeleteToolAuth()

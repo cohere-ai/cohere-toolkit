@@ -31,7 +31,7 @@ def test_async_call_tools_success() -> None:
         }
     ]
     MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS) as mock:
+    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         results = asyncio.run(
             async_call_tools(chat_history, MockCohereDeployment(), ctx)
         )
@@ -64,7 +64,7 @@ def test_async_call_tools_failure() -> None:
         }
     ]
     MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS) as mock:
+    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         results = asyncio.run(
             async_call_tools(chat_history, MockCohereDeployment(), ctx)
         )
@@ -101,7 +101,7 @@ def test_async_call_tools_timeout() -> None:
         }
     ]
     MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS) as mock:
+    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         with pytest.raises(HTTPException) as excinfo:
             asyncio.run(async_call_tools(chat_history, MockCohereDeployment(), ctx))
         assert str(excinfo.value.status_code) == "500"
@@ -140,7 +140,7 @@ def test_async_call_tools_failure_and_success() -> None:
         ToolName.Calculator: ManagedTool(implementation=MockCalculator),
         ToolName.Web_Scrape: ManagedTool(implementation=MockWebScrape),
     }
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS) as mock:
+    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         results = asyncio.run(
             async_call_tools(chat_history, MockCohereDeployment(), ctx)
         )
