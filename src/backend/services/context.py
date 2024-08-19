@@ -7,7 +7,7 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 from backend.config.settings import Settings
 from backend.schemas.context import Context
 
-GLOBAL_REQUEST_CTX = contextvars.ContextVar('GLOBAL_REQUEST_CTX', default=None)
+GLOBAL_REQUEST_CONTEXT = contextvars.ContextVar('GLOBAL_REQUEST_CONTEXT', default=None)
 
 
 class ContextMiddleware:
@@ -57,12 +57,12 @@ class ContextMiddleware:
 
         # Set the context on the scope
         scope["context"] = context
-        GLOBAL_REQUEST_CTX.set(context)
+        GLOBAL_REQUEST_CONTEXT.set(context)
 
         await self.app(scope, receive, send)
 
         # Clear the organization ID from the global context
-        GLOBAL_REQUEST_CTX.set(None)
+        GLOBAL_REQUEST_CONTEXT.set(None)
         # Clear the context after the request is complete
         del scope["context"]
 

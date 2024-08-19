@@ -18,9 +18,9 @@ class CustomFilterQuery(Query):
     ALLOWED_FILTER_FIELDS = [FilterFields.ORGANIZATION_ID]
 
     def __new__(cls, *args, **kwargs):
-        from backend.services.context import GLOBAL_REQUEST_CTX
+        from backend.services.context import GLOBAL_REQUEST_CONTEXT
 
-        request_ctx = GLOBAL_REQUEST_CTX.get()
+        request_ctx = GLOBAL_REQUEST_CONTEXT.get()
         if request_ctx and request_ctx.use_global_filtering:
             query = None
             for field in cls.ALLOWED_FILTER_FIELDS:
