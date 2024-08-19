@@ -1,11 +1,8 @@
 import json
 from typing import Any, Dict, List
 
-from fastapi import Depends
-
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
-from backend.services.context import get_context
 
 RELEVANCE_THRESHOLD = 0.1
 
@@ -14,7 +11,7 @@ async def rerank_and_chunk(
     tool_results: List[Dict[str, Any]],
     model: BaseDeployment,
     ctx: Context,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> List[Dict[str, Any]]:
     """
     Takes a list of tool_results and internally reranks the documents for each query, if there's one e.g:
@@ -68,7 +65,9 @@ async def rerank_and_chunk(
             text = output.get("text")
 
             if not text:
-                chunked_outputs.append([output])
+                # If one doesn't have text, skip it
+                chunked_outputs = None
+                reranked_results[tool_call_hashable] = tool_result
                 continue
 
             chunks = chunk(text)

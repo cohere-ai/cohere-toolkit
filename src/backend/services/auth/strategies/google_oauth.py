@@ -53,7 +53,7 @@ class GoogleOAuth(BaseOAuthStrategy):
             self.TOKEN_ENDPOINT = endpoints["token_endpoint"]
             self.USERINFO_ENDPOINT = endpoints["userinfo_endpoint"]
             self.AUTHORIZATION_ENDPOINT = endpoints["authorization_endpoint"]
-        except Exception as e:
+        except Exception:
             logger.error(
                 event=f"[Google OAuth] Error fetching endpoints: `token_endpoint`, `userinfo_endpoint` or `authorization_endpoint` not found in {endpoints}."
             )
@@ -69,7 +69,7 @@ class GoogleOAuth(BaseOAuthStrategy):
         Returns:
             Access token.
         """
-        token = self.client.fetch_token(
+        _ = self.client.fetch_token(
             url=self.TOKEN_ENDPOINT,
             authorization_response=str(request.url),
             redirect_uri=self.REDIRECT_URI,

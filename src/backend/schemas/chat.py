@@ -249,6 +249,10 @@ class NonStreamedChatResponse(ChatResponse):
         title="List of tool calls generated for custom tools",
         default=[],
     )
+    error: str | None = Field(
+        title="Error message if the response is an error.",
+        default=None,
+    )
 
 
 class StreamToolCallsChunk(ChatResponse):
@@ -316,7 +320,7 @@ class BaseChatRequest(BaseModel):
             List of custom or managed tools to use for the response.
             If passing in managed tools, you only need to provide the name of the tool.
             If passing in custom tools, you need to provide the name, description, and optionally parameter defintions of the tool.
-            Passing a mix of custom and managed tools is not supported. 
+            Passing a mix of custom and managed tools is not supported.
 
             Managed Tools Examples:
             tools=[
@@ -355,7 +359,7 @@ class BaseChatRequest(BaseModel):
                             "type": "int",
                             "required": true
                         }
-                    }  
+                    }
                 },
                 {
                     "name": "joke_generator",

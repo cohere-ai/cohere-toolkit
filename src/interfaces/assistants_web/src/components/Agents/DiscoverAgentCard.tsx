@@ -10,6 +10,7 @@ import { useContextStore } from '@/context';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useSession } from '@/hooks/session';
 import { cn } from '@/utils';
+import { checkIsBaseAgent } from '@/utils/agents';
 
 type Props = {
   agent?: AgentPublic;
@@ -19,7 +20,7 @@ type Props = {
  * @description renders a card for an agent with the agent's name, description
  */
 export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
-  const isBaseAgent = !agent?.id;
+  const isBaseAgent = checkIsBaseAgent(agent);
   const { bg, contrastText, contrastFill } = useBrandedColors(agent?.id);
   const session = useSession();
   const isCreator = agent?.user_id === session.userId;

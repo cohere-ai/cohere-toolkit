@@ -163,6 +163,7 @@ metadata:
 stringData:
   DATABASE_URL: "{{ template "cohere-toolkit.database-url" $ }}"
   REDIS_URL: "{{ template "cohere-toolkit.redis-url" $ }}"
+  BROKER_URL: "{{ template "cohere-toolkit.redis-url" $ }}"
   {{- if .Values.global.cohere.api_key }}
   COHERE_API_KEY: "{{ .Values.global.cohere.api_key }}"
   {{- end }}

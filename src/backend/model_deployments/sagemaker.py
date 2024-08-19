@@ -48,22 +48,22 @@ class SageMakerDeployment(BaseDeployment):
             region_name=get_model_config_var(
                 SAGE_MAKER_REGION_NAME_ENV_VAR,
                 SageMakerDeployment.region_name,
-                **kwargs
+                **kwargs,
             ),
             aws_access_key_id=get_model_config_var(
                 SAGE_MAKER_ACCESS_KEY_ENV_VAR,
                 SageMakerDeployment.aws_access_key_id,
-                **kwargs
+                **kwargs,
             ),
             aws_secret_access_key=get_model_config_var(
                 SAGE_MAKER_SECRET_KEY_ENV_VAR,
                 SageMakerDeployment.aws_secret_access_key,
-                **kwargs
+                **kwargs,
             ),
             aws_session_token=get_model_config_var(
                 SAGE_MAKER_SESSION_TOKEN_ENV_VAR,
                 SageMakerDeployment.aws_session_token,
-                **kwargs
+                **kwargs,
             ),
         )
         self.params = {

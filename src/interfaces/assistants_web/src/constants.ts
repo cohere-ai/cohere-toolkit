@@ -1,3 +1,4 @@
+import { AgentPublic } from '@/cohere-client';
 import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
 
@@ -36,7 +37,6 @@ export const SETTINGS_DRAWER_ID = 'settings';
 export const LOCAL_STORAGE_KEYS = {
   welcomeGuideState: 'onboarding/welcome/onboardState',
   welcomeGuideInfoBox: 'onboarding/welcome/infoBox',
-  recentAgents: 'recentAgents',
 };
 
 /**
@@ -58,7 +58,11 @@ export const TOOL_CALCULATOR_ID = 'toolkit_calculator';
 export const TOOL_WEB_SCRAPE_ID = 'web_scrape';
 export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
 export const FILE_UPLOAD_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
-export const AGENT_SETTINGS_TOOLS = [TOOL_WEB_SEARCH_ID, TOOL_PYTHON_INTERPRETER_ID];
+export const AGENT_SETTINGS_TOOLS = [
+  TOOL_WEB_SEARCH_ID,
+  TOOL_PYTHON_INTERPRETER_ID,
+  TOOL_WEB_SCRAPE_ID,
+];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
 export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
@@ -88,3 +92,20 @@ export type COHERE_BRANDED_COLORS =
   | 'marble'
   | 'volcanic'
   | 'danger';
+
+export const BASE_AGENT: AgentPublic = {
+  id: '',
+  deployments: [],
+  name: 'Command R+',
+  description: 'Ask questions and get answers based on your files.',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  preamble: '',
+  version: 1,
+  temperature: 0.3,
+  tools: [...AGENT_SETTINGS_TOOLS, ...FILE_UPLOAD_TOOLS],
+  model: DEFAULT_AGENT_MODEL,
+  deployment: DEPLOYMENT_COHERE_PLATFORM,
+  user_id: '',
+  is_private: false,
+};

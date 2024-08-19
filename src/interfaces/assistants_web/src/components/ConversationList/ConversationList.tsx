@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Flipped, Flipper } from 'react-flip-toolkit';
 
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import { AgentCard } from '@/components/Agents/AgentCard';
@@ -8,7 +9,7 @@ import { ConversationListLoading } from '@/components/ConversationList/Conversat
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
 import { Icon, Text, Tooltip } from '@/components/Shared';
 import { InputSearch } from '@/components/Shared/InputSearch';
-import { useListAgents } from '@/hooks/agents';
+import { useRecentAgents } from '@/hooks/agents';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
 import { useSettingsStore } from '@/stores';
@@ -25,38 +26,36 @@ const sortByDate = (a: Conversation, b: Conversation) => {
 export const ConversationList: React.FC = () => {
   const { data: conversations = [] } = useConversations({});
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
-  const { data: agents = [] } = useListAgents();
-  const { isAgentsLeftPanelOpen, setAgentsLeftSidePanelOpen } = useSettingsStore();
-  const recentAgents = useMemo(
-    () =>
-      conversations
-        .sort(sortByDate)
-        .map((conversation) => agents.find((agent) => agent.id === conversation.agent_id))
-        .concat(agents.sort((a, b) => b.created_at.localeCompare(a.created_at)))
-        .filter((agent, index, self) => self.indexOf(agent) === index),
-    [agents, conversations]
-  );
+  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
+  const recentAgents = useRecentAgents();
+  const flipKey = recentAgents.map((agent) => agent?.id || agent?.name).join(',');
 
   return (
     <>
       <div className="flex flex-col gap-8">
         <section
           className={cn('flex flex-col gap-2', {
-            hidden: !isAgentsLeftPanelOpen,
+            hidden: !isLeftPanelOpen,
           })}
         >
           <Text styleAs="label" className="truncate dark:text-mushroom-800">
             Recent Assistants
           </Text>
-          <div className="flex gap-1">
-            {recentAgents.slice(0, 5).map((agent) => {
-              if (!agent) return <AgentCard key="commandR+" name="Command R+" isBaseAgent />;
-              return <AgentCard key={agent.id} name={agent.name} id={agent.id} />;
-            })}
-          </div>
+
+          <Flipper flipKey={flipKey} className="flex gap-1 overflow-y-auto">
+            {recentAgents.map((agent) => (
+              <Flipped key={agent?.id || agent?.name} flipId={agent?.id || agent?.name}>
+                {(flippedProps) => (
+                  <div {...flippedProps} key={agent.id || agent.name}>
+                    <AgentCard name={agent.name} id={agent.id} isBaseAgent={!agent.id} />
+                  </div>
+                )}
+              </Flipped>
+            ))}
+          </Flipper>
         </section>
-        <section className={cn('flex flex-col gap-4', { 'items-center': !isAgentsLeftPanelOpen })}>
-          {isAgentsLeftPanelOpen ? (
+        <section className={cn('flex flex-col gap-4', { 'items-center': !isLeftPanelOpen })}>
+          {isLeftPanelOpen ? (
             <InputSearch
               placeholder="Search chat history"
               value={search}
@@ -65,7 +64,7 @@ export const ConversationList: React.FC = () => {
             />
           ) : (
             <Tooltip label="Search" hover size="sm">
-              <button onClick={() => setAgentsLeftSidePanelOpen(true)}>
+              <button onClick={() => setLeftPanelOpen(true)}>
                 <Icon name="search" kind="outline" className="dark:fill-marble-950" />
               </button>
             </Tooltip>
@@ -80,7 +79,7 @@ export const ConversationList: React.FC = () => {
         <Text
           styleAs="label"
           className={cn('truncate dark:text-mushroom-800', {
-            hidden: !isAgentsLeftPanelOpen,
+            hidden: !isLeftPanelOpen,
           })}
         >
           Recent Chats
@@ -100,7 +99,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     isLoading: isConversationsLoading,
     isError,
   } = useConversations({});
-  const { isAgentsLeftPanelOpen } = useSettingsStore();
+  const { isLeftPanelOpen } = useSettingsStore();
   const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
   const hasSearchQuery = search.length > 0;
   const hasSearchResults = results.length > 0;
@@ -121,7 +120,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     return <ConversationListLoading />;
   }
 
-  if (isError && isAgentsLeftPanelOpen) {
+  if (isError && isLeftPanelOpen) {
     return (
       <span className="my-auto flex flex-col items-center gap-2 text-center">
         <Icon name="warning" />
@@ -130,7 +129,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     );
   }
 
-  if (hasSearchQuery && !hasSearchResults && isAgentsLeftPanelOpen) {
+  if (hasSearchQuery && !hasSearchResults && isLeftPanelOpen) {
     return (
       <Text as="span" className="line-clamp-3">
         No results found for &quot;{search}&quot;.
@@ -138,7 +137,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     );
   }
 
-  if (!hasConversations && isAgentsLeftPanelOpen) {
+  if (!hasConversations && isLeftPanelOpen) {
     return (
       <span className="flex h-full w-full items-center justify-center text-volcanic-500">
         <Text>It&apos;s quiet here... for now</Text>
@@ -153,7 +152,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
       checkedConversations={checkedConversations}
       onCheckConversation={handleCheckConversationToggle}
       className={cn('flex flex-col items-center space-y-1', {
-        'space-y-2': !isAgentsLeftPanelOpen,
+        'space-y-2': !isLeftPanelOpen,
       })}
     />
   );

@@ -24,7 +24,7 @@ Clone the repo and run
 make first-run
 ```
 
-Follow the instructions to configure the model - either AWS Sagemaker, Bedrock, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `.env` file and copying the contents of the provided `.env-template`. Then replacing the values with the correct ones.
+Follow the instructions to configure the model - either AWS Sagemaker, Bedrock, Azure, or Cohere's platform. This can also be done by running `make setup` (See Option 2 below), which will help generate a file for you, or by manually creating a `configuration.yaml` file and copying the contents of the provided `configuration.template.yaml`. Then replacing the values with the correct ones.
 For Windows systems see the detailed setup below.
 
 #### Detailed environment setup
@@ -211,7 +211,7 @@ docker run --name=cohere-toolkit -itd -e COHERE_API_KEY='Your Cohere API key her
 
 ##### Option 2.1 - Run everything at once
 
-Run `make first-run` to start the CLI, that will generate a `.env` file for you. This will also run all the DB migrations and run the containers
+Run `make first-run` to start the CLI, that will generate the `configuration.yaml` and `secrets.yaml` files for you. This will also run all the DB migrations and run the containers
 
 ```bash
 make first-run
@@ -219,7 +219,7 @@ make first-run
 
 ##### Option 2.1 - Run each command separately
 
-Run `make setup` to start the CLI, that will generate a `.env` file for you:
+Run `make setup` to start the CLI, that will generate the `configuration.yaml` and `secrets.yaml` files for you:
 
 ```bash
 make setup
@@ -252,11 +252,16 @@ If you also need to install the community features, run:
 poetry install --with community
 ```
 
-To run linters, you can use `make lint` or separate commands:
+The codebase is formatted and linted using [Ruff](https://docs.astral.sh/ruff/). 
 
-```bash
-poetry run black .
-poetry run isort .
+To check for linter and formatter errors, run
+```
+make lint
+```
+
+To apply automatic fixes, run
+```
+make lint-fix
 ```
 
 Run type checker:
@@ -272,7 +277,7 @@ Run type checker:
 
 You have two methods to set up the environment variables:
 1. Run `make setup` and follow the instructions to configure it.
-2. Run `cp .env-template .env` and adjust the values in the `.env` file according to your situation.
+2. Copy the contents of `configuration.template.yaml` and `secrets.template.yaml` files to new `configuration.yaml` and `secrets.yaml` files.
 
 ### Setting up Your Local Database
 
@@ -296,13 +301,19 @@ This will delete the existing `db` container volumes, restart the containers and
 
 ### Testing the Toolkit
 
-Run:
+Install the Python dependencies:
 
 ```bash
-make dev
+make install
 ```
 
-To spin the `test_db` service for you. After, you can run:
+Spin up the Test DB required by the tests:
+
+```bash
+make test-db
+```
+
+Run the tests:
 
 ```bash
 make run-tests
@@ -313,7 +324,7 @@ make run-tests
 When making changes to any of the database models, such as adding new tables, modifying or removing columns, you will need to create a new Alembic migration. You can use the following Make command:
 
 ```bash
-make migration
+make migration message="Your migration message"
 ```
 
 Important: If adding a new table, make sure to add the import to the `model/__init__.py` file! This will allow Alembic to import the models and generate migrations accordingly.

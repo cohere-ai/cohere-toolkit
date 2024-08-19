@@ -74,6 +74,10 @@ class CustomChat(BaseChat):
                     logger.debug(event=f"Final event: {event}")
                     break
         except Exception as e:
+            logger.exception(
+                event="[Custom Chat] Error occurred during chat stream",
+                error=str(e),
+            )
             yield {
                 "event_type": StreamEvent.STREAM_END,
                 "finish_reason": "ERROR",
@@ -153,13 +157,13 @@ class CustomChat(BaseChat):
         if chat_request.file_ids or chat_request.agent_id:
             if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
                 files = get_file_service().get_files_by_conversation_id(
-                    session, user_id, ctx.get_conversation_id()
+                    session, user_id, ctx.get_conversation_id(), ctx
                 )
 
                 agent_files = []
                 if agent_id:
                     agent_files = get_file_service().get_files_by_agent_id(
-                        session, user_id, agent_id
+                        session, user_id, agent_id, ctx
                     )
 
                 all_files = files + agent_files
@@ -214,7 +218,7 @@ class CustomChat(BaseChat):
 
                 # Remove the message if tool results are present
                 if tool_results:
-                    chat_request.tool_results = [result for result in tool_results]
+                    chat_request.tool_results = list(tool_results)
                     chat_request.message = ""
             else:
                 break  # Exit loop if there are no new tool calls
@@ -255,7 +259,7 @@ class CustomChat(BaseChat):
             num_words = min(25, word_count)
             preview = " ".join(file.file_content.split()[:num_words])
 
-            files_message += f"Filename: {file.file_name}\nWord Count: {word_count} Preview: {preview}\n\n"
+            files_message += f"Filename: {file.file_name}\nFile ID: {file.id}\nWord Count: {word_count} Preview: {preview}\n\n"
 
         chat_history.append(ChatMessage(message=files_message, role=ChatRole.SYSTEM))
         return chat_history

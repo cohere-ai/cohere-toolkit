@@ -7,7 +7,6 @@ from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.langchain import LangChainChat
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
-from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, AgentToolMetadata
@@ -77,7 +76,6 @@ async def chat_stream(
     (
         session,
         chat_request,
-        file_paths,
         response_message,
         should_store,
         managed_tools,
@@ -91,7 +89,6 @@ async def chat_stream(
             CustomChat().chat(
                 chat_request,
                 stream=True,
-                file_paths=file_paths,
                 managed_tools=managed_tools,
                 session=session,
                 ctx=ctx,
@@ -152,7 +149,6 @@ async def chat(
     (
         session,
         chat_request,
-        file_paths,
         response_message,
         should_store,
         managed_tools,
@@ -165,7 +161,6 @@ async def chat(
         CustomChat().chat(
             chat_request,
             stream=False,
-            file_paths=file_paths,
             managed_tools=managed_tools,
             ctx=ctx,
         ),

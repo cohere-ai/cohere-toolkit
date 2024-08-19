@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi import File as RequestFile
-from fastapi import Form, HTTPException, Request
 from fastapi import UploadFile as FastAPIUploadFile
 
-from backend.chat.custom.custom import CustomChat
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
+from backend.config.settings import Settings
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.database_models import Conversation as ConversationModel
@@ -21,18 +22,13 @@ from backend.schemas.conversation import (
 )
 from backend.schemas.file import (
     DeleteFileResponse,
-    FilePublic,
     ListFile,
-    UpdateFileRequest,
     UploadFileResponse,
 )
 from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 from backend.services.conversation import (
-    DEFAULT_TITLE,
-    GENERATE_TITLE_PROMPT,
-    extract_details_from_conversation,
     filter_conversations,
     generate_conversation_title,
     get_documents_to_rerank,
@@ -85,10 +81,10 @@ async def get_conversation(
         )
 
     files = get_file_service().get_files_by_conversation_id(
-        session, user_id, conversation.id
+        session, user_id, conversation.id, ctx
     )
     files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
-    messages = get_messages_with_files(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
     _ = validate_conversation(session, conversation_id, user_id)
 
     conversation = ConversationPublic(
@@ -140,7 +136,7 @@ async def list_conversations(
     results = []
     for conversation in conversations:
         files = get_file_service().get_files_by_conversation_id(
-            session, user_id, conversation.id
+            session, user_id, conversation.id, ctx
         )
         files_with_conversation_id = attach_conversation_id_to_files(
             conversation.id, files
@@ -192,9 +188,9 @@ async def update_conversation(
     )
 
     files = get_file_service().get_files_by_conversation_id(
-        session, user_id, conversation.id
+        session, user_id, conversation.id, ctx
     )
-    messages = get_messages_with_files(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
     files_with_conversation_id = attach_conversation_id_to_files(conversation.id, files)
     return ConversationPublic(
         id=conversation.id,
@@ -229,12 +225,11 @@ async def delete_conversation(
         HTTPException: If the conversation with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    _ = validate_conversation(session, conversation_id, user_id)
-    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    conversation = validate_conversation(session, conversation_id, user_id)
 
-    if conversation.file_ids:
-        get_file_service().bulk_delete_files(session, conversation.file_ids, user_id)
-
+    get_file_service().delete_all_conversation_files(
+        session, conversation.id, conversation.file_ids, user_id, ctx
+    )
     conversation_crud.delete_conversation(session, conversation_id, user_id)
 
     return DeleteConversationResponse()
@@ -299,7 +294,7 @@ async def search_conversations(
     results = []
     for conversation in filtered_documents:
         files = get_file_service().get_files_by_conversation_id(
-            session, user_id, conversation.id
+            session, user_id, conversation.id, ctx
         )
         files_with_conversation_id = attach_conversation_id_to_files(
             conversation.id, files
@@ -349,7 +344,9 @@ async def upload_file(
     """
 
     user_id = ctx.get_user_id()
-    validate_file_size(session, user_id, file)
+    # Currently do not limit file size for Compass
+    if Settings().feature_flags.use_compass_file_storage is False:
+        validate_file_size(session, user_id, file)
 
     # Create new conversation
     if not conversation_id:
@@ -368,7 +365,7 @@ async def upload_file(
             if not user_id:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
+                    detail="user_id is required if no valid conversation is provided.",
                 )
 
             # Create new conversation
@@ -382,7 +379,7 @@ async def upload_file(
     # Handle uploading File
     try:
         upload_file = await get_file_service().create_conversation_files(
-            session, [file], user_id, conversation.id
+            session, [file], user_id, conversation.id, ctx
         )
     except Exception as e:
         raise HTTPException(
@@ -441,7 +438,7 @@ async def batch_upload_file(
             if not user_id:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"user_id is required if no valid conversation is provided.",
+                    detail="user_id is required if no valid conversation is provided.",
                 )
 
             # Create new conversation
@@ -451,9 +448,14 @@ async def batch_upload_file(
             )
 
     # TODO: check if file already exists in DB once we have files per agents
+
     try:
         uploaded_files = await get_file_service().create_conversation_files(
-            session, files, user_id, conversation.id
+            session,
+            files,
+            user_id,
+            conversation.id,
+            ctx,
         )
     except Exception as e:
         raise HTTPException(
@@ -488,46 +490,10 @@ async def list_files(
     _ = validate_conversation(session, conversation_id, user_id)
 
     files = get_file_service().get_files_by_conversation_id(
-        session, user_id, conversation_id
+        session, user_id, conversation_id, ctx
     )
     files_with_conversation_id = attach_conversation_id_to_files(conversation_id, files)
     return files_with_conversation_id
-
-
-@router.put("/{conversation_id}/files/{file_id}", response_model=FilePublic)
-async def update_file(
-    conversation_id: str,
-    file_id: str,
-    new_file: UpdateFileRequest,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
-) -> FilePublic:
-    """
-    Update a file by ID.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        file_id (str): File ID.
-        new_file (UpdateFileRequest): New file data.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        FilePublic: Updated file.
-
-    Raises:
-        HTTPException: If the conversation with the given ID is not found.
-    """
-    user_id = ctx.get_user_id()
-    _ = validate_conversation(session, conversation_id, user_id)
-    _ = validate_file(session, file_id, user_id)
-
-    file = get_file_service().get_file_by_id(session, file_id, user_id)
-    file = get_file_service().update_file(session, file, new_file)
-    files_with_conversation_id = attach_conversation_id_to_files(
-        conversation_id, [file]
-    )
-    return files_with_conversation_id[0]
 
 
 @router.delete("/{conversation_id}/files/{file_id}")
@@ -553,13 +519,11 @@ async def delete_file(
     """
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
-    _ = validate_file(session, file_id, user_id)
-
-    file = get_file_service().get_file_by_id(session, file_id, user_id)
+    validate_file(session, file_id, user_id, conversation_id, ctx)
 
     # Delete the File DB object
-    get_file_service().delete_file_from_conversation(
-        session, conversation_id, file_id, user_id
+    get_file_service().delete_conversation_file_by_id(
+        session, conversation_id, file_id, user_id, ctx
     )
 
     return DeleteFileResponse()
@@ -571,6 +535,7 @@ async def generate_title(
     conversation_id: str,
     session: DBSessionDep,
     request: Request,
+    model: Optional[str] = "command-r",
     ctx: Context = Depends(get_context),
 ) -> GenerateTitleResponse:
     """
@@ -590,19 +555,32 @@ async def generate_title(
     """
     user_id = ctx.get_user_id()
     ctx.with_deployment_config()
+    ctx.with_model(model)
 
     conversation = validate_conversation(session, conversation_id, user_id)
     agent_id = conversation.agent_id if conversation.agent_id else None
 
-    title = await generate_conversation_title(
+    if agent_id:
+        agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
+        agent_schema = Agent.model_validate(agent)
+        ctx.with_agent(agent_schema)
+        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+    else:
+        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
+
+    title, error = await generate_conversation_title(
         session,
         conversation,
         agent_id,
         ctx,
+        model,
     )
 
     conversation_crud.update_conversation(
         session, conversation, UpdateConversationRequest(title=title)
     )
 
-    return GenerateTitleResponse(title=title)
+    return GenerateTitleResponse(
+        title=title,
+        error=error,
+    )

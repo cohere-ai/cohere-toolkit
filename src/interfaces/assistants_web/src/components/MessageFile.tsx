@@ -82,7 +82,7 @@ export const MessageFile: React.FC<Props> = ({
         <button
           type="button"
           onClick={onDelete}
-          className="flex h-4 w-4 flex-shrink-0 text-mushroom-300 md:invisible md:group-hover:visible dark:text-marble-850"
+          className="flex h-4 w-4 flex-shrink-0 text-mushroom-300 dark:text-marble-850 md:invisible md:group-hover:visible"
         >
           <Icon name="close" />
         </button>

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import false, true
 
 from backend.database_models import Deployment
 from backend.database_models.agent import Agent, AgentDeploymentModel
@@ -13,7 +14,7 @@ def create_agent(db: Session, agent: Agent) -> Agent:
     """
     Create a new agent.
 
-    Agents are configurable entities that can be specified to use specfic tools and have specific preambles for better task completion.
+    Agents are configurable entities that can be specified to use specific tools and have specific preambles for better task completion.
 
     Args:
       db (Session): Database session.
@@ -29,7 +30,9 @@ def create_agent(db: Session, agent: Agent) -> Agent:
 
 
 @validate_transaction
-def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
+def get_agent_by_id(
+    db: Session, agent_id: str, user_id: str = "", override_user_id: bool = False
+) -> Agent:
     """
     Get an agent by its ID.
     Anyone can get a public agent, but only the owner can get a private agent.
@@ -37,12 +40,17 @@ def get_agent_by_id(db: Session, agent_id: str, user_id: str) -> Agent:
     Args:
       db (Session): Database session.
       agent_id (str): Agent ID.
+      override_user_id (bool): Override user ID check. Should only be used for internal operations.
 
     Returns:
       Agent: Agent with the given ID.
     """
+    if override_user_id:
+        return db.query(Agent).filter(Agent.id == agent_id).first()
+
     agent = db.query(Agent).filter(Agent.id == agent_id).first()
 
+    # Cannot GET privates Agents not belonging to you
     if agent and agent.is_private and agent.user_id != user_id:
         return None
 
@@ -116,8 +124,8 @@ def get_association_by_deployment_id(
         .filter(
             AgentDeploymentModel.deployment_id == deployment_id,
             AgentDeploymentModel.agent_id == agent.id,
-            AgentDeploymentModel.is_default_deployment == True,
-            AgentDeploymentModel.is_default_model == True,
+            AgentDeploymentModel.is_default_deployment == true(),
+            AgentDeploymentModel.is_default_model == true(),
         )
         .first()
     )
@@ -126,11 +134,12 @@ def get_association_by_deployment_id(
 @validate_transaction
 def get_agents(
     db: Session,
-    user_id: str,
+    user_id: str = "",
     offset: int = 0,
     limit: int = 100,
     organization_id: Optional[str] = None,
     visibility: AgentVisibility = AgentVisibility.ALL,
+    override_user_id: bool = False,
 ) -> list[Agent]:
     """
     Get all agents for a user.
@@ -142,19 +151,22 @@ def get_agents(
         limit (int): Limit of the results.
         organization_id (str): Organization ID.
         user_id (str): User ID.
+        override_user_id (bool): Override user ID check. Should only be used for internal operations.
 
     Returns:
       list[Agent]: List of agents.
     """
     query = db.query(Agent)
+    if override_user_id:
+        return query.all()
 
     # Filter by visibility
     if visibility == AgentVisibility.PUBLIC:
-        query = query.filter(Agent.is_private == False)
+        query = query.filter(Agent.is_private == false())
     elif visibility == AgentVisibility.PRIVATE:
-        query = query.filter(Agent.is_private == True, Agent.user_id == user_id)
+        query = query.filter(Agent.is_private == true(), Agent.user_id == user_id)
     else:
-        query = query.filter((Agent.is_private == False) | (Agent.user_id == user_id))
+        query = query.filter((Agent.is_private == false()) | (Agent.user_id == user_id))
 
     # Filter by organization and user
     if organization_id is not None:
@@ -277,23 +289,19 @@ def update_agent(
 @validate_transaction
 def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     """
-    Delete an agent by ID.
-    Anyone can delete a public agent, but only the owner can delete a private agent.
+    Delete an Agent by ID if the Agent was created by the user_id given.
 
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
 
     Returns:
-      bool: True if the agent was deleted, False otherwise
+      bool: True if the Agent was deleted, False otherwise
     """
-    agent_query = db.query(Agent).filter(Agent.id == agent_id)
+    agent_query = db.query(Agent).filter(Agent.id == agent_id, Agent.user_id == user_id)
     agent = agent_query.first()
 
     if not agent:
-        return False
-
-    if agent and agent.is_private and agent.user_id != user_id:
         return False
 
     agent_query.delete()

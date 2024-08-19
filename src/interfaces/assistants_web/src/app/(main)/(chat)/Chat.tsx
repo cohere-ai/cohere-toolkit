@@ -21,7 +21,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   const { data: agent } = useAgent({ agentId });
   const { data: tools } = useListTools();
   const { setConversation } = useConversationStore();
-  const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
+  const { addCitation, saveOutputFiles } = useCitationsStore();
   const { setParams, resetFileParams } = useParamsStore();
 
   const {
@@ -52,16 +52,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     if (conversationId) {
       setConversation({ id: conversationId });
     }
-  }, [
-    agent,
-    conversation,
-    tools,
-    conversationId,
-    setConversation,
-    resetCitations,
-    resetFileParams,
-    setParams,
-  ]);
+  }, [agent, tools, conversation]);
 
   useEffect(() => {
     if (!conversation) return;
@@ -107,7 +98,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   return isError ? (
     <ConversationError error={error} />
   ) : (
-    <Conversation conversationId={conversationId} agent={agent} tools={tools} startOptionsEnabled />
+    <Conversation agent={agent} tools={tools} startOptionsEnabled />
   );
 };
 

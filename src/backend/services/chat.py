@@ -3,19 +3,15 @@ from typing import Any, AsyncGenerator, Generator, List, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
-from pydantic import ValidationError
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
-from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
-from backend.crud import deployment as deployment_crud
-from backend.crud import file as file_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
 from backend.database_models.citation import Citation
@@ -54,8 +50,6 @@ from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
-from backend.services.file import get_file_service
-from backend.services.generators import AsyncGeneratorContextManager
 
 
 def process_chat(
@@ -138,9 +132,7 @@ def process_chat(
         id=str(uuid4()),
     )
 
-    file_paths = None
     if isinstance(chat_request, CohereChatRequest):
-        file_paths = handle_file_retrieval(session, user_id, chat_request.file_ids)
         if should_store:
             attach_files_to_messages(
                 session,
@@ -165,7 +157,6 @@ def process_chat(
     return (
         session,
         chat_request,
-        file_paths,
         chatbot_message,
         should_store,
         managed_tools,
@@ -217,7 +208,6 @@ def get_or_create_conversation(
     """
     conversation_id = chat_request.conversation_id or ""
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
-
     if conversation is None:
         # Get the first 5 words of the user message as the title
         title = " ".join(user_message.split()[:5])
@@ -304,29 +294,6 @@ def create_message(
     if should_store:
         return message_crud.create_message(session, message)
     return message
-
-
-def handle_file_retrieval(
-    session: DBSessionDep, user_id: str, file_ids: List[str] | None = None
-) -> list[str] | None:
-    """
-    Retrieve file paths from the database.
-
-    Args:
-        session (DBSessionDep): Database session.
-        user_id (str): User ID.
-        file_ids (List): List of File IDs.
-
-    Returns:
-        list[str] | None: List of file paths or None.
-    """
-    file_paths = None
-    # Use file_ids if provided
-    if file_ids is not None:
-        files = get_file_service().get_files_by_ids(session, file_ids, user_id)
-        file_paths = [file.file_path for file in files]
-
-    return file_paths
 
 
 def attach_files_to_messages(
@@ -523,6 +490,7 @@ async def generate_chat_response(
                 event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
                 conversation_id=ctx.get_conversation_id(),
                 tool_calls=data.get("tool_calls", []),
+                error=data.get("error", None),
             )
 
     return non_streamed_chat_response

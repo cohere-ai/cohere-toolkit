@@ -22,7 +22,7 @@ psycopg2-binary = "^2.9.9"
 python-multipart = "^0.0.9"
 sse-starlette = "^2.0.0"
 boto3 = "^1.0.0"
-httpx = "^0.27.0"
+httpx = {extras = ["http2"], version = "^0.27.0"}
 chromadb = "^0.4.16"
 cohere = "^5.5.7"
 llama-index = "^0.10.11"
@@ -45,17 +45,20 @@ google_auth_oauthlib = "^1.2.0"
 google-auth-httplib2 = "^0.2.0"
 google-api-python-client = "^2.133.0"
 openpyxl = "^3.1.5"
+celery = {version = "^5.4.0", extras = ["gevent"]}
+kombu = "^5.3.7"
+watchdog = "^4.0.1"
 redis = {extras = ["hiredis"], version = "^5.0.7"}
 python-docx = "^1.1.2"
 python-calamine = "^0.2.3"
-
-# Compass dependencies - To be removed once Compass is OSS
 structlog = "^24.4.0"
 pyyaml = "^6.0.1"
+
 [tool.poetry.group.compass]
 optional = false
 
 [tool.poetry.group.compass.dependencies]
+# Compass dependencies - To be removed once Compass is OSS
 fsspec = "2024.2.0"
 joblib = "*"
 pydantic = ">=2.6.3"
@@ -74,10 +77,7 @@ pytest-cov = "^5.0.0"
 factory-boy = "^3.3.0"
 freezegun = "^1.5.1"
 pre-commit = "^2.20.0"
-ruff = "^0.0.94"
-isort = "^5.12.0"
-black = "24.3.0"
-autoflake="^2.3.1"
+ruff = "^0.6.0"
 pytest-asyncio = "^0.23.7"
 
 [tool.poetry.group.setup]
@@ -114,11 +114,17 @@ llama-cpp-python = "^0.2.67"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.isort]
-profile = "black"
-
 [tool.pyright]
 include = ["src/backend/services/metrics.py"]
 defineConstant = { DEBUG = true }
 reportMissingImports = true
 reportMissingTypeStubs = false
+
+[tool.ruff]
+lint.select = ["F", "I", "E", "W", "I"]
+lint.ignore = ["E501", "N806"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]

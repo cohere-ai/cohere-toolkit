@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useBrandedColors } from '@/hooks/brandedColors';
+import { useIsDesktop } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useFileActions } from '@/hooks/files';
 import {
@@ -28,8 +29,10 @@ type Props = {
 export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const { conversationId } = useChatRoutes();
   const router = useRouter();
+  const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
   const pathname = usePathname();
-  const { setAgentsLeftSidePanelOpen } = useSettingsStore();
+  const { setLeftPanelOpen } = useSettingsStore();
 
   const isActive = isBaseAgent
     ? conversationId
@@ -61,7 +64,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
     router.push(url);
 
     resetConversationSettings();
-    setAgentsLeftSidePanelOpen(false);
+    isMobile && setLeftPanelOpen(false);
   };
 
   return (

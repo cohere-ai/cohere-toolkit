@@ -23,29 +23,40 @@ type RequiredAndNotNull<T> = {
 
 type RequireAndNotNullSome<T, K extends keyof T> = RequiredAndNotNull<Pick<T, K>> & Omit<T, K>;
 
-export type AgentSettingsFields = RequireAndNotNullSome<
-  | Omit<UpdateAgentRequest, 'version' | 'temperature'>
-  | Omit<CreateAgentRequest, 'version' | 'temperature'>,
+type CreateAgentSettingsFields = RequireAndNotNullSome<
+  Omit<CreateAgentRequest, 'version' | 'temperature'>,
   'name' | 'model' | 'deployment'
 >;
 
-type Props = {
-  source?: 'update' | 'create';
+type UpdateAgentSettingsFields = RequireAndNotNullSome<
+  Omit<UpdateAgentRequest, 'version' | 'temperature'>,
+  'name' | 'model' | 'deployment'
+> & { is_private?: boolean };
+
+export type AgentSettingsFields = CreateAgentSettingsFields | UpdateAgentSettingsFields;
+
+type BaseProps = {
   fields: AgentSettingsFields;
   savePendingAssistant: VoidFunction;
   setFields: (fields: AgentSettingsFields) => void;
   onSubmit: VoidFunction;
-  agentId?: string;
 };
 
-export const AgentSettingsForm: React.FC<Props> = ({
-  source = 'create',
-  fields,
-  savePendingAssistant,
-  setFields,
-  onSubmit,
-  agentId,
-}) => {
+type CreateProps = BaseProps & {
+  source: 'create';
+};
+
+type UpdateProps = BaseProps & {
+  source: 'update';
+  agentId: string;
+};
+
+export type Props = CreateProps | UpdateProps;
+
+export const AgentSettingsForm: React.FC<Props> = (props) => {
+  const { source = 'create', fields, savePendingAssistant, setFields, onSubmit } = props;
+  const agentId = 'agentId' in props ? props.agentId : undefined;
+
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
   const params = useSearchParams();
@@ -73,7 +84,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
 
   const setToolsMetadata = () => {
     const tools_metadata = [
-      ...(googleFiles && !!googleFiles.length
+      ...(googleFiles && googleFiles.length > 0
         ? [
             {
               tool_name: TOOL_GOOGLE_DRIVE_ID,
@@ -81,7 +92,7 @@ export const AgentSettingsForm: React.FC<Props> = ({
             },
           ]
         : []),
-      ...(defaultUploadFiles && !!defaultUploadFiles.length
+      ...(defaultUploadFiles && defaultUploadFiles.length > 0
         ? [
             {
               tool_name: TOOL_READ_DOCUMENT_ID,
@@ -94,12 +105,12 @@ export const AgentSettingsForm: React.FC<Props> = ({
           ]
         : []),
     ];
-    const tools = fields.tools ?? [];
-    tools_metadata.forEach((tool) => {
-      if (!tools.includes(tool.tool_name)) {
-        tools.push(tool.tool_name);
-      }
-    });
+    let tools = fields.tools ?? [];
+    if (tools_metadata.some((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)) {
+      tools = tools.concat(TOOL_GOOGLE_DRIVE_ID);
+    } else {
+      tools = tools.filter((tool) => tool !== TOOL_GOOGLE_DRIVE_ID);
+    }
 
     setFields({ ...fields, tools, tools_metadata });
   };
@@ -133,11 +144,21 @@ export const AgentSettingsForm: React.FC<Props> = ({
 
   const handleGoogleFilePicker = () => {
     savePendingAssistant();
-    openGoogleFilePicker();
+    const googleDriveTool = listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID);
+    if (!googleDriveTool?.is_available) {
+      return;
+    }
+
+    // If auth is required and token is not present, redirect to auth url
+    if (googleDriveTool?.is_auth_required && googleDriveTool.auth_url) {
+      window.open(googleDriveTool.auth_url, '_self');
+    } else {
+      openGoogleFilePicker?.();
+    }
   };
 
   return (
-    <div className="flex flex-col space-y-6 p-8">
+    <div className="flex flex-col space-y-6">
       {/* Step 1: Define your assistant - name, description, instruction */}
       <CollapsibleSection
         title="Define your assistant"
@@ -194,7 +215,6 @@ export const AgentSettingsForm: React.FC<Props> = ({
         <StepButtons
           handleNext={() => setCurrentStep('visibility')}
           handleBack={() => setCurrentStep('dataSources')}
-          allowSkip
           hide={source !== 'create'}
         />
       </CollapsibleSection>
@@ -207,9 +227,8 @@ export const AgentSettingsForm: React.FC<Props> = ({
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'visibility' : undefined)}
       >
         <VisibilityStep
-          isPublic={true}
-          // TODO: add visibility when available
-          setIsPublic={(_: boolean) => alert('to be developed!')}
+          isPrivate={Boolean(fields.is_private)}
+          setIsPrivate={(isPrivate) => setFields({ ...fields, is_private: isPrivate })}
         />
         <StepButtons
           handleNext={onSubmit}
@@ -228,7 +247,6 @@ const StepButtons: React.FC<{
   handleNext: VoidFunction;
   handleBack?: VoidFunction;
   nextLabel?: string;
-  allowSkip?: boolean;
   isSubmit?: boolean;
   disabled?: boolean;
   hide?: boolean;
@@ -236,7 +254,6 @@ const StepButtons: React.FC<{
   handleNext,
   handleBack,
   nextLabel = 'Next',
-  allowSkip = false,
   isSubmit = false,
   disabled = false,
   hide = false,
@@ -255,12 +272,6 @@ const StepButtons: React.FC<{
         className={cn({ hidden: !handleBack })}
       />
       <div className="flex items-center gap-4">
-        <Button
-          label="Skip"
-          kind="secondary"
-          onClick={handleNext}
-          className={cn({ hidden: !allowSkip })}
-        />
         <Button
           label={nextLabel}
           theme="default"

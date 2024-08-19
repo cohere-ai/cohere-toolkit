@@ -5,7 +5,6 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
-from backend.schemas.deployment import ModelSimple as ModelSchema
 
 
 class AgentVisibility(StrEnum):
@@ -125,6 +124,7 @@ class UpdateAgentRequest(BaseModel):
     organization_id: Optional[str] = None
     tools: Optional[list[str]] = None
     tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
+    is_private: Optional[bool] = None
 
     class Config:
         from_attributes = True
