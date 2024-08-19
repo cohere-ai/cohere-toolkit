@@ -1,5 +1,4 @@
 import asyncio
-import json
 import pickle
 from typing import List, Optional
 
@@ -13,6 +12,7 @@ from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import snapshot as snapshot_crud
+from backend.crud.agent_task import get_agent_tasks_by_agent_id
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_task import SyncCeleryTaskMeta
 from backend.database_models.agent_tool_metadata import (
@@ -23,6 +23,7 @@ from backend.routers.utils import get_deployment_model_from_agent
 from backend.schemas.agent import (
     Agent,
     AgentPublic,
+    AgentTaskResponse,
     AgentToolMetadata,
     AgentToolMetadataPublic,
     AgentVisibility,
@@ -32,7 +33,6 @@ from backend.schemas.agent import (
     DeleteAgentToolMetadata,
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
-    AgentTaskResponse,
 )
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
@@ -61,7 +61,6 @@ from backend.services.request_validators import (
     validate_user_header,
 )
 from backend.services.sync.jobs.sync_agent import sync_agent
-from backend.crud.agent_task import get_agent_tasks_by_agent_id
 from backend.tools.files import FileToolsArtifactTypes
 
 router = APIRouter(

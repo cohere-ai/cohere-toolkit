@@ -115,7 +115,7 @@ class AgentTaskResponse(BaseModel):
     status: str
     result: Optional[Dict[str, Any]] = None
     date_done: str
-    exception_snippet: Optional[str] = None 
+    exception_snippet: Optional[str] = None
     name: str
     retries: int
 

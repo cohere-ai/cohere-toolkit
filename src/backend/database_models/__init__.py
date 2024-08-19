@@ -1,5 +1,6 @@
 # ruff: noqa
 from backend.database_models.agent import *
+from backend.database_models.agent_task import *
 from backend.database_models.agent_tool_metadata import *
 from backend.database_models.base import *
 from backend.database_models.blacklist import *
@@ -16,4 +17,3 @@ from backend.database_models.organization import *
 from backend.database_models.snapshot import *
 from backend.database_models.tool_auth import *
 from backend.database_models.user import *
-from backend.database_models.agent_task import *

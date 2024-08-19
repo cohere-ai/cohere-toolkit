@@ -1,11 +1,19 @@
-from uuid import uuid4
+from sqlalchemy import (
+    DateTime,
+    ForeignKey,
+    Integer,
+    LargeBinary,
+    String,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column
 
-from sqlalchemy import Text, ForeignKey, UniqueConstraint, Integer, String, DateTime, LargeBinary
-from sqlalchemy.orm import mapped_column, Mapped
 from backend.database_models.base import Base, MinimalBase
 
+
 class SyncCeleryTaskMeta(MinimalBase):
-    __tablename__ = 'sync_celery_taskmeta'
+    __tablename__ = "sync_celery_taskmeta"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     task_id: Mapped[str] = mapped_column(String(155), unique=True)
@@ -20,10 +28,13 @@ class SyncCeleryTaskMeta(MinimalBase):
     retries: Mapped[int] = mapped_column(Integer)
     queue: Mapped[str] = mapped_column(String(155))
 
-class AgentTask(Base):
-    __tablename__ = 'agent_tasks'
 
-    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"), nullable=False)
+class AgentTask(Base):
+    __tablename__ = "agent_tasks"
+
+    agent_id: Mapped[str] = mapped_column(
+        ForeignKey("agents.id", ondelete="CASCADE"), nullable=False
+    )
     task_id: Mapped[str] = mapped_column(Text, nullable=False)
 
     __table_args__ = (

@@ -1,5 +1,3 @@
-import json
-from http.client import HTTPException
 from typing import List
 
 from sqlalchemy.orm import Session

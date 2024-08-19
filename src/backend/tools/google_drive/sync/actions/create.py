@@ -1,7 +1,4 @@
 import time
-from tokenize import Ignore
-import traceback
-
 
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
@@ -9,9 +6,9 @@ from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
-    
 )
-from .utils import persist_agent_task, init_compass
+
+from .utils import init_compass, persist_agent_task
 
 ACTION_NAME = "create"
 logger = LoggerFactory().get_logger()
@@ -49,7 +46,7 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
         raise Exception(err_msg)
     file_bytes, web_view_link, extension, permissions = (
         file_details[key]
-        for key in ("file_bytes", "web_view_link", "extension", "permissions") 
+        for key in ("file_bytes", "web_view_link", "extension", "permissions")
     )
     if not file_bytes:
         err_msg = f"Error creating file {file_id} with link: {web_view_link} on Compass. File bytes could not be parsed"

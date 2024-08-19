@@ -10,6 +10,7 @@ from backend.tools.google_drive.sync.actions.utils import (
     get_file_details,
     list_permissions,
 )
+
 from .utils import init_compass, persist_agent_task
 
 ACTION_NAME = "permission_change"
