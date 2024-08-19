@@ -6,9 +6,18 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
+from backend.schemas.agent import Agent, AgentToolMetadata
+from sqlalchemy.orm import Session
 from backend.tools.base import BaseTool
 from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
+from backend.tools.google_drive import (
+    handle_google_drive_sync,
+    handle_google_drive_activity_event,
+    list_google_drive_artifacts_file_ids,
+    query_google_drive_activity,
+)
 
+from backend.tools.google_drive.sync.consolidation import consolidate
 logger = LoggerFactory().get_logger()
 
 
@@ -102,6 +111,51 @@ class GoogleDrive(BaseTool):
                 user_id=user_id, query=query, agent_tool_metadata=agent_tool_metadata
             )
             return documents
+
+    def handle_activity_sync(db_session: Session, agent: Agent, metadata: AgentToolMetadata):
+        activities = query_google_drive_activity(
+            session=db_session,
+            user_id=agent.user_id,
+            agent_artifacts=metadata.artifacts,
+        )
+
+        consolidated_activities = {
+            key: consolidate(activities=value)
+            for key, value in activities.items()
+        }
+        logger.info(
+            event=f"Publishing {sum([len(x) for x in consolidated_activities.values()])} activity tasks for agent {agent.id}"
+        )
+        for artifact_id, activity in consolidated_activities.items():
+            for activity_item in activity:
+                event_type = list(
+                    activity_item["primaryActionDetail"].keys()
+                )[0]
+                # NOTE: This is an unfortunate hack because the Google APi
+                # does not provide consistency over the request and response
+                # format of this action
+                if event_type == "permissionChange":
+                    event_type = "permission_change"
+
+                handle_google_drive_activity_event(
+                    event_type=event_type,
+                    activity=activity_item,
+                    agent_id=agent.id,
+                    user_id=agent.user_id,
+                    artifact_id=artifact_id,
+                )
+
+    def handle_agent_creation(db_session: Session, agent: Agent, metadata: AgentToolMetadata):
+        file_ids = list_google_drive_artifacts_file_ids(
+            session=db_session,
+            user_id=agent.user_id,
+            agent_artifacts=metadata.artifacts,
+            verbose=True,
+        )
+        session.close()
+        handle_google_drive_sync(
+            file_ids=file_ids, agent_id=agent.id, user_id=agent.user_id
+        )
 
 
 async def _default_gdrive_list_files(
