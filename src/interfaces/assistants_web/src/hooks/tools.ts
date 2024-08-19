@@ -134,6 +134,6 @@ export const useDeleteAuthTool = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['tools'] });
-    }
+    },
   });
 };
