@@ -16,6 +16,7 @@ import { useIsAgentNameUnique } from '@/hooks/agents';
 import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
 import { DataSourceArtifact } from '@/types/tools';
 import { cn } from '@/utils';
+import { getToolAuthUrl } from '@/utils/getToolAuthUrl';
 
 type RequiredAndNotNull<T> = {
   [P in keyof T]-?: Exclude<T[P], null | undefined>;
@@ -37,7 +38,6 @@ export type AgentSettingsFields = CreateAgentSettingsFields | UpdateAgentSetting
 
 type BaseProps = {
   fields: AgentSettingsFields;
-  savePendingAssistant: VoidFunction;
   setFields: (fields: AgentSettingsFields) => void;
   onSubmit: VoidFunction;
 };
@@ -54,13 +54,28 @@ type UpdateProps = BaseProps & {
 export type Props = CreateProps | UpdateProps;
 
 export const AgentSettingsForm: React.FC<Props> = (props) => {
-  const { source = 'create', fields, savePendingAssistant, setFields, onSubmit } = props;
+  const { source = 'create', fields, setFields, onSubmit } = props;
   const agentId = 'agentId' in props ? props.agentId : undefined;
 
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
   const params = useSearchParams();
   const defaultStep = params.has('datasources');
+  const defaultState = params.has('state');
+
+  useEffect(() => {
+    if (defaultState) {
+      const state = params.get('state');
+      if (state) {
+        try {
+          const fields = JSON.parse(atob(state));
+          setFields(fields);
+        } catch {
+          console.error('Error parsing state');
+        }
+      }
+    }
+  }, [defaultState, params, setFields]);
 
   const [currentStep, setCurrentStep] = useState<
     'define' | 'dataSources' | 'tools' | 'visibility' | undefined
@@ -143,7 +158,6 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
   });
 
   const handleGoogleFilePicker = () => {
-    savePendingAssistant();
     const googleDriveTool = listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID);
     if (!googleDriveTool?.is_available) {
       return;
@@ -151,9 +165,17 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
 
     // If auth is required and token is not present, redirect to auth url
     if (googleDriveTool?.is_auth_required && googleDriveTool.auth_url) {
-      window.open(googleDriveTool.auth_url, '_self');
+      const state = JSON.stringify(fields);
+
+      window.open(
+        getToolAuthUrl(
+          googleDriveTool.auth_url,
+          `${window.location.href}?datasources=1&state=${btoa(state)}`
+        ),
+        '_self'
+      );
     } else {
-      openGoogleFilePicker();
+      openGoogleFilePicker?.();
     }
   };
 

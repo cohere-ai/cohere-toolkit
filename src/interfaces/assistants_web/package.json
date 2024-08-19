@@ -34,6 +34,7 @@
     "@tanstack/react-query-devtools": "^5.8.9",
     "@types/babel__core": "^7.1.19",
     "@types/dom-view-transitions": "^1.0.5",
+    "@types/google.picker": "^0.0.42",
     "@types/is": "^0.0.21",
     "@types/mdast": "^4.0.3",
     "@types/react": "^18.2.18",

@@ -48,6 +48,7 @@ class TavilyInternetSearch(BaseTool):
     ) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
         domains = self.get_filtered_domains()
+        print(domains)
         result = self.client.search(
             query=query, search_depth="advanced", include_raw_content=True
         )

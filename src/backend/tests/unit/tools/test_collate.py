@@ -4,7 +4,6 @@ import pytest
 
 from backend.chat import collate
 from backend.model_deployments import CohereDeployment
-from backend.schemas.tool import ToolCall
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None

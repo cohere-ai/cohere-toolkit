@@ -26,7 +26,7 @@ class GoogleDrive(BaseTool):
     def is_available(cls) -> bool:
         return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
 
-    def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any):
+    def _handle_tool_specific_errors(self, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))
 
         if isinstance(error, RefreshError):
@@ -57,7 +57,8 @@ class GoogleDrive(BaseTool):
                 compass_username=Settings().compass.username,
                 compass_password=Settings().compass.password,
             )
-        except Exception:
+        except Exception as e:
+            logger.error(event=f"[Google Drive] Compass setup not found. {e}")
             pass
 
         if compass is not None:
@@ -73,7 +74,7 @@ class GoogleDrive(BaseTool):
                 },
             )
             if documents.error:
-                raise Exception(f"Compass no documents found for search query {query}")
+                raise Exception(f"Error getting documents for {query} with {documents.error}")
 
             hits = documents.result["hits"]
             chunks = sorted(

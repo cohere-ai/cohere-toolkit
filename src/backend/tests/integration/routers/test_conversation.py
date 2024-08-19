@@ -43,7 +43,7 @@ def test_search_conversations_with_reranking(
     session: Session,
     user: User,
 ) -> None:
-    conversation1 = get_factory("Conversation", session).create(
+    _ = get_factory("Conversation", session).create(
         title="Hello, how are you?", text_messages=[], user_id=user.id
     )
     conversation2 = get_factory("Conversation", session).create(
@@ -93,10 +93,10 @@ def test_search_conversations_with_reranking_sends_metrics(
     session: Session,
     user: User,
 ) -> None:
-    conversation1 = get_factory("Conversation", session).create(
+    _ = get_factory("Conversation", session).create(
         title="Hello, how are you?", text_messages=[], user_id=user.id
     )
-    conversation2 = get_factory("Conversation", session).create(
+    _ = get_factory("Conversation", session).create(
         title="There are are seven colors in the rainbow",
         text_messages=[],
         user_id=user.id,
@@ -113,7 +113,6 @@ def test_search_conversations_with_reranking_sends_metrics(
             },
             params={"query": "color"},
         )
-        results = response.json()
         assert response.status_code == 200
         m_args: MetricsData = mock_metrics.await_args.args[0].signal
         assert m_args.user_id == user.id
@@ -178,7 +177,7 @@ def test_fail_generate_title_nonexistent_conversation(
         "/v1/conversations/123/generate-title", headers={"User-Id": user.id}
     )
     assert response.status_code == 404
-    assert response.json() == {"detail": f"Conversation with ID: 123 not found."}
+    assert response.json() == {"detail": "Conversation with ID: 123 not found."}
 
 
 def test_generate_title_error_invalid_model(

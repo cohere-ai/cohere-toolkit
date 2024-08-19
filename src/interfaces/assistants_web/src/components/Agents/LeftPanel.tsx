@@ -73,7 +73,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
           </button>
 
           <div className="flex md:hidden">
-            <ToggleSettingsSidePanelButton />
+            <ToggleLeftPanelButton />
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
               </Text>
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
             </div>
-            <ToggleSettingsSidePanelButton className="hidden md:flex" />
+            <ToggleLeftPanelButton className="hidden md:flex" />
           </section>
         </footer>
       </div>
@@ -134,7 +134,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
   );
 };
 
-const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
+const ToggleLeftPanelButton: React.FC<{ className?: string }> = ({ className }) => {
   const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
 
   const handleToggleAgentsLeftPanel = () => {
@@ -142,7 +142,7 @@ const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ class
   };
 
   return (
-    <Tooltip hover label="Toggle agents side panel" size="sm">
+    <Tooltip hover label="Toggle left panel" size="sm">
       <AgentsSidePanelButton
         iconName="close-drawer"
         theme="mushroom"

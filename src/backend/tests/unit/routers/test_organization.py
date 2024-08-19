@@ -16,7 +16,7 @@ def test_create_organization(session_client: TestClient, session: Session) -> No
 def test_create_organization_with_existing_name(
     session_client: TestClient, session: Session
 ) -> None:
-    organization = get_factory("Organization", session).create(name="test organization")
+    get_factory("Organization", session).create(name="test organization")
     new_organization = CreateOrganization(name="test organization")
     response = session_client.post("/v1/organizations", json=new_organization.dict())
     assert response.status_code == 400
@@ -54,9 +54,7 @@ def test_get_organization(session_client: TestClient, session: Session) -> None:
 def test_list_organizations(session_client: TestClient, session: Session) -> None:
     session.query(OrganizationModel).delete()
     for i in range(5):
-        organization = get_factory("Organization", session).create(
-            name=f"test organization {i}"
-        )
+        get_factory("Organization", session).create(name=f"test organization {i}")
 
     response = session_client.get("/v1/organizations")
     results = response.json()
