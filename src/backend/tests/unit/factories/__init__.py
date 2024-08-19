@@ -13,6 +13,7 @@ from backend.tests.unit.factories.conversation import (
 from backend.tests.unit.factories.deployment import DeploymentFactory
 from backend.tests.unit.factories.document import DocumentFactory
 from backend.tests.unit.factories.file import FileFactory
+from backend.tests.unit.factories.group import GroupFactory
 from backend.tests.unit.factories.message import (
     MessageFactory,
     MessageFileAssociationFactory,
@@ -50,6 +51,7 @@ FACTORY_MAPPING = {
     "AgentDeploymentModel": AgentDeploymentModelFactory,
     "ConversationFileAssociation": ConversationFileAssociationFactory,
     "MessageFileAssociation": MessageFileAssociationFactory,
+    "Group": GroupFactory,
 }
 
 

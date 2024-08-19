@@ -57,7 +57,8 @@ class GoogleDrive(BaseTool):
                 compass_username=Settings().compass.username,
                 compass_password=Settings().compass.password,
             )
-        except Exception:
+        except Exception as e:
+            logger.error(event=f"[Google Drive] Compass setup not found. {e}")
             pass
 
         if compass is not None:
@@ -73,7 +74,7 @@ class GoogleDrive(BaseTool):
                 },
             )
             if documents.error:
-                raise Exception(f"Compass no documents found for search query {query}")
+                raise Exception(f"Error getting documents for {query} with {documents.error}")
 
             hits = documents.result["hits"]
             chunks = sorted(
