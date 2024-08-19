@@ -1,7 +1,7 @@
 import { CarbonConnect, IntegrationName } from 'carbon-connect';
 import { uniqBy } from 'lodash';
 import Link from 'next/link';
-import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
+import { Dispatch, ReactNode, RefObject, SetStateAction, useRef, useState } from 'react';
 
 import { createTokenFetcher } from '@/api/carbon';
 import { Button, Icon, IconName, Spinner, Text } from '@/components/Shared';
@@ -10,6 +10,7 @@ import { useBatchUploadFile } from '@/hooks/files';
 import { useSession } from '@/hooks/session';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
+import { useTheme } from 'next-themes';
 
 type Props = {
   googleDriveEnabled: boolean;
@@ -32,8 +33,10 @@ export const DataSourcesStep: React.FC<Props> = ({
 }) => {
   const { userId } = useSession();
   const tokenFetcher = createTokenFetcher(userId);
+  const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: batchUploadFiles, status: batchUploadStatus } = useBatchUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { resolvedTheme } = useTheme();
 
   const handleRemoveGoogleDriveFile = (id: string) => {
     setGoogleFiles((prev) => {
@@ -136,7 +139,10 @@ export const DataSourcesStep: React.FC<Props> = ({
           brandIcon="https://cdn.sanity.io/images/rjtqmwfu/production/ae020d94b599cc453cc09ebc80be06d35d953c23-102x18.svg"
           loadingIconColor="#ffffff"
           tokenFetcher={tokenFetcher}
-          allowMultipleFiles={true}
+          open={isOpen}
+          showFilesTab={true}
+          theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+          setOpen={setIsOpen}
           enabledIntegrations={[
             {
               id: IntegrationName.GOOGLE_DRIVE,
@@ -158,7 +164,13 @@ export const DataSourcesStep: React.FC<Props> = ({
             console.error('CarbonConnect error', error);
           }}
         >
-          <Button kind="outline" theme="mushroom" icon="carbon" label="Carbon" />
+          <Button
+            kind="outline"
+            theme="mushroom"
+            icon="carbon"
+            label="Carbon"
+            onClick={() => setIsOpen(true)}
+          />
         </CarbonConnect>
       </div>
       <Text styleAs="caption" className="dark:text-marble-800">
