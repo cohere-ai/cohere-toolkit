@@ -1,7 +1,5 @@
 import time
 
-from backend.config.settings import Settings
-from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
@@ -10,9 +8,10 @@ from backend.tools.google_drive.sync.actions.utils import (
     get_file_details,
 )
 
+from .utils import init_compass, persist_agent_task
+
 ACTION_NAME = "edit"
 logger = LoggerFactory().get_logger()
-from .utils import init_compass, persist_agent_task
 
 
 @app.task(time_limit=DEFAULT_TIME_OUT, bind=True)

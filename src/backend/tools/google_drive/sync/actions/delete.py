@@ -1,5 +1,3 @@
-from backend.config.settings import Settings
-from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
