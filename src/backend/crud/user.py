@@ -92,7 +92,7 @@ def get_external_users(db: Session, offset: int = 0, limit: int = 100) -> list[U
     """
     return (
         db.query(User)
-        .filter(User.external_id != None)
+        .filter(User.external_id is not None)
         .offset(offset)
         .limit(limit)
         .all()

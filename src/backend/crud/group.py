@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 
 from backend.database_models import UserGroupAssociation
 from backend.database_models.group import Group
-from backend.schemas.scim import GroupMember
 
 
 def get_group_by_name(db: Session, name: str) -> Group | None:

@@ -8,10 +8,9 @@ import backend.crud.group as group_crud
 import backend.crud.user as user_crud
 from backend.config import Settings
 from backend.config.routers import RouterName
-from backend.database_models import DBSessionDep
+from backend.database_models import DBSessionDep, UserGroupAssociation
 from backend.database_models import Group as DBGroup
 from backend.database_models import User as DBUser
-from backend.database_models import UserGroupAssociation
 from backend.schemas.context import Context
 from backend.schemas.scim import (
     CreateGroup,

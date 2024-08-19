@@ -1,7 +1,7 @@
 from backend.crud import group as group_crud
 from backend.crud import user as user_crud
-from backend.database_models import Group, User, UserGroupAssociation
-from backend.tests.factories import get_factory
+from backend.database_models import UserGroupAssociation
+from backend.tests.unit.factories import get_factory
 
 
 def test_insert_users_into_group(session):
