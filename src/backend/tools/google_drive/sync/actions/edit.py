@@ -33,7 +33,7 @@ def edit(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
         title=title,
     )
     if not exists:
-        err_msg = f"{file_id} does not exist agent_id: {agent_id}"
+        err_msg = f"{file_id} does not exist"
         raise Exception(err_msg)
 
     # Get file bytes, web view link, title

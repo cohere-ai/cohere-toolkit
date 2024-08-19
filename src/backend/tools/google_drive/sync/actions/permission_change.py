@@ -36,7 +36,7 @@ def permission_change(
         title=title,
     )
     if not exists:
-        err_msg = f"{file_id} does not exist agent_id"
+        err_msg = f"{file_id} does not exist"
         raise Exception(err_msg)
 
     permissions = list_permissions(file_id=file_id, user_id=user_id)

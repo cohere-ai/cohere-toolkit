@@ -40,11 +40,8 @@ def move(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
     )
     compass = init_compass()
     if exists:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.CANCELLED.value,
-            "file_id": file_id,
-        }
+        err_msg = f"file already exists: {file_id}"
+        raise Exception(err_msg)
 
     # Delete file if moved out of agent's artifacts
     try:
