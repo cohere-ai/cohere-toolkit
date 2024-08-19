@@ -78,6 +78,10 @@ win-setup:
 	poetry install --with setup --verbose
 	poetry run python src/backend/cli/main.py
 
+.PHONY: typecheck
+typecheck:
+	poetry run pyright
+
 .PHONY: lint
 lint:
 	poetry run ruff check
