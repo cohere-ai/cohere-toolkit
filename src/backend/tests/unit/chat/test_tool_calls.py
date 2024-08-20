@@ -9,6 +9,7 @@ from backend.chat.custom.tool_calls import async_call_tools
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
 from backend.schemas.tool import ManagedTool
 from backend.services.context import Context
+from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 from backend.tools.base import BaseTool
 
 
@@ -32,7 +33,7 @@ def test_async_call_tools_success() -> None:
     MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
     with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         results = asyncio.run(
-            async_call_tools(chat_history, None, ctx)
+            async_call_tools(chat_history, MockCohereDeployment(), ctx)
         )
         assert results == [
             {
