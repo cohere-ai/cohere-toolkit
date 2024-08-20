@@ -95,7 +95,7 @@ class Group(BaseGroup):
     def from_db_group(db_group: DBGroup) -> "Group":
         return Group(
             id=db_group.id,
-            displayName=db_group.display_name,
+            display_name=db_group.display_name,
             members=[
                 GroupMember(value=ua.user_id, display=ua.display)
                 for ua in db_group.user_associations
@@ -118,9 +118,9 @@ class User(BaseUser):
     def from_db_user(db_user: DBUser) -> "User":
         return User(
             id=db_user.id,
-            userName=db_user.user_name,
+            user_name=db_user.user_name,
             active=db_user.active,
-            externalId=db_user.external_id,
+            external_id=db_user.external_id,
             meta=Meta(
                 resourceType="User",
                 created=db_user.created_at.isoformat(),
