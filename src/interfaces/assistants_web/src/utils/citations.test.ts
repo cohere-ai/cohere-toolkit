@@ -60,4 +60,27 @@ describe('replaceTextWithCitations', () => {
       ':cite[![test](https://test.com)]{generationId="12345" start="0" end="26"}'
     );
   });
+
+  test('should handle extra space when fixing markdown images', () => {
+    const citations: Citation[] = [
+      {
+        start: 5,
+        end: 31,
+        text: '! [test](https://test.com)',
+        document_ids: ['12345'],
+      },
+      {
+        start: 32,
+        end: 39,
+        text: 'Kadabra',
+        document_ids: ['44444'],
+      },
+    ];
+    const text = 'Abra ![test](https://test.com) Kadabra';
+    const generationId = '12345';
+    const result = replaceTextWithCitations(text, citations, generationId);
+    expect(result).toBe(
+      'Abra :cite[![test](https://test.com)]{generationId="12345" start="5" end="31"} :cite[Kadabra]{generationId="12345" start="32" end="39"}'
+    );
+  });
 });

@@ -29,11 +29,12 @@ export const replaceTextWithCitations = (
 
   let lengthDifference = 0; // Track the cumulative length difference
   let notFoundReferences: string[] = [];
+  let carryOver = 0;
   citations
     .filter((citation) => citation.document_ids.length)
     .forEach(({ start = 0, end = 0, text: citationText }, index) => {
-      const citeStart = start + lengthDifference;
-      const citeEnd = end + lengthDifference;
+      let citeStart = start + lengthDifference + carryOver;
+      let citeEnd = end + lengthDifference + carryOver;
 
       // if citeStart is higher than the length of the text, add it to the bottom of the text as "Reference #n"
       if (start >= text.length || isReferenceBetweenIframes(replacedText, start)) {
@@ -45,6 +46,12 @@ export const replaceTextWithCitations = (
       }
 
       const fixedText = fixMarkdownImagesInText(citationText);
+      const isFixedText = fixedText.length !== citationText.length;
+
+      if (isFixedText) {
+        citeEnd += fixedText.length - citationText.length;
+        carryOver += fixedText.length - citationText.length;
+      }
 
       // Encode the citationText in case there are any weird characters or unclosed brackets that will
       // interfere with parsing the markdown. However, let markdown images through so they may be properly
