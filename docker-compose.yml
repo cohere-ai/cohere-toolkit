@@ -160,8 +160,29 @@ services:
         - action: sync
           path: ./src/interfaces/coral_web
           target: /app
-          ignore:
-            - node_modules/
+
+  frontend-assistants:
+    build:
+      target: ${BUILD_TARGET:-prod}
+      context: ./src/interfaces/assistants_web
+      dockerfile: Dockerfile
+    # Set environment variables directly in the docker-compose file
+    environment:
+      API_HOSTNAME: http://backend:8000
+      NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
+      NEXT_PUBLIC_FRONTEND_HOSTNAME: ${NEXT_PUBLIC_FRONTEND_HOSTNAME}
+      NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}
+      NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: ${NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY}
+    restart: always
+    networks:
+      - proxynet
+    ports:
+      - 4444:4444
+    develop:
+      watch:
+        - action: sync
+          path: ./src/interfaces/assistants_web
+          target: /app
 
   terrarium:
     image: ghcr.io/cohere-ai/terrarium:latest
