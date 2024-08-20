@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 from dotenv import load_dotenv
@@ -76,7 +76,7 @@ class FilesToIndex(BaseModel):
     stats: Optional[FileStats] = None
 
 
-def get_file_stats(item) -> Optional[FileStats]:
+def get_file_stats(item: Dict[str, Any]) -> Optional[FileStats]:
     if item.get("file_statistics") is not None:
         return FileStats(
             file_format=item.get("file_statistics").get("file_format"),
@@ -84,6 +84,32 @@ def get_file_stats(item) -> Optional[FileStats]:
             mime_type=item.get("file_statistics").get("mime_type"),
         )
     return
+
+
+def get_file_meta(item: Dict[str, Any]) -> FileMetadata:
+    return FileMetadata(
+        is_folder=item.get("file_metadata", {}).get("is_folder", False),
+        is_shortcut=item.get("file_metadata", {}).get("is_shortcut", False),
+        root_external_file_id=item.get("file_metadata", {}).get(
+            "root_external_file_id"
+        ),
+        parent_external_file_id=item.get("file_metadata", {}).get(
+            "parent_external_file_id"
+        ),
+    )
+
+
+def get_files_to_index(item: Dict[str, Any]) -> List[FilesToIndex]:
+    return FilesToIndex(
+        id=item.get("id"),
+        parent_id=item.get("parent_id"),
+        name=item.get("name"),
+        external_file_id=item.get("external_file_id"),
+        external_url=item.get("external_url"),
+        presigned_url=item.get("presigned_url"),
+        stats=get_file_stats(item),
+        meta=get_file_meta(item),
+    )
 
 
 def list_files_v2() -> List[FilesToIndex]:
@@ -99,25 +125,7 @@ def list_files_v2() -> List[FilesToIndex]:
     rv: List[FilesToIndex] = []
     for item in items:
         try:
-            v = FilesToIndex(
-                id=item.get("id"),
-                parent_id=item.get("parent_id"),
-                name=item.get("name"),
-                external_file_id=item.get("external_file_id"),
-                external_url=item.get("external_url"),
-                presigned_url=item.get("presigned_url"),
-                stats=get_file_stats(item),
-                meta=FileMetadata(
-                    is_folder=item.get("file_metadata", {}).get("is_folder", False),
-                    is_shortcut=item.get("file_metadata", {}).get("is_shortcut", False),
-                    root_external_file_id=item.get("file_metadata", {}).get(
-                        "root_external_file_id"
-                    ),
-                    parent_external_file_id=item.get("file_metadata", {}).get(
-                        "parent_external_file_id"
-                    ),
-                ),
-            )
+            v = get_files_to_index(item)
             if not v.meta.is_folder:
                 rv.append(v)
         except Exception as e:
