@@ -21,7 +21,7 @@ type Props = {
 };
 
 export const UpdateAgent: React.FC<Props> = ({ agent }) => {
-  const { error, success } = useNotify();
+  const { error, info } = useNotify();
   const { open, close } = useContextStore();
 
   const { mutateAsync: updateAgent } = useUpdateAgent();
@@ -56,7 +56,7 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
         request: { ...fields, tools_metadata },
         agentId: agent.id,
       });
-      success(`Updated ${newAgent?.name}`);
+      info(`Updated ${newAgent?.name}`);
     } catch (e) {
       setIsSubmitting(false);
       error(`Failed to update ${agent?.name}`);
