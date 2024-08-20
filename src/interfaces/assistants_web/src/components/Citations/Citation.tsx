@@ -31,6 +31,8 @@ export const Citation: React.FC<Props> = ({ generationId, citationKey, agentId }
   const safeUrl = getSafeUrl(document.url);
   const { text, lightText, fill, lightFill, dark, light } = useBrandedColors(agentId);
 
+  const brandedClassName = cn(text, lightText, dark(lightFill), light(fill));
+
   return (
     <div className="space-y-4">
       <header className="flex items-center justify-between">
@@ -49,64 +51,48 @@ export const Citation: React.FC<Props> = ({ generationId, citationKey, agentId }
           <div>
             {document.tool_name === TOOL_WEB_SEARCH_ID ? (
               <>
-                <Text styleAs="p-xs" className={cn('uppercase', dark(lightText), light(text))}>
+                <Text styleAs="p-xs" className={cn('uppercase', brandedClassName)}>
                   {getWebDomain(safeUrl) + ' ' + getWebSourceName(document.tool_name)}
                 </Text>
                 {document.url ? (
                   <Link href={document.url} target="_blank">
                     <Text
                       styleAs="p-sm"
-                      className={cn(
-                        'uppercase underline hover:no-underline',
-                        dark(lightText),
-                        light(text)
-                      )}
+                      className={cn('uppercase underline hover:no-underline', brandedClassName)}
                     >
                       {document.title || 'Untitled'}
                       <Icon
                         name="arrow-up-right"
-                        className={cn(
-                          'ml-1 inline-block h-4 w-4 [&_svg]:mt-1',
-                          dark(lightFill),
-                          light(fill)
-                        )}
+                        className={cn('ml-1 inline-block h-4 w-4 [&_svg]:mt-1', brandedClassName)}
                       />
                     </Text>
                   </Link>
                 ) : (
-                  <Text styleAs="p-sm" className={cn('uppercase', dark(lightText), light(text))}>
+                  <Text styleAs="p-sm" className={cn('uppercase', brandedClassName)}>
                     {document.title || 'Untitled'}
                   </Text>
                 )}
               </>
             ) : document.tool_name === TOOL_WIKIPEDIA_ID ? (
               <>
-                <Text styleAs="p-xs" className={cn('uppercase', dark(lightText), light(text))}>
+                <Text styleAs="p-xs" className={cn('uppercase', brandedClassName)}>
                   {getWebSourceName(document.tool_name)}
                 </Text>
                 {document.url ? (
                   <Link href={document.url} target="_blank">
                     <Text
                       styleAs="p-sm"
-                      className={cn(
-                        'uppercase underline hover:no-underline',
-                        dark(lightText),
-                        light(text)
-                      )}
+                      className={cn('uppercase underline hover:no-underline', brandedClassName)}
                     >
                       {document.title || 'Untitled'}
                       <Icon
                         name="arrow-up-right"
-                        className={cn(
-                          'ml-1 inline-block h-4 w-4 [&_svg]:mt-1',
-                          dark(lightFill),
-                          light(fill)
-                        )}
+                        className={cn('ml-1 inline-block h-4 w-4 [&_svg]:mt-1', brandedClassName)}
                       />
                     </Text>
                   </Link>
                 ) : (
-                  <Text styleAs="p-sm" className={cn('uppercase', dark(lightText), light(text))}>
+                  <Text styleAs="p-sm" className={cn('uppercase', brandedClassName)}>
                     {document.title || 'Untitled'}
                   </Text>
                 )}
