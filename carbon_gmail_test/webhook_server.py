@@ -12,7 +12,7 @@ class Body(BaseModel):
 
 @app.post("/")
 def webhook(body: Body):
-    req = json.loads(body)
+    req = json.loads(body.payload)
     print(req)
     return {"status": "success"}, 200
 
