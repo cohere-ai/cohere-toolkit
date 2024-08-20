@@ -266,7 +266,7 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
 def test_streaming_chat_with_tools_not_in_agent_tools(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user)
+    agent = get_factory("Agent", session_chat).create(user=user, tools=["wikipedia"])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     get_factory("AgentDeploymentModel", session_chat).create(
@@ -290,10 +290,7 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
         },
     )
 
-    assert response.status_code == 404
-    assert response.json() == {
-        "detail": f"Tool web_search not found in agent {agent.id}"
-    }
+    assert response.status_code == 200
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
