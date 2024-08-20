@@ -70,6 +70,7 @@ export const ToggleCard: React.FC<Props> = ({
             onChange={onToggle}
             className="flex-shrink-0 gap-0"
             theme={theme}
+            showCheckedState
           />
         )}
       </div>

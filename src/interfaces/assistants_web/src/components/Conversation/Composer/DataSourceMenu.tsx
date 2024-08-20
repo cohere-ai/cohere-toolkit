@@ -116,6 +116,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                     theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}
                     onChange={(checked) => handleToggle(tool.name!, checked)}
+                    showCheckedState
                   />
                 )}
               </div>
