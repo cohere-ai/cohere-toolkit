@@ -96,7 +96,7 @@ def list_files_v2() -> List[FilesToIndex]:
         return []
     res = response.json()
     items = res.get("results", [])
-    rv = []
+    rv: List[FilesToIndex] = []
     for item in items:
         try:
             v = FilesToIndex(
@@ -118,7 +118,8 @@ def list_files_v2() -> List[FilesToIndex]:
                     ),
                 ),
             )
-            rv.append(v)
+            if not v.meta.is_folder:
+                rv.append(v)
         except Exception as e:
             print(e)
     return rv
