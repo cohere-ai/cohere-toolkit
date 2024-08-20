@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from 'react';
 
-import { Text } from '@/components/Shared/Text';
+import { Text } from '@/components/UI';
 import { cn } from '@/utils';
 
 // Hidden files that should not be uploaded
