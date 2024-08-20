@@ -9,8 +9,8 @@ from backend.services.auth.request_validators import (
 )
 from backend.services.request_validators import (
     validate_chat_request,
-    validate_user_header,
     validate_organization_header,
+    validate_user_header,
 )
 
 
