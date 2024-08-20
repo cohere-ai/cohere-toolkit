@@ -3,10 +3,10 @@
 import React, { useRef } from 'react';
 
 import { AgentPublic, ManagedTool } from '@/cohere-client';
-import { Composer } from '@/components/Conversation/Composer';
+import { Composer } from '@/components/Composer';
 import { Header } from '@/components/Conversation/Header';
 import MessagingContainer from '@/components/Conversation/MessagingContainer';
-import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
+import { WelcomeGuideTooltip } from '@/components/Welcome/WelcomeGuideTooltip';
 import { useChat } from '@/hooks/chat';
 import { useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';

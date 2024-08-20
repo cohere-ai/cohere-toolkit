@@ -3,7 +3,6 @@
 import { useState } from 'react';
 
 import { Button, Input } from '@/components/Shared';
-import { useParamsStore } from '@/stores';
 
 /**
  * @description Modal for configuring options on the web search tool.
@@ -13,9 +12,6 @@ export const WebSearchModal: React.FC<{
   onSave: (site: string) => void;
   onCancel: VoidFunction;
 }> = ({ onSave, onCancel }) => {
-  const {
-    params: { tools },
-  } = useParamsStore();
   const [site, setSite] = useState('');
 
   return (

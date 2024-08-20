@@ -3,8 +3,7 @@
 import React from 'react';
 
 import { AgentPublic, ManagedTool } from '@/cohere-client';
-import { DataSourceMenu } from '@/components/Conversation/Composer/DataSourceMenu';
-import { FilesMenu } from '@/components/Conversation/Composer/FilesMenu';
+import { DataSourceMenu, FilesMenu } from '@/components/Composer';
 import { cn } from '@/utils';
 
 type Props = {

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { DocumentIcon, Icon, Markdown, Text } from '@/components/Shared';
-import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID, TOOL_WIKIPEDIA_ID } from '@/constants';
+import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID, TOOL_WIKIPEDIA_ID } from '@/constants/tools';
 import { useCitationsStore } from '@/stores';
 import { getSafeUrl, getWebDomain } from '@/utils';
 

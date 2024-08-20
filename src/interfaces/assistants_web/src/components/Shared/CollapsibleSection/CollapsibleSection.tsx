@@ -8,8 +8,8 @@ import { cn } from '@/utils';
 type Props = {
   number?: number;
   title?: string | ReactNode;
-  description?: string | ReactNode;
   children: ReactNode;
+  description?: string | ReactNode;
   isExpanded?: boolean;
   setIsExpanded?: (expanded: boolean) => void;
 };

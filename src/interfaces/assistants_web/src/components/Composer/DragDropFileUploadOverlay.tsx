@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { DragDropFileInput } from '@/components/Shared';
-import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { ACCEPTED_FILE_TYPES } from '@/constants/conversation';
 import { useFocusFileInput } from '@/hooks/actions';
 import { cn } from '@/utils';
 

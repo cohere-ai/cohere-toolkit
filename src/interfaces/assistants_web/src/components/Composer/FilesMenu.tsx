@@ -2,7 +2,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { useRef } from 'react';
 
 import { Icon, Text, Tooltip } from '@/components/Shared';
-import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { ACCEPTED_FILE_TYPES } from '@/constants/conversation';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { cn } from '@/utils';
