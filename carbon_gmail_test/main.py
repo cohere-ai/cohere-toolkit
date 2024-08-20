@@ -9,10 +9,11 @@ load_dotenv()
 BASE_URL = "https://api.carbon.ai"
 CUSTOMER_ID = "tanzim_test_gmail_test4"
 API_KEY = os.getenv("CARBON_API_KEY")
-TOOL = "GMAIL"
+GMAIL_TOOL = "GMAIL"
+GDRIVE_TOOL = "GOOGLE_DRIVE"
 
 
-def get_headers():
+def get_headers() -> Dict[str, str]:
     return {
         "authorization": "Bearer " + API_KEY,
         "customer-id": CUSTOMER_ID,
@@ -20,18 +21,17 @@ def get_headers():
     }
 
 
-def auth():
+def auth(tool: str):
     url = f"{BASE_URL}/integrations/oauth_url"
-    payload = {"service": TOOL}
+    payload = {"service": tool}
     headers = get_headers()
     response = requests.request("POST", url, json=payload, headers=headers)
-
     print(response.text)
 
 
-def user_sources() -> List[int]:
+def user_sources(tool: str) -> List[int]:
     url = f"{BASE_URL}/user_data_sources"
-    payload = {"filters": {"source": TOOL}}
+    payload = {"filters": {"source": tool}}
     headers = get_headers()
     response = requests.request("POST", url, json=payload, headers=headers)
     result_ids = []
@@ -79,7 +79,7 @@ class FilesToIndex(BaseModel):
 class EmailStats(BaseModel):
     file_format: str
     file_size: int
-    mime_type: str
+    mime_type: Optional[str] = None
 
 
 class EmailMetadata(BaseModel):
@@ -207,7 +207,7 @@ def list_emails_v2() -> List[EmailsToIndex]:
     for item in items:
         try:
             v = get_emails_to_index(item)
-            if not v.meta.is_message:
+            if v.meta.is_message:
                 rv.append(v)
         except Exception as e:
             errs.append(str(e))
@@ -232,9 +232,9 @@ def sync_gmail(source_id: int):
     print(response.text)
 
 
-def index_on_compass(items: List[FilesToIndex]):
+def index_on_compass(items: List[FilesToIndex | EmailsToIndex]):
     for item in items:
-        print(f"indexing {item.name} with presigned url {item.presigned_url}")
+        print(f"indexing id {item.id}, {item.name} with presigned url {item.presigned_url}")
 
 
 def setup_auto_sync():
@@ -244,14 +244,26 @@ def setup_auto_sync():
     print(response.text)
 
 
+def main_gdrive():
+    # auth()
+    # source_ids = user_sources(GDRIVE_TOOL)
+    # print(source_ids)
+    # setup_auto_sync()
+    # list_items(source_ids[0])
+    files, errs = list_files_v2()
+    if errs:
+        print("Errors: ", errs)
+    index_on_compass(files)
+
+
 def main_gmail():
     # auth()
-    source_ids = user_sources()
-    print(source_ids)
+    # source_ids = user_sources(GMAIL_TOOL)
+    # print(source_ids)
     # setup_auto_sync()
-    list_items(source_ids[0])
-    gmail_labels()
-    sync_gmail(source_ids[0])
+    # list_items(source_ids[0])
+    # sync_gmail(source_ids[0])
+    # gmail_labels()
     emails, errs = list_emails_v2()
     if errs:
         print("Errors: ", errs)
@@ -260,3 +272,4 @@ def main_gmail():
 
 if __name__ == "__main__":
     main_gmail()
+    # main_gdrive()
