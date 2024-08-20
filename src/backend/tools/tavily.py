@@ -5,6 +5,7 @@ from tavily import TavilyClient
 
 from backend.config.settings import Settings
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
 from backend.tools.base import BaseTool
 
@@ -12,30 +13,33 @@ from backend.tools.base import BaseTool
 class TavilyInternetSearch(BaseTool):
     NAME = "web_search"
     TAVILY_API_KEY = Settings().tools.tavily.api_key
+    POST_RERANK_MAX_RESULTS = 6
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
-        self.num_results = 6
 
     @classmethod
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
-    def get_filtered_domains(self, ctx: Any):
+    def get_filtered_domains(self, session: DBSessionDep, ctx: Any):
         agent_id = ctx.get_agent_id()
         user_id = ctx.get_user_id()
 
         if agent_id is None or user_id is None:
-            return []
+            # Default for Tavily is None
+            return None
 
         agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata(
+            db=session,
             agent_id=agent_id,
             tool_name=self.NAME,
             user_id=user_id,
         )
 
         if not agent_tool_metadata:
-            return []
+            # Default for Tavily is None
+            return None
 
         return [
             artifact["domain"]
@@ -44,13 +48,16 @@ class TavilyInternetSearch(BaseTool):
         ]
 
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
+        self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any
     ) -> List[Dict[str, Any]]:
+        # Gather search parameters
         query = parameters.get("query", "")
-        domains = self.get_filtered_domains()
-        print(domains)
+        # Get domains set on Agent tool metadata artifacts
+        domains = self.get_filtered_domains(session, ctx)
+
+        # Do search
         result = self.client.search(
-            query=query, search_depth="advanced", include_raw_content=True
+            query=query, search_depth="advanced", include_raw_content=True, include_domains=domains
         )
 
         if "results" not in result:
@@ -121,7 +128,7 @@ class TavilyInternetSearch(BaseTool):
                 seen_urls.append(result["url"])
                 reranked.append(result)
 
-        return reranked[: self.num_results]
+        return reranked[:self.POST_RERANK_MAX_RESULTS]
 
     def to_langchain_tool(self) -> TavilySearchResults:
         internet_search = TavilySearchResults()
