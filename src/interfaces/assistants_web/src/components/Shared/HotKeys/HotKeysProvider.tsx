@@ -41,6 +41,7 @@ export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ hotKeys = [] }
       {hotKeys
         .map((hk) => hk.quickActions)
         .flat()
+        .filter((hk) => hk.registerGlobal)
         .map((hk) => (
           <HotKeyRegisterAction
             key={hk.name}

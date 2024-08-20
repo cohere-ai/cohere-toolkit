@@ -1,4 +1,3 @@
-import { findLast } from 'lodash';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 
@@ -10,7 +9,7 @@ import {
   SETTINGS_DRAWER_ID,
 } from '@/constants';
 import { useContextStore } from '@/context';
-import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 
@@ -66,6 +65,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
           {
             name: 'New conversation',
             commands: ['ctrl+shift+o', 'meta+shift+o'],
+            registerGlobal: true,
             action: navigateToNewChat,
             options: {
               preventDefault: true,
@@ -89,6 +89,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'New conversation',
           commands: ['ctrl+shift+o', 'meta+shift+o'],
+          registerGlobal: true,
           action: navigateToNewChat,
           options: {
             preventDefault: true,
@@ -97,6 +98,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'Share conversation',
           commands: ['ctrl+alt+a', 'meta+alt+a'],
+          registerGlobal: true,
           action: handleOpenShareModal,
           options: {
             preventDefault: true,
@@ -105,6 +107,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'Delete conversation',
           commands: ['ctrl+shift+backspace', 'meta+shift+backspace'],
+          registerGlobal: true,
           action: () => {
             if (!id) return;
             deleteConversation({ id });
@@ -137,6 +140,7 @@ export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
           name: 'Switch assistants',
           action: () => alert('implement me'),
           commands: ['ctrl+space+1-5', 'ctrl+space+1-5'],
+          registerGlobal: false,
           options: {
             preventDefault: true,
           },
@@ -145,11 +149,13 @@ export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
           name: 'See all assistants',
           action: navigateToAssistants,
           commands: [],
+          registerGlobal: false,
         },
         {
           name: 'Create an assistant',
           action: navigateToNewAssistant,
           commands: [],
+          registerGlobal: false,
         },
       ],
     },
@@ -166,6 +172,7 @@ export const useSettingsHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'Set theme to Light',
           commands: [],
+          registerGlobal: false,
           action: () => {
             if (theme === 'light') return;
             if (document.startViewTransition) {
@@ -178,6 +185,7 @@ export const useSettingsHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'Set theme to Dark',
           commands: [],
+          registerGlobal: false,
           action: () => {
             if (theme === 'dark') return;
             if (document.startViewTransition) {
@@ -201,6 +209,7 @@ export const useViewHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'Show or hide left sidebar',
           commands: ['ctrl+shift+s', 'meta+shift+s'],
+          registerGlobal: true,
           action: () => {
             setLeftPanelOpen(!isLeftPanelOpen);
           },

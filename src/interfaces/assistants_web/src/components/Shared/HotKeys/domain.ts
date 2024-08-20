@@ -5,6 +5,7 @@ type OptionsOrDependencyArray = Options | ReadonlyArray<unknown>;
 export type QuickAction = {
   name: string;
   commands: string[];
+  registerGlobal: boolean;
   action: () => void;
 };
 
