@@ -3,9 +3,8 @@
 import { usePathname } from 'next/navigation';
 import { PropsWithChildren } from 'react';
 
-import { AuthLink } from '@/components/AuthLink';
-import { NavigationUserMenu } from '@/components/NavigationUserMenu';
-import { Text } from '@/components/Shared';
+import { AuthLink, NavigationUserMenu } from '@/components/Layout';
+import { Text } from '@/components/UI';
 import { CellBackground } from '@/components/Welcome/CellBackground';
 import { Navigation } from '@/components/Welcome/Navigation';
 

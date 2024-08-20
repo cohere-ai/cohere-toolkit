@@ -2,8 +2,8 @@
 
 import React from 'react';
 
-import { Button, ButtonTheme, IconName } from '@/components/Shared';
-import { useAuthConfig } from '@/hooks/authConfig';
+import { Button, ButtonTheme, IconName } from '@/components/UI';
+import { useAuthConfig } from '@/hooks/auth';
 
 type Props = {
   action: 'login' | 'register' | 'logout';

@@ -3,7 +3,7 @@
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 
-import { AuthLink } from '@/components/AuthLink';
+import { AuthLink } from '@/components/Layout';
 import { Icon, Text } from '@/components/UI';
 import { cn } from '@/utils';
 

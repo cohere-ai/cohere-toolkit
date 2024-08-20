@@ -5,10 +5,10 @@ import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
-import { AuthLink } from '@/components/AuthLink';
-import { Button, Input, Text } from '@/components/Shared';
+import { AuthLink } from '@/components/Layout';
+import { Button, Input, Text } from '@/components/UI';
 import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
-import { useAuthConfig } from '@/hooks/authConfig';
+import { useAuthConfig } from '@/hooks/auth';
 import { useOidcAuthRoute } from '@/hooks/oidcAuthRoute';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
