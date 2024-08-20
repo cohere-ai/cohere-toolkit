@@ -78,7 +78,17 @@ async def _call_tool_async(
 ) -> List[Dict[str, Any]]:
     tool = AVAILABLE_TOOLS.get(tool_call["name"])
     if not tool:
-        return []
+        logger.info(
+            event=f"[Custom Chat] Tool not included in tools parameter: {tool_call['name']}",
+            error=str(e),
+        )
+        outputs = [
+            {
+                "call": tool_call,
+                "outputs": [{"text": f"Tool {tool_call['name']} not found", "success": False}],
+            }
+        ]
+        return outputs
 
     try:
         outputs = await tool.implementation().call(
