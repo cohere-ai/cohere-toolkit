@@ -12,7 +12,7 @@ API_KEY = os.getenv("CARBON_API_KEY")
 TOOL = "GOOGLE_DRIVE"
 
 
-def get_header():
+def get_headers():
     return {
         "authorization": "Bearer " + API_KEY,
         "customer-id": CUSTOMER_ID,
@@ -23,7 +23,7 @@ def get_header():
 def auth():
     url = f"{BASE_URL}/integrations/oauth_url"
     payload = {"service": TOOL}
-    headers = get_header()
+    headers = get_headers()
     response = requests.request("POST", url, json=payload, headers=headers)
 
     print(response.text)
@@ -32,7 +32,7 @@ def auth():
 def user_sources() -> List[int]:
     url = f"{BASE_URL}/user_data_sources"
     payload = {"filters": {"source": TOOL}}
-    headers = get_header()
+    headers = get_headers()
     response = requests.request("POST", url, json=payload, headers=headers)
     result_ids = []
     print(response.text)
@@ -47,7 +47,7 @@ def user_sources() -> List[int]:
 def list_items(source_id: int):
     url = f"{BASE_URL}/integrations/items/list"
     payload = {"data_source_id": source_id}
-    headers = get_header()
+    headers = get_headers()
     response = requests.request("POST", url, json=payload, headers=headers)
     print(response.text)
 
@@ -115,7 +115,7 @@ def get_files_to_index(item: Dict[str, Any]) -> List[FilesToIndex]:
 def list_files_v2() -> List[FilesToIndex]:
     url = f"{BASE_URL}/user_files_v2"
     payload = {"include_raw_file": True}
-    headers = get_header()
+    headers = get_headers()
     response = requests.request("POST", url, json=payload, headers=headers)
     # print(response.text)
     if response.status_code != 200:
@@ -139,9 +139,17 @@ def index_on_compass(items: List[FilesToIndex]):
         print(f"indexing {item.name} with presigned url {item.presigned_url}")
 
 
+def setup_auto_sync():
+    url = f"{BASE_URL}/organization/update"
+    payload = {"global_user_config": {"auto_sync_enabled_sources": [TOOL]}}
+    response = requests.request("POST", url, json=payload, headers=get_headers())
+    print(response.text)
+
+
 def main():
     # auth()
     # source_ids = user_sources()
+    setup_auto_sync()
     # list_items(source_ids[0])
     files, errs = list_files_v2()
     if errs:
