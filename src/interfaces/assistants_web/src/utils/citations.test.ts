@@ -43,4 +43,21 @@ describe('replaceTextWithCitations', () => {
       'From: :cite[Reference #1]{generationId="12345" start="14" end="21"}\nAbra <iframe> Kadabra </iframe> Alakazam'
     );
   });
+
+  test('should avoid to break markdown images', () => {
+    const citations: Citation[] = [
+      {
+        start: 0,
+        end: 26,
+        text: '! [test](https://test.com)',
+        document_ids: ['12345'],
+      },
+    ];
+    const text = '![test](https://test.com)';
+    const generationId = '12345';
+    const result = replaceTextWithCitations(text, citations, generationId);
+    expect(result).toBe(
+      ':cite[![test](https://test.com)]{generationId="12345" start="0" end="26"}'
+    );
+  });
 });
