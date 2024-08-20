@@ -19,11 +19,13 @@ const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const authToken = cookieStore.get(COOKIE_KEYS.authToken)?.value;
   return (
     <html lang="en">
-      <PublicEnvScript />
       <body>
-        <CookiesProvider>
-          <LayoutProviders authToken={authToken}>{children}</LayoutProviders>
-        </CookiesProvider>
+        <>
+          <CookiesProvider>
+            <LayoutProviders authToken={authToken}>{children}</LayoutProviders>
+          </CookiesProvider>
+          <PublicEnvScript />
+        </>
       </body>
     </html>
   );
