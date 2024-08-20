@@ -7,9 +7,9 @@ from pydantic import BaseModel
 
 load_dotenv()
 BASE_URL = "https://api.carbon.ai"
-CUSTOMER_ID = "tanzim_test_gmail"
+CUSTOMER_ID = "tanzim_test_gmail_test4"
 API_KEY = os.getenv("CARBON_API_KEY")
-TOOL = "GOOGLE_DRIVE"
+TOOL = "GMAIL"
 
 
 def get_headers():
@@ -134,6 +134,44 @@ def list_files_v2() -> List[FilesToIndex]:
     return rv, errs
 
 
+def list_emails_v2() -> List[FilesToIndex]:
+    url = f"{BASE_URL}/user_files_v2"
+    payload = {"include_raw_file": True, "in"}
+    headers = get_headers()
+    response = requests.request("POST", url, json=payload, headers=headers)
+    # print(response.text)
+    if response.status_code != 200:
+        return []
+    res = response.json()
+    items = res.get("results", [])
+    rv: List[FilesToIndex] = []
+    errs: List[str] = []
+    for item in items:
+        try:
+            v = get_files_to_index(item)
+            if not v.meta.is_folder:
+                rv.append(v)
+        except Exception as e:
+            errs.append(str(e))
+    return rv, errs
+
+def gmail_labels():
+    url = f"{BASE_URL}/integrations/gmail/user_labels"
+    headers = get_headers()
+    response = requests.request("GET", url, headers=headers)
+    print(response.text)
+
+def sync_gmail(source_id: int):
+    url = f"{BASE_URL}/integrations/gmail/sync"
+    payload = {
+        "filters": {"AND": [{"key": "after", "value": "2024/01/01"}]},
+        "sync_attachments": True,
+        "data_source_id": source_id,
+    }
+    response = requests.request("POST", url, json=payload, headers=get_headers())
+    print(response.text)
+
+
 def index_on_compass(items: List[FilesToIndex]):
     for item in items:
         print(f"indexing {item.name} with presigned url {item.presigned_url}")
@@ -148,9 +186,12 @@ def setup_auto_sync():
 
 def main():
     # auth()
-    # source_ids = user_sources()
-    setup_auto_sync()
-    # list_items(source_ids[0])
+    source_ids = user_sources()
+    print(source_ids)
+    # setup_auto_sync()
+    list_items(source_ids[0])
+    gmail_labels()
+    sync_gmail(source_ids[0])
     files, errs = list_files_v2()
     if errs:
         print("Errors: ", errs)
