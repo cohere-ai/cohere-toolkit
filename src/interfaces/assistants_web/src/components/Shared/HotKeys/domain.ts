@@ -6,7 +6,8 @@ export type QuickAction = {
   name: string;
   commands: string[];
   registerGlobal: boolean;
-  action: () => void;
+  action?: () => void;
+  customView?: React.ReactNode;
 };
 
 export interface CustomHotKey extends QuickAction {

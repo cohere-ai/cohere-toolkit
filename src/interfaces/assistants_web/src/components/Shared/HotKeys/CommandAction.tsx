@@ -19,7 +19,7 @@ export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen 
     (e) => {
       if (!isOpen) return;
       e.preventDefault();
-      action();
+      action?.();
     },
     {
       enableOnFormTags: true,

@@ -67,7 +67,7 @@ const HotKeyRegisterAction: React.FC<Props> = ({ hotKey, isDialogOpen, close }) 
       if (isDialogOpen) {
         close();
       }
-      hotKey.action();
+      hotKey.action?.();
     },
     { enableOnFormTags: true, ...hotKey.options },
     hotKey.dependencies
