@@ -128,3 +128,8 @@ dev-sync:
 .PHONY: dev-sync-down
 dev-sync-down:
 	@docker compose down sync_worker sync_publisher flower
+
+
+.PHONY: typecheck
+typecheck:
+	poetry run pyright
