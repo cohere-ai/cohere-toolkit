@@ -125,7 +125,17 @@ def list_files_v2() -> List[FilesToIndex]:
     return rv
 
 
-# auth()
-source_ids = user_sources()
-# list_items(source_ids[0])
-list_files_v2()
+def index_on_compass(items: List[FilesToIndex]):
+    for item in items:
+        print("indexing: ", item.name)
+
+
+def main():
+    # auth()
+    # source_ids = user_sources()
+    # list_items(source_ids[0])
+    index_on_compass(list_files_v2())
+
+
+if __name__ == "__main__":
+    main()
