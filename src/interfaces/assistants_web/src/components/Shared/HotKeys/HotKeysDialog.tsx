@@ -80,7 +80,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <DialogPanel className="relative flex w-full flex-col overflow-hidden rounded-lg bg-volcanic-950 dark:bg-volcanic-200 md:w-modal">
+            <DialogPanel className="relative flex max-h-[80vh] w-full flex-col overflow-hidden rounded-lg bg-volcanic-950 dark:bg-volcanic-200 md:w-modal">
               <Combobox as="div" onChange={handleOnChange}>
                 <ComboboxInput
                   as={Input}
@@ -95,8 +95,8 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
                   autoFocus
                   className="border-none bg-transparent px-6 py-0 pt-6 text-p-lg focus:bg-transparent dark:bg-transparent dark:focus:bg-transparent"
                 />
-                <hr className="mb-3 mt-6 border-t dark:border-volcanic-700" />
-                <ComboboxOptions className="flex max-h-80 flex-col gap-y-6 overflow-y-auto" static>
+                <hr className="mx-6 mb-3 mt-6 border-t border-volcanic-800 dark:border-volcanic-400" />
+                <ComboboxOptions className="flex flex-col gap-y-6 overflow-y-auto" static>
                   {filteredCustomActions.length > 0 && (
                     <CommandActionGroup isOpen={isOpen} options={filteredCustomActions} />
                   )}
