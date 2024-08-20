@@ -117,32 +117,36 @@ def list_files_v2() -> List[FilesToIndex]:
     payload = {"include_raw_file": True}
     headers = get_header()
     response = requests.request("POST", url, json=payload, headers=headers)
-    print(response.text)
+    # print(response.text)
     if response.status_code != 200:
         return []
     res = response.json()
     items = res.get("results", [])
     rv: List[FilesToIndex] = []
+    errs: List[str] = []
     for item in items:
         try:
             v = get_files_to_index(item)
             if not v.meta.is_folder:
                 rv.append(v)
         except Exception as e:
-            print(e)
-    return rv
+            errs.append(str(e))
+    return rv, errs
 
 
 def index_on_compass(items: List[FilesToIndex]):
     for item in items:
-        print("indexing: ", item.name)
+        print(f"indexing {item.name} with presigned url {item.presigned_url}")
 
 
 def main():
     # auth()
     # source_ids = user_sources()
     # list_items(source_ids[0])
-    index_on_compass(list_files_v2())
+    files, errs = list_files_v2()
+    if errs:
+        print("Errors: ", errs)
+    index_on_compass(files)
 
 
 if __name__ == "__main__":
