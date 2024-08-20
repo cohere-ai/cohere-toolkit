@@ -53,23 +53,37 @@ def list_items(source_id: int):
 
 
 class FileMetadata(BaseModel):
-    file_format: str
-    file_size: int
-    mime_type: str
     is_folder: bool
     is_shortcut: bool
     root_external_file_id: Optional[str] = None
     parent_external_file_id: Optional[str] = None
 
 
+class FileStats(BaseModel):
+    file_format: str
+    file_size: int
+    mime_type: str
+
+
 class FilesToIndex(BaseModel):
     id: int
-    parent_id: int
+    parent_id: Optional[int] = None
     name: str
     external_file_id: str
     external_url: str
     presigned_url: str
     meta: FileMetadata
+    stats: Optional[FileStats] = None
+
+
+def get_file_stats(item) -> Optional[FileStats]:
+    if item.get("file_statistics") is not None:
+        return FileStats(
+            file_format=item.get("file_statistics").get("file_format"),
+            file_size=item.get("file_statistics").get("file_size"),
+            mime_type=item.get("file_statistics").get("mime_type"),
+        )
+    return
 
 
 def list_files_v2() -> List[FilesToIndex]:
@@ -92,13 +106,13 @@ def list_files_v2() -> List[FilesToIndex]:
                 external_file_id=item.get("external_file_id"),
                 external_url=item.get("external_url"),
                 presigned_url=item.get("presigned_url"),
+                stats=get_file_stats(item),
                 meta=FileMetadata(
-                    file_format=item.get("file_statistics", {}).get("file_format"),
-                    file_size=item.get("file_statistics", {}).get("file_size"),
-                    mime_type=item.get("file_statistics", {}).get("mime_type"),
-                    is_folder=item.get("file_metadata", {}).get("is_folder"),
-                    is_shortcut=item.get("file_metadata", {}).get("is_shortcut"),
-                    root_external_file_id=item.get("file_metadata", {}).get("root_external_file_id"),
+                    is_folder=item.get("file_metadata", {}).get("is_folder", False),
+                    is_shortcut=item.get("file_metadata", {}).get("is_shortcut", False),
+                    root_external_file_id=item.get("file_metadata", {}).get(
+                        "root_external_file_id"
+                    ),
                     parent_external_file_id=item.get("file_metadata", {}).get(
                         "parent_external_file_id"
                     ),
