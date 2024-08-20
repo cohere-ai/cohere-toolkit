@@ -47,3 +47,58 @@ To implement a new strategy, refer to the `backend/services/auth/strategies` fol
 If your strategy requires environment variables, create a new `<AUTH_METHOD>Settings` class, you can refer to the `settings.py` file for more examples.
 
 OAuth strategies should implement the `authorize` method to verify an authorization code and return an access token.
+
+
+## Configuring SCIM
+**Notes**: 
+* Currently, we only support OKTA for SCIM. We will add more providers as requested in the future.
+* This only works if you already set up SSO via OIDC beforehand. We do not support password syncing.
+
+SCIM allows you organization to synchronize your users and groups from your identity provider to the Toolkit. This has the benefit of:
+* Automatically creating / deactivating users in the Toolkit when they are created / deactivated in your identity provider.
+* Automatically assigning users to groups in the Toolkit when they are assigned to groups in your identity provider for access management.
+
+### Create a username and password for SCIM
+1. Fill in the following values in your configuration: SCIM_USER, SCIM_PASSWORD. Make sure to generate a secure secret for SCIM_PASSWORD
+
+### Create a new SCIM application in OKTA.
+1. Login to Okta as an Admin
+2. From the Left nav goto: Applications->Applications
+3. From the Applications screen, click “Browse App Catalog”:
+4. Search for the application: SCIM 2.0 Test App (Basic Auth)
+5. Click "Add Integration"
+6. For "Application Label" enter a name for the application (e.g: Cohere Toolkit)
+7. On the next screen leave the default configuration and click "Done"
+
+### Configure the SCIM application in OKTA
+1. Navigate to the tab "Provisioning"
+2. Click "Configure API Integration"
+3. Activate "Enable API integration"
+4. Enter the following values:
+   * SCIM 2.0 Base Url: `https://your-domain/scim/v2`
+   * Username: Set this to the value of SCIM_USER
+   * Password: Set this to the value of SCIM_PASSWORD
+5. Click "Test API Credentials" to verify the credentials
+6. Click "Save"
+7. Select "To App" on the left side
+8. Activate the following fields:
+    * Create Users
+    * Update User Attributes
+    * Deactivate Users
+
+### Assign Users
+In this step you will synchronize selected users. Note that while we can select groups here, it will only sync users
+in those groups, not the groups itself. This needs to be done in the next step.
+1. Navigate to the "Assignments" tab
+2. Click either "Assign to People" or "Assign to Groups"
+3. Click "Save and Go Back"
+
+### Synchronize Groups
+This is optional but if groups should be synchronized, it needs to be configured like this:
+1. Navigate to "Push Groups"
+2. Click "Push Groups"
+3. Select "Find Groups by name"
+4. Enter the group you would like to push
+5. Select the group
+6. Click "Save"
+

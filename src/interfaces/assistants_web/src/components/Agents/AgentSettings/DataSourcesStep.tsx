@@ -4,7 +4,7 @@ import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
 
 import { Button, Icon, IconName, Spinner, Text } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
-import { useBatchUploadFile } from '@/hooks/files';
+import { useUploadAgentFile } from '@/hooks/files';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 
@@ -27,7 +27,7 @@ export const DataSourcesStep: React.FC<Props> = ({
   setGoogleFiles,
   setDefaultUploadFiles,
 }) => {
-  const { mutateAsync: batchUploadFiles, status: batchUploadStatus } = useBatchUploadFile();
+  const { mutateAsync: uploadFiles, status: uploadStatus } = useUploadAgentFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleRemoveGoogleDriveFile = (id: string) => {
@@ -57,7 +57,7 @@ export const DataSourcesStep: React.FC<Props> = ({
   };
 
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFileIds = await batchUploadFiles({ files: [...(e.target.files ?? [])] });
+    const newFileIds = await uploadFiles({ files: [...(e.target.files ?? [])] });
     if (!newFileIds) return;
     setDefaultUploadFiles((prev) =>
       uniqBy(
@@ -106,7 +106,7 @@ export const DataSourcesStep: React.FC<Props> = ({
             'Add Files',
             fileInputRef,
             handleFileInputChange,
-            batchUploadStatus,
+            uploadStatus,
             handleOpenFileExplorer
           )}
           handleRemoveTool={() => handleRemoveAllFiles('default-upload')}
@@ -123,7 +123,7 @@ export const DataSourcesStep: React.FC<Props> = ({
             'Add Files',
             fileInputRef,
             handleFileInputChange,
-            batchUploadStatus,
+            uploadStatus,
             handleOpenFileExplorer
           )}
       </div>
@@ -153,7 +153,7 @@ const defaultUploadButton = (
   label: string | ReactNode,
   fileInputRef: RefObject<HTMLInputElement>,
   handleFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>,
-  batchUploadStatus: 'error' | 'idle' | 'pending' | 'success',
+  uploadStatus: 'error' | 'idle' | 'pending' | 'success',
   handleOpenFileExplorer: (callback: VoidFunction) => void
 ) => {
   return (
@@ -171,7 +171,7 @@ const defaultUploadButton = (
         theme="mushroom"
         icon={label === 'Add Files' ? 'add' : 'desktop'}
         label={label}
-        isLoading={batchUploadStatus === 'pending'}
+        isLoading={uploadStatus === 'pending'}
         onClick={() => handleOpenFileExplorer(close)}
       />
     </>

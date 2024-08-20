@@ -52,10 +52,8 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
           'md:transition-[min-width,max-width]',
           {
-            'gap-y-8 lg:min-w-agents-panel-collapsed lg:max-w-agents-panel-collapsed':
-              !isLeftPanelOpen,
-            'lg:min-w-agents-panel-expanded lg:max-w-agents-panel-expanded xl:min-w-agents-panel-expanded-lg xl:max-w-agents-panel-expanded-lg':
-              isLeftPanelOpen,
+            'gap-y-8 lg:min-w-left-panel-collapsed lg:max-w-left-panel-collapsed': !isLeftPanelOpen,
+            'lg:min-w-left-panel-expanded lg:max-w-left-panel-expanded': isLeftPanelOpen,
           }
         )}
       >
@@ -73,7 +71,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
           </button>
 
           <div className="flex md:hidden">
-            <ToggleSettingsSidePanelButton />
+            <ToggleLeftPanelButton />
           </div>
         </div>
 
@@ -126,7 +124,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
               </Text>
               <Logo hasCustomLogo={env.NEXT_PUBLIC_HAS_CUSTOM_LOGO} includeBrandName={false} />
             </div>
-            <ToggleSettingsSidePanelButton className="hidden md:flex" />
+            <ToggleLeftPanelButton className="hidden md:flex" />
           </section>
         </footer>
       </div>
@@ -134,7 +132,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
   );
 };
 
-const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ className }) => {
+const ToggleLeftPanelButton: React.FC<{ className?: string }> = ({ className }) => {
   const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
 
   const handleToggleAgentsLeftPanel = () => {
@@ -142,7 +140,7 @@ const ToggleSettingsSidePanelButton: React.FC<{ className?: string }> = ({ class
   };
 
   return (
-    <Tooltip hover label="Toggle agents side panel" size="sm">
+    <Tooltip hover label="Toggle left panel" size="sm">
       <AgentsSidePanelButton
         iconName="close-drawer"
         theme="mushroom"
