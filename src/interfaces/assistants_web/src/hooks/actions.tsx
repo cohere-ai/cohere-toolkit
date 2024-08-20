@@ -1,17 +1,17 @@
 import { findLast } from 'lodash';
 import { useTheme } from 'next-themes';
 
+import { ShareModal } from '@/components/ShareModal';
 import { HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
 import {
   CHAT_COMPOSER_TEXTAREA_ID,
   CONFIGURATION_FILE_UPLOAD_ID,
   SETTINGS_DRAWER_ID,
 } from '@/constants';
+import { useContextStore } from '@/context';
 import { useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
-import { useNotify } from '@/hooks/toast';
 import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
-import { MessageType, isFulfilledMessage } from '@/types/message';
 
 export const useFocusComposer = () => {
   const focusComposer = () => {
@@ -50,26 +50,39 @@ export const useFocusFileInput = () => {
   return { isFileInputQueuedToFocus, focusFileInput };
 };
 
-export const useChatHotKeys = (): HotKeyGroupOption[] => {
+export const useConversationHotKeys = (): HotKeyGroupOption[] => {
   const {
-    conversation: { id, messages },
+    conversation: { id },
   } = useConversationStore();
   const { deleteConversation } = useConversationActions();
-  const { focusComposer } = useFocusComposer();
-  const { error, info } = useNotify();
   const navigateToNewChat = useNavigateToNewChat();
+  const { open } = useContextStore();
+
+  if (!id) return [];
+
+  const handleOpenShareModal = () => {
+    if (!id) return;
+    open({
+      title: 'Share link to conversation',
+      content: <ShareModal conversationId={id} />,
+    });
+  };
 
   return [
     {
-      group: 'Conversation',
       quickActions: [
         {
-          name: 'Start a new conversation',
+          name: 'New conversation',
           commands: ['ctrl+shift+o', 'meta+shift+o'],
           action: navigateToNewChat,
         },
         {
-          name: 'Delete current conversation',
+          name: 'Share conversation',
+          commands: ['ctrl+alt+a', 'meta+alt+a'],
+          action: handleOpenShareModal,
+        },
+        {
+          name: 'Delete conversation',
           commands: ['ctrl+shift+backspace', 'meta+shift+backspace'],
           action: () => {
             if (!id) return;
@@ -77,37 +90,6 @@ export const useChatHotKeys = (): HotKeyGroupOption[] => {
           },
           options: {
             preventDefault: true,
-          },
-        },
-        {
-          name: 'Copy last response',
-          commands: ['ctrl+shift+c', 'meta+shift+c'],
-          action: async () => {
-            const lastBotMessage = findLast(
-              messages,
-              (message) => message.type === MessageType.BOT
-            );
-            if (!lastBotMessage) return;
-            const lastBotMessageText = isFulfilledMessage(lastBotMessage)
-              ? lastBotMessage.originalText
-              : lastBotMessage.text;
-
-            try {
-              await window?.navigator?.clipboard.writeText(lastBotMessageText);
-              info('Copied last response to clipboard');
-            } catch (e) {
-              error('Unable to copy last response');
-            }
-          },
-          options: {
-            preventDefault: true,
-          },
-        },
-        {
-          name: 'Focus on chat input',
-          commands: ['shift+esc'],
-          action: () => {
-            focusComposer();
           },
         },
       ],
@@ -120,10 +102,10 @@ export const useLayoutHotKeys = (): HotKeyGroupOption[] => {
   const { theme, setTheme } = useTheme();
   return [
     {
-      group: 'Layout',
+      group: 'View',
       quickActions: [
         {
-          name: 'Toggle left sidebar',
+          name: 'Show or hide left sidebar',
           commands: ['ctrl+shift+s', 'meta+shift+s'],
           action: () => {
             setLeftPanelOpen(!isLeftPanelOpen);

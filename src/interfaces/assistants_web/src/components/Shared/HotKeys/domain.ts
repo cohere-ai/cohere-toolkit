@@ -14,6 +14,6 @@ export interface CustomHotKey extends QuickAction {
 }
 
 export type HotKeyGroupOption = {
-  group: string;
+  group?: string;
   quickActions: CustomHotKey[];
 };

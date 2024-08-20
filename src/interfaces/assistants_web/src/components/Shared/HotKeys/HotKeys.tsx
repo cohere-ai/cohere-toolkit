@@ -1,11 +1,11 @@
 'use client';
 
 import { HotKeysProvider } from '@/components/Shared/HotKeys/HotKeysProvider';
-import { useChatHotKeys, useLayoutHotKeys } from '@/hooks/actions';
+import { useConversationHotKeys, useLayoutHotKeys } from '@/hooks/actions';
 
 export const HotKeys: React.FC = () => {
-  const chatHotKeys = useChatHotKeys();
+  const conversationHotKeys = useConversationHotKeys();
   const layoutHotKeys = useLayoutHotKeys();
-  const hotKeys = [...chatHotKeys, ...layoutHotKeys];
+  const hotKeys = [...conversationHotKeys, ...layoutHotKeys];
   return <HotKeysProvider hotKeys={hotKeys} />;
 };

@@ -61,10 +61,10 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="transition-o`pacity fixed inset-0 bg-volcanic-300/20 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-[#B3B3B3]/60 transition-opacity dark:bg-[#1C1C1C]/80" />
         </TransitionChild>
 
-        <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
+        <div className="fixed inset-0 flex items-center justify-center overflow-y-auto">
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
@@ -74,33 +74,31 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <DialogPanel className="relative flex w-full flex-col rounded-lg bg-marble-1000 dark:bg-volcanic-200 md:w-modal">
+            <DialogPanel className="relative flex w-full flex-col rounded-lg bg-volcanic-950 py-6 dark:bg-volcanic-200 md:w-modal">
               <Combobox as="div" onChange={handleOnChange}>
-                <div className="mb-4 px-6 pt-6">
-                  <ComboboxInput
-                    as={Input}
-                    placeholder="Type a command or search..."
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                      if (event.key === 'Escape') {
-                        close();
-                      }
-                    }}
-                    autoFocus
-                    className="border-none bg-transparent focus:bg-transparent dark:bg-transparent dark:focus:bg-transparent"
-                  />
-                  <hr className="border-t dark:border-volcanic-700" />
-                </div>
-                {filteredCustomActions.length > 0 && (
-                  <ComboboxOptions className="my-4 max-h-72 space-y-6 overflow-y-auto" static>
+                <ComboboxInput
+                  as={Input}
+                  placeholder="Find a command."
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (event.key === 'Escape') {
+                      close();
+                    }
+                  }}
+                  autoFocus
+                  className="border-none bg-transparent px-6 py-0 text-p-lg focus:bg-transparent dark:bg-transparent dark:focus:bg-transparent"
+                />
+                <hr className="mb-3 mt-6 border-t dark:border-volcanic-700" />
+                <ComboboxOptions className="flex max-h-72 flex-col gap-y-6 overflow-y-auto" static>
+                  {filteredCustomActions.length > 0 && (
                     <CommandActionGroup isOpen={isOpen} options={filteredCustomActions} />
-                  </ComboboxOptions>
-                )}
-                {query === '' && <CommandActionGroup isOpen={isOpen} options={options} />}
-                {query !== '' && filteredCustomActions.length === 0 && (
-                  <Text className="py-14 text-center">No results for &quot;{query}&quot;</Text>
-                )}
+                  )}
+                  {query === '' && <CommandActionGroup isOpen={isOpen} options={options} />}
+                  {query !== '' && filteredCustomActions.length === 0 && (
+                    <Text className="px-6">No results for &quot;{query}&quot;</Text>
+                  )}
+                </ComboboxOptions>
               </Combobox>
             </DialogPanel>
           </TransitionChild>
