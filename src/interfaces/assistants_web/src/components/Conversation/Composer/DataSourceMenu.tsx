@@ -49,7 +49,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
             as="span"
             className={cn('font-medium', text, { [contrastText]: open })}
           >
-            Tools: {paramsTools?.length ?? 0}
+            Tools: {availableTools.length ?? 0}
           </Text>
         )}
       </PopoverButton>
