@@ -54,8 +54,7 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
           {
             'gap-y-8 lg:min-w-agents-panel-collapsed lg:max-w-agents-panel-collapsed':
               !isLeftPanelOpen,
-            'lg:min-w-agents-panel-expanded lg:max-w-agents-panel-expanded xl:min-w-agents-panel-expanded-lg xl:max-w-agents-panel-expanded-lg':
-              isLeftPanelOpen,
+            'lg:min-w-agents-panel-expanded lg:max-w-agents-panel-expanded': isLeftPanelOpen,
           }
         )}
       >
