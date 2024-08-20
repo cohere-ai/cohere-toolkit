@@ -57,7 +57,7 @@ const ToolRow: React.FC<{
   handleSwitch: (checked: boolean) => void;
 }> = ({ name, description, icon, checked, handleSwitch }) => {
   return (
-    <div className="flex flex-col space-y-4 rounded-md border p-4 dark:border-volcanic-300 dark:bg-volcanic-100">
+    <div className="flex flex-col space-y-1 rounded-md border p-4 dark:border-volcanic-300 dark:bg-volcanic-100">
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
           <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-marble-800 dark:bg-volcanic-200">
@@ -70,6 +70,7 @@ const ToolRow: React.FC<{
         <Switch
           checked={checked}
           onChange={(checked: boolean) => !!name && handleSwitch(checked)}
+          showCheckedState
         />
       </div>
       <Text className="dark:text-marble-800">{description}</Text>
