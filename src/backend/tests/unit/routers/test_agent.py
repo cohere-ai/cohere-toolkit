@@ -14,7 +14,7 @@ from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.tests.unit.factories import get_factory
 
 
-async def test_create_agent_mertic(
+async def test_create_agent_metric(
     session_client: TestClient, session: Session
 ) -> None:
     user = get_factory("User", session).create(fullname="John Doe")
@@ -301,7 +301,7 @@ def test_list_agents_with_pagination(
 
 
 @pytest.mark.asyncio
-async def test_get_agent_mertic(
+async def test_get_agent_metric(
     session_client: TestClient, session: Session, user
 ) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
@@ -337,7 +337,7 @@ async def test_get_agent_mertic(
 
 
 @pytest.mark.asyncio
-async def test_get_default_agent_mertic(
+async def test_get_default_agent_metric(
     session_client: TestClient, session: Session, user
 ) -> None:
     with patch(
@@ -965,8 +965,10 @@ def test_delete_agent_metric(
         assert m_args.assistant_id == agent.id
 
 
-def test_delete_agent(session_client: TestClient, session: Session, user) -> None:
-    agent = get_factory("Agent", session).create(user=user)
+def test_delete_public_agent(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(user=user, is_private=False)
     response = session_client.delete(
         f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
     )
@@ -975,6 +977,50 @@ def test_delete_agent(session_client: TestClient, session: Session, user) -> Non
 
     agent = session.get(Agent, agent.id)
     assert agent is None
+
+
+def test_delete_private_agent(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(user=user, is_private=True)
+    response = session_client.delete(
+        f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
+    )
+    assert response.status_code == 200
+    assert response.json() == {}
+
+    agent = session.get(Agent, agent.id)
+    assert agent is None
+
+
+def test_cannot_delete_private_agent_not_belonging_to_user_id(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(user=user, is_private=True)
+    other_user = get_factory("User", session).create()
+    response = session_client.delete(
+        f"/v1/agents/{agent.id}", headers={"User-Id": other_user.id}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Agent with ID {agent.id} not found."}
+
+    agent = session.get(Agent, agent.id)
+    assert agent is not None
+
+
+def test_cannot_delete_public_agent_not_belonging_to_user_id(
+    session_client: TestClient, session: Session, user
+) -> None:
+    agent = get_factory("Agent", session).create(user=user, is_private=False)
+    other_user = get_factory("User", session).create()
+    response = session_client.delete(
+        f"/v1/agents/{agent.id}", headers={"User-Id": other_user.id}
+    )
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Could not delete Agent."}
+
+    agent = session.get(Agent, agent.id)
+    assert agent is not None
 
 
 def test_fail_delete_nonexistent_agent(

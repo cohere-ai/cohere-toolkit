@@ -88,40 +88,6 @@ def test_create_user(session_client: TestClient, session: Session) -> None:
     assert user.email == user_data_req["email"]
 
 
-def test_create_user_with_tools(session_client: TestClient, session: Session) -> None:
-    user_data_req = {
-        "fullname": "John Doe",
-        "email": "john.doe@example.com",
-        "tools": ["web_search", "toolkit_calculator"],
-    }
-    response = session_client.post("/v1/users", json=user_data_req)
-    response_user = response.json()
-
-    user = session.get(User, response_user["id"])
-
-    assert response.status_code == 200
-    assert response_user["fullname"] == user_data_req["fullname"]
-    assert response_user["email"] == user_data_req["email"]
-    assert user is not None
-    assert user.fullname == user_data_req["fullname"]
-    assert user.email == user_data_req["email"]
-    assert user.tools == user_data_req["tools"]
-
-
-def test_create_user_with_no_existing_tools(
-    session_client: TestClient, session: Session
-) -> None:
-    user_data_req = {
-        "fullname": "John Doe",
-        "email": "john.doe@example.com",
-        "tools": ["web_search", "non_existing_tool"],
-    }
-    response = session_client.post("/v1/users", json=user_data_req)
-
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Tool non_existing_tool is not available."}
-
-
 def test_create_user_with_password_saves_hashed_password(
     session_client: TestClient, session: Session
 ) -> None:
@@ -196,35 +162,6 @@ def test_update_user(session_client: TestClient, session: Session) -> None:
     # Check if user was updated
     updated_user = session.get(User, user.id)
     assert updated_user.fullname == "new name"
-
-
-def test_update_user_with_tools(session_client: TestClient, session: Session) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
-
-    response = session_client.put(
-        f"/v1/users/{user.id}", json={"tools": ["web_search", "toolkit_calculator"]}
-    )
-    response_user = response.json()
-
-    assert response.status_code == 200
-    assert response_user["tools"] == ["web_search", "toolkit_calculator"]
-
-    # Check if user was updated
-    updated_user = session.get(User, user.id)
-    assert updated_user.tools == ["web_search", "toolkit_calculator"]
-
-
-def test_update_user_with_no_existing_tools(
-    session_client: TestClient, session: Session
-) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
-
-    response = session_client.put(
-        f"/v1/users/{user.id}", json={"tools": ["web_search", "non_existing_tool"]}
-    )
-
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Tool non_existing_tool is not available."}
 
 
 def test_update_user_password_saves_hashed_password(

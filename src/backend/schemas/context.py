@@ -172,6 +172,3 @@ class Context(BaseModel):
 
     def get_agent_tool_metadata(self):
         return self.agent_tool_metadata
-
-    def get_user(self):
-        return self.user
