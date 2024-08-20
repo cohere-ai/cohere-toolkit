@@ -18,7 +18,6 @@ def create_agent_task(db: Session, agent_id: str, task_id: str) -> AgentTask:
     return agent_task
 
 
-# TODO: clean up
 @validate_transaction
 def get_agent_tasks_by_agent_id(db: Session, agent_id: str) -> List[SyncCeleryTaskMeta]:
     return (

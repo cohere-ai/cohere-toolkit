@@ -1,5 +1,4 @@
 import asyncio
-import pickle
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,7 +13,6 @@ from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import snapshot as snapshot_crud
 from backend.crud.agent_task import get_agent_tasks_by_agent_id
 from backend.database_models.agent import Agent as AgentModel
-from backend.database_models.agent_task import SyncCeleryTaskMeta
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
 )
@@ -44,6 +42,7 @@ from backend.schemas.metrics import (
     agent_to_metrics_agent,
 )
 from backend.services.agent import (
+    parse_task,
     raise_db_error,
     validate_agent_exists,
     validate_agent_tool_metadata_exists,
@@ -276,28 +275,6 @@ async def get_agent_deployments(
         DeploymentSchema.custom_transform(deployment)
         for deployment in agent.deployments
     ]
-
-
-def parse_task(t: SyncCeleryTaskMeta) -> AgentTaskResponse:
-    result = None
-    exception_snippet = None
-    if t.status == "SUCCESS":
-        result = pickle.loads(t.result)
-    if t.status == "FAILURE":
-        trace_lines = t.traceback.split("\n")
-        if len(trace_lines) >= 2:
-            # first 200 characters of the exception
-            exception_snippet = trace_lines[-2][:200] + "...check logs for details"
-
-    return AgentTaskResponse(
-        task_id=t.task_id,
-        status=t.status,
-        name=t.name,
-        retries=t.retries,
-        result=result,
-        exception_snippet=exception_snippet,
-        date_done=str(t.date_done),
-    )
 
 
 @router.get(
