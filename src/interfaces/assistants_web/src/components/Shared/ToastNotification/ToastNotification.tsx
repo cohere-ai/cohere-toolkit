@@ -37,6 +37,7 @@ export const ToastNotification: React.FC<Props> = ({ position = 'bottom-right' }
         classNames: {
           cancelButton: '!text-volcanic-60 dark:!text-marble-950 !text-p-lg !ml-auto',
           error: 'bg-mushroom-800 text-volcanic-60 dark:bg-volcanic-300 dark:text-marble-950',
+          info: 'bg-mushroom-600 text-volcanic-60',
         },
       }}
       pauseWhenPageIsHidden
@@ -47,6 +48,9 @@ export const ToastNotification: React.FC<Props> = ({ position = 'bottom-right' }
             kind="outline"
             className="h-4 w-4 fill-danger-350 dark:fill-danger-500"
           />
+        ),
+        info: (
+          <Icon name="information" className="h-4 w-4 fill-volcanic-60 dark:fill-volcanic-60" />
         ),
       }}
     />
