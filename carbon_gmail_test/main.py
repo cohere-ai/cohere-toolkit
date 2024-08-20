@@ -199,7 +199,8 @@ def list_emails_v2() -> List[EmailsToIndex]:
         "include_parsed_text_file": True,
         "include_additional_files": True,
         "order_by": "created_at",
-        # "filters": {"sync_statuses": ["READY"]},
+        "filters": {"sync_statuses": ["READY"]},
+        "pagination": {"limit": 100, "offset": 0},
     }
     headers = get_headers()
     response = requests.request("POST", url, json=payload, headers=headers)
@@ -233,12 +234,13 @@ def sync_gmail(source_id: int):
         "filters": {
             "AND": [
                 {"key": "after", "value": "2024/01/01"},
-                {
-                    "OR": [
-                        {"key": "label", "value": "SENT"},
-                        {"key": "label", "value": "INBOX"},
-                    ]
-                },
+                # {
+                #     "OR": [
+                #         {"key": "label", "value": "SENT"},
+                #         {"key": "label", "value": "INBOX"},
+                #         {"key": "in", "value": "SENT"},
+                #     ]
+                # },
             ]
         },
         "sync_attachments": True,
@@ -289,15 +291,16 @@ def main_gdrive():
 
 def main_gmail():
     # auth()
-    # source_ids = user_sources(GMAIL_TOOL)
+    source_ids = user_sources(GMAIL_TOOL)
     # print(source_ids)
     # setup_auto_sync(GMAIL_TOOL)
-    # list_items(source_ids[0])
-    # sync_gmail(source_ids[0])
+    list_items(source_ids[0])
+    sync_gmail(source_ids[0])
     # gmail_labels()
     emails, errs = list_emails_v2()
     if errs:
         print("Errors: ", errs)
+    print()
     index_on_compass(emails)
 
 
