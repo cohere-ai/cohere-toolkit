@@ -52,9 +52,8 @@ export const LeftPanel: React.FC<{ className?: string }> = ({ className = '' }) 
           'flex h-full flex-grow flex-col gap-y-8 px-4 py-6',
           'md:transition-[min-width,max-width]',
           {
-            'gap-y-8 lg:min-w-agents-panel-collapsed lg:max-w-agents-panel-collapsed':
-              !isLeftPanelOpen,
-            'lg:min-w-agents-panel-expanded lg:max-w-agents-panel-expanded': isLeftPanelOpen,
+            'gap-y-8 lg:min-w-left-panel-collapsed lg:max-w-left-panel-collapsed': !isLeftPanelOpen,
+            'lg:min-w-left-panel-expanded lg:max-w-left-panel-expanded': isLeftPanelOpen,
           }
         )}
       >
