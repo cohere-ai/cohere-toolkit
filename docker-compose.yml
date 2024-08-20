@@ -44,46 +44,46 @@ services:
     volumes:
       - ./data:/data
 
-  backend:
-    build:
-      context: .
-      args:
-        INSTALL_COMMUNITY_DEPS: false
-      dockerfile: ./src/backend/Dockerfile
-    develop:
-      watch:
-        - action: sync
-          path: ./src/backend
-          target: /workspace/src/backend
-          ignore:
-            - __pycache__/
-            - alembic/
-            - data/
-        - action: sync
-          path: ./src/community
-          target: /workspace/src/community
-          ignore:
-            - __pycache__/
-            - alembic/
-            - data/
-    stdin_open: true
-    tty: true
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-      - redis
-    volumes:
-      # Mount alembic folder to sync migrations
-      - ./src/backend/alembic:/workspace/src/backend/alembic
-      # Mount data folder to sync uploaded files
-      - ./src/backend/data:/workspace/src/backend/data
-      # Mount configurations
-      - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
-      - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml
-    # network_mode: host
-    networks:
-      - proxynet
+  # backend:
+  #   build:
+  #     context: .
+  #     args:
+  #       INSTALL_COMMUNITY_DEPS: false
+  #     dockerfile: ./src/backend/Dockerfile
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./src/backend
+  #         target: /workspace/src/backend
+  #         ignore:
+  #           - __pycache__/
+  #           - alembic/
+  #           - data/
+  #       - action: sync
+  #         path: ./src/community
+  #         target: /workspace/src/community
+  #         ignore:
+  #           - __pycache__/
+  #           - alembic/
+  #           - data/
+  #   stdin_open: true
+  #   tty: true
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   volumes:
+  #     # Mount alembic folder to sync migrations
+  #     - ./src/backend/alembic:/workspace/src/backend/alembic
+  #     # Mount data folder to sync uploaded files
+  #     - ./src/backend/data:/workspace/src/backend/data
+  #     # Mount configurations
+  #     - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
+  #     - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml
+  #   # network_mode: host
+  #   networks:
+  #     - proxynet
 
   sync_worker:
     build:

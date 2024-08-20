@@ -156,3 +156,6 @@ secrets.toml
 /src/backend/config/configuration.yaml
 /src/backend/config/secrets.yaml
 logs/
+src/interfaces/assistants_web/bun.lockb
+credentials.json
+token.json
