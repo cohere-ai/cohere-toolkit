@@ -6,7 +6,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useFileActions } from '@/hooks/files';
+import { useConversationFileActions } from '@/hooks/files';
 import {
   useCitationsStore,
   useConversationStore,
@@ -47,7 +47,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
-  const { clearComposerFiles } = useFileActions();
+  const { clearComposerFiles } = useConversationFileActions();
 
   const resetConversationSettings = () => {
     clearComposerFiles();

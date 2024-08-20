@@ -158,7 +158,7 @@ async def authorize(
         )
         raise HTTPException(
             status_code=400,
-            detail=f"Error calling /auth with invalid code query parameter.",
+            detail="Error calling /auth with invalid code query parameter.",
         )
 
     strategy_name = None
@@ -237,7 +237,7 @@ async def logout(
 
 # NOTE: Tool Auth is experimental and in development
 @router.get("/tool/auth")
-async def login(
+async def tool_auth(
     request: Request, session: DBSessionDep, ctx: Context = Depends(get_context)
 ):
     """
@@ -265,7 +265,7 @@ async def login(
     if not redirect_uri:
         raise HTTPException(
             status_code=400,
-            detail=f"auth.frontend_hostname in configuration.yaml is required for Tool Auth.",
+            detail="auth.frontend_hostname in configuration.yaml is required for Tool Auth.",
         )
 
     def log_and_redirect_err(error_message: str):
@@ -273,11 +273,15 @@ async def login(
         redirect_err = f"{redirect_uri}?error={quote(error_message)}"
         return RedirectResponse(redirect_err)
 
-    # Get key from state and retrieve cache
+    # Get key from state and retrieve cache for user_id and tool_id
     try:
         state = json.loads(request.query_params.get("state"))
         cache_key = state["key"]
         tool_auth_cache = cache_get_dict(cache_key)
+
+        # Get optional frontend redirect
+        if "frontend_redirect" in state:
+            redirect_uri = state["frontend_redirect"]
     except Exception as e:
         log_and_redirect_err(str(e))
 

@@ -3,7 +3,6 @@ from backend.tests.unit.factories.agent_deployment_model import (
     AgentDeploymentModelFactory,
 )
 from backend.tests.unit.factories.agent_tool_metadata import AgentToolMetadataFactory
-from backend.tests.unit.factories.base import BaseFactory
 from backend.tests.unit.factories.blacklist import BlacklistFactory
 from backend.tests.unit.factories.citation import CitationFactory
 from backend.tests.unit.factories.citation_documents import CitationDocumentsFactory
@@ -14,6 +13,7 @@ from backend.tests.unit.factories.conversation import (
 from backend.tests.unit.factories.deployment import DeploymentFactory
 from backend.tests.unit.factories.document import DocumentFactory
 from backend.tests.unit.factories.file import FileFactory
+from backend.tests.unit.factories.group import GroupFactory
 from backend.tests.unit.factories.message import (
     MessageFactory,
     MessageFileAssociationFactory,
@@ -51,6 +51,7 @@ FACTORY_MAPPING = {
     "AgentDeploymentModel": AgentDeploymentModelFactory,
     "ConversationFileAssociation": ConversationFileAssociationFactory,
     "MessageFileAssociation": MessageFileAssociationFactory,
+    "Group": GroupFactory,
 }
 
 

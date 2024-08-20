@@ -2,7 +2,6 @@ import pytest
 
 from backend.crud import file as file_crud
 from backend.database_models.file import File
-from backend.schemas.file import UpdateFileRequest
 from backend.tests.unit.factories import get_factory
 
 
@@ -51,7 +50,7 @@ def test_batch_create_files(session, user):
 
     files = file_crud.get_files(session, user.id)
     assert len(files) == 2
-    assert all(file.file_name in ["test.txt", "test2.txt"] for file in files) == True
+    assert all(file.file_name in ["test.txt", "test2.txt"] for file in files)
     assert files[0].user_id == user.id
     assert files[1].user_id == user.id
 
@@ -114,20 +113,6 @@ def test_list_files_by_user_id(session, user):
 def test_list_files_by_user_id_empty(session, user):
     files = file_crud.get_files_by_user_id(session, user.id)
     assert len(files) == 0
-
-
-def test_update_file(session, user):
-    file = get_factory("File", session).create(file_name="test.txt", user_id=user.id)
-
-    new_file_data = UpdateFileRequest(
-        file_name="new_name.txt",
-    )
-
-    updated_file = file_crud.update_file(session, file, new_file_data)
-    assert updated_file.file_name == new_file_data.file_name
-    assert updated_file.file_path == file.file_path
-    assert updated_file.file_size == file.file_size
-    assert updated_file.user_id == file.user_id
 
 
 def test_delete_file(session, user):

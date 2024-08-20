@@ -2,7 +2,17 @@
 
 This README will explain how to best write unit tests for the OSS Toolkit project.
 
-To start, run `make dev` and `make run-tests`, these two commands should start your docker service and then run the suite of unit tests available.
+To start, run the following commands
+
+```
+make install
+make test-db
+make run-unit-tests
+```
+
+## Test DB
+
+Some of the unit tests rely on a database being present. The tests are expecting a postgres DB to be running in a docker container. the `make test-db` target will create the test database required for the tests to run.
 
 ## Using Fixtures
 

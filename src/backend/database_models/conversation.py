@@ -2,7 +2,6 @@ from typing import List, Optional
 from uuid import uuid4
 
 from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint
-from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base

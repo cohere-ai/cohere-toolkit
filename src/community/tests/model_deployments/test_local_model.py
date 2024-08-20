@@ -8,7 +8,7 @@ def test_dummy_chat_template():
         {"role": "user", "message": "Hello"},
         {"role": "chatbot", "message": "Hi"},
     ]
-    expected = f"""System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
+    expected = """System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
 
 Conversation:
 User: Hello
@@ -22,7 +22,7 @@ def test_dummy_chat_template_no_chat_history():
     prompt_template = PromptTemplate()
     message = "Hello"
     chat_history = []
-    expected = f"""System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
+    expected = """System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
 
 Conversation:
 User: Hello
@@ -41,7 +41,7 @@ def test_dummy_rag_template():
         {"title": "First Document", "text": "This is the first document."},
         {"title": "Second Document", "text": "This is the second document."},
     ]
-    expected = f"""System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
+    expected = """System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
 
 Conversation:
 User: Hello
@@ -72,7 +72,7 @@ def test_dummy_rag_template_max_docs():
         {"title": "Second Document", "text": "This is the second document."},
         {"title": "Third Document", "text": "This is the third document."},
     ]
-    expected = f"""System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
+    expected = """System: You are an AI assistant whose goal is to help users by consuming and using the output of various tools. You will be able to see the conversation history between yourself and user and will follow instructions on how to respond.
 
 Conversation:
 User: Hello

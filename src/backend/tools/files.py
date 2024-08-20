@@ -4,14 +4,13 @@ from typing import Any, Dict, List
 import backend.crud.file as file_crud
 from backend.compass_sdk import SearchFilter
 from backend.config.settings import Settings
-from backend.schemas.file import File
 from backend.services.compass import Compass
 from backend.services.file import get_compass
 from backend.tools.base import BaseTool
 
 
 class FileToolsArtifactTypes(StrEnum):
-    local_file = "local_file"
+    local_file = "file"
 
 
 def compass_file_search(
@@ -72,8 +71,8 @@ def compass_file_search(
             {
                 "text": chunk["content"]["text"],
                 "score": chunk["score"],
-                "url": result["content"].get("title", ""),
-                "title": result["content"].get("title", ""),
+                "url": result["content"].get("file_name", ""),
+                "title": result["content"].get("file_name", ""),
             }
             for result in results
             for chunk in result["chunks"]

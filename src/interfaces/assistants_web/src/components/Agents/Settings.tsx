@@ -5,8 +5,10 @@ import { PropsWithChildren, useState } from 'react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { MobileHeader } from '@/components/MobileHeader';
 import { Button, Icon, Tabs, Text } from '@/components/Shared';
-import { useListTools } from '@/hooks/tools';
+import { useNotify } from '@/hooks/toast';
+import { useDeleteAuthTool, useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';
+import { getToolAuthUrl } from '@/utils/getToolAuthUrl';
 
 const tabs = [
   <div className="flex items-center gap-2" key="company">
@@ -97,14 +99,24 @@ const Appearance = () => {
 
 const GoogleDriveConnection = () => {
   const { data } = useListTools();
+  const { mutateAsync: deleteAuthTool } = useDeleteAuthTool();
+  const notify = useNotify();
   const googleDriveTool = data?.find((tool) => tool.name === 'google_drive');
 
   if (!googleDriveTool) {
     return null;
   }
 
+  const handleDeleteAuthTool = async () => {
+    try {
+      await deleteAuthTool(googleDriveTool.name!);
+    } catch (e) {
+      notify.error('Failed to delete Google Drive connection');
+    }
+  };
+
   const isGoogleDriveConnected = !googleDriveTool.is_auth_required ?? false;
-  const authUrl = googleDriveTool.auth_url;
+  const authUrl = getToolAuthUrl(googleDriveTool.auth_url);
 
   return (
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
@@ -141,14 +153,14 @@ const GoogleDriveConnection = () => {
                 kind="secondary"
                 icon="trash"
                 theme="danger"
-                onClick={() => alert('not implemented')}
+                onClick={handleDeleteAuthTool}
               />
             </div>
           </div>
         ) : (
           <Button
             label="Authenticate"
-            href={googleDriveTool.auth_url ?? ''}
+            href={getToolAuthUrl(googleDriveTool.auth_url)}
             kind="secondary"
             theme="evolved-green"
             icon="arrow-up-right"

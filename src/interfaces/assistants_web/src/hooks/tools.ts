@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
-import { AgentPublic, ManagedTool, useCohereClient } from '@/cohere-client';
+import { AgentPublic, ApiError, ManagedTool, useCohereClient } from '@/cohere-client';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks/toast';
@@ -28,22 +28,16 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
   const { data: toolsData } = useListTools();
   const { info } = useNotify();
 
+  const googlePicker = window.google?.picker;
+
+  if (googlePicker === undefined) {
+    return;
+  }
+
   const googleDriveTool = toolsData?.find((tool) => tool.name === TOOL_GOOGLE_DRIVE_ID);
 
   const handleCallback = (data: PickerCallback) => {
     if (!data.docs) return;
-
-    const folders = data.docs.filter((doc) => doc.type === 'folder');
-    const files = data.docs.filter((doc) => doc.type !== 'folder');
-
-    if (folders.length > 0 && files.length > 0) {
-      info('Please select either files or folders.');
-      return;
-    }
-    if (files.length > 5) {
-      info('You can only select a maximum of 5 files.');
-      return;
-    }
 
     callbackFunction(data);
   };
@@ -56,18 +50,34 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
     };
   }
 
+  const defaultView = new googlePicker.DocsView(googlePicker.ViewId.DOCS)
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(true)
+    .setMode(googlePicker.DocsViewMode.LIST);
+
+  const myFilesView = new googlePicker.DocsView(googlePicker.ViewId.DOCS)
+    .setOwnedByMe(true)
+    .setSelectFolderEnabled(true)
+    .setIncludeFolders(true)
+    .setMode(googlePicker.DocsViewMode.LIST);
+
+  const sharedView = new googlePicker.DocsView(googlePicker.ViewId.DOCS)
+    .setEnableDrives(true)
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(true)
+    .setMode(google.picker.DocsViewMode.LIST);
+
+  const customViewsArray = [defaultView, myFilesView, sharedView];
+
   return () =>
     openPicker({
       clientId: googleDriveClientId,
       developerKey: googleDriveDeveloperKey,
       token: googleDriveTool?.token || '',
-      setIncludeFolders: true,
-      setSelectFolderEnabled: true,
-      showUploadView: false,
-      showUploadFolders: false,
-      supportDrives: true,
-      multiselect: true,
+      disableDefaultView: true,
       callbackFunction: handleCallback,
+      multiselect: true,
+      customViews: customViewsArray,
     });
 };
 
@@ -113,4 +123,17 @@ export const useAvailableTools = ({
     unauthedTools,
     handleToggle,
   };
+};
+
+export const useDeleteAuthTool = () => {
+  const client = useCohereClient();
+  const queryClient = useQueryClient();
+  return useMutation<void, ApiError, string>({
+    mutationFn: async (toolId) => {
+      await client.deleteAuthTool({ toolId });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tools'] });
+    },
+  });
 };
