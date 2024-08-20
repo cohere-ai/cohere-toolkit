@@ -15,6 +15,7 @@
     "ts-lint": "tsc -noEmit -incremental -watch",
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
+    "test": "vitest",
     "next:build": "next build",
     "start": "next start --port 4444",
     "start:single-docker": "next start --port 4444",
@@ -99,6 +100,8 @@
     "@storybook/react": "^8.2.6",
     "@storybook/test": "^8.2.6",
     "@tailwindcss/typography": "^0.5.9",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.0.0",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.14.185",
@@ -107,13 +110,16 @@
     "@types/react-syntax-highlighter": "^15.5.11",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.50.0",
     "eslint-config-next": "^13.5.4",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-storybook": "^0.8.0",
+    "jsdom": "^24.1.1",
     "postcss-100vh-fix": "^1.0.2",
     "prettier": "2.8.7",
     "prettier-plugin-tailwindcss": "0.4.1",
-    "storybook": "^8.2.6"
+    "storybook": "^8.2.6",
+    "vitest": "^2.0.5"
   }
 }
