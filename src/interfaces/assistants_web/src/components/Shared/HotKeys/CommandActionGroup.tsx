@@ -16,7 +16,10 @@ const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
         return (
           <section key={i} className="flex flex-col">
             {action.group && (
-              <Text styleAs="p-sm" className="px-6 pb-4 uppercase dark:text-marble-800">
+              <Text
+                styleAs="p-sm"
+                className="px-6 pb-4 uppercase text-volcanic-300 dark:text-volcanic-500"
+              >
                 {action.group}
               </Text>
             )}

@@ -1,5 +1,6 @@
 import { findLast } from 'lodash';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 
 import { ShareModal } from '@/components/ShareModal';
 import { HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
@@ -9,7 +10,7 @@ import {
   SETTINGS_DRAWER_ID,
 } from '@/constants';
 import { useContextStore } from '@/context';
-import { useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 
@@ -58,7 +59,21 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
   const navigateToNewChat = useNavigateToNewChat();
   const { open } = useContextStore();
 
-  if (!id) return [];
+  if (!id)
+    return [
+      {
+        quickActions: [
+          {
+            name: 'New conversation',
+            commands: ['ctrl+shift+o', 'meta+shift+o'],
+            action: navigateToNewChat,
+            options: {
+              preventDefault: true,
+            },
+          },
+        ],
+      },
+    ];
 
   const handleOpenShareModal = () => {
     if (!id) return;
@@ -75,11 +90,17 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
           name: 'New conversation',
           commands: ['ctrl+shift+o', 'meta+shift+o'],
           action: navigateToNewChat,
+          options: {
+            preventDefault: true,
+          },
         },
         {
           name: 'Share conversation',
           commands: ['ctrl+alt+a', 'meta+alt+a'],
           action: handleOpenShareModal,
+          options: {
+            preventDefault: true,
+          },
         },
         {
           name: 'Delete conversation',
@@ -97,9 +118,82 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
   ];
 };
 
-export const useLayoutHotKeys = (): HotKeyGroupOption[] => {
-  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
+export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
+  const router = useRouter();
+
+  const navigateToAssistants = () => {
+    router.push('/discover');
+  };
+
+  const navigateToNewAssistant = () => {
+    router.push('/new');
+  };
+
+  return [
+    {
+      group: 'Assistants',
+      quickActions: [
+        {
+          name: 'Switch assistants',
+          action: () => alert('implement me'),
+          commands: ['ctrl+space+1-5', 'ctrl+space+1-5'],
+          options: {
+            preventDefault: true,
+          },
+        },
+        {
+          name: 'See all assistants',
+          action: navigateToAssistants,
+          commands: [],
+        },
+        {
+          name: 'Create an assistant',
+          action: navigateToNewAssistant,
+          commands: [],
+        },
+      ],
+    },
+  ];
+};
+
+export const useSettingsHotKeys = (): HotKeyGroupOption[] => {
   const { theme, setTheme } = useTheme();
+
+  return [
+    {
+      group: 'Settings',
+      quickActions: [
+        {
+          name: 'Set theme to Light',
+          commands: [],
+          action: () => {
+            if (theme === 'light') return;
+            if (document.startViewTransition) {
+              document.startViewTransition(() => setTheme('light'));
+            } else {
+              setTheme('light');
+            }
+          },
+        },
+        {
+          name: 'Set theme to Dark',
+          commands: [],
+          action: () => {
+            if (theme === 'dark') return;
+            if (document.startViewTransition) {
+              document.startViewTransition(() => setTheme('dark'));
+            } else {
+              setTheme('dark');
+            }
+          },
+        },
+      ],
+    },
+  ];
+};
+
+export const useViewHotKeys = (): HotKeyGroupOption[] => {
+  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
   return [
     {
       group: 'View',
@@ -109,20 +203,6 @@ export const useLayoutHotKeys = (): HotKeyGroupOption[] => {
           commands: ['ctrl+shift+s', 'meta+shift+s'],
           action: () => {
             setLeftPanelOpen(!isLeftPanelOpen);
-          },
-          options: {
-            preventDefault: true,
-          },
-        },
-        {
-          name: 'Toggle dark mode',
-          commands: ['ctrl+shift+d', 'meta+shift+d'],
-          action: () => {
-            if (document.startViewTransition) {
-              document.startViewTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'));
-            } else {
-              setTheme(theme === 'dark' ? 'light' : 'dark');
-            }
           },
           options: {
             preventDefault: true,

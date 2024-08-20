@@ -9,7 +9,7 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 
 import CommandActionGroup from '@/components/Shared/HotKeys/CommandActionGroup';
 import { type HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
@@ -49,6 +49,12 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
     }
   };
 
+  useEffect(() => {
+    if (!isOpen) {
+      setTimeout(() => setQuery(''), 300); // Delay to prevent flickering
+    }
+  }, [isOpen]);
+
   return (
     <Transition show={isOpen} as={Fragment} appear>
       <Dialog as="div" className="relative z-modal" onClose={close}>
@@ -74,7 +80,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <DialogPanel className="relative flex w-full flex-col rounded-lg bg-volcanic-950 py-6 dark:bg-volcanic-200 md:w-modal">
+            <DialogPanel className="relative flex w-full flex-col overflow-hidden rounded-lg bg-volcanic-950 dark:bg-volcanic-200 md:w-modal">
               <Combobox as="div" onChange={handleOnChange}>
                 <ComboboxInput
                   as={Input}
@@ -87,16 +93,16 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
                     }
                   }}
                   autoFocus
-                  className="border-none bg-transparent px-6 py-0 text-p-lg focus:bg-transparent dark:bg-transparent dark:focus:bg-transparent"
+                  className="border-none bg-transparent px-6 py-0 pt-6 text-p-lg focus:bg-transparent dark:bg-transparent dark:focus:bg-transparent"
                 />
                 <hr className="mb-3 mt-6 border-t dark:border-volcanic-700" />
-                <ComboboxOptions className="flex max-h-72 flex-col gap-y-6 overflow-y-auto" static>
+                <ComboboxOptions className="flex max-h-80 flex-col gap-y-6 overflow-y-auto" static>
                   {filteredCustomActions.length > 0 && (
                     <CommandActionGroup isOpen={isOpen} options={filteredCustomActions} />
                   )}
                   {query === '' && <CommandActionGroup isOpen={isOpen} options={options} />}
                   {query !== '' && filteredCustomActions.length === 0 && (
-                    <Text className="px-6">No results for &quot;{query}&quot;</Text>
+                    <Text className="p-6">No results for &quot;{query}&quot;</Text>
                   )}
                 </ComboboxOptions>
               </Combobox>

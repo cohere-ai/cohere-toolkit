@@ -36,7 +36,8 @@ export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen 
       if (key === 'alt') return os === 'macOS' ? '⌥' : 'alt';
       if (key === 'shift') return 'shift';
       if (key === 'backspace') return 'backspace';
-      return key.toUpperCase();
+      if (key.length === 1) return key.toUpperCase();
+      return key;
     });
   }, [commands, os]);
 
