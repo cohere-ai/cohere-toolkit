@@ -238,6 +238,18 @@ def test_list_organization_agents_query_param(
         assert agents[i]["name"] == f"agent-{i}-{organization1.id}"
 
 
+def test_list_organization_agents_nonexistent_organization(
+    session_client: TestClient,
+    session: Session,
+    user,
+) -> None:
+    response = session_client.get(
+        "/v1/agents", headers={"User-Id": user.id, "Organization-Id": "123"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Organization ID 123 not found."}
+
+
 def test_list_private_agents(
     session_client: TestClient, session: Session, user
 ) -> None:
