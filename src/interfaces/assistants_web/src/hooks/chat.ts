@@ -37,7 +37,7 @@ import {
 } from '@/types/message';
 import {
   createStartEndKey,
-  fixMarkdownImagesInText,
+  fixMarkdown,
   isGroundingOn,
   replaceTextWithCitations,
   shouldUpdateConversationTitle,
@@ -453,7 +453,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
                 // so we need to manually apply this fix. Otherwise, this comes for free when we call
                 // `replaceTextWithCitations`.
-                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
+                text: citations.length > 0 ? finalText : fixMarkdown(transformedText),
                 citations,
                 isRAGOn,
                 originalText: isRAGOn ? responseText : botResponse,
