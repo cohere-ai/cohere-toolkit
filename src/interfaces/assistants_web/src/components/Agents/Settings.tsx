@@ -2,9 +2,8 @@
 
 import { PropsWithChildren, useState } from 'react';
 
-import { DarkModeToggle } from '@/components/DarkModeToggle';
-import { MobileHeader } from '@/components/MobileHeader';
-import { Button, Icon, Tabs, Text } from '@/components/Shared';
+import { MobileHeader } from '@/components/Layout';
+import { Button, DarkModeToggle, Icon, Tabs, Text } from '@/components/UI';
 import { useNotify } from '@/hooks/toast';
 import { useDeleteAuthTool, useListTools } from '@/hooks/tools';
 import { cn } from '@/utils';

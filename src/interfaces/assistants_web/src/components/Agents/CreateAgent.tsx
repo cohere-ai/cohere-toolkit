@@ -10,14 +10,14 @@ import {
   AgentSettingsFields,
   AgentSettingsForm,
 } from '@/components/Agents//AgentSettings/AgentSettingsForm';
-import { MobileHeader } from '@/components/MobileHeader';
-import { Button, Icon, Text } from '@/components/Shared';
+import { MobileHeader } from '@/components/Layout';
+import { Button, Icon, Text } from '@/components/UI';
+import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/constants';
 import {
   DEFAULT_AGENT_MODEL,
   DEFAULT_AGENT_TOOLS,
   DEFAULT_PREAMBLE,
-  DEPLOYMENT_COHERE_PLATFORM,
-} from '@/constants';
+} from '@/constants/conversation';
 import { useContextStore } from '@/context';
 import { useCreateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';

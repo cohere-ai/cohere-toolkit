@@ -12,9 +12,7 @@ import {
   CohereUnauthorizedError,
   Fetch,
 } from '@/cohere-client';
-import { ToastNotification, WebManifestHead } from '@/components/Shared';
-import { GlobalHead } from '@/components/Shared/GlobalHead';
-import { ViewportFix } from '@/components/ViewportFix';
+import { GlobalHead, ToastNotification, ViewportFix, WebManifestHead } from '@/components/Layout';
 import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
 import { useLazyRef } from '@/hooks/lazyRef';

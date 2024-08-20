@@ -4,7 +4,7 @@ import type { StaticImport } from 'next/dist/shared/lib/get-img-props';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import { Icon, IconKind, IconName } from '@/components/Shared';
+import { Icon, IconKind, IconName } from '@/components/UI';
 import { cn } from '@/utils';
 
 type Props = {

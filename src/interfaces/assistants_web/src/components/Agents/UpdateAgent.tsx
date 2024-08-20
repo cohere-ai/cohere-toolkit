@@ -10,9 +10,10 @@ import {
   AgentSettingsForm,
 } from '@/components/Agents/AgentSettings/AgentSettingsForm';
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
-import { MobileHeader } from '@/components/MobileHeader';
-import { Button, Icon, Spinner, Text } from '@/components/Shared';
-import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
+import { MobileHeader } from '@/components/Layout';
+import { Button, Icon, Spinner, Text } from '@/components/UI';
+import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/constants';
+import { DEFAULT_AGENT_MODEL } from '@/constants/conversation';
 import { useContextStore } from '@/context';
 import { useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
