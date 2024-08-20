@@ -1,6 +1,6 @@
 'use client';
 
-import { Logo } from '@/components/Shared';
+import { Logo } from '@/components/UI';
 import { env } from '@/env.mjs';
 import { useSettingsStore } from '@/stores';
 

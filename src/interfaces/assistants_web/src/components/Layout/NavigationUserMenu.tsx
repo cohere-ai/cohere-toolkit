@@ -4,7 +4,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 
 import { AuthLink } from '@/components/AuthLink';
-import { Icon, Text } from '@/components/Shared';
+import { Icon, Text } from '@/components/UI';
 import { cn } from '@/utils';
 
 /**

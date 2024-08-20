@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Logo } from '@/components/Shared';
+import { Logo } from '@/components/UI';
 import { cn } from '@/utils';
 
 /**
