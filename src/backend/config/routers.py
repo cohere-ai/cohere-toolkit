@@ -3,7 +3,10 @@ from enum import StrEnum
 from fastapi import Depends
 
 from backend.database_models import get_session
-from backend.services.auth.request_validators import validate_authorization
+from backend.services.auth.request_validators import (
+    ScimAuthValidation,
+    validate_authorization,
+)
 from backend.services.request_validators import (
     validate_chat_request,
     validate_user_header,
@@ -24,6 +27,7 @@ class RouterName(StrEnum):
     DEFAULT_AGENT = "default_agent"
     SNAPSHOT = "snapshot"
     MODEL = "model"
+    SCIM = "scim"
 
 
 # Router dependency mappings
@@ -129,6 +133,15 @@ ROUTER_DEPENDENCIES = {
         "auth": [
             Depends(get_session),
             Depends(validate_authorization),
+        ],
+    },
+    RouterName.SCIM: {
+        "default": [
+            Depends(get_session),
+            Depends(ScimAuthValidation()),
+        ],
+        "auth": [
+            Depends(ScimAuthValidation()),
         ],
     },
 }

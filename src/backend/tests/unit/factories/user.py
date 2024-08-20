@@ -13,7 +13,6 @@ class UserFactory(BaseFactory):
 
     fullname = factory.Faker("name")
     email = factory.Faker("email")
-    tools = []
     password = factory.Faker("password")
     hashed_password = factory.LazyAttribute(
         lambda o: BasicAuthentication.hash_and_salt_password(o.password)

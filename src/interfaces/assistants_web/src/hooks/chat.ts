@@ -93,7 +93,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   } = useFilesStore();
   const queryClient = useQueryClient();
 
-  const currentConversationId = id || composerFiles[0]?.conversation_id || '';
+  const currentConversationId = id || composerFiles[0]?.conversation_id;
 
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
