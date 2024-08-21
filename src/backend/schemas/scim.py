@@ -1,45 +1,54 @@
 from typing import ClassVar, Dict, List, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
 
 from backend.database_models import Group as DBGroup
 from backend.database_models import User as DBUser
 
 
-class Meta(BaseModel):
-    resourceType: str
+class BaseSchema(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
+
+
+class Meta(BaseSchema):
+    resource_type: str
     created: str
-    lastModified: str
+    last_modified: str
 
 
-class Name(BaseModel):
-    givenName: str
-    familyName: str
+class Name(BaseSchema):
+    given_name: str
+    family_name: str
 
 
-class BaseUser(BaseModel):
-    userName: Optional[str]
+class BaseUser(BaseSchema):
+    user_name: Optional[str]
     active: Optional[bool]
 
     schemas: list[str]
 
 
-class GroupMember(BaseModel):
+class GroupMember(BaseSchema):
     value: str
     display: str
 
 
-class BaseGroup(BaseModel):
+class BaseGroup(BaseSchema):
     schemas: list[str]
     members: list[GroupMember]
-    displayName: str
+    display_name: str
 
 
 class CreateGroup(BaseGroup):
     pass
 
 
-class Email(BaseModel):
+class Email(BaseSchema):
     primary: bool
     value: Optional[str] = None
     type: str
@@ -56,37 +65,37 @@ class UpdateUser(BaseUser):
     name: Name
 
 
-class Operation(BaseModel):
+class Operation(BaseSchema):
     op: str
     value: dict[str, bool]
 
 
-class GroupOperation(BaseModel):
+class GroupOperation(BaseSchema):
     op: str
     path: Optional[str] = None
     value: Union[Dict[str, str], list[Dict[str, str]]]
 
 
-class PatchUser(BaseModel):
+class PatchUser(BaseSchema):
     schemas: list[str]
     Operations: list[Operation]
 
 
-class PatchGroup(BaseModel):
+class PatchGroup(BaseSchema):
     schemas: list[str]
     Operations: list[GroupOperation]
 
 
 class Group(BaseGroup):
     id: str
-    displayName: str
+    display_name: str
     meta: Meta
 
     @staticmethod
     def from_db_group(db_group: DBGroup) -> "Group":
         return Group(
             id=db_group.id,
-            displayName=db_group.display_name,
+            display_name=db_group.display_name,
             members=[
                 GroupMember(value=ua.user_id, display=ua.display)
                 for ua in db_group.user_associations
@@ -102,16 +111,16 @@ class Group(BaseGroup):
 
 class User(BaseUser):
     id: str
-    externalId: str
+    external_id: str
     meta: Meta
 
     @staticmethod
     def from_db_user(db_user: DBUser) -> "User":
         return User(
             id=db_user.id,
-            userName=db_user.user_name,
+            user_name=db_user.user_name,
             active=db_user.active,
-            externalId=db_user.external_id,
+            external_id=db_user.external_id,
             meta=Meta(
                 resourceType="User",
                 created=db_user.created_at.isoformat(),
@@ -121,18 +130,18 @@ class User(BaseUser):
         )
 
 
-class BaseListResponse(BaseModel):
+class BaseListResponse(BaseSchema):
     schemas: ClassVar[list[str]] = [
         "urn:ietf:params:scim:api:messages:2.0:ListResponse"
     ]
-    totalResults: int
-    startIndex: int
-    itemsPerPage: int
+    total_results: int
+    start_index: int
+    items_per_page: int
 
 
 class ListUserResponse(BaseListResponse):
-    Resources: list[User]
+    resources: list[User] = Field(alias='Resources')
 
 
 class ListGroupResponse(BaseListResponse):
-    Resources: list[Group]
+    resources: list[Group] = Field(alias='Resources')
