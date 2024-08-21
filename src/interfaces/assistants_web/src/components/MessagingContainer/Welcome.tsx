@@ -7,7 +7,7 @@ import { AssistantTools } from '@/components/MessagingContainer';
 import { CoralLogo, Icon, Text } from '@/components/UI';
 import { useAgent, useBrandedColors, useListTools } from '@/hooks';
 import { cn } from '@/utils';
-import { checkIsBaseAgent } from '@/utils/agents';
+import { checkIsBaseAgent } from '@/utils';
 
 type Props = {
   show: boolean;

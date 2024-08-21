@@ -7,9 +7,7 @@ import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/UI';
 import { useAvailableTools, useBrandedColors } from '@/hooks';
 import { useParamsStore } from '@/stores';
-import { cn } from '@/utils';
-import { checkIsBaseAgent } from '@/utils/agents';
-import { getToolIcon } from '@/utils/tools';
+import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
 
 export type Props = {
   agent?: AgentPublic;

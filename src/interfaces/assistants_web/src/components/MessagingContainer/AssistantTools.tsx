@@ -7,9 +7,7 @@ import { WelcomeGuideTooltip } from '@/components/MessagingContainer';
 import { Button, Icon, Text, ToggleCard } from '@/components/UI';
 import { useAvailableTools } from '@/hooks';
 import { useParamsStore } from '@/stores';
-import { cn } from '@/utils';
-import { checkIsBaseAgent } from '@/utils/agents';
-import { getToolIcon } from '@/utils/tools';
+import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
 
 /**
  * @description Tools for the assistant to use in the conversation.

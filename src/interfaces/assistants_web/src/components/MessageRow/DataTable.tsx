@@ -7,8 +7,7 @@ import { StructuredTable } from '@/components/Markdown/directives/table-tools';
 import { Icon, Text } from '@/components/UI';
 import { useNotify } from '@/hooks';
 import { useConversationStore } from '@/stores';
-import { cn } from '@/utils';
-import { downloadFile, structuredTableToXSV } from '@/utils/download';
+import { cn, downloadFile, structuredTableToXSV } from '@/utils';
 
 const FALLBACK_FILE_NAME = 'cohere-table';
 

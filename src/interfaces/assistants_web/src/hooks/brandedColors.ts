@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 
 import { COHERE_BRANDED_COLORS } from '@/constants';
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils';
 
 const COHERE_THEMES_MAP: { default: COHERE_BRANDED_COLORS; branded: COHERE_BRANDED_COLORS[] } = {
   default: 'evolved-blue',

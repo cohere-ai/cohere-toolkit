@@ -3,8 +3,7 @@
 import React from 'react';
 
 import { Icon, Skeleton, Text } from '@/components/UI';
-import { cn, formatFileSize } from '@/utils';
-import { getFileExtension } from '@/utils';
+import { cn, formatFileSize, getFileExtension } from '@/utils';
 
 type Props = {
   name?: string;

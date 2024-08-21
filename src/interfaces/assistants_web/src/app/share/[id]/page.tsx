@@ -16,8 +16,8 @@ import {
   createStartEndKey,
   isShareLinkExpiredError,
   mapHistoryToMessages,
+  parsePythonInterpreterToolFields,
 } from '@/utils';
-import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 import { ReadOnlyConversation } from './ReadOnlyConversation';
 

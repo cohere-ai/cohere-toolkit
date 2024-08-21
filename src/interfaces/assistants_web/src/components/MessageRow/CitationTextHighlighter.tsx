@@ -7,8 +7,7 @@ import { Citation } from '@/components/MessageRow';
 import { useContextStore } from '@/context';
 import { Breakpoint, useBrandedColors, useBreakpoint, useChatRoutes } from '@/hooks';
 import { useCitationsStore } from '@/stores';
-import { cn } from '@/utils';
-import { createStartEndKey } from '@/utils';
+import { cn, createStartEndKey } from '@/utils';
 
 const FALLBACK_CODE_SNIPPET_TEXT = '[source]';
 

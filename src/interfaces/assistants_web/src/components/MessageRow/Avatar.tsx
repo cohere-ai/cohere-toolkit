@@ -6,7 +6,7 @@ import logoTyping from '@/assets/lotties/icon-loop-coral-950.json';
 import { CoralLogo, Icon } from '@/components/UI';
 import { useBrandedColors, useChatRoutes } from '@/hooks';
 import { BotState, ChatMessage, MessageType, isFulfilledMessage } from '@/types/message';
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils';
 
 type Props = {
   message: ChatMessage;

@@ -12,8 +12,7 @@ import {
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
 } from '@/constants';
-import { cn, getValidURL } from '@/utils';
-import { getToolIcon } from '@/utils/tools';
+import { cn, getToolIcon, getValidURL } from '@/utils';
 
 type Props = {
   show: boolean;

@@ -43,11 +43,11 @@ import {
   fixCitationsLeadingMarkdown,
   fixMarkdownImagesInText,
   isGroundingOn,
+  parsePythonInterpreterToolFields,
+  replaceCodeBlockWithIframe,
   replaceTextWithCitations,
   shouldUpdateConversationTitle,
 } from '@/utils';
-import { replaceCodeBlockWithIframe } from '@/utils/preview';
-import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
 const ABORT_REASON_USER = 'USER_ABORTED';

@@ -5,8 +5,7 @@ import { PropsWithChildren, useState } from 'react';
 import { MobileHeader } from '@/components/Global';
 import { Button, DarkModeToggle, Icon, Tabs, Text } from '@/components/UI';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
-import { cn } from '@/utils';
-import { getToolAuthUrl } from '@/utils/getToolAuthUrl';
+import { cn, getToolAuthUrl } from '@/utils';
 
 const tabs = [
   <div className="flex items-center gap-2" key="company">

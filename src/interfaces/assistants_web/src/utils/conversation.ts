@@ -1,7 +1,10 @@
 import { Message, MessageAgent } from '@/cohere-client';
 import { BotState, ChatMessage, FulfilledMessage, MessageType, UserMessage } from '@/types/message';
-import { fixCitationsLeadingMarkdown, replaceTextWithCitations } from '@/utils/citations';
-import { replaceCodeBlockWithIframe } from '@/utils/preview';
+import {
+  fixCitationsLeadingMarkdown,
+  replaceCodeBlockWithIframe,
+  replaceTextWithCitations,
+} from '@/utils';
 
 /**
  * A utility function that checks if the conversation title should be updated

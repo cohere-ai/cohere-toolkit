@@ -8,8 +8,12 @@ import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useAgent, useConversation, useListTools } from '@/hooks';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { createStartEndKey, fixCitationsLeadingMarkdown, mapHistoryToMessages } from '@/utils';
-import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import {
+  createStartEndKey,
+  fixCitationsLeadingMarkdown,
+  mapHistoryToMessages,
+  parsePythonInterpreterToolFields,
+} from '@/utils';
 
 const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   agentId,

@@ -7,8 +7,7 @@ import { DeleteAgent } from '@/components/Modals/DeleteAgent';
 import { CoralLogo, KebabMenu, Text } from '@/components/UI';
 import { useContextStore } from '@/context';
 import { useBrandedColors, useSession } from '@/hooks';
-import { cn } from '@/utils';
-import { checkIsBaseAgent } from '@/utils/agents';
+import { checkIsBaseAgent, cn } from '@/utils';
 
 type Props = {
   agent?: AgentPublic;

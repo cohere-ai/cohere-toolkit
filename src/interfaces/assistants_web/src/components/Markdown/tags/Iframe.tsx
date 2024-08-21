@@ -8,8 +8,7 @@ import { useState } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
 
 import { CodeSnippet, Text } from '@/components/UI';
-import { cn } from '@/utils';
-import { cleanupCodeBlock } from '@/utils/preview';
+import { cleanupCodeBlock, cn } from '@/utils';
 
 const MIN_HEIGHT = 600;
 

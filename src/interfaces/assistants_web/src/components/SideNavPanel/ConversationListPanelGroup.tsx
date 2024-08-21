@@ -8,7 +8,7 @@ import { ConversationCard, ConversationListItem } from '@/components/SideNavPane
 import { Text } from '@/components/UI';
 import { useListAgents } from '@/hooks';
 import { useConversationStore } from '@/stores';
-import { getWeeksAgo } from '@/utils/format';
+import { getWeeksAgo } from '@/utils';
 
 type Props = {
   conversations: Conversation[];
