@@ -58,6 +58,9 @@ class EmailStats(BaseModel):
 
 
 class EmailMetadata(BaseModel):
+    sender: str
+    recipient: str
+    cc: Optional[str] = None
     is_message: bool
     start_of_thread: bool = False
     root_external_file_id: Optional[str] = None
@@ -68,6 +71,7 @@ class EmailsToIndex(BaseModel):
     id: int
     parent_id: Optional[int] = None
     name: str
+    source_created_at: str
     external_file_id: str
     external_url: Optional[str] = None
     presigned_url: str
@@ -92,6 +96,9 @@ def get_email_meta(item: Dict[str, Any]) -> EmailMetadata:
         root_external_file_id=item.get("file_metadata", {}).get(
             "root_external_file_id"
         ),
+        sender=item.get("tags", {}).get("sender"),
+        recipient=item.get("tags", {}).get("recipient"),
+        cc=item.get("tags", {}).get("cc"),
         parent_external_file_id=item.get("file_metadata", {}).get(
             "parent_external_file_id"
         ),
@@ -103,6 +110,7 @@ def get_emails_to_index(item: Dict[str, Any]) -> List[EmailsToIndex]:
         id=item.get("id"),
         parent_id=item.get("parent_id"),
         name=item.get("name"),
+        source_created_at=item.get("source_created_at"),
         external_file_id=item.get("external_file_id"),
         presigned_url=item.get("presigned_url"),
         stats=get_email_stats(item),
@@ -196,18 +204,27 @@ def list_webhook():
 
 
 def main_gmail():
+    def list_all():
+        emails, errs = list_emails_v2()
+        if errs:
+            print("Errors: ", errs)
+        print()
+        index_on_compass(emails)
+
+    def sync():
+        source_ids = user_sources(GMAIL_TOOL)
+        print(source_ids)
+        sync_gmail(source_ids[0])
+
     # auth()
-    source_ids = user_sources(GMAIL_TOOL)
-    # print(source_ids)
     # setup_auto_sync(GMAIL_TOOL)
-    list_items(source_ids[0])
-    sync_gmail(source_ids[0])
+    # source_ids = user_sources(GMAIL_TOOL)
+    # list_items(source_ids[0])
+    # sync_gmail(source_ids[0])
     # gmail_labels()
-    emails, errs = list_emails_v2()
-    if errs:
-        print("Errors: ", errs)
-    print()
-    index_on_compass(emails)
+    list_all()
+
+
 
 
 if __name__ == "__main__":
