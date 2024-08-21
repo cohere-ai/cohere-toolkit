@@ -103,7 +103,7 @@ class TavilyInternetSearch(BaseTool):
         internet_search.name = "internet_search"
         internet_search.description = "Returns a list of relevant document snippets for a textual query retrieved from the internet."
 
-        # pydantic v1 base model
+        # Pydantic v1 base model
         from langchain_core.pydantic_v1 import BaseModel, Field
 
         class TavilySearchInput(BaseModel):

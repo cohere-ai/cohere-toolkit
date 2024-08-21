@@ -1,10 +1,9 @@
 'use client';
 
-import { useLocalStorageValue } from '@react-hookz/web';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
 import {
   AgentSettingsFields,
@@ -36,8 +35,6 @@ const DEFAULT_FIELD_VALUES = {
  */
 export const CreateAgent: React.FC = () => {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { open, close } = useContextStore();
 
   const { error } = useNotify();
@@ -45,27 +42,6 @@ export const CreateAgent: React.FC = () => {
 
   const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const {
-    value: pendingAssistant,
-    set: setPendingAssistant,
-    remove: removePendingAssistant,
-  } = useLocalStorageValue<AgentSettingsFields>('pending_assistant', {
-    initializeWithValue: false,
-    defaultValue: undefined,
-  });
-
-  const queryString = searchParams.get('p');
-  useEffect(() => {
-    if (queryString) {
-      if (pendingAssistant) {
-        setFields(pendingAssistant);
-        removePendingAssistant();
-      }
-
-      window.history.replaceState(null, '', pathname);
-    }
-  }, [queryString, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
     if (fields.is_private) {
@@ -91,7 +67,6 @@ export const CreateAgent: React.FC = () => {
       setIsSubmitting(true);
       const agent = await createAgent(fields);
       close();
-      setIsSubmitting(false);
       router.push(`/a/${agent.id}`);
     } catch (e) {
       setIsSubmitting(false);
@@ -102,7 +77,7 @@ export const CreateAgent: React.FC = () => {
   };
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-y-auto">
+    <div className="flex h-full w-full flex-col overflow-y-auto">
       <header className="flex flex-col gap-y-3 border-b px-4 py-6 dark:border-volcanic-150 lg:px-10 lg:py-10">
         <MobileHeader />
         <div className="flex items-center space-x-2">
@@ -114,14 +89,15 @@ export const CreateAgent: React.FC = () => {
         </div>
         <Text styleAs="h4">Create assistant</Text>
       </header>
-      <div className="overflow-y-auto">
-        <AgentSettingsForm
-          source="create"
-          fields={fields}
-          setFields={setFields}
-          onSubmit={handleOpenSubmitModal}
-          savePendingAssistant={() => setPendingAssistant(fields)}
-        />
+      <div className="flex flex-grow flex-col gap-y-8 overflow-y-hidden px-8 pt-8">
+        <div className="flex-grow overflow-y-auto">
+          <AgentSettingsForm
+            source="create"
+            fields={fields}
+            setFields={setFields}
+            onSubmit={handleOpenSubmitModal}
+          />
+        </div>
       </div>
     </div>
   );

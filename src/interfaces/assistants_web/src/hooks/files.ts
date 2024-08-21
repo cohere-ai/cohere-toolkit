@@ -1,15 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { ApiError, DeleteFileResponse, ListFile, useCohereClient } from '@/cohere-client';
+import {
+  ApiError,
+  DeleteAgentFileResponse,
+  ListConversationFile,
+  useCohereClient,
+} from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
+import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
-import { useFilesStore, useParamsStore } from '@/stores';
+import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
 import { fileSizeToBytes, formatFileSize, getFileExtension } from '@/utils';
 
-export const useListFiles = (conversationId?: string, options?: { enabled?: boolean }) => {
+export const useListConversationFiles = (
+  conversationId?: string,
+  options?: { enabled?: boolean }
+) => {
   const cohereClient = useCohereClient();
-  return useQuery<ListFile[], ApiError>({
+  return useQuery<ListConversationFile[], ApiError>({
     queryKey: ['listFiles', conversationId],
     queryFn: async () => {
       if (!conversationId) throw new Error('Conversation ID not found');
@@ -26,37 +35,38 @@ export const useListFiles = (conversationId?: string, options?: { enabled?: bool
   });
 };
 
-export const useUploadFile = () => {
+export const useUploadAgentFile = () => {
   const cohereClient = useCohereClient();
 
   return useMutation({
-    mutationFn: ({ file, conversationId }: { file: File; conversationId?: string }) =>
-      cohereClient.uploadFile({ file, conversation_id: conversationId }),
+    mutationFn: ({ files }: { files: File[] }) => cohereClient.batchUploadAgentFile({ files }),
   });
 };
 
-export const useBatchUploadFile = () => {
+export const useUploadConversationFile = () => {
   const cohereClient = useCohereClient();
   return useMutation({
     mutationFn: ({ files, conversationId }: { files: File[]; conversationId?: string }) =>
-      cohereClient.batchUploadFile({ files, conversation_id: conversationId }),
+      cohereClient.batchUploadConversationFile({ files, conversation_id: conversationId }),
   });
 };
 
-export const useDeleteUploadedFile = () => {
+export const useDeleteUploadedConversationFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
-  return useMutation<DeleteFileResponse, ApiError, { conversationId: string; fileId: string }>({
-    mutationFn: async ({ conversationId, fileId }) =>
-      cohereClient.deletefile({ conversationId, fileId }),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['listFiles'] });
-    },
-  });
+  return useMutation<DeleteAgentFileResponse, ApiError, { conversationId: string; fileId: string }>(
+    {
+      mutationFn: async ({ conversationId, fileId }) =>
+        cohereClient.deletefile({ conversationId, fileId }),
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['listFiles'] });
+      },
+    }
+  );
 };
 
-export const useFileActions = () => {
+export const useConversationFileActions = () => {
   const {
     files: { uploadingFiles, composerFiles },
     addUploadingFiles,
@@ -70,9 +80,11 @@ export const useFileActions = () => {
     params: { fileIds },
     setParams,
   } = useParamsStore();
-  const { mutateAsync: uploadFiles } = useBatchUploadFile();
-  const { mutateAsync: deleteFile } = useDeleteUploadedFile();
+  const { userId } = useSession();
+  const { mutateAsync: uploadFiles } = useUploadConversationFile();
+  const { mutateAsync: deleteFile } = useDeleteUploadedConversationFile();
   const { error } = useNotify();
+  const { setConversation } = useConversationStore();
 
   const handleUploadFiles = async (files?: File[], conversationId?: string) => {
     // cleanup uploadingFiles with errors
@@ -139,8 +151,13 @@ export const useFileActions = () => {
       uploadedFiles.forEach((uploadedFile) => {
         newFileIds.push(uploadedFile.id);
         setParams({ fileIds: newFileIds });
-        addComposerFile(uploadedFile);
+        addComposerFile({ ...uploadedFile });
       });
+
+      if (!conversationId) {
+        const newConversationId = uploadedFiles[0].conversation_id;
+        setConversation({ id: newConversationId });
+      }
 
       return newFileIds;
     } catch (e: any) {

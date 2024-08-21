@@ -1,9 +1,9 @@
 'use client';
 
-import { useLocalStorageValue } from '@react-hookz/web';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
+import { AgentPublic } from '@/cohere-client';
 import {
   AgentSettingsFields,
   AgentSettingsForm,
@@ -13,81 +13,50 @@ import { MobileHeader } from '@/components/MobileHeader';
 import { Button, Icon, Spinner, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useContextStore } from '@/context';
-import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
+import { useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
 
 type Props = {
-  agentId: string;
+  agent: AgentPublic;
 };
 
-export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
-  const { error, success } = useNotify();
-  const { data: agent, isLoading } = useAgent({ agentId });
+export const UpdateAgent: React.FC<Props> = ({ agent }) => {
+  const { error, info } = useNotify();
   const { open, close } = useContextStore();
 
   const { mutateAsync: updateAgent } = useUpdateAgent();
   const isAgentNameUnique = useIsAgentNameUnique();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fields, setFields] = useState<AgentSettingsFields>();
-
-  const { set: setPendingAssistant } = useLocalStorageValue<AgentSettingsFields>(
-    'pending_assistant',
-    {
-      defaultValue: fields,
-      initializeWithValue: false,
-    }
-  );
-
-  useEffect(() => {
-    if (agent) {
-      setFields({
-        name: agent.name,
-        description: agent.description,
-        deployment: agent.deployment ?? DEPLOYMENT_COHERE_PLATFORM,
-        model: agent.model ?? DEFAULT_AGENT_MODEL,
-        tools: agent.tools,
-        preamble: agent.preamble,
-        tools_metadata: agent.tools_metadata,
-        is_private: agent.is_private,
-      });
-    }
-  }, [agent]);
+  const [fields, setFields] = useState<AgentSettingsFields>({
+    name: agent.name,
+    description: agent.description,
+    deployment: agent.deployment ?? DEPLOYMENT_COHERE_PLATFORM,
+    model: agent.model ?? DEFAULT_AGENT_MODEL,
+    tools: agent.tools,
+    preamble: agent.preamble,
+    tools_metadata: agent.tools_metadata,
+    is_private: agent.is_private,
+  });
 
   const handleOpenDeleteModal = () => {
-    if (!agent || !agent.name || !agentId) return;
     open({
       title: `Delete ${agent.name}`,
-      content: <DeleteAgent name={agent.name} agentId={agentId} onClose={close} />,
+      content: <DeleteAgent name={agent.name} agentId={agent.id} onClose={close} />,
     });
   };
 
-  if (isLoading && !fields) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (!agent || !fields) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-danger-350">Unable to load assistant information</Text>
-      </div>
-    );
-  }
-
   const handleSubmit = async () => {
-    if (!agentId) return;
     const tools_metadata = (fields.tools_metadata ?? []).map((tool) => ({
       ...tool,
       id: agent.tools_metadata?.find((t) => t.tool_name === tool.tool_name)?.id,
     }));
     try {
       setIsSubmitting(true);
-      const newAgent = await updateAgent({ request: { ...fields, tools_metadata }, agentId });
-      setIsSubmitting(false);
-      success(`Updated ${newAgent?.name}`);
+      const newAgent = await updateAgent({
+        request: { ...fields, tools_metadata },
+        agentId: agent.id,
+      });
+      info(`Updated ${newAgent?.name}`);
     } catch (e) {
       setIsSubmitting(false);
       error(`Failed to update ${agent?.name}`);
@@ -96,7 +65,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   };
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-y-auto">
+    <div className="flex h-full w-full flex-col overflow-y-auto">
       <header className="flex flex-col gap-y-3 border-b px-4 py-6 dark:border-volcanic-150 lg:px-10 lg:py-10">
         <MobileHeader />
         <div className="flex items-center space-x-2">
@@ -108,16 +77,17 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
         </div>
         <Text styleAs="h4">Edit {agent.name}</Text>
       </header>
-      <div className="flex flex-col overflow-y-auto">
-        <AgentSettingsForm
-          source="update"
-          fields={fields}
-          setFields={setFields}
-          onSubmit={handleSubmit}
-          savePendingAssistant={() => setPendingAssistant(fields)}
-          agentId={agentId}
-        />
-        <div className="space-y-5 p-8">
+      <div className="flex flex-grow flex-col gap-y-8 overflow-y-hidden px-8 pt-8">
+        <div className="flex-grow overflow-y-auto">
+          <AgentSettingsForm
+            source="update"
+            fields={fields}
+            setFields={setFields}
+            onSubmit={handleSubmit}
+            agentId={agent.id}
+          />
+        </div>
+        <div className="space-y-5 pb-8">
           <div className="flex w-full max-w-screen-md items-center justify-between ">
             <Button label="Cancel" kind="secondary" href="/discover" />
             <Button

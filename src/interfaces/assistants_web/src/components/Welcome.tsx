@@ -55,7 +55,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
             )}
           </div>
           <Text styleAs="h4" className="truncate">
-            {!isBaseAgent ? agent?.name : 'Your Private Assistant'}
+            {isBaseAgent ? 'Your Public Assistant' : agent?.name}
           </Text>
           {isBaseAgent && (
             <Text className="ml-auto" styleAs="caption">

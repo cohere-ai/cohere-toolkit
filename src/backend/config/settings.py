@@ -19,7 +19,7 @@ SETTINGS_CONFIG = SettingsConfigDict(
 )
 
 CONFIG_PATH = "src/backend/config"
-PYTEST_CONFIG_PATH = "src/backend/tests"
+PYTEST_CONFIG_PATH = "src/backend/tests/unit"
 CONFIG_FILE_PATH = (
     f"{CONFIG_PATH}/configuration.yaml"
     if "pytest" not in sys.modules
@@ -64,6 +64,16 @@ class OIDCSettings(BaseSettings, BaseModel):
     )
 
 
+class SCIMAuth(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    username: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("SCIM_USER", "username")
+    )
+    password: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("SCIM_PASSWORD", "password")
+    )
+
+
 class AuthSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     enabled_auth: Optional[List[str]] = None
@@ -81,6 +91,7 @@ class AuthSettings(BaseSettings, BaseModel):
     )
     oidc: Optional[OIDCSettings] = Field(default=OIDCSettings())
     google_oauth: Optional[GoogleOAuthSettings] = Field(default=GoogleOAuthSettings())
+    scim: Optional[SCIMAuth] = Field(default=SCIMAuth())
 
 
 class FeatureFlags(BaseSettings, BaseModel):
@@ -99,6 +110,12 @@ class FeatureFlags(BaseSettings, BaseModel):
         default=False,
         validation_alias=AliasChoices(
             "USE_COMMUNITY_FEATURES", "use_community_features"
+        ),
+    )
+    use_compass_file_storage: Optional[bool] = Field(
+        default=False,
+        validation_alias=AliasChoices(
+            "USE_COMPASS_FILE_STORAGE", "use_compass_file_storage"
         ),
     )
 
@@ -168,7 +185,6 @@ class ToolSettings(BaseSettings, BaseModel):
     python_interpreter: Optional[PythonToolSettings] = Field(
         default=PythonToolSettings()
     )
-    compass: Optional[CompassSettings] = Field(default=CompassSettings())
     web_search: Optional[WebSearchSettings] = Field(default=WebSearchSettings())
     wolfram_alpha: Optional[WolframAlphaSettings] = Field(
         default=WolframAlphaSettings()
@@ -292,10 +308,23 @@ class LoggerSettings(BaseSettings, BaseModel):
     )
 
 
+class SyncSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    broker_url: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("BROKER_URL", "broker_url")
+    )
+    worker_concurrency: Optional[int] = Field(
+        default=4,
+        validation_alias=AliasChoices("WORKER_CONCURRENCY", "worker_concurrency"),
+    )
+
+
 class Settings(BaseSettings):
     """
-    Settings class used to grab environment variables from .env file.
-    Uppercase env variables converted to class parameters.
+    Settings class used to grab environment variables from configuration.yaml
+    and secrets.yaml files. Backwards compatible with .env setup.
+
+    Uppercase env variables are converted to class parameters.
     """
 
     model_config = SETTINGS_CONFIG
@@ -306,6 +335,8 @@ class Settings(BaseSettings):
     redis: Optional[RedisSettings] = Field(default=RedisSettings())
     deployments: Optional[DeploymentSettings] = Field(default=DeploymentSettings())
     logger: Optional[LoggerSettings] = Field(default=LoggerSettings())
+    compass: Optional[CompassSettings] = Field(default=CompassSettings())
+    sync: Optional[SyncSettings] = Field(default=SyncSettings())
 
     @classmethod
     def settings_customise_sources(

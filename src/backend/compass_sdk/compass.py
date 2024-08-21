@@ -29,7 +29,6 @@ from backend.compass_sdk import (
     PutDocumentsInput,
     SearchFilter,
     SearchInput,
-    logger,
 )
 from backend.compass_sdk.constants import (
     DEFAULT_MAX_CHUNKS_PER_REQUEST,
@@ -37,6 +36,9 @@ from backend.compass_sdk.constants import (
     DEFAULT_MAX_RETRIES,
     DEFAULT_SLEEP_RETRY_SECONDS,
 )
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 @dataclass
@@ -52,9 +54,9 @@ class CompassAuthError(Exception):
         self,
         message=(
             "Unauthorized. Please check your username and password, "
-            "which can be passed into CompassClient or set with "
-            "COHERE_COMPASS_USERNAME and COHERE_COMPASS_PASSWORD "
-            "environment variables."
+            "which can be passed into CompassClient or set in the "
+            "secrets.yaml, in the tools.compass.username and tools.compass.password "
+            "config variables."
         ),
     ):
         self.message = message
@@ -75,7 +77,8 @@ class CompassMaxErrorRateExceeded(Exception):
 class CompassClient:
     def __init__(
         self,
-        index_url: str = "http://localhost:80",
+        *,
+        index_url: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         logger_level: LoggerLevel = LoggerLevel.INFO,
@@ -115,9 +118,8 @@ class CompassClient:
             "add_context": "/api/v1/indexes/{index_name}/documents/add_context/{doc_id}",
             "refresh": "/api/v1/indexes/{index_name}/refresh",
         }
-        logger.setLevel(logger_level.value)
 
-    def create_index(self, index_name: str):
+    def create_index(self, *, index_name: str):
         """
         Create an index in Compass
         :param index_name: the name of the index
@@ -130,7 +132,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def refresh(self, index_name: str):
+    def refresh(self, *, index_name: str):
         """
         Refresh index
         :param index_name: the name of the index
@@ -143,7 +145,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def delete_index(self, index_name: str):
+    def delete_index(self, *, index_name: str):
         """
         Delete an index from Compass
         :param index_name: the name of the index
@@ -156,7 +158,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def delete_document(self, index_name: str, doc_id: str):
+    def delete_document(self, *, index_name: str, doc_id: str):
         """
         Delete a document from Compass
         :param index_name: the name of the index
@@ -171,7 +173,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def get_document(self, index_name: str, doc_id: str):
+    def get_document(self, *, index_name: str, doc_id: str):
         """
         Get a document from Compass
         :param index_name: the name of the index
@@ -200,6 +202,7 @@ class CompassClient:
 
     def add_context(
         self,
+        *,
         index_name: str,
         doc_id: str,
         context: Dict,
@@ -227,6 +230,7 @@ class CompassClient:
 
     def insert_doc(
         self,
+        *,
         index_name: str,
         doc: CompassDocument,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -246,7 +250,7 @@ class CompassClient:
             sleep_retry_seconds=sleep_retry_seconds,
         )
 
-    def insert_docs_batch(self, uuid: str, index_name: str):
+    def insert_docs_batch(self, *, uuid: str, index_name: str):
         """
         Insert a batch of parsed documents into an index in Compass
         :param uuid: the uuid of the batch
@@ -260,7 +264,7 @@ class CompassClient:
             sleep_retry_seconds=DEFAULT_SLEEP_RETRY_SECONDS,
         )
 
-    def batch_status(self, uuid: str):
+    def batch_status(self, *, uuid: str):
         """
         Get the status of a batch
         :param uuid: the uuid of the batch
@@ -282,6 +286,7 @@ class CompassClient:
 
     def insert_docs(
         self,
+        *,
         index_name: str,
         docs: Iterator[CompassDocument],
         max_chunks_per_request: int = DEFAULT_MAX_CHUNKS_PER_REQUEST,
@@ -373,7 +378,7 @@ class CompassClient:
                 if i > skip_first_n_docs
             )
         except CompassMaxErrorRateExceeded as e:
-            logger.error(e.message)
+            logger.error(event="[CompassError]", error=e.message)
         return errors if len(errors) > 0 else None
 
     @staticmethod
@@ -393,7 +398,10 @@ class CompassClient:
         for num_doc, doc in enumerate(docs, 1):
             if doc.status != CompassDocumentStatus.Success:
                 logger.error(
-                    f"[Thread {threading.get_native_id()}] Document #{num_doc} has errors: {doc.errors}"
+                    event="Document errors",
+                    errors=doc.errors,
+                    num_doc=num_doc,
+                    thread_id=threading.get_native_id(),
                 )
                 errors.append(doc)
             else:
@@ -425,6 +433,7 @@ class CompassClient:
 
     def search(
         self,
+        *,
         index_name: str,
         query: str,
         top_k: int = 10,
@@ -498,18 +507,26 @@ class CompassClient:
                 else:
                     error = str(e) + " " + e.response.text
                     logger.error(
-                        f"[Thread {threading.get_native_id()}] Failed to send request to "
-                        f"{function} {target_path}: {type(e)} {error}. Going to sleep for "
-                        f"{sleep_retry_seconds} seconds and retrying."
+                        event="Failed to send request to",
+                        function=function,
+                        target_path=target_path,
+                        type=type(e),
+                        error=error,
+                        sleep_retry_seconds=sleep_retry_seconds,
+                        thread_id=threading.get_native_id(),
                     )
                     raise e
 
             except Exception as e:
                 error = str(e)
                 logger.error(
-                    f"[Thread {threading.get_native_id()}] Failed to send request to "
-                    f"{function} {target_path}: {type(e)} {error}. Going to sleep for "
-                    f"{sleep_retry_seconds} seconds and retrying."
+                    event="Failed to send request to",
+                    function=function,
+                    target_path=target_path,
+                    type=type(e),
+                    error=error,
+                    sleep_retry_seconds=sleep_retry_seconds,
+                    thread_id=threading.get_native_id(),
                 )
                 raise e
 
@@ -525,6 +542,8 @@ class CompassClient:
                 return RetryResult(result=None, error=error)
         except RetryError:
             logger.error(
-                f"[Thread {threading.get_native_id()}] Failed to send request after {max_retries} attempts. Aborting."
+                event="Failed to send request after max_retries attempts. Aborting.",
+                max_retries=max_retries,
+                thread_id=threading.get_native_id(),
             )
             return RetryResult(result=None, error=error)

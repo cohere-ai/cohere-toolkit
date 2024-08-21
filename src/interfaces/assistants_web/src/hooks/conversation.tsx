@@ -82,9 +82,7 @@ export const useDeleteConversation = () => {
     onSettled: (_, _err, { conversationId }: { conversationId: string }) => {
       queryClient.setQueriesData<ConversationPublic[]>(
         { queryKey: ['conversations'] },
-        (oldConversations) => {
-          return oldConversations?.filter((c) => c.id === conversationId);
-        }
+        (oldConversations) => oldConversations?.filter((c) => c.id !== conversationId)
       );
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
@@ -95,6 +93,7 @@ export const useConversationActions = () => {
   const { open, close } = useContextStore();
   const {
     conversation: { id: conversationId },
+    setConversation,
   } = useConversationStore();
   const notify = useNotify();
   const navigateToNewChat = useNavigateToNewChat();
@@ -110,6 +109,7 @@ export const useConversationActions = () => {
     const onDelete = () => {
       close();
       onComplete?.();
+      setConversation({ id: undefined });
 
       if (id === conversationId) {
         navigateToNewChat();

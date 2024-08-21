@@ -15,3 +15,7 @@ class UpdateToolAuth(BaseModel):
     class Config:
         from_attributes = True
         use_enum_values = True
+
+
+class DeleteToolAuth(BaseModel):
+    pass

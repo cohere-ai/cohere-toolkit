@@ -5,6 +5,8 @@ import type {
   ApplyMigrationsMigratePostResponse,
   AuthorizeV1StrategyAuthPostData,
   AuthorizeV1StrategyAuthPostResponse,
+  BatchUploadFileV1AgentsBatchUploadFilePostData,
+  BatchUploadFileV1AgentsBatchUploadFilePostResponse,
   BatchUploadFileV1ConversationsBatchUploadFilePostData,
   BatchUploadFileV1ConversationsBatchUploadFilePostResponse,
   ChatStreamV1ChatStreamPostData,
@@ -25,6 +27,8 @@ import type {
   CreateSnapshotV1SnapshotsPostResponse,
   CreateUserV1UsersPostData,
   CreateUserV1UsersPostResponse,
+  DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData,
+  DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse,
   DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteData,
   DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdDeleteResponse,
   DeleteAgentV1AgentsAgentIdDeleteData,
@@ -43,6 +47,8 @@ import type {
   DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse,
   DeleteSnapshotV1SnapshotsSnapshotIdDeleteData,
   DeleteSnapshotV1SnapshotsSnapshotIdDeleteResponse,
+  DeleteToolAuthV1ToolAuthToolIdDeleteData,
+  DeleteToolAuthV1ToolAuthToolIdDeleteResponse,
   DeleteUserV1UsersUserIdDeleteData,
   DeleteUserV1UsersUserIdDeleteResponse,
   GenerateTitleV1ConversationsConversationIdGenerateTitlePostData,
@@ -89,12 +95,12 @@ import type {
   ListUsersV1UsersGetResponse,
   LoginV1LoginPostData,
   LoginV1LoginPostResponse,
-  LoginV1ToolAuthGetResponse,
   LogoutV1LogoutGetResponse,
   SearchConversationsV1ConversationsSearchGetData,
   SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
+  ToolAuthV1ToolAuthGetResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
   UpdateAgentV1AgentsAgentIdPutData,
@@ -103,16 +109,12 @@ import type {
   UpdateConversationV1ConversationsConversationIdPutResponse,
   UpdateDeploymentV1DeploymentsDeploymentIdPutData,
   UpdateDeploymentV1DeploymentsDeploymentIdPutResponse,
-  UpdateFileV1ConversationsConversationIdFilesFileIdPutData,
-  UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse,
   UpdateModelV1ModelsModelIdPutData,
   UpdateModelV1ModelsModelIdPutResponse,
   UpdateOrganizationV1OrganizationsOrganizationIdPutData,
   UpdateOrganizationV1OrganizationsOrganizationIdPutResponse,
   UpdateUserV1UsersUserIdPutData,
   UpdateUserV1UsersUserIdPutResponse,
-  UploadFileV1ConversationsUploadFilePostData,
-  UploadFileV1ConversationsUploadFilePostResponse,
 } from './types.gen';
 
 export class DefaultService {
@@ -231,7 +233,7 @@ export class DefaultService {
   }
 
   /**
-   * Login
+   * Tool Auth
    * Endpoint for Tool Authentication. Note: The flow is different from
    * the regular login OAuth flow, the backend initiates it and redirects to the frontend
    * after completion.
@@ -252,10 +254,47 @@ export class DefaultService {
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public loginV1ToolAuthGet(): CancelablePromise<LoginV1ToolAuthGetResponse> {
+  public toolAuthV1ToolAuthGet(): CancelablePromise<ToolAuthV1ToolAuthGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tool/auth',
+    });
+  }
+
+  /**
+   * Delete Tool Auth
+   * Endpoint to delete Tool Authentication.
+   *
+   * If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
+   *
+   * Args:
+   * tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
+   * request (Request): current Request object.
+   * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * DeleteToolAuth: Empty response.
+   *
+   * Raises:
+   * HTTPException: If there was an error deleting the tool auth.
+   * @param data The data for the request.
+   * @param data.toolId
+   * @returns DeleteToolAuth Successful Response
+   * @throws ApiError
+   */
+  public deleteToolAuthV1ToolAuthToolIdDelete(
+    data: DeleteToolAuthV1ToolAuthToolIdDeleteData
+  ): CancelablePromise<DeleteToolAuthV1ToolAuthToolIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/tool/auth/{tool_id}',
+      path: {
+        tool_id: data.toolId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 
@@ -707,42 +746,6 @@ export class DefaultService {
   }
 
   /**
-   * Upload File
-   * Uploads and creates a File object.
-   * If no conversation_id is provided, a new Conversation is created as well.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * conversation_id (Optional[str]): Conversation ID passed from request query parameter.
-   * file (FastAPIUploadFile): File to be uploaded.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * UploadFileResponse: Uploaded file.
-   *
-   * Raises:
-   * HTTPException: If the conversation with the given ID is not found. Status code 404.
-   * HTTPException: If the file wasn't uploaded correctly. Status code 500.
-   * @param data The data for the request.
-   * @param data.formData
-   * @returns UploadFileResponse Successful Response
-   * @throws ApiError
-   */
-  public uploadFileV1ConversationsUploadFilePost(
-    data: UploadFileV1ConversationsUploadFilePostData
-  ): CancelablePromise<UploadFileV1ConversationsUploadFilePostResponse> {
-    return this.httpRequest.request({
-      method: 'POST',
-      url: '/v1/conversations/upload_file',
-      formData: data.formData,
-      mediaType: 'multipart/form-data',
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
    * Batch Upload File
    * Uploads and creates a batch of File object.
    * If no conversation_id is provided, a new Conversation is created as well.
@@ -754,14 +757,14 @@ export class DefaultService {
    * ctx (Context): Context object.
    *
    * Returns:
-   * list[UploadFileResponse]: List of uploaded files.
+   * list[UploadConversationFileResponse]: List of uploaded files.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found. Status code 404.
    * HTTPException: If the file wasn't uploaded correctly. Status code 500.
    * @param data The data for the request.
    * @param data.formData
-   * @returns UploadFileResponse Successful Response
+   * @returns UploadConversationFileResponse Successful Response
    * @throws ApiError
    */
   public batchUploadFileV1ConversationsBatchUploadFilePost(
@@ -788,13 +791,13 @@ export class DefaultService {
    * ctx (Context): Context object.
    *
    * Returns:
-   * list[ListFile]: List of files from the conversation.
+   * list[ListConversationFile]: List of files from the conversation.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
-   * @returns ListFile Successful Response
+   * @returns ListConversationFile Successful Response
    * @throws ApiError
    */
   public listFilesV1ConversationsConversationIdFilesGet(
@@ -806,47 +809,6 @@ export class DefaultService {
       path: {
         conversation_id: data.conversationId,
       },
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
-   * Update File
-   * Update a file by ID.
-   *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * file_id (str): File ID.
-   * new_file (UpdateFileRequest): New file data.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * FilePublic: Updated file.
-   *
-   * Raises:
-   * HTTPException: If the conversation with the given ID is not found.
-   * @param data The data for the request.
-   * @param data.conversationId
-   * @param data.fileId
-   * @param data.requestBody
-   * @returns FilePublic Successful Response
-   * @throws ApiError
-   */
-  public updateFileV1ConversationsConversationIdFilesFileIdPut(
-    data: UpdateFileV1ConversationsConversationIdFilesFileIdPutData
-  ): CancelablePromise<UpdateFileV1ConversationsConversationIdFilesFileIdPutResponse> {
-    return this.httpRequest.request({
-      method: 'PUT',
-      url: '/v1/conversations/{conversation_id}/files/{file_id}',
-      path: {
-        conversation_id: data.conversationId,
-        file_id: data.fileId,
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
       errors: {
         422: 'Validation Error',
       },
@@ -870,7 +832,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.conversationId
    * @param data.fileId
-   * @returns DeleteFileResponse Successful Response
+   * @returns DeleteConversationFileResponse Successful Response
    * @throws ApiError
    */
   public deleteFileV1ConversationsConversationIdFilesFileIdDelete(
@@ -1517,6 +1479,63 @@ export class DefaultService {
       path: {
         agent_id: data.agentId,
         agent_tool_metadata_id: data.agentToolMetadataId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Batch Upload File
+   * @param data The data for the request.
+   * @param data.formData
+   * @returns UploadAgentFileResponse Successful Response
+   * @throws ApiError
+   */
+  public batchUploadFileV1AgentsBatchUploadFilePost(
+    data: BatchUploadFileV1AgentsBatchUploadFilePostData
+  ): CancelablePromise<BatchUploadFileV1AgentsBatchUploadFilePostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/v1/agents/batch_upload_file',
+      formData: data.formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Agent File
+   * Delete an agent file by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * file_id (str): File ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * DeleteFile: Empty response.
+   *
+   * Raises:
+   * HTTPException: If the agent with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @param data.fileId
+   * @returns DeleteAgentFileResponse Successful Response
+   * @throws ApiError
+   */
+  public deleteAgentFileV1AgentsAgentIdFilesFileIdDelete(
+    data: DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData
+  ): CancelablePromise<DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/v1/agents/{agent_id}/files/{file_id}',
+      path: {
+        agent_id: data.agentId,
+        file_id: data.fileId,
       },
       errors: {
         422: 'Validation Error',

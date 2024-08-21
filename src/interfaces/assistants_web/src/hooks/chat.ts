@@ -2,19 +2,13 @@ import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 import {
-  ChatResponseEvent,
   Citation,
   CohereChatRequest,
   CohereNetworkError,
   Document,
   FinishReason,
-  StreamCitationGeneration,
   StreamEnd,
   StreamEvent,
-  StreamSearchResults,
-  StreamStart,
-  StreamTextGeneration,
-  StreamToolCallsChunk,
   StreamToolCallsGeneration,
   isCohereNetworkError,
   isStreamError,
@@ -43,6 +37,7 @@ import {
 } from '@/types/message';
 import {
   createStartEndKey,
+  fixCitationsLeadingMarkdown,
   fixMarkdownImagesInText,
   isGroundingOn,
   replaceTextWithCitations,
@@ -224,10 +219,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       await streamConverse({
         request,
         headers,
-        onRead: (eventData: ChatResponseEvent) => {
+        onRead: (eventData) => {
           switch (eventData.event) {
             case StreamEvent.STREAM_START: {
-              const data = eventData.data as StreamStart;
+              const data = eventData.data;
               setIsStreaming(true);
               conversationId = data?.conversation_id ?? '';
               generationId = data?.generation_id ?? '';
@@ -236,7 +231,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
             case StreamEvent.TEXT_GENERATION: {
               setIsStreamingToolEvents(false);
-              const data = eventData.data as StreamTextGeneration;
+              const data = eventData.data;
               botResponse += data?.text ?? '';
               setStreamingMessage({
                 type: MessageType.BOT,
@@ -252,13 +247,15 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
             // This event only occurs when we use tools.
             case StreamEvent.SEARCH_RESULTS: {
-              const data = eventData.data as StreamSearchResults;
+              const data = eventData.data;
               const documents = data?.documents ?? [];
 
               const { documentsMap: newDocumentsMap, outputFilesMap: newOutputFilesMap } =
                 mapDocuments(documents);
               documentsMap = { ...documentsMap, ...newDocumentsMap };
               outputFiles = { ...outputFiles, ...newOutputFilesMap };
+              saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
+
               // we are only interested in web_search results
               // ignore search results of pyhton interpreter tool
               if (
@@ -277,7 +274,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
             case StreamEvent.TOOL_CALLS_CHUNK: {
               setIsStreamingToolEvents(true);
-              const data = eventData.data as StreamToolCallsChunk;
+              const data = eventData.data;
 
               // Initiate an empty tool event if one doesn't already exist at the current index
               const toolEvent: StreamToolCallsGeneration = toolEvents[currentToolEventIndex] ?? {
@@ -343,7 +340,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
 
             case StreamEvent.TOOL_CALLS_GENERATION: {
-              const data = eventData.data as StreamToolCallsGeneration;
+              const data = eventData.data;
 
               if (toolEvents[currentToolEventIndex]) {
                 toolEvents[currentToolEventIndex] = data;
@@ -380,12 +377,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             // }
 
             case StreamEvent.CITATION_GENERATION: {
-              const data = eventData.data as StreamCitationGeneration;
+              const data = eventData.data;
               const newCitations = [...(data?.citations ?? [])];
-              newCitations.sort((a, b) => (a.start ?? 0) - (b.start ?? 0));
-              citations.push(...newCitations);
+              const fixedCitations = fixCitationsLeadingMarkdown(newCitations, botResponse);
+              citations.push(...fixedCitations);
               citations.sort((a, b) => (a.start ?? 0) - (b.start ?? 0));
-              saveCitations(generationId, newCitations, documentsMap);
+              saveCitations(generationId, fixedCitations, documentsMap);
 
               setStreamingMessage({
                 type: MessageType.BOT,
@@ -401,7 +398,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             }
 
             case StreamEvent.STREAM_END: {
-              const data = eventData.data as StreamEnd;
+              const data = eventData.data;
 
               conversationId = data?.conversation_id ?? '';
 

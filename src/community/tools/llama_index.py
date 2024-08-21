@@ -5,11 +5,11 @@ from llama_index.core import SimpleDirectoryReader
 from community.tools import BaseTool
 
 """
-Plug in your llama index retrieval implementation here. 
+Plug in your llama index retrieval implementation here.
 We have an example flow with PDF upload.
 
 
-More details: 
+More details:
 https://docs.llamaindex.ai/en/stable/module_guides/querying/retriever/root.html
 """
 
@@ -33,4 +33,4 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
         self, parameters: dict, ctx: Any, **kwargs: Any
     ) -> List[Dict[str, Any]]:
         docs = SimpleDirectoryReader(input_files=[self.filepath]).load_data()
-        return [dict({"text": doc.text}) for doc in docs]
+        return [{"text": doc.text} for doc in docs]

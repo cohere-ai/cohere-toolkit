@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +10,7 @@ class File(BaseModel):
 
     user_id: str
     conversation_id: str
+    file_content: str
     file_name: str
     file_path: str
     file_size: int = Field(default=0, ge=0)
@@ -19,25 +19,42 @@ class File(BaseModel):
         from_attributes = True
 
 
-class FilePublic(File):
-    user_id: Optional[str] = Field(exclude=True)
+class ConversationFilePublic(BaseModel):
+    id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    conversation_id: str
+    file_name: str
+    file_path: str
+    file_size: int = Field(default=0, ge=0)
 
 
-class ListFile(FilePublic):
+
+class AgentFilePublic(BaseModel):
+    id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    file_name: str
+    file_path: str
+    file_size: int = Field(default=0, ge=0)
+
+class ListConversationFile(ConversationFilePublic):
     pass
 
 
-class UploadFileResponse(FilePublic):
+class UploadConversationFileResponse(ConversationFilePublic):
     pass
 
 
-class DeleteFileResponse(BaseModel):
+class UploadAgentFileResponse(AgentFilePublic):
     pass
 
 
-class UpdateFileRequest(BaseModel):
-    file_name: Optional[str] = None
-    message_id: Optional[str] = None
+class DeleteConversationFileResponse(BaseModel):
+    pass
 
-    class Config:
-        from_attributes = True
+
+class DeleteAgentFileResponse(BaseModel):
+    pass

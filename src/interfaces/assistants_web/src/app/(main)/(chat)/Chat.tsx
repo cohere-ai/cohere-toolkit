@@ -11,7 +11,7 @@ import { useConversation } from '@/hooks/conversation';
 import { useListTools } from '@/hooks/tools';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { createStartEndKey, mapHistoryToMessages } from '@/utils';
+import { createStartEndKey, fixCitationsLeadingMarkdown, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
@@ -21,7 +21,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   const { data: agent } = useAgent({ agentId });
   const { data: tools } = useListTools();
   const { setConversation } = useConversationStore();
-  const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
+  const { addCitation, saveOutputFiles } = useCitationsStore();
   const { setParams, resetFileParams } = useParamsStore();
 
   const {
@@ -52,16 +52,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     if (conversationId) {
       setConversation({ id: conversationId });
     }
-  }, [
-    agent,
-    conversation,
-    tools,
-    conversationId,
-    setConversation,
-    resetCitations,
-    resetFileParams,
-    setParams,
-  ]);
+  }, [agent, tools, conversation]);
 
   useEffect(() => {
     if (!conversation) return;
@@ -94,7 +85,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
           }
         }
       });
-      message.citations?.forEach((citation) => {
+      fixCitationsLeadingMarkdown(message.citations, message.text)?.forEach((citation) => {
         const startEndKey = createStartEndKey(citation.start ?? 0, citation.end ?? 0);
         const documents = citation.document_ids?.map((id) => documentsMap[id]) ?? [];
         addCitation(message.generation_id ?? '', startEndKey, documents);
@@ -107,7 +98,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   return isError ? (
     <ConversationError error={error} />
   ) : (
-    <Conversation conversationId={conversationId} agent={agent} tools={tools} startOptionsEnabled />
+    <Conversation agent={agent} tools={tools} startOptionsEnabled />
   );
 };
 

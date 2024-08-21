@@ -4,14 +4,11 @@ from fastapi import HTTPException
 
 from backend.chat.collate import to_dict
 from backend.crud import agent as agent_crud
-from backend.crud import conversation as conversation_crud
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models import Snapshot as SnapshotModel
 from backend.database_models import SnapshotAccess as SnapshotAccessModel
 from backend.database_models import SnapshotLink as SnapshotLinkModel
-from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
-from backend.schemas.agent import AgentToolMetadata
 from backend.schemas.context import Context
 from backend.schemas.conversation import Conversation
 from backend.schemas.snapshot import SnapshotAgent, SnapshotData
@@ -58,6 +55,7 @@ def wrap_create_snapshot(
     last_message_id: str,
     user_id: str,
     conversation: Conversation,
+    ctx: Context,
 ) -> SnapshotModel:
     snapshot_agent = None
     if conversation.agent_id:
@@ -72,7 +70,7 @@ def wrap_create_snapshot(
             tools_metadata=tools_metadata,
         )
 
-    messages = get_messages_with_files(session, user_id, conversation.messages)
+    messages = get_messages_with_files(session, user_id, conversation.messages, ctx)
     snapshot_data = SnapshotData(
         title=conversation.title,
         description=conversation.description,
