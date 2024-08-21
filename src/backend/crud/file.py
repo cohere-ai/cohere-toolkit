@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 
 from backend.database_models.file import File
-from backend.schemas.file import UpdateFileRequest
 from backend.services.transaction import validate_transaction
 
 
@@ -120,27 +119,6 @@ def get_files_by_user_id(db: Session, user_id: str) -> list[File]:
         list[File]: List of files by user ID.
     """
     return db.query(File).filter(File.user_id == user_id).all()
-
-
-@validate_transaction
-def update_file(db: Session, file: File, new_file: UpdateFileRequest) -> File:
-    """
-    Update a file by ID.
-
-    Args:
-        db (Session): Database session.
-        file (File): File to be updated.
-        new_file (File): New file data.
-
-    Returns:
-        File: Updated file.
-    """
-    for attr, value in new_file.model_dump(exclude_none=True).items():
-        setattr(file, attr, value)
-
-    db.commit()
-    db.refresh(file)
-    return file
 
 
 @validate_transaction

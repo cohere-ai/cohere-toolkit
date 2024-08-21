@@ -320,23 +320,6 @@ export const $Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   title: 'Body_batch_upload_file_v1_conversations_batch_upload_file_post',
 } as const;
 
-export const $Body_upload_file_v1_conversations_upload_file_post = {
-  properties: {
-    conversation_id: {
-      type: 'string',
-      title: 'Conversation Id',
-    },
-    file: {
-      type: 'string',
-      format: 'binary',
-      title: 'File',
-    },
-  },
-  type: 'object',
-  required: ['file'],
-  title: 'Body_upload_file_v1_conversations_upload_file_post',
-} as const;
-
 export const $Category = {
   type: 'string',
   enum: ['File loader', 'Data loader', 'Function'],
@@ -835,6 +818,46 @@ export const $CohereChatRequest = {
 See: https://github.com/cohere-ai/cohere-python/blob/main/src/cohere/base_client.py#L1629`,
 } as const;
 
+export const $ConversationFilePublic = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation Id',
+    },
+    file_name: {
+      type: 'string',
+      title: 'File Name',
+    },
+    file_path: {
+      type: 'string',
+      title: 'File Path',
+    },
+    file_size: {
+      type: 'integer',
+      minimum: 0,
+      title: 'File Size',
+      default: 0,
+    },
+  },
+  type: 'object',
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  title: 'ConversationFilePublic',
+} as const;
+
 export const $ConversationPublic = {
   properties: {
     id: {
@@ -864,7 +887,7 @@ export const $ConversationPublic = {
     },
     files: {
       items: {
-        $ref: '#/components/schemas/File',
+        $ref: '#/components/schemas/ConversationFilePublic',
       },
       type: 'array',
       title: 'Files',
@@ -934,7 +957,7 @@ export const $ConversationWithoutMessages = {
     },
     files: {
       items: {
-        $ref: '#/components/schemas/File',
+        $ref: '#/components/schemas/ConversationFilePublic',
       },
       type: 'array',
       title: 'Files',
@@ -1251,10 +1274,22 @@ export const $DeleteAgent = {
   title: 'DeleteAgent',
 } as const;
 
+export const $DeleteAgentFileResponse = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteAgentFileResponse',
+} as const;
+
 export const $DeleteAgentToolMetadata = {
   properties: {},
   type: 'object',
   title: 'DeleteAgentToolMetadata',
+} as const;
+
+export const $DeleteConversationFileResponse = {
+  properties: {},
+  type: 'object',
+  title: 'DeleteConversationFileResponse',
 } as const;
 
 export const $DeleteConversationResponse = {
@@ -1267,12 +1302,6 @@ export const $DeleteDeployment = {
   properties: {},
   type: 'object',
   title: 'DeleteDeployment',
-} as const;
-
-export const $DeleteFileResponse = {
-  properties: {},
-  type: 'object',
-  title: 'DeleteFileResponse',
 } as const;
 
 export const $DeleteModel = {
@@ -1630,68 +1659,6 @@ export const $Document = {
   title: 'Document',
 } as const;
 
-export const $File = {
-  properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
-    created_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Created At',
-    },
-    updated_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Updated At',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
-    },
-    conversation_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Conversation Id',
-    },
-    file_content: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'File Content',
-    },
-    file_name: {
-      type: 'string',
-      title: 'File Name',
-    },
-    file_path: {
-      type: 'string',
-      title: 'File Path',
-    },
-    file_size: {
-      type: 'integer',
-      minimum: 0,
-      title: 'File Size',
-      default: 0,
-    },
-  },
-  type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'user_id', 'file_name', 'file_path'],
-  title: 'File',
-} as const;
-
 export const $GenerateTitleResponse = {
   properties: {
     title: {
@@ -1888,7 +1855,7 @@ export const $ListAuthStrategy = {
   title: 'ListAuthStrategy',
 } as const;
 
-export const $ListFile = {
+export const $ListConversationFile = {
   properties: {
     id: {
       type: 'string',
@@ -1905,26 +1872,8 @@ export const $ListFile = {
       title: 'Updated At',
     },
     conversation_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
+      type: 'string',
       title: 'Conversation Id',
-    },
-    file_content: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'File Content',
     },
     file_name: {
       type: 'string',
@@ -1942,8 +1891,8 @@ export const $ListFile = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'file_name', 'file_path'],
-  title: 'ListFile',
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  title: 'ListConversationFile',
 } as const;
 
 export const $Login = {
@@ -2145,7 +2094,7 @@ export const $Message = {
     },
     files: {
       items: {
-        $ref: '#/components/schemas/File',
+        $ref: '#/components/schemas/ConversationFilePublic',
       },
       type: 'array',
       title: 'Files',
@@ -3506,7 +3455,7 @@ export const $UpdateUser = {
   title: 'UpdateUser',
 } as const;
 
-export const $UploadFileResponse = {
+export const $UploadAgentFileResponse = {
   properties: {
     id: {
       type: 'string',
@@ -3521,28 +3470,6 @@ export const $UploadFileResponse = {
       type: 'string',
       format: 'date-time',
       title: 'Updated At',
-    },
-    conversation_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Conversation Id',
-    },
-    file_content: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'File Content',
     },
     file_name: {
       type: 'string',
@@ -3561,7 +3488,47 @@ export const $UploadFileResponse = {
   },
   type: 'object',
   required: ['id', 'created_at', 'updated_at', 'file_name', 'file_path'],
-  title: 'UploadFileResponse',
+  title: 'UploadAgentFileResponse',
+} as const;
+
+export const $UploadConversationFileResponse = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation Id',
+    },
+    file_name: {
+      type: 'string',
+      title: 'File Name',
+    },
+    file_path: {
+      type: 'string',
+      title: 'File Path',
+    },
+    file_size: {
+      type: 'integer',
+      minimum: 0,
+      title: 'File Size',
+      default: 0,
+    },
+  },
+  type: 'object',
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  title: 'UploadConversationFileResponse',
 } as const;
 
 export const $User = {

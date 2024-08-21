@@ -117,8 +117,6 @@ import type {
   UpdateOrganizationV1OrganizationsOrganizationIdPutResponse,
   UpdateUserV1UsersUserIdPutData,
   UpdateUserV1UsersUserIdPutResponse,
-  UploadFileV1ConversationsUploadFilePostData,
-  UploadFileV1ConversationsUploadFilePostResponse,
 } from './types.gen';
 
 export class DefaultService {
@@ -750,42 +748,6 @@ export class DefaultService {
   }
 
   /**
-   * Upload File
-   * Uploads and creates a File object.
-   * If no conversation_id is provided, a new Conversation is created as well.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * conversation_id (Optional[str]): Conversation ID passed from request query parameter.
-   * file (FastAPIUploadFile): File to be uploaded.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * UploadFileResponse: Uploaded file.
-   *
-   * Raises:
-   * HTTPException: If the conversation with the given ID is not found. Status code 404.
-   * HTTPException: If the file wasn't uploaded correctly. Status code 500.
-   * @param data The data for the request.
-   * @param data.formData
-   * @returns UploadFileResponse Successful Response
-   * @throws ApiError
-   */
-  public uploadFileV1ConversationsUploadFilePost(
-    data: UploadFileV1ConversationsUploadFilePostData
-  ): CancelablePromise<UploadFileV1ConversationsUploadFilePostResponse> {
-    return this.httpRequest.request({
-      method: 'POST',
-      url: '/v1/conversations/upload_file',
-      formData: data.formData,
-      mediaType: 'multipart/form-data',
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
    * Batch Upload File
    * Uploads and creates a batch of File object.
    * If no conversation_id is provided, a new Conversation is created as well.
@@ -797,14 +759,14 @@ export class DefaultService {
    * ctx (Context): Context object.
    *
    * Returns:
-   * list[UploadFileResponse]: List of uploaded files.
+   * list[UploadConversationFileResponse]: List of uploaded files.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found. Status code 404.
    * HTTPException: If the file wasn't uploaded correctly. Status code 500.
    * @param data The data for the request.
    * @param data.formData
-   * @returns UploadFileResponse Successful Response
+   * @returns UploadConversationFileResponse Successful Response
    * @throws ApiError
    */
   public batchUploadFileV1ConversationsBatchUploadFilePost(
@@ -831,13 +793,13 @@ export class DefaultService {
    * ctx (Context): Context object.
    *
    * Returns:
-   * list[ListFile]: List of files from the conversation.
+   * list[ListConversationFile]: List of files from the conversation.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId
-   * @returns ListFile Successful Response
+   * @returns ListConversationFile Successful Response
    * @throws ApiError
    */
   public listFilesV1ConversationsConversationIdFilesGet(
@@ -872,7 +834,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.conversationId
    * @param data.fileId
-   * @returns DeleteFileResponse Successful Response
+   * @returns DeleteConversationFileResponse Successful Response
    * @throws ApiError
    */
   public deleteFileV1ConversationsConversationIdFilesFileIdDelete(
@@ -1552,7 +1514,7 @@ export class DefaultService {
    * Batch Upload File
    * @param data The data for the request.
    * @param data.formData
-   * @returns UploadFileResponse Successful Response
+   * @returns UploadAgentFileResponse Successful Response
    * @throws ApiError
    */
   public batchUploadFileV1AgentsBatchUploadFilePost(
@@ -1586,7 +1548,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.agentId
    * @param data.fileId
-   * @returns DeleteFileResponse Successful Response
+   * @returns DeleteAgentFileResponse Successful Response
    * @throws ApiError
    */
   public deleteAgentFileV1AgentsAgentIdFilesFileIdDelete(
