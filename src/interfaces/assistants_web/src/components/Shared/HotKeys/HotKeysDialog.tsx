@@ -81,7 +81,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
             leaveTo="opacity-0 scale-90"
           >
             <DialogPanel className="relative flex max-h-[80vh] w-full flex-col overflow-hidden rounded-lg bg-volcanic-950 dark:bg-volcanic-200 md:w-modal">
-              <Combobox as="div" onChange={handleOnChange}>
+              <Combobox as="div" onChange={handleOnChange} immediate>
                 <ComboboxInput
                   as={Input}
                   placeholder="Find a command."
@@ -96,7 +96,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
                   className="border-none bg-transparent px-6 py-0 pt-6 text-p-lg focus:bg-transparent dark:bg-transparent dark:focus:bg-transparent"
                 />
                 <hr className="mx-6 mb-3 mt-6 border-t border-volcanic-800 dark:border-volcanic-400" />
-                <ComboboxOptions className="flex flex-col gap-y-6 overflow-y-auto" static>
+                <ComboboxOptions className="flex flex-col gap-y-6 overflow-y-auto pb-3" static>
                   {filteredCustomActions.length > 0 && (
                     <CommandActionGroup isOpen={isOpen} options={filteredCustomActions} />
                   )}
