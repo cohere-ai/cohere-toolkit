@@ -14,8 +14,15 @@ const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction'
 export const fixCitationsLeadingMarkdown = (citations: Citation[], originalText: string) => {
   const citationsCopy = [...citations];
   const markdownFixList = ['`', '*', '**'];
+  const matchDownloableMarkdownLink = /\[.*\]\(.*/;
+  let carryOver = 0;
 
   for (let citation of citationsCopy) {
+    if (carryOver) {
+      citation.start += carryOver;
+      citation.end += carryOver;
+    }
+
     for (const markdown of markdownFixList) {
       if (citation.text.startsWith(markdown)) {
         const canWeIncludeNextCharacterInTheCitation =
@@ -24,6 +31,16 @@ export const fixCitationsLeadingMarkdown = (citations: Citation[], originalText:
           citation.end += markdown.length;
           citation.text = citation.text + markdown;
         }
+      }
+
+      if (citation.text.startsWith(' [')) {
+        citation.text = citation.text.slice(1);
+        carryOver -= 1;
+      }
+
+      if (citation.text.match(matchDownloableMarkdownLink)) {
+        // push the citation to the end so it shows up as a reference
+        citation.start = originalText.length + 1;
       }
     }
   }
@@ -76,7 +93,7 @@ export const replaceTextWithCitations = (
       // Encode the citationText in case there are any weird characters or unclosed brackets that will
       // interfere with parsing the markdown. However, let markdown images through so they may be properly
       // rendered.
-      const isMarkdownImage = fixedText.match(/!\[.*\]\(.*\)/);
+      const isMarkdownImage = fixedText.match(/\[.*\]\(.*\)/);
       const encodedCitationText = isMarkdownImage ? fixedText : encodeURIComponent(fixedText);
       const citationId = `:cite[${encodedCitationText}]{generationId="${generationId}" start="${start}" end="${end}"}`;
 

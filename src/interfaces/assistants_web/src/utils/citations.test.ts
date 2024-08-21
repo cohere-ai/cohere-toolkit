@@ -183,4 +183,38 @@ describe('fixCitationsLeadingMarkdown', () => {
       },
     ]);
   });
+
+  test('should push markdown downloable links to the end', () => {
+    const citations: Citation[] = [
+      {
+        text: '[link](https://www.google.com)',
+        start: 10,
+        end: 39,
+        document_ids: ['111111'],
+      },
+      {
+        text: "[link]('.file_path.csv')",
+        start: 64,
+        end: 87,
+        document_ids: ['111111'],
+      },
+    ];
+    const text =
+      "This is a [link](https://www.google.com) and this is downloable [link]('file_path.csv')";
+    const result = fixCitationsLeadingMarkdown(citations, text);
+    expect(result).toStrictEqual([
+      {
+        text: '[link](https://www.google.com)',
+        end: 39,
+        start: 88,
+        document_ids: ['111111'],
+      },
+      {
+        text: "[link]('.file_path.csv')",
+        end: 87,
+        start: 88,
+        document_ids: ['111111'],
+      },
+    ]);
+  });
 });

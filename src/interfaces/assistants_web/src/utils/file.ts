@@ -36,3 +36,30 @@ export const getFileUploadTimeEstimateInMs = (fileSizeInBytes: number) => {
   // This equation estimates upload speed based on some existing data points with various file sizes.
   return ((3.51 * fileSizeInBytes) / 1000000 - 0.3) * 1000;
 };
+
+/**
+ * Encode text to base64.
+ * @param text
+ * @returns base64 encoded text
+ */
+export const decodeBase64 = (text: string) => {
+  return Buffer.from(text, 'base64').toString('utf-8');
+};
+
+/**
+ * Map file extension to mime type.
+ * @param extension
+ * @returns mime type
+ */
+export const mapExtensionToMimeType = (extension: string) => {
+  return (
+    {
+      ['csv']: 'text/csv',
+      ['json']: 'application/json',
+      ['pdf']: 'application/pdf',
+      ['png']: 'image/png',
+      ['txt']: 'text/plain',
+      ['zip']: 'application/zip',
+    }[extension] || 'text/plain'
+  );
+};

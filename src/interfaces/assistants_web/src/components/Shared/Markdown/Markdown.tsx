@@ -23,6 +23,7 @@ import { renderRemarkUnknowns } from './directives/unknown';
 import { P } from './tags/P';
 import { Pre } from './tags/Pre';
 import { References } from './tags/References';
+import { Anchor } from '@/components/Shared/Markdown/tags/Anchor';
 
 type MarkdownTextProps = {
   text: string;
@@ -110,6 +111,7 @@ export const Markdown = ({
       references: References,
       // @ts-ignore
       iframe: Iframe,
+      a: Anchor,
       ...customComponents,
     }),
     [customComponents]
