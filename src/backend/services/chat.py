@@ -829,7 +829,7 @@ def generate_langchain_chat_stream(
 ):
     final_message_text = ""
 
-    # send stream start event
+    # Manually send stream start event
     yield json.dumps(
         jsonable_encoder(
             ChatResponseEvent(
@@ -840,8 +840,10 @@ def generate_langchain_chat_stream(
             )
         )
     )
+
     for event in model_deployment_stream:
         stream_event = None
+
         if isinstance(event, AddableDict):
             # Generate tool queries
             if event.get("actions"):
@@ -860,16 +862,17 @@ def generate_langchain_chat_stream(
                         tool_input = "".join(
                             [str(val) for val in action.tool_input.values()]
                         )
+
                     content = (
                         action.message_log[0].content
                         if len(action.message_log) > 0
                         and isinstance(action.message_log[0].content, str)
                         else ""
                     )
-                    # only take the first part of content before the newline
+                    # Only retrieve first part of content before newline
                     content = content.split("\n")[0]
 
-                    # shape: "Plan: I will search for tips on writing an essay and fun facts about the Roman Empire. I will then write an answer using the information I find.\nAction: ```json\n[\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"tips for writing an essay\"\n        }\n    },\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"fun facts about the roman empire\"\n        }\n
+                    # Example shape: "Plan: I will search for tips on writing an essay and fun facts about the Roman Empire. I will then write an answer using the information I find.\nAction: ```json\n[\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"tips for writing an essay\"\n        }\n    },\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"fun facts about the roman empire\"\n        }\n
                     stream_event = StreamToolInput(
                         # TODO: switch to diff types
                         input_type=ToolInputType.CODE,
@@ -877,6 +880,7 @@ def generate_langchain_chat_stream(
                         input=tool_input,
                         text=content,
                     )
+
             # Generate documents / call tool
             if steps := event.get("steps"):
                 step = steps[0] if len(steps) > 0 else None
@@ -884,8 +888,8 @@ def generate_langchain_chat_stream(
                 if not step:
                     continue
 
+                # Observation can be a dictionary for python interpreter or a list of docs for web search
                 result = step.observation
-                # observation can be a dictionary for python interpreter or a list of docs for web search
 
                 """
                 internet search results
@@ -900,7 +904,6 @@ def generate_langchain_chat_stream(
                     stream_event = StreamToolResult(
                         tool_name=step.action.tool,
                         result=result,
-                        documents=[],
                     )
 
                 """
@@ -917,22 +920,19 @@ def generate_langchain_chat_stream(
                     stream_event = StreamToolResult(
                         tool_name=step.action.tool,
                         result=result,
-                        documents=[],
                     )
 
-            # final output
+            # Final output
             if event.get("output", "") and event.get("citations", []):
                 final_message_text = event.get("output", "")
                 stream_event = StreamEnd(
                     conversation_id=conversation_id,
                     text=event.get("output", ""),
                     # WARNING: Citations are not yet supported in langchain
-                    citations=[],
-                    documents=[],
-                    search_results=[],
                     finish_reason="COMPLETE",
                 )
 
+            # Yield stream event
             if stream_event:
                 yield json.dumps(
                     jsonable_encoder(
@@ -942,6 +942,7 @@ def generate_langchain_chat_stream(
                         )
                     )
                 )
+
     if should_store:
         update_conversation_after_turn(
             session, response_message, conversation_id, final_message_text, user_id

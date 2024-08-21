@@ -203,9 +203,7 @@ def langchain_chat_stream(
     (
         session,
         chat_request,
-        _,
         response_message,
-        _,
         should_store,
         managed_tools,
         _,
@@ -222,4 +220,7 @@ def langchain_chat_stream(
             should_store,
         ),
         media_type="text/event-stream",
+        headers={"Connection": "keep-alive"},
+        send_timeout=300,
+        ping=5,
     )
