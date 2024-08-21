@@ -38,7 +38,7 @@ def raise_db_error(e: Exception, type: str, name: str):
     if "psycopg2.errors.UniqueViolation" in str(e):
         raise HTTPException(
             status_code=400,
-            detail=f"{type} {name} already exists for given user and agent.",
+            detail=f"{type} {name} already exists for given user and agent!",
         )
 
     raise HTTPException(status_code=500, detail=str(e))
