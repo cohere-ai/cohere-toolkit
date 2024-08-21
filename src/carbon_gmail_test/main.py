@@ -143,13 +143,13 @@ def main_gmail():
 
     # auth(GMAIL_TOOL)
     # setup_auto_sync(GMAIL_TOOL)
-    sync()
+    # sync()
     # gmail_labels()
-    # list_all()
+    list_all()
 
 
 if __name__ == "__main__":
     # list_webhook()
     # add_webhook()
-    # main_gmail()
-    main_query_compass()
+    main_gmail()
+    # main_query_compass()
