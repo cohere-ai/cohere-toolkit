@@ -4,7 +4,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import React from 'react';
 
 import { AgentPublic, ManagedTool } from '@/cohere-client';
-import { Icon, Switch, Text } from '@/components/Shared';
+import { Icon, Switch, Text } from '@/components/UI';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useAvailableTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';

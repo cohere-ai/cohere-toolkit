@@ -3,9 +3,8 @@
 import { useEffect } from 'react';
 
 import { Document, ManagedTool } from '@/cohere-client';
-import Conversation from '@/components/Conversation';
-import { ConversationError } from '@/components/ConversationError';
-import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
+import { Conversation, ConversationError } from '@/components/Conversation';
+import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants/tools';
 import { useAgent } from '@/hooks/agents';
 import { useConversation } from '@/hooks/conversation';
 import { useListTools } from '@/hooks/tools';

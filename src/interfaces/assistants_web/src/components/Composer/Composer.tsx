@@ -4,14 +4,9 @@ import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { AgentPublic, ManagedTool } from '@/cohere-client';
-import {
-  ComposerError,
-  ComposerFiles,
-  ComposerToolbar,
-  DragDropFileUploadOverlay,
-} from '@/components/Composer';
-import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
-import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants/constants';
+import { ComposerError, ComposerFiles, ComposerToolbar } from '@/components/Composer';
+import { DragDropFileInput, Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/UI';
+import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants/setup';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
 import { useAvailableTools } from '@/hooks/tools';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -146,7 +141,7 @@ export const Composer: React.FC<Props> = ({
           }, 100);
         }}
       >
-        <DragDropFileUploadOverlay active={isDragDropInputActive} onUploadFile={onUploadFile} />
+        <DragDropFileInput active={isDragDropInputActive} onUploadFile={onUploadFile} />
         <div className="relative flex items-end p-2">
           <textarea
             id={CHAT_COMPOSER_TEXTAREA_ID}

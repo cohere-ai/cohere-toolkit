@@ -1,8 +1,8 @@
 import { ComboboxOption } from '@headlessui/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { type QuickAction } from '@/components/Shared/HotKeys/domain';
-import { Text } from '@/components/Shared/Text';
+import { type QuickAction } from '@/components/HotKeys';
+import { Text } from '@/components/UI';
 import { useOS } from '@/hooks/os';
 
 interface Props extends QuickAction {

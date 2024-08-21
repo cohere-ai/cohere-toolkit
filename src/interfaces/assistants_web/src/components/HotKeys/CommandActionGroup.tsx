@@ -1,15 +1,14 @@
 'use client';
 
-import { Text } from '@/components/Shared';
-import { CommandAction } from '@/components/Shared/HotKeys/CommandAction';
-import { type HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
+import { CommandAction, type HotKeyGroupOption } from '@/components/HotKeys';
+import { Text } from '@/components/UI';
 
 type Props = {
   isOpen: boolean;
   options?: HotKeyGroupOption[];
 };
 
-const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
+export const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
   return options.map((action) => {
     return (
       <section key={action.group}>
@@ -23,5 +22,3 @@ const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
     );
   });
 };
-
-export default CommandActionGroup;

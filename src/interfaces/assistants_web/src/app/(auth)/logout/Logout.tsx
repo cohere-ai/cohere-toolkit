@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { Text } from '@/components/Shared';
+import { Text } from '@/components/UI';
 import { useSession } from '@/hooks/session';
 
 /**

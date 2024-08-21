@@ -6,15 +6,14 @@ import {
   ComboboxOptions,
   Dialog,
   DialogPanel,
+  Input,
   Transition,
   TransitionChild,
 } from '@headlessui/react';
 import { Fragment, useMemo, useState } from 'react';
 
-import CommandActionGroup from '@/components/Shared/HotKeys/CommandActionGroup';
-import { type HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
-import { Input } from '@/components/Shared/Input';
-import { Text } from '@/components/Shared/Text';
+import { CommandActionGroup, HotKeyGroupOption } from '@/components/HotKeys';
+import { Text } from '@/components/UI';
 
 type Props = {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import { AgentPublic } from '@/cohere-client';
-import { FileAccept } from '@/components/Shared';
-import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/constants';
+import { FileAccept } from '@/components/UI';
+import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/setup';
 import {
   AGENT_SETTINGS_TOOLS,
   FILE_UPLOAD_TOOLS,

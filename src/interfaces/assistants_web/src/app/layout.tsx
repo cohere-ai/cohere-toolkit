@@ -4,7 +4,7 @@ import { PublicEnvScript } from 'next-runtime-env';
 import { cookies } from 'next/headers';
 
 import { LayoutProviders } from '@/app/_providers';
-import { COOKIE_KEYS } from '@/constants';
+import { COOKIE_KEYS } from '@/constants/setup';
 import '@/styles/main.css';
 
 export const metadata: Metadata = {

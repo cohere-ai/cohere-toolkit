@@ -1,13 +1,12 @@
-'use client';
-
 import { ReactNode, useState } from 'react';
 
-import { Text } from '@/components/UI';
+import { useFocusFileInput } from '@/hooks/actions';
 import { cn } from '@/utils';
+
+import { Text } from './Text';
 
 // Hidden files that should not be uploaded
 const IGNORED_FILES = ['.DS_Store'];
-
 export type FileAccept =
   | 'text/csv'
   | 'text/plain'
@@ -23,47 +22,30 @@ export type FileAccept =
   | 'application/pdf'
   | 'application/epub+zip';
 
-export type DragDropFileInputProps = {
-  id?: string;
-  name?: string;
+type Props = {
+  active: boolean;
+  onUploadFile: (files: File[]) => void;
   label?: ReactNode;
-  subLabel?: string;
-  dragActiveLabel?: string;
-  dragActiveDefault?: boolean;
-  required?: boolean;
   accept?: FileAccept[];
-  placeholder?: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-  className?: string;
-  multiple?: boolean;
-  onDrop?: (files: File[]) => void | Promise<void>;
 };
 
-/**
- * File input that allows for drag and drop
- */
-export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
-  id,
+export const DragDropFileInput: React.FC<Props> = ({
+  active,
   label = (
     <>
       Drag and drop files here or <u>browse files</u>
     </>
   ),
-  subLabel = '.PDF or .TXT, Max 20MB',
-  dragActiveLabel = 'Drop files to upload',
-  dragActiveDefault = false,
-  name,
-  required,
   accept = ['application/pdf', 'text/plain'],
-  placeholder = '',
-  disabled = false,
-  readOnly = false,
-  multiple = false,
-  className,
-  onDrop,
+  onUploadFile,
 }) => {
-  const [dragActive, setDragActive] = useState(dragActiveDefault);
+  const { focusFileInput } = useFocusFileInput();
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleUploadFile = async (files: File[]) => {
+    focusFileInput();
+    onUploadFile(files);
+  };
 
   const handleDrop = async (e: React.DragEvent<HTMLInputElement>) => {
     const droppedFilesSystem = e.dataTransfer.items[0].webkitGetAsEntry();
@@ -103,7 +85,7 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
       }
     };
     await traverseFolder(droppedFilesSystem.filesystem.root);
-    onDrop?.(filesList);
+    handleUploadFile(filesList);
 
     setDragActive(false);
   };
@@ -114,33 +96,28 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
         'relative flex h-28 w-full flex-col items-center justify-center rounded-md border border-mushroom-800 px-3 py-6',
         'transition duration-200',
         'border-dashed bg-mushroom-950',
+        'absolute inset-0 z-drag-drop-input-overlay hidden h-full w-full rounded border-none bg-mushroom-800',
         {
+          flex: active,
           'border-solid bg-mushroom-800': dragActive,
-        },
-        className
+        }
       )}
     >
       {dragActive ? (
-        <Text className="max-w-[170px] text-center text-mushroom-300">{dragActiveLabel}</Text>
+        <Text className="max-w-[170px] text-center text-mushroom-300">Drop files to upload</Text>
       ) : (
         <>
           <Text className="max-w-[210px] text-center text-mushroom-300">{label}</Text>
           <Text className="text-center text-mushroom-400" styleAs="caption">
-            {subLabel}
+            .PDF or .TXT, Max 20MB
           </Text>
         </>
       )}
       <input
-        id={id}
         className="absolute left-0 top-0 h-full w-full opacity-0"
         type="file"
-        multiple={multiple}
+        multiple
         accept={accept.toString()}
-        name={name}
-        required={required}
-        placeholder={placeholder}
-        disabled={disabled}
-        readOnly={readOnly}
         onDragEnter={() => setDragActive(true)}
         onDragOver={() => setDragActive(true)}
         onDragLeave={() => setDragActive(false)}
