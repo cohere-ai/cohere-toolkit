@@ -273,32 +273,6 @@ def init_compass():
         compass_password=Settings().compass.password,
     )
 
-def main_gmail():
-    # auth(GMAIL_TOOL)
-    def list_all():
-        emails, errs = list_emails_v2()
-        if errs:
-            print("Errors: ", errs)
-        print()
-        res = index_on_compass_v2(init_compass(), CUSTOMER_ID, emails)
-        print(res)
-
-    def auth_and_check():
-        setup_auto_sync(GMAIL_TOOL)
-        gmail_labels()
-
-    def sync():
-        source_ids = user_sources(CUSTOMER_ID)
-        print(source_ids)
-        sync_gmail(source_ids[0])
-
-    # auth()
-    # setup_auto_sync(GMAIL_TOOL)
-    # source_ids = user_sources(GMAIL_TOOL)
-    # list_items(source_ids[0])
-    # sync_gmail(source_ids[0])
-    # gmail_labels()
-    list_all()
 
 def query_compass(
     compass: Compass, index_name: str, query: str, top_k=SEARCH_LIMIT
@@ -327,7 +301,8 @@ def query_compass(
 
     return chunks
 
-def query_compass_main():
+
+def main_query_compass():
     compass = init_compass()
     index_name = CUSTOMER_ID
     query = "putin"
@@ -335,8 +310,33 @@ def query_compass_main():
     print(results)
 
 
+def main_gmail():
+    def list_all():
+        emails, errs = list_emails_v2()
+        if errs:
+            print("Errors: ", errs)
+        print()
+        res = index_on_compass_v2(init_compass(), CUSTOMER_ID, emails)
+        print(res)
+
+    def auth_and_check():
+        setup_auto_sync(GMAIL_TOOL)
+        gmail_labels()
+
+    def sync():
+        source_ids = user_sources(GMAIL_TOOL)
+        print(source_ids)
+        sync_gmail(source_ids[0])
+
+    # auth(GMAIL_TOOL)
+    # setup_auto_sync(GMAIL_TOOL)
+    # sync()
+    # gmail_labels()
+    list_all()
+
+
 if __name__ == "__main__":
     # list_webhook()
     # add_webhook()
     # main_gmail()
-    query_compass_main()
+    main_query_compass()
