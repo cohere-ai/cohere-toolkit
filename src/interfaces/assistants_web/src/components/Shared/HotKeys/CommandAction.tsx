@@ -45,7 +45,7 @@ export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen 
     <>
       <ComboboxOption
         key={name}
-        value={action}
+        value={name}
         className={cn(
           'flex select-none items-center px-6 py-4',
           'data-[focus]:bg-volcanic-900 data-[focus]:dark:bg-volcanic-300'
@@ -54,7 +54,7 @@ export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen 
         {({ focus }) => (
           <Text className="flex w-full items-center justify-between">
             <Text
-              className={cn('flex-auto truncate', 'text-volcanic-500 dark:text-volcanic-600', {
+              className={cn('flex-auto truncate', 'text-volcanic-500 dark:text-volcanic-800', {
                 'text-volcanic-200 dark:text-marble-1000': focus,
               })}
             >
@@ -68,7 +68,7 @@ export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen 
                   styleAs="p-sm"
                   className={cn(
                     'rounded bg-volcanic-800 px-1.5 py-1',
-                    'bg-volcanic-900 text-volcanic-500 dark:bg-volcanic-100 dark:text-volcanic-600',
+                    'bg-volcanic-900 text-volcanic-500 dark:bg-volcanic-100 dark:text-volcanic-800',
 
                     {
                       'bg-volcanic-800 text-volcanic-200 dark:bg-volcanic-60 dark:text-marble-1000':

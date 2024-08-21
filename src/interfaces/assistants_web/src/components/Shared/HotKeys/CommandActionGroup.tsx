@@ -18,7 +18,7 @@ const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
             {action.group && (
               <Text
                 styleAs="p-sm"
-                className="px-6 pb-4 uppercase text-volcanic-300 dark:text-volcanic-500"
+                className="px-6 pb-4 font-medium uppercase text-volcanic-300 dark:text-volcanic-500"
               >
                 {action.group}
               </Text>

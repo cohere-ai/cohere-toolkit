@@ -6,6 +6,7 @@ export type QuickAction = {
   name: string;
   commands: string[];
   registerGlobal: boolean;
+  closeDialogOnRun: boolean;
   action?: () => void;
   customView?: React.ReactNode;
 };

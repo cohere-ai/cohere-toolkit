@@ -66,6 +66,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
             name: 'New conversation',
             commands: ['ctrl+shift+o', 'meta+shift+o'],
             registerGlobal: true,
+            closeDialogOnRun: true,
             action: navigateToNewChat,
             options: {
               preventDefault: true,
@@ -90,6 +91,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
           name: 'New conversation',
           commands: ['ctrl+shift+o', 'meta+shift+o'],
           registerGlobal: true,
+          closeDialogOnRun: true,
           action: navigateToNewChat,
           options: {
             preventDefault: true,
@@ -99,6 +101,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
           name: 'Share conversation',
           commands: ['ctrl+alt+a', 'meta+alt+a'],
           registerGlobal: true,
+          closeDialogOnRun: true,
           action: handleOpenShareModal,
           options: {
             preventDefault: true,
@@ -108,6 +111,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
           name: 'Delete conversation',
           commands: ['ctrl+shift+backspace', 'meta+shift+backspace'],
           registerGlobal: true,
+          closeDialogOnRun: true,
           action: () => {
             if (!id) return;
             deleteConversation({ id });
@@ -140,6 +144,7 @@ export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
           name: 'Switch assistants',
           action: () => alert('implement me'),
           commands: ['ctrl+space+1-5', 'ctrl+space+1-5'],
+          closeDialogOnRun: false,
           registerGlobal: false,
           options: {
             preventDefault: true,
@@ -148,12 +153,14 @@ export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'See all assistants',
           action: navigateToAssistants,
+          closeDialogOnRun: true,
           commands: [],
           registerGlobal: false,
         },
         {
           name: 'Create an assistant',
           action: navigateToNewAssistant,
+          closeDialogOnRun: true,
           commands: [],
           registerGlobal: false,
         },
@@ -171,6 +178,7 @@ export const useSettingsHotKeys = (): HotKeyGroupOption[] => {
       quickActions: [
         {
           name: 'Set theme to Light',
+          closeDialogOnRun: false,
           commands: [],
           registerGlobal: false,
           action: () => {
@@ -184,6 +192,7 @@ export const useSettingsHotKeys = (): HotKeyGroupOption[] => {
         },
         {
           name: 'Set theme to Dark',
+          closeDialogOnRun: false,
           commands: [],
           registerGlobal: false,
           action: () => {
@@ -209,6 +218,7 @@ export const useViewHotKeys = (): HotKeyGroupOption[] => {
         {
           name: 'Show or hide left sidebar',
           commands: ['ctrl+shift+s', 'meta+shift+s'],
+          closeDialogOnRun: true,
           registerGlobal: true,
           action: () => {
             setLeftPanelOpen(!isLeftPanelOpen);
