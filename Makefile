@@ -136,7 +136,7 @@ typecheck:
 
 
 carbon-webhook-server:
-	poetry run fastapi dev  carbon_gmail_test/webhook_server.py
+	poetry run fastapi dev  src/carbon_gmail_test/webhook_server.py
 
 
 gmail-sandbox-app:
