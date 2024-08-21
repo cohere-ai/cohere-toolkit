@@ -7,6 +7,7 @@ from backend.config.settings import Settings
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
+from backend.schemas.context import Context
 from backend.tools.base import BaseTool
 
 
@@ -22,13 +23,13 @@ class TavilyInternetSearch(BaseTool):
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
-    def get_filtered_domains(self, session: DBSessionDep, ctx: Any):
+    def get_filtered_domains(self, session: DBSessionDep, ctx: Context) -> list[str]:
         agent_id = ctx.get_agent_id()
         user_id = ctx.get_user_id()
 
-        if agent_id is None or user_id is None:
+        if not agent_id or not user_id:
             # Default for Tavily is None
-            return None
+            return []
 
         agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata(
             db=session,
@@ -39,7 +40,7 @@ class TavilyInternetSearch(BaseTool):
 
         if not agent_tool_metadata:
             # Default for Tavily is None
-            return None
+            return []
 
         return [
             artifact["domain"]
@@ -53,11 +54,15 @@ class TavilyInternetSearch(BaseTool):
         # Gather search parameters
         query = parameters.get("query", "")
         # Get domains set on Agent tool metadata artifacts
+        filter_domains = None
         domains = self.get_filtered_domains(session, ctx)
+
+        if domains:
+            filter_domains = domains
 
         # Do search
         result = self.client.search(
-            query=query, search_depth="advanced", include_raw_content=True, include_domains=domains
+            query=query, search_depth="advanced", include_raw_content=True, include_domains=filter_domains
         )
 
         if "results" not in result:

@@ -25,7 +25,7 @@ def create_agent_tool_metadata(
 
 def get_agent_tool_metadata_by_id(
     db: Session, agent_tool_metadata_id: str
-) -> AgentToolMetadata:
+) -> AgentToolMetadata | None:
     """
     Get a agent tool metadata by its ID.
 
@@ -66,7 +66,7 @@ def get_agent_tool_metadata(
     agent_id: str,
     tool_name: str,
     user_id: str,
-) -> list[AgentToolMetadata]:
+) -> AgentToolMetadata | None:
     """
     Get a agent tool metadata.
 
