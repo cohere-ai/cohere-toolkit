@@ -32,7 +32,7 @@ from backend.schemas.agent import (
 )
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
-from backend.schemas.file import DeleteFileResponse, UploadFileResponse
+from backend.schemas.file import DeleteAgentFileResponse, UploadAgentFileResponse
 from backend.schemas.metrics import (
     DEFAULT_METRICS_AGENT,
     GenericResponseMessage,
@@ -660,12 +660,12 @@ async def delete_agent_tool_metadata(
     return DeleteAgentToolMetadata()
 
 
-@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
+@router.post("/batch_upload_file", response_model=list[UploadAgentFileResponse])
 async def batch_upload_file(
     session: DBSessionDep,
     files: list[FastAPIUploadFile] = RequestFile(...),
     ctx: Context = Depends(get_context),
-) -> UploadFileResponse:
+) -> UploadAgentFileResponse:
     user_id = ctx.get_user_id()
     validate_batch_file_size(session, user_id, files)
 
@@ -691,7 +691,7 @@ async def delete_agent_file(
     file_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-) -> DeleteFileResponse:
+) -> DeleteAgentFileResponse:
     """
     Delete an agent file by ID.
 
@@ -713,7 +713,7 @@ async def delete_agent_file(
     # Delete the File DB object
     get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id, ctx)
 
-    return DeleteFileResponse()
+    return DeleteAgentFileResponse()
 
 
 # Default Agent Router

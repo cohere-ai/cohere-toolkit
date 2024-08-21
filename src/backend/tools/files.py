@@ -71,8 +71,8 @@ def compass_file_search(
             {
                 "text": chunk["content"]["text"],
                 "score": chunk["score"],
-                "url": result["content"].get("title", ""),
-                "title": result["content"].get("title", ""),
+                "url": result["content"].get("file_name", ""),
+                "title": result["content"].get("file_name", ""),
             }
             for result in results
             for chunk in result["chunks"]

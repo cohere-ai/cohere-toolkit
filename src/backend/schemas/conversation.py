@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, computed_field
 
-from backend.schemas.file import File
+from backend.schemas.file import ConversationFilePublic
 from backend.schemas.message import Message
 
 
@@ -19,7 +19,7 @@ class Conversation(ConversationBase):
 
     title: str
     messages: List[Message]
-    files: List[File]
+    files: List[ConversationFilePublic]
     description: Optional[str]
     agent_id: Optional[str]
 
