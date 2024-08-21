@@ -140,4 +140,4 @@ carbon-webhook-server:
 
 
 gmail-sandbox-app:
-	python carbon_gmail_test/main.py  
+	python src/carbon_gmail_test/main.py  

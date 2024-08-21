@@ -1,68 +1,20 @@
-import json
 import os
 import time
 from typing import Any, Dict, List, Optional
 
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI
 from pydantic import BaseModel
 
 from backend.config.settings import Settings
 from backend.services.compass import Compass
 
 load_dotenv()
-app = FastAPI()
-
-
-class AdditionalInformation(BaseModel):
-    is_resync: bool = False
-    request_id: Optional[str]
-
-
-class Obj(BaseModel):
-    object_type: str
-    object_id: str
-    additional_information: AdditionalInformation
-
-
-class WebhookPayload(BaseModel):
-    webhook_type: str
-    obj: Obj
-    customer_id: str
-    timestamp: str
-
-
-class Body(BaseModel):
-    payload: str
-
-
-@app.post("/")
-def webhook(body: Body):
-    req = json.loads(body.payload)
-    print(req)
-    try:
-        payload = WebhookPayload(**req)
-        if (
-            payload.webhook_type == "FILE_READY"
-            and not payload.obj.additional_information.is_resync
-        ):
-            print("Processing FILE_READY event")
-            customer_id = payload.customer_id
-            file_id = payload.obj.object_id
-            emails, _errs = list_email_by_ids([int(file_id)])
-            statuses = index_on_compass(init_compass(), customer_id, emails)
-            print(statuses)
-
-    except Exception as e:
-        print(str(e))
-        return {"status": "failed to parse"}, 500
-    return {"status": "success"}, 200
-
-
-@app.get("/")
-def hello():
-    return {"status": "success"}, 200
+BASE_URL = "https://api.carbon.ai"
+CUSTOMER_ID = "tanzim_test_gmail_test4"
+API_KEY = os.getenv("CARBON_API_KEY", "")
+GMAIL_TOOL = "GMAIL"
+SEARCH_LIMIT = 5
 
 
 # copy pasta main script code, setup modules later
@@ -245,6 +197,64 @@ def download_web_link(url: str) -> bytes:
     if response.status_code == 200:
         return response.content
     raise Exception(f"Failed to download {url}")
+
+
+def list_emails_v2() -> List[EmailsToIndex]:
+    url = f"{BASE_URL}/user_files_v2"
+    payload = {
+        "include_raw_file": True,
+        "include_parsed_text_file": True,
+        "include_additional_files": True,
+        "order_by": "created_at",
+        "filters": {"sync_statuses": ["READY"]},
+        "pagination": {"limit": 100, "offset": 0},
+    }
+    headers = get_headers()
+    response = requests.request("POST", url, json=payload, headers=headers)
+    # print(response.text)
+    if response.status_code != 200:
+        return []
+    res = response.json()
+    items = res.get("results", [])
+    rv: List[EmailsToIndex] = []
+    errs: List[str] = []
+    for item in items:
+        try:
+            v = get_emails_to_index(item)
+            if v.meta.is_message:
+                rv.append(v)
+        except Exception as e:
+            errs.append(str(e))
+    return rv, errs
+
+
+# copied from toolkit code
+def query_compass(
+    compass: Compass, index_name: str, query: str, top_k=SEARCH_LIMIT
+) -> List[Dict[str, Any]]:
+    hits = compass.invoke(
+        action=Compass.ValidActions.SEARCH,
+        parameters={
+            "index": index_name,
+            "query": query,
+            "top_k": top_k,
+        },
+    ).result["hits"]
+    chunks = sorted(
+        [
+            {
+                "text": chunk["content"]["text"],
+                "score": chunk["score"],
+                "title": hit["content"].get("title", ""),
+            }
+            for hit in hits
+            for chunk in hit["chunks"]
+        ],
+        key=lambda x: x["score"],
+        reverse=True,
+    )[:top_k]
+
+    return chunks
 
 
 # example that will trigger the webhook
