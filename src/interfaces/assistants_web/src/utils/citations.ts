@@ -11,6 +11,26 @@ export const fixMarkdownImagesInText = (text: string) => {
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
 
+export const fixCitationsLeadingMarkdown = (citations: Citation[], originalText: string) => {
+  const citationsCopy = [...citations];
+  const markdownFixList = ['`', '*', '**'];
+
+  for (let citation of citationsCopy) {
+    for (const markdown of markdownFixList) {
+      if (citation.text.startsWith(markdown)) {
+        const canWeIncludeNextCharacterInTheCitation =
+          originalText.charAt(citation.end) === markdown;
+        if (canWeIncludeNextCharacterInTheCitation) {
+          citation.end += markdown.length;
+          citation.text = citation.text + markdown;
+        }
+      }
+    }
+  }
+
+  return citationsCopy;
+};
+
 /**
  * Replace text string with citations following the format:
  *  :cite[<text>]{generationId="<generationId>" start="<startIndex>" end"<endIndex>"}
@@ -26,10 +46,10 @@ export const replaceTextWithCitations = (
 ) => {
   if (!citations.length || !generationId) return text;
   let replacedText = text;
-
   let lengthDifference = 0; // Track the cumulative length difference
   let notFoundReferences: string[] = [];
   let carryOver = 0;
+
   citations
     .filter((citation) => citation.document_ids.length)
     .forEach(({ start = 0, end = 0, text: citationText }, index) => {
