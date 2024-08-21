@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React, { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
 import { Icon, IconName, Spinner, Text } from '@/components/UI';
-import { COHERE_BRANDED_COLORS } from '@/constants/colors';
+import { COHERE_BRANDED_COLORS } from '@/constants';
 import { cn } from '@/utils';
 
 export type ButtonKind = 'cell' | 'primary' | 'outline' | 'secondary';

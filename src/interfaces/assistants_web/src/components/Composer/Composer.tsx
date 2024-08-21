@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { ComposerError, ComposerFiles, ComposerToolbar } from '@/components/Composer';
 import { DragDropFileInput, Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/UI';
-import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants/setup';
+import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
 import { useAvailableTools, useBreakpoint, useIsDesktop } from '@/hooks';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';

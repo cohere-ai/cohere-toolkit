@@ -5,11 +5,7 @@ import { uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { Banner, Button, Icon, IconButton, Text, Tooltip } from '@/components/UI';
-import {
-  TOOL_GOOGLE_DRIVE_ID,
-  TOOL_READ_DOCUMENT_ID,
-  TOOL_SEARCH_FILE_ID,
-} from '@/constants/tools';
+import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
 import {
   useAgent,
   useBrandedColors,

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 import { Document, ManagedTool } from '@/cohere-client';
 import { Conversation, ConversationError } from '@/components/Conversation';
-import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants/tools';
+import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useAgent, useConversation, useListTools } from '@/hooks';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';

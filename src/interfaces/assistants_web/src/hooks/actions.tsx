@@ -8,7 +8,7 @@ import {
   CHAT_COMPOSER_TEXTAREA_ID,
   CONFIGURATION_FILE_UPLOAD_ID,
   SETTINGS_DRAWER_ID,
-} from '@/constants/setup';
+} from '@/constants';
 import { useContextStore } from '@/context';
 import { useChatRoutes, useNavigateToNewChat } from '@/hooks';
 import { useRecentAgents } from '@/hooks';

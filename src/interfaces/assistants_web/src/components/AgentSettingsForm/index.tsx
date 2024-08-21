@@ -10,11 +10,7 @@ import { DefineAssistantStep } from '@/components/AgentSettingsForm/DefineStep';
 import { ToolsStep } from '@/components/AgentSettingsForm/ToolsStep';
 import { VisibilityStep } from '@/components/AgentSettingsForm/VisibilityStep';
 import { Button, CollapsibleSection } from '@/components/UI';
-import {
-  TOOL_GOOGLE_DRIVE_ID,
-  TOOL_READ_DOCUMENT_ID,
-  TOOL_SEARCH_FILE_ID,
-} from '@/constants/tools';
+import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
 import { useIsAgentNameUnique, useListTools, useOpenGoogleDrivePicker } from '@/hooks';
 import { DataSourceArtifact } from '@/types/tools';
 import { cn } from '@/utils';

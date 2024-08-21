@@ -13,9 +13,12 @@ import {
   isCohereNetworkError,
   isStreamError,
 } from '@/cohere-client';
-import { DEFAULT_AGENT_TOOLS, DEFAULT_TYPING_VELOCITY } from '@/constants/conversation';
-import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/setup';
-import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants/tools';
+import {
+  DEFAULT_AGENT_TOOLS,
+  DEFAULT_TYPING_VELOCITY,
+  DEPLOYMENT_COHERE_PLATFORM,
+  TOOL_PYTHON_INTERPRETER_ID,
+} from '@/constants';
 import {
   StreamingChatParams,
   useChatRoutes,

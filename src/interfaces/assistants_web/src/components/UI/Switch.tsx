@@ -4,7 +4,7 @@ import { Placement } from '@floating-ui/react';
 import { Field, Switch as HUSwitch, Label } from '@headlessui/react';
 
 import { Text, Tooltip } from '@/components/UI';
-import { COHERE_BRANDED_COLORS } from '@/constants/colors';
+import { COHERE_BRANDED_COLORS } from '@/constants';
 import { cn } from '@/utils';
 
 type Props = {

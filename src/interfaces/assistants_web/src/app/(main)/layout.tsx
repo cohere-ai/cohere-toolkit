@@ -6,8 +6,7 @@ import { redirect } from 'next/navigation';
 import { Swipeable } from '@/components/Global';
 import { HotKeys } from '@/components/HotKeys';
 import { SideNavPanel } from '@/components/SideNavPanel';
-import { DEFAULT_AGENT_TOOLS } from '@/constants/conversation';
-import { COOKIE_KEYS } from '@/constants/setup';
+import { COOKIE_KEYS, DEFAULT_AGENT_TOOLS } from '@/constants';
 import { getCohereServerClient } from '@/server/cohereServerClient';
 
 const MainLayout: NextPage<React.PropsWithChildren> = async ({ children }) => {

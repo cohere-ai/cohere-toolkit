@@ -11,7 +11,7 @@ import {
   TOOL_GOOGLE_DRIVE_ID,
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
-} from '@/constants/tools';
+} from '@/constants';
 import { cn, getValidURL } from '@/utils';
 import { getToolIcon } from '@/utils/tools';
 

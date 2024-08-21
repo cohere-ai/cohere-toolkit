@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Markdown } from '@/components/Markdown';
 import { DocumentIcon, Icon, Text } from '@/components/UI';
-import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID, TOOL_WIKIPEDIA_ID } from '@/constants/tools';
+import { TOOL_ID_TO_DISPLAY_INFO, TOOL_WEB_SEARCH_ID, TOOL_WIKIPEDIA_ID } from '@/constants';
 import { useBrandedColors } from '@/hooks';
 import { useCitationsStore } from '@/stores';
 import { cn, getSafeUrl, getWebDomain } from '@/utils';

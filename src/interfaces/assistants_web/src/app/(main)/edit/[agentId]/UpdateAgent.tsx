@@ -8,8 +8,7 @@ import { AgentSettingsFields, AgentSettingsForm } from '@/components/AgentSettin
 import { MobileHeader } from '@/components/Global';
 import { DeleteAgent } from '@/components/Modals/DeleteAgent';
 import { Button, Icon, Spinner, Text } from '@/components/UI';
-import { DEFAULT_AGENT_MODEL } from '@/constants/conversation';
-import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/setup';
+import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useContextStore } from '@/context';
 import { useIsAgentNameUnique, useNotify, useUpdateAgent } from '@/hooks';
 
