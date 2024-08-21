@@ -64,7 +64,6 @@ def compass_file_search(
     if search_results.result:
         results.extend(search_results.result["hits"])
 
-    print("results here", results, len(results))
     chunks = sorted(
         [
             {
