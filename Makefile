@@ -133,3 +133,11 @@ dev-sync-down:
 .PHONY: typecheck
 typecheck:
 	poetry run pyright
+
+
+carbon-webhook-server:
+	poetry run fastapi dev  carbon_gmail_test/webhook_server.py
+
+
+gmail-sandbox-app:
+	python carbon_gmail_test/main.py  
