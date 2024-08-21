@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,8 +10,8 @@ class File(BaseModel):
     updated_at: datetime.datetime
 
     user_id: str
-    conversation_id: str
-    file_content: str
+    conversation_id: Optional[str] = ""
+    file_content: Optional[str] = ""
     file_name: str
     file_path: str
     file_size: int = Field(default=0, ge=0)

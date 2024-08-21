@@ -138,7 +138,7 @@ async def create_agent(
                 }
             )
             if file_ids:
-                await consolidate_agent_files_in_compass(file_ids, created_agent.id)
+                await consolidate_agent_files_in_compass(file_ids, created_agent.id, ctx)
 
         if deployment_db and model_db:
             deployment_config = (
