@@ -201,7 +201,7 @@ def list_webhook():
     print(response.text)
 
 
-def index_on_compass(items: List[EmailsToIndex]):
+def mock_index_on_compass(items: List[EmailsToIndex]):
     for item in items:
         print(
             f"indexing id {item.id}, {item.name} with presigned url {item.presigned_url}"
@@ -212,12 +212,10 @@ def download_web_link(url: str) -> bytes:
     response = requests.get(url)
     if response.status_code == 200:
         return response.content
-    else:
-        # Handle the case when the request fails
-        return b""
+    raise Exception(f"Failed to download {url}")
 
 
-def index_on_compass_v2(
+def index_on_compass(
     compass: Compass, index_name: str, items: List[EmailsToIndex]
 ) -> List[Any]:
     compass.invoke(
@@ -229,8 +227,8 @@ def index_on_compass_v2(
 
     statuses = []
     for item in items:
-        bs = download_web_link(item.presigned_url)
         try:
+            bs = download_web_link(item.presigned_url)
             file_id_str = f"carbonID:{item.id}"
             compass.invoke(
                 compass.ValidActions.CREATE,
@@ -260,7 +258,6 @@ def index_on_compass_v2(
             )
             statuses.append({"id": item.id, "status": "Success"})
         except Exception as e:
-            print(e)
             statuses.append({"id": item.id, "status": "Fail", "error": str(e)})
     return statuses
 
@@ -274,6 +271,7 @@ def init_compass():
     )
 
 
+# copied from toolkit code
 def query_compass(
     compass: Compass, index_name: str, query: str, top_k=SEARCH_LIMIT
 ) -> List[Dict[str, Any]]:
@@ -316,7 +314,7 @@ def main_gmail():
         if errs:
             print("Errors: ", errs)
         print()
-        res = index_on_compass_v2(init_compass(), CUSTOMER_ID, emails)
+        res = index_on_compass(init_compass(), CUSTOMER_ID, emails)
         print(res)
 
     def auth_and_check():
@@ -330,13 +328,13 @@ def main_gmail():
 
     # auth(GMAIL_TOOL)
     # setup_auto_sync(GMAIL_TOOL)
-    # sync()
+    sync()
     # gmail_labels()
-    list_all()
+    # list_all()
 
 
 if __name__ == "__main__":
     # list_webhook()
     # add_webhook()
-    # main_gmail()
-    main_query_compass()
+    main_gmail()
+    # main_query_compass()
