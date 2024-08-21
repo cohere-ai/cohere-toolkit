@@ -5,7 +5,7 @@ import { Citation } from '@/cohere-client';
  * This is a temporary fix as the current model is consistently returning incorrect markdown image syntax.
  * @param text - message text or citation text
  */
-export const fixMarkdown = (text: string) => {
+export const fixMarkdownImagesInText = (text: string) => {
   return text.replace('! [', '![');
 };
 
@@ -45,7 +45,7 @@ export const replaceTextWithCitations = (
         return;
       }
 
-      const fixedText = fixMarkdown(citationText);
+      const fixedText = fixMarkdownImagesInText(citationText);
       const isFixedText = fixedText.length !== citationText.length;
 
       if (isFixedText) {
