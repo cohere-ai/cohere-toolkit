@@ -14,6 +14,7 @@ BASE_URL = "https://api.carbon.ai"
 CUSTOMER_ID = "tanzim_test_gmail_test4"
 API_KEY = os.getenv("CARBON_API_KEY", "")
 GMAIL_TOOL = "GMAIL"
+SEARCH_LIMIT = 5
 
 
 def get_headers() -> Dict[str, str]:
@@ -200,15 +201,6 @@ def list_webhook():
     print(response.text)
 
 
-def init_compass():
-    return Compass(
-        compass_api_url=Settings().compass.api_url,
-        compass_parser_url=Settings().compass.parser_url,
-        compass_username=Settings().compass.username,
-        compass_password=Settings().compass.password,
-    )
-
-
 def index_on_compass(items: List[EmailsToIndex]):
     for item in items:
         print(
@@ -225,8 +217,9 @@ def download_web_link(url: str) -> bytes:
         return b""
 
 
-def index_on_compass_v2(compass: Compass, items: List[EmailsToIndex]) -> List[Any]:
-    index_name = "tanzim_test_gmail_test4"
+def index_on_compass_v2(
+    compass: Compass, index_name: str, items: List[EmailsToIndex]
+) -> List[Any]:
     compass.invoke(
         compass.ValidActions.CREATE_INDEX,
         {
@@ -272,17 +265,30 @@ def index_on_compass_v2(compass: Compass, items: List[EmailsToIndex]) -> List[An
     return statuses
 
 
+def init_compass():
+    return Compass(
+        compass_api_url=Settings().compass.api_url,
+        compass_parser_url=Settings().compass.parser_url,
+        compass_username=Settings().compass.username,
+        compass_password=Settings().compass.password,
+    )
+
 def main_gmail():
+    # auth(GMAIL_TOOL)
     def list_all():
         emails, errs = list_emails_v2()
         if errs:
             print("Errors: ", errs)
         print()
-        res = index_on_compass_v2(init_compass(), emails)
+        res = index_on_compass_v2(init_compass(), CUSTOMER_ID, emails)
         print(res)
 
+    def auth_and_check():
+        setup_auto_sync(GMAIL_TOOL)
+        gmail_labels()
+
     def sync():
-        source_ids = user_sources(GMAIL_TOOL)
+        source_ids = user_sources(CUSTOMER_ID)
         print(source_ids)
         sync_gmail(source_ids[0])
 
@@ -294,8 +300,43 @@ def main_gmail():
     # gmail_labels()
     list_all()
 
+def query_compass(
+    compass: Compass, index_name: str, query: str, top_k=SEARCH_LIMIT
+) -> List[Dict[str, Any]]:
+    hits = compass.invoke(
+        action=Compass.ValidActions.SEARCH,
+        parameters={
+            "index": index_name,
+            "query": query,
+            "top_k": top_k,
+        },
+    ).result["hits"]
+    chunks = sorted(
+        [
+            {
+                "text": chunk["content"]["text"],
+                "score": chunk["score"],
+                "title": hit["content"].get("title", ""),
+            }
+            for hit in hits
+            for chunk in hit["chunks"]
+        ],
+        key=lambda x: x["score"],
+        reverse=True,
+    )[:top_k]
+
+    return chunks
+
+def query_compass_main():
+    compass = init_compass()
+    index_name = CUSTOMER_ID
+    query = "putin"
+    results = query_compass(compass, index_name, query)
+    print(results)
+
 
 if __name__ == "__main__":
     # list_webhook()
     # add_webhook()
-    main_gmail()
+    # main_gmail()
+    query_compass_main()
