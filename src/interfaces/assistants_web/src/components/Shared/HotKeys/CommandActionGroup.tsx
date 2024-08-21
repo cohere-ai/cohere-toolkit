@@ -23,9 +23,11 @@ const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
                 {action.group}
               </Text>
             )}
-            {action.quickActions.map((quickAction) => (
-              <CommandAction key={quickAction.name} isOpen={isOpen} {...quickAction} />
-            ))}
+            {action.quickActions
+              .filter((quickAction) => quickAction.displayInDialog !== false)
+              .map((quickAction) => (
+                <CommandAction key={quickAction.name} isOpen={isOpen} {...quickAction} />
+              ))}
           </section>
         );
       })}

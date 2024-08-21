@@ -4,11 +4,16 @@ type OptionsOrDependencyArray = Options | ReadonlyArray<unknown>;
 
 export type QuickAction = {
   name: string;
+  label?: React.ReactNode;
   commands: string[];
   registerGlobal: boolean;
   closeDialogOnRun: boolean;
+  displayInDialog?: boolean;
   action?: () => void;
-  customView?: React.ReactNode;
+  customView?: React.FC<{
+    close: VoidFunction;
+    onBack: VoidFunction;
+  }>;
 };
 
 export interface CustomHotKey extends QuickAction {

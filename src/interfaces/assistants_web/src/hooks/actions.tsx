@@ -1,7 +1,9 @@
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
+import { AgentLogo } from '@/components/Agents/AgentLogo';
 import { ShareModal } from '@/components/ShareModal';
+import { SwitchAssistants } from '@/components/Shared/HotKeys/custom-views/SwitchAssistants';
 import { HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
 import {
   CHAT_COMPOSER_TEXTAREA_ID,
@@ -9,7 +11,8 @@ import {
   SETTINGS_DRAWER_ID,
 } from '@/constants';
 import { useContextStore } from '@/context';
-import { useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useRecentAgents } from '@/hooks/agents';
+import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 
@@ -125,8 +128,15 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
   ];
 };
 
-export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
+export const useAssistantHotKeys = ({
+  displayRecentAgentsInDialog,
+}: {
+  displayRecentAgentsInDialog: boolean;
+}): HotKeyGroupOption[] => {
   const router = useRouter();
+  const pathname = usePathname();
+  const recentAgents = useRecentAgents(5);
+  const { agentId } = useChatRoutes();
 
   const navigateToAssistants = () => {
     router.push('/discover');
@@ -142,8 +152,9 @@ export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
       quickActions: [
         {
           name: 'Switch assistants',
-          action: () => alert('implement me'),
           commands: ['ctrl+space+1-5', 'ctrl+space+1-5'],
+          displayInDialog: !displayRecentAgentsInDialog,
+          customView: ({ close, onBack }) => <SwitchAssistants close={close} onBack={onBack} />,
           closeDialogOnRun: false,
           registerGlobal: false,
           options: {
@@ -155,15 +166,45 @@ export const useAssistantHotKeys = (): HotKeyGroupOption[] => {
           action: navigateToAssistants,
           closeDialogOnRun: true,
           commands: [],
+          displayInDialog: !displayRecentAgentsInDialog,
           registerGlobal: false,
         },
         {
           name: 'Create an assistant',
           action: navigateToNewAssistant,
           closeDialogOnRun: true,
+          displayInDialog: !displayRecentAgentsInDialog,
           commands: [],
           registerGlobal: false,
         },
+        ...recentAgents.map((agent, index) => ({
+          name: agent.name,
+          displayInDialog: displayRecentAgentsInDialog,
+          label: (
+            <div className="flex gap-x-2">
+              <AgentLogo agent={agent} />
+              {agent.name}
+              {(agentId === agent.id || (!agent.id && pathname === '/')) && (
+                <span className="ml-2 rounded bg-volcanic-950 px-2 py-1 font-mono text-p-xs uppercase text-volcanic-300 dark:bg-volcanic-400 dark:text-marble-900">
+                  Selected
+                </span>
+              )}
+            </div>
+          ),
+          action: () => {
+            if (!agent.id) {
+              router.push('/');
+            } else {
+              router.push(`/a/${agent.id}`);
+            }
+          },
+          closeDialogOnRun: true,
+          commands: [`ctrl+space+${index + 1}`, `ctrl+space+${index + 1}`],
+          registerGlobal: true,
+          options: {
+            preventDefault: true,
+          },
+        })),
       ],
     },
   ];

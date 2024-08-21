@@ -11,7 +11,7 @@ interface Props extends QuickAction {
   isOpen: boolean;
 }
 
-export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen }) => {
+export const CommandAction: React.FC<Props> = ({ label, name, commands, action, isOpen }) => {
   const os = useOS();
 
   useHotkeys(
@@ -31,7 +31,6 @@ export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen 
     if (commands.length === 0) return [];
     const [command] = commands;
     return command.split('+').map((key) => {
-      if (key === 'ctrl') return os === 'macOS' ? '⌘' : 'ctrl';
       if (key === 'meta') return os === 'macOS' ? '⌘' : 'win';
       if (key === 'alt') return os === 'macOS' ? '⌥' : 'alt';
       if (key === 'shift') return 'shift';
@@ -54,11 +53,12 @@ export const CommandAction: React.FC<Props> = ({ name, commands, action, isOpen 
         {({ focus }) => (
           <Text className="flex w-full items-center justify-between">
             <Text
+              as="span"
               className={cn('flex-auto truncate', 'text-volcanic-500 dark:text-volcanic-800', {
                 'text-volcanic-200 dark:text-marble-1000': focus,
               })}
             >
-              {name}
+              {label ?? name}
             </Text>
             <span className="flex gap-x-1">
               {formattedCommands.map((key) => (

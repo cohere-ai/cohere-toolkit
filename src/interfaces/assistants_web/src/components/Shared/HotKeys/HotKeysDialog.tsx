@@ -2,7 +2,6 @@
 
 import {
   Combobox,
-  ComboboxInput,
   ComboboxOptions,
   Dialog,
   DialogPanel,
@@ -12,9 +11,10 @@ import {
 import { Fragment, useEffect, useMemo, useState } from 'react';
 
 import CommandActionGroup from '@/components/Shared/HotKeys/CommandActionGroup';
+import { HotKeysDialogInput } from '@/components/Shared/HotKeys/HotKeysDialogInput';
 import { type HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
-import { Input } from '@/components/Shared/Input';
 import { Text } from '@/components/Shared/Text';
+import { cn } from '@/utils';
 
 type Props = {
   isOpen: boolean;
@@ -24,6 +24,14 @@ type Props = {
 
 export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) => {
   const [query, setQuery] = useState('');
+  const [customView, setCustomView] = useState<string | null>(null);
+
+  const View = useMemo(() => {
+    const option = options.find((option) =>
+      option.quickActions.some((action) => action.name === customView)
+    );
+    return option?.quickActions.find((action) => action.name === customView)?.customView;
+  }, [customView, options]);
 
   const filteredCustomActions = useMemo(() => {
     if (query === '') return [];
@@ -44,22 +52,28 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
   }, [query, options]);
 
   const handleOnChange = (command: string | null) => {
-    // find the hotkey
     const hotkey = options
       .flatMap((option) => option.quickActions)
       .find((option) => option.name === command);
 
     if (hotkey) {
-      if (hotkey?.closeDialogOnRun) {
+      if (hotkey.closeDialogOnRun) {
         close();
       }
       hotkey.action?.();
+      if (!!hotkey.customView) {
+        setCustomView(hotkey.name);
+      }
     }
   };
 
   useEffect(() => {
     if (!isOpen) {
-      setTimeout(() => setQuery(''), 300); // Delay to prevent flickering
+      // Delay to prevent flickering
+      setTimeout(() => {
+        setCustomView(null);
+        setQuery('');
+      }, 300);
     }
   }, [isOpen]);
 
@@ -77,7 +91,6 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
         >
           <div className="fixed inset-0 bg-[#B3B3B3]/60 transition-opacity dark:bg-[#1C1C1C]/80" />
         </TransitionChild>
-
         <div className="fixed inset-0 flex items-center justify-center overflow-y-auto">
           <TransitionChild
             as={Fragment}
@@ -88,31 +101,36 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <DialogPanel className="relative flex max-h-[80vh] w-full flex-col overflow-hidden rounded-lg bg-volcanic-950 dark:bg-volcanic-200 md:w-modal">
-              <Combobox as="div" onChange={handleOnChange} immediate>
-                <ComboboxInput
-                  as={Input}
-                  placeholder="Find a command."
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (event.key === 'Escape') {
-                      close();
-                    }
-                  }}
-                  autoFocus
-                  className="border-none bg-transparent px-6 py-0 pt-6 text-p-lg focus:bg-transparent dark:bg-transparent dark:focus:bg-transparent"
-                />
-                <hr className="mx-6 mb-3 mt-6 border-t border-volcanic-800 dark:border-volcanic-400" />
-                <ComboboxOptions className="flex flex-col gap-y-6 overflow-y-auto pb-3" static>
-                  {filteredCustomActions.length > 0 && (
-                    <CommandActionGroup isOpen={isOpen} options={filteredCustomActions} />
-                  )}
-                  {query === '' && <CommandActionGroup isOpen={isOpen} options={options} />}
-                  {query !== '' && filteredCustomActions.length === 0 && (
-                    <Text className="p-6">No results for &quot;{query}&quot;</Text>
-                  )}
-                </ComboboxOptions>
+            <DialogPanel>
+              <Combobox
+                as="div"
+                onChange={handleOnChange}
+                immediate
+                className={cn(
+                  'relative flex max-h-[480px] w-full flex-col overflow-y-hidden rounded-lg bg-volcanic-950 transition-all duration-300 dark:bg-volcanic-200 md:w-modal'
+                )}
+              >
+                {View ? (
+                  <View close={close} onBack={() => setCustomView(null)} />
+                ) : (
+                  <>
+                    <HotKeysDialogInput
+                      value={query}
+                      setValue={setQuery}
+                      close={close}
+                      placeholder="Find a command"
+                    />
+                    <ComboboxOptions className="flex flex-col gap-y-6 overflow-y-auto pb-3" static>
+                      {filteredCustomActions.length > 0 && (
+                        <CommandActionGroup isOpen={isOpen} options={filteredCustomActions} />
+                      )}
+                      {query === '' && <CommandActionGroup isOpen={isOpen} options={options} />}
+                      {query !== '' && filteredCustomActions.length === 0 && (
+                        <Text className="p-6">No results for &quot;{query}&quot;</Text>
+                      )}
+                    </ComboboxOptions>
+                  </>
+                )}
               </Combobox>
             </DialogPanel>
           </TransitionChild>
