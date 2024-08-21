@@ -93,6 +93,7 @@ export const useConversationActions = () => {
   const { open, close } = useContextStore();
   const {
     conversation: { id: conversationId },
+    setConversation,
   } = useConversationStore();
   const notify = useNotify();
   const navigateToNewChat = useNavigateToNewChat();
@@ -108,6 +109,7 @@ export const useConversationActions = () => {
     const onDelete = () => {
       close();
       onComplete?.();
+      setConversation({ id: undefined });
 
       if (id === conversationId) {
         navigateToNewChat();

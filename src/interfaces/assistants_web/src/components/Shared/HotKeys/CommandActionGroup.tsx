@@ -10,18 +10,29 @@ type Props = {
 };
 
 const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) => {
-  return options.map((action) => {
-    return (
-      <section key={action.group}>
-        <Text styleAs="p-sm" className="mx-3 p-4 uppercase dark:text-marble-800">
-          {action.group}
-        </Text>
-        {action.quickActions.map((quickAction) => (
-          <CommandAction key={quickAction.name} isOpen={isOpen} {...quickAction} />
-        ))}
-      </section>
-    );
-  });
+  return (
+    <div className="flex flex-col gap-y-4">
+      {options.map((action, i) => {
+        return (
+          <section key={i} className="flex flex-col">
+            {action.group && (
+              <Text
+                styleAs="p-sm"
+                className="px-6 pb-4 font-medium uppercase text-volcanic-300 dark:text-volcanic-500"
+              >
+                {action.group}
+              </Text>
+            )}
+            {action.quickActions
+              .filter((quickAction) => quickAction.displayInDialog !== false)
+              .map((quickAction) => (
+                <CommandAction key={quickAction.name} isOpen={isOpen} {...quickAction} />
+              ))}
+          </section>
+        );
+      })}
+    </div>
+  );
 };
 
 export default CommandActionGroup;

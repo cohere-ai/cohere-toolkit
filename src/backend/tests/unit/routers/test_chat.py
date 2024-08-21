@@ -283,17 +283,45 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
             "Deployment-Name": agent.deployment,
         },
         json={
-            "message": "Hello",
-            "max_tokens": 10,
+            "message": "Who is a tallest nba player",
             "tools": [{"name": "web_search"}],
             "agent_id": agent.id,
         },
     )
 
-    assert response.status_code == 404
-    assert response.json() == {
-        "detail": f"Tool web_search not found in agent {agent.id}"
-    }
+    assert response.status_code == 200
+    validate_chat_streaming_tool_cals_response(response, ["web_search"])
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_streaming_chat_with_agent_tools_and_empty_request_tools(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    agent = get_factory("Agent", session_chat).create(user=user, tools=["web_search"])
+    deployment = get_factory("Deployment", session_chat).create()
+    model = get_factory("Model", session_chat).create(deployment=deployment)
+    get_factory("AgentDeploymentModel", session_chat).create(
+        agent=agent,
+        deployment=deployment,
+        model=model,
+        is_default_deployment=True,
+        is_default_model=True,
+    )
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": agent.user.id,
+            "Deployment-Name": agent.deployment,
+        },
+        json={
+            "message": "Who is a tallest NBA player",
+            "tools": [],
+            "agent_id": agent.id,
+        },
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_tool_cals_response(response, ["web_search"])
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -1063,6 +1091,26 @@ def validate_stream_end_event(
     assert data["finish_reason"] == "COMPLETE" or data["finish_reason"] == "MAX_TOKENS"
 
     return data["conversation_id"]
+
+
+def validate_chat_streaming_tool_cals_response(response: Any, tools: list) -> None:
+    data = []
+    for line in response.iter_lines():
+        if not line or ":ping" in line or ": ping" in line:
+            continue
+
+        # remove the 'data' prefix to make it a valid JSON
+        line = line.replace("data: ", "")
+        if "event" in line:
+            response_json = json.loads(line)
+            assert response_json["event"] in [e.value for e in StreamEvent]
+            if response_json["event"] == StreamEvent.TOOL_CALLS_GENERATION:
+                data.append(response_json["data"])
+
+    tool_calls_names = [tool['name'] for entry in data for tool in entry['tool_calls']]
+
+    # Check if all required tools are in the tool_names
+    assert all(tool in tool_calls_names for tool in tools)
 
 
 def is_valid_uuid(id: str) -> bool:

@@ -25,7 +25,7 @@ def create_agent_tool_metadata(
 
 def get_agent_tool_metadata_by_id(
     db: Session, agent_tool_metadata_id: str
-) -> AgentToolMetadata:
+) -> AgentToolMetadata | None:
     """
     Get a agent tool metadata by its ID.
 
@@ -58,6 +58,35 @@ def get_all_agent_tool_metadata_by_agent_id(
     """
     return (
         db.query(AgentToolMetadata).filter(AgentToolMetadata.agent_id == agent_id).all()
+    )
+
+
+def get_agent_tool_metadata(
+    db: Session,
+    agent_id: str,
+    tool_name: str,
+    user_id: str,
+) -> AgentToolMetadata | None:
+    """
+    Get a agent tool metadata.
+
+    Args:
+        db (Session): Database session.
+        agent_id (str): Agent ID.
+        tool_name (str): Tool name.
+        user_id (str): User ID.
+
+    Returns:
+        AgentToolMetadata: Agent tool metadata.
+    """
+    return (
+        db.query(AgentToolMetadata)
+        .filter(
+            AgentToolMetadata.agent_id == agent_id,
+            AgentToolMetadata.tool_name == tool_name,
+            AgentToolMetadata.user_id == user_id,
+        )
+        .first()
     )
 
 
