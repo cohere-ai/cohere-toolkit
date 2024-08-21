@@ -37,7 +37,8 @@ import {
 } from '@/types/message';
 import {
   createStartEndKey,
-  fixMarkdown,
+  fixCitationsLeadingMarkdown,
+  fixMarkdownImagesInText,
   isGroundingOn,
   replaceTextWithCitations,
   shouldUpdateConversationTitle,
@@ -378,10 +379,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             case StreamEvent.CITATION_GENERATION: {
               const data = eventData.data;
               const newCitations = [...(data?.citations ?? [])];
-              newCitations.sort((a, b) => (a.start ?? 0) - (b.start ?? 0));
-              citations.push(...newCitations);
+              const fixedCitations = fixCitationsLeadingMarkdown(newCitations, botResponse);
+              citations.push(...fixedCitations);
               citations.sort((a, b) => (a.start ?? 0) - (b.start ?? 0));
-              saveCitations(generationId, newCitations, documentsMap);
+              saveCitations(generationId, fixedCitations, documentsMap);
 
               setStreamingMessage({
                 type: MessageType.BOT,
@@ -453,7 +454,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
                 // so we need to manually apply this fix. Otherwise, this comes for free when we call
                 // `replaceTextWithCitations`.
-                text: citations.length > 0 ? finalText : fixMarkdown(transformedText),
+                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
                 citations,
                 isRAGOn,
                 originalText: isRAGOn ? responseText : botResponse,
