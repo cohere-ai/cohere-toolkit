@@ -430,7 +430,6 @@ def get_files_in_compass(
                 id=file_id,
                 file_name=fetched_doc["file_name"],
                 file_size=fetched_doc["file_size"],
-                file_path=fetched_doc["file_path"],
                 file_content=fetched_doc["text"],
                 user_id=user_id,
                 created_at=datetime.fromisoformat(fetched_doc["created_at"]),
@@ -491,7 +490,6 @@ async def consolidate_agent_files_in_compass(
                     "custom_context": {
                         "file_id": file_id,
                         "file_name": fetched_doc["file_name"],
-                        "file_path": fetched_doc["file_path"],
                         "file_size": fetched_doc["file_size"],
                         "user_id": fetched_doc["user_id"],
                         "created_at": fetched_doc["created_at"],
@@ -574,7 +572,6 @@ async def insert_files_in_compass(
                     "custom_context": {
                         "file_id": new_file_id,
                         "file_name": filename,
-                        "file_path": filename,
                         "file_size": file.size,
                         "user_id": user_id,
                         "created_at": datetime.now().isoformat(),
@@ -596,7 +593,6 @@ async def insert_files_in_compass(
                 file_name=filename,
                 id=new_file_id,
                 file_size=file.size,
-                file_path=filename,
                 user_id=user_id,
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
@@ -661,7 +657,6 @@ async def insert_files_in_db(
             FileModel(
                 file_name=filename,
                 file_size=file.size,
-                file_path=filename,
                 file_content=cleaned_content,
                 user_id=user_id,
             )
@@ -682,7 +677,6 @@ def attach_conversation_id_to_files(
                 conversation_id=conversation_id,
                 file_name=file.file_name,
                 file_size=file.file_size,
-                file_path=file.file_path,
                 user_id=file.user_id,
                 created_at=file.created_at,
                 updated_at=file.updated_at,

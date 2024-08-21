@@ -44,7 +44,7 @@ exec-db:
 
 .PHONY: migration
 migration:
-	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate
+	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"
 
 .PHONY: migrate
 migrate:

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
 import { Citation } from '@/cohere-client';
-import { replaceTextWithCitations } from '@/utils/citations';
+import { fixCitationsLeadingMarkdown, replaceTextWithCitations } from '@/utils/citations';
 
 describe('replaceTextWithCitations', () => {
   test('should replace text with citations', () => {
@@ -82,5 +82,105 @@ describe('replaceTextWithCitations', () => {
     expect(result).toBe(
       'Abra :cite[![test](https://test.com)]{generationId="12345" start="5" end="31"} :cite[Kadabra]{generationId="12345" start="32" end="39"}'
     );
+  });
+
+  test('should allow citations as markdown elements', () => {
+    const citations: Citation[] = [
+      {
+        start: 10,
+        end: 18,
+        text: '**test**',
+        document_ids: ['12345'],
+      },
+    ];
+    const text = 'This is a **test** text';
+    const generationId = '12345';
+    const result = replaceTextWithCitations(text, citations, generationId);
+    expect(result).toBe('This is a :cite[**test**]{generationId="12345" start="10" end="18"} text');
+  });
+});
+
+describe('fixCitationsLeadingMarkdown', () => {
+  test('should fix leading markdown citations breaking markdown', () => {
+    const citations: Citation[] = [
+      {
+        text: '`ENVIRONMENT DIVISION',
+        start: 4,
+        end: 25,
+        document_ids: ['111111'],
+      },
+      {
+        text: 'after the',
+        start: 46,
+        end: 55,
+        document_ids: ['111111'],
+      },
+      {
+        text: '`IDENTIFICATION DIVISION',
+        start: 56,
+        end: 80,
+        document_ids: ['111111'],
+      },
+      {
+        text: '`CONFIGURATION SECTION',
+        start: 87,
+        end: 109,
+        document_ids: ['111111'],
+      },
+      {
+        text: '`SPECIAL-NAMES',
+        start: 115,
+        end: 129,
+        document_ids: ['111111'],
+      },
+      {
+        text: 'within the',
+        start: 150,
+        end: 160,
+        document_ids: ['111111'],
+      },
+    ];
+    const text =
+      'The `ENVIRONMENT DIVISION` should be included after the `IDENTIFICATION DIVISION`. The `CONFIGURATION SECTION` and `SPECIAL-NAMES` should be included within the `ENVIRONMENT DIVISION`.';
+    const result = fixCitationsLeadingMarkdown(citations, text);
+
+    expect(result).toStrictEqual([
+      {
+        text: '`ENVIRONMENT DIVISION`',
+        start: 4,
+        end: 26,
+        document_ids: ['111111'],
+      },
+      {
+        text: 'after the',
+        start: 46,
+        end: 55,
+        document_ids: ['111111'],
+      },
+      {
+        text: '`IDENTIFICATION DIVISION`',
+        start: 56,
+        end: 81,
+        document_ids: ['111111'],
+      },
+      {
+        text: '`CONFIGURATION SECTION`',
+        start: 87,
+        end: 110,
+        document_ids: ['111111'],
+      },
+      {
+        text: '`SPECIAL-NAMES`',
+        start: 115,
+        end: 130,
+        document_ids: ['111111'],
+      },
+      {
+        text: 'within the',
+        start: 150,
+        end: 160,
+        document_ids: ['111111'],
+      },
+    ]);
   });
 });
