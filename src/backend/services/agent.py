@@ -9,6 +9,7 @@ from backend.database_models.agent_task import SyncCeleryTaskMeta
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentTaskResponse
 
+TASK_TRACE_PREVIEW_LIMIT = 200
 
 def validate_agent_exists(session: DBSessionDep, agent_id: str, user_id: str) -> Agent:
     agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
@@ -57,7 +58,7 @@ def parse_task(t: SyncCeleryTaskMeta) -> AgentTaskResponse:
         trace_lines = t.traceback.split("\n")
         if len(trace_lines) >= 2:
             # first 200 characters of the exception
-            exception_snippet = trace_lines[-2][:200] + "...check logs for details"
+            exception_snippet = trace_lines[-2][:TASK_TRACE_PREVIEW_LIMIT] + "...check logs for details"
 
     return AgentTaskResponse(
         task_id=t.task_id,
