@@ -28,6 +28,7 @@ tools:
     - toolkit_calculator
     - web_search
     - web_scrape
+    - brave_web_search
   python_interpreter:
     url: http://terrarium:8080
   web_search:
