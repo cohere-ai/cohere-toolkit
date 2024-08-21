@@ -5,6 +5,9 @@ import requests
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
+from backend.config.settings import Settings
+from backend.services.compass import Compass
+
 load_dotenv()
 BASE_URL = "https://api.carbon.ai"
 CUSTOMER_ID = "tanzim_test_gmail_test4"
@@ -176,13 +179,6 @@ def sync_gmail(source_id: int):
     print(response.text)
 
 
-def index_on_compass(items: List[EmailsToIndex]):
-    for item in items:
-        print(
-            f"indexing id {item.id}, {item.name} with presigned url {item.presigned_url}"
-        )
-
-
 def setup_auto_sync(tool: str):
     url = f"{BASE_URL}/organization/update"
     payload = {"global_user_config": {"auto_sync_enabled_sources": [tool]}}
@@ -203,13 +199,73 @@ def list_webhook():
     print(response.text)
 
 
+def init_compass():
+    return Compass(
+        compass_api_url=Settings().compass.api_url,
+        compass_parser_url=Settings().compass.parser_url,
+        compass_username=Settings().compass.username,
+        compass_password=Settings().compass.password,
+    )
+
+
+def index_on_compass(items: List[EmailsToIndex]):
+    for item in items:
+        print(
+            f"indexing id {item.id}, {item.name} with presigned url {item.presigned_url}"
+        )
+
+
+def download_web_link(url: str) -> bytes:
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.content
+    else:
+        # Handle the case when the request fails
+        return b""
+
+
+def index_on_compass_v2(compass: Compass, items: List[EmailsToIndex]) -> List[Any]:
+    index_name = "tanzim_test_gmail_test4"
+    compass.invoke(
+        compass.ValidActions.CREATE_INDEX,
+        {
+            "index": index_name,
+        },
+    )
+
+    statuses = []
+    for item in items:
+        bs = download_web_link(item.presigned_url)
+        try:
+            compass.invoke(
+                compass.ValidActions.CREATE,
+                {
+                    "index": index_name,
+                    "file_id": f"carbonID:{item.id}",
+                    # "filename": item.name,
+                    "file_bytes": bs,
+                    "file_extension": item.stats.file_format,
+                    "custom_context": {
+                        **item.meta.model_dump(),
+                        **item.stats.model_dump(),
+                    },
+                },
+            )
+            statuses.append({"id": item.id, "status": "Success"})
+        except Exception as e:
+            print(e)
+            statuses.append({"id": item.id, "status": "Fail", "error": str(e)})
+    return statuses
+
+
 def main_gmail():
     def list_all():
         emails, errs = list_emails_v2()
         if errs:
             print("Errors: ", errs)
         print()
-        index_on_compass(emails)
+        res = index_on_compass_v2(init_compass(), emails)
+        print(res)
 
     def sync():
         source_ids = user_sources(GMAIL_TOOL)
@@ -223,8 +279,6 @@ def main_gmail():
     # sync_gmail(source_ids[0])
     # gmail_labels()
     list_all()
-
-
 
 
 if __name__ == "__main__":
