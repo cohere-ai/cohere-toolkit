@@ -146,7 +146,7 @@ class CompassSettings(BaseSettings, BaseModel):
     )
 
 
-class WebSearchSettings(BaseSettings, BaseModel):
+class TavilySearchSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
         default=None, validation_alias=AliasChoices("TAVILY_API_KEY", "api_key")
@@ -185,7 +185,7 @@ class ToolSettings(BaseSettings, BaseModel):
     python_interpreter: Optional[PythonToolSettings] = Field(
         default=PythonToolSettings()
     )
-    web_search: Optional[WebSearchSettings] = Field(default=WebSearchSettings())
+    tavily: Optional[TavilySearchSettings] = Field(default=TavilySearchSettings())
     wolfram_alpha: Optional[WolframAlphaSettings] = Field(
         default=WolframAlphaSettings()
     )
