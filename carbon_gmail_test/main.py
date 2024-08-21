@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -237,17 +238,30 @@ def index_on_compass_v2(compass: Compass, items: List[EmailsToIndex]) -> List[An
     for item in items:
         bs = download_web_link(item.presigned_url)
         try:
+            file_id_str = f"carbonID:{item.id}"
             compass.invoke(
                 compass.ValidActions.CREATE,
                 {
                     "index": index_name,
-                    "file_id": f"carbonID:{item.id}",
+                    "file_id": file_id_str,
                     # "filename": item.name,
                     "file_bytes": bs,
                     "file_extension": item.stats.file_format,
                     "custom_context": {
                         **item.meta.model_dump(),
                         **item.stats.model_dump(),
+                    },
+                },
+            )
+            compass.invoke(
+                compass.ValidActions.ADD_CONTEXT,
+                {
+                    "index": index_name,
+                    "file_id": file_id_str,
+                    "context": {
+                        "title": item.name,
+                        "last_updated": int(time.time()),
+                        "source_created_at": item.source_created_at,
                     },
                 },
             )
