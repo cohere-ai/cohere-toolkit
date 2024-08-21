@@ -1,3 +1,5 @@
+'use client';
+
 import { Field } from '@headlessui/react';
 import { useRef, useState } from 'react';
 

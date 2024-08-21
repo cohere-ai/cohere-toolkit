@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { HotKeysDialog } from '@/components/Shared/HotKeys/HotKeysDialog';
-import { CustomHotKey, type HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
+import { CustomHotKey, type HotKeyGroupOption, HotKeysDialog } from '@/components/HotKeys';
 
 type HotKeysProviderProps = {
   hotKeys: HotKeyGroupOption[];

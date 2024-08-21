@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SVGProps } from 'react';
 
-import { IconKind } from '@/components/Shared/Icon/Icon';
+import { IconKind } from '@/components/UI';
 import { cn } from '@/utils';
 
 type Props = {

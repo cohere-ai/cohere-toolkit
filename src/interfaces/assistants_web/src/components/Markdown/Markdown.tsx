@@ -10,19 +10,20 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { PluggableList } from 'unified';
 
+import {
+  Iframe,
+  P,
+  Pre,
+  References,
+  remarkReferences,
+  removeExtraBlankSpaces,
+  renderRemarkCites,
+  renderRemarkTags,
+  renderRemarkUnknowns,
+  renderTableTools,
+} from '@/components/Markdown';
 import { Text } from '@/components/UI';
-import { removeExtraBlankSpaces } from '@/components/UI/Markdown/directives/utils';
-import { Iframe } from '@/components/UI/Markdown/tags/Iframe';
 import { cn } from '@/utils';
-
-import { renderRemarkCites } from './directives/cite';
-import { remarkReferences } from './directives/code';
-import { renderTableTools } from './directives/table-tools';
-import { renderRemarkTags } from './directives/tag';
-import { renderRemarkUnknowns } from './directives/unknown';
-import { P } from './tags/P';
-import { Pre } from './tags/Pre';
-import { References } from './tags/References';
 
 type MarkdownTextProps = {
   text: string;

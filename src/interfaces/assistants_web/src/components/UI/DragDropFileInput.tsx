@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactNode, useState } from 'react';
 
 import { useFocusFileInput } from '@/hooks';

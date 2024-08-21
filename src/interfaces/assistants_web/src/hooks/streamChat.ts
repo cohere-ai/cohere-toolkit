@@ -1,3 +1,5 @@
+'use client';
+
 import { EventSourceMessage } from '@microsoft/fetch-event-source';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';

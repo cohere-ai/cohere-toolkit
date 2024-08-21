@@ -1,3 +1,5 @@
+'use client';
+
 import { ComboboxOption } from '@headlessui/react';
 import { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';

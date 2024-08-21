@@ -1,3 +1,5 @@
+'use client';
+
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 

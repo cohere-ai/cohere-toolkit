@@ -1,3 +1,5 @@
+'use client';
+
 import { throttle } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { Config } from 'tailwindcss';

@@ -1,3 +1,5 @@
+'use client';
+
 import { useTheme } from 'next-themes';
 import { usePathname, useRouter } from 'next/navigation';
 

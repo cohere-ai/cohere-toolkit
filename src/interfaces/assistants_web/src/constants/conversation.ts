@@ -1,13 +1,13 @@
 import { AgentPublic } from '@/cohere-client';
 import { FileAccept } from '@/components/UI';
-import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
+import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/setup';
 import {
   AGENT_SETTINGS_TOOLS,
   FILE_UPLOAD_TOOLS,
   TOOL_READ_DOCUMENT_ID,
   TOOL_SEARCH_FILE_ID,
   TOOL_WEB_SCRAPE_ID,
-} from '@/constants';
+} from '@/constants/tools';
 
 export const DEFAULT_CONVERSATION_NAME = 'New Conversation';
 export const DEFAULT_AGENT_MODEL = 'command-r-plus';

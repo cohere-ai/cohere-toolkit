@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Button, Input, Text } from '@/components/Shared';
+import { Button, Input, Text } from '@/components/UI';
 import { useEditConversation } from '@/hooks';
 import { useConversationStore } from '@/stores';
 

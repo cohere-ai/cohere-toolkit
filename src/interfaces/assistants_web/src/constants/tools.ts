@@ -1,4 +1,4 @@
-import { IconName } from '@/components/Shared';
+import { IconName } from '@/components/UI';
 
 /**
  * Tools

@@ -1,3 +1,5 @@
+'use client';
+
 import { useLocalStorageValue } from '@react-hookz/web';
 import { usePathname } from 'next/navigation';
 

@@ -1,3 +1,5 @@
+'use client';
+
 import { useDebouncedEffect } from '@react-hookz/web';
 import { matchSorter } from 'match-sorter';
 import { useState } from 'react';
