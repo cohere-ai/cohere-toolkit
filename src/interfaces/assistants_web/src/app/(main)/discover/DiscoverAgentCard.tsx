@@ -6,8 +6,7 @@ import { AgentPublic } from '@/cohere-client';
 import { DeleteAgent } from '@/components/Modals/DeleteAgent';
 import { CoralLogo, KebabMenu, Text } from '@/components/UI';
 import { useContextStore } from '@/context';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { useSession } from '@/hooks/session';
+import { useBrandedColors, useSession } from '@/hooks';
 import { cn } from '@/utils';
 import { checkIsBaseAgent } from '@/utils/agents';
 

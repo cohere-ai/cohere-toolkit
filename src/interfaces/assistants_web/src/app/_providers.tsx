@@ -20,7 +20,7 @@ import {
 } from '@/components/Providers';
 import { ContextStore } from '@/context';
 import { env } from '@/env.mjs';
-import { useLazyRef } from '@/hooks/lazyRef';
+import { useLazyRef } from '@/hooks';
 import { clearAuthToken } from '@/server/actions';
 
 const makeCohereClient = (authToken?: string) => {

@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-import { useAuthConfig } from '@/hooks/authConfig';
+import { useAuthConfig } from '@/hooks';
 
 /**
  * Hook which redirects to the Google login/register page.

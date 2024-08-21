@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { useIsDesktop } from '@/hooks/breakpoint';
+import { useIsDesktop } from '@/hooks';
 import { cn } from '@/utils';
 
 export const CellBackground: React.FC = () => {

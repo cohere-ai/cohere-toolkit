@@ -1,7 +1,7 @@
 import { ComboboxOptions } from '@headlessui/react';
 
 import { CommandActionGroup, HotKeysDialogInput } from '@/components/HotKeys';
-import { useAssistantHotKeys } from '@/hooks/actions';
+import { useAssistantHotKeys } from '@/hooks';
 
 type Props = {
   close: VoidFunction;

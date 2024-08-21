@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Button, Input, Spinner, Text } from '@/components/UI';
 import { env } from '@/env.mjs';
-import { useCreateSnapshotLinkId, useSnapshots } from '@/hooks/snapshots';
+import { useCreateSnapshotLinkId, useSnapshots } from '@/hooks';
 
 type Props = {
   conversationId: string;

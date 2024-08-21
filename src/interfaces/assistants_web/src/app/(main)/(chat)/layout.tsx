@@ -4,8 +4,7 @@ import { Transition } from '@headlessui/react';
 import { useEffect } from 'react';
 
 import { ConversationPanel } from '@/components/Conversation';
-import { useIsDesktop } from '@/hooks/breakpoint';
-import { useListAllDeployments } from '@/hooks/deployments';
+import { useIsDesktop, useListAllDeployments } from '@/hooks';
 import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 

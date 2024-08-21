@@ -4,7 +4,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 import { type QuickAction } from '@/components/HotKeys';
 import { Text } from '@/components/UI';
-import { useOS } from '@/hooks/os';
+import { useOS } from '@/hooks';
 import { cn } from '@/utils';
 
 interface Props extends QuickAction {

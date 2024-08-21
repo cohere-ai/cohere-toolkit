@@ -5,7 +5,7 @@ import { ComponentPropsWithoutRef, useCallback } from 'react';
 
 import { StructuredTable } from '@/components/Markdown/directives/table-tools';
 import { Icon, Text } from '@/components/UI';
-import { useNotify } from '@/hooks/toast';
+import { useNotify } from '@/hooks';
 import { useConversationStore } from '@/stores';
 import { cn } from '@/utils';
 import { downloadFile, structuredTableToXSV } from '@/utils/download';

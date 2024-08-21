@@ -3,8 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 import { Button, Text } from '@/components/UI';
-import { useDeleteAgent } from '@/hooks/agents';
-import { useChatRoutes } from '@/hooks/chatRoutes';
+import { useChatRoutes, useDeleteAgent } from '@/hooks';
 
 type Props = {
   name: string;

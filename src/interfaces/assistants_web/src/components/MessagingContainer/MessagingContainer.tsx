@@ -8,7 +8,7 @@ import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bo
 import { MessageRow } from '@/components/MessageRow';
 import { Welcome } from '@/components/MessagingContainer';
 import { Button } from '@/components/UI';
-import { useFixCopyBug } from '@/hooks/fixCopyBug';
+import { useFixCopyBug } from '@/hooks';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 

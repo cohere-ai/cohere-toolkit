@@ -10,7 +10,7 @@ import {
   useCohereClient,
 } from '@/cohere-client';
 import { BASE_AGENT } from '@/constants';
-import { useConversations } from '@/hooks/conversation';
+import { useConversations } from '@/hooks';
 
 export const useListAgents = () => {
   const cohereClient = useCohereClient();

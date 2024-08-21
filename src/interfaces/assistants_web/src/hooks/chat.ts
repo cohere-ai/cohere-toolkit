@@ -13,15 +13,15 @@ import {
   isCohereNetworkError,
   isStreamError,
 } from '@/cohere-client';
+import { DEFAULT_AGENT_TOOLS, DEFAULT_TYPING_VELOCITY } from '@/constants/conversation';
+import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/setup';
+import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants/tools';
 import {
-  DEFAULT_AGENT_TOOLS,
-  DEFAULT_TYPING_VELOCITY,
-  DEPLOYMENT_COHERE_PLATFORM,
-  TOOL_PYTHON_INTERPRETER_ID,
-} from '@/constants';
-import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useUpdateConversationTitle } from '@/hooks/generateTitle';
-import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
+  StreamingChatParams,
+  useChatRoutes,
+  useStreamChat,
+  useUpdateConversationTitle,
+} from '@/hooks';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { useStreamingStore } from '@/stores/streaming';

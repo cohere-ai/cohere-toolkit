@@ -1,6 +1,6 @@
 'use client';
 
-import { useSwipeable } from '@/hooks/swipeable';
+import { useSwipeable } from '@/hooks';
 
 export const Swipeable = () => {
   useSwipeable();

@@ -5,7 +5,7 @@ import React from 'react';
 import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { WelcomeGuideTooltip } from '@/components/MessagingContainer';
 import { Button, Icon, Text, ToggleCard } from '@/components/UI';
-import { useAvailableTools } from '@/hooks/tools';
+import { useAvailableTools } from '@/hooks';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { checkIsBaseAgent } from '@/utils/agents';

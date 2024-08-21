@@ -1,8 +1,7 @@
 'use client';
 
 import { GuideTooltip } from '@/components/UI';
-import { useFocusComposer } from '@/hooks/actions';
-import { useShowWelcomeGuide, useWelcomeGuideState } from '@/hooks/ftux';
+import { useFocusComposer, useShowWelcomeGuide, useWelcomeGuideState } from '@/hooks';
 
 type Props = {
   step: number;

@@ -10,9 +10,7 @@ import {
   ConversationListPanelGroup,
 } from '@/components/SideNavPanel';
 import { Icon, InputSearch, Text, Tooltip } from '@/components/UI';
-import { useRecentAgents } from '@/hooks/agents';
-import { useConversations } from '@/hooks/conversation';
-import { useSearchConversations } from '@/hooks/search';
+import { useConversations, useRecentAgents, useSearchConversations } from '@/hooks';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 

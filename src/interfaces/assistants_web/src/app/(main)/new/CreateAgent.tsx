@@ -15,8 +15,7 @@ import {
 } from '@/constants/conversation';
 import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/setup';
 import { useContextStore } from '@/context';
-import { useCreateAgent } from '@/hooks/agents';
-import { useNotify } from '@/hooks/toast';
+import { useCreateAgent, useNotify } from '@/hooks';
 
 const DEFAULT_FIELD_VALUES = {
   name: '',

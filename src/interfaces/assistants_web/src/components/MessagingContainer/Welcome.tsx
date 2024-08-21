@@ -5,9 +5,7 @@ import React from 'react';
 
 import { AssistantTools } from '@/components/MessagingContainer';
 import { CoralLogo, Icon, Text } from '@/components/UI';
-import { useAgent } from '@/hooks/agents';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { useListTools } from '@/hooks/tools';
+import { useAgent, useBrandedColors, useListTools } from '@/hooks';
 import { cn } from '@/utils';
 import { checkIsBaseAgent } from '@/utils/agents';
 

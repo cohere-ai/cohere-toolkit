@@ -15,8 +15,7 @@ import {
   TOOL_READ_DOCUMENT_ID,
   TOOL_SEARCH_FILE_ID,
 } from '@/constants/tools';
-import { useIsAgentNameUnique } from '@/hooks/agents';
-import { useListTools, useOpenGoogleDrivePicker } from '@/hooks/tools';
+import { useIsAgentNameUnique, useListTools, useOpenGoogleDrivePicker } from '@/hooks';
 import { DataSourceArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 import { getToolAuthUrl } from '@/utils/getToolAuthUrl';

@@ -6,7 +6,7 @@ import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 import { AgentPublic, ApiError, ManagedTool, useCohereClient } from '@/cohere-client';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
-import { useNotify } from '@/hooks/toast';
+import { useNotify } from '@/hooks';
 import { useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 

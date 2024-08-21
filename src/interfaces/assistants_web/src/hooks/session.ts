@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react';
 
 import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
 import { COOKIE_KEYS } from '@/constants';
-import { useServerAuthStrategies } from '@/hooks/auth';
+import { useServerAuthStrategies } from '@/hooks';
 import { clearAuthToken, setAuthToken } from '@/server/actions';
 
 interface LoginParams {

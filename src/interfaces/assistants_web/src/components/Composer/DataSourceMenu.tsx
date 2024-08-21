@@ -5,8 +5,7 @@ import React from 'react';
 
 import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/UI';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { useAvailableTools } from '@/hooks/tools';
+import { useAvailableTools, useBrandedColors } from '@/hooks';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 import { checkIsBaseAgent } from '@/utils/agents';

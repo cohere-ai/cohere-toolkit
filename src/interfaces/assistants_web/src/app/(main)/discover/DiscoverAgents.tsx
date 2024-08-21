@@ -5,9 +5,7 @@ import { useDeferredValue, useMemo, useState } from 'react';
 import { AgentPublic, ConversationWithoutMessages } from '@/cohere-client';
 import { MobileHeader } from '@/components/Global';
 import { Button, Input, Text } from '@/components/UI';
-import { useListAgents } from '@/hooks/agents';
-import { useConversations } from '@/hooks/conversation';
-import { useSession } from '@/hooks/session';
+import { useConversations, useListAgents, useSession } from '@/hooks';
 import { cn } from '@/utils';
 
 import { DiscoverAgentCard } from './DiscoverAgentCard';

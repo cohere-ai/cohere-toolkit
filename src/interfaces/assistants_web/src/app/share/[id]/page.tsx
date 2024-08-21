@@ -9,7 +9,7 @@ import { Document } from '@/cohere-client';
 import { Icon, Spinner, Text } from '@/components/UI';
 import { DEFAULT_CONVERSATION_NAME } from '@/constants/conversation';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants/tools';
-import { useGetSnapshotByLinkId } from '@/hooks/snapshots';
+import { useGetSnapshotByLinkId } from '@/hooks';
 import { useCitationsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import {

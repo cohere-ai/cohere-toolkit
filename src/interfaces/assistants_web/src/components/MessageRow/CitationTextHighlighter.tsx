@@ -5,9 +5,7 @@ import { PropsWithChildren } from 'react';
 
 import { Citation } from '@/components/MessageRow';
 import { useContextStore } from '@/context';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
-import { useChatRoutes } from '@/hooks/chatRoutes';
+import { Breakpoint, useBrandedColors, useBreakpoint, useChatRoutes } from '@/hooks';
 import { useCitationsStore } from '@/stores';
 import { cn } from '@/utils';
 import { createStartEndKey } from '@/utils';

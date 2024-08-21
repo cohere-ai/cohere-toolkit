@@ -11,7 +11,7 @@ import {
   IconButton,
   LongPressMenu,
 } from '@/components/UI';
-import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
+import { Breakpoint, useBreakpoint } from '@/hooks';
 import {
   type ChatMessage,
   isAbortedMessage,

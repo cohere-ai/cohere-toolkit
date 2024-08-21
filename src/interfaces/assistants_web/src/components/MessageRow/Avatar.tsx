@@ -4,8 +4,7 @@ import Lottie from 'react-lottie-player';
 
 import logoTyping from '@/assets/lotties/icon-loop-coral-950.json';
 import { CoralLogo, Icon } from '@/components/UI';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { useChatRoutes } from '@/hooks/chatRoutes';
+import { useBrandedColors, useChatRoutes } from '@/hooks';
 import { BotState, ChatMessage, MessageType, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils/cn';
 

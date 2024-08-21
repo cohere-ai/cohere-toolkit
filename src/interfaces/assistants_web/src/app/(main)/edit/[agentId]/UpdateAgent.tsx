@@ -11,8 +11,7 @@ import { Button, Icon, Spinner, Text } from '@/components/UI';
 import { DEFAULT_AGENT_MODEL } from '@/constants/conversation';
 import { DEPLOYMENT_COHERE_PLATFORM } from '@/constants/setup';
 import { useContextStore } from '@/context';
-import { useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
-import { useNotify } from '@/hooks/toast';
+import { useIsAgentNameUnique, useNotify, useUpdateAgent } from '@/hooks';
 
 type Props = {
   agent: AgentPublic;

@@ -10,11 +10,14 @@ import {
   TOOL_READ_DOCUMENT_ID,
   TOOL_SEARCH_FILE_ID,
 } from '@/constants/tools';
-import { useAgent } from '@/hooks/agents';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useConversationFileActions, useListConversationFiles } from '@/hooks/files';
-import { useSession } from '@/hooks/session';
+import {
+  useAgent,
+  useBrandedColors,
+  useChatRoutes,
+  useConversationFileActions,
+  useListConversationFiles,
+  useSession,
+} from '@/hooks';
 import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';

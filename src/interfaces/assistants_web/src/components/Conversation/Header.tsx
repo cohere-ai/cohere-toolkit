@@ -5,7 +5,7 @@ import { ShareConversation } from '@/components/Modals/ShareConversation';
 import { Button, Icon, IconButton, Logo, Text } from '@/components/UI';
 import { useContextStore } from '@/context';
 import { env } from '@/env.mjs';
-import { useBrandedColors } from '@/hooks/brandedColors';
+import { useBrandedColors } from '@/hooks';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 

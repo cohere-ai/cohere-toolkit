@@ -6,10 +6,13 @@ import { AgentPublic } from '@/cohere-client';
 import { ShareConversation } from '@/components/Modals/ShareConversation';
 import { CoralLogo, KebabMenu, KebabMenuItem, Text, Tooltip } from '@/components/UI';
 import { useContextStore } from '@/context';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
-import { useConversationActions } from '@/hooks/conversation';
-import { useConversationFileActions } from '@/hooks/files';
+import {
+  getIsTouchDevice,
+  useBrandedColors,
+  useConversationActions,
+  useConversationFileActions,
+  useIsDesktop,
+} from '@/hooks';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
 

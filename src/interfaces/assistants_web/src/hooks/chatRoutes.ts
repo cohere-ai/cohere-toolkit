@@ -1,7 +1,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { useIsDesktop } from '@/hooks/breakpoint';
+import { useIsDesktop } from '@/hooks';
 import {
   useCitationsStore,
   useConversationStore,

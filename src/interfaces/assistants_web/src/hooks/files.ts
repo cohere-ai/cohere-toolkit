@@ -6,9 +6,8 @@ import {
   ListConversationFile,
   useCohereClient,
 } from '@/cohere-client';
-import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
-import { useSession } from '@/hooks/session';
-import { useNotify } from '@/hooks/toast';
+import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants/conversation';
+import { useNotify, useSession } from '@/hooks';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
 import { fileSizeToBytes, formatFileSize, getFileExtension } from '@/utils';

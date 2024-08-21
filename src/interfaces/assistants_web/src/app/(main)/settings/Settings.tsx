@@ -4,8 +4,7 @@ import { PropsWithChildren, useState } from 'react';
 
 import { MobileHeader } from '@/components/Global';
 import { Button, DarkModeToggle, Icon, Tabs, Text } from '@/components/UI';
-import { useNotify } from '@/hooks/toast';
-import { useDeleteAuthTool, useListTools } from '@/hooks/tools';
+import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn } from '@/utils';
 import { getToolAuthUrl } from '@/utils/getToolAuthUrl';
 

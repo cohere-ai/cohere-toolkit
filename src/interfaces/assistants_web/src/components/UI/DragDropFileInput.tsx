@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 
-import { useFocusFileInput } from '@/hooks/actions';
+import { useFocusFileInput } from '@/hooks';
 import { cn } from '@/utils';
 
 import { Text } from './Text';

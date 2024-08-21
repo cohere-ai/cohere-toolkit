@@ -6,7 +6,7 @@ import {
   useConversationHotKeys,
   useSettingsHotKeys,
   useViewHotKeys,
-} from '@/hooks/actions';
+} from '@/hooks';
 
 export const HotKeys: React.FC = () => {
   const conversationHotKeys = useConversationHotKeys();

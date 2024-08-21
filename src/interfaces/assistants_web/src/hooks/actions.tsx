@@ -2,18 +2,17 @@ import { useTheme } from 'next-themes';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { AgentLogo } from '@/components/Agents/AgentLogo';
-import { ShareModal } from '@/components/ShareModal';
-import { SwitchAssistants } from '@/components/Shared/HotKeys/custom-views/SwitchAssistants';
-import { HotKeyGroupOption } from '@/components/Shared/HotKeys/domain';
+import { HotKeyGroupOption, SwitchAssistants } from '@/components/HotKeys';
+import { ShareConversation } from '@/components/Modals/ShareConversation';
 import {
   CHAT_COMPOSER_TEXTAREA_ID,
   CONFIGURATION_FILE_UPLOAD_ID,
   SETTINGS_DRAWER_ID,
-} from '@/constants';
+} from '@/constants/setup';
 import { useContextStore } from '@/context';
-import { useRecentAgents } from '@/hooks/agents';
-import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
-import { useConversationActions } from '@/hooks/conversation';
+import { useChatRoutes, useNavigateToNewChat } from '@/hooks';
+import { useRecentAgents } from '@/hooks';
+import { useConversationActions } from '@/hooks';
 import { useConversationStore, useFilesStore, useSettingsStore } from '@/stores';
 
 export const useFocusComposer = () => {
@@ -83,7 +82,7 @@ export const useConversationHotKeys = (): HotKeyGroupOption[] => {
     if (!id) return;
     open({
       title: 'Share link to conversation',
-      content: <ShareModal conversationId={id} />,
+      content: <ShareConversation conversationId={id} />,
     });
   };
 

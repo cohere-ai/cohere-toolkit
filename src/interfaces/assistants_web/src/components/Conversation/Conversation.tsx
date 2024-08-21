@@ -6,9 +6,12 @@ import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Composer';
 import { Header } from '@/components/Conversation';
 import { MessagingContainer, WelcomeGuideTooltip } from '@/components/MessagingContainer';
-import { useChat } from '@/hooks/chat';
-import { useConversationFileActions } from '@/hooks/files';
-import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
+import {
+  WelcomeGuideStep,
+  useChat,
+  useConversationFileActions,
+  useWelcomeGuideState,
+} from '@/hooks';
 import { useConversationStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';

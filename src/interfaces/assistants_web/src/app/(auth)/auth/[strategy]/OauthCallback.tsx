@@ -4,8 +4,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { Text } from '@/components/UI';
-import { useAuthConfig } from '@/hooks/auth';
-import { useSession } from '@/hooks/session';
+import { useAuthConfig, useSession } from '@/hooks';
 import { getQueryString } from '@/utils';
 
 /**

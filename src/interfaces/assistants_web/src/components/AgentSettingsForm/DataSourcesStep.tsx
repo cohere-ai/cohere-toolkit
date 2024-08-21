@@ -5,7 +5,7 @@ import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
 import { Button, Icon, IconName, Spinner, Text } from '@/components/UI';
 import { ACCEPTED_FILE_TYPES } from '@/constants/conversation';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants/tools';
-import { useUploadAgentFile } from '@/hooks/files';
+import { useUploadAgentFile } from '@/hooks';
 import { DataSourceArtifact } from '@/types/tools';
 import { pluralize } from '@/utils';
 

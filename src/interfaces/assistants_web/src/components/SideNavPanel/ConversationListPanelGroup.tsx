@@ -6,7 +6,7 @@ import { Flipped, Flipper } from 'react-flip-toolkit';
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import { ConversationCard, ConversationListItem } from '@/components/SideNavPanel';
 import { Text } from '@/components/UI';
-import { useListAgents } from '@/hooks/agents';
+import { useListAgents } from '@/hooks';
 import { useConversationStore } from '@/stores';
 import { getWeeksAgo } from '@/utils/format';
 

@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { Icon, IconName, Input, Switch, Text } from '@/components/UI';
-import { useBrandedColors } from '@/hooks/brandedColors';
+import { useBrandedColors } from '@/hooks';
 
 type Props = {
   checked: boolean;

@@ -16,8 +16,7 @@ import {
   Tooltip,
 } from '@/components/UI';
 import { env } from '@/env.mjs';
-import { useIsDesktop } from '@/hooks/breakpoint';
-import { useNavigateToNewChat } from '@/hooks/chatRoutes';
+import { useIsDesktop, useNavigateToNewChat } from '@/hooks';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 

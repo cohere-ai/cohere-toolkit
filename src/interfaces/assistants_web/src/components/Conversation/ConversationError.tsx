@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { isNotFoundError } from '@/cohere-client';
 import { Icon, Text } from '@/components/UI';
-import { useChatRoutes } from '@/hooks/chatRoutes';
+import { useChatRoutes } from '@/hooks';
 import { cn } from '@/utils';
 
 import { Header } from './Header';

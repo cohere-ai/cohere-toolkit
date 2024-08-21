@@ -3,10 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 
 import { CoralLogo, Text, Tooltip } from '@/components/UI';
-import { useBrandedColors } from '@/hooks/brandedColors';
-import { useIsDesktop } from '@/hooks/breakpoint';
-import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useConversationFileActions } from '@/hooks/files';
+import { useBrandedColors, useChatRoutes, useConversationFileActions, useIsDesktop } from '@/hooks';
 import {
   useCitationsStore,
   useConversationStore,
