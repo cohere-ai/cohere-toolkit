@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from backend.database_models.message import MessageAgent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
-from backend.schemas.file import File
+from backend.schemas.file import ConversationFilePublic
 from backend.schemas.tool import ToolCall
 
 
@@ -26,7 +26,7 @@ class Message(MessageBase):
 
     documents: List[Document]
     citations: List[Citation]
-    files: List[File]
+    files: List[ConversationFilePublic]
     tool_calls: List[ToolCall]
     tool_plan: Union[str, None]
 
