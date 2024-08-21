@@ -5,10 +5,9 @@ import React, { useRef } from 'react';
 import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { Composer } from '@/components/Composer';
 import { Header } from '@/components/Conversation';
-import { MessagingContainer } from '@/components/MessagingContainer';
-import { WelcomeGuideTooltip } from '@/components/MessagingContainer/WelcomeGuideTooltip';
+import { MessagingContainer, WelcomeGuideTooltip } from '@/components/MessagingContainer';
 import { useChat } from '@/hooks/chat';
-import { useFileActions } from '@/hooks/files';
+import { useConversationFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useConversationStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -26,7 +25,7 @@ type Props = {
  * composer, and the citation panel.
  */
 export const Conversation: React.FC<Props> = ({ agent, tools, startOptionsEnabled = false }) => {
-  const { uploadFiles } = useFileActions();
+  const { uploadFiles } = useConversationFileActions();
   const { welcomeGuideState, finishWelcomeGuide } = useWelcomeGuideState();
   const {
     conversation: { messages, id: conversationId },

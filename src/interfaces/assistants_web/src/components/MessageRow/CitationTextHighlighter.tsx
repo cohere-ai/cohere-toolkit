@@ -49,7 +49,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
 
   const handleClick = () => {
     open({
-      content: <Citation generationId={generationId} citationKey={startEndKey} />,
+      content: <Citation generationId={generationId} citationKey={startEndKey} agentId={agentId} />,
     });
   };
 
@@ -108,7 +108,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
         anchor="bottom"
         className="z-tooltip h-fit w-[466px] rounded border bg-white p-4 dark:border-volcanic-400 dark:bg-volcanic-200"
       >
-        <Citation generationId={generationId} citationKey={startEndKey} />
+        <Citation generationId={generationId} citationKey={startEndKey} agentId={agentId} />
       </PopoverPanel>
     </Popover>
   );

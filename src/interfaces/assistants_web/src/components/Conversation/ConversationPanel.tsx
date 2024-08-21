@@ -13,7 +13,7 @@ import {
 import { useAgent } from '@/hooks/agents';
 import { useBrandedColors } from '@/hooks/brandedColors';
 import { useChatRoutes } from '@/hooks/chatRoutes';
-import { useFileActions, useListFiles } from '@/hooks/files';
+import { useConversationFileActions, useListConversationFiles } from '@/hooks/files';
 import { useSession } from '@/hooks/session';
 import { useParamsStore, useSettingsStore } from '@/stores';
 import { DataSourceArtifact } from '@/types/tools';
@@ -33,8 +33,8 @@ export const ConversationPanel: React.FC<Props> = () => {
     setParams,
   } = useParamsStore();
   const session = useSession();
-  const { data: files } = useListFiles(conversationId);
-  const { deleteFile } = useFileActions();
+  const { data: files } = useListConversationFiles(conversationId);
+  const { deleteFile } = useConversationFileActions();
 
   const agentToolMetadataArtifacts = useMemo(() => {
     if (!agent) {

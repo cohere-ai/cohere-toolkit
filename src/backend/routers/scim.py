@@ -62,16 +62,16 @@ async def get_users(
         db_user = user_crud.get_user_by_user_name(session, display_name)
         if not db_user:
             return ListUserResponse(
-                totalResults=0,
-                startIndex=start_index,
-                itemsPerPage=count,
-                Resources=[],
+                total_results=0,
+                start_index=start_index,
+                items_per_page=count,
+                resources=[],
             )
         return ListUserResponse(
-            totalResults=1,
-            startIndex=start_index,
-            itemsPerPage=count,
-            Resources=[User.from_db_user(db_user)],
+            total_results=1,
+            start_index=start_index,
+            items_per_page=count,
+            resources=[User.from_db_user(db_user)],
         )
 
     db_users = user_crud.get_external_users(
@@ -79,10 +79,10 @@ async def get_users(
     )
     users = [User.from_db_user(db_user) for db_user in db_users]
     return ListUserResponse(
-        totalResults=len(users),
-        startIndex=start_index,
-        itemsPerPage=count,
-        Resources=users,
+        total_results=len(users),
+        start_index=start_index,
+        items_per_page=count,
+        resources=users,
     )
 
 
@@ -105,8 +105,8 @@ async def create_user(user: CreateUser, session: DBSessionDep):
     if not db_user:
         db_user = DBUser()
 
-    db_user.user_name = user.userName
-    db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
+    db_user.user_name = user.user_name
+    db_user.fullname = f"{user.name.given_name} {user.name.family_name}"
     db_user.email = _get_email_from_scim_user(user)
     db_user.active = user.active
     db_user.external_id = user.externalId
@@ -128,8 +128,8 @@ async def update_user(
         logger.error(event="[SCIM] user not found", user_id=user_id)
         raise SCIMException(status_code=404, detail="User not found")
 
-    db_user.user_name = user.userName
-    db_user.fullname = f"{user.name.givenName} {user.name.familyName}"
+    db_user.user_name = user.user_name
+    db_user.fullname = f"{user.name.given_name} {user.name.family_name}"
     db_user.active = user.active
     email_update = _get_email_from_scim_user(user)
     db_user.email = email_update
@@ -176,25 +176,25 @@ async def get_groups(
         db_group = group_crud.get_group_by_name(session, display_name)
         if not db_group:
             return ListGroupResponse(
-                totalResults=0,
-                startIndex=start_index,
-                itemsPerPage=count,
-                Resources=[],
+                total_results=0,
+                start_index=start_index,
+                items_per_page=count,
+                resources=[],
             )
         return ListGroupResponse(
-            totalResults=1,
-            startIndex=start_index,
-            itemsPerPage=count,
-            Resources=[Group.from_db_group(db_group)],
+            total_results=1,
+            start_index=start_index,
+            items_per_page=count,
+            resources=[Group.from_db_group(db_group)],
         )
 
     db_groups = group_crud.get_groups(session, offset=start_index - 1, limit=count)
     groups = [Group.from_db_group(db_group) for db_group in db_groups]
     return ListGroupResponse(
-        totalResults=len(groups),
-        startIndex=start_index,
-        itemsPerPage=count,
-        Resources=groups,
+        total_results=len(groups),
+        start_index=start_index,
+        items_per_page=count,
+        resources=groups,
     )
 
 
@@ -213,11 +213,11 @@ async def get_group(
 
 @router.post("/Groups", status_code=201)
 async def create_group(group: CreateGroup, session: DBSessionDep):
-    db_group = group_crud.get_group_by_name(session, group.displayName)
+    db_group = group_crud.get_group_by_name(session, group.display_name)
     if not db_group:
         db_group = DBGroup()
 
-    db_group.display_name = group.displayName
+    db_group.display_name = group.display_name
 
     db_group = group_crud.create_group(session, db_group)
     return Group.from_db_group(db_group)

@@ -1,10 +1,9 @@
 'use client';
 
-import { useLocalStorageValue } from '@react-hookz/web';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
 import { AgentSettingsFields, AgentSettingsForm } from '@/components/AgentSettingsForm';
 import { MobileHeader } from '@/components/Global';
@@ -33,8 +32,6 @@ const DEFAULT_FIELD_VALUES = {
  */
 export const CreateAgent: React.FC = () => {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { open, close } = useContextStore();
 
   const { error } = useNotify();
@@ -42,27 +39,6 @@ export const CreateAgent: React.FC = () => {
 
   const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const {
-    value: pendingAssistant,
-    set: setPendingAssistant,
-    remove: removePendingAssistant,
-  } = useLocalStorageValue<AgentSettingsFields>('pending_assistant', {
-    initializeWithValue: false,
-    defaultValue: undefined,
-  });
-
-  const queryString = searchParams.get('p');
-  useEffect(() => {
-    if (queryString) {
-      if (pendingAssistant) {
-        setFields(pendingAssistant);
-        removePendingAssistant();
-      }
-
-      window.history.replaceState(null, '', pathname);
-    }
-  }, [queryString, pendingAssistant]);
 
   const handleOpenSubmitModal = () => {
     if (fields.is_private) {
@@ -88,7 +64,6 @@ export const CreateAgent: React.FC = () => {
       setIsSubmitting(true);
       const agent = await createAgent(fields);
       close();
-      setIsSubmitting(false);
       router.push(`/a/${agent.id}`);
     } catch (e) {
       setIsSubmitting(false);
@@ -118,7 +93,6 @@ export const CreateAgent: React.FC = () => {
             fields={fields}
             setFields={setFields}
             onSubmit={handleOpenSubmitModal}
-            savePendingAssistant={() => setPendingAssistant(fields)}
           />
         </div>
       </div>

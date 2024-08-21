@@ -4,8 +4,16 @@ type OptionsOrDependencyArray = Options | ReadonlyArray<unknown>;
 
 export type QuickAction = {
   name: string;
+  label?: React.ReactNode;
   commands: string[];
-  action: () => void;
+  registerGlobal: boolean;
+  closeDialogOnRun: boolean;
+  displayInDialog?: boolean;
+  action?: () => void;
+  customView?: React.FC<{
+    close: VoidFunction;
+    onBack: VoidFunction;
+  }>;
 };
 
 export interface CustomHotKey extends QuickAction {
@@ -14,6 +22,6 @@ export interface CustomHotKey extends QuickAction {
 }
 
 export type HotKeyGroupOption = {
-  group: string;
+  group?: string;
   quickActions: CustomHotKey[];
 };

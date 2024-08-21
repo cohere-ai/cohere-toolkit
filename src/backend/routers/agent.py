@@ -32,7 +32,7 @@ from backend.schemas.agent import (
 )
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
-from backend.schemas.file import DeleteFileResponse, UploadFileResponse
+from backend.schemas.file import DeleteAgentFileResponse, UploadAgentFileResponse
 from backend.schemas.metrics import (
     DEFAULT_METRICS_AGENT,
     GenericResponseMessage,
@@ -384,6 +384,43 @@ async def update_agent(
     return agent
 
 
+@router.delete("/{agent_id}", response_model=DeleteAgent)
+async def delete_agent(
+    agent_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> DeleteAgent:
+    """
+    Delete an agent by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        DeleteAgent: Empty response.
+
+    Raises:
+        HTTPException: If the agent with the given ID is not found.
+    """
+    user_id = ctx.get_user_id()
+    ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
+    agent = validate_agent_exists(session, agent_id, user_id)
+    agent_schema = Agent.model_validate(agent)
+    ctx.with_agent(agent_schema)
+    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+
+    deleted = agent_crud.delete_agent(session, agent_id, user_id)
+    if not deleted:
+        raise HTTPException(status_code=401, detail="Could not delete Agent.")
+
+    return DeleteAgent()
+
+
+# Agent Tool Metadata endpoints
+
+
 async def handle_tool_metadata_update(
     agent: Agent,
     new_agent: Agent,
@@ -453,43 +490,6 @@ async def update_or_create_tool_metadata(
         create_agent_tool_metadata(session, agent.id, create_metadata_req, ctx)
 
 
-@router.delete("/{agent_id}", response_model=DeleteAgent)
-async def delete_agent(
-    agent_id: str,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
-) -> DeleteAgent:
-    """
-    Delete an agent by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteAgent: Empty response.
-
-    Raises:
-        HTTPException: If the agent with the given ID is not found.
-    """
-    user_id = ctx.get_user_id()
-    ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
-    agent = validate_agent_exists(session, agent_id, user_id)
-    agent_schema = Agent.model_validate(agent)
-    ctx.with_agent(agent_schema)
-    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-
-    deleted = agent_crud.delete_agent(session, agent_id, user_id)
-    if not deleted:
-        raise HTTPException(status_code=401, detail="Could not delete Agent.")
-
-    return DeleteAgent()
-
-
-# Tool Metadata Endpoints
-
-
 @router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadataPublic])
 async def list_agent_tool_metadata(
     agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
@@ -539,7 +539,7 @@ def create_agent_tool_metadata(
         ctx (Context): Context object.
 
     Returns:
-        AgentToolMetadata: Created agent tool metadata.
+        AgentToolMetadataPublic: Created agent tool metadata.
 
     Raises:
         HTTPException: If the agent tool metadata creation fails.
@@ -657,12 +657,12 @@ async def delete_agent_tool_metadata(
     return DeleteAgentToolMetadata()
 
 
-@router.post("/batch_upload_file", response_model=list[UploadFileResponse])
+@router.post("/batch_upload_file", response_model=list[UploadAgentFileResponse])
 async def batch_upload_file(
     session: DBSessionDep,
     files: list[FastAPIUploadFile] = RequestFile(...),
     ctx: Context = Depends(get_context),
-) -> UploadFileResponse:
+) -> UploadAgentFileResponse:
     user_id = ctx.get_user_id()
     validate_batch_file_size(session, user_id, files)
 
@@ -688,7 +688,7 @@ async def delete_agent_file(
     file_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-) -> DeleteFileResponse:
+) -> DeleteAgentFileResponse:
     """
     Delete an agent file by ID.
 
@@ -710,7 +710,7 @@ async def delete_agent_file(
     # Delete the File DB object
     get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id, ctx)
 
-    return DeleteFileResponse()
+    return DeleteAgentFileResponse()
 
 
 # Default Agent Router

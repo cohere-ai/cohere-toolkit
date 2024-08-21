@@ -56,11 +56,6 @@ export type Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   files: Array<Blob | File>;
 };
 
-export type Body_upload_file_v1_conversations_upload_file_post = {
-  conversation_id?: string;
-  file: Blob | File;
-};
-
 export enum Category {
   FILE_LOADER = 'File loader',
   DATA_LOADER = 'Data loader',
@@ -156,13 +151,23 @@ export type CohereChatRequest = {
   agent_id?: string | null;
 };
 
+export type ConversationFilePublic = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  conversation_id: string;
+  file_name: string;
+  file_path: string;
+  file_size?: number;
+};
+
 export type ConversationPublic = {
   id: string;
   created_at: string;
   updated_at: string;
   title: string;
   messages: Array<Message>;
-  files: Array<File>;
+  files: Array<ConversationFilePublic>;
   description: string | null;
   agent_id: string | null;
   readonly total_file_size: number;
@@ -173,7 +178,7 @@ export type ConversationWithoutMessages = {
   created_at: string;
   updated_at: string;
   title: string;
-  files: Array<File>;
+  files: Array<ConversationFilePublic>;
   description: string | null;
   agent_id: string | null;
   readonly total_file_size: number;
@@ -228,13 +233,15 @@ export type CreateUser = {
 
 export type DeleteAgent = unknown;
 
+export type DeleteAgentFileResponse = unknown;
+
 export type DeleteAgentToolMetadata = unknown;
+
+export type DeleteConversationFileResponse = unknown;
 
 export type DeleteConversationResponse = unknown;
 
 export type DeleteDeployment = unknown;
-
-export type DeleteFileResponse = unknown;
 
 export type DeleteModel = unknown;
 
@@ -300,18 +307,6 @@ export type Document = {
   tool_name: string | null;
 };
 
-export type File = {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-  conversation_id?: string | null;
-  file_content?: string | null;
-  file_name: string;
-  file_path: string;
-  file_size?: number;
-};
-
 export type GenerateTitleResponse = {
   title: string;
   error?: string | null;
@@ -346,12 +341,11 @@ export type ListAuthStrategy = {
   pkce_enabled: boolean;
 };
 
-export type ListFile = {
+export type ListConversationFile = {
   id: string;
   created_at: string;
   updated_at: string;
-  conversation_id?: string | null;
-  file_content?: string | null;
+  conversation_id: string;
   file_name: string;
   file_path: string;
   file_size?: number;
@@ -395,7 +389,7 @@ export type Message = {
   is_active: boolean;
   documents: Array<Document>;
   citations: Array<Citation>;
-  files: Array<File>;
+  files: Array<ConversationFilePublic>;
   tool_calls: Array<ToolCall>;
   tool_plan: string | null;
   agent: MessageAgent;
@@ -674,12 +668,20 @@ export type UpdateUser = {
   email?: string | null;
 };
 
-export type UploadFileResponse = {
+export type UploadAgentFileResponse = {
   id: string;
   created_at: string;
   updated_at: string;
-  conversation_id?: string | null;
-  file_content?: string | null;
+  file_name: string;
+  file_path: string;
+  file_size?: number;
+};
+
+export type UploadConversationFileResponse = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  conversation_id: string;
   file_name: string;
   file_path: string;
   file_size?: number;
@@ -812,30 +814,26 @@ export type SearchConversationsV1ConversationsSearchGetData = {
 export type SearchConversationsV1ConversationsSearchGetResponse =
   Array<ConversationWithoutMessages>;
 
-export type UploadFileV1ConversationsUploadFilePostData = {
-  formData: Body_upload_file_v1_conversations_upload_file_post;
-};
-
-export type UploadFileV1ConversationsUploadFilePostResponse = UploadFileResponse;
-
 export type BatchUploadFileV1ConversationsBatchUploadFilePostData = {
   formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post;
 };
 
-export type BatchUploadFileV1ConversationsBatchUploadFilePostResponse = Array<UploadFileResponse>;
+export type BatchUploadFileV1ConversationsBatchUploadFilePostResponse =
+  Array<UploadConversationFileResponse>;
 
 export type ListFilesV1ConversationsConversationIdFilesGetData = {
   conversationId: string;
 };
 
-export type ListFilesV1ConversationsConversationIdFilesGetResponse = Array<ListFile>;
+export type ListFilesV1ConversationsConversationIdFilesGetResponse = Array<ListConversationFile>;
 
 export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData = {
   conversationId: string;
   fileId: string;
 };
 
-export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse = DeleteFileResponse;
+export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse =
+  DeleteConversationFileResponse;
 
 export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostData = {
   conversationId: string;
@@ -967,14 +965,14 @@ export type BatchUploadFileV1AgentsBatchUploadFilePostData = {
   formData: Body_batch_upload_file_v1_agents_batch_upload_file_post;
 };
 
-export type BatchUploadFileV1AgentsBatchUploadFilePostResponse = Array<UploadFileResponse>;
+export type BatchUploadFileV1AgentsBatchUploadFilePostResponse = Array<UploadAgentFileResponse>;
 
 export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData = {
   agentId: string;
   fileId: string;
 };
 
-export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse = DeleteFileResponse;
+export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse = DeleteAgentFileResponse;
 
 export type GetDefaultAgentV1DefaultAgentGetResponse = GenericResponseMessage;
 
@@ -1328,21 +1326,6 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/conversations/upload_file': {
-    post: {
-      req: UploadFileV1ConversationsUploadFilePostData;
-      res: {
-        /**
-         * Successful Response
-         */
-        200: UploadFileResponse;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
-  };
   '/v1/conversations/batch_upload_file': {
     post: {
       req: BatchUploadFileV1ConversationsBatchUploadFilePostData;
@@ -1350,7 +1333,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<UploadFileResponse>;
+        200: Array<UploadConversationFileResponse>;
         /**
          * Validation Error
          */
@@ -1365,7 +1348,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<ListFile>;
+        200: Array<ListConversationFile>;
         /**
          * Validation Error
          */
@@ -1380,7 +1363,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: DeleteFileResponse;
+        200: DeleteConversationFileResponse;
         /**
          * Validation Error
          */
@@ -1659,7 +1642,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<UploadFileResponse>;
+        200: Array<UploadAgentFileResponse>;
         /**
          * Validation Error
          */
@@ -1674,7 +1657,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: DeleteFileResponse;
+        200: DeleteAgentFileResponse;
         /**
          * Validation Error
          */

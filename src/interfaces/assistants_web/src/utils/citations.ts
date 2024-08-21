@@ -11,6 +11,26 @@ export const fixMarkdownImagesInText = (text: string) => {
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
 
+export const fixCitationsLeadingMarkdown = (citations: Citation[], originalText: string) => {
+  const citationsCopy = [...citations];
+  const markdownFixList = ['`', '*', '**'];
+
+  for (let citation of citationsCopy) {
+    for (const markdown of markdownFixList) {
+      if (citation.text.startsWith(markdown)) {
+        const canWeIncludeNextCharacterInTheCitation =
+          originalText.charAt(citation.end) === markdown;
+        if (canWeIncludeNextCharacterInTheCitation) {
+          citation.end += markdown.length;
+          citation.text = citation.text + markdown;
+        }
+      }
+    }
+  }
+
+  return citationsCopy;
+};
+
 /**
  * Replace text string with citations following the format:
  *  :cite[<text>]{generationId="<generationId>" start="<startIndex>" end"<endIndex>"}
@@ -26,14 +46,15 @@ export const replaceTextWithCitations = (
 ) => {
   if (!citations.length || !generationId) return text;
   let replacedText = text;
-
   let lengthDifference = 0; // Track the cumulative length difference
   let notFoundReferences: string[] = [];
+  let carryOver = 0;
+
   citations
     .filter((citation) => citation.document_ids.length)
     .forEach(({ start = 0, end = 0, text: citationText }, index) => {
-      const citeStart = start + lengthDifference;
-      const citeEnd = end + lengthDifference;
+      let citeStart = start + lengthDifference + carryOver;
+      let citeEnd = end + lengthDifference + carryOver;
 
       // if citeStart is higher than the length of the text, add it to the bottom of the text as "Reference #n"
       if (start >= text.length || isReferenceBetweenIframes(replacedText, start)) {
@@ -45,6 +66,12 @@ export const replaceTextWithCitations = (
       }
 
       const fixedText = fixMarkdownImagesInText(citationText);
+      const isFixedText = fixedText.length !== citationText.length;
+
+      if (isFixedText) {
+        citeEnd += fixedText.length - citationText.length;
+        carryOver += fixedText.length - citationText.length;
+      }
 
       // Encode the citationText in case there are any weird characters or unclosed brackets that will
       // interfere with parsing the markdown. However, let markdown images through so they may be properly

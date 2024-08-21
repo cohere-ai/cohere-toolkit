@@ -1,6 +1,5 @@
 'use client';
 
-import { useLocalStorageValue } from '@react-hookz/web';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
@@ -20,7 +19,7 @@ type Props = {
 };
 
 export const UpdateAgent: React.FC<Props> = ({ agent }) => {
-  const { error, success } = useNotify();
+  const { error, info } = useNotify();
   const { open, close } = useContextStore();
 
   const { mutateAsync: updateAgent } = useUpdateAgent();
@@ -36,14 +35,6 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
     tools_metadata: agent.tools_metadata,
     is_private: agent.is_private,
   });
-
-  const { set: setPendingAssistant } = useLocalStorageValue<AgentSettingsFields>(
-    'pending_assistant',
-    {
-      defaultValue: fields,
-      initializeWithValue: false,
-    }
-  );
 
   const handleOpenDeleteModal = () => {
     open({
@@ -63,8 +54,7 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
         request: { ...fields, tools_metadata },
         agentId: agent.id,
       });
-      setIsSubmitting(false);
-      success(`Updated ${newAgent?.name}`);
+      info(`Updated ${newAgent?.name}`);
     } catch (e) {
       setIsSubmitting(false);
       error(`Failed to update ${agent?.name}`);
@@ -92,7 +82,6 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
             fields={fields}
             setFields={setFields}
             onSubmit={handleSubmit}
-            savePendingAssistant={() => setPendingAssistant(fields)}
             agentId={agent.id}
           />
         </div>
