@@ -68,12 +68,18 @@ def get_compass():
 
     if compass is None:
         try:
-            compass = Compass()
+            compass = Compass(
+                compass_api_url=Settings().compass.api_url,
+                compass_parser_url=Settings().compass.parser_url,
+                compass_username=Settings().compass.username,
+                compass_password=Settings().compass.password,
+            )
         except Exception as e:
             logger.error(
                 event=f"[Compass File Service] Error initializing Compass: {e}"
             )
             raise e
+
     return compass
 
 
@@ -157,7 +163,7 @@ class FileService:
             Since agents are created after the files are upload we index files into dummy indices first
             We later consolidate them in consolidate_agent_files_in_compass() to a singular index when an agent is created.
             """
-            uploaded_files = await insert_files_in_compass(files, ctx, user_id)
+            uploaded_files = await insert_files_in_compass(files, user_id, ctx)
         else:
             uploaded_files = await insert_files_in_db(session, files, user_id)
 
@@ -459,11 +465,20 @@ async def consolidate_agent_files_in_compass(
     compass = get_compass()
 
     try:
-        compass.invoke(
+        logger.info(
+            event="[Compass File Service] Creating index for agent files",
+            agent_id=agent_id
+        )
+        response = compass.invoke(
             action=Compass.ValidActions.CREATE_INDEX,
             parameters={
                 "index": agent_id,
             },
+        )
+        logger.info(
+            event="[Compass File Service] Finished creating index for agent files",
+            agent_id=agent_id,
+            response=response
         )
     except Exception as e:
         logger.Error(
@@ -480,13 +495,13 @@ async def consolidate_agent_files_in_compass(
                 action=Compass.ValidActions.GET_DOCUMENT,
                 parameters={"index": file_id, "file_id": file_id},
             ).result["doc"]["content"]
-            compass().invoke(
+            compass.invoke(
                 action=Compass.ValidActions.CREATE,
                 parameters={
                     "index": agent_id,
                     "file_id": file_id,
                     "file_bytes": fetched_doc["text"],
-                    "filename": fetched_doc["file_name"],
+                    "file_extension": get_file_extension(fetched_doc["file_name"]),
                     "custom_context": {
                         "file_id": file_id,
                         "file_name": fetched_doc["file_name"],
@@ -506,7 +521,7 @@ async def consolidate_agent_files_in_compass(
             )
             # Remove the temporary file index entry
             compass.invoke(
-                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": agent_id}
+                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": file_id}
             )
         except Exception as e:
             logger.error(
@@ -568,7 +583,7 @@ async def insert_files_in_compass(
                     "index": new_file_id if index is None else index,
                     "file_id": new_file_id,
                     "file_bytes": file_bytes,
-                    "filename": filename,
+                    "file_extension": get_file_extension(filename),
                     "custom_context": {
                         "file_id": new_file_id,
                         "file_name": filename,
