@@ -252,45 +252,47 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           hide={source !== 'create'}
         />
       </CollapsibleSection>
-      <CollapsibleSection
-        title="Set up carbon"
-        number={4}
-        description="configure carbon"
-        isExpanded={true}
-      >
-        {/* TODO configure this!!! */}
-        <CarbonConnect
-          orgName="Cohere"
-          tokenFetcher={tokenFetcher}
-          tags={{
-            tag1: 'tag1_value',
-            tag2: 'tag2_value',
-            tag3: 'tag3_value',
-          }}
-          maxFileSize={10000000}
-          enabledIntegrations={[
-            {
-              id: 'GMAIL',
-              chunkSize: 1000,
-              overlapSize: 20,
-              fileSyncConfig: {
-                detect_audio_language: true,
-                split_rows: true,
+      {carbonId && (
+        <CollapsibleSection
+          title="Set up carbon"
+          number={4}
+          description="configure carbon"
+          isExpanded={true}
+        >
+          {/* TODO configure this!!! */}
+          <CarbonConnect
+            orgName="Cohere"
+            tokenFetcher={tokenFetcher}
+            tags={{
+              tag1: 'tag1_value',
+              tag2: 'tag2_value',
+              tag3: 'tag3_value',
+            }}
+            maxFileSize={10000000}
+            enabledIntegrations={[
+              {
+                id: 'GMAIL',
+                chunkSize: 1000,
+                overlapSize: 20,
+                fileSyncConfig: {
+                  detect_audio_language: true,
+                  split_rows: true,
+                },
               },
-            },
-          ]}
-          onSuccess={(data) => console.log('Data on Success: ', data)}
-          onError={(error) => console.log('Data on Error: ', error)}
-          primaryBackgroundColor="#F2F2F2"
-          primaryTextColor="#555555"
-          secondaryBackgroundColor="#f2f2f2"
-          secondaryTextColor="#000000"
-          allowMultipleFiles={true}
-          open={false}
-          chunkSize={1500}
-          overlapSize={20}
-        ></CarbonConnect>
-      </CollapsibleSection>
+            ]}
+            onSuccess={(data) => console.log('Data on Success: ', data)}
+            onError={(error) => console.log('Data on Error: ', error)}
+            primaryBackgroundColor="#F2F2F2"
+            primaryTextColor="#555555"
+            secondaryBackgroundColor="#f2f2f2"
+            secondaryTextColor="#000000"
+            allowMultipleFiles={true}
+            open={false}
+            chunkSize={1500}
+            overlapSize={20}
+          ></CarbonConnect>
+        </CollapsibleSection>
+      )}
       {/* Step 4: Visibility */}
       <CollapsibleSection
         title="Set visibility"
