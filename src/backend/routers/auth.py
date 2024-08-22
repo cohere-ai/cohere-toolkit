@@ -1,7 +1,10 @@
 import json
-from typing import Union
+import os
+from typing import Dict, Union
 from urllib.parse import quote
 
+import requests
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
@@ -25,8 +28,41 @@ from backend.services.auth.utils import (
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
 
+load_dotenv()
+
 router = APIRouter(prefix="/v1")
 router.name = RouterName.AUTH
+CARBON_BASE_URL = "https://api.carbon.ai"
+API_KEY = os.getenv("CARBON_API_KEY", "")
+
+
+def get_carbon_headers(customer_id: str) -> Dict[str, str]:  # noqa: F821
+    return {
+        "authorization": "Bearer " + API_KEY,
+        "customer-id": customer_id,
+        "Content-Type": "application/json",
+    }
+
+
+@router.get("/fetch_carbon_tokens")
+def get_carbon_tokens(customer_id: str):
+    """
+    Fetches the Carbon tokens for the given customer_id.
+
+    Args:
+        ctx (Context): Context object.
+        customer_id (str): Customer ID for which to fetch the tokens.
+
+    Returns:
+        dict: Carbon tokens for the given customer_id.
+    """
+
+    url = f"{CARBON_BASE_URL}/auth/v1/access_token"
+
+    headers = get_carbon_headers(customer_id)
+    response = requests.request("GET", url, headers=headers)
+    r = response.json()
+    return r
 
 
 @router.get("/auth_strategies", response_model=list[ListAuthStrategy])

@@ -1,3 +1,4 @@
+import { CarbonConnect } from 'carbon-connect';
 import { uniqBy } from 'lodash';
 import Link from 'next/link';
 import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
@@ -18,6 +19,7 @@ type Props = {
   setDefaultUploadFiles: Dispatch<SetStateAction<DataSourceArtifact[]>>;
 };
 
+const CUSTOMER_ID = 'tanzim_test_gmail_test4_v2';
 export const DataSourcesStep: React.FC<Props> = ({
   googleDriveEnabled,
   googleFiles = [],
@@ -55,7 +57,13 @@ export const DataSourcesStep: React.FC<Props> = ({
     fileInputRef.current.click();
     callback();
   };
+  const tokenFetcher = async () => {
+    // TODO: do not hardcode the endpoint on backend
+    const response = await fetch(`http://localhost:8000/v1/fetch_carbon_tokens?customer_id=${CUSTOMER_ID}`);
+    const data = await response.json();
 
+    return data;
+  };
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFileIds = await uploadFiles({ files: [...(e.target.files ?? [])] });
     if (!newFileIds) return;
@@ -127,6 +135,39 @@ export const DataSourcesStep: React.FC<Props> = ({
             handleOpenFileExplorer
           )}
         <Text>Carbon here</Text>
+        {/* TODO configure this!!! */}
+        <CarbonConnect
+          orgName="Cohere"
+          tokenFetcher={tokenFetcher}
+          tags={{
+            tag1: 'tag1_value',
+            tag2: 'tag2_value',
+            tag3: 'tag3_value',
+          }}
+          maxFileSize={10000000}
+          enabledIntegrations={[
+            {
+              id: 'GMAIL',
+              chunkSize: 1000,
+              overlapSize: 20,
+              fileSyncConfig: {
+                detect_audio_language: true,
+                split_rows: true,
+              },
+            },
+          ]}
+          onSuccess={(data) => console.log('Data on Success: ', data)}
+          onError={(error) => console.log('Data on Error: ', error)}
+          primaryBackgroundColor="#F2F2F2"
+          primaryTextColor="#555555"
+          secondaryBackgroundColor="#f2f2f2"
+          secondaryTextColor="#000000"
+          allowMultipleFiles={true}
+          open={true}
+          chunkSize={1500}
+          overlapSize={20}
+          // entryPoint="LOCAL_FILES"
+        ></CarbonConnect>
       </div>
       <Text styleAs="caption" className="dark:text-marble-800">
         Don&lsquo;t see the data source you need? {/* TODO: get tool request link from Elaine */}
