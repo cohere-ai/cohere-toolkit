@@ -16,7 +16,8 @@ type Props = {
 };
 
 const getFileType = (fileName: string) => {
-  return getFileExtension(fileName)?.replace(/^./, ''); // replace first character if it is a period
+  return getFileExtension(fileName)?.replace(/^./, '');
+  // replace first character if it is a period
 };
 
 /**

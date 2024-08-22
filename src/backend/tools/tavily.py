@@ -4,28 +4,65 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
 from backend.config.settings import Settings
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
+from backend.schemas.context import Context
 from backend.tools.base import BaseTool
 
 
 class TavilyInternetSearch(BaseTool):
     NAME = "web_search"
-    TAVILY_API_KEY = Settings().tools.web_search.api_key
+    TAVILY_API_KEY = Settings().tools.tavily.api_key
+    POST_RERANK_MAX_RESULTS = 6
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
-        self.num_results = 6
 
     @classmethod
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
+    def get_filtered_domains(self, session: DBSessionDep, ctx: Context) -> list[str]:
+        agent_id = ctx.get_agent_id()
+        user_id = ctx.get_user_id()
+
+        if not agent_id or not user_id:
+            # Default for Tavily is None
+            return []
+
+        agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata(
+            db=session,
+            agent_id=agent_id,
+            tool_name=self.NAME,
+            user_id=user_id,
+        )
+
+        if not agent_tool_metadata:
+            # Default for Tavily is None
+            return []
+
+        return [
+            artifact["domain"]
+            for artifact in agent_tool_metadata.artifacts
+            if "domain" in artifact
+        ]
+
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
+        self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any
     ) -> List[Dict[str, Any]]:
+        # Gather search parameters
         query = parameters.get("query", "")
+        # Get domains set on Agent tool metadata artifacts
+        filter_domains = None
+        domains = self.get_filtered_domains(session, ctx)
+
+        if domains:
+            filter_domains = domains
+
+        # Do search
         result = self.client.search(
-            query=query, search_depth="advanced", include_raw_content=True
+            query=query, search_depth="advanced", include_raw_content=True, include_domains=filter_domains
         )
 
         if "results" not in result:
@@ -96,14 +133,14 @@ class TavilyInternetSearch(BaseTool):
                 seen_urls.append(result["url"])
                 reranked.append(result)
 
-        return reranked[: self.num_results]
+        return reranked[:self.POST_RERANK_MAX_RESULTS]
 
     def to_langchain_tool(self) -> TavilySearchResults:
         internet_search = TavilySearchResults()
         internet_search.name = "internet_search"
         internet_search.description = "Returns a list of relevant document snippets for a textual query retrieved from the internet."
 
-        # pydantic v1 base model
+        # Pydantic v1 base model
         from langchain_core.pydantic_v1 import BaseModel, Field
 
         class TavilySearchInput(BaseModel):

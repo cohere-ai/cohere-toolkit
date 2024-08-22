@@ -45,16 +45,16 @@ COPY src/backend src/backend
 COPY docker_scripts/ ${PG_APP_HOME}/
 
 # Install frontend dependencies
-WORKDIR /workspace/src/interfaces/coral_web
-COPY src/interfaces/coral_web/src ./src
-COPY src/interfaces/coral_web/public ./public
-COPY src/interfaces/coral_web/next.config.mjs .
-COPY src/interfaces/coral_web/tsconfig.json .
-COPY src/interfaces/coral_web/tailwind.config.js .
-COPY src/interfaces/coral_web/postcss.config.js .
-COPY src/interfaces/coral_web/package.json src/interfaces/coral_web/yarn.lock* src/interfaces/coral_web/package-lock.json* src/interfaces/coral_web/pnpm-lock.yaml* ./
-COPY src/interfaces/coral_web/.env.development .
-COPY src/interfaces/coral_web/.env.production .
+WORKDIR /workspace/src/interfaces/assistants_web
+COPY src/interfaces/assistants_web/src ./src
+COPY src/interfaces/assistants_web/public ./public
+COPY src/interfaces/assistants_web/next.config.mjs .
+COPY src/interfaces/assistants_web/tsconfig.json .
+COPY src/interfaces/assistants_web/tailwind.config.js .
+COPY src/interfaces/assistants_web/postcss.config.js .
+COPY src/interfaces/assistants_web/package.json src/interfaces/assistants_web/yarn.lock* src/interfaces/assistants_web/package-lock.json* src/interfaces/assistants_web/pnpm-lock.yaml* ./
+COPY src/interfaces/assistants_web/.env.development .
+COPY src/interfaces/assistants_web/.env.production .
 
 ENV NEXT_PUBLIC_API_HOSTNAME='/api'
 RUN npm install \

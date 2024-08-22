@@ -33,10 +33,6 @@ class BedrockDeployment(BaseDeployment):
 
     def __init__(self, **kwargs: Any):
         self.client = cohere.BedrockClient(
-            # TODO: remove hardcoded models once the SDK is updated
-            chat_model="cohere.command-r-plus-v1:0",
-            embed_model="cohere.embed-multilingual-v3",
-            generate_model="cohere.command-text-v14",
             aws_access_key=get_model_config_var(
                 BEDROCK_ACCESS_KEY_ENV_VAR, BedrockDeployment.access_key, **kwargs
             ),
