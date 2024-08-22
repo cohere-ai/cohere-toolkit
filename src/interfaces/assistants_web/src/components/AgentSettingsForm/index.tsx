@@ -1,5 +1,6 @@
 'use client';
 
+import { CarbonConnect } from 'carbon-connect';
 import { uniqBy } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -41,6 +42,7 @@ type BaseProps = {
 
 type CreateProps = BaseProps & {
   source: 'create';
+  carbonId?: string;
 };
 
 type UpdateProps = BaseProps & {
@@ -53,6 +55,7 @@ export type Props = CreateProps | UpdateProps;
 export const AgentSettingsForm: React.FC<Props> = (props) => {
   const { source = 'create', fields, setFields, onSubmit } = props;
   const agentId = 'agentId' in props ? props.agentId : undefined;
+  const carbonId = 'carbonId' in props ? props.carbonId : undefined;
 
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
@@ -154,6 +157,18 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     }
   });
 
+  const tokenFetcher = async () => {
+    if (!carbonId) {
+      throw new Error('Carbon ID not found');
+    }
+    const response = await fetch(
+      `http://localhost:8000/v1/fetch_carbon_tokens?customer_id=${carbonId}`
+    );
+    const data = await response.json();
+
+    return data;
+  };
+
   const handleGoogleFilePicker = () => {
     const googleDriveTool = listToolsData?.find((t) => t.name === TOOL_GOOGLE_DRIVE_ID);
     if (!googleDriveTool?.is_available) {
@@ -237,10 +252,49 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           hide={source !== 'create'}
         />
       </CollapsibleSection>
+      <CollapsibleSection
+        title="Set up carbon"
+        number={4}
+        description="configure carbon"
+        isExpanded={true}
+      >
+        {/* TODO configure this!!! */}
+        <CarbonConnect
+          orgName="Cohere"
+          tokenFetcher={tokenFetcher}
+          tags={{
+            tag1: 'tag1_value',
+            tag2: 'tag2_value',
+            tag3: 'tag3_value',
+          }}
+          maxFileSize={10000000}
+          enabledIntegrations={[
+            {
+              id: 'GMAIL',
+              chunkSize: 1000,
+              overlapSize: 20,
+              fileSyncConfig: {
+                detect_audio_language: true,
+                split_rows: true,
+              },
+            },
+          ]}
+          onSuccess={(data) => console.log('Data on Success: ', data)}
+          onError={(error) => console.log('Data on Error: ', error)}
+          primaryBackgroundColor="#F2F2F2"
+          primaryTextColor="#555555"
+          secondaryBackgroundColor="#f2f2f2"
+          secondaryTextColor="#000000"
+          allowMultipleFiles={true}
+          open={false}
+          chunkSize={1500}
+          overlapSize={20}
+        ></CarbonConnect>
+      </CollapsibleSection>
       {/* Step 4: Visibility */}
       <CollapsibleSection
         title="Set visibility"
-        number={4}
+        number={5}
         description="Control who can access this assistant and its knowledge base."
         isExpanded={currentStep === 'visibility'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'visibility' : undefined)}

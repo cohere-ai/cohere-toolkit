@@ -100,6 +100,7 @@ class CreateAgentRequest(BaseModel):
     deployment: str
     organization_id: Optional[str] = None
     is_private: Optional[bool] = False
+    carbon_id: Optional[str] = None
 
     class Config:
         from_attributes = True

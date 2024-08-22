@@ -3,7 +3,7 @@
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { AgentSettingsFields, AgentSettingsForm } from '@/components/AgentSettingsForm';
 import { MobileHeader } from '@/components/Global';
@@ -24,6 +24,7 @@ const DEFAULT_FIELD_VALUES = {
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
   tools: DEFAULT_AGENT_TOOLS,
+  carbon_id: undefined,
   is_private: false,
 };
 /**
@@ -38,7 +39,10 @@ export const CreateAgent: React.FC = () => {
 
   const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [carbonId, setCarbonId] = useState<string | undefined>();
+  useEffect(() => {
+    setCarbonId(window?.crypto?.randomUUID());
+  }, []);
   const handleOpenSubmitModal = () => {
     if (fields.is_private) {
       handleSubmit();
@@ -61,7 +65,8 @@ export const CreateAgent: React.FC = () => {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      const agent = await createAgent(fields);
+      const updatedFields = { ...fields, carbon_id: carbonId };
+      const agent = await createAgent(updatedFields);
       close();
       router.push(`/a/${agent.id}`);
     } catch (e) {
@@ -92,6 +97,7 @@ export const CreateAgent: React.FC = () => {
             fields={fields}
             setFields={setFields}
             onSubmit={handleOpenSubmitModal}
+            carbonId={carbonId}
           />
         </div>
       </div>
