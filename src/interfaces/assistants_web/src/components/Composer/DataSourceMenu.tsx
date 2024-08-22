@@ -27,7 +27,6 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
   });
 
   const { text, contrastText, border, bg } = useBrandedColors(agent?.id);
-
   const isBaseAgent = checkIsBaseAgent(agent);
   return (
     <Popover className="relative">

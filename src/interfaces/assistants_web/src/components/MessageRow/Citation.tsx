@@ -32,7 +32,7 @@ export const Citation: React.FC<Props> = ({ generationId, citationKey, agentId }
   const safeUrl = getSafeUrl(document.url);
   const { text, lightText, fill, lightFill, dark, light } = useBrandedColors(agentId);
 
-  const brandedClassName = cn(text, lightText, dark(lightFill), light(fill));
+  const brandedClassName = cn(dark(lightText), light(text), dark(lightFill), light(fill));
 
   return (
     <div className="space-y-4">
