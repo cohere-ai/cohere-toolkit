@@ -1,9 +1,12 @@
+import contextvars
 import uuid
 
 from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from backend.schemas.context import Context
+
+GLOBAL_REQUEST_CONTEXT = contextvars.ContextVar("GLOBAL_REQUEST_CONTEXT", default=None)
 
 
 class ContextMiddleware:
@@ -41,13 +44,23 @@ class ContextMiddleware:
         agent_id = request.headers.get("Agent-Id")
         context.with_agent_id(agent_id)
 
+        organization_id = request.headers.get("Organization-Id", None)
+        context.with_organization_id(organization_id)
+
+        context.without_global_filtering()
+        if organization_id:
+            context.with_global_filtering()
+
         context.with_logger()
 
         # Set the context on the scope
         scope["context"] = context
+        GLOBAL_REQUEST_CONTEXT.set(context)
 
         await self.app(scope, receive, send)
 
+        # Clear the organization ID from the global context
+        GLOBAL_REQUEST_CONTEXT.set(None)
         # Clear the context after the request is complete
         del scope["context"]
 

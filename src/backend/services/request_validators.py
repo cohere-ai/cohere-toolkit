@@ -101,6 +101,26 @@ def validate_user_header(session: DBSessionDep, request: Request):
         raise HTTPException(status_code=401, detail="User not found.")
 
 
+def validate_organization_header(session: DBSessionDep, request: Request):
+    """
+    Validate that the request has the `Organization-Id` header, used for requests
+    that require an Organization.
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If no `Organization-Id` header.
+
+    """
+
+    organization_id = request.headers.get("Organization-Id", None)
+    if organization_id:
+        organization = organization_crud.get_organization(session, organization_id)
+        if not organization:
+            raise HTTPException(status_code=404, detail=f"Organization ID {organization_id} not found.")
+
+
 def validate_deployment_header(request: Request, session: DBSessionDep):
     """
     Validate that the request has the `Deployment-Name` header, used for chat requests

@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import get_session
+from backend.database_models.base import CustomFilterQuery
 from backend.main import app, create_app
 from backend.schemas.deployment import Deployment
 from backend.schemas.organization import Organization
@@ -47,7 +48,7 @@ def session(engine: Any) -> Generator[Session, None, None]:
     # Begin the nested transaction
     transaction = connection.begin()
     # Use connection within the started transaction
-    session = Session(bind=connection)
+    session = Session(bind=connection, query_cls=CustomFilterQuery)
     # Run Alembic migrations
     alembic_cfg = Config("src/backend/alembic.ini")
     upgrade(alembic_cfg, "head")
@@ -107,7 +108,7 @@ def session_chat(engine_chat: Any) -> Generator[Session, None, None]:
     # Begin the nested transaction
     transaction = connection.begin()
     # Use connection within the started transaction
-    session = Session(bind=connection)
+    session = Session(bind=connection, query_cls=CustomFilterQuery)
     # Run Alembic migrations
     alembic_cfg = Config("src/backend/alembic.ini")
     upgrade(alembic_cfg, "head")
