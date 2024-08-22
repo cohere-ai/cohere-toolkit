@@ -37,7 +37,7 @@ import {
 } from '@/types/message';
 import {
   createStartEndKey,
-  fixCitationsLeadingMarkdown,
+  fixInlineCitationsForMarkdown,
   fixMarkdownImagesInText,
   isGroundingOn,
   replaceTextWithCitations,
@@ -379,7 +379,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
             case StreamEvent.CITATION_GENERATION: {
               const data = eventData.data;
               const newCitations = [...(data?.citations ?? [])];
-              const fixedCitations = fixCitationsLeadingMarkdown(newCitations, botResponse);
+              const fixedCitations = fixInlineCitationsForMarkdown(newCitations, botResponse);
               citations.push(...fixedCitations);
               citations.sort((a, b) => (a.start ?? 0) - (b.start ?? 0));
               saveCitations(generationId, fixedCitations, documentsMap);

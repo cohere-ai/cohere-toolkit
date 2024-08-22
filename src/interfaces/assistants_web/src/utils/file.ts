@@ -38,9 +38,9 @@ export const getFileUploadTimeEstimateInMs = (fileSizeInBytes: number) => {
 };
 
 /**
- * Encode text to base64.
+ * Decode base64 text into utf-8.
  * @param text
- * @returns base64 encoded text
+ * @returns decoded text
  */
 export const decodeBase64 = (text: string) => {
   return Buffer.from(text, 'base64').toString('utf-8');

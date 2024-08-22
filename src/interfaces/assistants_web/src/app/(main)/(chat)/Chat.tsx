@@ -11,7 +11,7 @@ import { useConversation } from '@/hooks/conversation';
 import { useListTools } from '@/hooks/tools';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { createStartEndKey, fixCitationsLeadingMarkdown, mapHistoryToMessages } from '@/utils';
+import { createStartEndKey, fixInlineCitationsForMarkdown, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
 const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
@@ -85,7 +85,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
           }
         }
       });
-      fixCitationsLeadingMarkdown(message.citations, message.text)?.forEach((citation) => {
+      fixInlineCitationsForMarkdown(message.citations, message.text)?.forEach((citation) => {
         const startEndKey = createStartEndKey(citation.start ?? 0, citation.end ?? 0);
         const documents = citation.document_ids?.map((id) => documentsMap[id]) ?? [];
         addCitation(message.generation_id ?? '', startEndKey, documents);
