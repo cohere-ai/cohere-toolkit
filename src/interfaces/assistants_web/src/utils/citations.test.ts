@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
 import { Citation } from '@/cohere-client';
-import { fixCitationsLeadingMarkdown, replaceTextWithCitations } from '@/utils/citations';
+import { fixCitationsLeadingMarkdown, replaceTextWithCitations } from '@/utils';
 
 describe('replaceTextWithCitations', () => {
   test('should replace text with citations', () => {

@@ -3,16 +3,17 @@
 import { useEffect } from 'react';
 
 import { Document, ManagedTool } from '@/cohere-client';
-import Conversation from '@/components/Conversation';
-import { ConversationError } from '@/components/ConversationError';
+import { Conversation, ConversationError } from '@/components/Conversation';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { useAgent } from '@/hooks/agents';
-import { useConversation } from '@/hooks/conversation';
-import { useListTools } from '@/hooks/tools';
+import { useAgent, useConversation, useListTools } from '@/hooks';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { createStartEndKey, fixCitationsLeadingMarkdown, mapHistoryToMessages } from '@/utils';
-import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import {
+  createStartEndKey,
+  fixCitationsLeadingMarkdown,
+  mapHistoryToMessages,
+  parsePythonInterpreterToolFields,
+} from '@/utils';
 
 const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   agentId,
