@@ -10,7 +10,7 @@ import { useCitationsStore, useConversationStore, useParamsStore } from '@/store
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import {
   createStartEndKey,
-  fixCitationsLeadingMarkdown,
+  fixInlineCitationsForMarkdown,
   mapHistoryToMessages,
   parsePythonInterpreterToolFields,
 } from '@/utils';
@@ -98,7 +98,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
           }
         }
       });
-      fixCitationsLeadingMarkdown(message.citations, message.text)?.forEach((citation) => {
+      fixInlineCitationsForMarkdown(message.citations, message.text)?.forEach((citation) => {
         const startEndKey = createStartEndKey(citation.start ?? 0, citation.end ?? 0);
         const documents = citation.document_ids?.map((id) => documentsMap[id]) ?? [];
         addCitation(message.generation_id ?? '', startEndKey, documents);

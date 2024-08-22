@@ -1,7 +1,7 @@
 import { Message, MessageAgent } from '@/cohere-client';
 import { BotState, ChatMessage, FulfilledMessage, MessageType, UserMessage } from '@/types/message';
 import {
-  fixCitationsLeadingMarkdown,
+  fixInlineCitationsForMarkdown,
   replaceCodeBlockWithIframe,
   replaceTextWithCitations,
 } from '@/utils';
@@ -50,7 +50,7 @@ export const mapHistoryToMessages = (history?: Message[]): UserOrBotMessage[] =>
           originalText: message.text ?? '',
           text: replaceTextWithCitations(
             replaceCodeBlockWithIframe(message.text) ?? '',
-            fixCitationsLeadingMarkdown(message.citations ?? [], message.text),
+            fixInlineCitationsForMarkdown(message.citations ?? [], message.text),
             message.generation_id ?? ''
           ),
           generationId: message.generation_id ?? '',

@@ -11,6 +11,7 @@ import remarkMath from 'remark-math';
 import { PluggableList } from 'unified';
 
 import {
+  Anchor,
   Iframe,
   P,
   Pre,
@@ -111,6 +112,7 @@ export const Markdown = ({
       references: References,
       // @ts-ignore
       iframe: Iframe,
+      a: Anchor,
       ...customComponents,
     }),
     [customComponents]
