@@ -11,12 +11,27 @@ export const fixMarkdownImagesInText = (text: string) => {
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
 
-export const fixCitationsLeadingMarkdown = (citations: Citation[], originalText: string) => {
+export const fixInlineCitationsForMarkdown = (citations: Citation[], originalText: string) => {
   const citationsCopy = [...citations];
   const markdownFixList = ['`', '*', '**'];
+  const matchDownloableMarkdownLink = /\[.*\]\(.*/;
+  let carryOver = 0;
 
   for (let citation of citationsCopy) {
+    if (carryOver) {
+      citation.start += carryOver;
+      citation.end += carryOver;
+    }
+
     for (const markdown of markdownFixList) {
+      /**
+       * fix citations breaking markdown.
+       * e.g.:
+       * originalText: `Abra envolves into **Kadabra**`
+       * citation = { start: 44, end: 53, text: '**Kadabra', document_ids: ['12345'] }
+       * Explanation: it will render as `Abra envolves into cite[**Kadabra]{generationId="12345" start="44" end="53"}**`
+       * breaking the markdown layout. This fix will ensure the citation is rendered as `Abra envolves into cite[**Kadabra**]{generationId="12345" start="44" end="53"}`
+       */
       if (citation.text.startsWith(markdown)) {
         const canWeIncludeNextCharacterInTheCitation =
           originalText.charAt(citation.end) === markdown;
@@ -24,6 +39,21 @@ export const fixCitationsLeadingMarkdown = (citations: Citation[], originalText:
           citation.end += markdown.length;
           citation.text = citation.text + markdown;
         }
+      }
+
+      if (citation.text.startsWith(' [')) {
+        citation.text = citation.text.slice(1);
+        carryOver -= 1;
+      }
+
+      if (citation.text.startsWith('! [')) {
+        citation.text = '![' + citation.text.slice(3);
+        carryOver -= 1;
+      }
+
+      if (citation.text.match(matchDownloableMarkdownLink)) {
+        // push the citation to the end so it shows up as a 'Other references'
+        citation.start = originalText.length + 1;
       }
     }
   }
@@ -45,9 +75,14 @@ export const replaceTextWithCitations = (
   generationId: string
 ) => {
   if (!citations.length || !generationId) return text;
+  const iFrameRegExp = /<iframe.*<\/iframe>/;
+  const codeBlockRegExp = /```[\s\S]*?```/g;
+
+  let notFoundReferences: string[] = [];
+  let iFrameReferences: string[] = [];
+  let codeBlockReferences: string[] = [];
   let replacedText = text;
   let lengthDifference = 0; // Track the cumulative length difference
-  let notFoundReferences: string[] = [];
   let carryOver = 0;
 
   citations
@@ -57,7 +92,7 @@ export const replaceTextWithCitations = (
       let citeEnd = end + lengthDifference + carryOver;
 
       // if citeStart is higher than the length of the text, add it to the bottom of the text as "Reference #n"
-      if (start >= text.length || isReferenceBetweenIframes(replacedText, start)) {
+      if (start >= text.length) {
         const ref = `Reference #${index + 1}`;
         notFoundReferences.push(
           `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
@@ -65,40 +100,58 @@ export const replaceTextWithCitations = (
         return;
       }
 
-      const fixedText = fixMarkdownImagesInText(citationText);
-      const isFixedText = fixedText.length !== citationText.length;
+      if (isReferenceBetweenSpecialTags(iFrameRegExp, replacedText, citeStart)) {
+        const ref = `Reference #${iFrameReferences.length + 1}`;
+        iFrameReferences.push(
+          `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
+        );
+        iFrameReferences.push();
+        return;
+      }
 
-      if (isFixedText) {
-        citeEnd += fixedText.length - citationText.length;
-        carryOver += fixedText.length - citationText.length;
+      if (isReferenceBetweenSpecialTags(codeBlockRegExp, replacedText, citeStart)) {
+        const ref = `Reference #${codeBlockReferences.length + 1}`;
+        codeBlockReferences.push(
+          `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
+        );
+        codeBlockReferences.push();
+        return;
       }
 
       // Encode the citationText in case there are any weird characters or unclosed brackets that will
       // interfere with parsing the markdown. However, let markdown images through so they may be properly
       // rendered.
-      const isMarkdownImage = fixedText.match(/!\[.*\]\(.*\)/);
-      const encodedCitationText = isMarkdownImage ? fixedText : encodeURIComponent(fixedText);
+      const isMarkdownImage = citationText.match(/\[.*\]\(.*\)/);
+      const encodedCitationText = isMarkdownImage ? citationText : encodeURIComponent(citationText);
       const citationId = `:cite[${encodedCitationText}]{generationId="${generationId}" start="${start}" end="${end}"}`;
 
       replacedText = replacedText.slice(0, citeStart) + citationId + replacedText.slice(citeEnd);
       lengthDifference += citationId.length - (citeEnd - citeStart);
     });
 
-  const references = 'From: ' + formatter.format(notFoundReferences);
-  if (notFoundReferences.length > 0) {
-    return references + '\n' + replacedText;
+  if (iFrameReferences.length > 0) {
+    const references = 'From: ' + formatter.format(iFrameReferences);
+    replacedText = references + '\n' + replacedText;
   }
+
+  if (notFoundReferences.length > 0 || codeBlockReferences.length > 0) {
+    const allReferences = [...codeBlockReferences, ...notFoundReferences];
+    const references = '\nOther references: ' + formatter.format(allReferences);
+    replacedText = replacedText + '\n' + references;
+  }
+
   return replacedText;
 };
 
 export const createStartEndKey = (start: number | string, end: number | string) =>
   `${start}-${end}`;
 
-function isReferenceBetweenIframes(replacedText: string, citeStart: number): boolean {
-  const IFRAME_REGEX = /<iframe.*<\/iframe>/g;
-  const match = IFRAME_REGEX.exec(replacedText);
-
-  if (!match) return false;
-
-  return match.index < citeStart && citeStart < match.index + match[0].length;
+export function isReferenceBetweenSpecialTags(
+  regExp: RegExp,
+  replacedText: string,
+  citeStart: number
+): boolean {
+  const regex = new RegExp(regExp, 'g');
+  const match = regex.exec(replacedText);
+  return Boolean(match && match.index < citeStart && citeStart < match.index + match[0].length);
 }

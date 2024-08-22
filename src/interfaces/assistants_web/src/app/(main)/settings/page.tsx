@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { Settings } from '@/components/Agents/Settings';
+import { Settings } from './Settings';
 
 export const metadata: Metadata = {
   title: 'Settings',

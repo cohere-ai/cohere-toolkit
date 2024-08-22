@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Text } from '@/components/Shared';
+import { Button, Text } from '@/components/UI';
 import { pluralize } from '@/utils';
 
 type Props = {

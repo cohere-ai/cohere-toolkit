@@ -6,10 +6,9 @@ import { useParams } from 'next/navigation';
 import { PropsWithChildren, useEffect, useState } from 'react';
 
 import { Document } from '@/cohere-client';
-import { ReadOnlyConversation } from '@/components/ReadOnlyConversation';
-import { Icon, Spinner, Text } from '@/components/Shared';
+import { Icon, Spinner, Text } from '@/components/UI';
 import { DEFAULT_CONVERSATION_NAME, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { useGetSnapshotByLinkId } from '@/hooks/snapshots';
+import { useGetSnapshotByLinkId } from '@/hooks';
 import { useCitationsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import {
@@ -17,8 +16,10 @@ import {
   createStartEndKey,
   isShareLinkExpiredError,
   mapHistoryToMessages,
+  parsePythonInterpreterToolFields,
 } from '@/utils';
-import { parsePythonInterpreterToolFields } from '@/utils/tools';
+
+import { ReadOnlyConversation } from './ReadOnlyConversation';
 
 const ShareConversationPage: NextPage = () => {
   const params = useParams();

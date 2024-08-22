@@ -1,6 +1,8 @@
+'use client';
+
 import React, { PropsWithChildren, createContext, useState } from 'react';
 
-import { Modal } from '@/components/Shared';
+import { Modal } from '@/components/UI';
 
 interface OpenParams {
   title?: string;
