@@ -5,7 +5,7 @@ import {
   fixInlineCitationsForMarkdown,
   isReferenceBetweenSpecialTags,
   replaceTextWithCitations,
-} from '@/utils/citations';
+} from '@/utils';
 
 describe('replaceTextWithCitations', () => {
   test('should replace text with citations', () => {

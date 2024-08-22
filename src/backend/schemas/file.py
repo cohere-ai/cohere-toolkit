@@ -12,7 +12,6 @@ class File(BaseModel):
     conversation_id: str
     file_content: str
     file_name: str
-    file_path: str
     file_size: int = Field(default=0, ge=0)
 
     class Config:
@@ -26,7 +25,6 @@ class ConversationFilePublic(BaseModel):
 
     conversation_id: str
     file_name: str
-    file_path: str
     file_size: int = Field(default=0, ge=0)
 
 
@@ -37,7 +35,6 @@ class AgentFilePublic(BaseModel):
     updated_at: datetime.datetime
 
     file_name: str
-    file_path: str
     file_size: int = Field(default=0, ge=0)
 
 class ListConversationFile(ConversationFilePublic):

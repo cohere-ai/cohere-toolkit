@@ -1,5 +1,5 @@
 import { Document } from '@/cohere-client';
-import { IconName } from '@/components/Shared';
+import { IconName } from '@/components/UI';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 
 type PythonInterpreterFieldsBase = {
