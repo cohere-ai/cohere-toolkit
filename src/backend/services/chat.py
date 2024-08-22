@@ -922,12 +922,14 @@ def generate_langchain_chat_stream(
                         result=result,
                     )
 
+
+
             # Final output
-            if event.get("output", "") and event.get("citations", []):
+            if "output" in event:
                 final_message_text = event.get("output", "")
                 stream_event = StreamEnd(
                     conversation_id=conversation_id,
-                    text=event.get("output", ""),
+                    text=final_message_text,
                     # WARNING: Citations are not yet supported in langchain
                     finish_reason="COMPLETE",
                 )

@@ -196,7 +196,7 @@ def langchain_chat_stream(
     use_langchain = Settings().feature_flags.use_experimental_langchain
     if not use_langchain:
         logger.error(
-            event="[Chat] Error handling LangChain streaming chat request: LangChain is not enabled",
+            event="[Chat] Error handling LangChain streaming chat request: Langchain is not enabled",
         )
         return {"error": "Langchain is not enabled."}
 

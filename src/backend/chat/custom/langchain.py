@@ -8,6 +8,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from backend.chat.base import BaseChat
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.schemas.langchain_chat import LangchainChatRequest
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 class LangChainChat(BaseChat):
@@ -41,12 +44,16 @@ class LangChainChat(BaseChat):
         tools = []
         for req_tool in chat_request.tools:
             tool = AVAILABLE_TOOLS.get(req_tool.name)
-            if tool:
-                tools.append(tool.implementation().to_langchain_tool())
-            else:
-                raise ValueError(f"Tool {req_tool.name} not found")
 
-        # Create the ReAct agent
+            if not tool:
+                logger.error(event=f"Failed to find tool {req_tool.name} during Langchain chat call.")
+
+            if not hasattr(tool.implementation, "to_langchain_tool"):
+                logger.error(event=f"Tool {req_tool.name} does not have to_langchain_tool method implemented.")
+
+                tools.append(tool.implementation().to_langchain_tool())
+
+        # Create Cohere assistant
         agent = create_cohere_react_agent(
             llm=llm,
             tools=tools,
