@@ -98,7 +98,6 @@ async def create_agent(
 
     logger.info(event="carbon id sent!", carbon_id=agent.carbon_id)
 
-
     agent_data = AgentModel(
         name=agent.name,
         description=agent.description,
@@ -108,6 +107,7 @@ async def create_agent(
         organization_id=agent.organization_id,
         tools=agent.tools,
         is_private=agent.is_private,
+        carbon_id=agent.carbon_id,
     )
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
     try:
@@ -141,7 +141,9 @@ async def create_agent(
                 }
             )
             if file_ids:
-                await consolidate_agent_files_in_compass(file_ids, created_agent.id, ctx)
+                await consolidate_agent_files_in_compass(
+                    file_ids, created_agent.id, ctx
+                )
 
         if deployment_db and model_db:
             deployment_config = (

@@ -10,6 +10,13 @@ local-dev-be:
 local-dev-fe:
 	cd src/interfaces/assistants_web && npm run dev
 
+.PHONY: local-migration
+local-migration:
+	poetry run alembic -c src/backend/alembic.ini revision --autogenerate -m ""
+
+local-migrate:
+	poetry run alembic -c src/backend/alembic.ini upgrade head
+
 
 .PHONY: dev
 dev:
