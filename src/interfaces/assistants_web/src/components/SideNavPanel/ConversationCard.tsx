@@ -93,9 +93,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
         <div className="flex w-full flex-col">
           <Text
             as="span"
-            className={cn('h-[21px] truncate text-volcanic-300 dark:text-mushroom-950', {
-              'font-medium': isActive,
-            })}
+            className={cn('h-[21px] truncate font-medium text-volcanic-300 dark:text-mushroom-950')}
           >
             {name}
           </Text>
