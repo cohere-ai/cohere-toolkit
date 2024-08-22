@@ -13,7 +13,7 @@ local-dev-fe:
 
 .PHONY: dev
 dev:
-	make -j 2 watch up
+	make -j 2 up
 
 .PHONY: watch
 watch:
@@ -136,3 +136,21 @@ test-db:
 .PHONY: dev-sync
 dev-sync:
 	@docker compose up --build sync_worker sync_publisher flower -d
+
+
+.PHONY: dev-sync-down
+dev-sync-down:
+	@docker compose down sync_worker sync_publisher flower
+
+
+.PHONY: typecheck
+typecheck:
+	poetry run pyright
+
+
+carbon-webhook-server:
+	poetry run fastapi dev  src/carbon_gmail_test/webhook_server.py
+
+
+gmail-sandbox-app:
+	python src/carbon_gmail_test/main.py  

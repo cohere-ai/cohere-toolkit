@@ -53,6 +53,7 @@ python-docx = "^1.1.2"
 python-calamine = "^0.2.3"
 structlog = "^24.4.0"
 pyyaml = "^6.0.1"
+carbon-verifier = "^0.1.2"
 nltk = "^3.9.1"
 
 [tool.poetry.group.compass]
@@ -116,7 +117,10 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
-include = ["src/backend/services/metrics.py"]
+include = [
+  "src/backend/services/metrics.py",
+  "carbon_gmail_test/main.py"
+  ]
 defineConstant = { DEBUG = true }
 reportMissingImports = true
 reportMissingTypeStubs = false

@@ -471,6 +471,20 @@ files = [
 ]
 
 [[package]]
+name = "carbon-verifier"
+version = "0.1.2"
+description = "A library to verify Carbon webhook events"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "carbon_verifier-0.1.2-py3-none-any.whl", hash = "sha256:10930cf69d6dd28f32b6cd21df91331fe318a6c861ba1fdc04257d0de342e7da"},
+    {file = "carbon_verifier-0.1.2.tar.gz", hash = "sha256:c4d9586a60c0458268c1fc8723edb85a11c32981a9d9618607a3be54cbe09a82"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "celery"
 version = "5.4.0"
 description = "Distributed Task Queue."
@@ -6799,4 +6813,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "04a023459d113e34eaf3cd43c04f1c5953507a0d4f2b4b9d59583b7320ccc25c"
+content-hash = "f86b22b03643a3e7ad6ea2f9cf6b7bb2a02f410631d20594ad4fabd748604814"
