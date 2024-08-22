@@ -67,3 +67,18 @@ def test_delete_organization(session_client: TestClient, session: Session) -> No
     response = session_client.delete(f"/v1/organizations/{organization.id}")
     assert response.status_code == 200
     assert response.json() == {}
+
+
+def test_list_organization_users(session_client: TestClient, session: Session) -> None:
+    organization = get_factory("Organization", session).create(name="test organization")
+    for i in range(5):
+        user = get_factory("User", session).create(fullname=f"test user {i}")
+        organization.users.append(user)
+
+    response = session_client.get(f"/v1/organizations/{organization.id}/users")
+    results = response.json()
+    assert response.status_code == 200
+    assert len(results) == 5
+    results = sorted(results, key=lambda x: x["fullname"])
+    for i, result in enumerate(results):
+        assert result["fullname"] == f"test user {i}"

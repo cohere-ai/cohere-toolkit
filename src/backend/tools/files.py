@@ -126,7 +126,7 @@ class ReadFileTool(BaseTool):
                 {
                     "text": retrieved_file.file_content,
                     "title": retrieved_file.file_name,
-                    "url": retrieved_file.file_path,
+                    "url": retrieved_file.file_name,
                 }
             ]
 
@@ -181,7 +181,7 @@ class SearchFileTool(BaseTool):
                     {
                         "text": file.file_content,
                         "title": file.file_name,
-                        "url": file.file_path,
+                        "url": file.file_name,
                     }
                 )
             return results

@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
 
 import { Document } from '@/cohere-client';
-import { mapExtensionToMimeType } from '@/utils';
+import { decodeBase64, mapExtensionToMimeType } from '@/utils';
 
 import { StoreState } from '..';
 
@@ -87,7 +87,7 @@ export const createCitationsSlice: StateCreator<StoreState, [], [], CitationsSto
       if (file.downloadUrl) {
         continue;
       }
-      const data = file.data;
+      const data = decodeBase64(file.data);
       const fileExtension = file.name.split('.').pop() || '.txt';
       const mimeType = mapExtensionToMimeType(fileExtension);
       const blob = new Blob([data], { type: mimeType });

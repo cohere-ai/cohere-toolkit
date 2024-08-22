@@ -9,7 +9,7 @@
     "yarn": "9999"
   },
   "scripts": {
-    "dev": "next dev --port 4444",
+    "dev": "next dev --port 4000",
     "build": "next build",
     "lint": "next lint",
     "ts-lint": "tsc -noEmit -incremental -watch",
@@ -17,8 +17,8 @@
     "format:write": "prettier --write \"**/*.{js,json,ts,tsx,md}\"",
     "test": "vitest",
     "next:build": "next build",
-    "start": "next start --port 4444",
-    "start:single-docker": "next start --port 4444",
+    "start": "next start --port 4000",
+    "start:single-docker": "next start --port 4000",
     "start:single-docker-proxy": "next start --port 8090",
     "generate:client": "openapi-ts",
     "storybook": "storybook dev -p 6006",

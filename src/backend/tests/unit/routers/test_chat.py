@@ -136,7 +136,7 @@ def test_streaming_new_chat_metrics_with_agent(
 def test_streaming_new_chat_with_agent(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user)
+    agent = get_factory("Agent", session_chat).create(user=user, tools=[])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     get_factory("AgentDeploymentModel", session_chat).create(
@@ -153,7 +153,7 @@ def test_streaming_new_chat_with_agent(
             "Deployment-Name": agent.deployment,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10},
+        json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
     )
     assert response.status_code == 200
     validate_chat_streaming_response(
@@ -165,7 +165,7 @@ def test_streaming_new_chat_with_agent(
 def test_streaming_new_chat_with_agent_existing_conversation(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user)
+    agent = get_factory("Agent", session_chat).create(user=user, tools=[])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     get_factory("AgentDeploymentModel", session_chat).create(
@@ -208,7 +208,7 @@ def test_streaming_new_chat_with_agent_existing_conversation(
             "Deployment-Name": agent.deployment,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
+        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
     )
 
     assert response.status_code == 200
@@ -253,7 +253,7 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
             "Deployment-Name": ModelDeploymentName.CoherePlatform,
         },
         params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id},
+        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
     )
 
     assert response.status_code == 404

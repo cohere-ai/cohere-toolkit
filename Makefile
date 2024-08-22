@@ -104,19 +104,19 @@ win-first-run:
 
 .PHONY: format-web
 format-web:
-	cd src/interfaces/coral_web && npm run format:write
+	cd src/interfaces/assistants_web && npm run format:write
 
 .PHONY: generate-client-web
 generate-client-web:
-	cd src/interfaces/coral_web && npm run generate:client && npm run format:write
+	cd src/interfaces/assistants_web && npm run generate:client && npm run format:write
 
 .PHONY: install-web
 install-web:
-	cd src/interfaces/coral_web && npm install
+	cd src/interfaces/assistants_web && npm install
 
 .PHONY: build-web
 build-web:
-	cd src/interfaces/coral_web && npm run build
+	cd src/interfaces/assistants_web && npm run build
 
 .PHONY: test-db
 test-db:

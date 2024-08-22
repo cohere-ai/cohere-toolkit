@@ -10,12 +10,60 @@ export const fixMarkdownImagesInText = (text: string) => {
 };
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
+export const IFRAME_REGEX_EXP = /<iframe.*<\/iframe>/;
+export const CODE_BLOCK_REGEX_EXP = /```[\s\S]*?```/;
+const escapeRegex = (str: string) => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+const hasOddOccurrences = (str: string, sequence: string) => {
+  // Escape special regex characters in the sequence
+  const escapedSequence = sequence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Create the regex pattern
+  const regexPattern = `^(?:[^${escapedSequence}]*${escapedSequence}){1}(?:[^${escapedSequence}]*${escapedSequence}[^${escapedSequence}]*${escapedSequence})*[^${escapedSequence}]*$`;
+
+  const regex = new RegExp(regexPattern);
+
+  return regex.test(str);
+};
+
+const tryToFixCitationsInCodeBlock = (citations: Citation[], originalText: string) => {
+  const citationsCopy = structuredClone(citations);
+
+  for (const citation of citationsCopy) {
+    // since we are pushing out the citations out of the special blocks, we need to check if the citation is inside one of them
+    if (
+      isReferenceBetweenSpecialTags(IFRAME_REGEX_EXP, originalText, citation.start) ||
+      isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, citation.start)
+    ) {
+      continue;
+    }
+
+    try {
+      const match = originalText.match(new RegExp(escapeRegex(citation.text)));
+      if (match) {
+        const [firstMatch] = match;
+        const start = match.index || citation.start;
+        const end = start + firstMatch.length;
+        citation.start = start;
+        citation.end = end;
+      }
+    } catch (e) {
+      console.error('error updating citation', citation, e);
+    }
+  }
+
+  return citationsCopy;
+};
 
 export const fixInlineCitationsForMarkdown = (citations: Citation[], originalText: string) => {
-  const citationsCopy = [...citations];
+  let citationsCopy = structuredClone(citations);
   const markdownFixList = ['`', '*', '**'];
   const matchDownloableMarkdownLink = /\[.*\]\(.*/;
   let carryOver = 0;
+
+  // try to fix citations start and end indexes in case they are a code block on the text
+  if (originalText.match(CODE_BLOCK_REGEX_EXP)) {
+    citationsCopy = tryToFixCitationsInCodeBlock(citationsCopy, originalText);
+  }
 
   for (let citation of citationsCopy) {
     if (carryOver) {
@@ -32,21 +80,31 @@ export const fixInlineCitationsForMarkdown = (citations: Citation[], originalTex
        * Explanation: it will render as `Abra envolves into cite[**Kadabra]{generationId="12345" start="44" end="53"}**`
        * breaking the markdown layout. This fix will ensure the citation is rendered as `Abra envolves into cite[**Kadabra**]{generationId="12345" start="44" end="53"}`
        */
-      if (citation.text.startsWith(markdown)) {
+      if (
+        hasOddOccurrences(citation.text, markdown) && // it has an odd number of markdown characters
+        !isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, citation.start) // is not in a code block
+      ) {
         const canWeIncludeNextCharacterInTheCitation =
-          originalText.charAt(citation.end) === markdown;
+          originalText.charAt(citation.end) === markdown; // the next character the markdown character
         if (canWeIncludeNextCharacterInTheCitation) {
           citation.end += markdown.length;
           citation.text = citation.text + markdown;
         }
       }
 
-      if (citation.text.startsWith(' [')) {
+      const isCitationInsideOfCodeBlock = isReferenceBetweenSpecialTags(
+        CODE_BLOCK_REGEX_EXP,
+        originalText,
+        citation.start
+      );
+      const isOutOfBonds = citation.start >= originalText.length + 1; // if the citation is outside of the text
+
+      if (citation.text.startsWith(' [') && !isOutOfBonds && !isCitationInsideOfCodeBlock) {
         citation.text = citation.text.slice(1);
         carryOver -= 1;
       }
 
-      if (citation.text.startsWith('! [')) {
+      if (citation.text.startsWith('! [') && !isOutOfBonds && !isCitationInsideOfCodeBlock) {
         citation.text = '![' + citation.text.slice(3);
         carryOver -= 1;
       }
@@ -75,8 +133,6 @@ export const replaceTextWithCitations = (
   generationId: string
 ) => {
   if (!citations.length || !generationId) return text;
-  const iFrameRegExp = /<iframe.*<\/iframe>/;
-  const codeBlockRegExp = /```[\s\S]*?```/g;
 
   let notFoundReferences: string[] = [];
   let iFrameReferences: string[] = [];
@@ -100,7 +156,7 @@ export const replaceTextWithCitations = (
         return;
       }
 
-      if (isReferenceBetweenSpecialTags(iFrameRegExp, replacedText, citeStart)) {
+      if (isReferenceBetweenSpecialTags(IFRAME_REGEX_EXP, replacedText, citeStart)) {
         const ref = `Reference #${iFrameReferences.length + 1}`;
         iFrameReferences.push(
           `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
@@ -109,7 +165,7 @@ export const replaceTextWithCitations = (
         return;
       }
 
-      if (isReferenceBetweenSpecialTags(codeBlockRegExp, replacedText, citeStart)) {
+      if (isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, replacedText, citeStart)) {
         const ref = `Reference #${codeBlockReferences.length + 1}`;
         codeBlockReferences.push(
           `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
@@ -152,6 +208,13 @@ export function isReferenceBetweenSpecialTags(
   citeStart: number
 ): boolean {
   const regex = new RegExp(regExp, 'g');
-  const match = regex.exec(replacedText);
-  return Boolean(match && match.index < citeStart && citeStart < match.index + match[0].length);
+
+  let match;
+  while ((match = regex.exec(replacedText))) {
+    if (match && match.index < citeStart && citeStart < match.index + match[0].length) {
+      return true;
+    }
+  }
+
+  return false;
 }

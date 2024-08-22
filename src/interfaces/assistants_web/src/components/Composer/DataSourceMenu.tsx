@@ -27,7 +27,6 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
   });
 
   const { text, contrastText, border, bg } = useBrandedColors(agent?.id);
-
   const isBaseAgent = checkIsBaseAgent(agent);
   return (
     <Popover className="relative">
@@ -113,6 +112,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                     theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}
                     onChange={(checked) => handleToggle(tool.name!, checked)}
+                    showCheckedState
                   />
                 )}
               </div>
