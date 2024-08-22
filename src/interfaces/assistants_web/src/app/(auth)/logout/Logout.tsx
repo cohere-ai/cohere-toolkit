@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { Text } from '@/components/Shared';
-import { useSession } from '@/hooks/session';
+import { Text } from '@/components/UI';
+import { useSession } from '@/hooks';
 
 /**
  * @description The login page supports logging in with an email and password.

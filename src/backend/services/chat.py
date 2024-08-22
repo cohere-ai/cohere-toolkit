@@ -44,7 +44,6 @@ from backend.schemas.chat import (
     StreamToolResult,
     ToolInputType,
 )
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
@@ -127,14 +126,13 @@ def process_chat(
         id=str(uuid4()),
     )
 
-    if isinstance(chat_request, CohereChatRequest):
-        if should_store:
-            attach_files_to_messages(
-                session,
-                user_id,
-                user_message.id,
-                chat_request.file_ids,
-            )
+    if should_store:
+        attach_files_to_messages(
+            session,
+            user_id,
+            user_message.id,
+            chat_request.file_ids
+        )
 
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request

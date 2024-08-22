@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-import { DiscoverAgents } from '@/components/Agents/DiscoverAgents';
+import { DiscoverAgents } from './DiscoverAgents';
 
 export const metadata: Metadata = {
   title: 'Discover Assistants',

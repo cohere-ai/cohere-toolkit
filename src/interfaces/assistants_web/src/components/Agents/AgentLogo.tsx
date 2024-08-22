@@ -1,6 +1,6 @@
 import { AgentPublic } from '@/cohere-client';
-import { CoralLogo, Text } from '@/components/Shared';
-import { useBrandedColors } from '@/hooks/brandedColors';
+import { CoralLogo, Text } from '@/components/UI';
+import { useBrandedColors } from '@/hooks';
 import { cn } from '@/utils';
 
 export const AgentLogo = ({ agent }: { agent: AgentPublic }) => {

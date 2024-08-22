@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 
-import { Button, Input, Text } from '@/components/Shared';
-import { useEditConversation } from '@/hooks/conversation';
+import { Button, Input, Text } from '@/components/UI';
+import { useEditConversation } from '@/hooks';
 import { useConversationStore } from '@/stores';
 
 type Props = {
