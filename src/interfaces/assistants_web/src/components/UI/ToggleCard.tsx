@@ -43,13 +43,13 @@ export const ToggleCard: React.FC<Props> = ({
   return (
     <div className="flex flex-col rounded-md border border-volcanic-800 bg-volcanic-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150">
       <div className="flex items-start gap-x-6">
-        <div className="flex flex-grow flex-col gap-y-2">
+        <div className="flex flex-grow flex-col gap-y-1">
           <div className="flex items-center gap-x-2">
-            <div className="flex size-6 items-center justify-center rounded bg-volcanic-900 dark:bg-volcanic-200">
+            <div className="flex size-5 items-center justify-center rounded bg-volcanic-900 dark:bg-volcanic-200">
               <Icon
                 name={icon}
                 kind="outline"
-                size="sm"
+                size="xs"
                 className="fill-volcanic-300 dark:fill-marble-950"
               />
             </div>
@@ -57,9 +57,7 @@ export const ToggleCard: React.FC<Props> = ({
               {label}
             </Text>
           </div>
-          <Text styleAs="p-sm" className="text-mushroom-300 dark:text-marble-800">
-            {description}
-          </Text>
+          <Text className="text-mushroom-300 dark:text-marble-800">{description}</Text>
           {errorMessage && (
             <Text styleAs="p-sm" className="text-danger-350">
               Error: {errorMessage}
@@ -72,6 +70,7 @@ export const ToggleCard: React.FC<Props> = ({
             onChange={onToggle}
             className="flex-shrink-0 gap-0"
             theme={theme}
+            showCheckedState
           />
         )}
       </div>
