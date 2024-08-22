@@ -193,6 +193,9 @@ async def list_agents(
     # TODO: get organization_id from user
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
+    # request organization_id is used for filtering agents instead of header Organization-Id if enabled
+    if organization_id:
+        ctx.without_global_filtering()
 
     try:
         agents = agent_crud.get_agents(
