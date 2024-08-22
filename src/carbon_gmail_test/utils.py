@@ -188,7 +188,7 @@ def index_on_compass(
             statuses.append({"id": item.id, "status": "Success"})
         except Exception as e:
             print(e)
-            # statuses.append({"id": item.id, "status": "Fail", "error": str(e)})
+            statuses.append({"id": item.id, "status": "Fail", "error": str(e)})
     return statuses
 
 
