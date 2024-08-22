@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { AgentSettingsFields } from '@/components/AgentSettings';
+import { AgentSettingsFields } from '@/components/AgentSettingsForm';
 import { Input, Text, Textarea } from '@/components/UI';
 
 type Props = {

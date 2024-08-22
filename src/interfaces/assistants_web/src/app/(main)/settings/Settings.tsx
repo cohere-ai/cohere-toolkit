@@ -159,7 +159,7 @@ const GoogleDriveConnection = () => {
             label="Authenticate"
             href={getToolAuthUrl(googleDriveTool.auth_url)}
             kind="secondary"
-            theme="evolved-green"
+            theme="default"
             icon="arrow-up-right"
           />
         )}

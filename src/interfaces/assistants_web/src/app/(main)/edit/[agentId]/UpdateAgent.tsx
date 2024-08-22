@@ -61,7 +61,7 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col overflow-y-auto">
+    <div className="flex h-full w-full flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 pb-6 dark:border-volcanic-100 dark:bg-volcanic-100">
       <header className="flex flex-col gap-y-3 border-b px-4 py-6 dark:border-volcanic-150 lg:px-10 lg:py-10">
         <MobileHeader />
         <div className="flex items-center space-x-2">
