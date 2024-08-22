@@ -19,7 +19,7 @@ from backend.schemas.context import Context
 from backend.schemas.file import ConversationFilePublic, File
 from backend.services import utils
 from backend.services.agent import validate_agent_exists
-from backend.services.compass import Compass
+from backend.services.compass import Compass, get_compass
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
 
@@ -39,7 +39,6 @@ DOCX_EXTENSION = "docx"
 pandas_monkeypatch()
 
 file_service = None
-compass = None
 
 logger = LoggerFactory().get_logger()
 
@@ -55,26 +54,6 @@ def get_file_service():
     if file_service is None:
         file_service = FileService()
     return file_service
-
-
-def get_compass():
-    """
-    Initialize a singular instance of Compass if not initialized yet
-
-    Returns:
-        Compass: The singleton Compass instance
-    """
-    global compass
-
-    if compass is None:
-        try:
-            compass = Compass()
-        except Exception as e:
-            logger.error(
-                event=f"[Compass File Service] Error initializing Compass: {e}"
-            )
-            raise e
-    return compass
 
 
 class FileService:
