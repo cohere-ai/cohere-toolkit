@@ -1,6 +1,6 @@
 'use client';
 
-import { useAgent, useAgentTasks } from '@/hooks/agents';
+import { useAgent, useAgentTasks } from '@/hooks/use-agents';
 
 type Props = {
   params: {
