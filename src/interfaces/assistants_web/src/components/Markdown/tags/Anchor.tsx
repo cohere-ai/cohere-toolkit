@@ -18,7 +18,7 @@ export const Anchor: Component<ComponentPropsWithoutRef<'a'> & ExtraProps> = ({ 
 
     if (downloadUrl) {
       return (
-        <a href={downloadUrl} download className="flex items-center gap-1">
+        <a href={downloadUrl} download={snakeCaseUrl} className="flex items-center gap-1">
           {children}
           <Icon name="download" />
         </a>
