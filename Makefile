@@ -1,3 +1,16 @@
+.PHONY: local-dev
+local-dev:
+	@docker compose up -d --build db redis
+	make -j 2 local-dev-be local-dev-fe
+
+.PHONY: local-dev-be
+local-dev-be:
+	poetry run uvicorn backend.main:app --reload
+.PHONY: local-dev-fe
+local-dev-fe:
+	cd src/interfaces/assistants_web && npm run dev
+
+
 .PHONY: dev
 dev:
 	make -j 2 watch up

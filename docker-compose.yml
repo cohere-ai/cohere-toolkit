@@ -1,5 +1,6 @@
 services:
   db:
+    labels: ["local-dev"]
     image: postgres:14.11-alpine
     restart: always
     healthcheck:
@@ -29,6 +30,7 @@ services:
       - proxynet
 
   redis:
+    labels: ["local-dev"]
     image: redis:7.2-alpine
     restart: always
     healthcheck:
