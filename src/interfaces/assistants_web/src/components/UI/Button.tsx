@@ -33,7 +33,8 @@ const getLabelStyles = (kind: ButtonKind, theme: ButtonTheme, disabled: boolean)
           theme === 'blue' ||
           theme === 'quartz' ||
           theme === 'evolved-blue' ||
-          theme === 'evolved-quartz',
+          theme === 'evolved-quartz' ||
+          theme === 'mushroom',
         // dark mode
         'dark:text-volcanic-150 dark:fill-volcanic-150':
           theme === 'evolved-green' ||

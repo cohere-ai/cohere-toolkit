@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { Document, ManagedTool } from '@/cohere-client';
 import { Conversation, ConversationError } from '@/components/Conversation';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { useAgent, useConversation, useListTools } from '@/hooks';
+import { useAgent, useAvailableTools, useConversation, useListTools } from '@/hooks';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import {
@@ -24,6 +24,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   const { setConversation } = useConversationStore();
   const { addCitation, saveOutputFiles } = useCitationsStore();
   const { setParams, resetFileParams } = useParamsStore();
+  const { availableTools } = useAvailableTools({ agent, managedTools: tools });
 
   const {
     data: conversation,
@@ -39,9 +40,11 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
 
     const agentTools =
       agent?.tools &&
-      ((agent.tools
+      (agent.tools
         .map((name) => (tools ?? [])?.find((t) => t.name === name))
-        .filter((t) => t !== undefined) ?? []) as ManagedTool[]);
+        .filter(
+          (t) => t !== undefined && availableTools.some((at) => at.name === t?.name)
+        ) as ManagedTool[]);
 
     const fileIds = conversation?.files.map((file) => file.id);
 
@@ -53,7 +56,16 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     if (conversationId) {
       setConversation({ id: conversationId });
     }
-  }, [agent, tools, conversation]);
+  }, [
+    agent,
+    tools,
+    conversation,
+    availableTools,
+    setParams,
+    resetFileParams,
+    setConversation,
+    conversationId,
+  ]);
 
   useEffect(() => {
     if (!conversation) return;
