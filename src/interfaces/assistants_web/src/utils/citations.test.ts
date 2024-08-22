@@ -2,6 +2,8 @@ import { describe, expect, test } from 'vitest';
 
 import { Citation } from '@/cohere-client';
 import {
+  CODE_BLOCK_REGEX_EXP,
+  IFRAME_REGEX_EXP,
   fixInlineCitationsForMarkdown,
   isReferenceBetweenSpecialTags,
   replaceTextWithCitations,
@@ -396,7 +398,6 @@ describe('fixInlineCitationsForMarkdown', () => {
 
 describe('isReferenceBetweenSpecialTags', () => {
   test('should return true if the citation is between <iframe> tags', () => {
-    const matchRegex = /<iframe>.*<\/iframe>/;
     const text = '<iframe> This is a citation </iframe>';
     const citation: Citation = {
       start: 19,
@@ -404,11 +405,10 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(IFRAME_REGEX_EXP, text, citation.start);
     expect(result).toBe(true);
   });
   test('should return false if the citation is not between <iframe> tags', () => {
-    const matchRegex = /<iframe>.*<\/iframe>/;
     const text = 'This is a citation <iframe> another test citaiton </iframe>';
     const citation: Citation = {
       start: 10,
@@ -416,11 +416,10 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(IFRAME_REGEX_EXP, text, citation.start);
     expect(result).toBe(false);
   });
   test('should return true if the citation is between ``` tags', () => {
-    const matchRegex = /```[\s\S]*?```/g;
     const text = '``` This is a citation ```';
     const citation: Citation = {
       start: 14,
@@ -428,11 +427,10 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, text, citation.start);
     expect(result).toBe(true);
   });
   test('should return false if the citation is not between ``` tags', () => {
-    const matchRegex = /```[\s\S]*?```/g;
     const text = '``` This is a citation ``` another test citaiton';
     const citation: Citation = {
       start: 40,
@@ -440,7 +438,18 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, text, citation.start);
     expect(result).toBe(false);
+  });
+  test('should be able to check if there are more than one match', () => {
+    const text = '``` This is a citation ``` another test citaiton ``` final citation ``` ';
+    const citation: Citation = {
+      start: 59,
+      end: 67,
+      text: 'citation',
+      document_ids: ['12345'],
+    };
+    const result = isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, text, citation.start);
+    expect(result).toBe(true);
   });
 });
