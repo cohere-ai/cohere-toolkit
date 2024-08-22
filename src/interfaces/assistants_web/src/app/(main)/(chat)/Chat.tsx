@@ -3,16 +3,17 @@
 import { useEffect } from 'react';
 
 import { Document, ManagedTool } from '@/cohere-client';
-import Conversation from '@/components/Conversation';
-import { ConversationError } from '@/components/ConversationError';
+import { Conversation, ConversationError } from '@/components/Conversation';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
-import { useAgent } from '@/hooks/agents';
-import { useConversation } from '@/hooks/conversation';
-import { useListTools } from '@/hooks/tools';
+import { useAgent, useConversation, useListTools } from '@/hooks';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
-import { createStartEndKey, mapHistoryToMessages } from '@/utils';
-import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import {
+  createStartEndKey,
+  fixInlineCitationsForMarkdown,
+  mapHistoryToMessages,
+  parsePythonInterpreterToolFields,
+} from '@/utils';
 
 const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   agentId,
@@ -85,7 +86,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
           }
         }
       });
-      message.citations?.forEach((citation) => {
+      fixInlineCitationsForMarkdown(message.citations, message.text)?.forEach((citation) => {
         const startEndKey = createStartEndKey(citation.start ?? 0, citation.end ?? 0);
         const documents = citation.document_ids?.map((id) => documentsMap[id]) ?? [];
         addCitation(message.generation_id ?? '', startEndKey, documents);

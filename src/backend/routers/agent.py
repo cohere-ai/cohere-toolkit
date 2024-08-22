@@ -138,7 +138,7 @@ async def create_agent(
                 }
             )
             if file_ids:
-                await consolidate_agent_files_in_compass(file_ids, created_agent.id)
+                await consolidate_agent_files_in_compass(file_ids, created_agent.id, ctx)
 
         if deployment_db and model_db:
             deployment_config = (
@@ -384,6 +384,43 @@ async def update_agent(
     return agent
 
 
+@router.delete("/{agent_id}", response_model=DeleteAgent)
+async def delete_agent(
+    agent_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> DeleteAgent:
+    """
+    Delete an agent by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        DeleteAgent: Empty response.
+
+    Raises:
+        HTTPException: If the agent with the given ID is not found.
+    """
+    user_id = ctx.get_user_id()
+    ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
+    agent = validate_agent_exists(session, agent_id, user_id)
+    agent_schema = Agent.model_validate(agent)
+    ctx.with_agent(agent_schema)
+    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
+
+    deleted = agent_crud.delete_agent(session, agent_id, user_id)
+    if not deleted:
+        raise HTTPException(status_code=401, detail="Could not delete Agent.")
+
+    return DeleteAgent()
+
+
+# Agent Tool Metadata endpoints
+
+
 async def handle_tool_metadata_update(
     agent: Agent,
     new_agent: Agent,
@@ -453,43 +490,6 @@ async def update_or_create_tool_metadata(
         create_agent_tool_metadata(session, agent.id, create_metadata_req, ctx)
 
 
-@router.delete("/{agent_id}", response_model=DeleteAgent)
-async def delete_agent(
-    agent_id: str,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
-) -> DeleteAgent:
-    """
-    Delete an agent by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteAgent: Empty response.
-
-    Raises:
-        HTTPException: If the agent with the given ID is not found.
-    """
-    user_id = ctx.get_user_id()
-    ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
-    agent = validate_agent_exists(session, agent_id, user_id)
-    agent_schema = Agent.model_validate(agent)
-    ctx.with_agent(agent_schema)
-    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-
-    deleted = agent_crud.delete_agent(session, agent_id, user_id)
-    if not deleted:
-        raise HTTPException(status_code=401, detail="Could not delete Agent.")
-
-    return DeleteAgent()
-
-
-# Tool Metadata Endpoints
-
-
 @router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadataPublic])
 async def list_agent_tool_metadata(
     agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
@@ -539,7 +539,7 @@ def create_agent_tool_metadata(
         ctx (Context): Context object.
 
     Returns:
-        AgentToolMetadata: Created agent tool metadata.
+        AgentToolMetadataPublic: Created agent tool metadata.
 
     Raises:
         HTTPException: If the agent tool metadata creation fails.

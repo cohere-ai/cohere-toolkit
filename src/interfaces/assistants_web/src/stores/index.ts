@@ -78,4 +78,13 @@ export const useParamsStore = () => {
   );
 };
 
+export const useOutputFiles = () => {
+  return useStore(
+    (state) => ({
+      outputFiles: state.citations.outputFiles,
+    }),
+    shallow
+  );
+};
+
 export { useSettingsStore } from '@/stores/persistedStore';

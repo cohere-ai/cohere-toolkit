@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-import { CreateAgent } from '@/components/Agents/CreateAgent';
+import { CreateAgent } from './CreateAgent';
 
 export const metadata: Metadata = {
   title: 'New Assistant',

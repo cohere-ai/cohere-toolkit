@@ -44,7 +44,6 @@ from backend.schemas.chat import (
     StreamToolResult,
     ToolInputType,
 )
-from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
@@ -86,17 +85,12 @@ def process_chat(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
-        if chat_request.tools:
-            for tool in chat_request.tools:
-                if tool.name not in agent.tools:
-                    raise HTTPException(
-                        status_code=404,
-                        detail=f"Tool {tool.name} not found in agent {agent.id}",
-                    )
+        # if tools are not provided in the chat request, use the agent's tools
+        if not chat_request.tools:
+            chat_request.tools = [Tool(name=tool) for tool in agent.tools]
 
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
-        chat_request.tools = [Tool(name=tool) for tool in agent.tools]
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -132,14 +126,13 @@ def process_chat(
         id=str(uuid4()),
     )
 
-    if isinstance(chat_request, CohereChatRequest):
-        if should_store:
-            attach_files_to_messages(
-                session,
-                user_id,
-                user_message.id,
-                chat_request.file_ids,
-            )
+    if should_store:
+        attach_files_to_messages(
+            session,
+            user_id,
+            user_message.id,
+            chat_request.file_ids
+        )
 
     chat_history = create_chat_history(
         conversation, next_message_position, chat_request

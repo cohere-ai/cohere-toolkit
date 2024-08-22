@@ -1,4 +1,4 @@
-import { Spinner } from '@/components/Shared';
+import { Spinner } from '@/components/UI';
 
 const Loading: React.FC<React.PropsWithChildren> = () => {
   return (

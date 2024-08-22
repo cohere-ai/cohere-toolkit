@@ -1,7 +1,10 @@
 import { Message, MessageAgent } from '@/cohere-client';
 import { BotState, ChatMessage, FulfilledMessage, MessageType, UserMessage } from '@/types/message';
-import { replaceTextWithCitations } from '@/utils/citations';
-import { replaceCodeBlockWithIframe } from '@/utils/preview';
+import {
+  fixInlineCitationsForMarkdown,
+  replaceCodeBlockWithIframe,
+  replaceTextWithCitations,
+} from '@/utils';
 
 /**
  * A utility function that checks if the conversation title should be updated
@@ -47,7 +50,7 @@ export const mapHistoryToMessages = (history?: Message[]): UserOrBotMessage[] =>
           originalText: message.text ?? '',
           text: replaceTextWithCitations(
             replaceCodeBlockWithIframe(message.text) ?? '',
-            message.citations ?? [],
+            fixInlineCitationsForMarkdown(message.citations ?? [], message.text),
             message.generation_id ?? ''
           ),
           generationId: message.generation_id ?? '',
@@ -69,11 +72,7 @@ export const mapHistoryToMessages = (history?: Message[]): UserOrBotMessage[] =>
     } else {
       messages.push({
         type: MessageType.USER,
-        text: replaceTextWithCitations(
-          message.text ?? '',
-          message.citations ?? [],
-          message.generation_id ?? ''
-        ),
+        text: message.text,
         files: message.files,
       });
     }
