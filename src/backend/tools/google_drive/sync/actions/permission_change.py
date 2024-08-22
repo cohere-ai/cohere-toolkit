@@ -1,5 +1,6 @@
 import time
 
+from backend.services.compass import get_compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
@@ -8,8 +9,7 @@ from backend.tools.google_drive.sync.actions.utils import (
     get_file_details,
     list_permissions,
 )
-
-from .utils import init_compass, persist_agent_task
+from backend.tools.google_drive.sync.utils import persist_agent_task
 
 ACTION_NAME = "permission_change"
 logger = LoggerFactory().get_logger()
@@ -40,7 +40,7 @@ def permission_change(
         raise Exception(err_msg)
 
     permissions = list_permissions(file_id=file_id, user_id=user_id)
-    compass = init_compass()
+    compass = get_compass()
 
     # Update permissions array
     logger.info(

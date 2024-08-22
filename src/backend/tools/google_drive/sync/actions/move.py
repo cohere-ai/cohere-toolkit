@@ -1,3 +1,4 @@
+from backend.services.compass import get_compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
@@ -5,8 +6,7 @@ from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
 )
-
-from .utils import init_compass, persist_agent_task
+from backend.tools.google_drive.sync.utils import persist_agent_task
 
 ACTION_NAME = "move"
 logger = LoggerFactory().get_logger()
@@ -38,7 +38,7 @@ def move(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
         user_id=user_id,
         title=title,
     )
-    compass = init_compass()
+    compass = get_compass()
     if exists:
         err_msg = f"file already exists: {file_id}"
         raise Exception(err_msg)

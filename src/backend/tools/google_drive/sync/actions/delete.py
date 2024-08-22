@@ -1,8 +1,8 @@
+from backend.services.compass import get_compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
-
-from .utils import init_compass, persist_agent_task
+from backend.tools.google_drive.sync.utils import persist_agent_task
 
 ACTION_NAME = "delete"
 logger = LoggerFactory().get_logger()
@@ -11,7 +11,7 @@ logger = LoggerFactory().get_logger()
 @app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
 @persist_agent_task
 def delete(self, file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
-    compass = init_compass()
+    compass = get_compass()
 
     try:
         # Delete document

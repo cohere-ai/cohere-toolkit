@@ -1,5 +1,6 @@
 import time
 
+from backend.services.compass import get_compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
@@ -7,8 +8,7 @@ from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
 )
-
-from .utils import init_compass, persist_agent_task
+from backend.tools.google_drive.sync.utils import persist_agent_task
 
 ACTION_NAME = "create"
 logger = LoggerFactory().get_logger()
@@ -55,7 +55,7 @@ def create(self, file_id: str, index_name: str, user_id: str, agent_id: str, **k
     file_meta = file_details.copy()
     del file_meta["file_bytes"]
 
-    compass = init_compass()
+    compass = get_compass()
     try:
         # idempotent create index
         logger.info(

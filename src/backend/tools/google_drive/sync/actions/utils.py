@@ -1,10 +1,5 @@
-from functools import wraps
 from typing import Dict, List, Optional
 
-from backend.config.settings import Settings
-from backend.crud.agent_task import create_agent_task
-from backend.database_models.database import get_session
-from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync.env import env
 from backend.tools.google_drive.constants import (
@@ -24,34 +19,6 @@ from backend.tools.google_drive.sync.utils import (
 from backend.tools.utils import download
 
 logger = LoggerFactory().get_logger()
-
-
-# TODO: fix type errors here
-def init_compass():
-    return Compass(
-        compass_api_url=Settings().compass.api_url,  # type: ignore
-        compass_parser_url=Settings().compass.parser_url,  # type: ignore
-        compass_username=Settings().compass.username,  # type: ignore
-        compass_password=Settings().compass.password,  # type: ignore
-    )
-
-
-def persist_agent_task(method):
-    @wraps(method)
-    def wrapper(
-        self, file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs
-    ):
-        task_id = self.request.id
-        logger.info(
-            event=f"Executing task id {self.request.id}, args: {self.request.args} kwargs: {self.request.kwargs}",
-            agent_id=agent_id,
-        )
-        session = next(get_session())
-        create_agent_task(session, agent_id=agent_id, task_id=task_id)
-        session.close()
-        return method(self, file_id, index_name, user_id, agent_id, **kwargs)
-
-    return wrapper
 
 
 def get_file_details(

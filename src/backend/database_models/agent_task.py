@@ -35,7 +35,10 @@ class AgentTask(Base):
     agent_id: Mapped[str] = mapped_column(
         ForeignKey("agents.id", ondelete="CASCADE"), nullable=False
     )
-    task_id: Mapped[str] = mapped_column(Text, nullable=False)
+    task_id: Mapped[str] = mapped_column(
+        ForeignKey("sync_celery_taskmeta.task_id", ondelete="CASCADE"),
+        nullable=False,
+    )
 
     __table_args__ = (
         UniqueConstraint("agent_id", "task_id", name="unique_agent_task"),

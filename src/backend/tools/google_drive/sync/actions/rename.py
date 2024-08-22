@@ -1,11 +1,11 @@
 import time
 
+from backend.services.compass import get_compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
 from backend.tools.google_drive.sync.actions.utils import get_file_details
-
-from .utils import init_compass, persist_agent_task
+from backend.tools.google_drive.sync.utils import persist_agent_task
 
 ACTION_NAME = "rename"
 logger = LoggerFactory().get_logger()
@@ -20,7 +20,7 @@ def rename(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs)
         raise Exception(err_msg)
 
     title = file_details["title"]
-    compass = init_compass()
+    compass = get_compass()
 
     # Modify title
     logger.info(

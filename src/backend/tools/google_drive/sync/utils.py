@@ -1,6 +1,7 @@
 import io
 import time
 from concurrent import futures
+from functools import wraps
 from typing import Any, Dict, List
 
 from google.oauth2.credentials import Credentials
@@ -8,6 +9,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
+from backend.crud.agent_task import create_agent_task
 from backend.database_models.database import get_session
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.google_drive.auth import GoogleDriveAuth
@@ -232,3 +234,20 @@ def extract_file_ids_from_target(activity: Dict[str, str]):
                 file_id = driveItem["name"].split("/")[1]
                 file_ids.add(file_id)
     return file_ids
+
+def persist_agent_task(method):
+    @wraps(method)
+    def wrapper(
+        self, file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs
+    ):
+        task_id = self.request.id
+        logger.info(
+            event=f"Executing task id {self.request.id}, args: {self.request.args} kwargs: {self.request.kwargs}",
+            agent_id=agent_id,
+        )
+        session = next(get_session())
+        create_agent_task(session, agent_id=agent_id, task_id=task_id)
+        session.close()
+        return method(self, file_id, index_name, user_id, agent_id, **kwargs)
+
+    return wrapper
