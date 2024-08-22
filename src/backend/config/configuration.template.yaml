@@ -37,6 +37,9 @@ tools:
   google_drive:
     client_id:
     client_secret:
+  google_web_search:
+    api_key:
+    cse_id:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false

@@ -7,6 +7,7 @@ from backend.tools import (
     Calculator,
     GoogleDrive,
     GoogleDriveAuth,
+    GoogleWebSearch,
     LangChainWikiRetriever,
     PythonInterpreter,
     ReadFileTool,
@@ -37,6 +38,7 @@ class ToolName(StrEnum):
     Calculator = Calculator.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
+    Google_Web_Search = GoogleWebSearch.NAME
     Web_Scrape = WebScrapeTool.NAME
 
 
@@ -159,6 +161,22 @@ ALL_TOOLS = {
         error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
+    ),
+    ToolName.Google_Web_Search: ManagedTool(
+        display_name="Google Web Search",
+        implementation=GoogleWebSearch,
+        parameter_definitions={
+            "query": {
+                "description": "A search query for the Google search engine.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=GoogleWebSearch.is_available(),
+        error_message="Google Web Search not available, please enable it in the GoogleWebSearch tool class.",
+        category=Category.DataLoader,
+        description="Returns relevant results by performing a Google web search.",
     ),
     ToolName.Web_Scrape: ManagedTool(
         name=ToolName.Web_Scrape,
