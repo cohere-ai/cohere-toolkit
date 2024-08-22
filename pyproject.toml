@@ -53,7 +53,6 @@ python-calamine = "^0.2.3"
 structlog = "^24.4.0"
 pyyaml = "^6.0.1"
 nltk = "^3.9.1"
-ruff = "0.6.0"
 
 [tool.poetry.group.compass]
 optional = false
