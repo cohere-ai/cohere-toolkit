@@ -80,7 +80,6 @@ async def _call_tool_async(
     if not tool:
         logger.info(
             event=f"[Custom Chat] Tool not included in tools parameter: {tool_call['name']}",
-            error=str(e),
         )
         outputs = [
             {
