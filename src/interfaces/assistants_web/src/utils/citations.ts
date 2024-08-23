@@ -38,13 +38,24 @@ const tryToFixCitationsInCodeBlock = (citations: Citation[], originalText: strin
     }
 
     try {
-      const match = originalText.match(new RegExp(escapeRegex(citation.text)));
-      if (match) {
-        const [firstMatch] = match;
-        const start = match.index || citation.start;
-        const end = start + firstMatch.length;
-        citation.start = start;
-        citation.end = end;
+      const regex = new RegExp(escapeRegex(citation.text), 'dg');
+      const matches = Array.from(originalText.matchAll(regex)).filter(
+        (match) => !isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, match.index)
+      );
+
+      const citationsWithSameCitationText = citationsCopy.filter((c) => c.text === citation.text);
+      const minIndexToBeFound = citationsWithSameCitationText.findIndex(
+        (c) => c.start === citation.start && c.end === citation.end
+      );
+
+      for (let i = minIndexToBeFound; i <= matches.length; i++) {
+        const match = matches[i];
+        if (match.indices) {
+          const [start, end] = match.indices[0];
+          citation.start = start;
+          citation.end = end;
+        }
+        break;
       }
     } catch (e) {
       console.error('error updating citation', citation, e);

@@ -394,6 +394,39 @@ describe('fixInlineCitationsForMarkdown', () => {
       },
     ]);
   });
+
+  test('should be able to fix repeated citations', () => {
+    const citations = [
+      {
+        text: 'test',
+        start: 13,
+        end: 17,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'test',
+        start: 18,
+        end: 22,
+        document_ids: ['44444'],
+      },
+    ];
+    const text = '``` test ``` test test';
+    const result = fixInlineCitationsForMarkdown(citations, text);
+    expect(result).toStrictEqual([
+      {
+        text: 'test',
+        start: 13,
+        end: 17,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'test',
+        start: 18,
+        end: 22,
+        document_ids: ['44444'],
+      },
+    ]);
+  });
 });
 
 describe('isReferenceBetweenSpecialTags', () => {
