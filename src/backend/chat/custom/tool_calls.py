@@ -98,6 +98,8 @@ async def _call_tool_async(
             user_id=ctx.get_user_id(),
             trace_id=ctx.get_trace_id(),
             agent_id=ctx.get_agent_id(),
+            # TODO: yikes this is also hacky
+            carbon_customer_id=ctx.get_carbon_customer_id(),
             conversation_id=ctx.get_conversation_id(),
             agent_tool_metadata=ctx.get_agent_tool_metadata(),
         )

@@ -26,7 +26,7 @@ class CarbonTool(BaseTool):
         return True
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        customer_id = kwargs.get("customer_id", None)
+        customer_id = kwargs.get("carbon_customer_id", None)
         if not customer_id:
             raise Exception("Carbon customer_id not found")
         index_name = gen_index_name(CARBON_TOOL_ID, customer_id)

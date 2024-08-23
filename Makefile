@@ -1,13 +1,14 @@
-.PHONY: local-dev
-local-dev:
+.PHONY: local-dev-deps
+local-dev-deps:
+	echo "note that you need to have /etc/hosts entry for db abd redis for this to work" 
 	@docker compose up -d --build db redis
-	make -j 2 local-dev-be local-dev-fe
 
 .PHONY: local-dev-be
 local-dev-be:
 	poetry run uvicorn backend.main:app --reload
 .PHONY: local-dev-fe
 local-dev-fe:
+	echo "consider using bun for better performance"
 	cd src/interfaces/assistants_web && npm run dev
 
 .PHONY: local-migration
@@ -23,7 +24,7 @@ carbon-webhook-server:
 	poetry run fastapi dev src/carbon_gmail_test/webhook_server.py --port 8001
 
 start-webhook-ngrok:
-	echo "Ensure .env is setup correctly"
+	echo "Ensure .env is setup correctly and make sure you have ngrok installed"
 	ngrok http 8001
 
 carbon-add-webhook:

@@ -208,6 +208,9 @@ class Context(BaseModel):
     def get_agent_id(self):
         return self.agent_id
 
+    def get_carbon_customer_id(self) -> str | None:
+        return self.agent.carbon_id if self.agent else None
+
     def get_logger(self) -> Any:
         return self.logger
 
