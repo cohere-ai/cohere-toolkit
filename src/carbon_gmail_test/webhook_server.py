@@ -53,10 +53,10 @@ def webhook(body: Body):
             print("Processing FILE_READY event")
             customer_id = payload.customer_id
             file_id = payload.obj.object_id
-            emails, _errs = list_email_by_ids([int(file_id)])
+            emails, _errs = list_email_by_ids([int(file_id)], customer_id)
             statuses = index_on_compass(
-                init_compass(gen_index_name(GMAIL_TOOL, customer_id)),
-                customer_id,
+                init_compass(),
+                gen_index_name(GMAIL_TOOL, customer_id),
                 emails,
             )
             print(statuses)

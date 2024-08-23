@@ -138,11 +138,11 @@ async def create_agent(
                 if errs:
                     print("Errors: ", errs)
                 res = index_on_compass(
-                    init_compass(gen_index_name(GMAIL_TOOL, customer_id)), emails
+                    init_compass(), gen_index_name(GMAIL_TOOL, customer_id), emails
                 )
                 logger.info(event="indexed on compass", res=res)
 
-            # index_emails_on_setup()
+            index_emails_on_setup()
         except Exception as e:
             logger.exception(event=e)
             raise HTTPException(status_code=500, detail=str(e))
