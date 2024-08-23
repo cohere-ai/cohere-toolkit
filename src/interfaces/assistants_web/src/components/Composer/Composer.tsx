@@ -7,7 +7,7 @@ import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { ComposerError, ComposerFiles, ComposerToolbar } from '@/components/Composer';
 import { DragDropFileInput, Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/UI';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
-import { useAvailableTools, useBreakpoint, useIsDesktop } from '@/hooks';
+import { useBreakpoint, useIsDesktop } from '@/hooks';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 import { ChatMessage } from '@/types/message';
 import { cn } from '@/utils';
@@ -42,15 +42,12 @@ export const Composer: React.FC<Props> = ({
   const breakpoint = useBreakpoint();
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { unauthedTools } = useAvailableTools({ agent, managedTools: tools });
-  const isToolAuthRequired = unauthedTools.length > 0;
 
   const [chatWindowHeight, setChatWindowHeight] = useState(0);
   const [isDragDropInputActive, setIsDragDropInputActive] = useState(false);
 
   const isReadyToReceiveMessage = !isStreaming;
-  const isComposerDisabled = isToolAuthRequired;
-  const canSend = isReadyToReceiveMessage && value.trim().length > 0 && !isComposerDisabled;
+  const canSend = isReadyToReceiveMessage && value.trim().length > 0;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
@@ -76,10 +73,6 @@ export const Composer: React.FC<Props> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (isComposerDisabled) {
-      return;
-    }
-
     onChange(e.target.value);
   };
 
@@ -126,10 +119,7 @@ export const Composer: React.FC<Props> = ({
           'relative flex w-full flex-col',
           'transition ease-in-out',
           'rounded border bg-marble-980 dark:bg-volcanic-100',
-          'border-marble-800 dark:border-volcanic-200',
-          {
-            'bg-marble-950 dark:bg-mushroom-150': isComposerDisabled,
-          }
+          'border-marble-800 dark:border-volcanic-200'
         )}
         onDragEnter={() => setIsDragDropInputActive(true)}
         onDragOver={() => setIsDragDropInputActive(true)}
@@ -167,7 +157,6 @@ export const Composer: React.FC<Props> = ({
             rows={1}
             onKeyDown={handleKeyDown}
             onChange={handleChange}
-            disabled={isComposerDisabled}
           />
           <button
             className={cn(

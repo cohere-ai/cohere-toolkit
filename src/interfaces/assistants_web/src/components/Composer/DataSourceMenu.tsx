@@ -21,7 +21,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
   const {
     params: { tools: paramsTools },
   } = useParamsStore();
-  const { availableTools, handleToggle } = useAvailableTools({
+  const { toggableTools, handleToggle } = useAvailableTools({
     agent,
     managedTools: tools,
   });
@@ -46,7 +46,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
             as="span"
             className={cn('font-medium', text, { [contrastText]: open })}
           >
-            Tools: {isBaseAgent ? paramsTools?.length ?? 0 : availableTools.length ?? 0}
+            Tools: {isBaseAgent ? paramsTools?.length ?? 0 : toggableTools.length ?? 0}
           </Text>
         )}
       </PopoverButton>
@@ -65,12 +65,12 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
           <Text styleAs="label" className="mb-2 text-mushroom-300 dark:text-marble-800">
             Available tools
           </Text>
-          {availableTools.length === 0 && (
+          {toggableTools.length === 0 && (
             <Text as="span" styleAs="caption" className="text-mushroom-400 dark:text-volcanic-500">
               No tools available
             </Text>
           )}
-          {availableTools.map((tool, i) => (
+          {toggableTools.map((tool, i) => (
             <div
               key={tool.name}
               className={cn(
@@ -78,7 +78,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                 'focus:outline focus:outline-volcanic-300',
                 {
                   'border-b border-mushroom-800 dark:border-volcanic-300 md:w-[300px]':
-                    i !== availableTools.length - 1,
+                    i !== toggableTools.length - 1,
                 }
               )}
             >

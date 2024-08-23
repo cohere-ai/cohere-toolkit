@@ -29,3 +29,7 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_GOOGLE_DRIVE_ID]: { icon: 'google-drive' },
   [TOOL_READ_DOCUMENT_ID]: { icon: 'desktop' },
 };
+
+export const DEFAULT_AGENT_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID, TOOL_WEB_SCRAPE_ID];
+export const KNOWLEDGE_TOOLS = [TOOL_GOOGLE_DRIVE_ID];
+export const TOGGABLE_TOOLS = [TOOL_PYTHON_INTERPRETER_ID, TOOL_WEB_SEARCH_ID];

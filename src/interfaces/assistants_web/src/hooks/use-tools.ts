@@ -4,7 +4,12 @@ import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
 import { AgentPublic, ApiError, ManagedTool, useCohereClient } from '@/cohere-client';
-import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import {
+  DEFAULT_AGENT_TOOLS,
+  KNOWLEDGE_TOOLS,
+  TOGGABLE_TOOLS,
+  TOOL_GOOGLE_DRIVE_ID,
+} from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks';
 import { useParamsStore } from '@/stores';
@@ -120,6 +125,8 @@ export const useAvailableTools = ({
 
   return {
     availableTools,
+    knowledgeTools: availableTools.filter((tool) => KNOWLEDGE_TOOLS.includes(tool.name ?? '')),
+    toggableTools: availableTools.filter((tool) => TOGGABLE_TOOLS.includes(tool.name ?? '')),
     unauthedTools,
     handleToggle,
   };

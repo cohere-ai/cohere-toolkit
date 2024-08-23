@@ -4,10 +4,9 @@ import React from 'react';
 
 import { AgentPublic, ManagedTool } from '@/cohere-client';
 import { WelcomeGuideTooltip } from '@/components/MessagingContainer';
-import { Button, Icon, Text, ToggleCard } from '@/components/UI';
-import { useAvailableTools } from '@/hooks';
-import { useParamsStore } from '@/stores';
-import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
+import { Button, Icon, Text, Tooltip } from '@/components/UI';
+import { useAvailableTools, useBrandedColors } from '@/hooks';
+import { cn, getToolIcon } from '@/utils';
 
 /**
  * @description Tools for the assistant to use in the conversation.
@@ -17,48 +16,48 @@ export const AssistantTools: React.FC<{
   agent?: AgentPublic;
   className?: string;
 }> = ({ tools, agent, className = '' }) => {
-  const {
-    params: { tools: paramTools },
-  } = useParamsStore();
-  const enabledTools = paramTools ?? [];
-  const { availableTools, unauthedTools, handleToggle } = useAvailableTools({
+  const { knowledgeTools, unauthedTools } = useAvailableTools({
     agent,
     managedTools: tools,
   });
 
-  if (availableTools.length === 0) return null;
+  if (knowledgeTools.length === 0) return null;
 
   return (
     <section className={cn('relative flex flex-col gap-y-5', className)}>
       <article className={cn('flex flex-col gap-y-5')}>
-        {unauthedTools.length > 0 && <ConnectDataBox />}
-        {unauthedTools.length > 0 && availableTools.length > 0 && (
-          <hr className="border-t border-marble-950 dark:border-volcanic-300" />
-        )}
-
-        {availableTools.length > 0 && (
-          <div className="flex flex-col gap-y-3">
-            {availableTools.map(({ name, display_name, description, error_message }) => {
-              const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
-              const checked = !!enabledTool;
-              const disabled = !checkIsBaseAgent(agent);
-
+        {knowledgeTools.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {knowledgeTools.map(({ name, display_name, is_auth_required }) => {
               return (
-                <ToggleCard
-                  key={name}
-                  disabled={disabled}
-                  errorMessage={error_message}
-                  checked={checked}
-                  label={display_name ?? name ?? ''}
-                  icon={getToolIcon(name)}
-                  description={description ?? ''}
-                  onToggle={(checked) => handleToggle(name ?? '', checked)}
-                  agentId={agent?.id}
-                />
+                <div key={name} className="relative">
+                  <Tooltip hover label={display_name} size="sm">
+                    <div className="flex justify-center rounded bg-mushroom-900 p-1 dark:bg-volcanic-150">
+                      <button
+                        onClick={() => console.log(name)}
+                        className="flex items-center gap-2.5 px-2 py-1"
+                      >
+                        <Icon name={getToolIcon(name)} size="md" />
+                        <Text className={cn({ hidden: knowledgeTools.length > 6 })}>
+                          {display_name}
+                        </Text>
+                      </button>
+                    </div>
+                    <div
+                      className={cn(
+                        'absolute -bottom-[2px] -right-[1.5px] size-1.5 rounded-full bg-volcanic-600',
+                        {
+                          'bg-success-300': !is_auth_required,
+                        }
+                      )}
+                    />
+                  </Tooltip>
+                </div>
               );
             })}
           </div>
         )}
+        {unauthedTools.length > 0 && <ConnectDataBox agentId={agent?.id} />}
       </article>
       <WelcomeGuideTooltip step={2} className="fixed right-0 mr-3 mt-12 md:right-full md:mt-0" />
     </section>
@@ -68,29 +67,27 @@ export const AssistantTools: React.FC<{
 /**
  * @description Info box that prompts the user to connect their data to enable tools
  */
-const ConnectDataBox: React.FC = () => {
+const ConnectDataBox: React.FC<{ agentId?: string }> = ({ agentId }) => {
+  const { text, lightText, dark, light } = useBrandedColors(agentId);
   return (
-    <div className="flex flex-col gap-y-2">
-      <div className="flex items-center justify-between">
-        <Text as="span" styleAs="label" className="font-medium">
-          Action Required
-        </Text>
-        <Icon name="warning" kind="outline" />
-      </div>
-      <div
-        className={cn(
-          'flex flex-col gap-y-4 rounded border border-coral-700 p-4 dark:border-evolved-green-500'
-        )}
-      >
-        <div className="flex flex-col gap-y-3">
-          <Text styleAs="h5">Connect your data</Text>
-          <Text>
-            In order to get the most accurate answers grounded on your data, connect the following:
+    <div
+      className={cn(
+        'flex flex-col gap-y-4 rounded border border-marble-900 bg-marble-950 p-4 dark:border-volcanic-300 dark:bg-volcanic-150'
+      )}
+    >
+      <div className="flex flex-col gap-y-3">
+        <header className="flex items-center gap-2">
+          <Icon name="information" kind="outline" />
+          <Text styleAs="label" className="font-medium">
+            connect knowledge sources
           </Text>
-          <Button href="/settings" icon="arrow-up-right">
-            Connect data
-          </Button>
-        </div>
+        </header>
+        <Text>Your assistant needs connections in order to use its knowledge sources,</Text>
+        <Button kind="secondary" theme="coral" className="ml-auto uppercase" href="/settings">
+          <Text styleAs="label" className={cn('font-medium', dark(lightText), light(text))}>
+            Manage
+          </Text>
+        </Button>
       </div>
     </div>
   );
