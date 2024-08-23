@@ -103,6 +103,17 @@ def process_chat(
 
     # Get position to put next message in
     next_message_position = get_next_message_position(conversation)
+    chatbot_message = create_message(
+        session,
+        chat_request,
+        conversation.id,
+        user_id,
+        next_message_position,
+        "",
+        MessageAgent.CHATBOT,
+        False,
+        id=str(uuid4()),
+    )
     if chat_request.message is not None and chat_request.message != "":
         user_message = create_message(
             session,
@@ -115,25 +126,13 @@ def process_chat(
             should_store,
             id=str(uuid4()),
         )
-    chatbot_message = create_message(
-        session,
-        chat_request,
-        conversation.id,
-        user_id,
-        next_message_position,
-        "",
-        MessageAgent.CHATBOT,
-        False,
-        id=str(uuid4()),
-    )
-
-    if should_store:
-        attach_files_to_messages(
-            session,
-            user_id,
-            user_message.id,
-            chat_request.file_ids
-        )
+        if should_store:
+            attach_files_to_messages(
+                session,
+                user_id,
+                user_message.id,
+                chat_request.file_ids
+            )
 
     chat_history = create_chat_history(conversation, next_message_position, chat_request)
 
