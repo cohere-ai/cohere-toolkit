@@ -178,6 +178,13 @@ class GDriveSettings(BaseSettings, BaseModel):
     )
 
 
+class BraveWebSearchSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    api_key: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("BRAVE_API_KEY", "api_key")
+    )
+
+
 class ToolSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     enabled_tools: Optional[List[str]] = None
@@ -190,6 +197,9 @@ class ToolSettings(BaseSettings, BaseModel):
         default=WolframAlphaSettings()
     )
     google_drive: Optional[GDriveSettings] = Field(default=GDriveSettings())
+    brave_web_search: Optional[BraveWebSearchSettings] = Field(
+        default=BraveWebSearchSettings()
+    )
 
 
 class DatabaseSettings(BaseSettings, BaseModel):

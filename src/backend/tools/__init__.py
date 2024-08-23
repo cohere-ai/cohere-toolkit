@@ -1,3 +1,4 @@
+from backend.tools.brave_search import BraveWebSearch
 from backend.tools.calculator import Calculator
 from backend.tools.files import ReadFileTool, SearchFileTool
 from backend.tools.google_drive import GoogleDrive, GoogleDriveAuth
@@ -17,4 +18,5 @@ __all__ = [
     "GoogleDrive",
     "GoogleDriveAuth",
     "WebScrapeTool",
+    "BraveWebSearch",
 ]

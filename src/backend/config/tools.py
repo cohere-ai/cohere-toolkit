@@ -4,6 +4,7 @@ from backend.config.settings import Settings
 from backend.schemas.tool import Category, ManagedTool
 from backend.services.logger.utils import LoggerFactory
 from backend.tools import (
+    BraveWebSearch,
     Calculator,
     GoogleDrive,
     GoogleDriveAuth,
@@ -38,6 +39,7 @@ class ToolName(StrEnum):
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
+    Brave_Web_Search = BraveWebSearch.NAME
 
 
 ALL_TOOLS = {
@@ -182,6 +184,23 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
     ),
+    ToolName.Brave_Web_Search: ManagedTool(
+        display_name="Brave Web Search",
+        implementation=BraveWebSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=False,
+        is_available=BraveWebSearch.is_available(),
+        error_message="BraveWebSearch not available, please make sure to set the tools.brave_web_search.api_key variable in your secrets.yaml",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Brave Search.",
+    ),
+
 }
 
 
