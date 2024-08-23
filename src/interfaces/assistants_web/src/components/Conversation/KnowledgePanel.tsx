@@ -1,7 +1,7 @@
 'use client';
 
 import ToolCard from '@/components/Tools/ToolCard';
-import { Icon, IconButton, Text } from '@/components/UI';
+import { IconButton, Text } from '@/components/UI';
 import { useAgent, useAvailableTools, useChatRoutes, useListTools } from '@/hooks';
 import { useSettingsStore } from '@/stores';
 
@@ -30,11 +30,13 @@ export const KnowledgePanel: React.FC<Props> = () => {
         This assistant uses data from following apps.
       </Text>
       <div className="flex flex-col gap-y-2">
-        {knowledgeTools.map((tool) => (
-          <div key={tool.name} className="flex items-center gap-2">
-            <ToolCard key={tool.name} tool={tool} />
-          </div>
-        ))}
+        {knowledgeTools
+          .sort((a) => (a.is_auth_required ? 1 : -1))
+          .map((tool) => (
+            <div key={tool.name} className="flex items-center gap-2">
+              <ToolCard key={tool.name} tool={tool} agent={agent} />
+            </div>
+          ))}
       </div>
     </aside>
   );
