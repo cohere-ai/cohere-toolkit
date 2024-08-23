@@ -1,3 +1,4 @@
+import asyncio
 import io
 import uuid
 from datetime import datetime
@@ -528,66 +529,73 @@ async def insert_files_in_compass(
                 event=f"[Compass File Service] Failed to create index: {index}, error: {e}"
             )
 
-    uploaded_files = []
-    for file in files:
-        filename = file.filename.encode("ascii", "ignore").decode("utf-8")
-        file_bytes = await file.read()
-        new_file_id = str(uuid.uuid4())
+    uploaded_files = await asyncio.gather(*[_insert_file_in_compass_async(file) for file in files])
+    return uploaded_files
 
-        # Create temporary index for individual file (files not associated with conversations)
-        # Consolidate them under one agent index during agent creation
-        if index is None:
-            try:
-                compass.invoke(
-                    action=Compass.ValidActions.CREATE_INDEX,
-                    parameters={
-                        "index": new_file_id,
-                    },
-                )
-            except Exception as e:
-                logger.error(
-                    event=f"[Compass File Service] Failed to create index: {index}, error: {e}"
-                )
 
+async def _insert_file_in_compass_async(
+    file: FastAPIUploadFile,
+    user_id: str,
+    ctx: Context,
+    index: str = None,
+) -> File:
+    logger = ctx.get_logger()
+    compass = get_compass()
+
+    filename = file.filename.encode("ascii", "ignore").decode("utf-8")
+    file_bytes = await file.read()
+    new_file_id = str(uuid.uuid4())
+
+    # Create temporary index for individual file (files not associated with conversations)
+    # Consolidate them under one agent index during agent creation
+    if index is None:
         try:
             compass.invoke(
-                action=Compass.ValidActions.CREATE,
+                action=Compass.ValidActions.CREATE_INDEX,
                 parameters={
-                    "index": new_file_id if index is None else index,
-                    "file_id": new_file_id,
-                    "file_bytes": file_bytes,
-                    "file_extension": get_file_extension(filename),
-                    "custom_context": {
-                        "file_id": new_file_id,
-                        "file_name": filename,
-                        "file_size": file.size,
-                        "user_id": user_id,
-                        "created_at": datetime.now().isoformat(),
-                        "updated_at": datetime.now().isoformat(),
-                    },
+                    "index": new_file_id,
                 },
-            )
-            compass.invoke(
-                action=Compass.ValidActions.REFRESH,
-                parameters={"index": new_file_id if index is None else index},
             )
         except Exception as e:
             logger.error(
-                event=f"[Compass File Service] Failed to create document on index: {index}, error: {e}"
+                event=f"[Compass File Service] Failed to create index: {index}, error: {e}"
             )
 
-        uploaded_files.append(
-            File(
-                file_name=filename,
-                id=new_file_id,
-                file_size=file.size,
-                user_id=user_id,
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-            )
+    try:
+        compass.invoke(
+            action=Compass.ValidActions.CREATE,
+            parameters={
+                "index": new_file_id if index is None else index,
+                "file_id": new_file_id,
+                "file_bytes": file_bytes,
+                "file_extension": get_file_extension(filename),
+                "custom_context": {
+                    "file_id": new_file_id,
+                    "file_name": filename,
+                    "file_size": file.size,
+                    "user_id": user_id,
+                    "created_at": datetime.now().isoformat(),
+                    "updated_at": datetime.now().isoformat(),
+                },
+            },
+        )
+        compass.invoke(
+            action=Compass.ValidActions.REFRESH,
+            parameters={"index": new_file_id if index is None else index},
+        )
+    except Exception as e:
+        logger.error(
+            event=f"[Compass File Service] Failed to create document on index: {index}, error: {e}"
         )
 
-    return uploaded_files
+    return File(
+        file_name=filename,
+        id=new_file_id,
+        file_size=file.size,
+        user_id=user_id,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
 
 
 # Misc
