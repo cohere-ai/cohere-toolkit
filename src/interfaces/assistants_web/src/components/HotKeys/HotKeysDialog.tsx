@@ -59,10 +59,6 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
   }, [query, options]);
 
   const handleOnChange = (hotkey?: CustomHotKey) => {
-    // const hotkey = options
-    //   .flatMap((option) => option.quickActions)
-    //   .find((option) => option.name === command);
-
     if (hotkey) {
       if (hotkey.closeDialogOnRun) {
         close();

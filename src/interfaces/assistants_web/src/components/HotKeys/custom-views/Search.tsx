@@ -112,7 +112,7 @@ export const Search: React.FC<Props> = ({ isOpen, close, onBack }) => {
         isSearch
       />
       <ComboboxOptions className="mb-3 flex flex-col gap-y-6 overflow-y-auto" static>
-        <CommandActionGroup isOpen options={results} />
+        <CommandActionGroup isOpen={isOpen} options={results} />
       </ComboboxOptions>
     </span>
   );
