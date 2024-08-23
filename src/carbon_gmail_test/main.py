@@ -151,7 +151,8 @@ def main_gmail():
 
 
 if __name__ == "__main__":
+    pass
     # list_webhook()
     # add_webhook()
-    main_gmail()
+    # main_gmail()
     # main_query_compass()
