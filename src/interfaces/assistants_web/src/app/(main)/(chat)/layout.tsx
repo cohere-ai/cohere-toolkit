@@ -3,7 +3,7 @@
 import { Transition } from '@headlessui/react';
 import { useEffect } from 'react';
 
-import { ConversationPanel } from '@/components/Conversation';
+import { KnowledgePanel } from '@/components/Conversation';
 import { useIsDesktop, useListAllDeployments } from '@/hooks';
 import { useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -54,7 +54,7 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         leaveFrom="translate-x-0 opacity-100"
         leaveTo="translate-x-full opacity-0"
       >
-        <ConversationPanel />
+        <KnowledgePanel />
       </Transition>
     </div>
   );
