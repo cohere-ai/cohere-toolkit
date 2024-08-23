@@ -18,7 +18,6 @@ from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
 from backend.database_models.document import Document
-from backend.database_models.tool_call import UpdateToolCall
 from backend.database_models.message import (
     Message,
     MessageAgent,
@@ -45,16 +44,11 @@ from backend.schemas.chat import (
     StreamToolResult,
     ToolInputType,
 )
-
-from backend.schemas.cohere_chat import CohereChatRequest, RegenerateChatStreamRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
-from backend.services.file import get_file_service
-from backend.schemas.message import UpdateMessage
-from backend.services.generators import AsyncGeneratorContextManager
 
 
 def process_chat(

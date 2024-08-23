@@ -1,7 +1,6 @@
-from sqlalchemy import JSON, ForeignKey, Index
 from typing import Optional
 
-from sqlalchemy import JSON, ForeignKey, Index, String
+from sqlalchemy import JSON, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database_models.base import Base

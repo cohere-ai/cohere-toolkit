@@ -11,7 +11,7 @@ from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
-from backend.schemas.cohere_chat import CohereChatRequest, RegenerateChatStreamRequest
+from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.langchain_chat import LangchainChatRequest
 from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
