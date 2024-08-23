@@ -194,7 +194,7 @@ ALL_TOOLS = {
                 "required": True,
             }
         },
-        is_visible=True,
+        is_visible=False,
         is_available=BraveWebSearch.is_available(),
         error_message="BraveWebSearch not available, please make sure to set the tools.brave_web_search.api_key variable in your secrets.yaml",
         category=Category.DataLoader,

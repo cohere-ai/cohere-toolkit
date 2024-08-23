@@ -38,8 +38,6 @@ tools:
   google_drive:
     client_id:
     client_secret:
-  brave_web_search:
-    api_key:
 feature_flags:
   # Experimental features
   use_experimental_langchain: false

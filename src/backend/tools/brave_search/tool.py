@@ -2,13 +2,13 @@ from typing import Any, Dict, List
 
 from langchain_community.tools.brave_search.tool import BraveSearch
 
-from backend.brave_search import BraveClient
 from backend.config.settings import Settings
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.tools.base import BaseTool
+from backend.tools.brave_search.client import BraveClient
 
 
 class BraveWebSearch(BaseTool):
