@@ -53,10 +53,15 @@ GMAIL_TOOL = "GMAIL"
 SEARCH_LIMIT = 5
 
 
-def get_headers() -> Dict[str, str]:
+def get_headers(customer_id=None) -> Dict[str, str]:
+    if not customer_id:
+        return {
+            "authorization": "Bearer " + API_KEY,
+            "Content-Type": "application/json",
+        }
     return {
         "authorization": "Bearer " + API_KEY,
-        "customer-id": CUSTOMER_ID,
+        "customer-id": customer_id,
         "Content-Type": "application/json",
     }
 
@@ -101,7 +106,7 @@ def get_emails_to_index(item: Dict[str, Any]) -> List[EmailsToIndex]:
 
 
 # TODO: this is different
-def list_email_by_ids(ids: List[int]) -> List[EmailsToIndex]:
+def list_email_by_ids(ids: List[int], customer_id: str) -> List[EmailsToIndex]:
     url = f"{BASE_URL}/user_files_v2"
     payload = {
         "include_raw_file": True,
@@ -114,7 +119,7 @@ def list_email_by_ids(ids: List[int]) -> List[EmailsToIndex]:
         },
         "pagination": {"limit": 1, "offset": 0},
     }
-    headers = get_headers()
+    headers = get_headers(customer_id)
     response = requests.request("POST", url, json=payload, headers=headers)
     print(response.text)
     if response.status_code != 200:
@@ -199,7 +204,7 @@ def download_web_link(url: str) -> bytes:
     raise Exception(f"Failed to download {url}")
 
 
-def list_emails_v2() -> List[EmailsToIndex]:
+def list_emails_v2(customer_id: str) -> List[EmailsToIndex]:
     url = f"{BASE_URL}/user_files_v2"
     payload = {
         "include_raw_file": True,
@@ -209,11 +214,11 @@ def list_emails_v2() -> List[EmailsToIndex]:
         "filters": {"sync_statuses": ["READY"]},
         "pagination": {"limit": 100, "offset": 0},
     }
-    headers = get_headers()
+    headers = get_headers(customer_id)
     response = requests.request("POST", url, json=payload, headers=headers)
-    # print(response.text)
+    print(response.text)
     if response.status_code != 200:
-        return []
+        return [], []
     res = response.json()
     items = res.get("results", [])
     rv: List[EmailsToIndex] = []

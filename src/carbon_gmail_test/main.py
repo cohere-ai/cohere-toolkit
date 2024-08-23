@@ -21,18 +21,18 @@ GMAIL_TOOL = "GMAIL"
 SEARCH_LIMIT = 5
 
 
-def auth(tool: str):
+def auth(tool: str, customer_id: str):
     url = f"{BASE_URL}/integrations/oauth_url"
     payload = {"service": tool}
-    headers = get_headers()
+    headers = get_headers(customer_id)
     response = requests.request("POST", url, json=payload, headers=headers)
     print(response.text)
 
 
-def user_sources(tool: str) -> List[int]:
+def user_sources(tool: str, customer_id: str) -> List[int]:
     url = f"{BASE_URL}/user_data_sources"
     payload = {"filters": {"source": tool}}
-    headers = get_headers()
+    headers = get_headers(customer_id)
     response = requests.request("POST", url, json=payload, headers=headers)
     result_ids = []
     print(response.text)
@@ -44,22 +44,22 @@ def user_sources(tool: str) -> List[int]:
     return [rid for rid in result_ids if rid is not None]
 
 
-def list_items(source_id: int):
+def list_items(source_id: int, customer_id: str):
     url = f"{BASE_URL}/integrations/items/list"
     payload = {"data_source_id": source_id}
-    headers = get_headers()
+    headers = get_headers(customer_id)
     response = requests.request("POST", url, json=payload, headers=headers)
     print(response.text)
 
 
-def gmail_labels():
+def gmail_labels(customer_id: str):
     url = f"{BASE_URL}/integrations/gmail/user_labels"
-    headers = get_headers()
+    headers = get_headers(customer_id)
     response = requests.request("GET", url, headers=headers)
     print(response.text)
 
 
-def sync_gmail(source_id: int):
+def sync_gmail(source_id: int, customer_id: str):
     url = f"{BASE_URL}/integrations/gmail/sync"
     payload = {
         "filters": {
@@ -77,14 +77,16 @@ def sync_gmail(source_id: int):
         "sync_attachments": True,
         "data_source_id": source_id,
     }
-    response = requests.request("POST", url, json=payload, headers=get_headers())
+    response = requests.request(
+        "POST", url, json=payload, headers=get_headers(customer_id)
+    )
     print(response.text)
 
 
-def setup_auto_sync(tool: str):
+def setup_auto_sync(tool: str, customer_id:str):
     url = f"{BASE_URL}/organization/update"
     payload = {"global_user_config": {"auto_sync_enabled_sources": [tool]}}
-    response = requests.request("POST", url, json=payload, headers=get_headers())
+    response = requests.request("POST", url, json=payload, headers=get_headers(customer_id))
     print(response.text)
 
 

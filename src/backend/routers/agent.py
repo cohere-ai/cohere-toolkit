@@ -123,15 +123,16 @@ async def create_agent(
     # TODO: run this in workers
     # TODO: allow multiple sources not just gmail
     if agent.carbon_id:
+        customer_id = agent.carbon_id
         try:
-            source_ids = user_sources(GMAIL_TOOL)
-            sync_gmail(source_ids)
-            emails, errs = list_emails_v2()
+            source_ids = user_sources(GMAIL_TOOL, customer_id)
+            sync_gmail(source_ids[0], customer_id)
+            emails, errs = list_emails_v2(customer_id)
             logger.info(event="got emails from carbon", emails=emails, errs=errs)
             if errs:
                 print("Errors: ", errs)
             res = index_on_compass(
-                init_compass(), f"carbon-gmail-{agent.carbon_id}", emails
+                init_compass(), f"carbon-gmail-{customer_id}", emails
             )
             logger.info(event="indexed on compass", res=res)
         except Exception as e:

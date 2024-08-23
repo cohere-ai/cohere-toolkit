@@ -267,21 +267,10 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           <CarbonConnect
             orgName="Cohere"
             tokenFetcher={tokenFetcher(agentCarbonId)}
-            tags={{
-              tag1: 'tag1_value',
-              tag2: 'tag2_value',
-              tag3: 'tag3_value',
-            }}
             maxFileSize={10000000}
             enabledIntegrations={[
               {
                 id: IntegrationName.GMAIL,
-                chunkSize: 1000,
-                overlapSize: 20,
-                fileSyncConfig: {
-                  detect_audio_language: true,
-                  split_rows: true,
-                },
               },
             ]}
             onSuccess={(data) => console.log('Data on Success: ', data)}
@@ -292,6 +281,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
             secondaryTextColor="#000000"
             allowMultipleFiles={true}
             open={false}
+            showFilesTab={true}
             chunkSize={1500}
             overlapSize={20}
           ></CarbonConnect>
