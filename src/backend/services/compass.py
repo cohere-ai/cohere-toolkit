@@ -16,7 +16,31 @@ from backend.config.settings import Settings
 from backend.services.logger.utils import LoggerFactory
 
 logger = LoggerFactory().get_logger()
+compass = None
 
+def get_compass():
+    """
+    Initialize a singular instance of Compass if not initialized yet
+
+    Returns:
+        Compass: The singleton Compass instance
+    """
+    global compass
+
+    if compass is None:
+        try:
+            compass = Compass(
+                compass_api_url=Settings().compass.api_url,  # type: ignore
+                compass_parser_url=Settings().compass.parser_url,  # type: ignore
+                compass_username=Settings().compass.username,  # type: ignore
+                compass_password=Settings().compass.password,  # type: ignore
+            )
+        except Exception as e:
+            logger.error(
+                event=f"[Compass File Service] Error initializing Compass: {e}"
+            )
+            raise e
+    return compass
 
 class Compass:
     """Interface to interact with a Compass instance."""

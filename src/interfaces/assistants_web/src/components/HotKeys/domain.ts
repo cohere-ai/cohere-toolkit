@@ -11,6 +11,7 @@ export type QuickAction = {
   displayInDialog?: boolean;
   action?: () => void;
   customView?: React.FC<{
+    isOpen: boolean;
     close: VoidFunction;
     onBack: VoidFunction;
   }>;

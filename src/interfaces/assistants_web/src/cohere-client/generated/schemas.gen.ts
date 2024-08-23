@@ -143,6 +143,56 @@ export const $AgentPublic = {
   title: 'AgentPublic',
 } as const;
 
+export const $AgentTaskResponse = {
+  properties: {
+    task_id: {
+      type: 'string',
+      title: 'Task Id',
+    },
+    status: {
+      type: 'string',
+      title: 'Status',
+    },
+    result: {
+      anyOf: [
+        {
+          type: 'object',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Result',
+    },
+    date_done: {
+      type: 'string',
+      title: 'Date Done',
+    },
+    exception_snippet: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Exception Snippet',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    retries: {
+      type: 'integer',
+      title: 'Retries',
+    },
+  },
+  type: 'object',
+  required: ['task_id', 'status', 'date_done', 'name', 'retries'],
+  title: 'AgentTaskResponse',
+} as const;
+
 export const $AgentToolMetadata = {
   properties: {
     id: {

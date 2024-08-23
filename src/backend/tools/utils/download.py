@@ -1,5 +1,4 @@
 from concurrent import futures
-from typing import Dict
 
 import httpx
 
@@ -26,9 +25,7 @@ def perform_batch(
     return texts
 
 
-def perform_single(
-    httpx_client: httpx.Client, url: str, access_token: str
-) -> Dict[str, str]:
+def perform_single(httpx_client: httpx.Client, url: str, access_token: str) -> str:
     return _download(httpx_client=httpx_client, url=url, access_token=access_token)
 
 

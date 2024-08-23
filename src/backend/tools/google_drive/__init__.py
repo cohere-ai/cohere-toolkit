@@ -14,7 +14,6 @@ from backend.tools.google_drive.sync.actions import (
     move,
     permission_change,
     rename,
-    restore,
 )
 from backend.tools.google_drive.sync.activity import (
     handle_google_drive_activity_event,
@@ -37,5 +36,4 @@ __all__ = [
     "move",
     "permission_change",
     "rename",
-    "restore",
 ]

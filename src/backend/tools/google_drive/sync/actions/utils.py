@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 
+from backend.services.logger.utils import LoggerFactory
 from backend.services.sync.env import env
 from backend.tools.google_drive.constants import (
     NATIVE_SEARCH_MIME_TYPES,
@@ -16,6 +17,8 @@ from backend.tools.google_drive.sync.utils import (
     process_shortcut_file,
 )
 from backend.tools.utils import download
+
+logger = LoggerFactory().get_logger()
 
 
 def get_file_details(

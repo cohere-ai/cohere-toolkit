@@ -136,7 +136,9 @@ wandb/
 secrets.toml
 
 # VScode settings
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.default.json
 
 .DS_Store
 
@@ -156,3 +158,6 @@ secrets.toml
 /src/backend/config/configuration.yaml
 /src/backend/config/secrets.yaml
 logs/
+credentials.json
+token.json
+src/interfaces/assistants_web/bun.lockb
