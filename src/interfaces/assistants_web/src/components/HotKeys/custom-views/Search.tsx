@@ -5,7 +5,9 @@ import { useDebouncedEffect } from '@react-hookz/web';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { AgentLogo } from '@/components/Agents/AgentLogo';
 import { CommandActionGroup, HotKeyGroupOption, HotKeysDialogInput } from '@/components/HotKeys';
+import { BASE_AGENT } from '@/constants';
 import { useConversations, useListAgents } from '@/hooks';
 
 type Props = {
@@ -72,6 +74,20 @@ export const Search: React.FC<Props> = ({ isOpen, close, onBack }) => {
           quickActions:
             foundConversations?.map((conversation) => ({
               name: conversation.title,
+              label: (
+                <div className="flex items-center gap-x-2">
+                  <AgentLogo
+                    agent={
+                      assistants?.find((assistant) => assistant.id === conversation.agent_id) ??
+                      BASE_AGENT
+                    }
+                  />
+                  <span>{conversation.title}</span>
+                  <span className="ml-2 truncate text-p-sm text-volcanic-600">
+                    {conversation.description}
+                  </span>
+                </div>
+              ),
               action: () => {
                 if (conversation.agent_id) {
                   router.push(`/a/${conversation.agent_id}/c/${conversation.id}`);
@@ -89,6 +105,17 @@ export const Search: React.FC<Props> = ({ isOpen, close, onBack }) => {
           quickActions:
             foundAssistants?.map((assistant) => ({
               name: assistant.name,
+              label: (
+                <div className="flex items-center gap-x-2">
+                  <AgentLogo agent={assistant} />
+                  <span>{assistant.name}</span>
+                  {assistant.description && (
+                    <span className="ml-2 truncate text-p-sm text-volcanic-600">
+                      {assistant.description}
+                    </span>
+                  )}
+                </div>
+              ),
               action: () => router.push(`/a/${assistant.id}`),
               closeDialogOnRun: true,
               commands: [],
