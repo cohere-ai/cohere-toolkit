@@ -2,10 +2,8 @@ from sqlalchemy.orm import Session
 
 from backend.database_models.user import User
 from backend.schemas.user import UpdateUser
-from backend.services.transaction import validate_transaction
 
 
-@validate_transaction
 def create_user(db: Session, user: User) -> User:
     """ "
     Create a new user.
@@ -23,7 +21,6 @@ def create_user(db: Session, user: User) -> User:
     return user
 
 
-@validate_transaction
 def get_user(db: Session, user_id: str) -> User:
     """
     Get a user by ID.
@@ -38,7 +35,34 @@ def get_user(db: Session, user_id: str) -> User:
     return db.query(User).filter(User.id == user_id).first()
 
 
-@validate_transaction
+def get_user_by_external_id(db: Session, external_id: str) -> User | None:
+    """
+    Get a user by external ID.
+
+    Args:
+        db (Session): Database session.
+        external_id (str): external id.
+
+    Returns:
+        User | None: User with the given external id or None if not found.
+    """
+    return db.query(User).filter(User.external_id == external_id).first()
+
+
+def get_user_by_user_name(db: Session, user_name: str) -> User | None:
+    """
+    Get a user by ID.
+
+    Args:
+        db (Session): Database session.
+        user_name (str): username.
+
+    Returns:
+        User | None: User with the given username or None if not found.
+    """
+    return db.query(User).filter(User.user_name == user_name).first()
+
+
 def get_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     """
     List all users.
@@ -54,22 +78,27 @@ def get_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     return db.query(User).order_by(User.fullname).offset(offset).limit(limit).all()
 
 
-@validate_transaction
-def get_user_by_email(db: Session, email: str) -> User:
+def get_external_users(db: Session, offset: int = 0, limit: int = 100) -> list[User]:
     """
-    Get a user by email.
+    List all external users created by the SCIM integration.
 
     Args:
         db (Session): Database session.
-        email (str): User email.
+        offset (int): Offset to start the list.
+        limit (int): Limit of users to be listed.
 
     Returns:
-        User: User with the given email.
+        list[User]: List of users.
     """
-    return db.query(User).filter(User.email == email).first()
+    return (
+        db.query(User)
+        .filter(User.external_id is not None)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
 
 
-@validate_transaction
 def update_user(db: Session, user: User, new_user: UpdateUser) -> User:
     """
     Update a user by ID.
@@ -89,7 +118,6 @@ def update_user(db: Session, user: User, new_user: UpdateUser) -> User:
     return user
 
 
-@validate_transaction
 def delete_user(db: Session, user_id: str) -> None:
     """
     Delete a user by ID.

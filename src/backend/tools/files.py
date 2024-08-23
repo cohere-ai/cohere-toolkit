@@ -10,7 +10,7 @@ from backend.tools.base import BaseTool
 
 
 class FileToolsArtifactTypes(StrEnum):
-    local_file = "local_file"
+    local_file = "file"
 
 
 def compass_file_search(
@@ -33,46 +33,44 @@ def compass_file_search(
         for file_id in file_ids
     ]
 
+    compass = get_compass()
+
     # Search conversation ID index
-    hits = (
-        get_compass()
-        .invoke(
+    search_results = compass.invoke(
             action=Compass.ValidActions.SEARCH,
             parameters={
                 "index": conversation_id,
                 "query": query,
                 "top_k": search_limit,
                 "filters": search_filters,
-            },
-        )
-        .result["hits"]
+        },
     )
-    results.extend(hits)
+
+    if search_results.result:
+        results.extend(search_results.result["hits"])
 
     # Search agent ID index
     if agent_id:
-        hits = (
-            get_compass()
-            .invoke(
-                action=Compass.ValidActions.SEARCH,
-                parameters={
-                    "index": agent_id,
-                    "query": query,
-                    "top_k": search_limit,
-                    "filters": search_filters,
-                },
-            )
-            .result["hits"]
+        search_results = compass.invoke(
+            action=Compass.ValidActions.SEARCH,
+            parameters={
+                "index": agent_id,
+                "query": query,
+                "top_k": search_limit,
+                "filters": search_filters,
+            },
         )
-        results.extend(hits)
+
+    if search_results.result:
+        results.extend(search_results.result["hits"])
 
     chunks = sorted(
         [
             {
                 "text": chunk["content"]["text"],
                 "score": chunk["score"],
-                "url": result["content"].get("title", ""),
-                "title": result["content"].get("title", ""),
+                "url": result["content"].get("file_name", ""),
+                "title": result["content"].get("file_name", ""),
             }
             for result in results
             for chunk in result["chunks"]
@@ -128,7 +126,7 @@ class ReadFileTool(BaseTool):
                 {
                     "text": retrieved_file.file_content,
                     "title": retrieved_file.file_name,
-                    "url": retrieved_file.file_path,
+                    "url": retrieved_file.file_name,
                 }
             ]
 
@@ -183,7 +181,7 @@ class SearchFileTool(BaseTool):
                     {
                         "text": file.file_content,
                         "title": file.file_name,
-                        "url": file.file_path,
+                        "url": file.file_name,
                     }
                 )
             return results

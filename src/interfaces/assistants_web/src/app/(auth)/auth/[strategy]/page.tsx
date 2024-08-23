@@ -1,14 +1,14 @@
 import { NextPage } from 'next';
 import { Suspense } from 'react';
 
-import CompleteOauth from './CompleteOauth';
+import OauthCallback from './OauthCallback';
 
-const CompleteOauthPage: NextPage = () => {
+const OauthCallbackPage: NextPage = () => {
   return (
     <Suspense>
-      <CompleteOauth />
+      <OauthCallback />
     </Suspense>
   );
 };
 
-export default CompleteOauthPage;
+export default OauthCallbackPage;

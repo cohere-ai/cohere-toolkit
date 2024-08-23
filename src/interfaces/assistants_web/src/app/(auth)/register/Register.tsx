@@ -3,9 +3,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { AuthLink } from '@/components/AuthLink';
-import { Button, Input, Text } from '@/components/Shared';
-import { useSession } from '@/hooks/session';
+import { AuthLink } from '@/components/Auth';
+import { Button, Input, Text } from '@/components/UI';
+import { useSession } from '@/hooks';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 
 interface Credentials {

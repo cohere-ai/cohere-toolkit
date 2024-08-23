@@ -101,6 +101,26 @@ def validate_user_header(session: DBSessionDep, request: Request):
         raise HTTPException(status_code=401, detail="User not found.")
 
 
+def validate_organization_header(session: DBSessionDep, request: Request):
+    """
+    Validate that the request has the `Organization-Id` header, used for requests
+    that require an Organization.
+
+    Args:
+        request (Request): The request to validate
+
+    Raises:
+        HTTPException: If no `Organization-Id` header.
+
+    """
+
+    organization_id = request.headers.get("Organization-Id", None)
+    if organization_id:
+        organization = organization_crud.get_organization(session, organization_id)
+        if not organization:
+            raise HTTPException(status_code=404, detail=f"Organization ID {organization_id} not found.")
+
+
 def validate_deployment_header(request: Request, session: DBSessionDep):
     """
     Validate that the request has the `Deployment-Name` header, used for chat requests
@@ -364,9 +384,7 @@ async def validate_create_deployment_request(session: DBSessionDep, request: Req
         )
 
 
-async def validate_create_update_organization_request(
-    session: DBSessionDep, request: Request
-):
+async def validate_organization_request(session: DBSessionDep, request: Request):
     """
     Validate create/update organization request.
 
@@ -398,30 +416,3 @@ async def validate_create_update_organization_request(
         raise HTTPException(
             status_code=400, detail=f"Organization with name: {name} already exists."
         )
-
-
-async def validate_create_update_user_request(session: DBSessionDep, request: Request):
-    """
-    Validate that the create user request is valid.
-
-    Args:
-        request (Request): The request to validate
-
-    Raises:
-        HTTPException: If the request does not have the appropriate values in the body
-    """
-    body = await request.json()
-    email = body.get("email")
-    if email and request.method == "POST":
-        user = user_crud.get_user_by_email(session, email)
-        if user:
-            raise HTTPException(
-                status_code=400, detail=f"User with email {email} already exists."
-            )
-    tools = body.get("tools")
-    if tools:
-        for tool in tools:
-            if tool not in AVAILABLE_TOOLS:
-                raise HTTPException(
-                    status_code=404, detail=f"Tool {tool} is not available."
-                )

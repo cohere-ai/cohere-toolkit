@@ -1,6 +1,7 @@
 import { StateCreator } from 'zustand';
 
 import { Document } from '@/cohere-client';
+import { decodeBase64, mapExtensionToMimeType } from '@/utils';
 
 import { StoreState } from '..';
 
@@ -22,7 +23,9 @@ interface SearchResults {
   [documentId: string]: Record<string, any>;
 }
 
-export type OutputFiles = { [name: string]: { name: string; data: string; documentId?: string } };
+export type OutputFiles = {
+  [name: string]: { name: string; data: string; documentId?: string; downloadUrl?: string };
+};
 
 type State = {
   citationReferences: CitationReferences;
@@ -80,6 +83,18 @@ export const createCitationsSlice: StateCreator<StoreState, [], [], CitationsSto
     }));
   },
   saveOutputFiles(outputFiles) {
+    for (const [name, file] of Object.entries(outputFiles)) {
+      if (file.downloadUrl) {
+        continue;
+      }
+      const data = decodeBase64(file.data);
+      const fileExtension = file.name.split('.').pop() || '.txt';
+      const mimeType = mapExtensionToMimeType(fileExtension);
+      const blob = new Blob([data], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      outputFiles[name] = { ...file, downloadUrl: url };
+    }
+
     set((state) => ({
       citations: {
         ...state.citations,

@@ -9,6 +9,7 @@ from backend.database_models.database import *
 from backend.database_models.deployment import *
 from backend.database_models.document import *
 from backend.database_models.file import *
+from backend.database_models.group import *
 from backend.database_models.message import *
 from backend.database_models.model import *
 from backend.database_models.organization import *

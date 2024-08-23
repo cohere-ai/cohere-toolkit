@@ -2,7 +2,6 @@ import pytest
 
 from backend.crud import file as file_crud
 from backend.database_models.file import File
-from backend.schemas.file import UpdateFileRequest
 from backend.tests.unit.factories import get_factory
 
 
@@ -14,20 +13,17 @@ def conversation(session, user):
 def test_create_file(session, user):
     file_data = File(
         file_name="test.txt",
-        file_path="/tmp/test.txt",
         file_size=100,
         user_id=user.id,
     )
 
     file = file_crud.create_file(session, file_data)
     assert file.file_name == file_data.file_name
-    assert file.file_path == file_data.file_path
     assert file.file_size == file_data.file_size
     assert file.user_id == file_data.user_id
 
     file = file_crud.get_file(session, file.id, user.id)
     assert file.file_name == file_data.file_name
-    assert file.file_path == file_data.file_path
     assert file.file_size == file_data.file_size
     assert file.user_id == file_data.user_id
 
@@ -35,13 +31,11 @@ def test_create_file(session, user):
 def test_batch_create_files(session, user):
     file_data = File(
         file_name="test.txt",
-        file_path="/tmp/test.txt",
         file_size=100,
         user_id=user.id,
     )
     file_data2 = File(
         file_name="test2.txt",
-        file_path="/tmp/test2.txt",
         file_size=100,
         user_id=user.id,
     )
@@ -114,20 +108,6 @@ def test_list_files_by_user_id(session, user):
 def test_list_files_by_user_id_empty(session, user):
     files = file_crud.get_files_by_user_id(session, user.id)
     assert len(files) == 0
-
-
-def test_update_file(session, user):
-    file = get_factory("File", session).create(file_name="test.txt", user_id=user.id)
-
-    new_file_data = UpdateFileRequest(
-        file_name="new_name.txt",
-    )
-
-    updated_file = file_crud.update_file(session, file, new_file_data)
-    assert updated_file.file_name == new_file_data.file_name
-    assert updated_file.file_path == file.file_path
-    assert updated_file.file_size == file.file_size
-    assert updated_file.user_id == file.user_id
 
 
 def test_delete_file(session, user):

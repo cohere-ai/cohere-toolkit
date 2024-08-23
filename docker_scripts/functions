@@ -270,14 +270,14 @@ run_backend_poetry() {
 }
 
 run_frontend_proxy() {
-  cd /workspace/src/interfaces/coral_web
+  cd /workspace/src/interfaces/assistants_web
   echo "Starting Frontend..."
   pm2 start npm -- run -- start:single-docker-proxy
   echo "Frontend started..."
 }
 
 run_frontend() {
-  cd /workspace/src/interfaces/coral_web
+  cd /workspace/src/interfaces/assistants_web
   echo "Building Frontend"
   npm run next:build
   echo "Starting Frontend..."

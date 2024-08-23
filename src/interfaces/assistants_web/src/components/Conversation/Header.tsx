@@ -1,12 +1,11 @@
 'use client';
 
 import { AgentPublic } from '@/cohere-client';
-import { IconButton } from '@/components/IconButton';
-import { ShareModal } from '@/components/ShareModal';
-import { Button, Icon, Logo, Text } from '@/components/Shared';
+import { ShareConversation } from '@/components/Modals/ShareConversation';
+import { Button, Icon, IconButton, Logo, Text } from '@/components/UI';
 import { useContextStore } from '@/context';
 import { env } from '@/env.mjs';
-import { useBrandedColors } from '@/hooks/brandedColors';
+import { useBrandedColors } from '@/hooks';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -28,7 +27,7 @@ export const Header: React.FC<Props> = ({ agent }) => {
     if (!id) return;
     open({
       title: 'Share link to conversation',
-      content: <ShareModal conversationId={id} />,
+      content: <ShareConversation conversationId={id} />,
     });
   };
 

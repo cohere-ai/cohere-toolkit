@@ -2,7 +2,7 @@ import type { Preview } from '@storybook/react';
 import { ThemeProvider } from 'next-themes';
 import React from 'react';
 
-import '../src/styles/main.css';
+import '@/styles/main.css';
 
 const preview: Preview = {
   decorators: [

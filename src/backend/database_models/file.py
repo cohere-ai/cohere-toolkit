@@ -9,7 +9,6 @@ class File(Base):
 
     user_id: Mapped[str] = mapped_column(String, nullable=True)
     file_name: Mapped[str]
-    file_path: Mapped[str]
     file_size: Mapped[int] = mapped_column(default=0)
     file_content: Mapped[str] = mapped_column(default="")
 
