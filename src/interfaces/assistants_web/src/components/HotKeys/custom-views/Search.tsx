@@ -106,7 +106,7 @@ export const Search: React.FC<Props> = ({ isOpen, close, onBack }) => {
       <HotKeysDialogInput
         value={query}
         setValue={setQuery}
-        placeholder="Search conversations and files"
+        placeholder="Search conversations and assistants"
         close={close}
         onBack={onBack}
         isSearch
