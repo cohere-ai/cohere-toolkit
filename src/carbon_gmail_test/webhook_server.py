@@ -5,7 +5,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from carbon_gmail_test.utils import index_on_compass, init_compass, list_email_by_ids
+from carbon_gmail_test.utils import (
+    GMAIL_TOOL,
+    gen_index_name,
+    index_on_compass,
+    init_compass,
+    list_email_by_ids,
+)
 
 load_dotenv()
 app = FastAPI()
@@ -41,13 +47,17 @@ def webhook(body: Body):
         payload = WebhookPayload(**req)
         if (
             payload.webhook_type == "FILE_READY"
-            and not payload.obj.additional_information.is_resync
+            # and not payload.obj.additional_information.is_resync
         ):
             print("Processing FILE_READY event")
             customer_id = payload.customer_id
             file_id = payload.obj.object_id
             emails, _errs = list_email_by_ids([int(file_id)])
-            statuses = index_on_compass(init_compass(), customer_id, emails)
+            statuses = index_on_compass(
+                init_compass(gen_index_name(GMAIL_TOOL, customer_id)),
+                customer_id,
+                emails,
+            )
             print(statuses)
 
     except Exception as e:

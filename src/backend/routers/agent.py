@@ -64,6 +64,7 @@ from carbon_gmail_test.main_utils import (
 )
 from carbon_gmail_test.utils import (
     GMAIL_TOOL,
+    gen_index_name,
     index_on_compass,
     init_compass,
     list_emails_v2,
@@ -127,16 +128,21 @@ async def create_agent(
     if agent.carbon_id:
         customer_id = agent.carbon_id
         try:
+            # TODO: fix this, hacky
             source_ids = user_sources(GMAIL_TOOL, customer_id)
             sync_gmail(source_ids[0], customer_id)
-            emails, errs = list_emails_v2(customer_id)
-            logger.info(event="got emails from carbon", emails=emails, errs=errs)
-            if errs:
-                print("Errors: ", errs)
-            res = index_on_compass(
-                init_compass(), f"carbon-gmail-{customer_id}", emails
-            )
-            logger.info(event="indexed on compass", res=res)
+
+            def index_emails_on_setup():
+                emails, errs = list_emails_v2(customer_id)
+                logger.info(event="got emails from carbon", emails=emails, errs=errs)
+                if errs:
+                    print("Errors: ", errs)
+                res = index_on_compass(
+                    init_compass(gen_index_name(GMAIL_TOOL, customer_id)), emails
+                )
+                logger.info(event="indexed on compass", res=res)
+
+            # index_emails_on_setup()
         except Exception as e:
             logger.exception(event=e)
             raise HTTPException(status_code=500, detail=str(e))

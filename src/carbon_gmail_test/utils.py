@@ -139,6 +139,10 @@ def list_email_by_ids(ids: List[int], customer_id: str) -> List[EmailsToIndex]:
     return rv, errs
 
 
+def gen_index_name(source_name: str, customer_id: str) -> str:
+    return f"carbon|f{source_name}|{customer_id}"
+
+
 def init_compass():
     return Compass(
         compass_api_url=Settings().compass.api_url,
