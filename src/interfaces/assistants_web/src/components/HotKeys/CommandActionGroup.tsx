@@ -12,6 +12,9 @@ export const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) =>
   return (
     <div className="flex flex-col gap-y-4">
       {options.map((action, i) => {
+        if (action.quickActions.length === 0) {
+          return null;
+        }
         return (
           <section key={i} className="flex flex-col">
             {action.group && (
@@ -25,7 +28,7 @@ export const CommandActionGroup: React.FC<Props> = ({ isOpen, options = [] }) =>
             {action.quickActions
               .filter((quickAction) => quickAction.displayInDialog !== false)
               .map((quickAction) => (
-                <CommandAction key={quickAction.name} isOpen={isOpen} {...quickAction} />
+                <CommandAction key={quickAction.name} isOpen={isOpen} hotkey={quickAction} />
               ))}
           </section>
         );

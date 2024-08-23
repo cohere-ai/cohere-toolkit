@@ -4,34 +4,35 @@ import { ComboboxOption } from '@headlessui/react';
 import { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { type QuickAction } from '@/components/HotKeys';
+import { QuickAction } from '@/components/HotKeys';
 import { Text } from '@/components/UI';
 import { useOS } from '@/hooks';
 import { cn } from '@/utils';
 
-interface Props extends QuickAction {
+interface Props {
+  hotkey: QuickAction;
   isOpen: boolean;
 }
 
-export const CommandAction: React.FC<Props> = ({ label, name, commands, action, isOpen }) => {
+export const CommandAction: React.FC<Props> = ({ isOpen, hotkey }) => {
   const os = useOS();
 
   useHotkeys(
-    commands,
+    hotkey.commands,
     (e) => {
       if (!isOpen) return;
       e.preventDefault();
-      action?.();
+      hotkey.action?.();
     },
     {
       enableOnFormTags: true,
     },
-    [isOpen, action]
+    [isOpen, hotkey.action]
   );
 
   const formattedCommands = useMemo(() => {
-    if (commands.length === 0) return [];
-    const [command] = commands;
+    if (hotkey.commands.length === 0) return [];
+    const [command] = hotkey.commands;
     return command.split('+').map((key) => {
       if (key === 'meta') return os === 'macOS' ? '⌘' : 'win';
       if (key === 'alt') return os === 'macOS' ? '⌥' : 'alt';
@@ -40,13 +41,13 @@ export const CommandAction: React.FC<Props> = ({ label, name, commands, action, 
       if (key.length === 1) return key.toUpperCase();
       return key;
     });
-  }, [commands, os]);
+  }, [hotkey.commands, os]);
 
   return (
     <>
       <ComboboxOption
-        key={name}
-        value={name}
+        key={hotkey.name}
+        value={hotkey}
         className={cn(
           'flex select-none items-center px-6 py-4',
           'data-[focus]:bg-volcanic-900 data-[focus]:dark:bg-volcanic-300'
@@ -60,7 +61,7 @@ export const CommandAction: React.FC<Props> = ({ label, name, commands, action, 
                 'text-volcanic-200 dark:text-marble-1000': focus,
               })}
             >
-              {label ?? name}
+              {hotkey.label ?? hotkey.name}
             </Text>
             <span className="flex gap-x-1">
               {formattedCommands.map((key) => (

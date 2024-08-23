@@ -42,6 +42,10 @@ class CustomFilterQuery(Query):
         return object.__new__(cls)
 
 
+class MinimalBase(DeclarativeBase):
+    pass
+
+
 class Base(DeclarativeBase):
     id = mapped_column(
         String,

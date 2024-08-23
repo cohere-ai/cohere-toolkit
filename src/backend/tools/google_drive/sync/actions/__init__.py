@@ -4,7 +4,6 @@ from backend.tools.google_drive.sync.actions.edit import edit
 from backend.tools.google_drive.sync.actions.move import move
 from backend.tools.google_drive.sync.actions.permission_change import permission_change
 from backend.tools.google_drive.sync.actions.rename import rename
-from backend.tools.google_drive.sync.actions.restore import restore
 
 __all__ = [
     "create",
@@ -13,5 +12,4 @@ __all__ = [
     "move",
     "permission_change",
     "rename",
-    "restore",
 ]
