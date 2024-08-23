@@ -12,7 +12,7 @@ from backend.tools.google_drive.constants import (
     GOOGLE_DRIVE_TOOL_ID,
     SEARCH_LIMIT,
 )
-from carbon_gmail_test.utils import gen_index_name, query_compass
+from carbon_gmail_test.utils import gen_index_name, init_compass, query_compass
 
 logger = LoggerFactory().get_logger()
 
@@ -30,13 +30,8 @@ class CarbonTool(BaseTool):
         if not customer_id:
             raise Exception("Carbon customer_id not found")
         index_name = gen_index_name(CARBON_TOOL_ID, customer_id)
-        compass = Compass(
-            compass_api_url=Settings().compass.api_url,
-            compass_parser_url=Settings().compass.parser_url,
-            compass_username=Settings().compass.username,
-            compass_password=Settings().compass.password,
-        )
-        return query_compass(compass, index_name, 5)
+        query = parameters.get("query", "").replace("'", "\\'")
+        return query_compass(init_compass(), index_name, query, 5)
 
 
 class GoogleDrive(BaseTool):
