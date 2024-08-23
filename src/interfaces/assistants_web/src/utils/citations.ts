@@ -13,6 +13,7 @@ const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction'
 
 export const IFRAME_REGEX_EXP = /<iframe.*<\/iframe>/;
 export const CODE_BLOCK_REGEX_EXP = /```[\s\S]*?```/;
+export const LATEX_REGEX_EXP = /\$\$([\s\S]*?)\$\$/;
 
 /**
  * Escape special regex characters in a string
@@ -21,17 +22,21 @@ export const CODE_BLOCK_REGEX_EXP = /```[\s\S]*?```/;
  */
 const escapeRegex = (str: string) => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 /**
- * Returns true if the string has an odd number of occurrences of the sequence
- * @param str
- * @param sequence
+ * Returns true if the string has an odd number of occurrences of the sequence or sequences
+ * @param str - The string to check
+ * @param sequence - A string or array of strings to check for odd occurrences
  * @returns boolean
  */
-const hasOddOccurrences = (str: string, sequence: string) => {
-  // Escape special regex characters in the sequence
-  const escapedSequence = sequence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const hasOddOccurrences = (str: string, sequence: string | string[]): boolean => {
+  const sequences = Array.isArray(sequence) ? sequence : [sequence];
+
+  // Escape special regex characters in the sequences
+  const escapedSequences = sequences.map((seq) => seq.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 
   // Create the regex pattern
-  const regexPattern = `^(?:[^${escapedSequence}]*${escapedSequence}){1}(?:[^${escapedSequence}]*${escapedSequence}[^${escapedSequence}]*${escapedSequence})*[^${escapedSequence}]*$`;
+  const regexPattern = escapedSequences
+    .map((seq) => `^(?:[^${seq}]*${seq}){1}(?:[^${seq}]*${seq}[^${seq}]*${seq})*[^${seq}]*$`)
+    .join('|');
 
   const regex = new RegExp(regexPattern);
 
@@ -72,7 +77,8 @@ const tryToFixCitationsInCodeBlock = (citations: Citation[], originalText: strin
     // since we are pushing out the citations out of the special blocks, we need to check if the citation is inside one of them
     if (
       isReferenceBetweenSpecialTags(IFRAME_REGEX_EXP, originalText, citation.start) ||
-      isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, citation.start)
+      isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, citation.start) ||
+      isReferenceBetweenSpecialTags(LATEX_REGEX_EXP, originalText, citation.start)
     ) {
       continue;
     }
@@ -80,7 +86,9 @@ const tryToFixCitationsInCodeBlock = (citations: Citation[], originalText: strin
     try {
       const regex = new RegExp(escapeRegex(citation.text), 'dg');
       const matches = Array.from(originalText.matchAll(regex)).filter(
-        (match) => !isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, match.index)
+        (match) =>
+          !isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, match.index) ||
+          !isReferenceBetweenSpecialTags(LATEX_REGEX_EXP, originalText, match.index)
       );
 
       const bestMatch = getClosestMatch(citation, matches);
@@ -99,12 +107,12 @@ const tryToFixCitationsInCodeBlock = (citations: Citation[], originalText: strin
 
 export const fixInlineCitationsForMarkdown = (citations: Citation[], originalText: string) => {
   let citationsCopy = structuredClone(citations);
-  const markdownFixList = ['`', '*', '**'];
+  const markdownFixList = ['`', '*', '**', '$', '$$', [`{`, `}`]];
   const matchDownloableMarkdownLink = /\[.*\]\(.*/;
   let carryOver = 0;
 
   // try to fix citations start and end indexes in case they are a code block on the text
-  if (originalText.match(CODE_BLOCK_REGEX_EXP)) {
+  if (originalText.match(CODE_BLOCK_REGEX_EXP) || originalText.match(LATEX_REGEX_EXP)) {
     citationsCopy = tryToFixCitationsInCodeBlock(citationsCopy, originalText);
   }
 
@@ -125,13 +133,15 @@ export const fixInlineCitationsForMarkdown = (citations: Citation[], originalTex
        */
       if (
         hasOddOccurrences(citation.text, markdown) && // it has an odd number of markdown characters
-        !isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, citation.start) // is not in a code block
+        !isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, citation.start) && // is not in a code block
+        !isReferenceBetweenSpecialTags(LATEX_REGEX_EXP, originalText, citation.start) // is not in a code block
       ) {
+        const endMarkdown = typeof markdown === 'string' ? markdown : markdown[1];
         const canWeIncludeNextCharacterInTheCitation =
-          originalText.charAt(citation.end) === markdown; // the next character the markdown character
+          originalText.charAt(citation.end) === endMarkdown; // the next character the markdown character
         if (canWeIncludeNextCharacterInTheCitation) {
           citation.end += markdown.length;
-          citation.text = citation.text + markdown;
+          citation.text = citation.text + endMarkdown;
         }
       }
 
@@ -208,7 +218,10 @@ export const replaceTextWithCitations = (
         return;
       }
 
-      if (isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, replacedText, citeStart)) {
+      if (
+        isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, replacedText, citeStart) ||
+        isReferenceBetweenSpecialTags(LATEX_REGEX_EXP, replacedText, citeStart)
+      ) {
         const ref = `Reference #${codeBlockReferences.length + 1}`;
         codeBlockReferences.push(
           `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
@@ -254,7 +267,7 @@ export function isReferenceBetweenSpecialTags(
 
   let match;
   while ((match = regex.exec(replacedText))) {
-    if (match && match.index < citeStart && citeStart < match.index + match[0].length) {
+    if (match && match.index <= citeStart && citeStart <= match.index + match[0].length) {
       return true;
     }
   }

@@ -128,8 +128,6 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
     );
   }
 
-  const hasCitations =
-    isTypingOrFulfilledMessage && message.citations && message.citations.length > 0;
   return (
     <MessageWrapper>
       <Markdown
@@ -142,7 +140,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
           cite: CitationTextHighlighter as any,
           table: DataTable as any,
         }}
-        renderLaTex={!hasCitations}
+        renderLaTex
       />
       {isAborted && (
         <MessageInfo>

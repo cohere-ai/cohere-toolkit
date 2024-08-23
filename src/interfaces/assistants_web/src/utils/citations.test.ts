@@ -4,6 +4,7 @@ import { Citation } from '@/cohere-client';
 import {
   CODE_BLOCK_REGEX_EXP,
   IFRAME_REGEX_EXP,
+  LATEX_REGEX_EXP,
   fixInlineCitationsForMarkdown,
   isReferenceBetweenSpecialTags,
   replaceTextWithCitations,
@@ -516,6 +517,30 @@ describe('isReferenceBetweenSpecialTags', () => {
       document_ids: ['12345'],
     };
     const result = isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, text, citation.start);
+    expect(result).toBe(true);
+  });
+  test('should return true if the citation is between $$ tags', () => {
+    const text =
+      "KaTeX is a method for publishing LaTeX-based maths on the web. Here are some examples of its use:\n\n$$\\frac{d}{dx}\\left( \\int_a^b f(x) dx \\right) = f(x)$$\n\n$$\\therefore \\int_a^b f'(x) dx = f(b) - f(a)$$\n\nTo insert a space use a tilde ~ and functions start with a slash \\. For example \\frac inserts a fraction.";
+    const citation: Citation = {
+      start: 105,
+      end: 117,
+      text: 'frac',
+      document_ids: ['12345'],
+    };
+    const result = isReferenceBetweenSpecialTags(LATEX_REGEX_EXP, text, citation.start);
+    expect(result).toBe(true);
+  });
+  test('should return true if the citation includes the special tags', () => {
+    const text =
+      "KaTeX is a method for publishing LaTeX-based maths on the web. Here are some examples of its use:\n\n$$\\frac{d}{dx}\\left( \\int_a^b f(x) dx \\right) = f(x)$$\n\n$$\\therefore \\int_a^b f'(x) dx = f(b) - f(a)$$\n\nTo insert a space use a tilde ~ and functions start with a slash \\. For example \\frac inserts a fraction.";
+    const citation: Citation = {
+      start: 101,
+      end: 156,
+      text: '$\\frac{d}{dx}\\left( \\int_a^b f(x) dx \\right) = f(x)$$',
+      document_ids: ['12345'],
+    };
+    const result = isReferenceBetweenSpecialTags(LATEX_REGEX_EXP, text, citation.start);
     expect(result).toBe(true);
   });
 });
