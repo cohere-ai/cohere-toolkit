@@ -12,6 +12,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 
 import {
   CommandActionGroup,
+  CustomHotKey,
   type HotKeyGroupOption,
   HotKeysDialogInput,
 } from '@/components/HotKeys';
@@ -38,6 +39,10 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
   const filteredCustomActions = useMemo(() => {
     if (query === '') return [];
     if (query === '?') return options;
+    if (query === '$') {
+      setCustomView('Search');
+      return [];
+    }
 
     const queryWords = query.toLowerCase().split(' ');
     return options
@@ -53,10 +58,10 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
       .filter((action) => action.quickActions.length > 0);
   }, [query, options]);
 
-  const handleOnChange = (command: string | null) => {
-    const hotkey = options
-      .flatMap((option) => option.quickActions)
-      .find((option) => option.name === command);
+  const handleOnChange = (hotkey?: CustomHotKey) => {
+    // const hotkey = options
+    //   .flatMap((option) => option.quickActions)
+    //   .find((option) => option.name === command);
 
     if (hotkey) {
       if (hotkey.closeDialogOnRun) {
@@ -113,7 +118,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
                 )}
               >
                 {View ? (
-                  <View close={close} onBack={() => setCustomView(null)} />
+                  <View isOpen={isOpen} close={close} onBack={() => setCustomView(null)} />
                 ) : (
                   <>
                     <HotKeysDialogInput
@@ -122,7 +127,7 @@ export const HotKeysDialog: React.FC<Props> = ({ isOpen, close, options = [] }) 
                       close={close}
                       placeholder="Find a command"
                     />
-                    <ComboboxOptions className="flex flex-col gap-y-6 overflow-y-auto pb-3" static>
+                    <ComboboxOptions className="mb-3 flex flex-col gap-y-6 overflow-y-auto" static>
                       {filteredCustomActions.length > 0 && (
                         <CommandActionGroup isOpen={isOpen} options={filteredCustomActions} />
                       )}
