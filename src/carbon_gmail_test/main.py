@@ -7,15 +7,10 @@ from dotenv import load_dotenv
 from carbon_gmail_test.utils import (
     EmailsToIndex,
     get_headers,
-    index_on_compass,
-    init_compass,
-    list_emails_v2,
-    query_compass,
 )
 
 load_dotenv()
-BASE_URL = "https://api.carbon.ai"
-CUSTOMER_ID = "tanzim_test_gmail_test4"
+BASE_URL = os.getenv("BASE_CARBON_URL", "")
 API_KEY = os.getenv("CARBON_API_KEY", "")
 GMAIL_TOOL = "GMAIL"
 SEARCH_LIMIT = 5
@@ -83,23 +78,12 @@ def sync_gmail(source_id: int, customer_id: str):
     print(response.text)
 
 
-def setup_auto_sync(tool: str, customer_id:str):
+def setup_auto_sync(tool: str, customer_id: str):
     url = f"{BASE_URL}/organization/update"
     payload = {"global_user_config": {"auto_sync_enabled_sources": [tool]}}
-    response = requests.request("POST", url, json=payload, headers=get_headers(customer_id))
-    print(response.text)
-
-
-def add_webhook():
-    url = f"{BASE_URL}/add_webhook"
-    payload = {"url": "https://ba55-206-223-169-46.ngrok-free.app"}
-    response = requests.request("POST", url, json=payload, headers=get_headers())
-    print(response.text)
-
-
-def list_webhook():
-    url = f"{BASE_URL}/webhooks"
-    response = requests.request("POST", url, json={}, headers=get_headers())
+    response = requests.request(
+        "POST", url, json=payload, headers=get_headers(customer_id)
+    )
     print(response.text)
 
 
@@ -115,44 +99,3 @@ def download_web_link(url: str) -> bytes:
     if response.status_code == 200:
         return response.content
     raise Exception(f"Failed to download {url}")
-
-
-def main_query_compass():
-    compass = init_compass()
-    index_name = CUSTOMER_ID
-    query = "putin"
-    results = query_compass(compass, index_name, query)
-    print(results)
-
-
-def main_gmail():
-    def list_all():
-        emails, errs = list_emails_v2()
-        if errs:
-            print("Errors: ", errs)
-        print()
-        res = index_on_compass(init_compass(), CUSTOMER_ID, emails)
-        print(res)
-
-    def auth_and_check():
-        setup_auto_sync(GMAIL_TOOL)
-        gmail_labels()
-
-    def sync():
-        source_ids = user_sources(GMAIL_TOOL)
-        print(source_ids)
-        sync_gmail(source_ids[0])
-
-    # auth(GMAIL_TOOL)
-    # setup_auto_sync(GMAIL_TOOL)
-    # sync()
-    # gmail_labels()
-    list_all()
-
-
-if __name__ == "__main__":
-    pass
-    # list_webhook()
-    # add_webhook()
-    # main_gmail()
-    # main_query_compass()
