@@ -2,6 +2,8 @@ import { describe, expect, test } from 'vitest';
 
 import { Citation } from '@/cohere-client';
 import {
+  CODE_BLOCK_REGEX_EXP,
+  IFRAME_REGEX_EXP,
   fixInlineCitationsForMarkdown,
   isReferenceBetweenSpecialTags,
   replaceTextWithCitations,
@@ -214,11 +216,188 @@ describe('fixInlineCitationsForMarkdown', () => {
       },
     ]);
   });
+
+  test('should fix citations position for to get the correct markdown', () => {
+    const citations = [
+      {
+        text: '(fn',
+        start: 71,
+        end: 74,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'delay',
+        start: 76,
+        end: 81,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'let debounceTimer',
+        start: 86,
+        end: 103,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'return function',
+        start: 107,
+        end: 122,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'args',
+        start: 126,
+        end: 130,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'clearTimeout',
+        start: 135,
+        end: 147,
+        document_ids: ['12345'],
+      },
+      {
+        text: '(debounceTimer',
+        start: 147,
+        end: 161,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'debounceTimer = setTimeout',
+        start: 165,
+        end: 191,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'fn.apply(this, args',
+        start: 201,
+        end: 220,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'delay',
+        start: 227,
+        end: 232,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'code is only executed once per user input',
+        start: 285,
+        end: 326,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'takes two parameters',
+        start: 331,
+        end: 351,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'the function to be debounced',
+        start: 353,
+        end: 381,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'the delay in milliseconds',
+        start: 386,
+        end: 411,
+        document_ids: ['12345'],
+      },
+    ];
+    const text =
+      "Here's a JavaScript debounce function: ```javascript function debounce(fn, delay) {   let debounceTimer;    return function(...args) {     clearTimeout(debounceTimer);     debounceTimer = setTimeout(() => {       fn.apply(this, args);     }, delay);   }; } ```  The debounce function ensures that the code is only executed once per user input. It takes two parameters: the function to be debounced and the delay in milliseconds.";
+    const result = fixInlineCitationsForMarkdown(citations, text);
+    expect(result).toStrictEqual([
+      {
+        text: '(fn',
+        start: 71,
+        end: 74,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'delay',
+        start: 76,
+        end: 81,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'let debounceTimer',
+        start: 86,
+        end: 103,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'return function',
+        start: 107,
+        end: 122,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'args',
+        start: 126,
+        end: 130,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'clearTimeout',
+        start: 135,
+        end: 147,
+        document_ids: ['12345'],
+      },
+      {
+        text: '(debounceTimer',
+        start: 147,
+        end: 161,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'debounceTimer = setTimeout',
+        start: 165,
+        end: 191,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'fn.apply(this, args',
+        start: 201,
+        end: 220,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'delay',
+        start: 227,
+        end: 232,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'code is only executed once per user input',
+        start: 301,
+        end: 342,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'takes two parameters',
+        start: 347,
+        end: 367,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'the function to be debounced',
+        start: 369,
+        end: 397,
+        document_ids: ['12345'],
+      },
+      {
+        text: 'the delay in milliseconds',
+        start: 402,
+        end: 427,
+        document_ids: ['12345'],
+      },
+    ]);
+  });
 });
 
 describe('isReferenceBetweenSpecialTags', () => {
   test('should return true if the citation is between <iframe> tags', () => {
-    const matchRegex = /<iframe>.*<\/iframe>/;
     const text = '<iframe> This is a citation </iframe>';
     const citation: Citation = {
       start: 19,
@@ -226,11 +405,10 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(IFRAME_REGEX_EXP, text, citation.start);
     expect(result).toBe(true);
   });
   test('should return false if the citation is not between <iframe> tags', () => {
-    const matchRegex = /<iframe>.*<\/iframe>/;
     const text = 'This is a citation <iframe> another test citaiton </iframe>';
     const citation: Citation = {
       start: 10,
@@ -238,11 +416,10 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(IFRAME_REGEX_EXP, text, citation.start);
     expect(result).toBe(false);
   });
   test('should return true if the citation is between ``` tags', () => {
-    const matchRegex = /```[\s\S]*?```/g;
     const text = '``` This is a citation ```';
     const citation: Citation = {
       start: 14,
@@ -250,11 +427,10 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, text, citation.start);
     expect(result).toBe(true);
   });
   test('should return false if the citation is not between ``` tags', () => {
-    const matchRegex = /```[\s\S]*?```/g;
     const text = '``` This is a citation ``` another test citaiton';
     const citation: Citation = {
       start: 40,
@@ -262,7 +438,18 @@ describe('isReferenceBetweenSpecialTags', () => {
       text: 'citation',
       document_ids: ['12345'],
     };
-    const result = isReferenceBetweenSpecialTags(matchRegex, text, citation.start);
+    const result = isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, text, citation.start);
     expect(result).toBe(false);
+  });
+  test('should be able to check if there are more than one match', () => {
+    const text = '``` This is a citation ``` another test citaiton ``` final citation ``` ';
+    const citation: Citation = {
+      start: 59,
+      end: 67,
+      text: 'citation',
+      document_ids: ['12345'],
+    };
+    const result = isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, text, citation.start);
+    expect(result).toBe(true);
   });
 });

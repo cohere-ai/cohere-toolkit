@@ -161,6 +161,35 @@ def test_get_conversation_lists_message_files(
     assert response_conversation["messages"][0]["files"][0]["id"] == file.id
 
 
+def test_get_organization_conversation_list(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    organization = get_factory("Organization", session).create(name="test org")
+    organization1 = get_factory("Organization", session).create(name="test org1")
+    for i in range(3):
+        get_factory("Conversation", session).create(
+            user_id=user.id,
+            organization_id=organization.id,
+            description=organization.id,
+        )
+        get_factory("Conversation", session).create(
+            user_id=user.id, organization_id=organization1.id
+        )
+
+    response = session_client.get(
+        "/v1/conversations",
+        headers={"User-Id": user.id, "Organization-Id": organization.id},
+    )
+    response_conversation = response.json()
+
+    assert response.status_code == 200
+    assert len(response_conversation) == 3
+    for conversation in response_conversation:
+        assert conversation["description"] == organization.id
+
+
 def test_fail_get_nonexistent_conversation(
     session_client: TestClient,
     session: Session,

@@ -186,7 +186,12 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
         isExpanded={currentStep === 'define'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'define' : undefined)}
       >
-        <DefineAssistantStep fields={fields} setFields={setFields} nameError={nameError} />
+        <DefineAssistantStep
+          fields={fields}
+          setFields={setFields}
+          nameError={nameError}
+          isNewAssistant={source === 'create'}
+        />
         <StepButtons
           handleNext={() => setCurrentStep('dataSources')}
           hide={source !== 'create'}
