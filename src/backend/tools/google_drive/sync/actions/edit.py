@@ -1,7 +1,6 @@
 import time
 
-from backend.config.settings import Settings
-from backend.services.compass import Compass
+from backend.services.compass import get_compass
 from backend.services.logger.utils import LoggerFactory
 from backend.services.sync import app
 from backend.services.sync.constants import DEFAULT_TIME_OUT, Status
@@ -9,23 +8,22 @@ from backend.tools.google_drive.sync.actions.utils import (
     check_if_file_exists_in_artifact,
     get_file_details,
 )
+from backend.tools.google_drive.sync.utils import persist_agent_task
 
 ACTION_NAME = "edit"
 logger = LoggerFactory().get_logger()
 
 
-@app.task(time_limit=DEFAULT_TIME_OUT)
-def edit(file_id: str, index_name: str, user_id: str, **kwargs):
+@app.task(time_limit=DEFAULT_TIME_OUT, bind=True)
+@persist_agent_task
+def edit(file_id: str, index_name: str, user_id: str, agent_id: str, **kwargs):
     # check if file exists
     # NOTE Important when a file has a move and create action
     artifact_id = kwargs["artifact_id"]
     file_details = get_file_details(file_id=file_id, user_id=user_id, just_title=True)
     if file_details is None:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.CANCELLED.value,
-            "file_id": file_id,
-        }
+        err_msg = f"empty file details for file_id: {file_id}, agent_id: {agent_id}"
+        raise Exception(err_msg)
 
     title = file_details["title"]
     exists = check_if_file_exists_in_artifact(
@@ -35,32 +33,23 @@ def edit(file_id: str, index_name: str, user_id: str, **kwargs):
         title=title,
     )
     if not exists:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.CANCELLED.value,
-            "file_id": file_id,
-        }
+        err_msg = f"{file_id} does not exist"
+        raise Exception(err_msg)
 
     # Get file bytes, web view link, title
     file_details = get_file_details(file_id=file_id, user_id=user_id)
+    if file_details is None:
+        err_msg = f"empty file details for file_id: {file_id}"
+        raise Exception(err_msg)
     file_bytes, web_view_link, extension, permissions = (
         file_details[key]
         for key in ("file_bytes", "web_view_link", "extension", "permissions")
     )
     if not file_bytes:
-        return {
-            "action": ACTION_NAME,
-            "status": Status.FAIL.value,
-            "message": "File bytes could not be parsed.",
-            "file_id": file_id,
-        }
+        err_msg = f"Error creating file {file_id} with link: {web_view_link} on Compass. File bytes could not be parsed."
+        raise Exception(err_msg)
 
-    compass = Compass(
-        compass_api_url=Settings().compass.api_url,
-        compass_parser_url=Settings().compass.parser_url,
-        compass_username=Settings().compass.username,
-        compass_password=Settings().compass.password,
-    )
+    compass = get_compass()
     try:
         # Update doc
         logger.info(
@@ -102,11 +91,12 @@ def edit(file_id: str, index_name: str, user_id: str, **kwargs):
             event="[Google Drive Edit] Finished Compass add context action for file",
             web_view_link=web_view_link,
         )
-    except Exception:
+    except Exception as error:
         logger.info(
             event="[Google Drive Edit] Failed to edit document in Compass for file",
             web_view_link=web_view_link,
         )
-        return {"action": ACTION_NAME, "status": Status.FAIL.value, "file_id": file_id}
+        err_msg = f"Error editing file {file_id} with link: {web_view_link} on Compass: {error}"
+        raise Exception(err_msg)
 
     return {"action": ACTION_NAME, "status": Status.SUCCESS.value, "file_id": file_id}

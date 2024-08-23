@@ -78,6 +78,10 @@ win-setup:
 	poetry install --with setup --verbose
 	poetry run python src/backend/cli/main.py
 
+.PHONY: typecheck
+typecheck:
+	poetry run pyright
+
 .PHONY: lint
 lint:
 	poetry run ruff check
@@ -123,3 +127,7 @@ test-db:
 .PHONY: dev-sync
 dev-sync:
 	@docker compose up --build sync_worker sync_publisher flower -d
+
+.PHONY: dev-sync-down
+dev-sync-down:
+	@docker compose down sync_worker sync_publisher flower
