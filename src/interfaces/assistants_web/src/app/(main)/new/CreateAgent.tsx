@@ -39,9 +39,11 @@ export const CreateAgent: React.FC = () => {
 
   const [fields, setFields] = useState<AgentSettingsFields>(cloneDeep(DEFAULT_FIELD_VALUES));
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [carbonId, setCarbonId] = useState<string | undefined>();
+  const [tempCarbonId, setTempCarbonId] = useState<string | undefined>();
   useEffect(() => {
-    setCarbonId(window?.crypto?.randomUUID());
+    // TODO: this should be handled by the backend
+    // error handle?
+    setTempCarbonId(window?.crypto?.randomUUID());
   }, []);
   const handleOpenSubmitModal = () => {
     if (fields.is_private) {
@@ -65,7 +67,7 @@ export const CreateAgent: React.FC = () => {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      const updatedFields = { ...fields, carbon_id: carbonId };
+      const updatedFields = { ...fields, carbon_id: tempCarbonId };
       const agent = await createAgent(updatedFields);
       close();
       router.push(`/a/${agent.id}`);
@@ -97,7 +99,7 @@ export const CreateAgent: React.FC = () => {
             fields={fields}
             setFields={setFields}
             onSubmit={handleOpenSubmitModal}
-            carbonId={carbonId}
+            tempCarbonId={tempCarbonId}
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { CarbonConnect } from 'carbon-connect';
+import { CarbonConnect, IntegrationName } from 'carbon-connect';
 import { uniqBy } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -42,12 +42,13 @@ type BaseProps = {
 
 type CreateProps = BaseProps & {
   source: 'create';
-  carbonId?: string;
+  tempCarbonId?: string;
 };
 
 type UpdateProps = BaseProps & {
   source: 'update';
   agentId: string;
+  carbonId?: string;
 };
 
 export type Props = CreateProps | UpdateProps;
@@ -55,7 +56,8 @@ export type Props = CreateProps | UpdateProps;
 export const AgentSettingsForm: React.FC<Props> = (props) => {
   const { source = 'create', fields, setFields, onSubmit } = props;
   const agentId = 'agentId' in props ? props.agentId : undefined;
-  const carbonId = 'carbonId' in props ? props.carbonId : undefined;
+  const tempCarbonId = 'tempCarbonId' in props ? props.tempCarbonId : undefined;
+  const agentCarbonId = 'carbonId' in props ? props.carbonId : undefined;
 
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
@@ -157,10 +159,11 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     }
   });
 
-  const tokenFetcher = async () => {
+  const tokenFetcher = (carbonId?: string) => async () => {
     if (!carbonId) {
       throw new Error('Carbon ID not found');
     }
+    // TODO: bruh do not hardcode this url
     const response = await fetch(
       `http://localhost:8000/v1/fetch_carbon_tokens?customer_id=${carbonId}`
     );
@@ -252,7 +255,50 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           hide={source !== 'create'}
         />
       </CollapsibleSection>
-      {carbonId && (
+
+      {agentId && source === 'update' && (
+        <CollapsibleSection
+          title="Update carbon"
+          number={4}
+          description="configure carbon"
+          isExpanded={true}
+        >
+          {/* TODO configure this!!! */}
+          <CarbonConnect
+            orgName="Cohere"
+            tokenFetcher={tokenFetcher(agentCarbonId)}
+            tags={{
+              tag1: 'tag1_value',
+              tag2: 'tag2_value',
+              tag3: 'tag3_value',
+            }}
+            maxFileSize={10000000}
+            enabledIntegrations={[
+              {
+                id: IntegrationName.GMAIL,
+                chunkSize: 1000,
+                overlapSize: 20,
+                fileSyncConfig: {
+                  detect_audio_language: true,
+                  split_rows: true,
+                },
+              },
+            ]}
+            onSuccess={(data) => console.log('Data on Success: ', data)}
+            onError={(error) => console.log('Data on Error: ', error)}
+            primaryBackgroundColor="#F2F2F2"
+            primaryTextColor="#555555"
+            secondaryBackgroundColor="#f2f2f2"
+            secondaryTextColor="#000000"
+            allowMultipleFiles={true}
+            open={false}
+            chunkSize={1500}
+            overlapSize={20}
+          ></CarbonConnect>
+        </CollapsibleSection>
+      )}
+
+      {tempCarbonId && source === 'create' && (
         <CollapsibleSection
           title="Set up carbon"
           number={4}
@@ -262,7 +308,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           {/* TODO configure this!!! */}
           <CarbonConnect
             orgName="Cohere"
-            tokenFetcher={tokenFetcher}
+            tokenFetcher={tokenFetcher(tempCarbonId)}
             tags={{
               tag1: 'tag1_value',
               tag2: 'tag2_value',
@@ -271,7 +317,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
             maxFileSize={10000000}
             enabledIntegrations={[
               {
-                id: 'GMAIL',
+                id: IntegrationName.GMAIL,
                 chunkSize: 1000,
                 overlapSize: 20,
                 fileSyncConfig: {
