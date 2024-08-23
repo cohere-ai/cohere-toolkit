@@ -19,7 +19,7 @@ class GoogleWebSearch(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.API_KEY is not None and cls.CSE_ID is not None
+        return cls.API_KEY and cls.CSE_ID
 
     def get_filtered_domains(self, session: DBSessionDep, ctx: Context) -> list[str]:
         agent_id = ctx.get_agent_id()
@@ -50,11 +50,8 @@ class GoogleWebSearch(BaseTool):
         query = parameters.get("query", "")
         cse = self.client.cse()
         filtered_domains = self.get_filtered_domains(session, ctx)
-        if not filtered_domains:
-            response = cse.list(q=query, cx=self.CSE_ID).execute()
-        else:
-            site_filters = [f"site:{domain}" for domain in filtered_domains]
-            response = cse.list(q=query, cx=self.CSE_ID, orTerms=site_filters).execute()
+        site_filters = [f"site:{domain}" for domain in filtered_domains]
+        response = cse.list(q=query, cx=self.CSE_ID, orTerms=site_filters).execute()
         search_results = response.get("items", [])
 
         tool_results = []

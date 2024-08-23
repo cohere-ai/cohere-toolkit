@@ -180,10 +180,10 @@ class GDriveSettings(BaseSettings, BaseModel):
 class GoogleWebSearchSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
-        default=None, validation_alias=AliasChoices("API_KEY", "api_key")
+        default=None, validation_alias=AliasChoices("GOOGLE_SEARCH_API_KEY", "api_key")
     )
     cse_id: Optional[str] = Field(
-        default=None, validation_alias=AliasChoices("CSE_ID", "cse_id")
+        default=None, validation_alias=AliasChoices("GOOGLE_SEARCH_CSE_ID", "cse_id")
     )
 
 
