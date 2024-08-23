@@ -39,6 +39,7 @@ class Body(BaseModel):
     payload: str
 
 
+# TODO: VERIFY WEBHOOK PAYLOAD!!!!!!!!!!!!!!!!!!!!!!
 @app.post("/")
 def webhook(body: Body):
     req = json.loads(body.payload)

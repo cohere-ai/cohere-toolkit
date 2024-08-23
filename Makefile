@@ -14,9 +14,17 @@ local-dev-fe:
 local-migration:
 	poetry run alembic -c src/backend/alembic.ini revision --autogenerate -m ""
 
+.PHONY: local-migrate
 local-migrate:
 	poetry run alembic -c src/backend/alembic.ini upgrade head
 
+.PHONY: carbon-webhook-server
+carbon-webhook-server:
+	poetry run fastapi dev src/carbon_gmail_test/webhook_server.py --port 8001
+
+carbon-add-webhook:
+	echo "Ensure .env is setup correctly"
+	python src/carbon_gmail_test/setup_webhook.py
 
 .PHONY: dev
 dev:
@@ -155,9 +163,5 @@ typecheck:
 	poetry run pyright
 
 
-carbon-webhook-server:
-	poetry run fastapi dev  src/carbon_gmail_test/webhook_server.py
 
 
-gmail-sandbox-app:
-	python src/carbon_gmail_test/main.py  
