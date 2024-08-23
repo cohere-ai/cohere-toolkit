@@ -10,9 +10,22 @@ export const fixMarkdownImagesInText = (text: string) => {
 };
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
+
 export const IFRAME_REGEX_EXP = /<iframe.*<\/iframe>/;
 export const CODE_BLOCK_REGEX_EXP = /```[\s\S]*?```/;
+
+/**
+ * Escape special regex characters in a string
+ * @param str
+ * @returns Escaped string
+ */
 const escapeRegex = (str: string) => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+/**
+ * Returns true if the string has an odd number of occurrences of the sequence
+ * @param str
+ * @param sequence
+ * @returns boolean
+ */
 const hasOddOccurrences = (str: string, sequence: string) => {
   // Escape special regex characters in the sequence
   const escapedSequence = sequence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -23,6 +36,33 @@ const hasOddOccurrences = (str: string, sequence: string) => {
   const regex = new RegExp(regexPattern);
 
   return regex.test(str);
+};
+/**
+ * Based on the citation, find the closest match in the text
+ * @param citation
+ * @param matches
+ * @returns Best match or first match if no better match is found
+ */
+const getClosestMatch = (citation: Citation, matches: RegExpMatchArray[]) => {
+  const initalStart = citation.start;
+  const initalEnd = citation.end;
+  let bestMatch = matches[0];
+  let cumulativeDelta = Number.MAX_SAFE_INTEGER;
+
+  for (const match of matches) {
+    if (!match.indices) {
+      continue;
+    }
+
+    const [start, end] = match.indices[0];
+    const diff = Math.abs(start - initalStart) + Math.abs(end - initalEnd);
+    if (diff <= cumulativeDelta) {
+      cumulativeDelta = diff;
+      bestMatch = match;
+    }
+  }
+
+  return bestMatch;
 };
 
 const tryToFixCitationsInCodeBlock = (citations: Citation[], originalText: string) => {
@@ -43,19 +83,11 @@ const tryToFixCitationsInCodeBlock = (citations: Citation[], originalText: strin
         (match) => !isReferenceBetweenSpecialTags(CODE_BLOCK_REGEX_EXP, originalText, match.index)
       );
 
-      const citationsWithSameCitationText = citationsCopy.filter((c) => c.text === citation.text);
-      const minIndexToBeFound = citationsWithSameCitationText.findIndex(
-        (c) => c.start === citation.start && c.end === citation.end
-      );
-
-      for (let i = minIndexToBeFound; i <= matches.length; i++) {
-        const match = matches[i];
-        if (match.indices) {
-          const [start, end] = match.indices[0];
-          citation.start = start;
-          citation.end = end;
-        }
-        break;
+      const bestMatch = getClosestMatch(citation, matches);
+      if (bestMatch.indices) {
+        const [start, end] = bestMatch.indices[0];
+        citation.start = start;
+        citation.end = end;
       }
     } catch (e) {
       console.error('error updating citation', citation, e);
