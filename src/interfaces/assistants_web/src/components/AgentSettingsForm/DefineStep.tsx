@@ -1,15 +1,26 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { AgentSettingsFields } from '@/components/AgentSettingsForm';
-import { Input, Text, Textarea } from '@/components/UI';
+import { Button, Input, Text, Textarea } from '@/components/UI';
 
 type Props = {
   fields: AgentSettingsFields;
+  isNewAssistant: boolean;
   nameError?: string;
   setFields: (fields: AgentSettingsFields) => void;
 };
 
-export const DefineAssistantStep: React.FC<Props> = ({ fields, nameError, setFields }) => {
+export const DefineAssistantStep: React.FC<Props> = ({
+  fields,
+  isNewAssistant,
+  nameError,
+  setFields,
+}) => {
+  const [showInstructions, setShowInstructions] = useState(!isNewAssistant);
+
   return (
     <div className="flex flex-col space-y-4">
       <Input
@@ -26,24 +37,33 @@ export const DefineAssistantStep: React.FC<Props> = ({ fields, nameError, setFie
         value={fields.description ?? ''}
         onChange={(e) => setFields({ ...fields, description: e.target.value })}
       />
-      <Textarea
-        label="Instructions"
-        labelTooltip={
-          <Text>
-            Learn about writing a custom assistant instructions with{' '}
-            <Link
-              href="https://docs.cohere.com/docs/preambles#advanced-techniques-for-writing-a-preamble"
-              className="underline"
-            >
-              Cohere&apos;s guide
-            </Link>
-          </Text>
-        }
-        placeholder="e.g., You are friendly and helpful. You answer questions based on files in Google Drive."
-        defaultRows={8}
-        value={fields.preamble || ''}
-        onChange={(e) => setFields({ ...fields, preamble: e.target.value })}
-      />
+      {showInstructions ? (
+        <Textarea
+          label="Instructions"
+          labelTooltip={
+            <Text>
+              Learn about writing a custom assistant instructions with{' '}
+              <Link
+                href="https://docs.cohere.com/docs/preambles#advanced-techniques-for-writing-a-preamble"
+                className="underline"
+              >
+                Cohere&apos;s guide
+              </Link>
+            </Text>
+          }
+          placeholder="e.g., You are friendly and helpful. You answer questions based on files in Google Drive."
+          defaultRows={8}
+          value={fields.preamble || ''}
+          onChange={(e) => setFields({ ...fields, preamble: e.target.value })}
+        />
+      ) : (
+        <Button
+          label="Custom assistant instructions"
+          icon="add"
+          kind="secondary"
+          onClick={() => setShowInstructions(true)}
+        />
+      )}
     </div>
   );
 };

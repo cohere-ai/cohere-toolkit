@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from backend.config.settings import Settings
+from backend.database_models.base import CustomFilterQuery
 
 load_dotenv()
 
@@ -16,7 +17,7 @@ engine = create_engine(
 
 
 def get_session() -> Generator[Session, Any, None]:
-    with Session(engine) as session:
+    with Session(engine, query_cls=CustomFilterQuery) as session:
         yield session
 
 

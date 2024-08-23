@@ -15,21 +15,21 @@ const ASSISTANT_COLORS = [
   'quartz-500',
   'evolved-quartz-700',
   'evolved-mushroom-500',
-  'mushroom-300',
+  'mushroom-500',
 ];
 const ASSISTANT_LIGHT_COLORS = [
   'green-800',
   'quartz-800',
   'evolved-quartz-900',
   'evolved-mushroom-800',
-  'mushroom-600',
+  'mushroom-700',
 ];
 const ASSISTANT_CONTRAST_COLORS = [
   'marble-950',
   'marble-950',
   'marble-950',
   'volcanic-100',
-  'mushroom-800',
+  'mushroom-900',
 ];
 const DEFAULT_COLOR = 'evolved-blue-500';
 const DEFAULT_LIGHT_COLOR = 'blue-800';
