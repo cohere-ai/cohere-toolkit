@@ -196,7 +196,7 @@ ALL_TOOLS = {
         },
         is_visible=True,
         is_available=BraveWebSearch.is_available(),
-        error_message="BraveWebSearch not available, please make sure to set the tools.brave_search.api_key variable in your secrets.yaml",
+        error_message="BraveWebSearch not available, please make sure to set the tools.brave_web_search.api_key variable in your secrets.yaml",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Brave Search.",
     ),
