@@ -48,7 +48,7 @@ type CreateProps = BaseProps & {
 type UpdateProps = BaseProps & {
   source: 'update';
   agentId: string;
-  carbonId?: string;
+  carbonId?: string | null;
 };
 
 export type Props = CreateProps | UpdateProps;
@@ -159,7 +159,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     }
   });
 
-  const tokenFetcher = (carbonId?: string) => async () => {
+  const tokenFetcher = (carbonId?: string | null) => async () => {
     if (!carbonId) {
       throw new Error('Carbon ID not found');
     }

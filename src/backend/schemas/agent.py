@@ -73,6 +73,8 @@ class Agent(AgentBase):
     deployment: Optional[str]
     model: Optional[str]
     is_private: Optional[bool]
+    carbon_id: Optional[str]
+
 
     class Config:
         from_attributes = True

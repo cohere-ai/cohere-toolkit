@@ -81,6 +81,7 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
             setFields={setFields}
             onSubmit={handleSubmit}
             agentId={agent.id}
+            carbonId={agent?.carbon_id}
           />
         </div>
         <div className="space-y-5 pb-8">

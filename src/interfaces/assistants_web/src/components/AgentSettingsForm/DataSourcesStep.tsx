@@ -126,7 +126,6 @@ export const DataSourcesStep: React.FC<Props> = ({
             uploadStatus,
             handleOpenFileExplorer
           )}
-
       </div>
       <Text styleAs="caption" className="dark:text-marble-800">
         Don&lsquo;t see the data source you need? {/* TODO: get tool request link from Elaine */}

@@ -19,12 +19,16 @@ import type {
   CreateAgentV1AgentsPostResponse,
   CreateDeploymentV1DeploymentsPostData,
   CreateDeploymentV1DeploymentsPostResponse,
+  CreateGroupScimV2GroupsPostData,
+  CreateGroupScimV2GroupsPostResponse,
   CreateModelV1ModelsPostData,
   CreateModelV1ModelsPostResponse,
   CreateOrganizationV1OrganizationsPostData,
   CreateOrganizationV1OrganizationsPostResponse,
   CreateSnapshotV1SnapshotsPostData,
   CreateSnapshotV1SnapshotsPostResponse,
+  CreateUserScimV2UsersPostData,
+  CreateUserScimV2UsersPostResponse,
   CreateUserV1UsersPostData,
   CreateUserV1UsersPostResponse,
   DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData,
@@ -39,6 +43,8 @@ import type {
   DeleteDeploymentV1DeploymentsDeploymentIdDeleteResponse,
   DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData,
   DeleteFileV1ConversationsConversationIdFilesFileIdDeleteResponse,
+  DeleteGroupScimV2GroupsGroupIdDeleteData,
+  DeleteGroupScimV2GroupsGroupIdDeleteResponse,
   DeleteModelV1ModelsModelIdDeleteData,
   DeleteModelV1ModelsModelIdDeleteResponse,
   DeleteOrganizationV1OrganizationsOrganizationIdDeleteData,
@@ -57,20 +63,32 @@ import type {
   GetAgentByIdV1AgentsAgentIdGetResponse,
   GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData,
   GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse,
+  GetCarbonTokensV1FetchCarbonTokensGetData,
+  GetCarbonTokensV1FetchCarbonTokensGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
   GetConversationV1ConversationsConversationIdGetResponse,
   GetDefaultAgentV1DefaultAgentGetResponse,
   GetDeploymentV1DeploymentsDeploymentIdGetData,
   GetDeploymentV1DeploymentsDeploymentIdGetResponse,
+  GetGroupScimV2GroupsGroupIdGetData,
+  GetGroupScimV2GroupsGroupIdGetResponse,
+  GetGroupsScimV2GroupsGetData,
+  GetGroupsScimV2GroupsGetResponse,
   GetModelV1ModelsModelIdGetData,
   GetModelV1ModelsModelIdGetResponse,
+  GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData,
+  GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetResponse,
   GetOrganizationV1OrganizationsOrganizationIdGetData,
   GetOrganizationV1OrganizationsOrganizationIdGetResponse,
   GetSnapshotV1SnapshotsLinkLinkIdGetData,
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
   GetStrategiesV1AuthStrategiesGetResponse,
+  GetUserScimV2UsersUserIdGetData,
+  GetUserScimV2UsersUserIdGetResponse,
   GetUserV1UsersUserIdGetData,
   GetUserV1UsersUserIdGetResponse,
+  GetUsersScimV2UsersGetData,
+  GetUsersScimV2UsersGetResponse,
   HealthHealthGetResponse,
   LangchainChatStreamV1LangchainChatPostData,
   LangchainChatStreamV1LangchainChatPostResponse,
@@ -96,6 +114,10 @@ import type {
   LoginV1LoginPostData,
   LoginV1LoginPostResponse,
   LogoutV1LogoutGetResponse,
+  PatchGroupScimV2GroupsGroupIdPatchData,
+  PatchGroupScimV2GroupsGroupIdPatchResponse,
+  PatchUserScimV2UsersUserIdPatchData,
+  PatchUserScimV2UsersUserIdPatchResponse,
   SearchConversationsV1ConversationsSearchGetData,
   SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
@@ -113,12 +135,44 @@ import type {
   UpdateModelV1ModelsModelIdPutResponse,
   UpdateOrganizationV1OrganizationsOrganizationIdPutData,
   UpdateOrganizationV1OrganizationsOrganizationIdPutResponse,
+  UpdateUserScimV2UsersUserIdPutData,
+  UpdateUserScimV2UsersUserIdPutResponse,
   UpdateUserV1UsersUserIdPutData,
   UpdateUserV1UsersUserIdPutResponse,
 } from './types.gen';
 
 export class DefaultService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
+
+  /**
+   * Get Carbon Tokens
+   * Fetches the Carbon tokens for the given customer_id.
+   *
+   * Args:
+   * ctx (Context): Context object.
+   * customer_id (str): Customer ID for which to fetch the tokens.
+   *
+   * Returns:
+   * dict: Carbon tokens for the given customer_id.
+   * @param data The data for the request.
+   * @param data.customerId
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public getCarbonTokensV1FetchCarbonTokensGet(
+    data: GetCarbonTokensV1FetchCarbonTokensGetData
+  ): CancelablePromise<GetCarbonTokensV1FetchCarbonTokensGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/fetch_carbon_tokens',
+      query: {
+        customer_id: data.customerId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
 
   /**
    * Get Strategies
@@ -402,7 +456,7 @@ export class DefaultService {
    * User: Created user.
    * @param data The data for the request.
    * @param data.requestBody
-   * @returns User Successful Response
+   * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
   public createUserV1UsersPost(
@@ -434,7 +488,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.offset
    * @param data.limit
-   * @returns User Successful Response
+   * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
   public listUsersV1UsersGet(
@@ -469,7 +523,7 @@ export class DefaultService {
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
    * @param data.userId
-   * @returns User Successful Response
+   * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
   public getUserV1UsersUserIdGet(
@@ -506,7 +560,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.userId
    * @param data.requestBody
-   * @returns User Successful Response
+   * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
   public updateUserV1UsersUserIdPut(
@@ -1379,7 +1433,7 @@ export class DefaultService {
    * ctx (Context): Context object.
    *
    * Returns:
-   * AgentToolMetadata: Created agent tool metadata.
+   * AgentToolMetadataPublic: Created agent tool metadata.
    *
    * Raises:
    * HTTPException: If the agent tool metadata creation fails.
@@ -1798,7 +1852,7 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    *
    * Returns:
-   * ManagedTool: Tool with the given ID.
+   * ManagedTool: Organization with the given ID.
    * @param data The data for the request.
    * @param data.organizationId
    * @returns Organization Successful Response
@@ -1840,6 +1894,36 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'DELETE',
       url: '/v1/organizations/{organization_id}',
+      path: {
+        organization_id: data.organizationId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Organization Users
+   * Get organization users by ID.
+   *
+   * Args:
+   * organization_id (str): Organization ID.
+   * session (DBSessionDep): Database session.
+   *
+   * Returns:
+   * list[User]: List of users in the organization
+   * @param data The data for the request.
+   * @param data.organizationId
+   * @returns backend__schemas__user__User Successful Response
+   * @throws ApiError
+   */
+  public getOrganizationUsersV1OrganizationsOrganizationIdUsersGet(
+    data: GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData
+  ): CancelablePromise<GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/organizations/{organization_id}/users',
       path: {
         organization_id: data.organizationId,
       },
@@ -1996,6 +2080,241 @@ export class DefaultService {
       url: '/v1/models/{model_id}',
       path: {
         model_id: data.modelId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Users
+   * @param data The data for the request.
+   * @param data.count
+   * @param data.startIndex
+   * @param data.filter
+   * @returns ListUserResponse Successful Response
+   * @throws ApiError
+   */
+  public getUsersScimV2UsersGet(
+    data: GetUsersScimV2UsersGetData = {}
+  ): CancelablePromise<GetUsersScimV2UsersGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/scim/v2/Users',
+      query: {
+        count: data.count,
+        start_index: data.startIndex,
+        filter: data.filter,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Create User
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public createUserScimV2UsersPost(
+    data: CreateUserScimV2UsersPostData
+  ): CancelablePromise<CreateUserScimV2UsersPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/scim/v2/Users',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get User
+   * @param data The data for the request.
+   * @param data.userId
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public getUserScimV2UsersUserIdGet(
+    data: GetUserScimV2UsersUserIdGetData
+  ): CancelablePromise<GetUserScimV2UsersUserIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/scim/v2/Users/{user_id}',
+      path: {
+        user_id: data.userId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Update User
+   * @param data The data for the request.
+   * @param data.userId
+   * @param data.requestBody
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public updateUserScimV2UsersUserIdPut(
+    data: UpdateUserScimV2UsersUserIdPutData
+  ): CancelablePromise<UpdateUserScimV2UsersUserIdPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/scim/v2/Users/{user_id}',
+      path: {
+        user_id: data.userId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Patch User
+   * @param data The data for the request.
+   * @param data.userId
+   * @param data.requestBody
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public patchUserScimV2UsersUserIdPatch(
+    data: PatchUserScimV2UsersUserIdPatchData
+  ): CancelablePromise<PatchUserScimV2UsersUserIdPatchResponse> {
+    return this.httpRequest.request({
+      method: 'PATCH',
+      url: '/scim/v2/Users/{user_id}',
+      path: {
+        user_id: data.userId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Groups
+   * @param data The data for the request.
+   * @param data.count
+   * @param data.startIndex
+   * @param data.filter
+   * @returns ListGroupResponse Successful Response
+   * @throws ApiError
+   */
+  public getGroupsScimV2GroupsGet(
+    data: GetGroupsScimV2GroupsGetData = {}
+  ): CancelablePromise<GetGroupsScimV2GroupsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/scim/v2/Groups',
+      query: {
+        count: data.count,
+        start_index: data.startIndex,
+        filter: data.filter,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Create Group
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public createGroupScimV2GroupsPost(
+    data: CreateGroupScimV2GroupsPostData
+  ): CancelablePromise<CreateGroupScimV2GroupsPostResponse> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/scim/v2/Groups',
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Group
+   * @param data The data for the request.
+   * @param data.groupId
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public getGroupScimV2GroupsGroupIdGet(
+    data: GetGroupScimV2GroupsGroupIdGetData
+  ): CancelablePromise<GetGroupScimV2GroupsGroupIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/scim/v2/Groups/{group_id}',
+      path: {
+        group_id: data.groupId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Patch Group
+   * @param data The data for the request.
+   * @param data.groupId
+   * @param data.requestBody
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public patchGroupScimV2GroupsGroupIdPatch(
+    data: PatchGroupScimV2GroupsGroupIdPatchData
+  ): CancelablePromise<PatchGroupScimV2GroupsGroupIdPatchResponse> {
+    return this.httpRequest.request({
+      method: 'PATCH',
+      url: '/scim/v2/Groups/{group_id}',
+      path: {
+        group_id: data.groupId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Delete Group
+   * @param data The data for the request.
+   * @param data.groupId
+   * @returns void Successful Response
+   * @throws ApiError
+   */
+  public deleteGroupScimV2GroupsGroupIdDelete(
+    data: DeleteGroupScimV2GroupsGroupIdDeleteData
+  ): CancelablePromise<DeleteGroupScimV2GroupsGroupIdDeleteResponse> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/scim/v2/Groups/{group_id}',
+      path: {
+        group_id: data.groupId,
       },
       errors: {
         422: 'Validation Error',

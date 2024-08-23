@@ -122,6 +122,17 @@ export const $AgentPublic = {
       ],
       title: 'Is Private',
     },
+    carbon_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Carbon Id',
+    },
   },
   type: 'object',
   required: [
@@ -139,6 +150,7 @@ export const $AgentPublic = {
     'deployment',
     'model',
     'is_private',
+    'carbon_id',
   ],
   title: 'AgentPublic',
 } as const;
@@ -792,10 +804,6 @@ export const $ConversationFilePublic = {
       type: 'string',
       title: 'File Name',
     },
-    file_path: {
-      type: 'string',
-      title: 'File Path',
-    },
     file_size: {
       type: 'integer',
       minimum: 0,
@@ -804,7 +812,7 @@ export const $ConversationFilePublic = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'ConversationFilePublic',
 } as const;
 
@@ -1089,6 +1097,17 @@ export const $CreateAgentRequest = {
       title: 'Is Private',
       default: false,
     },
+    carbon_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Carbon Id',
+    },
   },
   type: 'object',
   required: ['name', 'model', 'deployment'],
@@ -1123,6 +1142,32 @@ export const $CreateAgentToolMetadataRequest = {
   type: 'object',
   required: ['tool_name', 'artifacts'],
   title: 'CreateAgentToolMetadataRequest',
+} as const;
+
+export const $CreateGroup = {
+  properties: {
+    schemas: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Schemas',
+    },
+    members: {
+      items: {
+        $ref: '#/components/schemas/GroupMember',
+      },
+      type: 'array',
+      title: 'Members',
+    },
+    displayName: {
+      type: 'string',
+      title: 'Displayname',
+    },
+  },
+  type: 'object',
+  required: ['schemas', 'members', 'displayName'],
+  title: 'CreateGroup',
 } as const;
 
 export const $CreateOrganization = {
@@ -1170,52 +1215,6 @@ export const $CreateSnapshotResponse = {
   type: 'object',
   required: ['snapshot_id', 'link_id', 'messages'],
   title: 'CreateSnapshotResponse',
-} as const;
-
-export const $CreateUser = {
-  properties: {
-    password: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Password',
-    },
-    hashed_password: {
-      anyOf: [
-        {
-          type: 'string',
-          format: 'binary',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Hashed Password',
-    },
-    fullname: {
-      type: 'string',
-      title: 'Fullname',
-    },
-    email: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Email',
-    },
-  },
-  type: 'object',
-  required: ['fullname'],
-  title: 'CreateUser',
 } as const;
 
 export const $DeleteAgent = {
@@ -1609,6 +1608,33 @@ export const $Document = {
   title: 'Document',
 } as const;
 
+export const $Email = {
+  properties: {
+    primary: {
+      type: 'boolean',
+      title: 'Primary',
+    },
+    value: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Value',
+    },
+    type: {
+      type: 'string',
+      title: 'Type',
+    },
+  },
+  type: 'object',
+  required: ['primary', 'type'],
+  title: 'Email',
+} as const;
+
 export const $GenerateTitleResponse = {
   properties: {
     title: {
@@ -1642,6 +1668,98 @@ export const $GenericResponseMessage = {
   type: 'object',
   required: ['message'],
   title: 'GenericResponseMessage',
+} as const;
+
+export const $Group = {
+  properties: {
+    schemas: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Schemas',
+    },
+    members: {
+      items: {
+        $ref: '#/components/schemas/GroupMember',
+      },
+      type: 'array',
+      title: 'Members',
+    },
+    displayName: {
+      type: 'string',
+      title: 'Displayname',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta',
+    },
+  },
+  type: 'object',
+  required: ['schemas', 'members', 'displayName', 'id', 'meta'],
+  title: 'Group',
+} as const;
+
+export const $GroupMember = {
+  properties: {
+    value: {
+      type: 'string',
+      title: 'Value',
+    },
+    display: {
+      type: 'string',
+      title: 'Display',
+    },
+  },
+  type: 'object',
+  required: ['value', 'display'],
+  title: 'GroupMember',
+} as const;
+
+export const $GroupOperation = {
+  properties: {
+    op: {
+      type: 'string',
+      title: 'Op',
+    },
+    path: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Path',
+    },
+    value: {
+      anyOf: [
+        {
+          additionalProperties: {
+            type: 'string',
+          },
+          type: 'object',
+        },
+        {
+          items: {
+            additionalProperties: {
+              type: 'string',
+            },
+            type: 'object',
+          },
+          type: 'array',
+        },
+      ],
+      title: 'Value',
+    },
+  },
+  type: 'object',
+  required: ['op', 'value'],
+  title: 'GroupOperation',
 } as const;
 
 export const $HTTPValidationError = {
@@ -1829,10 +1947,6 @@ export const $ListConversationFile = {
       type: 'string',
       title: 'File Name',
     },
-    file_path: {
-      type: 'string',
-      title: 'File Path',
-    },
     file_size: {
       type: 'integer',
       minimum: 0,
@@ -1841,8 +1955,62 @@ export const $ListConversationFile = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'ListConversationFile',
+} as const;
+
+export const $ListGroupResponse = {
+  properties: {
+    totalResults: {
+      type: 'integer',
+      title: 'Totalresults',
+    },
+    startIndex: {
+      type: 'integer',
+      title: 'Startindex',
+    },
+    itemsPerPage: {
+      type: 'integer',
+      title: 'Itemsperpage',
+    },
+    Resources: {
+      items: {
+        $ref: '#/components/schemas/Group',
+      },
+      type: 'array',
+      title: 'Resources',
+    },
+  },
+  type: 'object',
+  required: ['totalResults', 'startIndex', 'itemsPerPage', 'Resources'],
+  title: 'ListGroupResponse',
+} as const;
+
+export const $ListUserResponse = {
+  properties: {
+    totalResults: {
+      type: 'integer',
+      title: 'Totalresults',
+    },
+    startIndex: {
+      type: 'integer',
+      title: 'Startindex',
+    },
+    itemsPerPage: {
+      type: 'integer',
+      title: 'Itemsperpage',
+    },
+    Resources: {
+      items: {
+        $ref: '#/components/schemas/backend__schemas__scim__User',
+      },
+      type: 'array',
+      title: 'Resources',
+    },
+  },
+  type: 'object',
+  required: ['totalResults', 'startIndex', 'itemsPerPage', 'Resources'],
+  title: 'ListUserResponse',
 } as const;
 
 export const $Login = {
@@ -2096,6 +2264,26 @@ export const $MessageAgent = {
   title: 'MessageAgent',
 } as const;
 
+export const $Meta = {
+  properties: {
+    resourceType: {
+      type: 'string',
+      title: 'Resourcetype',
+    },
+    created: {
+      type: 'string',
+      title: 'Created',
+    },
+    lastModified: {
+      type: 'string',
+      title: 'Lastmodified',
+    },
+  },
+  type: 'object',
+  required: ['resourceType', 'created', 'lastModified'],
+  title: 'Meta',
+} as const;
+
 export const $Model = {
   properties: {
     id: {
@@ -2265,6 +2453,22 @@ export const $ModelUpdate = {
   title: 'ModelUpdate',
 } as const;
 
+export const $Name = {
+  properties: {
+    givenName: {
+      type: 'string',
+      title: 'Givenname',
+    },
+    familyName: {
+      type: 'string',
+      title: 'Familyname',
+    },
+  },
+  type: 'object',
+  required: ['givenName', 'familyName'],
+  title: 'Name',
+} as const;
+
 export const $NonStreamedChatResponse = {
   properties: {
     response_id: {
@@ -2423,6 +2627,25 @@ export const $NonStreamedChatResponse = {
   title: 'NonStreamedChatResponse',
 } as const;
 
+export const $Operation = {
+  properties: {
+    op: {
+      type: 'string',
+      title: 'Op',
+    },
+    value: {
+      additionalProperties: {
+        type: 'boolean',
+      },
+      type: 'object',
+      title: 'Value',
+    },
+  },
+  type: 'object',
+  required: ['op', 'value'],
+  title: 'Operation',
+} as const;
+
 export const $Organization = {
   properties: {
     name: {
@@ -2447,6 +2670,50 @@ export const $Organization = {
   type: 'object',
   required: ['name', 'id', 'created_at', 'updated_at'],
   title: 'Organization',
+} as const;
+
+export const $PatchGroup = {
+  properties: {
+    schemas: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Schemas',
+    },
+    operations: {
+      items: {
+        $ref: '#/components/schemas/GroupOperation',
+      },
+      type: 'array',
+      title: 'Operations',
+    },
+  },
+  type: 'object',
+  required: ['schemas', 'operations'],
+  title: 'PatchGroup',
+} as const;
+
+export const $PatchUser = {
+  properties: {
+    schemas: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Schemas',
+    },
+    operations: {
+      items: {
+        $ref: '#/components/schemas/Operation',
+      },
+      type: 'array',
+      title: 'Operations',
+    },
+  },
+  type: 'object',
+  required: ['schemas', 'operations'],
+  title: 'PatchUser',
 } as const;
 
 export const $SearchQuery = {
@@ -3353,7 +3620,297 @@ export const $UpdateOrganization = {
   title: 'UpdateOrganization',
 } as const;
 
-export const $UpdateUser = {
+export const $UploadAgentFileResponse = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    file_name: {
+      type: 'string',
+      title: 'File Name',
+    },
+    file_size: {
+      type: 'integer',
+      minimum: 0,
+      title: 'File Size',
+      default: 0,
+    },
+  },
+  type: 'object',
+  required: ['id', 'created_at', 'updated_at', 'file_name'],
+  title: 'UploadAgentFileResponse',
+} as const;
+
+export const $UploadConversationFileResponse = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation Id',
+    },
+    file_name: {
+      type: 'string',
+      title: 'File Name',
+    },
+    file_size: {
+      type: 'integer',
+      minimum: 0,
+      title: 'File Size',
+      default: 0,
+    },
+  },
+  type: 'object',
+  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  title: 'UploadConversationFileResponse',
+} as const;
+
+export const $ValidationError = {
+  properties: {
+    loc: {
+      items: {
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'integer',
+          },
+        ],
+      },
+      type: 'array',
+      title: 'Location',
+    },
+    msg: {
+      type: 'string',
+      title: 'Message',
+    },
+    type: {
+      type: 'string',
+      title: 'Error Type',
+    },
+  },
+  type: 'object',
+  required: ['loc', 'msg', 'type'],
+  title: 'ValidationError',
+} as const;
+
+export const $backend__schemas__scim__CreateUser = {
+  properties: {
+    userName: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Username',
+    },
+    active: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Active',
+    },
+    schemas: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Schemas',
+    },
+    name: {
+      $ref: '#/components/schemas/Name',
+    },
+    emails: {
+      items: {
+        $ref: '#/components/schemas/Email',
+      },
+      type: 'array',
+      title: 'Emails',
+    },
+    externalId: {
+      type: 'string',
+      title: 'Externalid',
+    },
+  },
+  type: 'object',
+  required: ['userName', 'active', 'schemas', 'name', 'emails', 'externalId'],
+  title: 'CreateUser',
+} as const;
+
+export const $backend__schemas__scim__UpdateUser = {
+  properties: {
+    userName: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Username',
+    },
+    active: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Active',
+    },
+    schemas: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Schemas',
+    },
+    emails: {
+      items: {
+        $ref: '#/components/schemas/Email',
+      },
+      type: 'array',
+      title: 'Emails',
+    },
+    name: {
+      $ref: '#/components/schemas/Name',
+    },
+  },
+  type: 'object',
+  required: ['userName', 'active', 'schemas', 'emails', 'name'],
+  title: 'UpdateUser',
+} as const;
+
+export const $backend__schemas__scim__User = {
+  properties: {
+    userName: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Username',
+    },
+    active: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Active',
+    },
+    schemas: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Schemas',
+    },
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    externalId: {
+      type: 'string',
+      title: 'Externalid',
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta',
+    },
+  },
+  type: 'object',
+  required: ['userName', 'active', 'schemas', 'id', 'externalId', 'meta'],
+  title: 'User',
+} as const;
+
+export const $backend__schemas__user__CreateUser = {
+  properties: {
+    password: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Password',
+    },
+    hashed_password: {
+      anyOf: [
+        {
+          type: 'string',
+          format: 'binary',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Hashed Password',
+    },
+    fullname: {
+      type: 'string',
+      title: 'Fullname',
+    },
+    email: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Email',
+    },
+  },
+  type: 'object',
+  required: ['fullname'],
+  title: 'CreateUser',
+} as const;
+
+export const $backend__schemas__user__UpdateUser = {
   properties: {
     password: {
       anyOf: [
@@ -3405,83 +3962,7 @@ export const $UpdateUser = {
   title: 'UpdateUser',
 } as const;
 
-export const $UploadAgentFileResponse = {
-  properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
-    created_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Created At',
-    },
-    updated_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Updated At',
-    },
-    file_name: {
-      type: 'string',
-      title: 'File Name',
-    },
-    file_path: {
-      type: 'string',
-      title: 'File Path',
-    },
-    file_size: {
-      type: 'integer',
-      minimum: 0,
-      title: 'File Size',
-      default: 0,
-    },
-  },
-  type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'file_name', 'file_path'],
-  title: 'UploadAgentFileResponse',
-} as const;
-
-export const $UploadConversationFileResponse = {
-  properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
-    created_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Created At',
-    },
-    updated_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Updated At',
-    },
-    conversation_id: {
-      type: 'string',
-      title: 'Conversation Id',
-    },
-    file_name: {
-      type: 'string',
-      title: 'File Name',
-    },
-    file_path: {
-      type: 'string',
-      title: 'File Path',
-    },
-    file_size: {
-      type: 'integer',
-      minimum: 0,
-      title: 'File Size',
-      default: 0,
-    },
-  },
-  type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name', 'file_path'],
-  title: 'UploadConversationFileResponse',
-} as const;
-
-export const $User = {
+export const $backend__schemas__user__User = {
   properties: {
     fullname: {
       type: 'string',
@@ -3516,34 +3997,4 @@ export const $User = {
   type: 'object',
   required: ['fullname', 'id', 'created_at', 'updated_at'],
   title: 'User',
-} as const;
-
-export const $ValidationError = {
-  properties: {
-    loc: {
-      items: {
-        anyOf: [
-          {
-            type: 'string',
-          },
-          {
-            type: 'integer',
-          },
-        ],
-      },
-      type: 'array',
-      title: 'Location',
-    },
-    msg: {
-      type: 'string',
-      title: 'Message',
-    },
-    type: {
-      type: 'string',
-      title: 'Error Type',
-    },
-  },
-  type: 'object',
-  required: ['loc', 'msg', 'type'],
-  title: 'ValidationError',
 } as const;
