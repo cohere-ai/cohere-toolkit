@@ -57,6 +57,8 @@ import type {
   GetAgentByIdV1AgentsAgentIdGetResponse,
   GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData,
   GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse,
+  GetAgentTasksV1AgentsAgentIdTasksGetData,
+  GetAgentTasksV1AgentsAgentIdTasksGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
   GetConversationV1ConversationsConversationIdGetResponse,
   GetDefaultAgentV1DefaultAgentGetResponse,
@@ -1325,6 +1327,28 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}/deployments',
+      path: {
+        agent_id: data.agentId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Agent Tasks
+   * @param data The data for the request.
+   * @param data.agentId
+   * @returns AgentTaskResponse Successful Response
+   * @throws ApiError
+   */
+  public getAgentTasksV1AgentsAgentIdTasksGet(
+    data: GetAgentTasksV1AgentsAgentIdTasksGetData
+  ): CancelablePromise<GetAgentTasksV1AgentsAgentIdTasksGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/agents/{agent_id}/tasks',
       path: {
         agent_id: data.agentId,
       },
