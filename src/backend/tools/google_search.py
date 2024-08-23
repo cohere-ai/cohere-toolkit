@@ -19,7 +19,7 @@ class GoogleWebSearch(BaseTool):
 
     @classmethod
     def is_available(cls) -> bool:
-        return cls.API_KEY and cls.CSE_ID
+        return bool(cls.API_KEY) and bool(cls.CSE_ID)
 
     def get_filtered_domains(self, session: DBSessionDep, ctx: Context) -> list[str]:
         agent_id = ctx.get_agent_id()
