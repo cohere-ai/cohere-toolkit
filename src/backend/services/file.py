@@ -26,6 +26,7 @@ from backend.services.logger.utils import LoggerFactory
 
 MAX_FILE_SIZE = 20_000_000  # 20MB
 MAX_TOTAL_FILE_SIZE = 1_000_000_000  # 1GB
+TIMEOUT = 300
 
 PDF_EXTENSION = "pdf"
 TEXT_EXTENSION = "txt"
@@ -529,8 +530,18 @@ async def insert_files_in_compass(
                 event=f"[Compass File Service] Failed to create index: {index}, error: {e}"
             )
 
-    uploaded_files = await asyncio.gather(*[_insert_file_in_compass_async(file) for file in files])
-    return uploaded_files
+    tasks = [_insert_file_in_compass_async(file, user_id, ctx, index) for file in files]
+    try:
+        uploaded_files = await asyncio.wait_for(asyncio.gather(*tasks), timeout=TIMEOUT)
+        return uploaded_files
+    except asyncio.TimeoutError:
+        logger.error(
+            event="[Compass File Service] Timeout error while uploading files"
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Timeout error while uploading files",
+        )
 
 
 async def _insert_file_in_compass_async(
