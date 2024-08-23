@@ -58,13 +58,15 @@ from backend.services.request_validators import (
 )
 from backend.services.sync.jobs.sync_agent import sync_agent
 from backend.tools.files import FileToolsArtifactTypes
-from carbon_gmail_test.main import (
+from carbon_gmail_test.main_utils import (
+    sync_gmail,
+    user_sources,
+)
+from carbon_gmail_test.utils import (
     GMAIL_TOOL,
     index_on_compass,
     init_compass,
     list_emails_v2,
-    sync_gmail,
-    user_sources,
 )
 
 router = APIRouter(
