@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_community.tools.brave_search.tool import BraveSearch
 
 from backend.brave_search import BraveClient
 from backend.config.settings import Settings
@@ -123,9 +123,10 @@ class BraveWebSearch(BaseTool):
 
         return reranked[: self.num_results]
 
-    def to_langchain_tool(self) -> TavilySearchResults:
-        from langchain_community.tools import BraveSearch
-
+    def to_langchain_tool(self) -> BraveSearch:
+        """
+        Converts the tool to a Langchain tool.
+        """
         brave_search = BraveSearch.from_api_key(
             api_key=self.BRAVE_API_KEY, search_kwargs={"count": self}
         )
