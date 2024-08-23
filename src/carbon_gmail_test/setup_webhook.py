@@ -19,12 +19,23 @@ def add_webhook():
     print(response.text)
 
 
+def delete_all():
+    hooks = list_webhook()
+    r = hooks.get("results", [])
+    for h in r:
+        url = f"{BASE_URL}/delete_webhook/{h['id']}"
+        response = requests.request("DELETE", url, headers=get_headers())
+        print(response.text)
+
+
 def list_webhook():
     url = f"{BASE_URL}/webhooks"
     response = requests.request("POST", url, json={}, headers=get_headers())
     print(response.text)
+    return response.json()
 
 
 if __name__ == "__main__":
+    delete_all()
     add_webhook()
     list_webhook()
