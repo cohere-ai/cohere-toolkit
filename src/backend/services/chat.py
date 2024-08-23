@@ -114,6 +114,8 @@ def process_chat(
         False,
         id=str(uuid4()),
     )
+
+    # The message could be empty if we changed the tool call and want to generate a new message
     if chat_request.message is not None and chat_request.message != "":
         user_message = create_message(
             session,
@@ -158,15 +160,6 @@ def process_chat(
             )
         )
         message_crud.delete_message(session, last_message.id, user_id)
-
-    print("conversation_id: ", chat_request.conversation_id)
-    for m in conversation.messages:
-        print("message: ", m.text)
-        print("position: ", m.position)
-        print(m)
-    print("conversation: ", len(conversation.messages))
-    print("next_message_position: ", next_message_position)
-    print("CHAT HISTORY: ", chat_history)
 
     # co.chat expects either chat_history or conversation_id, not both
     chat_request.chat_history = chat_history

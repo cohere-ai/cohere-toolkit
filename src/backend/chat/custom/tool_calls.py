@@ -25,8 +25,6 @@ async def async_call_tools(
 
     tool_results = []
     if "tool_calls" not in chat_history[-1]:
-        print("here77  <=====================================")
-        print("here88  <=====================================")
         return tool_results
 
     tool_calls = chat_history[-1]["tool_calls"]

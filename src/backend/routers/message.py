@@ -24,11 +24,14 @@ async def update_message(
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> UpdateMessageResponse:
-    print("HERE <----------------------------------------")
-    print("update_conversation")
     user_id = ctx.get_user_id()
     message = get_message(session, message_id, user_id)
+
+    # We delete all the messages after the message we are updating
+    # This is to allow for a new generation of messages to be created
     delete_messages_after_message(session, message, user_id)
+
+    # If the message has tool calls, we delete the tool calls and create new ones
     if new_message.tool_calls:
         tool_call_crud.delete_tool_calls_by_message_id(session, message_id)
         for tool_call in new_message.tool_calls:
@@ -39,18 +42,22 @@ async def update_message(
             )
             tool_call_crud.create_tool_call(session, tool_call)
         new_message.tool_calls = None
+
+    # If the message has documents, we delete the documents and citations
     if new_message.documents:
         ids = [document.document_id for document in new_message.documents]
-        print(f"new_message.documents {new_message.documents}")
         for document in message.documents:
             if document.document_id not in ids:
-                print(f"deleting document {document.document_id}")
                 document_crud.delete_document(session, document.id)
         for citation in message.citations:
             citation_crud.delete_citation(session, citation.id)
         new_message.text = ""
         new_message.documents = None
+
+    # If the message has a tool plan, we update the text
     if new_message.tool_plan:
         new_message.text = new_message.tool_plan
+
+    
     message_crud.update_message(session, message, new_message)
     return UpdateMessageResponse()

@@ -183,30 +183,22 @@ class CustomChat(BaseChat):
                 if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
             ]
 
+        # We check if the last message is a tool call, if it is, we need to call the tools before the generation
+        # This could be the case if the user edited the message with a tool call
         chat_request.chat_history = [c.to_dict() for c in chat_request.chat_history] if chat_request.chat_history else []
         has_tool_calls = (
             len(chat_request.chat_history) > 0
             and chat_request.chat_history[-1]["tool_calls"] is not None
         )
-        print("tool results")
-        print(chat_request.tool_results)
         # Loop until there are no new tool calls
-        print("here <=====================================")
-        print(has_tool_calls)
         for step in range(MAX_STEPS):
             logger.debug(
                 event=f"[Custom Chat] Chat request: {chat_request.model_dump()}",
-                step=step + 1,
+            step=step + 1,
             )
 
             # Invoke chat stream
-            # check if the last value of chat_history has tool calls
-
-            print("in loop <=====================================")
-            print(has_tool_calls)
-            print(chat_request.chat_history)
             if not has_tool_calls:
-                print("calling chat <=====================================")
                 async for event in deployment_model.invoke_chat_stream(
                     chat_request,
                     ctx,
@@ -226,7 +218,6 @@ class CustomChat(BaseChat):
 
             # Check for new tool calls in the chat history
             if has_tool_calls:
-                print("here3 <=====================================")
                 # Handle tool calls
                 tool_results = await async_call_tools(
                     chat_request.chat_history, deployment_model, ctx, **kwargs
@@ -236,9 +227,6 @@ class CustomChat(BaseChat):
                 if tool_results:
                     chat_request.tool_results = list(tool_results)
                     chat_request.message = ""
-                for result in tool_results:
-                    print(result)
-                print("here4 <=====================================")
                 has_tool_calls = False
             else:
                 break  # Exit loop if there are no new tool calls
