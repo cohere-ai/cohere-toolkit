@@ -57,6 +57,7 @@ from backend.services.request_validators import (
     validate_user_header,
 )
 from backend.services.sync.jobs.sync_agent import sync_agent
+from backend.tools import CarbonTool
 from backend.tools.files import FileToolsArtifactTypes
 from carbon_gmail_test.main_utils import (
     sync_gmail,
@@ -131,6 +132,8 @@ async def create_agent(
             # TODO: fix this, hacky
             source_ids = user_sources(GMAIL_TOOL, customer_id)
             sync_gmail(source_ids[0], customer_id)
+            # TODO: fix this, hacky
+            agent.tools.append(CarbonTool.NAME)
 
             def index_emails_on_setup():
                 emails, errs = list_emails_v2(customer_id)
@@ -142,7 +145,7 @@ async def create_agent(
                 )
                 logger.info(event="indexed on compass", res=res)
 
-            index_emails_on_setup()
+            # index_emails_on_setup()
         except Exception as e:
             logger.exception(event=e)
             raise HTTPException(status_code=500, detail=str(e))

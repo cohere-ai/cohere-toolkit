@@ -48,7 +48,7 @@ def webhook(body: Body):
         payload = WebhookPayload(**req)
         if (
             payload.webhook_type == "FILE_READY"
-            # and not payload.obj.additional_information.is_resync
+            and not payload.obj.additional_information.is_resync
         ):
             print("Processing FILE_READY event")
             customer_id = payload.customer_id

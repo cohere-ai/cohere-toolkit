@@ -5,6 +5,7 @@ from backend.schemas.tool import Category, ManagedTool
 from backend.services.logger.utils import LoggerFactory
 from backend.tools import (
     Calculator,
+    CarbonTool,
     GoogleDrive,
     GoogleDriveAuth,
     LangChainWikiRetriever,
@@ -37,6 +38,7 @@ class ToolName(StrEnum):
     Calculator = Calculator.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
+    Carbon = CarbonTool.NAME
     Web_Scrape = WebScrapeTool.NAME
 
 
@@ -159,6 +161,24 @@ ALL_TOOLS = {
         error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
+    ),
+    # TODO: needs to configured more correctly
+    ToolName.Carbon: ManagedTool(
+        display_name="Carbon",
+        implementation=CarbonTool,
+        parameter_definitions={
+            "query": {
+                "description": "Query to search gmail with",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=CarbonTool.is_available(),
+        # auth_implementation=GoogleDriveAuth,
+        error_message="Carbon not setup correctly.",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for the user's gmail",
     ),
     ToolName.Web_Scrape: ManagedTool(
         name=ToolName.Web_Scrape,

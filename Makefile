@@ -22,6 +22,10 @@ local-migrate:
 carbon-webhook-server:
 	poetry run fastapi dev src/carbon_gmail_test/webhook_server.py --port 8001
 
+start-webhook-ngrok:
+	echo "Ensure .env is setup correctly"
+	ngrok http 8001
+
 carbon-add-webhook:
 	echo "Ensure .env is setup correctly"
 	python src/carbon_gmail_test/setup_webhook.py

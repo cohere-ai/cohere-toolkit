@@ -7,9 +7,36 @@ from backend.crud import tool_auth as tool_auth_crud
 from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
-from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
+from backend.tools.google_drive.constants import (
+    CARBON_TOOL_ID,
+    GOOGLE_DRIVE_TOOL_ID,
+    SEARCH_LIMIT,
+)
+from carbon_gmail_test.utils import gen_index_name, query_compass
 
 logger = LoggerFactory().get_logger()
+
+
+# TODO: move this elsewhere
+class CarbonTool(BaseTool):
+    NAME = CARBON_TOOL_ID
+
+    @classmethod
+    def is_available(cls) -> bool:
+        return True
+
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+        customer_id = kwargs.get("customer_id", None)
+        if not customer_id:
+            raise Exception("Carbon customer_id not found")
+        index_name = gen_index_name(CARBON_TOOL_ID, customer_id)
+        compass = Compass(
+            compass_api_url=Settings().compass.api_url,
+            compass_parser_url=Settings().compass.parser_url,
+            compass_username=Settings().compass.username,
+            compass_password=Settings().compass.password,
+        )
+        return query_compass(compass, index_name, 5)
 
 
 class GoogleDrive(BaseTool):

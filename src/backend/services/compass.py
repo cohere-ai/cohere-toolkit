@@ -77,6 +77,7 @@ class Compass:
             logger.exception(event=f"[Compass] Error initializing Compass client: {e}")
             raise e
 
+    # TODO: this return signatiure is wrong
     def invoke(
         self,
         action: ValidActions,

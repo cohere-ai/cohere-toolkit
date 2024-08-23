@@ -139,8 +139,9 @@ def list_email_by_ids(ids: List[int], customer_id: str) -> List[EmailsToIndex]:
     return rv, errs
 
 
-def gen_index_name(source_name: str, customer_id: str) -> str:
-    return f"carbon|f{source_name}|{customer_id}"
+# TODO: wire up proper source names
+def gen_index_name(_source_name: str, customer_id: str) -> str:
+    return f"carbon_{customer_id}"
 
 
 def init_compass():
@@ -155,13 +156,21 @@ def init_compass():
 def index_on_compass(
     compass: Compass, index_name: str, items: List[EmailsToIndex]
 ) -> List[Any]:
-    compass.invoke(
-        compass.ValidActions.CREATE_INDEX,
-        {
-            "index": index_name,
-        },
-    )
-    print("index created")
+    try:
+        res = compass.invoke(
+            compass.ValidActions.CREATE_INDEX,
+            {
+                "index": index_name,
+            },
+        )
+        print(res)
+        # if res.Error:
+            # print("index creation failed")
+            # raise Exception(res.Error)
+    except Exception as e:
+        print(e)
+        return [{"status": "Fail", "error": str(e)}]
+
     statuses = []
     for item in items:
         print("indexing", item)
@@ -191,6 +200,7 @@ def index_on_compass(
                         "title": item.name,
                         "last_updated": int(time.time()),
                         "source_created_at": item.source_created_at,
+                        "external_id": item.external_file_id,
                     },
                 },
             )
