@@ -14,6 +14,7 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import conversation as conversation_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
+from backend.crud import document as document_crud
 from backend.database_models.citation import Citation
 from backend.database_models.conversation import Conversation
 from backend.database_models.database import DBSessionDep
@@ -138,19 +139,23 @@ def process_chat(
 
     chat_history = create_chat_history(conversation, next_message_position, chat_request)
 
+    # Add the tool calls to the chat history
     if len(conversation.messages) > 0 and conversation.messages[-1].documents is not None and conversation.messages[-1].text == "":
         last_message = conversation.messages[-1]
         tool_results = []
+        # we have to recreate the tool results from the last message
         for document in last_message.documents:
             output = document.fields
             output["text"] = document.text
             output["id"] = document.document_id
+            # the model takes the tool results out from the call anyway
             tool_results.append(
                 {
                     "call": {"name": document.tool_name, "parameters": {}},
                     "outputs": [output],
                 }
             )
+            document_crud.delete_document(session, document.id)
         chat_request.tool_results = tool_results
         chat_history.append(
             ChatMessage(
@@ -159,6 +164,7 @@ def process_chat(
                 tool_results=tool_results,
             )
         )
+        # New ones will be created in the next message
         message_crud.delete_message(session, last_message.id, user_id)
 
     # co.chat expects either chat_history or conversation_id, not both

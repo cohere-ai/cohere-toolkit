@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -8,13 +8,13 @@ class DocumentBase(BaseModel):
 
 
 class Document(BaseModel):
-    text: str
+    text: Optional[str] = None
     document_id: str
 
-    title: Union[str, None]
-    url: Union[str, None]
-    fields: Union[dict, None]
-    tool_name: Union[str, None]
+    title: Optional[str] = None
+    url: Optional[str] = None
+    fields: Optional[dict] = None
+    tool_name: Optional[str] = None
 
     class Config:
         from_attributes = True
