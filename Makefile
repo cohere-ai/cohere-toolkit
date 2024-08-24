@@ -20,7 +20,7 @@ run-unit-tests:
 
 .PHONY: run-community-tests
 run-community-tests:
-	docker compose run --build backend poetry run pytest src/community/tests/$(file)
+	poetry run pytest src/community/tests --cov=src/community --cov-report=xml
 
 .PHONY: run-integration-tests
 run-integration-tests:
