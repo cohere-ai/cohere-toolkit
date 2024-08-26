@@ -177,6 +177,15 @@ class GDriveSettings(BaseSettings, BaseModel):
         ),
     )
 
+class GoogleWebSearchSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    api_key: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("GOOGLE_SEARCH_API_KEY", "api_key")
+    )
+    cse_id: Optional[str] = Field(
+        default=None, validation_alias=AliasChoices("GOOGLE_SEARCH_CSE_ID", "cse_id")
+    )
+
 
 class BraveWebSearchSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
@@ -184,23 +193,30 @@ class BraveWebSearchSettings(BaseSettings, BaseModel):
         default=None, validation_alias=AliasChoices("BRAVE_API_KEY", "api_key")
     )
 
+class HybridWebSearchSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    enabled_web_searches: Optional[List[str]] = []
+
 
 class ToolSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
-    enabled_tools: Optional[List[str]] = None
+    enabled_tools: Optional[List[str]] = []
 
     python_interpreter: Optional[PythonToolSettings] = Field(
         default=PythonToolSettings()
     )
-    tavily: Optional[TavilySearchSettings] = Field(default=TavilySearchSettings())
     wolfram_alpha: Optional[WolframAlphaSettings] = Field(
         default=WolframAlphaSettings()
     )
     google_drive: Optional[GDriveSettings] = Field(default=GDriveSettings())
+    tavily_web_search: Optional[TavilySearchSettings] = Field(default=TavilySearchSettings())
+    google_web_search: Optional[GoogleWebSearchSettings] = Field(default=GoogleWebSearchSettings())
     brave_web_search: Optional[BraveWebSearchSettings] = Field(
         default=BraveWebSearchSettings()
     )
-
+    hybrid_web_search: Optional[HybridWebSearchSettings] = Field(
+        default=HybridWebSearchSettings()
+    )
 
 class DatabaseSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG

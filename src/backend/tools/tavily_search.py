@@ -11,9 +11,9 @@ from backend.schemas.context import Context
 from backend.tools.base import BaseTool
 
 
-class TavilyInternetSearch(BaseTool):
-    NAME = "web_search"
-    TAVILY_API_KEY = Settings().tools.tavily.api_key
+class TavilyWebSearch(BaseTool):
+    NAME = "tavily_web_search"
+    TAVILY_API_KEY = Settings().tools.tavily_web_search.api_key
     POST_RERANK_MAX_RESULTS = 6
 
     def __init__(self):

@@ -8,12 +8,14 @@ from backend.tools import (
     Calculator,
     GoogleDrive,
     GoogleDriveAuth,
+    GoogleWebSearch,
     LangChainWikiRetriever,
     PythonInterpreter,
     ReadFileTool,
     SearchFileTool,
-    TavilyInternetSearch,
+    TavilyWebSearch,
     WebScrapeTool,
+    HybridWebSearch,
 )
 
 logger = LoggerFactory().get_logger()
@@ -36,29 +38,15 @@ class ToolName(StrEnum):
     Read_File = ReadFileTool.NAME
     Python_Interpreter = PythonInterpreter.NAME
     Calculator = Calculator.NAME
-    Tavily_Internet_Search = TavilyInternetSearch.NAME
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
+    Tavily_Web_Search = TavilyWebSearch.NAME
+    Google_Web_Search = GoogleWebSearch.NAME
     Brave_Web_Search = BraveWebSearch.NAME
+    Hybrid_Web_Search = HybridWebSearch.NAME
 
 
 ALL_TOOLS = {
-    ToolName.Tavily_Internet_Search: ManagedTool(
-        display_name="Web Search",
-        implementation=TavilyInternetSearch,
-        parameter_definitions={
-            "query": {
-                "description": "Query for retrieval.",
-                "type": "str",
-                "required": True,
-            }
-        },
-        is_visible=True,
-        is_available=TavilyInternetSearch.is_available(),
-        error_message="TavilyInternetSearch not available, please make sure to set the tools.tavily.api_key variable in your secrets.yaml",
-        category=Category.DataLoader,
-        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
-    ),
     ToolName.Search_File: ManagedTool(
         display_name="Search File",
         implementation=SearchFileTool,
@@ -184,6 +172,38 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
     ),
+    ToolName.Tavily_Web_Search: ManagedTool(
+        display_name="Web Search",
+        implementation=TavilyWebSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=TavilyWebSearch.is_available(),
+        error_message="TavilyWebSearch not available, please make sure to set the tools.tavily_web_search.api_key variable in your secrets.yaml",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Tavily.",
+    ),
+    ToolName.Google_Web_Search: ManagedTool(
+        display_name="Google Web Search",
+        implementation=GoogleWebSearch,
+        parameter_definitions={
+            "query": {
+                "description": "A search query for the Google search engine.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=GoogleWebSearch.is_available(),
+        error_message="Google Web Search not available, please enable it in the GoogleWebSearch tool class.",
+        category=Category.DataLoader,
+        description="Returns relevant results by performing a Google web search.",
+    ),
     ToolName.Brave_Web_Search: ManagedTool(
         display_name="Brave Web Search",
         implementation=BraveWebSearch,
@@ -200,7 +220,22 @@ ALL_TOOLS = {
         category=Category.DataLoader,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Brave Search.",
     ),
-
+    ToolName.Hybrid_Web_Search: ManagedTool(
+        display_name="Hybrid Web Search",
+        implementation=HybridWebSearch,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=False,
+        is_available=HybridWebSearch.is_available(),
+        error_message="HybridWebSearch not available, please make sure to set the TODO",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets for a textual query retrieved from the internet using a mix of any existing Web Search tools.",
+    ),
 }
 
 
@@ -233,7 +268,7 @@ def get_available_tools() -> dict[ToolName, dict]:
         tool.name = tool.implementation.NAME
 
     enabled_tools = Settings().tools.enabled_tools
-    if enabled_tools is not None and len(enabled_tools) > 0:
+    if enabled_tools:
         tools = {key: value for key, value in tools.items() if key in enabled_tools}
     return tools
 
