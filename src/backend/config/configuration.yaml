@@ -1,0 +1,58 @@
+auth:
+  backend_hostname: http://localhost:8000
+  enabled_auth:
+  - basic
+  frontend_hostname: http://localhost:4000
+  google_oauth:
+  oidc:
+database:
+  url: postgresql+psycopg2://postgres:postgres@db:5432
+deployments:
+  azure:
+    endpoint_url: https://cohere-ai.azurewebsites.net
+  bedrock:
+    region_name: us-west-2
+  default_deployment: cohere_platform
+  enabled_deployments:
+  - cohere_platform
+  - sagemaker
+  - azure
+  - bedrock
+  sagemaker:
+    endpoint_name: cohere-ai
+    region_name: us-west-2
+  single_container:
+    model:
+    url:
+feature_flags:
+  use_agents_view: false
+  use_community_features: true
+  use_experimental_langchain: false
+logger:
+  level: info
+  renderer: console
+  strategy: structlog
+redis:
+  url: redis://:redis@redis:6379
+tools:
+  compass:
+    api_url:
+    parser_url:
+  enabled_tools:
+  - clover_retriver
+  - wikipedia
+  - search_file
+  - read_document
+  - toolkit_python_interpreter
+  - toolkit_calculator
+  - web_search
+  - web_scrape
+  google_drive:
+    client_id:
+    client_secret:
+  python_interpreter:
+    url: http://terrarium:8080
+  web_search:
+    api_key:
+  wolfram_alpha:
+    app_id:

@@ -3,9 +3,13 @@ from typing import Any, Dict, List
 
 from langchain_cohere import CohereEmbeddings, CohereRerank
 from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders.html import UnstructuredHTMLLoader
 
 from backend.chat.collate import RELEVANCE_THRESHOLD
 from backend.tools.base import BaseTool
+
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class OktaDocumentRetriever(BaseTool):
@@ -54,11 +58,11 @@ class OktaDocumentRetriever(BaseTool):
         docs = []
         for doc in _docs:
             # prep source for url
-            url = doc.metadata.get("source", "").replace("src/backend/data/okta/", "")[:-4]
+            url = doc.metadata.get("source", "").replace("src/backend/data/okta/", "")
             docs.append(
                 {
                     "text": doc.page_content,
-                    "url": self.STUB + url + "htm",
+                    "url": self.STUB + url,
                 }
             )
 
@@ -100,3 +104,21 @@ class OktaDocumentRetriever(BaseTool):
         except:
             raise FileNotFoundError("No FAISS vectorstore found")
         return db
+
+if __name__ == "__main__":
+    docs = []
+    folder = "src/backend/data/okta"
+
+    for file in os.listdir(folder):
+        if file.endswith(".htm"):
+            filepath = os.path.join(folder, file)
+            loader = UnstructuredHTMLLoader(filepath)
+            data = loader.load()
+            docs.extend(data)
+
+    db = FAISS.from_documents(
+        docs,
+        CohereEmbeddings(cohere_api_key=os.getenv("COHERE_API_KEY"), model="embed-english-v3.0")
+    )
+
+    db.save_local("src/backend/data/okta/okta_index")
