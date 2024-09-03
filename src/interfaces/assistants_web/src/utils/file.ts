@@ -55,8 +55,17 @@ export const mapExtensionToMimeType = (extension: string) => {
   return (
     {
       ['csv']: 'text/csv',
+      ['tsv']: 'text/tab-separated-values',
+      ['html']: 'text/html',
+      ['md']: 'text/markdown',
+      ['doc']: 'application/msword',
+      ['docx']: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ['xlsx']: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ['pptx']: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       ['json']: 'application/json',
       ['pdf']: 'application/pdf',
+      ['epub']: 'application/epub+zip',
+      ['parquet']: 'application/vnd.apache.parquet',
       ['png']: 'image/png',
       ['txt']: 'text/plain',
       ['zip']: 'application/zip',

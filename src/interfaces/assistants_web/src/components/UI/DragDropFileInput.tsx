@@ -3,7 +3,7 @@
 import { ReactNode, useState } from 'react';
 
 import { useFocusFileInput } from '@/hooks';
-import { cn } from '@/utils';
+import { cn, getFileExtension, mapExtensionToMimeType } from '@/utils';
 
 import { Text } from './Text';
 
@@ -22,7 +22,8 @@ export type FileAccept =
   | 'application/json'
   | 'application/ld+json'
   | 'application/pdf'
-  | 'application/epub+zip';
+  | 'application/epub+zip'
+  | 'application/vnd.apache.parquet';
 
 type Props = {
   active: boolean;
@@ -72,6 +73,12 @@ export const DragDropFileInput: React.FC<Props> = ({
                 const readFile = () =>
                   new Promise((fileReadResolve) => {
                     fileEntry.file((f) => {
+                      if (f.type.length === 0) {
+                        const fileExtension = getFileExtension(f.name)!;
+                        Object.defineProperty(f, 'type', {
+                          value: mapExtensionToMimeType(fileExtension),
+                        });
+                      }
                       filesList.push(f);
                       fileReadResolve(f);
                     });

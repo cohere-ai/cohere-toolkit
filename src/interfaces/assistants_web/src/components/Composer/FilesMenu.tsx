@@ -65,7 +65,7 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
               )}
             >
               <Tooltip
-                label="Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .XSLS, .XLS, .DOCX Max 20 MB)"
+                label="Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .TSV, .XSLS, .XLS, .DOCX, .PARQUET Max 20 MB)"
                 size="sm"
                 placement="top-start"
                 hover

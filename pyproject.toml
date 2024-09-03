@@ -51,6 +51,7 @@ watchdog = "^4.0.1"
 redis = {extras = ["hiredis"], version = "^5.0.7"}
 python-docx = "^1.1.2"
 python-calamine = "^0.2.3"
+pyarrow = "^17.0.0"
 structlog = "^24.4.0"
 pyyaml = "^6.0.1"
 nltk = "^3.9.1"
