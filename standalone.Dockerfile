@@ -39,6 +39,7 @@ RUN poetry install
 
 # Copy the rest of the code
 COPY src/backend src/backend
+COPY src/community src/community
 
 # Install PostgreSQL
 ENV PG_APP_HOME="/etc/docker-postgresql" \
