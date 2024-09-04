@@ -14,7 +14,8 @@ from backend.tools import (
     SearchFileTool,
     WebScrapeTool,
     TavilyInternetSearch,
-    OktaDocumentRetriever
+    OktaDocumentRetriever,
+    SearchPendingOrders,
 )
 
 """
@@ -39,9 +40,27 @@ class ToolName(StrEnum):
     Calculator = Calculator.NAME
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
+    Search_Pending_Orders = SearchPendingOrders.NAME
 
 
 ALL_TOOLS = {
+    ToolName.Search_Pending_Orders: ManagedTool(
+        display_name="Search Pending Orders",
+        implementation=SearchPendingOrders,
+        parameter_definitions={
+            "status": {
+                "description": "The status of the orders to search for (e.g., 'pending verification', 'completed', etc.)",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=SearchPendingOrders.is_available(),
+        error_message="SearchPendingOrders is not available.",
+        category=Category.DataLoader,
+        description="Searches the order management database and returns a list of customers with orders having the specified status.",
+    ),
+
     ToolName.Okta_Retriever: ManagedTool(
         display_name="Okta Retriever",
         implementation=OktaDocumentRetriever,

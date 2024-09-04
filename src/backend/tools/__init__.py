@@ -6,6 +6,7 @@ from backend.tools.python_interpreter import PythonInterpreter
 from backend.tools.web_scrape import WebScrapeTool
 from backend.tools.okta import OktaDocumentRetriever
 from backend.tools.tavily import TavilyInternetSearch
+from backend.tools.search_pending_orders import SearchPendingOrders
 
 __all__ = [
     "Calculator",
@@ -18,5 +19,6 @@ __all__ = [
     "GoogleDriveAuth",
     "WebScrapeTool",
     "OktaDocumentRetriever",
-    "TavilyInternetSearch"
+    "TavilyInternetSearch",
+    "SearchPendingOrders",
 ]
