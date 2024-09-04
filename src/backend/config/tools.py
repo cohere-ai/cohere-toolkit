@@ -16,6 +16,7 @@ from backend.tools import (
     TavilyInternetSearch,
     OktaDocumentRetriever,
     SearchPendingOrders,
+    ExtractVerificationSteps,
 )
 
 """
@@ -41,9 +42,22 @@ class ToolName(StrEnum):
     Google_Drive = GoogleDrive.NAME
     Web_Scrape = WebScrapeTool.NAME
     Search_Pending_Orders = SearchPendingOrders.NAME
+    Extract_Verification_Steps = ExtractVerificationSteps.NAME
 
 
 ALL_TOOLS = {
+
+    ToolName.Search_Pending_Orders: ManagedTool(
+        display_name="Extract Verification Steps",
+        implementation=ExtractVerificationSteps,
+        parameter_definitions={},
+        is_visible=True,
+        is_available=ExtractVerificationSteps.is_available(),
+        error_message="ExtractVerificationSteps is not available.",
+        category=Category.DataLoader,
+        description="Extracts and summarizes the steps required for user account verification from the user onboarding documentation..",
+    ),
+
     ToolName.Search_Pending_Orders: ManagedTool(
         display_name="Search Pending Orders",
         implementation=SearchPendingOrders,
@@ -71,7 +85,7 @@ ALL_TOOLS = {
                 "required": True,
             }
         },
-        is_visible=True,
+        is_visible=False,
         is_available=OktaDocumentRetriever.is_available(),
         error_message="OktaDocumentRetriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
         category=Category.DataLoader,
@@ -189,7 +203,7 @@ ALL_TOOLS = {
                 "required": True,
             }
         },
-        is_visible=True,
+        is_visible=False,
         is_available=GoogleDrive.is_available(),
         auth_implementation=GoogleDriveAuth,
         error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
