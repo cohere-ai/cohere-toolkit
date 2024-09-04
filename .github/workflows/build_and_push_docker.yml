@@ -46,6 +46,6 @@ jobs:
           file: ./standalone.Dockerfile
       - name: Test the Docker image
         run: |
-          docker run -d -p 8000:8000 ${{ env.REGISTRY }}/cohere-ai/${{ env.IMAGE_NAME }}
+          docker run -d -p 8000:8000 ${{ env.REGISTRY }}/AkashDeep000/${{ env.IMAGE_NAME }}
           sleep 20
           curl --fail-with-body -s http://localhost:8000/health
