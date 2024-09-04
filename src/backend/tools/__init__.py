@@ -8,6 +8,7 @@ from backend.tools.okta import OktaDocumentRetriever
 from backend.tools.tavily import TavilyInternetSearch
 from backend.tools.search_pending_orders import SearchPendingOrders
 from backend.tools.extract_verification_steps import ExtractVerificationSteps
+from backend.tools.send_reminder_emails import SendReminderEmails
 
 __all__ = [
     "Calculator",
@@ -23,4 +24,5 @@ __all__ = [
     "TavilyInternetSearch",
     "SearchPendingOrders",
     "ExtractVerificationSteps",
+    "SendReminderEmails",
 ]

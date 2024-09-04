@@ -17,6 +17,7 @@ from backend.tools import (
     OktaDocumentRetriever,
     SearchPendingOrders,
     ExtractVerificationSteps,
+    SendReminderEmails
 )
 
 """
@@ -43,9 +44,37 @@ class ToolName(StrEnum):
     Web_Scrape = WebScrapeTool.NAME
     Search_Pending_Orders = SearchPendingOrders.NAME
     Extract_Verification_Steps = ExtractVerificationSteps.NAME
+    Send_Reminder_Emails = SendReminderEmails.NAME
 
 
 ALL_TOOLS = {
+
+    ToolName.Send_Reminder_Emails: ManagedTool(
+        display_name="Send Reminder Emails",
+        implementation=SendReminderEmails,
+        parameter_definitions={
+            "customer_info": {
+            "description": "List of customer information including their names and email addresses.",
+            "type": "list",
+            "required": True
+            },
+            "verification_steps": {
+            "description": "List of steps required for account verification.",
+            "type": "list",
+            "required": True
+            },
+            "summary": {
+            "description": "Summary of the verification process.",
+            "type": "str",
+            "required": True
+            }
+        },
+        is_visible=True,
+        is_available=SendReminderEmails.is_available(),
+        error_message="SendReminderEmails is not available.",
+        category=Category.DataLoader,
+        description="Sends reminder emails to customers with pending orders, including instructions on how to complete their verification.",
+    ),
 
     ToolName.Search_Pending_Orders: ManagedTool(
         display_name="Extract Verification Steps",
