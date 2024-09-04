@@ -36,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/cohere-ai/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/AkashDeep000/${{ env.IMAGE_NAME }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
