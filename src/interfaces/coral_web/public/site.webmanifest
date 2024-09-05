@@ -1,7 +1,7 @@
 {
-  "name": "Oktobot",
-  "description": "A helpful Okta documentation chatbot.",
-  "short_name": "Oktobot",
+  "name": "Cohere",
+  "description": "A helpful chatbot.",
+  "short_name": "Cohere",
   "start_url": "/",
   "scope": "/",
   "orientation": "portrait",
