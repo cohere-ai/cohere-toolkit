@@ -45,7 +45,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
         )}
       >
         {!isAgent ? (
-          <BotAvatar state={BotState.FULFILLED} style="secondary" />
+          <BotAvatar state={BotState.LOADING} style="primary" />
         ) : (
           <Text className="uppercase text-white" styleAs="p-lg">
             {agent.name[0]}
@@ -60,7 +60,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           isAgent && getCohereColor(agent.id, { background: false })
         )}
       >
-        {!isAgent ? 'Oktobot, roll out' : agent.name}
+        {!isAgent ? 'FamilyBot, your friendly investment analyst assistant' : agent.name}
       </Text>
       {isAgent && (
         <Text className="!text-p-md text-center text-volcanic-100 md:!text-p-lg">

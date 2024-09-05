@@ -14,7 +14,7 @@ from backend.tools import (
     SearchFileTool,
     WebScrapeTool,
     TavilyInternetSearch,
-    OktaDocumentRetriever
+    MemoAnalyzer,
 )
 
 """
@@ -30,7 +30,7 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
-    Okta_Retriever = OktaDocumentRetriever.NAME
+    Memo_Analyzer = MemoAnalyzer.NAME
     Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Search_File = SearchFileTool.NAME
@@ -42,21 +42,21 @@ class ToolName(StrEnum):
 
 
 ALL_TOOLS = {
-    ToolName.Okta_Retriever: ManagedTool(
-        display_name="Okta Retriever",
-        implementation=OktaDocumentRetriever,
+    ToolName.Memo_Analyzer: ManagedTool(
+        display_name="Memo Analyzer",
+        implementation=MemoAnalyzer,
         parameter_definitions={
             "query": {
-                "description": "Query for retrieval from Okta documentation.",
+                "description": "Query for retrieval of specific information from an investment memo.",
                 "type": "str",
                 "required": True,
             }
         },
         is_visible=True,
-        is_available=OktaDocumentRetriever.is_available(),
-        error_message="OktaDocumentRetriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
+        is_available=MemoAnalyzer.is_available(),
+        error_message="MemoAnalyzer is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
         category=Category.DataLoader,
-        description="Returns documentation from the Okta product documentation website.",
+        description=MemoAnalyzer.TOOL_DESCRIPTION,
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         display_name="Web Search",

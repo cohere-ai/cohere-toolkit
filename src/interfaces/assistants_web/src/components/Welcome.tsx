@@ -45,7 +45,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
         )}
       >
         {!isAgent ? (
-          <BotAvatar state={BotState.FULFILLED} style="secondary" />
+          <BotAvatar state={BotState.FULFILLED} style="tfo" />
         ) : (
           <Text className="uppercase text-white" styleAs="p-lg">
             {agent.name[0]}

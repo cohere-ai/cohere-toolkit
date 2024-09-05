@@ -34,7 +34,7 @@ export const STYLE_LEVEL_TO_CLASSES = {
   h4: 'text-h4-m lg:text-h4 font-variable font-[450]',
   h5: 'text-h5-m lg:text-h5 font-variable font-[420]',
   logo: 'text-logo lowercase font-variable',
-  'p-lg': 'text-p-lg font-body',
+  'p-lg': 'text-p-lg font-body ',
   p: 'text-p font-body',
   'p-sm': 'text-p-sm font-body',
   'p-xs': 'text-p-xs font-body',

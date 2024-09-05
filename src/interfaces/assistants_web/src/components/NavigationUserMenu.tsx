@@ -23,12 +23,12 @@ export const NavigationUserMenu: React.FC<{
         {userEmail ? (
           <>
             <Text className="truncate px-4 pb-3 text-left text-volcanic-400">{userEmail}</Text>
-            <div className="flex justify-end border-t border-marble-950 px-4 pt-3">
+            <div className="flex justify-end border-t border-marble-1000 px-4 pt-3">
               <AuthLink action="logout" styleAs="button" kind="secondary" />
             </div>
           </>
         ) : (
-          <div className="mt-3 flex justify-end border-t border-marble-950 px-4 pt-3">
+          <div className="mt-3 flex justify-end border-t border-marble-1000 px-4 pt-3">
             <AuthLink action="login" styleAs="button" kind="secondary" />
           </div>
         )}

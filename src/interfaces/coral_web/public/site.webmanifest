@@ -1,7 +1,7 @@
 {
-  "name": "Oktobot",
+  "name": "FamilyBot",
   "description": "A helpful Okta documentation chatbot.",
-  "short_name": "Oktobot",
+  "short_name": "FamilyBot",
   "start_url": "/",
   "scope": "/",
   "orientation": "portrait",
