@@ -14,7 +14,8 @@ from backend.tools import (
     SearchFileTool,
     WebScrapeTool,
     TavilyInternetSearch,
-    OktaDocumentRetriever
+    RBCDocumentRetriever,
+    RBCDataAnalyzer,
 )
 
 """
@@ -30,7 +31,8 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 
 
 class ToolName(StrEnum):
-    Okta_Retriever = OktaDocumentRetriever.NAME
+    RBC_Analyzer = RBCDataAnalyzer.NAME
+    RBC_Retriever = RBCDocumentRetriever.NAME
     Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
     Tavily_Internet_Search = TavilyInternetSearch.NAME
     Search_File = SearchFileTool.NAME
@@ -42,21 +44,47 @@ class ToolName(StrEnum):
 
 
 ALL_TOOLS = {
-    ToolName.Okta_Retriever: ManagedTool(
-        display_name="Okta Retriever",
-        implementation=OktaDocumentRetriever,
+    ToolName.RBC_Analyzer: ManagedTool(
+        display_name="RBC HR Data",
+        implementation=RBCDataAnalyzer,
+        parameter_definitions={
+            "request" : {
+                "description": RBCDataAnalyzer.REQUEST_PROMPT,
+                "type": "str",
+                "required": True,
+            },
+            "role": {
+                "description": RBCDataAnalyzer.ROLE_PROMPT,
+                "type": "str",
+                "required": False,
+            },
+            "name": {
+                "description": "First name of a person that can be used to query a database. Only extract the first name. For example, if the query contains 'John Doe', only extract 'John'",
+                "type": "str",
+                "required": False,
+            }
+        },
+        is_visible=True,
+        is_available=RBCDataAnalyzer.is_available(),
+        error_message="RBCDataAnalyzer is not available, please make sure to set the COHERE_API_KEY environment variable and that the HR database is connected.",
+        category=Category.DataLoader,
+        description="Helps analyze HR data from the RBC HR database.",
+    ),
+    ToolName.RBC_Retriever: ManagedTool(
+        display_name="RBC HR Docs",
+        implementation=RBCDocumentRetriever,
         parameter_definitions={
             "query": {
-                "description": "Query for retrieval from Okta documentation.",
+                "description": "Query for retrieval from RBC HR documentation to address questions about HR policies.",
                 "type": "str",
                 "required": True,
             }
         },
         is_visible=True,
-        is_available=OktaDocumentRetriever.is_available(),
-        error_message="OktaDocumentRetriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
+        is_available=RBCDocumentRetriever.is_available(),
+        error_message="RBCDocumentRetriever is not available, please make sure to set the COHERE_API_KEY environment variable and that the FAISS docstore is connected.",
         category=Category.DataLoader,
-        description="Returns documentation from the Okta product documentation website.",
+        description="Returns policy information from the RBC HR documentation.",
     ),
     ToolName.Tavily_Internet_Search: ManagedTool(
         display_name="Web Search",

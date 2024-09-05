@@ -1,7 +1,7 @@
 {
-  "name": "Oktobot",
-  "description": "A helpful Okta documentation chatbot.",
-  "short_name": "Oktobot",
+  "name": "RBC Bot",
+  "description": "A helpful RBC assistant chatbot.",
+  "short_name": "RBC Bot",
   "start_url": "/",
   "scope": "/",
   "orientation": "portrait",

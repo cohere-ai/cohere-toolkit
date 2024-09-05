@@ -9,16 +9,16 @@ module.exports = {
         white: '#FAFAFA',
         // Simulated Coral
         coral: {
-          950: '#dbe0fa',
-          900: '#c1c9f6',
-          800: '#9daaf1',
-          700: '#7286eb',
-          600: '#2e40a5',
-          500: '#546be7',
-          400: '#4c64e1',
-          300: '#2e40a5',
-          200: '#22307c',
-          150: '#182257',
+          950: '#ffffff',
+          900: '#e3edf5',
+          800: '#c6dbec',
+          700: '#aac9e2',
+          600: '#8eb7d8',
+          500: '#71a5cf',
+          400: '#5593c5',
+          300: '#3981bb',
+          200: '#1c6fb2',
+          150: '#005da8',
         },
         // Mushroom Grey
         mushroom: {
@@ -26,12 +26,12 @@ module.exports = {
           900: '#e1e1e1',
           800: '#D2CDC4',
           700: '#BDB6A8',
-          600: '#A79E8B',
+          600: '#ffea8e',
           500: '#91856E',
           400: '#70695C',
           300: '#575042',
           200: '#3A352C',
-          150: '#2C2821',
+          150: '#8f6c00',
         },
         // Evolved Mushroom Grey
         'evolved-mushroom': {
