@@ -129,7 +129,7 @@ ALL_TOOLS = {
                 "required": True,
             }
         },
-        is_visible=True,
+        is_visible=False,
         is_available=TavilyInternetSearch.is_available(),
         error_message="TavilyInternetSearch not available, please make sure to set the TAVILY_API_KEY environment variable.",
         category=Category.DataLoader,
