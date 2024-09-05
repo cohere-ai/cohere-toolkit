@@ -48,7 +48,6 @@ class ToolName(StrEnum):
 
 
 ALL_TOOLS = {
-
     ToolName.Send_Reminder_Emails: ManagedTool(
         display_name="Send Reminder Emails",
         implementation=SendReminderEmails,
@@ -76,7 +75,7 @@ ALL_TOOLS = {
         description="Sends reminder emails to customers with pending orders, including instructions on how to complete their verification.",
     ),
 
-    ToolName.Search_Pending_Orders: ManagedTool(
+    ToolName.Extract_Verification_Steps: ManagedTool(
         display_name="Extract Verification Steps",
         implementation=ExtractVerificationSteps,
         parameter_definitions={},
