@@ -38,8 +38,12 @@ class SearchPendingOrders(BaseTool):
             }
             customers_info.append(customer_info)
 
-        result = {
-            "customers_with_pending_verification": customers_info
-        }
+        result = [
+            {
+                "title": "Customers with pending verification",
+                "text": f"Found {len(customers_info)} customers with pending verification.",
+                "customers_with_pending_verification": customers_info
+            }
+        ]
 
         return result

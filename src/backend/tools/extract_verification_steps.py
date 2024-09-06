@@ -30,10 +30,15 @@ class ExtractVerificationSteps(BaseTool):
 
         # Extract and summarize the steps
         steps = self.mock_documentation.split("\n")[2:]
+        steps_text = "\n".join(steps)
 
-        result = {
-            "verification_steps": steps,
-            "summary": self.summary
-        }
+        result = [
+            {
+                "verification_steps": steps,
+                "summary": self.summary,
+                "text": steps_text,
+                "title": self.summary
+            }
+        ]
 
         return result

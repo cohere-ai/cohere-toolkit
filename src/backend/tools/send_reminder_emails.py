@@ -27,10 +27,12 @@ class SendReminderEmails(BaseTool):
             email_message = f"Hi {customer_name},\n\nWe noticed that your order requires additional verification. Here are the steps to complete the process:\n\n{summary}\n\n{verification_steps}\n\nThank you,\n[Your Company Name]"
             print(f"Email sent to {customer_email} with subject '{email_subject}':\n{email_message}")
 
-
-        result = {
-            "emails_sent": True,
-            "message": "Reminder emails sent successfully."
-        }
+        result = [
+            {
+                "emails_sent": True,
+                "title": "Reminder emails sent successfully.",
+                "text": f"Sent reminder emails to {len(customer_info)} customers with pending orders."
+            }
+        ]
 
         return result
