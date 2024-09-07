@@ -279,7 +279,8 @@ if __name__ == "__main__":
     download_directory = "src/backend/data/rbc"
     docs = []
     folder = "src/backend/data/rbc"
-    files = [file for file in os.listdir("src/backend/data/rbc") if file.endswith(".pdf")]
+    # files = [file for file in os.listdir("src/backend/data/rbc") if file.endswith(".pdf")]
+    files = ["RBC Vacation Policy Ontario.pdf", "RBC Vacation Policy Quebec.pdf"]
     print(files)
     for file, url in zip(files, pdf_urls):
         file = os.path.join("src/backend/data/rbc", file)
