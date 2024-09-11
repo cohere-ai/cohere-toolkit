@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { Button, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useSettingsStore } from '@/stores';
 
 type Props = {
@@ -26,16 +27,13 @@ export const ConnectDataModal: React.FC<Props> = ({ onClose }) => {
 
   return (
     <div className="flex flex-col gap-y-20">
-      <Text>
-        Your data must be connected in order to use this assistant. Connecting to your data will
-        allow you to use the assistant to its full potential.
-      </Text>
+      <Text>{STRINGS.connectDataDescription}</Text>
       <div className="flex justify-between">
         <Button kind="secondary" onClick={handleClose}>
-          Cancel
+          {STRINGS.cancel}
         </Button>
         <Button kind="green" onClick={handleStartConnecting} splitIcon="arrow-right">
-          Start connecting
+          {STRINGS.startConnecting}
         </Button>
       </div>
     </div>

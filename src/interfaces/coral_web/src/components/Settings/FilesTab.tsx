@@ -4,6 +4,7 @@ import React, { Fragment, useEffect, useMemo } from 'react';
 
 import { ListFile } from '@/cohere-client';
 import { Checkbox, Text, Tooltip } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useFocusFileInput } from '@/hooks/actions';
 import { useDefaultFileLoaderTool, useFilesInConversation } from '@/hooks/files';
 import { useFilesStore, useParamsStore } from '@/stores';
@@ -55,7 +56,7 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
     const uploadDate = new Date(file.created_at);
     if (!file.created_at) return groupedFiles;
     const { weeksAgo, weeksAgoStr } = getWeeksAgo(uploadDate);
-    const title = weeksAgo <= 1 ? 'Most recent' : weeksAgoStr;
+    const title = weeksAgo <= 1 ? STRINGS.mostRecent : weeksAgoStr;
 
     if (!groupedFiles[title]) {
       groupedFiles[title] = [];
@@ -93,9 +94,9 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
       <section className="relative flex flex-col gap-y-8 px-5">
         <div className="flex gap-x-2">
           <Text styleAs="label" className="font-medium">
-            Files in conversation
+            {STRINGS.filesInConversation}
           </Text>
-          <Tooltip label="To use uploaded files, at least 1 File Upload tool must be enabled" />
+          <Tooltip label={STRINGS.filesInConversationDescription} />
         </div>
 
         {uploadedFiles.length > 0 && (

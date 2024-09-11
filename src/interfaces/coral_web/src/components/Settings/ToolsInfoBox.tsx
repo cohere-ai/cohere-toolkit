@@ -3,6 +3,7 @@
 import { Transition } from '@headlessui/react';
 
 import { Button, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useShowToolsInfoBox } from '@/hooks/ftux';
 import { useSettingsStore } from '@/stores';
 
@@ -24,16 +25,15 @@ export const ToolsInfoBox: React.FC = () => {
       leaveTo="opacity-0"
     >
       <Text>
-        Tools are functions that the model can access, such as searching Wikipedia or summarizing an
-        uploaded PDF. Follow the documentation to add custom available tools.
+        {STRINGS.toolsDescriptionLong}
         <br />
         <br />
-        Tools can be turned on or off at any time in your conversation.
+        {STRINGS.toolsOnOffDescription}
       </Text>
       <Button
         label={
           <Text styleAs="label" className="font-medium text-coral-300">
-            Got it
+            {STRINGS.gotIt}
           </Text>
         }
         kind="secondary"

@@ -8,15 +8,16 @@ import {
   TOOL_ID_TO_ICON,
   TOOL_WEB_SEARCH_ID,
 } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { cn, getSafeUrl, getWebDomain } from '@/utils';
 
 const getWebSourceName = (toolId?: string) => {
   if (!toolId) {
     return '';
   } else if (toolId === TOOL_WEB_SEARCH_ID) {
-    return 'from the web';
+    return STRINGS.fromTheWeb;
   }
-  return `from ${toolId}`;
+  return DYNAMIC_STRINGS.fromTool(toolId);
 };
 
 type Props = {
@@ -127,7 +128,7 @@ export const CitationDocumentHeader: React.FC<Props> = ({
                 }
               )}
             >
-              {isFile ? 'File' : 'Tool'}
+              {isFile ? STRINGS.file : STRINGS.tool}
             </Text>
           )}
 

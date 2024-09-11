@@ -1,3 +1,4 @@
+import { DYNAMIC_STRINGS } from '@/constants/strings';
 import { pluralize } from '@/utils';
 
 const WEEK_IN_MILLIS = 7 * 24 * 60 * 60 * 1000;
@@ -9,7 +10,7 @@ export const getWeeksAgo = (date: string | Date): { weeksAgo: number; weeksAgoSt
   const now = new Date();
   const diffInMillis = now.getTime() - new Date(date).getTime();
   const weeksAgo = Math.floor(diffInMillis / WEEK_IN_MILLIS);
-  const weeksAgoStr = `${weeksAgo} ${pluralize('week', weeksAgo)} ago`;
+  const weeksAgoStr = DYNAMIC_STRINGS.weeksAgo(weeksAgo);
 
   return {
     weeksAgo,
@@ -41,10 +42,10 @@ export const formatFileSize = (bytes: number): string => {
   const mb = kb * 1024;
 
   if (bytes < kb) {
-    return `${bytes} bytes`;
+    return DYNAMIC_STRINGS.numBytes(bytes);
   } else if (bytes < mb) {
-    return `${(bytes / kb).toFixed(1)} KB`;
+    return DYNAMIC_STRINGS.numKB((bytes / kb).toFixed(1));
   } else {
-    return `${(bytes / mb).toFixed(1)} MB`;
+    return DYNAMIC_STRINGS.numMB((bytes / mb).toFixed(1));
   }
 };

@@ -10,9 +10,10 @@ import { CitationDocument } from '@/components/Citations/CitationDocument';
 import { IconButton } from '@/components/IconButton';
 import { Text } from '@/components/Shared/Text';
 import { ReservedClasses } from '@/constants';
+import { DYNAMIC_STRINGS } from '@/constants/strings';
 import { CitationStyles, useCalculateCitationTranslateY } from '@/hooks/citations';
 import { useCitationsStore } from '@/stores';
-import { cn, pluralize } from '@/utils';
+import { cn } from '@/utils';
 
 type Props = {
   generationId: string;
@@ -150,7 +151,7 @@ export const Citation = React.forwardRef<HTMLDivElement, Props>(function Citatio
 
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
           <Text as="span" styleAs="caption" className="text-volcanic-300">
-            {uniqueDocumentsUrls.length} {pluralize('reference', uniqueDocumentsUrls.length)}
+            {DYNAMIC_STRINGS.numReferences(uniqueDocuments.length)}
           </Text>
           {uniqueDocumentsUrls.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton

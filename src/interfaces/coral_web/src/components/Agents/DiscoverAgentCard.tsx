@@ -3,6 +3,7 @@
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
 import { Button, CoralLogo, Icon, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useContextStore } from '@/context';
 import { cn } from '@/utils';
 import { getCohereColor } from '@/utils/getCohereColor';
@@ -24,7 +25,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
     if (!id) return;
     open({
       content: <DeleteAgent name={name} agentId={id} onClose={close} />,
-      title: 'Delete assistant',
+      title: STRINGS.deleteAssistantTitle,
     });
   };
 
@@ -59,7 +60,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
                 anchor="bottom end"
                 items={[
                   {
-                    label: 'Delete assistant',
+                    label: STRINGS.deleteAssistant,
                     iconName: 'trash',
                     onClick: handleDeleteAssistant,
                   },
@@ -72,7 +73,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <Button
           className="ml-auto"
           href={isBaseAgent ? '/' : `/a/${id}`}
-          label={<Text className="text-green-250">Try now</Text>}
+          label={<Text className="text-green-250">{STRINGS.tryNow}</Text>}
           kind="secondary"
           endIcon={<Icon name="arrow-up-right" className="text-green-250" />}
         />

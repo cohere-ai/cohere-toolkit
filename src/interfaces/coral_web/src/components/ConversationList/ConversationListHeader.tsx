@@ -2,6 +2,7 @@
 
 import { IconButton } from '@/components/IconButton';
 import { Checkbox, Icon, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -62,7 +63,7 @@ export const ConversationListHeader: React.FC<Props> = ({
                 className="flex h-8 w-8 items-center justify-center text-coral-700 lg:hidden"
                 kind="outline"
               />
-              <Text styleAs="p-lg">Chats</Text>
+              <Text styleAs="p-lg">{STRINGS.chats}</Text>
             </span>
           </div>
           <div className="flex items-center gap-x-3">
@@ -70,7 +71,7 @@ export const ConversationListHeader: React.FC<Props> = ({
               iconName="search"
               isDefaultOnHover={false}
               onClick={onSearchClick}
-              tooltip={{ label: 'Search', placement: 'bottom-start', size: 'md' }}
+              tooltip={{ label: STRINGS.search, placement: 'bottom-start', size: 'md' }}
             />
           </div>
         </>

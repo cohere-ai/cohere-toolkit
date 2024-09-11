@@ -5,6 +5,7 @@ import React from 'react';
 
 import { BotAvatar } from '@/components/Avatar';
 import { Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useAgent } from '@/hooks/agents';
 import { BotState } from '@/types/message';
 import { cn } from '@/utils';
@@ -60,7 +61,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           isAgent && getCohereColor(agent.id, { background: false })
         )}
       >
-        {!isAgent ? 'Need help? Your wish is my command.' : agent.name}
+        {!isAgent ? STRINGS.botWelcomeMessage : agent.name}
       </Text>
       {isAgent && (
         <Text className="!text-p-md text-center text-volcanic-100 md:!text-p-lg">
