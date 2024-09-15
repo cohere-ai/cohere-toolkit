@@ -212,17 +212,6 @@ def process_message_regeneration(
         chat_request.file_ids
     )
 
-    previous_chatbot_message_ids = [
-        message.id
-        for message in conversation.messages
-        if (
-            message.is_active
-            and message.user_id == user_id
-            and message.position == last_user_message.position
-            and message.agent == MessageAgent.CHATBOT
-        )
-    ]
-
     new_chatbot_message = create_message(
         session,
         chat_request,
@@ -234,6 +223,17 @@ def process_message_regeneration(
         False,
         id=str(uuid4()),
     )
+
+    previous_chatbot_message_ids = [
+        message.id
+        for message in conversation.messages
+        if (
+                message.is_active
+                and message.user_id == user_id
+                and message.position == last_user_message.position
+                and message.agent == MessageAgent.CHATBOT
+        )
+    ]
 
     chat_request.message = last_user_message.text
     chat_request.conversation_id = ""
