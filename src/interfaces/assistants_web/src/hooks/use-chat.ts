@@ -617,7 +617,31 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   };
 
   const handleRegenerate = async () => {
-    console.log(`Regenerating the last message for conversation ${id}`);
+    const latestUserMessageIndex = messages.findLastIndex((m) => m.type === MessageType.USER);
+
+    if (latestUserMessageIndex === -1 || isStreaming) {
+      return;
+    }
+
+    if (composerFiles.length > 0) {
+      await queryClient.invalidateQueries({ queryKey: ['listFiles'] });
+    }
+
+    const newMessages = messages.slice(0, latestUserMessageIndex + 1);
+
+    const request = getChatRequest('');
+
+    const headers = {
+      'Deployment-Name': deployment ?? '',
+      'Deployment-Config': deploymentConfig ?? '',
+    };
+
+    await handleStreamConverse({
+      newMessages,
+      request,
+      headers,
+      streamConverse: streamChat,
+    });
   };
 
   const handleStop = () => {
