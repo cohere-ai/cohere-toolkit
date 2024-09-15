@@ -32,6 +32,7 @@ type Props = {
   className?: string;
   onCopy?: VoidFunction;
   onRetry?: VoidFunction;
+  onRegenerate?: VoidFunction;
 };
 
 /**
@@ -47,6 +48,7 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
     className = '',
     onCopy,
     onRetry,
+    onRegenerate,
   },
   ref
 ) {
@@ -61,7 +63,8 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
       isAbortedMessage(message)) &&
     !!message.toolEvents &&
     message.toolEvents.length > 0;
-  const isMessageRegenerationEnabled = isLast && !isReadOnly && isBotMessage(message);
+  const isRegenerationEnabled =
+    isLast && !isReadOnly && isBotMessage(message) && !isErroredMessage(message);
 
   const getMessageText = () => {
     if (isFulfilledMessage(message)) {
@@ -157,7 +160,7 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
                   onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
                 />
               )}
-              {isMessageRegenerationEnabled && (
+              {isRegenerationEnabled && (
                 <IconButton
                   tooltip={{ label: 'Regenerate message' }}
                   iconName="regenerate"
@@ -166,9 +169,14 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
                     'text-volcanic-300 fill-volcanic-300 group-hover/icon-button:fill-mushroom-300',
                     'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800'
                   )}
+                  onClick={onRegenerate}
                 />
               )}
-              <CopyToClipboardIconButton value={getMessageText()} onClick={onCopy} />
+              <CopyToClipboardIconButton
+                value={getMessageText()}
+                hoverDelay={{ open: 250 }}
+                onClick={onCopy}
+              />
             </div>
           </div>
         </div>

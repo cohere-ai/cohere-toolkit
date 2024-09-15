@@ -69,8 +69,7 @@ export type HandleSendChat = (
     currentMessages?: ChatMessage[];
     suggestedMessage?: string;
   },
-  overrides?: ChatRequestOverrides,
-  regenerating?: boolean
+  overrides?: ChatRequestOverrides
 ) => Promise<void>;
 
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
@@ -617,6 +616,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     }
   };
 
+  const handleRegenerate = async () => {
+    console.log(`Regenerating the last message for conversation ${id}`);
+  };
+
   const handleStop = () => {
     if (!isStreaming) return;
     abortController.current?.abort(ABORT_REASON_USER);
@@ -639,6 +642,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     handleSend: handleChat,
     handleStop,
     handleRetry,
+    handleRegenerate,
     streamingMessage,
     setPendingMessage,
     setUserMessage,
