@@ -207,3 +207,18 @@ def test_delete_message_file_association(session, conversation, user):
 
     message = message_crud.get_message(session, message.id, user.id)
     assert message.file_ids == []
+
+
+def test_delete_messages(session, conversation, user):
+    for i in range(3):
+        _ = get_factory("Message", session).create(
+            text=f"Hello, World! {i}", conversation_id=conversation.id, user_id=user.id
+        )
+
+    messages = message_crud.get_messages_by_conversation_id(session, conversation.id, user.id)
+    assert len(messages) == 3
+
+    message_crud.delete_messages(session, [message.id for message in messages], user.id)
+
+    messages = message_crud.get_messages_by_conversation_id(session, conversation.id, user.id)
+    assert len(messages) == 0
