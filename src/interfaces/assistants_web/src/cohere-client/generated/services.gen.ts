@@ -676,6 +676,7 @@ export class DefaultService {
    * Args:
    * offset (int): Offset to start the list.
    * limit (int): Limit of conversations to be listed.
+   * order_by (str): A field by which to order the conversations.
    * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
@@ -685,6 +686,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.offset
    * @param data.limit
+   * @param data.orderBy
    * @param data.agentId
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError

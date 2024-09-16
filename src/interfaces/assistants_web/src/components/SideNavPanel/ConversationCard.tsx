@@ -11,6 +11,7 @@ import {
   useBrandedColors,
   useConversationActions,
   useConversationFileActions,
+  useEditConversation,
   useIsDesktop,
 } from '@/hooks';
 import { useConversationStore, useSettingsStore } from '@/stores';
@@ -21,6 +22,7 @@ export type ConversationListItem = {
   updatedAt: string;
   title: string;
   description: string | null;
+  isPinned: boolean;
   weekHeading?: string;
   agent?: AgentPublic;
 };
@@ -35,9 +37,16 @@ type Props = {
   onCheck: (id: string) => void;
 };
 
-const useMenuItems = ({ conversationId }: { conversationId: string }) => {
+const useMenuItems = ({
+  conversationId,
+  isPinned,
+}: {
+  conversationId: string;
+  isPinned: boolean;
+}) => {
   const { deleteConversation } = useConversationActions();
   const { open } = useContextStore();
+  const { mutateAsync: editConversation } = useEditConversation();
 
   const handleOpenShareModal = () => {
     if (!conversationId) return;
@@ -49,7 +58,14 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 
   const menuItems: KebabMenuItem[] = [
     {
-      label: 'Share Chat',
+      label: isPinned ? 'Un-pin chat' : 'Pin chat',
+      iconName: 'pin',
+      onClick: async () => {
+        await editConversation({ request: { is_pinned: !isPinned }, conversationId });
+      },
+    },
+    {
+      label: 'Share chat',
       iconName: 'share',
       onClick: handleOpenShareModal,
     },
@@ -67,7 +83,7 @@ const useMenuItems = ({ conversationId }: { conversationId: string }) => {
 };
 
 export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flippedProps }) => {
-  const { title, conversationId } = conversation;
+  const { title, conversationId, isPinned } = conversation;
   const {
     conversation: { id: selectedConversationId, name: conversationName },
     setConversation,
@@ -85,7 +101,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   // @see "handleUpdateConversationTitle" in hooks/chat.ts
   const name = conversationId === selectedConversationId ? conversationName : title;
 
-  const menuItems = useMenuItems({ conversationId });
+  const menuItems = useMenuItems({ conversationId, isPinned });
 
   const info = (
     <div className="flex flex-col gap-y-2 pl-3">

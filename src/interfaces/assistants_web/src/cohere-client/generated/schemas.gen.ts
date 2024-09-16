@@ -917,7 +917,6 @@ export const $ConversationPublic = {
     is_pinned: {
       type: 'boolean',
       title: 'Is Pinned',
-      default: false,
     },
     total_file_size: {
       type: 'integer',
@@ -935,6 +934,7 @@ export const $ConversationPublic = {
     'files',
     'description',
     'agent_id',
+    'is_pinned',
     'total_file_size',
   ],
   title: 'ConversationPublic',
@@ -992,7 +992,6 @@ export const $ConversationWithoutMessages = {
     is_pinned: {
       type: 'boolean',
       title: 'Is Pinned',
-      default: false,
     },
     total_file_size: {
       type: 'integer',
@@ -1009,6 +1008,7 @@ export const $ConversationWithoutMessages = {
     'files',
     'description',
     'agent_id',
+    'is_pinned',
     'total_file_size',
   ],
   title: 'ConversationWithoutMessages',

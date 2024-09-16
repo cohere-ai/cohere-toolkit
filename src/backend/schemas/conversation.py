@@ -22,7 +22,7 @@ class Conversation(ConversationBase):
     files: List[ConversationFilePublic]
     description: Optional[str]
     agent_id: Optional[str]
-    is_pinned: bool = False
+    is_pinned: bool
 
     @computed_field(return_type=int)
     def total_file_size(self):

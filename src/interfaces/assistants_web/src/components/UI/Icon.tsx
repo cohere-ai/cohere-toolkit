@@ -40,6 +40,7 @@ import {
   NewMessage,
   OneDrive,
   Paperclip,
+  Pin,
   Profile,
   Search,
   Setttings,
@@ -100,6 +101,7 @@ export const IconList = [
   'new-message',
   'one-drive',
   'paperclip',
+  'pin',
   'profile',
   'search',
   'settings',
@@ -358,6 +360,11 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
     ['paperclip']: (
       <AccessibleIcon label="Paperclip">
         <Paperclip />
+      </AccessibleIcon>
+    ),
+    ['pin']: (
+      <AccessibleIcon label="Pin">
+        <Pin />
       </AccessibleIcon>
     ),
     ['profile']: (
