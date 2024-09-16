@@ -310,6 +310,34 @@ def test_delete_conversation(
     assert conversation is None
 
 
+def test_update_conversation_is_pinned_status(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    conversation = get_factory("Conversation", session).create(
+        is_pinned=False, user_id=user.id
+    )
+    response = session_client.put(
+        f"/v1/conversations/{conversation.id}",
+        json={"is_pinned": True},
+        headers={"User-Id": user.id},
+    )
+    response_conversation = response.json()
+
+    assert response.status_code == 200
+    assert response_conversation["is_pinned"]
+
+    # Check if the conversation was updated
+    conversation = (
+        session.query(Conversation)
+        .filter_by(id=conversation.id, user_id=conversation.user_id)
+        .first()
+    )
+    assert conversation is not None
+    assert conversation.description
+
+
 def test_fail_delete_nonexistent_conversation(
     session_client: TestClient,
     session: Session,
