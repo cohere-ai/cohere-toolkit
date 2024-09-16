@@ -22,6 +22,7 @@ class Conversation(ConversationBase):
     files: List[ConversationFilePublic]
     description: Optional[str]
     agent_id: Optional[str]
+    is_pinned: bool = False
 
     @computed_field(return_type=int)
     def total_file_size(self):
@@ -43,6 +44,7 @@ class ConversationWithoutMessages(ConversationPublic):
 class UpdateConversationRequest(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    is_pinned: Optional[bool] = None
 
     class Config:
         from_attributes = True

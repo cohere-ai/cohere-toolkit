@@ -99,6 +99,7 @@ async def get_conversation(
         description=conversation.description,
         agent_id=conversation.agent_id,
         organization_id=conversation.organization_id,
+        is_pinned=conversation.is_pinned,
     )
 
     _ = validate_conversation(session, conversation_id, user_id)
@@ -110,6 +111,7 @@ async def list_conversations(
     *,
     offset: int = 0,
     limit: int = 100,
+    order_by: str = None,
     agent_id: str = None,
     session: DBSessionDep,
     request: Request,
@@ -121,6 +123,7 @@ async def list_conversations(
     Args:
         offset (int): Offset to start the list.
         limit (int): Limit of conversations to be listed.
+        order_by (str): A field by which to order the conversations.
         agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
         session (DBSessionDep): Database session.
         request (Request): Request object.
@@ -131,7 +134,7 @@ async def list_conversations(
     user_id = ctx.get_user_id()
 
     conversations = conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
+        session, offset=offset, limit=limit, order_by=order_by, user_id=user_id, agent_id=agent_id
     )
 
     results = []
@@ -154,6 +157,7 @@ async def list_conversations(
                 agent_id=conversation.agent_id,
                 messages=[],
                 organization_id=conversation.organization_id,
+                is_pinned=conversation.is_pinned,
             )
         )
 
@@ -206,6 +210,7 @@ async def update_conversation(
         description=conversation.description,
         agent_id=conversation.agent_id,
         organization_id=conversation.organization_id,
+        is_pinned=conversation.is_pinned,
     )
 
 
@@ -314,6 +319,7 @@ async def search_conversations(
                 agent_id=conversation.agent_id,
                 messages=[],
                 organization_id=conversation.organization_id,
+                is_pinned=conversation.is_pinned,
             )
         )
     return results

@@ -1,3 +1,4 @@
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from backend.database_models.conversation import (
@@ -54,6 +55,7 @@ def get_conversations(
     user_id: str,
     offset: int = 0,
     limit: int = 100,
+    order_by: str | None = None,
     agent_id: str | None = None,
     organization_id: str | None = None,
 ) -> list[Conversation]:
@@ -67,6 +69,7 @@ def get_conversations(
         agent_id (str): Agent ID.
         offset (int): Offset to start the list.
         limit (int): Limit of conversations to be listed.
+        order_by (str): A field by which to order the conversations.
 
     Returns:
         list[Conversation]: List of conversations.
@@ -76,6 +79,9 @@ def get_conversations(
         query = query.filter(Conversation.agent_id == agent_id)
     if organization_id is not None:
         query = query.filter(Conversation.organization_id == organization_id)
+    if order_by is not None:
+        order_column = getattr(Conversation, order_by)
+        query = query.order_by(desc(order_column))
     query = query.order_by(Conversation.updated_at.desc()).offset(offset).limit(limit)
 
     return query.all()
