@@ -698,6 +698,7 @@ export class DefaultService {
       query: {
         offset: data.offset,
         limit: data.limit,
+        order_by: data.orderBy,
         agent_id: data.agentId,
       },
       errors: {

@@ -23,7 +23,7 @@ const sortByDate = (a: Conversation, b: Conversation) => {
  * It shows the most recent agents and the base agents.
  */
 export const ConversationList: React.FC = () => {
-  const { data: conversations = [] } = useConversations({});
+  const { data: conversations = [] } = useConversations({ orderBy: 'is_pinned' });
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
   const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
   const recentAgents = useRecentAgents();
@@ -97,7 +97,7 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     data: conversations = [],
     isLoading: isConversationsLoading,
     isError,
-  } = useConversations({});
+  } = useConversations({ orderBy: 'is_pinned' });
   const { isLeftPanelOpen } = useSettingsStore();
   const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
   const hasSearchQuery = search.length > 0;

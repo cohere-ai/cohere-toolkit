@@ -149,7 +149,12 @@ export class CohereClient {
     });
   }
 
-  public listConversations(params: { offset?: number; limit?: number; agentId?: string }) {
+  public listConversations(params: {
+    offset?: number;
+    limit?: number;
+    orderBy?: string;
+    agentId?: string;
+  }) {
     return this.cohereService.default.listConversationsV1ConversationsGet(params);
   }
 

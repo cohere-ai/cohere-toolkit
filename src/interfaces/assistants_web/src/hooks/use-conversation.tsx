@@ -16,7 +16,12 @@ import { useNavigateToNewChat, useNotify } from '@/hooks';
 import { useConversationStore } from '@/stores';
 import { isAbortError } from '@/utils';
 
-export const useConversations = (params: { offset?: number; limit?: number; agentId?: string }) => {
+export const useConversations = (params: {
+  offset?: number;
+  limit?: number;
+  orderBy?: string;
+  agentId?: string;
+}) => {
   const client = useCohereClient();
 
   return useQuery<ConversationWithoutMessages[], ApiError>({
