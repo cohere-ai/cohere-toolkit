@@ -182,6 +182,7 @@ export type ConversationPublic = {
   files: Array<ConversationFilePublic>;
   description: string | null;
   agent_id: string | null;
+  is_pinned?: boolean;
   readonly total_file_size: number;
 };
 
@@ -193,6 +194,7 @@ export type ConversationWithoutMessages = {
   files: Array<ConversationFilePublic>;
   description: string | null;
   agent_id: string | null;
+  is_pinned?: boolean;
   readonly total_file_size: number;
 };
 
@@ -661,6 +663,7 @@ export type UpdateAgentToolMetadataRequest = {
 export type UpdateConversationRequest = {
   title?: string | null;
   description?: string | null;
+  is_pinned?: boolean | null;
 };
 
 export type UpdateDeploymentEnv = {
@@ -812,6 +815,7 @@ export type ListConversationsV1ConversationsGetData = {
   agentId?: string;
   limit?: number;
   offset?: number;
+  orderBy?: string;
 };
 
 export type ListConversationsV1ConversationsGetResponse = Array<ConversationWithoutMessages>;

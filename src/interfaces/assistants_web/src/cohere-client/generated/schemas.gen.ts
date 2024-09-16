@@ -914,6 +914,11 @@ export const $ConversationPublic = {
       ],
       title: 'Agent Id',
     },
+    is_pinned: {
+      type: 'boolean',
+      title: 'Is Pinned',
+      default: false,
+    },
     total_file_size: {
       type: 'integer',
       title: 'Total File Size',
@@ -983,6 +988,11 @@ export const $ConversationWithoutMessages = {
         },
       ],
       title: 'Agent Id',
+    },
+    is_pinned: {
+      type: 'boolean',
+      title: 'Is Pinned',
+      default: false,
     },
     total_file_size: {
       type: 'integer',
@@ -3363,6 +3373,17 @@ export const $UpdateConversationRequest = {
         },
       ],
       title: 'Description',
+    },
+    is_pinned: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Pinned',
     },
   },
   type: 'object',
