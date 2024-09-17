@@ -51,7 +51,6 @@ from backend.services.context import get_context
 from backend.services.file import (
     consolidate_agent_files_in_compass,
     get_file_service,
-    validate_batch_file_size,
     validate_file,
 )
 from backend.services.request_validators import (
@@ -686,7 +685,6 @@ async def batch_upload_file(
     ctx: Context = Depends(get_context),
 ) -> UploadAgentFileResponse:
     user_id = ctx.get_user_id()
-    validate_batch_file_size(session, user_id, files)
 
     uploaded_files = []
     try:

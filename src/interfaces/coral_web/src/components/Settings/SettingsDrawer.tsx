@@ -10,6 +10,7 @@ import { SettingsTab } from '@/components/Settings/SettingsTab';
 import { ToolsTab } from '@/components/Settings/ToolsTab';
 import { Icon, Tabs, Text } from '@/components/Shared';
 import { SETTINGS_DRAWER_ID } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useAgent } from '@/hooks/agents';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
@@ -43,20 +44,20 @@ export const SettingsDrawer: React.FC = () => {
     if (isAgentsModeOn) {
       return files.length > 0 && conversationId
         ? [
-            { name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> },
-            { name: 'Files', component: <FilesTab /> },
+            { name: STRINGS.tools, component: <AgentsToolsTab requiredTools={agent?.tools} /> },
+            { name: STRINGS.files, component: <FilesTab /> },
           ]
-        : [{ name: 'Tools', component: <AgentsToolsTab requiredTools={agent?.tools} /> }];
+        : [{ name: STRINGS.tools, component: <AgentsToolsTab requiredTools={agent?.tools} /> }];
     }
     return files.length > 0 && conversationId
       ? [
-          { name: 'Tools', component: <ToolsTab /> },
-          { name: 'Files', component: <FilesTab /> },
-          { name: 'Settings', component: <SettingsTab /> },
+          { name: STRINGS.tools, component: <ToolsTab /> },
+          { name: STRINGS.files, component: <FilesTab /> },
+          { name: STRINGS.settings, component: <SettingsTab /> },
         ]
       : [
-          { name: 'Tools', component: <ToolsTab /> },
-          { name: 'Settings', component: <SettingsTab /> },
+          { name: STRINGS.tools, component: <ToolsTab /> },
+          { name: STRINGS.settings, component: <SettingsTab /> },
         ];
   }, [files.length, conversationId, agent?.tools]);
 
@@ -83,13 +84,13 @@ export const SettingsDrawer: React.FC = () => {
       <header className="flex h-header items-center gap-2 border-b border-marble-950 p-5">
         <IconButton
           iconName="close-drawer"
-          tooltip={{ label: 'Close drawer', size: 'md' }}
+          tooltip={{ label: STRINGS.closeDrawer, size: 'md' }}
           isDefaultOnHover={false}
           onClick={() => setSettings({ isConfigDrawerOpen: false })}
         />
         <span className="flex items-center gap-2">
           <Icon name="settings" className="text-volcanic-400" kind="outline" />
-          <Text styleAs="p-lg">Settings</Text>
+          <Text styleAs="p-lg">{STRINGS.settings}</Text>
         </span>
       </header>
 

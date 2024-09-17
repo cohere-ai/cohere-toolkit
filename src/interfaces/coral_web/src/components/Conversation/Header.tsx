@@ -9,6 +9,7 @@ import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { ShareModal } from '@/components/ShareModal';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
+import { STRINGS } from '@/constants/strings';
 import { ModalContext } from '@/context/ModalContext';
 import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
@@ -49,7 +50,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
   const handleOpenShareModal = () => {
     if (!conversationId) return;
     open({
-      title: 'Share link to conversation',
+      title: STRINGS.shareLinkToConversation,
       content: <ShareModal conversationId={conversationId} />,
     });
   };
@@ -73,24 +74,24 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     ...(!!agent
       ? [
           {
-            label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+            label: isAgentCreator ? STRINGS.editAssistant : STRINGS.aboutAssistant,
             iconName: isAgentCreator ? 'edit' : 'information',
             onClick: handleOpenAgentDrawer,
           } as KebabMenuItem,
         ]
       : []),
     {
-      label: 'Settings',
+      label: STRINGS.settings,
       iconName: 'settings',
       onClick: handleToggleConfigSettings,
     },
     {
-      label: 'Share',
+      label: STRINGS.share,
       iconName: 'share',
       onClick: handleOpenShareModal,
     },
     {
-      label: 'New chat',
+      label: STRINGS.newChat,
       iconName: 'new-message',
       onClick: handleNewChat,
     },
@@ -165,7 +166,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             >
               <IconButton
                 iconName="side-panel"
-                tooltip={{ label: 'Toggle chat list', placement: 'bottom-start', size: 'md' }}
+                tooltip={{ label: STRINGS.toggleChatList, placement: 'bottom-start', size: 'md' }}
                 onClick={() => {
                   setSettings({ isConfigDrawerOpen: false });
                   setAgentsSidePanelOpen(false);
@@ -182,14 +183,14 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
         <span className="flex items-center gap-x-2 py-4 pl-4 md:pl-0">
           <KebabMenu className="md:hidden" items={menuItems} anchor="left start" />
           <IconButton
-            tooltip={{ label: 'New chat', placement: 'bottom-end', size: 'md' }}
+            tooltip={{ label: STRINGS.newChat, placement: 'bottom-end', size: 'md' }}
             className="hidden md:flex"
             iconName="new-message"
             onClick={handleNewChat}
           />
           {id && (
             <IconButton
-              tooltip={{ label: 'Share', placement: 'bottom-end', size: 'md' }}
+              tooltip={{ label: STRINGS.share, placement: 'bottom-end', size: 'md' }}
               className="hidden md:flex"
               iconName="share"
               onClick={handleOpenShareModal}
@@ -197,7 +198,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
           )}
           <div className="relative">
             <IconButton
-              tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}
+              tooltip={{ label: STRINGS.settings, placement: 'bottom-end', size: 'md' }}
               className={cn('hidden md:flex', { 'bg-mushroom-900': isConfigDrawerOpen })}
               onClick={handleToggleConfigSettings}
               iconName="settings"
@@ -212,7 +213,7 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
           </div>
           <IconButton
             tooltip={{
-              label: isAgentCreator ? 'Edit assistant' : 'About assistant',
+              label: isAgentCreator ? STRINGS.editAssistant : STRINGS.aboutAssistant,
               placement: 'bottom-end',
               size: 'md',
             }}

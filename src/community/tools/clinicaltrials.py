@@ -22,7 +22,7 @@ class ClinicalTrials(BaseTool):
         return True
 
     async def call(
-        self, parameters: Dict[str, Any], ctx: Any, n_max_studies: int = 10, **kwargs
+        self, parameters: Dict[str, Any], n_max_studies: int = 10, **kwargs
     ) -> List[Dict[str, Any]]:
         query_params = {"sort": "LastUpdatePostDate"}
         if condition := parameters.get("condition", ""):

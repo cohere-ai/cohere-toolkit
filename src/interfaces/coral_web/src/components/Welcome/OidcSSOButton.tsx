@@ -1,6 +1,7 @@
 'use client';
 
 import { BasicButton } from '@/components/Shared';
+import { DYNAMIC_STRINGS } from '@/constants/strings';
 import { cn } from '@/utils';
 
 type ButtonProps = {
@@ -80,7 +81,7 @@ export const OidcSSOButton: React.FC<ButtonProps> = ({ className, service, onCli
     <BasicButton
       startIcon={service === 'Google' ? googleLogo : oidLogo}
       onClick={onClick}
-      label={`Continue with ${service ? service : 'OpenID'}`}
+      label={DYNAMIC_STRINGS.continueWithLoginService(service ? service : 'OpenID')}
       size="sm"
       kind="secondary"
       className={cn(

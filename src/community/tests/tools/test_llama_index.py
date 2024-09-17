@@ -1,7 +1,10 @@
+import pytest
+
 from community.tools import LlamaIndexUploadPDFRetriever
 
 
-def test_pdf_retriever() -> None:
+@pytest.mark.asyncio
+async def test_pdf_retriever() -> None:
     file_path = "src/backend/tests/unit/test_data/Mariana_Trench.pdf"
     retriever = LlamaIndexUploadPDFRetriever(file_path)
     query = "What is the mariana trench?"
@@ -34,6 +37,6 @@ def test_pdf_retriever() -> None:
             "text": '49. Robbins, Gary (5 September 2019). "UCSD discovers surge in plastics pollution off Santa\nBarbara" (https://www.latimes.com/california/story/2019-09-04/uc-san-diego-discovers-explo\nsion-in-plastics-products-in-seafloor-off-santa-barbara). Los Angeles Times. Retrieved\n5 September 2019.\n50. Street, Francesca (13 May 2019). "Deepest ocean dive recorded: How Victor Vescovo did it"\n(https://www.cnn.com/travel/article/victor-vescovo-deepest-dive-pacific/index.html). CNN\nTravel. CNN. Retrieved 13 May 2019.\n51. Levy, Adam (15 May 2019). ""Bomb Carbon" Has Been Found in Deep-Ocean Creatures" (h\nttps://www.scientificamerican.com/article/bomb-carbon-has-been-found-in-deep-ocean-creat\nures/). Scientific American.\n52. Hafemeister, David W. (2007). Physics of societal issues: calculations on national security,\nenvironment, and energy (https://books.google.com/books?id=LT4MSqv9QUIC&pg=PA187).\nBerlin: Springer. p. 187. ISBN 978-0-387-95560-5.\n53. Kingsley, Marvin G.; Rogers, Kenneth H. (2007). Calculated risks: highly radioactive waste\nand homeland security (https://books.google.com/books?id=bOP4-BpYXrEC&pg=PA75).\nAldershot, Hants, England: Ashgate. pp. 75–76. ISBN 978-0-7546-7133-6.\n54. "Dumping and Loss overview" (https://web.archive.org/web/20110605190619/http://www.la\nw.berkeley.edu/centers/ilr/ona/pages/dumping2.htm). Oceans in the Nuclear Age. Archived\nfrom the original (http://www.law.berkeley.edu/centers/ilr/ona/pages/dumping2.htm) on 5\nJune 2011. Retrieved 18 September 2010.\nMariana Trench Dive (25 March 2012) (https://web.archive.org/web/20140625050833/http://d\neepseachallenge.com/) – Deepsea Challenger\nMariana Trench Dive (23 January 1960) (http://www.britishpathe.com/video/they-dived-7-mil\nes/query/mariana+trench) – Trieste (Newsreel)\nMariana Trench Dive (50th Anniv) (http://www.vvdailypress.com/articles/walsh-18116-regret-\nmiles.html) Archived (https://web.archive.org/web/20130603064615/http://www.vvdailypress.\ncom/articles/walsh-18116-regret-miles.html) 3 June 2013 at the Wayback Machine – Trieste\n– Capt Don Walsh\nMariana Trench – Maps (Google) (https://maps.google.com/maps?q=11.317,+142.25(Marian\na+Trench)&z=6)\nNOAA – Ocean Explorer (http://oceanexplorer.noaa.gov) (Ofc Ocean Exploration & Rsch)\nNOAA – Ocean Explorer – Multimedia (http://oceanexplorer.noaa.gov/explorations/06fire/bac\nkground/marianaarc/marianaarc.html) – Mariana Arc (podcast (http://oceanexplorer.noaa.go\nv/explorations/podcast/oceanexplorer_podcast.xml))\nNOAA – Ocean Explorer – Video Playlist (https://www.youtube.com/view_play_list?p=94B79\n5FD631011E0) – Ring of Fire (2004–2006)\nRetrieved from "https://en.wikipedia.org/w/index.php?title=Mariana_Trench&oldid=1187694887"External links\n'
         },
     ]
-    result = retriever.call({"query": query})
+    result = await retriever.call({"query": query})
 
     assert expected_docs == result

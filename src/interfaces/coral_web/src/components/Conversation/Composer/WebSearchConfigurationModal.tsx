@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Button, Input } from '@/components/Shared';
-import { useParamsStore } from '@/stores';
+import { STRINGS } from '@/constants/strings';
 import { hasCommonDelimiters } from '@/utils';
 
 /**
@@ -14,9 +14,6 @@ export const WebSearchModal: React.FC<{
   onSave: (site: string) => void;
   onCancel: VoidFunction;
 }> = ({ onSave, onCancel }) => {
-  const {
-    params: { tools },
-  } = useParamsStore();
   const [site, setSite] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -38,18 +35,18 @@ export const WebSearchModal: React.FC<{
       <Input
         ref={inputRef}
         label="Site"
-        placeholder="Ground on 1 domain e.g. wikipedia.org"
+        placeholder={STRINGS.siteGroundingDescription}
         description={
           site.length > 0 && hasCommonDelimiters(site)
-            ? 'Multiple domains are not supported.'
+            ? STRINGS.multipleSiteGroundingError
             : undefined
         }
         value={site}
         onChange={(e) => setSite(e.target.value)}
       />
       <div className="flex w-full items-center justify-between">
-        <Button label="Cancel" kind="secondary" onClick={onCancel} />
-        <Button type="submit" label="Save" splitIcon="arrow-right" theme="volcanic" />
+        <Button label={STRINGS.cancel} kind="secondary" onClick={onCancel} />
+        <Button label={STRINGS.save} type="submit" splitIcon="arrow-right" theme="volcanic" />
       </div>
     </form>
   );

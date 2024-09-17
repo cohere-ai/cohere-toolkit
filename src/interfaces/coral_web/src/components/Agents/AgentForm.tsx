@@ -1,12 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import React, { useMemo } from 'react';
 
 import { CreateAgent, UpdateAgent } from '@/cohere-client';
 import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { useListTools } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
@@ -68,7 +68,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         <Input
           kind="default"
           value={fields.name ?? ''}
-          placeholder="Give your assistant a name"
+          placeholder={STRINGS.assistantNameDescription}
           onChange={(e) => setFields((prev) => ({ ...prev, name: e.target.value }))}
           hasError={!!errors?.name}
           errorText={errors?.name}
@@ -79,28 +79,18 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
         <Input
           kind="default"
           value={fields.description ?? ''}
-          placeholder="What does your assistant do?"
+          placeholder={STRINGS.assistantDescriptionDescription}
           onChange={(e) => setFields((prev) => ({ ...prev, description: e.target.value }))}
           disabled={!isAgentCreator}
         />
       </InputLabel>
       <InputLabel
-        label="Instructions"
-        tooltipLabel={
-          <Text>
-            Learn about writing a custom assistant instructions with{' '}
-            <Link
-              href="https://docs.cohere.com/docs/preambles#advanced-techniques-for-writing-a-preamble"
-              className="underline"
-            >
-              Cohere&apos;s guide
-            </Link>
-          </Text>
-        }
+        label={STRINGS.instructions}
+        tooltipLabel={<Text>{DYNAMIC_STRINGS.assistantInstructionsDescription}</Text>}
       >
         <textarea
           value={fields.preamble ?? ''}
-          placeholder="Give instructions to your chatbot. What does it do? How does it behave?"
+          placeholder={STRINGS.assistantPreambleDescription}
           className={cn(
             'mt-2 w-full flex-1 resize-none p-3',
             'transition ease-in-out',
@@ -122,7 +112,7 @@ export function AgentForm<K extends CreateAgentFormFields | UpdateAgentFormField
       </InputLabel>
       <div className="flex flex-col space-y-2">
         <Text className="text-volcanic-100" as="span" styleAs="label">
-          Tools
+          {STRINGS.tools}
         </Text>
         <div className="flex flex-col gap-y-4 px-3">
           {tools.map((tool, i) => {
@@ -174,7 +164,7 @@ const RequiredInputLabel: React.FC<{
           {label}
         </Text>
         <Text as="span" styleAs="label" className="text-danger-350">
-          *required
+          *{STRINGS.required}
         </Text>
       </div>
     }

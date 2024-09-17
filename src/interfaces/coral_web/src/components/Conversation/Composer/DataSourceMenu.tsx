@@ -9,6 +9,7 @@ import { ListboxOption, ListboxOptions } from '@/components/Conversation/Compose
 import { IconButton } from '@/components/IconButton';
 import { IconName, Text } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID, TOOL_FALLBACK_ICON } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -298,7 +299,7 @@ const ToolOptions: React.FC<{
   onSeeAll?: VoidFunction;
 }> = ({ tags, selectedTagIds, isOverview, focusedTag, onSeeAll, onOptionSelect }) => {
   return (
-    <ListboxOptions title={isOverview ? 'Tools' : undefined} onSeeAll={onSeeAll}>
+    <ListboxOptions title={isOverview ? STRINGS.tools : undefined} onSeeAll={onSeeAll}>
       {tags.map((tag) => {
         let selected = selectedTagIds.some((t) => t === tag.id);
 
@@ -316,7 +317,7 @@ const ToolOptions: React.FC<{
             metadata={
               selected ? (
                 <Text as="span" className="text-volcanic-500">
-                  Selected
+                  {STRINGS.selected}
                 </Text>
               ) : undefined
             }
@@ -340,7 +341,7 @@ const FileOptions: React.FC<{
 
   return (
     <ListboxOptions
-      title={isOverview ? 'Files' : undefined}
+      title={isOverview ? STRINGS.files : undefined}
       onSeeAll={hasFiles ? onSeeAll : undefined}
     >
       {hasFiles ? (
@@ -355,14 +356,14 @@ const FileOptions: React.FC<{
             name={tag.name}
             metadata={
               <Text as="span" className="flex-shrink-0 whitespace-nowrap text-volcanic-500">
-                {selectedTagIds.some((t) => t === tag.id) ? 'Selected' : tag.metadata}
+                {selectedTagIds.some((t) => t === tag.id) ? STRINGS.selected : tag.metadata}
               </Text>
             }
           />
         ))
       ) : (
         <Text as="span" className="p-1.5 text-volcanic-400">
-          You don&apos;t have any files, upload one to use with the assistant.
+          {STRINGS.noFilesFound}
         </Text>
       )}
     </ListboxOptions>

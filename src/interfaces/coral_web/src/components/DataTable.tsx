@@ -5,6 +5,7 @@ import { ComponentPropsWithoutRef, useCallback } from 'react';
 
 import { Icon, Text } from '@/components/Shared';
 import { StructuredTable } from '@/components/Shared/Markdown/directives/table-tools';
+import { STRINGS } from '@/constants/strings';
 import { useNotify } from '@/hooks/toast';
 import { useConversationStore } from '@/stores';
 import { cn } from '@/utils';
@@ -42,7 +43,7 @@ export const DataTable: Component<ComponentPropsWithoutRef<'table'> & ExtraProps
   const downloadAsCSV = useCallback(() => {
     const csv = structuredTableToXSV(structuredTable!, ',');
     if (csv === null) {
-      error('Unable to download table as CSV.');
+      error(STRINGS.downloadTableCSVError);
       return;
     }
 
@@ -63,7 +64,7 @@ export const DataTable: Component<ComponentPropsWithoutRef<'table'> & ExtraProps
           onClick={downloadAsCSV}
         >
           <Icon name="sparkle" kind="outline" />
-          <Text styleAs="p-sm">Download as CSV</Text>
+          <Text styleAs="p-sm">{STRINGS.downloadAsCSV}</Text>
         </button>
       )}
     </div>
