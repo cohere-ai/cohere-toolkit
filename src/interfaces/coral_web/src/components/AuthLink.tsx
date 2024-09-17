@@ -3,6 +3,7 @@
 import React, { ReactElement } from 'react';
 
 import { Button, ButtonKind, IconName, InlineLink } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useAuthConfig } from '@/hooks/authConfig';
 
 type Props = {
@@ -40,15 +41,15 @@ export const AuthLink: React.FC<Props> = ({
   switch (action) {
     case 'login':
       href = `${authConfig.loginUrl}${searchString}`;
-      label = 'Log in';
+      label = STRINGS.logIn;
       break;
     case 'register':
       href = `${authConfig.registerUrl}${searchString}`;
-      label = 'Sign up';
+      label = STRINGS.signUp;
       break;
     case 'logout':
       href = `${authConfig.logoutUrl}`;
-      label = 'Log out';
+      label = STRINGS.logOut;
       break;
   }
 

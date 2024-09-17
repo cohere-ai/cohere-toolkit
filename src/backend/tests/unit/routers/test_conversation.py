@@ -12,7 +12,7 @@ from backend.database_models import (
     Message,
 )
 from backend.schemas.user import User
-from backend.services.file import MAX_FILE_SIZE, MAX_TOTAL_FILE_SIZE, get_file_service
+from backend.services.file import get_file_service
 from backend.tests.unit.factories import get_factory
 
 
@@ -592,73 +592,6 @@ def test_batch_upload_file_existing_conversation(
         session, conversation.user_id, conversation.id, MagicMock()
     )
     assert len(files_stored) == len(file_paths)
-
-
-def test_batch_upload_total_files_exceeds_limit(
-    session_client: TestClient, session: Session, user, mock_compass_settings
-) -> None:
-    _ = get_factory("Conversation", session).create(user_id=user.id)
-    file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
-        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
-    }
-    files = [
-        ("files", (file_name, open(file_path, "rb")))
-        for file_name, file_path in file_paths.items()
-    ]
-
-    conversation = get_factory("Conversation", session).create(user_id=user.id)
-    file = get_factory("File", session).create(
-        file_name="test_file.txt",
-        user_id=conversation.user_id,
-        file_size=1000000000,
-    )
-    _ = get_factory("ConversationFileAssociation", session).create(
-        conversation_id=conversation.id, user_id=user.id, file_id=file.id
-    )
-
-    response = session_client.post(
-        "/v1/conversations/batch_upload_file",
-        files=files,
-        headers={"User-Id": conversation.user_id},
-    )
-
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes."
-    }
-
-
-def test_batch_upload_single_file_exceeds_limit(
-    session_client: TestClient, session: Session, user, mock_compass_settings
-) -> None:
-    _ = get_factory("Conversation", session).create(user_id=user.id)
-    file_paths = {
-        "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
-        "Cardistry.pdf": "src/backend/tests/unit/test_data/Cardistry.pdf",
-        "26mb.pdf": "src/backend/tests/unit/test_data/26mb.pdf",
-        "Tapas.pdf": "src/backend/tests/unit/test_data/Tapas.pdf",
-        "Mount_Everest.pdf": "src/backend/tests/unit/test_data/Mount_Everest.pdf",
-    }
-    files = [
-        ("files", (file_name, open(file_path, "rb")))
-        for file_name, file_path in file_paths.items()
-    ]
-
-    conversation = get_factory("Conversation", session).create(user_id=user.id)
-
-    response = session_client.post(
-        "/v1/conversations/batch_upload_file",
-        files=files,
-        headers={"User-Id": conversation.user_id},
-    )
-
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": f"26mb.pdf exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes."
-    }
 
 
 def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(

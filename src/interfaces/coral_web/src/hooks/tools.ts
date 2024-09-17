@@ -5,6 +5,7 @@ import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
 import { ManagedTool, useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks/toast';
 
@@ -57,11 +58,11 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
     const files = data.docs.filter((doc) => doc.type !== 'folder');
 
     if (folders.length > 0 && files.length > 0) {
-      info('Please select either files or folders.');
+      info(STRINGS.selectGoogleDriveFilesOrFolders);
       return;
     }
     if (files.length > 5) {
-      info('You can only select a maximum of 5 files.');
+      info(STRINGS.selectMaxGoogleDriveFilesDescription);
       return;
     }
 
@@ -72,7 +73,7 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
   const googleDriveDeveloperKey = env.NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY;
   if (!googleDriveClientId || !googleDriveDeveloperKey) {
     return () => {
-      info('Google Drive is not available at the moment.');
+      info(STRINGS.googleDriveUnavailableError);
     };
   }
 

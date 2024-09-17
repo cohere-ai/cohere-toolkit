@@ -14,6 +14,7 @@ import {
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_GOOGLE_DRIVE_ID,
 } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { ModalContext } from '@/context/ModalContext';
 import { useCreateAgent, useIsAgentNameUnique, useRecentAgents } from '@/hooks/agents';
 import { useNotify } from '@/hooks/toast';
@@ -89,7 +90,7 @@ export const CreateAgent: React.FC = () => {
   });
 
   const fieldErrors = {
-    ...(isAgentNameUnique(fields.name) ? {} : { name: 'Assistant name must be unique' }),
+    ...(isAgentNameUnique(fields.name) ? {} : { name: STRINGS.assistantNameUniqueError }),
   };
 
   const canSubmit = (() => {
@@ -146,7 +147,7 @@ export const CreateAgent: React.FC = () => {
 
   const handleOpenSubmitModal = () => {
     open({
-      title: `Create ${fields.name}?`,
+      title: DYNAMIC_STRINGS.createAssistantConfirmationTitle(fields.name),
       content: (
         <SubmitModalContent
           agentName={fields.name}
@@ -172,7 +173,7 @@ export const CreateAgent: React.FC = () => {
     } catch (e) {
       setIsSubmitting(false);
       close();
-      error('Failed to create assistant');
+      error(STRINGS.createAssistantError);
       console.error(e);
     }
   };
@@ -181,10 +182,8 @@ export const CreateAgent: React.FC = () => {
     <div className="relative flex h-full w-full flex-col overflow-y-auto">
       <div className="flex-grow overflow-y-scroll">
         <div className="flex max-w-[650px] flex-col gap-y-2 p-10">
-          <Text styleAs="h4">Create an Assistant</Text>
-          <Text className="text-volcanic-400">
-            Create an unique assistant and share with your org
-          </Text>
+          <Text styleAs="h4">{STRINGS.createAnAssistantTitle}</Text>
+          <Text className="text-volcanic-400">{STRINGS.createAnAssistantDescription}</Text>
           <AgentForm<CreateAgentFormFields>
             fields={fields}
             setFields={setFields}
@@ -198,7 +197,7 @@ export const CreateAgent: React.FC = () => {
       </div>
       <div className="flex w-full flex-shrink-0 justify-end border-t border-marble-950 bg-white px-4 py-4 md:py-8">
         <Button kind="green" splitIcon="add" onClick={handleOpenSubmitModal} disabled={!canSubmit}>
-          Create
+          {STRINGS.create}
         </Button>
       </div>
     </div>
@@ -212,16 +211,13 @@ const SubmitModalContent: React.FC<{
   onClose: () => void;
 }> = ({ agentName, isSubmitting, onSubmit, onClose }) => (
   <div className="flex flex-col gap-y-20">
-    <Text>
-      Your assistant {agentName} is about be visible publicly. Everyone in your organization will be
-      able to see and use it.
-    </Text>
+    <Text>{DYNAMIC_STRINGS.createAssistantConfirmationDescription(agentName)}</Text>
     <div className="flex justify-between">
       <Button kind="secondary" onClick={onClose}>
-        Cancel
+        {STRINGS.cancel}
       </Button>
       <Button kind="green" onClick={onSubmit} splitIcon="arrow-right" disabled={isSubmitting}>
-        {isSubmitting ? 'Creating assistant' : 'Yes, make it public'}
+        {isSubmitting ? STRINGS.creatingAssistant : STRINGS.yesMakeItPublic}
       </Button>
     </div>
   </div>

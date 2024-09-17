@@ -4,6 +4,7 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headless
 import { Fragment, useMemo, useState } from 'react';
 
 import { Icon, Input, InputLabel, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { cn } from '@/utils';
 
 type Kind = 'default' | 'cell';
@@ -46,7 +47,7 @@ export const Dropdown: React.FC<Props> = ({
   optionGroups,
   label,
   tooltipLabel,
-  placeholder = 'Select an option',
+  placeholder = STRINGS.selectAnOption,
   value,
   kind = 'cell',
   disabled = false,
@@ -186,7 +187,7 @@ export const Dropdown: React.FC<Props> = ({
                 <div className="sticky top-0 border-b border-marble-800 bg-white">
                   <section className="p-3">
                     <Input
-                      placeholder="filter model"
+                      placeholder={STRINGS.filterModel}
                       className="m-0"
                       size="sm"
                       kind="default"
@@ -197,7 +198,7 @@ export const Dropdown: React.FC<Props> = ({
                   {options.length === 0 && searchTerm !== '' && (
                     <>
                       <hr className="border-marble-800" />
-                      <Text className="p-4">No results found</Text>
+                      <Text className="p-4">{STRINGS.noResultsFound}</Text>
                     </>
                   )}
                 </div>

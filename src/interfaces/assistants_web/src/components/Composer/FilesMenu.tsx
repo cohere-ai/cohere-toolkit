@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { Icon, Text, Tooltip } from '@/components/UI';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { useBrandedColors, useChatRoutes } from '@/hooks';
-import { cn } from '@/utils';
+import { cn, mapMimeTypeToExtension } from '@/utils';
 
 type Props = {
   onUploadFile: (files: File[]) => void;
@@ -45,7 +45,9 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
         <input
           ref={fileInputRef}
           type="file"
-          accept={ACCEPTED_FILE_TYPES.join(',')}
+          accept={ACCEPTED_FILE_TYPES.map(
+            (fileType) => `.${mapMimeTypeToExtension(fileType)}`
+          ).join(',')}
           className="hidden"
           multiple
           onChange={handleFileInputChange}
@@ -65,7 +67,7 @@ export const FilesMenu: React.FC<Props> = ({ onUploadFile }) => {
               )}
             >
               <Tooltip
-                label="Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .XSLS, .XLS, .DOCX Max 20 MB)"
+                label="Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .TSV, .XSLS, .XLS, .DOCX, .PARQUET Max 20 MB)"
                 size="sm"
                 placement="top-start"
                 hover

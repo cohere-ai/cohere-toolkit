@@ -4,6 +4,7 @@ import { ChangeEvent, MouseEvent, useRef, useState } from 'react';
 
 import { InputLabel, Spinner, Text } from '@/components/Shared';
 import { Icon } from '@/components/Shared/Icon';
+import { STRINGS } from '@/constants/strings';
 import { cn } from '@/utils';
 
 export type FileAccept =
@@ -108,7 +109,7 @@ export const FileInput: React.FC<FileInputProps> = ({
       <div className="relative px-3 pb-2.5">
         <div className="flex w-full items-center justify-between">
           <Text as="span" styleAs="p" className="truncate">
-            {isLoading ? 'Uploading file...' : file ? file.name : placeholder}
+            {isLoading ? STRINGS.uploadingFile : file ? file.name : placeholder}
           </Text>
           {isLoading ? (
             <Spinner className="my-0.5" />

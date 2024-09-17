@@ -30,10 +30,12 @@ PDF_EXTENSION = "pdf"
 TEXT_EXTENSION = "txt"
 MARKDOWN_EXTENSION = "md"
 CSV_EXTENSION = "csv"
+TSV_EXTENSION = "tsv"
 EXCEL_EXTENSION = "xlsx"
 EXCEL_OLD_EXTENSION = "xls"
 JSON_EXTENSION = "json"
 DOCX_EXTENSION = "docx"
+PARQUET_EXTENSION = "parquet"
 
 # Monkey patch Pandas to use Calamine for Excel reading because Calamine is faster than Pandas
 pandas_monkeypatch()
@@ -704,10 +706,13 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
         return utils.read_pdf(file_contents)
     elif file_extension == DOCX_EXTENSION:
         return read_docx(file_contents)
+    elif file_extension == PARQUET_EXTENSION:
+        return read_parquet(file_contents)
     elif file_extension in [
         TEXT_EXTENSION,
         MARKDOWN_EXTENSION,
         CSV_EXTENSION,
+        TSV_EXTENSION,
         JSON_EXTENSION,
     ]:
         return file_contents.decode("utf-8")
@@ -731,6 +736,14 @@ def read_excel(file_contents: bytes) -> str:
 
 
 def read_docx(file_contents: bytes) -> str:
+    """Reads the text from a DOCX file
+
+    Args:
+        file_contents (bytes): The file contents
+
+    Returns:
+        str: The text extracted from the DOCX file, with each paragraph separated by a newline
+    """
     document = Document(io.BytesIO(file_contents))
     text = ""
 
@@ -740,60 +753,14 @@ def read_docx(file_contents: bytes) -> str:
     return text
 
 
-def validate_file_size(
-    session: DBSessionDep, user_id: str, file: FastAPIUploadFile
-) -> None:
-    """Validates the file size
+def read_parquet(file_contents: bytes) -> str:
+    """Reads the text from a Parquet file using Pandas
 
     Args:
-        user_id (str): The user ID
-        file (UploadFile): The file to validate
+        file_contents (bytes): The file contents
 
-    Raises:
-        HTTPException: If the file size is too large
+    Returns:
+        str: The text extracted from the Parquet
     """
-    if file.size > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File size exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
-        )
-
-    existing_files = file_crud.get_files_by_user_id(session, user_id)
-    total_file_size = sum([f.file_size for f in existing_files]) + file.size
-
-    if total_file_size > MAX_TOTAL_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
-        )
-
-
-def validate_batch_file_size(
-    session: DBSessionDep, user_id: str, files: list[FastAPIUploadFile]
-) -> None:
-    """Validate sizes of files in batch
-
-    Args:
-        user_id (str): The user ID
-        files (list[FastAPIUploadFile]): The files to validate
-
-    Raises:p
-        HTTPException: If the file size is too large
-    """
-    total_batch_size = 0
-    for file in files:
-        if file.size > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail=f"{file.filename} exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
-            )
-        total_batch_size += file.size
-
-    existing_files = file_crud.get_files_by_user_id(session, user_id)
-    total_file_size = sum([f.file_size for f in existing_files]) + total_batch_size
-
-    if total_file_size > MAX_TOTAL_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
-        )
+    parquet = pd.read_parquet(io.BytesIO(file_contents), engine="pyarrow")
+    return parquet.to_string()

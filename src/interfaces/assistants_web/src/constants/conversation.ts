@@ -49,5 +49,6 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'application/json',
   'application/pdf',
   'application/epub+zip',
+  'application/vnd.apache.parquet',
 ];
 export const MAX_NUM_FILES_PER_UPLOAD_BATCH = 50;

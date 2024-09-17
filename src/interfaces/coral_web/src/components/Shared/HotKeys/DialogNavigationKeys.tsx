@@ -1,6 +1,7 @@
 'use client';
 
 import { Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 
 type NavigationKey = {
   keys: string[];
@@ -10,19 +11,19 @@ type NavigationKey = {
 const navigationKeys: NavigationKey[] = [
   {
     keys: ['&crarr;'],
-    description: 'to select',
+    description: STRINGS.toSelect,
   },
   {
     keys: ['&uarr;', '&darr;'],
-    description: 'to move up/down',
+    description: STRINGS.toMoveUpDown,
   },
   {
     keys: ['esc'],
-    description: 'to close',
+    description: STRINGS.toClose,
   },
   {
     keys: ['?'],
-    description: 'to view all options',
+    description: STRINGS.toViewAllOptions,
   },
 ];
 

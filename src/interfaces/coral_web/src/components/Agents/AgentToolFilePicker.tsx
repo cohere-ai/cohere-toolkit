@@ -2,6 +2,7 @@
 
 import { IconButton } from '@/components/IconButton';
 import { Button, Icon, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 
 type Props = {
@@ -30,7 +31,7 @@ export const AgentToolFilePicker: React.FC<Props> = ({
         <Button
           kind="secondary"
           startIcon={<Icon name="add" kind="outline" className="text-green-250" />}
-          label="Select files/folders"
+          label={STRINGS.selectFilesFolders}
           onClick={handleOpenFilePicker}
         />
       )}

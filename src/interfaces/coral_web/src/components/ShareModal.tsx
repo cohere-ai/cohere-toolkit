@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { Button, Icon, Input, Spinner, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { env } from '@/env.mjs';
 import { useCreateSnapshotLinkId, useSnapshots } from '@/hooks/snapshots';
 
@@ -79,26 +80,19 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
   if (status === 'modal-error') {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-danger-350">
-          Unable to generate share link. Please try again later.
-        </Text>
+        <Text className="text-danger-350">{STRINGS.generateShareLinkError}</Text>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-y-8">
-      {snapshotLinksExists && (
-        <Text>
-          You may have shared a part of this chat before. To share the current, full version of the
-          chat, update the link below.
-        </Text>
-      )}
+      {snapshotLinksExists && <Text>{STRINGS.existingShareLinkDescription}</Text>}
       <div className="flex flex-col gap-y-2">
         <Input
           truncate
           readOnly
-          label="Share link"
+          label={STRINGS.shareLink}
           value={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
           actionType="copy"
           disabled={status === 'update-url-loading'}
@@ -106,7 +100,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
         <div className="flex justify-between">
           <Button
             kind="secondary"
-            label="See preview"
+            label={STRINGS.seePreview}
             href={`${env.NEXT_PUBLIC_FRONTEND_HOSTNAME}/share/${linkId}`}
             target="_blank"
             endIcon="arrow-up-right"
@@ -116,7 +110,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
           {snapshotLinksExists && (
             <Button
               kind="secondary"
-              label={status === 'update-url-loading' ? 'Generating link' : 'Update link'}
+              label={status === 'update-url-loading' ? STRINGS.generatingLink : STRINGS.updateLink}
               onClick={updateSnapshotUrl}
               endIcon={status === 'update-url-loading' ? <Spinner /> : <Icon name="redo" />}
               disabled={status === 'update-url-loading'}
@@ -126,15 +120,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({ conversationId }) => {
         </div>
       </div>
       {status === 'update-url-error' && (
-        <Text className="text-danger-350">
-          Unable to generate a new share link. Please try again later.
-        </Text>
+        <Text className="text-danger-350">{STRINGS.updateShareLinkError}</Text>
       )}
       <div className="flex flex-col gap-y-2">
-        <Text styleAs="label">Permissions & visibility</Text>
+        <Text styleAs="label">{STRINGS.permissionsAndVisibility}</Text>
         <Text styleAs="caption" className="text-volcanic-400">
-          Anyone with the link will see the full contents of this conversation history. You will be
-          sharing the title, messages, and citations.
+          {STRINGS.shareLinkDescription}
         </Text>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { AgentForm, UpdateAgentFormFields } from '@/components/Agents/AgentForm'
 import { IconButton } from '@/components/IconButton';
 import { Banner, Button, Spinner, Text } from '@/components/Shared';
 import { TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { useAgent, useIsAgentNameUnique, useUpdateAgent } from '@/hooks/agents';
 import { useSession } from '@/hooks/session';
 import { useNotify } from '@/hooks/toast';
@@ -118,7 +119,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   const fieldErrors = {
     ...(isAgentNameUnique(fields.name ?? '', agentId)
       ? {}
-      : { name: 'Assistant name must be unique' }),
+      : { name: STRINGS.assistantNameUniqueError }),
   };
 
   const canSubmit = (() => {
@@ -187,10 +188,10 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
       setIsSubmitting(true);
       const newAgent = await updateAgent({ request: fields, agentId });
       setIsSubmitting(false);
-      success(`Updated ${newAgent?.name}`);
+      success(DYNAMIC_STRINGS.updatedAssistantConfirmation(newAgent?.name));
     } catch (e) {
       setIsSubmitting(false);
-      error(`Failed to update ${agent?.name}`);
+      error(DYNAMIC_STRINGS.updateAssistantError(agent?.name ?? ''));
       console.error(e);
     }
   };
@@ -206,7 +207,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
   if (!agent) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-danger-350">Unable to load assistant information</Text>
+        <Text className="text-danger-350">{STRINGS.loadAssistantError}</Text>
       </div>
     );
   }
@@ -219,7 +220,11 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
           'pl-4 pr-3 lg:pl-10 lg:pr-8'
         )}
       >
-        <Text>{isAgentCreator ? `Update ${agent.name}` : `About ${agent.name}`}</Text>
+        <Text>
+          {isAgentCreator
+            ? DYNAMIC_STRINGS.updateAssistantTitle(agent.name)
+            : DYNAMIC_STRINGS.aboutAssistantTitle(agent.name)}
+        </Text>
         <IconButton iconName="close" onClick={handleClose} />
       </header>
       <div className={cn('flex flex-col gap-y-5 overflow-y-auto', 'p-4 lg:p-10')}>
@@ -239,7 +244,7 @@ export const UpdateAgent: React.FC<Props> = ({ agentId }) => {
           <Button
             className="self-end"
             splitIcon="check-mark"
-            label={isSubmitting ? 'Updating' : 'Update'}
+            label={isSubmitting ? STRINGS.updating : STRINGS.update}
             onClick={handleSubmit}
             disabled={!canSubmit}
           />
@@ -254,6 +259,6 @@ const InfoBanner: React.FC<{ agentName: string; className?: string }> = ({
   className,
 }) => (
   <Banner theme="secondary" size="sm" className={cn('w-full', className)}>
-    Updating {agentName} will affect everyone using the assistant
+    {DYNAMIC_STRINGS.updateAssistantInfo(agentName)}
   </Banner>
 );

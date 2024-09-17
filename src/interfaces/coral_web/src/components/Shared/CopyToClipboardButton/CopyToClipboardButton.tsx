@@ -3,6 +3,7 @@
 import { MouseEvent, forwardRef, useImperativeHandle, useState } from 'react';
 
 import { Button, Icon, IconName, Tooltip } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { cn } from '@/utils';
 
 type CopyToClipboardButtonProps = {
@@ -74,7 +75,7 @@ export const CopyToClipboardButton = forwardRef<
       kind={kind}
       size={size}
       onClick={handleCopy}
-      label={copied ? 'Copied!' : label}
+      label={copied ? STRINGS.copied : label}
       animate={animate}
       {...(kind === 'primary' ? { splitIcon: 'copy' } : {})}
       startIcon={iconAtStart ? icon : undefined}
@@ -122,7 +123,7 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
   return (
     <div>
       <Tooltip
-        label={isCopied ? 'Copied!' : 'Copy'}
+        label={isCopied ? STRINGS.copied : STRINGS.copy}
         duration={1000}
         showOutline={false}
         hover

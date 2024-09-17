@@ -17,6 +17,7 @@ import {
 } from '@/components/Shared';
 import { ToolEvents } from '@/components/ToolEvents';
 import { ReservedClasses } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
 import { getMessageRowId } from '@/hooks/citations';
 import { useCitationsStore } from '@/stores';
@@ -138,18 +139,18 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
           <div className="flex flex-col gap-y-4 pt-4">
             <CopyToClipboardButton
               value={getMessageText()}
-              label="Copy text"
+              label={STRINGS.copyText}
               kind="secondary"
               iconAtStart
               onClick={onCopy}
             />
             {hasSteps && (
               <Button
-                label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
+                label={isStepsExpanded ? STRINGS.hideSteps : STRINGS.showSteps}
                 startIcon={<Icon name="list" />}
                 kind="secondary"
                 size="md"
-                aria-label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`}
+                aria-label={isStepsExpanded ? STRINGS.hideSteps : STRINGS.showSteps}
                 animate={false}
                 onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
               />
@@ -196,7 +197,7 @@ const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal
               })}
             >
               {hasSteps && (
-                <Tooltip label={`${isStepsExpanded ? 'Hide' : 'Show'} steps`} hover>
+                <Tooltip label={isStepsExpanded ? STRINGS.hideSteps : STRINGS.showSteps} hover>
                   <IconButton
                     iconName="list"
                     className="rounded hover:bg-mushroom-900"
