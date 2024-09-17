@@ -25,9 +25,7 @@ class ConnectorRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         body = {"query": parameters}
         headers = {
             "Content-Type": "application/json",
