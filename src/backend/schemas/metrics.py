@@ -43,7 +43,6 @@ class MetricsDataBase(BaseModel):
     trace_id: str
     message_type: MetricsMessageType
     timestamp: float
-    secret: str = ""
 
 
 class MetricsUser(BaseModel):

@@ -4,6 +4,7 @@ import { Transition } from '@headlessui/react';
 
 import { AgentCard } from '@/components/Agents/AgentCard';
 import { Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useRecentAgents } from '@/hooks/agents';
 import { useAgentsStore } from '@/stores';
 
@@ -26,7 +27,7 @@ export const AgentsList: React.FC = () => {
         enterTo="opacity-100"
       >
         <Text styleAs="label" className="truncate text-green-200">
-          Your assistants
+          {STRINGS.yourAssistants}
         </Text>
       </Transition>
 

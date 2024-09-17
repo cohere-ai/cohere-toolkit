@@ -54,7 +54,6 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         _send_signal: Sends the metrics signal to the reporting endpoint.
         _get_event_signal: Retrieves the metrics signal for the current request.
         _get_user: Retrieves the user information from the request.
-        _attach_secret: Attaches the report secret to the metrics data.
 
     """
 
@@ -149,18 +148,11 @@ class MetricsMiddleware(BaseHTTPMiddleware):
                 assistant_id=agent_id,
                 duration_ms=duration_ms,
             )
-            data = self._attach_secret(data)
             signal = MetricsSignal(signal=data)
             return signal
         except Exception as e:
             logger.warning(event=f"[Metrics] Failed to process event data: {e}")
             return None
-
-    def _attach_secret(self, data: MetricsData) -> MetricsData:
-        if not REPORT_SECRET:
-            return data
-        data.secret = REPORT_SECRET
-        return data
 
 
 async def report_metrics(signal: MetricsSignal, ctx: Context) -> None:
@@ -187,7 +179,11 @@ async def report_metrics(signal: MetricsSignal, ctx: Context) -> None:
         signal = to_dict(signal)
         transport = AsyncHTTPTransport(retries=NUM_RETRIES)
         async with AsyncClient(transport=transport) as client:
-            await client.post(REPORT_ENDPOINT, json=signal)
+            headers = {
+                "Authorization": f"Bearer {REPORT_SECRET}",
+                "Content-Type": "application/json",
+            }
+            await client.post(REPORT_ENDPOINT, json=signal, headers=headers)
     except Exception as e:
         logger.error(event=f"[Metrics] Error posting report: {e}")
 
@@ -260,7 +256,6 @@ class MetricsHelper:
     def log_signal_curl(signal: MetricsSignal, ctx: Context) -> None:
         logger = ctx.get_logger()
         s = to_dict(signal)
-        s["signal"]["secret"] = "'$SECRET'"
         json_signal = json.dumps(s)
         # just general curl commands to test the endpoint for now
         logger.info(

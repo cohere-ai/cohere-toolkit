@@ -1,4 +1,5 @@
 import { Citation } from '@/cohere-client';
+import { DYNAMIC_STRINGS } from '@/constants/strings';
 
 /**
  * @description Helper function to temporarily ensure markdown image syntax provided by the model is correct.
@@ -35,7 +36,7 @@ export const replaceTextWithCitations = (
 
     // if citeStart is higher than the length of the text, add it to the bottom of the text as "Reference #n"
     if (start >= text.length || isReferenceBetweenIframes(replacedText, start)) {
-      const ref = `Reference #${index + 1}`;
+      const ref = DYNAMIC_STRINGS.referenceNumber(index + 1);
       notFoundReferences.push(
         `:cite[${ref}]{generationId="${generationId}" start="${start}" end="${end}"}`
       );
@@ -55,7 +56,7 @@ export const replaceTextWithCitations = (
     lengthDifference += citationId.length - (citeEnd - citeStart);
   });
 
-  const references = 'From: ' + formatter.format(notFoundReferences);
+  const references = DYNAMIC_STRINGS.fromReferences(formatter.format(notFoundReferences));
   if (notFoundReferences.length > 0) {
     return references + '\n' + replacedText;
   }

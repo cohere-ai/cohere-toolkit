@@ -15,9 +15,7 @@ class ArxivRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
         result = self.client.run(query)
         return [{"text": result}]

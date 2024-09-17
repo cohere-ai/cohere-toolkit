@@ -7,6 +7,7 @@ import {
   CONFIGURATION_FILE_UPLOAD_ID,
   SETTINGS_DRAWER_ID,
 } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useConversationActions } from '@/hooks/conversation';
 import { useNotify } from '@/hooks/toast';
 import {
@@ -86,7 +87,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
 
   return [
     {
-      name: 'Start a new conversation',
+      name: STRINGS.startANewConversation,
       commands: ['ctrl+shift+o', 'meta+shift+o'],
       action: async () => {
         router.push('/', undefined);
@@ -96,7 +97,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
       },
     },
     {
-      name: 'Delete current conversation',
+      name: STRINGS.deleteCurrentConversation,
       commands: ['ctrl+shift+backspace', 'meta+shift+backspace'],
       action: () => {
         if (!id) return;
@@ -107,7 +108,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
       },
     },
     {
-      name: 'Toggle left sidebar',
+      name: STRINGS.toggleLeftSidebar,
       commands: ['ctrl+shift+s', 'meta+shift+s'],
       action: () => {
         setIsConvListPanelOpen(!isConvListPanelOpen);
@@ -117,7 +118,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
       },
     },
     {
-      name: 'Toggle grounding drawer',
+      name: STRINGS.toggleGroundingDrawer,
       commands: ['ctrl+shift+g', 'meta+shift+g'],
       action: () => {
         setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
@@ -127,14 +128,14 @@ export const useChatHotKeys = (): CustomHotKey[] => {
       },
     },
     {
-      name: 'Focus on chat input',
+      name: STRINGS.focusOnChatInput,
       commands: ['shift+esc'],
       action: () => {
         focusComposer();
       },
     },
     {
-      name: 'Copy last response',
+      name: STRINGS.copyLastResponse,
       commands: ['ctrl+shift+c', 'meta+shift+c'],
       action: async () => {
         const lastBotMessage = findLast(messages, (message) => message.type === MessageType.BOT);
@@ -145,9 +146,9 @@ export const useChatHotKeys = (): CustomHotKey[] => {
 
         try {
           await window?.navigator?.clipboard.writeText(lastBotMessageText);
-          info('Copied last response to clipboard');
+          info(STRINGS.copiedLastResponseToClipboard);
         } catch (e) {
-          error('Unable to copy last response');
+          error(STRINGS.copiedLastResponseError);
         }
       },
       options: {

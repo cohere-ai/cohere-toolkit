@@ -10,6 +10,7 @@ import { DragDropFileUploadOverlay } from '@/components/Conversation/Composer/Dr
 import { FirstTurnSuggestions } from '@/components/FirstTurnSuggestions';
 import { Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/Shared';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useBreakpoint, useIsDesktop } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
@@ -194,7 +195,7 @@ export const Composer: React.FC<Props> = ({
             dir="auto"
             ref={textareaRef}
             value={value}
-            placeholder="Message..."
+            placeholder={STRINGS.messageInput}
             className={cn(
               'w-full flex-1 resize-none overflow-hidden',
               'self-center',

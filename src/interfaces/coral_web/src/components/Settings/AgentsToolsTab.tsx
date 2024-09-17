@@ -8,6 +8,7 @@ import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { useAgent } from '@/hooks/agents';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
@@ -63,15 +64,15 @@ export const AgentsToolsTab: React.FC<{
       <article className={cn('flex flex-col gap-y-5 pb-10')}>
         <Text styleAs="p-sm" className="text-mushroom-300">
           {availableTools.length === 0
-            ? `${agent?.name} does not use any tools.`
-            : 'Tools are data sources the assistant can search such as databases or the internet.'}
+            ? DYNAMIC_STRINGS.noToolsAssistant(agent?.name ?? '')
+            : STRINGS.assistantToolsDescription}
         </Text>
 
         {unauthedTools.length > 0 && (
           <>
             <div className="flex items-center justify-between">
               <Text as="span" styleAs="label" className="font-medium">
-                Action Required
+                {STRINGS.actionRequired}
               </Text>
               <Icon name="warning" kind="outline" />
             </div>
@@ -86,7 +87,7 @@ export const AgentsToolsTab: React.FC<{
         {availableTools.length > 0 && (
           <>
             <Text as="span" styleAs="label" className="font-medium">
-              Ready to Use
+              {STRINGS.readyToUse}
             </Text>
 
             <div className="flex flex-col gap-y-5">
@@ -126,10 +127,8 @@ const ConnectDataBox: React.FC<{
   return (
     <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-800 bg-coral-800 p-4">
       <div className="flex flex-col gap-y-3">
-        <Text styleAs="h5">Connect your data</Text>
-        <Text>
-          In order to get the most accurate answers grounded on your data, connect the following:
-        </Text>
+        <Text styleAs="h5">{STRINGS.connectYourData}</Text>
+        <Text>{STRINGS.connectYourDataDescription}</Text>
       </div>
       <div className="flex flex-col gap-y-1">
         {tools.map((tool) => (

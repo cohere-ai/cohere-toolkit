@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { DeleteAgent } from '@/components/Agents/DeleteAgent';
 import { KebabMenu } from '@/components/KebabMenu';
 import { CoralLogo, Text, Tooltip } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
@@ -100,7 +101,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const handleDeleteAssistant = async () => {
     if (id) {
       open({
-        title: 'Delete assistant',
+        title: STRINGS.deleteAssistantTitle,
         content: <DeleteAgent name={name} agentId={id} onClose={close} />,
       });
     }
@@ -161,21 +162,25 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
             })}
             items={[
               {
-                label: 'New chat',
+                label: STRINGS.newChat,
                 onClick: handleNewChat,
                 iconName: 'new-message',
               },
               {
-                label: 'Hide assistant',
+                label: STRINGS.hideAssistant,
                 onClick: handleHideAssistant,
                 iconName: 'hide',
               },
               {
-                label: 'Edit assistant',
+                label: STRINGS.editAssistant,
                 onClick: handleEditAssistant,
                 iconName: 'edit',
               },
-              { label: 'Delete assistant', onClick: handleDeleteAssistant, iconName: 'trash' },
+              {
+                label: STRINGS.deleteAssistant,
+                onClick: handleDeleteAssistant,
+                iconName: 'trash',
+              },
             ]}
           />
         </Transition>

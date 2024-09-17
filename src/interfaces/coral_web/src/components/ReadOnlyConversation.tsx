@@ -10,9 +10,10 @@ import { IconButton } from '@/components/IconButton';
 import MessageRow from '@/components/MessageRow';
 import { Button, Text } from '@/components/Shared';
 import { ReservedClasses } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { useCitationsStore } from '@/stores';
 import { ChatMessage, isFulfilledMessage } from '@/types/message';
-import { cn, pluralize } from '@/utils';
+import { cn } from '@/utils';
 
 type Props = {
   title: string;
@@ -84,7 +85,12 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
         </div>
       </div>
       <div className="fixed bottom-0 left-0 z-read-only-conversation-footer flex w-full items-center justify-center bg-white py-4 shadow-top">
-        <Button label="Start a new conversation" href="/" splitIcon="arrow-right" kind="primary" />
+        <Button
+          label={STRINGS.startANewConversation}
+          href="/"
+          splitIcon="arrow-right"
+          kind="primary"
+        />
       </div>
     </>
   );
@@ -166,7 +172,7 @@ const ReadOnlyConversationCitation: React.FC<ReadOnlyConversationCitationProps> 
       >
         <div className={cn('mb-4 flex items-center justify-between', { hidden: isSelected })}>
           <Text as="span" styleAs="caption" className="text-volcanic-300">
-            {uniqueDocuments.length} {pluralize('reference', uniqueDocuments.length)}
+            {DYNAMIC_STRINGS.numReferences(uniqueDocuments.length)}
           </Text>
           {uniqueDocuments.length > DEFAULT_NUM_VISIBLE_DOCS && (
             <IconButton

@@ -3,6 +3,7 @@
 import { useContext } from 'react';
 
 import { Dropdown, DropdownOptionGroups } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { BannerContext } from '@/context/BannerContext';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
@@ -31,13 +32,13 @@ export const DeploymentsDropdown: React.FC = () => {
   return (
     <Dropdown
       buttonClassName="py-0.5"
-      placeholder="Select a deployment"
+      placeholder={STRINGS.selectADeployment}
       value={deployment}
       onChange={(deploymentName: string) => {
         const deployment = allDeployments.find((d) => d.name === deploymentName);
         if (deployment && !deployment.is_available) {
           open({
-            title: 'Configure Model Deployment',
+            title: STRINGS.configureModelDeploymentTitle,
             content: <EditEnvVariablesModal onClose={close} defaultDeployment={deployment.name} />,
           });
         } else if (bannerMessage) {

@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { Icon, IconName, Input, Switch, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 
 type Props = {
   checked: boolean;
@@ -49,7 +50,7 @@ export const ToggleCard: React.FC<Props> = ({
           <Text styleAs="p-sm">{description}</Text>
           {errorMessage && (
             <Text styleAs="p-sm" className="text-danger-350">
-              Error: {errorMessage}
+              {errorMessage}
             </Text>
           )}
         </div>
@@ -64,8 +65,8 @@ export const ToggleCard: React.FC<Props> = ({
       </div>
       {inputOptions && (
         <Input
-          label="Site (Optional)"
-          placeholder="Ground on 1 domain e.g. wikipedia.org"
+          label={STRINGS.siteGroundingTitle}
+          placeholder={STRINGS.siteGroundingDescription}
           data-testid={inputOptions.testId}
           value={inputOptions.value}
           description={inputOptions.description}
