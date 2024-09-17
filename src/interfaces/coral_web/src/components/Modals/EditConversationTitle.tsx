@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { Button, Input, Spinner, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useEditConversation } from '@/hooks/conversation';
 import { useConversationStore } from '@/stores';
 
@@ -33,7 +34,7 @@ export const EditConversationTitle: React.FC<Props> = ({
       }
       onClose();
     } catch {
-      setErrorMessage('Failed to update conversation title. Please try again.');
+      setErrorMessage(STRINGS.updateConversationTitleError);
     }
   };
 
@@ -50,10 +51,10 @@ export const EditConversationTitle: React.FC<Props> = ({
 
       <div className="mt-6 flex items-center justify-between">
         <Button kind="secondary" onClick={onClose}>
-          Cancel
+          {STRINGS.cancel}
         </Button>
         <Button onClick={onConfirm} splitIcon="arrow-right" disabled={isPending}>
-          {isPending ? <Spinner /> : `Save`}
+          {isPending ? <Spinner /> : STRINGS.save}
         </Button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Text } from '@/components/Shared';
-import { pluralize } from '@/utils';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 
 type Props = {
   conversationIds: string[];
@@ -21,8 +21,7 @@ export const DeleteConversations: React.FC<Props> = ({
   return (
     <section>
       <Text className="mb-5">
-        Once you delete {numConversations === 1 ? 'this chat' : 'these chats'} you will be unable to
-        see or retrieve the messages. You cannot undo this action.
+        {DYNAMIC_STRINGS.deleteConversationDescription(numConversations)}
       </Text>
       <div className="flex flex-col-reverse items-center justify-between gap-y-4 md:flex-row">
         <Button
@@ -30,7 +29,7 @@ export const DeleteConversations: React.FC<Props> = ({
           onClick={onClose}
           className="flex w-auto items-center justify-center md:mt-0"
         >
-          <Text>Cancel</Text>
+          <Text>{STRINGS.cancel}</Text>
         </Button>
         <Button
           kind="danger"
@@ -41,11 +40,8 @@ export const DeleteConversations: React.FC<Props> = ({
         >
           <Text>
             {isPending
-              ? 'Deleting...'
-              : `Delete ${numConversations === 1 ? '' : numConversations} ${pluralize(
-                  'conversation',
-                  numConversations
-                )}`}
+              ? STRINGS.deleting
+              : DYNAMIC_STRINGS.deleteNumConversations(numConversations)}
           </Text>
         </Button>
       </div>

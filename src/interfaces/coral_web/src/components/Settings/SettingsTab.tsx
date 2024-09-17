@@ -1,6 +1,7 @@
 'use client';
 
 import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useModels } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSettingsDefaults } from '@/hooks/settings';
@@ -39,7 +40,7 @@ export const SettingsTab: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-5">
         <Text styleAs="p-lg" className="select-none text-center text-volcanic-100">
-          Currently settings are disabled with experimental Langchain multihop
+          {STRINGS.langchainMultihopSettingsDisabledDescription}
         </Text>
       </div>
     );
@@ -49,7 +50,7 @@ export const SettingsTab: React.FC = () => {
     <div className="flex flex-col gap-y-6 px-5 pb-10">
       <Dropdown
         className="w-full"
-        label="Model"
+        label={STRINGS.model}
         kind="default"
         value={model}
         onChange={(model: string) => setParams({ model })}
@@ -57,7 +58,7 @@ export const SettingsTab: React.FC = () => {
       />
       <Slider
         className="w-full"
-        label="Temperature"
+        label={STRINGS.temperature}
         min={0}
         max={1}
         step={0.1}
@@ -66,10 +67,10 @@ export const SettingsTab: React.FC = () => {
         dataTestId="slider-temperature"
       />
 
-      <InputLabel label="Preamble">
+      <InputLabel label={STRINGS.preamble}>
         <textarea
           value={preamble}
-          placeholder="e.g. You are Coral, a large language model trained to have polite, helpful, inclusive conversations with people."
+          placeholder={STRINGS.preambleExample}
           className={cn(
             'mt-2 w-full flex-1 resize-none p-3',
             'transition ease-in-out',
@@ -91,7 +92,7 @@ export const SettingsTab: React.FC = () => {
             as="span"
             className="text-mushroom-300 transition ease-in-out hover:text-volcanic-100"
           >
-            Reset
+            {STRINGS.reset}
           </Text>
         </button>
       </div>

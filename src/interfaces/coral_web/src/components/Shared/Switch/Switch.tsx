@@ -3,6 +3,7 @@
 import { Field, Switch as HUSwitch, Label } from '@headlessui/react';
 
 import { Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { cn } from '@/utils';
 
 type Props = {
@@ -30,7 +31,9 @@ export const Switch: React.FC<Props> = ({
 }) => {
   return (
     <div className="group flex items-center">
-      {displayChecked && <Text className="w-8 text-volcanic-400">{checked ? 'On' : 'Off'}</Text>}
+      {displayChecked && (
+        <Text className="w-8 text-volcanic-400">{checked ? STRINGS.on : STRINGS.off}</Text>
+      )}
       <Field>
         <div
           className={cn(

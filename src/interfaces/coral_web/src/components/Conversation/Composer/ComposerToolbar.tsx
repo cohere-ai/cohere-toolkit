@@ -9,6 +9,7 @@ import {
 import { EnabledDataSources } from '@/components/Conversation/Composer/EnabledDataSources';
 import { IconButton } from '@/components/IconButton';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { cn } from '@/utils';
 
 type Props = {
@@ -46,7 +47,7 @@ export const ComposerToolbar: React.FC<Props> = ({ isStreaming, onUploadFile, me
       <IconButton
         iconName="clip"
         tooltip={{
-          label: 'Attach file (.PDF, .TXT, .MD, .JSON, .CSV, .XSLS, .XLS, .DOCX Max 20 MB)',
+          label: STRINGS.attachFileWithExtensions,
           size: 'sm',
         }}
         size="sm"

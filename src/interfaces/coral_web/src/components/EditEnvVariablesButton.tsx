@@ -3,6 +3,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 
 import { BasicButton, Button, Dropdown, DropdownOptionGroups, Input } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { ModalContext } from '@/context/ModalContext';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
@@ -15,14 +16,14 @@ export const EditEnvVariablesButton: React.FC<{ className?: string }> = () => {
 
   const handleClick = () => {
     open({
-      title: 'Configure Model Deployment',
+      title: STRINGS.configureModelDeploymentTitle,
       content: <EditEnvVariablesModal onClose={close} defaultDeployment="" />,
     });
   };
 
   return (
     <BasicButton
-      label="Configure"
+      label={STRINGS.configure}
       size="sm"
       kind="minimal"
       className="py-0"
@@ -105,7 +106,7 @@ export const EditEnvVariablesModal: React.FC<{
       {Object.keys(envVariables).map((envVar) => (
         <Input
           key={envVar}
-          placeholder="value"
+          placeholder={STRINGS.value}
           label={envVar}
           type="password"
           value={envVariables[envVar]}
@@ -114,9 +115,9 @@ export const EditEnvVariablesModal: React.FC<{
       ))}
 
       <span className="mt-10 flex items-center justify-between">
-        <BasicButton kind="minimal" size="sm" label="Cancel" onClick={onClose} />
+        <BasicButton kind="minimal" size="sm" label={STRINGS.cancel} onClick={onClose} />
         <Button
-          label={isSubmitting ? 'Saving...' : 'Save'}
+          label={isSubmitting ? STRINGS.saving : STRINGS.save}
           onClick={handleSubmit}
           splitIcon="arrow-right"
           disabled={isSubmitting}

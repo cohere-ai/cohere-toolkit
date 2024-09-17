@@ -5,6 +5,7 @@ import React, { useMemo } from 'react';
 
 import ButtonGroup from '@/components/ButtonGroup';
 import { TOOL_CALCULATOR_ID, TOOL_PYTHON_INTERPRETER_ID, TOOL_WEB_SEARCH_ID } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useListTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -18,7 +19,7 @@ type Prompt = {
 
 const SUGGESTED_PROMPTS: Prompt[] = [
   {
-    label: 'Plot real estate data',
+    label: STRINGS.plotRealEstateData,
     params: {
       fileIds: [],
       tools: [
@@ -27,25 +28,17 @@ const SUGGESTED_PROMPTS: Prompt[] = [
         { name: TOOL_WEB_SEARCH_ID },
       ],
     },
-    message:
-      'Plot the average 1 bedroom rental price in Jan 2024 for the 5 most expensive cities in North America',
+    message: STRINGS.plotRealEstateDataPrompt,
   },
   {
-    label: 'Clean up data in Python',
+    label: STRINGS.cleanUpDataInPython,
     params: { fileIds: [], tools: [] },
-    message: `I want to figure out how to remove nan values from my array. For example, my array looks something like this:
-    
-    x = [1400, 1500, 1600, nan, nan, nan, 1700] #Not in this exact configuration
-        
-    How can I remove the nan values from x to get something like:
-        
-    x = [1400, 1500, 1600, 1700]`,
+    message: STRINGS.cleanUpDataInPythonPrompt,
   },
   {
-    label: 'Write a business plan in French',
+    label: STRINGS.writeABusinessPlanInFrench,
     params: { fileIds: [], tools: [] },
-    message:
-      'Write a business plan outline for an marketing agency in French. Highlight all the section titles, and make it less than 300 words.',
+    message: STRINGS.writeABusinessPlanInFrenchPrompt,
   },
 ];
 

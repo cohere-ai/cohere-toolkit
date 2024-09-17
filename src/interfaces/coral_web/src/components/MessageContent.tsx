@@ -9,6 +9,7 @@ import { MarkdownImage } from '@/components/MarkdownImage';
 import { MessageFile } from '@/components/MessageFile';
 import { Icon } from '@/components/Shared';
 import { Markdown, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import {
   type ChatMessage,
   MessageType,
@@ -25,7 +26,7 @@ type Props = {
   onRetry?: VoidFunction;
 };
 
-const BOT_ERROR_MESSAGE = 'Unable to generate a response since an error was encountered. ';
+const BOT_ERROR_MESSAGE = `${STRINGS.generationErrorMessage} `;
 
 export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) => {
   const isUser = message.type === MessageType.USER;
@@ -45,7 +46,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
           {message.error}
           {isLast && (
             <button className="underline underline-offset-1" type="button" onClick={onRetry}>
-              Retry?
+              {STRINGS.retryQuestion}
             </button>
           )}
         </MessageInfo>
@@ -119,10 +120,10 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         />
         {isAborted && (
           <MessageInfo>
-            This generation was stopped.{' '}
+            {STRINGS.generationWasStopped}{' '}
             {isLast && isAborted && (
               <button className="underline underline-offset-1" type="button" onClick={onRetry}>
-                Retry?
+                {STRINGS.retryQuestion}
               </button>
             )}
           </MessageInfo>

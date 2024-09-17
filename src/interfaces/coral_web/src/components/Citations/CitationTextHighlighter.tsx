@@ -3,6 +3,7 @@
 import { PropsWithChildren, useMemo, useRef } from 'react';
 
 import { Citation } from '@/components/Citations/Citation';
+import { STRINGS } from '@/constants/strings';
 import { useContextStore } from '@/context';
 import { Breakpoint, useBreakpoint } from '@/hooks/breakpoint';
 import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
@@ -85,7 +86,7 @@ export const CitationTextHighlighter: React.FC<Props> = ({
             message={message?.originalText ?? ''}
           />
         ),
-        title: 'OUTPUT',
+        title: STRINGS.output,
         kind: 'coral-mobile-only',
       });
     }
