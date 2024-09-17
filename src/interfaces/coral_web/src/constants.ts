@@ -3,8 +3,9 @@ import type { StaticImport } from 'next/dist/shared/lib/get-img-props';
 import GoogleDriveIconSVG from '@/assets/svg/google-drive-icon.svg';
 import { IconName } from '@/components/Shared';
 import { FileAccept } from '@/components/Shared/DragDropFileInput';
+import { STRINGS } from '@/constants/strings';
 
-export const DEFAULT_CONVERSATION_NAME = 'New Conversation';
+export const DEFAULT_CONVERSATION_NAME = STRINGS.newConversationTitle;
 export const DEFAULT_TYPING_VELOCITY = 35;
 
 export const DEPLOYMENT_COHERE_PLATFORM = 'Cohere Platform';

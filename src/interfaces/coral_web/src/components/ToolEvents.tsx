@@ -13,6 +13,7 @@ import {
   TOOL_PYTHON_INTERPRETER_ID,
   TOOL_WEB_SEARCH_ID,
 } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { cn, getValidURL } from '@/utils';
 
 type Props = {
@@ -50,7 +51,7 @@ export const ToolEvents: React.FC<Props> = ({ show, isStreaming, isLast, events 
       ))}
       {isStreaming && isLast && (
         <Text className={cn('flex min-w-0 text-volcanic-400')} as="span">
-          Working on it
+          {STRINGS.workingOnIt}
           <span className="w-max">
             <div className="animate-typing-ellipsis overflow-hidden whitespace-nowrap pr-1">
               ...
@@ -106,7 +107,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
             </article>
           </>
         ) : (
-          <>No resources found.</>
+          <>{STRINGS.noResourcesFound}</>
         )}
       </ToolEventWrapper>
     );
@@ -124,17 +125,13 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
 
         return (
           <>
-            <ToolEventWrapper icon={icon}>
-              Using <b className="font-medium">{toolName}.</b>
-            </ToolEventWrapper>
+            <ToolEventWrapper icon={icon}>{DYNAMIC_STRINGS.usingTool(toolName)}</ToolEventWrapper>
             <Markdown text={codeString} className="w-full" />
           </>
         );
       } else {
         return (
-          <ToolEventWrapper icon={icon}>
-            Using <b className="font-medium">{toolName}.</b>
-          </ToolEventWrapper>
+          <ToolEventWrapper icon={icon}>{DYNAMIC_STRINGS.usingTool(toolName)}</ToolEventWrapper>
         );
       }
     }
@@ -142,7 +139,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     case TOOL_CALCULATOR_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Calculating <b className="font-medium">{event?.parameters?.code as any}.</b>
+          {DYNAMIC_STRINGS.calculatingExpression(event?.parameters?.expression as any)}
         </ToolEventWrapper>
       );
     }
@@ -150,7 +147,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     case TOOL_WEB_SEARCH_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Searching <b className="font-medium">{event?.parameters?.query as any}.</b>
+          {DYNAMIC_STRINGS.searchingQuery(event?.parameters?.query as any)}
         </ToolEventWrapper>
       );
     }
@@ -158,17 +155,13 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     case TOOL_GOOGLE_DRIVE_ID: {
       return (
         <ToolEventWrapper icon={icon}>
-          Searching <b className="font-medium">{event?.parameters?.query as any}</b> in {toolName}.
+          {DYNAMIC_STRINGS.searchingQuery(event?.parameters?.query as any)}
         </ToolEventWrapper>
       );
     }
 
     default: {
-      return (
-        <ToolEventWrapper icon={icon}>
-          Using <b className="font-medium">{toolName}.</b>
-        </ToolEventWrapper>
-      );
+      return <ToolEventWrapper icon={icon}>{DYNAMIC_STRINGS.usingTool(toolName)}</ToolEventWrapper>;
     }
   }
 };

@@ -10,6 +10,7 @@ import {
   useCohereClient,
 } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { useNotify } from '@/hooks/toast';
 import { useListTools } from '@/hooks/tools';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
@@ -33,7 +34,7 @@ export const useListFiles = (conversationId?: string, options?: { enabled?: bool
   return useQuery<ListFile[], ApiError>({
     queryKey: ['listFiles', conversationId],
     queryFn: async () => {
-      if (!conversationId) throw new Error('Conversation ID not found');
+      if (!conversationId) throw new Error(STRINGS.conversationIDNotFoundError);
       try {
         return await cohereClient.listFiles({ conversationId });
       } catch (e) {
@@ -123,7 +124,7 @@ export const useFileActions = () => {
       addUploadingFiles([
         {
           id: 'error',
-          error: `You can upload a maximum of ${MAX_NUM_FILES_PER_UPLOAD_BATCH} files at a time.`,
+          error: DYNAMIC_STRINGS.uploadFilesBatchMaximumError(MAX_NUM_FILES_PER_UPLOAD_BATCH),
           file: new File([], ''),
           progress: 0,
         },
@@ -148,9 +149,13 @@ export const useFileActions = () => {
       );
       const isFileSizeValid = file.size <= MAX_FILE_SIZE;
       if (!isAcceptedExtension) {
-        newUploadingFile.error = `File type not supported (${fileExtension?.toUpperCase()})`;
+        newUploadingFile.error = DYNAMIC_STRINGS.fileTypeNotSupportedError(
+          fileExtension?.toUpperCase() ?? ''
+        );
       } else if (!isFileSizeValid) {
-        newUploadingFile.error = `File size cannot exceed ${formatFileSize(MAX_FILE_SIZE)}`;
+        newUploadingFile.error = DYNAMIC_STRINGS.fileSizeCannotExceedError(
+          formatFileSize(MAX_FILE_SIZE)
+        );
       }
 
       newUploadingFiles.push(newUploadingFile);
@@ -201,7 +206,7 @@ export const useFileActions = () => {
     try {
       await deleteFile({ conversationId, fileId });
     } catch (e) {
-      error('Unable to delete file');
+      error(STRINGS.deleteFileError);
     }
   };
 

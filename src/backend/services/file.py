@@ -19,7 +19,7 @@ from backend.schemas.context import Context
 from backend.schemas.file import ConversationFilePublic, File
 from backend.services import utils
 from backend.services.agent import validate_agent_exists
-from backend.services.compass import Compass
+from backend.services.compass import Compass, get_compass
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
 
@@ -39,7 +39,6 @@ DOCX_EXTENSION = "docx"
 pandas_monkeypatch()
 
 file_service = None
-compass = None
 
 logger = LoggerFactory().get_logger()
 
@@ -55,32 +54,6 @@ def get_file_service():
     if file_service is None:
         file_service = FileService()
     return file_service
-
-
-def get_compass():
-    """
-    Initialize a singular instance of Compass if not initialized yet
-
-    Returns:
-        Compass: The singleton Compass instance
-    """
-    global compass
-
-    if compass is None:
-        try:
-            compass = Compass(
-                compass_api_url=Settings().compass.api_url,
-                compass_parser_url=Settings().compass.parser_url,
-                compass_username=Settings().compass.username,
-                compass_password=Settings().compass.password,
-            )
-        except Exception as e:
-            logger.error(
-                event=f"[Compass File Service] Error initializing Compass: {e}"
-            )
-            raise e
-
-    return compass
 
 
 class FileService:
@@ -765,62 +738,3 @@ def read_docx(file_contents: bytes) -> str:
         text += paragraph.text + "\n"
 
     return text
-
-
-def validate_file_size(
-    session: DBSessionDep, user_id: str, file: FastAPIUploadFile
-) -> None:
-    """Validates the file size
-
-    Args:
-        user_id (str): The user ID
-        file (UploadFile): The file to validate
-
-    Raises:
-        HTTPException: If the file size is too large
-    """
-    if file.size > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File size exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
-        )
-
-    existing_files = file_crud.get_files_by_user_id(session, user_id)
-    total_file_size = sum([f.file_size for f in existing_files]) + file.size
-
-    if total_file_size > MAX_TOTAL_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
-        )
-
-
-def validate_batch_file_size(
-    session: DBSessionDep, user_id: str, files: list[FastAPIUploadFile]
-) -> None:
-    """Validate sizes of files in batch
-
-    Args:
-        user_id (str): The user ID
-        files (list[FastAPIUploadFile]): The files to validate
-
-    Raises:p
-        HTTPException: If the file size is too large
-    """
-    total_batch_size = 0
-    for file in files:
-        if file.size > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail=f"{file.filename} exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
-            )
-        total_batch_size += file.size
-
-    existing_files = file_crud.get_files_by_user_id(session, user_id)
-    total_file_size = sum([f.file_size for f in existing_files]) + total_batch_size
-
-    if total_file_size > MAX_TOTAL_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
-        )

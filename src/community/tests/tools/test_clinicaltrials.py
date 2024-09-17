@@ -1,9 +1,12 @@
+import pytest
+
 from community.tools import ClinicalTrials
 
 
-def test_clinicaltrials_tool():
+@pytest.mark.asyncio
+async def test_clinicaltrials_tool():
     retriever = ClinicalTrials()
-    result = retriever.call(
+    result = await retriever.call(
         parameters={
             "condition": "lung cancer",
             "location": "Canada",

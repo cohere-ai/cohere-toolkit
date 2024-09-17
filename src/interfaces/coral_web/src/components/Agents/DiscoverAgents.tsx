@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { DiscoverAgentCard } from '@/components/Agents/DiscoverAgentCard';
 import { Input, Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { useListAgents } from '@/hooks/agents';
 import { cn } from '@/utils';
 
@@ -41,11 +42,9 @@ export const DiscoverAgents = () => {
         )}
       >
         <Text styleAs="h4" className="text-volcanic-400">
-          Discover Assistants
+          {STRINGS.discoverAssistantsTitle}
         </Text>
-        <Text>
-          Assistants created by your peers to help you solve tasks and increase efficiency
-        </Text>
+        <Text>{STRINGS.discoverAssistantsDescription}</Text>
       </div>
       <div className="max-w-screen-xl flex-grow overflow-y-auto px-4 py-10 md:px-9 lg:px-10">
         <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-2 xl:grid-cols-3">
@@ -55,7 +54,7 @@ export const DiscoverAgents = () => {
                 size="sm"
                 kind="default"
                 actionType="search"
-                placeholder="Search"
+                placeholder={STRINGS.search}
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
               />
@@ -66,7 +65,7 @@ export const DiscoverAgents = () => {
             <DiscoverAgentCard
               isBaseAgent
               name="Command R+"
-              description="Review, understand and ask questions about  internal financial documents."
+              description={STRINGS.baseAssistantDescription}
             />
           )}
           {filteredAgents?.map((agent) => (

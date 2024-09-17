@@ -37,7 +37,6 @@ from backend.services.conversation import (
 from backend.services.file import (
     attach_conversation_id_to_files,
     get_file_service,
-    validate_batch_file_size,
     validate_file,
 )
 
@@ -346,7 +345,6 @@ async def batch_upload_file(
     """
 
     user_id = ctx.get_user_id()
-    validate_batch_file_size(session, user_id, files)
 
     # Create new conversation
     if not conversation_id:

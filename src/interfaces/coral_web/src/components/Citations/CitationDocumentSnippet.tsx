@@ -7,6 +7,7 @@ import { CitationDocumentHeader } from '@/components/Citations/CitationDocumentH
 import { B64Image } from '@/components/MarkdownImage';
 import { Markdown, Text } from '@/components/Shared';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { ModalContext } from '@/context/ModalContext';
 import { cn } from '@/utils';
 import { PythonInterpreterOutputFile, parsePythonInterpreterToolFields } from '@/utils/tools';
@@ -132,7 +133,7 @@ export const CitationDocumentSnippet: React.FC<
         data-testid="button-see-full-snippet"
       >
         <Text as="span" styleAs="caption">
-          See more
+          {STRINGS.seeMore}
         </Text>
       </button>
     </div>
@@ -181,7 +182,7 @@ const ConsoleOutput: React.FC<{ type: string; message: string }> = ({ type, mess
 const CodeExecutionTime: React.FC<{ runtime: string }> = ({ runtime }) => {
   return (
     <Text as="span" styleAs="code-sm" className="mt-2 text-coral-200">
-      Execution time: {runtime}ms
+      {DYNAMIC_STRINGS.executionTime(runtime)}
     </Text>
   );
 };

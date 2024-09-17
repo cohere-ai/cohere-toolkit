@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
 import { Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversationActions } from '@/hooks/conversation';
@@ -34,14 +35,14 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
 
   const menuItems: KebabMenuItem[] = [
     {
-      label: 'Edit title',
+      label: STRINGS.editTitle,
       iconName: 'edit',
       onClick: () => {
         editConversationTitle({ id: conversationId, title: name });
       },
     },
     {
-      label: 'Delete chat',
+      label: STRINGS.deleteChat,
       iconName: 'trash',
       onClick: () => {
         deleteConversation({ id: conversationId });

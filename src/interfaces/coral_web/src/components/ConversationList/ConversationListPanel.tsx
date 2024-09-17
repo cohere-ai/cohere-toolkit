@@ -2,7 +2,6 @@
 
 import { Transition, TransitionChild } from '@headlessui/react';
 import { useClickOutside } from '@react-hookz/web';
-import { useParams } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
@@ -10,6 +9,7 @@ import { ConversationListHeader } from '@/components/ConversationList/Conversati
 import { ConversationListLoading } from '@/components/ConversationList/ConversationListLoading';
 import { ConversationListPanelGroup } from '@/components/ConversationList/ConversationListPanelGroup';
 import { Icon, Input, Text } from '@/components/Shared';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useConversations } from '@/hooks/conversation';
 import { useSearchConversations } from '@/hooks/search';
@@ -93,19 +93,19 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
     content = (
       <span className="my-auto flex flex-col items-center gap-2 text-center">
         <Icon name="warning" />
-        <Text>Unable to load conversations.</Text>
+        <Text>{STRINGS.loadConversationsError}</Text>
       </span>
     );
   } else if (hasSearchQuery && !hasSearchResults) {
     content = (
       <Text as="span" className="line-clamp-3">
-        No results found for &quot;{search}&quot;.
+        {DYNAMIC_STRINGS.noResultsFoundForQuery(search)}
       </Text>
     );
   } else if (!hasConversations) {
     content = (
       <span className="flex h-full w-full items-center justify-center text-volcanic-500">
-        <Text>It&apos;s quiet here... for now</Text>
+        <Text>{STRINGS.noConversations}</Text>
       </span>
     );
   } else {
@@ -151,7 +151,7 @@ export const ConversationListPanel: React.FC<Props> = ({ className }) => {
         className="z-menu px-4 duration-300 ease-in-out"
       >
         <Input
-          placeholder="Search"
+          placeholder={STRINGS.search}
           theme="secondary"
           actionType="search"
           kind="default"

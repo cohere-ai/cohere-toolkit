@@ -4,6 +4,7 @@ import React from 'react';
 
 import { DragDropFileInput } from '@/components/Shared';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useFocusFileInput } from '@/hooks/actions';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -28,7 +29,7 @@ export const DragDropFileUploadOverlay: React.FC<{
 
   return (
     <DragDropFileInput
-      label="Drop to upload"
+      label={STRINGS.dropToUpload}
       subLabel=""
       onDrop={handleUploadFile}
       multiple

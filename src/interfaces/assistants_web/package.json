@@ -22,7 +22,8 @@
     "start:single-docker-proxy": "next start --port 8090",
     "generate:client": "openapi-ts",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.9",
@@ -116,6 +117,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-storybook": "^0.8.0",
     "jsdom": "^24.1.1",
+    "patch-package": "^8.0.0",
     "postcss-100vh-fix": "^1.0.2",
     "prettier": "2.8.7",
     "prettier-plugin-tailwindcss": "0.4.1",

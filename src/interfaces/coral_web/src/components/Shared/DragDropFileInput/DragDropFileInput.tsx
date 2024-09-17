@@ -3,6 +3,7 @@
 import { ReactNode, useState } from 'react';
 
 import { Text } from '@/components/Shared/Text';
+import { STRINGS } from '@/constants/strings';
 import { cn } from '@/utils';
 
 // Hidden files that should not be uploaded
@@ -50,8 +51,8 @@ export const DragDropFileInput: React.FC<DragDropFileInputProps> = ({
       Drag and drop files here or <u>browse files</u>
     </>
   ),
-  subLabel = '.PDF or .TXT, Max 20MB',
-  dragActiveLabel = 'Drop files to upload',
+  subLabel = STRINGS.pdfOrTxtRestriction,
+  dragActiveLabel = STRINGS.dropFilesToUpload,
   dragActiveDefault = false,
   name,
   required,
