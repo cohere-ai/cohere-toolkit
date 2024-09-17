@@ -114,7 +114,7 @@ def update_conversation(
 
 
 @validate_transaction
-def update_conversation_pin(
+def toggle_conversation_pin(
     db: Session, conversation: Conversation, new_conversation_pin: ToggleConversationPinRequest
 ) -> Conversation:
     """

@@ -223,7 +223,7 @@ async def toggle_conversation_pin(
 ) -> ConversationWithoutMessages:
     user_id = ctx.get_user_id()
     conversation = validate_conversation(session, conversation_id, user_id)
-    conversation = conversation_crud.update_conversation_pin(
+    conversation = conversation_crud.toggle_conversation_pin(
         session, conversation, new_conversation_pin
     )
     files = get_file_service().get_files_by_conversation_id(
