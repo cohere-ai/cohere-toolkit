@@ -23,89 +23,88 @@ const sortByDate = (a: Conversation, b: Conversation) => {
  * It shows the most recent agents and the base agents.
  */
 export const ConversationList: React.FC = () => {
+  const { isLeftPanelOpen } = useSettingsStore();
   const { data: conversations = [] } = useConversations({ orderBy: 'is_pinned' });
   const { search, setSearch, searchResults } = useSearchConversations(conversations);
-  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
-  const recentAgents = useRecentAgents();
-  const flipKey = recentAgents.map((agent) => agent?.id || agent?.name).join(',');
 
   return (
     <>
       <div className="flex flex-col gap-8">
-        <section
-          className={cn('flex flex-col gap-2', {
-            hidden: !isLeftPanelOpen,
-          })}
-        >
-          <Text styleAs="label" className="truncate dark:text-mushroom-800">
-            Recent Assistants
-          </Text>
-
-          <Flipper flipKey={flipKey} className="flex gap-1 overflow-y-auto">
-            {recentAgents.map((agent) => (
-              <Flipped key={agent?.id || agent?.name} flipId={agent?.id || agent?.name}>
-                {(flippedProps) => (
-                  <div {...flippedProps} key={agent.id || agent.name}>
-                    <AgentIcon name={agent.name} id={agent.id} isBaseAgent={!agent.id} />
-                  </div>
-                )}
-              </Flipped>
-            ))}
-          </Flipper>
-        </section>
-        <section className={cn('flex flex-col gap-4', { 'items-center': !isLeftPanelOpen })}>
-          {isLeftPanelOpen ? (
-            <InputSearch
-              placeholder="Search chat history"
-              value={search}
-              onChange={setSearch}
-              maxLength={40}
-            />
-          ) : (
-            <Tooltip label="Search" hover size="sm">
-              <button onClick={() => setLeftPanelOpen(true)}>
-                <Icon name="search" kind="outline" className="dark:fill-marble-950" />
-              </button>
-            </Tooltip>
-          )}
-        </section>
+        <RecentAgents />
+        <Search searchQuery={search} setSearchQuery={setSearch} />
       </div>
       <div
         className={cn('flex-grow', {
-          'space-y-4 overflow-y-auto': conversations.length > 0,
+          'overflow-y-auto': conversations.length > 0,
+          'space-y-4': isLeftPanelOpen,
+          '> *:not(:first-child) space-y-2': !isLeftPanelOpen,
         })}
       >
-        <Text
-          styleAs="label"
-          className={cn('truncate dark:text-mushroom-800', {
-            hidden: !isLeftPanelOpen,
-          })}
-        >
-          Recent Chats
-        </Text>
-        <RecentChats search={search} results={searchResults} />
+        <Chats searchQuery={search} searchResults={searchResults} conversations={conversations} />
       </div>
     </>
   );
 };
 
-const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
-  search,
-  results,
-}) => {
-  const {
-    data: conversations = [],
-    isLoading: isConversationsLoading,
-    isError,
-  } = useConversations({ orderBy: 'is_pinned' });
+const RecentAgents: React.FC = () => {
   const { isLeftPanelOpen } = useSettingsStore();
+  const recentAgents = useRecentAgents();
+  const flipKey = recentAgents.map((agent) => agent?.id || agent?.name).join(',');
+
+  return (
+    <section className={cn('flex flex-col gap-2', { hidden: !isLeftPanelOpen })}>
+      <Text styleAs="label" className="truncate dark:text-mushroom-800">
+        Recent Assistants
+      </Text>
+      <Flipper flipKey={flipKey} className="flex gap-1 overflow-y-auto">
+        {recentAgents.map((agent) => (
+          <Flipped key={agent?.id || agent?.name} flipId={agent?.id || agent?.name}>
+            {(flippedProps) => (
+              <div {...flippedProps}>
+                <AgentIcon name={agent.name} id={agent.id} isBaseAgent={!agent.id} />
+              </div>
+            )}
+          </Flipped>
+        ))}
+      </Flipper>
+    </section>
+  );
+};
+
+const Search: React.FC<{
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+}> = ({ searchQuery, setSearchQuery }) => {
+  const { isLeftPanelOpen, setLeftPanelOpen } = useSettingsStore();
+
+  return (
+    <section className={cn('flex flex-col gap-4', { 'items-center': !isLeftPanelOpen })}>
+      {isLeftPanelOpen ? (
+        <InputSearch
+          placeholder="Search chat history"
+          value={searchQuery}
+          onChange={setSearchQuery}
+          maxLength={40}
+        />
+      ) : (
+        <Tooltip label="Search" hover size="sm">
+          <button onClick={() => setLeftPanelOpen(true)}>
+            <Icon name="search" kind="outline" className="dark:fill-marble-950" />
+          </button>
+        </Tooltip>
+      )}
+    </section>
+  );
+};
+
+const Chats: React.FC<{
+  searchQuery: string;
+  searchResults: Conversation[];
+  conversations: Conversation[];
+}> = ({ searchQuery, searchResults, conversations }) => {
+  const { isLeftPanelOpen } = useSettingsStore();
+  const { isLoading, isError } = useConversations({ orderBy: 'is_pinned' });
   const [checkedConversations, setCheckedConversations] = useState<Set<string>>(new Set());
-  const hasSearchQuery = search.length > 0;
-  const hasSearchResults = results.length > 0;
-  const hasConversations = conversations.length > 0;
-  const displayedConversations = useMemo<Conversation[]>(() => {
-    return search ? results : conversations.sort(sortByDate);
-  }, [results, conversations, search]);
 
   const handleCheckConversationToggle = (id: string) => {
     const newCheckedConversations = new Set(checkedConversations);
@@ -115,7 +114,15 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     setCheckedConversations(newCheckedConversations);
   };
 
-  if (isConversationsLoading) {
+  const [pinnedConversations, recentConversations] = useMemo(() => {
+    const filteredConversations = searchQuery ? searchResults : conversations.sort(sortByDate);
+    return [
+      filteredConversations.filter((c) => c.is_pinned),
+      filteredConversations.filter((c) => !c.is_pinned),
+    ];
+  }, [searchQuery, searchResults, conversations]);
+
+  if (isLoading) {
     return <ConversationListLoading />;
   }
 
@@ -123,20 +130,20 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
     return (
       <span className="my-auto flex flex-col items-center gap-2 text-center">
         <Icon name="warning" />
-        <Text>Unable to load conversations.</Text>
+        <Text>Unable to load conversations</Text>
       </span>
     );
   }
 
-  if (hasSearchQuery && !hasSearchResults && isLeftPanelOpen) {
+  if (searchQuery && !searchResults.length && isLeftPanelOpen) {
     return (
       <Text as="span" className="line-clamp-3">
-        No results found for &quot;{search}&quot;.
+        No results found for &quot;{searchQuery}&quot;
       </Text>
     );
   }
 
-  if (!hasConversations && isLeftPanelOpen) {
+  if (!conversations.length && isLeftPanelOpen) {
     return (
       <span className="flex h-full w-full items-center justify-center text-volcanic-500">
         <Text>It&apos;s quiet here... for now</Text>
@@ -145,14 +152,58 @@ const RecentChats: React.FC<{ search: string; results: Conversation[] }> = ({
   }
 
   return (
-    <ConversationListPanelGroup
-      conversations={displayedConversations}
-      showWeekHeadings={!hasSearchQuery}
-      checkedConversations={checkedConversations}
-      onCheckConversation={handleCheckConversationToggle}
-      className={cn('flex flex-col items-center space-y-1', {
-        'space-y-2': !isLeftPanelOpen,
-      })}
-    />
+    <>
+      {pinnedConversations.length > 0 && (
+        <ChatsGroup
+          title="Pinned Chats"
+          conversations={pinnedConversations}
+          showWeekHeadings={false}
+          checkedConversations={checkedConversations}
+          handleCheckConversationToggle={handleCheckConversationToggle}
+        />
+      )}
+      {recentConversations.length > 0 && (
+        <ChatsGroup
+          title="Recent Chats"
+          conversations={recentConversations}
+          showWeekHeadings={!searchQuery.length && isLeftPanelOpen}
+          checkedConversations={checkedConversations}
+          handleCheckConversationToggle={handleCheckConversationToggle}
+        />
+      )}
+    </>
+  );
+};
+
+const ChatsGroup: React.FC<{
+  title: string;
+  conversations: Conversation[];
+  showWeekHeadings: boolean;
+  checkedConversations: Set<string>;
+  handleCheckConversationToggle: (id: string) => void;
+}> = ({
+  title,
+  conversations,
+  showWeekHeadings,
+  checkedConversations,
+  handleCheckConversationToggle,
+}) => {
+  const { isLeftPanelOpen } = useSettingsStore();
+
+  return (
+    <>
+      {isLeftPanelOpen && (
+        <Text styleAs="label" className="truncate dark:text-mushroom-800">
+          {title}
+        </Text>
+      )}
+      <ConversationListPanelGroup
+        conversations={conversations}
+        showWeekHeadings={showWeekHeadings}
+        checkedConversations={checkedConversations}
+        onCheckConversation={handleCheckConversationToggle}
+        className={cn('flex flex-col items-center space-y-1', { 'space-y-2': !isLeftPanelOpen })}
+      />
+    </>
   );
 };
