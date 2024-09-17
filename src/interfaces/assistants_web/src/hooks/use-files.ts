@@ -10,7 +10,7 @@ import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants
 import { useNotify, useSession } from '@/hooks';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
-import { fileSizeToBytes, formatFileSize, getFileExtension } from '@/utils';
+import { fileSizeToBytes, formatFileSize, getFileExtension, mapExtensionToMimeType } from '@/utils';
 
 export const useListConversationFiles = (
   conversationId?: string,
@@ -107,6 +107,12 @@ export const useConversationFileActions = () => {
 
     const newUploadingFiles: UploadingFile[] = [];
     files.forEach((file) => {
+      if (file.type.length === 0) {
+        const fileExtension = getFileExtension(file.name)!;
+        Object.defineProperty(file, 'type', {
+          value: mapExtensionToMimeType(fileExtension),
+        });
+      }
       const uploadingFileId = new Date().valueOf().toString();
       const newUploadingFile: UploadingFile = {
         id: uploadingFileId,
