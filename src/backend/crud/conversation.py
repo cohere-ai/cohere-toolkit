@@ -5,7 +5,10 @@ from backend.database_models.conversation import (
     Conversation,
     ConversationFileAssociation,
 )
-from backend.schemas.conversation import UpdateConversationRequest
+from backend.schemas.conversation import (
+    ToggleConversationPinRequest,
+    UpdateConversationRequest,
+)
 from backend.services.transaction import validate_transaction
 
 
@@ -105,6 +108,30 @@ def update_conversation(
     for attr, value in new_conversation.model_dump().items():
         if value is not None:
             setattr(conversation, attr, value)
+    db.commit()
+    db.refresh(conversation)
+    return conversation
+
+
+@validate_transaction
+def update_conversation_pin(
+    db: Session, conversation: Conversation, new_conversation_pin: ToggleConversationPinRequest
+) -> Conversation:
+    """
+    Update conversation pin by conversation ID.
+
+    Args:
+        db (Session): Database session.
+        conversation (Conversation): Conversation to be updated.
+        new_conversation_pin (ToggleConversationPinRequest): New conversation pin data.
+
+    Returns:
+        Conversation: Updated conversation.
+    """
+    db.query(Conversation).filter(Conversation.id == conversation.id).update({
+        Conversation.is_pinned: new_conversation_pin.is_pinned,
+        Conversation.updated_at: conversation.updated_at
+    })
     db.commit()
     db.refresh(conversation)
     return conversation

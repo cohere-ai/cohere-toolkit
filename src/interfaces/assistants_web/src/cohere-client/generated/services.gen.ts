@@ -102,6 +102,8 @@ import type {
   SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
+  ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
+  ToggleConversationPinV1ConversationsConversationIdTogglePinPutResponse,
   ToolAuthV1ToolAuthGetResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
@@ -703,6 +705,31 @@ export class DefaultService {
         order_by: data.orderBy,
         agent_id: data.agentId,
       },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Toggle Conversation Pin
+   * @param data The data for the request.
+   * @param data.conversationId
+   * @param data.requestBody
+   * @returns ConversationWithoutMessages Successful Response
+   * @throws ApiError
+   */
+  public toggleConversationPinV1ConversationsConversationIdTogglePinPut(
+    data: ToggleConversationPinV1ConversationsConversationIdTogglePinPutData
+  ): CancelablePromise<ToggleConversationPinV1ConversationsConversationIdTogglePinPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v1/conversations/{conversation_id}/toggle-pin',
+      path: {
+        conversation_id: data.conversationId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
       errors: {
         422: 'Validation Error',
       },

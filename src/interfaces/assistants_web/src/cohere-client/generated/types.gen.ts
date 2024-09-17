@@ -603,6 +603,10 @@ export type StreamToolResult = {
   documents?: Array<Document>;
 };
 
+export type ToggleConversationPinRequest = {
+  is_pinned: boolean;
+};
+
 export type Tool = {
   name?: string | null;
   display_name?: string;
@@ -663,7 +667,6 @@ export type UpdateAgentToolMetadataRequest = {
 export type UpdateConversationRequest = {
   title?: string | null;
   description?: string | null;
-  is_pinned?: boolean | null;
 };
 
 export type UpdateDeploymentEnv = {
@@ -819,6 +822,14 @@ export type ListConversationsV1ConversationsGetData = {
 };
 
 export type ListConversationsV1ConversationsGetResponse = Array<ConversationWithoutMessages>;
+
+export type ToggleConversationPinV1ConversationsConversationIdTogglePinPutData = {
+  conversationId: string;
+  requestBody: ToggleConversationPinRequest;
+};
+
+export type ToggleConversationPinV1ConversationsConversationIdTogglePinPutResponse =
+  ConversationWithoutMessages;
 
 export type SearchConversationsV1ConversationsSearchGetData = {
   agentId?: string;
@@ -1326,6 +1337,21 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: Array<ConversationWithoutMessages>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/v1/conversations/{conversation_id}/toggle-pin': {
+    put: {
+      req: ToggleConversationPinV1ConversationsConversationIdTogglePinPutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: ConversationWithoutMessages;
         /**
          * Validation Error
          */

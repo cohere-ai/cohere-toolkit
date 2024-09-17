@@ -13,6 +13,7 @@ import {
   useConversationFileActions,
   useEditConversation,
   useIsDesktop,
+  useToggleConversationPin,
 } from '@/hooks';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn, formatDateToShortDate } from '@/utils';
@@ -46,7 +47,7 @@ const useMenuItems = ({
 }) => {
   const { deleteConversation } = useConversationActions();
   const { open } = useContextStore();
-  const { mutateAsync: editConversation } = useEditConversation();
+  const { mutateAsync: toggleConversationPin } = useToggleConversationPin();
 
   const handleOpenShareModal = () => {
     if (!conversationId) return;
@@ -61,7 +62,7 @@ const useMenuItems = ({
       label: isPinned ? 'Un-pin chat' : 'Pin chat',
       iconName: 'pin',
       onClick: async () => {
-        await editConversation({ request: { is_pinned: !isPinned }, conversationId });
+        await toggleConversationPin({ request: { is_pinned: !isPinned }, conversationId });
       },
     },
     {

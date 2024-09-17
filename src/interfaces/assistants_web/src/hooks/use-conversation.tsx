@@ -6,6 +6,7 @@ import {
   ConversationPublic,
   ConversationWithoutMessages,
   DeleteConversationResponse,
+  ToggleConversationPinRequest,
   UpdateConversationRequest,
   useCohereClient,
 } from '@/cohere-client';
@@ -71,6 +72,22 @@ export const useEditConversation = () => {
     { request: UpdateConversationRequest; conversationId: string }
   >({
     mutationFn: ({ request, conversationId }) => client.editConversation(request, conversationId),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
+  });
+};
+
+export const useToggleConversationPin = () => {
+  const client = useCohereClient();
+  const queryClient = useQueryClient();
+  return useMutation<
+    ConversationWithoutMessages,
+    CohereNetworkError,
+    { request: ToggleConversationPinRequest; conversationId: string }
+  >({
+    mutationFn: ({ request, conversationId }) =>
+      client.toggleConversationPin(request, conversationId),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },

@@ -3022,6 +3022,18 @@ export const $StreamToolResult = {
   title: 'StreamToolResult',
 } as const;
 
+export const $ToggleConversationPinRequest = {
+  properties: {
+    is_pinned: {
+      type: 'boolean',
+      title: 'Is Pinned',
+    },
+  },
+  type: 'object',
+  required: ['is_pinned'],
+  title: 'ToggleConversationPinRequest',
+} as const;
+
 export const $Tool = {
   properties: {
     name: {
@@ -3373,17 +3385,6 @@ export const $UpdateConversationRequest = {
         },
       ],
       title: 'Description',
-    },
-    is_pinned: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Pinned',
     },
   },
   type: 'object',
