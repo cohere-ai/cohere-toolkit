@@ -11,7 +11,6 @@ import {
   useBrandedColors,
   useConversationActions,
   useConversationFileActions,
-  useEditConversation,
   useIsDesktop,
   useToggleConversationPin,
 } from '@/hooks';
