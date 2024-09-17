@@ -273,6 +273,10 @@ export class CohereClient {
     return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
   }
 
+  public getAgentTasks(agentId: string) {
+    return this.cohereService.default.getAgentTasksV1AgentsAgentIdTasksGet({ agentId });
+  }
+
   public getDefaultAgent() {
     return this.cohereService.default.getDefaultAgentV1DefaultAgentGet();
   }

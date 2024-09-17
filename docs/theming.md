@@ -50,3 +50,7 @@ The default function displays the `/images/logo.png` file in the `public` folder
 ## Changing the page title
 
 To update the page title, alter the `title` property in the file located at `src/interfaces/coral_web/src/components/Layout.tsx` to reflect your new title.
+
+## Using a different language
+
+To customize the UI in a different language, translate the labels located at `src/interfaces/coral_web/src/constants/strings.tsx`.

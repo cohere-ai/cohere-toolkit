@@ -20,7 +20,7 @@ run-unit-tests:
 
 .PHONY: run-community-tests
 run-community-tests:
-	docker compose run --build backend poetry run pytest src/community/tests/$(file)
+	poetry run pytest src/community/tests --cov=src/community --cov-report=xml
 
 .PHONY: run-integration-tests
 run-integration-tests:
@@ -44,7 +44,7 @@ exec-db:
 
 .PHONY: migration
 migration:
-	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate
+	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"
 
 .PHONY: migrate
 migrate:
@@ -78,6 +78,10 @@ win-setup:
 	poetry install --with setup --verbose
 	poetry run python src/backend/cli/main.py
 
+.PHONY: typecheck
+typecheck:
+	poetry run pyright
+
 .PHONY: lint
 lint:
 	poetry run ruff check
@@ -100,19 +104,19 @@ win-first-run:
 
 .PHONY: format-web
 format-web:
-	cd src/interfaces/coral_web && npm run format:write
+	cd src/interfaces/assistants_web && npm run format:write
 
 .PHONY: generate-client-web
 generate-client-web:
-	cd src/interfaces/coral_web && npm run generate:client && npm run format:write
+	cd src/interfaces/assistants_web && npm run generate:client && npm run format:write
 
 .PHONY: install-web
 install-web:
-	cd src/interfaces/coral_web && npm install
+	cd src/interfaces/assistants_web && npm install
 
 .PHONY: build-web
 build-web:
-	cd src/interfaces/coral_web && npm run build
+	cd src/interfaces/assistants_web && npm run build
 
 .PHONY: test-db
 test-db:
@@ -123,3 +127,7 @@ test-db:
 .PHONY: dev-sync
 dev-sync:
 	@docker compose up --build sync_worker sync_publisher flower -d
+
+.PHONY: dev-sync-down
+dev-sync-down:
+	@docker compose down sync_worker sync_publisher flower

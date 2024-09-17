@@ -1,6 +1,7 @@
 'use client';
 
 import { Text } from '@/components/Shared';
+import { STRINGS } from '@/constants/strings';
 
 export const PageServerError: React.FC = () => {
   return (
@@ -8,7 +9,7 @@ export const PageServerError: React.FC = () => {
       <Text as="h1" styleAs="h3" className="mr-5 border-r pr-5 font-medium">
         500
       </Text>
-      <Text>Something went wrong. Our team is working on it.</Text>
+      <Text>{STRINGS.pageServerErrorDescription}</Text>
     </div>
   );
 };

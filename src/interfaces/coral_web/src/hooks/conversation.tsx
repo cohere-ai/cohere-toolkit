@@ -11,6 +11,7 @@ import {
 } from '@/cohere-client';
 import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
+import { STRINGS } from '@/constants/strings';
 import { useContextStore } from '@/context';
 import { useChatRoutes, useNavigateToNewChat } from '@/hooks/chatRoutes';
 import { useNotify } from '@/hooks/toast';
@@ -51,7 +52,7 @@ export const useConversation = ({
     enabled: !!conversationId && !disabledOnMount,
     queryFn: async () => {
       try {
-        if (!conversationId) throw new Error('Conversation ID not found');
+        if (!conversationId) throw new Error(STRINGS.conversationIDNotFoundError);
         return await client.getConversation({
           conversationId: conversationId,
         });
@@ -132,12 +133,12 @@ export const useConversationActions = () => {
         onDelete();
       } catch (e) {
         console.error(e);
-        notify.error('Something went wrong. Please try again.');
+        notify.error(STRINGS.somethingWentWrong);
       }
     };
 
     open({
-      title: `Are you sure you want to delete this conversation?`,
+      title: STRINGS.deleteConversationConfirmation,
       content: (
         <DeleteConversations
           conversationIds={[id]}
@@ -155,7 +156,7 @@ export const useConversationActions = () => {
     };
 
     open({
-      title: 'Edit Title',
+      title: STRINGS.editTitleTitle,
       content: (
         <EditConversationTitle
           conversationId={id}

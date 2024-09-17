@@ -10,6 +10,7 @@ import MessageRow from '@/components/MessageRow';
 import { Button } from '@/components/Shared';
 import { Welcome } from '@/components/Welcome';
 import { ReservedClasses } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { MESSAGE_LIST_CONTAINER_ID, useCalculateCitationStyles } from '@/hooks/citations';
 import { useFixCopyBug } from '@/hooks/fixCopyBug';
 import { useAgentsStore, useCitationsStore } from '@/stores';
@@ -132,7 +133,7 @@ const Content: React.FC<Props> = (props) => {
             className="absolute bottom-full left-1/2 -z-10 flex h-fit -translate-x-1/2 transform pb-4"
           >
             <Button
-              label="New message"
+              label={STRINGS.newMessage}
               splitIcon="arrow-down"
               onClick={handleScrollToNewMessage}
               hideFocusStyles

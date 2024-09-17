@@ -8,6 +8,7 @@ import { Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useDefaultFileLoaderTool } from '@/hooks/files';
 import { useListTools } from '@/hooks/tools';
 import { useFilesStore, useParamsStore } from '@/stores';
@@ -70,13 +71,13 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
       <ToolsInfoBox />
       <article className={cn('flex flex-col gap-y-5 pb-10')}>
         <Text styleAs="p-sm" className="text-mushroom-300">
-          Tools are data sources the assistant can search such as databases or the internet.
+          {STRINGS.toolsDescriptionShort}
         </Text>
 
         {unavailableTools.length > 0 && (
           <>
             <Text as="span" styleAs="label" className="font-medium">
-              Action Required
+              {STRINGS.actionRequired}
             </Text>
 
             <div className="flex flex-col gap-y-5">
@@ -105,7 +106,7 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
         {availableTools.length > 0 && (
           <>
             <Text as="span" styleAs="label" className="font-medium">
-              Ready to Use
+              {STRINGS.readyToUse}
             </Text>
 
             <div className="flex flex-col gap-y-5">

@@ -5,13 +5,9 @@ import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { CohereUnauthorizedError, ListAuthStrategy } from '@/cohere-client';
-import { AuthLink } from '@/components/AuthLink';
-import { Button, Input, Text } from '@/components/Shared';
-import { OidcSSOButton } from '@/components/Welcome/OidcSSOButton';
-import { useAuthConfig } from '@/hooks/authConfig';
-import { useOidcAuthRoute } from '@/hooks/oidcAuthRoute';
-import { useSession } from '@/hooks/session';
-import { useNotify } from '@/hooks/toast';
+import { AuthLink, OidcSSOButton } from '@/components/Auth';
+import { Button, Input, Text } from '@/components/UI';
+import { useAuthConfig, useNotify, useOidcAuthRoute, useSession } from '@/hooks';
 import type { NoNullProperties } from '@/types/util';
 import { getQueryString, simpleEmailValidation } from '@/utils';
 

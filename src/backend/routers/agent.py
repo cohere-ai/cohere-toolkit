@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
@@ -11,6 +11,7 @@ from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import snapshot as snapshot_crud
+from backend.crud.agent_task import get_agent_tasks_by_agent_id
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
@@ -20,6 +21,7 @@ from backend.routers.utils import get_deployment_model_from_agent
 from backend.schemas.agent import (
     Agent,
     AgentPublic,
+    AgentTaskResponse,
     AgentToolMetadata,
     AgentToolMetadataPublic,
     AgentVisibility,
@@ -40,6 +42,7 @@ from backend.schemas.metrics import (
     agent_to_metrics_agent,
 )
 from backend.services.agent import (
+    parse_task,
     raise_db_error,
     validate_agent_exists,
     validate_agent_tool_metadata_exists,
@@ -48,7 +51,6 @@ from backend.services.context import get_context
 from backend.services.file import (
     consolidate_agent_files_in_compass,
     get_file_service,
-    validate_batch_file_size,
     validate_file,
 )
 from backend.services.request_validators import (
@@ -138,7 +140,7 @@ async def create_agent(
                 }
             )
             if file_ids:
-                await consolidate_agent_files_in_compass(file_ids, created_agent.id)
+                await consolidate_agent_files_in_compass(file_ids, created_agent.id, ctx)
 
         if deployment_db and model_db:
             deployment_config = (
@@ -193,6 +195,9 @@ async def list_agents(
     # TODO: get organization_id from user
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
+    # request organization_id is used for filtering agents instead of header Organization-Id if enabled
+    if organization_id:
+        ctx.without_global_filtering()
 
     try:
         agents = agent_crud.get_agents(
@@ -243,7 +248,6 @@ async def get_agent_by_id(
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
     ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-
     return agent
 
 
@@ -273,6 +277,23 @@ async def get_agent_deployments(
         DeploymentSchema.custom_transform(deployment)
         for deployment in agent.deployments
     ]
+
+
+@router.get(
+    "/{agent_id}/tasks",
+    response_model=List[AgentTaskResponse],
+    dependencies=[
+        Depends(validate_user_header),
+    ],
+)
+async def get_agent_tasks(
+    agent_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> List[AgentTaskResponse]:
+    raw_tasks = get_agent_tasks_by_agent_id(session, agent_id)
+    tasks = [parse_task(t) for t in raw_tasks]
+    return tasks
 
 
 @router.put(
@@ -664,7 +685,6 @@ async def batch_upload_file(
     ctx: Context = Depends(get_context),
 ) -> UploadAgentFileResponse:
     user_id = ctx.get_user_id()
-    validate_batch_file_size(session, user_id, files)
 
     uploaded_files = []
     try:

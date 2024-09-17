@@ -24,6 +24,7 @@ import {
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_PYTHON_INTERPRETER_ID,
 } from '@/constants';
+import { STRINGS } from '@/constants/strings';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 import { useUpdateConversationTitle } from '@/hooks/generateTitle';
 import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
@@ -50,7 +51,7 @@ import {
 import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
 
-const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
+const USER_ERROR_MESSAGE = `${STRINGS.networkError} `;
 const ABORT_REASON_USER = 'USER_ABORTED';
 
 type IdToDocument = { [documentId: string]: Document };
@@ -519,12 +520,10 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
             setConversation({ messages: [...newMessages, lastMessage] });
           } else {
-            let error =
-              (e as CohereNetworkError)?.message ||
-              'Unable to generate a response since an error was encountered.';
+            let error = (e as CohereNetworkError)?.message || STRINGS.generationError;
 
             if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
-              error += ' (Ensure a COHERE_API_KEY is configured correctly)';
+              error += ` (${STRINGS.networkErrorSuggestion})`;
             }
             setConversation({
               messages: [

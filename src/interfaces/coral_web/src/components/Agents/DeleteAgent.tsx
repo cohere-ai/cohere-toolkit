@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 import { Button, Text } from '@/components/Shared';
+import { DYNAMIC_STRINGS, STRINGS } from '@/constants/strings';
 import { useDeleteAgent } from '@/hooks/agents';
 import { useChatRoutes } from '@/hooks/chatRoutes';
 
@@ -30,12 +31,10 @@ export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
 
   return (
     <div className="flex flex-col gap-y-20">
-      <Text>
-        Your assistant <strong>{name}</strong> will be deleted. This action cannot be undone.
-      </Text>
+      <Text>{DYNAMIC_STRINGS.deleteAssistantConfirmationDescription(name)}</Text>
       <div className="flex justify-between">
         <Button kind="secondary" onClick={onClose}>
-          Cancel
+          {STRINGS.cancel}
         </Button>
         <Button
           kind="danger"
@@ -43,7 +42,7 @@ export const DeleteAgent: React.FC<Props> = ({ name, agentId, onClose }) => {
           splitIcon="arrow-right"
           disabled={isPending}
         >
-          {isPending ? 'Deleting' : 'Delete'}
+          {isPending ? STRINGS.deleting : STRINGS.delete}
         </Button>
       </div>
     </div>

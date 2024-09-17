@@ -181,6 +181,75 @@ def test_list_agents(session_client: TestClient, session: Session, user) -> None
     assert len(response_agents) == 3
 
 
+def test_list_organization_agents(
+    session_client: TestClient,
+    session: Session,
+    user,
+) -> None:
+    session.query(Agent).delete()
+    organization = get_factory("Organization", session).create()
+    organization1 = get_factory("Organization", session).create()
+    for i in range(3):
+        _ = get_factory("Agent", session).create(
+            user=user,
+            organization_id=organization.id,
+            name=f"agent-{i}-{organization.id}",
+        )
+        _ = get_factory("Agent", session).create(
+            user=user, organization_id=organization1.id
+        )
+
+    response = session_client.get(
+        "/v1/agents", headers={"User-Id": user.id, "Organization-Id": organization.id}
+    )
+    assert response.status_code == 200
+    response_agents = response.json()
+    agents = sorted(response_agents, key=lambda x: x["name"])
+    for i in range(3):
+        assert agents[i]["name"] == f"agent-{i}-{organization.id}"
+
+
+def test_list_organization_agents_query_param(
+    session_client: TestClient,
+    session: Session,
+    user,
+) -> None:
+    session.query(Agent).delete()
+    organization = get_factory("Organization", session).create()
+    organization1 = get_factory("Organization", session).create()
+    for i in range(3):
+        _ = get_factory("Agent", session).create(
+            user=user, organization_id=organization.id
+        )
+        _ = get_factory("Agent", session).create(
+            user=user,
+            organization_id=organization1.id,
+            name=f"agent-{i}-{organization1.id}",
+        )
+
+    response = session_client.get(
+        f"/v1/agents?organization_id={organization1.id}",
+        headers={"User-Id": user.id, "Organization-Id": organization.id},
+    )
+    assert response.status_code == 200
+    response_agents = response.json()
+    agents = sorted(response_agents, key=lambda x: x["name"])
+    for i in range(3):
+        assert agents[i]["name"] == f"agent-{i}-{organization1.id}"
+
+
+def test_list_organization_agents_nonexistent_organization(
+    session_client: TestClient,
+    session: Session,
+    user,
+) -> None:
+    response = session_client.get(
+        "/v1/agents", headers={"User-Id": user.id, "Organization-Id": "123"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Organization ID 123 not found."}
+
+
 def test_list_private_agents(
     session_client: TestClient, session: Session, user
 ) -> None:

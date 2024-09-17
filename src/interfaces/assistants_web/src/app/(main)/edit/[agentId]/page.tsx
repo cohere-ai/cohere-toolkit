@@ -1,7 +1,8 @@
 import { NextPage } from 'next';
 
-import { UpdateAgent } from '@/components/Agents/UpdateAgent';
 import { getCohereServerClient } from '@/server/cohereServerClient';
+
+import { UpdateAgent } from './UpdateAgent';
 
 type Props = {
   params: {

@@ -1,6 +1,7 @@
 'use client';
 
 import { GuideTooltip } from '@/components/GuideTooltip';
+import { STRINGS } from '@/constants/strings';
 import { useFocusComposer } from '@/hooks/actions';
 import { useShowWelcomeGuide, useWelcomeGuideState } from '@/hooks/ftux';
 import { useSettingsStore } from '@/stores';
@@ -24,29 +25,26 @@ export const WelcomeGuideTooltip: React.FC<Props> = ({ className = '', step }) =
 
   const TOOLTIP_CONFIGURATIONS = [
     {
-      title: 'Welcome to Toolkit',
-      description:
-        'Say hi to the model! Open this sidebar to select tools and data sources the model should use in this conversation.',
-      buttonLabel: 'Next',
+      title: STRINGS.welcomeToToolkitTitle,
+      description: STRINGS.welcomeToToolkitDescription,
+      buttonLabel: STRINGS.next,
       onNext: () => {
         setSettings({ isConfigDrawerOpen: true });
       },
     },
     {
-      title: 'Configure your Tools',
-      description:
-        'Your configured Tools will be listed here, such as a sample PDF retrieval tool. Follow [these steps](link when available) to add your own.',
-      buttonLabel: 'Next',
+      title: STRINGS.configureYourToolsTitle,
+      description: STRINGS.configureYourToolsDescription,
+      buttonLabel: STRINGS.next,
       onNext: () => {
         focusComposer();
         setSettings({ isConfigDrawerOpen: false });
       },
     },
     {
-      title: 'Upload Documents as a Source',
-      description:
-        'Upload a PDF document as a retrieval source. This will use the PDF retrieval tool.',
-      buttonLabel: 'Done',
+      title: STRINGS.uploadDocumentsAsASourcetitle,
+      description: STRINGS.uploadDocumentsAsASourceDescription,
+      buttonLabel: STRINGS.done,
     },
   ];
   const { title, description, buttonLabel, onNext } = TOOLTIP_CONFIGURATIONS[step - 1];

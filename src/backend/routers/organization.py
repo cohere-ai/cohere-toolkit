@@ -11,6 +11,7 @@ from backend.schemas import (
     UpdateOrganization,
 )
 from backend.schemas.context import Context
+from backend.schemas.user import User
 from backend.services.context import get_context
 from backend.services.request_validators import validate_organization_request
 
@@ -88,11 +89,11 @@ def get_organization(
         session (DBSessionDep): Database session.
 
     Returns:
-        ManagedTool: Tool with the given ID.
+        ManagedTool: Organization with the given ID.
     """
     organization = organization_crud.get_organization(session, organization_id)
     if not organization:
-        raise HTTPException(status_code=404, detail="Model not found")
+        raise HTTPException(status_code=404, detail="Organization not found")
     return organization
 
 
@@ -114,7 +115,7 @@ def delete_organization(
     """
     organization = organization_crud.get_organization(session, organization_id)
     if not organization:
-        raise HTTPException(status_code=404, detail="Tool not found")
+        raise HTTPException(status_code=404, detail="Organization not found")
     organization_crud.delete_organization(session, organization_id)
 
     return DeleteOrganization()
@@ -138,3 +139,24 @@ def list_organizations(
     """
     all_organizations = organization_crud.get_organizations(session)
     return all_organizations
+
+
+@router.get("/{organization_id}/users", response_model=list[User])
+def get_organization_users(
+    organization_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+) -> list[User]:
+    """
+    Get organization users by ID.
+
+    Args:
+        organization_id (str): Organization ID.
+        session (DBSessionDep): Database session.
+
+    Returns:
+        list[User]: List of users in the organization
+    """
+    organization = organization_crud.get_organization(session, organization_id)
+    if not organization:
+        raise HTTPException(status_code=404, detail="Organization not found")
+
+    return organization.users

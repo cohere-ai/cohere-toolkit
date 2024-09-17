@@ -19,7 +19,7 @@ from backend.schemas.context import Context
 from backend.schemas.file import ConversationFilePublic, File
 from backend.services import utils
 from backend.services.agent import validate_agent_exists
-from backend.services.compass import Compass
+from backend.services.compass import Compass, get_compass
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
 
@@ -39,7 +39,6 @@ DOCX_EXTENSION = "docx"
 pandas_monkeypatch()
 
 file_service = None
-compass = None
 
 logger = LoggerFactory().get_logger()
 
@@ -55,26 +54,6 @@ def get_file_service():
     if file_service is None:
         file_service = FileService()
     return file_service
-
-
-def get_compass():
-    """
-    Initialize a singular instance of Compass if not initialized yet
-
-    Returns:
-        Compass: The singleton Compass instance
-    """
-    global compass
-
-    if compass is None:
-        try:
-            compass = Compass()
-        except Exception as e:
-            logger.error(
-                event=f"[Compass File Service] Error initializing Compass: {e}"
-            )
-            raise e
-    return compass
 
 
 class FileService:
@@ -157,7 +136,7 @@ class FileService:
             Since agents are created after the files are upload we index files into dummy indices first
             We later consolidate them in consolidate_agent_files_in_compass() to a singular index when an agent is created.
             """
-            uploaded_files = await insert_files_in_compass(files, ctx, user_id)
+            uploaded_files = await insert_files_in_compass(files, user_id, ctx)
         else:
             uploaded_files = await insert_files_in_db(session, files, user_id)
 
@@ -430,7 +409,6 @@ def get_files_in_compass(
                 id=file_id,
                 file_name=fetched_doc["file_name"],
                 file_size=fetched_doc["file_size"],
-                file_path=fetched_doc["file_path"],
                 file_content=fetched_doc["text"],
                 user_id=user_id,
                 created_at=datetime.fromisoformat(fetched_doc["created_at"]),
@@ -460,11 +438,20 @@ async def consolidate_agent_files_in_compass(
     compass = get_compass()
 
     try:
-        compass.invoke(
+        logger.info(
+            event="[Compass File Service] Creating index for agent files",
+            agent_id=agent_id
+        )
+        response = compass.invoke(
             action=Compass.ValidActions.CREATE_INDEX,
             parameters={
                 "index": agent_id,
             },
+        )
+        logger.info(
+            event="[Compass File Service] Finished creating index for agent files",
+            agent_id=agent_id,
+            response=response
         )
     except Exception as e:
         logger.Error(
@@ -481,17 +468,16 @@ async def consolidate_agent_files_in_compass(
                 action=Compass.ValidActions.GET_DOCUMENT,
                 parameters={"index": file_id, "file_id": file_id},
             ).result["doc"]["content"]
-            compass().invoke(
+            compass.invoke(
                 action=Compass.ValidActions.CREATE,
                 parameters={
                     "index": agent_id,
                     "file_id": file_id,
                     "file_bytes": fetched_doc["text"],
-                    "filename": fetched_doc["file_name"],
+                    "file_extension": get_file_extension(fetched_doc["file_name"]),
                     "custom_context": {
                         "file_id": file_id,
                         "file_name": fetched_doc["file_name"],
-                        "file_path": fetched_doc["file_path"],
                         "file_size": fetched_doc["file_size"],
                         "user_id": fetched_doc["user_id"],
                         "created_at": fetched_doc["created_at"],
@@ -508,7 +494,7 @@ async def consolidate_agent_files_in_compass(
             )
             # Remove the temporary file index entry
             compass.invoke(
-                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": agent_id}
+                action=Compass.ValidActions.DELETE_INDEX, parameters={"index": file_id}
             )
         except Exception as e:
             logger.error(
@@ -570,11 +556,10 @@ async def insert_files_in_compass(
                     "index": new_file_id if index is None else index,
                     "file_id": new_file_id,
                     "file_bytes": file_bytes,
-                    "filename": filename,
+                    "file_extension": get_file_extension(filename),
                     "custom_context": {
                         "file_id": new_file_id,
                         "file_name": filename,
-                        "file_path": filename,
                         "file_size": file.size,
                         "user_id": user_id,
                         "created_at": datetime.now().isoformat(),
@@ -596,7 +581,6 @@ async def insert_files_in_compass(
                 file_name=filename,
                 id=new_file_id,
                 file_size=file.size,
-                file_path=filename,
                 user_id=user_id,
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
@@ -661,7 +645,6 @@ async def insert_files_in_db(
             FileModel(
                 file_name=filename,
                 file_size=file.size,
-                file_path=filename,
                 file_content=cleaned_content,
                 user_id=user_id,
             )
@@ -682,7 +665,6 @@ def attach_conversation_id_to_files(
                 conversation_id=conversation_id,
                 file_name=file.file_name,
                 file_size=file.file_size,
-                file_path=file.file_path,
                 user_id=file.user_id,
                 created_at=file.created_at,
                 updated_at=file.updated_at,
@@ -756,62 +738,3 @@ def read_docx(file_contents: bytes) -> str:
         text += paragraph.text + "\n"
 
     return text
-
-
-def validate_file_size(
-    session: DBSessionDep, user_id: str, file: FastAPIUploadFile
-) -> None:
-    """Validates the file size
-
-    Args:
-        user_id (str): The user ID
-        file (UploadFile): The file to validate
-
-    Raises:
-        HTTPException: If the file size is too large
-    """
-    if file.size > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File size exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
-        )
-
-    existing_files = file_crud.get_files_by_user_id(session, user_id)
-    total_file_size = sum([f.file_size for f in existing_files]) + file.size
-
-    if total_file_size > MAX_TOTAL_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
-        )
-
-
-def validate_batch_file_size(
-    session: DBSessionDep, user_id: str, files: list[FastAPIUploadFile]
-) -> None:
-    """Validate sizes of files in batch
-
-    Args:
-        user_id (str): The user ID
-        files (list[FastAPIUploadFile]): The files to validate
-
-    Raises:p
-        HTTPException: If the file size is too large
-    """
-    total_batch_size = 0
-    for file in files:
-        if file.size > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail=f"{file.filename} exceeds the maximum allowed size of {MAX_FILE_SIZE} bytes.",
-            )
-        total_batch_size += file.size
-
-    existing_files = file_crud.get_files_by_user_id(session, user_id)
-    total_file_size = sum([f.file_size for f in existing_files]) + total_batch_size
-
-    if total_file_size > MAX_TOTAL_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Total file size exceeds the maximum allowed size of {MAX_TOTAL_FILE_SIZE} bytes.",
-        )

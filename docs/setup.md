@@ -252,14 +252,16 @@ If you also need to install the community features, run:
 poetry install --with community
 ```
 
-The codebase is formatted and linted using [Ruff](https://docs.astral.sh/ruff/). 
+The codebase is formatted and linted using [Ruff](https://docs.astral.sh/ruff/).
 
 To check for linter and formatter errors, run
+
 ```
 make lint
 ```
 
 To apply automatic fixes, run
+
 ```
 make lint-fix
 ```
@@ -271,11 +273,17 @@ Run type checker:
 - Run with `pyright`
 - Configure in [pyproject.toml](../pyproject.toml) under `[tool.pyright]`
 
+### VSCode recommendations
+
+- Install the [Ruff VSCode Extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
+- Copy the contents of `.vscode/settings.default.json` into `.vscode/settings.json`
+
 ## Setting up the Environment Variables
 
 **Please confirm that you have at least one configuration of the Cohere Platform, SageMaker, Bedrock or Azure.**
 
 You have two methods to set up the environment variables:
+
 1. Run `make setup` and follow the instructions to configure it.
 2. Copy the contents of `configuration.template.yaml` and `secrets.template.yaml` files to new `configuration.yaml` and `secrets.yaml` files.
 
