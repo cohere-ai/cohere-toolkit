@@ -1,3 +1,0 @@
-# START CRON JOB
-0 * * * * /app/src/backend/services/sync/publisher.sh > /proc/1/fd/1 2>/proc/1/fd/2
-# END CRON JOB

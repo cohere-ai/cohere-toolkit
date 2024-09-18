@@ -123,11 +123,3 @@ test-db:
 	docker compose stop test_db
 	docker compose rm -f test_db
 	docker compose up test_db -d
-
-.PHONY: dev-sync
-dev-sync:
-	@docker compose up --build sync_worker sync_publisher flower -d
-
-.PHONY: dev-sync-down
-dev-sync-down:
-	@docker compose down sync_worker sync_publisher flower
