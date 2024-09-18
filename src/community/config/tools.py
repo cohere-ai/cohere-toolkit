@@ -66,11 +66,24 @@ COMMUNITY_TOOLS = {
     CommunityToolName.File_Upload_LlamaIndex: ManagedTool(
         display_name="File Reader",
         implementation=LlamaIndexUploadPDFRetriever,
+        parameter_definitions={
+            "query": {
+                "description": "Query for retrieval.",
+                "type": "str",
+                "required": True,
+            },
+            "files": {
+                "description": "A list of files represented as tuples of (filename, file ID) to search over",
+                "type": "list[tuple[str, str]]",
+                "required": True,
+            },
+
+        },
         is_visible=True,
         is_available=LlamaIndexUploadPDFRetriever.is_available(),
         error_message="LlamaIndexUploadPDFRetriever is not available.",
         category=Category.FileLoader,
-        description="Retrieves documents from a file using LlamaIndex.",
+        description="Retrieves the most relevant documents from the uploaded files based on the query using Llama Index.",
     ),
     CommunityToolName.Wolfram_Alpha: ManagedTool(
         display_name="Wolfram Alpha",
