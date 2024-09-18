@@ -122,3 +122,10 @@ def write_config_files(secrets: dict):
         # Merge changes
         merge_yaml_dicts(secrets_data, new_secrets_data)
         write_yaml(SECRETS_FILE_PATH, secrets_data)
+
+def delete_config_folders():
+    if os.path.isdir(CONFIG_FILE_PATH):
+        os.rmdir(CONFIG_FILE_PATH)
+
+    if os.path.isdir(SECRETS_FILE_PATH):
+        os.rmdir(SECRETS_FILE_PATH)
