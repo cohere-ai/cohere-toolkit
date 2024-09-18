@@ -26,7 +26,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
     """
 
     NAME = "file_reader_llamaindex"
-    CHUNK_SIZE = 1000
+    CHUNK_SIZE = 512
 
     def __init__(self):
         self.COHERE_API_KEY = Settings().deployments.cohere_platform.api_key
