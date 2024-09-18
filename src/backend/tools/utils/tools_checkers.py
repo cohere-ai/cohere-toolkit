@@ -1,4 +1,4 @@
-from backend.schemas.tool import ManagedTool, Category
+from backend.schemas.tool import Category, ManagedTool
 from community.config.tools import CommunityToolName
 
 

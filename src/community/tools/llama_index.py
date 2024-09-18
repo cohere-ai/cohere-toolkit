@@ -1,14 +1,11 @@
 from typing import Any, Dict, List
 
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.llms.cohere import Cohere
-from llama_index.embeddings.cohere import CohereEmbedding
-from llama_index.core import Settings as LLamaSettings, StorageContext
 from llama_index.core import VectorStoreIndex
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.readers import StringIterableReader
+from llama_index.embeddings.cohere import CohereEmbedding
 
 import backend.crud.file as file_crud
-from llama_index.core.readers import StringIterableReader
-
 from backend.config import Settings
 from community.tools import BaseTool
 
@@ -76,7 +73,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
             )
         # LLamaIndex get documents from parsed PDFs, split it into sentences, embed, index and retrieve
         docs = StringIterableReader().load_data(file_str_list)
-        node_parser = SentenceSplitter(chunk_size=512)
+        node_parser = SentenceSplitter(chunk_size=LlamaIndexUploadPDFRetriever.CHUNK_SIZE)
         nodes = node_parser.get_nodes_from_documents(docs)
         embed_model = self._get_embedding("search_document")
         vector_index = VectorStoreIndex(

@@ -64,7 +64,7 @@ COMMUNITY_TOOLS = {
         description="Retrieves documents from Pub Med.",
     ),
     CommunityToolName.File_Upload_LlamaIndex: ManagedTool(
-        display_name="File Reader",
+        display_name="Llama File Reader",
         implementation=LlamaIndexUploadPDFRetriever,
         parameter_definitions={
             "query": {
