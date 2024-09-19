@@ -109,23 +109,25 @@ def list_deployments(
     logger = ctx.get_logger()
 
     if all:
-        available_deployments = [
+        available_db_deployments = [
             DeploymentSchema.custom_transform(_)
             for _ in deployment_crud.get_deployments(session)
         ]
 
     else:
-        available_deployments = [
+        available_db_deployments = [
             DeploymentSchema.custom_transform(_)
             for _ in deployment_crud.get_available_deployments(session)
         ]
 
+    available_deployments = [
+        deployment
+        for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
+        if all or deployment.is_available
+    ]
+    # if not config deployments, return db deployments
     if not available_deployments:
-        available_deployments = [
-            deployment
-            for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
-            if all or deployment.is_available
-        ]
+        available_deployments = available_db_deployments
 
     # No available deployments
     if not available_deployments:

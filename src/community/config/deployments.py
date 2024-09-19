@@ -1,5 +1,9 @@
 from enum import StrEnum
 
+from backend.schemas.deployment import Deployment
+from community.model_deployments import HuggingFaceDeployment
+
+
 # Add the below for local model deployments
 # from community.model_deployments.local_model import LocalModelDeployment
 
@@ -10,14 +14,14 @@ class ModelDeploymentName(StrEnum):
 
 
 AVAILABLE_MODEL_DEPLOYMENTS = {
-    # ModelDeploymentName.HuggingFace: Deployment(
-    #     id = "hugging_face",
-    #     name=ModelDeploymentName.HuggingFace,
-    #     deployment_class=HuggingFaceDeployment,
-    #     models=HuggingFaceDeployment.list_models(),
-    #     is_available=HuggingFaceDeployment.is_available(),
-    #     env_vars=[],
-    # ),
+    ModelDeploymentName.HuggingFace: Deployment(
+        id = "hugging_face",
+        name=ModelDeploymentName.HuggingFace,
+        deployment_class=HuggingFaceDeployment,
+        models=HuggingFaceDeployment.list_models(),
+        is_available=HuggingFaceDeployment.is_available(),
+        env_vars=[],
+    ),
     # # Add the below for local model deployments
     # ModelDeploymentName.LocalModel: Deployment(
     #     id = "local_model",

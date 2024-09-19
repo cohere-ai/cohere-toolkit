@@ -2,6 +2,8 @@ from typing import Any, Dict, List
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+from backend.chat.enums import StreamEvent
+from backend.schemas.chat import ChatMessage
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from community.model_deployments import BaseDeployment
@@ -20,8 +22,8 @@ class HuggingFaceDeployment(BaseDeployment):
         "CohereForAI/c4ai-command-r-plus",
     ]
 
-    def __init__(self):
-        pass
+    def __init__(self, **kwargs: Any):
+        self.ctx = kwargs.get("ctx", None)
 
     @property
     def rerank_enabled(self) -> bool:
@@ -72,19 +74,19 @@ class HuggingFaceDeployment(BaseDeployment):
         Built in streamming is not supported, so this function wraps the invoke_chat function to return a single response.
         """
         yield {
-            "event-type": "event-start",
+            "event_type": StreamEvent.STREAM_START,
             "generation_id": "",
         }
 
         gen_text = await self.invoke_chat(chat_request)
 
         yield {
-            "event-type": "text-generation",
+            "event_type": StreamEvent.TEXT_GENERATION,
             "text": gen_text.get("text", ""),
         }
 
         yield {
-            "event-type": "stream-end",
+            "event_type": StreamEvent.STREAM_END,
             "finish_reason": "COMPLETE",
         }
 
@@ -94,7 +96,7 @@ class HuggingFaceDeployment(BaseDeployment):
         return None
 
     def _build_chat_history(
-        self, chat_history: List[Dict[str, Any]], message: str
+        self, chat_history: List[ChatMessage], message: str
     ) -> List[Dict[str, Any]]:
         messages = []
 
