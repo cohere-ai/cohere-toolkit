@@ -1,8 +1,8 @@
 ## Config parameters explanation
 
 - Configuration consists of two parts: configuration.yaml and secrets.yaml.
-    - **configutrations.yaml** contains the configuration of the tool, and 
-    - **secrets.yaml** contains the secrets( API keys, etc) required for the tool to run.
+    - **configuration.yaml** contains the configuration of the toolkit, and 
+    - **secrets.yaml** contains the secrets( API keys, etc) required for the toolkit to run.
 
 - The configuration.yaml file contains the following fields:
   - deployments - Deployment configurations
