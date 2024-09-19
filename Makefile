@@ -16,7 +16,7 @@ down:
 
 .PHONY: run-unit-tests
 run-unit-tests:
-	poetry run pytest src/backend/tests/unit/routers/test_chat.py::test_non_streaming_existing_chat_with_files_attaches_to_user_message --cov=src/backend --cov-report=xml
+	poetry run pytest src/backend/tests/unit --cov=src/backend --cov-report=xml
 
 .PHONY: run-community-tests
 run-community-tests:
@@ -123,3 +123,11 @@ test-db:
 	docker compose stop test_db
 	docker compose rm -f test_db
 	docker compose up test_db -d
+
+.PHONY: dev-sync
+dev-sync:
+	@docker compose up --build sync_worker sync_publisher flower -d
+
+.PHONY: dev-sync-down
+dev-sync-down:
+	@docker compose down sync_worker sync_publisher flower
