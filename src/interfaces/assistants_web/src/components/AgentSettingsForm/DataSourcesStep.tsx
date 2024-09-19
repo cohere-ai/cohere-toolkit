@@ -6,7 +6,7 @@ import { Button, Icon, IconName, Spinner, Text } from '@/components/UI';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useUploadAgentFile } from '@/hooks';
 import { DataSourceArtifact } from '@/types/tools';
-import { pluralize } from '@/utils';
+import { mapMimeTypeToExtension, pluralize } from '@/utils';
 
 type Props = {
   googleDriveEnabled: boolean;
@@ -160,7 +160,9 @@ const defaultUploadButton = (
     <>
       <input
         type="file"
-        accept={ACCEPTED_FILE_TYPES.join(',')}
+        accept={ACCEPTED_FILE_TYPES.map((fileType) => `.${mapMimeTypeToExtension(fileType)}`).join(
+          ','
+        )}
         className="hidden"
         multiple
         ref={fileInputRef}

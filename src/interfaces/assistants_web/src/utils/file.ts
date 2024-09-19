@@ -55,11 +55,47 @@ export const mapExtensionToMimeType = (extension: string) => {
   return (
     {
       ['csv']: 'text/csv',
+      ['tsv']: 'text/tab-separated-values',
+      ['html']: 'text/html',
+      ['md']: 'text/markdown',
+      ['doc']: 'application/msword',
+      ['docx']: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ['xlsx']: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ['pptx']: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       ['json']: 'application/json',
       ['pdf']: 'application/pdf',
+      ['epub']: 'application/epub+zip',
+      ['parquet']: 'application/vnd.apache.parquet',
       ['png']: 'image/png',
       ['txt']: 'text/plain',
       ['zip']: 'application/zip',
     }[extension] || 'text/plain'
+  );
+};
+
+/**
+ * Map mime type to file extension.
+ * @param mimeType
+ * @returns extension
+ */
+export const mapMimeTypeToExtension = (mimeType: string) => {
+  return (
+    {
+      ['text/csv']: 'csv',
+      ['text/tab-separated-values']: 'tsv',
+      ['text/html']: 'html',
+      ['text/markdown']: 'md',
+      ['application/msword']: 'doc',
+      ['application/vnd.openxmlformats-officedocument.wordprocessingml.document']: 'docx',
+      ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']: 'xlsx',
+      ['application/vnd.openxmlformats-officedocument.presentationml.presentation']: 'pptx',
+      ['application/json']: 'json',
+      ['application/pdf']: 'pdf',
+      ['application/epub+zip']: 'epub',
+      ['application/vnd.apache.parquet']: 'parquet',
+      ['image/png']: 'png',
+      ['text/plain']: 'txt',
+      ['application/zip']: 'zip',
+    }[mimeType] || 'txt'
   );
 };
