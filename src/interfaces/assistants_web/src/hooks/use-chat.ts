@@ -78,7 +78,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { mutateAsync: streamChat } = chatMutation;
 
   const {
-    params: { temperature, tools, model, deployment, deploymentConfig, fileIds },
+    params: { temperature, preamble, tools, model, deployment, deploymentConfig, fileIds },
   } = useParamsStore();
   const {
     conversation: { id, messages },
@@ -558,6 +558,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
         .concat(DEFAULT_AGENT_TOOLS.map((defaultTool) => ({ name: defaultTool }))),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
+      preamble,
       model,
       agent_id: agentId,
       ...restOverrides,
