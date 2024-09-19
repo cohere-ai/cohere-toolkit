@@ -278,7 +278,7 @@ def get_last_message(
         if message.is_active and message.user_id == user_id and message.agent == agent
     ]
 
-    if len(agent_messages) == 0:
+    if not agent_messages:
         raise HTTPException(
             status_code=404,
             detail=f"Messages for user with ID: {user_id} not found.",
