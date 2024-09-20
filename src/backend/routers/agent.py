@@ -1,17 +1,14 @@
 import asyncio
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
 from backend.config.routers import RouterName
-from backend.config.settings import Settings
-from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import snapshot as snapshot_crud
-from backend.crud.agent_task import get_agent_tasks_by_agent_id
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
@@ -21,7 +18,6 @@ from backend.routers.utils import get_deployment_model_from_agent
 from backend.schemas.agent import (
     Agent,
     AgentPublic,
-    AgentTaskResponse,
     AgentToolMetadata,
     AgentToolMetadataPublic,
     AgentVisibility,
@@ -36,14 +32,12 @@ from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.file import DeleteAgentFileResponse, UploadAgentFileResponse
 from backend.services.agent import (
-    parse_task,
     raise_db_error,
     validate_agent_exists,
     validate_agent_tool_metadata_exists,
 )
 from backend.services.context import get_context
 from backend.services.file import (
-    consolidate_agent_files_in_compass,
     get_file_service,
     validate_file,
 )
@@ -52,8 +46,6 @@ from backend.services.request_validators import (
     validate_update_agent_request,
     validate_user_header,
 )
-from backend.services.sync.jobs.sync_agent import sync_agent
-from backend.tools.files import FileToolsArtifactTypes
 
 router = APIRouter(
     prefix="/v1/agents",
@@ -110,30 +102,6 @@ async def create_agent(
                     created_agent, tool_metadata, session, ctx
                 )
 
-        # Consolidate agent files into one index in compass
-        file_tools = [ToolName.Read_File, ToolName.Search_File]
-        if (
-            Settings().feature_flags.use_compass_file_storage
-            and created_agent.tools_metadata
-        ):
-            artifacts = next(
-                (
-                    tool_metadata.artifacts
-                    for tool_metadata in created_agent.tools_metadata
-                    if tool_metadata.tool_name in file_tools
-                ),
-                [],
-            )
-            file_ids = list(
-                {
-                    artifact.get("id")
-                    for artifact in artifacts
-                    if artifact.get("type") == FileToolsArtifactTypes.local_file
-                }
-            )
-            if file_ids:
-                await consolidate_agent_files_in_compass(file_ids, created_agent.id, ctx)
-
         if deployment_db and model_db:
             deployment_config = (
                 agent.deployment_config
@@ -151,9 +119,6 @@ async def create_agent(
 
         agent_schema = Agent.model_validate(created_agent)
         ctx.with_agent(agent_schema)
-
-        # initiate agent sync job
-        sync_agent.apply_async(args=[created_agent.id])
 
         return created_agent
     except Exception as e:
@@ -266,23 +231,6 @@ async def get_agent_deployments(
         DeploymentSchema.custom_transform(deployment)
         for deployment in agent.deployments
     ]
-
-
-@router.get(
-    "/{agent_id}/tasks",
-    response_model=List[AgentTaskResponse],
-    dependencies=[
-        Depends(validate_user_header),
-    ],
-)
-async def get_agent_tasks(
-    agent_id: str,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
-) -> List[AgentTaskResponse]:
-    raw_tasks = get_agent_tasks_by_agent_id(session, agent_id)
-    tasks = [parse_task(t) for t in raw_tasks]
-    return tasks
 
 
 @router.put(

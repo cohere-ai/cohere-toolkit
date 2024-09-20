@@ -151,3 +151,9 @@ class ToolAuthenticationCacheMixin:
         cache_put(key, payload)
 
         return key
+
+
+class ToolAuthException(Exception):
+    def __init__(self, message, tool_id: str):
+        self.message = message
+        self.tool_id = tool_id

@@ -41,7 +41,6 @@ feature_flags:
   # Experimental features
   use_experimental_langchain: false
   use_agents_view: false
-  use_compass_file_storage: false
   # Community features
   use_community_features: true
 auth:
@@ -55,6 +54,3 @@ logger:
   strategy: structlog
   renderer: console
   level: info
-sync:
-  broker_url: redis://:redis@redis:6379
-  worker_concurrency: 4

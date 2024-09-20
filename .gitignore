@@ -95,10 +95,6 @@ ipython_config.py
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
 # SageMath parsed files
 *.sage.py
 
@@ -157,6 +153,7 @@ secrets.toml
 # Secret and config files
 /src/backend/config/configuration.yaml
 /src/backend/config/secrets.yaml
+
 logs/
 credentials.json
 token.json

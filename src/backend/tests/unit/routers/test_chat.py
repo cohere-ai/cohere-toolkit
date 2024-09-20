@@ -962,7 +962,6 @@ def test_streaming_chat_with_files(
     session_client_chat: TestClient,
     session_chat: Session,
     user: User,
-    mock_compass_settings,
 ):
     # Create convo
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
