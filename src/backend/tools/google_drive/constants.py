@@ -1,5 +1,3 @@
-from enum import Enum
-
 CSV_MIMETYPE = "text/csv"
 TEXT_MIMETYPE = "text/plain"
 SEARCH_LIMIT = 10
@@ -32,13 +30,3 @@ SEARCH_MIME_TYPES = NATIVE_SEARCH_MIME_TYPES + NON_NATIVE_SEARCH_MIME_TYPES
 DOC_FIELDS = "id, name, mimeType, webViewLink, exportLinks, shortcutDetails, trashed, parents, fileExtension, permissions"
 
 GOOGLE_DRIVE_TOOL_ID = "google_drive"
-
-
-class GoogleDriveActions(Enum):
-    CREATE = "create"
-    EDIT = "edit"
-    MOVE = "move"
-    RENAME = "rename"
-    DELETE = "delete"
-    RESTORE = "restore"
-    PERMISSION_CHANGE = "permission_change"

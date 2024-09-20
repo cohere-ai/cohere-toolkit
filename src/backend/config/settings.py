@@ -112,37 +112,11 @@ class FeatureFlags(BaseSettings, BaseModel):
             "USE_COMMUNITY_FEATURES", "use_community_features"
         ),
     )
-    use_compass_file_storage: Optional[bool] = Field(
-        default=False,
-        validation_alias=AliasChoices(
-            "USE_COMPASS_FILE_STORAGE", "use_compass_file_storage"
-        ),
-    )
-
 
 class PythonToolSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     url: Optional[str] = Field(
         default=None, validation_alias=AliasChoices("PYTHON_INTERPRETER_URL", "url")
-    )
-
-
-class CompassSettings(BaseSettings, BaseModel):
-    model_config = SETTINGS_CONFIG
-    username: Optional[str] = Field(
-        default=None,
-        validation_alias=AliasChoices("COHERE_COMPASS_USERNAME", "username"),
-    )
-    password: Optional[str] = Field(
-        default=None,
-        validation_alias=AliasChoices("COHERE_COMPASS_PASSWORD", "password"),
-    )
-    api_url: Optional[str] = Field(
-        default=None, validation_alias=AliasChoices("COHERE_COMPASS_API_URL", "api_url")
-    )
-    parser_url: Optional[str] = Field(
-        default=None,
-        validation_alias=AliasChoices("COHERE_COMPASS_PARSER_URL", "parser_url"),
     )
 
 
@@ -308,17 +282,6 @@ class LoggerSettings(BaseSettings, BaseModel):
     )
 
 
-class SyncSettings(BaseSettings, BaseModel):
-    model_config = SETTINGS_CONFIG
-    broker_url: Optional[str] = Field(
-        default=None, validation_alias=AliasChoices("BROKER_URL", "broker_url")
-    )
-    worker_concurrency: Optional[int] = Field(
-        default=4,
-        validation_alias=AliasChoices("WORKER_CONCURRENCY", "worker_concurrency"),
-    )
-
-
 class Settings(BaseSettings):
     """
     Settings class used to grab environment variables from configuration.yaml
@@ -335,8 +298,6 @@ class Settings(BaseSettings):
     redis: Optional[RedisSettings] = Field(default=RedisSettings())
     deployments: Optional[DeploymentSettings] = Field(default=DeploymentSettings())
     logger: Optional[LoggerSettings] = Field(default=LoggerSettings())
-    compass: Optional[CompassSettings] = Field(default=CompassSettings())
-    sync: Optional[SyncSettings] = Field(default=SyncSettings())
 
     @classmethod
     def settings_customise_sources(
