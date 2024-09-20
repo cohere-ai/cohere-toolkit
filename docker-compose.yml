@@ -85,59 +85,6 @@ services:
     networks:
       - proxynet
 
-  sync_worker:
-    build:
-      context: .
-      args:
-        DOCKER_BUILDKIT: 1
-      dockerfile: ./src/backend/Dockerfile
-    command: ["./src/backend/services/sync/executor.sh", "${ENVIRONMENT}"]
-    restart: unless-stopped
-    profiles:
-      - sync
-    develop:
-      watch:
-        - action: sync
-          path: ./src/backend
-          target: /workspace/src/backend
-          ignore:
-            - __pycache__/
-            - alembic/
-            - data/
-    stdin_open: true
-    tty: true
-    depends_on:
-      - db
-      - redis
-    networks:
-      - proxynet
-
-  sync_publisher:
-    build:
-      context: .
-      args:
-        DOCKER_BUILDKIT: 1
-      dockerfile: ./src/backend/services/sync/Dockerfile
-    restart: unless-stopped
-    profiles:
-      - sync
-    develop:
-      watch:
-        - action: sync
-          path: ./src/backend
-          target: /workspace/src/backend
-          ignore:
-            - __pycache__/
-            - alembic/
-            - data/
-    stdin_open: true
-    tty: true
-    depends_on:
-      - db
-      - redis
-    networks:
-      - proxynet
-
   frontend:
     build:
       target: ${BUILD_TARGET:-prod}
@@ -169,18 +116,6 @@ services:
       - "8080:8080"
     expose:
       - "8080"
-    networks:
-      - proxynet
-
-  flower:
-    image: mher/flower
-    profiles:
-      - sync
-    environment:
-      - CELERY_BROKER_URL=redis://:redis@redis:6379
-      - FLOWER_PORT=5555
-    ports:
-      - 5555:5555
     networks:
       - proxynet
 

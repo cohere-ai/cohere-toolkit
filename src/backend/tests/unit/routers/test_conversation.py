@@ -525,7 +525,7 @@ def test_search_conversations_missing_user_id(
 
 # FILES
 def test_list_files(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
+    session_client: TestClient, session: Session, user: User
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     files = [
@@ -561,7 +561,7 @@ def test_list_files(
 
 
 def test_list_files_no_files(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
+    session_client: TestClient, session: Session, user: User
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get(
@@ -574,7 +574,7 @@ def test_list_files_no_files(
 
 
 def test_list_files_missing_user_id(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
+    session_client: TestClient, session: Session, user: User
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get(f"/v1/conversations/{conversation.id}/files")
@@ -584,7 +584,7 @@ def test_list_files_missing_user_id(
 
 
 def test_batch_upload_file_existing_conversation(
-    session_client: TestClient, session: Session, user, mock_compass_settings
+    session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
@@ -625,7 +625,7 @@ def test_batch_upload_file_existing_conversation(
 
 
 def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
-    session_client: TestClient, session: Session, user, mock_compass_settings
+    session_client: TestClient, session: Session, user
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
@@ -679,7 +679,7 @@ def test_batch_upload_file_nonexistent_conversation_creates_new_conversation(
 
 
 def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provided(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
+    session_client: TestClient, session: Session, user: User
 ) -> None:
     file_paths = {
         "Mariana_Trench.pdf": "src/backend/tests/unit/test_data/Mariana_Trench.pdf",
@@ -702,7 +702,6 @@ def test_delete_file(
     session_client: TestClient,
     session: Session,
     user: User,
-    mock_compass_settings,
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     files = [
@@ -752,7 +751,7 @@ def test_delete_file(
 
 
 def test_fail_delete_nonexistent_file(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
+    session_client: TestClient, session: Session, user: User
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.delete(
@@ -765,7 +764,7 @@ def test_fail_delete_nonexistent_file(
 
 
 def test_fail_delete_file_missing_user_id(
-    session_client: TestClient, session: Session, user: User, mock_compass_settings
+    session_client: TestClient, session: Session, user: User
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     file = get_factory("File", session).create(

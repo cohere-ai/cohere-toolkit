@@ -30,10 +30,6 @@ class MetricsMessageType(str, Enum):
     RERANK_API_FAIL = "rerank_api_call_failure"
     # pending implementation
     ENV_LIVENESS = "env_liveness"
-    COMPASS_NEW_INDEX = "compass_new_index"
-    COMPASS_REMOVE_INDEX = "compass_remove_index"
-    COMPASS_NEW_USER = "compass_new_user"
-    COMPASS_REMOVE_USER = "compass_remove_user"
     UNKNOWN_SIGNAL = "unknown"
 
 
