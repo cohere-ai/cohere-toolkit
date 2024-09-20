@@ -1,0 +1,89 @@
+## Config parameters explanation
+
+- Configuration consists of two parts: configuration.yaml and secrets.yaml.
+    - **configuration.yaml** contains the configuration of the toolkit, and 
+    - **secrets.yaml** contains the secrets( API keys, etc) required for the toolkit to run.
+
+- The configuration.yaml file contains the following fields:
+  - deployments - Deployment configurations
+    - enabled_deployments - Deployments that are available in the toolkit. All deployments are listed in the src/backend/model_deployments folder
+      Community deployments are listed in the src/backend/community/model_deployments folder.
+    - default_deployment - Default deployment which is used when the user does not specify a deployment.
+    - sagemaker - Sagemaker configurations
+      - region_name - Region name
+      - endpoint_name - Endpoint name
+    - azure - Azure configurations
+    - bedrock - Bedrock configurations
+      - region_name - Region name
+    - single_container - Single container configurations
+      - model - Model name
+      - url - URL of the model
+  - database - Database configurations
+     - url - URL of the database, for example, postgresql+psycopg2://postgres:postgres@db:5432
+  - redis - Redis configurations
+     - url - URL of the redis, for example, redis://:redis@redis:6379
+  - tools - Tool configurations
+     - enabled_tools - these are the tools that are enabled for the toolkit. The full list of tools can be found in the src/backend/config/tools.py file.
+       The community tools are listed in the src/community/config/tools.py file. Please note that the tools availability is checked too.
+     - python_interpreter - Python interpreter configurations
+       - url - URL of the python interpreter tool
+  - feature_flags - Feature flags configurations
+       - use_experimental_langchain - Use tools based on the langchain
+       - use_agents_view - Use agents view - if set to true, the frontend agents view will be available. 
+         Please note that this setting is available only for the Coral web frontend. To change which frontend is used, set the context in the docker-compose file. 
+       - use_community_features - Use community features, if set to true, the community tools and deployments will be available
+  - auth - Auth configurations
+      - enabled_auth - Enabled auth configurations - all available auth configurations are listed in the src/backend/config/auth.py file (basic, google_oauth, oidc)
+      - backend_hostname - API hostname used for the auth
+      - frontend_hostname - Frontend hostname
+  - logger - Logger configurations
+      - strategy - Logger strategy - structlog
+      - renderer - Logger renderer - console
+      - level - Logger level - info The list of available levels is listed [here](https://docs.python.org/3/library/logging.html#levels)
+  - sync - Sync configurations for the celery worker
+      - broker_url - Broker URL
+      - worker_concurrency - Worker concurrency
+
+- The secrets.yaml file contains the following fields:
+  - auth - secrets for the auth strategies
+    - secret_key - Secret key for basic auth
+    - oidc - OIDC secrets
+      - client_id - Client ID
+      - client_secret - Client secret
+      - well_known_endpoint - Well known endpoint
+    - google_oauth - Google OAuth secrets
+      - client_id - Client ID
+      - client_secret - Client secret
+    - scim - System for Cross-domain Identity Management (SCIM) secrets
+      - username - Username
+      - password - Password
+  - tools - secrets for the tools
+    - tavily - Tavily secrets
+      - api_key - Tavily API key
+    - wolfram_alpha - Wolfram Alpha secrets
+      - app_id - Wolfram App ID
+    - google_drive - Google Drive secrets
+      - client_id - Client ID
+      - client_secret - Client secret
+      - developer_key - Developer key
+    - brave_web_search - Brave web search secrets
+      - api_key - Brave API key
+    - database - Database secrets
+      - migrate_token - Migrate token - used for the database migrations endpoint authentication
+    - deployments - Deployment secrets
+      - cohere_platform - Cohere platform secrets
+        - api_key - Cohere platform API key 
+      - sagemaker - Sagemaker secrets
+        - access_key - Sagemaker Access key 
+        - secret_key - Sagemaker Secret key
+        - session_token - Sagemaker Session token
+      - azure - Azure secrets
+        - api_key - Azure API key 
+      - bedrock - Bedrock secrets
+        - access_key - Bedrock Access key
+        - secret_key - Bedrock Secret key
+        - session_token - Bedrock Session token
+      - carbon - Carbon secrets
+        - api_key - Carbon API key
+        - webhook_signing_secret - Webhook signing secret
+    
