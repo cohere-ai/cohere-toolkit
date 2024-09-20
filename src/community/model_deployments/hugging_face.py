@@ -46,7 +46,7 @@ class HuggingFaceDeployment(BaseDeployment):
             model_id = self.DEFAULT_MODELS[0]
 
         tokenizer = AutoTokenizer.from_pretrained(model_id)
-        model = AutoModelForCausalLM.from_pretrained(model_id)
+        model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto")
 
         # Format message with the command-r-plus chat template
         messages = self._build_chat_history(
@@ -103,7 +103,7 @@ class HuggingFaceDeployment(BaseDeployment):
         for message in chat_history:
             messages.append({"role": message["role"], "content": message["message"]})
 
-        messages.append({"role": "USER", "content": message})
+        messages.append({"role": "user", "content": message})
 
         return messages
 
