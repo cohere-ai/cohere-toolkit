@@ -1,3 +1,4 @@
+import re
 from typing import Any, Dict, List
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -63,7 +64,7 @@ class HuggingFaceDeployment(BaseDeployment):
             temperature=0.3,
         )
 
-        gen_text = tokenizer.decode(gen_tokens[0])
+        gen_text = self.clean_text(tokenizer.decode(gen_tokens[0]))
 
         return {"text": gen_text}
 
@@ -71,7 +72,13 @@ class HuggingFaceDeployment(BaseDeployment):
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
         """
-        Built in streamming is not supported, so this function wraps the invoke_chat function to return a single response.
+        Built in streamming is not supported, so this function wraps the invoke_chat function
+        to return a single response.
+
+        Args:
+            chat_request: Chat request
+            ctx: Context
+            **kwargs: Additional arguments
         """
         yield {
             "event_type": StreamEvent.STREAM_START,
@@ -98,6 +105,16 @@ class HuggingFaceDeployment(BaseDeployment):
     def _build_chat_history(
         self, chat_history: List[ChatMessage], message: str
     ) -> List[Dict[str, Any]]:
+        """
+        Build chat history for the model.
+
+        Args:
+            chat_history: Chat history
+            message: User message
+
+        Returns:
+            List[Dict[str, Any]]: Chat history
+        """
         messages = []
 
         for message in chat_history:
@@ -107,14 +124,16 @@ class HuggingFaceDeployment(BaseDeployment):
 
         return messages
 
+    def _clean_text(self, text: str) -> str:
+        """
+        Clean text by removing all text between <| and |> tags.
 
-if __name__ == "__main__":
-    hugging_face = HuggingFaceDeployment()
-    chat_request = CohereChatRequest(
-        chat_history=[
-            {"role": "USER", "message": "Hello!"},
-            {"role": "CHATBOT", "message": "Hi, how can I help you?"},
-        ],
-        message="How are you?",
-    )
-    response = hugging_face.invoke_chat(chat_request)
+        Args:
+            text: Text to clean
+
+        Returns:
+            str: Cleaned text
+        """
+        cleaned_text = re.sub(r'<\|USER_TOKEN\|>.*?<\|END_OF_TURN_TOKEN\|>', '', text)
+        cleaned_text = re.sub(r'<[^>]+>', '', cleaned_text)
+        return cleaned_text.strip()
