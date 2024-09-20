@@ -186,12 +186,12 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
         return
 
     managed_tools = [tool["name"] for tool in tools if tool["name"] in AVAILABLE_TOOLS]
-    if len(managed_tools) > 0 and len(tools) != len(managed_tools):
+    if managed_tools and len(tools) != len(managed_tools):
         raise HTTPException(
             status_code=400, detail="Cannot mix both managed and custom tools"
         )
 
-    if len(managed_tools) == 0:
+    if not managed_tools:
         for tool in tools:
             if not tool.get("description"):
                 raise HTTPException(

@@ -13,7 +13,7 @@ from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
-from backend.tools.google_drive.tool import GoogleDrive
+from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID
 
 from .constants import SCOPES
 
@@ -21,7 +21,7 @@ logger = LoggerFactory().get_logger()
 
 
 class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
-    TOOL_ID = GoogleDrive.NAME
+    TOOL_ID = GOOGLE_DRIVE_TOOL_ID
     AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
     TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
 
