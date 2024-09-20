@@ -8,7 +8,6 @@ from backend.model_deployments.base import BaseDeployment
 from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 BEDROCK_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
 BEDROCK_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"
@@ -80,7 +79,6 @@ class BedrockDeployment(BaseDeployment):
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> AsyncGenerator[Any, Any]:
@@ -95,7 +93,6 @@ class BedrockDeployment(BaseDeployment):
         for event in stream:
             yield to_dict(event)
 
-    @collect_metrics_rerank
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], ctx: Context
     ) -> Any:

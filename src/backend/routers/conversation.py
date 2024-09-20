@@ -24,7 +24,6 @@ from backend.schemas.file import (
     ListConversationFile,
     UploadConversationFileResponse,
 )
-from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 from backend.services.conversation import (
@@ -273,9 +272,6 @@ async def search_conversations(
     if agent_id:
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-    else:
-        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     conversations = conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
@@ -490,9 +486,6 @@ async def generate_title(
         agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-    else:
-        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     title, error = await generate_conversation_title(
         session,

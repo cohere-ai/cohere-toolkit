@@ -14,7 +14,6 @@ from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.langchain_chat import LangchainChatRequest
-from backend.schemas.metrics import DEFAULT_METRICS_AGENT, agent_to_metrics_agent
 from backend.services.agent import validate_agent_exists
 from backend.services.chat import (
     generate_chat_response,
@@ -68,10 +67,6 @@ async def chat_stream(
             AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
         ]
         ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
-
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-    else:
-        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     (
         session,
@@ -142,9 +137,6 @@ async def chat(
             AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
         ]
         ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-    else:
-        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
 
     (
         session,

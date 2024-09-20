@@ -10,38 +10,7 @@ from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.snapshot import Snapshot
-from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.tests.unit.factories import get_factory
-
-
-async def test_create_agent_metric(
-    session_client: TestClient, session: Session
-) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
-    request_json = {
-        "name": "test agent",
-        "version": 1,
-        "description": "test description",
-        "preamble": "test preamble",
-        "temperature": 0.5,
-        "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.post(
-            "/v1/agents", json=request_json, headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.user_id == user.id
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_CREATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
 
 
 def test_create_agent_missing_name(
@@ -367,58 +336,6 @@ def test_list_agents_with_pagination(
     assert response.status_code == 200
     response_agents = response.json()
     assert len(response_agents) == 1
-
-
-@pytest.mark.asyncio
-async def test_get_agent_metric(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
-    get_factory("AgentToolMetadata", session).create(
-        user_id=user.id,
-        agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
-        artifacts=[
-            {
-                "name": "/folder1",
-                "ids": "folder1",
-                "type": "folder_id",
-            },
-            {
-                "name": "file1.txt",
-                "ids": "file1",
-                "type": "file_id",
-            },
-        ],
-    )
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.get(
-            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
-        assert m_args.assistant.name == agent.name
-
-
-@pytest.mark.asyncio
-async def test_get_default_agent_metric(
-    session_client: TestClient, session: Session, user
-) -> None:
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.get("/v1/default_agent", headers={"User-Id": user.id})
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_ACCESSED
-        assert m_args.assistant.name == "Default Agent"
-
 
 def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
@@ -1015,23 +932,6 @@ def test_update_agent_change_visibility_to_private_delete_snapshot(
 
     snapshot = session.get(Snapshot, snapshot_id)
     assert snapshot is None
-
-
-def test_delete_agent_metric(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(user=user)
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.delete(
-            f"/v1/agents/{agent.id}", headers={"User-Id": user.id}
-        )
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_DELETED
-        assert m_args.assistant_id == agent.id
 
 
 def test_delete_public_agent(
