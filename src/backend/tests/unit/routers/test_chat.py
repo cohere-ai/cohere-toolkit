@@ -737,6 +737,99 @@ def test_streaming_chat_private_agent_by_another_user(
     assert response.json() == {"detail": f"Agent with ID {agent.id} not found."}
 
 
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_stream_regenerate_existing_chat(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
+
+    _ = get_factory("Message", session_chat).create(
+        conversation_id=conversation.id,
+        user_id=user.id,
+        agent="USER",
+        text="Hello",
+        position=1,
+        is_active=True,
+    )
+
+    _ = get_factory("Message", session_chat).create(
+        conversation_id=conversation.id,
+        user_id=user.id,
+        agent="CHATBOT",
+        text="Hi",
+        position=1,
+        is_active=True,
+    )
+
+    session_chat.refresh(conversation)
+
+    response = session_client_chat.post(
+        "/v1/chat-stream/regenerate",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        json={
+            "message": "",
+            "conversation_id": conversation.id,
+            "max_tokens": 10,
+        },
+    )
+
+    assert response.status_code == 200
+    validate_chat_streaming_response(
+        response, user, session_chat, session_client_chat, 2
+    )
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_stream_regenerate_not_existing_chat(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    conversation_id = "test_conversation_id"
+
+    response = session_client_chat.post(
+        "/v1/chat-stream/regenerate",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        json={
+            "message": "",
+            "conversation_id": conversation_id,
+            "max_tokens": 10,
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Conversation with ID: {conversation_id} not found."}
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_stream_regenerate_existing_chat_not_existing_user_messages(
+    session_client_chat: TestClient, session_chat: Session, user: User
+):
+    conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
+
+    session_chat.refresh(conversation)
+
+    response = session_client_chat.post(
+        "/v1/chat-stream/regenerate",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+        },
+        json={
+            "message": "",
+            "conversation_id": conversation.id,
+            "max_tokens": 10,
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Messages for user with ID: {user.id} not found."}
+
+
 # NON-STREAMING CHAT TESTS
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat(

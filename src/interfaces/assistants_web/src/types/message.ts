@@ -107,6 +107,10 @@ export const isUserMessage = (message: ChatMessage): message is UserMessage => {
   return message.type === MessageType.USER;
 };
 
+export const isBotMessage = (message: ChatMessage): message is BotMessage => {
+  return message.type === MessageType.BOT;
+};
+
 export const isFulfilledMessage = (message: ChatMessage): message is FulfilledMessage => {
   return message.type === MessageType.BOT && message.state === BotState.FULFILLED;
 };
