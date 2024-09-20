@@ -83,6 +83,7 @@ export class CohereClient {
     request,
     headers,
     agentId,
+    regenerate,
     signal,
     onOpen,
     onMessage,
@@ -93,6 +94,7 @@ export class CohereClient {
     headers?: Record<string, string>;
     agentId?: string;
     signal?: AbortSignal;
+    regenerate?: boolean;
     onOpen?: FetchEventSourceInit['onopen'];
     onMessage?: FetchEventSourceInit['onmessage'];
     onClose?: FetchEventSourceInit['onclose'];
@@ -103,7 +105,7 @@ export class CohereClient {
       ...chatRequest,
     });
 
-    const endpoint = `${this.getEndpoint('chat-stream')}${agentId ? `?agent_id=${agentId}` : ''}`;
+    const endpoint = this.getChatStreamEndpoint(regenerate, agentId);
     return await fetchEventSource(endpoint, {
       method: 'POST',
       headers: { ...this.getHeaders(), ...headers },
@@ -343,6 +345,20 @@ export class CohereClient {
 
   private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
+  }
+
+  private getChatStreamEndpoint(regenerate?: boolean, agentId?: string) {
+    let endpoint = this.getEndpoint('chat-stream');
+
+    if (regenerate) {
+      endpoint += '/regenerate';
+    }
+
+    if (agentId) {
+      endpoint += `?agent_id=${agentId}`;
+    }
+
+    return endpoint;
   }
 
   private getHeaders(omitContentType = false) {

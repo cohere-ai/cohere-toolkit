@@ -40,6 +40,7 @@ export * from './OneDrive';
 export * from './Paperclip';
 export * from './Pin';
 export * from './Profile';
+export * from './Regenerate';
 export * from './Search';
 export * from './Settings';
 export * from './Share';

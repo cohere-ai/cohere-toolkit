@@ -15,6 +15,7 @@ import { Breakpoint, useBreakpoint } from '@/hooks';
 import {
   type ChatMessage,
   isAbortedMessage,
+  isBotMessage,
   isErroredMessage,
   isFulfilledMessage,
   isFulfilledOrTypingMessage,
@@ -26,17 +27,29 @@ type Props = {
   isLast: boolean;
   message: ChatMessage;
   isStreamingToolEvents: boolean;
+  isReadOnly?: boolean;
   delay?: boolean;
   className?: string;
   onCopy?: VoidFunction;
   onRetry?: VoidFunction;
+  onRegenerate?: VoidFunction;
 };
 
 /**
  * Renders a single message row from the user or from our models.
  */
 export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowInternal(
-  { message, delay = false, isLast, isStreamingToolEvents, className = '', onCopy, onRetry },
+  {
+    message,
+    delay = false,
+    isLast,
+    isStreamingToolEvents,
+    isReadOnly = false,
+    className = '',
+    onCopy,
+    onRetry,
+    onRegenerate,
+  },
   ref
 ) {
   const breakpoint = useBreakpoint();
@@ -50,6 +63,8 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
       isAbortedMessage(message)) &&
     !!message.toolEvents &&
     message.toolEvents.length > 0;
+  const isRegenerationEnabled =
+    isLast && !isReadOnly && isBotMessage(message) && !isErroredMessage(message);
 
   const getMessageText = () => {
     if (isFulfilledMessage(message)) {
@@ -145,7 +160,23 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
                   onClick={() => setIsStepsExpanded((prevIsExpanded) => !prevIsExpanded)}
                 />
               )}
-              <CopyToClipboardIconButton value={getMessageText()} onClick={onCopy} />
+              {isRegenerationEnabled && (
+                <IconButton
+                  tooltip={{ label: 'Regenerate message' }}
+                  iconName="regenerate"
+                  className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
+                  iconClassName={cn(
+                    'text-volcanic-300 fill-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+                    'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800'
+                  )}
+                  onClick={onRegenerate}
+                />
+              )}
+              <CopyToClipboardIconButton
+                value={getMessageText()}
+                hoverDelay={{ open: 250 }}
+                onClick={onCopy}
+              />
             </div>
           </div>
         </div>

@@ -65,6 +65,7 @@ export const Input: React.FC<Props> = forwardRef<HTMLInputElement, Props>(
             <CopyToClipboardIconButton
               value={value ?? ''}
               disabled={!value?.trim()}
+              duration={1000}
               buttonClassName={cn(
                 'rounded outline-1 outline-offset-1 outline-volcanic-600',
                 'absolute right-2 top-1/2 -translate-y-1/2 transform',
