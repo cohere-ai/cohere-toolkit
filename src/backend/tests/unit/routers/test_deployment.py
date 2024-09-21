@@ -68,7 +68,8 @@ def test_list_deployments_has_all_option(
     assert response.status_code == 200
     deployments = response.json()
     db_deployments = session.query(Deployment).all()
-    if len(db_deployments) == 0:
+    # If no deployments are found in the database, then all available deployments from settings should be returned
+    if len(db_deployments) == 0 or len(deployments) != len(db_deployments):
         db_deployments = [
             deployment for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
         ]

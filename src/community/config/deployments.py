@@ -14,7 +14,7 @@ class ModelDeploymentName(StrEnum):
 
 AVAILABLE_MODEL_DEPLOYMENTS = {
     ModelDeploymentName.HuggingFace: Deployment(
-        id = "hugging_face",
+        id="hugging_face",
         name=ModelDeploymentName.HuggingFace,
         deployment_class=HuggingFaceDeployment,
         models=HuggingFaceDeployment.list_models(),
