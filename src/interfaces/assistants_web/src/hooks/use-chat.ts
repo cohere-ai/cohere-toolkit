@@ -69,8 +69,7 @@ export type HandleSendChat = (
     currentMessages?: ChatMessage[];
     suggestedMessage?: string;
   },
-  overrides?: ChatRequestOverrides,
-  regenerating?: boolean
+  overrides?: ChatRequestOverrides
 ) => Promise<void>;
 
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
@@ -78,7 +77,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { mutateAsync: streamChat } = chatMutation;
 
   const {
-    params: { temperature, tools, model, deployment, deploymentConfig, fileIds },
+    params: { temperature, preamble, tools, model, deployment, deploymentConfig, fileIds },
   } = useParamsStore();
   const {
     conversation: { id, messages },
@@ -558,6 +557,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
         .concat(DEFAULT_AGENT_TOOLS.map((defaultTool) => ({ name: defaultTool }))),
       file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
       temperature,
+      preamble,
       model,
       agent_id: agentId,
       ...restOverrides,
@@ -617,6 +617,34 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     }
   };
 
+  const handleRegenerate = async () => {
+    const latestUserMessageIndex = messages.findLastIndex((m) => m.type === MessageType.USER);
+
+    if (latestUserMessageIndex === -1 || isStreaming) {
+      return;
+    }
+
+    if (composerFiles.length > 0) {
+      await queryClient.invalidateQueries({ queryKey: ['listFiles'] });
+    }
+
+    const newMessages = messages.slice(0, latestUserMessageIndex + 1);
+
+    const request = getChatRequest('');
+
+    const headers = {
+      'Deployment-Name': deployment ?? '',
+      'Deployment-Config': deploymentConfig ?? '',
+    };
+
+    await handleStreamConverse({
+      newMessages,
+      request,
+      headers,
+      streamConverse: streamChat,
+    });
+  };
+
   const handleStop = () => {
     if (!isStreaming) return;
     abortController.current?.abort(ABORT_REASON_USER);
@@ -639,6 +667,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     handleSend: handleChat,
     handleStop,
     handleRetry,
+    handleRegenerate,
     streamingMessage,
     setPendingMessage,
     setUserMessage,

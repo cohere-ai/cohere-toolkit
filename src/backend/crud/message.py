@@ -129,6 +129,23 @@ def delete_message(db: Session, message_id: str, user_id: str) -> None:
     db.commit()
 
 
+@validate_transaction
+def delete_messages(db: Session, message_ids: list[str], user_id: str) -> None:
+    """
+    Delete messages by IDs.
+
+    Args:
+        db (Session): Database session.
+        message_ids (list[str]): Message IDs.
+        user_id (str): User ID.
+    """
+    messages = db.query(Message).filter(
+        Message.id.in_(message_ids), Message.user_id == user_id
+    )
+    messages.delete()
+    db.commit()
+
+
 def create_message_file_association(
     db: Session, message_file_association: MessageFileAssociation
 ) -> MessageFileAssociation:

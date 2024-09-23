@@ -285,7 +285,8 @@ Run type checker:
 You have two methods to set up the environment variables:
 
 1. Run `make setup` and follow the instructions to configure it.
-2. Copy the contents of `configuration.template.yaml` and `secrets.template.yaml` files to new `configuration.yaml` and `secrets.yaml` files.
+2. Copy the contents of `configuration.template.yaml` and `secrets.template.yaml` files to new `configuration.yaml` and `secrets.yaml` files. 
+   The explanation of each field is provided [here](config_details/config_description.md). 
 
 ### Setting up Your Local Database
 
