@@ -104,8 +104,9 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
-include=[
-  "",
+include = [
+  "src/backend/services/metrics.py", 
+  "src/backend/tools/google_drive/sync/actions/",
 ]
 defineConstant = { DEBUG = true }
 reportMissingImports = true
