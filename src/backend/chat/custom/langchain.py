@@ -47,11 +47,13 @@ class LangChainChat(BaseChat):
 
             if not tool:
                 logger.error(event=f"Failed to find tool {req_tool.name} during Langchain chat call.")
+                continue
 
             if not hasattr(tool.implementation, "to_langchain_tool"):
                 logger.error(event=f"Tool {req_tool.name} does not have to_langchain_tool method implemented.")
+                continue
 
-                tools.append(tool.implementation().to_langchain_tool())
+            tools.append(tool.implementation().to_langchain_tool())
 
         # Create Cohere assistant
         agent = create_cohere_react_agent(
