@@ -139,10 +139,6 @@ async def regenerate_chat_stream(
         ]
         ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
 
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
-    else:
-        ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
-
     (
         session,
         chat_request,
