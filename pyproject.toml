@@ -105,6 +105,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 include=[
+  "",
 ]
 defineConstant = { DEBUG = true }
 reportMissingImports = true
