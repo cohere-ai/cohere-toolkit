@@ -6,14 +6,15 @@ from backend.chat.base import BaseChat
 from backend.chat.custom.tool_calls import async_call_tools
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
-from backend.config.tools import AVAILABLE_TOOLS, ToolName
+from backend.config.tools import AVAILABLE_TOOLS
 from backend.database_models.file import File
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.chat import ChatMessage, ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from backend.schemas.tool import Tool
+from backend.schemas.tool import Category, Tool
 from backend.services.file import get_file_service
+from backend.tools.utils.tools_checkers import tool_has_category
 
 MAX_STEPS = 15
 
@@ -143,19 +144,20 @@ class CustomChat(BaseChat):
     ):
         logger = ctx.get_logger()
         managed_tools = self.get_managed_tools(chat_request)
+        managed_tools_full_schema = self.get_managed_tools(chat_request, full_schema=True)
         session = kwargs.get("session")
         user_id = ctx.get_user_id()
         agent_id = ctx.get_agent_id()
 
-        tool_names = []
+        file_reader_tools_names = []
         if managed_tools:
             chat_request.tools = managed_tools
-            tool_names = [tool.name for tool in managed_tools]
+            file_reader_tools_names = [tool.name for tool in managed_tools_full_schema if tool_has_category(tool, Category.FileLoader)]
 
         # Get files if available
         all_files = []
         if chat_request.file_ids or chat_request.agent_id:
-            if ToolName.Read_File in tool_names or ToolName.Search_File in tool_names:
+            if file_reader_tools_names:
                 files = get_file_service().get_files_by_conversation_id(
                     session, user_id, ctx.get_conversation_id(), ctx
                 )
@@ -169,7 +171,7 @@ class CustomChat(BaseChat):
                 all_files = files + agent_files
 
         # Add files to chat history if there are any
-        # Otherwise, remove the Read_File and Search_File tools
+        # Otherwise, remove the Read_File and Search_File tools and all other FileReader tools
         if all_files:
             chat_request.chat_history = self.add_files_to_chat_history(
                 chat_request.chat_history,
@@ -180,7 +182,7 @@ class CustomChat(BaseChat):
             chat_request.tools = [
                 tool
                 for tool in chat_request.tools
-                if tool.name != ToolName.Read_File and tool.name != ToolName.Search_File
+                if tool.name not in file_reader_tools_names
             ]
 
         # Loop until there are no new tool calls
@@ -234,7 +236,14 @@ class CustomChat(BaseChat):
 
         chat_request.chat_history.extend(tool_results)
 
-    def get_managed_tools(self, chat_request: CohereChatRequest):
+    def get_managed_tools(self, chat_request: CohereChatRequest, full_schema=False):
+        if full_schema:
+            return [
+                AVAILABLE_TOOLS.get(tool.name)
+                for tool in chat_request.tools
+                if AVAILABLE_TOOLS.get(tool.name)
+            ]
+
         return [
             Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump())
             for tool in chat_request.tools

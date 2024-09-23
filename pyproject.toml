@@ -25,7 +25,6 @@ boto3 = "^1.0.0"
 httpx = {extras = ["http2"], version = "^0.27.0"}
 chromadb = "^0.4.16"
 cohere = "^5.5.7"
-llama-index = "^0.10.11"
 inquirer = "^3.2.4"
 langchain-community = "^0.0.32"
 langchain-cohere = "^0.1.1"
@@ -55,6 +54,9 @@ structlog = "^24.4.0"
 pyyaml = "^6.0.1"
 nltk = "^3.9.1"
 hyperframe = "^6.0.1"
+llama-index = "^0.11.10"
+llama-index-llms-cohere = "^0.3.0"
+llama-index-embeddings-cohere = "^0.2.1"
 
 [tool.poetry.group.dev]
 optional = true

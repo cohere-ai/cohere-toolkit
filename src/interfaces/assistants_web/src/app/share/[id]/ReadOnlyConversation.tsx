@@ -30,6 +30,7 @@ export const ReadOnlyConversation: React.FC<Props> = ({ title, messages }) => {
                 message={m}
                 isLast={i === messages.length - 1}
                 isStreamingToolEvents={false}
+                isReadOnly={true}
                 className="w-full max-w-full md:max-w-full"
               />
             </div>

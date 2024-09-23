@@ -6,6 +6,7 @@ export const mapToChatRequest = (request: CohereChatRequest): CohereChatRequest 
     agent_id: request.agent_id,
     message: request.message,
     model: request.model,
+    preamble: request.preamble,
     temperature: request.temperature ?? DEFAULT_CHAT_TEMPERATURE,
     conversation_id: request.conversation_id,
     documents: request.documents,
