@@ -17,6 +17,7 @@ class ConversationFactory(BaseFactory):
     text_messages = []
     agent_id = None
     organization_id = None
+    is_pinned = False
 
 
 class ConversationFileAssociationFactory(BaseFactory):

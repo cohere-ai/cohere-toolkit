@@ -6,6 +6,7 @@ import {
   ConversationPublic,
   ConversationWithoutMessages,
   DeleteConversationResponse,
+  ToggleConversationPinRequest,
   UpdateConversationRequest,
   useCohereClient,
 } from '@/cohere-client';
@@ -16,7 +17,12 @@ import { useNavigateToNewChat, useNotify } from '@/hooks';
 import { useConversationStore } from '@/stores';
 import { isAbortError } from '@/utils';
 
-export const useConversations = (params: { offset?: number; limit?: number; agentId?: string }) => {
+export const useConversations = (params: {
+  offset?: number;
+  limit?: number;
+  orderBy?: string;
+  agentId?: string;
+}) => {
   const client = useCohereClient();
 
   return useQuery<ConversationWithoutMessages[], ApiError>({
@@ -66,6 +72,22 @@ export const useEditConversation = () => {
     { request: UpdateConversationRequest; conversationId: string }
   >({
     mutationFn: ({ request, conversationId }) => client.editConversation(request, conversationId),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
+  });
+};
+
+export const useToggleConversationPin = () => {
+  const client = useCohereClient();
+  const queryClient = useQueryClient();
+  return useMutation<
+    ConversationWithoutMessages,
+    CohereNetworkError,
+    { request: ToggleConversationPinRequest; conversationId: string }
+  >({
+    mutationFn: ({ request, conversationId }) =>
+      client.toggleConversationPin(request, conversationId),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
