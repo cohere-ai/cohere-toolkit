@@ -21,7 +21,7 @@ class AgentToolMetadataFactory(BaseFactory):
                     ToolName.Read_File,
                     ToolName.Python_Interpreter,
                     ToolName.Calculator,
-                    ToolName.Tavily_Internet_Search,
+                    ToolName.Tavily_Web_Search,
                     ToolName.Google_Drive,
                 ],
             )

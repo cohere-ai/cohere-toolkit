@@ -53,6 +53,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
           conversationId: weeksAgoStr,
           title: weeksAgoStr,
           description: weeksAgoStr,
+          isPinned: false,
           agent: agents.find((agent) => agent.id === c.agent_id),
         });
       }
@@ -61,6 +62,7 @@ export const ConversationListPanelGroup: React.FC<Props> = ({
         conversationId: c.id,
         title: c.title,
         description: c.description,
+        isPinned: c.is_pinned,
         agent: agents.find((agent) => agent.id === c.agent_id),
       });
     });

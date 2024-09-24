@@ -11,6 +11,7 @@ import {
   CreateSnapshotRequest,
   CreateUser,
   Fetch,
+  ToggleConversationPinRequest,
   UpdateAgentRequest,
   UpdateConversationRequest,
   UpdateDeploymentEnv,
@@ -151,7 +152,12 @@ export class CohereClient {
     });
   }
 
-  public listConversations(params: { offset?: number; limit?: number; agentId?: string }) {
+  public listConversations(params: {
+    offset?: number;
+    limit?: number;
+    orderBy?: string;
+    agentId?: string;
+  }) {
     return this.cohereService.default.listConversationsV1ConversationsGet(params);
   }
 
@@ -172,6 +178,15 @@ export class CohereClient {
       conversationId: conversationId,
       requestBody,
     });
+  }
+
+  public toggleConversationPin(requestBody: ToggleConversationPinRequest, conversationId: string) {
+    return this.cohereService.default.toggleConversationPinV1ConversationsConversationIdTogglePinPut(
+      {
+        conversationId: conversationId,
+        requestBody,
+      }
+    );
   }
 
   public listTools({ agentId }: { agentId?: string | null }) {

@@ -914,6 +914,10 @@ export const $ConversationPublic = {
       ],
       title: 'Agent Id',
     },
+    is_pinned: {
+      type: 'boolean',
+      title: 'Is Pinned',
+    },
     total_file_size: {
       type: 'integer',
       title: 'Total File Size',
@@ -930,6 +934,7 @@ export const $ConversationPublic = {
     'files',
     'description',
     'agent_id',
+    'is_pinned',
     'total_file_size',
   ],
   title: 'ConversationPublic',
@@ -984,6 +989,10 @@ export const $ConversationWithoutMessages = {
       ],
       title: 'Agent Id',
     },
+    is_pinned: {
+      type: 'boolean',
+      title: 'Is Pinned',
+    },
     total_file_size: {
       type: 'integer',
       title: 'Total File Size',
@@ -999,6 +1008,7 @@ export const $ConversationWithoutMessages = {
     'files',
     'description',
     'agent_id',
+    'is_pinned',
     'total_file_size',
   ],
   title: 'ConversationWithoutMessages',
@@ -3010,6 +3020,18 @@ export const $StreamToolResult = {
   type: 'object',
   required: ['result', 'tool_name'],
   title: 'StreamToolResult',
+} as const;
+
+export const $ToggleConversationPinRequest = {
+  properties: {
+    is_pinned: {
+      type: 'boolean',
+      title: 'Is Pinned',
+    },
+  },
+  type: 'object',
+  required: ['is_pinned'],
+  title: 'ToggleConversationPinRequest',
 } as const;
 
 export const $Tool = {

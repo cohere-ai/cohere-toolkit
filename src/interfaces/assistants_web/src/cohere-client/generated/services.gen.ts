@@ -102,6 +102,8 @@ import type {
   SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
+  ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
+  ToggleConversationPinV1ConversationsConversationIdTogglePinPutResponse,
   ToolAuthV1ToolAuthGetResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
@@ -676,6 +678,7 @@ export class DefaultService {
    * Args:
    * offset (int): Offset to start the list.
    * limit (int): Limit of conversations to be listed.
+   * order_by (str): A field by which to order the conversations.
    * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
    * session (DBSessionDep): Database session.
    * request (Request): Request object.
@@ -685,6 +688,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.offset
    * @param data.limit
+   * @param data.orderBy
    * @param data.agentId
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
@@ -698,8 +702,34 @@ export class DefaultService {
       query: {
         offset: data.offset,
         limit: data.limit,
+        order_by: data.orderBy,
         agent_id: data.agentId,
       },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Toggle Conversation Pin
+   * @param data The data for the request.
+   * @param data.conversationId
+   * @param data.requestBody
+   * @returns ConversationWithoutMessages Successful Response
+   * @throws ApiError
+   */
+  public toggleConversationPinV1ConversationsConversationIdTogglePinPut(
+    data: ToggleConversationPinV1ConversationsConversationIdTogglePinPutData
+  ): CancelablePromise<ToggleConversationPinV1ConversationsConversationIdTogglePinPutResponse> {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v1/conversations/{conversation_id}/toggle-pin',
+      path: {
+        conversation_id: data.conversationId,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
       errors: {
         422: 'Validation Error',
       },

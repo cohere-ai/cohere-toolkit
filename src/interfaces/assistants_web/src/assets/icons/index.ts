@@ -38,6 +38,7 @@ export * from './Moon';
 export * from './NewMessage';
 export * from './OneDrive';
 export * from './Paperclip';
+export * from './Pin';
 export * from './Profile';
 export * from './Regenerate';
 export * from './Search';
