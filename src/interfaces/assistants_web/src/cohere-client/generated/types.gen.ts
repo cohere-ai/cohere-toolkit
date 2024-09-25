@@ -18,18 +18,6 @@ export type AgentPublic = {
   is_private: boolean | null;
 };
 
-export type AgentTaskResponse = {
-  task_id: string;
-  status: string;
-  result?: {
-    [key: string]: unknown;
-  } | null;
-  date_done: string;
-  exception_snippet?: string | null;
-  name: string;
-  retries: number;
-};
-
 export type AgentToolMetadata = {
   id: string;
   created_at: string;
@@ -169,7 +157,6 @@ export type ConversationFilePublic = {
   updated_at: string;
   conversation_id: string;
   file_name: string;
-  file_path: string;
   file_size?: number;
 };
 
@@ -224,6 +211,12 @@ export type CreateAgentToolMetadataRequest = {
   }>;
 };
 
+export type CreateGroup = {
+  schemas: Array<string>;
+  members: Array<GroupMember>;
+  displayName: string;
+};
+
 export type CreateOrganization = {
   name: string;
 };
@@ -236,13 +229,6 @@ export type CreateSnapshotResponse = {
   snapshot_id: string;
   link_id: string;
   messages: Array<Message>;
-};
-
-export type CreateUser = {
-  password?: string | null;
-  hashed_password?: (Blob | File) | null;
-  fullname: string;
-  email?: string | null;
 };
 
 export type DeleteAgent = unknown;
@@ -321,6 +307,12 @@ export type Document = {
   tool_name: string | null;
 };
 
+export type Email = {
+  primary: boolean;
+  value?: string | null;
+  type: string;
+};
+
 export type GenerateTitleResponse = {
   title: string;
   error?: string | null;
@@ -328,6 +320,31 @@ export type GenerateTitleResponse = {
 
 export type GenericResponseMessage = {
   message: string;
+};
+
+export type Group = {
+  schemas: Array<string>;
+  members: Array<GroupMember>;
+  displayName: string;
+  id: string;
+  meta: Meta;
+};
+
+export type GroupMember = {
+  value: string;
+  display: string;
+};
+
+export type GroupOperation = {
+  op: string;
+  path?: string | null;
+  value:
+    | {
+        [key: string]: string;
+      }
+    | Array<{
+        [key: string]: string;
+      }>;
 };
 
 export type HTTPValidationError = {
@@ -361,8 +378,21 @@ export type ListConversationFile = {
   updated_at: string;
   conversation_id: string;
   file_name: string;
-  file_path: string;
   file_size?: number;
+};
+
+export type ListGroupResponse = {
+  totalResults: number;
+  startIndex: number;
+  itemsPerPage: number;
+  Resources: Array<Group>;
+};
+
+export type ListUserResponse = {
+  totalResults: number;
+  startIndex: number;
+  itemsPerPage: number;
+  Resources: Array<backend__schemas__scim__User>;
 };
 
 export type Login = {
@@ -414,6 +444,12 @@ export enum MessageAgent {
   CHATBOT = 'CHATBOT',
 }
 
+export type Meta = {
+  resourceType: string;
+  created: string;
+  lastModified: string;
+};
+
 export type Model = {
   id: string;
   name: string;
@@ -443,6 +479,11 @@ export type ModelUpdate = {
   deployment_id?: string | null;
 };
 
+export type Name = {
+  givenName: string;
+  familyName: string;
+};
+
 export type NonStreamedChatResponse = {
   response_id: string | null;
   generation_id: string | null;
@@ -460,11 +501,28 @@ export type NonStreamedChatResponse = {
   error?: string | null;
 };
 
+export type Operation = {
+  op: string;
+  value: {
+    [key: string]: boolean;
+  };
+};
+
 export type Organization = {
   name: string;
   id: string;
   created_at: string;
   updated_at: string;
+};
+
+export type PatchGroup = {
+  schemas: Array<string>;
+  operations: Array<GroupOperation>;
+};
+
+export type PatchUser = {
+  schemas: Array<string>;
+  operations: Array<Operation>;
 };
 
 export type SearchQuery = {
@@ -679,19 +737,11 @@ export type UpdateOrganization = {
   name: string | null;
 };
 
-export type UpdateUser = {
-  password?: string | null;
-  hashed_password?: (Blob | File) | null;
-  fullname?: string | null;
-  email?: string | null;
-};
-
 export type UploadAgentFileResponse = {
   id: string;
   created_at: string;
   updated_at: string;
   file_name: string;
-  file_path: string;
   file_size?: number;
 };
 
@@ -701,22 +751,61 @@ export type UploadConversationFileResponse = {
   updated_at: string;
   conversation_id: string;
   file_name: string;
-  file_path: string;
   file_size?: number;
-};
-
-export type User = {
-  fullname: string;
-  email?: string | null;
-  id: string;
-  created_at: string;
-  updated_at: string;
 };
 
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
   type: string;
+};
+
+export type backend__schemas__scim__CreateUser = {
+  userName: string | null;
+  active: boolean | null;
+  schemas: Array<string>;
+  name: Name;
+  emails: Array<Email>;
+  externalId: string;
+};
+
+export type backend__schemas__scim__UpdateUser = {
+  userName: string | null;
+  active: boolean | null;
+  schemas: Array<string>;
+  emails: Array<Email>;
+  name: Name;
+};
+
+export type backend__schemas__scim__User = {
+  userName: string | null;
+  active: boolean | null;
+  schemas: Array<string>;
+  id: string;
+  externalId: string;
+  meta: Meta;
+};
+
+export type backend__schemas__user__CreateUser = {
+  password?: string | null;
+  hashed_password?: (Blob | File) | null;
+  fullname: string;
+  email?: string | null;
+};
+
+export type backend__schemas__user__UpdateUser = {
+  password?: string | null;
+  hashed_password?: (Blob | File) | null;
+  fullname?: string | null;
+  email?: string | null;
+};
+
+export type backend__schemas__user__User = {
+  fullname: string;
+  email?: string | null;
+  id: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type GetStrategiesV1AuthStrategiesGetResponse = Array<ListAuthStrategy>;
@@ -750,6 +839,12 @@ export type ChatStreamV1ChatStreamPostData = {
 
 export type ChatStreamV1ChatStreamPostResponse = Array<ChatResponseEvent>;
 
+export type RegenerateChatStreamV1ChatStreamRegeneratePostData = {
+  requestBody: CohereChatRequest;
+};
+
+export type RegenerateChatStreamV1ChatStreamRegeneratePostResponse = unknown;
+
 export type ChatV1ChatPostData = {
   requestBody: CohereChatRequest;
 };
@@ -763,30 +858,30 @@ export type LangchainChatStreamV1LangchainChatPostData = {
 export type LangchainChatStreamV1LangchainChatPostResponse = unknown;
 
 export type CreateUserV1UsersPostData = {
-  requestBody: CreateUser;
+  requestBody: backend__schemas__user__CreateUser;
 };
 
-export type CreateUserV1UsersPostResponse = User;
+export type CreateUserV1UsersPostResponse = backend__schemas__user__User;
 
 export type ListUsersV1UsersGetData = {
   limit?: number;
   offset?: number;
 };
 
-export type ListUsersV1UsersGetResponse = Array<User>;
+export type ListUsersV1UsersGetResponse = Array<backend__schemas__user__User>;
 
 export type GetUserV1UsersUserIdGetData = {
   userId: string;
 };
 
-export type GetUserV1UsersUserIdGetResponse = User;
+export type GetUserV1UsersUserIdGetResponse = backend__schemas__user__User;
 
 export type UpdateUserV1UsersUserIdPutData = {
-  requestBody: UpdateUser;
+  requestBody: backend__schemas__user__UpdateUser;
   userId: string;
 };
 
-export type UpdateUserV1UsersUserIdPutResponse = User;
+export type UpdateUserV1UsersUserIdPutResponse = backend__schemas__user__User;
 
 export type DeleteUserV1UsersUserIdDeleteData = {
   userId: string;
@@ -956,12 +1051,6 @@ export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData = {
 
 export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<Deployment>;
 
-export type GetAgentTasksV1AgentsAgentIdTasksGetData = {
-  agentId: string;
-};
-
-export type GetAgentTasksV1AgentsAgentIdTasksGetResponse = Array<AgentTaskResponse>;
-
 export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   agentId: string;
 };
@@ -1062,6 +1151,13 @@ export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteData = {
 
 export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse = DeleteOrganization;
 
+export type GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData = {
+  organizationId: string;
+};
+
+export type GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetResponse =
+  Array<backend__schemas__user__User>;
+
 export type CreateModelV1ModelsPostData = {
   requestBody: ModelCreate;
 };
@@ -1093,6 +1189,73 @@ export type DeleteModelV1ModelsModelIdDeleteData = {
 };
 
 export type DeleteModelV1ModelsModelIdDeleteResponse = DeleteModel;
+
+export type GetUsersScimV2UsersGetData = {
+  count?: number;
+  filter?: string | null;
+  startIndex?: number;
+};
+
+export type GetUsersScimV2UsersGetResponse = ListUserResponse;
+
+export type CreateUserScimV2UsersPostData = {
+  requestBody: backend__schemas__scim__CreateUser;
+};
+
+export type CreateUserScimV2UsersPostResponse = unknown;
+
+export type GetUserScimV2UsersUserIdGetData = {
+  userId: string;
+};
+
+export type GetUserScimV2UsersUserIdGetResponse = unknown;
+
+export type UpdateUserScimV2UsersUserIdPutData = {
+  requestBody: backend__schemas__scim__UpdateUser;
+  userId: string;
+};
+
+export type UpdateUserScimV2UsersUserIdPutResponse = unknown;
+
+export type PatchUserScimV2UsersUserIdPatchData = {
+  requestBody: PatchUser;
+  userId: string;
+};
+
+export type PatchUserScimV2UsersUserIdPatchResponse = unknown;
+
+export type GetGroupsScimV2GroupsGetData = {
+  count?: number;
+  filter?: string | null;
+  startIndex?: number;
+};
+
+export type GetGroupsScimV2GroupsGetResponse = ListGroupResponse;
+
+export type CreateGroupScimV2GroupsPostData = {
+  requestBody: CreateGroup;
+};
+
+export type CreateGroupScimV2GroupsPostResponse = unknown;
+
+export type GetGroupScimV2GroupsGroupIdGetData = {
+  groupId: string;
+};
+
+export type GetGroupScimV2GroupsGroupIdGetResponse = unknown;
+
+export type PatchGroupScimV2GroupsGroupIdPatchData = {
+  groupId: string;
+  requestBody: PatchGroup;
+};
+
+export type PatchGroupScimV2GroupsGroupIdPatchResponse = unknown;
+
+export type DeleteGroupScimV2GroupsGroupIdDeleteData = {
+  groupId: string;
+};
+
+export type DeleteGroupScimV2GroupsGroupIdDeleteResponse = void;
 
 export type HealthHealthGetResponse = unknown;
 
@@ -1189,6 +1352,21 @@ export type $OpenApiTs = {
       };
     };
   };
+  '/v1/chat-stream/regenerate': {
+    post: {
+      req: RegenerateChatStreamV1ChatStreamRegeneratePostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
   '/v1/chat': {
     post: {
       req: ChatV1ChatPostData;
@@ -1226,7 +1404,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: User;
+        200: backend__schemas__user__User;
         /**
          * Validation Error
          */
@@ -1239,7 +1417,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<User>;
+        200: Array<backend__schemas__user__User>;
         /**
          * Validation Error
          */
@@ -1254,7 +1432,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: User;
+        200: backend__schemas__user__User;
         /**
          * Validation Error
          */
@@ -1267,7 +1445,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: User;
+        200: backend__schemas__user__User;
         /**
          * Validation Error
          */
@@ -1627,21 +1805,6 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/agents/{agent_id}/tasks': {
-    get: {
-      req: GetAgentTasksV1AgentsAgentIdTasksGetData;
-      res: {
-        /**
-         * Successful Response
-         */
-        200: Array<AgentTaskResponse>;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
-  };
   '/v1/agents/{agent_id}/tool-metadata': {
     get: {
       req: ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData;
@@ -1868,6 +2031,21 @@ export type $OpenApiTs = {
       };
     };
   };
+  '/v1/organizations/{organization_id}/users': {
+    get: {
+      req: GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<backend__schemas__user__User>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
   '/v1/models': {
     post: {
       req: CreateModelV1ModelsPostData;
@@ -1930,6 +2108,144 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: DeleteModel;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/scim/v2/Users': {
+    get: {
+      req: GetUsersScimV2UsersGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: ListUserResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    post: {
+      req: CreateUserScimV2UsersPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/scim/v2/Users/{user_id}': {
+    get: {
+      req: GetUserScimV2UsersUserIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    put: {
+      req: UpdateUserScimV2UsersUserIdPutData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    patch: {
+      req: PatchUserScimV2UsersUserIdPatchData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/scim/v2/Groups': {
+    get: {
+      req: GetGroupsScimV2GroupsGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: ListGroupResponse;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    post: {
+      req: CreateGroupScimV2GroupsPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  '/scim/v2/Groups/{group_id}': {
+    get: {
+      req: GetGroupScimV2GroupsGroupIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    patch: {
+      req: PatchGroupScimV2GroupsGroupIdPatchData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    delete: {
+      req: DeleteGroupScimV2GroupsGroupIdDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        204: void;
         /**
          * Validation Error
          */
