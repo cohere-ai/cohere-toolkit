@@ -5,9 +5,10 @@ from pydantic import BaseModel, Field
 
 
 class Category(StrEnum):
-    FileLoader = "File loader"
     DataLoader = "Data loader"
+    FileLoader = "File loader"
     Function = "Function"
+    WebSearch = "Web search"
 
 
 class ToolInput(BaseModel):

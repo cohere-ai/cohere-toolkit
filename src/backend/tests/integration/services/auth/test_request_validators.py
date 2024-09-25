@@ -4,6 +4,7 @@ import pytest
 from fastapi import HTTPException, Request
 from sqlalchemy.orm import Session
 
+from backend.database_models.user import User
 from backend.services.auth.request_validators import validate_authorization
 
 
@@ -12,13 +13,20 @@ def test_validate_authorization_with_valid_request():
     request.headers.get.return_value = "Bearer fake_token"
     session = Mock(spec=Session)
     session.query.return_value.filter.return_value.first.return_value = None
+    mock_user = Mock(spec=User)
+    mock_user.id = "user-name"
+    mock_user.active = True
 
     with patch(
         "backend.services.auth.jwt.JWTService.decode_jwt",
-        return_value={"context": "test_context", "jti": "test_jti"},
+        return_value={"context": {"id": "user-name"}, "jti": "test_jti"},
     ):
-        result = validate_authorization(request, session=session)
-        assert isinstance(result, dict)
+        with patch(
+            "backend.crud.user.get_user",
+            return_value=mock_user,
+        ):
+            result = validate_authorization(request, session=session)
+            assert isinstance(result, dict)
 
 
 def test_validate_authorization_no_auth_header():

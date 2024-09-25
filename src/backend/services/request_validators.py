@@ -13,6 +13,9 @@ from backend.database_models.database import DBSessionDep
 from backend.model_deployments.utils import class_name_validator
 from backend.services.agent import validate_agent_exists
 from backend.services.auth.utils import get_header_user_id
+from backend.services.logger.utils import LoggerFactory
+
+logger = LoggerFactory().get_logger()
 
 
 def validate_deployment_model(deployment: str, model: str, session: DBSessionDep):
@@ -92,12 +95,14 @@ def validate_user_header(session: DBSessionDep, request: Request):
 
     user_id = get_header_user_id(request)
     if not user_id:
+        logger.error(event="User-Id required in request headers.")
         raise HTTPException(
             status_code=401, detail="User-Id required in request headers."
         )
 
     user = user_crud.get_user(session, user_id)
     if not user:
+        logger.error(event="User not found.", user_id=user_id)
         raise HTTPException(status_code=401, detail="User not found.")
 
 
@@ -291,15 +296,18 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     user_id = get_header_user_id(request)
     agent_id = request.path_params.get("agent_id")
     if not agent_id:
+        logger.error(event="Agent ID is required.")
         raise HTTPException(status_code=400, detail="Agent ID is required.")
 
     agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
     if not agent:
+        logger.error(event="Agent not found", agent_id=agent_id)
         raise HTTPException(
             status_code=404, detail=f"Agent with ID {agent_id} not found."
         )
 
     if agent.user_id != user_id:
+        logger.error(event="Agent does not belong to user.", agent_user_id=agent.user_id, user_id=user_id)
         raise HTTPException(
             status_code=401, detail=f"Agent with ID {agent_id} does not belong to user."
         )
@@ -310,16 +318,19 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     if tools:
         for tool in tools:
             if tool not in AVAILABLE_TOOLS:
+                logger.error(event="Tool not found.", tool=tool)
                 raise HTTPException(status_code=404, detail=f"Tool {tool} not found.")
 
     model, deployment = body.get("model"), body.get("deployment")
     # Model and deployment must be updated together to ensure compatibility
     if not model and deployment:
+        logger.error(event="If updating an agent's deployment type, the model must also be provided.")
         raise HTTPException(
             status_code=400,
             detail="If updating an agent's deployment type, the model must also be provided.",
         )
     elif model and not deployment:
+        logger.error(event="If updating an agent's model, the deployment must also be provided.")
         raise HTTPException(
             status_code=400,
             detail="If updating an agent's model, the deployment must also be provided.",

@@ -148,9 +148,7 @@ def test_update_agent_metric(session_client: TestClient, session: Session) -> No
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -189,9 +187,7 @@ def test_update_agent_mock_metrics(
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {
@@ -228,9 +224,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {

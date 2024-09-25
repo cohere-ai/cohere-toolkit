@@ -12,8 +12,9 @@ from backend.database_models.tool_auth import ToolAuth as ToolAuthModel
 from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import BaseToolAuthentication, ToolAuthenticationCacheMixin
+from backend.tools.base import BaseToolAuthentication
 from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID
+from backend.tools.utils.mixins import ToolAuthenticationCacheMixin
 
 from .constants import SCOPES
 
