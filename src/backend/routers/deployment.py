@@ -125,7 +125,7 @@ def list_deployments(
         for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
         if all or deployment.is_available
     ]
-    # if not config deployments, return db deployments
+    # If no config deployments found, return DB deployments
     if not available_deployments:
         available_deployments = available_db_deployments
 

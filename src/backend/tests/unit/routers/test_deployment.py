@@ -69,7 +69,7 @@ def test_list_deployments_has_all_option(
     deployments = response.json()
     db_deployments = session.query(Deployment).all()
     # If no deployments are found in the database, then all available deployments from settings should be returned
-    if len(db_deployments) == 0 or len(deployments) != len(db_deployments):
+    if not db_deployments or len(deployments) != len(db_deployments):
         db_deployments = [
             deployment for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
         ]
