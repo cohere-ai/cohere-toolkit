@@ -1,7 +1,14 @@
 from typing import List, Optional
 from uuid import uuid4
 
-from sqlalchemy import ForeignKey, Index, PrimaryKeyConstraint, String, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    ForeignKey,
+    Index,
+    PrimaryKeyConstraint,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database_models.base import Base
@@ -46,6 +53,7 @@ class Conversation(Base):
             ondelete="CASCADE",
         )
     )
+    is_pinned: Mapped[bool] = mapped_column(Boolean, default=False)
 
     @property
     def messages(self):

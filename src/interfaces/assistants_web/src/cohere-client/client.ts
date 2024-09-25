@@ -11,6 +11,7 @@ import {
   CreateSnapshotRequest,
   CreateUser,
   Fetch,
+  ToggleConversationPinRequest,
   UpdateAgentRequest,
   UpdateConversationRequest,
   UpdateDeploymentEnv,
@@ -82,6 +83,7 @@ export class CohereClient {
     request,
     headers,
     agentId,
+    regenerate,
     signal,
     onOpen,
     onMessage,
@@ -92,6 +94,7 @@ export class CohereClient {
     headers?: Record<string, string>;
     agentId?: string;
     signal?: AbortSignal;
+    regenerate?: boolean;
     onOpen?: FetchEventSourceInit['onopen'];
     onMessage?: FetchEventSourceInit['onmessage'];
     onClose?: FetchEventSourceInit['onclose'];
@@ -102,7 +105,7 @@ export class CohereClient {
       ...chatRequest,
     });
 
-    const endpoint = `${this.getEndpoint('chat-stream')}${agentId ? `?agent_id=${agentId}` : ''}`;
+    const endpoint = this.getChatStreamEndpoint(regenerate, agentId);
     return await fetchEventSource(endpoint, {
       method: 'POST',
       headers: { ...this.getHeaders(), ...headers },
@@ -149,7 +152,12 @@ export class CohereClient {
     });
   }
 
-  public listConversations(params: { offset?: number; limit?: number; agentId?: string }) {
+  public listConversations(params: {
+    offset?: number;
+    limit?: number;
+    orderBy?: string;
+    agentId?: string;
+  }) {
     return this.cohereService.default.listConversationsV1ConversationsGet(params);
   }
 
@@ -170,6 +178,15 @@ export class CohereClient {
       conversationId: conversationId,
       requestBody,
     });
+  }
+
+  public toggleConversationPin(requestBody: ToggleConversationPinRequest, conversationId: string) {
+    return this.cohereService.default.toggleConversationPinV1ConversationsConversationIdTogglePinPut(
+      {
+        conversationId: conversationId,
+        requestBody,
+      }
+    );
   }
 
   public listTools({ agentId }: { agentId?: string | null }) {
@@ -328,6 +345,20 @@ export class CohereClient {
 
   private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
+  }
+
+  private getChatStreamEndpoint(regenerate?: boolean, agentId?: string) {
+    let endpoint = this.getEndpoint('chat-stream');
+
+    if (regenerate) {
+      endpoint += '/regenerate';
+    }
+
+    if (agentId) {
+      endpoint += `?agent_id=${agentId}`;
+    }
+
+    return endpoint;
   }
 
   private getHeaders(omitContentType = false) {

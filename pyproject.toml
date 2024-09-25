@@ -25,7 +25,6 @@ boto3 = "^1.0.0"
 httpx = {extras = ["http2"], version = "^0.27.0"}
 chromadb = "^0.4.16"
 cohere = "^5.5.7"
-llama-index = "^0.10.11"
 inquirer = "^3.2.4"
 langchain-community = "0.2.12"
 langchain-cohere = "^0.1.1"
@@ -44,28 +43,19 @@ google_auth_oauthlib = "^1.2.0"
 google-auth-httplib2 = "^0.2.0"
 google-api-python-client = "^2.133.0"
 openpyxl = "^3.1.5"
-celery = {version = "^5.4.0", extras = ["gevent"]}
 kombu = "^5.3.7"
 watchdog = "^4.0.1"
 redis = {extras = ["hiredis"], version = "^5.0.7"}
 python-docx = "^1.1.2"
 python-calamine = "^0.2.3"
+pyarrow = "^17.0.0"
 structlog = "^24.4.0"
 pyyaml = "^6.0.1"
 nltk = "^3.9.1"
-
-[tool.poetry.group.compass]
-optional = false
-
-[tool.poetry.group.compass.dependencies]
-# Compass dependencies - To be removed once Compass is OSS
-fsspec = "2024.2.0"
-joblib = "*"
-pydantic = ">=2.6.3"
-python = ">=3.9,<3.12"
-requests = ">=2.25.0,<3.0.0"
-tenacity = "8.2.3"
-tqdm = ">=4.42.1"
+hyperframe = "^6.0.1"
+llama-index = "^0.11.10"
+llama-index-llms-cohere = "^0.3.0"
+llama-index-embeddings-cohere = "^0.2.1"
 
 [tool.poetry.group.dev]
 optional = true

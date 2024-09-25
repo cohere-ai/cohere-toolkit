@@ -85,6 +85,7 @@ export const useStreamChat = () => {
         const chatStreamParams = {
           request,
           headers,
+          regenerate: !request.message,
           signal: abortControllerRef.current.signal,
           onMessage: (event: EventSourceMessage) => {
             try {

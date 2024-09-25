@@ -24,6 +24,7 @@ from backend.database_models.message import (
     MessageFileAssociation,
 )
 from backend.database_models.tool_call import ToolCall as ToolCallModel
+from backend.schemas import CohereChatRequest
 from backend.schemas.agent import Agent
 from backend.schemas.chat import (
     BaseChatRequest,
@@ -156,6 +157,134 @@ def process_chat(
         next_message_position,
         ctx,
     )
+
+
+def process_message_regeneration(
+    session: DBSessionDep,
+    chat_request: CohereChatRequest,
+    request: Request,
+    ctx: Context,
+) -> tuple[Any, CohereChatRequest, Message, list[str], bool, Context]:
+    """
+    Process message regeneration.
+
+    Args:
+        session (DBSessionDep): Database session.
+        chat_request (CohereChatRequest): Chat request data.
+        request (Request): Request object.
+        ctx (Context): Context object.
+
+    Returns:
+        Tuple: Tuple containing necessary data to regenerate message.
+    """
+    ctx.with_deployment_config()
+
+    user_id = ctx.get_user_id()
+    agent_id = ctx.get_agent_id()
+
+    if agent_id:
+        agent = validate_agent_exists(session, agent_id, user_id)
+        ctx.with_agent(Agent.model_validate(agent))
+
+        # if tools are not provided in the chat request, use the agent's tools
+        if not chat_request.tools:
+            chat_request.tools = [Tool(name=tool) for tool in agent.tools]
+
+        # Set the agent settings in the chat request
+        chat_request.preamble = agent.preamble
+
+    conversation_id = chat_request.conversation_id
+    ctx.with_conversation_id(conversation_id)
+
+    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+    if not conversation:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation with ID: {conversation_id} not found."
+        )
+
+    last_user_message = get_last_message(conversation, user_id, MessageAgent.USER)
+
+    attach_files_to_messages(
+        session,
+        user_id,
+        last_user_message.id,
+        chat_request.file_ids
+    )
+
+    new_chatbot_message = create_message(
+        session,
+        chat_request,
+        conversation.id,
+        user_id,
+        last_user_message.position,
+        "",
+        MessageAgent.CHATBOT,
+        False,
+        id=str(uuid4()),
+    )
+
+    previous_chatbot_message_ids = [
+        message.id
+        for message in conversation.messages
+        if (
+                message.is_active
+                and message.user_id == user_id
+                and message.position == last_user_message.position
+                and message.agent == MessageAgent.CHATBOT
+        )
+    ]
+
+    chat_request.message = last_user_message.text
+    chat_request.conversation_id = ""
+    chat_request.chat_history = create_chat_history(
+        conversation, last_user_message.position, chat_request
+    )
+
+    managed_tools = (
+        len([tool.name for tool in chat_request.tools if tool.name in AVAILABLE_TOOLS]) > 0
+    )
+
+    return (
+        session,
+        chat_request,
+        new_chatbot_message,
+        previous_chatbot_message_ids,
+        managed_tools,
+        ctx
+    )
+
+
+def get_last_message(
+    conversation: Conversation, user_id: str, agent: MessageAgent
+) -> Message:
+    """
+       Retrieve the last message sent by a specific agent within a given conversation.
+
+       Args:
+           conversation (Conversation): The conversation containing the messages.
+           user_id (str): The user ID.
+           agent (MessageAgent): The agent whose last message is to be retrieved.
+
+       Returns:
+           Message: The last message sent by the agent.
+
+       Raises:
+           HTTPException: If there are no messages from the specified agent in the conversation.
+    """
+    agent_messages = [
+        message
+        for message in conversation.messages
+        if message.is_active and message.user_id == user_id and message.agent == agent
+    ]
+
+    if not agent_messages:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Messages for user with ID: {user_id} not found.",
+        )
+
+    return agent_messages[-1]
 
 
 def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
@@ -368,6 +497,7 @@ def update_conversation_after_turn(
     conversation_id: str,
     final_message_text: str,
     user_id: str,
+    previous_response_message_ids: list[str] | None = None,
 ) -> None:
     """
     After the last message in a conversation, updates the conversation description with that message's text
@@ -377,7 +507,12 @@ def update_conversation_after_turn(
         response_message (Message): Response message object.
         conversation_id (str): Conversation ID.
         final_message_text (str): Final message text.
+        user_id (str): The user ID.
+        previous_response_message_ids (list[str]): Previous response message IDs.
     """
+    if previous_response_message_ids:
+        message_crud.delete_messages(session, previous_response_message_ids, user_id)
+
     message_crud.create_message(session, response_message)
 
     # Update conversation description with final message
@@ -562,7 +697,12 @@ async def generate_chat_stream(
 
     if should_store:
         update_conversation_after_turn(
-            session, response_message, conversation_id, stream_end_data["text"], user_id
+            session,
+            response_message,
+            conversation_id,
+            stream_end_data["text"],
+            user_id,
+            kwargs.get("previous_response_message_ids")
         )
 
 

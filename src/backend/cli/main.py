@@ -11,6 +11,7 @@ from backend.cli.prompts import (
     update_variable_prompt,
 )
 from backend.cli.setters import (
+    delete_config_folders,
     write_config_files,
     write_env_file,
     write_template_config_files,
@@ -66,6 +67,9 @@ def start():
     write_env_file(secrets)
 
     # SET UP YAML CONFIG FILES
+    # Deal with strange edge case where there are preexisting configuration.yaml
+    # and secrets.yaml FOLDERS presents in the config folder - cause still unclear
+    delete_config_folders()
     write_template_config_files()
     write_config_files(secrets)
 

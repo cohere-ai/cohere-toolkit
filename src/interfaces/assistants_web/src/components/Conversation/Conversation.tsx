@@ -43,6 +43,7 @@ export const Conversation: React.FC<Props> = ({ agent, tools, startOptionsEnable
     handleSend: send,
     handleStop,
     handleRetry,
+    handleRegenerate,
   } = useChat({
     onSend: () => {
       if (welcomeGuideState !== WelcomeGuideStep.DONE) {
@@ -72,6 +73,7 @@ export const Conversation: React.FC<Props> = ({ agent, tools, startOptionsEnable
             isStreaming={isStreaming}
             isStreamingToolEvents={isStreamingToolEvents}
             onRetry={handleRetry}
+            onRegenerate={handleRegenerate}
             messages={messages}
             streamingMessage={streamingMessage}
             agentId={agent?.id}

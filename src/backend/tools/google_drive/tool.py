@@ -4,10 +4,17 @@ from google.auth.exceptions import RefreshError
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
-from backend.services.compass import Compass
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
 from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
+from backend.tools.google_drive.utils import (
+    extract_export_link,
+    extract_title,
+    extract_web_view_link,
+    get_service,
+    perform_get_batch,
+    process_shortcut_file,
+)
 
 logger = LoggerFactory().get_logger()
 
@@ -43,68 +50,15 @@ class GoogleDrive(BaseTool):
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         user_id = kwargs.get("user_id")
-        agent_id = kwargs["agent_id"]
-        index_name = "{}_{}".format(
-            agent_id if agent_id is not None else user_id, GOOGLE_DRIVE_TOOL_ID
-        )
         query = parameters.get("query", "").replace("'", "\\'")
 
-        compass = None
-        try:
-            compass = Compass(
-                compass_api_url=Settings().compass.api_url,
-                compass_parser_url=Settings().compass.parser_url,
-                compass_username=Settings().compass.username,
-                compass_password=Settings().compass.password,
-            )
-        except Exception as e:
-            logger.error(event=f"[Google Drive] Compass setup not found. {e}")
-            pass
-
-        if compass is not None:
-            # Compass setup found
-            # Query Compass
-            documents = []
-            documents = compass.invoke(
-                compass.ValidActions.SEARCH,
-                {
-                    "index": index_name,
-                    "query": query,
-                    # TODO filter on permissions
-                },
-            )
-            if documents.error:
-                raise Exception(
-                    f"Error getting documents for {query} with {documents.error}"
-                )
-
-            hits = documents.result["hits"]
-            chunks = sorted(
-                [
-                    {
-                        "text": chunk["content"]["text"],
-                        "score": chunk["score"],
-                        "url": hit["content"].get("url", ""),
-                        "title": hit["content"].get("title", ""),
-                    }
-                    for hit in hits
-                    for chunk in hit["chunks"]
-                ],
-                key=lambda x: x["score"],
-                reverse=True,
-            )[:SEARCH_LIMIT]
-            if chunks == []:
-                raise Exception(f"Compass no documents found for search query {query}")
-            return chunks
-        else:
-            # No compass setup
-            # Default to raw gdrive search
-            logger.info(event="[Google Drive] Defaulting to raw Google Drive search.")
-            agent_tool_metadata = kwargs["agent_tool_metadata"]
-            documents = await _default_gdrive_list_files(
-                user_id=user_id, query=query, agent_tool_metadata=agent_tool_metadata
-            )
-            return documents
+        # Search Google Drive
+        logger.info(event="[Google Drive] Defaulting to raw Google Drive search.")
+        agent_tool_metadata = kwargs["agent_tool_metadata"]
+        documents = await _default_gdrive_list_files(
+            user_id=user_id, query=query, agent_tool_metadata=agent_tool_metadata
+        )
+        return documents
 
 
 async def _default_gdrive_list_files(
@@ -115,15 +69,7 @@ async def _default_gdrive_list_files(
         NATIVE_SEARCH_MIME_TYPES,
         SEARCH_MIME_TYPES,
     )
-    from backend.tools.google_drive.sync.utils import (
-        extract_export_link,
-        extract_title,
-        extract_web_view_link,
-        get_service,
-        perform_get_batch,
-        process_shortcut_file,
-    )
-    from backend.tools.utils import async_download
+    from backend.tools.utils.async_download import async_perform
 
     (service, creds) = (
         get_service(api="drive", user_id=user_id)[key] for key in ("service", "creds")
@@ -212,7 +158,7 @@ async def _default_gdrive_list_files(
         file_id: extract_export_link(x) for file_id, x in native_files.items()
     }
     if id_to_urls:
-        id_to_texts = await async_download.async_perform(id_to_urls, creds.token)
+        id_to_texts = await async_perform(id_to_urls, creds.token)
 
     return [
         {

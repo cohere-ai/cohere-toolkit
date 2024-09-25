@@ -20,6 +20,7 @@ type Props = {
   streamingMessage: StreamingMessage | null;
   agentId?: string;
   onRetry: VoidFunction;
+  onRegenerate: VoidFunction;
   composer: ReactNode;
   conversationId?: string;
   scrollViewClassName?: string;
@@ -130,6 +131,7 @@ type MessagesProps = Props;
  */
 const Messages: React.FC<MessagesProps> = ({
   onRetry,
+  onRegenerate,
   messages,
   streamingMessage,
   agentId,
@@ -167,6 +169,7 @@ const Messages: React.FC<MessagesProps> = ({
                   streamingMessage.generationId === m.generationId,
               })}
               onRetry={onRetry}
+              onRegenerate={onRegenerate}
             />
           );
         })}

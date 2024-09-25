@@ -22,7 +22,8 @@ export type FileAccept =
   | 'application/json'
   | 'application/ld+json'
   | 'application/pdf'
-  | 'application/epub+zip';
+  | 'application/epub+zip'
+  | 'application/vnd.apache.parquet';
 
 type Props = {
   active: boolean;

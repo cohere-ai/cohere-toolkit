@@ -80,6 +80,11 @@ type CopyToClipboardIconButtonProps = {
   value: string;
   onClick?: React.MouseEventHandler<HTMLElement>;
   disabled?: boolean;
+  duration?: number;
+  hoverDelay?: {
+    open?: number;
+    close?: number;
+  };
   iconClassName?: string;
   buttonClassName?: string;
 };
@@ -89,6 +94,8 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
   value,
   onClick,
   disabled,
+  duration,
+  hoverDelay,
   iconClassName,
   buttonClassName,
 }) => {
@@ -112,10 +119,11 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
     <div>
       <Tooltip
         label={isCopied ? 'Copied!' : 'Copy'}
-        duration={1000}
+        duration={duration}
         size="sm"
         showOutline={false}
         hover
+        hoverDelay={hoverDelay}
         className="-translate-x-[40%]"
         buttonClassName={buttonClassName}
       >
