@@ -7,6 +7,11 @@ from pydantic import BaseModel, Field
 from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
 
 
+class AgentToolMetadataArtifactsType(StrEnum):
+    DOMAIN = "domain"
+    SITE = "site"
+
+
 class AgentVisibility(StrEnum):
     PRIVATE = "private"
     PUBLIC = "public"

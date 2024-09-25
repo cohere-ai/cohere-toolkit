@@ -1,19 +1,18 @@
 from typing import Any, Dict, List
 
-from langchain_community.tools.tavily_search import TavilySearchResults
 from tavily import TavilyClient
 
 from backend.config.settings import Settings
-from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.context import Context
+from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.tools.base import BaseTool
+from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
-class TavilyInternetSearch(BaseTool):
-    NAME = "web_search"
-    TAVILY_API_KEY = Settings().tools.tavily.api_key
+class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
+    NAME = "tavily_web_search"
+    TAVILY_API_KEY = Settings().tools.tavily_web_search.api_key
     POST_RERANK_MAX_RESULTS = 6
 
     def __init__(self):
@@ -23,50 +22,35 @@ class TavilyInternetSearch(BaseTool):
     def is_available(cls) -> bool:
         return cls.TAVILY_API_KEY is not None
 
-    def get_filtered_domains(self, session: DBSessionDep, ctx: Context) -> list[str]:
-        agent_id = ctx.get_agent_id()
-        user_id = ctx.get_user_id()
-
-        if not agent_id or not user_id:
-            # Default for Tavily is None
-            return []
-
-        agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata(
-            db=session,
-            agent_id=agent_id,
-            tool_name=self.NAME,
-            user_id=user_id,
-        )
-
-        if not agent_tool_metadata:
-            # Default for Tavily is None
-            return []
-
-        return [
-            artifact["domain"]
-            for artifact in agent_tool_metadata.artifacts
-            if "domain" in artifact
-        ]
-
     async def call(
         self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any
     ) -> List[Dict[str, Any]]:
+        logger = ctx.get_logger()
         # Gather search parameters
         query = parameters.get("query", "")
-        # Get domains set on Agent tool metadata artifacts
-        filter_domains = None
-        domains = self.get_filtered_domains(session, ctx)
 
-        if domains:
-            filter_domains = domains
+        # Get domain filtering from kwargs or set on Agent tool metadata
+        if "include_domains" in kwargs:
+            filtered_domains = kwargs.get("include_domains")
+        else:
+            filtered_domains = self.get_filters(
+                AgentToolMetadataArtifactsType.DOMAIN, session, ctx
+            )
 
         # Do search
-        result = self.client.search(
-            query=query, search_depth="advanced", include_raw_content=True, include_domains=filter_domains
-        )
+        try:
+            result = self.client.search(
+                query=query,
+                search_depth="advanced",
+                include_raw_content=True,
+                include_domains=filtered_domains,
+            )
+        except Exception as e:
+            logger.error(f"Failed to perform Tavily web search: {str(e)}")
+            raise Exception(f"Failed to perform Tavily web search: {str(e)}")
 
         if "results" not in result:
-            return []
+            return [{"No web results found"}]
 
         expanded = []
         for result in result["results"]:
@@ -133,19 +117,4 @@ class TavilyInternetSearch(BaseTool):
                 seen_urls.append(result["url"])
                 reranked.append(result)
 
-        return reranked[:self.POST_RERANK_MAX_RESULTS]
-
-    def to_langchain_tool(self) -> TavilySearchResults:
-        internet_search = TavilySearchResults()
-        internet_search.name = "internet_search"
-        internet_search.description = "Returns a list of relevant document snippets for a textual query retrieved from the internet."
-
-        # Pydantic v1 base model
-        from langchain_core.pydantic_v1 import BaseModel, Field
-
-        class TavilySearchInput(BaseModel):
-            query: str = Field(description="Query to search the internet with")
-
-        internet_search.args_schema = TavilySearchInput
-
-        return internet_search
+        return reranked[: self.POST_RERANK_MAX_RESULTS]
