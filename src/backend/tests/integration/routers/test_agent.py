@@ -1,4 +1,3 @@
-from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -7,7 +6,6 @@ from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
-from backend.schemas.metrics import MetricsData, MetricsMessageType
 from backend.tests.unit.factories import get_factory
 
 
@@ -138,88 +136,6 @@ def test_create_agent_missing_non_required_fields(
     assert agent.preamble == ""
     assert agent.temperature == 0.3
     assert agent.model == request_json["model"]
-
-
-def test_update_agent_metric(session_client: TestClient, session: Session) -> None:
-    user = get_factory("User", session).create(fullname="John Doe")
-    agent = get_factory("Agent", session).create(
-        name="test agent",
-        version=1,
-        description="test description",
-        preamble="test preamble",
-        temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
-    )
-
-    request_json = {
-        "name": "updated name",
-        "version": 2,
-        "description": "updated description",
-        "preamble": "updated preamble",
-        "temperature": 0.7,
-        "model": "command-r",
-        "deployment": ModelDeploymentName.CoherePlatform,
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.put(
-            f"/v1/agents/{agent.id}",
-            json=request_json,
-            headers={"User-Id": user.id},
-        )
-
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
-
-
-def test_update_agent_mock_metrics(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(
-        name="test agent",
-        version=1,
-        description="test description",
-        preamble="test preamble",
-        temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
-    )
-
-    request_json = {
-        "name": "updated name",
-        "version": 2,
-        "description": "updated description",
-        "preamble": "updated preamble",
-        "temperature": 0.7,
-        "model": "command-r",
-        "deployment": ModelDeploymentName.CoherePlatform,
-    }
-
-    with patch(
-        "backend.services.metrics.report_metrics",
-        return_value=None,
-    ) as mock_metrics:
-        response = session_client.put(
-            f"/v1/agents/{agent.id}",
-            json=request_json,
-            headers={"User-Id": user.id},
-        )
-
-        assert response.status_code == 200
-        m_args: MetricsData = mock_metrics.await_args.args[0].signal
-        assert m_args.message_type == MetricsMessageType.ASSISTANT_UPDATED
-        assert m_args.assistant.name == request_json["name"]
-        assert m_args.user.fullname == user.fullname
-
 
 def test_update_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(

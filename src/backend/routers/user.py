@@ -5,7 +5,6 @@ from backend.crud import user as user_crud
 from backend.database_models import User as UserModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
-from backend.schemas.metrics import MetricsMessageType
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 from backend.schemas.user import User as UserSchema
 from backend.services.context import get_context
@@ -31,8 +30,6 @@ async def create_user(
     Returns:
         User: Created user.
     """
-    ctx.with_event_type(MetricsMessageType.USER_CREATED)
-
     db_user = UserModel(**user.model_dump(exclude_none=True))
     db_user = user_crud.create_user(session, db_user)
 
@@ -122,7 +119,6 @@ async def update_user(
         HTTPException: If the user with the given ID is not found.
     """
     user = user_crud.get_user(session, user_id)
-    ctx.with_event_type(MetricsMessageType.USER_UPDATED)
 
     if not user:
         raise HTTPException(
@@ -156,7 +152,6 @@ async def delete_user(
     Raises:
         HTTPException: If the user with the given ID is not found.
     """
-    ctx.with_event_type(MetricsMessageType.USER_DELETED)
     user = user_crud.get_user(session, user_id)
 
     if not user:

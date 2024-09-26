@@ -29,7 +29,6 @@ from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
-from backend.services.metrics import MetricsMiddleware
 
 load_dotenv()
 
@@ -81,7 +80,6 @@ def create_app():
         allow_headers=["*"],
     )
     app.add_middleware(LoggingMiddleware)
-    app.add_middleware(MetricsMiddleware)
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
     app.add_exception_handler(SCIMException, scim_exception_handler)
 
