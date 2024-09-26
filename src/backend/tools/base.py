@@ -8,8 +8,6 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
-from backend.services.auth.crypto import encrypt
-from backend.services.cache import cache_get_dict, cache_put
 from backend.services.logger.utils import LoggerFactory
 
 logger = LoggerFactory().get_logger()
@@ -131,26 +129,6 @@ class BaseToolAuthentication:
                 event=f"BaseToolAuthentication: Error while deleting Tool Auth: {str(e)}"
             )
             raise
-
-
-class ToolAuthenticationCacheMixin:
-    def insert_tool_auth_cache(self, user_id: str, tool_id: str) -> str:
-        """
-        Generates a token from a composite string formed by user_id + tool_id, and stores it in
-        cache.
-        """
-        value = user_id + tool_id
-        # Encrypt value with Fernet and convert to string
-        key = encrypt(value).decode()
-
-        # Existing cache entry
-        if cache_get_dict(key):
-            return key
-
-        payload = {"user_id": user_id, "tool_id": tool_id}
-        cache_put(key, payload)
-
-        return key
 
 
 class ToolAuthException(Exception):
