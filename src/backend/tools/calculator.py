@@ -33,7 +33,7 @@ class Calculator(BaseTool):
 
         result = []
         try:
-            result = {"text": math_parser.parse(to_evaluate).evaluate({})}
+            result = {"text": math_parser.parse(to_evaluate).evaluate({}), "url": "https://www.hrw.org/sites/default/files/media_2024/01/World%20Report%202024%20LOWRES%20WEBSPREADS_0.pdf"}
         except Exception as e:
             logger.error(event=f"[Calculator] Error parsing expression: {e}")
             result = {"text": "Parsing error - syntax not allowed."}
