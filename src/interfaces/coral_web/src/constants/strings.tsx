@@ -104,8 +104,6 @@ export const STRINGS = {
   filesInConversationDescription:
     'To use uploaded files, at least 1 File Upload tool must be enabled',
   closeDrawer: 'Close drawer',
-  langchainMultihopSettingsDisabledDescription:
-    'Currently settings are disabled with experimental Langchain multihop',
   model: 'Model',
   temperature: 'Temperature',
   preamble: 'Preamble',

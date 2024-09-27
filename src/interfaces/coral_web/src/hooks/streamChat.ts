@@ -121,11 +121,7 @@ export const useStreamChat = () => {
           },
         };
 
-        if (experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN) {
-          await cohereClient.langchainChat(chatStreamParams);
-        } else {
-          await cohereClient.chat({ ...chatStreamParams });
-        }
+        await cohereClient.chat({ ...chatStreamParams });
       } catch (e) {
         if (isUnauthorizedError(e)) {
           await queryClient.invalidateQueries({ queryKey: ['defaultAPIKey'] });

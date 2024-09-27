@@ -37,6 +37,5 @@ export class CohereUnauthorizedError extends Error {
 export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 export type ExperimentalFeatures = {
-  USE_EXPERIMENTAL_LANGCHAIN: boolean;
   USE_AGENTS_VIEW: boolean;
 };

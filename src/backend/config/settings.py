@@ -96,12 +96,6 @@ class AuthSettings(BaseSettings, BaseModel):
 
 class FeatureFlags(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
-    use_experimental_langchain: Optional[bool] = Field(
-        default=False,
-        validation_alias=AliasChoices(
-            "USE_EXPERIMENTAL_LANGCHAIN", "use_experimental_langchain"
-        ),
-    )
     use_agents_view: Optional[bool] = Field(
         default=False,
         validation_alias=AliasChoices("USE_AGENTS_VIEW", "use_agents_view"),

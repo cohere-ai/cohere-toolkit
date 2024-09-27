@@ -3,7 +3,6 @@
 import { Dropdown, InputLabel, STYLE_LEVEL_TO_CLASSES, Slider, Text } from '@/components/Shared';
 import { STRINGS } from '@/constants/strings';
 import { useModels } from '@/hooks/deployments';
-import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSettingsDefaults } from '@/hooks/settings';
 import { useParamsStore } from '@/stores';
 import { cn } from '@/utils';
@@ -17,8 +16,6 @@ export const SettingsTab: React.FC = () => {
     setParams,
   } = useParamsStore();
   const defaults = useSettingsDefaults();
-  const { data: experimentalFeatures } = useExperimentalFeatures();
-  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { models } = useModels(deployment ?? '');
   const modelOptions = [
     {
@@ -35,16 +32,6 @@ export const SettingsTab: React.FC = () => {
       tools: defaults.tools,
     });
   };
-
-  if (isLangchainModeOn) {
-    return (
-      <div className="flex items-center justify-center px-5">
-        <Text styleAs="p-lg" className="select-none text-center text-volcanic-100">
-          {STRINGS.langchainMultihopSettingsDisabledDescription}
-        </Text>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">

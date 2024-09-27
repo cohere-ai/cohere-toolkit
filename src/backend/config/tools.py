@@ -126,7 +126,7 @@ ALL_TOOLS = {
                 "required": True,
             }
         },
-        is_visible=True,
+        is_visible=False,
         is_available=Calculator.is_available(),
         error_message="Calculator tool not available.",
         category=Category.Function,
@@ -239,14 +239,7 @@ ALL_TOOLS = {
 
 
 def get_available_tools() -> dict[ToolName, dict]:
-    langchain_tools = [ToolName.Python_Interpreter, ToolName.Tavily_Web_Search]
-    use_langchain_tools = Settings().feature_flags.use_experimental_langchain
     use_community_tools = Settings().feature_flags.use_community_features
-
-    if use_langchain_tools:
-        return {
-            key: value for key, value in ALL_TOOLS.items() if key in langchain_tools
-        }
 
     tools = ALL_TOOLS.copy()
     if use_community_tools:
