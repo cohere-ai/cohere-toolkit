@@ -1,6 +1,6 @@
 import datetime
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from fastapi import Request
 
