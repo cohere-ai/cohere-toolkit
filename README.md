@@ -11,6 +11,7 @@ Toolkit is a deployable all-in-one RAG application that enables users to quickly
 - [How to guides](/docs/how_to_guides.md)
   - [How to set up command model providers](/docs/command_model_providers.md)
   - [How to add tools](/docs/custom_tool_guides/tool_guide.md)
+  - [How to add auth to your tools](/docs/custom_tool_guides/tool_auth_guide.md)
   - [How to setup Google Drive](/docs/custom_tool_guides/google_drive.md)
   - [How to add authentication](/docs/auth_guide.md)
   - [How to deploy toolkit services](/docs/service_deployments.md)
