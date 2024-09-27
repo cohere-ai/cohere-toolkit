@@ -7,7 +7,7 @@ Custom tools will need to be built in the `community` folder. Make sure you've e
 
 ## Step 1: Choose a Tool to Implement
 
-You can take a tool implementation easily from: 
+You can take a tool code implementation easily from: 
 
 - LangChain
     - Tools: [Tools | 🦜️🔗 LangChain](https://python.langchain.com/docs/integrations/tools/)

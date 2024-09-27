@@ -54,18 +54,18 @@ You can now use both the Coral frontend and API with your connector.
 
 ## How to Set Up Web Search with the Toolkit
 
-To integrate Coral with web search, utilize the `Tavily_Internet_Search` tool by adding your API key to the configuration file. Alternatively, you can implement your own search provider or use an integration, such as LangChain, by following these [steps](custom_tool_guides/tool_guide.md).
+To integrate Coral with web search, utilize the `Tavily_Internet_Search` tool by adding your API key to the configuration file. Alternatively, you can implement your own search provider by following these [steps](custom_tool_guides/tool_guide.md).
 
 ## How to Set Up PDF Upload with the Toolkit
 
-For document uploads in Coral, use either `File_Upload_LlamaIndex` or `File_Upload_Langchain` (this requires a Cohere API key in the configuration file). You can also implement a custom document uploader or utilize an integration like LangChain by following the [steps here](custom_tool_guides/tool_guide.md).
+For document uploads in Coral, use `File_Upload_LlamaIndex` (this requires a Cohere API key in the configuration file). You can also implement a custom document uploader by following the [steps here](custom_tool_guides/tool_guide.md).
 
 ## How to Create Your Own Tools and Retrieval Sources
 
 The toolkit includes sample tools that you can copy to configure your own data sources, including:
 
-- **File Loaders**: Parses PDF files and performs RAG (Retrieval-Augmented Generation). Users can upload PDFs in the Toolkit UI, with LangChain used by default.
-- **Data Loaders**: Queries a data source and performs RAG on extracted documents using LangChain's WikiRetriever as an example.
+- **File Loaders**: Parses PDF files and performs RAG (Retrieval-Augmented Generation). Users can upload PDFs in the Toolkit UI.
+- **Data Loaders**: Queries a data source and performs RAG on extracted documents.
 - **Functions**: Includes tools like a Python interpreter and calculator.
 
 For guidance on creating your own tools or adding custom data sources, see the [tools and retrieval sources overview](custom_tool_guides/tool_guide.md).
@@ -73,31 +73,3 @@ For guidance on creating your own tools or adding custom data sources, see the [
 ## Theming and Customization
 
 To customize the Coral frontend, modify the theme, color scheme, font, and other styles. Refer to our guide on [Theming and Customization](/docs/theming.md).
-
-# Use Experimental Features
-
-**Please note that these features are experimental.**
-
-## LangChain MultiHop
-
-To enable chatting with multi-hop tool usage through LangChain, set the following in your `configuration.yaml` file:
-
-```yaml
-feature_flags:
-  use_experimental_langchain: true
-```
-
-Enabling this flag restricts tool usage to those with LangChain implementations, which must include a `to_langchain_tool()` function returning a LangChain-compatible tool. The Python interpreter and Tavily Internet search tools are included by default once the environment is set up.
-
-### Example API Call for LangChain:
-```bash
-curl --location 'http://localhost:8000/v1/langchain-chat' \
---header 'User-Id: me' \
---header 'Content-Type: application/json' \
---data '{
-    "message": "Tell me about the aya model",
-    "tools": [{"name": "Python_Interpreter"},{"name": "Internet_Search"}]
-}'
-```
-
-**Note**: Currently, citations are not supported in LangChain multi-hop.

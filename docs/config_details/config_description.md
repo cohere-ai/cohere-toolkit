@@ -28,7 +28,6 @@
      - python_interpreter - Python interpreter configurations
        - url - URL of the python interpreter tool
   - feature_flags - Feature flags configurations
-       - use_experimental_langchain - Use tools based on the langchain
        - use_agents_view - Use agents view - if set to true, the frontend agents view will be available. 
          Please note that this setting is available only for the Coral web frontend. To change which frontend is used, set the context in the docker-compose file. 
        - use_community_features - Use community features, if set to true, the community tools and deployments will be available

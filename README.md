@@ -61,7 +61,7 @@ To run this project using GitHub Codespaces, please refer to our [Codespaces Set
   - You can turn on the Assistants view that uses `src/interfaces/assistants_web` instead.
 - **Backend API** - in `src/backend` this follows a similar structure to the [Cohere Chat API](https://docs.cohere.com/reference/chat) but also include customizable elements: 
   - **Model** - you can customize with which provider you access Cohere's Command models. By default included in the toolkit is Cohere's Platform, Sagemaker, Azure, Bedrock, HuggingFace, local models. [More details here.](/docs/command_model_providers.md)
-  - **Retrieval**- you can customize tools and data sources that the application is run with. By default, we have configured a Langchain data retriever to test RAG on Wikipedia and your own uploaded documents. It is possible to add any tool including any tools or retrievers from LangChain or LlamaIndex. You can also use a connector you have created.
+  - **Retrieval**- you can customize tools and data sources that the application is run with.
 - **Service Deployment Guides** - we also include guides for how to deploy the toolkit services in production including with AWS, GCP and Azure. [More details here.](/docs/service_deployments.md)
 
 ## Contributing
