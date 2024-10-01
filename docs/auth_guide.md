@@ -1,24 +1,22 @@
 # Authentication
 
-Prior to setting up any authentication, we recommend setting up the base project using the `make first-run` command. If you've already done so, you can skip ahead.
+Prior to setting up any authentication, you will need to set up the base project using the `make first-run` command. If you've already done so, and both `configuration.yaml` and `secrets.yaml` files have been generated, you can skip ahead. 
 
 ## Adding Auth strategies
 
-By default, the Toolkit does not enforce any authentication strategies, but they can be enabled from `src/backend/config/auth.py`.
+By default, Toolkit does not enforce any authentication strategies. These can be enabled in your `configuration.yaml` by using the `auth.enabled_auth` list parameter and adding `basic`, `google_oauth` or `oidc`.
 
-This is the current list of implemented Auth strategies:
+For example:
 
-- BasicAuthentication: for email and password auth, no setup required.
+```bash
+auth:
+    enabled_auth:
+        - basic
+        - google_oauth
+        - oidc
+```
 
-- GoogleOAuth: for authentication with a Gmail account.
-    - Requires a GCP project.
-    - Requires setting up [Google OAuth 2.0](https://support.google.com/cloud/answer/6158849?hl=en).
-    - In your `secrets.yaml` file, update the `auth.google_oauth.client_id` and `auth.google_oauth.client_secret` variables.
-- OpenIDConnect: generic auth class for OpenIDConnectOAuth providers.
-    - Requires an OIDC app for your provider (Google, Microsoft, Amazon, etc.)
-    - In your `secrets.yaml` file, update the `auth.oidc.client_id`, `auth.oidc.client_secret`, and `auth.oidc.well_known_endpoint` variables.
-
-To enable one or more of these strategies, add them to the `ENABLED_AUTH_STRATEGIES` list in the `backend/config/auth.py` file, then add any required environment variables in your `secrets.yaml` file, then generate a secret key to be used as the `auth.secret_key` environment variable. This is used to encode and decode your access tokens for both login OAuth flows and Tool auth.
+Will enabled all 3 auth strategies. A `secret_key` must then be added to the `secrets.yaml` file for generating secure JWT tokens.
 
 To generate an appropriate production `auth.secret_key` value, you can use the following python code:
 
@@ -26,6 +24,21 @@ To generate an appropriate production `auth.secret_key` value, you can use the f
 import secrets
 print(secrets.token_hex(32))
 ```
+
+Individual strategies might still require additional configuration, see below for more details.
+
+## Available strategies
+
+- BasicAuthentication: for email and password auth, no setup required.
+
+- GoogleOAuth: for authentication with a Gmail account.
+    - Requires a GCP project.
+    - Requires setting up [Google OAuth 2.0](https://support.google.com/cloud/answer/6158849?hl=en).
+    - In your `secrets.yaml` file, update the `auth.google_oauth.client_id` and `auth.google_oauth.client_secret` variables.
+    
+- OpenIDConnect: generic auth class for OpenIDConnectOAuth providers.
+    - Requires an OIDC app for your provider (Google, Microsoft, Amazon, etc.)
+    - In your `secrets.yaml` file, update the `auth.oidc.client_id`, `auth.oidc.client_secret`, and `auth.oidc.well_known_endpoint` variables.
 
 ## Configuring your OAuth app's Redirect URI
 

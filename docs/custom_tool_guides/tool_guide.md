@@ -1,11 +1,13 @@
 # Custom Tools
 Follow these instructions to create your own custom tools.
 
+For information on how to add authentication to your tool, please refer to the [Tool Auth guide.](/docs/custom_tool_guides/tool_auth_guide.md)
+
 Custom tools will need to be built in the `community` folder. Make sure you've enabled the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` file by setting it to `true`.
 
 ## Step 1: Choose a Tool to Implement
 
-You can take a tool implementation easily from: 
+You can take a tool code implementation easily from: 
 
 - LangChain
     - Tools: [Tools | 🦜️🔗 LangChain](https://python.langchain.com/docs/integrations/tools/)

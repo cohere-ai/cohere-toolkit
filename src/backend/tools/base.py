@@ -1,6 +1,6 @@
 import datetime
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from fastapi import Request
 
@@ -116,9 +116,9 @@ class BaseToolAuthentication:
         self, request: Request, session: DBSessionDep, user_id: str
     ) -> str: ...
 
-    @abstractmethod
-    def get_token(self, user_id: str, session: DBSessionDep) -> Optional[str]:
-        return None
+    def get_token(self, session: DBSessionDep, user_id: str) -> str:
+        tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
+        return tool_auth.access_token if tool_auth else None
 
     def delete_tool_auth(self, session: DBSessionDep, user_id: str) -> bool:
         try:
@@ -129,7 +129,6 @@ class BaseToolAuthentication:
                 event=f"BaseToolAuthentication: Error while deleting Tool Auth: {str(e)}"
             )
             raise
-
 
 class ToolAuthException(Exception):
     def __init__(self, message, tool_id: str):
