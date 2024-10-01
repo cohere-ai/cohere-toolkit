@@ -47,6 +47,18 @@ MODELS_NAME_MAPPING = {
             "cohere_name": "c4ai-aya-23",
             "is_default": False,
         },
+        "c4ai-aya-23-35b": {
+            "cohere_name": "c4ai-aya-23-35b",
+            "is_default": False,
+        },
+        "command-r-08-2024": {
+            "cohere_name": "command-r-08-2024",
+            "is_default": False,
+        },
+        "command-r-plus-08-2024": {
+            "cohere_name": "command-r-plus-08-2024",
+            "is_default": False,
+        },
     },
     ModelDeploymentName.SingleContainer: {
         "command": {
@@ -75,6 +87,18 @@ MODELS_NAME_MAPPING = {
         },
         "c4ai-aya-23": {
             "cohere_name": "c4ai-aya-23",
+            "is_default": False,
+        },
+        "c4ai-aya-23-35b": {
+            "cohere_name": "c4ai-aya-23-35b",
+            "is_default": False,
+        },
+        "command-r-08-2024": {
+            "cohere_name": "command-r-08-2024",
+            "is_default": False,
+        },
+        "command-r-plus-08-2024": {
+            "cohere_name": "command-r-plus-08-2024",
             "is_default": False,
         },
     },
