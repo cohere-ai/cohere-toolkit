@@ -15,6 +15,8 @@ import { useIsAgentNameUnique, useListTools, useOpenGoogleDrivePicker } from '@/
 import { DataSourceArtifact } from '@/types/tools';
 import { cn, getToolAuthUrl } from '@/utils';
 
+import { ConfigStep } from './ConfigStep';
+
 type RequiredAndNotNull<T> = {
   [P in keyof T]-?: Exclude<T[P], null | undefined>;
 };
@@ -75,7 +77,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
   }, [defaultState, params, setFields]);
 
   const [currentStep, setCurrentStep] = useState<
-    'define' | 'dataSources' | 'tools' | 'visibility' | undefined
+    'define' | 'config' | 'dataSources' | 'tools' | 'visibility' | undefined
   >(() => (defaultStep ? 'dataSources' : 'define'));
 
   const [googleFiles, setGoogleFiles] = useState<DataSourceArtifact[]>(
@@ -193,15 +195,35 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           isNewAssistant={source === 'create'}
         />
         <StepButtons
+          handleNext={() => setCurrentStep('config')}
+          hide={source !== 'create'}
+          disabled={!!nameError}
+        />
+      </CollapsibleSection>
+      {/* Step 2: Assistant config - model */}
+      <CollapsibleSection
+        title="Configure your assistant"
+        number={2}
+        description="Specify your assistant's base model."
+        isExpanded={currentStep === 'config'}
+        setIsExpanded={(expanded) => setCurrentStep(expanded ? 'config' : undefined)}
+      >
+        <ConfigStep
+          fields={fields}
+          setFields={setFields}
+          nameError={nameError}
+          isNewAssistant={source === 'create'}
+        />
+        <StepButtons
           handleNext={() => setCurrentStep('dataSources')}
           hide={source !== 'create'}
           disabled={!!nameError}
         />
       </CollapsibleSection>
-      {/* Step 2: Data sources - google drive and file upload */}
+      {/* Step 3: Data sources - google drive and file upload */}
       <CollapsibleSection
         title="Add data sources"
-        number={2}
+        number={3}
         description="Build a robust knowledge base for the assistant by adding files, folders, and documents."
         isExpanded={currentStep === 'dataSources'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'dataSources' : undefined)}
@@ -223,10 +245,10 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           hide={source !== 'create'}
         />
       </CollapsibleSection>
-      {/* Step 3: Tools */}
+      {/* Step 4: Tools */}
       <CollapsibleSection
         title="Set default tools"
-        number={3}
+        number={4}
         description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
         isExpanded={currentStep === 'tools'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'tools' : undefined)}
@@ -242,10 +264,10 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           hide={source !== 'create'}
         />
       </CollapsibleSection>
-      {/* Step 4: Visibility */}
+      {/* Step 5: Visibility */}
       <CollapsibleSection
         title="Set visibility"
-        number={4}
+        number={5}
         description="Control who can access this assistant and its knowledge base."
         isExpanded={currentStep === 'visibility'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'visibility' : undefined)}
