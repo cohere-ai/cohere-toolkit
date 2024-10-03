@@ -84,10 +84,6 @@ const Login: React.FC = () => {
       <Text
         as="h1"
         styleAs="h3"
-        onClick={() => {
-          console.warn('Clicked title');
-          errors.push('Clicked title');
-        }}
       >
         Log in
       </Text>

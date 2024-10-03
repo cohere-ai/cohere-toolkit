@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { Text } from '@/components/UI';
-import { useAuthConfig, useSession } from '@/hooks';
+import { useAuthConfig, useNotify, useSession } from '@/hooks';
 import { getQueryString } from '@/utils';
 
 /**
@@ -19,6 +19,7 @@ const OauthCallback: React.FC = () => {
   const redirect = getQueryString(search.get('redirect_uri'));
   const code = getQueryString(search.get('code'));
   const { loginStrategies: ssoLogins } = useAuthConfig();
+  const notify = useNotify();
 
   const loginType = ssoLogins.find(
     (login) => encodeURIComponent(login.strategy.toLowerCase()) == params.strategy
@@ -39,6 +40,7 @@ const OauthCallback: React.FC = () => {
             router.push(redirect || '/');
           },
           onError: () => {
+            notify.error('Failed to validate Google OAuth credentials');
             router.push('/login');
           },
         }
@@ -56,6 +58,7 @@ const OauthCallback: React.FC = () => {
           router.push(redirect || '/');
         },
         onError: () => {
+          notify.error('Failed to validate OAuth credentials');
           router.push('/login');
         },
       }
