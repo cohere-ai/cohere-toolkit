@@ -10,7 +10,6 @@ from backend.model_deployments.utils import get_model_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
-from backend.services.metrics import collect_metrics_chat_stream, collect_metrics_rerank
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
 COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
@@ -55,11 +54,7 @@ class CohereDeployment(BaseDeployment):
             return []
 
         models = response.json()["models"]
-        return [
-            model["name"]
-            for model in models
-            if model.get("endpoints") and "chat" in model["endpoints"]
-        ]
+        return [model["name"] for model in models if model.get("endpoints") and "chat" in model["endpoints"]]
 
     @classmethod
     def is_available(cls) -> bool:
@@ -73,7 +68,6 @@ class CohereDeployment(BaseDeployment):
         )
         yield to_dict(response)
 
-    @collect_metrics_chat_stream
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
@@ -96,7 +90,6 @@ class CohereDeployment(BaseDeployment):
 
             yield event_dict
 
-    @collect_metrics_rerank
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
     ) -> Any:

@@ -210,7 +210,7 @@ class ToolSettings(BaseSettings, BaseModel):
 class DatabaseSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     url: Optional[str] = Field(
-        default=None, validation_alias=AliasChoices("DATABASE_URL", "url")
+        default="postgresql+psycopg2://postgres:postgres@db:5432", validation_alias=AliasChoices("DATABASE_URL", "url")
     )
     migrate_token: Optional[str] = Field(
         default=None, validation_alias=AliasChoices("MIGRATE_TOKEN", "migrate_token")

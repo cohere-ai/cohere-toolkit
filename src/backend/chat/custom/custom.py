@@ -67,11 +67,8 @@ class CustomChat(BaseChat):
                 if result:
                     yield result
 
-                if event[
-                    "event_type"
-                ] == StreamEvent.STREAM_END and self.is_final_event(
-                    event, chat_request
-                ):
+                if (event["event_type"] == StreamEvent.STREAM_END
+                and self.is_final_event(event, chat_request)):
                     logger.debug(event=f"Final event: {event}")
                     break
         except Exception as e:

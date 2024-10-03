@@ -132,12 +132,3 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
                 + datetime.timedelta(seconds=response_body["expires_in"]),
             ),
         )
-
-    @classmethod
-    def get_tool_auth(cls, session: DBSessionDep, user_id: str) -> ToolAuthModel:
-        tool_auth = tool_auth_crud.get_tool_auth(session, cls.TOOL_ID, user_id)
-        return tool_auth
-
-    def get_token(self, session: DBSessionDep, user_id: str) -> str:
-        tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
-        return tool_auth.access_token if tool_auth else None

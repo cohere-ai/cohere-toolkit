@@ -31,7 +31,6 @@ If you want to add a new tool, check the instructions on how to implement a retr
 Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 """
 
-
 class ToolName(StrEnum):
     Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
     Search_File = SearchFileTool.NAME

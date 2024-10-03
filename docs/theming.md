@@ -1,56 +1,53 @@
-# Theming and customization
+### Changing the Color Scheme, Font, and Other Styles
 
-## Changing the color scheme, font and other styles
+1. **Modify Existing Theme:**
+   - Update the color scheme in `src/interfaces/coral_web/src/themes/cohereTheme.js`:
+     ```js
+     primary: {
+       ...
+       600: '#E25D41',
+       500: '#AE4359', // Changed from default color
+       400: '#FF967E',
+       ...
+     },
+     ```
 
-To change the color scheme of the Coral frontend, there are a few options:
+2. **Add a New Theme:**
+   - Create a new theme file in the `src/interfaces/coral_web/src/themes` folder.
+   - Update `src/interfaces/coral_web/tailwind.config.js`:
+     ```js
+     module.exports = {
+       presets: [require('./src/themes/yourTheme')],
+       ...
+     }
+     ```
 
-- Modify the `src/interfaces/coral_web/src/themes/cohereTheme.js` with a new color scheme. For example, to change the primary color scheme:
+3. **Rebuild the Frontend:**
+   - After making changes, rebuild the frontend to apply updates.
 
-```js
-primary: {
-  ...
-  600: '#E25D41',
-  500: '#AE4359', // Changed from default color
-  400: '#FF967E',
-  ...
-},
-```
+### Changing the Logo
 
-- Add a new theme to the `src/interfaces/coral_web/src/themes` folder and update the `src/interfaces/coral_web/tailwind.config.js` to include the new theme:
+1. **Set Environment Variable:**
+   - In the `.env` file, set `NEXT_PUBLIC_HAS_CUSTOM_LOGO=true`.
 
-```js
-module.exports = {
-  presets: [require('./src/themes/yourTheme')],
-  ...
-}
-```
+2. **Modify Logo Component:**
+   - Update the logo display in `src/interfaces/coral_web/src/components/Shared/Logo.tsx`.
 
-Similarly, you can change the font, font size, and other styles in the theme file or add a new theme file.
+### Changing the Favicon and Metadata
 
-After updating the theme, you will need to rebuild the frontend to see the changes.
+1. **Update Favicon:**
+   - Replace `public/favicon.ico` with the new favicon file.
 
-## Changing the logo in the upper left corner
+2. **Modify Metadata:**
+   - Edit:
+     - `src/interfaces/coral_web/src/components/Shared/WebManifestHead.tsx`
+     - `src/interfaces/coral_web/src/components/Shared/GlobalHead/GlobalHead.tsx`
+     - `src/interfaces/coral_web/public/site.webmanifest`
 
-To change the logo in the upper left corner of the frontend, do the following:
+### Changing the Page Title
 
-1. Set the `NEXT_PUBLIC_HAS_CUSTOM_LOGO` environment variable to `true` in the `.env` file.
+- Update the `title` property in `src/interfaces/coral_web/src/components/Layout.tsx`.
 
-2. Modify the function in `src/interfaces/coral_web/src/components/Shared/Logo.tsx` to display the updated logo.
+### Customizing Language
 
-The default function displays the `/images/logo.png` file in the `public` folder if it exists and the `NEXT_PUBLIC_HAS_CUSTOM_LOGO` environment variable is set to `true`.
-
-## Changing the favicon and other metadata
-
-- To update the favicon, replace the existing file at `public/favicon.ico` with your new favicon file.
-- To modify the metadata, edit the following files:
-  - `src/interfaces/coral_web/src/components/Shared/WebManifestHead.tsx`
-  - `src/interfaces/coral_web/src/components/Shared/GlobalHead/GlobalHead.tsx`
-  - `src/interfaces/coral_web/public/site.webmanifest`
-
-## Changing the page title
-
-To update the page title, alter the `title` property in the file located at `src/interfaces/coral_web/src/components/Layout.tsx` to reflect your new title.
-
-## Using a different language
-
-To customize the UI in a different language, translate the labels located at `src/interfaces/coral_web/src/constants/strings.tsx`.
+- Translate UI labels in `src/interfaces/coral_web/src/constants/strings.tsx`.

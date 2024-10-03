@@ -7,7 +7,6 @@ from backend.crud import user as user_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas import Organization
 from backend.schemas.agent import Agent, AgentToolMetadata
-from backend.schemas.metrics import MetricsAgent, MetricsMessageType, MetricsUser
 from backend.schemas.user import User
 from backend.services.logger.utils import LoggerFactory
 from backend.services.utils import get_deployment_config
@@ -19,7 +18,6 @@ class Context(BaseModel):
     receive: Optional[dict] = {}
     trace_id: str = "default"
     user_id: str = "default"
-    event_type: MetricsMessageType = None
     user: Optional[User] = None
     agent: Optional[Agent] = None
     agent_tool_metadata: Optional[AgentToolMetadata] = None
@@ -33,10 +31,6 @@ class Context(BaseModel):
     organization_id: Optional[str] = None
     organization: Optional[Organization] = None
     use_global_filtering: Optional[bool] = False
-
-    # Metrics
-    metrics_user: Optional[MetricsUser] = None
-    metrics_agent: Optional[MetricsAgent] = None
 
     def __init__(self):
         super().__init__()
@@ -69,10 +63,6 @@ class Context(BaseModel):
     def with_deployment_name(self, deployment_name: str):
         self.deployment_name = deployment_name
 
-    def with_event_type(self, event_type: MetricsMessageType) -> "Context":
-        self.event_type = event_type
-        return self
-
     def with_user(
         self, session: DBSessionDep | None = None, user: User | None = None
     ) -> "Context":
@@ -84,19 +74,12 @@ class Context(BaseModel):
             user = User.model_validate(user)
 
         if user:
-            self.metrics_user = MetricsUser(
-                id=user.id, email=user.email, fullname=user.fullname
-            )
             self.user = user
 
         return self
 
     def with_agent(self, agent: Agent | None) -> "Context":
         self.agent = agent
-        return self
-
-    def with_metrics_agent(self, metrics_agent: MetricsAgent) -> "Context":
-        self.metrics_agent = metrics_agent
         return self
 
     def with_agent_tool_metadata(
@@ -186,12 +169,6 @@ class Context(BaseModel):
 
     def get_event_type(self):
         return self.event_type
-
-    def get_metrics_user(self):
-        return self.metrics_user
-
-    def get_metrics_agent(self):
-        return self.metrics_agent
 
     def get_model(self):
         return self.model

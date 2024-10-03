@@ -31,12 +31,6 @@ from backend.schemas.agent import (
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.file import DeleteAgentFileResponse, UploadAgentFileResponse
-from backend.schemas.metrics import (
-    DEFAULT_METRICS_AGENT,
-    GenericResponseMessage,
-    MetricsMessageType,
-    agent_to_metrics_agent,
-)
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -84,8 +78,6 @@ async def create_agent(
     Raises:
         HTTPException: If the agent creation fails.
     """
-    # add user data into request state for metrics
-    ctx.with_event_type(MetricsMessageType.ASSISTANT_CREATED)
     ctx.with_user(session)
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
@@ -127,7 +119,6 @@ async def create_agent(
 
         agent_schema = Agent.model_validate(created_agent)
         ctx.with_agent(agent_schema)
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent_schema))
 
         return created_agent
     except Exception as e:
@@ -195,7 +186,6 @@ async def get_agent_by_id(
     Raises:
         HTTPException: If the agent with the given ID is not found.
     """
-    ctx.with_event_type(MetricsMessageType.ASSISTANT_ACCESSED)
     user_id = ctx.get_user_id()
     agent = None
 
@@ -212,7 +202,6 @@ async def get_agent_by_id(
 
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
-    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     return agent
 
 
@@ -275,7 +264,6 @@ async def update_agent(
     """
     user_id = ctx.get_user_id()
     ctx.with_user(session)
-    ctx.with_event_type(MetricsMessageType.ASSISTANT_UPDATED)
     agent = validate_agent_exists(session, agent_id, user_id)
 
     if new_agent.tools_metadata is not None:
@@ -342,7 +330,6 @@ async def update_agent(
         )
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
-        ctx.with_metrics_agent(agent_to_metrics_agent(agent))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
@@ -374,11 +361,9 @@ async def delete_agent(
         HTTPException: If the agent with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    ctx.with_event_type(MetricsMessageType.ASSISTANT_DELETED)
     agent = validate_agent_exists(session, agent_id, user_id)
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
-    ctx.with_metrics_agent(agent_to_metrics_agent(agent))
 
     deleted = agent_crud.delete_agent(session, agent_id, user_id)
     if not deleted:
@@ -686,19 +671,3 @@ default_agent_router = APIRouter(
     prefix="/v1/default_agent",
 )
 default_agent_router.name = RouterName.DEFAULT_AGENT
-
-
-@default_agent_router.get("/", response_model=GenericResponseMessage)
-async def get_default_agent(ctx: Context = Depends(get_context)):
-    """Get the default agent - used for logging purposes.
-
-    Args:
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        GenericResponseMessage: OK message.
-    """
-    ctx.with_event_type(MetricsMessageType.ASSISTANT_ACCESSED)
-    ctx.with_metrics_agent(DEFAULT_METRICS_AGENT)
-    return {"message": "OK"}
