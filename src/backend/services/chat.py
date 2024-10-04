@@ -11,6 +11,7 @@ from langchain_core.runnables.utils import AddableDict
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
@@ -25,7 +26,7 @@ from backend.database_models.message import (
 )
 from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.schemas import CohereChatRequest
-from backend.schemas.agent import Agent
+from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
@@ -76,7 +77,7 @@ def process_chat(
     ctx.with_deployment_config()
     agent_id = ctx.get_agent_id()
 
-    if agent_id is not None:
+    if agent_id:
         agent = validate_agent_exists(session, agent_id, user_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
@@ -86,11 +87,22 @@ def process_chat(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
+        agent_tool_metadata = (
+            agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
+                session, agent_id
+            )
+        )
+        agent_tool_metadata_schema = [
+            AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
+        ]
+        ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
+
         # if tools are not provided in the chat request, use the agent's tools
         if not chat_request.tools:
             chat_request.tools = [Tool(name=tool) for tool in agent.tools]
 
         # Set the agent settings in the chat request
+        chat_request.model = agent.model
         chat_request.preamble = agent.preamble
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
