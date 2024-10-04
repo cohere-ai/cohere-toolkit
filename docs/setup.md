@@ -18,22 +18,6 @@
    - Create a `configuration.yaml` file based on `configuration.template.yaml`.
    - Replace the placeholders with your actual values.
 
-### Running Docker Image Locally
-
-1. **Run the Docker Image**:
-   For the default toolkit:
-   ```bash
-   docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
-   ```
-   For community features:
-   ```bash
-   docker run -e INSTALL_COMMUNITY_DEPS='true' -e COHERE_API='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
-   ```
-
-2. **Access the Toolkit**:
-   Navigate to [http://localhost:4000](http://localhost:4000) in your browser.
-
-
 ### Environment Setup for Windows/MacOS
 
 - **Windows**: Follow the detailed setup provided for PowerShell and conda environment.

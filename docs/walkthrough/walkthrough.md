@@ -124,7 +124,7 @@ We have a [detailed guide for auth here](../auth_guide.md). Note authentication 
   <h1 align="center" >Cloud Deployment</h1>
 </p>
 
-Cloud Deployment's are options for you to deploy your application to a cloud. We have detailed instructions and one click deployment options for cloud providers. 
+Cloud Deployment's are options for you to deploy your application to a cloud.
 
 Pre-built cloud deployments which your can customize to your needs include:
 - Google Cloud Provider (GCP)

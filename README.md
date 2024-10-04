@@ -28,7 +28,7 @@ Toolkit is a deployable all-in-one RAG application that enables users to quickly
 
 There are two main ways of running Toolkit:
 
-1. **(Recommended) Docker Compose setup**
+**Docker Compose setup**
 
 Note: to include community tools when building locally, set the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` to `true`.
 
@@ -37,16 +37,6 @@ git clone https://github.com/cohere-ai/cohere-toolkit.git
 cd cohere-toolkit
 make first-run
 ```
-
-2. **Docker Image setup**
-
-We offer pre-built Docker images as well that you can run, but note that they might contain out-of-date code, so the local compose setup is preferred.
-
-```bash
-docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest
-```
-
-Go to [localhost:4000](http://localhost:4000/) in your browser and start chatting with Cohere's Command model!
 
 ## GitHub Codespaces
 
