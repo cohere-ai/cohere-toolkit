@@ -53,21 +53,6 @@ async def chat_stream(
     ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id
     ctx.with_agent_id(agent_id)
-    user_id = ctx.get_user_id()
-
-    if agent_id:
-        agent = validate_agent_exists(session, agent_id, user_id)
-        agent_schema = Agent.model_validate(agent)
-        ctx.with_agent(agent_schema)
-        agent_tool_metadata = (
-            agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
-                session, agent_id
-            )
-        )
-        agent_tool_metadata_schema = [
-            AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
-        ]
-        ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
 
     (
         session,
