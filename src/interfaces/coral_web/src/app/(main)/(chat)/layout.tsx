@@ -1,10 +1,9 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
-import { BannerContext } from '@/context/BannerContext';
 import { useIsDesktop } from '@/hooks/breakpoint';
 import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
@@ -24,9 +23,6 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   } = useParamsStore();
   const { data: allDeployments } = useListAllDeployments();
 
-  const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const { setMessage } = useContext(BannerContext);
-
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
 
@@ -45,11 +41,6 @@ const ChatLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
       }
     }
   }, [deployment, allDeployments]);
-
-  useEffect(() => {
-    if (!isLangchainModeOn) return;
-    setMessage('You are using an experimental langchain multihop flow. There will be bugs.');
-  }, [isLangchainModeOn]);
 
   if (isAgentsModeOn) {
     return (

@@ -101,8 +101,6 @@ To add your own:
 
 A "flow" is the main orchestration piece of the toolkit. We have a default chat flow at `src/backend/chat/custom/custom.py` which handles calling the tools and models. 
 
-Additionally there is an experimental LangChain flow which uses raw prompting at `src/backend/chat/custom/langchain.py`.
-
 You would add your own flow at `src/backend/chat/customer/{flow_name}` or customize the current ones if you wanted to experiment with a large new feature such as adding video or image elements. 
 
 <p align="center">

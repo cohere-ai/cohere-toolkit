@@ -119,39 +119,6 @@ export class CohereClient {
     });
   }
 
-  public async langchainChat({
-    request,
-    headers,
-    signal,
-    onOpen,
-    onMessage,
-    onClose,
-    onError,
-  }: {
-    request: CohereChatRequest;
-    headers?: Record<string, string>;
-    signal?: AbortSignal;
-    onOpen?: FetchEventSourceInit['onopen'];
-    onMessage?: FetchEventSourceInit['onmessage'];
-    onClose?: FetchEventSourceInit['onclose'];
-    onError?: FetchEventSourceInit['onerror'];
-  }) {
-    const chatRequest = mapToChatRequest(request);
-    const requestBody = JSON.stringify({
-      ...chatRequest,
-    });
-    return await fetchEventSource(this.getEndpoint('langchain-chat'), {
-      method: 'POST',
-      headers: { ...this.getHeaders(), ...headers },
-      body: requestBody,
-      signal,
-      onopen: onOpen,
-      onmessage: onMessage,
-      onclose: onClose,
-      onerror: onError,
-    });
-  }
-
   public listConversations(params: {
     offset?: number;
     limit?: number;
@@ -343,7 +310,7 @@ export class CohereClient {
     return this.cohereService.default.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
   }
 
-  private getEndpoint(endpoint: 'chat-stream' | 'langchain-chat' | 'google/auth' | 'oidc/auth') {
+  private getEndpoint(endpoint: 'chat-stream' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
   }
 

@@ -36,7 +36,6 @@ tools:
     url: http://terrarium:8080
 feature_flags:
   # Experimental features
-  use_experimental_langchain: false
   use_agents_view: false
   # Community features
   use_community_features: true
