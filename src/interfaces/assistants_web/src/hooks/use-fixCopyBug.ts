@@ -6,6 +6,10 @@ import { useEventListener } from '@react-hookz/web';
 export const useFixCopyBug = () => {
   const target = typeof document !== 'undefined' ? document : null;
   useEventListener(target, 'copy', async (event: Event) => {
+    // Clipboard API is not available over HTTP, so fall back to the default behavior unless we're on localhost
+    if (!window?.navigator?.clipboard) {
+      return;
+    }
     const selectedText = window.getSelection()?.toString().trim();
     if (selectedText) {
       event.preventDefault(); // Prevents the default copy behavior
