@@ -81,10 +81,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <Text
-        as="h1"
-        styleAs="h3"
-      >
+      <Text as="h1" styleAs="h3">
         Log in
       </Text>
       <div className="mt-10 flex w-full flex-col items-center gap-1">
