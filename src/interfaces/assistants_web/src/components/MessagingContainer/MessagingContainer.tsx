@@ -9,7 +9,7 @@ import { MessageRow } from '@/components/MessageRow';
 import { Welcome } from '@/components/MessagingContainer';
 import { Button } from '@/components/UI';
 import { useFixCopyBug } from '@/hooks';
-import { useSynthesize } from '@/hooks/use-synthesize';
+import { useSynthesizer } from '@/hooks/use-synthesizer';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -139,7 +139,7 @@ const Messages: React.FC<MessagesProps> = ({
   isStreamingToolEvents,
 }) => {
   const isChatEmpty = messages.length === 0;
-  const { isPlaying, handleToggleSynthesis } = useSynthesize();
+  const { isPlaying, handleToggleSynthesis } = useSynthesizer();
 
   if (isChatEmpty) {
     return (
@@ -173,7 +173,7 @@ const Messages: React.FC<MessagesProps> = ({
               })}
               onRetry={onRetry}
               onRegenerate={onRegenerate}
-              onToggleSynthesis={async () => await handleToggleSynthesis(m.id!)}
+              onToggleSynthesis={() => handleToggleSynthesis(m.id!)}
             />
           );
         })}

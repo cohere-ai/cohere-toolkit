@@ -4,7 +4,7 @@ import { useCohereClient } from '@/cohere-client';
 import { useNotify } from '@/hooks/use-toast';
 import { useConversationStore } from '@/stores';
 
-export const useSynthesize = () => {
+export const useSynthesizer = () => {
   const client = useCohereClient();
   const notify = useNotify();
 
@@ -52,9 +52,9 @@ export const useSynthesize = () => {
       return;
     }
 
-    try {
-      setIsStreamStarting(true);
+    setIsStreamStarting(true);
 
+    try {
       const stream = await client.synthesizeMessage(conversationId!, messageId);
 
       if (!stream.ok) {
