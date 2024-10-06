@@ -185,7 +185,7 @@ def test_fail_synthesize_message_nonexistent_message(
     user: User,
 ) -> None:
     response = session_client.get(
-        f"/v1/conversations/123/synthesize/456",
+        "/v1/conversations/123/synthesize/456",
         headers={"User-Id": user.id},
     )
     assert response.status_code == 404
