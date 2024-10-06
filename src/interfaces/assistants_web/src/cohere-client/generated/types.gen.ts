@@ -562,6 +562,7 @@ export type StreamCitationGeneration = {
 };
 
 export type StreamEnd = {
+  message_id?: string | null;
   response_id?: string | null;
   generation_id?: string | null;
   conversation_id?: string | null;

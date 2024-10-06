@@ -659,6 +659,7 @@ async def generate_chat_stream(
     user_id = ctx.get_user_id()
 
     stream_end_data = {
+        "message_id": response_message.id,
         "conversation_id": conversation_id,
         "response_id": ctx.get_trace_id(),
         "text": "",

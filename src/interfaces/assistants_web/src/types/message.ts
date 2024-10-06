@@ -19,6 +19,7 @@ export enum MessageType {
 }
 
 type BaseMessage = {
+  id?: string | null;
   type: MessageType;
   text: string;
   error?: string;

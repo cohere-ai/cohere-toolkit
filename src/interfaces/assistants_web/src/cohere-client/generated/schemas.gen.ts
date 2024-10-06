@@ -2830,6 +2830,17 @@ export const $StreamCitationGeneration = {
 
 export const $StreamEnd = {
   properties: {
+    message_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Message Id',
+    },
     response_id: {
       anyOf: [
         {

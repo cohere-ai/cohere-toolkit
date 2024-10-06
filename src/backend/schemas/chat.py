@@ -173,6 +173,7 @@ class StreamToolCallsGeneration(ChatResponse):
 
 
 class StreamEnd(ChatResponse):
+    message_id: str | None = Field(default=None)
     response_id: str | None = Field(default=None)
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_END
     generation_id: str | None = Field(default=None)
