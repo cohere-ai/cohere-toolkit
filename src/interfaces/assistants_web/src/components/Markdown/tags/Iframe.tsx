@@ -65,6 +65,10 @@ export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src'
             srcDoc={code}
             ref={iframeRef}
             className="max-h-[450px] min-h-[450px] w-full overflow-y-auto rounded-lg border border-mushroom-800 bg-white dark:border-volcanic-300 dark:bg-volcanic-150"
+            // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe
+            // make sure the iframe is sandboxed to prevent any malicious scripts
+            // NEVER ALLOW `allow-scripts` and `allow-same-origin` together
+            sandbox="allow-scripts"
           />
         </TabPanel>
         <TabPanel>
