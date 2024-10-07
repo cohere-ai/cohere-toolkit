@@ -356,30 +356,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
               break;
             }
 
-            // TODO(@wujessica): temporarily remove support for experimental langchain multihop
-            // as it diverges from the current implementation.
-            // This event only occurs when we're using experimental langchain multihop.
-            // case StreamEvent.TOOL_RESULT: {
-            //   const data = eventData.data as StreamToolResult;
-            //   if (data.tool_name === TOOL_PYTHON_INTERPRETER_ID) {
-            //     const resultsWithOutputFile = data.result.filter((r: any) => r.output_file);
-            //     outputFiles = { ...mapOutputFiles(resultsWithOutputFile) };
-            //     saveOutputFiles(outputFiles);
-            //   }
-
-            //   setStreamingMessage({
-            //     type: MessageType.BOT,
-            //     state: BotState.TYPING,
-            //     text: botResponse,
-            //     isRAGOn,
-            //     generationId,
-            //     originalText: botResponse,
-            //     toolEvents,
-            //   });
-
-            //   break;
-            // }
-
             case StreamEvent.CITATION_GENERATION: {
               const data = eventData.data;
               const newCitations = [...(data?.citations ?? [])];
@@ -455,9 +431,6 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 type: MessageType.BOT,
                 state: BotState.FULFILLED,
                 generationId,
-                // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
-                // so we need to manually apply this fix. Otherwise, this comes for free when we call
-                // `replaceTextWithCitations`.
                 text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
                 citations,
                 isRAGOn,

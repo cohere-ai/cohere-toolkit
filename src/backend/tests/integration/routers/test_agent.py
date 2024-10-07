@@ -137,6 +137,7 @@ def test_create_agent_missing_non_required_fields(
     assert agent.temperature == 0.3
     assert agent.model == request_json["model"]
 
+
 def test_update_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -144,9 +145,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        model="command-r-plus",
-        deployment=ModelDeploymentName.CoherePlatform,
-        user_id=user.id,
+        user=user,
     )
 
     request_json = {

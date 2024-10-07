@@ -130,6 +130,7 @@ class BaseToolAuthentication:
             )
             raise
 
+
 class ToolAuthException(Exception):
     def __init__(self, message, tool_id: str):
         self.message = message

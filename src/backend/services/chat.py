@@ -5,12 +5,11 @@ from uuid import uuid4
 from cohere.types import StreamedChatResponse
 from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
-from langchain_core.agents import AgentActionMessageLog
-from langchain_core.runnables.utils import AddableDict
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
+from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import message as message_crud
 from backend.crud import tool_call as tool_call_crud
@@ -25,7 +24,7 @@ from backend.database_models.message import (
 )
 from backend.database_models.tool_call import ToolCall as ToolCallModel
 from backend.schemas import CohereChatRequest
-from backend.schemas.agent import Agent
+from backend.schemas.agent import Agent, AgentToolMetadata
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
@@ -41,9 +40,6 @@ from backend.schemas.chat import (
     StreamTextGeneration,
     StreamToolCallsChunk,
     StreamToolCallsGeneration,
-    StreamToolInput,
-    StreamToolResult,
-    ToolInputType,
 )
 from backend.schemas.context import Context
 from backend.schemas.conversation import UpdateConversationRequest
@@ -76,7 +72,7 @@ def process_chat(
     ctx.with_deployment_config()
     agent_id = ctx.get_agent_id()
 
-    if agent_id is not None:
+    if agent_id:
         agent = validate_agent_exists(session, agent_id, user_id)
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
@@ -86,11 +82,22 @@ def process_chat(
                 status_code=404, detail=f"Agent with ID {agent_id} not found."
             )
 
+        agent_tool_metadata = (
+            agent_tool_metadata_crud.get_all_agent_tool_metadata_by_agent_id(
+                session, agent_id
+            )
+        )
+        agent_tool_metadata_schema = [
+            AgentToolMetadata.model_validate(x) for x in agent_tool_metadata
+        ]
+        ctx.with_agent_tool_metadata(agent_tool_metadata_schema)
+
         # if tools are not provided in the chat request, use the agent's tools
         if not chat_request.tools:
             chat_request.tools = [Tool(name=tool) for tool in agent.tools]
 
         # Set the agent settings in the chat request
+        chat_request.model = agent.model
         chat_request.preamble = agent.preamble
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
@@ -954,133 +961,3 @@ def handle_stream_end(
     stream_end = StreamEnd.model_validate(event | stream_end_data)
     stream_event = stream_end
     return stream_event, stream_end_data, response_message, document_ids_to_document
-
-
-def generate_langchain_chat_stream(
-    session: DBSessionDep,
-    model_deployment_stream: Generator[Any, None, None],
-    response_message: Message,
-    conversation_id: str,
-    user_id: str,
-    should_store: bool,
-    **kwargs: Any,
-):
-    final_message_text = ""
-
-    # send stream start event
-    yield json.dumps(
-        jsonable_encoder(
-            ChatResponseEvent(
-                event=StreamEvent.STREAM_START,
-                data=StreamStart(
-                    conversation_id=conversation_id,
-                ),
-            )
-        )
-    )
-    for event in model_deployment_stream:
-        stream_event = None
-        if isinstance(event, AddableDict):
-            # Generate tool queries
-            if event.get("actions"):
-                actions = [
-                    action
-                    for action in event.get("actions", [])
-                    if isinstance(action, AgentActionMessageLog)
-                ]
-                for action in actions:
-                    tool_name = action.tool
-
-                    tool_input = ""
-                    if isinstance(action.tool_input, str):
-                        tool_input = action.tool_input
-                    elif isinstance(action.tool_input, dict):
-                        tool_input = "".join(
-                            [str(val) for val in action.tool_input.values()]
-                        )
-                    content = (
-                        action.message_log[0].content
-                        if len(action.message_log) > 0
-                        and isinstance(action.message_log[0].content, str)
-                        else ""
-                    )
-                    # only take the first part of content before the newline
-                    content = content.split("\n")[0]
-
-                    # shape: "Plan: I will search for tips on writing an essay and fun facts about the Roman Empire. I will then write an answer using the information I find.\nAction: ```json\n[\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"tips for writing an essay\"\n        }\n    },\n    {\n        \"tool_name\": \"internet_search\",\n        \"parameters\": {\n            \"query\": \"fun facts about the roman empire\"\n        }\n
-                    stream_event = StreamToolInput(
-                        # TODO: switch to diff types
-                        input_type=ToolInputType.CODE,
-                        tool_name=tool_name,
-                        input=tool_input,
-                        text=content,
-                    )
-            # Generate documents / call tool
-            if steps := event.get("steps"):
-                step = steps[0] if len(steps) > 0 else None
-
-                if not step:
-                    continue
-
-                result = step.observation
-                # observation can be a dictionary for python interpreter or a list of docs for web search
-
-                """
-                internet search results
-                "observation": [
-                    {
-                        "url": "https://www.businessinsider.com/billionaire-bill-gates-net-worth-spending-2018-8?op=1",
-                        "content": "Source: Business Inside"
-                    }...
-                ]
-                """
-                if isinstance(result, list):
-                    stream_event = StreamToolResult(
-                        tool_name=step.action.tool,
-                        result=result,
-                        documents=[],
-                    )
-
-                """
-                Python interpreter output
-                "observation": {
-                    "output_files": [],
-                    "sucess": true,
-                    "std_out": "20572000000000\n",
-                    "std_err": "",
-                    "code_runtime": 1181
-                }
-                """
-                if isinstance(result, dict):
-                    stream_event = StreamToolResult(
-                        tool_name=step.action.tool,
-                        result=result,
-                        documents=[],
-                    )
-
-            # final output
-            if event.get("output", "") and event.get("citations", []):
-                final_message_text = event.get("output", "")
-                stream_event = StreamEnd(
-                    conversation_id=conversation_id,
-                    text=event.get("output", ""),
-                    # WARNING: Citations are not yet supported in langchain
-                    citations=[],
-                    documents=[],
-                    search_results=[],
-                    finish_reason="COMPLETE",
-                )
-
-            if stream_event:
-                yield json.dumps(
-                    jsonable_encoder(
-                        ChatResponseEvent(
-                            event=stream_event.event_type,
-                            data=stream_event,
-                        )
-                    )
-                )
-    if should_store:
-        update_conversation_after_turn(
-            session, response_message, conversation_id, final_message_text, user_id
-        )
