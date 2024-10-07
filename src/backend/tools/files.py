@@ -13,7 +13,7 @@ class ReadFileTool(BaseTool):
     Tool to read a file from the file system.
     """
 
-    NAME = "read_document"
+    NAME = "read_file"
     MAX_NUM_CHUNKS = 10
     SEARCH_LIMIT = 5
 
