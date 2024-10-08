@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 import backend.crud.file as file_crud
 from backend.tools.base import BaseTool
 
+
 class FileToolsArtifactTypes(StrEnum):
     local_file = "file"
 
@@ -74,7 +75,7 @@ class SearchFileTool(BaseTool):
 
         file_ids = [file_id for _, file_id in files]
         retrieved_files = file_crud.get_files_by_ids(session, file_ids, user_id)
-        
+
         if not retrieved_files:
             return []
 

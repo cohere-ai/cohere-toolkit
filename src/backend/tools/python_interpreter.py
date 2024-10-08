@@ -3,7 +3,6 @@ from typing import Any, Dict, Mapping
 
 import requests
 from dotenv import load_dotenv
-from pydantic.v1 import BaseModel, Field
 
 from backend.config.settings import Settings
 from backend.tools.base import BaseTool
