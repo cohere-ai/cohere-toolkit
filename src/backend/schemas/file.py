@@ -21,6 +21,7 @@ class File(BaseModel):
 
 class ConversationFilePublic(BaseModel):
     id: str
+    user_id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
 

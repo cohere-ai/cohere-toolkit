@@ -88,7 +88,7 @@ ALL_TOOLS = {
         implementation=PythonInterpreter,
         parameter_definitions={
             "code": {
-                "description": "Python code to execute using an interpreter",
+                "description": "Python code to execute using an interpreter. When fetching any files, append /terrarium-files/ as a prefix for retrieval",
                 "type": "str",
                 "required": True,
             }

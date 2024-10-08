@@ -5,7 +5,6 @@ from docx import Document
 from fastapi import Depends, HTTPException
 from fastapi import UploadFile as FastAPIUploadFile
 from python_calamine.pandas import pandas_monkeypatch
-
 import backend.crud.conversation as conversation_crud
 import backend.crud.file as file_crud
 from backend.crud import message as message_crud
@@ -342,6 +341,7 @@ async def insert_files_in_db(
                 user_id=user_id,
             )
         )
+        write_file_to_local_storage(filename, cleaned_content)
 
     uploaded_files = file_crud.batch_create_files(session, files_to_upload)
     return uploaded_files
@@ -364,6 +364,52 @@ def attach_conversation_id_to_files(
             )
         )
     return results
+
+
+
+def read_excel(file_contents: bytes) -> str:
+    """Reads the text from an Excel file using Pandas
+
+    Args:
+        file_contents (bytes): The file contents
+
+    Returns:
+        str: The text extracted from the Excel
+    """
+    excel = pd.read_excel(io.BytesIO(file_contents), engine="calamine")
+    return excel.to_string()
+
+
+def read_docx(file_contents: bytes) -> str:
+    """Reads the text from a DOCX file
+
+    Args:
+        file_contents (bytes): The file contents
+
+    Returns:
+        str: The text extracted from the DOCX file, with each paragraph separated by a newline
+    """
+    document = Document(io.BytesIO(file_contents))
+    text = ""
+
+    for paragraph in document.paragraphs:
+        text += paragraph.text + "\n"
+
+    return text
+
+
+def read_parquet(file_contents: bytes) -> str:
+    """Reads the text from a Parquet file using Pandas
+
+    Args:
+        file_contents (bytes): The file contents
+
+    Returns:
+        str: The text extracted from the Parquet
+    """
+    parquet = pd.read_parquet(io.BytesIO(file_contents), engine="pyarrow")
+    return parquet.to_string()
+
 
 
 def get_file_extension(file_name: str) -> str:
@@ -413,45 +459,7 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
     raise ValueError(f"File extension {file_extension} is not supported")
 
 
-def read_excel(file_contents: bytes) -> str:
-    """Reads the text from an Excel file using Pandas
-
-    Args:
-        file_contents (bytes): The file contents
-
-    Returns:
-        str: The text extracted from the Excel
-    """
-    excel = pd.read_excel(io.BytesIO(file_contents), engine="calamine")
-    return excel.to_string()
-
-
-def read_docx(file_contents: bytes) -> str:
-    """Reads the text from a DOCX file
-
-    Args:
-        file_contents (bytes): The file contents
-
-    Returns:
-        str: The text extracted from the DOCX file, with each paragraph separated by a newline
-    """
-    document = Document(io.BytesIO(file_contents))
-    text = ""
-
-    for paragraph in document.paragraphs:
-        text += paragraph.text + "\n"
-
-    return text
-
-
-def read_parquet(file_contents: bytes) -> str:
-    """Reads the text from a Parquet file using Pandas
-
-    Args:
-        file_contents (bytes): The file contents
-
-    Returns:
-        str: The text extracted from the Parquet
-    """
-    parquet = pd.read_parquet(io.BytesIO(file_contents), engine="pyarrow")
-    return parquet.to_string()
+def write_file_to_local_storage(file_name: str, file_content: str) -> None:
+    # Write file to data folder
+    with open(f"./terrarium-files/{file_name}", "w") as buffer:
+        buffer.write(file_content)

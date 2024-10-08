@@ -3,17 +3,12 @@ from typing import Any, Dict, Mapping
 
 import requests
 from dotenv import load_dotenv
-from langchain_core.tools import Tool as LangchainTool
 from pydantic.v1 import BaseModel, Field
 
 from backend.config.settings import Settings
 from backend.tools.base import BaseTool
 
 load_dotenv()
-
-
-class LangchainPythonInterpreterToolInput(BaseModel):
-    code: str = Field(description="Python code to execute.")
 
 
 class PythonInterpreter(BaseTool):
@@ -35,8 +30,8 @@ class PythonInterpreter(BaseTool):
 
         code = parameters.get("code", "")
         res = requests.post(self.INTERPRETER_URL, json={"code": code})
-        clean_res = self._clean_response(res.json())
 
+        clean_res = self._clean_response(res.json())
         return clean_res
 
     def _clean_response(self, result: Any) -> Dict[str, str]:
