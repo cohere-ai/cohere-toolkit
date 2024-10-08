@@ -341,7 +341,6 @@ async def insert_files_in_db(
                 user_id=user_id,
             )
         )
-        write_file_to_local_storage(filename, cleaned_content)
 
     uploaded_files = file_crud.batch_create_files(session, files_to_upload)
     return uploaded_files
@@ -457,9 +456,3 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
         return read_excel(file_contents)
 
     raise ValueError(f"File extension {file_extension} is not supported")
-
-
-def write_file_to_local_storage(file_name: str, file_content: str) -> None:
-    # Write file to data folder
-    with open(f"./terrarium-files/{file_name}", "w") as buffer:
-        buffer.write(file_content)

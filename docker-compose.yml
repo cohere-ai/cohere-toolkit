@@ -79,8 +79,6 @@ services:
       # Mount configurations
       - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
       - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml
-      # Mount Terrarium files for Python Interpreter use
-      - terrarium-files:/workspace/terrarium-files
     # network_mode: host
     networks:
       - proxynet
@@ -118,15 +116,11 @@ services:
       - "8080"
     networks:
       - proxynet
-    volumes:
-    # Mount Terrarium files for Python Interpreter use
-      - terrarium-files:/home/earth/terrarium-files
 
 volumes:
   db:
     name: cohere_toolkit_db
     driver: local
-  terrarium-files:
 
 networks:
   proxynet:

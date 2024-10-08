@@ -3,8 +3,6 @@ from typing import Any, Dict, List
 
 import backend.crud.file as file_crud
 from backend.tools.base import BaseTool
-from backend.services.file import write_file_to_local_storage
-
 
 class FileToolsArtifactTypes(StrEnum):
     local_file = "file"
