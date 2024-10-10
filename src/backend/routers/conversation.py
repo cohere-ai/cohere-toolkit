@@ -3,11 +3,13 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
+from starlette.responses import StreamingResponse
 
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
+from backend.crud import message as message_crud
 from backend.database_models import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import Agent
@@ -39,6 +41,7 @@ from backend.services.file import (
     get_file_service,
     validate_file,
 )
+from backend.services.synthesizer import synthesize_stream
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -542,4 +545,42 @@ async def generate_title(
     return GenerateTitleResponse(
         title=title,
         error=error,
+    )
+
+
+# SYNTHESIZE
+@router.get("/{conversation_id}/synthesize/{message_id}")
+async def synthesize_message(
+    conversation_id: str,
+    message_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> StreamingResponse:
+    """
+    Generate a synthesized audio stream for a specific message in a conversation.
+
+    Args:
+        conversation_id (str): Conversation ID.
+        message_id (str): Message ID.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        StreamingResponse: Synthesized audio stream.
+
+    Raises:
+        HTTPException: If the message with the given ID is not found.
+    """
+    user_id = ctx.get_user_id()
+    message = message_crud.get_conversation_message(session, conversation_id, message_id, user_id)
+
+    if not message:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Message with ID: {message_id} not found.",
+        )
+
+    return StreamingResponse(
+        synthesize_stream(message.text),
+        media_type="audio/mp3"
     )

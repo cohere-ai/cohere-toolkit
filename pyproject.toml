@@ -56,6 +56,8 @@ hyperframe = "^6.0.1"
 llama-index = "^0.11.10"
 llama-index-llms-cohere = "^0.3.0"
 llama-index-embeddings-cohere = "^0.2.1"
+gtts = "^2.5.3"
+googletrans-py = "^4.0.0"
 
 [tool.poetry.group.dev]
 optional = true

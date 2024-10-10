@@ -45,6 +45,7 @@ export const mapHistoryToMessages = (history?: Message[]): UserOrBotMessage[] =>
     if (message.agent === MessageAgent.CHATBOT) {
       if (!message.tool_plan) {
         messages.push({
+          id: message.id,
           type: MessageType.BOT,
           state: BotState.FULFILLED,
           originalText: message.text ?? '',
@@ -71,6 +72,7 @@ export const mapHistoryToMessages = (history?: Message[]): UserOrBotMessage[] =>
       }
     } else {
       messages.push({
+        id: message.id,
         type: MessageType.USER,
         text: message.text,
         files: message.files,

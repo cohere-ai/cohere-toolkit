@@ -48,6 +48,22 @@ def test_fail_get_nonexistent_message(session, user):
     assert message is None
 
 
+def test_get_conversation_message(session, conversation, user):
+    _ = get_factory("Message", session).create(
+        id="1", text="Hello, World!", conversation_id=conversation.id, user_id=user.id
+    )
+
+    message = message_crud.get_conversation_message(session, conversation.id, "1", user.id)
+    assert message.conversation_id == conversation.id
+    assert message.id == "1"
+    assert message.text == "Hello, World!"
+
+
+def test_fail_get_nonexistent_conversation_message(session, user):
+    message = message_crud.get_conversation_message(session, "123", "456", user.id)
+    assert message is None
+
+
 def test_list_messages(session, conversation, user):
     _ = get_factory("Message", session).create(
         text="Hello, World!", conversation_id=conversation.id, user_id=user.id

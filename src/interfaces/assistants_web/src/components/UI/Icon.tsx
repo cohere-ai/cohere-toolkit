@@ -49,6 +49,7 @@ import {
   Show,
   SignOut,
   Sparkle,
+  Stop,
   Subtract,
   Sun,
   ThumbsDown,
@@ -56,6 +57,7 @@ import {
   Trash,
   Upload,
   UsersThree,
+  Volume,
   Warning,
   Web,
 } from '@/assets/icons';
@@ -111,6 +113,7 @@ export const IconList = [
   'show',
   'sign-out',
   'sparkle',
+  'stop',
   'subtract',
   'sun',
   'thumbs-down',
@@ -118,6 +121,7 @@ export const IconList = [
   'trash',
   'upload',
   'users-three',
+  'volume',
   'warning',
   'web',
 ] as const;
@@ -409,6 +413,11 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
         <Sparkle kind={kind} />
       </AccessibleIcon>
     ),
+    ['stop']: (
+      <AccessibleIcon label="Stop">
+        <Stop />
+      </AccessibleIcon>
+    ),
     ['subtract']: (
       <AccessibleIcon label="Subtract">
         <Subtract />
@@ -442,6 +451,11 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
     ['users-three']: (
       <AccessibleIcon label="Users Three">
         <UsersThree />
+      </AccessibleIcon>
+    ),
+    ['volume']: (
+      <AccessibleIcon label="Volume">
+        <Volume />
       </AccessibleIcon>
     ),
     ['warning']: (

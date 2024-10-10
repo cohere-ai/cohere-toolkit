@@ -156,6 +156,16 @@ export class CohereClient {
     );
   }
 
+  public async synthesizeMessage(conversationId: string, messageId: string) {
+    return await this.fetch(
+      `${this.getEndpoint('conversations')}/${conversationId}/synthesize/${messageId}`,
+      {
+        method: 'GET',
+        headers: this.getHeaders(),
+      }
+    );
+  }
+
   public listTools({ agentId }: { agentId?: string | null }) {
     return this.cohereService.default.listToolsV1ToolsGet({ agentId });
   }
@@ -310,7 +320,7 @@ export class CohereClient {
     return this.cohereService.default.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
   }
 
-  private getEndpoint(endpoint: 'chat-stream' | 'google/auth' | 'oidc/auth') {
+  private getEndpoint(endpoint: 'conversations' | 'chat-stream' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
   }
 

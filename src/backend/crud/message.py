@@ -69,6 +69,27 @@ def get_messages(
 
 
 @validate_transaction
+def get_conversation_message(db: Session, conversation_id: str, message_id: str, user_id: str) -> Message | None:
+    """
+    Get a message based on the conversation ID, message ID, and user ID.
+
+    Args:
+        db (Session): Database session.
+        conversation_id (str): Conversation ID.
+        message_id (str): Message ID.
+        user_id (str): User ID.
+
+    Returns:
+        Message | None: Message with the given conversation ID, message ID, and user ID or None if not found.
+    """
+    return (
+        db.query(Message)
+        .filter(Message.conversation_id == conversation_id, Message.id == message_id, Message.user_id == user_id)
+        .first()
+    )
+
+
+@validate_transaction
 def get_messages_by_conversation_id(
     db: Session, conversation_id: str, user_id: str
 ) -> list[Message]:

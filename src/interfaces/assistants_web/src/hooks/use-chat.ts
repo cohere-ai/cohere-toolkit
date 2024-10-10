@@ -428,6 +428,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 : botResponse;
 
               const finalMessage: FulfilledMessage = {
+                id: data.message_id,
                 type: MessageType.BOT,
                 state: BotState.FULFILLED,
                 generationId,
