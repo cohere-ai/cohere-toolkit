@@ -87,8 +87,6 @@ import type {
   GetUsersScimV2UsersGetData,
   GetUsersScimV2UsersGetResponse,
   HealthHealthGetResponse,
-  LangchainChatStreamV1LangchainChatPostData,
-  LangchainChatStreamV1LangchainChatPostResponse,
   ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData,
   ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse,
   ListAgentsV1AgentsGetData,
@@ -406,37 +404,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
-      body: data.requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
-   * Langchain Chat Stream
-   * Stream chat endpoint to handle user messages and return chatbot responses using langchain.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * chat_request (LangchainChatRequest): Chat request data.
-   * request (Request): Request object.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * EventSourceResponse: Server-sent event response with chatbot responses.
-   * @param data The data for the request.
-   * @param data.requestBody
-   * @returns unknown Successful Response
-   * @throws ApiError
-   */
-  public langchainChatStreamV1LangchainChatPost(
-    data: LangchainChatStreamV1LangchainChatPostData
-  ): CancelablePromise<LangchainChatStreamV1LangchainChatPostResponse> {
-    return this.httpRequest.request({
-      method: 'POST',
-      url: '/v1/langchain-chat',
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {

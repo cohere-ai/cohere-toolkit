@@ -299,9 +299,6 @@ class ChatResponseEvent(BaseModel):
 
 
 class BaseChatRequest(BaseModel):
-    # user_id: str = Field(
-    #     title="A user id to store to store the conversation under.", exclude=True
-    # )
     message: str = Field(
         title="The message to send to the chatbot.",
     )
@@ -313,7 +310,6 @@ class BaseChatRequest(BaseModel):
         default_factory=lambda: str(uuid4()),
         title="To store a conversation then create a conversation id and use it for every related request",
     )
-
     tools: List[Tool] | None = Field(
         default_factory=list,
         title="""

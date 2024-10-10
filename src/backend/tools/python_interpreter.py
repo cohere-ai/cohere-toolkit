@@ -3,17 +3,11 @@ from typing import Any, Dict, Mapping
 
 import requests
 from dotenv import load_dotenv
-from langchain_core.tools import Tool as LangchainTool
-from pydantic.v1 import BaseModel, Field
 
 from backend.config.settings import Settings
 from backend.tools.base import BaseTool
 
 load_dotenv()
-
-
-class LangchainPythonInterpreterToolInput(BaseModel):
-    code: str = Field(description="Python code to execute.")
 
 
 class PythonInterpreter(BaseTool):
@@ -35,8 +29,8 @@ class PythonInterpreter(BaseTool):
 
         code = parameters.get("code", "")
         res = requests.post(self.INTERPRETER_URL, json={"code": code})
-        clean_res = self._clean_response(res.json())
 
+        clean_res = self._clean_response(res.json())
         return clean_res
 
     def _clean_response(self, result: Any) -> Dict[str, str]:
@@ -74,16 +68,3 @@ class PythonInterpreter(BaseTool):
                     r[key] = str(value)
 
         return result_list
-
-    # langchain does not return a dict as a parameter, only a code string
-    def langchain_call(self, code: str):
-        return self.call({"code": code}, ctx=None)
-
-    def to_langchain_tool(self) -> LangchainTool:
-        tool = LangchainTool(
-            name="python_interpreter",
-            description="Executes python code and returns the result. The code runs in a static sandbox without interactive mode, so print output or save output to a file.",
-            func=self.langchain_call,
-        )
-        tool.args_schema = LangchainPythonInterpreterToolInput
-        return tool

@@ -556,7 +556,7 @@ export const $CohereChatRequest = {
         },
       ],
       title: 'The model to use for generating the response.',
-      default: 'command-r',
+      default: 'command-r-plus',
     },
     temperature: {
       anyOf: [
@@ -762,6 +762,10 @@ export const $ConversationFilePublic = {
       type: 'string',
       title: 'Id',
     },
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     created_at: {
       type: 'string',
       format: 'date-time',
@@ -788,7 +792,7 @@ export const $ConversationFilePublic = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'ConversationFilePublic',
 } as const;
 
@@ -1751,103 +1755,6 @@ export const $JWTResponse = {
   title: 'JWTResponse',
 } as const;
 
-export const $LangchainChatRequest = {
-  properties: {
-    message: {
-      type: 'string',
-      title: 'The message to send to the chatbot.',
-    },
-    chat_history: {
-      anyOf: [
-        {
-          items: {
-            $ref: '#/components/schemas/ChatMessage',
-          },
-          type: 'array',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title:
-        'A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.',
-    },
-    conversation_id: {
-      type: 'string',
-      title:
-        'To store a conversation then create a conversation id and use it for every related request',
-    },
-    tools: {
-      anyOf: [
-        {
-          items: {
-            $ref: '#/components/schemas/Tool',
-          },
-          type: 'array',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: `
-            List of custom or managed tools to use for the response.
-            If passing in managed tools, you only need to provide the name of the tool.
-            If passing in custom tools, you need to provide the name, description, and optionally parameter defintions of the tool.
-            Passing a mix of custom and managed tools is not supported.
-
-            Managed Tools Examples:
-            tools=[
-                {
-                    "name": "Wiki Retriever - LangChain",
-                },
-                {
-                    "name": "Calculator",
-                }
-            ]
-
-            Custom Tools Examples:
-            tools=[
-                {
-                    "name": "movie_title_generator",
-                    "description": "tool to generate a cool movie title",
-                    "parameter_definitions": {
-                        "synopsis": {
-                            "description": "short synopsis of the movie",
-                            "type": "str",
-                            "required": true
-                        }
-                    }
-                },
-                {
-                    "name": "random_number_generator",
-                    "description": "tool to generate a random number between min and max",
-                    "parameter_definitions": {
-                        "min": {
-                            "description": "minimum number",
-                            "type": "int",
-                            "required": true
-                        },
-                        "max": {
-                            "description": "maximum number",
-                            "type": "int",
-                            "required": true
-                        }
-                    }
-                },
-                {
-                    "name": "joke_generator",
-                    "description": "tool to generate a random joke",
-                }
-            ]
-        `,
-    },
-  },
-  type: 'object',
-  required: ['message'],
-  title: 'LangchainChatRequest',
-  description: 'Request shape for Langchain Streamed Chat.',
-} as const;
-
 export const $ListAuthStrategy = {
   properties: {
     strategy: {
@@ -1892,6 +1799,10 @@ export const $ListConversationFile = {
       type: 'string',
       title: 'Id',
     },
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     created_at: {
       type: 'string',
       format: 'date-time',
@@ -1918,7 +1829,7 @@ export const $ListConversationFile = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'ListConversationFile',
 } as const;
 
@@ -3629,6 +3540,10 @@ export const $UploadConversationFileResponse = {
       type: 'string',
       title: 'Id',
     },
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     created_at: {
       type: 'string',
       format: 'date-time',
@@ -3655,7 +3570,7 @@ export const $UploadConversationFileResponse = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'UploadConversationFileResponse',
 } as const;
 

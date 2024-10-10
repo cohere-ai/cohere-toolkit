@@ -154,6 +154,7 @@ export type CohereChatRequest = {
 
 export type ConversationFilePublic = {
   id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
   conversation_id: string;
@@ -352,16 +353,6 @@ export type JWTResponse = {
   token: string;
 };
 
-/**
- * Request shape for Langchain Streamed Chat.
- */
-export type LangchainChatRequest = {
-  message: string;
-  chat_history?: Array<ChatMessage> | null;
-  conversation_id?: string;
-  tools?: Array<Tool> | null;
-};
-
 export type ListAuthStrategy = {
   strategy: string;
   client_id: string | null;
@@ -371,6 +362,7 @@ export type ListAuthStrategy = {
 
 export type ListConversationFile = {
   id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
   conversation_id: string;
@@ -744,6 +736,7 @@ export type UploadAgentFileResponse = {
 
 export type UploadConversationFileResponse = {
   id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
   conversation_id: string;
@@ -847,12 +840,6 @@ export type ChatV1ChatPostData = {
 };
 
 export type ChatV1ChatPostResponse = NonStreamedChatResponse;
-
-export type LangchainChatStreamV1LangchainChatPostData = {
-  requestBody: LangchainChatRequest;
-};
-
-export type LangchainChatStreamV1LangchainChatPostResponse = unknown;
 
 export type CreateUserV1UsersPostData = {
   requestBody: backend__schemas__user__CreateUser;
@@ -1370,21 +1357,6 @@ export type $OpenApiTs = {
          * Successful Response
          */
         200: NonStreamedChatResponse;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
-  };
-  '/v1/langchain-chat': {
-    post: {
-      req: LangchainChatStreamV1LangchainChatPostData;
-      res: {
-        /**
-         * Successful Response
-         */
-        200: unknown;
         /**
          * Validation Error
          */
