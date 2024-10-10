@@ -22,6 +22,7 @@ export * from './LongPressMenu';
 export * from './Modal';
 export * from './RadioGroup';
 export * from './Shortcut';
+export * from './ShowStepsToggle';
 export * from './Skeleton';
 export * from './Spinner';
 export * from './Switch';

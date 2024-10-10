@@ -50,9 +50,11 @@ export const useSettingsStore = () => {
       disabledAssistantKnowledge: state.disabledAssistantKnowledge,
       isLeftPanelOpen: state.isLeftPanelOpen,
       isRightPanelOpen: state.isRightPanelOpen,
+      showSteps: state.showSteps,
       setLeftPanelOpen: state.setLeftPanelOpen,
       setRightPanelOpen: state.setRightPanelOpen,
       setUseAssistantKnowledge: state.setUseAssistantKnowledge,
+      setShowSteps: state.setShowSteps,
     }),
     shallow
   );

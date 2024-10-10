@@ -3,7 +3,7 @@
 import { PropsWithChildren, useState } from 'react';
 
 import { MobileHeader } from '@/components/Global';
-import { Button, DarkModeToggle, Icon, Tabs, Text } from '@/components/UI';
+import { Button, DarkModeToggle, Icon, ShowStepsToggle, Tabs, Text } from '@/components/UI';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
 
@@ -14,7 +14,11 @@ const tabs = [
   </div>,
   <div className="flex items-center gap-2" key="company">
     <Icon name="sun" kind="outline" />
-    <Text>appearance</Text>
+    <Text>Appearance</Text>
+  </div>,
+  <div className="flex items-center gap-2" key="company">
+    <Icon name="settings" kind="outline" />
+    <Text>Advanced</Text>
   </div>,
   <div className="flex items-center gap-2" key="private">
     <Icon name="profile" kind="outline" />
@@ -53,6 +57,7 @@ export const Settings = () => {
         >
           <Connections />
           <Appearance />
+          <Advanced />
           <Profile />
         </Tabs>
       </section>
@@ -66,8 +71,8 @@ const Wrapper: React.FC<PropsWithChildren> = ({ children }) => (
 
 const Connections = () => (
   <Wrapper>
-    <Text className="mb-10 dark:text-mushroom-950">
-      A list of connections that your assistants can access
+    <Text styleAs="h5" className="mb-6">
+      Connections your assistants can access
     </Text>
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <GoogleDriveConnection />
@@ -75,21 +80,35 @@ const Connections = () => (
   </Wrapper>
 );
 
-const Profile = () => {
-  return (
-    <Wrapper>
-      <Button label="Sign out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
-    </Wrapper>
-  );
-};
-
 const Appearance = () => {
   return (
     <Wrapper>
       <Text styleAs="h5" className="mb-6">
-        Appearance
+        Mode
       </Text>
       <DarkModeToggle />
+    </Wrapper>
+  );
+};
+
+const Advanced = () => {
+  return (
+    <Wrapper>
+      <Text styleAs="h5" className="mb-6">
+        Advanced
+      </Text>
+      <ShowStepsToggle />
+    </Wrapper>
+  );
+};
+
+const Profile = () => {
+  return (
+    <Wrapper>
+      <Text styleAs="h5" className="mb-6">
+        User Profile
+      </Text>
+      <Button label="Log out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
     </Wrapper>
   );
 };
