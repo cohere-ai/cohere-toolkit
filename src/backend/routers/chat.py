@@ -60,6 +60,7 @@ async def chat_stream(
         ctx,
     ) = process_chat(session, chat_request, request, ctx)
 
+
     return EventSourceResponse(
         generate_chat_stream(
             session,
