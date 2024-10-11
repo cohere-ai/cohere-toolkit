@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@microsoft/fetch-event-source": "^2.0.1",
-    "@prisma/client": "5.14.0",
+    "@prisma/client": "^5.20.0",
     "@sentry/node": "^7.64.0",
     "@slack/bolt": "^3.18.0",
     "@slack/web-api": "^6.12.0",
