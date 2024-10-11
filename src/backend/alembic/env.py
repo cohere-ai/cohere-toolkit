@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -8,6 +9,7 @@ from backend.config.settings import Settings
 
 # Need to import Models - note they will be unused but are required for Alembic to detect
 from backend.database_models import *  # noqa
+from backend.database_models.database import TOOLKIT_AWS_DB_SERVICE
 from backend.database_models.base import Base
 
 load_dotenv()
@@ -16,7 +18,13 @@ load_dotenv()
 config = context.config
 
 # Overwrite alembic.file `sqlachemy.url` value
-config.set_main_option("sqlalchemy.url", Settings().database.url)
+db_url = Settings().database.url
+# if deployed to AWS ECS, use the service discovery endpoint for the database
+aws_discovery_endpoint = os.environ.get("COPILOT_SERVICE_DISCOVERY_ENDPOINT", None)
+if aws_discovery_endpoint:
+    db_url = f"postgresql+psycopg2://postgres:postgres@{TOOLKIT_AWS_DB_SERVICE}.{aws_discovery_endpoint}:5432"
+
+config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
