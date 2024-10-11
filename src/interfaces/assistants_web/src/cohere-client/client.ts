@@ -52,6 +52,10 @@ export class CohereClient {
     });
   }
 
+  public getHealth() {
+    return this.cohereService.default.healthHealthGet();
+  }
+
   public batchUploadConversationFile(
     formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post
   ) {
