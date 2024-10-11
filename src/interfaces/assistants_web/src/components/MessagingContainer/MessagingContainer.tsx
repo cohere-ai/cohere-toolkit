@@ -3,7 +3,7 @@
 import { Transition } from '@headlessui/react';
 import { usePrevious } from '@react-hookz/web';
 import React, { ReactNode, memo, useEffect, useMemo } from 'react';
-import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
+import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
 
 import { MessageRow } from '@/components/MessageRow';
 import { Welcome } from '@/components/MessagingContainer';
@@ -34,24 +34,20 @@ type Props = {
 const MessagingContainerContents: React.FC<Props> = (props) => {
   const { scrollViewClassName = '', ...rest } = props;
   return (
-    <ScrollToBottom
-      mode={props.messages.length === 0 ? 'top' : 'bottom'}
-      initialScrollBehavior="smooth"
-      className="relative flex h-0 flex-grow flex-col"
-      scrollViewClassName={cn(
-        '!h-full',
-        'flex relative mt-auto overflow-x-hidden',
-        {
-          // For vertically centering the content in @/components/Welcome.tsx
-          'mt-0 md:mt-auto': props.messages.length === 0,
-        },
-        scrollViewClassName
-      )}
-      followButtonClassName="hidden"
-      debounce={100}
-    >
-      <Content {...rest} />
-    </ScrollToBottom>
+    <StickToBottom className="relative flex h-0 flex-grow flex-col">
+      <StickToBottom.Content
+        className={cn(
+          'relative mt-auto flex overflow-x-hidden',
+          {
+            // For vertically centering the content in @/components/Welcome.tsx
+            'mt-0 md:mt-auto': props.messages.length === 0,
+          },
+          scrollViewClassName
+        )}
+      >
+        <Content {...rest} />
+      </StickToBottom.Content>
+    </StickToBottom>
   );
 };
 export const MessagingContainer = memo(MessagingContainerContents);
@@ -62,10 +58,9 @@ export const MessagingContainer = memo(MessagingContainerContents);
  */
 const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
-  const scrollToBottom = useScrollToBottom();
+  const { scrollToBottom, isAtBottom } = useStickToBottomContext();
 
   useFixCopyBug();
-  const [isAtBottom] = useSticky();
   const prevIsStreaming = usePrevious(isStreaming);
 
   // Show the `New Message` button if the user has scrolled up
@@ -86,12 +81,12 @@ const Content: React.FC<Props> = (props) => {
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.type === MessageType.USER) {
-      scrollToBottom({ behavior: 'smooth' });
+      scrollToBottom();
     }
   }, [messages.length, scrollToBottom]);
 
   const handleScrollToNewMessage = () => {
-    scrollToBottom({ behavior: 'smooth' });
+    scrollToBottom();
   };
 
   return (
