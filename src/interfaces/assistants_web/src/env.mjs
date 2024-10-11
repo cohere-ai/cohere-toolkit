@@ -1,23 +1,20 @@
 /* eslint-disable no-process-env */
 import { createEnv } from '@t3-oss/env-nextjs';
-import {
-  useCohereClient,
-} from '@/cohere-client';
 import z from 'zod';
 
 const checkBackendHealth = async () => {
-  const cohereClient = useCohereClient();
-  const health = await cohereClient.getHealth();
+  const url = process.env.API_HOSTNAME || 'http://backend:8000';
 
-  console.log("Checking health")
-  console.log(health)
-
-  if (response.ok) {
-    console.log('Backend is healthy.');
-    return true;
-  } else {
-    console.error('Backend health check failed.');
-    throw new Error('Backend health check failed. Please ensure the backend is running properly.');
+  try {
+    const response = await fetch(`${url}/health`);
+    if (response.ok) {
+      console.log('Backend is healthy, business as usual.');
+    } else {
+      throw new Error('Backend health check failed, make sure your backend server is running correctly.');
+    }
+  } catch (error) {
+    console.error('Backend is unreachable:', error.message);
+    throw new Error('Backend is unreachable. Make sure your backend server is running correctly.');
   }
 };
 
