@@ -12,6 +12,8 @@ import {
   LongPressMenu,
 } from '@/components/UI';
 import { Breakpoint, useBreakpoint } from '@/hooks';
+import { useExperimentalFeatures } from '@/hooks/use-experimentalFeatures';
+import { SynthesisStatus } from '@/hooks/use-synthesizer';
 import {
   type ChatMessage,
   isAbortedMessage,
@@ -28,7 +30,7 @@ type Props = {
   message: ChatMessage;
   isStreamingToolEvents: boolean;
   isReadOnly?: boolean;
-  isSynthesisPlaying?: boolean;
+  synthesisStatus?: SynthesisStatus;
   delay?: boolean;
   className?: string;
   onCopy?: VoidFunction;
@@ -47,7 +49,7 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
     isLast,
     isStreamingToolEvents,
     isReadOnly = false,
-    isSynthesisPlaying,
+    synthesisStatus,
     className = '',
     onCopy,
     onRetry,
@@ -62,6 +64,7 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
   const [isStepsExpanded, setIsStepsExpanded] = useState(true);
 
+  const { data: experimentalFeatures } = useExperimentalFeatures();
   const { longPressProps } = useLongPress({
     onLongPress: () => setIsLongPressMenuOpen(true),
   });
@@ -81,7 +84,11 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
     (isFulfilledMessage(message) || isUserMessage(message)) && breakpoint === Breakpoint.sm;
 
   const isSynthesisEnabled =
-    !!message.id && isBotMessage(message) && !isErroredMessage(message) && !!onToggleSynthesis;
+    !!onToggleSynthesis &&
+    !!experimentalFeatures?.USE_TEXT_TO_SPEECH_SYNTHESIS &&
+    !!message.id &&
+    isBotMessage(message) &&
+    !isErroredMessage(message);
 
   const isRegenerationEnabled =
     isLast && !isReadOnly && isBotMessage(message) && !isErroredMessage(message);
@@ -156,8 +163,8 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
             >
               {isSynthesisEnabled && (
                 <IconButton
-                  tooltip={{ label: isSynthesisPlaying ? 'Stop' : 'Read' }}
-                  iconName={isSynthesisPlaying ? 'stop' : 'volume'}
+                  tooltip={{ label: synthesisStatus == SynthesisStatus.Playing ? 'Stop' : 'Read' }}
+                  iconName={synthesisStatus == SynthesisStatus.Playing ? 'stop' : 'volume'}
                   className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
                   iconClassName={cn(
                     'text-volcanic-300 fill-volcanic-300 group-hover/icon-button:fill-mushroom-300',

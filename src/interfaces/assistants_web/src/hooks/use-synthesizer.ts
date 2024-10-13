@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 
 import { useCohereClient } from '@/cohere-client';
-import { useNotify } from '@/hooks/use-toast';
 import { useConversationStore } from '@/stores';
+
+export enum SynthesisStatus {
+  NotStarted = 'not-started',
+  Loading = 'loading',
+  Playing = 'playing',
+  Ended = 'ended',
+}
 
 export const useSynthesizer = () => {
   const client = useCohereClient();
-  const notify = useNotify();
 
-  const [isStreamStarting, setIsStreamStarting] = useState<boolean>(false);
   const [audios, setAudios] = useState<Map<string, HTMLAudioElement>>(new Map());
 
   const {
@@ -21,100 +25,60 @@ export const useSynthesizer = () => {
     }
   }, [conversationId]);
 
-  const isPlaying = (messageId: string) => {
+  const synthesisStatus = (messageId: string) => {
     const audio = audios.get(messageId);
 
     if (!audio) {
-      return false;
+      return SynthesisStatus.NotStarted;
     }
 
-    return !audio.paused && !audio.ended;
+    if (!audio.src) {
+      return SynthesisStatus.Loading;
+    }
+
+    if (!audio.paused && !audio.ended) {
+      return SynthesisStatus.Playing;
+    }
+
+    return SynthesisStatus.Ended;
   };
 
-  const handleToggleSynthesis = async (messageId: string) => {
-    return isPlaying(messageId) ? stopSynthesis(messageId) : await startSynthesis(messageId);
+  const toggleSynthesis = async (messageId: string) => {
+    if (synthesisStatus(messageId) == SynthesisStatus.Playing) {
+      stopSynthesis(messageId);
+    } else {
+      await startSynthesis(messageId);
+    }
   };
 
   const startSynthesis = async (messageId: string) => {
-    if (isStreamStarting) {
-      return;
-    }
-
     for (const messageId of audios.keys()) {
       stopSynthesis(messageId);
     }
 
-    const audio = audios.get(messageId);
+    let audio = audios.get(messageId);
 
-    if (audio) {
-      await audio.play();
-      setAudios((prev) => new Map(prev));
+    if (audio && !audio.src) {
       return;
     }
 
-    setIsStreamStarting(true);
-
-    try {
-      const stream = await client.synthesizeMessage(conversationId!, messageId);
-
-      if (!stream.ok) {
-        notifySynthesisError();
-        return;
-      }
-
-      const mediaSource = createMediaSource(stream);
-      const audio = createAudioElement(mediaSource);
-
-      await audio.play();
-
-      setAudios((prev) => new Map(prev).set(messageId, audio));
-    } catch (e) {
-      notifySynthesisError(e);
-    } finally {
-      setIsStreamStarting(false);
+    if (!audio) {
+      audio = createEmptyAudioElement();
+      setAudios((prev) => new Map(prev).set(messageId, audio!));
     }
-  };
 
-  const stopSynthesis = (messageId: string) => {
-    const audio = audios.get(messageId);
-
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-      setAudios((prev) => new Map(prev));
+    if (!audio.src) {
+      const blob = await client.synthesizeMessage(conversationId!, messageId);
+      audio.src = URL.createObjectURL(blob);
     }
+
+    await audio.play();
+
+    setAudios((prev) => new Map(prev));
   };
 
-  const createMediaSource = (stream: Response) => {
-    const mediaSource = new MediaSource();
-
-    mediaSource.addEventListener('sourceopen', async () => {
-      const sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
-      const reader = stream.body!.getReader();
-
-      const readChunk = async () => {
-        const { done, value } = await reader!.read();
-
-        if (done) {
-          mediaSource.endOfStream();
-          return;
-        }
-
-        sourceBuffer.appendBuffer(value);
-
-        sourceBuffer.addEventListener('updateend', readChunk, { once: true });
-      };
-
-      await readChunk();
-    });
-
-    return mediaSource;
-  };
-
-  const createAudioElement = (mediaSource: MediaSource) => {
+  const createEmptyAudioElement = () => {
     const audio = new Audio();
-
-    audio.src = URL.createObjectURL(mediaSource);
 
     audio.addEventListener('ended', () => {
       setAudios((prev) => new Map(prev));
@@ -123,12 +87,18 @@ export const useSynthesizer = () => {
     return audio;
   };
 
-  const notifySynthesisError = (e?: unknown) => {
-    notify.error('Failed to synthesize the message');
-    if (e) {
-      console.error(e);
+  const stopSynthesis = (messageId: string) => {
+    const audio = audios.get(messageId);
+
+    if (!audio) {
+      return;
     }
+
+    audio.pause();
+    audio.currentTime = 0;
+
+    setAudios((prev) => new Map(prev));
   };
 
-  return { isPlaying, handleToggleSynthesis };
+  return { synthesisStatus, toggleSynthesis };
 };

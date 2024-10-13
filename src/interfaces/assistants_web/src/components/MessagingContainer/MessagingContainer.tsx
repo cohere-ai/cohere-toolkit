@@ -134,7 +134,7 @@ const Messages: React.FC<MessagesProps> = ({
   isStreamingToolEvents,
 }) => {
   const isChatEmpty = messages.length === 0;
-  const { isPlaying, handleToggleSynthesis } = useSynthesizer();
+  const { synthesisStatus, toggleSynthesis } = useSynthesizer();
 
   if (isChatEmpty) {
     return (
@@ -155,7 +155,7 @@ const Messages: React.FC<MessagesProps> = ({
               message={m}
               isLast={isLastInList && !streamingMessage}
               isStreamingToolEvents={isStreamingToolEvents}
-              isSynthesisPlaying={isPlaying(m.id!)}
+              synthesisStatus={synthesisStatus(m.id!)}
               className={cn({
                 // Hide the last message if it is the same as the separate streamed message
                 // to avoid a flash of duplicate messages.
@@ -168,7 +168,7 @@ const Messages: React.FC<MessagesProps> = ({
               })}
               onRetry={onRetry}
               onRegenerate={onRegenerate}
-              onToggleSynthesis={() => handleToggleSynthesis(m.id!)}
+              onToggleSynthesis={() => toggleSynthesis(m.id!)}
             />
           );
         })}
