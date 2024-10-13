@@ -3,6 +3,7 @@ import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-s
 import {
   Body_batch_upload_file_v1_agents_batch_upload_file_post,
   Body_batch_upload_file_v1_conversations_batch_upload_file_post,
+  CancelablePromise,
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
@@ -157,13 +158,16 @@ export class CohereClient {
   }
 
   public async synthesizeMessage(conversationId: string, messageId: string) {
-    return await this.fetch(
-      `${this.getEndpoint('conversations')}/${conversationId}/synthesize/${messageId}`,
+    return this.cohereService.default.synthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGet(
       {
-        method: 'GET',
-        headers: this.getHeaders(),
+        conversationId,
+        messageId,
       }
-    );
+    ) as CancelablePromise<Blob>;
+  }
+
+  public async getExperimentalFeatures() {
+    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet();
   }
 
   public listTools({ agentId }: { agentId?: string | null }) {
@@ -320,7 +324,7 @@ export class CohereClient {
     return this.cohereService.default.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
   }
 
-  private getEndpoint(endpoint: 'conversations' | 'chat-stream' | 'google/auth' | 'oidc/auth') {
+  private getEndpoint(endpoint: 'chat-stream' | 'google/auth' | 'oidc/auth') {
     return `${this.hostname}/v1/${endpoint}`;
   }
 
