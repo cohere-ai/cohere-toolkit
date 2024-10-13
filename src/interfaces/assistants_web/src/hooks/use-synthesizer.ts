@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useCohereClient } from '@/cohere-client';
 import { useConversationStore } from '@/stores';
@@ -12,16 +12,13 @@ export enum SynthesisStatus {
 
 export const useSynthesizer = () => {
   const client = useCohereClient();
-
+  const lastMessageIdRef = useRef<string | null>(null);
   const [audios, setAudios] = useState<Map<string, HTMLAudioElement>>(new Map());
-
   const {
     conversation: { id: conversationId },
   } = useConversationStore();
 
-  useEffect(() => {
-    stopPlayingSyntheses();
-  }, [conversationId]);
+  useEffect(() => stopPlayingSyntheses(), [conversationId]);
 
   const synthesisStatus = (messageId: string) => {
     const audio = audios.get(messageId);
@@ -42,21 +39,23 @@ export const useSynthesizer = () => {
   };
 
   const toggleSynthesis = async (messageId: string) => {
-    if (synthesisStatus(messageId) == SynthesisStatus.Playing) {
-      stopSynthesis(messageId);
-    } else {
-      await startSynthesis(messageId);
+    const status = synthesisStatus(messageId);
+
+    if (status == SynthesisStatus.NotStarted || status == SynthesisStatus.Ended) {
+      return await startSynthesis(messageId);
+    }
+
+    if (status == SynthesisStatus.Playing) {
+      return stopSynthesis(messageId);
     }
   };
 
   const startSynthesis = async (messageId: string) => {
     stopPlayingSyntheses();
 
-    let audio = audios.get(messageId);
+    lastMessageIdRef.current = messageId;
 
-    if (audio && !audio.src) {
-      return;
-    }
+    let audio = audios.get(messageId);
 
     if (!audio) {
       audio = createEmptyAudioElement();
@@ -68,7 +67,9 @@ export const useSynthesizer = () => {
       audio.src = URL.createObjectURL(blob);
     }
 
-    await audio.play();
+    if (lastMessageIdRef.current === messageId) {
+      await audio.play();
+    }
 
     setAudios((prev) => new Map(prev));
   };
@@ -102,7 +103,7 @@ export const useSynthesizer = () => {
         stopSynthesis(messageId);
       }
     }
-  }
+  };
 
   return { synthesisStatus, toggleSynthesis };
 };
