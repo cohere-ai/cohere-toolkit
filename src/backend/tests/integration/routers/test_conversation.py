@@ -174,7 +174,7 @@ def test_synthesize_english_message(
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     message = get_factory("Message", session).create(
-        id="1", text="Hello world", conversation_id=conversation.id, user_id=user.id
+        id="1", text="Hello world!", conversation_id=conversation.id, user_id=user.id
     )
     response = session_client.get(
         f"/v1/conversations/{conversation.id}/synthesize/{message.id}",
@@ -192,7 +192,7 @@ def test_synthesize_non_english_message(
 ) -> None:
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     message = get_factory("Message", session).create(
-        id="1", text="Bonjour le monde", conversation_id=conversation.id, user_id=user.id
+        id="1", text="Bonjour le monde!", conversation_id=conversation.id, user_id=user.id
     )
     response = session_client.get(
         f"/v1/conversations/{conversation.id}/synthesize/{message.id}",
