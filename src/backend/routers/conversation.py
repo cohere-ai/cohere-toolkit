@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
-from starlette.responses import StreamingResponse
+from starlette.responses import Response
 
 from backend.chat.custom.utils import get_deployment
 from backend.config.routers import RouterName
@@ -41,7 +41,7 @@ from backend.services.file import (
     get_file_service,
     validate_file,
 )
-from backend.services.synthesizer import synthesize_stream
+from backend.services.synthesizer import synthesize
 
 router = APIRouter(
     prefix="/v1/conversations",
@@ -555,9 +555,9 @@ async def synthesize_message(
     message_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-) -> StreamingResponse:
+) -> Response:
     """
-    Generate a synthesized audio stream for a specific message in a conversation.
+    Generate a synthesized audio for a specific message in a conversation.
 
     Args:
         conversation_id (str): Conversation ID.
@@ -566,7 +566,7 @@ async def synthesize_message(
         ctx (Context): Context object.
 
     Returns:
-        StreamingResponse: Synthesized audio stream.
+        Response: Synthesized audio file.
 
     Raises:
         HTTPException: If the message with the given ID is not found.
@@ -580,7 +580,7 @@ async def synthesize_message(
             detail=f"Message with ID: {message_id} not found.",
         )
 
-    return StreamingResponse(
-        synthesize_stream(message.text),
+    return Response(
+        synthesize(message.text),
         media_type="audio/mp3"
     )

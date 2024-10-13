@@ -1,22 +1,38 @@
-from typing import Any, Generator
+from google.cloud.texttospeech import (
+    AudioConfig,
+    AudioEncoding,
+    SynthesisInput,
+    TextToSpeechClient,
+    VoiceSelectionParams,
+)
+from googleapiclient.discovery import build
 
-from googletrans import Translator
-from gtts import gTTS
+from backend.config import Settings
 
 
-def synthesize_stream(text: str) -> Generator[bytes, Any, Any]:
+def synthesize(text: str) -> bytes:
     """
-    Generate a stream of audio bytes from the given text using text-to-speech synthesis.
+    Synthesizes speech from the input text.
 
     Args:
         text (str): The input text to be synthesized into speech.
 
     Returns:
-        Generator[bytes, Any, Any]: A generator yielding audio bytes of the synthesized speech.
+        bytes: The audio content generated from the input text in MP3 format.
     """
-    lang = detect_language(text)
-    tts = gTTS(text, lang=lang, slow=False)
-    return tts.stream()
+    client = TextToSpeechClient(client_options={
+        "api_key": Settings().google_cloud.api_key
+    })
+
+    langauge = detect_language(text)
+
+    response = client.synthesize_speech(
+        input=SynthesisInput(text=text),
+        voice=VoiceSelectionParams(language_code=langauge),
+        audio_config=AudioConfig(audio_encoding=AudioEncoding.MP3)
+    )
+
+    return response.audio_content
 
 
 def detect_language(text: str) -> str:
@@ -29,7 +45,11 @@ def detect_language(text: str) -> str:
     Returns:
         str: The language code of the detected language (e.g., 'en', 'es').
     """
-    for char in text:
-        if char.isalpha() and not char.isascii():
-            return Translator().detect(text).lang
-    return "en"
+    if text.isascii():
+        return "en"
+
+    client = build("translate", "v2", developerKey=Settings().google_cloud.api_key)
+
+    response = client.detections().list(q=text).execute()
+
+    return response["detections"][0][0]["language"]

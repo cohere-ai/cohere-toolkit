@@ -1339,6 +1339,8 @@ files = [
 [package.dependencies]
 google-auth = ">=2.14.1,<3.0.dev0"
 googleapis-common-protos = ">=1.56.2,<2.0.dev0"
+grpcio = {version = ">=1.49.1,<2.0dev", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""}
+grpcio-status = {version = ">=1.49.1,<2.0.dev0", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""}
 proto-plus = ">=1.22.3,<2.0.0dev"
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0.dev0"
 requests = ">=2.18.0,<3.0.0.dev0"
@@ -1423,6 +1425,23 @@ requests-oauthlib = ">=0.7.0"
 tool = ["click (>=6.0.0)"]
 
 [[package]]
+name = "google-cloud-texttospeech"
+version = "2.18.0"
+description = "Google Cloud Texttospeech API client library"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "google_cloud_texttospeech-2.18.0-py2.py3-none-any.whl", hash = "sha256:178eb686bd439c46cc1bfee2fab3960914e08655630a52e224469873152d1418"},
+    {file = "google_cloud_texttospeech-2.18.0.tar.gz", hash = "sha256:8d1f7577a6f86ed48335e10814680261e2976da54888c8a1d586044ee19196f4"},
+]
+
+[package.dependencies]
+google-api-core = {version = ">=1.34.1,<2.0.dev0 || >=2.11.dev0,<3.0.0dev", extras = ["grpc"]}
+google-auth = ">=2.14.1,<2.24.0 || >2.24.0,<2.25.0 || >2.25.0,<3.0.0dev"
+proto-plus = ">=1.22.3,<2.0.0dev"
+protobuf = ">=3.20.2,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0dev"
+
+[[package]]
 name = "googleapis-common-protos"
 version = "1.65.0"
 description = "Common protobufs used in Google APIs"
@@ -1438,20 +1457,6 @@ protobuf = ">=3.20.2,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4
 
 [package.extras]
 grpc = ["grpcio (>=1.44.0,<2.0.0.dev0)"]
-
-[[package]]
-name = "googletrans-py"
-version = "4.0.0"
-description = "Free Google Translate API for Python. Translates totally free of charge."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "googletrans-py-4.0.0.tar.gz", hash = "sha256:487963819ced88f1f81d848786e2d3e02544833d161cc5edb178a1f74bde6d98"},
-]
-
-[package.dependencies]
-h2 = ">=4,<5"
-httpx = ">=0.22.0"
 
 [[package]]
 name = "greenlet"
@@ -1591,23 +1596,20 @@ files = [
 protobuf = ["grpcio-tools (>=1.66.1)"]
 
 [[package]]
-name = "gtts"
-version = "2.5.3"
-description = "gTTS (Google Text-to-Speech), a Python library and CLI tool to interface with Google Translate text-to-speech API"
+name = "grpcio-status"
+version = "1.66.1"
+description = "Status proto mapping for gRPC"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "gTTS-2.5.3-py3-none-any.whl", hash = "sha256:ca5d962f7bf57238500d83c61cf3de76b0aa78b18658f3db5c0396e604caa0f5"},
-    {file = "gtts-2.5.3.tar.gz", hash = "sha256:d9f873c2f3a397c77c7a8c5dc128fc35fbed59f3e240cef0bff6c80d8cc12106"},
+    {file = "grpcio_status-1.66.1-py3-none-any.whl", hash = "sha256:cf9ed0b4a83adbe9297211c95cb5488b0cd065707e812145b842c85c4782ff02"},
+    {file = "grpcio_status-1.66.1.tar.gz", hash = "sha256:b3f7d34ccc46d83fea5261eea3786174459f763c31f6e34f1d24eba6d515d024"},
 ]
 
 [package.dependencies]
-click = ">=7.1,<8.2"
-requests = ">=2.27,<3"
-
-[package.extras]
-docs = ["sphinx", "sphinx-autobuild", "sphinx-click", "sphinx-mdinclude", "sphinx-rtd-theme"]
-tests = ["pytest (>=7.1.3,<8.4.0)", "pytest-cov", "testfixtures"]
+googleapis-common-protos = ">=1.5.5"
+grpcio = ">=1.66.1"
+protobuf = ">=5.26.1,<6.0dev"
 
 [[package]]
 name = "h11"
@@ -6699,4 +6701,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "3adfadbb022bb008dd8f6a61f4de6f2b8c036d3f9cd3edacd2f4416e610d7265"
+content-hash = "077321dcaebc0346ae1669450ad6415aaa9b8c117e7f7154ed412eb127d75ecc"
