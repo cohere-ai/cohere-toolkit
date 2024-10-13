@@ -10,8 +10,6 @@ from backend.database_models import Conversation
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
-# skip if google cloud is not available
-is_google_cloud_api_key_set = Settings().google_cloud.api_key is not None and Settings().google_cloud.api_key != ""
 
 
 def test_search_conversations(
@@ -164,6 +162,9 @@ def test_generate_title_error_invalid_model(
 
 
 # SYNTHESIZE
+
+
+is_google_cloud_api_key_set = bool(Settings().google_cloud.api_key)
 
 
 @pytest.mark.skipif(not is_google_cloud_api_key_set, reason="Google Cloud API key not set, skipping test")

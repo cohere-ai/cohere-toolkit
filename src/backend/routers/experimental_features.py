@@ -25,5 +25,6 @@ def list_experimental_features(ctx: Context = Depends(get_context)):
 
     experimental_features = {
         "USE_AGENTS_VIEW": Settings().feature_flags.use_agents_view,
+        "USE_TEXT_TO_SPEECH_SYNTHESIS": bool(Settings().google_cloud.api_key),
     }
     return experimental_features
