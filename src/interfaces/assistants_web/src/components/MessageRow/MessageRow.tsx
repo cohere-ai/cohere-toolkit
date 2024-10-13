@@ -164,6 +164,7 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
               {isSynthesisEnabled && (
                 <IconButton
                   tooltip={{ label: synthesisStatus == SynthesisStatus.Playing ? 'Stop' : 'Read' }}
+                  isLoading={synthesisStatus == SynthesisStatus.Loading}
                   iconName={synthesisStatus == SynthesisStatus.Playing ? 'stop' : 'volume'}
                   className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
                   iconClassName={cn(

@@ -20,9 +20,7 @@ export const useSynthesizer = () => {
   } = useConversationStore();
 
   useEffect(() => {
-    for (const messageId of audios.keys()) {
-      stopSynthesis(messageId);
-    }
+    stopPlayingSyntheses();
   }, [conversationId]);
 
   const synthesisStatus = (messageId: string) => {
@@ -52,9 +50,7 @@ export const useSynthesizer = () => {
   };
 
   const startSynthesis = async (messageId: string) => {
-    for (const messageId of audios.keys()) {
-      stopSynthesis(messageId);
-    }
+    stopPlayingSyntheses();
 
     let audio = audios.get(messageId);
 
@@ -99,6 +95,14 @@ export const useSynthesizer = () => {
 
     setAudios((prev) => new Map(prev));
   };
+
+  const stopPlayingSyntheses = () => {
+    for (const messageId of audios.keys()) {
+      if (synthesisStatus(messageId) == SynthesisStatus.Playing) {
+        stopSynthesis(messageId);
+      }
+    }
+  }
 
   return { synthesisStatus, toggleSynthesis };
 };
