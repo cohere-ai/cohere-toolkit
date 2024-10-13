@@ -352,16 +352,6 @@ export type JWTResponse = {
   token: string;
 };
 
-/**
- * Request shape for Langchain Streamed Chat.
- */
-export type LangchainChatRequest = {
-  message: string;
-  chat_history?: Array<ChatMessage> | null;
-  conversation_id?: string;
-  tools?: Array<Tool> | null;
-};
-
 export type ListAuthStrategy = {
   strategy: string;
   client_id: string | null;
@@ -849,12 +839,6 @@ export type ChatV1ChatPostData = {
 
 export type ChatV1ChatPostResponse = NonStreamedChatResponse;
 
-export type LangchainChatStreamV1LangchainChatPostData = {
-  requestBody: LangchainChatRequest;
-};
-
-export type LangchainChatStreamV1LangchainChatPostResponse = unknown;
-
 export type CreateUserV1UsersPostData = {
   requestBody: backend__schemas__user__CreateUser;
 };
@@ -963,6 +947,13 @@ export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostData = {
 export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse =
   GenerateTitleResponse;
 
+export type SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData = {
+  conversationId: string;
+  messageId: string;
+};
+
+export type SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse = unknown;
+
 export type ListToolsV1ToolsGetData = {
   agentId?: string | null;
 };
@@ -1007,7 +998,9 @@ export type SetEnvVarsV1DeploymentsNameSetEnvVarsPostData = {
 
 export type SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse = unknown;
 
-export type ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse = unknown;
+export type ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse = {
+  [key: string]: boolean;
+};
 
 export type CreateAgentV1AgentsPostData = {
   requestBody: CreateAgentRequest;
@@ -1378,21 +1371,6 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/langchain-chat': {
-    post: {
-      req: LangchainChatStreamV1LangchainChatPostData;
-      res: {
-        /**
-         * Successful Response
-         */
-        200: unknown;
-        /**
-         * Validation Error
-         */
-        422: HTTPValidationError;
-      };
-    };
-  };
   '/v1/users': {
     post: {
       req: CreateUserV1UsersPostData;
@@ -1608,6 +1586,21 @@ export type $OpenApiTs = {
       };
     };
   };
+  '/v1/conversations/{conversation_id}/synthesize/{message_id}': {
+    get: {
+      req: SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: unknown;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
   '/v1/tools': {
     get: {
       req: ListToolsV1ToolsGetData;
@@ -1713,7 +1706,9 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: unknown;
+        200: {
+          [key: string]: boolean;
+        };
       };
     };
   };
