@@ -49,13 +49,13 @@ To follow this guide, you will need the following:
 
 ## Detailed description
 We have created a script that will deploy the Toolkit to AWS using AWS Copilot.
-The script will create a new application, environment, and service in AWS Copilot,
+The script will create a new application, environment, and services in AWS Copilot,
 please note that the deployment script is using containerised DB services for the database.
 You can change it and use RDS if needed.
 Please read this [AWS Copilot documentation](https://aws.github.io/copilot-cli/docs/developing/storage/) how to set up 
 RDS Aurora Serverless v2 cluster using copilot storage init
-Also we set the minimal resources for the service, you can change it in the `manifest.yml` file for each service.
-Take a look at the `cpu` and `memory` settings in the `manifest.yml` file. 
+Also we set the minimal resources for the services, you can change it in the `manifest.yml` file for each service - 
+take a look at the `cpu` and `memory` settings in the `manifest.yml` file. 
 If some service is not needed you can comment it in the `aws_deploy.sh` script.
 To delete some service you can run `copilot svc delete` command and choose the service you want to delete.
 The full list of commands you can find [here](https://aws.github.io/copilot-cli/docs/overview/). 
