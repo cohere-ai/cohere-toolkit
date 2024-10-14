@@ -49,8 +49,10 @@ To follow this guide, you will need the following:
 
 ## Detailed description
 We have created a script that will deploy the Toolkit to AWS using AWS Copilot.
-The script will create a new application, environment, and services in AWS Copilot,
-please note that the deployment script is using containerised DB services for the database.
+The script will create a new application, environment, and services in AWS Fargate.
+Please note that the AWS Copilot doesn't allow to deploy more than one service with Load Balancer at the same application.
+So this deployment uses Nginx as a reverse proxy to route the traffic to the services.
+Please note that the deployment script is using containerised DB services for the database.
 You can change it and use RDS if needed.
 Please read this [AWS Copilot documentation](https://aws.github.io/copilot-cli/docs/developing/storage/) how to set up 
 RDS Aurora Serverless v2 cluster using copilot storage init
