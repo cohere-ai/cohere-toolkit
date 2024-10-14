@@ -19,6 +19,8 @@ To follow this guide, you will need the following:
 - AWS Copilot installed
   - To install AWS Copilot, follow the instructions [here](https://aws.github.io/copilot-cli/) 
 - Cohere's Toolkit repository cloned
+- Initial setup of the env variables in the `.env` file or in the `configuration.yaml` and `secrets.yaml` files
+  - To set up the Toolkit, follow the instructions [here](/docs/setup.md)
 
 ## Steps
 
