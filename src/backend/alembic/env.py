@@ -9,8 +9,8 @@ from backend.config.settings import Settings
 
 # Need to import Models - note they will be unused but are required for Alembic to detect
 from backend.database_models import *  # noqa
-from backend.database_models.database import TOOLKIT_AWS_DB_SERVICE
 from backend.database_models.base import Base
+from backend.database_models.database import TOOLKIT_AWS_DB_SERVICE
 
 load_dotenv()
 
