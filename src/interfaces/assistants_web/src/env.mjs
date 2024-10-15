@@ -16,7 +16,9 @@ const readVariable = (key) => {
     }
     return window.__ENV[key];
   } catch (err) {
-    throw new ServerError("Unable to connect to the backend server. Please check if the server is running and accessible.")
+    throw new ServerError(
+      `${key} not configured, or the backend server is not running correctly.`
+    )
   }
 };
 
