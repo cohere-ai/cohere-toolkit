@@ -57,8 +57,10 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
 
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
+
+  // For showing thinking steps
   const { showSteps } = useSettingsStore();
-  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
+  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     setIsStepsExpanded(showSteps);
