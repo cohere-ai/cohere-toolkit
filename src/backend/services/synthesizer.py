@@ -68,9 +68,12 @@ def _validate_google_cloud_api_key() -> str:
     Raises:
         ValueError: If the API key is not found in the settings or is empty.
     """
-    api_key = Settings().google_cloud.api_key
+    google_cloud = Settings().google_cloud
 
-    if not api_key:
+    if not google_cloud:
+        raise ValueError("google_cloud in secrets.yaml is missing.")
+
+    if not google_cloud.api_key:
         raise ValueError("google_cloud.api_key in secrets.yaml is missing.")
 
-    return api_key
+    return google_cloud.api_key
