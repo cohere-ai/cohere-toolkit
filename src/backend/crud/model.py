@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import AgentDeploymentModel
+from backend.database_models import AgentDeploymentModel, Deployment
 from backend.database_models.model import Model
 from backend.schemas.model import ModelCreate, ModelUpdate
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.services.transaction import validate_transaction
 
 
@@ -140,3 +141,35 @@ def get_models_by_agent_id(
         .offset(offset)
         .all()
     )
+
+
+def create_model_by_config(db: Session, deployment: Deployment, deployment_config: DeploymentSchema, model: str) -> Model:
+    """
+    Create a new model by config if present
+
+    Args:
+        db (Session): Database session.
+        deployment (Deployment): Deployment data.
+        deployment_config (DeploymentSchema): Deployment config data.
+        model (str): Model data.
+
+    Returns:
+        Model: Created model.
+    """
+    deployment_config_models = deployment_config.models
+    deployment_db_models = get_models_by_deployment_id(db, deployment.id)
+    model_to_return = None
+    for deployment_config_model in deployment_config_models:
+        model_in_db = any(record['name'] == deployment_config_model for record in deployment_db_models)
+        if not model_in_db:
+            new_model = Model(
+                name=deployment_config_model,
+                cohere_name=deployment_config_model,
+                deployment_id=deployment.id,
+            )
+            db.add(new_model)
+            db.commit()
+            if model == new_model.name:
+                model_to_return = new_model
+
+    return model_to_return

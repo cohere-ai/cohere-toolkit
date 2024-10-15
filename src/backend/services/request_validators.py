@@ -8,6 +8,7 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import deployment as deployment_crud
+from backend.crud import model as model_crud
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.utils import class_name_validator
@@ -32,8 +33,11 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
 
     """
     deployment_db = deployment_crud.get_deployment_by_name(session, deployment)
+    deployment_config = None
     if not deployment_db:
         deployment_db = deployment_crud.get_deployment(session, deployment)
+    if not deployment_db:
+        deployment_db, deployment_config = deployment_crud.create_deployment_by_config(session, deployment)
     if not deployment_db:
         raise HTTPException(
             status_code=400,
@@ -48,6 +52,10 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
         ),
         None,
     )
+    if not deployment_model:
+        deployment_model = model_crud.create_model_by_config(
+            session, deployment_db, deployment_config, model
+        )
     if not deployment_model:
         raise HTTPException(
             status_code=404,
