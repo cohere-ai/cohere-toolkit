@@ -19,9 +19,12 @@ def synthesize(text: str) -> bytes:
 
     Returns:
         bytes: The audio content generated from the input text in MP3 format.
+
+    Raises:
+        ValueError: If the Google Cloud API key from the settings is not valid.
     """
     client = TextToSpeechClient(client_options={
-        "api_key": Settings().google_cloud.api_key
+        "api_key": _validate_google_cloud_api_key()
     })
 
     language = detect_language(text)
@@ -44,9 +47,30 @@ def detect_language(text: str) -> str:
 
     Returns:
         str: The language code of the detected language (e.g., 'en', 'es').
+
+    Raises:
+        ValueError: If the Google Cloud API key from the settings is not valid.
     """
-    client = build("translate", "v2", developerKey=Settings().google_cloud.api_key)
+    client = build("translate", "v2", developerKey=_validate_google_cloud_api_key())
 
     response = client.detections().list(q=text).execute()
 
     return response["detections"][0][0]["language"]
+
+
+def _validate_google_cloud_api_key() -> str:
+    """
+    Validates the Google Cloud API key from the settings.
+
+    Returns:
+        str: The validated API key.
+
+    Raises:
+        ValueError: If the API key is not found in the settings or is empty.
+    """
+    api_key = Settings().google_cloud.api_key
+
+    if not api_key:
+        raise ValueError("google_cloud.api_key in secrets.yaml is missing.")
+
+    return api_key

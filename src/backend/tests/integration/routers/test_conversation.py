@@ -11,7 +11,6 @@ from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
 
-
 def test_search_conversations(
     session_client: TestClient,
     session: Session,

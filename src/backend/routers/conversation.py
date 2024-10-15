@@ -569,7 +569,7 @@ async def synthesize_message(
         Response: Synthesized audio file.
 
     Raises:
-        HTTPException: If the message with the given ID is not found.
+        HTTPException: If the message with the given ID is not found or synthesis fails.
     """
     user_id = ctx.get_user_id()
     message = message_crud.get_conversation_message(session, conversation_id, message_id, user_id)
@@ -580,7 +580,11 @@ async def synthesize_message(
             detail=f"Message with ID: {message_id} not found.",
         )
 
-    return Response(
-        synthesize(message.text),
-        media_type="audio/mp3"
-    )
+    try:
+        synthesized_audio = synthesize(message.text)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error while synthesis message: {e}"
+        )
+
+    return Response(synthesized_audio, media_type="audio/mp3")
