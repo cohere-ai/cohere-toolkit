@@ -584,7 +584,7 @@ async def synthesize_message(
         synthesized_audio = synthesize(message.text)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error while synthesis message: {e}"
+            status_code=500, detail=f"Error while message synthesis: {e}"
         )
 
     return Response(synthesized_audio, media_type="audio/mp3")
