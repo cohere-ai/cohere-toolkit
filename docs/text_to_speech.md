@@ -4,14 +4,14 @@ To use Google Cloud Text-to-Speech, you'll need to create a Google Cloud project
 
 ## 1. Enable Required APIs
 
-You'll need to head to Google Cloud Console, navigate to APIs & Services, and enable:
-- Cloud Text-to-Speech API
-- Cloud Translation API
+Open the **Google Cloud Console**, navigate to **APIs & Services**, and enable:
+- **Cloud Text-to-Speech API**
+- **Cloud Translation API**
 
 ## 2. Create API Credentials
 
-In the Google Cloud Console, go to APIs & Services > Credentials.
-Click Create Credentials and select API key.
+In the **Google Cloud Console**, go to **APIs & Services** > **Credentials**.
+Click **Create Credentials** and select **API key**.
 Copy the generated API key for using in the next step.
 
 ## 3. Configure Environment Variable
