@@ -24,11 +24,11 @@ def synthesize(text: str) -> bytes:
         "api_key": Settings().google_cloud.api_key
     })
 
-    langauge = detect_language(text)
+    language = detect_language(text)
 
     response = client.synthesize_speech(
         input=SynthesisInput(text=text),
-        voice=VoiceSelectionParams(language_code=langauge),
+        voice=VoiceSelectionParams(language_code=language),
         audio_config=AudioConfig(audio_encoding=AudioEncoding.MP3)
     )
 
@@ -45,9 +45,6 @@ def detect_language(text: str) -> str:
     Returns:
         str: The language code of the detected language (e.g., 'en', 'es').
     """
-    if text.isascii():
-        return "en"
-
     client = build("translate", "v2", developerKey=Settings().google_cloud.api_key)
 
     response = client.detections().list(q=text).execute()
