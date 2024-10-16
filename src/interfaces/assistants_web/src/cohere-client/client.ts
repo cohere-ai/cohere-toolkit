@@ -3,6 +3,7 @@ import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-s
 import {
   Body_batch_upload_file_v1_agents_batch_upload_file_post,
   Body_batch_upload_file_v1_conversations_batch_upload_file_post,
+  CancelablePromise,
   CohereChatRequest,
   CohereClientGenerated,
   CohereNetworkError,
@@ -154,6 +155,19 @@ export class CohereClient {
         requestBody,
       }
     );
+  }
+
+  public async synthesizeMessage(conversationId: string, messageId: string) {
+    return this.cohereService.default.synthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGet(
+      {
+        conversationId,
+        messageId,
+      }
+    ) as CancelablePromise<Blob>;
+  }
+
+  public async getExperimentalFeatures() {
+    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet();
   }
 
   public listTools({ agentId }: { agentId?: string | null }) {
