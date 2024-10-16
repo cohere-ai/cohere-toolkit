@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
+from backend.crud import deployment as deployment_crud
+from backend.crud import model as model_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.snapshot import Snapshot
@@ -94,6 +96,29 @@ def test_create_agent_invalid_deployment(
     assert response.json() == {
         "detail": "Deployment not a real deployment not found or is not available in the Database."
     }
+
+
+def test_create_agent_deployment_not_in_db(
+    session_client: TestClient, session: Session, user
+) -> None:
+    request_json = {
+        "name": "test agent",
+        "description": "test description",
+        "preamble": "test preamble",
+        "temperature": 0.5,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
+    }
+    cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    deployment_crud.delete_deployment(session, cohere_deployment.id)
+    response = session_client.post(
+        "/v1/agents", json=request_json, headers={"User-Id": user.id}
+    )
+    cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    model_command_r_plus = model_crud.get_model_by_name(session, "command-r-plus")
+    assert response.status_code == 200
+    assert cohere_deployment
+    assert model_command_r_plus
 
 
 def test_create_agent_invalid_tool(

@@ -39,6 +39,20 @@ def get_model(db: Session, model_id: str) -> Model | None:
     return db.query(Model).filter(Model.id == model_id).first()
 
 
+def get_model_by_name(db: Session, model_name: str) -> Model | None:
+    """
+    Get a model by name.
+
+    Args:
+        db (Session): Database session.
+        model_name (str): Model name.
+
+    Returns:
+        Model: Model with the given name.
+    """
+    return db.query(Model).filter(Model.name == model_name).first()
+
+
 def get_models(db: Session, offset: int = 0, limit: int = 100) -> list[Model]:
     """
     List all models.
@@ -160,7 +174,7 @@ def create_model_by_config(db: Session, deployment: Deployment, deployment_confi
     deployment_db_models = get_models_by_deployment_id(db, deployment.id)
     model_to_return = None
     for deployment_config_model in deployment_config_models:
-        model_in_db = any(record['name'] == deployment_config_model for record in deployment_db_models)
+        model_in_db = any(record.name == deployment_config_model for record in deployment_db_models)
         if not model_in_db:
             new_model = Model(
                 name=deployment_config_model,

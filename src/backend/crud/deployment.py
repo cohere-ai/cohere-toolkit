@@ -8,7 +8,6 @@ from backend.database_models import AgentDeploymentModel, Deployment
 from backend.model_deployments.utils import class_name_validator
 from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate, Deployment as DeploymentSchema
 from backend.services.transaction import validate_transaction
-from backend.config.deployments import find_deployment_by_id, find_deployment_by_name
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS,
 )
@@ -196,22 +195,18 @@ def delete_deployment(db: Session, deployment_id: str) -> None:
 
 
 @validate_transaction
-def create_deployment_by_config(db: Session, deployment: str) -> tuple[Deployment, DeploymentSchema]:
+def create_deployment_by_config(db: Session, deployment_config: DeploymentSchema) -> Deployment:
     """
     Create a new deployment by config.
 
     Args:
         db (Session): Database session.
         deployment (str): Deployment data to be created.
+        deployment_config (DeploymentSchema): Deployment config.
 
     Returns:
         Deployment: Created deployment.
     """
-    deployment_config = find_deployment_by_id(deployment)
-    if not deployment_config:
-        deployment_config = find_deployment_by_name(deployment)
-    if not deployment_config:
-        return None, None
     deployment = Deployment(
         name=deployment_config.name,
         description="",
@@ -225,5 +220,5 @@ def create_deployment_by_config(db: Session, deployment: str) -> tuple[Deploymen
     db.add(deployment)
     db.commit()
     db.refresh(deployment)
-    return deployment, deployment_config
+    return deployment
 

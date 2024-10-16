@@ -123,14 +123,14 @@ def get_default_deployment(**kwargs) -> BaseDeployment:
         return fallback
 
 
-def find_deployment_by_id(deployment_id: str) -> Deployment:
+def find_config_by_deployment_id(deployment_id: str) -> Deployment:
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
         if deployment.id == deployment_id:
             return deployment
     return None
 
 
-def find_deployment_by_name(deployment_name: str) -> Deployment:
+def find_config_by_deployment_name(deployment_name: str) -> Deployment:
     for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values():
         if deployment.name == deployment_name:
             return deployment

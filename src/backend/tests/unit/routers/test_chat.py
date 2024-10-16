@@ -236,20 +236,20 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
         },
         json={
             "message": "Who is a tallest nba player",
-            "tools": [{"name": "web_search"}],
+            "tools": [{"name": "tavily_web_search"}],
             "agent_id": agent.id,
         },
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_tool_cals_response(response, ["web_search"])
+    validate_chat_streaming_tool_cals_response(response, ["tavily_web_search"])
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_agent_tools_and_empty_request_tools(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user, tools=["web_search"])
+    agent = get_factory("Agent", session_chat).create(user=user, tools=["tavily_web_search"])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     get_factory("AgentDeploymentModel", session_chat).create(
@@ -273,7 +273,7 @@ def test_streaming_chat_with_agent_tools_and_empty_request_tools(
     )
 
     assert response.status_code == 200
-    validate_chat_streaming_tool_cals_response(response, ["web_search"])
+    validate_chat_streaming_tool_cals_response(response, ["tavily_web_search"])
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -369,7 +369,7 @@ def test_streaming_fail_chat_missing_message(
                 "loc": ["body", "message"],
                 "msg": "Field required",
                 "input": {},
-                "url": "https://errors.pydantic.dev/2.8/v/missing",
+                "url": "https://errors.pydantic.dev/2.9/v/missing",
             }
         ]
     }

@@ -15,6 +15,7 @@ from backend.model_deployments.utils import class_name_validator
 from backend.services.agent import validate_agent_exists
 from backend.services.auth.utils import get_header_user_id
 from backend.services.logger.utils import LoggerFactory
+from backend.config.deployments import find_config_by_deployment_id, find_config_by_deployment_name
 
 logger = LoggerFactory().get_logger()
 
@@ -33,11 +34,21 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
 
     """
     deployment_db = deployment_crud.get_deployment_by_name(session, deployment)
-    deployment_config = None
     if not deployment_db:
         deployment_db = deployment_crud.get_deployment(session, deployment)
+
+    # Check deployment config settings availability
+    deployment_config = find_config_by_deployment_id(deployment)
+    if not deployment_config:
+        deployment_config = find_config_by_deployment_name(deployment)
+    if not deployment_config:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Deployment {deployment} not found or is not available in the Database.",
+        )
+
     if not deployment_db:
-        deployment_db, deployment_config = deployment_crud.create_deployment_by_config(session, deployment)
+        deployment_db = deployment_crud.create_deployment_by_config(session, deployment_config)
     if not deployment_db:
         raise HTTPException(
             status_code=400,
