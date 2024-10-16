@@ -12,6 +12,8 @@ import {
   LongPressMenu,
 } from '@/components/UI';
 import { Breakpoint, useBreakpoint } from '@/hooks';
+import { useExperimentalFeatures } from '@/hooks/use-experimentalFeatures';
+import { SynthesisStatus } from '@/hooks/use-synthesizer';
 import {
   type ChatMessage,
   isAbortedMessage,
@@ -28,11 +30,13 @@ type Props = {
   message: ChatMessage;
   isStreamingToolEvents: boolean;
   isReadOnly?: boolean;
+  synthesisStatus?: SynthesisStatus;
   delay?: boolean;
   className?: string;
   onCopy?: VoidFunction;
   onRetry?: VoidFunction;
   onRegenerate?: VoidFunction;
+  onToggleSynthesis?: VoidFunction;
 };
 
 /**
@@ -45,10 +49,12 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
     isLast,
     isStreamingToolEvents,
     isReadOnly = false,
+    synthesisStatus,
     className = '',
     onCopy,
     onRetry,
     onRegenerate,
+    onToggleSynthesis,
   },
   ref
 ) {
@@ -56,29 +62,36 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
 
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
-  const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
+  const [isStepsExpanded, setIsStepsExpanded] = useState(true);
+
+  const { data: experimentalFeatures } = useExperimentalFeatures();
+  const { longPressProps } = useLongPress({
+    onLongPress: () => setIsLongPressMenuOpen(true),
+  });
+
+  const getMessageText = () => {
+    return isFulfilledMessage(message) ? message.originalText : message.text;
+  };
+
   const hasSteps =
     (isFulfilledOrTypingMessage(message) ||
       isErroredMessage(message) ||
       isAbortedMessage(message)) &&
     !!message.toolEvents &&
     message.toolEvents.length > 0;
-  const isRegenerationEnabled =
-    isLast && !isReadOnly && isBotMessage(message) && !isErroredMessage(message);
-
-  const getMessageText = () => {
-    if (isFulfilledMessage(message)) {
-      return message.originalText;
-    }
-
-    return message.text;
-  };
 
   const enableLongPress =
     (isFulfilledMessage(message) || isUserMessage(message)) && breakpoint === Breakpoint.sm;
-  const { longPressProps } = useLongPress({
-    onLongPress: () => setIsLongPressMenuOpen(true),
-  });
+
+  const isSynthesisEnabled =
+    !!onToggleSynthesis &&
+    !!experimentalFeatures?.USE_TEXT_TO_SPEECH_SYNTHESIS &&
+    !!message.id &&
+    isBotMessage(message) &&
+    !isErroredMessage(message);
+
+  const isRegenerationEnabled =
+    isLast && !isReadOnly && isBotMessage(message) && !isErroredMessage(message);
 
   // Delay the appearance of the message to make it feel more natural.
   useEffect(() => {
@@ -148,6 +161,19 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
                 'hidden md:invisible md:flex md:group-hover:visible': !isLast,
               })}
             >
+              {isSynthesisEnabled && (
+                <IconButton
+                  tooltip={{ label: synthesisStatus == SynthesisStatus.Playing ? 'Stop' : 'Read' }}
+                  isLoading={synthesisStatus == SynthesisStatus.Loading}
+                  iconName={synthesisStatus == SynthesisStatus.Playing ? 'stop' : 'volume'}
+                  className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"
+                  iconClassName={cn(
+                    'text-volcanic-300 fill-volcanic-300 group-hover/icon-button:fill-mushroom-300',
+                    'dark:fill-marble-800 dark:group-hover/icon-button:fill-marble-800'
+                  )}
+                  onClick={onToggleSynthesis}
+                />
+              )}
               {hasSteps && (
                 <IconButton
                   tooltip={{ label: `${isStepsExpanded ? 'Hide' : 'Show'} steps`, size: 'sm' }}

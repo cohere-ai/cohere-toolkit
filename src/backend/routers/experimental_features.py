@@ -13,7 +13,7 @@ router.name = RouterName.EXPERIMENTAL_FEATURES
 
 
 @router.get("/")
-def list_experimental_features(ctx: Context = Depends(get_context)):
+def list_experimental_features(ctx: Context = Depends(get_context)) -> dict[str, bool]:
     """
     List all experimental features and if they are enabled
 
@@ -22,8 +22,8 @@ def list_experimental_features(ctx: Context = Depends(get_context)):
     Returns:
         Dict[str, bool]: Experimental feature and their isEnabled state
     """
-
     experimental_features = {
         "USE_AGENTS_VIEW": Settings().feature_flags.use_agents_view,
+        "USE_TEXT_TO_SPEECH_SYNTHESIS": bool(Settings().google_cloud.api_key),
     }
     return experimental_features

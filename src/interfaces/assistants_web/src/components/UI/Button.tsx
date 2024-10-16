@@ -140,6 +140,9 @@ export type ButtonProps = {
     kind?: 'default' | 'outline';
     customIcon?: React.ReactNode;
   };
+  spinnerOptions?: {
+    className?: string;
+  };
   buttonType?: 'submit' | 'reset' | 'button';
   onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
   href?: string;
@@ -160,6 +163,7 @@ export const Button: React.FC<ButtonProps> = ({
   isLoading = false,
   className,
   iconOptions,
+  spinnerOptions,
   buttonType,
   onClick,
   href,
@@ -177,7 +181,7 @@ export const Button: React.FC<ButtonProps> = ({
   });
 
   const iconElement = isLoading ? (
-    <Spinner />
+    <Spinner className={spinnerOptions?.className} />
   ) : icon || kind === 'cell' ? (
     <Icon
       name={icon ?? 'arrow-right'}
