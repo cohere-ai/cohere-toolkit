@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from backend.config import Settings
 from backend.config.deployments import ModelDeploymentName
 from backend.database_models import Conversation
 from backend.schemas.user import User
@@ -157,3 +158,58 @@ def test_generate_title_error_invalid_model(
         == "status_code: 404, body: {'message': \"model 'invalid' not found, make sure the correct model ID was used and that you have access to the model.\"}"
     )
     assert response["title"] == ""
+
+
+# SYNTHESIZE
+
+
+is_google_cloud_api_key_set = bool(Settings().google_cloud.api_key)
+
+
+@pytest.mark.skipif(not is_google_cloud_api_key_set, reason="Google Cloud API key not set, skipping test")
+def test_synthesize_english_message(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    message = get_factory("Message", session).create(
+        id="1", text="Hello world!", conversation_id=conversation.id, user_id=user.id
+    )
+    response = session_client.get(
+        f"/v1/conversations/{conversation.id}/synthesize/{message.id}",
+        headers={"User-Id": conversation.user_id},
+    )
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "audio/mp3"
+
+
+@pytest.mark.skipif(not is_google_cloud_api_key_set, reason="Google Cloud API key not set, skipping test")
+def test_synthesize_non_english_message(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    message = get_factory("Message", session).create(
+        id="1", text="Bonjour le monde!", conversation_id=conversation.id, user_id=user.id
+    )
+    response = session_client.get(
+        f"/v1/conversations/{conversation.id}/synthesize/{message.id}",
+        headers={"User-Id": conversation.user_id},
+    )
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "audio/mp3"
+
+
+def test_fail_synthesize_message_nonexistent_message(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+) -> None:
+    response = session_client.get(
+        "/v1/conversations/123/synthesize/456",
+        headers={"User-Id": user.id},
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Message with ID: 456 not found."}

@@ -9,6 +9,7 @@ import { MessageRow } from '@/components/MessageRow';
 import { Welcome } from '@/components/MessagingContainer';
 import { Button } from '@/components/UI';
 import { useFixCopyBug } from '@/hooks';
+import { useSynthesizer } from '@/hooks/use-synthesizer';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
 
@@ -133,6 +134,7 @@ const Messages: React.FC<MessagesProps> = ({
   isStreamingToolEvents,
 }) => {
   const isChatEmpty = messages.length === 0;
+  const { synthesisStatus, toggleSynthesis } = useSynthesizer();
 
   if (isChatEmpty) {
     return (
@@ -153,6 +155,7 @@ const Messages: React.FC<MessagesProps> = ({
               message={m}
               isLast={isLastInList && !streamingMessage}
               isStreamingToolEvents={isStreamingToolEvents}
+              synthesisStatus={synthesisStatus(m.id!)}
               className={cn({
                 // Hide the last message if it is the same as the separate streamed message
                 // to avoid a flash of duplicate messages.
@@ -165,6 +168,7 @@ const Messages: React.FC<MessagesProps> = ({
               })}
               onRetry={onRetry}
               onRegenerate={onRegenerate}
+              onToggleSynthesis={() => toggleSynthesis(m.id!)}
             />
           );
         })}

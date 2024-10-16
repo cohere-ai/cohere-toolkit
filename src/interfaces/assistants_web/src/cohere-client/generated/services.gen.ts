@@ -87,8 +87,6 @@ import type {
   GetUsersScimV2UsersGetData,
   GetUsersScimV2UsersGetResponse,
   HealthHealthGetResponse,
-  LangchainChatStreamV1LangchainChatPostData,
-  LangchainChatStreamV1LangchainChatPostResponse,
   ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData,
   ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetResponse,
   ListAgentsV1AgentsGetData,
@@ -121,6 +119,8 @@ import type {
   SearchConversationsV1ConversationsSearchGetResponse,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
   SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
+  SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData,
+  SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutResponse,
   ToolAuthV1ToolAuthGetResponse,
@@ -406,37 +406,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
-      body: data.requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: 'Validation Error',
-      },
-    });
-  }
-
-  /**
-   * Langchain Chat Stream
-   * Stream chat endpoint to handle user messages and return chatbot responses using langchain.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * chat_request (LangchainChatRequest): Chat request data.
-   * request (Request): Request object.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * EventSourceResponse: Server-sent event response with chatbot responses.
-   * @param data The data for the request.
-   * @param data.requestBody
-   * @returns unknown Successful Response
-   * @throws ApiError
-   */
-  public langchainChatStreamV1LangchainChatPost(
-    data: LangchainChatStreamV1LangchainChatPostData
-  ): CancelablePromise<LangchainChatStreamV1LangchainChatPostResponse> {
-    return this.httpRequest.request({
-      method: 'POST',
-      url: '/v1/langchain-chat',
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -975,6 +944,43 @@ export class DefaultService {
   }
 
   /**
+   * Synthesize Message
+   * Generate a synthesized audio for a specific message in a conversation.
+   *
+   * Args:
+   * conversation_id (str): Conversation ID.
+   * message_id (str): Message ID.
+   * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * Response: Synthesized audio file.
+   *
+   * Raises:
+   * HTTPException: If the message with the given ID is not found.
+   * @param data The data for the request.
+   * @param data.conversationId
+   * @param data.messageId
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public synthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGet(
+    data: SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData
+  ): CancelablePromise<SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/conversations/{conversation_id}/synthesize/{message_id}',
+      path: {
+        conversation_id: data.conversationId,
+        message_id: data.messageId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
    * List Tools
    * List all available tools.
    *
@@ -1203,7 +1209,7 @@ export class DefaultService {
    * ctx (Context): Context object.
    * Returns:
    * Dict[str, bool]: Experimental feature and their isEnabled state
-   * @returns unknown Successful Response
+   * @returns boolean Successful Response
    * @throws ApiError
    */
   public listExperimentalFeaturesV1ExperimentalFeaturesGet(): CancelablePromise<ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse> {
