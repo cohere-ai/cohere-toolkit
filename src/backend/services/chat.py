@@ -1,7 +1,8 @@
 import json
-from typing import Any, AsyncGenerator, Generator, List, Union
+from typing import Any, AsyncGenerator, Dict, Generator, List, Union
 from uuid import uuid4
 
+import nltk
 from cohere.types import StreamedChatResponse
 from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
@@ -30,6 +31,7 @@ from backend.schemas.chat import (
     ChatMessage,
     ChatResponseEvent,
     ChatRole,
+    EventState,
     NonStreamedChatResponse,
     StreamCitationGeneration,
     StreamEnd,
@@ -47,6 +49,8 @@ from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 from backend.services.agent import validate_agent_exists
 
+LOOKBACKS = [3, 5, 7]
+DEATHLOOP_SIMILARITY_THRESHOLDS = [0.5, 0.7, 0.9]
 
 def process_chat(
     session: DBSessionDep,
@@ -961,3 +965,67 @@ def handle_stream_end(
     stream_end = StreamEnd.model_validate(event | stream_end_data)
     stream_event = stream_end
     return stream_event, stream_end_data, response_message, document_ids_to_document
+
+def are_previous_actions_similar(
+    distances: List[float], threshold: float, lookback: int
+) -> bool:
+    return all(dist > threshold for dist in distances[-lookback:])
+
+
+def check_similarity(distances: list[float], ctx: Context) -> bool:
+    """
+    Check if the previous actions are similar to detect a potential death loop.
+
+    Args:
+        distances (list[float]): List of distances between previous actions.
+
+    Raises:
+        HTTPException: If a potential death loop is detected.
+    """
+    logger = ctx.get_logger()
+
+    if len(distances) < min(LOOKBACKS):
+        return False
+
+    # EXPERIMENTAL: Check for potential death loops with different thresholds and lookbacks
+    for threshold in DEATHLOOP_SIMILARITY_THRESHOLDS:
+        for lookback in LOOKBACKS:
+            if are_previous_actions_similar(distances, threshold, lookback):
+                logger.warning(
+                    event="[Chat] Potential death loop detected",
+                    distances=distances,
+                    threshold=threshold,
+                    lookback=lookback,
+                )
+                return True
+
+    return False
+
+
+def check_death_loop(
+    event: Dict[str, Any], event_state: EventState, ctx: Context
+) -> EventState:
+    plan: str = event.get("text", "")
+    tool_calls: List = event.get("tool_calls", [])
+    action: str = json.dumps(tool_calls)
+
+    if event_state.previous_action:
+        event_state.distances_actions.append(
+            1
+            - nltk.edit_distance(event_state.previous_action, action)
+            / max(len(event_state.previous_action), len(action))
+        )
+        check_similarity(event_state.distances_actions, ctx)
+
+    if event_state.previous_plan:
+        event_state.distances_plans.append(
+            1
+            - nltk.edit_distance(event_state.previous_plan, plan)
+            / max(len(event_state.previous_plan), len(plan))
+        )
+        check_similarity(event_state.distances_plans, ctx)
+
+    event_state.previous_plan = plan
+    event_state.previous_action = action
+
+    return event_state

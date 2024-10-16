@@ -9,10 +9,11 @@ from backend.chat.enums import StreamEvent
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.database_models.file import File
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.chat import ChatMessage, ChatRole
+from backend.schemas.chat import ChatMessage, ChatRole, EventState
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Category, Tool
+from backend.services.chat import check_death_loop
 from backend.services.file import get_file_service
 from backend.tools.utils.tools_checkers import tool_has_category
 
@@ -21,6 +22,13 @@ MAX_STEPS = 15
 
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
+
+    event_state = EventState(
+        distances_plans=[],
+        distances_actions=[],
+        previous_plan="",
+        previous_action="",
+    )
 
     async def chat(
         self,
@@ -62,7 +70,7 @@ class CustomChat(BaseChat):
             stream = self.call_chat(self.chat_request, deployment_model, ctx, **kwargs)
 
             async for event in stream:
-                result = self.handle_event(event, chat_request)
+                result = self.handle_event(event, chat_request, ctx)
 
                 if result:
                     yield result
@@ -102,13 +110,19 @@ class CustomChat(BaseChat):
         )
 
     def handle_event(
-        self, event: Dict[str, Any], chat_request: CohereChatRequest
+        self, event: Dict[str, Any], chat_request: CohereChatRequest, ctx: Context
     ) -> Dict[str, Any]:
         # All events other than stream start and stream end are returned
         if (
             event["event_type"] != StreamEvent.STREAM_START
             and event["event_type"] != StreamEvent.STREAM_END
+            and event["event_type"] != StreamEvent.TOOL_CALLS_GENERATION
         ):
+            return event
+
+        # If the event is a tool call generation, we need to check if the tool call is similar to previous tool calls
+        if event["event_type"] == StreamEvent.TOOL_CALLS_GENERATION:
+            self.event_state = check_death_loop(event, self.event_state, ctx)
             return event
 
         # Only the first occurrence of stream start is returned
