@@ -110,6 +110,7 @@ def test_create_agent_deployment_not_in_db(
         "deployment": ModelDeploymentName.CoherePlatform,
     }
     cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    assert cohere_deployment
     deployment_crud.delete_deployment(session, cohere_deployment.id)
     cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
     assert not cohere_deployment
