@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 
 from backend.database_models import AgentDeploymentModel, Deployment
 from backend.database_models.model import Model
-from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.schemas.deployment import Deployment as DeploymentSchema
+from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.services.transaction import validate_transaction
 
 

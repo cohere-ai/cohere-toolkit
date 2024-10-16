@@ -3,7 +3,11 @@ from urllib.parse import unquote_plus
 from fastapi import HTTPException, Request
 
 import backend.crud.user as user_crud
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
+from backend.config.deployments import (
+    AVAILABLE_MODEL_DEPLOYMENTS,
+    find_config_by_deployment_id,
+    find_config_by_deployment_name,
+)
 from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
@@ -15,7 +19,6 @@ from backend.model_deployments.utils import class_name_validator
 from backend.services.agent import validate_agent_exists
 from backend.services.auth.utils import get_header_user_id
 from backend.services.logger.utils import LoggerFactory
-from backend.config.deployments import find_config_by_deployment_id, find_config_by_deployment_name
 
 logger = LoggerFactory().get_logger()
 
