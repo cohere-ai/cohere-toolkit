@@ -13,6 +13,7 @@ Toolkit is a deployable all-in-one RAG application that enables users to quickly
   - [How to add tools](/docs/custom_tool_guides/tool_guide.md)
   - [How to add auth to your tools](/docs/custom_tool_guides/tool_auth_guide.md)
   - [How to setup Google Drive](/docs/custom_tool_guides/google_drive.md)
+  - [How to setup Google Text-to-Speech](/docs/text_to_speech.md)
   - [How to add authentication](/docs/auth_guide.md)
   - [How to deploy toolkit services](/docs/service_deployments.md)
   - [How to set up Github Actions for automated DB migrations](/docs/github_migrations_action.md)
