@@ -111,6 +111,8 @@ def test_create_agent_deployment_not_in_db(
     }
     cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
     deployment_crud.delete_deployment(session, cohere_deployment.id)
+    cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    assert not cohere_deployment
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
