@@ -762,6 +762,10 @@ export const $ConversationFilePublic = {
       type: 'string',
       title: 'Id',
     },
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     created_at: {
       type: 'string',
       format: 'date-time',
@@ -788,7 +792,7 @@ export const $ConversationFilePublic = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'ConversationFilePublic',
 } as const;
 
@@ -1795,6 +1799,10 @@ export const $ListConversationFile = {
       type: 'string',
       title: 'Id',
     },
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     created_at: {
       type: 'string',
       format: 'date-time',
@@ -1821,7 +1829,7 @@ export const $ListConversationFile = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'ListConversationFile',
 } as const;
 
@@ -3543,6 +3551,10 @@ export const $UploadConversationFileResponse = {
       type: 'string',
       title: 'Id',
     },
+    user_id: {
+      type: 'string',
+      title: 'User Id',
+    },
     created_at: {
       type: 'string',
       format: 'date-time',
@@ -3569,7 +3581,7 @@ export const $UploadConversationFileResponse = {
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
   title: 'UploadConversationFileResponse',
 } as const;
 

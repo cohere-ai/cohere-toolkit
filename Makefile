@@ -42,6 +42,10 @@ exec-backend:
 exec-db:
 	docker exec -ti cohere-toolkit-db-1 bash
 
+.PHONY: exec-terrarium
+exec-terrarium:
+	docker exec -ti -u root cohere-toolkit-terrarium-1 /bin/sh
+
 .PHONY: migration
 migration:
 	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"

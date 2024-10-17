@@ -23,7 +23,7 @@ tools:
   enabled_tools:
     - wikipedia
     - search_file
-    - read_document
+    - read_file
     - toolkit_python_interpreter
     - toolkit_calculator
     - hybrid_web_search
