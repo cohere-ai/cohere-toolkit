@@ -40,6 +40,9 @@ export const CopyToClipboardButton = forwardRef<
 ) {
   const [copied, setCopied] = useState(false);
 
+  const available = !!window?.navigator?.clipboard;
+  const buttonLabel = !available ? 'Copy (requires HTTPS)' : copied ? 'Copied!' : label;
+
   const handleCopy = async (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -65,11 +68,11 @@ export const CopyToClipboardButton = forwardRef<
     <Button
       kind={kind}
       onClick={handleCopy}
-      label={copied ? 'Copied!' : label}
+      label={buttonLabel}
       icon="copy"
       iconPosition={iconAtStart ? 'start' : 'end'}
       className={className}
-      disabled={disabled}
+      disabled={disabled || !available}
       aria-label={copied ? 'copied' : 'copy'}
     />
   );
@@ -101,7 +104,13 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
 }) => {
   const [isCopied, setIsCopied] = useState(false);
 
+  const available = !!window?.navigator?.clipboard;
+  const label = !available ? 'Copy (requires HTTPS)' : isCopied ? 'Copied!' : 'Copy';
+
   const handleCopy = async (e: MouseEvent<HTMLElement>) => {
+    if (!available) {
+      return;
+    }
     try {
       await window?.navigator?.clipboard.writeText(value ?? '');
       setIsCopied(true);
@@ -118,7 +127,7 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
   return (
     <div>
       <Tooltip
-        label={isCopied ? 'Copied!' : 'Copy'}
+        label={label}
         duration={duration}
         size="sm"
         showOutline={false}
@@ -128,7 +137,8 @@ export const CopyToClipboardIconButton: React.FC<CopyToClipboardIconButtonProps>
         buttonClassName={buttonClassName}
       >
         <IconButton
-          aria-disabled={disabled}
+          aria-disabled={disabled || !available}
+          disabled={disabled || !available}
           iconName={iconName}
           iconKind={isCopied ? 'default' : 'outline'}
           className="grid place-items-center rounded hover:bg-mushroom-900 dark:hover:bg-volcanic-200"

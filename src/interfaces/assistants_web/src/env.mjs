@@ -2,9 +2,24 @@
 import { createEnv } from '@t3-oss/env-nextjs';
 import z from 'zod';
 
+class ServerError extends Error {
+  constructor(message) {
+      super(message);
+      this.name = 'ServerError';
+  }
+}
+
 const readVariable = (key) => {
-  if (typeof window === 'undefined') return process.env[key];
-  return window.__ENV[key];
+  try {
+    if (typeof window === 'undefined'){
+      return process.env[key];
+    }
+    return window.__ENV[key];
+  } catch (err) {
+    throw new ServerError(
+      `${key} not configured, or the backend server is not running correctly.`
+    )
+  }
 };
 
 export const env = createEnv({

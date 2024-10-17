@@ -20,6 +20,7 @@ type Props = {
   iconKind?: 'default' | 'outline';
   iconClassName?: string;
   disabled?: boolean;
+  isLoading?: boolean;
   className?: string;
   outline?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
@@ -37,6 +38,7 @@ export const IconButton: React.FC<Props> = ({
   iconClassName,
   className,
   disabled,
+  isLoading,
   href,
   target,
   outline = false,
@@ -46,11 +48,13 @@ export const IconButton: React.FC<Props> = ({
     <Button
       kind={outline ? 'outline' : 'secondary'}
       disabled={disabled}
+      isLoading={isLoading}
       href={href}
       onClick={onClick}
       target={target}
       icon={iconName}
       iconOptions={{ kind: iconKind, className: iconClassName, customIcon: icon }}
+      spinnerOptions={{ className: 'h-4 w-4' }}
       className={cn(
         'group/icon-button h-8 w-8 p-0',
         {
