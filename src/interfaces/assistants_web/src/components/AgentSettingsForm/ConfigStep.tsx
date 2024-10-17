@@ -15,7 +15,7 @@ type Props = {
 };
 
 export const ConfigStep: React.FC<Props> = ({ fields, setFields }) => {
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(DEFAULT_AGENT_MODEL);
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(fields.model);
 
   const { data: deployments } = useListAllDeployments();
 
